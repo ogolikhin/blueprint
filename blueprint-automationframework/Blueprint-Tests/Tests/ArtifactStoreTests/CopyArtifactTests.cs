@@ -165,13 +165,13 @@ namespace ArtifactStoreTests
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, _user);
         }
 
-        [TestCase(BaseArtifactType.Actor, false)]
-        [TestCase(BaseArtifactType.TextualRequirement, true)]
+        [TestCase(ItemTypePredefined.Actor, false)]
+        [TestCase(ItemTypePredefined.TextualRequirement, true)]
         [TestRail(191049)]
         [Description("Create & publish an artifact then create & save a folder.  Add an attachment to the artifact (save or publish).  Copy the artifact into the folder.  " +
-            "Verify the source artifact is unchanged and the new artifact is identical to the source artifact.  New copied artifact should not be published.")]
+                     "Verify the source artifact is unchanged and the new artifact is identical to the source artifact.  New copied artifact should not be published.")]
         public void CopyArtifact_SinglePublishedArtifactWithAttachment_ToNewSavedFolder_ReturnsNewArtifactWithAttachment(
-            BaseArtifactType artifactType, bool shouldPublishAttachment)
+            ItemTypePredefined artifactType, bool shouldPublishAttachment)
         {
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
@@ -179,13 +179,13 @@ namespace ArtifactStoreTests
             // Create & add attachment to the source artifact:
             var attachmentFile = FileStoreTestHelper.CreateNovaFileWithRandomByteArray();
             var sourceArtifact = ArtifactStoreHelper.CreateArtifactWithAttachment(Helper, _project, author, artifactType, attachmentFile, shouldPublishArtifact: true);
-            var targetArtifact = Helper.CreateAndSaveArtifact(_project, author, BaseArtifactType.PrimitiveFolder);
+            var targetArtifact = Helper.CreateNovaArtifact(author, _project, ItemTypePredefined.PrimitiveFolder);
 
             int expectedVersionOfOriginalArtifact = 1;
 
             if (shouldPublishAttachment)
             {
-                sourceArtifact.Publish();
+                sourceArtifact.Publish(author);
                 ++expectedVersionOfOriginalArtifact;
             }
 
@@ -194,7 +194,11 @@ namespace ArtifactStoreTests
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
 
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetArtifact.Id, author),
+            Assert.DoesNotThrow(() =>
+            {
+                var result = sourceArtifact.CopyTo(author, _project, targetArtifact.Id);
+                copyResult = result.Item1;
+            },
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
@@ -206,7 +210,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(attachmentFile.FileName, copiedArtifactAttachments.AttachedFiles[0].FileName, "Filename of copied artifact attachment must have expected value.");
             Assert.AreEqual(0, copiedArtifactAttachments.DocumentReferences.Count, "Copied artifact shouldn't have any Document References.");
 
-            var sourceArtifactAttachments = Helper.ArtifactStore.GetAttachments(sourceArtifact, author, addDrafts: true);
+            var sourceArtifactAttachments = Helper.ArtifactStore.GetAttachments(author, sourceArtifact.Id, addDrafts: true);
             Assert.AreEqual(1, sourceArtifactAttachments.AttachedFiles.Count, "Source artifact should have 1 attachments at this point.");
             Assert.AreEqual(attachmentFile.FileName, sourceArtifactAttachments.AttachedFiles[0].FileName, "Filename of source artifact attachment must have expected value.");
             Assert.AreEqual(0, sourceArtifactAttachments.DocumentReferences.Count, "Source artifact shouldn't have any Document References.");
@@ -1254,11 +1258,12 @@ namespace ArtifactStoreTests
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
             var collection = Helper.CreateCollectionOrCollectionFolder(_project, _user, artifactType);
+            collection.Publish(_user);
 
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Process);
 
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.CopyArtifact(artifact, collection, _user),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => artifact.CopyTo(_user, _project, collection.Id),
                "'POST {0}' should return 403 Forbidden when user tries to copy a regular artifact to a {1} artifact type", SVC_PATH, artifactType);
 
             // Verify:
@@ -1277,11 +1282,10 @@ namespace ArtifactStoreTests
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
             var collection = Helper.CreateCollectionOrCollectionFolder(_project, _user, artifactType);
-
-            var parentArtifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+            var parentArtifact = Helper.CreateNovaArtifact(_user, _project, ItemTypePredefined.PrimitiveFolder);
 
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.CopyArtifact(collection, parentArtifact, _user),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => collection.CopyTo(_user, _project, parentArtifact.Id),
                    "'POST {0}' should return 403 Forbidden when user tries to copy a collection or collection folder to be a child of a regular artifact", SVC_PATH);
 
             // Verify:
@@ -1300,11 +1304,12 @@ namespace ArtifactStoreTests
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
             var sourceCollection = Helper.CreateCollectionOrCollectionFolder(_project, _user, artifactType);
+            sourceCollection.Publish(_user);
 
             var targetCollection = Helper.CreateAndPublishCollectionFolder(_project, _user);
 
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.CopyArtifact(sourceCollection, targetCollection, _user),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => sourceCollection.CopyTo(_user, _project, targetCollection.Id),
                    "'POST {0}' should return 403 Forbidden when user tries to copy collection or collection folder to collection artifact", SVC_PATH);
 
             // Verify:

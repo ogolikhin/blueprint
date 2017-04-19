@@ -278,7 +278,7 @@ namespace Helper
         }
 
         /// <summary>
-        /// Creates and saves a new artifact collection (wrapped inside an IArtifact object).
+        /// Creates a new artifact collection.
         /// </summary>
         /// <param name="project">The project where the collection should be created.</param>
         /// <param name="user">The user to authenticate with.</param>
@@ -286,10 +286,14 @@ namespace Helper
         ///     By default it creates the collection in the project's default collection folder.</param>
         /// <param name="orderIndex">(optional) The order index of this collection.
         ///     By default the order index should be after the last collection/folder.</param>
-        /// <param name="name">(optional) The name of collection.</param>
-        /// <returns>The collection wrapped in an IArtifact.  NOTE: the base type is set to PrimitiveFolder
-        ///     because OpenAPI doesn't support collections.</returns>
-        public IArtifact CreateAndSaveCollection(IProject project, IUser user, int? parentId = null, double? orderIndex = null, string name = null)
+        /// <param name="name">(optional) The name of the new Collection.</param>
+        /// <returns>The new Collection.</returns>
+        public ArtifactWrapper CreateUnpublishedCollection(
+            IProject project,
+            IUser user,
+            int? parentId = null,
+            double? orderIndex = null,
+            string name = null)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
 
@@ -300,22 +304,11 @@ namespace Helper
             }
 
             // fake type as far as we don't have Collection in OpenApi
-            var collectionArtifact = CreateWrapAndSaveNovaArtifact(
-                project,
-                user,
-                ItemTypePredefined.ArtifactCollection,
-                parentId,
-                orderIndex,
-                BaseArtifactType.PrimitiveFolder,
-                name: name);
-
-            collectionArtifact.ArtifactTypeId = project.GetNovaBaseItemTypeId(ItemTypePredefined.ArtifactCollection);
-
-            return collectionArtifact;
+            return CreateNovaArtifact(user, project, ItemTypePredefined.ArtifactCollection, parentId, orderIndex, name);
         }
 
         /// <summary>
-        /// Creates and saves a new artifact collection folder (wrapped inside an IArtifact object).
+        /// Creates a new artifact Collection Folder.
         /// </summary>
         /// <param name="project">The project where the collection folder should be created.</param>
         /// <param name="user">The user to authenticate with.</param>
@@ -323,9 +316,14 @@ namespace Helper
         ///     By default it creates the collection folder in the project's default collection folder.</param>
         /// <param name="orderIndex">(optional) The order index of this collection folder.
         ///     By default the order index should be after the last collection/folder.</param>
-        /// <returns>The collection folder wrapped in an IArtifact.  NOTE: the base type is set to PrimitiveFolder
-        ///     because OpenAPI doesn't support collection folders.</returns>
-        public IArtifact CreateAndSaveCollectionFolder(IProject project, IUser user, int? parentId = null, double? orderIndex = null)
+        /// <param name="name">(optional) The name of the new Collection Folder.</param>
+        /// <returns>The new Collection Folder.</returns>
+        public ArtifactWrapper CreateUnpublishedCollectionFolder(
+            IProject project,
+            IUser user,
+            int? parentId = null,
+            double? orderIndex = null,
+            string name = null)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
 
@@ -335,23 +333,31 @@ namespace Helper
                 parentId = collectionFolder.Id;
             }
 
-            return CreateWrapAndSaveNovaArtifact(project, user, ItemTypePredefined.CollectionFolder, parentId, orderIndex, BaseArtifactType.PrimitiveFolder);
+            return CreateNovaArtifact(user, project, ItemTypePredefined.CollectionFolder, parentId, orderIndex, name);
         }
 
         /// <summary>
-        /// Creates collection artifact or collection folder.
+        /// Creates collection artifact or collection folder (unpublished).
         /// </summary>
         /// <param name="project">Project in which collection artifact or collection folder will be created.</param>
         /// <param name="user">User who creates collection artifact or collection folder.</param>
         /// <param name="artifactType">Collection artifact or collection folder.</param>
-        /// <returns>Open API artifact.</returns>
-        public IArtifact CreateCollectionOrCollectionFolder(IProject project, IUser user, BaselineAndCollectionTypePredefined artifactType)
+        /// <param name="orderIndex">(optional) The order index of this Collection or Collection Folder.
+        ///     By default the order index should be after the last collection/folder.</param>
+        /// <param name="name">(optional) The name of the new Collection or Collection Folder.</param>
+        /// <returns>A new Collection or Collection Folder.</returns>
+        public ArtifactWrapper CreateCollectionOrCollectionFolder(
+            IProject project,
+            IUser user,
+            BaselineAndCollectionTypePredefined artifactType,
+            double? orderIndex = null,
+            string name = null)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
 
             var collectionFolder = project.GetDefaultCollectionFolder(user);
 
-            return CreateWrapAndSaveNovaArtifact(project, user, (ItemTypePredefined)artifactType, collectionFolder.Id, baseType: BaseArtifactType.PrimitiveFolder);
+            return CreateNovaArtifact(user, project, (ItemTypePredefined)artifactType, collectionFolder.Id, orderIndex, name);
         }
 
         /// <summary>
@@ -590,6 +596,33 @@ namespace Helper
         }
 
         /// <summary>
+        /// Creates multiple artifacts.
+        /// </summary>
+        /// <param name="project">The target project.</param>
+        /// <param name="user">User for authentication.</param>
+        /// <param name="artifactType">The artifact type.</param>
+        /// <param name="numberOfArtifacts">The number of artifacts to create.</param>
+        /// <param name="parentId">(optional) The ID of the parent artifact.  By default artifact will be created in the root of the project.</param>
+        /// <returns>The list of artifacts created.</returns>
+        public List<ArtifactWrapper> CreateAndSaveMultipleArtifacts(
+            IProject project,
+            IUser user,
+            ItemTypePredefined artifactType,
+            int numberOfArtifacts,
+            int? parentId = null)
+        {
+            var artifactList = new List<ArtifactWrapper>();
+
+            for (int i = 0; i < numberOfArtifacts; ++i)
+            {
+                var artifact = CreateNovaArtifact(user, project, artifactType, parentId);
+                artifactList.Add(artifact);
+            }
+
+            return artifactList;
+        }
+
+        /// <summary>
         /// Creates a new artifact, then saves and publishes it the specified number of times.
         /// </summary>
         /// <param name="project">The project where the artifact is to be created.</param>
@@ -613,7 +646,7 @@ namespace Helper
         }
 
         /// <summary>
-        /// Creates and publishes a new artifact collection (wrapped inside an IArtifact object).
+        /// Creates and publishes a new artifact Collection..
         /// </summary>
         /// <param name="project">The project where the collection should be created.</param>
         /// <param name="user">The user to authenticate with.</param>
@@ -621,9 +654,14 @@ namespace Helper
         ///     By default it creates the collection in the project's default collection folder.</param>
         /// <param name="orderIndex">(optional) The order index of this collection.
         ///     By default the order index should be after the last collection/folder.</param>
-        /// <returns>The collection wrapped in an IArtifact.  NOTE: the base type is set to PrimitiveFolder
-        ///     because OpenAPI doesn't support collections.</returns>
-        public IArtifact CreateAndPublishCollection(IProject project, IUser user, int? parentId = null, double? orderIndex = null)
+        /// <param name="name">(optional) The name of the new Collection.</param>
+        /// <returns>The new Collection.</returns>
+        public ArtifactWrapper CreateAndPublishCollection(
+            IProject project,
+            IUser user,
+            int? parentId = null,
+            double? orderIndex = null,
+            string name = null)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
 
@@ -633,13 +671,11 @@ namespace Helper
                 parentId = collectionFolder.Id;
             }
 
-            var artifact = CreateWrapAndSaveNovaArtifact(project, user, ItemTypePredefined.ArtifactCollection, parentId, orderIndex, BaseArtifactType.PrimitiveFolder);
-            artifact.Publish();
-            return artifact;
+            return CreateAndPublishNovaArtifact(user, project, ItemTypePredefined.ArtifactCollection, parentId, orderIndex, name);
         }
 
         /// <summary>
-        /// Creates and publishes a new artifact collection folder (wrapped inside an IArtifact object).
+        /// Creates and publishes a new artifact Collection Folder.
         /// </summary>
         /// <param name="project">The project where the collection folder should be created.</param>
         /// <param name="user">The user to authenticate with.</param>
@@ -647,9 +683,14 @@ namespace Helper
         ///     By default it creates the collection folder in the project's default collection folder.</param>
         /// <param name="orderIndex">(optional) The order index of this collection folder.
         ///     By default the order index should be after the last collection/folder.</param>
-        /// <returns>The collection folder wrapped in an IArtifact.  NOTE: the base type is set to PrimitiveFolder
-        ///     because OpenAPI doesn't support collection folders.</returns>
-        public IArtifact CreateAndPublishCollectionFolder(IProject project, IUser user, int? parentId = null, double? orderIndex = null)
+        /// <param name="name">(optional) The name of the new Collection Folder.</param>
+        /// <returns>The new Collection Folder.</returns>
+        public ArtifactWrapper CreateAndPublishCollectionFolder(
+            IProject project,
+            IUser user,
+            int? parentId = null,
+            double? orderIndex = null,
+            string name = null)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
 
@@ -659,9 +700,7 @@ namespace Helper
                 parentId = collectionFolder.Id;
             }
 
-            var artifact = CreateWrapAndSaveNovaArtifact(project, user, ItemTypePredefined.CollectionFolder, parentId, orderIndex, BaseArtifactType.PrimitiveFolder);
-            artifact.Publish();
-            return artifact;
+            return CreateAndPublishNovaArtifact(user, project, ItemTypePredefined.CollectionFolder, parentId, orderIndex, name);
         }
 
         /// <summary>
@@ -686,6 +725,31 @@ namespace Helper
                 var artifact = CreateAndPublishArtifact(project, user, artifactType, parent);
                 artifactList.Add(artifact);
             }
+
+            return artifactList;
+        }
+
+        /// <summary>
+        /// Creates a list of new published artifacts.
+        /// </summary>
+        /// <param name="project">The project where the artifacts are to be created.</param>
+        /// <param name="user">The user who will create the artifacts.</param>
+        /// <param name="artifactType">The type of artifacts to create.</param>
+        /// <param name="numberOfArtifacts">The number of artifacts to create.</param>
+        /// <param name="parentId">(optional) The ID of the parent of these artifacts.  Defaults to project root.</param>
+        /// <returns>The list of artifacts.</returns>
+        public List<ArtifactWrapper> CreateAndPublishMultipleArtifacts(
+            IProject project,
+            IUser user,
+            ItemTypePredefined artifactType,
+            int numberOfArtifacts,
+            int? parentId = null)
+        {
+            var artifactList = CreateAndSaveMultipleArtifacts(project, user, artifactType, numberOfArtifacts, parentId);
+
+            // TODO: Make one Publish call with multiple artifact Ids and update each artifact in the list with the results...
+            //       That would require you to extract some of the Publish logic from ArtifactWrapper into another function like UpdateArtifactAndMarkAsPublished().
+            artifactList.ForEach(a => a.Publish(user));
 
             return artifactList;
         }
@@ -976,11 +1040,11 @@ namespace Helper
         /// <param name="parentId">Parent Id of artifact to be created</param>
         /// <param name="artifactName">(optional) The name to assign to the new artifact.  By default a random name is assigned.</param>
         /// <returns>Artifact in the required state</returns>
-        public INovaArtifactDetails CreateNovaArtifactInSpecificState(IUser user, IProject project, TestArtifactState state,
+        public ArtifactWrapper CreateNovaArtifactInSpecificState(IUser user, IProject project, TestArtifactState state,
             ItemTypePredefined itemType, int parentId, string artifactName = null)
         {
             artifactName = artifactName ?? RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
-            var artifact = Model.Impl.ArtifactStore.CreateArtifact(ArtifactStore.Address, user, itemType, artifactName, project, parentId);
+            var artifact = CreateNovaArtifact(user, project, itemType, parentId, name: artifactName);
 
             if (NovaArtifacts.ContainsKey(user))
             {
@@ -998,56 +1062,58 @@ namespace Helper
                 NovaArtifacts.Add(user, new List<int> { artifact.Id });
             }
 
-            NovaArtifactDetails artifactDetails = null;
-            
             switch (state)
             {
                 case TestArtifactState.Created:
-                    return artifact;
+                    break;
                 case TestArtifactState.Published:
-                    artifactDetails = ArtifactStore.GetArtifactDetails(user, artifact.Id);
-                    CSharpUtilities.SetProperty("Description", PublishedDescription, artifactDetails);
-                    UpdateArtifact(ArtifactStore.Address, user, artifactDetails);
-                    ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
-                    return ArtifactStore.GetArtifactDetails(user, artifact.Id);
+                    artifact.SaveWithNewDescription(user, PublishedDescription);
+                    artifact.Publish(user);
+                    artifact.RefreshArtifactFromServer(user);
+                    break;
                 case TestArtifactState.PublishedWithDraft:
-                    ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
-                    artifactDetails = ArtifactStore.GetArtifactDetails(user, artifact.Id);
-                    CSharpUtilities.SetProperty("Description", DraftDescription, artifactDetails);
-                    SvcShared.LockArtifacts(user, new List<int> { artifact.Id });
-                    UpdateArtifact(ArtifactStore.Address, user, artifactDetails);
-                    return ArtifactStore.GetArtifactDetails(user, artifact.Id);
+                    artifact.Publish(user);
+                    artifact.Lock(user);
+                    artifact.SaveWithNewDescription(user, DraftDescription);
+                    artifact.RefreshArtifactFromServer(user);
+                    break;
                 case TestArtifactState.ScheduledToDelete:
-                    ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
-                    ArtifactStore.DeleteArtifact(artifact.Id, user);
-                    return artifact;
+                    artifact.Publish(user);
+                    artifact.Delete(user);
+                    break;
                 case TestArtifactState.Deleted:
-                    ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
-                    ArtifactStore.DeleteArtifact(artifact.Id, user);
-                    ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
-                    return artifact;
+                    artifact.Publish(user);
+                    artifact.Delete(user);
+                    artifact.Publish(user);
+                    break;
                 default:
                     Assert.Fail("Unexpected value of Artifact state");
-                    return artifact;
+                    break;
             }
+
+            return artifact;
         }
 
         /// <summary>
-        /// Creates collection in the specified state with artifacts
+        /// Creates a new collection with artifacts in the specified state.
         /// </summary>
-        /// <param name="user">User to perform operation</param>
-        /// <param name="project">Project in which artifact will be created</param>
-        /// <param name="collectionState">State of the collection(Created, Published)</param>
-        /// <param name="artifactsIdsToAdd">List of artifact's id to be added</param>
-        /// <returns>Collection in the required state</returns>
-        public Collection CreateCollectionWithArtifactsInSpecificState(IUser user, IProject project,
-            TestArtifactState collectionState, List<int> artifactsIdsToAdd)
+        /// <param name="user">User to perform operation.</param>
+        /// <param name="project">Project in which artifact will be created.</param>
+        /// <param name="collectionState">State of the collection(Created, Published).</param>
+        /// <param name="artifactsIdsToAdd">List of artifact's id to be added.</param>
+        /// <returns>Collection in the required state.</returns>
+        public Collection CreateUnpublishedCollectionWithArtifactsInSpecificState(
+            IUser user,
+            IProject project,
+            TestArtifactState collectionState,
+            List<int> artifactsIdsToAdd)
+            // TODO: Refactor Collection to derive from ArtifactWrapper...
         {
-            var collectionArtifact = CreateAndSaveCollection(project, user);
+            var collectionArtifact = CreateUnpublishedCollection(project, user);
             var collection = ArtifactStore.GetCollection(user, collectionArtifact.Id);
 
             collection.UpdateArtifacts(artifactsIdsToAdd: artifactsIdsToAdd);
-            Artifact.UpdateArtifact(collectionArtifact, user, collection);
+            collectionArtifact.Update(user, collection);
             collection = ArtifactStore.GetCollection(user, collectionArtifact.Id);
 
             switch (collectionState)

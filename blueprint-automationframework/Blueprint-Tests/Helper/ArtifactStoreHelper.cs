@@ -283,10 +283,10 @@ namespace Helper
         /// Asserts that the response from the Nova call contains all the specified artifacts.
         /// </summary>
         /// <param name="artifactAndProjectResponse">The response from the Nova call.</param>
-        /// <param name="artifacts">The OpenApi artifacts that we sent to the Nova call.</param>
+        /// <param name="artifacts">The artifacts that we sent to the Nova call.</param>
         public static void AssertArtifactsAndProjectsResponseContainsAllArtifactsInList(
             INovaArtifactsAndProjectsResponse artifactAndProjectResponse,
-            List<IArtifactBase> artifacts)
+            List<INovaArtifactDetails> artifacts)
         {
             ThrowIf.ArgumentNull(artifactAndProjectResponse, nameof(artifactAndProjectResponse));
             ThrowIf.ArgumentNull(artifacts, nameof(artifacts));
@@ -296,7 +296,7 @@ namespace Helper
                 var novaArtifactResponse = artifactAndProjectResponse.Artifacts.Find(a => a.Id == artifact.Id);
                 Assert.NotNull(novaArtifactResponse, "Couldn't find artifact ID {0} in the list of artifacts!");
 
-                AssertNovaArtifactResponsePropertiesMatchWithArtifactSkipVersion(novaArtifactResponse, artifact);
+                NovaArtifactDetails.AssertAreEqual(novaArtifactResponse, artifact);
             }
         }
 
@@ -789,15 +789,15 @@ namespace Helper
         /// </summary>
         /// <param name="expectedArtifact">The expected artifact</param>
         /// <param name="actualCollectionItem">The actual collection item</param>
-        public static void AssertAreEqual(IArtifactBase expectedArtifact, CollectionItem actualCollectionItem)
+        public static void AssertAreEqual(INovaArtifactDetails expectedArtifact, CollectionItem actualCollectionItem)
         {
             ThrowIf.ArgumentNull(expectedArtifact, nameof(expectedArtifact));
             ThrowIf.ArgumentNull(actualCollectionItem, nameof(actualCollectionItem));
 
             Assert.AreEqual(expectedArtifact.Id, actualCollectionItem.Id);
             Assert.AreEqual(expectedArtifact.Name, actualCollectionItem.Name);
-            Assert.AreEqual(expectedArtifact.ArtifactTypeId, actualCollectionItem.ItemTypeId);
-            Assert.AreEqual(expectedArtifact.BaseArtifactType.ToItemTypePredefined(), actualCollectionItem.ItemTypePredefined);
+            Assert.AreEqual(expectedArtifact.ItemTypeId, actualCollectionItem.ItemTypeId);
+            Assert.AreEqual(expectedArtifact.PredefinedType, (int)actualCollectionItem.ItemTypePredefined);
         }
 
         #endregion Custom Asserts
@@ -867,7 +867,8 @@ namespace Helper
         /// <param name="propertyName">(optional) The name of the artifact property where the image should be embedded.</param>
         /// <param name="numberOfImagesToAdd">(optional) The number of images to embed in the property.</param>
         /// <returns>The INovaArtifactDetails after saving the artifact.</returns>
-        public static INovaArtifactDetails AddRandomImageToArtifactProperty(NovaArtifactDetails artifactDetails,
+        public static INovaArtifactDetails AddRandomImageToArtifactProperty(
+            INovaArtifactDetails artifactDetails,
             IUser user,
             IArtifactStore artifactStore,
             int width = 100,
@@ -935,14 +936,14 @@ namespace Helper
         /// </summary>
         /// <param name="collection">collection returned from get collection call</param>
         /// <param name="artifactList">list of artifact that represents expected artifacts from the returned collection call</param>
-        public static void ValidateCollection(NovaCollectionBase collection, List<IArtifactBase> artifactList)
+        public static void ValidateCollection(NovaCollectionBase collection, List<INovaArtifactDetails> artifactList)
         {
             ThrowIf.ArgumentNull(collection, nameof(collection));
             ThrowIf.ArgumentNull(artifactList, nameof(artifactList));
 
-            Assert.AreEqual(artifactList.Count(), collection.Artifacts.Count(),
+            Assert.AreEqual(artifactList.Count, collection.Artifacts.Count,
                 "{0} artifacts are expected from collection but {1} are returned.",
-                artifactList.Count(), collection.Artifacts.Count());
+                artifactList.Count, collection.Artifacts.Count);
 
             if (artifactList.Any())
             {
@@ -1442,21 +1443,18 @@ namespace Helper
         /// Attaches files to the artifact (Save changes).
         /// </summary>
         /// <param name="user">User to perform an operation.</param>
-        /// <param name="artifact">Artifact.</param>
+        /// <param name="artifact">The artifact to add attachments to.</param>
         /// <param name="files">List of files to attach.</param>
         /// <param name="artifactStore">IArtifactStore.</param>
         /// <param name="shouldLockArtifact">(optional) Pass false if you already locked the artifact.
         ///     By default this function will lock the artifact.</param>
-        /// <param name="expectedLockResult">(optional) The expected LockResult returned in the JSON body.  This is only checked if StatusCode = 200.
-        ///     If null, only Success is expected.</param>
         /// <returns>The attachments that were added.</returns>
         public static Attachments AddArtifactAttachmentsAndSave(
             IUser user,
-            IArtifact artifact,
+            ArtifactWrapper artifact,
             List<INovaFile> files,
             IArtifactStore artifactStore,
-            bool shouldLockArtifact = true,
-            LockResult expectedLockResult = LockResult.Success)
+            bool shouldLockArtifact = true)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
@@ -1465,18 +1463,20 @@ namespace Helper
 
             if (shouldLockArtifact)
             {
-                artifact.Lock(user, expectedLockResult: expectedLockResult);
+                artifact.Lock(user);
             }
 
-            var artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
+            var updateArtifact = CreateNovaArtifactDetailsForUpdate(artifact);
 
             foreach (var file in files)
             {
-                artifactDetails.AttachmentValues.Add(new AttachmentValue(user, file));
+                var attachmentValue = new AttachmentValue(user, file);
+                artifact.AttachmentValues.Add(attachmentValue);
+                updateArtifact.AttachmentValues.Add(attachmentValue);
             }
 
-            Artifact.UpdateArtifact(artifact, user, artifactDetails, address: artifactStore.Address);
-            var attachments = artifactStore.GetAttachments(artifact, user);
+            artifact.Update(user, updateArtifact);
+            var attachments = artifactStore.GetAttachments(user, artifact.Id);
             Assert.IsTrue(attachments.AttachedFiles.Count >= files.Count, "All attachments should be added.");
 
             return attachments;
@@ -1486,30 +1486,27 @@ namespace Helper
         /// Attaches file to the artifact (Save changes).
         /// </summary>
         /// <param name="user">User to perform an operation.</param>
-        /// <param name="artifact">Artifact.</param>
+        /// <param name="artifact">The artifact to add the attachment to.</param>
         /// <param name="file">The file to attach.</param>
         /// <param name="artifactStore">IArtifactStore.</param>
         /// <param name="shouldLockArtifact">(optional) Pass false if you already locked the artifact.
         ///     By default this function will lock the artifact.</param>
         /// <param name="expectedAttachedFilesCount">(optional) The expected number of attached files after adding the attachment.</param>
-        /// <param name="expectedLockResult">(optional) The expected LockResult returned in the JSON body.  This is only checked if StatusCode = 200.
-        ///     If null, only Success is expected.</param>
         /// <returns>The attachments that were added.</returns>
         public static Attachments AddArtifactAttachmentAndSave(
             IUser user,
-            IArtifact artifact,
+            ArtifactWrapper artifact,
             INovaFile file,
             IArtifactStore artifactStore,
             bool shouldLockArtifact = true,
-            int expectedAttachedFilesCount = 1,
-            LockResult expectedLockResult = LockResult.Success)
+            int expectedAttachedFilesCount = 1)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
             ThrowIf.ArgumentNull(file, nameof(file));
             ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
 
-            var attachments = AddArtifactAttachmentsAndSave(user, artifact, new List<INovaFile> { file }, artifactStore, shouldLockArtifact, expectedLockResult);
+            var attachments = AddArtifactAttachmentsAndSave(user, artifact, new List<INovaFile> { file }, artifactStore, shouldLockArtifact);
             Assert.AreEqual(expectedAttachedFilesCount, attachments.AttachedFiles.Count, "The attachment should be added.");
 
             return attachments;
@@ -1551,6 +1548,35 @@ namespace Helper
             Artifact.UpdateArtifact(artifact, user, artifactDetails, address: artifactStore.Address);
             var attachment = artifactStore.GetAttachments(artifact, user, subArtifactId: subArtifact.Id);
             Assert.IsTrue(attachment.AttachedFiles.Count >= files.Count, "All attachments should be added.");
+        }
+
+        /// <summary>
+        /// Deletes file from the artifact (Save changes).
+        /// </summary>
+        /// <param name="user">User to perform an operation.</param>
+        /// <param name="artifact">The artifact that has the attachment to be deleted.</param>
+        /// <param name="fileId">Id of the file to delete. File must be attached to the artifact.</param>
+        /// <param name="artifactStore">IArtifactStore.</param>
+        public static void DeleteArtifactAttachmentAndSave(IUser user, ArtifactWrapper artifact, int fileId, IArtifactStore artifactStore)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
+
+            var attachments = artifactStore.GetAttachments(user, artifact.Id);
+            Assert.IsNotNull(attachments, "Getattachments shouldn't return null.");
+            Assert.IsTrue(attachments.AttachedFiles.Count > 0, "Artifact should have at least one attachment.");
+
+            var fileToDelete = attachments.AttachedFiles.FirstOrDefault(f => f.AttachmentId == fileId);
+            Assert.NotNull(fileToDelete, "Couldn't find an Attachment with ID: '{0}'.", fileId);
+            Assert.AreEqual(fileId, fileToDelete.AttachmentId, "Attachments must contain file with fileId.");
+
+            artifact.Lock(user);
+
+            var artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
+            artifactDetails.AttachmentValues.Add(new AttachmentValue(fileToDelete.AttachmentId));
+
+            artifact.Update(user, artifactDetails);
         }
 
         /// <summary>
@@ -1675,21 +1701,21 @@ namespace Helper
         /// <param name="file">The file to attach.</param>
         /// <param name="shouldPublishArtifact">(optional) Pass true to publish the artifact before adding the attachment.  Default is no publish.</param>
         /// <returns>The new artifact.</returns>
-        public static IArtifact CreateArtifactWithAttachment(TestHelper helper,
+        public static ArtifactWrapper CreateArtifactWithAttachment(TestHelper helper,
             IProject project,
             IUser user,
-            BaseArtifactType artifactType,
+            ItemTypePredefined artifactType,
             IFileMetadata file,
             bool shouldPublishArtifact = false)
         {
             ThrowIf.ArgumentNull(helper, nameof(helper));
             ThrowIf.ArgumentNull(file, nameof(file));
 
-            var artifact = helper.CreateAndSaveArtifact(project, user, artifactType);
+            var artifact = helper.CreateNovaArtifact(user, project, artifactType);
 
             if (shouldPublishArtifact)
             {
-                artifact.Publish();
+                artifact.Publish(user);
             }
 
             // Create & add attachment to the artifact.
@@ -2010,7 +2036,7 @@ namespace Helper
         /// <param name="text">The new text that will be set in the property.</param>
         /// <param name="propertyName">(optional) The name of the artifact property to update. By default it is Description.</param>
         /// <returns>The INovaArtifactDetails after saving the artifact.</returns>
-        public static INovaArtifactDetails SetArtifactTextProperty(NovaArtifactDetails artifactDetails,
+        public static INovaArtifactDetails SetArtifactTextProperty(INovaArtifactDetails artifactDetails,
             IUser user,
             IArtifactStore artifactStore,
             string text,

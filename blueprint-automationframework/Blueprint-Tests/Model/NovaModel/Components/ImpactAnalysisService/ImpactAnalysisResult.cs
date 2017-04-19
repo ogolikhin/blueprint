@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using Model.NovaModel.Metadata;
+using System.Collections.Generic;
 
-namespace Model.Impl
+namespace Model.NovaModel.Components.ImpactAnalysisService
 {
     // Taken from blueprint-current/Source/BluePrintSys.RC.Business.Internal/Components/ImpactAnalysis/Models/ImpactAnalysisResult.cs
     public class ImpactAnalysisResult

@@ -1,6 +1,6 @@
 ﻿using Model.Common.Constants;
 
-namespace Model.Impl
+namespace Model.NovaModel.Components.ImpactAnalysisService
 {
     // Taken from blueprint-current/Source/BluePrintSys.RC.Business.Internal/Components/ImpactAnalysis/Models/ImpactAnalysisTree.cs
     public class ImpactAnalysisTree

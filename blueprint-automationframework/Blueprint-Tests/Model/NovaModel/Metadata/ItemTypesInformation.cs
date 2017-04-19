@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace Model.Impl
+namespace Model.NovaModel.Metadata
 {
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
     // Taken from blueprint-current/Source/BluePrintSys.RC.Business.Internal/Models/Metadata/ItemTypesInformation.cs

@@ -233,11 +233,21 @@ namespace Model.ModelHelpers
         }
 
         /// <summary>
+        /// Gets the artifact from ArtifactStore and replaces the current artifact with the properties returned from the server.
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        public void RefreshArtifactFromServer(IUser user)
+        {
+            Artifact = ArtifactStore.GetArtifactDetails(user, Id);
+        }
+
+        /// <summary>
         /// Updates this artifact with a new random Description.  You must lock the artifact before saving.
         /// </summary>
         /// <param name="user">The user to perform the update.</param>
+        /// <param name="description">(optional) The new description to save.  By default a random description is generated.</param>
         /// <returns>The updated artifact.</returns>
-        public ArtifactWrapper SaveWithNewDescription(IUser user)
+        public ArtifactWrapper SaveWithNewDescription(IUser user, string description = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
@@ -245,7 +255,7 @@ namespace Model.ModelHelpers
             {
                 Id = Artifact.Id,
                 ProjectId = Artifact.ProjectId,
-                Description = "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5)
+                Description = description ?? "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5)
             };
 
             var updatedArtifact = ArtifactStore.UpdateArtifact(user, changes);

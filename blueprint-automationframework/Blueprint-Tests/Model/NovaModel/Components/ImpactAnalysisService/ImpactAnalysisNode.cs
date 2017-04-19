@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Model
+namespace Model.NovaModel.Components.ImpactAnalysisService
 {
     // Taken from /BluePrintSys.RC.Business.Internal/Components/ImpactAnalysis/Models/ImpactAnalysisNode.cs
     public class ImpactAnalysisNode

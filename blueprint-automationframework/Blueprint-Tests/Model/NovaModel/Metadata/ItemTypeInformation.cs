@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Model.Impl
+namespace Model.NovaModel.Metadata
 {
     // Taken from blueprint-current/Source/BluePrintSys.RC.Business.Internal/Models/Metadata/ItemTypeInformation.cs
     public class ItemTypeInformation

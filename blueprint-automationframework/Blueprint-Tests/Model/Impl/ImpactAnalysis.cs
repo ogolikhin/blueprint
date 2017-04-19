@@ -1,7 +1,6 @@
 ﻿using Common;
-using Model.Common.Enums;
+using Model.NovaModel.Components.ImpactAnalysisService;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Net;
 using Utilities;
 using Utilities.Facades;
@@ -26,15 +25,13 @@ namespace Model.Impl
         /// {base_blueprint_url}/ImpactAnalysis/api/{sourceId}/{level}/{format}
         /// </summary>
         /// <param name="user">User to authenticate with.</param>
-        /// <param name="sourceId"></param>
-        /// <param name="level"></param>
-        /// <param name="format"></param>
-        /// <param name="expectedStatusCodes"></param>
-        /// <returns></returns>
-        public ImpactAnalysisResult GetImpactAnalysis(IUser user, int sourceId, int level, string format = "", List<HttpStatusCode> expectedStatusCodes = null)
+        /// <param name="sourceId">Artifact Id from which impact analysis starts.</param>
+        /// <param name="level">Number of levels in artifact chain to return.</param>
+        /// <param name="format">(optional)Xml or json format. By default format is taken from request header.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.<</param>
+        /// <returns>ImpactAnalysisResult object</returns>
+        public ImpactAnalysisResult GetImpactAnalysis(IUser user, int sourceId, int level, string format = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            ThrowIf.ArgumentNull(format, nameof(format));
-
             string path = I18NHelper.FormatInvariant(RestPaths.ImpactAnalysis.IMPACT_ANALYSIS, sourceId, level);
             if (!string.IsNullOrEmpty(format))
             {

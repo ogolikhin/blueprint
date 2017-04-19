@@ -92,7 +92,7 @@ namespace ArtifactStoreTests
         [TestRail(290207)]
         [Description("Get the use case diagram artifact which contains an Actor association with attachment & comment. " +
             "Verify that the indicator flags contains the values for traces, attachements and comments.")]
-        public void GetUseCaseDiagramArtifact_WithActor_VerifyIndicatorFlags()
+        public void GetUseCaseDiagramArtifact_WithActorThatContainsAttachmentsAndComments_VerifyIndicatorFlags()
         {
             // getting the latest version of the artifact using open API GetArtifact
             var retrievedArtifact = Helper.ArtifactStore.GetArtifactDetails(_user, USECASEDIAGRAM_WITHACTOR_ID);
@@ -103,7 +103,7 @@ namespace ArtifactStoreTests
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.DIAGRAM_id_);
 
             // Verify: Verify that the shape indicatorflags contains traces, attachments and comments values.
-            NovaArtifactDetails.AssertArtifactsEqual(usecaseDiagramArtifact, retrievedArtifact);
+            NovaArtifactDetails.AssertArtifactsEqual(retrievedArtifact, usecaseDiagramArtifact);
 
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, USECASEDIAGRAM_WITHACTOR_ID,
                 ItemIndicatorFlags.HasManualReuseOrOtherTraces | ItemIndicatorFlags.HasAttachmentsOrDocumentRefs | ItemIndicatorFlags.HasComments,

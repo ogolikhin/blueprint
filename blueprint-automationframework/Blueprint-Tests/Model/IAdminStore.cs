@@ -152,7 +152,7 @@ namespace Model
         IUser GetLoginUser(string token, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// Gets an user by user Id.
+        /// Gets a user by user Id.
         /// (Runs: GET /users/{userId})
         /// </summary>
         /// <param name="adminUser">The admin user getting the user.</param>

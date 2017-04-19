@@ -82,25 +82,25 @@ function Build-Nova-Html{
     {
         pushd "$workspace\app\NovaWeb"
    
-        Invoke-MyExpression "npm" "install"
-        Invoke-MyExpression "npm" "update"
+        Invoke-MyExpression "yarn" "install"
+        Invoke-MyExpression "yarn" "upgrade"
 
         # Increment build version number
         $version = $blueprintVersion.split(".")
         $semver = $version[0] + "." + $version[1] + "." + $version[2] + "-" + $version[3]
-        Invoke-MyExpression "npm" "version $semver" -ignoreErrorCode
+        Invoke-MyExpression "yarn" "version --new-version $semver" -ignoreErrorCode
 
         # Build Nova Application
         if($BuildDebug) {
-            Invoke-MyExpression "npm" "run build -- --debug"
+            Invoke-MyExpression "yarn" "run build -- --debug"
         } else {
-            Invoke-MyExpression "npm" "run build"
+            Invoke-MyExpression "yarn" "run build"
         }
 
         if($RunTests)
         {
             # Test Nova Application
-            Invoke-MyExpression "npm" "run test"
+            Invoke-MyExpression "yarn" "run test"
         }
     }
     finally

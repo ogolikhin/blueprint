@@ -39,10 +39,49 @@ namespace Model.ArtifactModel.Impl
         public NovaTrace()
         { }
 
-        public NovaTrace(IArtifactBase targetArtifact, int? targetSubArtifactId = null, TraceDirection direction = TraceDirection.From, bool isSuspect = false,
+        /// <summary>
+        /// Constructs a new NovaTrace.
+        /// </summary>
+        /// <param name="targetArtifact">The target artifact of the trace.</param>
+        /// <param name="targetSubArtifactId">(optional) </param>
+        /// <param name="direction">(optional) The direction of the trace.</param>
+        /// <param name="isSuspect">(optional) Pass true to mark the trace as suspect.</param>
+        /// <param name="changeType">(optional) The change being performed (ex. creating, updating or deleting a trace).</param>
+        public NovaTrace(
+            INovaArtifactDetails targetArtifact,
+            int? targetSubArtifactId = null,
+            TraceDirection direction = TraceDirection.From,
+            bool isSuspect = false,
             ChangeType changeType = Enums.ChangeType.Create)
         {
             ThrowIf.ArgumentNull(targetArtifact, nameof(targetArtifact));
+
+            ArtifactId = targetArtifact.Id;
+            ChangeType = changeType;
+            Direction = direction;
+            IsSuspect = isSuspect;
+            ItemId = targetSubArtifactId ?? targetArtifact.Id;
+            ProjectId = targetArtifact.ProjectId.Value;
+            TraceType = TraceType.Manual;
+        }
+
+        /// <summary>
+        /// Constructs a new NovaTrace.
+        /// </summary>
+        /// <param name="targetArtifact">The target artifact of the trace.</param>
+        /// <param name="targetSubArtifactId">(optional) </param>
+        /// <param name="direction">(optional) The direction of the trace.</param>
+        /// <param name="isSuspect">(optional) Pass true to mark the trace as suspect.</param>
+        /// <param name="changeType">(optional) The change being performed (ex. creating, updating or deleting a trace).</param>
+        public NovaTrace(
+            IArtifactBase targetArtifact,
+            int? targetSubArtifactId = null,
+            TraceDirection direction = TraceDirection.From,
+            bool isSuspect = false,
+            ChangeType changeType = Enums.ChangeType.Create)
+        {
+            ThrowIf.ArgumentNull(targetArtifact, nameof(targetArtifact));
+
             ArtifactId = targetArtifact.Id;
             ChangeType = changeType;
             Direction = direction;

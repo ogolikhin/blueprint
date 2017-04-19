@@ -791,16 +791,18 @@ namespace AdminStore.Controllers
             var sort = string.Empty;
             var filter = string.Empty;
 
+            var users = new List<UserDto>() { new UserDto() { UserId = 1 } };
             var settings = new TableSettings() { PageSize = 3, Page = 1 };
             QueryResult returnResult = new QueryResult()
             {
-                Data = new Data() { Users = new List<UserDto>() { new UserDto() { UserId = 1 } } },
+                Data = new Data(),
                 Pagination = new Pagination()
                 {
                     Page = settings.Page,
                     PageSize = settings.PageSize
                 }
             };
+            returnResult.Data.Users = users.ToArray();
             _usersRepoMock.Setup(repo => repo.GetUsers(It.Is<TableSettings>(t => t.PageSize > 0 && t.Page > 0)))
                 .Returns(returnResult);
             _privilegesRepository.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(true);

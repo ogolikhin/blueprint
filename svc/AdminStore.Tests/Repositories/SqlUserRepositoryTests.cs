@@ -312,5 +312,44 @@ namespace AdminStore.Repositories
         }
 
         #endregion ValidateUserPasswordForHistoryAsync
+
+        #region GetUser
+
+        [TestMethod]
+        public async Task GetUser_WeHaveThisUserInDb_QueryReturnUser()
+        {
+            //arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
+            var userId = 10;
+            User[] returnResult = { new User() { UserId = 5 } };
+            cxn.SetupQueryAsync("GetUserDetails", new Dictionary<string, object>() { { "UserId", userId } }, returnResult);
+
+            //act
+            var result = await repository.GetUser(userId);
+
+            //assert
+            cxn.Verify();
+            Assert.AreEqual(returnResult.First(), result);
+        }
+
+        [TestMethod]
+        public async Task GetUser_WeDoNotHaveThisActiveUserInDb_QueryReturnEmptyUser()
+        {
+            //arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
+            User[] returnResult = { new User() };
+            cxn.SetupQueryAsync("GetUserDetails", new Dictionary<string, object>() { { "UserId", 0 } }, returnResult);
+
+            //act
+            var result = await repository.GetUser(0);
+
+            //assert
+            cxn.Verify();
+            Assert.AreEqual(returnResult.First(), result);
+        }
+
+        #endregion
     }
 }

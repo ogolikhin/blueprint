@@ -30,5 +30,9 @@ namespace AdminStore.Repositories
         Task<bool> HasUserExceededPasswordRequestLimitAsync(string login);
 
         Task<IEnumerable<PasswordRecoveryToken>> GetPasswordRecoveryTokensAsync(Guid token);
+
+        QueryResult GetUsers(TableSettings settings);
+
+        Task<User> GetUser(int userId);
     }
 }

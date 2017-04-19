@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -14,7 +16,6 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
 
-
 namespace AdminStore.Controllers
 {
     [ApiControllerJsonConfig]
@@ -29,19 +30,20 @@ namespace AdminStore.Controllers
         internal readonly IApplicationSettingsRepository _applicationSettingsRepository;
         internal readonly IServiceLogRepository _log;
         internal readonly IHttpClientProvider _httpClientProvider;
+        internal readonly ISqlPrivilegesRepository _privilegesRepository;
         private const string PasswordResetTokenExpirationInHoursKey = "PasswordResetTokenExpirationInHours";
         private const int DefaultPasswordResetTokenExpirationInHours = 24;
 
-        public UsersController() : this(new AuthenticationRepository(), new SqlUserRepository(), 
-            new SqlSettingsRepository(), new EmailHelper(), new ApplicationSettingsRepository(), 
-            new ServiceLogRepository(), new HttpClientProvider())
+        public UsersController() : this(new AuthenticationRepository(), new SqlUserRepository(),
+            new SqlSettingsRepository(), new EmailHelper(), new ApplicationSettingsRepository(),
+            new ServiceLogRepository(), new HttpClientProvider(), new SqlPrivilegesRepository())
         {
         }
 
-        internal UsersController(IAuthenticationRepository authenticationRepository, 
-            ISqlUserRepository userRepository, ISqlSettingsRepository settingsRepository, 
-            IEmailHelper emailHelper, IApplicationSettingsRepository applicationSettingsRepository, 
-            IServiceLogRepository log, IHttpClientProvider httpClientProvider)
+        internal UsersController(IAuthenticationRepository authenticationRepository,
+            ISqlUserRepository userRepository, ISqlSettingsRepository settingsRepository,
+            IEmailHelper emailHelper, IApplicationSettingsRepository applicationSettingsRepository,
+            IServiceLogRepository log, IHttpClientProvider httpClientProvider, ISqlPrivilegesRepository privilegesRepository)
         {
             _authenticationRepository = authenticationRepository;
             _userRepository = userRepository;
@@ -50,6 +52,7 @@ namespace AdminStore.Controllers
             _applicationSettingsRepository = applicationSettingsRepository;
             _log = log;
             _httpClientProvider = httpClientProvider;
+            _privilegesRepository = privilegesRepository;
         }
 
         /// <summary>
@@ -87,6 +90,68 @@ namespace AdminStore.Controllers
                 await _log.LogError(WebApiConfig.LogSourceUsers, ex);
                 return InternalServerError();
             }
+        }
+
+        /// <summary>
+        /// Get users list according to the input parameters 
+        /// </summary>
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <param name="filter">filter</param>
+        /// <param name="sort">sott parameters</param>
+        /// <returns code="200">OK if admin user session exists and user is permitted to list users</returns>
+        /// <returns code="400">BadRequest if page, pageSize are missing or invalid</returns>
+        /// <returns code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</returns>
+        /// <returns code="403">Forbidden if used doesn’t have permissions to get users list</returns>
+        [SessionRequired]
+        [Route("")]
+        public async Task<IHttpActionResult> GetAllUsers(int page, int pageSize, string filter, string sort)
+        {
+            if (pageSize <= 0 || page <= 0)
+            {
+                return BadRequest(ErrorMessages.InvalidPageOrPageNumber);
+            }
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            var userId = session.UserId;
+            var permissions = new List<int> { Convert.ToInt32(InstanceAdminPrivileges.ViewUsers) };
+            if (!await _privilegesRepository.IsUserHasPermissions(permissions, userId))
+            {
+                throw new HttpResponseException(HttpStatusCode.Forbidden);
+            }
+            var orderField = UsersHelper.SortUsers(sort.ToLower(CultureInfo.InvariantCulture));
+
+            var result = _userRepository.GetUsers(new TableSettings() { PageSize = pageSize, Page = page, Filter = filter, Sort = orderField });
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Get user by Identifier
+        /// </summary>
+        /// <param name="userId">User's identity</param>
+        /// <returns>
+        /// <response code="200">OK. Returns the specified user's icon.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="404">Not Found. The user with the provided ID was not found.</response>
+        /// <response code="403">User doesn’t have permission to view users.</response>
+        /// </returns>
+        [SessionRequired]
+        [Route("{userId:int:min(1)}")]
+        public async Task<IHttpActionResult> GetUser(int userId)
+        {
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            var uId = session.UserId;
+            var permissions = new List<int> { Convert.ToInt32(InstanceAdminPrivileges.ViewUsers) };
+            if (!await _privilegesRepository.IsUserHasPermissions(permissions, uId))
+            {
+                throw new HttpResponseException(HttpStatusCode.Forbidden);
+            }
+            var user = await _userRepository.GetUser(userId);
+
+            if (user.UserId == 0)
+                return NotFound();
+
+            return Ok(user);
         }
 
         /// <summary>
@@ -310,7 +375,7 @@ namespace AdminStore.Controllers
             {
                 throw new BadRequestException("Password reset failed, new password cannot be equal to the old one", ErrorCodes.SamePassword);
             }
-                
+
             //reset password
             await _authenticationRepository.ResetPassword(user, null, decodedNewPassword);
 

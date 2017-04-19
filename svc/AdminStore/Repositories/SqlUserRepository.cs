@@ -126,6 +126,46 @@ namespace AdminStore.Repositories
             return await _adminStorageConnectionWrapper.QueryAsync<PasswordRecoveryToken>("GetUserPasswordRecoveryTokens", prm, commandType: CommandType.StoredProcedure);
         }
 
+        public QueryResult GetUsers(TableSettings settings)
+        {
+            var total = 0;
+            var users = GetUsersList(settings, out total).ToList();
+            var result = new QueryResult()
+            {
+                Data = new Data() { Users = UserMapper.Map(users) },
+                Pagination = new Pagination()
+                {
+                    TotalCount = total,
+                    Page = settings.Page,
+                    PageSize = settings.PageSize,
+                    Count = users.Count
+                }
+            };
+            return result;
+        }
+
+        private IEnumerable<User> GetUsersList(TableSettings settings, out int total)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@Page", settings.Page);
+            parameters.Add("@PageSize", settings.PageSize);
+            parameters.Add("@SearchUser", settings.Filter);
+            parameters.Add("@OrderField", settings.Sort);
+            parameters.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            var usersList = (_connectionWrapper.Query<User>("GetUsers", parameters, commandType: CommandType.StoredProcedure)).ToList();
+            total = parameters.Get<int>("Total");
+            return usersList;
+        }
+
+        public async Task<User> GetUser(int userId)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@UserId", userId);
+            var result = await _connectionWrapper.QueryAsync<User>("GetUserDetails", parameters, commandType: CommandType.StoredProcedure);
+            var enumerable = result as IList<User> ?? result.ToList();
+            return enumerable.Any() ? enumerable.First() : new User();
+        }
+
         public async Task<bool> HasUserExceededPasswordRequestLimitAsync(string login)
         {
             const int passwordRequestLimit = 3;

@@ -283,10 +283,10 @@ namespace Helper
         /// Asserts that the response from the Nova call contains all the specified artifacts.
         /// </summary>
         /// <param name="artifactAndProjectResponse">The response from the Nova call.</param>
-        /// <param name="artifacts">The OpenApi artifacts that we sent to the Nova call.</param>
+        /// <param name="artifacts">The artifacts that we sent to the Nova call.</param>
         public static void AssertArtifactsAndProjectsResponseContainsAllArtifactsInList(
             INovaArtifactsAndProjectsResponse artifactAndProjectResponse,
-            List<IArtifactBase> artifacts)
+            List<INovaArtifactDetails> artifacts)
         {
             ThrowIf.ArgumentNull(artifactAndProjectResponse, nameof(artifactAndProjectResponse));
             ThrowIf.ArgumentNull(artifacts, nameof(artifacts));
@@ -296,7 +296,7 @@ namespace Helper
                 var novaArtifactResponse = artifactAndProjectResponse.Artifacts.Find(a => a.Id == artifact.Id);
                 Assert.NotNull(novaArtifactResponse, "Couldn't find artifact ID {0} in the list of artifacts!");
 
-                AssertNovaArtifactResponsePropertiesMatchWithArtifactSkipVersion(novaArtifactResponse, artifact);
+                NovaArtifactDetails.AssertAreEqual(novaArtifactResponse, artifact);
             }
         }
 
@@ -789,15 +789,15 @@ namespace Helper
         /// </summary>
         /// <param name="expectedArtifact">The expected artifact</param>
         /// <param name="actualCollectionItem">The actual collection item</param>
-        public static void AssertAreEqual(IArtifactBase expectedArtifact, CollectionItem actualCollectionItem)
+        public static void AssertAreEqual(INovaArtifactDetails expectedArtifact, CollectionItem actualCollectionItem)
         {
             ThrowIf.ArgumentNull(expectedArtifact, nameof(expectedArtifact));
             ThrowIf.ArgumentNull(actualCollectionItem, nameof(actualCollectionItem));
 
             Assert.AreEqual(expectedArtifact.Id, actualCollectionItem.Id);
             Assert.AreEqual(expectedArtifact.Name, actualCollectionItem.Name);
-            Assert.AreEqual(expectedArtifact.ArtifactTypeId, actualCollectionItem.ItemTypeId);
-            Assert.AreEqual(expectedArtifact.BaseArtifactType.ToItemTypePredefined(), actualCollectionItem.ItemTypePredefined);
+            Assert.AreEqual(expectedArtifact.ItemTypeId, actualCollectionItem.ItemTypeId);
+            Assert.AreEqual(expectedArtifact.PredefinedType, (int)actualCollectionItem.ItemTypePredefined);
         }
 
         #endregion Custom Asserts
@@ -867,7 +867,8 @@ namespace Helper
         /// <param name="propertyName">(optional) The name of the artifact property where the image should be embedded.</param>
         /// <param name="numberOfImagesToAdd">(optional) The number of images to embed in the property.</param>
         /// <returns>The INovaArtifactDetails after saving the artifact.</returns>
-        public static INovaArtifactDetails AddRandomImageToArtifactProperty(NovaArtifactDetails artifactDetails,
+        public static INovaArtifactDetails AddRandomImageToArtifactProperty(
+            INovaArtifactDetails artifactDetails,
             IUser user,
             IArtifactStore artifactStore,
             int width = 100,
@@ -935,14 +936,14 @@ namespace Helper
         /// </summary>
         /// <param name="collection">collection returned from get collection call</param>
         /// <param name="artifactList">list of artifact that represents expected artifacts from the returned collection call</param>
-        public static void ValidateCollection(NovaCollectionBase collection, List<IArtifactBase> artifactList)
+        public static void ValidateCollection(NovaCollectionBase collection, List<INovaArtifactDetails> artifactList)
         {
             ThrowIf.ArgumentNull(collection, nameof(collection));
             ThrowIf.ArgumentNull(artifactList, nameof(artifactList));
 
-            Assert.AreEqual(artifactList.Count(), collection.Artifacts.Count(),
+            Assert.AreEqual(artifactList.Count, collection.Artifacts.Count,
                 "{0} artifacts are expected from collection but {1} are returned.",
-                artifactList.Count(), collection.Artifacts.Count());
+                artifactList.Count, collection.Artifacts.Count);
 
             if (artifactList.Any())
             {
@@ -2010,7 +2011,7 @@ namespace Helper
         /// <param name="text">The new text that will be set in the property.</param>
         /// <param name="propertyName">(optional) The name of the artifact property to update. By default it is Description.</param>
         /// <returns>The INovaArtifactDetails after saving the artifact.</returns>
-        public static INovaArtifactDetails SetArtifactTextProperty(NovaArtifactDetails artifactDetails,
+        public static INovaArtifactDetails SetArtifactTextProperty(INovaArtifactDetails artifactDetails,
             IUser user,
             IArtifactStore artifactStore,
             string text,

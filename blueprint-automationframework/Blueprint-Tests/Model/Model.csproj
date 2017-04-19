@@ -93,6 +93,11 @@
     <Compile Include="ArtifactModel\Impl\OpenApiProperty.cs" />
     <Compile Include="ArtifactModel\Impl\OpenApiTrace.cs" />
     <Compile Include="ArtifactModel\Impl\PropertyBase.cs" />
+    <Compile Include="NovaModel\Components\RapidReview\IDiagramElement.cs" />
+    <Compile Include="NovaModel\Components\RapidReview\LabelStyle.cs" />
+    <Compile Include="NovaModel\Components\RapidReview\Point.cs" />
+    <Compile Include="NovaModel\Components\RapidReview\Prop.cs" />
+    <Compile Include="NovaModel\Components\RapidReview\Shape.cs" />
     <Compile Include="Common\Enums\InstanceAdminPrivileges.cs" />
     <Compile Include="Impl\InstanceUser.cs" />
     <Compile Include="ModelHelpers\ArtifactState.cs" />

@@ -359,7 +359,46 @@ namespace Model.Impl
         /// <seealso cref="IAdminStore.GetUsers(IUser, int?, int?, string, string)"/>
         public List<InstanceUser> GetUsers(IUser adminUser, int? page = null, int? pageSize = null, string filter = null, string sort = null)
         {
-            throw new NotImplementedException();
+            var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Users.USERS);
+
+            var queryParameters = new Dictionary<string, string>();
+
+            if (page != null)
+            {
+                queryParameters.Add("page", page.ToStringInvariant());
+            }
+
+            if (pageSize != null)
+            {
+                queryParameters.Add("pageSize", pageSize.ToStringInvariant());
+            }
+
+            if (!string.IsNullOrEmpty(filter))
+            {
+                queryParameters.Add("filter", filter);
+            }
+
+            if (!string.IsNullOrEmpty(sort))
+            {
+                queryParameters.Add("sort", sort);
+            }
+
+            try
+            {
+                Logger.WriteInfo("Getting users...");
+
+                return restApi.SendRequestAndDeserializeObject< List<InstanceUser>>(
+                    path,
+                    RestRequestMethod.GET,
+                    queryParameters: queryParameters);
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while performing GetUsers - {0}", ex.Message);
+                throw;
+            }
         }
 
         /// <seealso cref="IAdminStore.UpdateUser(IUser, InstanceUser)"/>

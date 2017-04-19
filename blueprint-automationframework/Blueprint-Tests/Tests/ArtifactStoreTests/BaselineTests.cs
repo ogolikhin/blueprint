@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using TestCommon;
 using Utilities;
+using static Model.Common.Enums.PropertyTypePredefined;
 
 namespace ArtifactStoreTests
 {
@@ -256,9 +257,9 @@ namespace ArtifactStoreTests
             baseline.UtcTimestamp = utcTimestamp;
             // front-end doesn't send unchanged properties, server-side doesn't process them correctly
             baseline.SpecificPropertyValues.Remove(baseline.SpecificPropertyValues.Find(property =>
-            property.PropertyType == Model.Common.Enums.PropertyTypePredefined.BaselineIsDataAnalyticsAvailable));
+            property.PropertyType == BaselineIsDataAnalyticsAvailable));
             baseline.SpecificPropertyValues.Remove(baseline.SpecificPropertyValues.Find(property =>
-            property.PropertyType == Model.Common.Enums.PropertyTypePredefined.BaselineIsSealed));
+            property.PropertyType == BaselineIsSealed));
             ArtifactStore.UpdateArtifact(Helper.ArtifactStore.Address, _user, baseline);
 
             int numberOfAddedArtifacts = -1;
@@ -445,9 +446,9 @@ namespace ArtifactStoreTests
             baseline.UpdateArtifacts(new List<int> { artifactToAdd.Id });
             // front-end doesn't send unchanged properties, server-side doesn't process them correctly
             baseline.SpecificPropertyValues.Remove(baseline.SpecificPropertyValues.Find(property =>
-            property.PropertyType == Model.Common.Enums.PropertyTypePredefined.BaselineIsSealed));
+            property.PropertyType == BaselineIsSealed));
             baseline.SpecificPropertyValues.Remove(baseline.SpecificPropertyValues.Find(property =>
-            property.PropertyType == Model.Common.Enums.PropertyTypePredefined.BaselineIsDataAnalyticsAvailable));
+            property.PropertyType == BaselineIsDataAnalyticsAvailable));
 
             // Execute:
             Assert.DoesNotThrow(() => {
@@ -479,9 +480,9 @@ namespace ArtifactStoreTests
             baseline.UpdateArtifacts(artifactsIdsToRemove: new List<int> { artifactToRemove .Id });
             // front-end doesn't send unchanged properties, server-side doesn't process them correctly
             baseline.SpecificPropertyValues.Remove(baseline.SpecificPropertyValues.Find(property =>
-            property.PropertyType == Model.Common.Enums.PropertyTypePredefined.BaselineIsDataAnalyticsAvailable));
+            property.PropertyType == BaselineIsDataAnalyticsAvailable));
             baseline.SpecificPropertyValues.Remove(baseline.SpecificPropertyValues.Find(property =>
-            property.PropertyType == Model.Common.Enums.PropertyTypePredefined.BaselineIsSealed));
+            property.PropertyType == BaselineIsSealed));
             Helper.SvcShared.LockArtifacts(_user, new List<int> { baseline.Id });
             
             // Execute:
@@ -507,9 +508,9 @@ namespace ArtifactStoreTests
             baseline.UpdateArtifacts(new List<int> { artifactToAdd.Id });
             // front-end doesn't send unchanged properties, server-side doesn't process them correctly
             baseline.SpecificPropertyValues.Remove(baseline.SpecificPropertyValues.Find(property =>
-            property.PropertyType == Model.Common.Enums.PropertyTypePredefined.BaselineIsDataAnalyticsAvailable));
+            property.PropertyType == BaselineIsDataAnalyticsAvailable));
             baseline.SpecificPropertyValues.Remove(baseline.SpecificPropertyValues.Find(property =>
-            property.PropertyType == Model.Common.Enums.PropertyTypePredefined.BaselineIsSealed));
+            property.PropertyType == BaselineIsSealed));
 
             // Execute:
             Assert.DoesNotThrow(() => {
@@ -592,9 +593,9 @@ namespace ArtifactStoreTests
             baseline.UtcTimestamp = timestampDate;
             // front-end doesn't send unchanged properties, server-side doesn't process them correctly
             baseline.SpecificPropertyValues.Remove(baseline.SpecificPropertyValues.Find(property =>
-            property.PropertyType == Model.Common.Enums.PropertyTypePredefined.BaselineIsDataAnalyticsAvailable));
+            property.PropertyType == BaselineIsDataAnalyticsAvailable));
             baseline.SpecificPropertyValues.Remove(baseline.SpecificPropertyValues.Find(property =>
-            property.PropertyType == Model.Common.Enums.PropertyTypePredefined.BaselineIsSealed));
+            property.PropertyType == BaselineIsSealed));
 
             // Execute:
             Assert.DoesNotThrow(() => {
@@ -645,9 +646,9 @@ namespace ArtifactStoreTests
             baseline.UtcTimestamp = timestampDate;
             // front-end doesn't send unchanged properties, server-side doesn't process them correctly
             baseline.SpecificPropertyValues.Remove(baseline.SpecificPropertyValues.Find(property =>
-            property.PropertyType == Model.Common.Enums.PropertyTypePredefined.BaselineIsDataAnalyticsAvailable));
+            property.PropertyType == BaselineIsDataAnalyticsAvailable));
             baseline.SpecificPropertyValues.Remove(baseline.SpecificPropertyValues.Find(property =>
-            property.PropertyType == Model.Common.Enums.PropertyTypePredefined.BaselineIsSealed));
+            property.PropertyType == BaselineIsSealed));
             baselineArtifact.Update(_user, baseline);
 
             List<BaselineInfo> baselineInfoList = null;

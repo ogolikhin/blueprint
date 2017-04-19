@@ -93,6 +93,14 @@
     <Compile Include="ArtifactModel\Impl\OpenApiProperty.cs" />
     <Compile Include="ArtifactModel\Impl\OpenApiTrace.cs" />
     <Compile Include="ArtifactModel\Impl\PropertyBase.cs" />
+    <Compile Include="Common\Constants\BusinessLayerConstants.cs" />
+    <Compile Include="Common\Enums\SupportedAcceptTypes.cs" />
+    <Compile Include="Impl\ImpactAnalysis.cs" />
+    <Compile Include="NovaModel\Components\ImpactAnalysisService\ImpactAnalysisNode.cs" />
+    <Compile Include="NovaModel\Components\ImpactAnalysisService\ImpactAnalysisResult.cs" />
+    <Compile Include="NovaModel\Components\ImpactAnalysisService\ImpactAnalysisTree.cs" />
+    <Compile Include="NovaModel\Metadata\ItemTypeInformation.cs" />
+    <Compile Include="NovaModel\Metadata\ItemTypesInformation.cs" />
     <Compile Include="NovaModel\Components\RapidReview\IDiagramElement.cs" />
     <Compile Include="NovaModel\Components\RapidReview\LabelStyle.cs" />
     <Compile Include="NovaModel\Components\RapidReview\Point.cs" />

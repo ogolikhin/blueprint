@@ -722,16 +722,14 @@ namespace ArtifactStoreTests
             artifact.Publish(_adminUser);
             //versionId = 1 - 1 attachment - _novaAttachmentFile
 
-            string messageText = I18NHelper.FormatInvariant("Version Index or Baseline Timestamp is not found.");
-            var errorMessage = ServiceErrorMessageFactory.CreateServiceErrorMessage(ErrorCodes.ResourceNotFound, messageText);
-
             // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() =>
+            var ex = Assert.Throws<Http404NotFoundException>(() =>
             {
-                Helper.ArtifactStore.GetAttachments(_authorUser, artifact.Id, versionId: versionId,
-                    expectedServiceErrorMessage: errorMessage);
+                Helper.ArtifactStore.GetAttachments(_authorUser, artifact.Id, versionId: versionId);
             }, "'GET {0}?versionId={1}' should return 404 error when passed a non-existing valid versionId.",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT, versionId);
+
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound, "Version Index or Baseline Timestamp is not found.");
 
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, ItemIndicatorFlags.HasAttachmentsOrDocumentRefs);
         }

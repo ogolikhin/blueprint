@@ -58,42 +58,6 @@ namespace AccessControlTests
             Helper?.Dispose();
         }
 
-        #region Private functions
-
-        /// <summary>
-        /// Adds (POST's) the specified session to the AccessControl service.
-        /// </summary>
-        /// <param name="session">The session to add.</param>
-        /// <returns>The session that was added including the session token.</returns>
-        private ISession AddSessionToAccessControl(ISession session)
-        {
-            // POST the new session.
-            var createdSession = Helper.AccessControl.AddSession(session);
-
-            // Verify that the POST returned the expected session.
-            Assert.True(session.Equals(createdSession),
-                "POST returned a different session than expected!  Got '{0}', but expected '{1}'.",
-                createdSession.SessionId, session.SessionId);
-
-            return createdSession;
-        }
-
-        /// <summary>
-        /// Creates a random session and adds (POST's) it to the AccessControl service.
-        /// </summary>
-        /// <param name="sessionUser">(optional) The user for whom the session is created.</param>
-        /// <returns>The session that was added including the session token.</returns>
-        private ISession CreateAndAddSessionToAccessControl(IUser sessionUser = null)
-        {
-            sessionUser = sessionUser ?? _user;
-            var session = SessionFactory.CreateSession(sessionUser);
-
-            // POST the new session.
-            return AddSessionToAccessControl(session);
-        }
-
-        #endregion Private functions
-
         #region GetLicensesInfo tests
 
         [Category(Categories.CannotRunInParallel)] // This test may fail if sessions are created or deleted while it's in progress. 
@@ -274,7 +238,41 @@ namespace AccessControlTests
                 "The response body should contain the error: '{0}'", expectedError);
         }
 
+        #endregion GetLicenseUsage tests
+
         #region Private functions
+
+        /// <summary>
+        /// Adds (POST's) the specified session to the AccessControl service.
+        /// </summary>
+        /// <param name="session">The session to add.</param>
+        /// <returns>The session that was added including the session token.</returns>
+        private ISession AddSessionToAccessControl(ISession session)
+        {
+            // POST the new session.
+            var createdSession = Helper.AccessControl.AddSession(session);
+
+            // Verify that the POST returned the expected session.
+            Assert.True(session.Equals(createdSession),
+                "POST returned a different session than expected!  Got '{0}', but expected '{1}'.",
+                createdSession.SessionId, session.SessionId);
+
+            return createdSession;
+        }
+
+        /// <summary>
+        /// Creates a random session and adds (POST's) it to the AccessControl service.
+        /// </summary>
+        /// <param name="sessionUser">(optional) The user for whom the session is created.</param>
+        /// <returns>The session that was added including the session token.</returns>
+        private ISession CreateAndAddSessionToAccessControl(IUser sessionUser = null)
+        {
+            sessionUser = sessionUser ?? _user;
+            var session = SessionFactory.CreateSession(sessionUser);
+
+            // POST the new session.
+            return AddSessionToAccessControl(session);
+        }
 
         /// <summary>
         /// Verifying couple of elements in the response list
@@ -355,7 +353,7 @@ namespace AccessControlTests
         /// <param name="maxConcurrentCollaborators">(optional) The expected maxConcurrentCollaborators.</param>
         /// <param name="maxConcurrentViewers">(optional) The expected maxConcurrentViewers.</param>
         private static void VerifyLicenseUsageValues(LicenseUsageSummary licenseUsageSummary, int yearMonth, int uniqueAuthors, int uniqueCollaborators = 0,
-            int uniqueViewers = 0, int usersFromAnalytics = 0, int usersFromRestApi = 0, int maxConcurrentAuthors = 1, int maxConcurrentCollaborators = 0, 
+            int uniqueViewers = 0, int usersFromAnalytics = 0, int usersFromRestApi = 0, int maxConcurrentAuthors = 1, int maxConcurrentCollaborators = 0,
             int maxConcurrentViewers = 0)
         {
             Assert.AreEqual(yearMonth, licenseUsageSummary.YearMonth, "The yearMonth should be {0}!", yearMonth);
@@ -384,7 +382,5 @@ namespace AccessControlTests
         }
 
         #endregion Private functions
-
-        #endregion GetLicenseUsage tests
     }
 }

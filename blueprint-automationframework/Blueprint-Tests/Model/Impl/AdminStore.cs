@@ -228,16 +228,53 @@ namespace Model.Impl
             Sessions.RemoveAll(session => session.SessionId == token);
         }
 
-        /// <seealso cref="IAdminStore.CreateUser(IUser, IUser)"/>
-        public HttpStatusCode CreateUser(IUser adminUser, IUser user)
+        /// <seealso cref="IAdminStore.CreateUser(IUser, InstanceUser)"/>
+        public HttpStatusCode CreateUser(IUser adminUser, InstanceUser user)
         {
-            throw new NotImplementedException();
+            var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
+            string path = RestPaths.Svc.AdminStore.Users.USERS;
+
+            try
+            {
+                Logger.WriteInfo("Creating user...");
+
+                var response = restApi.SendRequestAndGetResponse(
+                    path,
+                    RestRequestMethod.POST,
+                    bodyObject: user);
+
+                return response.StatusCode;
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while performing CreateUser - {0}", ex.Message);
+                throw;
+            }
         }
 
         /// <seealso cref="IAdminStore.DeleteUser(IUser, int)"/>
         public HttpStatusCode DeleteUser(IUser adminUser, int userId)
         {
-            throw new NotImplementedException();
+            var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Users.USERS_id_, userId);
+
+            try
+            {
+                Logger.WriteInfo("Deleting user with Id: {0}", userId);
+
+                var response = restApi.SendRequestAndGetResponse(
+                    path,
+                    RestRequestMethod.DELETE);
+
+                return response.StatusCode;
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while performing DeleteUser - {0}", ex.Message);
+                throw;
+            }
         }
 
         /// <seealso cref="IAdminStore.GetLoginUser(string, List{HttpStatusCode})"/>
@@ -250,13 +287,10 @@ namespace Model.Impl
             {
                 Logger.WriteInfo("Getting logged in user's info...");
 
-                var response = restApi.SendRequestAndGetResponse(
+                var loginUser = restApi.SendRequestAndDeserializeObject<LoginUser>(
                     path,
                     RestRequestMethod.GET,
                     expectedStatusCodes: expectedStatusCodes);
-
-                Logger.WriteInfo("Deserializing user object...");
-                var loginUser = JsonConvert.DeserializeObject<LoginUser>(response.Content);
 
                 var user = UserFactory.CreateUserOnly();
                 user.DisplayName = loginUser.DisplayName;
@@ -329,9 +363,30 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IAdminStore.UpdateUser(IUser, InstanceUser)"/>
-        public InstanceUser UpdateUser(IUser adminUser, InstanceUser user)
+        public HttpStatusCode UpdateUser(IUser adminUser, InstanceUser user)
         {
-            throw new NotImplementedException();
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Users.USERS_id_, user.Id);
+
+            try
+            {
+                Logger.WriteInfo("Updating user with Id: {0}", user.Id);
+
+                var response = restApi.SendRequestAndGetResponse(
+                    path,
+                    RestRequestMethod.PUT,
+                    bodyObject: user);
+
+                return response.StatusCode;
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while performing UpdateUser - {0}", ex.Message);
+                throw;
+            }
         }
 
         /// <seealso cref="IAdminStore.GetSession(int?)"/>

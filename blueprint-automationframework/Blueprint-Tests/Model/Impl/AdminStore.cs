@@ -288,13 +288,9 @@ namespace Model.Impl
             {
                 Logger.WriteInfo("Getting user by user id...");
 
-                var response = restApi.SendRequestAndGetResponse(
+                return restApi.SendRequestAndDeserializeObject<InstanceUser>(
                     path,
                     RestRequestMethod.GET);
-
-                Logger.WriteInfo("Deserializing user object...");
-
-                return JsonConvert.DeserializeObject<InstanceUser>(response.Content);
             }
             catch (WebException ex)
             {
@@ -314,13 +310,9 @@ namespace Model.Impl
             {
                 Logger.WriteInfo("Getting user by user login...");
 
-                var response = restApi.SendRequestAndGetResponse(
+                return restApi.SendRequestAndDeserializeObject<InstanceUser>(
                     path,
                     RestRequestMethod.GET);
-
-                Logger.WriteInfo("Deserializing user object...");
-
-                return JsonConvert.DeserializeObject<InstanceUser>(response.Content);
             }
             catch (WebException ex)
             {

@@ -282,6 +282,18 @@ namespace Model
         /// Gets attachments for the specified artifact/subartifact
         /// (Runs: GET svc/artifactstore/artifacts/{artifactId}/attachment?addDrafts={addDrafts})
         /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactId">The ID of the artifact that has the attachment to get.</param>
+        /// <param name="addDrafts">(optional) Should include attachments in draft state.  Without addDrafts it works as if addDrafts=true.</param>
+        /// <param name="versionId">(optional) The version of the attachment to retrieve.</param>
+        /// <param name="subArtifactId">(optional) The ID of a sub-artifact of this artifact that has the attachment to get.</param>
+        /// <returns>Attachment object for the specified artifact/subartifact.</returns>
+        Attachments GetAttachments(IUser user, int artifactId, bool? addDrafts = null, int? versionId = null, int? subArtifactId = null);
+
+        /// <summary>
+        /// Gets attachments for the specified artifact/subartifact
+        /// (Runs: GET svc/artifactstore/artifacts/{artifactId}/attachment?addDrafts={addDrafts})
+        /// </summary>
         /// <param name="artifact">The artifact that has the attachment to get.</param>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="addDrafts">(optional) Should include attachments in draft state.  Without addDrafts it works as if addDrafts=true.</param>

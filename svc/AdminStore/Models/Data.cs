@@ -1,11 +1,11 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Generic;
 
 namespace AdminStore.Models
 {
    
     public class Data
     {
-        [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")]
-        public UserDto[] Users { get; set; }
+        public IEnumerable<UserDto> Users { get; set; } 
+
     }
 }

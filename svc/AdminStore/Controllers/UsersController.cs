@@ -105,6 +105,7 @@ namespace AdminStore.Controllers
         /// <returns code="403">Forbidden if used doesn’t have permissions to get users list</returns>
         [SessionRequired]
         [Route("")]
+        [ResponseType(typeof(QueryResult))]
         public async Task<IHttpActionResult> GetAllUsers(int page, int pageSize, string filter, string sort)
         {
             if (pageSize <= 0 || page <= 0)
@@ -137,6 +138,7 @@ namespace AdminStore.Controllers
         /// </returns>
         [SessionRequired]
         [Route("{userId:int:min(1)}")]
+        [ResponseType(typeof(User))]
         public async Task<IHttpActionResult> GetUser(int userId)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;

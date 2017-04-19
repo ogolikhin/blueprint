@@ -167,5 +167,23 @@ namespace ArtifactStore.Controllers
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             return await ArtifactRepository.GetAuthorHistoriesWithPermissionsCheck(artifactIds, session.UserId);
         }
+
+        /// <summary>
+        /// Get the baselines information.
+        /// </summary>
+        /// <remarks>
+        /// Returns for the each baseline IsSealed and Timestamp properties.
+        /// If user doesn't have read permissions for all requested artifacts method returns empty IEnumerable.
+        /// </remarks>
+        /// <response code="200">OK.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>              
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpPost]
+        [Route("artifacts/baselineInfo"), SessionRequired]
+        public async Task<IEnumerable<BaselineInfo>> GetBaselineInfo([FromBody] ISet<int> artifactIds)
+        {
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            return await ArtifactRepository.GetBaselineInfo(artifactIds, session.UserId, true, int.MaxValue);
+        }
     }
 }

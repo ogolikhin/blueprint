@@ -10,6 +10,7 @@ using Model.StorytellerModel.Impl;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
+using Model.ModelHelpers;
 using Model.StorytellerModel.Enums;
 using TestCommon;
 using Utilities;
@@ -135,21 +136,20 @@ namespace ArtifactStoreTests
             Assert.AreEqual(0, subArtifacts.Count, "For deleted process GetSubartifacts must return empty list.");
         }
 
-        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForNovaRestMethods))]
         [TestRail(182596)]
         [Description("Create default process and new artifact in a different project from the process. Add inline trace that points to the artifact from a process " +
             "subartifact.  Verify inline trace added. Modify the artifact name and publish.  Verify inline trace in process subartifact is updated with a new name.")]
         public void GetSubArtifact_CreateInlineTraceFromProcessSubArtifactToArtifactInDifferentProject_ModifyArtifactName_VerifyInlineTraceUpdatedInProcess(
-            BaseArtifactType baseArtifactType)
+            ItemTypePredefined artifactType)
         {
             // Setup:
             var projects = ProjectFactory.GetProjects(_user, numberOfProjects: 2);
+            var mainProject = projects[0];
+            var secondProject = projects[1];
 
-            projects[1].GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
-
-            var artifact = Helper.CreateAndPublishArtifact(projects[0], _user, baseArtifactType);
-
-            var processArtifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(projects[1], _user, ItemTypePredefined.Process);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, mainProject, artifactType);
+            var processArtifact = Helper.CreateAndPublishNovaArtifactForStandardArtifactType(_user, secondProject, ItemTypePredefined.Process);
 
             var expectedDescriptionProperty = CreateInlineTraceFromProcessSubArtifactToArtifactAndPublish(processArtifact, artifact);
 
@@ -160,15 +160,15 @@ namespace ArtifactStoreTests
 
             Assert.AreEqual(expectedDescriptionProperty, updatedDescriptionProperty.Value.ToString(), "Description properties don't match.");
 
-            artifact.Lock();
+            artifact.Lock(_user);
 
             // Change the name of artifact
-            var artifactDetailsToUpdateInlineTraceArtifact = ArtifactStoreHelper.CreateNovaArtifactDetailsWithArtifact(artifact);
-            artifactDetailsToUpdateInlineTraceArtifact.Name += "_NameUpdate";
+            var artifactDetailsToUpdateInlineTraceArtifact = ArtifactStoreHelper.CreateNovaArtifactDetailsForUpdate(artifact);
+            artifactDetailsToUpdateInlineTraceArtifact.Name = artifact.Name + "_NameUpdate";
 
             // Update the artifact with the new name
-            Artifact.UpdateArtifact(artifact, _user, artifactDetailsChanges: artifactDetailsToUpdateInlineTraceArtifact);
-            Helper.ArtifactStore.PublishArtifact(artifact, _user);
+            artifact.Update(_user, artifactDetailsToUpdateInlineTraceArtifact);
+            artifact.Publish(_user);
 
             // Get process subartifact via Nova call
             NovaSubArtifact subArtifact = null;
@@ -183,19 +183,16 @@ namespace ArtifactStoreTests
             CheckSubArtifacts(_user, processArtifact.Id, expectedSubArtifactsNumber: 5, itemTypeVersionId: 2);
         }
 
-        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForNovaRestMethods))]
         [TestRail(182559)]
         [Description("Create default process and new artifact. Add inline trace that points to the artifact from a process subartifact.  Verify inline trace added. " +
             "Delete the artifact and publish.  Verify inline trace in process subartifact is marked as invalid.")]
         public void GetSubArtifact_CreateInlineTraceFromProcessSubArtifactToArtifact_DeleteArtifact_VerifyInlineTraceIsMarkedInvalid(
-            BaseArtifactType baseArtifactType)
+            ItemTypePredefined artifactType)
         {
             // Setup:
-            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
-
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, baseArtifactType);
-
-            var processArtifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(_project, _user, ItemTypePredefined.Process);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
+            var processArtifact = Helper.CreateAndPublishNovaArtifactForStandardArtifactType(_user, _project, ItemTypePredefined.Process);
 
             var expectedDescriptionProperty = CreateInlineTraceFromProcessSubArtifactToArtifactAndPublish(processArtifact, artifact);
 
@@ -206,8 +203,8 @@ namespace ArtifactStoreTests
 
             Assert.AreEqual(expectedDescriptionProperty, updatedDescriptionProperty.Value.ToString(), "Description properties don't match.");
 
-            artifact.Delete();
-            artifact.Publish();
+            artifact.Delete(_user);
+            artifact.Publish(_user);
 
             NovaSubArtifact subArtifact = null;
 
@@ -223,23 +220,21 @@ namespace ArtifactStoreTests
             Assert.AreEqual(subArtifact.IndicatorFlags, null, "IndicatorFlags property should be null!");
         }
 
-        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForNovaRestMethods))]
         [TestRail(182600)]
-        [Description("Create default process and new artifact in deifferent project. Add inline trace that points to the artifact from a process subartifact." +
+        [Description("Create default process and new artifact in different project. Add inline trace that points to the artifact from a process subartifact." +
                      "Verify inline trace added. Verify that GetArtifactDetails call returns invalid inline trace link if the user doesn't have the access permission " + 
                      "for the inline trace artifact")]
         public void GetSubArtifact_CreateInlineTraceFromProcessSubArtifactToArtifact_UserWithoutPermissionToInlineTraceArtifact_VerifyInlineTraceIsMarkedInvalid(
-            BaseArtifactType baseArtifactType)
+            ItemTypePredefined artifactType)
         {
             // Setup:
             var projects = ProjectFactory.GetProjects(_user, numberOfProjects: 2);
             var mainProject = projects[0];
             var secondProject = projects[1];
-            secondProject.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
-            var artifact = Helper.CreateAndPublishArtifact(mainProject, _user, baseArtifactType);
-
-            var processArtifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(secondProject, _user, ItemTypePredefined.Process);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, mainProject, artifactType);
+            var processArtifact = Helper.CreateAndPublishNovaArtifactForStandardArtifactType(_user, secondProject, ItemTypePredefined.Process);
 
             var expectedDescriptionProperty = CreateInlineTraceFromProcessSubArtifactToArtifactAndPublish(processArtifact, artifact);
 
@@ -784,23 +779,26 @@ namespace ArtifactStoreTests
         }
 
         /// <summary>
-        /// Creates inline trace between process sub-artifact and another artifact
+        /// Creates inline trace between process sub-artifact and another artifact.
         /// </summary>
-        /// <param name="processArtifact">Process artifact</param>
-        /// <param name="artifact">Another artifact</param>
-        /// <returns>Expected updated description with inline trace</returns>
-        private string CreateInlineTraceFromProcessSubArtifactToArtifactAndPublish(IArtifact processArtifact, IArtifact artifact)
+        /// <param name="processArtifact">Process artifact.</param>
+        /// <param name="artifact">Another artifact.</param>
+        /// <returns>Expected updated description with inline trace.</returns>
+        private string CreateInlineTraceFromProcessSubArtifactToArtifactAndPublish(ArtifactWrapper processArtifact, ArtifactWrapper artifact)
         {
             var userTaskSubArtifact = Helper.ArtifactStore.GetSubartifacts(_user, processArtifact.Id).Find(sa => sa.DisplayName.Equals(Process.DefaultUserTaskName));
             var subArtifactChangeSet = Helper.ArtifactStore.GetSubartifact(_user, processArtifact.Id, userTaskSubArtifact.Id);
-            subArtifactChangeSet.Description = ArtifactStoreHelper.CreateTextForProcessInlineTrace(new List<IArtifact> { artifact });
 
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, processArtifact.Id);
-            artifactDetails.SubArtifacts = new List<NovaSubArtifact>() { subArtifactChangeSet };
+            subArtifactChangeSet.Description = ArtifactStoreHelper.CreateTextForProcessInlineTrace(
+                new List<ArtifactWrapper> { artifact },
+                Helper.BlueprintServer.Address);
+
+            var processForUpdate = ArtifactStoreHelper.CreateNovaArtifactDetailsForUpdate(processArtifact);
+            processForUpdate.SubArtifacts = new List<NovaSubArtifact> { subArtifactChangeSet };
 
             processArtifact.Lock(_user);
-            Helper.ArtifactStore.UpdateArtifact(_user, artifactDetails);
-            Helper.ArtifactStore.PublishArtifact(processArtifact, _user);
+            processArtifact.Update(_user, processForUpdate);
+            processArtifact.Publish(_user);
 
             return subArtifactChangeSet.Description;
         }

@@ -115,12 +115,19 @@ namespace Model.Factories
         /// <param name="user">The user making the REST request.</param>
         /// <param name="numberOfProjects">The number of projects to get.</param>
         /// <param name="shouldRetrieveArtifactTypes">(optional) Define if ArtifactType list needs to be retrieved.
-        ///  By default, set to true</param>
+        ///     By default, set to true</param>
         /// <param name="shouldRetrievePropertyTypes">(optional) Define if Property values also need to be retrieved
-        ///  as part of ArtifactType list.  By default, set to false</param>
+        ///     as part of ArtifactType list.  By default, set to false</param>
+        /// <param name="shouldRetrieveNovaArtifactTypes">(optional) Define if NovaArtifactType list needs to be retrieved.
+        ///     By default, set to true</param>
         /// <returns>The first x number of projects retrieved from Blueprint server.</returns>
         /// <exception cref="DataException">If not enough projects exist on the server.</exception>
-        public static List<IProject> GetProjects(IUser user, int numberOfProjects, bool shouldRetrieveArtifactTypes = true, bool shouldRetrievePropertyTypes = false)
+        public static List<IProject> GetProjects(
+            IUser user,
+            int numberOfProjects,
+            bool shouldRetrieveArtifactTypes = true,
+            bool shouldRetrievePropertyTypes = false,
+            bool shouldRetrieveNovaArtifactTypes = true)
         {
             var allProjects = GetAllProjects(user);
 
@@ -133,7 +140,7 @@ namespace Model.Factories
                 throw new DataException(errorMsg);
             }
 
-            // Get project from blueprint
+            // Get project(s) from blueprint.
             var projects = allProjects.GetRange(0, numberOfProjects);
 
             if (shouldRetrieveArtifactTypes)
@@ -142,6 +149,16 @@ namespace Model.Factories
                 {
                     project.GetAllOpenApiArtifactTypes(address: Address, user: user,
                         shouldRetrievePropertyTypes: shouldRetrievePropertyTypes);
+                }
+            }
+
+            if (shouldRetrieveNovaArtifactTypes)
+            {
+                var artifactStore = ArtifactStoreFactory.GetArtifactStoreFromTestConfig();
+
+                foreach (var project in projects)
+                {
+                    project.GetAllNovaArtifactTypes(artifactStore, user);
                 }
             }
 

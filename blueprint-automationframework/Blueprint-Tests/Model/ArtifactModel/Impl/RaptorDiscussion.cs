@@ -108,6 +108,8 @@ namespace Model.ArtifactModel.Impl
 
             if ((expectedDiscussion != null) && (actualDiscussion != null))
             {
+                Assert.AreEqual(expectedDiscussion.Username, actualDiscussion.Username, "The {0} properties don't match!", nameof(IRaptorDiscussion.Username));
+
                 // Compare Replies.
                 if ((expectedDiscussion.Replies == null) || (actualDiscussion.Replies == null))
                 {
@@ -172,14 +174,13 @@ namespace Model.ArtifactModel.Impl
                 Assert.AreEqual(expectedDiscussion.IsGuest, actualDiscussion.IsGuest, MESSAGE, nameof(IDiscussionAdapter.IsGuest));
                 Assert.AreEqual(expectedDiscussion.ItemId, actualDiscussion.ItemId, MESSAGE, nameof(IDiscussionAdapter.ItemId));
                 Assert.AreEqual(expectedDiscussion.UserId, actualDiscussion.UserId, MESSAGE, nameof(IDiscussionAdapter.UserId));
-                Assert.AreEqual(expectedDiscussion.Username, actualDiscussion.Username, MESSAGE, nameof(IDiscussionAdapter.Username));
                 Assert.AreEqual(expectedDiscussion.Version, actualDiscussion.Version, MESSAGE, nameof(IDiscussionAdapter.Version));
             }
         }
     }
 
     // Found in:  blueprint-current/Source/BluePrintSys.RC.Business.Internal/Components/RapidReview/Models/DiscussionsInfo.cs
-    public class RaptorReply : IReplyAdapter
+    public class RaptorReply : IRaptorReply
     {
         #region Serialized JSON properties
 
@@ -199,6 +200,22 @@ namespace Model.ArtifactModel.Impl
         public bool CanDelete { get; set; }
 
         #endregion Serialized JSON properties
+
+        /// <summary>
+        /// Asserts that all the properties of the two Replies are equal.
+        /// </summary>
+        /// <param name="expectedReply">The expected Reply.</param>
+        /// <param name="actualReply">The actual Reply.</param>
+        /// <param name="skipCanEdit">(optional) Pass true to skip comparison of the CanEdit properties.</param>
+        public static void AssertAreEqual(IRaptorReply expectedReply, IRaptorReply actualReply, bool skipCanEdit = false)
+        {
+            AssertAreEqual((IReplyAdapter)expectedReply, (IReplyAdapter)actualReply, skipCanEdit);
+
+            if ((expectedReply != null) && (actualReply != null))
+            {
+                Assert.AreEqual(expectedReply.Username, actualReply.Username, "The {0} properties don't match!", nameof(IRaptorReply.Username));
+            }
+        }
 
         /// <summary>
         /// Asserts that all the properties of the two Replies are equal.
@@ -234,7 +251,6 @@ namespace Model.ArtifactModel.Impl
                 Assert.AreEqual(expectedReply.ItemId, actualReply.ItemId, MESSAGE, nameof(IReplyAdapter.ItemId));
                 Assert.AreEqual(expectedReply.ReplyId, actualReply.ReplyId, MESSAGE, nameof(IReplyAdapter.ReplyId));
                 Assert.AreEqual(expectedReply.UserId, actualReply.UserId, MESSAGE, nameof(IReplyAdapter.UserId));
-                Assert.AreEqual(expectedReply.Username, actualReply.Username, MESSAGE, nameof(IReplyAdapter.Username));
                 Assert.AreEqual(expectedReply.Version, actualReply.Version, MESSAGE, nameof(IReplyAdapter.Version));
             }
         }

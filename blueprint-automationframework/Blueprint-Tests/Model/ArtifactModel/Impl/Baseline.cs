@@ -3,36 +3,47 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using Model.Common.Enums;
 using Utilities;
+using Newtonsoft.Json;
 
 namespace Model.ArtifactModel.Impl
 {
     public class Baseline : NovaCollectionBase
     {
         #region JSON Properties
-        public bool IsAvailableInAnalytics {
-            get { return _isAvailableInAnalytics; }
-            set { _isAvailableInAnalytics = value; }
-        }
 
-        private bool _isAvailableInAnalytics;
+        public DateTime? MinimalUtcTimestamp { get; set; }
 
         public bool NotAllArtifactsAreShown { get; set; }
 
-        public bool IsSealed {
-            get { return _isSealed; }
-            set { _isSealed = value; }
+        #endregion JSON Properties
+
+        [JsonIgnore]
+        public bool IsAvailableInAnalytics {
+            get {
+                return GetSpecificPropertyValue<bool>(PropertyTypePredefined.BaselineIsDataAnalyticsAvailable); }
+            set { SetBaselineProperty(PropertyTypePredefined.BaselineIsDataAnalyticsAvailable, value); }
         }
-        private bool _isSealed;
+
+        [JsonIgnore]
+        public bool IsSealed {
+            get { return GetSpecificPropertyValue<bool>(PropertyTypePredefined.BaselineIsSealed); }
+            set { SetBaselineProperty(PropertyTypePredefined.BaselineIsSealed, value); }
+        }
 
         // null for 'Live' baseline
+        [JsonIgnore]
         public DateTime? UtcTimestamp
         {
-            get { return _utcTimestamp; }
-            set { _utcTimestamp = value; }
+            get { return GetSpecificPropertyValue<DateTime?>(PropertyTypePredefined.BaselineTimestamp); }
+            set { SetBaselineProperty(PropertyTypePredefined.BaselineTimestamp, value); }
         }
-        private DateTime? _utcTimestamp;
 
-        #endregion
+        [JsonIgnore]
+        public DateTime? BaselineCurrentClientUtcTime
+        {
+            get { return GetSpecificPropertyValue<DateTime?>(PropertyTypePredefined.BaselineCurrentClientUtcTime); }
+            set { SetBaselineProperty(PropertyTypePredefined.BaselineCurrentClientUtcTime, value); }
+        }
 
         #region Constructors
         public Baseline(bool isAvailableInAnalytics, bool notAllArtifactsAreShown, bool isSealed)
@@ -79,36 +90,6 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
-        /// Sets IsAvailableInAnalytics flag in SpecificPropertyValues to make it available for ArtifactUpdate
-        /// </summary>
-        /// <param name="availableInAnalytics">value to set</param>
-        public void SetIsAvailableInAnalytics(bool availableInAnalytics) // TFS 5761
-        {
-            SetBaselineProperty(PropertyTypePredefined.BaselineIsDataAnalyticsAvailable, availableInAnalytics);
-            _isAvailableInAnalytics = availableInAnalytics;
-        }
-
-        /// <summary>
-        /// Sets UtcTimestamp flag in SpecificPropertyValues to make it available for ArtifactUpdate
-        /// </summary>
-        /// <param name="utcTimestamp">value to set</param>
-        public void SetUtcTimestamp(DateTime utcTimestamp) // TFS 5761
-        {
-            SetBaselineProperty(PropertyTypePredefined.BaselineTimestamp, utcTimestamp);
-            _utcTimestamp = utcTimestamp;
-        }
-
-        /// <summary>
-        /// Sets IsSealed flag in SpecificPropertyValues to make it available for ArtifactUpdate
-        /// </summary>
-        /// <param name="isSealed">value to set</param>
-        public void SetIsSealed(bool isSealed) // TFS 5761
-        {
-            SetBaselineProperty(PropertyTypePredefined.BaselineIsSealed, isSealed);
-            _isSealed = isSealed;
-        }
-
-        /// <summary>
         /// Sets or adds property value to the specified value
         /// </summary>
         /// <param name="baselinePropertyType">Property type to set</param>
@@ -137,5 +118,22 @@ namespace Model.ArtifactModel.Impl
     {
         public int? UnpublishedArtifactCount { get; set; }
         public int? NonExistentArtifactCount { get; set; }
+    }
+
+    public class BaselineInfo
+    {
+        #region JSON Properties
+        public int ItemId { set; get; }
+        public bool IsSealed { set; get; }
+        public DateTime? UtcTimestamp { set; get; }
+        #endregion
+
+        public void AssertBaselineInfoCorrespondsToBaseline(Baseline baseline)
+        {
+            ThrowIf.ArgumentNull(baseline, nameof(baseline));
+            Assert.AreEqual(ItemId, baseline.Id, "ItemId for BaselineInfo should be equal to Id for Baseline.");
+            Assert.AreEqual(IsSealed, baseline.IsSealed, "IsSealed for BaselineInfo and for Baseline should be equal.");
+            Assert.AreEqual(UtcTimestamp, baseline.UtcTimestamp, "UtcTimestamp for BaselineInfo and for Baseline should be equal.");
+        }
     }
 }

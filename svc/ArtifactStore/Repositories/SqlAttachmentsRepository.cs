@@ -78,7 +78,7 @@ namespace ArtifactStore.Repositories
             {
                 itemId = subArtifactId.Value;
             }
-            var revisionId = await ItemInfoRepository.GetRevisionId(itemId, userId, versionId, baselineId);
+            var revisionId = await ItemInfoRepository.GetRevisionId(artifactId, userId, versionId, baselineId);
             if (baselineId != null)
             {
                 addDrafts = false;

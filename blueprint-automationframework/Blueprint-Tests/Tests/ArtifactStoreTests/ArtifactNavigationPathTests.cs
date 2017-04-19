@@ -3,7 +3,6 @@ using Helper;
 using Model;
 using Model.ArtifactModel;
 using Model.Factories;
-using Model.Impl;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,14 +38,14 @@ namespace ArtifactStoreTests
 
         #region 200 OK tests
 
-        [TestCase(BaseArtifactType.Actor)]
-        [TestCase(BaseArtifactType.PrimitiveFolder)]
+        [TestCase(ItemTypePredefined.Actor)]
+        [TestCase(ItemTypePredefined.PrimitiveFolder)]
         [TestRail(183596)]
         [Description("Create & publish an artifact.  Verify get artifact navigation path call returns project information.")]
-        public void ArtifactNavigation_PublishedArtifact_ReturnsProjectInfo(BaseArtifactType artifactType)
+        public void ArtifactNavigation_PublishedArtifact_ReturnsProjectInfo(ItemTypePredefined artifactType)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
 
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
@@ -60,16 +59,16 @@ namespace ArtifactStoreTests
             VerifyAncestorsInformation(basicArtifactInfoList, artifact.ParentId);
         }
 
-        [TestCase(BaseArtifactType.Actor)]
-        [TestCase(BaseArtifactType.PrimitiveFolder)]
+        [TestCase(ItemTypePredefined.Actor)]
+        [TestCase(ItemTypePredefined.PrimitiveFolder)]
         [TestRail(183597)]
         [Description("Create & save an artifact.  Verify get artifact navigation path call returns project information.")]
-        public void ArtifactNavigation_SavedArtifact_ReturnsProjectInfo(BaseArtifactType artifactType)
+        public void ArtifactNavigation_SavedArtifact_ReturnsProjectInfo(ItemTypePredefined artifactType)
         {
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            var artifact = Helper.CreateAndSaveArtifact(_project, author, artifactType);
+            var artifact = Helper.CreateNovaArtifact(author, _project, artifactType);
 
             List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
 
@@ -81,14 +80,14 @@ namespace ArtifactStoreTests
             VerifyAncestorsInformation(basicArtifactInfoList, artifact.ParentId);
         }
 
-        [TestCase(BaseArtifactType.Actor)]
+        [TestCase(ItemTypePredefined.Actor)]
         [TestRail(183598)]
         [Description("Create & publish an artifact and its child.  Verify get artifact navigation path call returns parent artifact and project information.")]
-        public void ArtifactNavigation_PublishedArtifactWithAChild_ReturnsParentArtifactAndProjectInfo(BaseArtifactType artifactType)
+        public void ArtifactNavigation_PublishedArtifactWithAChild_ReturnsParentArtifactAndProjectInfo(ItemTypePredefined artifactType)
         {
             // Setup:
-            var parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            var childArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, parentArtifact);
+            var parentArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
+            var childArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType, parentArtifact.Id);
 
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
@@ -120,14 +119,14 @@ namespace ArtifactStoreTests
         }
 
 
-        [TestCase(BaseArtifactType.Actor)]
+        [TestCase(ItemTypePredefined.Actor)]
         [TestRail(183607)]
         [Description("Create & publish an artifact within a folder.  Verify get artifact navigation path call returns folder and project information.")]
-        public void ArtifactNavigation_PublishedArtifactInAFolder_ReturnsFolderAndProjectInfo(BaseArtifactType artifactType)
+        public void ArtifactNavigation_PublishedArtifactInAFolder_ReturnsFolderAndProjectInfo(ItemTypePredefined artifactType)
         {
             // Setup:
-            var folder = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, folder);
+            var folder = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.PrimitiveFolder);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType, folder.Id);
 
             List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
 
@@ -141,14 +140,14 @@ namespace ArtifactStoreTests
             VerifyAncestorsInformation(basicArtifactInfoList, artifact.ParentId);
         }
 
-        [TestCase(BaseArtifactType.UseCase)]
-        [TestCase(BaseArtifactType.Process)]
+        [TestCase(ItemTypePredefined.UseCase)]
+        [TestCase(ItemTypePredefined.Process)]
         [TestRail(183608)]
         [Description("Create & publish an artifact with subartifacts.  Verify get artifact navigation path call for sub-artifact returns artifact and project information.")]
-        public void ArtifactNavigation_SubArtifactIdOfPublishedArtifact_ReturnsArtifactAndProjectInfo(BaseArtifactType artifactType)
+        public void ArtifactNavigation_SubArtifactIdOfPublishedArtifact_ReturnsArtifactAndProjectInfo(ItemTypePredefined artifactType)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
 
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
             Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact");
@@ -168,16 +167,15 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(183630)]
-        [Description("Create & save a collection artifact in collection folder. Verify get artifact navigation path call for collection returns Collections folder and project information.")]
+        [Description("Create & save a collection artifact in collection folder.  Verify get artifact navigation path call for collection returns " +
+                     "Collections folder and project information.")]
         public void ArtifactNavigation_CollectionInCollectionFolder_ReturnsCollectionFolderAndProjectInfo()
         {
             // Setup:
-            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
-
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
-           
-            var collectionFolder = Helper.CreateAndSaveCollectionFolder(_project, author);
-            var collection = Helper.CreateAndSaveCollection(_project, author, collectionFolder.Id);
+
+            var collectionFolder = Helper.CreateUnpublishedCollectionFolder(_project, author);
+            var collection = Helper.CreateUnpublishedCollection(_project, author, collectionFolder.Id);
 
             List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
 
@@ -212,22 +210,23 @@ namespace ArtifactStoreTests
             VerifyAncestorsInformation(basicArtifactInfoList, basicArtifactInfo.ParentId);
         }
 
-        [TestCase(BaseArtifactType.PrimitiveFolder, // PrimitiveFolders can only have projects as parents.
-            BaseArtifactType.Actor,
-            BaseArtifactType.BusinessProcess,
-            BaseArtifactType.Document,
-            BaseArtifactType.DomainDiagram,
-            BaseArtifactType.GenericDiagram,
-            BaseArtifactType.Glossary,
-            BaseArtifactType.Process,
-            BaseArtifactType.Storyboard,
-            BaseArtifactType.TextualRequirement,
-            BaseArtifactType.UIMockup,
-            BaseArtifactType.UseCase,
-            BaseArtifactType.UseCaseDiagram)]
+        [TestCase(ItemTypePredefined.PrimitiveFolder, // PrimitiveFolders can only have projects as parents.
+            ItemTypePredefined.Actor,
+            ItemTypePredefined.BusinessProcess,
+            ItemTypePredefined.Document,
+            ItemTypePredefined.DomainDiagram,
+            ItemTypePredefined.GenericDiagram,
+            ItemTypePredefined.Glossary,
+            ItemTypePredefined.Process,
+            ItemTypePredefined.Storyboard,
+            ItemTypePredefined.TextualRequirement,
+            ItemTypePredefined.UIMockup,
+            ItemTypePredefined.UseCase,
+            ItemTypePredefined.UseCaseDiagram)]
         [TestRail(184481)]
-        [Description("Create a chain of published parent/child artifacts and other top level artifacts. Verify a list of top level artifact information is returned and values of properties are correct.")]
-        public void ArtifactNavigation_PublishedChainWithAllArtifactTypes_ReturnListOfArtifactInfo(params BaseArtifactType[] artifactTypeChain)
+        [Description("Create a chain of published parent/child artifacts and other top level artifacts. Verify a list of top level artifact information " +
+                     "is returned and values of properties are correct.")]
+        public void ArtifactNavigation_PublishedChainWithAllArtifactTypes_ReturnListOfArtifactInfo(params ItemTypePredefined[] artifactTypeChain)
         {
             ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
 
@@ -260,7 +259,8 @@ namespace ArtifactStoreTests
             BaseArtifactType.UseCase,
             BaseArtifactType.UseCaseDiagram)]
         [TestRail(185204)]
-        [Description("Create a chain of saved parent/child artifacts and other top level artifacts.  Verify a list of top level artifact information is returned and values of properties are correct.")]
+        [Description("Create a chain of saved parent/child artifacts and other top level artifacts.  Verify a list of top level artifact information " +
+                     "is returned and values of properties are correct.")]
         public void ArtifactNavigation_SavedChainWithAllArtifactTypes_ReturnListOfArtifactInfo(params BaseArtifactType[] artifactTypeChain)
         {
             ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
@@ -280,15 +280,15 @@ namespace ArtifactStoreTests
             VerifyAncestorsInformation(basicArtifactInfoList, artifactChain.Last().ParentId, author);
         }
 
-        [TestCase(BaseArtifactType.UseCase, 5, BaseArtifactType.Process)]
+        [TestCase(ItemTypePredefined.UseCase, 3, ItemTypePredefined.Process)]
         [TestRail(184484)]
         [Description("Create & publish an artifact with sub-artifacts and chains of 5 child artifacts and 5 folders.  Move chain of artifacts to one folder before the last.  " +
             "Verify get artifact navigation path call for sub-artifact in an artifact returns information about an artifact, all ancestor artifacts, ancestor folders and a project.")]
         public void ArtifactNavigation_SubArtifactInAChainOfPublishedArtifactsAndFolders_ReturnsListOfArtifactAndFolderInfo(
-            BaseArtifactType artifactType, int numberOfArtifacts, BaseArtifactType artifactTypeInChain)
+            ItemTypePredefined artifactType, int numberOfArtifacts, ItemTypePredefined artifactTypeInChain)
         {
             // Setup:
-            var folderTypes = CreateListOfArtifactTypes(numberOfArtifacts, BaseArtifactType.PrimitiveFolder);
+            var folderTypes = CreateListOfArtifactTypes(numberOfArtifacts, ItemTypePredefined.PrimitiveFolder);
             var artifactTypes = CreateListOfArtifactTypes(numberOfArtifacts, artifactTypeInChain);
 
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
@@ -296,10 +296,10 @@ namespace ArtifactStoreTests
             var artifacts = Helper.CreatePublishedArtifactChain(_project, author, artifactTypes.ToArray());
             var folders = Helper.CreatePublishedArtifactChain(_project, author, folderTypes.ToArray());
 
-            artifacts.First().Lock(author);
-            Helper.ArtifactStore.MoveArtifact(artifacts.First(), folders[folders.Count - 2], author);
+            artifacts[0].Lock(author);
+            artifacts[0].MoveArtifact(author, folders[folders.Count - 2].Id);
 
-            var artifact = Helper.CreateAndPublishArtifact(_project, author, artifactType, artifacts.Last());
+            var artifact = Helper.CreateNovaArtifact(author, _project, artifactType, parentId: artifacts.Last().Id);
 
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(author, artifact.Id);
             Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact");
@@ -387,55 +387,53 @@ namespace ArtifactStoreTests
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.NAVIGATION_PATH);
 
             // Validation: Exception should contain proper errorCode in the response content.
-            var serviceErrorMessage = SerializationUtilities.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
-            Assert.AreEqual(ErrorCodes.UnauthorizedAccess, serviceErrorMessage.ErrorCode,
-                "{0} using the user without view permission to the artifact should return {1} errorCode but {2} is returned",
-                RestPaths.Svc.ArtifactStore.Artifacts_id_.NAVIGATION_PATH, ErrorCodes.UnauthorizedAccess, serviceErrorMessage.ErrorCode);
+            string expectedMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", _project.Id);
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess, expectedMessage);
         }
 
-        [TestCase(BaseArtifactType.Process)]
+        [TestCase(ItemTypePredefined.Process)]
         [TestRail(185178)]
         [Description("Create & publish an artifact. User without permissions to artifact calls GetArtifactNagivationPath.  Verify returned code 403 Forbidden.")]
-        public void ArtifactNavigationPath_PublishedArtifact_UserWithoutPermissionsToArtifact_403Forbidden(BaseArtifactType artifactType)
+        public void ArtifactNavigationPath_PublishedArtifact_UserWithoutPermissionsToArtifact_403Forbidden(ItemTypePredefined artifactType)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
 
             // Create a user that has access to the project but not the artifact.
             var userWithoutPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
             Helper.AssignProjectRolePermissionsToUser(userWithoutPermissions, TestHelper.ProjectRole.None, _project, artifact);
 
-            // Execute & Verify:
+            // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetNavigationPath(user: userWithoutPermissions, itemId: artifact.Id),
                 "'GET {0}' should return 403 Forbidden when user without permissions tries to get artifact path!", SVC_PATH);
 
-            string expectedExceptionMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", artifact.Id);
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "Expected '{0}' error when user without permissions tries to get artifact path.", expectedExceptionMessage);
+            // Verify:
+            string expectedMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", artifact.Id);
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess, expectedMessage);
         }
 
-        [TestCase(BaseArtifactType.Process)]
+        [TestCase(ItemTypePredefined.Process)]
         [TestRail(185184)]
-        [Description("Create & publish parent and child artifact. User without permissions to parent artifact calls GetArtifactNagivationPath for child artifact.  Verify returned code 403 Forbidden.")]
-        public void ArtifactNavigationPath_PublishedParentAndChildArtifacts_UserWithoutPermissionsToParentArtifact_403Forbidden(BaseArtifactType artifactType)
+        [Description("Create & publish parent and child artifact. User without permissions to parent artifact calls GetArtifactNagivationPath for child artifact.  " +
+                     "Verify returned code 403 Forbidden.")]
+        public void ArtifactNavigationPath_PublishedParentAndChildArtifacts_UserWithoutPermissionsToParentArtifact_403Forbidden(ItemTypePredefined artifactType)
         {
             // Setup:
-            var parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            var childArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, parentArtifact);
+            var parentArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
+            var childArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType, parentArtifact.Id);
 
             // Create a user that has access to the project but not the artifact.
             var userWithoutPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
             Helper.AssignProjectRolePermissionsToUser(userWithoutPermissions, TestHelper.ProjectRole.None, _project, parentArtifact);
 
-            // Execute & Verify:
+            // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetNavigationPath(user: userWithoutPermissions, itemId: childArtifact.Id),
                 "'GET {0}' should return 403 Forbidden when user without permissions tries to get artifact path for artifact which parent artifact has no permissions!",
                 SVC_PATH);
 
-            string expectedExceptionMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", childArtifact.Id);
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "Expected '{0}' error when user without permissions tries to get artifact path for artifact which parent artifact has no permissions.",
-                expectedExceptionMessage);
+            // Verify:
+            string expectedMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", childArtifact.Id);
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess, expectedMessage);
         }
 
         #endregion 403 Forbidden Tests
@@ -453,10 +451,8 @@ namespace ArtifactStoreTests
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.NAVIGATION_PATH);
 
             // Validation: Exception should contain proper errorCode in the response content.
-            var serviceErrorMessage = SerializationUtilities.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
-            Assert.AreEqual(ErrorCodes.ResourceNotFound, serviceErrorMessage.ErrorCode,
-                "{0} with non-existing artifact ID should return {1} errorCode but {2} is returned",
-                RestPaths.Svc.ArtifactStore.Artifacts_id_.NAVIGATION_PATH, ErrorCodes.ResourceNotFound, serviceErrorMessage.ErrorCode);
+            string expectedMessage = I18NHelper.FormatInvariant("Item (Id:{0}) is not found.", nonExistingArtifactId);
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound, expectedMessage);
         }
 
         [TestCase(0)]
@@ -478,12 +474,16 @@ namespace ArtifactStoreTests
         {
             // Setup: Create and save artifact with the second user
             var secondUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            var savedArtifactBySecondUser = Helper.CreateAndSaveArtifact(_project, secondUser, BaseArtifactType.Actor);
+            var savedArtifactBySecondUser = Helper.CreateNovaArtifact(secondUser, _project, ItemTypePredefined.Actor);
 
-            // Execute and Validation: Execute GetNavigationPath with saved-only artifact by other user
-            Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetNavigationPath(user: _user, itemId: savedArtifactBySecondUser.Id),
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetNavigationPath(user: _user, itemId: savedArtifactBySecondUser.Id),
                 "Calling GET {0} with saved-only artifact by other user should return 404 Not Found!",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.NAVIGATION_PATH);
+
+            // Verify:
+            string expectedMessage = I18NHelper.FormatInvariant("Item (Id:{0}) is not found.", savedArtifactBySecondUser.Id);
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound, expectedMessage);
         }
 
         [TestCase]
@@ -492,9 +492,10 @@ namespace ArtifactStoreTests
         public void ArtifactNavigationPath_WithDeletedArtifactId_404NotFound()
         {
             // Setup: Created and publish artifact then delete the artifact
-            var deletedArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            deletedArtifact.Delete();
-            deletedArtifact.Publish();
+            var deletedArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Actor);
+            deletedArtifact.Lock(_user);
+            deletedArtifact.Delete(_user);
+            deletedArtifact.Publish(_user);
 
             // Execute: Execute GetNavigationPath with the deleted artifact ID
             var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetNavigationPath(user: _user, itemId: deletedArtifact.Id),
@@ -502,10 +503,8 @@ namespace ArtifactStoreTests
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.NAVIGATION_PATH);
 
             // Validation: Exception should contain proper errorCode in the response content.
-            var serviceErrorMessage = SerializationUtilities.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
-            Assert.AreEqual(ErrorCodes.ResourceNotFound, serviceErrorMessage.ErrorCode,
-                "{0} with deleted artifact ID should return {1} errorCode but {2} is returned",
-                RestPaths.Svc.ArtifactStore.Artifacts_id_.NAVIGATION_PATH, ErrorCodes.ResourceNotFound, serviceErrorMessage.ErrorCode);
+            string expectedMessage = I18NHelper.FormatInvariant("Item (Id:{0}) is not found.", deletedArtifact.Id);
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound, expectedMessage);
         }
 
         #endregion 404 Not Found Tests
@@ -550,9 +549,9 @@ namespace ArtifactStoreTests
         /// <param name="numberOfArtifacts">The number of artifact types to add to the list.</param>
         /// <param name="artifactType">The artifact type.</param>
         /// <returns>A list of artifact types.</returns>
-        private static List<BaseArtifactType> CreateListOfArtifactTypes(int numberOfArtifacts, BaseArtifactType artifactType)
+        private static List<ItemTypePredefined> CreateListOfArtifactTypes(int numberOfArtifacts, ItemTypePredefined artifactType)
         {
-            List<BaseArtifactType> artifactTypes = new List<BaseArtifactType>();
+            List<ItemTypePredefined> artifactTypes = new List<ItemTypePredefined>();
 
             for (int i = 0; i < numberOfArtifacts; i++)
             {

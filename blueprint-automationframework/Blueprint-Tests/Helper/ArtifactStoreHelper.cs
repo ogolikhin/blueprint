@@ -157,6 +157,7 @@ namespace Helper
         /// </summary>
         /// <param name="novaArtifactResponse">The artifact returned by the Nova call.</param>
         /// <param name="artifact">The artifact to compare against.</param>
+        [SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
         public static void AssertNovaArtifactResponsePropertiesMatchWithArtifactSkipVersion(
             INovaArtifactResponse novaArtifactResponse,
             IArtifactBase artifact)
@@ -188,6 +189,7 @@ namespace Helper
         /// <param name="artifact">The artifact to compare against.</param>
         /// <param name="expectedVersion">(optional) The version expected in the NovaArtifactResponse.
         ///     By default it compares the version of the NovaArtifactResponse with the artifact.</param>
+        [SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
         public static void AssertNovaArtifactResponsePropertiesMatchWithArtifact(
             INovaArtifactResponse novaArtifactResponse,
             INovaArtifactDetails artifact,
@@ -281,10 +283,10 @@ namespace Helper
         /// Asserts that the response from the Nova call contains all the specified artifacts.
         /// </summary>
         /// <param name="artifactAndProjectResponse">The response from the Nova call.</param>
-        /// <param name="artifacts">The OpenApi artifacts that we sent to the Nova call.</param>
+        /// <param name="artifacts">The artifacts that we sent to the Nova call.</param>
         public static void AssertArtifactsAndProjectsResponseContainsAllArtifactsInList(
             INovaArtifactsAndProjectsResponse artifactAndProjectResponse,
-            List<IArtifactBase> artifacts)
+            List<INovaArtifactDetails> artifacts)
         {
             ThrowIf.ArgumentNull(artifactAndProjectResponse, nameof(artifactAndProjectResponse));
             ThrowIf.ArgumentNull(artifacts, nameof(artifacts));
@@ -294,7 +296,7 @@ namespace Helper
                 var novaArtifactResponse = artifactAndProjectResponse.Artifacts.Find(a => a.Id == artifact.Id);
                 Assert.NotNull(novaArtifactResponse, "Couldn't find artifact ID {0} in the list of artifacts!");
 
-                AssertNovaArtifactResponsePropertiesMatchWithArtifactSkipVersion(novaArtifactResponse, artifact);
+                NovaArtifactDetails.AssertAreEqual(novaArtifactResponse, artifact);
             }
         }
 
@@ -435,38 +437,6 @@ namespace Helper
             {
                 Assert.That(artifact2.SpecificPropertyValues.Exists(p => p.Name == property.Name),
                 "Couldn't find a SpecificPropertyValue named '{0}'!", property.Name);
-            }
-        }
-
-        /// <summary>
-        /// Asserts that the specified INovaArtifactDetails object is equal to the specified INovaArtifactResponse.
-        /// </summary>
-        /// <param name="artifact1">The first INovaArtifactDetails to compare against.</param>
-        /// <param name="artifact2">The second INovaArtifactResponse to compare against.</param>
-        /// <param name="skipDatesAndDescription">(optional) Pass true to skip comparing the Created*, LastEdited* and Description properties.
-        ///     This is needed when comparing the response of the GetUnpublishedChanges REST call which always returns null for those fields.</param>
-        /// <exception cref="AssertionException">If any of the properties are different.</exception>
-        public static void AssertArtifactsEqual(INovaArtifactDetails artifact1, INovaArtifactResponse artifact2, bool skipDatesAndDescription = false)
-        {
-            ThrowIf.ArgumentNull(artifact1, nameof(artifact1));
-            ThrowIf.ArgumentNull(artifact2, nameof(artifact2));
-
-            Assert.AreEqual(artifact1.Id, artifact2.Id, "The Id parameters don't match!");
-            Assert.AreEqual(artifact1.Name, artifact2.Name, "The Name  parameters don't match!");
-            Assert.AreEqual(artifact1.ParentId, artifact2.ParentId, "The ParentId  parameters don't match!");
-            Assert.AreEqual(artifact1.OrderIndex, artifact2.OrderIndex, "The OrderIndex  parameters don't match!");
-            Assert.AreEqual(artifact1.ItemTypeId, artifact2.ItemTypeId, "The ItemTypeId  parameters don't match!");
-            Assert.AreEqual(artifact1.ProjectId, artifact2.ProjectId, "The ProjectId  parameters don't match!");
-            Assert.AreEqual(artifact1.Version, artifact2.Version, "The Version  parameters don't match!");
-
-            if (!skipDatesAndDescription)
-            {
-                Assert.AreEqual(artifact1.Description, artifact2.Description, "The Description  parameters don't match!");
-                Assert.AreEqual(artifact1.CreatedOn, artifact2.CreatedOn, "The CreatedOn  parameters don't match!");
-                Assert.AreEqual(artifact1.LastEditedOn, artifact2.LastEditedOn, "The LastEditedOn  parameters don't match!");
-
-                Identification.AssertEquals(artifact1.CreatedBy, artifact2.CreatedBy);
-                Identification.AssertEquals(artifact1.LastEditedBy, artifact2.LastEditedBy);
             }
         }
 
@@ -819,15 +789,15 @@ namespace Helper
         /// </summary>
         /// <param name="expectedArtifact">The expected artifact</param>
         /// <param name="actualCollectionItem">The actual collection item</param>
-        public static void AssertAreEqual(IArtifactBase expectedArtifact, CollectionItem actualCollectionItem)
+        public static void AssertAreEqual(INovaArtifactDetails expectedArtifact, CollectionItem actualCollectionItem)
         {
             ThrowIf.ArgumentNull(expectedArtifact, nameof(expectedArtifact));
             ThrowIf.ArgumentNull(actualCollectionItem, nameof(actualCollectionItem));
 
             Assert.AreEqual(expectedArtifact.Id, actualCollectionItem.Id);
             Assert.AreEqual(expectedArtifact.Name, actualCollectionItem.Name);
-            Assert.AreEqual(expectedArtifact.ArtifactTypeId, actualCollectionItem.ItemTypeId);
-            Assert.AreEqual(expectedArtifact.BaseArtifactType.ToItemTypePredefined(), actualCollectionItem.ItemTypePredefined);
+            Assert.AreEqual(expectedArtifact.ItemTypeId, actualCollectionItem.ItemTypeId);
+            Assert.AreEqual(expectedArtifact.PredefinedType, (int)actualCollectionItem.ItemTypePredefined);
         }
 
         #endregion Custom Asserts
@@ -897,7 +867,8 @@ namespace Helper
         /// <param name="propertyName">(optional) The name of the artifact property where the image should be embedded.</param>
         /// <param name="numberOfImagesToAdd">(optional) The number of images to embed in the property.</param>
         /// <returns>The INovaArtifactDetails after saving the artifact.</returns>
-        public static INovaArtifactDetails AddRandomImageToArtifactProperty(NovaArtifactDetails artifactDetails,
+        public static INovaArtifactDetails AddRandomImageToArtifactProperty(
+            INovaArtifactDetails artifactDetails,
             IUser user,
             IArtifactStore artifactStore,
             int width = 100,
@@ -965,14 +936,14 @@ namespace Helper
         /// </summary>
         /// <param name="collection">collection returned from get collection call</param>
         /// <param name="artifactList">list of artifact that represents expected artifacts from the returned collection call</param>
-        public static void ValidateCollection(NovaCollectionBase collection, List<IArtifactBase> artifactList)
+        public static void ValidateCollection(NovaCollectionBase collection, List<INovaArtifactDetails> artifactList)
         {
             ThrowIf.ArgumentNull(collection, nameof(collection));
             ThrowIf.ArgumentNull(artifactList, nameof(artifactList));
 
-            Assert.AreEqual(artifactList.Count(), collection.Artifacts.Count(),
+            Assert.AreEqual(artifactList.Count, collection.Artifacts.Count,
                 "{0} artifacts are expected from collection but {1} are returned.",
-                artifactList.Count(), collection.Artifacts.Count());
+                artifactList.Count, collection.Artifacts.Count);
 
             if (artifactList.Any())
             {
@@ -1653,20 +1624,18 @@ namespace Helper
         }
 
         /// <summary>
-        /// Creates a new NovaArtifactDetails with the published artifact
+        /// Creates a new INovaArtifactDetails with the minimal properties required for updating an artifact.
         /// </summary>
-        /// <param name="artifact">The artifact which contains properties that NovaArtiactDetails refers to</param>
-        /// <returns>NovaArtifactDetails</returns>
-        public static NovaArtifactDetails CreateNovaArtifactDetailsWithArtifact(IArtifactBase artifact)
+        /// <param name="artifact">The artifact which contains properties that NovaArtiactDetails refers to.</param>
+        /// <returns>The INovaArtifactDetails with the minimal required properties for update.</returns>
+        public static INovaArtifactDetails CreateNovaArtifactDetailsForUpdate(INovaArtifactBase artifact)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
             var novaArtifactDetails = new NovaArtifactDetails
             {
                 Id = artifact.Id,
-                ProjectId = artifact.ProjectId,
-                ParentId = artifact.ParentId,
-                Version = artifact.Version,
+                ProjectId = artifact.ProjectId
             };
             return novaArtifactDetails;
         }
@@ -1674,13 +1643,14 @@ namespace Helper
         /// <summary>
         /// Creates inline trace text for the provided artifact. For use with RTF properties.
         /// </summary>
-        /// <param name="inlineTraceArtifact">target artifact for inline traces</param>
-        /// <param name="inlineTraceArtifactDetails">target artifactDetails for inline traces</param>
-        /// <returns>inline trace text</returns>
-        public static string CreateArtifactInlineTraceValue(IArtifactBase inlineTraceArtifact, INovaArtifactDetails inlineTraceArtifactDetails)
+        /// <param name="inlineTraceArtifact">The target artifact for inline traces.</param>
+        /// <param name="blueprintServerAddress">The base address of the Blueprint server.</param>
+        /// <returns>The inline trace text.</returns>
+        public static string CreateArtifactInlineTraceValue(
+            ArtifactWrapper inlineTraceArtifact,
+            string blueprintServerAddress)
         {
             ThrowIf.ArgumentNull(inlineTraceArtifact, nameof(inlineTraceArtifact));
-            ThrowIf.ArgumentNull(inlineTraceArtifactDetails, nameof(inlineTraceArtifactDetails));
 
             string inlineTraceText = I18NHelper.FormatInvariant(
                 "<html><head></head><body style=\"padding: 1px 0px 0px; font-family: 'Portable User Interface'; font-size: 10.67px\">" +
@@ -1691,7 +1661,7 @@ namespace Helper
                 "font-style: normal; font-weight: normal; text-decoration: underline; color: #0000FF\">{2}{1}: {3}</span></a><span " +
                 "style=\"-c1-editable: true; font-family: 'Portable User Interface'; font-size: 10.67px; font-style: normal; font-weight: normal; color: Black\">" +
                 "&#x200b;</span></p></div></body></html>",
-                inlineTraceArtifact.Address, inlineTraceArtifact.Id, inlineTraceArtifactDetails.Prefix, inlineTraceArtifactDetails.Name, inlineTraceArtifact.Project.Name);
+                blueprintServerAddress, inlineTraceArtifact.Id, inlineTraceArtifact.Prefix, inlineTraceArtifact.Name, inlineTraceArtifact.ArtifactState.Project.Name);
 
             return inlineTraceText;
         }
@@ -1767,28 +1737,30 @@ namespace Helper
         /// <summary>
         /// Validates inline trace link returned from artifact details
         /// </summary>
-        /// <param name="artifactdetails">The artifact details containing the inline trace link which needs validation</param>
+        /// <param name="artifactDetails">The artifact details containing the inline trace link which needs validation</param>
         /// <param name="inlineTraceArtifact">The artifact contained within the inline trace link</param>
         /// <param name="validInlineTraceLink">A flag indicating whether the inline trace link is expected to be valid or not</param>
-        public static void ValidateInlineTraceLinkFromArtifactDetails(NovaArtifactDetails artifactdetails,
-            IArtifactBase inlineTraceArtifact,
+        [SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
+        public static void ValidateInlineTraceLinkFromArtifactDetails(
+            INovaArtifactDetails artifactDetails,
+            INovaArtifactDetails inlineTraceArtifact,
             bool validInlineTraceLink)
         {
-            ThrowIf.ArgumentNull(artifactdetails, nameof(artifactdetails));
+            ThrowIf.ArgumentNull(artifactDetails, nameof(artifactDetails));
             ThrowIf.ArgumentNull(inlineTraceArtifact, nameof(inlineTraceArtifact));
 
             // Validation: Verify that the artifactDetails' description field which contain inline trace link contains the valid
             // inline trace information (name of the inline trace artifact).
-            Assert.That(artifactdetails.Description.Contains(inlineTraceArtifact.Name),
+            Assert.That(artifactDetails.Description.Contains(inlineTraceArtifact.Name),
                 "Expected outcome should not contains {0} on returned artifactdetails. Returned inline trace content is {1}.",
                 inlineTraceArtifact.Name,
-                artifactdetails.Description);
+                artifactDetails.Description);
 
-            Assert.AreEqual(validInlineTraceLink, IsValidInlineTrace(artifactdetails.Description),
+            Assert.AreEqual(validInlineTraceLink, IsValidInlineTrace(artifactDetails.Description),
                 "Expected {0} for valid inline trace but {1} was returned. The returned inlinetrace link is {2}.",
                 validInlineTraceLink,
                 !validInlineTraceLink,
-                artifactdetails.Description);
+                artifactDetails.Description);
         }
 
         /// <summary>
@@ -1797,8 +1769,9 @@ namespace Helper
         /// <param name="subArtifact">The subartifact containing the inline trace link which needs validation</param>
         /// <param name="inlineTraceArtifact">The artifact contained within the inline trace link</param>
         /// <param name="validInlineTraceLink">A flag indicating whether the inline trace link is expected to be valid or not</param>
-        public static void ValidateInlineTraceLinkFromSubArtifactDetails(NovaItem subArtifact,
-            IArtifactBase inlineTraceArtifact,
+        public static void ValidateInlineTraceLinkFromSubArtifactDetails(
+            NovaItem subArtifact,
+            ArtifactWrapper inlineTraceArtifact,
             bool validInlineTraceLink)
         {
             ThrowIf.ArgumentNull(subArtifact, nameof(subArtifact));
@@ -1858,11 +1831,12 @@ namespace Helper
         }
 
         /// <summary>
-        /// Creates new rich text that includes inline trace(s)
+        /// Creates new rich text that includes inline trace(s).
         /// </summary>
-        /// <param name="artifacts">The artifacts being added as inline trace(s)</param>
-        /// <returns>A formatted rich text string with inline traces(s)</returns>
-        public static string CreateTextForProcessInlineTrace(IList<IArtifact> artifacts)
+        /// <param name="artifacts">The artifacts being added as inline trace(s).</param>
+        /// <param name="blueprintBaseAddress">The base address of the Blueprint server.</param>
+        /// <returns>A formatted rich text string with inline traces(s).</returns>
+        public static string CreateTextForProcessInlineTrace(IList<ArtifactWrapper> artifacts, string blueprintBaseAddress)
         {
             ThrowIf.ArgumentNull(artifacts, nameof(artifacts));
 
@@ -1870,17 +1844,11 @@ namespace Helper
 
             foreach (var artifact in artifacts)
             {
-                var openApiProperty = artifact.Properties.FirstOrDefault(p => p.Name == "ID");
-
-                if (openApiProperty != null)
-                {
-                    text = text + I18NHelper.FormatInvariant("<a href=\"{0}/?/ArtifactId={1}\" target=\"\" artifactid=\"{1}\"" +
-                        " linkassemblyqualifiedname=\"BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, BluePrintSys.RC.Client.SL.RichText, " +
-                        "Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\" canclick=\"True\" isvalid=\"True\" title=\"Project: {3}\">" +
-                        "<span style=\"text-decoration: underline; color: #0000ff\">{4}: {2}</span></a>",
-                        artifact.Address, artifact.Id, artifact.Name, artifact.Project.Name,
-                        openApiProperty.TextOrChoiceValue);
-                }
+                text = text + I18NHelper.FormatInvariant("<a href=\"{0}/?/ArtifactId={1}\" target=\"\" artifactid=\"{1}\"" +
+                    " linkassemblyqualifiedname=\"BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, BluePrintSys.RC.Client.SL.RichText, " +
+                    "Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\" canclick=\"True\" isvalid=\"True\" title=\"Project: {3}\">" +
+                    "<span style=\"text-decoration: underline; color: #0000ff\">{4}{1}: {2}</span></a>",
+                    blueprintBaseAddress, artifact.Id, artifact.Name, artifact.ArtifactState.Project.Name, artifact.Prefix);
             }
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(text), "Text for inline trace was null or whitespace!");
@@ -1889,19 +1857,21 @@ namespace Helper
         }
 
         /// <summary>
-        /// Adds trace to the artifact (and saves changes).
+        /// Adds trace to the artifact (and saves changes). Artifact should be locked by user.
         /// </summary>
         /// <param name="user">User to perform an operation.</param>
-        /// <param name="artifact">Artifact to add trace.</param>
-        /// <param name="traceTarget">Trace's target.</param>
-        /// <param name="traceDirection">Trace direction.</param>
+        /// <param name="artifactId">If of Artifact to add trace.</param>
+        /// <param name="traceTargetArtifactId">Id of Trace's target artifact.</param>
+        /// <param name="traceTargetArtifactProjectId">Id of Trace's target artifact project.</param>
         /// <param name="changeType">ChangeType enum - Add, Update or Delete trace</param>
         /// <param name="artifactStore">IArtifactStore.</param>
+        /// <param name="traceDirection">(optional)Trace direction. 'From' by default.</param>
         /// <param name="isSuspect">(optional)isSuspect, true for suspect trace, false otherwise.</param>
         /// <param name="targetSubArtifact">(optional)subArtifact for trace target(creates trace with subartifact).</param>
         public static void UpdateManualArtifactTraceAndSave(IUser user,
-            IArtifact artifact,
-            IArtifactBase traceTarget,
+            int artifactId,
+            int traceTargetArtifactId,
+            int traceTargetArtifactProjectId,
             ChangeType changeType,
             IArtifactStore artifactStore,
             TraceDirection traceDirection = TraceDirection.From,
@@ -1909,20 +1879,17 @@ namespace Helper
             NovaItem targetSubArtifact = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
-            ThrowIf.ArgumentNull(traceTarget, nameof(traceTarget));
             ThrowIf.ArgumentNull(traceDirection, nameof(traceDirection));
             ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
 
-            artifact.Lock(user);
-            var artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
+            var artifactDetails = artifactStore.GetArtifactDetails(user, artifactId);
 
             var traceToCreate = new NovaTrace();
-            traceToCreate.ArtifactId = traceTarget.Id;
-            traceToCreate.ProjectId = traceTarget.ProjectId;
+            traceToCreate.ArtifactId = traceTargetArtifactId;
+            traceToCreate.ProjectId = traceTargetArtifactProjectId;
             traceToCreate.Direction = traceDirection;
             traceToCreate.TraceType = TraceType.Manual;
-            traceToCreate.ItemId = targetSubArtifact?.Id ?? traceTarget.Id;
+            traceToCreate.ItemId = targetSubArtifact?.Id ?? traceTargetArtifactId;
             traceToCreate.ChangeType = changeType;
             traceToCreate.IsSuspect = isSuspect ?? false;
 
@@ -1930,7 +1897,7 @@ namespace Helper
 
             artifactDetails.Traces = updatedTraces;
 
-            Artifact.UpdateArtifact(artifact, user, artifactDetails, address: artifactStore.Address);
+            ArtifactStore.UpdateArtifact(artifactStore.Address, user, artifactDetails);
             // TODO: add assertions about changed traces
         }
 
@@ -2044,7 +2011,7 @@ namespace Helper
         /// <param name="text">The new text that will be set in the property.</param>
         /// <param name="propertyName">(optional) The name of the artifact property to update. By default it is Description.</param>
         /// <returns>The INovaArtifactDetails after saving the artifact.</returns>
-        public static INovaArtifactDetails SetArtifactTextProperty(NovaArtifactDetails artifactDetails,
+        public static INovaArtifactDetails SetArtifactTextProperty(INovaArtifactDetails artifactDetails,
             IUser user,
             IArtifactStore artifactStore,
             string text,

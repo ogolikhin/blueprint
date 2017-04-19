@@ -170,10 +170,10 @@ namespace Model.Impl
                 Assert.AreEqual(artifact.ProjectId, project.Id, "Artifact doesn't belong to the project provided.");
             }
 
-            AssignRoleToProjectOrArtifact(project.Id, role.RoleId, artifact == null ? project.Id : artifact.Id);
+            AssignRoleToProjectOrArtifact(project.Id, role.RoleId, artifact?.Id ?? project.Id);
         }
 
-        /// <seealso cref="IGroup.AssignRoleToProjectOrArtifact(IProject, IProjectRole, INovaArtifactDetails)"/>
+        /// <seealso cref="IGroup.AssignRoleToProjectOrNovaArtifact(IProject, IProjectRole, INovaArtifactDetails)"/>
         public void AssignRoleToProjectOrNovaArtifact(IProject project, IProjectRole role,
             INovaArtifactDetails artifact = null)
         {
@@ -185,7 +185,7 @@ namespace Model.Impl
                 Assert.AreEqual(artifact.ProjectId, project.Id, "Artifact doesn't belong to the project provided.");
             }
 
-            AssignRoleToProjectOrArtifact(project.Id, role.RoleId, artifact==null ? project.Id : artifact.Id);
+            AssignRoleToProjectOrArtifact(project.Id, role.RoleId, artifact?.Id ?? project.Id);
         }
 
         /// <summary>

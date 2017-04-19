@@ -10,7 +10,6 @@ namespace Model
     // ********************************************************************************************
     public static class RestPaths
     {
-//        [SuppressMessage("Microsoft.Naming", "CA1724:TypeNamesShouldNotMatchNamespaces")]   // Ignore this warning.
         public static class ImpactAnalysis
         {
             public const string IMPACT_ANALYSIS                     = "ImpactAnalysis/api/{0}/{1}";

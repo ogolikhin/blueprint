@@ -722,7 +722,7 @@ namespace Model.Impl
         public AddToCollectionResult AddArtifactToCollection(IUser user, int artifactId, int collectionId, bool includeDescendants = false,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Collection_id_.CONTENT, collectionId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Collections_id_.CONTENT, collectionId);
             return AddArtifactToBaselineOrCollection<AddToCollectionResult>(user, artifactId, path, includeDescendants, expectedStatusCodes);
         }
 
@@ -773,7 +773,7 @@ namespace Model.Impl
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             //
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Baseline_id_.CONTENT, baselineId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Baselines_id_.CONTENT, baselineId);
             return AddArtifactToBaselineOrCollection<AddToBaselineResult>(user, artifactId, path, includeDescendants, expectedStatusCodes);
         }
 
@@ -904,7 +904,7 @@ namespace Model.Impl
         /// <seealso cref="IArtifactStore.GetReviewArtifacts(IUser, int)"/>
         public GetReviewArtifactsResultSet GetReviewArtifacts(IUser user, int reviewId)
         {
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Review_id_.CONTENT, reviewId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Reviews_id_.CONTENT, reviewId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
             return restApi.SendRequestAndDeserializeObject<GetReviewArtifactsResultSet>(path,

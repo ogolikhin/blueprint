@@ -28,11 +28,11 @@ namespace ArtifactStoreTests
             Helper?.Dispose();
         }
 
-        [Category(Categories.CustomData)]
+        [Category(Categories.GoldenData)]
         [TestCase]
         [TestRail(290224)]
         [Description("Get Review Content by id from Custom Data project, check that artifacts have expected values.")]
-        public void GetReviewArtifacts_ExistingReview_ValidateReturnOK200()
+        public void GetReviewArtifacts_ExistingReview_CheckArtifactsCount()
         {
             // Setup:
             _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
@@ -43,7 +43,7 @@ namespace ArtifactStoreTests
             // Execute: 
             GetReviewArtifactsResultSet reviewArtifacts = null;
             Assert.DoesNotThrow(() => reviewArtifacts = Helper.ArtifactStore.GetReviewArtifacts(_user, reviewId),
-                "Get Baseline shouldn't return an error.");
+                "{0} should be successful.", nameof(Helper.ArtifactStore.GetReviewArtifacts));
 
             // Verify:
             Assert.AreEqual(numberOfArtifacts, reviewArtifacts.Total, "GetReviewArtifacts should return expected number of artifacts.");

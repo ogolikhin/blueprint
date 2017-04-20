@@ -11,6 +11,7 @@ namespace CustomAttributes
         public const string ArtifactStore = "ArtifactStore";
         public const string ArtifactVersion = "ArtifactVersion";
         public const string SearchService = "SearchService";
+        public const string ImpactAnalysis = "ImpactAnalysis";
 
         /// <summary>
         /// This test cannot be run in parallel with other tests.

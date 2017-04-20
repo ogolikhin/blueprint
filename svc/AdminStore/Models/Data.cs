@@ -2,13 +2,10 @@
 
 namespace AdminStore.Models
 {
+   
     public class Data
     {
-        public List<UserDto> Users { get; private set; }
+        public IEnumerable<UserDto> Users { get; set; } 
 
-        public Data()
-        {
-            Users = new List<UserDto>();
-        }
     }
 }

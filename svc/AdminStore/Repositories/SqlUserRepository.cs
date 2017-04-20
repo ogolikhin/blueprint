@@ -133,7 +133,7 @@ namespace AdminStore.Repositories
             var users = GetUsersList(settings, out total).ToList();
             var result = new QueryResult()
             {
-                //Data = new Data() { Users. = UserMapper.Map(users) },
+                Data = new Data(),
                 Pagination = new Pagination()
                 {
                     TotalCount = total,
@@ -142,7 +142,8 @@ namespace AdminStore.Repositories
                     Count = users.Count
                 }
             };
-            result.Data.Users.AddRange(UserMapper.Map(users));
+            var mappedUsers = UserMapper.Map(users).ToArray();
+            result.Data.Users = mappedUsers;
             return result;
         }
 

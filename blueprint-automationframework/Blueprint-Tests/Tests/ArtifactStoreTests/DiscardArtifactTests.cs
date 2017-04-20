@@ -12,6 +12,7 @@ using Model.Impl;
 using TestCommon;
 using Utilities;
 using Model.ArtifactModel.Enums;
+using Model.ModelHelpers;
 
 namespace ArtifactStoreTests
 {
@@ -59,7 +60,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(savedArtifacts.Count, discardArtifactResponse.Artifacts.Count,
                 "There should be {0} artifacts returned in discard results!", savedArtifacts.Count);
             Assert.AreEqual(1, discardArtifactResponse.Projects.Count, "There should be 1 project returned in discard results!");
-            DiscardVerification(discardArtifactResponse, savedArtifacts);
+            VerifyDiscardResponse(discardArtifactResponse, savedArtifacts);
         }
 
         [TestCase(2, BaseArtifactType.Actor)]
@@ -84,7 +85,7 @@ namespace ArtifactStoreTests
                 Assert.AreEqual(savedArtifacts.Count, discardArtifactResponse.Artifacts.Count,
                     "There should be {0} artifacts returned in discard results!", savedArtifacts.Count);
                 Assert.AreEqual(1, discardArtifactResponse.Projects.Count, "There should be 1 project returned in discard results!");
-                DiscardVerification(discardArtifactResponse, savedArtifacts);
+                VerifyDiscardResponse(discardArtifactResponse, savedArtifacts);
             }
             finally
             {
@@ -119,7 +120,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(changedPublishedArtifacts.Count, discardArtifactResponse.Artifacts.Count,
                 "There should be {0} artifacts returned in discard results!", changedPublishedArtifacts.Count);
             Assert.AreEqual(1, discardArtifactResponse.Projects.Count, "There should be 1 project returned in discard results!");
-            DiscardVerification(discardArtifactResponse, changedPublishedArtifacts);
+            VerifyDiscardResponse(discardArtifactResponse, changedPublishedArtifacts);
         }
 
         [TestCase(2, BaseArtifactType.Actor)]
@@ -148,7 +149,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(changedPublishedArtifacts.Count, discardArtifactResponse.Artifacts.Count,
                 "There should be {0} artifacts returned in discard results!", changedPublishedArtifacts.Count);
             Assert.AreEqual(1, discardArtifactResponse.Projects.Count, "There should be 1 project returned in discard results!");
-            DiscardVerification(discardArtifactResponse, changedPublishedArtifacts);
+            VerifyDiscardResponse(discardArtifactResponse, changedPublishedArtifacts);
         }
 
         [TestCase(2, BaseArtifactType.Actor)]
@@ -198,7 +199,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(savedArtifacts.Count, discardArtifactResponse.Artifacts.Count,
                 "There should be {0} artifacts returned in discard results!", savedArtifacts.Count);
             Assert.AreEqual(1, discardArtifactResponse.Projects.Count, "There should be 1 project returned in discard results!");
-            DiscardVerification(discardArtifactResponse, savedArtifacts);
+            VerifyDiscardResponse(discardArtifactResponse, savedArtifacts);
         }
 
         #region Custom data tests 
@@ -243,7 +244,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(publishedArtifacts.Count, discardArtifactResponse.Artifacts.Count,
                 "There should be {0} artifacts returned in discard results!", publishedArtifacts.Count);
             Assert.AreEqual(1, discardArtifactResponse.Projects.Count, "There should be 1 project returned in discard results!");
-            DiscardVerification(discardArtifactResponse, publishedArtifacts);
+            VerifyDiscardResponse(discardArtifactResponse, publishedArtifacts);
         }
 
         [Category(Categories.CustomData)]
@@ -282,15 +283,16 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(1, discardArtifactResponse.Artifacts.Count, "There should be 1 artifacts returned in discard results!");
             Assert.AreEqual(1, discardArtifactResponse.Projects.Count, "There should be 1 project returned in discard results!");
-            DiscardVerification(discardArtifactResponse, new List<IArtifactBase> { firstArtifact });
+            VerifyDiscardResponse(discardArtifactResponse, new List<IArtifactBase> { firstArtifact });
         }
 
         #endregion Custom data tests
 
-        [TestCase(4, BaseArtifactType.Process)]
+        [TestCase(4, ItemTypePredefined.Process)]
         [TestRail(182307)]
         [Description("Create & publish a chain of artifacts.  Move the child artifacts.  Discard with all=true.  Verify all moved artifacts are discarded.")]
-        public void DiscardAllArtifacts_ChainOfPublishedArtifacts_MoveChildArtifacts_MovedArtifactAreDiscarded(int numberOfArtifacts, BaseArtifactType artifactType)
+        public void DiscardAllArtifacts_ChainOfPublishedArtifacts_MoveChildArtifacts_MovedArtifactAreDiscarded(
+            int numberOfArtifacts, ItemTypePredefined artifactType)
         {
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
@@ -299,12 +301,12 @@ namespace ArtifactStoreTests
 
             var artifactChain = Helper.CreatePublishedArtifactChain(_project, author, artifactTypes.ToArray());
 
-            var changedArtifacts = new List<IArtifactBase>();
+            var changedArtifacts = new List<ArtifactWrapper>();
 
             for (int i = 1; i < numberOfArtifacts; i++)
             {
                 artifactChain[i].Lock(author);
-                Helper.ArtifactStore.MoveArtifact(artifactChain[i], artifactChain[0], author);
+                artifactChain[i].MoveArtifact(author, artifactChain[0].Id);
                 changedArtifacts.Add(artifactChain[i]);
             }
 
@@ -318,15 +320,15 @@ namespace ArtifactStoreTests
             Assert.AreEqual(changedArtifacts.Count, discardArtifactResponse.Artifacts.Count,
                 "There should be {0} artifacts returned in discard results!", changedArtifacts.Count);
             Assert.AreEqual(1, discardArtifactResponse.Projects.Count, "There should be 1 project returned in discard results!");
-            DiscardVerification(discardArtifactResponse, changedArtifacts);
+            VerifyDiscardResponse(discardArtifactResponse, changedArtifacts);
         }
 
-        [TestCase(3, BaseArtifactType.Process)]
+        [TestCase(3, ItemTypePredefined.Process)]
         [TestRail(182330)]
         [Description("Create & publish chains of artifacts in different projects.  Move the child artifacts.  Discard with all=true.  " +
             "Verify all moved artifacts are discarded.")]
         public void DiscardAllArtifacts_ChainsOfPublishedArtifactsInDifferentProjects_MoveChildArtifacts_MovedArtifactAreDiscarded(
-            int numberOfArtifacts, BaseArtifactType artifactType)
+            int numberOfArtifacts, ItemTypePredefined artifactType)
         {
             // Setup:
             var artifactTypes = CreateListOfArtifactTypes(numberOfArtifacts, artifactType);
@@ -338,16 +340,16 @@ namespace ArtifactStoreTests
             var artifactChainInProject1 = Helper.CreatePublishedArtifactChain(projects[0], author, artifactTypes.ToArray());
             var artifactChainInProject2 = Helper.CreatePublishedArtifactChain(projects[1], author, artifactTypes.ToArray());
 
-            var changedArtifacts = new List<IArtifactBase>();
+            var changedArtifacts = new List<ArtifactWrapper>();
 
             for (int i = 1; i < numberOfArtifacts; i++)
             {
                 artifactChainInProject1[i].Lock(author);
-                Helper.ArtifactStore.MoveArtifact(artifactChainInProject1[i], artifactChainInProject1[0], author);
+                artifactChainInProject1[i].MoveArtifact(author, artifactChainInProject1[0].Id);
                 changedArtifacts.Add(artifactChainInProject1[i]);
 
                 artifactChainInProject2[i].Lock(author);
-                Helper.ArtifactStore.MoveArtifact(artifactChainInProject2[i], artifactChainInProject2[0], author);
+                artifactChainInProject2[i].MoveArtifact(author, artifactChainInProject2[0].Id);
                 changedArtifacts.Add(artifactChainInProject2[i]);
             }
 
@@ -361,14 +363,14 @@ namespace ArtifactStoreTests
             Assert.AreEqual(changedArtifacts.Count, discardArtifactResponse.Artifacts.Count,
                 "There should be {0} artifacts returned in discard results!", changedArtifacts.Count);
             Assert.AreEqual(2, discardArtifactResponse.Projects.Count, "There should be 2 projects returned in discard results!");
-            DiscardVerification(discardArtifactResponse, changedArtifacts, author);
+            VerifyDiscardResponse(discardArtifactResponse, changedArtifacts, author);
         }
 
-        [TestCase(3, BaseArtifactType.Process)]
+        [TestCase(3, ItemTypePredefined.Process)]
         [TestRail(182316)]
         [Description("Create & publish a chain of artifacts.  Delete the last artifact.  Discard the deleted artifact.  Verify the deleted artifact is discarded.")]
         public void DiscardArtifact_DeleteLastArtifactInChainOfPublishedArtifacts_SendDeletedArtifact_ArtifactSuccessfullyDiscarded(
-            int numberOfArtifacts, BaseArtifactType artifactType)
+            int numberOfArtifacts, ItemTypePredefined artifactType)
         {
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
@@ -383,20 +385,20 @@ namespace ArtifactStoreTests
             INovaArtifactsAndProjectsResponse discardArtifactResponse = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifact(lastArtifact, author),
+            Assert.DoesNotThrow(() => discardArtifactResponse = lastArtifact.Discard(author),
                 "'POST {0}' should return 200 OK when discarding artifacts with unpublished deletes!", DISCARD_PATH);
 
             // Verify:
             Assert.AreEqual(1, discardArtifactResponse.Artifacts.Count, "Only 1 artifact should be returned in discard results!");
             Assert.AreEqual(1, discardArtifactResponse.Projects.Count, "Only 1 project should be returned in discard results!");
-            DiscardVerification(discardArtifactResponse, new List<IArtifactBase> { lastArtifact });
+            VerifyDiscardResponse(discardArtifactResponse, new List<ArtifactWrapper> { lastArtifact });
         }
 
-        [TestCase(3, BaseArtifactType.Process)]
+        [TestCase(3, ItemTypePredefined.Process)]
         [TestRail(182317)]
         [Description("Create & publish a chain of artifacts.  Delete the last artifact.  Discard with all=true.  Verify the deleted artifact is discarded.")]
         public void DiscardAllArtifacts_DeleteLastArtifactInChainOfPublishedArtifacts_SendEmptyList_ArtifactSuccessfullyDiscarded(
-            int numberOfArtifacts, BaseArtifactType artifactType)
+            int numberOfArtifacts, ItemTypePredefined artifactType)
         {
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
@@ -416,7 +418,7 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(1, discardArtifactResponse.Artifacts.Count, "Only 1 artifact should be returned in discard results!");
             Assert.AreEqual(1, discardArtifactResponse.Projects.Count, "Only 1 project should be returned in discard results!");
-            DiscardVerification(discardArtifactResponse, new List<IArtifactBase> { lastArtifact });
+            VerifyDiscardResponse(discardArtifactResponse, new List<ArtifactWrapper> { lastArtifact });
         }
 
         [TestCase]
@@ -578,10 +580,10 @@ namespace ArtifactStoreTests
                 I18NHelper.FormatInvariant("Artifact with ID {0} has nothing to discard.", mixedArtifacts[2].Id));
         }
 
-        [TestCase(BaseArtifactType.Process, BaseArtifactType.TextualRequirement, BaseArtifactType.Glossary, BaseArtifactType.UseCase)]
+        [TestCase(ItemTypePredefined.Process, ItemTypePredefined.TextualRequirement, ItemTypePredefined.Glossary, ItemTypePredefined.UseCase)]
         [TestRail(166158)]
         [Description("Create & publish a chain of parent & child artifacts, move all children to parent.  Discard last child artifact.  Verify it returns 409 Conflict.")]
-        public void DiscardArtifact_PublishChainOfParentAndChildArtifacts_MoveChildrenToParent_OnlyDiscardLastChild_409Conflict(params BaseArtifactType[] artifactTypes)
+        public void DiscardArtifact_PublishChainOfParentAndChildArtifacts_MoveChildrenToParent_OnlyDiscardLastChild_409Conflict(params ItemTypePredefined[] artifactTypes)
         {
             ThrowIf.ArgumentNull(artifactTypes, nameof(artifactTypes));
 
@@ -590,12 +592,12 @@ namespace ArtifactStoreTests
 
             for (int i = 1; i < artifactTypes.Length; i++)
             {
-                artifactChain[i].Lock();
-                Helper.ArtifactStore.MoveArtifact(artifactChain[i], artifactChain[0], _user);
+                artifactChain[i].Lock(_user);
+                artifactChain[i].MoveArtifact(_user, artifactChain[0].Id);
             }
 
             // Execute:
-            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.DiscardArtifact(artifactChain.Last(), _user),
+            var ex = Assert.Throws<Http409ConflictException>(() => artifactChain.Last().Discard(_user),
                 "'POST {0}' should return 409 Conflict if the Artifact has parent artifact which is not discarded!", DISCARD_PATH);
 
             // Verify:
@@ -663,9 +665,9 @@ namespace ArtifactStoreTests
         /// <param name="numberOfArtifacts">The number of artifact types to add to the list.</param>
         /// <param name="artifactType">The artifact type.</param>
         /// <returns>A list of artifact types.</returns>
-        private static List<BaseArtifactType> CreateListOfArtifactTypes(int numberOfArtifacts, BaseArtifactType artifactType)
+        private static List<ItemTypePredefined> CreateListOfArtifactTypes(int numberOfArtifacts, ItemTypePredefined artifactType)
         {
-            var artifactTypes = new List<BaseArtifactType>();
+            var artifactTypes = new List<ItemTypePredefined>();
 
             for (int i = 0; i < numberOfArtifacts; i++)
             {
@@ -681,7 +683,10 @@ namespace ArtifactStoreTests
         /// <param name="discardArtifactResponse">The response from Nova discard call.</param>
         /// <param name="artifactsTodiscard">artifacts that are being discarded</param>
         /// <param name="user">(optional) The user to authenticate with.  By default _user is used.</param>
-        private void DiscardVerification(INovaArtifactsAndProjectsResponse discardArtifactResponse, List<IArtifactBase> artifactsTodiscard, IUser user = null)
+        private void VerifyDiscardResponse(
+            INovaArtifactsAndProjectsResponse discardArtifactResponse,
+            List<IArtifactBase> artifactsTodiscard,
+            IUser user = null)
         {
             ThrowIf.ArgumentNull(discardArtifactResponse, nameof(discardArtifactResponse));
             ThrowIf.ArgumentNull(artifactsTodiscard, nameof(artifactsTodiscard));
@@ -710,6 +715,43 @@ namespace ArtifactStoreTests
         }
 
         /// <summary>
+        /// Asserts that returned artifact details from the discard call match with artifacts that were discarded.
+        /// </summary>
+        /// <param name="discardArtifactResponse">The response from Nova discard call.</param>
+        /// <param name="artifactsTodiscard">artifacts that are being discarded</param>
+        /// <param name="user">(optional) The user to authenticate with.  By default _user is used.</param>
+        private void VerifyDiscardResponse(
+            INovaArtifactsAndProjectsResponse discardArtifactResponse,
+            List<ArtifactWrapper> artifactsTodiscard,
+            IUser user = null)
+        {
+            ThrowIf.ArgumentNull(discardArtifactResponse, nameof(discardArtifactResponse));
+            ThrowIf.ArgumentNull(artifactsTodiscard, nameof(artifactsTodiscard));
+            var tempIds = new List<int>();
+            discardArtifactResponse.Artifacts.ForEach(a => tempIds.Add(a.Id));
+
+            user = user ?? _user;
+
+            foreach (var artifact in artifactsTodiscard)
+            {
+                Assert.That(tempIds.Contains(artifact.Id),
+                    "The discarded artifact whose Id is {0} does not exist on the response from the discard call.", artifact.Id);
+
+                // Try to get the artifact and verify that you get a 404 if it was never published, or you can get it if it was published.
+                if (artifact.ArtifactState.IsPublished)
+                {
+                    Assert.DoesNotThrow(() => Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id),
+                        "Artifact ID {0} should still exist after discard!", artifact.Id);
+                }
+                else
+                {
+                    Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id),
+                        "Artifact ID {0} should not exist after discard!", artifact.Id);
+                }
+            }
+        }
+
+        /// <summary>
         /// Swaps parent artifact with it's child.
         /// </summary>
         /// <param name="firstArtifact">Parent artifact to swap</param>
@@ -724,13 +766,13 @@ namespace ArtifactStoreTests
             int oldParentOfFirstArtifact = firstArtifact.ParentId;
 
             secondArtifact.Lock();
-            ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, secondArtifact, _project.Id, _user);
+            Helper.ArtifactStore.MoveArtifact(secondArtifact, _project.Id, _user);
 
             firstArtifact.Lock();
             Helper.ArtifactStore.MoveArtifact(firstArtifact, secondArtifact, _user);
 
             secondArtifact.Lock();
-            ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, secondArtifact, oldParentOfFirstArtifact, _user);
+            Helper.ArtifactStore.MoveArtifact(secondArtifact, oldParentOfFirstArtifact, _user);
         }
 
         #endregion private call

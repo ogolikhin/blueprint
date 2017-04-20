@@ -30,7 +30,7 @@ namespace AdminStore.Repositories
 
         #endregion Constructor
 
-        #region AddUserAsync
+        #region GetUserPermissionsAsync
 
         [TestMethod]
         public async Task GetUserPermissionsAsync_SuccessfulGettingOfPermissions_ReturnUsersPermissions()
@@ -40,7 +40,7 @@ namespace AdminStore.Repositories
             var repository = new SqlPrivilegesRepository(cxn.Object);
             var permissions = 100;
             var userId = 1;
-            cxn.SetupQueryAsync<int>("GetUserPermissions", It.IsAny<Dictionary<string, object>>(), new List<int>() {permissions});
+            cxn.SetupQueryAsync<int>("GetInstancePermissionsForUser", It.IsAny<Dictionary<string, object>>(), new List<int>() { permissions });
 
             // Act
             var result = await repository.GetUserPermissionsAsync(userId);
@@ -50,6 +50,6 @@ namespace AdminStore.Repositories
             Assert.AreEqual(result, permissions);
         }
 
-        #endregion AddUserAsync
+        #endregion GetUserPermissionsAsync
     }
 }

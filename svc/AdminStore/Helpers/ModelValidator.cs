@@ -1,5 +1,5 @@
 ﻿using System;
-using AdminStore.Models.DTO;
+using AdminStore.Models;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 
@@ -7,7 +7,7 @@ namespace AdminStore.Helpers
 {
     public class ModelValidator
     {
-        public static void ValidateUserModel(User user)
+        public static void ValidateUserModel(CreationUserDto user)
         {
             if (string.IsNullOrEmpty(user.Login))
             {

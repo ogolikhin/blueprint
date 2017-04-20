@@ -35,6 +35,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -113,21 +114,28 @@
     <Compile Include="Controllers\InstanceController.cs" />
     <Compile Include="Controllers\JobsController.cs" />
     <Compile Include="Controllers\LogController.cs" />
+    <Compile Include="Helpers\ModelValidator.cs" />
+    <Compile Include="Helpers\PermissionsChecker.cs" />
+    <Compile Include="Models\CreationUserDto.cs" />
+    <Compile Include="Models\UserDto.cs" />
     <Compile Include="Helpers\EmailHelper.cs" />
     <Compile Include="Helpers\HashingUtilities.cs" />
     <Compile Include="Helpers\JobsValidationHelper.cs" />
     <Compile Include="Helpers\LdapHelper.cs" />
     <Compile Include="Helpers\LoginInfo.cs" />
-    <Compile Include="Helpers\ModelValidator.cs" />
     <Compile Include="Helpers\PasswordValidationHelper.cs" />
-    <Compile Include="Helpers\PermissionsChecker.cs" />
+    <Compile Include="Helpers\UserMapper.cs" />
+    <Compile Include="Helpers\UsersHelper.cs" />
     <Compile Include="Models\ApplicationSettings.cs" />
-    <Compile Include="Models\DTO\User.cs" />
+    <Compile Include="Models\Data.cs" />
     <Compile Include="Models\EmailConfigInstanceSettings.cs" />
     <Compile Include="Models\InstanceItem.cs" />
+    <Compile Include="Models\Pagination.cs" />
     <Compile Include="Models\PasswordRecoveryToken.cs" />
+    <Compile Include="Models\QueryResult.cs" />
     <Compile Include="Models\ResetPasswordContent.cs" />
     <Compile Include="Models\ResetPostContent.cs" />
+    <Compile Include="Models\TableSettings.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Models\UserIcon.cs" />
     <Compile Include="Repositories\ApplicationSettingsRepository.cs" />
@@ -142,7 +150,6 @@
     </Compile>
     <Compile Include="Helpers\AuthenticationStatus.cs" />
     <Compile Include="Helpers\SystemEncryptions.cs" />
-    <Compile Include="Models\ApplicationLabel.cs" />
     <Compile Include="Models\AuthenticationUser.cs" />
     <Compile Include="Models\FederatedAuthenticationSettings.cs" />
     <Compile Include="Models\InstanceSettings.cs" />
@@ -153,7 +160,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\AuthenticationRepository.cs" />
     <Compile Include="Repositories\IAuthenticationRepository.cs" />
-    <Compile Include="Repositories\IConfigRepository.cs" />
     <Compile Include="Repositories\ILdapRepository.cs" />
     <Compile Include="Repositories\ISqlInstanceRepository.cs" />
     <Compile Include="Repositories\ISqlPrivilegesRepository.cs" />
@@ -165,7 +171,6 @@
     <Compile Include="Repositories\SqlInstanceRepository.cs" />
     <Compile Include="Repositories\SqlPrivilegesRepository.cs" />
     <Compile Include="Repositories\SqlSettingsRepository.cs" />
-    <Compile Include="Repositories\SqlConfigRepository.cs" />
     <Compile Include="Repositories\SqlUserRepository.cs" />
     <Compile Include="Saml\BpSaml2SecurityTokenHandler.cs" />
     <Compile Include="Saml\FederatedAuthenticationErrorCode.cs" />

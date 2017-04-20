@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using AdminStore.Helpers;
 using AdminStore.Models;
 using Dapper;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Helpers;
-using ServiceLibrary.Models;
 
 namespace AdminStore.Repositories
 {
@@ -127,28 +127,45 @@ namespace AdminStore.Repositories
             return await _adminStorageConnectionWrapper.QueryAsync<PasswordRecoveryToken>("GetUserPasswordRecoveryTokens", prm, commandType: CommandType.StoredProcedure);
         }
 
-        public  Task<int> AddUserAsync(User loginUser)
+        public QueryResult GetUsers(TableSettings settings)
+        {
+            var total = 0;
+            var users = GetUsersList(settings, out total).ToList();
+            var result = new QueryResult()
+            {
+                //Data = new Data() { Users. = UserMapper.Map(users) },
+                Pagination = new Pagination()
+                {
+                    TotalCount = total,
+                    Page = settings.Page,
+                    PageSize = settings.PageSize,
+                    Count = users.Count
+                }
+            };
+            result.Data.Users.AddRange(UserMapper.Map(users));
+            return result;
+        }
+
+        private IEnumerable<User> GetUsersList(TableSettings settings, out int total)
         {
             var parameters = new DynamicParameters();
-            parameters.Add("@Login", loginUser.Login);
-            parameters.Add("@Source", (int)loginUser.Source);
-            parameters.Add("@InstanceAdminRoleId", loginUser.InstanceAdminRoleId);
-            parameters.Add("@AllowFallback", loginUser.AllowFallback);
-            parameters.Add("@Enabled", loginUser.Enabled);
-            parameters.Add("@ExpirePassword", loginUser.ExpirePassword);
-            parameters.Add("@DisplayName", loginUser.DisplayName);
-            parameters.Add("@FirstName", loginUser.FirstName);
-            parameters.Add("@LastName", loginUser.LastName);
-            parameters.Add("@ImageId", loginUser.ImageId);
-            parameters.Add("@Password", loginUser.NewPassword);
-            parameters.Add("@UserSALT", loginUser.UserSALT);
-            parameters.Add("@Email", loginUser.Email);
-            parameters.Add("@Title", loginUser.Title);
-            parameters.Add("@Department", loginUser.Department);
-            if(loginUser.GroupMembership != null)
-                parameters.Add("@GroupMembership", SqlConnectionWrapper.ToDataTable(loginUser.GroupMembership, "Int32Collection", "Int32Value"));
-            parameters.Add("@Guest", loginUser.Guest);
-            return   _connectionWrapper.ExecuteScalarAsync<int>("AddUser", parameters, commandType: CommandType.StoredProcedure);
+            parameters.Add("@Page", settings.Page);
+            parameters.Add("@PageSize", settings.PageSize);
+            parameters.Add("@SearchUser", settings.Filter);
+            parameters.Add("@OrderField", settings.Sort);
+            parameters.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            var usersList = (_connectionWrapper.Query<User>("GetUsers", parameters, commandType: CommandType.StoredProcedure)).ToList();
+            total = parameters.Get<int>("Total");
+            return usersList;
+        }
+
+        public async Task<User> GetUser(int userId)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@UserId", userId);
+            var result = await _connectionWrapper.QueryAsync<User>("GetUserDetails", parameters, commandType: CommandType.StoredProcedure);
+            var enumerable = result as IList<User> ?? result.ToList();
+            return enumerable.Any() ? enumerable.First() : new User();
         }
 
         public async Task<bool> HasUserExceededPasswordRequestLimitAsync(string login)
@@ -160,6 +177,49 @@ namespace AdminStore.Repositories
             var result = (await _adminStorageConnectionWrapper.QueryAsync<int>("GetUserPasswordRecoveryRequestCount", prm, commandType: CommandType.StoredProcedure));
 
             return result.FirstOrDefault() >= passwordRequestLimit;
+        }
+
+        public async Task<int> AddUserAsync(User loginUser)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@Login", loginUser.Login);
+            parameters.Add("@Source", (int)loginUser.Source);
+            parameters.Add("@InstanceAdminRoleId", loginUser.InstanceAdminRoleId);
+            parameters.Add("@AllowFallback", loginUser.AllowFallback);
+            parameters.Add("@Enabled", loginUser.Enabled);
+            parameters.Add("@ExpirePassword", loginUser.ExpirePassword);
+            parameters.Add("@DisplayName", loginUser.DisplayName);
+            parameters.Add("@FirstName", loginUser.FirstName);
+            parameters.Add("@LastName", loginUser.LastName);
+            parameters.Add("@ImageId", loginUser.Image_ImageId);
+            parameters.Add("@Password", loginUser.Password);
+            parameters.Add("@UserSALT", loginUser.UserSALT);
+            parameters.Add("@Email", loginUser.Email);
+            parameters.Add("@Title", loginUser.Title);
+            parameters.Add("@Department", loginUser.Department);
+            if (loginUser.GroupMembership != null)
+                parameters.Add("@GroupMembership", SqlConnectionWrapper.ToDataTable(loginUser.GroupMembership, "Int32Collection", "Int32Value"));
+            parameters.Add("@Guest", loginUser.Guest);
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var userId = await _connectionWrapper.ExecuteScalarAsync<int>("AddUser", parameters, commandType: CommandType.StoredProcedure);
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.GeneralSqlError:
+                        throw new BadRequestException(ErrorMessages.GeneralErrorOfCreatingUser);
+
+                    case (int)SqlErrorCodes.UserLoginExist:
+                        throw new BadRequestException(ErrorMessages.LoginNameUnique);
+
+                    default:
+                        return userId;
+                }
+            }
+            return userId;
         }
 
         internal class HashedPassword

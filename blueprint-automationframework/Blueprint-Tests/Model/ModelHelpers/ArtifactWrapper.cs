@@ -21,12 +21,6 @@ namespace Model.ModelHelpers
         [JsonIgnore]
         public INovaArtifactDetails Artifact { get; set; }
 
-        /// <summary>
-        /// The project where the artifact exists (not serialized; used by tests only).
-        /// </summary>
-        [JsonIgnore]
-        public IProject Project { get; private set; }
-
         #region Constructors
 
         /// <summary>
@@ -37,6 +31,7 @@ namespace Model.ModelHelpers
         /// <param name="svcShared">The SvcShared to use for REST calls.</param>
         /// <param name="project">The project where the artifact was created.</param>
         /// <param name="createdBy">The user who created the artifact.</param>
+        /// <exception cref="AssertionException">If the Project ID of the artifact is different than the ID of the IProject.</exception>
         public ArtifactWrapper(
             INovaArtifactDetails artifact,
             IArtifactStore artifactStore,
@@ -44,11 +39,18 @@ namespace Model.ModelHelpers
             IProject project,
             IUser createdBy)
         {
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            ThrowIf.ArgumentNull(project, nameof(project));
+
             Artifact = artifact;
             ArtifactStore = artifactStore;
             SvcShared = svcShared;
-            Project = project;
+
+            ArtifactState.Project = project;
             ArtifactState.CreatedBy = createdBy;
+            ArtifactState.LockOwner = createdBy;
+
+            Assert.AreEqual(artifact.ProjectId, project.Id, "The artifact doesn't belong to the project specified!");
         }
 
         #endregion Constructors
@@ -57,24 +59,28 @@ namespace Model.ModelHelpers
         /// Copies this artifact (and any children) to a new location.
         /// </summary>
         /// <param name="user">The user to perform the copy.</param>
-        /// <param name="newProject">The new project where this artifact will be copied to.</param>
-        /// <param name="newParentId">The ID of the new parent where this artifact will be copied to.</param>
+        /// <param name="targetProject">The project where this artifact will be copied to.</param>
+        /// <param name="targetParentId">The ID of the parent where this artifact will be copied to.</param>
         /// <param name="orderIndex">(optional) The order index (relative to other artifacts) where this artifact should be copied to.
         ///     By default the artifact is copied to the end (after the last artifact).</param>
         /// <returns>The copy results and a list of artifacts that were copied.  The first item in the list is the main artifact that you copied.
         ///     If the artifact had any children, the copied children will also be in the list.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1006:DoNotNestGenericTypesInMemberSignatures")]
-        public Tuple<CopyNovaArtifactResultSet, List<ArtifactWrapper>> CopyTo(IUser user, IProject newProject, int newParentId, double? orderIndex = null)
+        public Tuple<CopyNovaArtifactResultSet, List<ArtifactWrapper>> CopyTo(
+            IUser user,
+            IProject targetProject,
+            int targetParentId,
+            double? orderIndex = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
             // TODO: Refactor ArtifactStore.CopyArtifact to not be static...
-            var copyResult = Model.Impl.ArtifactStore.CopyArtifact(ArtifactStore.Address, Artifact.Id, newParentId, user, orderIndex);
+            var copyResult = Model.Impl.ArtifactStore.CopyArtifact(ArtifactStore.Address, Artifact.Id, targetParentId, user, orderIndex);
             var response = new Tuple<CopyNovaArtifactResultSet, List<ArtifactWrapper>>(copyResult, new List<ArtifactWrapper>());
 
             if (copyResult?.Artifact != null)
             {
-                var wrappedArtifact = new ArtifactWrapper(copyResult.Artifact, ArtifactStore, SvcShared, newProject, user);
+                var wrappedArtifact = new ArtifactWrapper(copyResult.Artifact, ArtifactStore, SvcShared, targetProject, user);
                 response.Item2.Add(wrappedArtifact);
             }
 
@@ -104,7 +110,7 @@ namespace Model.ModelHelpers
 
                     // TODO: Also copy children of children...
 
-                    var wrappedArtifact = new ArtifactWrapper(novaArtifact, ArtifactStore, SvcShared, newProject, user);
+                    var wrappedArtifact = new ArtifactWrapper(novaArtifact, ArtifactStore, SvcShared, targetProject, user);
                     response.Item2.Add(wrappedArtifact);
                 }
             }
@@ -113,15 +119,18 @@ namespace Model.ModelHelpers
         }
 
         /// <summary>
-        /// Deletes this artifact.  (If this artifact is published, you must publish after deleting to make the delete permanent).
+        /// Deletes this artifact.  No lock is required, but it must not be locked by another user.
+        /// (If this artifact is published, you must publish after deleting to make the delete permanent).
         /// </summary>
         /// <param name="user">The user to perform the delete.</param>
         /// <returns>A list of artifacts that were deleted.</returns>
-        public List<NovaArtifactResponse> Delete(IUser user)
+        public List<INovaArtifactResponse> Delete(IUser user)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
             var response = ArtifactStore.DeleteArtifact(Artifact.Id, user);
+
+            ArtifactState.IsDraft = false;
 
             // If the artifact was published, you need to publish after delete to permanently delete it.
             if (ArtifactState.IsPublished)
@@ -130,6 +139,7 @@ namespace Model.ModelHelpers
             }
             else
             {
+                ArtifactState.LockOwner = null;
                 ArtifactState.IsDeleted = true;
             }
 
@@ -148,16 +158,12 @@ namespace Model.ModelHelpers
             // TODO: Refactor ArtifactStore.DiscardArtifacts to not be static...
             var response = Model.Impl.ArtifactStore.DiscardArtifacts(ArtifactStore.Address, new List<int> { Artifact.Id }, user);
 
-            if (ArtifactState.IsPublished)
-            {
-                ArtifactState.IsDraft = true;
-                ArtifactState.IsMarkedForDeletion = false;
-                ArtifactState.LockOwner = null;
-            }
-            else
-            {
-                ArtifactState.IsDeleted = true;
-            }
+            ArtifactState.LockOwner = null;
+            ArtifactState.IsDraft = false;
+            ArtifactState.IsMarkedForDeletion = false;
+
+            // Create & Discard = Deleted.  Published & Discard = not Deleted.
+            ArtifactState.IsDeleted = !ArtifactState.IsPublished;
 
             return response;
         }
@@ -179,7 +185,28 @@ namespace Model.ModelHelpers
         }
 
         /// <summary>
-        /// Publishes this artifact.
+        /// Moves this artifact to be under a new parent.  You must lock the artifact before moving.
+        /// </summary>
+        /// <param name="user">The user to perform the move.</param>
+        /// <param name="newParent">The new parent of this artifact.</param>
+        /// <param name="orderIndex"> (optional)The order index(relative to other artifacts) where this artifact should be moved to.
+        ///     By default the artifact is moved to the end (after the last artifact).</param>
+        /// <returns>The artifact that was moved (this artifact).</returns>
+        public INovaArtifactDetails MoveArtifact(
+            IUser user,
+            int newParent,
+            double? orderIndex = null)
+        {
+            var movedArtifact = ArtifactStore.MoveArtifact(user, Id, newParent, orderIndex);
+
+            Artifact = movedArtifact;
+            ArtifactState.IsDraft = true;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Publishes this artifact.  You must lock the artifact before publishing.
         /// </summary>
         /// <param name="user">The user to perform the publish.</param>
         /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
@@ -189,24 +216,38 @@ namespace Model.ModelHelpers
 
             var response = ArtifactStore.PublishArtifacts(new List<int> { Artifact.Id }, user);
 
+            CSharpUtilities.ReplaceAllNonNullProperties(response.Artifacts[0], Artifact);
+
             // If it was marked for deletion, publishing it will make it permanently deleted.
             if (ArtifactState.IsMarkedForDeletion)
             {
                 ArtifactState.IsDeleted = true;
             }
 
-            ArtifactState.IsPublished = true;
             ArtifactState.LockOwner = null;
+            ArtifactState.IsDraft = false;
+            ArtifactState.IsPublished = true;
+            ArtifactState.IsMarkedForDeletion = false;
 
             return response;
         }
 
         /// <summary>
-        /// Updates this artifact with a new random Description.
+        /// Gets the artifact from ArtifactStore and replaces the current artifact with the properties returned from the server.
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        public void RefreshArtifactFromServer(IUser user)
+        {
+            Artifact = ArtifactStore.GetArtifactDetails(user, Id);
+        }
+
+        /// <summary>
+        /// Updates this artifact with a new random Description.  You must lock the artifact before saving.
         /// </summary>
         /// <param name="user">The user to perform the update.</param>
+        /// <param name="description">(optional) The new description to save.  By default a random description is generated.</param>
         /// <returns>The updated artifact.</returns>
-        public ArtifactWrapper SaveWithNewDescription(IUser user)
+        public ArtifactWrapper SaveWithNewDescription(IUser user, string description = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
@@ -214,27 +255,28 @@ namespace Model.ModelHelpers
             {
                 Id = Artifact.Id,
                 ProjectId = Artifact.ProjectId,
-                Version = Artifact.Version,
-                Description = "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5)
+                Description = description ?? "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5)
             };
 
             var updatedArtifact = ArtifactStore.UpdateArtifact(user, changes);
+            CSharpUtilities.ReplaceAllNonNullProperties(changes, Artifact);
             CSharpUtilities.ReplaceAllNonNullProperties(updatedArtifact, Artifact);
 
             return this;
         }
 
         /// <summary>
-        /// Updates this artifact with the properties specified in the updateArtifact.
+        /// Updates this artifact with the properties specified in the updateArtifact.  You must lock the artifact before updating.
         /// </summary>
         /// <param name="user">The user to perform the update.</param>
         /// <param name="updateArtifact">The artifact whose non-null properties will be used to update this artifact.</param>
         /// <returns>The updated artifact.</returns>
-        public INovaArtifactDetails Update(IUser user, NovaArtifactDetails updateArtifact)
+        public INovaArtifactDetails Update(IUser user, INovaArtifactDetails updateArtifact)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
             var updatedArtifact = ArtifactStore.UpdateArtifact(user, updateArtifact);
+            CSharpUtilities.ReplaceAllNonNullProperties(updateArtifact, Artifact);
             CSharpUtilities.ReplaceAllNonNullProperties(updatedArtifact, Artifact);
 
             ArtifactState.IsDraft = true;
@@ -349,7 +391,7 @@ namespace Model.ModelHelpers
             set { Artifact.ItemTypeIconId = value; }
         }
 
-        public int ItemTypeVersionId
+        public int? ItemTypeVersionId
         {
             get { return Artifact.ItemTypeVersionId; }
             set { Artifact.ItemTypeVersionId = value; }

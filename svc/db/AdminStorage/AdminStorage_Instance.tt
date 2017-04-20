@@ -18,7 +18,6 @@ GO
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Scripts\CompatibilityLevel.sql" ) ) #>
 
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\DbVersionInfo.sql" ) ) #>
-<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\ApplicationLabels.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\ConfigSettings.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\Sessions.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\LicenseActivityDetails.sql" ) ) #>
@@ -35,13 +34,11 @@ GO
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Jobs\Blueprint_AdminStorage_Maintenance.sql" ) ) #>
 
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Data\DefaultConfigSettings.sql" ) ) #>
-<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Data\SetApplicationLabels.sql" ) ) #>
 
 -- --------------------------------------------------
 -- Always add your code just above this comment block
 -- --------------------------------------------------
-EXEC [dbo].[SetSchemaVersion] @value = N'8.1.0';
+EXEC [dbo].[SetSchemaVersion] @value = N'8.2.0';
 GO
 -- --------------------------------------------------
-
 

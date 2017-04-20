@@ -81,6 +81,7 @@
     <Compile Include="Attributes\ApiControllerConfigAttribute.cs" />
     <Compile Include="Attributes\BaseExceptionFilterAttribute.cs" />
     <Compile Include="Attributes\NoCacheAttribute.cs" />
+    <Compile Include="Attributes\PreRequiredPrivilegeAttribute.cs" />
     <Compile Include="Attributes\SessionAttribute.cs" />
     <Compile Include="Attributes\UnhandledExceptionFilterAttribute.cs" />
     <Compile Include="EventSources\SQLTraceLogEventSource.cs" />
@@ -122,12 +123,13 @@
     <Compile Include="Models\ArtifactsNavigationPath.cs" />
     <Compile Include="Models\ArtifactVersion.cs" />
     <Compile Include="Models\AuthorHistory.cs" />
+    <Compile Include="Models\BaselineInfo.cs" />
     <Compile Include="Models\ClientLogModel.cs" />
+    <Compile Include="Models\InstanceAdminPrivileges.cs" />
     <Compile Include="Models\Enums\ItemTypePredefined.cs" />
     <Compile Include="Models\Enums\ProjectSection.cs" />
     <Compile Include="Models\Files\File.cs" />
     <Compile Include="Models\Files\FileInfo.cs" />
-    <Compile Include="Models\InstanceAdminPrivileges.cs" />
     <Compile Include="Models\InstanceSettings\EmailSettings.cs" />
     <Compile Include="Models\Interfaces\IArtifact.cs" />
     <Compile Include="Models\ItemDetails.cs" />

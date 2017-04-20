@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -10,14 +11,10 @@ using AdminStore.Models;
 using AdminStore.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
-using ServiceLibrary.Exceptions;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Net.Http.Formatting;
-using System.Runtime.Serialization;
 
 namespace AdminStore.Controllers
 {
@@ -31,13 +28,13 @@ namespace AdminStore.Controllers
         private Mock<IEmailHelper> _emailHelperMock;
         private Mock<IApplicationSettingsRepository> _applicationSettingsRepository;
         private UsersController _controller;
-        private Mock<IHttpClientProvider> _httpClientProviderMock ;
-        private Mock<ISqlPrivilegesRepository> _sqlPrivilegesRepositoryMock;
-        private Models.DTO.User _user;
+        private Mock<IHttpClientProvider> _httpClientProviderMock;
+        private Mock<ISqlPrivilegesRepository> _privilegesRepository;
+        private CreationUserDto _user;
 
         private const int FullPermissions = 524287;
         private const int NoManageUsersPermissions = 13312;
-        private const int NoAssignAdminRolesPermissions = 15360;    
+        private const int NoAssignAdminRolesPermissions = 15360;
         private const int CreatedUserId = 100;
         private const string ExistedUserLogin = "ExistedUser";
 
@@ -52,16 +49,17 @@ namespace AdminStore.Controllers
             _emailHelperMock = new Mock<IEmailHelper>();
             _httpClientProviderMock = new Mock<IHttpClientProvider>();
             _applicationSettingsRepository = new Mock<IApplicationSettingsRepository>();
-            _sqlPrivilegesRepositoryMock = new Mock<ISqlPrivilegesRepository>();
-            _controller = new UsersController(_authRepoMock.Object, _usersRepoMock.Object, _settingsRepoMock.Object, 
-                _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object, _httpClientProviderMock.Object, _sqlPrivilegesRepositoryMock.Object)
+            _privilegesRepository = new Mock<ISqlPrivilegesRepository>();
+            _controller = new UsersController(_authRepoMock.Object, _usersRepoMock.Object, _settingsRepoMock.Object,
+                _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object, _httpClientProviderMock.Object, _privilegesRepository.Object)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()
             };
             _controller.Request.Properties[ServiceConstants.SessionProperty] = session;
             _controller.Request.RequestUri = new Uri("http://localhost");
-            _user = new Models.DTO.User()
+
+            _user = new CreationUserDto()
             {
                 Login = "UserLogin",
                 FirstName = "FirstNameValue",
@@ -72,7 +70,7 @@ namespace AdminStore.Controllers
                 AllowFallback = false,
                 Enabled = true,
                 ExpirePassword = true,
-                NewPassword = "MTIzNFJFV1EhQCMk",
+                NewPassword  = "MTIzNFJFV1EhQCMk",
                 Title = "TitleValue",
                 Department = "Departmentvalue",
                 GroupMembership = new int[] { 1 },
@@ -82,10 +80,10 @@ namespace AdminStore.Controllers
                 .Setup(repo => repo.AddUserAsync(It.Is<User>(u => u.Login != ExistedUserLogin)))
                 .ReturnsAsync(CreatedUserId);
 
-            var sqlException = new SqlExceptionBuilder().WithErrorNumber(50001).Build();
+            var badRequestException = new BadRequestException(ErrorMessages.LoginNameUnique);
             _usersRepoMock
-                .Setup(repo => repo.AddUserAsync(It.Is<User>(u=> u.Login == ExistedUserLogin)))
-                .ThrowsAsync(sqlException);
+                .Setup(repo => repo.AddUserAsync(It.Is<User>(u => u.Login == ExistedUserLogin)))
+                .ThrowsAsync(badRequestException);
         }
 
         #region Constuctor
@@ -111,8 +109,8 @@ namespace AdminStore.Controllers
         public async Task GetUserIcon_RepositoryReturnsIcon_ReturnsIcon()
         {
             var userId = 1;
-            var content = new byte[] {0x20, 0x20, 0x20, 0x20};
-            var userIcon = new UserIcon {UserId = userId, Content = content };
+            var content = new byte[] { 0x20, 0x20, 0x20, 0x20 };
+            var userIcon = new UserIcon { UserId = userId, Content = content };
             _usersRepoMock
                 .Setup(repo => repo.GetUserIconByUserIdAsync(It.IsAny<int>()))
                 .ReturnsAsync(userIcon);
@@ -256,10 +254,10 @@ namespace AdminStore.Controllers
             // Act
             try
             {
-                await _controller.PostReset(SystemEncryptions.EncodeTo64UTF8("admin"), new ResetPostContent {NewPass = newPass, OldPass = oldPass});
+                await _controller.PostReset(SystemEncryptions.EncodeTo64UTF8("admin"), new ResetPostContent { NewPass = newPass, OldPass = oldPass });
             }
             catch (Exception ex)
-            { 
+            {
                 exception = ex;
             }
 
@@ -307,7 +305,7 @@ namespace AdminStore.Controllers
 
             //This token simulates a token generated by the controller when no token is provided
             var emptyInputToken = new Guid("00000000-0000-0000-0000-000000000000");
-          
+
             // Act
             IHttpActionResult result = null;
             Exception exception = null;
@@ -499,7 +497,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(tokenList);
             _usersRepoMock
                 .Setup(repo => repo.GetUserByLoginAsync(It.IsAny<string>()))
-                .ReturnsAsync(new AuthenticationUser {IsEnabled = false});
+                .ReturnsAsync(new AuthenticationUser { IsEnabled = false });
             _applicationSettingsRepository
                 .Setup(repo => repo.GetValue(It.IsAny<string>(), It.IsAny<int>()))
                 .ReturnsAsync(24);
@@ -543,7 +541,8 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(tokenList);
             _usersRepoMock
                 .Setup(repo => repo.GetUserByLoginAsync(It.IsAny<string>()))
-                .ReturnsAsync(new AuthenticationUser {
+                .ReturnsAsync(new AuthenticationUser
+                {
                     IsEnabled = true,
                     UserSalt = new Guid("1021420F-12D9-4D9F-9B47-F07BD7DE8D2F"),
                     Password = "Dmg+JJ/DtmxEHNi5cpk9+IIYZi4FttQO5YHuddfcuvQ="
@@ -592,7 +591,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(tokenList);
             _usersRepoMock
                 .Setup(repo => repo.GetUserByLoginAsync(It.IsAny<string>()))
-                .ReturnsAsync(new AuthenticationUser {Id = uid, IsEnabled = true});
+                .ReturnsAsync(new AuthenticationUser { Id = uid, IsEnabled = true });
             _authRepoMock
                 .Setup(a => a.ResetPassword(It.IsAny<AuthenticationUser>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(Task.FromResult(true));
@@ -603,7 +602,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(24);
 
             _controller = new UsersController(_authRepoMock.Object, _usersRepoMock.Object, _settingsRepoMock.Object,
-                _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object, httpClientProvider, _sqlPrivilegesRepositoryMock.Object)
+                _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object, httpClientProvider, _privilegesRepository.Object)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()
@@ -611,7 +610,7 @@ namespace AdminStore.Controllers
 
             // Act
             IHttpActionResult result = null;
-            var resetContent = new ResetPasswordContent {Password = "MTIzNFJFV1EhQCMk", Token = inputToken};
+            var resetContent = new ResetPasswordContent { Password = "MTIzNFJFV1EhQCMk", Token = inputToken };
             result = await _controller.PostPasswordResetAsync(resetContent);
 
             // Assert
@@ -811,17 +810,140 @@ namespace AdminStore.Controllers
             _applicationSettingsRepository
                 .Setup(repo => repo.GetValue("IsPasswordRecoveryEnabled", It.IsAny<bool>()))
                 .ReturnsAsync(true);
-            
+
         }
 
         #endregion PasswordRecovery
+
+        #region GetAllUsers
+
+        [TestMethod]
+        public async Task GetAllUsers_AllParamsAreCorrect_RepositoryReturnUsers()
+        {
+            //arrange
+            var sort = string.Empty;
+            var filter = string.Empty;
+
+            var settings = new TableSettings() { PageSize = 3, Page = 1 };
+            QueryResult returnResult = new QueryResult()
+            {
+                Data = new Data(),
+                Pagination = new Pagination()
+                {
+                    Page = settings.Page,
+                    PageSize = settings.PageSize
+                }
+            };
+            returnResult.Data.Users.AddRange(new List<UserDto>() { new UserDto() { UserId = 1 } });
+            _usersRepoMock.Setup(repo => repo.GetUsers(It.Is<TableSettings>(t => t.PageSize > 0 && t.Page > 0)))
+                .Returns(returnResult);
+            _privilegesRepository.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(true);
+
+            //act
+            var result = await _controller.GetAllUsers(settings.Page, settings.PageSize, filter, sort) as OkNegotiatedContentResult<QueryResult>;
+
+            //assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result.Content, typeof(QueryResult));
+        }
+
+        [TestMethod]
+        public async Task GetAllUsers_ParamsAreNotCorrect_BadRequestResult()
+        {
+            //arrange
+
+            //act
+            var result = await _controller.GetAllUsers(0, 0, string.Empty, string.Empty);
+
+            //assert
+            Assert.IsInstanceOfType(result, typeof(BadRequestErrorMessageResult));
+        }
+
+        [TestMethod]
+        public async Task GetAllUsers_UserDoesNotHaveRequiredPermissions_ForbiddenResult()
+        {
+            //arrange
+            Exception exception = null;
+            _privilegesRepository.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(false);
+
+            //act
+            try
+            {
+                var result = await _controller.GetAllUsers(1, 2, string.Empty, string.Empty);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            //assert
+            Assert.IsInstanceOfType(exception, typeof(HttpResponseException));
+            Assert.AreEqual(HttpStatusCode.Forbidden, ((HttpResponseException)exception).Response.StatusCode);
+        }
+        #endregion
+
+        #region GetUser
+
+        [TestMethod]
+        public async Task GetUser_AllParamsAreCorrectAndPermissionsOk_RepositoryReturnUser()
+        {
+            //arrange
+            var user = new User() { UserId = 5 };
+            _usersRepoMock.Setup(repo => repo.GetUser(It.Is<int>(i => i > 0))).ReturnsAsync(user);
+            _privilegesRepository.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(true);
+
+            //act
+            var result = await _controller.GetUser(5) as OkNegotiatedContentResult<User>;
+
+            //assert
+            Assert.AreEqual(user, result.Content);
+        }
+
+        [TestMethod]
+        public async Task GetUser_UserWithInvalidPermissions_ForbiddenResult()
+        {
+            //arrange
+            Exception exception = null;
+            _privilegesRepository.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(false);
+
+            //act
+            try
+            {
+                var result = await _controller.GetUser(0);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            //assert
+            Assert.IsInstanceOfType(exception, typeof(HttpResponseException));
+            Assert.AreEqual(HttpStatusCode.Forbidden, ((HttpResponseException)exception).Response.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task GetUser_ThereIsNoSuchUser_NotFoundResult()
+        {
+            //arrange
+            var user = new User();
+            _usersRepoMock.Setup(repo => repo.GetUser(It.Is<int>(i => i > 0))).ReturnsAsync(user);
+            _privilegesRepository.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(true);
+
+            //act
+            var result = await _controller.GetUser(1) as NotFoundResult;
+
+            //assert
+            Assert.IsInstanceOfType(result, typeof(NotFoundResult));
+
+        }
+        #endregion
 
         #region Post user
         [TestMethod]
         public async Task PostUser_SuccessfulCreationOfUser_ReturnCreatedUserIdResult()
         {
             // Arrange
-            _sqlPrivilegesRepositoryMock
+            _privilegesRepository
                 .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
                 .ReturnsAsync(FullPermissions);
 
@@ -838,7 +960,7 @@ namespace AdminStore.Controllers
         public async Task PostUser_NoManageUsersPermissions_ReturnForbiddenErrorResult()
         {
             // Arrange
-            _sqlPrivilegesRepositoryMock
+            _privilegesRepository
                 .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
                 .ReturnsAsync(NoManageUsersPermissions);
 
@@ -855,7 +977,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             _user.InstanceAdminRoleId = 1;
-            _sqlPrivilegesRepositoryMock
+            _privilegesRepository
                 .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
                 .ReturnsAsync(NoAssignAdminRolesPermissions);
 
@@ -872,7 +994,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             _user.Login = string.Empty;
-            _sqlPrivilegesRepositoryMock
+            _privilegesRepository
                 .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
                 .ReturnsAsync(FullPermissions);
 
@@ -889,7 +1011,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             _user.Login = "123";
-            _sqlPrivilegesRepositoryMock
+            _privilegesRepository
                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
                .ReturnsAsync(FullPermissions);
 
@@ -906,7 +1028,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             _user.Login = ExistedUserLogin;
-            _sqlPrivilegesRepositoryMock
+            _privilegesRepository
                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
                .ReturnsAsync(FullPermissions);
 
@@ -923,7 +1045,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             _user.DisplayName = string.Empty;
-            _sqlPrivilegesRepositoryMock
+            _privilegesRepository
               .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
               .ReturnsAsync(FullPermissions);
 
@@ -940,7 +1062,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             _user.DisplayName = "1";
-            _sqlPrivilegesRepositoryMock
+            _privilegesRepository
               .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
               .ReturnsAsync(FullPermissions);
 
@@ -957,7 +1079,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             _user.FirstName = string.Empty;
-            _sqlPrivilegesRepositoryMock
+            _privilegesRepository
               .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
               .ReturnsAsync(FullPermissions);
 
@@ -974,7 +1096,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             _user.FirstName = "1";
-            _sqlPrivilegesRepositoryMock
+            _privilegesRepository
               .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
               .ReturnsAsync(FullPermissions);
 
@@ -991,7 +1113,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             _user.LastName = string.Empty;
-            _sqlPrivilegesRepositoryMock
+            _privilegesRepository
               .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
               .ReturnsAsync(FullPermissions);
 
@@ -1008,7 +1130,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             _user.LastName = "1";
-            _sqlPrivilegesRepositoryMock
+            _privilegesRepository
               .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
               .ReturnsAsync(FullPermissions);
 
@@ -1025,7 +1147,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             _user.Email = "1@1";
-            _sqlPrivilegesRepositoryMock
+            _privilegesRepository
              .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
              .ReturnsAsync(FullPermissions);
 
@@ -1042,7 +1164,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             _user.Title = "1";
-            _sqlPrivilegesRepositoryMock
+            _privilegesRepository
              .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
              .ReturnsAsync(FullPermissions);
 
@@ -1062,7 +1184,7 @@ namespace AdminStore.Controllers
             {
                 _user.Department += i;
             }
-            _sqlPrivilegesRepositoryMock
+            _privilegesRepository
               .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
               .ReturnsAsync(FullPermissions);
 
@@ -1079,7 +1201,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             _user.NewPassword = string.Empty;
-            _sqlPrivilegesRepositoryMock
+            _privilegesRepository
                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
                .ReturnsAsync(FullPermissions);
 
@@ -1096,7 +1218,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             _user.NewPassword = "MTIzNDU2Nzg=";
-            _sqlPrivilegesRepositoryMock
+            _privilegesRepository
                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
                .ReturnsAsync(FullPermissions);
 
@@ -1106,7 +1228,6 @@ namespace AdminStore.Controllers
             // Assert
             // Exception
         }
-
         #endregion
     }
 }

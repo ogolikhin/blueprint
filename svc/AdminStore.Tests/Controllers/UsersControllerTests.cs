@@ -70,7 +70,7 @@ namespace AdminStore.Controllers
                 AllowFallback = false,
                 Enabled = true,
                 ExpirePassword = true,
-                NewPassword  = "MTIzNFJFV1EhQCMk",
+                NewPassword = "MTIzNFJFV1EhQCMk",
                 Title = "TitleValue",
                 Department = "Departmentvalue",
                 GroupMembership = new int[] { 1 },
@@ -844,7 +844,7 @@ namespace AdminStore.Controllers
             _privilegesRepository.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(true);
 
             //act
-            var result = await _controller.GetAllUsers(settings.Page, settings.PageSize, filter, sort) as OkNegotiatedContentResult<QueryResult>;
+            var result = await _controller.GetAllUsers(settings) as OkNegotiatedContentResult<QueryResult>;
 
             //assert
             Assert.IsNotNull(result);
@@ -857,7 +857,7 @@ namespace AdminStore.Controllers
             //arrange
 
             //act
-            var result = await _controller.GetAllUsers(0, 0, string.Empty, string.Empty);
+            var result = await _controller.GetAllUsers(new TableSettings());
 
             //assert
             Assert.IsInstanceOfType(result, typeof(BadRequestErrorMessageResult));
@@ -873,7 +873,7 @@ namespace AdminStore.Controllers
             //act
             try
             {
-                var result = await _controller.GetAllUsers(1, 2, string.Empty, string.Empty);
+                var result = await _controller.GetAllUsers(new TableSettings() { Page = 1, PageSize = 2 });
             }
             catch (Exception ex)
             {

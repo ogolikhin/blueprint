@@ -251,12 +251,12 @@ namespace Model
                     }
                 }
 
-                public static class Baseline_id_
+                public static class Baselines_id_
                 {
                     public const string CONTENT                     = "svc/bpartifactstore/baselines/{0}/content"; //  Add artifact to Baseline
                 }
 
-                public static class Collection_id_
+                public static class Collections_id_
                 {
                     public const string CONTENT                     = "svc/bpartifactstore/collections/{0}/content"; //  Add artifact to Collection
                 }
@@ -276,6 +276,11 @@ namespace Model
                     {
                         public const string CUSTOM_TYPES            = "svc/artifactstore/projects/{0}/meta/customtypes";
                     }
+                }
+
+                public static class Reviews_id_
+                {
+                    public const string CONTENT                     = "svc/bpartifactstore/reviews/{0}/content";
                 }
 
                 public static class Status

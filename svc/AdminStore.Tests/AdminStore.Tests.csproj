@@ -94,6 +94,7 @@
     <Compile Include="Controllers\UsersControllerTests.cs" />
     <Compile Include="Helpers\EmailHelperTests.cs" />
     <Compile Include="Helpers\HashingUtilitiesTests.cs" />
+    <Compile Include="Helpers\SqlExceptionBuilder.cs" />
     <Compile Include="Helpers\SystemEncryptionsTests.cs" />
     <Compile Include="Helpers\LoginInfoTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -101,6 +102,7 @@
     <Compile Include="Repositories\Jobs\JobsRepositoryTests.cs" />
     <Compile Include="Repositories\SamlRepositoryTests.cs" />
     <Compile Include="Repositories\SqlInstanceRepositoryTests.cs" />
+    <Compile Include="Repositories\SqlPrivilegesRepositoryTest.cs" />
     <Compile Include="Repositories\SqlSettingsRepositoryTests.cs" />
     <Compile Include="Repositories\SqlUserRepositoryTests.cs" />
     <Compile Include="Repositories\LdapRepositoryTests.cs" />

@@ -6,5 +6,7 @@ namespace AdminStore.Repositories
     public interface ISqlPrivilegesRepository
     {
         Task<bool> IsUserHasPermissions(IEnumerable<int> permissionsList, int userId);
+
+        Task<int> GetUserPermissionsAsync(int userId);
     }
 }

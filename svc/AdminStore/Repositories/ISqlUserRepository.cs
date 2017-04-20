@@ -34,5 +34,7 @@ namespace AdminStore.Repositories
         QueryResult GetUsers(TableSettings settings);
 
         Task<User> GetUser(int userId);
+
+        Task<int> AddUserAsync(User loginUser);
     }
 }

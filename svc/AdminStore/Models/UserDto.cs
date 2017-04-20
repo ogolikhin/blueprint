@@ -1,4 +1,6 @@
-﻿namespace AdminStore.Models
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace AdminStore.Models
 {
     public class UserDto
     {
@@ -19,5 +21,8 @@
         public string Department { get; set; }
         public bool? ExpirePassword { get; set; }
         public int? Image_ImageId { get; set; }
+        [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")]
+        public int[] GroupMembership { get; set; }
+        public string Password { get; set; }
     }
 }

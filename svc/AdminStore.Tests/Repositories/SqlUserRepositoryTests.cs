@@ -7,6 +7,7 @@ using AdminStore.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
+using Moq;
 
 namespace AdminStore.Repositories
 {
@@ -351,5 +352,44 @@ namespace AdminStore.Repositories
         }
 
         #endregion
+
+        #region AddUserAsync
+
+        [TestMethod]
+        public async Task AddUserAsync_SuccessfulCreationOfUser_ReturnCreatedUserId()
+        {
+            // Arrange
+            var user = new User()
+            {
+                Login = "LoginUser",
+                FirstName = "FirstNameValue",
+                LastName = "LastNameValue",
+                DisplayName = "DisplayNameValue",
+                Email = "email@test.com",
+                Source = UserGroupSource.Database,
+                AllowFallback = false,
+                Enabled = true,
+                ExpirePassword = true,
+                Password = "dGVzdA==",
+                UserSALT = Guid.NewGuid(),
+                Title = "TitleValue",
+                Department = "Departmentvalue",
+                GroupMembership = new int[] { 1 },
+                Guest = false
+            };
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
+            var userId = 100;
+            cxn.SetupExecuteScalarAsync<int>("AddUser", It.IsAny<Dictionary<string, object>>(), userId);
+
+            // Act
+            var result = await repository.AddUserAsync(user);
+
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(result, userId);
+        }
+
+        #endregion AddUserAsync
     }
 }

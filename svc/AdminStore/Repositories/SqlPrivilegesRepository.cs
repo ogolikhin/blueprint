@@ -29,5 +29,13 @@ namespace AdminStore.Repositories
             var expectedPermissions = permissionsList.Select(permission => permission & permissionsResult).ToList();
             return permissionsList.ToList().OrderBy(p => p).SequenceEqual(expectedPermissions.OrderBy(p => p));
         }
+
+        public async Task<int> GetUserPermissionsAsync(int userId)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@UserId", userId);
+            var permissions = await _connectionWrapper.QueryAsync<int>("GetInstancePermissionsForUser", parameters, commandType: CommandType.StoredProcedure);
+            return permissions.FirstOrDefault();
+        }
     }
 }

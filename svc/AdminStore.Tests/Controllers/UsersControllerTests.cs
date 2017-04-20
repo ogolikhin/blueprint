@@ -30,6 +30,13 @@ namespace AdminStore.Controllers
         private UsersController _controller;
         private Mock<IHttpClientProvider> _httpClientProviderMock;
         private Mock<ISqlPrivilegesRepository> _privilegesRepository;
+        private CreationUserDto _user;
+
+        private const int FullPermissions = 524287;
+        private const int NoManageUsersPermissions = 13312;
+        private const int NoAssignAdminRolesPermissions = 15360;
+        private const int CreatedUserId = 100;
+        private const string ExistedUserLogin = "ExistedUser";
 
         [TestInitialize]
         public void Initialize()
@@ -51,6 +58,32 @@ namespace AdminStore.Controllers
             };
             _controller.Request.Properties[ServiceConstants.SessionProperty] = session;
             _controller.Request.RequestUri = new Uri("http://localhost");
+
+            _user = new CreationUserDto()
+            {
+                Login = "UserLogin",
+                FirstName = "FirstNameValue",
+                LastName = "LastNameValue",
+                DisplayName = "DisplayNameValue",
+                Email = "email@test.com",
+                Source = UserGroupSource.Database,
+                AllowFallback = false,
+                Enabled = true,
+                ExpirePassword = true,
+                NewPassword  = "MTIzNFJFV1EhQCMk",
+                Title = "TitleValue",
+                Department = "Departmentvalue",
+                GroupMembership = new int[] { 1 },
+                Guest = false
+            };
+            _usersRepoMock
+                .Setup(repo => repo.AddUserAsync(It.Is<User>(u => u.Login != ExistedUserLogin)))
+                .ReturnsAsync(CreatedUserId);
+
+            var badRequestException = new BadRequestException(ErrorMessages.LoginNameUnique);
+            _usersRepoMock
+                .Setup(repo => repo.AddUserAsync(It.Is<User>(u => u.Login == ExistedUserLogin)))
+                .ThrowsAsync(badRequestException);
         }
 
         #region Constuctor
@@ -803,6 +836,9 @@ namespace AdminStore.Controllers
                 }
             };
             returnResult.Data.Users = users.ToArray();
+
+            returnResult.Data.Users = users.ToArray();
+
             _usersRepoMock.Setup(repo => repo.GetUsers(It.Is<TableSettings>(t => t.PageSize > 0 && t.Page > 0)))
                 .Returns(returnResult);
             _privilegesRepository.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(true);
@@ -903,6 +939,298 @@ namespace AdminStore.Controllers
             //assert
             Assert.IsInstanceOfType(result, typeof(NotFoundResult));
 
+        }
+        #endregion
+
+        #region Post user
+        [TestMethod]
+        public async Task PostUser_SuccessfulCreationOfUser_ReturnCreatedUserIdResult()
+        {
+            // Arrange
+            _privilegesRepository
+                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+                .ReturnsAsync(FullPermissions);
+
+            // Act
+            var result = await _controller.PostUser(_user);
+
+            // Assert
+            Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
+            Assert.AreEqual(CreatedUserId, await result.Content.ReadAsAsync<int>());
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task PostUser_NoManageUsersPermissions_ReturnForbiddenErrorResult()
+        {
+            // Arrange
+            _privilegesRepository
+                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+                .ReturnsAsync(NoManageUsersPermissions);
+
+            // Act
+            await _controller.PostUser(_user);
+
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task PostUser_NoAssignAdminRolesPermissions_ReturnForbiddenErrorResult()
+        {
+            // Arrange
+            _user.InstanceAdminRoleId = 1;
+            _privilegesRepository
+                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+                .ReturnsAsync(NoAssignAdminRolesPermissions);
+
+            // Act
+            await _controller.PostUser(_user);
+
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task PostUser_UserLoginEmpty_ReturnBadRequestResult()
+        {
+            // Arrange
+            _user.Login = string.Empty;
+            _privilegesRepository
+                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+                .ReturnsAsync(FullPermissions);
+
+            // Act
+            await _controller.PostUser(_user);
+
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task PostUser_UserLoginOutOfRangeLengthString_ReturnBadRequestResult()
+        {
+            // Arrange
+            _user.Login = "123";
+            _privilegesRepository
+               .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+               .ReturnsAsync(FullPermissions);
+
+            // Act
+            await _controller.PostUser(_user);
+
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task PostUser_UserLoginAlreadyExist_ReturnBadRequestResult()
+        {
+            // Arrange
+            _user.Login = ExistedUserLogin;
+            _privilegesRepository
+               .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+               .ReturnsAsync(FullPermissions);
+
+            // Act
+            await _controller.PostUser(_user);
+
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task PostUser_DisplayNameEmpty_ReturnBadRequestResult()
+        {
+            // Arrange
+            _user.DisplayName = string.Empty;
+            _privilegesRepository
+              .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+              .ReturnsAsync(FullPermissions);
+
+            // Act
+            await _controller.PostUser(_user);
+
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task PostUser_DisplayNameOutOfRangeStringLength_ReturnBadRequestResult()
+        {
+            // Arrange
+            _user.DisplayName = "1";
+            _privilegesRepository
+              .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+              .ReturnsAsync(FullPermissions);
+
+            // Act
+            await _controller.PostUser(_user);
+
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task PostUser_FirstNameEmpty_ReturnBadRequestResult()
+        {
+            // Arrange
+            _user.FirstName = string.Empty;
+            _privilegesRepository
+              .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+              .ReturnsAsync(FullPermissions);
+
+            // Act
+            await _controller.PostUser(_user);
+
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task PostUser_FirstNameOutOfRangeStringLength_ReturnBadRequestResult()
+        {
+            // Arrange
+            _user.FirstName = "1";
+            _privilegesRepository
+              .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+              .ReturnsAsync(FullPermissions);
+
+            // Act
+            await _controller.PostUser(_user);
+
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task PostUser_LastNameEmpty_ReturnBadRequestResult()
+        {
+            // Arrange
+            _user.LastName = string.Empty;
+            _privilegesRepository
+              .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+              .ReturnsAsync(FullPermissions);
+
+            // Act
+            await _controller.PostUser(_user);
+
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task PostUser_LastNameOutOfRangeStringLength_ReturnBadRequestResult()
+        {
+            // Arrange
+            _user.LastName = "1";
+            _privilegesRepository
+              .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+              .ReturnsAsync(FullPermissions);
+
+            // Act
+            await _controller.PostUser(_user);
+
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task PostUser_EmailOutOfRangeStringLength_ReturnBadRequestResult()
+        {
+            // Arrange
+            _user.Email = "1@1";
+            _privilegesRepository
+             .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+             .ReturnsAsync(FullPermissions);
+
+            // Act
+            await _controller.PostUser(_user);
+
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task PostUser_TitleOutOfRangeStringLength_ReturnBadRequestResult()
+        {
+            // Arrange
+            _user.Title = "1";
+            _privilegesRepository
+             .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+             .ReturnsAsync(FullPermissions);
+
+            // Act
+            await _controller.PostUser(_user);
+
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task PostUser_DepartmentOutOfRangeStringLength_ReturnBadRequestResult()
+        {
+            // Arrange
+            for (var i = 0; i < 258; i++)
+            {
+                _user.Department += i;
+            }
+            _privilegesRepository
+              .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+              .ReturnsAsync(FullPermissions);
+
+            // Act
+            await _controller.PostUser(_user);
+
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task PostUser_PasswordEmpty_ReturnBadRequestResult()
+        {
+            // Arrange
+            _user.NewPassword = string.Empty;
+            _privilegesRepository
+               .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+               .ReturnsAsync(FullPermissions);
+
+            // Act
+            await _controller.PostUser(_user);
+
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task PostUser_PasswordContainsOnlyAlphanumericCharacters_ReturnBadRequestResult()
+        {
+            // Arrange
+            _user.NewPassword = "MTIzNDU2Nzg=";
+            _privilegesRepository
+               .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+               .ReturnsAsync(FullPermissions);
+
+            // Act
+            await _controller.PostUser(_user);
+
+            // Assert
+            // Exception
         }
         #endregion
     }

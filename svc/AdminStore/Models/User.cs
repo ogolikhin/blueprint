@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace AdminStore.Models
 {
@@ -20,5 +21,7 @@ namespace AdminStore.Models
         public DateTime? LastPasswordChangeTimestamp { get; set; }
         public int? Image_ImageId { get; set; }
         public string InstanceAdminRoleName { get; set; }
+        [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")]
+        public int[] GroupMembership { get; set; }
     }
 }

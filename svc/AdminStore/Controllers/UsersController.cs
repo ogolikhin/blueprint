@@ -389,5 +389,80 @@ namespace AdminStore.Controllers
 
             return Ok();
         }
+
+        /// <summary>
+        /// Create new database user
+        /// </summary>
+        /// <remarks>
+        /// Returns id of the created user.
+        /// </remarks>
+        /// <response code="201">OK. The user is created.</response>
+        /// <response code="400">BadRequest. Some errors. </response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for creating the user.</response>
+        [HttpPost]
+        [SessionRequired]
+        [ResponseType(typeof(int))]
+        [Route(""), BaseExceptionFilter]
+        public async Task<HttpResponseMessage> PostUser([FromBody] CreationUserDto user)
+        {
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            if (session == null)
+            {
+                throw new BadRequestException(ErrorMessages.SessionIsEmpty);
+            }
+
+            if (user == null)
+            {
+                throw new BadRequestException(ErrorMessages.UserModelIsEmpty, ErrorCodes.BadRequest);
+            }
+
+            var userPermissions = await _privilegesRepository.GetUserPermissionsAsync(session.UserId);
+            if (!PermissionsChecker.IsFlagBelongPermissions(userPermissions, InstanceAdminPrivileges.ManageUsers))
+                throw new AuthorizationException(ErrorMessages.UserDoesNotHavePermissions, ErrorCodes.Forbidden);
+
+            if (user.InstanceAdminRoleId.HasValue &&
+                (!PermissionsChecker.IsFlagBelongPermissions(userPermissions,
+                    InstanceAdminPrivileges.AssignAdminRoles)))
+            {
+                throw new AuthorizationException(ErrorMessages.UserDoesNotHavePermissions, ErrorCodes.Forbidden);
+            }
+
+            ModelValidator.ValidateUserModel(user);
+
+            var databaseUser = new User
+            {
+                Department = user.Department,
+                Enabled = user.Enabled,
+                ExpirePassword = user.ExpirePassword,
+                GroupMembership = user.GroupMembership,
+                Guest = user.Guest,
+                Image_ImageId = user.ImageId,
+                Title = user.Title,
+                Login = user.Login,
+                Source = user.Source,
+                InstanceAdminRoleId = user.InstanceAdminRoleId,
+                AllowFallback = user.AllowFallback,
+                DisplayName = user.DisplayName,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                UserSALT = Guid.NewGuid()
+            };
+
+            if (!user.AllowFallback.HasValue || !user.AllowFallback.Value)
+            {
+                var decodedPassword = SystemEncryptions.Decode(user.NewPassword);
+                ModelValidator.ValidateUserPassword(decodedPassword);
+                databaseUser.Password = HashingUtilities.GenerateSaltedHash(decodedPassword, databaseUser.UserSALT);
+            }
+            else
+            {
+                databaseUser.Password = null;
+            }
+
+            var userId = await _userRepository.AddUserAsync(databaseUser);
+            return Request.CreateResponse<int>(HttpStatusCode.Created, userId);
+        }
     }
 }

@@ -13,7 +13,7 @@ using Utilities.Facades;
 using System.Web;
 using System.Net.Mime;
 using Model.Factories;
-using Model.ModelHelpers;
+using Model.ArtifactModel.Impl.OperationsResults;
 using Model.NovaModel.Impl;
 
 namespace Model.Impl
@@ -722,7 +722,7 @@ namespace Model.Impl
         public AddToCollectionResult AddArtifactToCollection(IUser user, int artifactId, int collectionId, bool includeDescendants = false,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Collection_id_.CONTENT, collectionId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Collections_id_.CONTENT, collectionId);
             return AddArtifactToBaselineOrCollection<AddToCollectionResult>(user, artifactId, path, includeDescendants, expectedStatusCodes);
         }
 
@@ -773,7 +773,7 @@ namespace Model.Impl
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             //
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Baseline_id_.CONTENT, baselineId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Baselines_id_.CONTENT, baselineId);
             return AddArtifactToBaselineOrCollection<AddToBaselineResult>(user, artifactId, path, includeDescendants, expectedStatusCodes);
         }
 
@@ -891,6 +891,7 @@ namespace Model.Impl
                 expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: true);
         }
 
+        /// <seealso cref="IArtifactStore.GetBaselineInfo(List{int}, IUser)"/>
         public List<BaselineInfo> GetBaselineInfo(List<int> baselineIds, IUser user)
         {
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
@@ -898,6 +899,16 @@ namespace Model.Impl
             return restApi.SendRequestAndDeserializeObject<List<BaselineInfo>, List<int>>(
                 RestPaths.Svc.ArtifactStore.Artifacts.BASELINE_INFO, RestRequestMethod.POST,
                 baselineIds, shouldControlJsonChanges: true);
+        }
+
+        /// <seealso cref="IArtifactStore.GetReviewArtifacts(IUser, int)"/>
+        public GetReviewArtifactsResultSet GetReviewArtifacts(IUser user, int reviewId)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Reviews_id_.CONTENT, reviewId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            return restApi.SendRequestAndDeserializeObject<GetReviewArtifactsResultSet>(path,
+                RestRequestMethod.GET, shouldControlJsonChanges: true);
         }
 
         #region Process methods

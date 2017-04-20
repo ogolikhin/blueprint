@@ -1516,11 +1516,31 @@ namespace Helper
         /// Attaches file to the subartifact (Save changes).
         /// </summary>
         /// <param name="user">User to perform an operation.</param>
+        /// <param name="artifact">The artifact containing the sub-artifact to attach a file to.</param>
+        /// <param name="subArtifact">The sub-artifact to attach a file to.</param>
+        /// <param name="file">The file to attach.</param>
+        /// <param name="artifactStore">IArtifactStore.</param>
+        /// <returns>The attachment that was added.</returns>
+        public static Attachments AddSubArtifactAttachmentAndSave(
+            IUser user,
+            ArtifactWrapper artifact,
+            NovaItem subArtifact,
+            INovaFile file,
+            IArtifactStore artifactStore)
+        {
+            return AddSubArtifactAttachmentsAndSave(user, artifact, subArtifact, new List<INovaFile> { file }, artifactStore);
+        }
+
+        /// <summary>
+        /// Attaches file to the subartifact (Save changes).
+        /// </summary>
+        /// <param name="user">User to perform an operation.</param>
         /// <param name="artifact">Artifact.</param>
         /// <param name="subArtifact">SubArtifact.</param>
         /// <param name="files">List of files to attach.</param>
         /// <param name="artifactStore">IArtifactStore.</param>
-        public static void AddSubArtifactAttachmentsAndSave(IUser user, ArtifactWrapper artifact, NovaItem subArtifact,
+        /// <returns>The attachments that were added.</returns>
+        public static Attachments AddSubArtifactAttachmentsAndSave(IUser user, ArtifactWrapper artifact, NovaItem subArtifact,
             List<INovaFile> files, IArtifactStore artifactStore)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -1548,46 +1568,10 @@ namespace Helper
 
             artifact.Update(user, updateArtifact);
 
-            var attachment = artifactStore.GetAttachments(user, artifact.Id, subArtifactId: subArtifact.Id);
-            Assert.IsTrue(attachment.AttachedFiles.Count >= files.Count, "All attachments should be added.");
-        }
+            var attachments = artifactStore.GetAttachments(user, artifact.Id, subArtifactId: subArtifact.Id);
+            Assert.IsTrue(attachments.AttachedFiles.Count >= files.Count, "All attachments should be added.");
 
-        /// <summary>
-        /// Attaches file to the subartifact (Save changes).
-        /// </summary>
-        /// <param name="user">User to perform an operation.</param>
-        /// <param name="artifact">Artifact.</param>
-        /// <param name="subArtifact">SubArtifact.</param>
-        /// <param name="files">List of files to attach.</param>
-        /// <param name="artifactStore">IArtifactStore.</param>
-        public static void AddSubArtifactAttachmentAndSave(IUser user, IArtifact artifact, NovaItem subArtifact,
-            List<INovaFile> files, IArtifactStore artifactStore)
-        {
-            ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
-            ThrowIf.ArgumentNull(subArtifact, nameof(subArtifact));
-            ThrowIf.ArgumentNull(files, nameof(files));
-            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
-            Assert.AreEqual(artifact.Id, subArtifact.ParentId, "subArtifact should belong to Artifact");
-
-            artifact.Lock(user);
-            var artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
-
-            var subArtifactToAdd = new NovaSubArtifact();
-            subArtifactToAdd.Id = subArtifact.Id;
-
-            foreach (var file in files)
-            {
-                subArtifactToAdd.AttachmentValues.Add(new AttachmentValue(user, file));
-            }
-
-            var subArtifacts = new List<NovaSubArtifact> { subArtifactToAdd };
-
-            artifactDetails.SubArtifacts = subArtifacts;
-
-            Artifact.UpdateArtifact(artifact, user, artifactDetails, address: artifactStore.Address);
-            var attachment = artifactStore.GetAttachments(artifact, user, subArtifactId: subArtifact.Id);
-            Assert.IsTrue(attachment.AttachedFiles.Count >= files.Count, "All attachments should be added.");
+            return attachments;
         }
 
         /// <summary>
@@ -1686,46 +1670,6 @@ namespace Helper
 
             updateArtifact.SubArtifacts = subArtifacts;
             artifact.Update(user, updateArtifact);
-        }
-
-        /// <summary>
-        /// Deletes file from the SubArtifact (Save changes).
-        /// </summary>
-        /// <param name="user">User to perform an operation.</param>
-        /// <param name="artifact">Artifact.</param>
-        /// <param name="subArtifact">SubArtifact.</param>
-        /// <param name="fileId">Id of the file to delete. File must be attached to the artifact.</param>
-        /// <param name="artifactStore">IArtifactStore.</param>
-        public static void DeleteSubArtifactAttachmentAndSave(IUser user, IArtifact artifact, NovaItem subArtifact,
-            int fileId, IArtifactStore artifactStore)
-        {
-            ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
-            ThrowIf.ArgumentNull(subArtifact, nameof(subArtifact));
-            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
-            Assert.AreEqual(artifact.Id, subArtifact.ParentId, "Subartifact should belong to artifact.");
-
-            var attachment = artifactStore.GetAttachments(artifact, user, subArtifactId: subArtifact.Id);
-            Assert.IsNotNull(attachment, "Getattachments shouldn't return null.");
-            Assert.IsTrue(attachment.AttachedFiles.Count > 0, "Artifact should have at least one attachment.");
-
-            var fileToDelete = attachment.AttachedFiles.FirstOrDefault(f => f.AttachmentId == fileId);
-            Assert.NotNull(fileToDelete, "Couldn't find an Attachment with ID: '{0}'.", fileId);
-            Assert.AreEqual(fileId, fileToDelete.AttachmentId, "Attachments must contain file with fileId.");
-
-            artifact.Lock(user);
-
-            var artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
-            artifactDetails.AttachmentValues.Add(new AttachmentValue(fileToDelete.AttachmentId));
-
-            var subArtifactToAdd = new NovaSubArtifact();
-            subArtifactToAdd.Id = subArtifact.Id;
-            subArtifactToAdd.AttachmentValues.Add(new AttachmentValue(fileToDelete.AttachmentId));
-
-            var subArtifacts = new List<NovaSubArtifact> { subArtifactToAdd };
-
-            artifactDetails.SubArtifacts = subArtifacts;
-            Artifact.UpdateArtifact(artifact, user, artifactDetails, address: artifactStore.Address);
         }
 
         /// <summary>

@@ -170,14 +170,12 @@ namespace ArtifactStoreTests
 
             var subArtifact = Helper.ArtifactStore.GetSubartifact(_adminUser, artifact.Id, subArtifacts[0].Id);
 
-            ArtifactStoreHelper.AddSubArtifactAttachmentsAndSave(_adminUser, artifact, subArtifact, new List<INovaFile> { _attachmentFile },
-                Helper.ArtifactStore);
+            var attachment = ArtifactStoreHelper.AddSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifact, _attachmentFile, Helper.ArtifactStore);
+            Assert.AreEqual(1, attachment.AttachedFiles.Count, "SubArtifact should have 1 file attached.");
+
             artifact.Publish(_adminUser);
 
             var viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
-            var attachment = Helper.ArtifactStore.GetAttachments(viewerUser, artifact.Id, subArtifactId: subArtifact.Id);
-            Assert.AreEqual(1, attachment.AttachedFiles.Count, "SubArtifact should have 1 file attached.");
-
             int attachmentIdToDownload = attachment.AttachedFiles[0].AttachmentId;
             IFile downloadedFile = null;
 
@@ -206,12 +204,10 @@ namespace ArtifactStoreTests
 
             // User Task is subArtifacts[2] - Add attachment to the sub-artifact.
             var subArtifact = Helper.ArtifactStore.GetSubartifact(_adminUser, artifact.Id, subArtifacts[2].Id);
-            ArtifactStoreHelper.AddSubArtifactAttachmentsAndSave(_adminUser, artifact, subArtifact, new List<INovaFile> { _attachmentFile },
-                Helper.ArtifactStore);
+            var attachment = ArtifactStoreHelper.AddSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifact, _attachmentFile, Helper.ArtifactStore);
             artifact.Publish(_adminUser);
 
             // Verify attachment was added.
-            var attachment = Helper.ArtifactStore.GetAttachments(_adminUser, artifact.Id, subArtifactId: subArtifacts[2].Id);
             Assert.AreEqual(1, attachment.AttachedFiles.Count, "SubArtifact should have 1 file attached.");
 
             // Delete the attachment.

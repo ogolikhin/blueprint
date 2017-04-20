@@ -370,7 +370,7 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.Actor);
             //versionId = 1 - no attachments
 
-            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, _novaAttachmentFile, Helper.ArtifactStore);
+            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, _novaAttachmentFile, Helper.ArtifactStore, shouldReturnAttachments: false);
             artifact.Publish(_adminUser);
             //versionId = 2 - 1 attachment - _novaAttachmentFile
 
@@ -400,13 +400,12 @@ namespace ArtifactStoreTests
             // Setup:
             var artifact = Helper.CreateNovaArtifact(_adminUser, _project, ItemTypePredefined.Glossary);
 
-            ArtifactStoreHelper.AddArtifactAttachmentsAndSave(_adminUser, artifact,
+            var attachment = ArtifactStoreHelper.AddArtifactAttachmentsAndSave(_adminUser, artifact,
                 new List<INovaFile> { _novaAttachmentFile, _novaAttachmentFile }, Helper.ArtifactStore);
 
             artifact.Publish(_adminUser);
             //versionId = 1 - 2 attachments - _novaAttachmentFile
 
-            var attachment = Helper.ArtifactStore.GetAttachments(_adminUser, artifact.Id);
             Assert.AreEqual(2, attachment.AttachedFiles.Count, "Artifact should have 2 attached files at this stage.");
 
             ArtifactStoreHelper.DeleteArtifactAttachmentAndSave(_adminUser, artifact, attachment.AttachedFiles[0].AttachmentId,
@@ -458,7 +457,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateNovaArtifact(_adminUser, _project, ItemTypePredefined.Actor);
-            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, _novaAttachmentFile, Helper.ArtifactStore);
+            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, _novaAttachmentFile, Helper.ArtifactStore, shouldReturnAttachments: false);
             artifact.Publish(_adminUser);
             //versionId = 1 - 1 attachment
 
@@ -548,7 +547,7 @@ namespace ArtifactStoreTests
 
             try
             {
-                ArtifactStoreHelper.AddArtifactAttachmentAndSave(_authorUser, artifact, _novaAttachmentFile, Helper.ArtifactStore);
+                ArtifactStoreHelper.AddArtifactAttachmentAndSave(_authorUser, artifact, _novaAttachmentFile, Helper.ArtifactStore, shouldReturnAttachments: false);
                 artifact.Publish(_authorUser);
                 //versionId = 2 - 1 attachment - _novaAttachmentFile
 
@@ -715,7 +714,7 @@ namespace ArtifactStoreTests
             // Setup:
             var artifact = Helper.CreateNovaArtifact(_adminUser, _project, ItemTypePredefined.Actor);
 
-            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, _novaAttachmentFile, Helper.ArtifactStore);
+            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, _novaAttachmentFile, Helper.ArtifactStore, shouldReturnAttachments: false);
             artifact.Publish(_adminUser);
             //versionId = 1 - 1 attachment - _novaAttachmentFile
 

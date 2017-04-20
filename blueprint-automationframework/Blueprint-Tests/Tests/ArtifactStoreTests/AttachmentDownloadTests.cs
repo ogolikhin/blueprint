@@ -52,11 +52,10 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateNovaArtifact(_adminUser, _project, ItemTypePredefined.Actor);
-            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, _attachmentFile, Helper.ArtifactStore, shouldLockArtifact: false);
+            var attachment = ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, _attachmentFile, Helper.ArtifactStore, shouldLockArtifact: false);
             artifact.Publish(_adminUser);
 
             var viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
-            var attachment = Helper.ArtifactStore.GetAttachments(viewerUser, artifact.Id);
             int fileId = attachment.AttachedFiles[0].AttachmentId;
             IFile downloadedFile = null;
 
@@ -77,9 +76,8 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateNovaArtifact(_adminUser, _project, ItemTypePredefined.BusinessProcess);
-            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, _attachmentFile, Helper.ArtifactStore, shouldLockArtifact: false);
+            var attachment = ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, _attachmentFile, Helper.ArtifactStore, shouldLockArtifact: false);
 
-            var attachment = Helper.ArtifactStore.GetAttachments(_adminUser, artifact.Id);
             int fileId = attachment.AttachedFiles[0].AttachmentId;
             IFile downloadedFile = null;
 
@@ -101,13 +99,11 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.DomainDiagram);
-            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, _attachmentFile, Helper.ArtifactStore);
+            var attachment = ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, _attachmentFile, Helper.ArtifactStore);
             artifact.Publish(_adminUser);
 
             // now artifact has attachment in version 2
             int versionId = 2;
-
-            var attachment = Helper.ArtifactStore.GetAttachments(_adminUser, artifact.Id);
             int fileId = attachment.AttachedFiles[0].AttachmentId;
 
             ArtifactStoreHelper.DeleteArtifactAttachmentAndSave(_adminUser, artifact, fileId, Helper.ArtifactStore);
@@ -133,13 +129,11 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.GenericDiagram);
-            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, _attachmentFile, Helper.ArtifactStore);
+            var attachment = ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, _attachmentFile, Helper.ArtifactStore);
             artifact.Publish(_adminUser);
 
             // now artifact has attachment in version 2
             int versionId = 2;
-
-            var attachment = Helper.ArtifactStore.GetAttachments(_adminUser, artifact.Id);
             int fileId = attachment.AttachedFiles[0].AttachmentId;
 
             artifact.Delete(_adminUser);

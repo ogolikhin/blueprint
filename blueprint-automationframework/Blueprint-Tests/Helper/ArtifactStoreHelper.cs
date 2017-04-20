@@ -1448,13 +1448,15 @@ namespace Helper
         /// <param name="artifactStore">IArtifactStore.</param>
         /// <param name="shouldLockArtifact">(optional) Pass false if you already locked the artifact.
         ///     By default this function will lock the artifact.</param>
+        /// <param name="shouldReturnAttachments">(optional) Pass false if you don't want to get the attachments after the update; in which case this function will return null.</param>
         /// <returns>The attachments that were added.</returns>
         public static Attachments AddArtifactAttachmentsAndSave(
             IUser user,
             ArtifactWrapper artifact,
             List<INovaFile> files,
             IArtifactStore artifactStore,
-            bool shouldLockArtifact = true)
+            bool shouldLockArtifact = true,
+            bool shouldReturnAttachments = true)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
@@ -1476,10 +1478,16 @@ namespace Helper
             }
 
             artifact.Update(user, updateArtifact);
-            var attachments = artifactStore.GetAttachments(user, artifact.Id);
-            Assert.IsTrue(attachments.AttachedFiles.Count >= files.Count, "All attachments should be added.");
 
-            return attachments;
+            if (shouldReturnAttachments)
+            {
+                var attachments = artifactStore.GetAttachments(user, artifact.Id);
+                Assert.IsTrue(attachments.AttachedFiles.Count >= files.Count, "All attachments should be added.");
+
+                return attachments;
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -1491,6 +1499,7 @@ namespace Helper
         /// <param name="artifactStore">IArtifactStore.</param>
         /// <param name="shouldLockArtifact">(optional) Pass false if you already locked the artifact.
         ///     By default this function will lock the artifact.</param>
+        /// <param name="shouldReturnAttachments">(optional) Pass false if you don't want to get the attachments after the update; in which case this function will return null.</param>
         /// <param name="expectedAttachedFilesCount">(optional) The expected number of attached files after adding the attachment.</param>
         /// <returns>The attachments that were added.</returns>
         public static Attachments AddArtifactAttachmentAndSave(
@@ -1499,6 +1508,7 @@ namespace Helper
             INovaFile file,
             IArtifactStore artifactStore,
             bool shouldLockArtifact = true,
+            bool shouldReturnAttachments = true,
             int expectedAttachedFilesCount = 1)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -1506,8 +1516,12 @@ namespace Helper
             ThrowIf.ArgumentNull(file, nameof(file));
             ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
 
-            var attachments = AddArtifactAttachmentsAndSave(user, artifact, new List<INovaFile> { file }, artifactStore, shouldLockArtifact);
-            Assert.AreEqual(expectedAttachedFilesCount, attachments.AttachedFiles.Count, "The attachment should be added.");
+            var attachments = AddArtifactAttachmentsAndSave(user, artifact, new List<INovaFile> { file }, artifactStore, shouldLockArtifact, shouldReturnAttachments);
+
+            if (shouldReturnAttachments)
+            {
+                Assert.AreEqual(expectedAttachedFilesCount, attachments.AttachedFiles.Count, "The attachment should be added.");
+            }
 
             return attachments;
         }

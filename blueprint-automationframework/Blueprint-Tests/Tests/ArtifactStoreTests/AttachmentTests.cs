@@ -185,7 +185,7 @@ namespace ArtifactStoreTests
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_adminUser, artifact.Id);
             var subArtifact = Helper.ArtifactStore.GetSubartifact(_adminUser, artifact.Id, subArtifacts[0].Id);
 
-            ArtifactStoreHelper.AddSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifact, attachmentFile2, Helper.ArtifactStore);
+            ArtifactStoreHelper.AddSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifact, attachmentFile2, Helper.ArtifactStore, shouldLockArtifact: false);
             artifact.Publish(_adminUser);
 
             var viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);

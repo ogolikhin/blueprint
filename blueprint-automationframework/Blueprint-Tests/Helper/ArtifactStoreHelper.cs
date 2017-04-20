@@ -1527,44 +1527,56 @@ namespace Helper
         }
 
         /// <summary>
-        /// Attaches file to the subartifact (Save changes).
+        /// Attaches file to the subartifact (Save changes).  The artifact will first be locked unless you pass false for shouldLockArtifact.
         /// </summary>
         /// <param name="user">User to perform an operation.</param>
         /// <param name="artifact">The artifact containing the sub-artifact to attach a file to.</param>
         /// <param name="subArtifact">The sub-artifact to attach a file to.</param>
         /// <param name="file">The file to attach.</param>
         /// <param name="artifactStore">IArtifactStore.</param>
+        /// <param name="shouldLockArtifact">(optional) Pass false if the artifact is already locked (or unpublished).</param>
         /// <returns>The attachment that was added.</returns>
         public static Attachments AddSubArtifactAttachmentAndSave(
             IUser user,
             ArtifactWrapper artifact,
             NovaItem subArtifact,
             INovaFile file,
-            IArtifactStore artifactStore)
+            IArtifactStore artifactStore,
+            bool shouldLockArtifact = true)
         {
-            return AddSubArtifactAttachmentsAndSave(user, artifact, subArtifact, new List<INovaFile> { file }, artifactStore);
+            return AddSubArtifactAttachmentsAndSave(user, artifact, subArtifact, new List<INovaFile> { file }, artifactStore, shouldLockArtifact);
         }
 
         /// <summary>
-        /// Attaches file to the subartifact (Save changes).
+        /// Attaches file to the subartifact (Save changes).  The artifact will first be locked unless you pass false for shouldLockArtifact.
         /// </summary>
         /// <param name="user">User to perform an operation.</param>
-        /// <param name="artifact">Artifact.</param>
-        /// <param name="subArtifact">SubArtifact.</param>
+        /// <param name="artifact">The artifact containing the sub-artifact to attach a file to.</param>
+        /// <param name="subArtifact">The sub-artifact to attach a file to.</param>
         /// <param name="files">List of files to attach.</param>
         /// <param name="artifactStore">IArtifactStore.</param>
+        /// <param name="shouldLockArtifact">(optional) Pass false if the artifact is already locked (or unpublished).</param>
         /// <returns>The attachments that were added.</returns>
-        public static Attachments AddSubArtifactAttachmentsAndSave(IUser user, ArtifactWrapper artifact, NovaItem subArtifact,
-            List<INovaFile> files, IArtifactStore artifactStore)
+        public static Attachments AddSubArtifactAttachmentsAndSave(
+            IUser user,
+            ArtifactWrapper artifact,
+            NovaItem subArtifact,
+            List<INovaFile> files,
+            IArtifactStore artifactStore,
+            bool shouldLockArtifact = true)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
             ThrowIf.ArgumentNull(subArtifact, nameof(subArtifact));
             ThrowIf.ArgumentNull(files, nameof(files));
             ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
+
             Assert.AreEqual(artifact.Id, subArtifact.ParentId, "subArtifact should belong to Artifact");
 
-            artifact.Lock(user);
+            if (shouldLockArtifact)
+            {
+                artifact.Lock(user);
+            }
 
             var subArtifactToAdd = new NovaSubArtifact();
             subArtifactToAdd.Id = subArtifact.Id;

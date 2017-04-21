@@ -116,7 +116,9 @@
     <Compile Include="Controllers\LogController.cs" />
     <Compile Include="Helpers\ModelValidator.cs" />
     <Compile Include="Helpers\PermissionsChecker.cs" />
+    <Compile Include="Helpers\SessionHelper.cs" />
     <Compile Include="Models\CreationUserDto.cs" />
+    <Compile Include="Models\UpdateUserDto.cs" />
     <Compile Include="Models\UserDto.cs" />
     <Compile Include="Helpers\EmailHelper.cs" />
     <Compile Include="Helpers\HashingUtilities.cs" />

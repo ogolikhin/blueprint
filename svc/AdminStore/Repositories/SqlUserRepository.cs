@@ -223,6 +223,50 @@ namespace AdminStore.Repositories
             return userId;
         }
 
+        public async Task UpdateUserAsync(User loginUser)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@Login", loginUser.Login);
+            parameters.Add("@Source", (int)loginUser.Source);
+            parameters.Add("@InstanceAdminRoleId", loginUser.InstanceAdminRoleId);
+            parameters.Add("@AllowFallback", loginUser.AllowFallback);
+            parameters.Add("@Enabled", loginUser.Enabled);
+            parameters.Add("@ExpirePassword", loginUser.ExpirePassword);
+            parameters.Add("@DisplayName", loginUser.DisplayName);
+            parameters.Add("@FirstName", loginUser.FirstName);
+            parameters.Add("@LastName", loginUser.LastName);
+            parameters.Add("@ImageId", loginUser.Image_ImageId);
+            parameters.Add("@Password", loginUser.Password);
+            parameters.Add("@UserSALT", loginUser.UserSALT);
+            parameters.Add("@Email", loginUser.Email);
+            parameters.Add("@Title", loginUser.Title);
+            parameters.Add("@Department", loginUser.Department);
+            if (loginUser.GroupMembership != null)
+                parameters.Add("@GroupMembership", SqlConnectionWrapper.ToDataTable(loginUser.GroupMembership, "Int32Collection", "Int32Value"));
+            parameters.Add("@Guest", loginUser.Guest);
+            parameters.Add("@UserId", loginUser.UserId);
+            parameters.Add("@CurrentVersion", loginUser.CurrentVersion);
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            await _connectionWrapper.ExecuteAsync("UpdateUser", parameters, commandType: CommandType.StoredProcedure);
+
+            var errorCode = parameters.Get<int?>("ErrorCode");
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.GeneralSqlError:
+                        throw new BadRequestException(ErrorMessages.GeneralErrorOfUpdatingUser);
+
+                    case (int)SqlErrorCodes.UserLoginNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.UserNotExist);
+
+                    case (int)SqlErrorCodes.UserVersionsNotEqual:
+                        throw new ConflictException(ErrorMessages.UserVersionsNotEqual);
+                }
+            }
+        }
+
         internal class HashedPassword
         {
             internal string Password { get; set; }

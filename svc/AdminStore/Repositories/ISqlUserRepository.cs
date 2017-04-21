@@ -36,5 +36,7 @@ namespace AdminStore.Repositories
         Task<User> GetUser(int userId);
 
         Task<int> AddUserAsync(User loginUser);
+
+        Task UpdateUserAsync(User loginUser);
     }
 }

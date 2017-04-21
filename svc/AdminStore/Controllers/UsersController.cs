@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -406,10 +408,48 @@ namespace AdminStore.Controllers
         [Route(""), BaseExceptionFilter]
         public async Task<HttpResponseMessage> PostUser([FromBody] CreationUserDto user)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            if (session == null)
+            var sessionUserId = SessionHelper.GetUserIdFromSession(Request);
+
+            if (user == null)
             {
-                throw new BadRequestException(ErrorMessages.SessionIsEmpty);
+                throw new BadRequestException(ErrorMessages.UserModelIsEmpty, ErrorCodes.BadRequest);
+            }
+
+            if (!(await UsersHelper.HasValidPermissions(1, user, _privilegesRepository)))
+            {
+                throw new AuthorizationException(ErrorMessages.UserDoesNotHavePermissions, ErrorCodes.Forbidden);
+            }
+            var databaseUser = UsersHelper.CreateDbUserFromDto(1, user);
+
+            var userId = await _userRepository.AddUserAsync(databaseUser);
+            return Request.CreateResponse<int>(HttpStatusCode.Created, userId);
+        }
+
+        /// <summary>
+        /// Update database user
+        /// </summary>
+        /// <param name="userId">User's identity</param>
+        /// <param name="user">User's model</param>
+        /// <remarks>
+        /// Returns id of the created user.
+        /// </remarks>
+        /// <response code="200">OK. The database user is updated.</response>
+        /// <response code="400">BadRequest. Some errors. </response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for updating the user.</response>
+        /// <response code="404">NotFound. The user with the current userId doesn’t exist or removed from the system.</response>
+        /// <response code="409">Conflict. The current version from the request doesn’t match the current version in DB.</response>
+        [HttpPost]
+        //[SessionRequired]
+        [ResponseType(typeof (HttpResponseMessage))]
+        [Route("update/{userId:int}"), BaseExceptionFilter]
+        public async Task<IHttpActionResult> UpdateUser(int userId, [FromBody] UpdateUserDto user)
+        {
+            //var sessionUserId = SessionHelper.GetUserIdFromSession(Request);
+
+            if (userId == 0)
+            {
+                throw new BadRequestException(ErrorMessages.IncorrectUserId, ErrorCodes.BadRequest);
             }
 
             if (user == null)
@@ -417,52 +457,15 @@ namespace AdminStore.Controllers
                 throw new BadRequestException(ErrorMessages.UserModelIsEmpty, ErrorCodes.BadRequest);
             }
 
-            var userPermissions = await _privilegesRepository.GetUserPermissionsAsync(session.UserId);
-            if (!PermissionsChecker.IsFlagBelongPermissions(userPermissions, InstanceAdminPrivileges.ManageUsers))
-                throw new AuthorizationException(ErrorMessages.UserDoesNotHavePermissions, ErrorCodes.Forbidden);
-
-            if (user.InstanceAdminRoleId.HasValue &&
-                (!PermissionsChecker.IsFlagBelongPermissions(userPermissions,
-                    InstanceAdminPrivileges.AssignAdminRoles)))
+            if (!(await UsersHelper.HasValidPermissions(1, user, _privilegesRepository)))
             {
                 throw new AuthorizationException(ErrorMessages.UserDoesNotHavePermissions, ErrorCodes.Forbidden);
             }
+            var databaseUser = UsersHelper.CreateDbUserFromDto(userId, user);
 
-            ModelValidator.ValidateUserModel(user);
+            await _userRepository.UpdateUserAsync(databaseUser);
 
-            var databaseUser = new User
-            {
-                Department = user.Department,
-                Enabled = user.Enabled,
-                ExpirePassword = user.ExpirePassword,
-                GroupMembership = user.GroupMembership,
-                Guest = user.Guest,
-                Image_ImageId = user.ImageId,
-                Title = user.Title,
-                Login = user.Login,
-                Source = user.Source,
-                InstanceAdminRoleId = user.InstanceAdminRoleId,
-                AllowFallback = user.AllowFallback,
-                DisplayName = user.DisplayName,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email,
-                UserSALT = Guid.NewGuid()
-            };
-
-            if (!user.AllowFallback.HasValue || !user.AllowFallback.Value)
-            {
-                var decodedPassword = SystemEncryptions.Decode(user.NewPassword);
-                ModelValidator.ValidateUserPassword(decodedPassword);
-                databaseUser.Password = HashingUtilities.GenerateSaltedHash(decodedPassword, databaseUser.UserSALT);
-            }
-            else
-            {
-                databaseUser.Password = null;
-            }
-
-            var userId = await _userRepository.AddUserAsync(databaseUser);
-            return Request.CreateResponse<int>(HttpStatusCode.Created, userId);
+            return Ok();
         }
     }
 }

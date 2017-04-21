@@ -79,10 +79,10 @@ namespace AdminStore.Helpers
             return orderField;
         }
 
-        public static User CreateDbUserFromDto(int userId, CreationUserDto user)
+        public static User CreateDbUserFromDto(CreationUserDto user, int userId = 0)
         {
             ValidateModel(user);
-            var dbUserModel = PrepareDbUser(userId, user);
+            var dbUserModel = PrepareDbUser(user, userId);
             return dbUserModel;
         }
 
@@ -157,7 +157,7 @@ namespace AdminStore.Helpers
             }
         }
 
-        private static User PrepareDbUser(int userId, CreationUserDto user)
+        private static User PrepareDbUser(CreationUserDto user, int userId = 0)
         {
             var databaseUser = new User
             {

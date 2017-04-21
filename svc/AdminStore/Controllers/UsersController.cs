@@ -415,11 +415,11 @@ namespace AdminStore.Controllers
                 throw new BadRequestException(ErrorMessages.UserModelIsEmpty, ErrorCodes.BadRequest);
             }
 
-            if (!(await UsersHelper.HasValidPermissions(1, user, _privilegesRepository)))
+            if (!(await UsersHelper.HasValidPermissions(sessionUserId, user, _privilegesRepository)))
             {
                 throw new AuthorizationException(ErrorMessages.UserDoesNotHavePermissions, ErrorCodes.Forbidden);
             }
-            var databaseUser = UsersHelper.CreateDbUserFromDto(1, user);
+            var databaseUser = UsersHelper.CreateDbUserFromDto(user);
 
             var userId = await _userRepository.AddUserAsync(databaseUser);
             return Request.CreateResponse<int>(HttpStatusCode.Created, userId);
@@ -431,7 +431,7 @@ namespace AdminStore.Controllers
         /// <param name="userId">User's identity</param>
         /// <param name="user">User's model</param>
         /// <remarks>
-        /// Returns id of the created user.
+        /// Returns Ok result.
         /// </remarks>
         /// <response code="200">OK. The database user is updated.</response>
         /// <response code="400">BadRequest. Some errors. </response>
@@ -439,13 +439,13 @@ namespace AdminStore.Controllers
         /// <response code="403">Forbidden. The user does not have permissions for updating the user.</response>
         /// <response code="404">NotFound. The user with the current userId doesn’t exist or removed from the system.</response>
         /// <response code="409">Conflict. The current version from the request doesn’t match the current version in DB.</response>
-        [HttpPost]
-        //[SessionRequired]
+        [HttpPut]
+        [SessionRequired]
         [ResponseType(typeof (HttpResponseMessage))]
-        [Route("update/{userId:int}"), BaseExceptionFilter]
+        [Route("{userId:int}"), BaseExceptionFilter]
         public async Task<IHttpActionResult> UpdateUser(int userId, [FromBody] UpdateUserDto user)
         {
-            //var sessionUserId = SessionHelper.GetUserIdFromSession(Request);
+            var sessionUserId = SessionHelper.GetUserIdFromSession(Request);
 
             if (userId == 0)
             {
@@ -457,12 +457,12 @@ namespace AdminStore.Controllers
                 throw new BadRequestException(ErrorMessages.UserModelIsEmpty, ErrorCodes.BadRequest);
             }
 
-            if (!(await UsersHelper.HasValidPermissions(1, user, _privilegesRepository)))
+            if (!(await UsersHelper.HasValidPermissions(sessionUserId, user, _privilegesRepository)))
             {
                 throw new AuthorizationException(ErrorMessages.UserDoesNotHavePermissions, ErrorCodes.Forbidden);
             }
-            var databaseUser = UsersHelper.CreateDbUserFromDto(userId, user);
 
+            var databaseUser = UsersHelper.CreateDbUserFromDto(user, userId);
             await _userRepository.UpdateUserAsync(databaseUser);
 
             return Ok();

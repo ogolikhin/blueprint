@@ -10,8 +10,6 @@ namespace CustomAttributes
         public const string AdminStore = "AdminStore";
         public const string ArtifactStore = "ArtifactStore";
         public const string ArtifactVersion = "ArtifactVersion";
-        public const string SearchService = "SearchService";
-        public const string ImpactAnalysis = "ImpactAnalysis";
 
         /// <summary>
         /// This test cannot be run in parallel with other tests.
@@ -37,6 +35,8 @@ namespace CustomAttributes
         /// </summary>
         public const string GoldenData = "GoldenData";
 
+        public const string ImpactAnalysis = "ImpactAnalysis";
+
         /// <summary>
         /// This test Injects errors into the AccessControlDouble and therefore cannot be run concurrently with other tests.
         /// </summary>
@@ -46,6 +46,9 @@ namespace CustomAttributes
 
         public const string Navigation = "Navigation";
         public const string OpenApi = "OpenApi";
+
+        public const string SearchService = "SearchService";
+
         public const string Storyteller = "Storyteller";
 
         /// <summary>

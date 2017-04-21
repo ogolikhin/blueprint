@@ -31,7 +31,7 @@ namespace Model.Impl
         /// <param name="format">(optional)Xml or json format. By default format is taken from request header.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.<</param>
         /// <returns>ImpactAnalysisResult object</returns>
-        public static ImpactAnalysisResult GetImpactAnalysis(IUser user, string address, int sourceId, int level, string format = null, List<HttpStatusCode> expectedStatusCodes = null)
+        public ImpactAnalysisResult GetImpactAnalysis(IUser user, string address, int sourceId, int level, string format = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.ImpactAnalysis.IMPACT_ANALYSIS, sourceId, level);
             if (!string.IsNullOrEmpty(format))

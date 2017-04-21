@@ -1,15 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <Import Project="..\..\Blueprint-Tests.Common.props" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F5283B27-01D2-4167-8BD0-79ABDD2C9CD7}</ProjectGuid>
+    <ProjectGuid>{EE6F7461-DF13-4A0A-9848-1B1CAB6FD999}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ImpactAnalysisTests</RootNamespace>
-    <AssemblyName>ImpactAnalysisTests</AssemblyName>
+    <RootNamespace>ImpactAnalysis</RootNamespace>
+    <AssemblyName>ImpactAnalysis</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -17,7 +16,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\bin\Debug\</OutputPath>
+    <OutputPath>..\..\bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -27,10 +26,12 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\bin\Release\</OutputPath>
+    <OutputPath>..\..\bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="nunit.framework, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL" />
@@ -48,27 +49,27 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Common\Common.csproj">
+    <ProjectReference Include="..\..\Common\Common.csproj">
       <Project>{C7CDF470-B661-414D-B6C8-6C0E7E341D9A}</Project>
       <Name>Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\CustomAttributes\CustomAttributes.csproj">
+    <ProjectReference Include="..\..\CustomAttributes\CustomAttributes.csproj">
       <Project>{BD40AAA8-1CA8-43E9-867D-AADE6ACC8ED7}</Project>
       <Name>CustomAttributes</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Helper\Helper.csproj">
+    <ProjectReference Include="..\..\Helper\Helper.csproj">
       <Project>{23C53DC5-1245-4877-9487-A05A46914FE3}</Project>
       <Name>Helper</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Model\Model.csproj">
+    <ProjectReference Include="..\..\Model\Model.csproj">
       <Project>{52DB8811-A018-4CEC-BA81-8DDA947CC007}</Project>
       <Name>Model</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Tests\TestCommon\TestCommon.csproj">
+    <ProjectReference Include="..\TestCommon\TestCommon.csproj">
       <Project>{8A66038C-22FC-4C28-BA0D-714614A50418}</Project>
       <Name>TestCommon</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Utilities\Utilities.csproj">
+    <ProjectReference Include="..\..\Utilities\Utilities.csproj">
       <Project>{D52D51B2-AEC5-4118-A9C2-2A590BD083A3}</Project>
       <Name>Utilities</Name>
     </ProjectReference>

@@ -199,10 +199,10 @@ namespace ImpactAnalysisTests
                 "You have attempted to access an item that does not exist or you do not have permission to view.");
         }
 
-        [TestCase(TraceDirection.From)]
+        [TestCase]
         [TestRail(290244)]
         [Description("Call ImpactAnalysis for non-existing artifact.  Verify that GetImpactAnalysis call returns 404 Not Found.")]
-        public void GetImpactAnalysisInfo_NonExistingArtifact_Returns404NotFound(TraceDirection direction)
+        public void GetImpactAnalysisInfo_NonExistingArtifact_Returns404NotFound()
         {
             // Setup:
             const int LEVEL = 1;

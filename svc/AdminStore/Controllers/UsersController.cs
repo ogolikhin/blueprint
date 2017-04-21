@@ -116,15 +116,9 @@ namespace AdminStore.Controllers
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
-            var orderField = "login";
             if (settings.Sort != null)
             {
-                orderField = UsersHelper.SortUsers(settings.Sort.ToLower(CultureInfo.InvariantCulture));
-                settings.Sort = orderField;
-            }
-            else
-            {
-                settings.Sort = orderField;
+                settings.Sort = UsersHelper.SortUsers(settings.Sort.ToLower(CultureInfo.InvariantCulture));
             }
 
             var result = _userRepository.GetUsers(settings);

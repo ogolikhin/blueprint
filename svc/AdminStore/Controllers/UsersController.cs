@@ -33,6 +33,7 @@ namespace AdminStore.Controllers
         internal readonly ISqlPrivilegesRepository _privilegesRepository;
         private const string PasswordResetTokenExpirationInHoursKey = "PasswordResetTokenExpirationInHours";
         private const int DefaultPasswordResetTokenExpirationInHours = 24;
+        private int _userId { get; set; }
 
         public UsersController() : this(new AuthenticationRepository(), new SqlUserRepository(),
             new SqlSettingsRepository(), new EmailHelper(), new ApplicationSettingsRepository(),
@@ -96,10 +97,10 @@ namespace AdminStore.Controllers
         /// Get users list according to the input parameters 
         /// </summary>
         /// <param name="settings">Table settings parameters. Such as page number, page size, filter and sort parameters</param>
-        /// <returns code="200">OK if admin user session exists and user is permitted to list users</returns>
-        /// <returns code="400">BadRequest if page, pageSize are missing or invalid</returns>
-        /// <returns code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</returns>
-        /// <returns code="403">Forbidden if used doesn’t have permissions to get users list</returns>
+        /// <response code="200">OK if admin user session exists and user is permitted to list users</response>
+        /// <response code="400">BadRequest if page, pageSize are missing or invalid</response>
+        /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
+        /// <response code="403">Forbidden if used doesn’t have permissions to get users list</response>
         [SessionRequired]
         [Route("")]
         [ResponseType(typeof(QueryResult))]
@@ -125,6 +126,31 @@ namespace AdminStore.Controllers
 
             return Ok(result);
         }
+
+        /// <summary>
+        /// Delete user/users from the system
+        /// </summary>
+        /// <param name="ids">list of user ids for deletion</param>
+        /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
+        /// <response code="403">Forbidden if used doesn’t have permissions to get users list</response>
+        [HttpDelete]
+        [SessionRequired]
+        [Route("")]
+        [ResponseType(typeof(IEnumerable<int>))]
+        public async Task<IHttpActionResult> DeleteUsers([FromUri] IEnumerable<int> ids)
+        {
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            var userId = session.UserId;
+            var permissions = new List<int> { Convert.ToInt32(InstanceAdminPrivileges.ManageUsers) };
+            if (!await _privilegesRepository.IsUserHasPermissions(permissions, userId))
+            {
+                throw new HttpResponseException(HttpStatusCode.Forbidden);
+            }
+            var result = await _userRepository.GetLoginUserByIdAsync(session.UserId);
+
+            return Ok();
+        }
+
 
         /// <summary>
         /// Get user by Identifier

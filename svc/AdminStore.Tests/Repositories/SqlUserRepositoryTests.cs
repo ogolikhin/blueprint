@@ -353,6 +353,51 @@ namespace AdminStore.Repositories
 
         #endregion
 
+        #region DeleteUsers
+
+        [TestMethod]
+        public async Task DeleteUsers_UsersToDeleteExists_QueryReturnNotEmptyResult()
+        {
+            //arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
+            int[] userIds = { 1, 2, 3 };
+            var userIdTable = SqlConnectionWrapper.ToDataTable(userIds);
+            var returntResult = new[] {1, 2, 3};
+            
+            cxn.SetupQueryAsync("DeleteUsers", new Dictionary<string, object> { { "UserIds", userIdTable } }, returntResult);
+
+            //act
+            var result = await repository.DeleteUsers(userIds);
+
+            //assert
+            cxn.Verify();
+            CollectionAssert.AreEquivalent(result.ToList(), returntResult);
+        }
+
+        [TestMethod]
+        public async Task DeleteUsers_UsersToDeleteAreNotExists_QueryReturn()
+        {
+            //arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
+            int[] userIds = { 1, 2, 3 };
+            var userIdTable = SqlConnectionWrapper.ToDataTable(userIds);
+            var returntResult = new[] { 1, 2, 3 };
+
+            cxn.SetupQueryAsync("DeleteUsers", new Dictionary<string, object> { { "UserIds", userIdTable } }, returntResult);
+
+            //act
+            var result = await repository.DeleteUsers(userIds);
+
+            //assert
+            cxn.Verify();
+            CollectionAssert.AreEquivalent(result.ToList(), returntResult);
+        }
+
+
+        #endregion
+
         #region AddUserAsync
 
         [TestMethod]

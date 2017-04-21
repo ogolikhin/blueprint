@@ -10,6 +10,11 @@ namespace Model
     // ********************************************************************************************
     public static class RestPaths
     {
+        public static class ImpactAnalysis
+        {
+            public const string IMPACT_ANALYSIS                     = "ImpactAnalysis/api/{0}/{1}";
+        }
+
         [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
         public static class OpenApi
         {

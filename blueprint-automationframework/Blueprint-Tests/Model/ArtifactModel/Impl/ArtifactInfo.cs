@@ -21,5 +21,7 @@ namespace Model.ArtifactModel.Impl
         public int? Version { get; set; }
         [JsonProperty("link", NullValueHandling = NullValueHandling.Include)]
         public string Link { get; set; }
+
+        public bool IsAccessible { get; set; }
     }
 }

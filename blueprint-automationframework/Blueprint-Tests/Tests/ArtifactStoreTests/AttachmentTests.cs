@@ -371,11 +371,11 @@ namespace ArtifactStoreTests
         public void GetAttachmentSpecifyVersion_Version1NoAttachmentVersion2Attachment_CorrectAttachmentIsReturned()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.Actor);
             //versionId = 1 - no attachments
 
             ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, _novaAttachmentFile, Helper.ArtifactStore);
-            Helper.ArtifactStore.PublishArtifact(artifact, _adminUser);
+            artifact.Publish(_adminUser);
             //versionId = 2 - 1 attachment - _novaAttachmentFile
 
             Attachments version1attachment = null;
@@ -384,8 +384,8 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                version1attachment = Helper.ArtifactStore.GetAttachments(artifact, _authorUser, versionId: 1);
-                version2attachment = Helper.ArtifactStore.GetAttachments(artifact, _authorUser, versionId: 2);
+                version1attachment = Helper.ArtifactStore.GetAttachments(_authorUser, artifact.Id, versionId: 1);
+                version2attachment = Helper.ArtifactStore.GetAttachments(_authorUser, artifact.Id, versionId: 2);
             }, "'GET {0}?versionId=x' shouldn't return any error when passed a valid versionId.",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
 
@@ -402,23 +402,27 @@ namespace ArtifactStoreTests
         public void GetAttachmentSpecifyVersion_ArtifactWithDeletedAttachment_NoAttachmentForLastVersion()
         {
             // Setup:
-            var artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.Glossary);
+            var artifact = Helper.CreateNovaArtifact(_adminUser, _project, ItemTypePredefined.Glossary);
 
             ArtifactStoreHelper.AddArtifactAttachmentsAndSave(_adminUser, artifact,
                 new List<INovaFile> { _novaAttachmentFile, _novaAttachmentFile }, Helper.ArtifactStore);
-            Helper.ArtifactStore.PublishArtifact(artifact, _adminUser);
+
+            artifact.Publish(_adminUser);
             //versionId = 1 - 2 attachments - _novaAttachmentFile
-            var attachment = Helper.ArtifactStore.GetAttachments(artifact, _adminUser);
+
+            var attachment = Helper.ArtifactStore.GetAttachments(_adminUser, artifact.Id);
             Assert.AreEqual(2, attachment.AttachedFiles.Count, "Artifact should have 2 attached files at this stage.");
+
             ArtifactStoreHelper.DeleteArtifactAttachmentAndSave(_adminUser, artifact, attachment.AttachedFiles[0].AttachmentId,
                 Helper.ArtifactStore);
-            Helper.ArtifactStore.PublishArtifact(artifact, _adminUser);
+
+            artifact.Publish(_adminUser);
             //versionId = 1 - 1 attachment
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                attachment = Helper.ArtifactStore.GetAttachments(artifact, _authorUser, versionId: 2);
+                attachment = Helper.ArtifactStore.GetAttachments(_authorUser, artifact.Id, versionId: 2);
             }, "'GET {0}?versionId=2' shouldn't return any error when passed a valid versionId.",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
 
@@ -457,13 +461,13 @@ namespace ArtifactStoreTests
         public void GetAttachmentSpecifyVersion_Version1AttachmentVersion2TwoAttachment_CorrectAttachmentIsReturned()
         {
             // Setup:
-            var artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.Actor);
+            var artifact = Helper.CreateNovaArtifact(_adminUser, _project, ItemTypePredefined.Actor);
             ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, _novaAttachmentFile, Helper.ArtifactStore);
-            Helper.ArtifactStore.PublishArtifact(artifact, _adminUser);
+            artifact.Publish(_adminUser);
             //versionId = 1 - 1 attachment
 
             ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, _novaAttachmentFile, Helper.ArtifactStore, expectedAttachedFilesCount: 2);
-            Helper.ArtifactStore.PublishArtifact(artifact, _adminUser);
+            artifact.Publish(_adminUser);
             //versionId = 2 - 2 attachments
 
             Attachments version1attachment = null;
@@ -472,8 +476,8 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                version1attachment = Helper.ArtifactStore.GetAttachments(artifact, _authorUser, versionId: 1);
-                version2attachment = Helper.ArtifactStore.GetAttachments(artifact, _authorUser, versionId: 2);
+                version1attachment = Helper.ArtifactStore.GetAttachments(_authorUser, artifact.Id, versionId: 1);
+                version2attachment = Helper.ArtifactStore.GetAttachments(_authorUser, artifact.Id, versionId: 2);
             }, "'GET {0}?versionId=x' shouldn't return any error when passed a valid versionId.",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
 
@@ -539,17 +543,17 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(182503)]
         [Description("Create and publish artifact (admin), add attachment and publish (author), set artifact's permission to none for author, " +
-            "get attachments for version 1 should return 403 for author.")]
+                     "get attachments for version 1 should return 403 for author.")]
         public void GetAttachmentSpecifyVersion_UserHaveNoPermissionFromVersion2_Returns403()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.Actor);
             //versionId = 1 - no attachments
 
             try
             {
                 ArtifactStoreHelper.AddArtifactAttachmentAndSave(_authorUser, artifact, _novaAttachmentFile, Helper.ArtifactStore);
-                Helper.ArtifactStore.PublishArtifact(artifact, _authorUser);
+                artifact.Publish(_authorUser);
                 //versionId = 2 - 1 attachment - _novaAttachmentFile
 
                 Helper.AssignProjectRolePermissionsToUser(_authorUser, TestHelper.ProjectRole.None, _project, artifact);
@@ -558,12 +562,13 @@ namespace ArtifactStoreTests
                 // Execute &  Verify:
                 Assert.Throws<Http403ForbiddenException>(() =>
                 {
-                    Helper.ArtifactStore.GetAttachments(artifact, _authorUser, versionId: 1);
+                    Helper.ArtifactStore.GetAttachments(_authorUser, artifact.Id, versionId: 1);
                 }, "'GET {0}?versionId=1' should throw 403 exception for user with no access.",
                     RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
             }
             finally
             {
+                // Clean up.
                 artifact.Delete(_adminUser);
                 artifact.Publish(_adminUser);
             }
@@ -711,22 +716,20 @@ namespace ArtifactStoreTests
         public void GetAttachmentSpecifyVersion_VersionNotExist_Returned404(int versionId)
         {
             // Setup:
-            var artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.Actor);
+            var artifact = Helper.CreateNovaArtifact(_adminUser, _project, ItemTypePredefined.Actor);
 
             ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, _novaAttachmentFile, Helper.ArtifactStore);
-            Helper.ArtifactStore.PublishArtifact(artifact, _adminUser);
+            artifact.Publish(_adminUser);
             //versionId = 1 - 1 attachment - _novaAttachmentFile
 
-            string messageText = I18NHelper.FormatInvariant("Version Index or Baseline Timestamp is not found.");
-            var errorMessage = ServiceErrorMessageFactory.CreateServiceErrorMessage(ErrorCodes.ResourceNotFound, messageText);
-
             // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() =>
+            var ex = Assert.Throws<Http404NotFoundException>(() =>
             {
-                Helper.ArtifactStore.GetAttachments(artifact, _authorUser, versionId: versionId,
-                    expectedServiceErrorMessage: errorMessage);
+                Helper.ArtifactStore.GetAttachments(_authorUser, artifact.Id, versionId: versionId);
             }, "'GET {0}?versionId={1}' should return 404 error when passed a non-existing valid versionId.",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT, versionId);
+
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound, "Version Index or Baseline Timestamp is not found.");
 
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, ItemIndicatorFlags.HasAttachmentsOrDocumentRefs);
         }

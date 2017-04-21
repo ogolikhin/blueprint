@@ -153,7 +153,6 @@ namespace AdminStore.Repositories
             parameters.Add("@Page", settings.Page);
             parameters.Add("@PageSize", settings.PageSize);
             parameters.Add("@SearchUser", settings.Filter);
-            parameters.Add("@OrderField", settings.Sort);
             parameters.Add("@OrderField", string.IsNullOrEmpty(settings.Sort) ? "displayName" : settings.Sort);
             parameters.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
             var usersList = (_connectionWrapper.Query<User>("GetUsers", parameters, commandType: CommandType.StoredProcedure)).ToList();

@@ -1448,13 +1448,15 @@ namespace Helper
         /// <param name="artifactStore">IArtifactStore.</param>
         /// <param name="shouldLockArtifact">(optional) Pass false if you already locked the artifact.
         ///     By default this function will lock the artifact.</param>
+        /// <param name="shouldReturnAttachments">(optional) Pass false if you don't want to get the attachments after the update; in which case this function will return null.</param>
         /// <returns>The attachments that were added.</returns>
         public static Attachments AddArtifactAttachmentsAndSave(
             IUser user,
             ArtifactWrapper artifact,
             List<INovaFile> files,
             IArtifactStore artifactStore,
-            bool shouldLockArtifact = true)
+            bool shouldLockArtifact = true,
+            bool shouldReturnAttachments = true)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
@@ -1476,10 +1478,16 @@ namespace Helper
             }
 
             artifact.Update(user, updateArtifact);
-            var attachments = artifactStore.GetAttachments(user, artifact.Id);
-            Assert.IsTrue(attachments.AttachedFiles.Count >= files.Count, "All attachments should be added.");
 
-            return attachments;
+            if (shouldReturnAttachments)
+            {
+                var attachments = artifactStore.GetAttachments(user, artifact.Id);
+                Assert.IsTrue(attachments.AttachedFiles.Count >= files.Count, "All attachments should be added.");
+
+                return attachments;
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -1491,6 +1499,7 @@ namespace Helper
         /// <param name="artifactStore">IArtifactStore.</param>
         /// <param name="shouldLockArtifact">(optional) Pass false if you already locked the artifact.
         ///     By default this function will lock the artifact.</param>
+        /// <param name="shouldReturnAttachments">(optional) Pass false if you don't want to get the attachments after the update; in which case this function will return null.</param>
         /// <param name="expectedAttachedFilesCount">(optional) The expected number of attached files after adding the attachment.</param>
         /// <returns>The attachments that were added.</returns>
         public static Attachments AddArtifactAttachmentAndSave(
@@ -1499,6 +1508,7 @@ namespace Helper
             INovaFile file,
             IArtifactStore artifactStore,
             bool shouldLockArtifact = true,
+            bool shouldReturnAttachments = true,
             int expectedAttachedFilesCount = 1)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -1506,32 +1516,67 @@ namespace Helper
             ThrowIf.ArgumentNull(file, nameof(file));
             ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
 
-            var attachments = AddArtifactAttachmentsAndSave(user, artifact, new List<INovaFile> { file }, artifactStore, shouldLockArtifact);
-            Assert.AreEqual(expectedAttachedFilesCount, attachments.AttachedFiles.Count, "The attachment should be added.");
+            var attachments = AddArtifactAttachmentsAndSave(user, artifact, new List<INovaFile> { file }, artifactStore, shouldLockArtifact, shouldReturnAttachments);
+
+            if (shouldReturnAttachments)
+            {
+                Assert.AreEqual(expectedAttachedFilesCount, attachments.AttachedFiles.Count, "The attachment should be added.");
+            }
 
             return attachments;
         }
 
         /// <summary>
-        /// Attaches file to the subartifact (Save changes).
+        /// Attaches file to the subartifact (Save changes).  The artifact will first be locked unless you pass false for shouldLockArtifact.
         /// </summary>
         /// <param name="user">User to perform an operation.</param>
-        /// <param name="artifact">Artifact.</param>
-        /// <param name="subArtifact">SubArtifact.</param>
+        /// <param name="artifact">The artifact containing the sub-artifact to attach a file to.</param>
+        /// <param name="subArtifact">The sub-artifact to attach a file to.</param>
+        /// <param name="file">The file to attach.</param>
+        /// <param name="artifactStore">IArtifactStore.</param>
+        /// <param name="shouldLockArtifact">(optional) Pass false if the artifact is already locked (or unpublished).</param>
+        /// <returns>The attachment that was added.</returns>
+        public static Attachments AddSubArtifactAttachmentAndSave(
+            IUser user,
+            ArtifactWrapper artifact,
+            NovaItem subArtifact,
+            INovaFile file,
+            IArtifactStore artifactStore,
+            bool shouldLockArtifact = true)
+        {
+            return AddSubArtifactAttachmentsAndSave(user, artifact, subArtifact, new List<INovaFile> { file }, artifactStore, shouldLockArtifact);
+        }
+
+        /// <summary>
+        /// Attaches file to the subartifact (Save changes).  The artifact will first be locked unless you pass false for shouldLockArtifact.
+        /// </summary>
+        /// <param name="user">User to perform an operation.</param>
+        /// <param name="artifact">The artifact containing the sub-artifact to attach a file to.</param>
+        /// <param name="subArtifact">The sub-artifact to attach a file to.</param>
         /// <param name="files">List of files to attach.</param>
         /// <param name="artifactStore">IArtifactStore.</param>
-        public static void AddSubArtifactAttachmentAndSave(IUser user, IArtifact artifact, NovaItem subArtifact,
-            List<INovaFile> files, IArtifactStore artifactStore)
+        /// <param name="shouldLockArtifact">(optional) Pass false if the artifact is already locked (or unpublished).</param>
+        /// <returns>The attachments that were added.</returns>
+        public static Attachments AddSubArtifactAttachmentsAndSave(
+            IUser user,
+            ArtifactWrapper artifact,
+            NovaItem subArtifact,
+            List<INovaFile> files,
+            IArtifactStore artifactStore,
+            bool shouldLockArtifact = true)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
             ThrowIf.ArgumentNull(subArtifact, nameof(subArtifact));
             ThrowIf.ArgumentNull(files, nameof(files));
             ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
+
             Assert.AreEqual(artifact.Id, subArtifact.ParentId, "subArtifact should belong to Artifact");
 
-            artifact.Lock(user);
-            var artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
+            if (shouldLockArtifact)
+            {
+                artifact.Lock(user);
+            }
 
             var subArtifactToAdd = new NovaSubArtifact();
             subArtifactToAdd.Id = subArtifact.Id;
@@ -1542,12 +1587,17 @@ namespace Helper
             }
 
             var subArtifacts = new List<NovaSubArtifact> { subArtifactToAdd };
+            var updateArtifact = CreateNovaArtifactDetailsForUpdate(artifact);
 
-            artifactDetails.SubArtifacts = subArtifacts;
+            artifact.SubArtifacts = subArtifacts;
+            updateArtifact.SubArtifacts = subArtifacts;
 
-            Artifact.UpdateArtifact(artifact, user, artifactDetails, address: artifactStore.Address);
-            var attachment = artifactStore.GetAttachments(artifact, user, subArtifactId: subArtifact.Id);
-            Assert.IsTrue(attachment.AttachedFiles.Count >= files.Count, "All attachments should be added.");
+            artifact.Update(user, updateArtifact);
+
+            var attachments = artifactStore.GetAttachments(user, artifact.Id, subArtifactId: subArtifact.Id);
+            Assert.IsTrue(attachments.AttachedFiles.Count >= files.Count, "All attachments should be added.");
+
+            return attachments;
         }
 
         /// <summary>
@@ -1616,7 +1666,7 @@ namespace Helper
         /// <param name="subArtifact">SubArtifact.</param>
         /// <param name="fileId">Id of the file to delete. File must be attached to the artifact.</param>
         /// <param name="artifactStore">IArtifactStore.</param>
-        public static void DeleteSubArtifactAttachmentAndSave(IUser user, IArtifact artifact, NovaItem subArtifact,
+        public static void DeleteSubArtifactAttachmentAndSave(IUser user, ArtifactWrapper artifact, NovaItem subArtifact,
             int fileId, IArtifactStore artifactStore)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -1625,7 +1675,7 @@ namespace Helper
             ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
             Assert.AreEqual(artifact.Id, subArtifact.ParentId, "Subartifact should belong to artifact.");
 
-            var attachment = artifactStore.GetAttachments(artifact, user, subArtifactId: subArtifact.Id);
+            var attachment = artifactStore.GetAttachments(user, artifact.Id, subArtifactId: subArtifact.Id);
             Assert.IsNotNull(attachment, "Getattachments shouldn't return null.");
             Assert.IsTrue(attachment.AttachedFiles.Count > 0, "Artifact should have at least one attachment.");
 
@@ -1635,8 +1685,8 @@ namespace Helper
 
             artifact.Lock(user);
 
-            var artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
-            artifactDetails.AttachmentValues.Add(new AttachmentValue(fileToDelete.AttachmentId));
+            var updateArtifact = CreateNovaArtifactDetailsForUpdate(artifact);
+            updateArtifact.AttachmentValues.Add(new AttachmentValue(fileToDelete.AttachmentId));
 
             var subArtifactToAdd = new NovaSubArtifact();
             subArtifactToAdd.Id = subArtifact.Id;
@@ -1644,8 +1694,8 @@ namespace Helper
 
             var subArtifacts = new List<NovaSubArtifact> { subArtifactToAdd };
 
-            artifactDetails.SubArtifacts = subArtifacts;
-            Artifact.UpdateArtifact(artifact, user, artifactDetails, address: artifactStore.Address);
+            updateArtifact.SubArtifacts = subArtifacts;
+            artifact.Update(user, updateArtifact);
         }
 
         /// <summary>

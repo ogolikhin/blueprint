@@ -27,7 +27,7 @@ namespace ArtifactStoreTests
         private IProject _project = null;
         private uint _fileSize = (uint)RandomGenerator.RandomNumber(4096);
         private string _fileName = null;
-        private IFile _attachmentFile = null;
+        private INovaFile _attachmentFile = null;
 
         private const string _fileType = "text/plain";
         private INovaFile _novaAttachmentFile = null;
@@ -41,7 +41,7 @@ namespace ArtifactStoreTests
             
             _project = ProjectFactory.GetProject(_adminUser);
             _fileName = I18NHelper.FormatInvariant("{0}.{1}", RandomGenerator.RandomAlphaNumeric(10), "txt");
-            _attachmentFile = FileStoreTestHelper.CreateFileWithRandomByteArray(_fileSize, _fileName, "text/plain");
+            _attachmentFile = FileStoreTestHelper.UploadNovaFileToFileStore(_adminUser, _fileName, _fileType, defaultExpireTime, Helper.FileStore);
             _novaAttachmentFile = FileStoreTestHelper.UploadNovaFileToFileStore(_adminUser, _fileName, _fileType, defaultExpireTime,
                 Helper.FileStore);
             _authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
@@ -170,22 +170,23 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(154648)]
         [Description("Create a Use Case artifact, add attachment, publish it, add attachment to Precondition (subArtifact) & publish, get attachments for Precondition.  " +
-            "Verify only the Precondition's attachment is returned.")]
+                     "Verify only the Precondition's attachment is returned.")]
         public void GetAttachmentWithSubArtifactId_ArtifactAndSubArtifactWithAttachments_OnlySubArtifactAttachmentIsReturned()
         {
             // Setup:
-            var artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.UseCase);
-            var addedArtifactAttachment = artifact.AddArtifactAttachment(_attachmentFile, _adminUser);
-            Assert.NotNull(addedArtifactAttachment, "Failed to add attachment to the artifact!");
-            Assert.AreEqual(_attachmentFile.FileName, addedArtifactAttachment.FileName, "The FileName of the attached file doesn't match!");
+            var artifact = Helper.CreateNovaArtifact(_adminUser, _project, ItemTypePredefined.UseCase);
+            var addedArtifactAttachment = ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, _attachmentFile, Helper.ArtifactStore, shouldLockArtifact: false);
 
-            var attachmentFile2 = FileStoreTestHelper.UploadNovaFileToFileStore(_adminUser, _fileName, _fileType, defaultExpireTime,
-                Helper.FileStore);
+            Assert.NotNull(addedArtifactAttachment?.AttachedFiles, "Failed to add attachment to the artifact!");
+            Assert.AreEqual(1, addedArtifactAttachment.AttachedFiles.Count, "The artifact should have 1 attachment!");
+            Assert.AreEqual(_attachmentFile.FileName, addedArtifactAttachment.AttachedFiles[0].FileName, "The FileName of the attached file doesn't match!");
+
+            var attachmentFile2 = FileStoreTestHelper.UploadNovaFileToFileStore(_adminUser, _fileName, _fileType, defaultExpireTime, Helper.FileStore);
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_adminUser, artifact.Id);
             var subArtifact = Helper.ArtifactStore.GetSubartifact(_adminUser, artifact.Id, subArtifacts[0].Id);
 
-            ArtifactStoreHelper.AddSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifact, new List<INovaFile> { attachmentFile2 }, Helper.ArtifactStore);
-            artifact.Publish();
+            ArtifactStoreHelper.AddSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifact, attachmentFile2, Helper.ArtifactStore, shouldLockArtifact: false);
+            artifact.Publish(_adminUser);
 
             var viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
@@ -194,7 +195,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                attachment = Helper.ArtifactStore.GetAttachments(artifact, viewerUser, subArtifactId: subArtifacts[0].Id);
+                attachment = Helper.ArtifactStore.GetAttachments(viewerUser, artifact.Id, subArtifactId: subArtifacts[0].Id);
             }, "'GET {0}?subArtifactId={1}' shouldn't return any error.",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT, subArtifacts[0].Id);
 
@@ -216,27 +217,22 @@ namespace ArtifactStoreTests
         public void GetAttachmentWithSubArtifactId_SubArtifactWithDeletedAttachment_NoAttachmentsReturned()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Process);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.Process);
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_adminUser, artifact.Id);
             Assert.AreEqual(5, subArtifacts.Count, "Process should have 5 subartifacts.");
-            var attachmentFile2 = FileStoreTestHelper.UploadNovaFileToFileStore(_adminUser, _fileName, _fileType, defaultExpireTime,
-                Helper.FileStore);
 
             // User Task is subArtifacts[2]
             var subArtifact = Helper.ArtifactStore.GetSubartifact(_adminUser, artifact.Id, subArtifacts[2].Id);
-            ArtifactStoreHelper.AddSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifact, new List<INovaFile> { attachmentFile2 },
-                Helper.ArtifactStore);
-            artifact.Publish();
+            var attachment = ArtifactStoreHelper.AddSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifact, _attachmentFile, Helper.ArtifactStore);
+            artifact.Publish(_adminUser);
 
-            var attachment = Helper.ArtifactStore.GetAttachments(artifact, _adminUser, subArtifactId: subArtifact.Id);
             Assert.AreEqual(1, attachment.AttachedFiles.Count, "SubArtifact should have 1 file attached.");
-            ArtifactStoreHelper.DeleteSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifact, attachment.AttachedFiles[0].AttachmentId,
-                Helper.ArtifactStore);
+            ArtifactStoreHelper.DeleteSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifact, attachment.AttachedFiles[0].AttachmentId, Helper.ArtifactStore);
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                attachment = Helper.ArtifactStore.GetAttachments(artifact, _adminUser, subArtifactId: subArtifact.Id);
+                attachment = Helper.ArtifactStore.GetAttachments(_adminUser, artifact.Id, subArtifactId: subArtifact.Id);
             }, "'GET {0}?subArtifactId={1}' shouldn't return any error.",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT, subArtifact.Id);
 
@@ -374,7 +370,7 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.Actor);
             //versionId = 1 - no attachments
 
-            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, _novaAttachmentFile, Helper.ArtifactStore);
+            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, _novaAttachmentFile, Helper.ArtifactStore, shouldReturnAttachments: false);
             artifact.Publish(_adminUser);
             //versionId = 2 - 1 attachment - _novaAttachmentFile
 
@@ -404,13 +400,12 @@ namespace ArtifactStoreTests
             // Setup:
             var artifact = Helper.CreateNovaArtifact(_adminUser, _project, ItemTypePredefined.Glossary);
 
-            ArtifactStoreHelper.AddArtifactAttachmentsAndSave(_adminUser, artifact,
+            var attachment = ArtifactStoreHelper.AddArtifactAttachmentsAndSave(_adminUser, artifact,
                 new List<INovaFile> { _novaAttachmentFile, _novaAttachmentFile }, Helper.ArtifactStore);
 
             artifact.Publish(_adminUser);
             //versionId = 1 - 2 attachments - _novaAttachmentFile
 
-            var attachment = Helper.ArtifactStore.GetAttachments(_adminUser, artifact.Id);
             Assert.AreEqual(2, attachment.AttachedFiles.Count, "Artifact should have 2 attached files at this stage.");
 
             ArtifactStoreHelper.DeleteArtifactAttachmentAndSave(_adminUser, artifact, attachment.AttachedFiles[0].AttachmentId,
@@ -462,7 +457,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateNovaArtifact(_adminUser, _project, ItemTypePredefined.Actor);
-            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, _novaAttachmentFile, Helper.ArtifactStore);
+            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, _novaAttachmentFile, Helper.ArtifactStore, shouldReturnAttachments: false);
             artifact.Publish(_adminUser);
             //versionId = 1 - 1 attachment
 
@@ -552,7 +547,7 @@ namespace ArtifactStoreTests
 
             try
             {
-                ArtifactStoreHelper.AddArtifactAttachmentAndSave(_authorUser, artifact, _novaAttachmentFile, Helper.ArtifactStore);
+                ArtifactStoreHelper.AddArtifactAttachmentAndSave(_authorUser, artifact, _novaAttachmentFile, Helper.ArtifactStore, shouldReturnAttachments: false);
                 artifact.Publish(_authorUser);
                 //versionId = 2 - 1 attachment - _novaAttachmentFile
 
@@ -577,30 +572,31 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(209267)]
         [Description("Create & publish a Use Case artifact.  Add an attachment to the Precondition subArtifact & publish.  Give a user no access to the artifact " +
-            "and get attachments for Precondition with that user.  Verify 403 Forbidden is returned.")]
+                     "and get attachments for Precondition with that user.  Verify 403 Forbidden is returned.")]
         public void GetAttachmentWithSubArtifactId_PublishedArtifactUserHasNoPermissionToArtifact_403Forbidden()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.UseCase);
 
-            var attachmentFile = FileStoreTestHelper.UploadNovaFileToFileStore(_adminUser, _fileName, _fileType, defaultExpireTime,
-                Helper.FileStore);
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_adminUser, artifact.Id);
             var subArtifact = Helper.ArtifactStore.GetSubartifact(_adminUser, artifact.Id, subArtifacts[0].Id);
 
             // Add attachment to a sub-artifact.
-            ArtifactStoreHelper.AddSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifact, new List<INovaFile> { attachmentFile }, Helper.ArtifactStore);
-            artifact.Publish();
+            ArtifactStoreHelper.AddSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifact, _attachmentFile, Helper.ArtifactStore);
+            artifact.Publish(_adminUser);
 
             // Give author user no access to the artifact.
             Helper.AssignProjectRolePermissionsToUser(_authorUser, TestHelper.ProjectRole.None, _project, artifact);
 
-            // Execute & Verify:
-            Assert.Throws<Http403ForbiddenException>(() =>
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
-                Helper.ArtifactStore.GetAttachments(artifact, _authorUser, subArtifactId: subArtifacts[0].Id);
+                Helper.ArtifactStore.GetAttachments(_authorUser, artifact.Id, subArtifactId: subArtifacts[0].Id);
             }, "'GET {0}?subArtifactId={1}' should return 403 Forbidden if the user has no access to the artifact.",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT, subArtifacts[0].Id);
+
+            // Verify:
+            TestHelper.AssertResponseBodyIsEmpty(ex.RestResponse);
         }
 
         #endregion 403 Forbidden
@@ -718,7 +714,7 @@ namespace ArtifactStoreTests
             // Setup:
             var artifact = Helper.CreateNovaArtifact(_adminUser, _project, ItemTypePredefined.Actor);
 
-            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, _novaAttachmentFile, Helper.ArtifactStore);
+            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, _novaAttachmentFile, Helper.ArtifactStore, shouldReturnAttachments: false);
             artifact.Publish(_adminUser);
             //versionId = 1 - 1 attachment - _novaAttachmentFile
 

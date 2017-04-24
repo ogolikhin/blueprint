@@ -107,6 +107,7 @@
     <Compile Include="Controllers\DiscussionController.cs" />
     <Compile Include="Controllers\ProjectMetaController.cs" />
     <Compile Include="Controllers\RelationshipsController.cs" />
+    <Compile Include="Controllers\ReviewContainersController.cs" />
     <Compile Include="Controllers\StatusController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -125,6 +126,12 @@
     <Compile Include="Models\PropertyTypePredefined.cs" />
     <Compile Include="Models\RelationshipResultSet.cs" />
     <Compile Include="Models\ReviewRelationshipResultSet.cs" />
+    <Compile Include="Models\Review\ReviewArtifactsStatus.cs" />
+    <Compile Include="Models\Review\ReviewContainer.cs" />
+    <Compile Include="Models\Review\ReviewSource.cs" />
+    <Compile Include="Models\Review\ReviewSourceType.cs" />
+    <Compile Include="Models\Review\ReviewStatus.cs" />
+    <Compile Include="Models\Review\ReviewType.cs" />
     <Compile Include="Models\VersionControlArtifactInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\IRelationshipsRepository.cs" />
@@ -141,6 +148,7 @@
     <Compile Include="Repositories\SqlDiscussionsRepository.cs" />
     <Compile Include="Repositories\SqlProjectMetaRepository.cs" />
     <Compile Include="Repositories\SqlRelationshipsRepository.cs" />
+    <Compile Include="Repositories\SqlReviewsRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config">

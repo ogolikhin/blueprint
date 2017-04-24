@@ -5,7 +5,6 @@ using Model;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
-using Model.Impl;
 using Model.ModelHelpers;
 using Model.NovaModel.Components.ImpactAnalysisService;
 using NUnit.Framework;
@@ -22,7 +21,6 @@ namespace ImpactAnalysisTests
         private IUser _user = null;
         private List<IProject> _projects = null;
         private IProject _project = null;
-        private ImpactAnalysis _impactAnalysis = null;
 
         private const string SVC_PATH = RestPaths.ImpactAnalysis.IMPACT_ANALYSIS;
 
@@ -33,7 +31,6 @@ namespace ImpactAnalysisTests
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _projects = ProjectFactory.GetAllProjects(_user, shouldRetrievePropertyTypes: true);
             _project = _projects[0];
-            _impactAnalysis = new ImpactAnalysis(Helper.ArtifactStore.Address);
         }
 
         [TearDown]
@@ -57,8 +54,7 @@ namespace ImpactAnalysisTests
             // Execute:
             ImpactAnalysisResult impactAnalysisInfo = null;
             var path = I18NHelper.FormatInvariant(SVC_PATH, sourceArtifact.Id, LEVEL);
-            Assert.DoesNotThrow(() => impactAnalysisInfo =
-                _impactAnalysis.GetImpactAnalysis(_user, Helper.ArtifactStore.Address, sourceArtifact.Id, LEVEL),
+            Assert.DoesNotThrow(() => impactAnalysisInfo = Helper.ImpactAnalysis.GetImpactAnalysis(_user, sourceArtifact.Id, LEVEL),
                 "'GET {0}' should return 200 OK when valid parameters are passed.", path);
 
             // Verify:
@@ -91,8 +87,7 @@ namespace ImpactAnalysisTests
             // Execute:
             ImpactAnalysisResult impactAnalysisInfo = null;
             var path = I18NHelper.FormatInvariant(SVC_PATH, sourceArtifact.Id, LEVEL);
-            Assert.DoesNotThrow(() => impactAnalysisInfo =
-                _impactAnalysis.GetImpactAnalysis(_user, Helper.ArtifactStore.Address, sourceArtifact.Id, LEVEL),
+            Assert.DoesNotThrow(() => impactAnalysisInfo = Helper.ImpactAnalysis.GetImpactAnalysis(_user, sourceArtifact.Id, LEVEL),
                 "'GET {0}' should return 200 OK when valid parameters are passed.", path);
 
             // Verify:
@@ -126,8 +121,7 @@ namespace ImpactAnalysisTests
             // Execute:
             ImpactAnalysisResult impactAnalysisInfo = null;
             var path = I18NHelper.FormatInvariant(SVC_PATH, sourceArtifact.Id, LEVEL);
-            Assert.DoesNotThrow(() => impactAnalysisInfo =
-                _impactAnalysis.GetImpactAnalysis(userWithoutPermissionToTarget, Helper.ArtifactStore.Address, sourceArtifact.Id, LEVEL),
+            Assert.DoesNotThrow(() => impactAnalysisInfo = Helper.ImpactAnalysis.GetImpactAnalysis(userWithoutPermissionToTarget, sourceArtifact.Id, LEVEL),
                 "'GET {0}' should return 200 OK when valid parameters are passed.", path);
 
             // Verify:
@@ -159,8 +153,7 @@ namespace ImpactAnalysisTests
 
             // Execute:
             var path = I18NHelper.FormatInvariant(SVC_PATH, sourceArtifact.Id, level);
-            var ex = Assert.Throws<Http400BadRequestException>(() =>
-                _impactAnalysis.GetImpactAnalysis(_user, Helper.ArtifactStore.Address, sourceArtifact.Id, level),
+            var ex = Assert.Throws<Http400BadRequestException>(() => Helper.ImpactAnalysis.GetImpactAnalysis(_user, sourceArtifact.Id, level),
                 "'GET {0}' should return 400 Bad Request when invalid level passed.", path);
 
             // Verify:
@@ -191,7 +184,7 @@ namespace ImpactAnalysisTests
             // Execute:
             var path = I18NHelper.FormatInvariant(SVC_PATH, sourceArtifact.Id, LEVEL);
             var ex = Assert.Throws<Http404NotFoundException>(() =>
-                _impactAnalysis.GetImpactAnalysis(userWithoutPermissionToSource, Helper.ArtifactStore.Address, sourceArtifact.Id, LEVEL),
+                Helper.ImpactAnalysis.GetImpactAnalysis(userWithoutPermissionToSource, sourceArtifact.Id, LEVEL),
                 "'GET {0}' should return 404 Not Found when user does not have permissions to source artifact.", path);
 
             // Verify:
@@ -210,8 +203,7 @@ namespace ImpactAnalysisTests
 
             // Execute:
             var path = I18NHelper.FormatInvariant(SVC_PATH, NOT_EXISTING_ID, LEVEL);
-            var ex = Assert.Throws<Http404NotFoundException>(() =>
-                _impactAnalysis.GetImpactAnalysis(_user, Helper.ArtifactStore.Address, NOT_EXISTING_ID, LEVEL),
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ImpactAnalysis.GetImpactAnalysis(_user, NOT_EXISTING_ID, LEVEL),
                 "'GET {0}' should return 404 Not Found when source artifact is not exist.", path);
 
             // Verify:

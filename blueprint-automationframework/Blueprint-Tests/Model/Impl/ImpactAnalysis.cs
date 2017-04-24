@@ -25,13 +25,12 @@ namespace Model.Impl
         /// {base_blueprint_url}/ImpactAnalysis/api/{sourceId}/{level}/{format}
         /// </summary>
         /// <param name="user">User to authenticate with.</param>
-        /// <param name="address">The base address of the ArtifactStore.</param>
         /// <param name="sourceId">Artifact Id from which impact analysis starts.</param>
         /// <param name="level">Number of levels in artifact chain to return.</param>
         /// <param name="format">(optional)Xml or json format. By default format is taken from request header.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.<</param>
         /// <returns>ImpactAnalysisResult object</returns>
-        public ImpactAnalysisResult GetImpactAnalysis(IUser user, string address, int sourceId, int level, string format = null, List<HttpStatusCode> expectedStatusCodes = null)
+        public ImpactAnalysisResult GetImpactAnalysis(IUser user, int sourceId, int level, string format = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.ImpactAnalysis.IMPACT_ANALYSIS, sourceId, level);
             if (!string.IsNullOrEmpty(format))
@@ -39,7 +38,7 @@ namespace Model.Impl
                 path += "/" + format;
             }
 
-            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
             return restApi.SendRequestAndDeserializeObject<ImpactAnalysisResult>(
                 path,

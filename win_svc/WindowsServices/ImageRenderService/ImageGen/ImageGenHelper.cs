@@ -3,74 +3,21 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web.Http;
-using System.Web.Http.SelfHost;
 using CefSharp;
 using CefSharp.OffScreen;
-using Topshelf;
 
-
-namespace ImageRenderService
+namespace ImageRenderService.ImageGen
 {
-    class ImageGenService : ServiceControl
+    class ImageGenHelper : IImageGenHelper
     {
-        private HttpSelfHostServer _server;
-        private readonly HttpSelfHostConfiguration _config;
-        public Uri ServiceAddress = new Uri(@"http://localhost:5555");
+        private readonly IBrowserPool _browserPool = BrowserPool.Create();
+        private readonly Dictionary<ChromiumWebBrowser, TaskCompletionSource<bool>> 
+            _tcs = new Dictionary<ChromiumWebBrowser, TaskCompletionSource<bool>>();
 
-        private IBrowserPool _browserPool = BrowserPool.Create();
-
-        private ImageGenService()
-        {
-            _config = new HttpSelfHostConfiguration(ServiceAddress);
-            _config.Routes.MapHttpRoute("Api",
-                "api/{controller}",
-                new { url = RouteParameter.Optional });
-        }
-
-        private static ImageGenService _instance;
-
-        public static ImageGenService Instance => _instance ?? (_instance = new ImageGenService());
-
-        public bool Start(HostControl hostControl)
-        {
-            var settings = new CefSettings
-            {
-                //By default CefSharp will use an in-memory cache, you need to specify a Cache Folder to persist data
-                CachePath =
-                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                        "CefSharp\\Cache")
-            };
-
-            //Perform dependency check to make sure all relevant resources are in our output directory.
-            Cef.Initialize(settings, performDependencyCheck: true, browserProcessHandler: null);
-
-            _server = new HttpSelfHostServer(_config);
-            _server.OpenAsync().Wait();
-
-            return true;
-        }
-
-        public bool Stop(HostControl hostControl)
-        {
-            try
-            {
-                _server.CloseAsync().Wait();
-                _server.Dispose();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-
-            return true;
-        }
-
-        //--------------------------------------------------------
-
-        private readonly Dictionary<ChromiumWebBrowser, TaskCompletionSource<bool>> _tcs = new Dictionary<ChromiumWebBrowser, TaskCompletionSource<bool>>();
 
         public async Task<byte[]> GenerateImageAsync(string url, ImageFormat format)
         {
@@ -93,7 +40,7 @@ namespace ImageRenderService
                     }
                     else
                     {
-                        task.Result.Save(ms, ImageFormat.Png);    
+                        task.Result.Save(ms, ImageFormat.Png);
                     }
                     image = ms.ToArray();
                 }
@@ -121,7 +68,7 @@ namespace ImageRenderService
 
         private async Task<bool> LoadPageAsync(ChromiumWebBrowser browser, string address)
         {
-            
+
             var task = new TaskCompletionSource<bool>();
             _tcs.Add(browser, task);
 

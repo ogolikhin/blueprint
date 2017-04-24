@@ -21,7 +21,7 @@ namespace ImageRenderService
             ImageFormat format = formatStr == "jpeg" || formatStr == "jpg" ? ImageFormat.Jpeg : ImageFormat.Png;
 
             //generate image
-            var image = await ImageGenService.Instance.GenerateImageAsync(url, format);
+            var image = await ImageGenService.Instance.ImageGenerator.GenerateImageAsync(url, format);
             var content = new ByteArrayContent(image);
 
             //crate response

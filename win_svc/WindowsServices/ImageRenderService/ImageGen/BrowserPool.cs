@@ -17,9 +17,11 @@ namespace ImageRenderService
 
         public static BrowserPool Create()
         {
-            _instance = new BrowserPool();
-            _instance._freeBrowsers = new ConcurrentBag<ChromiumWebBrowser>();
-            _instance._browserPool = new Semaphore(_instance.MAXSIZE, _instance.MAXSIZE);
+            _instance = new BrowserPool
+            {
+                _freeBrowsers = new ConcurrentBag<ChromiumWebBrowser>(),
+                _browserPool = new Semaphore(_instance.MAXSIZE, _instance.MAXSIZE)
+            };
             return _instance;
         }
 

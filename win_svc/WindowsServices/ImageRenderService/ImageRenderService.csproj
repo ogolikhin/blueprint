@@ -110,9 +110,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiServiceController.cs" />
-    <Compile Include="BrowserPool.cs" />
-    <Compile Include="IBrowserPool.cs" />
-    <Compile Include="ImageGenService.cs" />
+    <Compile Include="ImageGen\BrowserPool.cs" />
+    <Compile Include="ImageGen\IBrowserPool.cs" />
+    <Compile Include="ImageGen\IImageGenHelper.cs" />
+    <Compile Include="ImageGen\ImageGenHelper.cs" />
+    <Compile Include="ImageGen\ImageGenService.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

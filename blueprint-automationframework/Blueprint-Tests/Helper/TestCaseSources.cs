@@ -13,23 +13,6 @@ namespace Helper
     {
         #region private variables
 
-        private static readonly List<ItemTypePredefined> _allItemTypesForNovaRestMethods = new List<ItemTypePredefined>
-        {
-            ItemTypePredefined.Actor,
-            ItemTypePredefined.BusinessProcess,
-            ItemTypePredefined.Document,
-            ItemTypePredefined.DomainDiagram,
-            ItemTypePredefined.GenericDiagram,
-            ItemTypePredefined.Glossary,
-            ItemTypePredefined.PrimitiveFolder,
-            ItemTypePredefined.Process,
-            ItemTypePredefined.Storyboard,
-            ItemTypePredefined.TextualRequirement,
-            ItemTypePredefined.UIMockup,
-            ItemTypePredefined.UseCase,
-            ItemTypePredefined.UseCaseDiagram
-        };
-
         private static readonly List<ArtifactTypePredefined> _allArtifactTypesForNovaRestMethods = new List<ArtifactTypePredefined>
         {
             ArtifactTypePredefined.Actor,
@@ -88,9 +71,6 @@ namespace Helper
         };
 
         #endregion private variables
-
-        /// <summary>Returns a list of all possible regular item types that can be used by the Nova Rest methods.</summary>
-        public static IReadOnlyCollection<ItemTypePredefined> AllItemTypesForNovaRestMethods => _allItemTypesForNovaRestMethods.AsReadOnly();
 
         /// <summary>Returns a list of all possible regular artifact types that can be used by the Nova REST methods.</summary>
         public static IReadOnlyCollection<ArtifactTypePredefined> AllArtifactTypesForNovaRestMethods => _allArtifactTypesForNovaRestMethods.AsReadOnly();

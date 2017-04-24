@@ -86,15 +86,13 @@ namespace StorytellerTests
             Assert.IsNotNull(returnedProcess, "List of processes must have newly created process, but it doesn't.");
         }
 
-        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllItemTypesForNovaRestMethods))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForNovaRestMethods))]
         [TestRail(102883)]
         [Description("Create artifact, save and publish it. Search created artifact by name within all projects. Search must return created artifact.")]
         public void GetSearchArtifactResultsAllProjects_ReturnedListContainsCreatedArtifact(ItemTypePredefined artifactType)
         {
             //Create an artifact with ArtifactType and populate all required values without properties
-            var artifact = Helper.CreateNovaArtifact(_adminUser, _project, artifactType);
-
-            artifact.Publish(_adminUser);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, artifactType);
 
             IList<IArtifactBase> artifactsList = null;
 
@@ -133,14 +131,13 @@ namespace StorytellerTests
             Assert.IsTrue(searchResultList.Count == 10, "Search results must have 10 artifacts, but they have '{0}'.", searchResultList.Count);
         }
 
-        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllItemTypesForNovaRestMethods))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForNovaRestMethods))]
         [TestRail(123257)]
         [Description("Create artifact, save and publish it. Search created artifact by name within the project where artifact was created. Search must return created artifact.")]
         public void GetSearchArtifactResultsForOneProject_ReturnedListContainsCreatedArtifact(ItemTypePredefined artifactType)
         {
             //Create an artifact with ArtifactType and populate all required values without properties
-            var artifact = Helper.CreateNovaArtifact(_adminUser, _project, artifactType);
-            artifact.Publish(_adminUser);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, artifactType);
 
             IList<IArtifactBase> searchResultList = null;
 

@@ -679,8 +679,8 @@ namespace Model
         /// <param name="user">The user credentials for the request to update a Nova process.</param>
         /// <param name="novaProcess">The Nova process to update</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>The updated Nova process.</returns>
-        NovaProcess UpdateNovaProcess(
+        /// <returns>A NovaArtifactDetails object.</returns>
+        NovaArtifactDetails UpdateNovaProcess(
             IUser user,
             NovaProcess novaProcess,
             List<HttpStatusCode> expectedStatusCodes = null);

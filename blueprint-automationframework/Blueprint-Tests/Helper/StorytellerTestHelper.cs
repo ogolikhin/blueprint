@@ -284,14 +284,9 @@ namespace Helper
             ThrowIf.ArgumentNull(user, nameof(user));
 
             // Create default process artifact
-            var addedProcessArtifact = storyteller.CreateAndSaveProcessArtifact(project, user);
+            var novaProcess = CreateAndGetDefaultNovaProcess(storyteller, project, user);
 
-            // Get default process
-            var process = storyteller.GetProcess(user, addedProcessArtifact.Id);
-
-            Assert.IsNotNull(process, "The process returned from GetProcess() was null.");
-
-            return process;
+            return novaProcess.Process;
         }
 
         /// <summary>
@@ -312,10 +307,7 @@ namespace Helper
             ThrowIf.ArgumentNull(user, nameof(user));
 
             // Create default Nova process artifact
-            var addedProcessArtifact = storyteller.CreateAndSaveNovaProcessArtifact(project, user);
-
-            // Get default Nova process
-            var novaProcess = storyteller.GetNovaProcess(user, addedProcessArtifact.Id);
+            var novaProcess = storyteller.CreateAndSaveNovaProcessArtifact(project, user);
 
             Assert.IsNotNull(novaProcess, "The Nova process returned from GetNovaProcess() was null.");
 

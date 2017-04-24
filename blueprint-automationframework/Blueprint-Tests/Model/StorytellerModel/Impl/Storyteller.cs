@@ -163,7 +163,6 @@ namespace Model.StorytellerModel.Impl
                 project, parentId, orderIndex, expectedStatusCodes);
 
             var novaProcess = GetNovaProcess(user, novaArtifact.Id);
-            UpdateNovaProcess(user, novaProcess,expectedStatusCodes);
             NovaProcesses.Add(novaProcess);
 
             return novaProcess;
@@ -291,29 +290,19 @@ namespace Model.StorytellerModel.Impl
 
             ThrowIf.ArgumentNull(process, nameof(process));
 
-            if (lockArtifactBeforeUpdate)
-            {
-                var artifactToLock = Artifacts.Find(a => a.Id == process.Id);
+            var novaProcess = new NovaProcess{ Id = process.Id, ProjectId = process.ProjectId, Process = (Process)process};
 
-                if (!artifactToLock.Status.IsLocked)
-                {
-                    // Lock process artifact before update
-                    artifactToLock.Lock(user);
-                }
-            }
-            var service = SvcComponentsFactory.CreateSvcComponents(Address);
-            service.UpdateProcess(process, user, expectedStatusCodes);
+            var updatedNovaProcess = UpdateNovaProcess(user, novaProcess, expectedStatusCodes: expectedStatusCodes);
 
-            // Mark artifact in artifact list as saved
-            MarkArtifactAsSaved(process.Id);
-
-            return service.GetProcess(process.Id, user, expectedStatusCodes: expectedStatusCodes);
+            return updatedNovaProcess.Process;
         }
 
         /// <seealso cref="IStoryteller.UpdateNovaProcess(IUser, NovaProcess, List{HttpStatusCode})"/>
         public NovaProcess UpdateNovaProcess(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return _artifactStore.UpdateNovaProcess(user, novaProcess, expectedStatusCodes);
+            _artifactStore.UpdateNovaProcess(user, novaProcess, expectedStatusCodes);
+
+            return GetNovaProcess(user, novaProcess.Id, expectedStatusCodes: expectedStatusCodes);
         }
 
         /// <seealso cref="IStoryteller.UploadFile(IUser, IFile, DateTime?, List{HttpStatusCode})"/>

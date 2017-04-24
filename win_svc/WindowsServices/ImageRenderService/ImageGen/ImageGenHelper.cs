@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using CefSharp;
@@ -12,12 +9,16 @@ using CefSharp.OffScreen;
 
 namespace ImageRenderService.ImageGen
 {
-    class ImageGenHelper : IImageGenHelper
+    public class ImageGenHelper : IImageGenHelper
     {
-        private readonly IBrowserPool _browserPool = BrowserPool.Create();
+        private readonly IBrowserPool _browserPool;
         private readonly Dictionary<ChromiumWebBrowser, TaskCompletionSource<bool>> 
             _tcs = new Dictionary<ChromiumWebBrowser, TaskCompletionSource<bool>>();
 
+        public ImageGenHelper(IBrowserPool browserPool)
+        {
+            _browserPool = browserPool;
+        }
 
         public async Task<byte[]> GenerateImageAsync(string url, ImageFormat format)
         {

@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using CefSharp.OffScreen;
 
-namespace ImageRenderService
+namespace ImageRenderService.ImageGen
 {
-    interface IBrowserPool
+    public interface IBrowserPool
     {
         Task<ChromiumWebBrowser> Rent();
         void Return(ChromiumWebBrowser browser);

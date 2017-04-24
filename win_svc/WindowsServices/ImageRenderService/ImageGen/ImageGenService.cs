@@ -3,11 +3,9 @@ using System.IO;
 using System.Web.Http;
 using System.Web.Http.SelfHost;
 using CefSharp;
-using ImageRenderService.ImageGen;
 using Topshelf;
 
-
-namespace ImageRenderService
+namespace ImageRenderService.ImageGen
 {
     class ImageGenService : ServiceControl
     {
@@ -15,7 +13,7 @@ namespace ImageRenderService
         private readonly HttpSelfHostConfiguration _config;
         public Uri ServiceAddress = new Uri(@"http://localhost:5555");
 
-        public ImageGenHelper ImageGenerator = new ImageGenHelper();
+        public ImageGenHelper ImageGenerator = new ImageGenHelper(BrowserPool.Create());
 
         private ImageGenService()
         {

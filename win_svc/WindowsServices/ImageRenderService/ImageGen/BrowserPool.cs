@@ -4,9 +4,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using CefSharp.OffScreen;
 
-namespace ImageRenderService
+namespace ImageRenderService.ImageGen
 {
-    class BrowserPool : IBrowserPool
+    public class BrowserPool : IBrowserPool
     {
         private static BrowserPool _instance;
 
@@ -19,9 +19,9 @@ namespace ImageRenderService
         {
             _instance = new BrowserPool
             {
-                _freeBrowsers = new ConcurrentBag<ChromiumWebBrowser>(),
-                _browserPool = new Semaphore(_instance.MAXSIZE, _instance.MAXSIZE)
+                _freeBrowsers = new ConcurrentBag<ChromiumWebBrowser>()
             };
+            _instance._browserPool = new Semaphore(_instance.MAXSIZE, _instance.MAXSIZE);
             return _instance;
         }
 

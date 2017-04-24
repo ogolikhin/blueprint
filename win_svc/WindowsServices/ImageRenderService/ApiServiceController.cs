@@ -6,6 +6,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
+using ImageRenderService.ImageGen;
 
 namespace ImageRenderService
 {

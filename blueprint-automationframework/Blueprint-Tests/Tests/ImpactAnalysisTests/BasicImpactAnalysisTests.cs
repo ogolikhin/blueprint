@@ -16,7 +16,7 @@ namespace ImpactAnalysisTests
 {
     [TestFixture]
     [Category(Categories.ImpactAnalysis)]
-    class BasicImpactAnalysisTests : TestBase
+    public class BasicImpactAnalysisTests : TestBase
     {
         private IUser _user = null;
         private List<IProject> _projects = null;
@@ -222,7 +222,7 @@ namespace ImpactAnalysisTests
         /// <param name="trace">Actual trace to check with</param>
         /// <param name="traceArtifact">Actual artifact to which trace pointing</param>
         /// <param name="isUnauthorized">(optional)Flag to set if artifact is accessible to the user. By default artifact is accessible</param>
-        private void VerifyImpactAnalysisResultNode(ImpactAnalysisNode node, NovaTrace trace, ArtifactWrapper traceArtifact, bool isUnauthorized = false)
+        private static void VerifyImpactAnalysisResultNode(ImpactAnalysisNode node, NovaTrace trace, ArtifactWrapper traceArtifact, bool isUnauthorized = false)
         {
             ThrowIf.ArgumentNull(trace, nameof(trace));
             ThrowIf.ArgumentNull(node, nameof(node));

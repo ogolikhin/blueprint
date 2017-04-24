@@ -1,5 +1,5 @@
-﻿using CustomAttributes;
-using Model.Impl;
+﻿using Model.Impl;
+using TestConfig;
 
 namespace Model.Factories
 {
@@ -22,8 +22,8 @@ namespace Model.Factories
         /// <exception cref="DataException">If there was an error reading required information from the TestConfiguration.</exception>
         public static ImpactAnalysis GetImpactAnalysisFromTestConfig()
         {
-            string address = FactoryCommon.GetServiceAddressFromTestConfig(Categories.ImpactAnalysis);
-            return CreateImpactAnalysis(address);
+            var testConfig = TestConfiguration.GetInstance();
+            return CreateImpactAnalysis(testConfig.BlueprintServerAddress);
         }
     }
 }

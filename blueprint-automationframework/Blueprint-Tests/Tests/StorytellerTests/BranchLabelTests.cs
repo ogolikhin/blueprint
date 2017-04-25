@@ -1,12 +1,12 @@
 ﻿using CustomAttributes;
+using Helper;
 using Model;
 using Model.Factories;
-using NUnit.Framework;
-using Helper;
 using Model.StorytellerModel.Enums;
 using Model.StorytellerModel.Impl;
-using Utilities.Factories;
+using NUnit.Framework;
 using TestCommon;
+using Utilities.Factories;
 
 namespace StorytellerTests
 {
@@ -14,7 +14,7 @@ namespace StorytellerTests
     [Category(Categories.Storyteller)]
     public class BranchLabelTests : TestBase
     {
-        private IUser _user;
+        private IUser _adminUser;
         private IProject _project;
 
         #region Setup and Cleanup
@@ -23,8 +23,8 @@ namespace StorytellerTests
         public void ClassSetUp()
         {
             Helper = new TestHelper();
-            _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            _project = ProjectFactory.GetProject(_user);
+            _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            _project = ProjectFactory.GetProject(_adminUser);
         }
 
         [TestFixtureTearDown]
@@ -50,7 +50,7 @@ namespace StorytellerTests
             var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneUserDecision(
                 Helper.Storyteller,
                 _project,
-                _user);
+                _adminUser);
 
             // Get precondition shape in process
             var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -65,7 +65,7 @@ namespace StorytellerTests
             branchLink.Label = RandomGenerator.RandomAlphaNumericUpperAndLowerCase((uint)lengthOfLabelSent);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _adminUser);
         }
 
         [TestCase(5, 0.0, ProcessType.BusinessProcess)]
@@ -80,7 +80,7 @@ namespace StorytellerTests
             var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneUserDecision(
                 Helper.Storyteller,
                 _project,
-                _user);
+                _adminUser);
 
             // Get precondition shape in process
             var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -98,7 +98,7 @@ namespace StorytellerTests
             process.ProcessType = processType;
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _adminUser);
         }
 
         [TestCase(5, 0.0)]
@@ -112,13 +112,13 @@ namespace StorytellerTests
             var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneUserDecision(
                Helper.Storyteller,
                _project,
-               _user);
+               _adminUser);
 
             // Save the process
-            Helper.Storyteller.UpdateProcess(_user, process);
+            Helper.Storyteller.UpdateProcess(_adminUser, process);
 
             // Get the process
-            var returnedProcess = Helper.Storyteller.GetProcess(_user, process.Id);
+            var returnedProcess = Helper.Storyteller.GetNovaProcess(_adminUser, process.Id).Process;
 
             // Get precondition shape in process
             var precondition = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -133,7 +133,7 @@ namespace StorytellerTests
             branchLink.Label = RandomGenerator.RandomAlphaNumericUpperAndLowerCase((uint)lengthOfLabelSent);
 
             // Update and Verify the returned process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _adminUser);
         }
 
         [TestCase(0.0)]
@@ -146,13 +146,13 @@ namespace StorytellerTests
             var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneUserDecision(
                 Helper.Storyteller,
                 _project,
-                _user);
+                _adminUser);
 
             // Save the process
-            Helper.Storyteller.UpdateProcess(_user, process);
+            Helper.Storyteller.UpdateProcess(_adminUser, process);
 
             // Get the process
-            var returnedProcess = Helper.Storyteller.GetProcess(_user, process.Id);
+            var returnedProcess = Helper.Storyteller.GetNovaProcess(_adminUser, process.Id).Process;
 
             // Get precondition shape in process
             var precondition = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -167,7 +167,7 @@ namespace StorytellerTests
             branchLink.Label = null;
 
             // Update and Verify the returned process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _adminUser);
         }
 
         [TestCase(1, 0.0)]
@@ -185,7 +185,7 @@ namespace StorytellerTests
             var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneSystemDecision(
                 Helper.Storyteller,
                 _project,
-                _user);
+                _adminUser);
 
             // Get default user task shape
             var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
@@ -200,7 +200,7 @@ namespace StorytellerTests
             branchLink.Label = RandomGenerator.RandomAlphaNumericUpperAndLowerCase((uint)lengthOfLabelSent);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _adminUser);
         }
 
         [TestCase(5, 0.0, ProcessType.BusinessProcess)]
@@ -215,7 +215,7 @@ namespace StorytellerTests
             var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneSystemDecision(
                 Helper.Storyteller,
                 _project,
-                _user);
+                _adminUser);
 
             // Get default user task shape
             var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
@@ -233,7 +233,7 @@ namespace StorytellerTests
             process.ProcessType = processType;
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _adminUser);
         }
 
         [TestCase(5, 0.0)]
@@ -247,13 +247,13 @@ namespace StorytellerTests
             var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneSystemDecision(
                 Helper.Storyteller,
                 _project,
-                _user);
+                _adminUser);
 
             // Save the process
-            Helper.Storyteller.UpdateProcess(_user, process);
+            Helper.Storyteller.UpdateProcess(_adminUser, process);
 
             // Get the process
-            var returnedProcess = Helper.Storyteller.GetProcess(_user, process.Id);
+            var returnedProcess = Helper.Storyteller.GetNovaProcess(_adminUser, process.Id).Process;
 
             // Get default user task shape
             var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
@@ -268,7 +268,7 @@ namespace StorytellerTests
             branchLink.Label = RandomGenerator.RandomAlphaNumericUpperAndLowerCase((uint)lengthOfLabelSent);
 
             // Update and Verify the returned process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _adminUser);
         }
 
         [TestCase(0.0)]
@@ -281,13 +281,13 @@ namespace StorytellerTests
             var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneSystemDecision(
                 Helper.Storyteller,
                 _project,
-                _user);
+                _adminUser);
 
             // Save the process
-            Helper.Storyteller.UpdateProcess(_user, process);
+            Helper.Storyteller.UpdateProcess(_adminUser, process);
 
             // Get the process
-            var returnedProcess = Helper.Storyteller.GetProcess(_user, process.Id);
+            var returnedProcess = Helper.Storyteller.GetNovaProcess(_adminUser, process.Id).Process;
 
             // Get default user task shape
             var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
@@ -302,7 +302,7 @@ namespace StorytellerTests
             branchLink.Label = null;
 
             // Update and Verify the returned process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _adminUser);
         }
     }
 }

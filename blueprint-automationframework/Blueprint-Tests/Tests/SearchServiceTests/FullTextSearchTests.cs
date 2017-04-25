@@ -592,7 +592,7 @@ namespace SearchServiceTests
         public void FullTextSearch_SearchWithSearchTermReturnsMultiplePages_VerifyResultItemCountWithExpected(int pageSize)
         {
             // Setup: Create search criteria that will return multiple page for SearchResult
-            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts[0].Description);
+            var searchTerm = StringUtilities.ConvertHtmlToText(_publishedArtifacts[0].Description);
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.ConvertAll(o => o.Id));
 
             // Calculate expecting search result counts

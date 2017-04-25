@@ -12,6 +12,7 @@ using Model.OpenApiModel.Services;
 using Model.SearchServiceModel.Impl;
 using Utilities;
 using Utilities.Factories;
+using Model.ArtifactModel.Enums;
 
 namespace Helper
 {
@@ -30,7 +31,7 @@ namespace Helper
         /// <param name="timeoutInMilliseconds">(optional) Timeout in milliseconds after which search will terminate 
         /// if not successful </param>
         public static List<ArtifactWrapper> SetupFullTextSearchData(List<IProject> projects, IUser user, TestHelper testHelper,
-            List<Model.ArtifactModel.Enums.ItemTypePredefined> selectedBaseArtifactTypes = null,
+            List<ItemTypePredefined> selectedBaseArtifactTypes = null,
             int timeoutInMilliseconds = DEFAULT_TIMEOUT_FOR_SEARCH_INDEXER_UPDATE_IN_MS)
         {
             ThrowIf.ArgumentNull(projects, nameof(projects));
@@ -41,16 +42,16 @@ namespace Helper
 
             if (selectedBaseArtifactTypes == null)
             {
-                selectedBaseArtifactTypes = new List<Model.ArtifactModel.Enums.ItemTypePredefined>();
+                selectedBaseArtifactTypes = new List<ItemTypePredefined>();
                 foreach (var tp in TestCaseSources.AllArtifactTypesForNovaRestMethods)
                 {
-                    var itm = (Model.ArtifactModel.Enums.ItemTypePredefined)tp;
+                    var itm = (ItemTypePredefined)tp;
                     selectedBaseArtifactTypes.Add(itm);
                 }
             }
             var baseArtifactTypes = selectedBaseArtifactTypes ??
                 (TestCaseSources.AllArtifactTypesForNovaRestMethods).Select(artifactType =>
-                (Model.ArtifactModel.Enums.ItemTypePredefined)artifactType);
+                (ItemTypePredefined)artifactType);
 
             var artifacts = new List<ArtifactWrapper>();
 

@@ -480,7 +480,7 @@ namespace SearchServiceTests
         {
             // Setup: Create search criteria with search term that matches published artifact(s) name
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchCriteria = new FullTextSearchCriteria(_publishedArtifacts[0].Description, selectedProjectIds);
+            var searchCriteria = new FullTextSearchCriteria(_publishedArtifacts[0].Name, selectedProjectIds);
 
             // Create user with no permission on any project
             var userWithNoPermissionOnAnyProject = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _projects);
@@ -689,9 +689,6 @@ namespace SearchServiceTests
             artifact.Update(_user, artifactDetailsForUpdate);
             artifact.Publish(_user);
             
-            //ArtifactStoreHelper.UpdateArtifactCustomProperty(artifact, _user, project, PropertyPrimitiveType.Text, propertyName, searchTerm, Helper.ArtifactStore);
-            //Helper.ArtifactStore.PublishArtifact(artifact, _user);
-
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
             SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 1, timeoutInMilliseconds: 30000);
 
@@ -719,7 +716,6 @@ namespace SearchServiceTests
             // Setup: 
             var selectedProjectIds = _projects.ConvertAll(p => p.Id);
             var project = Helper.GetProject(TestHelper.GoldenDataProject.EmptyProjectWithSubArtifactRequiredProperties, _user);
-            //var artifact = Helper.CreateWrapAndSaveNovaArtifact(project, _user, ItemTypePredefined.Process, artifactTypeName: "Process");
             var artifact = Helper.CreateNovaArtifact(_user, project, ItemTypePredefined.Process);
 
             string searchTerm = "SearchText_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCase(25);
@@ -737,9 +733,6 @@ namespace SearchServiceTests
             artifactDetailsForUpdate.SubArtifacts = new List<NovaSubArtifact> { novaSubArtifact };
             artifact.Update(_user, artifactDetailsForUpdate);
             artifact.Publish(_user);
-
-            //ArtifactStoreHelper.UpdateSubArtifactCustomProperty(artifact, novaSubArtifact, _user, project, PropertyPrimitiveType.Text, propertyName, searchTerm, Helper.ArtifactStore);
-            //Helper.ArtifactStore.PublishArtifact(artifact, _user);
 
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
             SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 1, timeoutInMilliseconds: 30000);

@@ -535,7 +535,7 @@ namespace ServiceLibrary.Repositories
             if (userId < 1)
                 throw new ArgumentOutOfRangeException(nameof(userId));
             
-            var artifactBasicDetails = await GetArtifactBasicDetails(userId, artifactId);
+            var artifactBasicDetails = await GetArtifactBasicDetails(artifactId, userId);
             if (artifactBasicDetails == null || artifactBasicDetails.LatestDeleted)
             {
                 var errorMessage = I18NHelper.FormatInvariant("Item (Id:{0}) is not found.", artifactId);
@@ -563,7 +563,7 @@ namespace ServiceLibrary.Repositories
             }).ToList();
         }
 
-        private async Task<ArtifactBasicDetails> GetArtifactBasicDetails(int userId, int artifactId)
+        private async Task<ArtifactBasicDetails> GetArtifactBasicDetails(int artifactId, int userId)
         {
             var prm = new DynamicParameters();
             prm.Add("@userId", userId);
@@ -765,7 +765,7 @@ namespace ServiceLibrary.Repositories
         #region artifact workflow
         public async Task<IEnumerable<Transitions>> GetTransitions(int artifactId, int userId)
         {
-            var artifactBasicDetails = await GetArtifactBasicDetails(userId, artifactId);
+            var artifactBasicDetails = await GetArtifactBasicDetails(artifactId, userId);
             if (artifactBasicDetails == null)
             {
                 ThrowArtifactNotFoundException(artifactId);

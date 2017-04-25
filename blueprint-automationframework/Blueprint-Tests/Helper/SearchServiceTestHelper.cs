@@ -71,6 +71,7 @@ namespace Helper
                     artifact.SaveWithNewDescription(user, randomArtifactDescription);
 
                     artifact.Publish(user);
+                    artifact.RefreshArtifactFromServer(user);
 
                     artifacts.Add(artifact);
                 }

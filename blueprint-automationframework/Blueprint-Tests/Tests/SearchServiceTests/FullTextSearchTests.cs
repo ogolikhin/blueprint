@@ -637,7 +637,7 @@ namespace SearchServiceTests
             // Setup: Create search criteria with search term that matches published artifact(s) description
             FullTextSearchResult fullTextSearchResult = null;
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts[0].Description);
+            var searchTerm = StringUtilities.ConvertHtmlToText(_publishedArtifacts[0].Description);
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
 
             // Set the pageSize that displays all expecting search results for the user with permission on selected project(s)

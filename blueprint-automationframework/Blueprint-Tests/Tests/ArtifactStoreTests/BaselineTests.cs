@@ -106,11 +106,12 @@ namespace ArtifactStoreTests
         [TestCase(TestHelper.TestArtifactState.Published)]
         [TestCase(TestHelper.TestArtifactState.PublishedWithDraft)]
         [TestRail(266914)]
-        [Description("Add published or published with draft Artifact to Baseline, check that Baseline and its artifacts have " +
-            "expected values.")]
+        [Description("Add published or published with draft Artifact to Baseline, check that Baseline and its artifacts have expected values.")]
         public void AddArtifactToBaseline_PublishedOrDraftArtifact_ValidateReturnedBaseline(TestHelper.TestArtifactState artifactState)
         {
             // Setup:
+            const int EXPECTED_NUMBER_OF_ADDED_ARTIFACTS = 1;
+
             var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, artifactState, ItemTypePredefined.Actor,
                 _project.Id);
 
@@ -125,7 +126,7 @@ namespace ArtifactStoreTests
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
-            Assert.AreEqual(1, numberOfAddedArtifacts, "AddArtifactToBaseline should return expected number of added artifacts.");
+            Assert.AreEqual(EXPECTED_NUMBER_OF_ADDED_ARTIFACTS, numberOfAddedArtifacts, "AddArtifactToBaseline should return expected number of added artifacts.");
             var updatedBaseline = GetAndValidateBaseline(_user, baseline.Id, new List<int> { artifactToAdd.Id });
             switch (artifactState)
             {
@@ -140,6 +141,40 @@ namespace ArtifactStoreTests
             }
         }
 
+        [TestCase(TestHelper.TestArtifactState.Published)]
+        [TestRail(303285)]
+        [Description("Add published Artifact twice to Baseline, check that Baseline and its artifacts have expected values.")]
+        public void AddArtifactToBaselineTwice_PublishedArtifact_ValidateReturnedBaseline(TestHelper.TestArtifactState artifactState)
+        {
+            // Setup:
+            const int EXPECTED_NUMBER_OF_ADDED_ARTIFACTS = 0;
+            const int EXPECTED_NUMBER_OF_ALREADY_INCLUDED_ARTIFACTS = 1;
+
+            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, artifactState, ItemTypePredefined.Actor,
+                _project.Id);
+
+            var baseline = Helper.CreateBaseline(_user, _project);
+
+            AddToBaselineResult result = null;
+
+            Assert.DoesNotThrow(() => {
+                result = Helper.ArtifactStore.AddArtifactToBaseline(_user, artifactToAdd.Id, baseline.Id);
+            }, "Adding artifact to Baseline shouldn't throw an error.");
+
+            // Execute:
+            Assert.DoesNotThrow(() => {
+                result = Helper.ArtifactStore.AddArtifactToBaseline(_user, artifactToAdd.Id, baseline.Id);
+            }, "Adding artifact to Baseline shouldn't throw an error.");
+
+            // Verify:
+            Assert.AreEqual(EXPECTED_NUMBER_OF_ADDED_ARTIFACTS, result.ArtifactCount, "AddArtifactToBaseline should return expected number of added artifacts.");
+            Assert.AreEqual(EXPECTED_NUMBER_OF_ALREADY_INCLUDED_ARTIFACTS, result.AlreadyIncludedArtifactCount,
+                "AddArtifactToBaseline should return expected number of already included artifacts.");
+            var updatedBaseline = GetAndValidateBaseline(_user, baseline.Id, new List<int> { artifactToAdd.Id });
+
+            Assert.AreEqual(publishedDescription, updatedBaseline.Artifacts[0].Description, "Artifact in Baseline should have expected description.");
+        }
+
         [TestCase(true)]
         [TestCase(false)]
         [TestRail(266953)]
@@ -151,8 +186,8 @@ namespace ArtifactStoreTests
                 ItemTypePredefined.Actor, _project.Id);
             var childArtifact = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
                 ItemTypePredefined.Document, artifactToAdd.Id);
-            var childArtifact1 = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published, ItemTypePredefined.TextualRequirement,
-                childArtifact.Id);
+            var childArtifact1 = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
+                ItemTypePredefined.TextualRequirement, childArtifact.Id);
             var baseline = Helper.CreateBaseline(_user, _project);
 
             int numberOfAddedArtifacts = 0;
@@ -175,63 +210,41 @@ namespace ArtifactStoreTests
             else
             {
                 GetAndValidateBaseline(_user, baseline.Id, new List<int> { artifactToAdd.Id });
-            }
-            
-        }
-
-        [TestCase]
-        [TestRail(266596)]
-        [Description("Add published Artifact to Baseline, check that Baseline has expected values.")]
-        public void AddArtifactToBaseline_PublishedArtifact_ValidateReturnedBaseline()
-        {
-            // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
-            Helper.AssignProjectRolePermissionsToUser(_user, RolePermissions.Read, _project, artifact);
-
-            var baseline = Helper.CreateBaseline(_user, _project);
-
-            int numberOfAddedArtifacts = 0;
-            int expectedArtifactsNumber = 1;
-
-            // Execute:
-            Assert.DoesNotThrow(() => {
-                var addArtifactResult = Helper.ArtifactStore.AddArtifactToBaseline(_user, artifact.Id, baseline.Id);
-                numberOfAddedArtifacts = addArtifactResult.ArtifactCount;
-            }, "Adding artifact to Baseline shouldn't throw an error.");
-
-            // Verify:
-            Assert.AreEqual(expectedArtifactsNumber, numberOfAddedArtifacts, "After update baseline should have expected number of artifacts.");
-            GetAndValidateBaseline(_user, baseline.Id, new List<int> { artifact.Id });
+            }       
         }
 
         [TestCase]
         [TestRail(266957)]
-        [Description("Add published Artifact with children Artifacts to Baseline, user don't have access to children, " +
+        [Description("Add published Artifact with children Artifacts to Baseline, user don't have access to one of children, " +
             "check that only artifacts accessible to user were added to the Baseline.")]
         public void AddArtifactToBaseline_ArtifactWithDescendants_UserHasAccessToParentArtifactOnly_OnlyAccessibleArtifactsAddedToBaseline()
         {
             // Setup:
-            var artifactToAdd = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            var childArtifact1 = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase, artifactToAdd);
-            var childArtifact2 = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase, artifactToAdd);
-            Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.TextualRequirement, childArtifact2);
+            const int EXPECTED_NUMBER_OF_ARTIFACTS = 2; // user has no access to childArtifact2 and its descendants
+
+            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
+                ItemTypePredefined.Actor, _project.Id);
+            var childArtifact1 = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
+                ItemTypePredefined.UseCase, artifactToAdd.Id);
+            var childArtifact2 = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
+                ItemTypePredefined.UseCase, artifactToAdd.Id);
+            Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
+                ItemTypePredefined.UseCase, childArtifact2.Id); ;
 
             Helper.AssignProjectRolePermissionsToUser(_user, RolePermissions.None, _project, childArtifact2);
 
             var baseline = Helper.CreateBaseline(_user, _project);
 
             int numberOfAddedArtifacts = 0;
-            int expectedArtifactsNumber = 2; // user has no access to childArtifact2 and its descendants
 
             // Execute:
             Assert.DoesNotThrow(() => {
-                var addArtifactResult = Helper.ArtifactStore.AddArtifactToBaseline(_user, artifactToAdd.Id, baseline.Id,
-                    includeDescendants: true);
+                var addArtifactResult = Helper.ArtifactStore.AddArtifactToBaseline(_user, artifactToAdd.Id, baseline.Id, includeDescendants: true);
                 numberOfAddedArtifacts = addArtifactResult.ArtifactCount;
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
-            Assert.AreEqual(expectedArtifactsNumber, numberOfAddedArtifacts, "AddArtifactToBaseline should return expected number of added artifacts.");
+            Assert.AreEqual(EXPECTED_NUMBER_OF_ARTIFACTS, numberOfAddedArtifacts, "AddArtifactToBaseline should return expected number of added artifacts.");
 
             GetAndValidateBaseline(_user, baseline.Id, new List<int> { artifactToAdd.Id, childArtifact1.Id });
             Helper.ArtifactStore.PublishArtifacts(new List<int> { baseline.Id }, _user);
@@ -240,8 +253,8 @@ namespace ArtifactStoreTests
 
         [TestCase(-5)]
         [TestRail(267117)]
-        [Description("Add published Artifact to Baseline, Baseline has timestamp before artifact's CreatedOn date," +
-            "check that artifact was not added and call returns 1 for Nonnexistent Artifacts, when  Baseline has timestamp before artifact's CreatedOn date.")]
+        [Description("Add published Artifact to Baseline, Baseline has timestamp before artifact's CreatedOn date.  " +
+            "Check that artifact was not added and call returns 1 for Nonexistent Artifacts, when  Baseline has timestamp before artifact's CreatedOn date.")]
         public void AddArtifactToBaseline_PublishedArtifact_BaselineWithTimeStampBeforeArtifactCreatedOn_CheckWhatWasAdded(int utcTimestampMinutesFromNow)
         {
             // Setup:
@@ -262,7 +275,7 @@ namespace ArtifactStoreTests
             ArtifactStore.UpdateArtifact(Helper.ArtifactStore.Address, _user, baseline);
 
             int numberOfAddedArtifacts = -1;
-            int numberOfNonnexistentArtifacts = -1;
+            int numberOfNonExistentArtifacts = -1;
 
             AddToBaselineResult addArtifactResult = null;
 
@@ -273,10 +286,10 @@ namespace ArtifactStoreTests
 
             // Verify:
             numberOfAddedArtifacts = addArtifactResult.ArtifactCount;
-            numberOfNonnexistentArtifacts = addArtifactResult.NonExistentArtifactCount.Value;
+            numberOfNonExistentArtifacts = addArtifactResult.NonExistentArtifactCount.Value;
 
             Assert.AreEqual(0, numberOfAddedArtifacts, "Nothing should be added to baseline, when its TimeStamp older than Artifact.");
-            Assert.AreEqual(1, numberOfNonnexistentArtifacts, "AddArtifactToBaseline should return expected number of Nonnexistent Artifacts.");
+            Assert.AreEqual(1, numberOfNonExistentArtifacts, "AddArtifactToBaseline should return expected number of Nonnexistent Artifacts.");
         }
 
         [TestCase(TestHelper.TestArtifactState.Created)]
@@ -342,33 +355,35 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(266960)]
-        [Description("Add published Collection with 2 artifacts (user has access to one artifact only) to Baseline, check that Baseline contains expected artifact only.")]
+        [Description("Add published Collection with 2 artifacts (user has access to one artifact only) to Baseline.  " +
+            "Check that Baseline contains expected artifact only.")]
         public void AddArtifactToBaseline_CollectionWithTwoArtifacts_UserHasAccessToOneArtifact_AddToBaseline_ValidateReturnedBaseline()
         {
             // Setup:
-            var artifactToAdd = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            var artifactWithNoAccess = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
+            const int EXPECTED_NUMBER_OF_ARTIFACTS = 1; // user has no access to artifactWithNoAccess and its descendants
+
+            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
+                ItemTypePredefined.Actor, _project.Id);
+            var artifactWithNoAccess = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
+                ItemTypePredefined.UseCase, _project.Id);
             
             Helper.AssignProjectRolePermissionsToUser(_user, RolePermissions.None, _project, artifactWithNoAccess);
 
             var collection = Helper.CreateUnpublishedCollectionWithArtifactsInSpecificState(_adminUser, _project, TestHelper.TestArtifactState.Published,
                 new List<int> { artifactToAdd.Id, artifactWithNoAccess.Id });
 
-
             var baseline = Helper.CreateBaseline(_user, _project);
 
             int numberOfAddedArtifacts = 0;
-            int expectedArtifactsNumber = 1; // user has no access to artifactWithNoAccess from collection
 
             // Execute:
             Assert.DoesNotThrow(() => {
-                var addArtifactResult = Helper.ArtifactStore.AddArtifactToBaseline(_user, collection.Id, baseline.Id,
-                    includeDescendants: true);
+                var addArtifactResult = Helper.ArtifactStore.AddArtifactToBaseline(_user, collection.Id, baseline.Id, includeDescendants: true);
                 numberOfAddedArtifacts = addArtifactResult.ArtifactCount;
             }, "Adding Collection to Baseline shouldn't throw an error.");
             
             // Verify:
-            Assert.AreEqual(expectedArtifactsNumber, numberOfAddedArtifacts, "AddArtifactToBaseline should return expected number of added artifacts.");
+            Assert.AreEqual(EXPECTED_NUMBER_OF_ARTIFACTS, numberOfAddedArtifacts, "AddArtifactToBaseline should return expected number of added artifacts.");
 
             GetAndValidateBaseline(_user, baseline.Id, new List<int> { artifactToAdd.Id });
             Helper.ArtifactStore.PublishArtifacts(new List<int> { baseline.Id }, _user);
@@ -381,6 +396,8 @@ namespace ArtifactStoreTests
         public void AddArtifactToBaseline_EmptyCollection_ValidateReturnedBaseline()
         {
             // Setup:
+            const int EXPECTED_NUMBER_OF_ARTIFACTS = 0;
+
             var collectionArtifact = Helper.CreateUnpublishedCollection(_project, _user);
             var collection = Helper.ArtifactStore.GetCollection(_user, collectionArtifact.Id);
 
@@ -395,7 +412,7 @@ namespace ArtifactStoreTests
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
-            Assert.AreEqual(0, numberOfAddedArtifacts, "AddArtifactToBaseline should return expected number of added artifacts.");
+            Assert.AreEqual(EXPECTED_NUMBER_OF_ARTIFACTS, numberOfAddedArtifacts, "AddArtifactToBaseline should return expected number of added artifacts.");
 
             GetAndValidateBaseline(_user, baseline.Id, new List<int>());
         }
@@ -406,12 +423,14 @@ namespace ArtifactStoreTests
         public void AddArtifactToBaseline_CollectionWhereUserHasNoAccessToArtifact_BaselineShouldBeEmpty()
         {
             // Setup:
-            var artifactWithNoAccess = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
+            const int EXPECTED_NUMBER_OF_ARTIFACTS = 0;
+
+            var artifactWithNoAccess = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
+                ItemTypePredefined.UseCase, _project.Id);
             Helper.AssignProjectRolePermissionsToUser(_user, RolePermissions.None, _project, artifactWithNoAccess);
 
             var collection = Helper.CreateUnpublishedCollectionWithArtifactsInSpecificState(_adminUser, _project, TestHelper.TestArtifactState.Published,
                 new List<int> { artifactWithNoAccess.Id });
-
 
             var baseline = Helper.CreateBaseline(_user, _project);
 
@@ -424,7 +443,7 @@ namespace ArtifactStoreTests
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
-            Assert.AreEqual(0, numberOfAddedArtifacts, "AddArtifactToBaseline should return expected number of added artifacts.");
+            Assert.AreEqual(EXPECTED_NUMBER_OF_ARTIFACTS, numberOfAddedArtifacts, "AddArtifactToBaseline should return expected number of added artifacts.");
         }
 
         #endregion Add Collection to Baseline
@@ -433,12 +452,12 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(266912)]
-        [Description("Add published Artifact to Baseline, check that Baseline has expected values.")]
+        [Description("Add published Artifact to Baseline.  Make baseline sealed and update artifact. Check that Baseline has expected values.")]
         public void EditBaselineArtifacts_AddPublishedArtifactToBaseline_ValidateReturnedBaseline()
         {
             // Setup:
-            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.PublishedWithDraft, ItemTypePredefined.Actor,
-                _project.Id);
+            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.PublishedWithDraft,
+                ItemTypePredefined.Actor, _project.Id);
 
             var baselineArtifact = Helper.CreateBaseline(_user, _project);
             var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
@@ -465,10 +484,10 @@ namespace ArtifactStoreTests
         public void EditBaselineArtifacts_RemoveArtifactFromBaseline_CheckBaselineDoesNotHaveRemovedArtifact()
         {
             // Setup:
-            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_adminUser, _project, TestHelper.TestArtifactState.Published, ItemTypePredefined.Actor,
-                _project.Id);
-            var artifactToRemove = Helper.CreateNovaArtifactInSpecificState(_adminUser, _project, TestHelper.TestArtifactState.Published, ItemTypePredefined.TextualRequirement,
-                artifactToAdd.Id);
+            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_adminUser, _project, TestHelper.TestArtifactState.Published,
+                ItemTypePredefined.Actor, _project.Id);
+            var artifactToRemove = Helper.CreateNovaArtifactInSpecificState(_adminUser, _project, TestHelper.TestArtifactState.Published,
+                ItemTypePredefined.TextualRequirement, artifactToAdd.Id);
 
             var baselineArtifact = Helper.CreateBaseline(_adminUser, _project);
             Helper.ArtifactStore.AddArtifactToBaseline(_adminUser, artifactToAdd.Id, baselineArtifact.Id, includeDescendants: true);
@@ -577,8 +596,8 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(267202)]
-        [Description("Add published Artifact to Baseline, Baseline has timestamp before artifact CreatedOn date," +
-            "check that artifact was not added and call returns correct number for 'Nonnexistent' Artifacts.")]
+        [Description("Add published Artifact to Baseline, Baseline has timestamp before artifact CreatedOn date.  " +
+            "Check that artifact was not added and call returns correct number for 'Nonexistent' Artifacts.")]
         public void EditBaseline_BaselineWithArtifact_SealBaselinetWithTimeStampBeforeArtifactCreatedOn_CheckBaselineIsEmpty()
         {
             // Setup:
@@ -615,6 +634,8 @@ namespace ArtifactStoreTests
         public void GetBaselineInfo_ExistingLiveBaseline_ValidateResponse()
         {
             // Setup:
+            const int EXPECTED_NUMBER_OF_BASELINE_INFO = 1;
+
             var baselineArtifact = Helper.CreateBaseline(_adminUser, _project);
             var baseline = Helper.ArtifactStore.GetBaseline(_adminUser, baselineArtifact.Id);
 
@@ -626,16 +647,18 @@ namespace ArtifactStoreTests
             }, "Getting BaselineInfo shouldn't throw an error.");
 
             // Verify:
-            Assert.AreEqual(1, baselineInfoList?.Count, "List of BaselineInfo should have one item.");
+            Assert.AreEqual(EXPECTED_NUMBER_OF_BASELINE_INFO, baselineInfoList?.Count, "List of BaselineInfo should have one item.");
             baselineInfoList[0].AssertBaselineInfoCorrespondsToBaseline(baseline);
         }
 
         [TestCase]
         [TestRail(288888)]
-        [Description("Create Baseline with timestamp, get BaselineInfo, check that BaselineInfo has expected values.")]
+        [Description("Create Baseline with timestamp. Add artifact into baseline and get BaselineInfo, check that BaselineInfo has expected values.")]
         public void GetBaselineInfo_TimestampedBaseline_ValidateResponse()
         {
             // Setup:
+            const int EXPECTED_NUMBER_OF_BASELINE_INFO = 1;
+
             var artifactToAdd = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Document);
 
             var baselineArtifact = Helper.CreateBaseline(_user, _project, artifactToAddId: artifactToAdd.Id);
@@ -658,17 +681,19 @@ namespace ArtifactStoreTests
             }, "Getting BaselineInfo shouldn't throw an error.");
 
             // Verify:
-            Assert.AreEqual(1, baselineInfoList?.Count, "List of BaselineInfo should have one item.");
+            Assert.AreEqual(EXPECTED_NUMBER_OF_BASELINE_INFO, baselineInfoList?.Count, "List of BaselineInfo should have one item.");
             baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
             baselineInfoList[0].AssertBaselineInfoCorrespondsToBaseline(baseline);
         }
 
         [TestCase]
         [TestRail(288901)]
-        [Description("Create sealed Baseline with timestamp, get BaselineInfo, check that BaselineInfo has expected values.")]
+        [Description("Create sealed Baseline with timestamp. Add artifact into baseline and get BaselineInfo, check that BaselineInfo has expected values.")]
         public void GetBaselineInfo_TimestampedSealedBaseline_ValidateResponse()
         {
             // Setup:
+            const int EXPECTED_NUMBER_OF_BASELINE_INFO = 1;
+
             var artifactToAdd = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.UseCase);
 
             var baselineArtifact = Helper.CreateBaseline(_user, _project, artifactToAddId: artifactToAdd.Id);
@@ -687,7 +712,7 @@ namespace ArtifactStoreTests
             }, "Getting BaselineInfo shouldn't throw an error.");
 
             // Verify:
-            Assert.AreEqual(1, baselineInfoList?.Count, "List of BaselineInfo should have one item.");
+            Assert.AreEqual(EXPECTED_NUMBER_OF_BASELINE_INFO, baselineInfoList?.Count, "List of BaselineInfo should have one item.");
             baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
             baselineInfoList[0].AssertBaselineInfoCorrespondsToBaseline(baseline);
         }
@@ -698,6 +723,8 @@ namespace ArtifactStoreTests
         public void GetBaselineInfo_TwoLiveBaseline_ValidateResponse()
         {
             // Setup:
+            const int EXPECTED_NUMBER_OF_BASELINE_INFO = 2;
+
             var baselineArtifact1 = Helper.CreateBaseline(_user, _project);
             var baselineArtifact2 = Helper.CreateBaseline(_user, _project);
 
@@ -719,7 +746,7 @@ namespace ArtifactStoreTests
             }, "Getting BaselineInfo shouldn't throw an error.");
 
             // Verify:
-            Assert.AreEqual(2, baselineInfoList?.Count, "List of BaselineInfo should have two items.");
+            Assert.AreEqual(EXPECTED_NUMBER_OF_BASELINE_INFO, baselineInfoList?.Count, "List of BaselineInfo should have two items.");
             baselineInfoList[0].AssertBaselineInfoCorrespondsToBaseline(baseline1);
             baselineInfoList[1].AssertBaselineInfoCorrespondsToBaseline(baseline2);
         }
@@ -805,7 +832,6 @@ namespace ArtifactStoreTests
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.SealedBaseline, expectedInternalExceptionMessage);
         }
 
-        [Category(Categories.GoldenData)]
         [TestCase]
         [TestRail(290070)]
         [Description("Create Baseline, get Baseline and update its baselinetimestamp with invalid value, which is less than MinimalUtcTimestamp. Verify that 409 Conflict.")]
@@ -829,9 +855,7 @@ namespace ArtifactStoreTests
             // Verify:
             const string expectedErrorMessage = "Baseline timestamp should be between project creation date and current time.";
 
-            TestHelper.ValidateServiceError(ex.RestResponse,
-                InternalApiErrorCodes.CannotSaveBaselineBecauseOfFutureTimestamp,
-                expectedErrorMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveBaselineBecauseOfFutureTimestamp, expectedErrorMessage);
 
             ValidateMinimalUtctTimestamp(_project, baseline, ProjectExpectedCreationDateMap);
         }
@@ -880,6 +904,8 @@ namespace ArtifactStoreTests
         public void AddArtifactToBaseline_CollectionWithDeletedArtifactAddToBaseline_NothingWasAdded()
         {
             // Setup:
+            const int EXPECTED_NUMBER_OF_ARTIFACTS = 0;
+
             var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
                 ItemTypePredefined.Actor, _project.Id);
             var collection = Helper.CreateUnpublishedCollectionWithArtifactsInSpecificState(_user, _project, TestHelper.TestArtifactState.Created,
@@ -899,7 +925,7 @@ namespace ArtifactStoreTests
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
-            Assert.AreEqual(0, numberOfAddedArtifacts, "AddArtifactToBaseline should return 0 when nothing was added.");
+            Assert.AreEqual(EXPECTED_NUMBER_OF_ARTIFACTS, numberOfAddedArtifacts, "AddArtifactToBaseline should return 0 when nothing was added.");
         }
 
         [TestCase]
@@ -960,24 +986,24 @@ namespace ArtifactStoreTests
         public void GetBaseline_ExistingBaseline_ValidateReturnedBaseline()
         {
             // Setup:
+            const int BASELINE_ID = 83;
+            const int EXPECTED_NUMBER_OF_ARTIFACTS = 2;
+
             var _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
             var viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projectCustomData);
-            const int baselineId = 83;
-            const int expectedArtifactsNumber = 2;
+
             var expectedBaseline = new Baseline(isAvailableInAnalytics: false, notAllArtifactsAreShown: false,
                 isSealed: false);
 
             // Execute: 
             Baseline baseline = null;
-            Assert.DoesNotThrow(() => baseline = Helper.ArtifactStore.GetBaseline(viewerUser, baselineId),
+            Assert.DoesNotThrow(() => baseline = Helper.ArtifactStore.GetBaseline(viewerUser, BASELINE_ID),
                 "Get Baseline shouldn't return an error.");
 
             // Verify:
             Baseline.AssertBaselinesAreEqual(expectedBaseline, baseline);
-            Assert.AreEqual(expectedArtifactsNumber, baseline.Artifacts.Count, "Baseline should have expected number of Artifacts.");
+            Assert.AreEqual(EXPECTED_NUMBER_OF_ARTIFACTS, baseline.Artifacts.Count, "Baseline should have expected number of Artifacts.");
         }
-
-        #endregion
 
         [Category(Categories.GoldenData)]
         [Category(Categories.CustomData)]
@@ -987,13 +1013,14 @@ namespace ArtifactStoreTests
         public void GetReviews_ExistingSealedBaseline_ValidateReviewList()
         {
             // Setup:
+            const int BASELINE_WITH_REVIEWS_ID = 110;   // id of sealed Baseline which is used in 3 reviews
+
             var _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
             var viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projectCustomData);
-            const int baselineWithreviewsId = 110; // id of sealed Baseline which is used in 3 reviews
 
             // Execute: 
             ReviewRelationshipsResultSet reviews = null;
-            Assert.DoesNotThrow(() => reviews = Helper.ArtifactStore.GetReviews(baselineWithreviewsId, viewerUser),
+            Assert.DoesNotThrow(() => reviews = Helper.ArtifactStore.GetReviews(BASELINE_WITH_REVIEWS_ID, viewerUser),
                 "Get Baseline reviews shouldn't return an error.");
 
             // Verify:
@@ -1009,6 +1036,8 @@ namespace ArtifactStoreTests
                 Assert.IsNotEmpty(reviewArtifact.ReviewLink, "Review link shouldn't be empty.");
             }
         }
+
+        #endregion Custom Data Tests
 
         #region Private Functions
 

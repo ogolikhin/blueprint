@@ -118,6 +118,7 @@ namespace Model.ArtifactModel.Impl
     {
         public int? UnpublishedArtifactCount { get; set; }
         public int? NonExistentArtifactCount { get; set; }
+        public int? AlreadyIncludedArtifactCount { get; set; }
     }
 
     public class BaselineInfo

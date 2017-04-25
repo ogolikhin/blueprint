@@ -10,11 +10,13 @@ using System.Threading.Tasks;
 
 namespace ArtifactStore.Repositories
 {
-    public class SqlReviewsRepository
+    public class SqlReviewsRepository: IReviewsRepository
     {
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
 
         private readonly IArtifactVersionsRepository _artifactVersionsRepository;
+
+        private readonly ISqlItemInfoRepository _itemInfoRepository;
 
         public SqlReviewsRepository(): this(new SqlConnectionWrapper(ServiceConstants.RaptorMain), new SqlArtifactVersionsRepository())
         {
@@ -24,6 +26,7 @@ namespace ArtifactStore.Repositories
         {
             ConnectionWrapper = connectionWrapper;
             _artifactVersionsRepository = artifactVersionsRepository;
+            _itemInfoRepository = new SqlItemInfoRepository(connectionWrapper);
         }
 
         private async Task<ReviewContainer> GetReviewAsync(int reviewId, int userId, int revisionId)
@@ -58,6 +61,28 @@ namespace ArtifactStore.Repositories
             reviewContainer.Name = artifactInfo.Name;
             //TODO Description
             return reviewContainer;
+        }
+
+        public async Task<ReviewContent> GetContentAsync(int reviewId, int userId, int? offset, int? limit, int? versionId = null, bool? addDrafts = true)
+        {
+            int? revisionId = await _itemInfoRepository.GetRevisionId(reviewId, userId, versionId);
+            if (revisionId < int.MaxValue) {
+                addDrafts = false;
+            }
+            var param = new DynamicParameters();
+            param.Add("@reviewId", reviewId);
+            param.Add("@offset", offset);
+            param.Add("@limit", limit);
+            param.Add("@revisionId", revisionId);
+            param.Add("@addDrafts", addDrafts);
+            param.Add("@userId", userId);
+            var result = await ConnectionWrapper.QueryMultipleAsync<ReviewArtifact, int>("GetReviewArtifacts", param, commandType: CommandType.StoredProcedure);
+            return new ReviewContent
+            {
+                Items = result.Item1.ToList(),
+                Total = result.Item2.SingleOrDefault()
+            };
+
         }
     }    
 }

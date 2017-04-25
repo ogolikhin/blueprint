@@ -651,7 +651,7 @@ namespace StorytellerTests
             ThrowIf.ArgumentNull(personaReference, nameof(personaReference));
 
             // Get task relationships
-            var processArtifact = Helper.Storyteller.Artifacts.Find(a => a.Id == process.Id);
+            var processArtifact = new Artifact { Id = process.Id, Address = Helper.ArtifactStore.Address };
             var task = process.GetProcessShapeByShapeName(taskName);
             var taskRelationships = Helper.ArtifactStore.GetRelationships(_authorFullAccess, processArtifact, task.Id);
 

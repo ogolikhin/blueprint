@@ -128,6 +128,7 @@
     <Compile Include="Models\ReviewRelationshipResultSet.cs" />
     <Compile Include="Models\Review\ReviewArtifactsStatus.cs" />
     <Compile Include="Models\Review\ReviewContainer.cs" />
+    <Compile Include="Models\Review\ReviewContent.cs" />
     <Compile Include="Models\Review\ReviewSource.cs" />
     <Compile Include="Models\Review\ReviewSourceType.cs" />
     <Compile Include="Models\Review\ReviewStatus.cs" />
@@ -138,6 +139,7 @@
     <Compile Include="Repositories\IAttachmentsRepository.cs" />
     <Compile Include="Repositories\IDiscussionsRepository.cs" />
     <Compile Include="Repositories\IArtifactVersionsRepository.cs" />
+    <Compile Include="Repositories\IReviewsRepository.cs" />
     <Compile Include="Repositories\ISqlProjectMetaRepository.cs" />
     <Compile Include="Repositories\PropertyXml\Models\XmlCustomProperties.cs" />
     <Compile Include="Repositories\PropertyXml\Models\XmlCustomProperty.cs" />

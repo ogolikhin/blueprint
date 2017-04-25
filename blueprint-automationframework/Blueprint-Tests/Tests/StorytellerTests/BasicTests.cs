@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using CustomAttributes;
+﻿using CustomAttributes;
 using Model;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
@@ -175,8 +174,8 @@ namespace StorytellerTests
 
             // Update and Verify the modified process
             StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
-            var processArtifact = Helper.Storyteller.Artifacts.Where(artifact => artifact.Id == process.Id).First();
-            
+            var processArtifact = new Artifact { Id = process.Id , Address = Helper.ArtifactStore.Address };
+
             List<NovaDiscardArtifactResult> discardResultList = null;
             string expectedMessage = "Successfully discarded";
 

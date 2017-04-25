@@ -45,7 +45,8 @@ namespace StorytellerTests
         public void LockArtifactByUpdatingWithSecondUser_VerifyTheReturnedProcessStatusWithFirstUser()
         {
             // Create and save the process artifact with the second user 
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _secondaryUser);
+            var processArtifact = Helper.Storyteller.CreateAndSaveProcessArtifact(_project, _secondaryUser);
+            var process = Helper.Storyteller.GetProcess(_secondaryUser, processArtifact.Id);
 
             var expectedProcessStatus = ProcessStatusState.NeverPublishedAndUpdated;
 
@@ -72,7 +73,8 @@ namespace StorytellerTests
             process.AddUserAndSystemTask(preconditionOutgoingLink);
 
             // Update the process to lock by the second user
-            process = Helper.Storyteller.UpdateProcess(_secondaryUser, process);
+            Helper.Storyteller.UpdateProcess(_secondaryUser, process);
+            process = Helper.Storyteller.GetProcess(_secondaryUser, process.Id);
 
             expectedProcessStatus = ProcessStatusState.PublishedAndLockedByMe;
 

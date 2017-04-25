@@ -213,7 +213,6 @@ namespace Model.StorytellerModel.Impl
                 artifacts.Add(artifact);
             }
 
-
             _artifactStore.PublishArtifacts(artifacts, user);
 
             return novaProcesses;
@@ -233,13 +232,6 @@ namespace Model.StorytellerModel.Impl
             var service = SvcComponentsFactory.CreateSvcComponents(Address);
 
             var userstoryResults = service.GenerateUserStories(user, process, expectedStatusCodes = null);
-
-            // Since Storyteller created the user story artifacts, we aren't tracking them, so we need to tell Delete to also delete children.
-            if (shouldDeleteChildren)
-            {
-                var artifact = Artifacts.Find(a => a.Id == process.Id);
-                artifact.ShouldDeleteChildren = true;
-            }
 
             return userstoryResults;
         }
@@ -292,6 +284,14 @@ namespace Model.StorytellerModel.Impl
 
             var novaProcess = new NovaProcess{ Id = process.Id, ProjectId = process.ProjectId, Process = (Process)process};
 
+            if (lockArtifactBeforeUpdate)
+            {
+                using (var svc = new SvcShared(Address))
+                {
+                    svc.LockArtifact(user, process.Id);
+                }
+            }
+
             var updatedNovaProcess = UpdateNovaProcess(user, novaProcess, expectedStatusCodes: expectedStatusCodes);
 
             return updatedNovaProcess.Process;
@@ -300,6 +300,15 @@ namespace Model.StorytellerModel.Impl
         /// <seealso cref="IStoryteller.UpdateNovaProcess(IUser, NovaProcess, List{HttpStatusCode})"/>
         public NovaProcess UpdateNovaProcess(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null)
         {
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(UpdateNovaProcess));
+
+            ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
+
+            using (var svc = new SvcShared(Address))
+            {
+                svc.LockArtifact(user, novaProcess.Id);
+            }
+
             _artifactStore.UpdateNovaProcess(user, novaProcess, expectedStatusCodes);
 
             return GetNovaProcess(user, novaProcess.Id, expectedStatusCodes: expectedStatusCodes);
@@ -326,12 +335,6 @@ namespace Model.StorytellerModel.Impl
                 user,
                 new List<int> { process.Id },
                 expectedStatusCodes);
-
-            if (publishResults?[0].StatusCode == NovaPublishArtifactResult.Result.Success)
-            {
-                // Mark artifact in artifact list as published.
-                MarkArtifactAsPublished(process.Id);
-            }
 
             return publishResults[0];
         }

@@ -30,11 +30,12 @@ namespace ImageRenderService.ImageGen
         private readonly int MAXSIZE = 3;
         private Semaphore _browserPool;
 
-        private TaskCompletionSource<bool> _tcs;
-
         public async Task<ChromiumWebBrowser> Rent()
         {
-            _browserPool.WaitOne();
+            if (!_browserPool.WaitOne(10000))
+            {
+                return null;
+            }
             
             ChromiumWebBrowser browser;
             //if there is a free browser - use it
@@ -49,11 +50,11 @@ namespace ImageRenderService.ImageGen
             //initialize it
             if (!browser.IsBrowserInitialized)
             {
-                _tcs = new TaskCompletionSource<bool>();
+                var tcs = new TaskCompletionSource<bool>();
                 browser.BrowserInitialized += delegate {
-                    _tcs.SetResult(true);
+                    tcs.SetResult(true);
                 };
-                await _tcs.Task;
+                await tcs.Task;
             }
             browser.Size = new Size(1920, 1080);
             //and use it

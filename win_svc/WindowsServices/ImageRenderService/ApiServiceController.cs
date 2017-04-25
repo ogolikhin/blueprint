@@ -24,6 +24,10 @@ namespace ImageRenderService
 
             //generate image
             var image = await ImageGenService.Instance.ImageGenerator.GenerateImageAsync(url, format);
+            if (image == null)
+            {
+                return Request.CreateResponse(HttpStatusCode.Conflict, "No browser available.");
+            }
             var content = new StreamContent(image);
 
             image.Position = 0;

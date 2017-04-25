@@ -23,6 +23,10 @@ namespace ImageRenderService.ImageGen
         public async Task<MemoryStream> GenerateImageAsync(string url, ImageFormat format)
         {
             ChromiumWebBrowser browser = await _browserPool.Rent();
+            if (browser == null)
+            {
+                return null;
+            }
 
             await LoadPageAsync(browser, url);
 
@@ -113,7 +117,7 @@ namespace ImageRenderService.ImageGen
                 {
                     break;
                 }
-                Thread.Sleep(10);
+                await Task.Delay(10);
                 i++;
             }
             //-----------------------------------------------------------------------------------------

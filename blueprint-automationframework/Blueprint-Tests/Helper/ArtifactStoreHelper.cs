@@ -1943,7 +1943,8 @@ namespace Helper
         /// <param name="traceDirection">(optional)Trace direction. 'From' by default.</param>
         /// <param name="isSuspect">(optional)isSuspect, true for suspect trace, false otherwise.</param>
         /// <param name="targetSubArtifact">(optional)subArtifact for trace target(creates trace with subartifact).</param>
-        public static void UpdateManualArtifactTraceAndSave(IUser user,
+        /// <returns>NovaTrace object.</returns>
+        public static NovaTrace UpdateManualArtifactTraceAndSave(IUser user,
             int artifactId,
             int traceTargetArtifactId,
             int traceTargetArtifactProjectId,
@@ -1974,6 +1975,8 @@ namespace Helper
 
             ArtifactStore.UpdateArtifact(artifactStore.Address, user, artifactDetails);
             // TODO: add assertions about changed traces
+
+            return traceToCreate;
         }
 
         //TODO: Refactor and add to ItemTypePredefinedExtensions.ca

@@ -1,4 +1,5 @@
 ﻿using Model.Common.Constants;
+using System.Collections.Generic;
 
 namespace Model.NovaModel.Components.ImpactAnalysisService
 {

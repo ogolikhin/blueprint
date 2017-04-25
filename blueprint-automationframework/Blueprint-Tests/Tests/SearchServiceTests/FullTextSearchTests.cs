@@ -339,7 +339,7 @@ namespace SearchServiceTests
         {
             // Setup: Create search criteria with search term that matches with description value of all published artifacts
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts[0].Description);
+            var searchTerm = StringUtilities.ConvertHtmlToText(_publishedArtifacts[0].Description);
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
 
             // Set the pageSize that can accomodate all expecting search results for the user
@@ -369,7 +369,7 @@ namespace SearchServiceTests
 
             // Create search criteria with search term that matches with deleted but not published artifact(s) description
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts[0].Description);
+            var searchTerm = StringUtilities.ConvertHtmlToText(_publishedArtifacts[0].Description);
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
 
             // Wait until first user no longer sees the artifact in search results or timeout occurs
@@ -398,7 +398,7 @@ namespace SearchServiceTests
 
             // Create search criteria with search term that matches with deleted but not published artifact(s) description
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts[0].Description);
+            var searchTerm = StringUtilities.ConvertHtmlToText(_publishedArtifacts[0].Description);
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
 
             // Set the pageSize that can accomodate all expecting search results for the user
@@ -432,7 +432,7 @@ namespace SearchServiceTests
 
             // Create search criteria with search term that matches with deleted and published artifact(s) description
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts[0].Description);
+            var searchTerm = StringUtilities.ConvertHtmlToText(_publishedArtifacts[0].Description);
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
 
             // Execute: Execute FullTextSearch with the search term using the same user
@@ -460,7 +460,7 @@ namespace SearchServiceTests
 
             // Create search criteria with search term that matches with deleted and published artifact(s) description
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts[0].Description);
+            var searchTerm = StringUtilities.ConvertHtmlToText(_publishedArtifacts[0].Description);
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
 
             // Execute: Execute FullTextSearch with the search term using the different user
@@ -507,7 +507,7 @@ namespace SearchServiceTests
         {
             // Setup: Create search criteria with search term that matches published artifact(s) description
             var searchProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts[0].Description);
+            var searchTerm = StringUtilities.ConvertHtmlToText(_publishedArtifacts[0].Description);
             var searchCriteria = new FullTextSearchCriteria(searchTerm, projectIds: searchProjectIds);
 
             // Calculate expecting values for the selected project(s) and published artifacts for the project(s)
@@ -557,7 +557,7 @@ namespace SearchServiceTests
 
             // Create search criteria with search term that matches with current version of artifact(s) description
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchTerm = WebUtility.HtmlDecode(publishedArtifacts[0].Description);
+            var searchTerm = StringUtilities.ConvertHtmlToText(publishedArtifacts[0].Description);
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
 
             // Create search criteria with search term that matches with new version of artifact(s) description
@@ -934,7 +934,7 @@ namespace SearchServiceTests
 
             // Create search criteria with search term that matches with deleted and published artifact(s) description
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts[0].Description);
+            var searchTerm = StringUtilities.ConvertHtmlToText(_publishedArtifacts[0].Description);
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
 
             // Execute: Execute FullTextSearch with the search term using the same user
@@ -962,7 +962,7 @@ namespace SearchServiceTests
 
             // Create search criteria with search term that matches with deleted and published artifact(s) description
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts[0].Description);
+            var searchTerm = StringUtilities.ConvertHtmlToText(_publishedArtifacts[0].Description);
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
 
             // Execute: Execute FullTextSearch with the search term using the different user
@@ -998,7 +998,7 @@ namespace SearchServiceTests
 
             // Execute: Execute FullTextSearch with the search term using the same user.
             // Create search criteria with search term that matches with deleted but not published artifact(s) description.
-            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts[0].Description);
+            var searchTerm = StringUtilities.ConvertHtmlToText(_publishedArtifacts[0].Description);
             searchCriteria.Query = searchTerm;
             FullTextSearchResult fullTextSearchResult = null;
 
@@ -1036,7 +1036,7 @@ namespace SearchServiceTests
 
             // Execute: Execute FullTextSearch with the search term using the different user.
             // Create search criteria with search term that matches with deleted but not published artifact(s) description.
-            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts[0].Description);
+            var searchTerm = StringUtilities.ConvertHtmlToText(_publishedArtifacts[0].Description);
             searchCriteria.Query = searchTerm;
             FullTextSearchResult fullTextSearchResult = null;
 

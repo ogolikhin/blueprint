@@ -209,7 +209,7 @@ namespace SearchServiceTests
             string description = _artifacts[0].Description;
 
             // Search for Description property value which is common to all artifacts
-            var searchTerm = WebUtility.HtmlDecode(description);
+            var searchTerm = StringUtilities.ConvertHtmlToText(description);
             var itemTypeIds = SearchServiceTestHelper.GetItemTypeIdsForBaseArtifactTypes(_projects, baseArtifactTypes.ToList());
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id), itemTypeIds);
 
@@ -505,7 +505,7 @@ namespace SearchServiceTests
             string description = _artifacts[0].Description;
             
             // Search for Description property value which is common to all artifacts
-            var searchTerm = WebUtility.HtmlDecode(description);
+            var searchTerm = StringUtilities.ConvertHtmlToText(description);
 
             // Set search criteria over all projects
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id));
@@ -543,7 +543,7 @@ namespace SearchServiceTests
             string description = _artifacts[0].Description;
             
             // Search for Description property value which is common to all artifacts
-            var searchTerm = WebUtility.HtmlDecode(description);
+            var searchTerm = StringUtilities.ConvertHtmlToText(description);
 
             // Set search criteria over all projects
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id));
@@ -762,11 +762,6 @@ namespace SearchServiceTests
 
             var selectedArtifacts = new List<ArtifactWrapper>();
 
-            if (propertyToSearch.ToUpper(CultureInfo.InvariantCulture).Equals("DESCRIPTION"))
-            {
-                searchCriteria.Query = WebUtility.HtmlEncode(searchCriteria.Query);
-            }
-
             foreach (var artifact in _artifacts)
             {
                 switch (propertyToSearch)
@@ -778,7 +773,7 @@ namespace SearchServiceTests
                         }
                         break;
                     case "Description":
-                        if (artifact.Description == searchCriteria.Query)
+                        if (StringUtilities.ConvertHtmlToText(artifact.Description) == searchCriteria.Query)
                         {
                             selectedArtifacts.Add(artifact);
                         }

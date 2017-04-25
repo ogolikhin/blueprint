@@ -1,5 +1,4 @@
 ﻿using Model;
-using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.StorytellerModel;
@@ -62,7 +61,7 @@ namespace Helper
         /// <param name="isSuspectExpected">(optional) Flag indicating whether the relationship is expected to be suspect (Default: false)</param>
         public static void AssertPersonaReferenceRelationshipIsCorrect(Relationship relationship, 
             IProject actorArtifactProject, 
-            IArtifactBase actorArtifact,
+            NovaArtifactDetails actorArtifact,
             bool isReadOnlyExpected = false,
             bool isSuspectExpected = false
             )

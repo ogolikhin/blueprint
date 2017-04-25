@@ -13,7 +13,9 @@ namespace ImageRenderService.ImageGen
         private readonly HttpSelfHostConfiguration _config;
         public Uri ServiceAddress = new Uri(@"http://localhost:5555");
 
-        public ImageGenHelper ImageGenerator = new ImageGenHelper(BrowserPool.Create());
+        private static readonly BrowserPool BrowserPool = BrowserPool.Create();
+
+        public ImageGenHelper ImageGenerator = new ImageGenHelper(BrowserPool);
 
         private ImageGenService()
         {
@@ -52,6 +54,7 @@ namespace ImageRenderService.ImageGen
             {
                 _server.CloseAsync().Wait();
                 _server.Dispose();
+                BrowserPool.Dispose();
             }
             catch (Exception e)
             {

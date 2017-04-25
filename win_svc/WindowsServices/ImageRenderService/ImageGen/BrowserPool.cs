@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,7 +7,7 @@ using CefSharp.OffScreen;
 
 namespace ImageRenderService.ImageGen
 {
-    public class BrowserPool : IBrowserPool
+    public class BrowserPool : IBrowserPool, IDisposable
     {
         private static BrowserPool _instance;
 
@@ -63,6 +64,14 @@ namespace ImageRenderService.ImageGen
         {
             _freeBrowsers.Add(browser);
             _browserPool.Release(1);
+        }
+
+        public void Dispose()
+        {
+            foreach (var chromiumWebBrowser in _freeBrowsers)
+            {
+                chromiumWebBrowser.Dispose();
+            }
         }
     }
 }

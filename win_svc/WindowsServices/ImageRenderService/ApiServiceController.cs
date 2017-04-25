@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Mail;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
@@ -23,13 +24,24 @@ namespace ImageRenderService
 
             //generate image
             var image = await ImageGenService.Instance.ImageGenerator.GenerateImageAsync(url, format);
-            var content = new ByteArrayContent(image);
+            var content = new StreamContent(image);
+
+            image.Position = 0;
 
             //crate response
             var mimeType = format.Equals(ImageFormat.Jpeg) ? MimeMapping.GetMimeMapping(".jpeg") : MimeMapping.GetMimeMapping(".png");
             var response = Request.CreateResponse(HttpStatusCode.OK, true);
+
+
             response.Content = content;
             response.Content.Headers.ContentType = new MediaTypeHeaderValue(mimeType);
+
+            response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+            {
+                FileName = "test."+formatStr
+            };
+            response.Content.Headers.ContentLength = image.Length;
+
             return response;
         }
 

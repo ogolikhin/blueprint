@@ -20,41 +20,35 @@ namespace ImageRenderService.ImageGen
             _browserPool = browserPool;
         }
 
-        public async Task<byte[]> GenerateImageAsync(string url, ImageFormat format)
+        public async Task<MemoryStream> GenerateImageAsync(string url, ImageFormat format)
         {
-            byte[] image = null;
             ChromiumWebBrowser browser = await _browserPool.Rent();
 
             await LoadPageAsync(browser, url);
 
             // Wait for the screen shot to be taken.
             var task = browser.ScreenshotAsync();
+            MemoryStream imageStream = new MemoryStream();
             await task.ContinueWith(x =>
             {
-                using (var ms = new MemoryStream())
+                if (format.Equals(ImageFormat.Jpeg))
                 {
-                    if (format.Equals(ImageFormat.Jpeg))
-                    {
-                        Bitmap tempImage = DrawImageOnWhiteBackground(task.Result, 1920, 1080);
-                        tempImage.Save(ms, ImageFormat.Jpeg);
-                        tempImage.Dispose();
-                    }
-                    else
-                    {
-                        task.Result.Save(ms, ImageFormat.Png);
-                    }
-                    image = ms.ToArray();
+                    Bitmap tempImage = DrawImageOnWhiteBackground(task.Result, 1920, 1080);
+                    tempImage.Save(imageStream, ImageFormat.Jpeg);
+                    tempImage.Dispose();
                 }
-
+                else
+                {
+                    task.Result.Save(imageStream, ImageFormat.Png);
+                }
                 //We no longer need the Bitmap.
                 // Dispose it to avoid keeping the memory alive.  Especially important in 32 - bit applications.
                 task.Result.Dispose();
+
+                _browserPool.Return(browser);
+                
             }, TaskScheduler.Default);
-
-            //return browser to the pool
-            _browserPool.Return(browser);
-
-            return image;
+            return imageStream;
         }
 
         //This is needed from rendering transparent background as black

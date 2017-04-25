@@ -8,6 +8,7 @@ using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
 using System.Linq;
 using System.Net;
+using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
 
 namespace ArtifactStore.Controllers
@@ -184,6 +185,15 @@ namespace ArtifactStore.Controllers
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             return await ArtifactRepository.GetBaselineInfo(artifactIds, session.UserId, true, int.MaxValue);
+        }
+
+        [HttpGet, NoCache]
+        [Route("artifacts/{artifactId:int:min(1)}/transitions"), SessionRequired]
+        [ActionName("GetTransitions")]
+        public async Task<IEnumerable<Transitions>> GetTransitions(int artifactId)
+        {
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            return await ArtifactRepository.GetTransitions(artifactId, session.UserId);
         }
     }
 }

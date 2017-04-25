@@ -61,7 +61,7 @@ namespace Helper
         /// <param name="isSuspectExpected">(optional) Flag indicating whether the relationship is expected to be suspect (Default: false)</param>
         public static void AssertPersonaReferenceRelationshipIsCorrect(Relationship relationship, 
             IProject actorArtifactProject, 
-            NovaArtifactDetails actorArtifact,
+            NovaArtifactBase actorArtifact,
             bool isReadOnlyExpected = false,
             bool isSuspectExpected = false
             )

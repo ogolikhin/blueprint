@@ -143,9 +143,6 @@ namespace StorytellerTests
             // Verify:
             // Assert that the number of UserTasks from the published Process is equal to the number of UserStoryGenerated or Updated
             ValidateGeneratedUserStories(returnedNovaProcess, userStories);
-            Assert.That(userStories.Count == userTasksOnProcess,
-                "The number of UserStories generated from the process is {0} but The process has {1} UserTasks.",
-                userStories.Count, userTasksOnProcess);
         }
 
         [TestCase(NumberOfAdditionalUserTasks)]
@@ -396,7 +393,9 @@ namespace StorytellerTests
             ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
             ThrowIf.ArgumentNull(userStories, nameof(userStories));
 
-            foreach (var shape in novaProcess.Process.GetProcessShapesByShapeType(ProcessShapeType.UserTask))
+            var UserTaskShapesInNovaProcess = novaProcess.Process.GetProcessShapesByShapeType(ProcessShapeType.UserTask);
+
+            foreach (var shape in UserTaskShapesInNovaProcess)
             {
                 var userStoryCounter = 0;
 
@@ -422,6 +421,10 @@ namespace StorytellerTests
                 Assert.AreNotEqual(0, userStoryCounter, "No UserStory matches with the UserTask whose ID: {0} is created", shape.Id);
                 Assert.AreEqual(1,userStoryCounter, "More than one UserStories are generated for the UserTask whose ID: {0}.", shape.Id);
             }
+
+            Assert.AreEqual(UserTaskShapesInNovaProcess.Count, userStories.Count,
+                "The expected number of generated UserStories is {0} but The actual number of generated UserStories is {1}.",
+                UserTaskShapesInNovaProcess.Count, userStories.Count);
         }
 
         /// <summary>
@@ -477,17 +480,15 @@ namespace StorytellerTests
         /// </summary>
         /// <param name="novaProcess">the nova process to update</param>
         /// <param name="additionalUserTasks">the number of UserTasks to add</param>
-        /// <returns>the  updated nova process with additonal user tasks</returns>
+        /// <returns>the updated nova process with additonal user tasks</returns>
         private NovaProcess GetNovaProcessWithAdditionalShapes(NovaProcess novaProcess, int additionalUserTasks)
         {
             ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
 
             AddUserTasksToNovaProcess(novaProcess, additionalUserTasks);
-            Helper.Storyteller.UpdateNovaProcess(_user, novaProcess);
-
             // Publish the updated Process
-            var artifact = new Artifact(Helper.ArtifactStore.Address, novaProcess.Id, _project.Id);
-            Helper.ArtifactStore.PublishArtifact(artifact, _user);
+            var updatedNovaProcess = Helper.Storyteller.UpdateNovaProcess(_user, novaProcess);
+            Helper.Storyteller.PublishNovaProcess(_user, updatedNovaProcess);
 
             // Get the updated nova process
             return Helper.Storyteller.GetNovaProcess(_user, novaProcess.Id);

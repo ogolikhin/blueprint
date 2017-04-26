@@ -65,6 +65,10 @@
       <HintPath>..\..\..\packages\Moq.4.7.8\lib\net45\Moq.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\packages\Newtonsoft.Json.8.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
   </ItemGroup>
@@ -83,7 +87,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-	<Compile Include="..\..\..\svc\SolutionAssemblyInfo.cs">
+    <Compile Include="..\..\..\svc\SolutionAssemblyInfo.cs">
       <Link>Properties\SolutionAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="..\..\..\svc\SolutionAssemblyVersion.cs">
@@ -91,6 +95,7 @@
     </Compile>
     <Compile Include="ImageGen\BrowserPoolTest.cs" />
     <Compile Include="ImageGen\ImageGenHelperTest.cs" />
+    <Compile Include="ImageGen\TestableChromiumWebBrowser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

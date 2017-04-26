@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using CustomAttributes;
 using Helper;
 using Model;
 using Model.ModelHelpers;
 using NUnit.Framework;
 using System.Linq;
-using System.Net;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
@@ -39,7 +37,7 @@ namespace SearchServiceTests
             Helper = new TestHelper();
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _user2 = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            _projects = ProjectFactory.GetAllProjects(_user, true);
+            _projects = ProjectFactory.GetAllProjects(_user, true, true);
             _artifacts = SearchServiceTestHelper.SetupFullTextSearchData(_projects, _user, Helper);
         }
 
@@ -183,34 +181,36 @@ namespace SearchServiceTests
             ValidateSearchMetadataTest(fullTextSearchMetaDataResult, searchCriteria, "Name");
         }
 
-        [TestCase(new[] { BaseArtifactType.Actor })]
-        [TestCase(new[] { BaseArtifactType.Actor, BaseArtifactType.Document, BaseArtifactType.Process })]
+        [TestCase(new[] { ItemTypePredefined.Actor })]
+        [TestCase(new[] { ItemTypePredefined.Document, ItemTypePredefined.ArtifactBaseline })]
+        [TestCase(new[] { ItemTypePredefined.TextualRequirement, ItemTypePredefined.ArtifactCollection })]
+        [TestCase(new[] { ItemTypePredefined.Actor, ItemTypePredefined.Document, ItemTypePredefined.Process })]
         [TestCase(new[] {
-            BaseArtifactType.Actor,
-            BaseArtifactType.Document,
-            BaseArtifactType.Process,
-            BaseArtifactType.DomainDiagram,
-            BaseArtifactType.BusinessProcess,
-            BaseArtifactType.GenericDiagram,
-            BaseArtifactType.Glossary,
-            BaseArtifactType.PrimitiveFolder,
-            BaseArtifactType.Storyboard,
-            BaseArtifactType.TextualRequirement,
-            BaseArtifactType.UIMockup,
-            BaseArtifactType.UseCase,
-            BaseArtifactType.UseCaseDiagram })]
+            ItemTypePredefined.Actor,
+            ItemTypePredefined.Document,
+            ItemTypePredefined.Process,
+            ItemTypePredefined.DomainDiagram,
+            ItemTypePredefined.BusinessProcess,
+            ItemTypePredefined.GenericDiagram,
+            ItemTypePredefined.Glossary,
+            ItemTypePredefined.PrimitiveFolder,
+            ItemTypePredefined.Storyboard,
+            ItemTypePredefined.TextualRequirement,
+            ItemTypePredefined.UIMockup,
+            ItemTypePredefined.UseCase,
+            ItemTypePredefined.UseCaseDiagram })]
         [TestRail(182253)]
         [Description("Search over specific artifact types. Executed search must return search metadata result that match only the artifact .")]
-        public void FullTextSearchMetadata_SearchMetadataForSpecificItemTypes_VerifySearchMetadataResultIncludesOnlyTypesSpecified(BaseArtifactType[] baseArtifactTypes)
+        public void FullTextSearchMetadata_SearchMetadataForSpecificItemTypes_VerifySearchMetadataResultIncludesOnlyTypesSpecified(ItemTypePredefined[] artifactTypes)
         {
-            ThrowIf.ArgumentNull(baseArtifactTypes, nameof(baseArtifactTypes));
+            ThrowIf.ArgumentNull(artifactTypes, nameof(artifactTypes));
 
             // Setup: 
             string description = _artifacts[0].Description;
 
             // Search for Description property value which is common to all artifacts
             var searchTerm = StringUtilities.ConvertHtmlToText(description);
-            var itemTypeIds = SearchServiceTestHelper.GetItemTypeIdsForBaseArtifactTypes(_projects, baseArtifactTypes.ToList());
+            var itemTypeIds = SearchServiceTestHelper.GetItemTypeIdsForBaseArtifactTypes(_projects, artifactTypes.ToList());
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id), itemTypeIds);
 
             // Execute: Execute FullTextSearch with search term

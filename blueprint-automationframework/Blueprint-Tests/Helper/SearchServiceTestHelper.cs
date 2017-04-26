@@ -170,18 +170,18 @@ namespace Helper
         /// <param name="baseArtifactTypes"></param>
         /// <returns>List of ItemTypeId</returns>
         public static List<int> GetItemTypeIdsForBaseArtifactTypes(List<IProject> projects,
-            List<BaseArtifactType> baseArtifactTypes)
+            List<ItemTypePredefined> artifactTypes)
         {
             ThrowIf.ArgumentNull(projects, nameof(projects));
-            ThrowIf.ArgumentNull(baseArtifactTypes, nameof(baseArtifactTypes));
+            ThrowIf.ArgumentNull(artifactTypes, nameof(artifactTypes));
 
             var itemTypeIds = new List<int>();
 
-            foreach (var baseArtifactType in baseArtifactTypes)
+            foreach (var baseArtifactType in artifactTypes)
             {
                 foreach (var project in projects)
                 {
-                    var itemTypeId = GetItemTypeIdForBaseArtifactType(project.ArtifactTypes, baseArtifactType);
+                    var itemTypeId = GetItemTypeIdForBaseArtifactType(project.NovaArtifactTypes, baseArtifactType);
 
                     itemTypeIds.Add(itemTypeId);
                 }
@@ -198,22 +198,12 @@ namespace Helper
         /// <param name="artifactTypeName"></param>
         /// <returns>An ItemTypeId</returns>
         public static int GetItemTypeIdForBaseArtifactType(
-            List<OpenApiArtifactType> artifactTypes,
-            BaseArtifactType baseArtifactType,
-            string artifactTypeName = null)
+            List<NovaArtifactType> artifactTypes,
+            ItemTypePredefined baseArtifactType)
         {
             ThrowIf.ArgumentNull(artifactTypes, nameof(artifactTypes));
 
-            OpenApiArtifactType artifactType;
-
-            if (artifactTypeName == null)
-            {
-                artifactType = artifactTypes.Find(t => t.BaseArtifactType == baseArtifactType);
-            }
-            else
-            {
-                artifactType = artifactTypes.Find(t => t.BaseArtifactType == baseArtifactType && t.Name == artifactTypeName);
-            }
+            var artifactType = artifactTypes.Find(t => t.PredefinedType == baseArtifactType);
 
             return artifactType.Id;
         }

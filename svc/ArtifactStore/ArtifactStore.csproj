@@ -127,6 +127,8 @@
     <Compile Include="Models\RelationshipResultSet.cs" />
     <Compile Include="Models\ReviewRelationshipResultSet.cs" />
     <Compile Include="Models\Review\ReviewArtifactsStatus.cs" />
+    <Compile Include="Models\Review\Reviewer.cs" />
+    <Compile Include="Models\Review\ReviwerRole.cs" />
     <Compile Include="Models\Review\ReviewContainer.cs" />
     <Compile Include="Models\Review\ReviewContent.cs" />
     <Compile Include="Models\Review\ReviewSource.cs" />

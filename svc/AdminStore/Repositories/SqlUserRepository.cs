@@ -258,6 +258,9 @@ namespace AdminStore.Repositories
                     case (int)SqlErrorCodes.GeneralSqlError:
                         throw new BadRequestException(ErrorMessages.GeneralErrorOfUpdatingUser);
 
+                    case (int)SqlErrorCodes.UserLoginExist:
+                        throw new BadRequestException(ErrorMessages.LoginNameUnique);
+
                     case (int)SqlErrorCodes.UserLoginNotExist:
                         throw new ResourceNotFoundException(ErrorMessages.UserNotExist);
 

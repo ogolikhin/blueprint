@@ -117,8 +117,9 @@
     <Compile Include="Helpers\ModelValidator.cs" />
     <Compile Include="Helpers\PermissionsChecker.cs" />
     <Compile Include="Helpers\SessionHelper.cs" />
-    <Compile Include="Models\CreationUserDto.cs" />
-    <Compile Include="Models\UpdateUserDto.cs" />
+    <Compile Include="Helpers\UserConverter.cs" />
+    <Compile Include="Helpers\UserPermissionsValidator.cs" />
+    <Compile Include="Helpers\UserValidator.cs" />
     <Compile Include="Models\UserDto.cs" />
     <Compile Include="Helpers\EmailHelper.cs" />
     <Compile Include="Helpers\HashingUtilities.cs" />

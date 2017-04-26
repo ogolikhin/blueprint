@@ -30,8 +30,7 @@ namespace AdminStore.Controllers
         private UsersController _controller;
         private Mock<IHttpClientProvider> _httpClientProviderMock;
         private Mock<ISqlPrivilegesRepository> _privilegesRepository;
-        private CreationUserDto _creationUser;
-        private UpdateUserDto _updateUser;
+        private UserDto _user;
 
         private const int FullPermissions = 524287;
         private const int NoManageUsersPermissions = 13312;
@@ -60,7 +59,7 @@ namespace AdminStore.Controllers
             _controller.Request.Properties[ServiceConstants.SessionProperty] = session;
             _controller.Request.RequestUri = new Uri("http://localhost");
 
-            _creationUser = new CreationUserDto()
+            _user = new UserDto()
             {
                 Login = "UserLogin",
                 FirstName = "FirstNameValue",
@@ -71,31 +70,13 @@ namespace AdminStore.Controllers
                 AllowFallback = false,
                 Enabled = true,
                 ExpirePassword = true,
-                NewPassword  = "MTIzNFJFV1EhQCMk",
+                Password  = "MTIzNFJFV1EhQCMk",
                 Title = "TitleValue",
                 Department = "Departmentvalue",
                 GroupMembership = new int[] { 1 },
                 Guest = false
             };
 
-            _updateUser = new UpdateUserDto()
-            {
-                Login = "UserLoginUpdate",
-                FirstName = "FirstNameUpdate",
-                LastName = "LastNameValue",
-                DisplayName = "DisplayNameValueUpdate",
-                Email = "email@test.com",
-                Source = UserGroupSource.Database,
-                AllowFallback = false,
-                Enabled = true,
-                ExpirePassword = true,
-                NewPassword = "MTIzNFJFV1EhQCMk",
-                Title = "TitleValueUpdate",
-                Department = "DepartmentvalueUpdate",
-                GroupMembership = new int[] { 1 },
-                Guest = false,
-                CurrentVersion = 1
-            };
             _usersRepoMock
                 .Setup(repo => repo.AddUserAsync(It.Is<User>(u => u.Login != ExistedUserLogin)))
                 .ReturnsAsync(UserId);
@@ -972,7 +953,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(FullPermissions);
 
             // Act
-            var result = await _controller.PostUser(_creationUser);
+            var result = await _controller.PostUser(_user);
 
             // Assert
             Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
@@ -989,7 +970,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(NoManageUsersPermissions);
 
             // Act
-            await _controller.PostUser(_creationUser);
+            await _controller.PostUser(_user);
 
             // Assert
             // Exception
@@ -1000,13 +981,13 @@ namespace AdminStore.Controllers
         public async Task PostUser_NoAssignAdminRolesPermissions_ReturnForbiddenErrorResult()
         {
             // Arrange
-            _creationUser.InstanceAdminRoleId = 1;
+            _user.InstanceAdminRoleId = 1;
             _privilegesRepository
                 .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
                 .ReturnsAsync(NoAssignAdminRolesPermissions);
 
             // Act
-            await _controller.PostUser(_creationUser);
+            await _controller.PostUser(_user);
 
             // Assert
             // Exception
@@ -1017,13 +998,13 @@ namespace AdminStore.Controllers
         public async Task PostUser_UserLoginEmpty_ReturnBadRequestResult()
         {
             // Arrange
-            _creationUser.Login = string.Empty;
+            _user.Login = string.Empty;
             _privilegesRepository
                 .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
                 .ReturnsAsync(FullPermissions);
 
             // Act
-            await _controller.PostUser(_creationUser);
+            await _controller.PostUser(_user);
 
             // Assert
             // Exception
@@ -1034,13 +1015,13 @@ namespace AdminStore.Controllers
         public async Task PostUser_UserLoginOutOfRangeLengthString_ReturnBadRequestResult()
         {
             // Arrange
-            _creationUser.Login = "123";
+            _user.Login = "123";
             _privilegesRepository
                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
                .ReturnsAsync(FullPermissions);
 
             // Act
-            await _controller.PostUser(_creationUser);
+            await _controller.PostUser(_user);
 
             // Assert
             // Exception
@@ -1051,13 +1032,13 @@ namespace AdminStore.Controllers
         public async Task PostUser_UserLoginAlreadyExist_ReturnBadRequestResult()
         {
             // Arrange
-            _creationUser.Login = ExistedUserLogin;
+            _user.Login = ExistedUserLogin;
             _privilegesRepository
                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
                .ReturnsAsync(FullPermissions);
 
             // Act
-            await _controller.PostUser(_creationUser);
+            await _controller.PostUser(_user);
 
             // Assert
             // Exception
@@ -1068,13 +1049,13 @@ namespace AdminStore.Controllers
         public async Task PostUser_DisplayNameEmpty_ReturnBadRequestResult()
         {
             // Arrange
-            _creationUser.DisplayName = string.Empty;
+            _user.DisplayName = string.Empty;
             _privilegesRepository
               .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
               .ReturnsAsync(FullPermissions);
 
             // Act
-            await _controller.PostUser(_creationUser);
+            await _controller.PostUser(_user);
 
             // Assert
             // Exception
@@ -1085,13 +1066,13 @@ namespace AdminStore.Controllers
         public async Task PostUser_DisplayNameOutOfRangeStringLength_ReturnBadRequestResult()
         {
             // Arrange
-            _creationUser.DisplayName = "1";
+            _user.DisplayName = "1";
             _privilegesRepository
               .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
               .ReturnsAsync(FullPermissions);
 
             // Act
-            await _controller.PostUser(_creationUser);
+            await _controller.PostUser(_user);
 
             // Assert
             // Exception
@@ -1102,13 +1083,13 @@ namespace AdminStore.Controllers
         public async Task PostUser_FirstNameEmpty_ReturnBadRequestResult()
         {
             // Arrange
-            _creationUser.FirstName = string.Empty;
+            _user.FirstName = string.Empty;
             _privilegesRepository
               .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
               .ReturnsAsync(FullPermissions);
 
             // Act
-            await _controller.PostUser(_creationUser);
+            await _controller.PostUser(_user);
 
             // Assert
             // Exception
@@ -1119,13 +1100,13 @@ namespace AdminStore.Controllers
         public async Task PostUser_FirstNameOutOfRangeStringLength_ReturnBadRequestResult()
         {
             // Arrange
-            _creationUser.FirstName = "1";
+            _user.FirstName = "1";
             _privilegesRepository
               .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
               .ReturnsAsync(FullPermissions);
 
             // Act
-            await _controller.PostUser(_creationUser);
+            await _controller.PostUser(_user);
 
             // Assert
             // Exception
@@ -1136,13 +1117,13 @@ namespace AdminStore.Controllers
         public async Task PostUser_LastNameEmpty_ReturnBadRequestResult()
         {
             // Arrange
-            _creationUser.LastName = string.Empty;
+            _user.LastName = string.Empty;
             _privilegesRepository
               .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
               .ReturnsAsync(FullPermissions);
 
             // Act
-            await _controller.PostUser(_creationUser);
+            await _controller.PostUser(_user);
 
             // Assert
             // Exception
@@ -1153,13 +1134,13 @@ namespace AdminStore.Controllers
         public async Task PostUser_LastNameOutOfRangeStringLength_ReturnBadRequestResult()
         {
             // Arrange
-            _creationUser.LastName = "1";
+            _user.LastName = "1";
             _privilegesRepository
               .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
               .ReturnsAsync(FullPermissions);
 
             // Act
-            await _controller.PostUser(_creationUser);
+            await _controller.PostUser(_user);
 
             // Assert
             // Exception
@@ -1170,13 +1151,13 @@ namespace AdminStore.Controllers
         public async Task PostUser_EmailOutOfRangeStringLength_ReturnBadRequestResult()
         {
             // Arrange
-            _creationUser.Email = "1@1";
+            _user.Email = "1@1";
             _privilegesRepository
              .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
              .ReturnsAsync(FullPermissions);
 
             // Act
-            await _controller.PostUser(_creationUser);
+            await _controller.PostUser(_user);
 
             // Assert
             // Exception
@@ -1187,13 +1168,13 @@ namespace AdminStore.Controllers
         public async Task PostUser_TitleOutOfRangeStringLength_ReturnBadRequestResult()
         {
             // Arrange
-            _creationUser.Title = "1";
+            _user.Title = "1";
             _privilegesRepository
              .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
              .ReturnsAsync(FullPermissions);
 
             // Act
-            await _controller.PostUser(_creationUser);
+            await _controller.PostUser(_user);
 
             // Assert
             // Exception
@@ -1206,14 +1187,14 @@ namespace AdminStore.Controllers
             // Arrange
             for (var i = 0; i < 258; i++)
             {
-                _creationUser.Department += i;
+                _user.Department += i;
             }
             _privilegesRepository
               .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
               .ReturnsAsync(FullPermissions);
 
             // Act
-            await _controller.PostUser(_creationUser);
+            await _controller.PostUser(_user);
 
             // Assert
             // Exception
@@ -1224,13 +1205,13 @@ namespace AdminStore.Controllers
         public async Task PostUser_PasswordEmpty_ReturnBadRequestResult()
         {
             // Arrange
-            _creationUser.NewPassword = string.Empty;
+            _user.Password = string.Empty;
             _privilegesRepository
                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
                .ReturnsAsync(FullPermissions);
 
             // Act
-            await _controller.PostUser(_creationUser);
+            await _controller.PostUser(_user);
 
             // Assert
             // Exception
@@ -1241,13 +1222,13 @@ namespace AdminStore.Controllers
         public async Task PostUser_PasswordContainsOnlyAlphanumericCharacters_ReturnBadRequestResult()
         {
             // Arrange
-            _creationUser.NewPassword = "MTIzNDU2Nzg=";
+            _user.Password = "MTIzNDU2Nzg=";
             _privilegesRepository
                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
                .ReturnsAsync(FullPermissions);
 
             // Act
-            await _controller.PostUser(_creationUser);
+            await _controller.PostUser(_user);
 
             // Assert
             // Exception
@@ -1265,7 +1246,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(FullPermissions);
 
             // Act
-            var result = await _controller.UpdateUser(UserId, _updateUser);
+            var result = await _controller.UpdateUser(UserId, _user);
 
             // Assert
             Assert.IsNotNull(result);
@@ -1285,7 +1266,7 @@ namespace AdminStore.Controllers
             _usersRepoMock.Setup(repo => repo.UpdateUserAsync(It.IsAny<User>())).Throws(resourceNotFoundExeption);
 
             // Act
-            await _controller.UpdateUser(UserId, _updateUser);
+            await _controller.UpdateUser(UserId, _user);
 
             // Assert
             // Exception
@@ -1304,7 +1285,7 @@ namespace AdminStore.Controllers
             _usersRepoMock.Setup(repo => repo.UpdateUserAsync(It.IsAny<User>())).Throws(conflictExeption);
 
             // Act
-            await _controller.UpdateUser(UserId, _updateUser);
+            await _controller.UpdateUser(UserId, _user);
 
             // Assert
             // Exception
@@ -1320,7 +1301,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(FullPermissions);
 
             // Act
-            await _controller.UpdateUser(0, _updateUser);
+            await _controller.UpdateUser(0, _user);
 
             // Assert
             // Exception

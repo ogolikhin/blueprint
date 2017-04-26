@@ -405,8 +405,8 @@ namespace AdminStore.Controllers
         [HttpPost]
         [SessionRequired]
         [ResponseType(typeof(int))]
-        [Route(""), BaseExceptionFilter]
-        public async Task<HttpResponseMessage> PostUser([FromBody] CreationUserDto user)
+        [Route("")]
+        public async Task<HttpResponseMessage> PostUser([FromBody] UserDto user)
         {
             var sessionUserId = SessionHelper.GetUserIdFromSession(Request);
 
@@ -415,7 +415,7 @@ namespace AdminStore.Controllers
                 throw new BadRequestException(ErrorMessages.UserModelIsEmpty, ErrorCodes.BadRequest);
             }
 
-            if (!(await UsersHelper.HasValidPermissions(sessionUserId, user, _privilegesRepository)))
+            if (!(await UserPermissionsValidator.HasValidPermissions(sessionUserId, user, _privilegesRepository)))
             {
                 throw new AuthorizationException(ErrorMessages.UserDoesNotHavePermissions, ErrorCodes.Forbidden);
             }
@@ -442,8 +442,8 @@ namespace AdminStore.Controllers
         [HttpPut]
         [SessionRequired]
         [ResponseType(typeof (HttpResponseMessage))]
-        [Route("{userId:int}"), BaseExceptionFilter]
-        public async Task<IHttpActionResult> UpdateUser(int userId, [FromBody] UpdateUserDto user)
+        [Route("{userId:int}")]
+        public async Task<IHttpActionResult> UpdateUser(int userId, [FromBody] UserDto user)
         {
             var sessionUserId = SessionHelper.GetUserIdFromSession(Request);
 
@@ -457,7 +457,7 @@ namespace AdminStore.Controllers
                 throw new BadRequestException(ErrorMessages.UserModelIsEmpty, ErrorCodes.BadRequest);
             }
 
-            if (!(await UsersHelper.HasValidPermissions(sessionUserId, user, _privilegesRepository)))
+            if (!(await UserPermissionsValidator.HasValidPermissions(sessionUserId, user, _privilegesRepository)))
             {
                 throw new AuthorizationException(ErrorMessages.UserDoesNotHavePermissions, ErrorCodes.Forbidden);
             }

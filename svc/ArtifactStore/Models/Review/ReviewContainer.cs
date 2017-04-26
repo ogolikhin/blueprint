@@ -1,4 +1,6 @@
-﻿namespace ArtifactStore.Models.Review
+﻿using Newtonsoft.Json;
+
+namespace ArtifactStore.Models.Review
 {
     public class ReviewContainer
     {
@@ -6,6 +8,7 @@
 
         public string Name { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Description { get; set; }
 
         public int TotalArtifacts { get; set; }
@@ -15,6 +18,8 @@
         public ReviewSourceType SourceType { get; set; }
 
         public ReviewSource Source { get; set; }
+
+        public ReviewStatus Status { get; set; }
 
         public ReviewArtifactsStatus ArtifactsStatus { get; set; }
     }

@@ -10,6 +10,7 @@ namespace ImageRenderService.ImageGen
     public class BrowserPool : IBrowserPool, IDisposable
     {
         private static BrowserPool _instance;
+        private const int MaxWaitTimeSeconds = 10;
 
         private BrowserPool()
         {
@@ -32,7 +33,7 @@ namespace ImageRenderService.ImageGen
 
         public async Task<ChromiumWebBrowser> Rent()
         {
-            if (!_browserPool.WaitOne(10000))
+            if (!_browserPool.WaitOne(MaxWaitTimeSeconds*1000))
             {
                 return null;
             }

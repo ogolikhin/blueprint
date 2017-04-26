@@ -15,6 +15,9 @@ namespace ImageRenderService.ImageGen
         private readonly Dictionary<ChromiumWebBrowser, TaskCompletionSource<bool>> 
             _tcs = new Dictionary<ChromiumWebBrowser, TaskCompletionSource<bool>>();
 
+        private const int MaxWaitTimeSeconds = 10;
+        private const int DelayIntervalMilliseconds = 10;
+
         public ImageGenHelper(IBrowserPool browserPool)
         {
             _browserPool = browserPool;
@@ -109,17 +112,15 @@ namespace ImageRenderService.ImageGen
 
             //-----------------------------------------------------------------------------------------
             // The way how to detect when the browser resizing is completed, with the timeout ~ 10 sec.
-            var i = 10;
-            while (true)
+            for (var i = 0; i < MaxWaitTimeSeconds * 1000 / DelayIntervalMilliseconds; i++)
             {
-                if ((browser.Bitmap.Width == eW && browser.Bitmap.Height == eH)
-                    || i > 1000)
+                if (browser.Bitmap.Width == eW && browser.Bitmap.Height == eH)
                 {
                     break;
                 }
-                await Task.Delay(10);
-                i++;
+                await Task.Delay(DelayIntervalMilliseconds);
             }
+           
             //-----------------------------------------------------------------------------------------
 
             return true;

@@ -132,52 +132,16 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, ItemIndicatorFlags.HasAttachmentsOrDocumentRefs);
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, ItemIndicatorFlags.HasAttachmentsOrDocumentRefs, userTask.Id);
         }
-        /*
-        [TestCase]
-        [TestRail(190742)]
-        [Description("Create a Process artifact, add attachment, publish it, add attachment to User task & publish, get attachments for User task.  " +
-                     "Verify only the User Task's attachment is returned.")]
-        public void AddAttachmentToSubArtifactOpenAPI_ArtifactWithAttachments_NoErrors()
-        {
-            // Setup:
-            var artifact = Helper.CreateNovaArtifact(_adminUser, _project, ItemTypePredefined.Process);
-            var addedArtifactAttachment = Helper.OpenApi.AddArtifactAttachment(_adminUser, _project.Id, artifact.Id, _attachmentFile);
-
-            Assert.NotNull(addedArtifactAttachment, "Failed to add attachment to the artifact!");
-            Assert.AreEqual(_attachmentFile.FileName, addedArtifactAttachment.FileName, "The FileName of the attached file doesn't match!");
-
-            artifact.Publish(_adminUser);
-
-            var process = Helper.Storyteller.GetProcess(_adminUser, artifact.Id);
-            var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
-            var file2 = FileStoreTestHelper.CreateFileWithRandomByteArray(_fileSize, _fileName, "text/plain");
-
-            // Execute:
-            Assert.DoesNotThrow(() => { artifact.AddSubArtifactAttachment(userTask.Id, file2, _adminUser); },
-                "Adding attachment shouldn't throw an error.");
-
-            artifact.Publish();
-
-            // Verify:
-            var attachment = Helper.ArtifactStore.GetAttachments(artifact, _adminUser, subArtifactId: userTask.Id);
-            Assert.AreEqual(1, attachment.AttachedFiles.Count, "List of attached files must have 1 item.");
-
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_adminUser, artifact.Id);
-            Assert.AreEqual(attachment.AttachedFiles[0].UploadedDate, artifactDetails.LastEditedOn,
-                "UploadedDate for published artifact's attachment should be equal to LastEditedOn date of artifact");
-
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, ItemIndicatorFlags.HasAttachmentsOrDocumentRefs);
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, ItemIndicatorFlags.HasAttachmentsOrDocumentRefs, userTask.Id);
-        }
-        */
-        [TestCase]
+        
+        [TestCase(ItemTypePredefined.Process)]
+        [TestCase(ItemTypePredefined.UseCase)]
         [TestRail(154648)]
         [Description("Create a Use Case artifact, add attachment, publish it, add attachment to Precondition (subArtifact) & publish, get attachments for Precondition.  " +
                      "Verify only the Precondition's attachment is returned.")]
-        public void GetAttachmentWithSubArtifactId_ArtifactAndSubArtifactWithAttachments_OnlySubArtifactAttachmentIsReturned()
+        public void GetAttachmentWithSubArtifactId_ArtifactAndSubArtifactWithAttachments_OnlySubArtifactAttachmentIsReturned(ItemTypePredefined artifactType)
         {
             // Setup:
-            var artifact = Helper.CreateNovaArtifact(_adminUser, _project, ItemTypePredefined.UseCase);
+            var artifact = Helper.CreateNovaArtifact(_adminUser, _project, artifactType);
             var novaAttachmentFile = FileStoreTestHelper.UploadNovaFileToFileStore(_adminUser, _fileName, _fileType, defaultExpireTime, Helper.FileStore);
             var addedArtifactAttachment = ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, novaAttachmentFile, Helper.ArtifactStore, shouldLockArtifact: false);
 

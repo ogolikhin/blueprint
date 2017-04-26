@@ -892,12 +892,12 @@ namespace AdminStore.Controllers
         public async Task GetUser_AllParamsAreCorrectAndPermissionsOk_RepositoryReturnUser()
         {
             //arrange
-            var user = new User() { UserId = 5 };
-            _usersRepoMock.Setup(repo => repo.GetUser(It.Is<int>(i => i > 0))).ReturnsAsync(user);
+            var user = new UserDto() { UserId = 5 };
+            _usersRepoMock.Setup(repo => repo.GetUserDto(It.Is<int>(i => i > 0))).ReturnsAsync(user);
             _privilegesRepository.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(true);
 
             //act
-            var result = await _controller.GetUser(5) as OkNegotiatedContentResult<User>;
+            var result = await _controller.GetUser(5) as OkNegotiatedContentResult<UserDto>;
 
             //assert
             Assert.AreEqual(user, result.Content);
@@ -929,8 +929,8 @@ namespace AdminStore.Controllers
         public async Task GetUser_ThereIsNoSuchUser_NotFoundResult()
         {
             //arrange
-            var user = new User();
-            _usersRepoMock.Setup(repo => repo.GetUser(It.Is<int>(i => i > 0))).ReturnsAsync(user);
+            var user = new UserDto();
+            _usersRepoMock.Setup(repo => repo.GetUserDto(It.Is<int>(i => i > 0))).ReturnsAsync(user);
             _privilegesRepository.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(true);
 
             //act

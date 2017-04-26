@@ -169,6 +169,12 @@ namespace AdminStore.Repositories
             return enumerable.Any() ? enumerable.First() : new User();
         }
 
+        public async Task<UserDto> GetUserDto(int userId)
+        {
+            var user = await GetUser(userId);
+            return UserMapper.Map(user);
+        }
+
         public async Task<bool> HasUserExceededPasswordRequestLimitAsync(string login)
         {
             const int passwordRequestLimit = 3;

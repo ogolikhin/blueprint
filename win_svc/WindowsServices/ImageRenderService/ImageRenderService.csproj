@@ -93,6 +93,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
@@ -109,13 +110,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-	<Compile Include="..\..\..\svc\SolutionAssemblyInfo.cs">
+    <Compile Include="..\..\..\svc\SolutionAssemblyInfo.cs">
       <Link>Properties\SolutionAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="..\..\..\svc\SolutionAssemblyVersion.cs">
       <Link>Properties\SolutionAssemblyVersion.cs</Link>
     </Compile>
     <Compile Include="ApiServiceController.cs" />
+    <Compile Include="Helpers\ServiceConfiguration.cs" />
     <Compile Include="ImageGen\BrowserPool.cs" />
     <Compile Include="ImageGen\IBrowserPool.cs" />
     <Compile Include="ImageGen\IImageGenHelper.cs" />
@@ -123,6 +125,7 @@
     <Compile Include="ImageGen\ImageGenService.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Helpers\ServiceHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

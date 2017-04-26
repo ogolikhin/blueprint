@@ -1,4 +1,5 @@
 ﻿using CefSharp;
+using ImageRenderService.Helpers;
 using ImageRenderService.ImageGen;
 using Topshelf;
 
@@ -24,8 +25,8 @@ namespace ImageRenderService
                 x.RunAsLocalSystem();
 
                 x.SetDescription("Generate Process images.");
-                x.SetDisplayName("CefSharp Image Generator");
-                x.SetServiceName("CefSharpImageGen");
+                x.SetDisplayName($"{ServiceHelper.ServiceName} service");
+                x.SetServiceName(ServiceHelper.ServiceName);
             });
 
             // See #2 above.

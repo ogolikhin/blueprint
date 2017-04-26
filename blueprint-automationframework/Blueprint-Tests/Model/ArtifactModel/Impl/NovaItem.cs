@@ -26,6 +26,8 @@ namespace Model.ArtifactModel.Impl
             public bool CompareSpecificPropertyValues { get; set; } = true;
             /// <summary>Should the CustomProperties properties be compared?</summary>
             public bool CompareCustomProperties { get; set; } = true;
+            /// <summary>Should the UserStory links be compared?</summary>
+            public bool CompareUserStoryLinks { get; set; } = true;
         }
 
         public int? Id { get; set; }

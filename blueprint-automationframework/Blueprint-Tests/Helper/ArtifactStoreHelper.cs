@@ -537,7 +537,7 @@ namespace Helper
             if (propertyCompareOptions.CompareSpecificPropertyValues)
             {
                 ComparePropertyValuesLists(expectedSubArtifact.SpecificPropertyValues, actualSubArtifact.SpecificPropertyValues,
-                    skipVirtualProperties: true);
+                    skipVirtualProperties: true, skipUserStoryLinks: propertyCompareOptions.CompareUserStoryLinks);
             }
 
             // NOTE: Currently, NovaSubArtifacts don't return any Attachments, DocReferences or Traces.  You need to make separate calls to get those.
@@ -571,8 +571,9 @@ namespace Helper
         /// <param name="actualPropertyValues">List of actual Custom Properties</param>
         /// <param name="skipVirtualProperties">(Optional) Set true to skip comparing properties with empty 'name' or 'typeid' -1.
         ///     Set 'true' when comparing Specific properties.</param>
+        /// <param name="skipUserStoryLinks">(optional) Pass true to skip comparison of User Story links. Default is false.</param>
         private static void ComparePropertyValuesLists(List<CustomProperty> expectedPropertyValues,
-            List<CustomProperty> actualPropertyValues, bool skipVirtualProperties = false)
+            List<CustomProperty> actualPropertyValues, bool skipVirtualProperties = false, bool skipUserStoryLinks = false)
         {
             Assert.AreEqual(expectedPropertyValues.Count, actualPropertyValues.Count,
                     "The number of Custom Properties is different!");
@@ -596,7 +597,7 @@ namespace Helper
 
                 if (actualProperty != null)
                 {
-                    AssertCustomPropertiesAreEqual(expectedProperty, actualProperty);
+                    AssertCustomPropertiesAreEqual(expectedProperty, actualProperty, skipUserStoryLinks);
                 }
             }
         }
@@ -606,7 +607,9 @@ namespace Helper
         /// </summary>
         /// <param name="expectedProperty">The expected custom property.</param>
         /// <param name="actualProperty">The actual custom property to be compared with the expected custom property.</param>
-        public static void AssertCustomPropertiesAreEqual(CustomProperty expectedProperty, CustomProperty actualProperty)
+        /// <param name="skipUserStoryLinks">(optional) Pass true to skip comparison of User Story links. Default is false.</param>
+        public static void AssertCustomPropertiesAreEqual(CustomProperty expectedProperty, CustomProperty actualProperty, 
+            bool skipUserStoryLinks = false)
         {
             ThrowIf.ArgumentNull(expectedProperty, nameof(expectedProperty));
             ThrowIf.ArgumentNull(actualProperty, nameof(actualProperty));
@@ -619,6 +622,11 @@ namespace Helper
             Assert.AreEqual(expectedProperty.PropertyType, actualProperty.PropertyType, "The PropertyType properties don't match!");
             Assert.AreEqual(expectedProperty.PropertyTypeId, actualProperty.PropertyTypeId, "The PropertyTypeId properties don't match!");
             Assert.AreEqual(expectedProperty.PropertyTypeVersionId, actualProperty.PropertyTypeVersionId, "The PropertyTypeVersionId properties don't match!");
+
+            if (skipUserStoryLinks && expectedProperty.Name == "StoryLink")
+            {
+                return;
+            }
 
             if (expectedProperty.PrimitiveType == null)
             {

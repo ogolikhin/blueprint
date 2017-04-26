@@ -334,7 +334,7 @@ namespace Model.StorytellerModel.Impl
             return _artifactStore.PublishArtifacts(new List<int> { process.Id }, user, expectedStatusCodes: expectedStatusCodes);
         }
 
-        /// <seealso cref="IStoryteller.PublishNovaProcess(IUser, NovaProcess, List{HttpStatusCode})(IUser, IProcess, List{HttpStatu"/>
+        /// <seealso cref="IStoryteller.PublishNovaProcess(IUser, NovaProcess, List{HttpStatusCode})"/>
         public INovaArtifactsAndProjectsResponse PublishNovaProcess(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(PublishNovaProcess));

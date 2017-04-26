@@ -297,16 +297,19 @@ namespace Model.StorytellerModel.Impl
             return updatedNovaProcess.Process;
         }
 
-        /// <seealso cref="IStoryteller.UpdateNovaProcess(IUser, NovaProcess, List{HttpStatusCode})"/>
-        public NovaProcess UpdateNovaProcess(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IStoryteller.UpdateNovaProcess(IUser, NovaProcess, List{HttpStatusCode}, bool)"/>
+        public NovaProcess UpdateNovaProcess(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null, bool shouldLock = true)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(UpdateNovaProcess));
 
             ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
 
-            using (var svc = new SvcShared(Address))
+            if (shouldLock)
             {
-                svc.LockArtifact(user, novaProcess.Id);
+                using (var svc = new SvcShared(Address))
+                {
+                    svc.LockArtifact(user, novaProcess.Id);
+                }
             }
 
             _artifactStore.UpdateNovaProcess(user, novaProcess, expectedStatusCodes);

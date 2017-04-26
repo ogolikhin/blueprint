@@ -970,7 +970,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.UpdateNovaProcess(IUser, NovaProcess, List{HttpStatusCode})"/>
-        public NovaArtifactDetails UpdateNovaProcess(
+        public INovaArtifactDetails UpdateNovaProcess(
             IUser user,
             NovaProcess novaProcess,
             List<HttpStatusCode> expectedStatusCodes = null)

@@ -1,8 +1,9 @@
 ﻿namespace ArtifactStore.Models.Review
 {
-    public enum ReviewStatus
+    public enum ReviewStatus : byte
     {
-        InProgress,
-        Done
+        NotStarted = 0,
+        InProgress = 1,
+        Completed = 2
     }
 }

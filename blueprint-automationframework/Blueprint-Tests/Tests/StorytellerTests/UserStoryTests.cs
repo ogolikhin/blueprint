@@ -1,25 +1,29 @@
 ﻿using Common;
 using CustomAttributes;
+using Helper;
 using Model;
+using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
+using Model.ArtifactModel.Impl;
 using Model.Factories;
+using Model.StorytellerModel;
+using Model.StorytellerModel.Enums;
+using Model.StorytellerModel.Impl;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using Model.ArtifactModel;
 using System.Linq;
-using Helper;
-using Model.ArtifactModel.Impl;
-using Model.StorytellerModel.Enums;
-using Model.StorytellerModel.Impl;
 using TestCommon;
 using Utilities;
 using Utilities.Facades;
-using Model.ArtifactModel.Enums;
 
 namespace StorytellerTests
 {
     public class UserStoryTests : TestBase
     {
+        private const string SVC_USERSTORIES_PATH = RestPaths.Svc.Components.Storyteller.Projects_id_.Processes_id_.USERSTORIES;
+        private const string SVC_USERSTORYARTIFACTTYPE_PATH = RestPaths.Svc.Components.Storyteller.Projects_id_.ArtifactTypes.USER_STORY;
+
         private const int NumberOfAdditionalUserTasks = 5;
 
         private IUser _user;
@@ -50,80 +54,60 @@ namespace StorytellerTests
         [Description("Verify that total number of generated or updated user stories are equal to total number of user tasks for the default process")]
         public void UserStoryGenerationProcessWithDefaultUserTask_NumberOfUserTasksAndGeneratedUserStoriesAreEqual()
         {
-            // Create and publish a process artifact
-            var processArtifact = Helper.Storyteller.CreateAndPublishProcessArtifact(_project, _user);
+            // Setup: Create and publish a nova process, and find number of UserTasks from the published Process
+            // Verify that the number of UserTasks from the default process is same as expected
+            var novaProcess = Helper.Storyteller.CreateAndPublishNovaProcessArtifact(_project, _user);
+            var userTasksOnProcess = novaProcess.Process.GetProcessShapesByShapeType(ProcessShapeType.UserTask).Count;
+            ValidateProcessUserTaskCount(novaProcess, _defaultUserTaskCount, userTasksOnProcess);
 
-            // Find number of UserTasks from the published Process
-            var process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
-
-            var userTasksOnProcess = process.GetProcessShapesByShapeType(ProcessShapeType.UserTask).Count;
-
-            // Assert that the number of UserTasks the published process is equal to the number of UserTasks returned from GetProcess call
-            Assert.That(userTasksOnProcess == _defaultUserTaskCount,
-                "The default number of UserTasks for the new Process is {0} but The number of UserTasks returned from GetProcess call is {1}.",
-                _defaultUserTaskCount, userTasksOnProcess);
-
-            Logger.WriteDebug("The number of UserTasks inside of Process is: {0}", userTasksOnProcess);
-
-            // Generate User Story artfact(s) from the Process artifact
-            var userStories = Helper.Storyteller.GenerateUserStories(_user, process);
+            // Execute: Generate User Story artfact(s) from the Process artifact
+            List<IStorytellerUserStory> userStories = null;
+            Assert.DoesNotThrow(() => userStories = Helper.Storyteller.GenerateUserStories(_user, novaProcess.Process),
+                "'POST {0}' should return 200 OK when passed a valid process ID!",
+                SVC_USERSTORIES_PATH);
 
             Logger.WriteDebug("The number of UserStories generated is: {0}", userStories.Count);
 
-            // Assert that the number of UserTasks from the published Process is equal to the number of UserStoryGenerated or Updated
-            Assert.That(userStories.Count == userTasksOnProcess,
-                "The number of UserStories generated from the process is {0} but The process has {1} UserTasks.",
-                userStories.Count, userTasksOnProcess);
+            // Verify: Assert that the number of UserTasks from the published Process is equal to the number of UserStoryGenerated or Updated
+            Assert.AreEqual(userTasksOnProcess, userStories.Count,
+                "The expected number of UserStories generated from the process is {0} but " +
+                "The actual number of UserStories generated from the process is {1}.",
+                userTasksOnProcess, userStories.Count);
         }
 
         [TestCase]
         [Description("Verify the contents of generated or updated user stories")]
         public void UserStoryGenerationProcessWithDefaultUserTask_VerifyingContents()
         {
-            // Create and publish a process artifact
-            var processArtifact = Helper.Storyteller.CreateAndPublishProcessArtifact(_project, _user);
+            // Setup: Create and publish a nova process
+            var novaProcess = Helper.Storyteller.CreateAndPublishNovaProcessArtifact(_project, _user);
 
+            // Execute:
             // Checking Object: The Process that contains shapes including user task shapes
-            var process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
-
             // Test Object: Generated User Stories from the Process
-            var userStories = Helper.Storyteller.GenerateUserStories(_user, process);
+            List<IStorytellerUserStory> userStories = null;
+            Assert.DoesNotThrow(() => userStories = Helper.Storyteller.GenerateUserStories(_user, novaProcess.Process),
+                "'POST {0}' should return 200 OK when passed a valid process ID!",
+                SVC_USERSTORIES_PATH);
 
+            // Verify:
             // Assert that there is only one to one maching between UserTask and generated UserStory
-            foreach (var shape in process.GetProcessShapesByShapeType(ProcessShapeType.UserTask))
-            {
-                var userStoryCounter = 0;
-
-                foreach (var us in userStories.Where(us => us.ProcessTaskId.Equals(shape.Id)))
-                {
-                    userStoryCounter++;
-
-                    // -- Verifying userStory contents -- 
-                    Assert.That(us.Name.Equals(shape.Name),"Generated US name {0} doesn't match with the source UT name {1}", us.Name, shape.Name);
-
-                    // TODO Assert that UserStory ID == 
-                    //Assert.That(userStory.Id.Equals(processShape.PropertyValues["storyLinks"]), "Generated US name {0} doesn't match with the source UT name {1}", userStory.Name, processShape.Name);
-
-                    // Assert that UserStory Property's Name value with Shape's Name Value 
-                    Assert.That(us.SystemProperties.Find(s => s.Name.Equals("Name")).Value.Equals(shape.Name),
-                        "Generated US's Property Name {0} doesn't match with the source UT name {1}",
-                        us.SystemProperties.Find(s => s.Name.Equals("Name")).Value, shape.Name);
-                        
-                    // Assert that UserStory ST-Title ==
-                    // Assert that UserStory ST-Acceptance Criteria ==
-                }
-
-                Assert.That(!userStoryCounter.Equals(0), "No UserStory matches with the UserTask whose ID: {0} is created", shape.Id);
-                Assert.That(userStoryCounter.Equals(1), "More than one UserStories are generated for the UserTask whose ID: {0}.", shape.Id);
-            }
+            ValidateGeneratedUserStories(novaProcess, userStories);
         }
 
         [TestCase]
-        [Description("Retrieve UserStoryArtifactType if Storyteller Pack is installed on the target Blueprint")]
+        [Description("Retrieve UserStoryArtifactType if Storyteller Pack or Agile Pack is installed on the target Blueprint")]
         public void GetUserStoryArtifactType_ReceiveUserStoryArtifactType()
         {
-            var userStoryArtifactType = Helper.Storyteller.GetUserStoryArtifactType(_user, _project.Id);
+            // Setup:
 
+            // Execute:
+            OpenApiArtifactType userStoryArtifactType = null;
+            Assert.DoesNotThrow(() => userStoryArtifactType = Helper.Storyteller.GetUserStoryArtifactType(_user, _project.Id),
+                "'POST {0}' should return 200 OK if Storyteller/Agile Pack is installed on the target Blueprint!",
+                SVC_USERSTORYARTIFACTTYPE_PATH);
+
+            // Verify:
             Assert.NotNull(userStoryArtifactType.Id,"UserStoryArtifactType Id is null");
             Assert.NotNull(userStoryArtifactType.Name, "UserStoryArtifactType Name is null");
         }
@@ -132,6 +116,10 @@ namespace StorytellerTests
         [Description("Verify that total number of generated or updated user stories are equal to total number of user tasks for the process with multi user tasks")]
         public void UserStoryGenerationProcessWithMultipleUserTasks_NumberOfUserTasksAndUserStoriesAreEqual(int iteration)
         {
+            // Setup:
+            // Create a nova process and get the updated nova process with additional user tasks
+            // Find number of UserTasks from the published Process
+            // Assert that the number of UserTasks the published process is equal to the number of UserTasks returned from GetProcess call
             int userTaskExpectedCount = iteration + _defaultUserTaskCount;
 
             if (userTaskExpectedCount == int.MaxValue)
@@ -139,50 +127,22 @@ namespace StorytellerTests
                 throw new OverflowException("overflow exception");
             }
 
-            // Create an Process artifact
-            var processArtifact = Helper.Storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user);
+            var novaProcess = Helper.Storyteller.CreateAndSaveNovaProcessArtifact(_project, _user);
+            var returnedNovaProcess = GetNovaProcessWithAdditionalShapes(novaProcess, iteration);
+            var userTasksOnProcess = returnedNovaProcess.Process.GetProcessShapesByShapeType(ProcessShapeType.UserTask).Count;
+            ValidateProcessUserTaskCount(novaProcess, userTaskExpectedCount, userTasksOnProcess);
 
-            // Get the process artifact
-            var process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
-
-            // Add UserTasks - iteration
-            var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
-
-            // Find outgoing process link for precondition task
-            var processLink = process.GetOutgoingLinkForShape(precondition);
-
-            for (int i = 0; i < iteration; i++)
-            {
-                var userTask = process.AddUserAndSystemTask(processLink);
-                var processShape = process.GetNextShape(userTask);
-
-                processLink = process.GetOutgoingLinkForShape(processShape);
-            }
-
-            // Update the process
-             var updatedProcess = Helper.Storyteller.UpdateProcess(_user, process);
-
-            // Publish the Process artifact
-            Helper.Storyteller.PublishProcess(_user, updatedProcess);
-
-            // Find number of UserTasks from the published Process
-            process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
-
-            var userTasksOnProcess = process.GetProcessShapesByShapeType(ProcessShapeType.UserTask).Count;
-
-            // Assert that the number of UserTasks the published process is equal to the number of UserTasks returned from GetProcess call
-            Assert.That(userTasksOnProcess == userTaskExpectedCount,
-                "The number of UserTasks expected for the Process is {0} but The number of UserTasks returned from GetProcess call is {1}.",
-                userTaskExpectedCount, userTasksOnProcess);
-
-            Logger.WriteDebug("The number of UserTasks inside of Process is: {0}", userTasksOnProcess);
-
+            // Execute: 
             // Generate User Story artfact(s) from the Process artifact
-            var userStories = Helper.Storyteller.GenerateUserStories(_user, process);
+            List<IStorytellerUserStory> userStories = null;
+            Assert.DoesNotThrow(() => userStories = Helper.Storyteller.GenerateUserStories(_user, returnedNovaProcess.Process),
+                "'POST {0}' should return 200 OK when passed a valid process ID!", SVC_USERSTORIES_PATH);
 
             Logger.WriteDebug("The number of UserStories generated is: {0}", userStories.Count);
 
+            // Verify:
             // Assert that the number of UserTasks from the published Process is equal to the number of UserStoryGenerated or Updated
+            ValidateGeneratedUserStories(returnedNovaProcess, userStories);
             Assert.That(userStories.Count == userTasksOnProcess,
                 "The number of UserStories generated from the process is {0} but The process has {1} UserTasks.",
                 userStories.Count, userTasksOnProcess);
@@ -192,129 +152,56 @@ namespace StorytellerTests
         [Description("Verify that every generated or updated user stories are mapped to user tasks for the process with multi user tasks")]
         public void UserStoryGenerationProcessWithMultipleUserTasks_UserTaskUserStoryMapping(int iteration)
         {
-            // Create an Process artifact
-            var processArtifact = Helper.Storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user);
+            // Setup: Create a nova process and get the updated nova process with additional user tasks
+            var novaProcess = Helper.Storyteller.CreateAndSaveNovaProcessArtifact(_project, _user);
+            var returnedNovaProcess = GetNovaProcessWithAdditionalShapes(novaProcess, iteration);
 
-            // Get the process artifact
-            var process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
-
-            // Add UserTasks - iteration
-            var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
-
-            // Find outgoing process link for precondition task
-            var processLink = process.GetOutgoingLinkForShape(precondition);
-
-            for (int i = 0; i < iteration; i++)
-            {
-                var userTask = process.AddUserAndSystemTask(processLink);
-                var processShape = process.GetNextShape(userTask);
-
-                processLink = process.GetOutgoingLinkForShape(processShape);
-            }
-
-            // Update the process
-            var updatedProcess = Helper.Storyteller.UpdateProcess(_user, process);
-
-            // Publish the Process artifact; enable recursive delete flag
-            Helper.Storyteller.PublishProcess(_user, updatedProcess);
-
-            // Checking Object: The Process that contains shapes including user task shapes
-            process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
-
+            // Execute: 
             // Test Object: Generated User Stories from the Process
-            var userStories = Helper.Storyteller.GenerateUserStories(_user, process);
+            List<IStorytellerUserStory> userStories = null;
+            Assert.DoesNotThrow(() => userStories = Helper.Storyteller.GenerateUserStories(_user, returnedNovaProcess.Process),
+                "'POST {0}' should return 200 OK when passed a valid process ID!", SVC_USERSTORIES_PATH);
 
+            // Verify:
             // Assert that there is one to one maching between UserTask and generated UserStory
-            foreach (var shape in process.GetProcessShapesByShapeType(ProcessShapeType.UserTask))
-            {
-                var userStoryCounter = userStories.Count(us => us.ProcessTaskId.Equals(shape.Id));
-
-                Assert.That(!userStoryCounter.Equals(0), "No UserStory matches with the UserTask whose ID: {0} is created", shape.Id);
-                Assert.That(userStoryCounter.Equals(1), "More than one UserStories are generated for the UserTask whose ID: {0}.", shape.Id);
-            }
+            ValidateGeneratedUserStories(returnedNovaProcess, userStories);
         }
 
         [TestCase(NumberOfAdditionalUserTasks)]
         [Description("Verify that Genearate UserStories updates user stories if there are existing user stories for user tasks for the process with multi user tasks")]
         public void UserStoryGenerationProcessWithMultipleUserTasks_VerifyingUpdateFlagsForExistingUserStories(int iteration)
         {
+            // Setup:
             var initialUserTaskExpectedCount = iteration / 2 + _defaultUserTaskCount;
             var additionalUserTaskExpectedCount = iteration - (iteration/2);
 
-            // Create an Process artifact
-            var processArtifact = Helper.Storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user);
+            // Create a nova process
+            var novaProcess = Helper.Storyteller.CreateAndSaveNovaProcessArtifact(_project, _user);
 
-            // Get the process artifact
-            var process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
-
-            // Add UserTasks - InitialUserTaskExpected - DEFAULTUSERTASK_COUNT since default UT counts
-            var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
-
-            // Find outgoing process link for precondition task
-            var processLink = process.GetOutgoingLinkForShape(precondition);
-
-            for (int i = 0; i < initialUserTaskExpectedCount - _defaultUserTaskCount; i++)
-            {
-                var userTask = process.AddUserAndSystemTask(processLink);
-                var processShape = process.GetNextShape(userTask);
-
-                processLink = process.GetOutgoingLinkForShape(processShape);
-            }
-
-            // Update the process
-            var updatedProcess = Helper.Storyteller.UpdateProcess(_user, process);
-
-            // Publish the Process artifact
-            Helper.Storyteller.PublishProcess(_user, updatedProcess);
-
-            // Get the process artifact
-            var returnedProcess = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
-
-            // User Stories from the Process artifact
-            var userStoriesFirstBatch = Helper.Storyteller.GenerateUserStories(_user, returnedProcess);
+            // Execute:
+            // Get the updated nova process with additional UserTasks
+            // (InitialUserTaskExpected - DEFAULTUSERTASK_COUNT since default UT counts), 1st version
+            var returnedNovaProcessFirstBatch = GetNovaProcessWithAdditionalShapes(novaProcess, initialUserTaskExpectedCount - _defaultUserTaskCount);
+            // User Stories from the updated Process (1st version)
+            List<IStorytellerUserStory> userStoriesFirstBatch = null;
+            Assert.DoesNotThrow(() => userStoriesFirstBatch = Helper.Storyteller.GenerateUserStories(_user, returnedNovaProcessFirstBatch.Process),
+                "'POST {0}' should return 200 OK when passed a valid process ID!", SVC_USERSTORIES_PATH);
 
             Logger.WriteDebug("The number of user stories generated is: {0}", userStoriesFirstBatch.Count);
 
-            // Add UserTasks - AdditionalUserTaskExpected
-            precondition = returnedProcess.Shapes.Find(p => p.Name.Equals(Process.DefaultPreconditionName));
-
-            // Find outgoing process link for precondition task
-            processLink = returnedProcess.GetOutgoingLinkForShape(precondition);
-
-            for (int i = 0; i < additionalUserTaskExpectedCount; i++)
-            {
-                var userTask = returnedProcess.AddUserAndSystemTask(processLink);
-                var processShape = returnedProcess.GetNextShape(userTask);
-
-                processLink = returnedProcess.GetOutgoingLinkForShape(processShape);
-            }
-
-            // Update the process
-            updatedProcess = Helper.Storyteller.UpdateProcess(_user, returnedProcess);
-
-            // Publish the Process artifact
-            Helper.Storyteller.PublishProcess(_user, updatedProcess);
-
-            // Get the process artifact
-            returnedProcess = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
-
-            // User Stories from the Process artifact
-            var userStoriesSecondBatch = Helper.Storyteller.GenerateUserStories(_user, returnedProcess);
+            // Get the updated nova process with additional UserTasks
+            // (AdditionalUserTaskExpected), 2nd version
+            var returnedNovaProcessSecondBatch = GetNovaProcessWithAdditionalShapes(returnedNovaProcessFirstBatch, additionalUserTaskExpectedCount);
+            // User Stories from the updated Process (2nd version)
+            List<IStorytellerUserStory> userStoriesSecondBatch = null;
+            Assert.DoesNotThrow(() => userStoriesSecondBatch = Helper.Storyteller.GenerateUserStories(_user, returnedNovaProcessSecondBatch.Process),
+                "'POST {0}' should return 200 OK when passed a valid process ID!", SVC_USERSTORIES_PATH);
 
             Logger.WriteDebug("The number of user stories generated or updated is: {0}", userStoriesSecondBatch.Count);
 
+            // Verify:
             //Assert that the count of generated user stories from first batch is equal to the count of updated user stories from the second batch
-            var createdUserStoriesFirstBatchCount = userStoriesFirstBatch.Count;
-            var totalUserStoriesSecondBatchCount = userStoriesSecondBatch.Count;
-            var createdUserStoriesSecondBatchCount = userStoriesSecondBatch.FindAll(u => u.IsNew.Equals(true)).Count;
-            var updatedUserStoriesSecondBatchCount = userStoriesSecondBatch.FindAll(u => u.IsNew.Equals(false)).Count;
-
-            Assert.That(totalUserStoriesSecondBatchCount == createdUserStoriesSecondBatchCount + updatedUserStoriesSecondBatchCount,
-                "The user stories either updated or created: {0} should be equal to addition of the created: {1} and updated: {2}",
-                totalUserStoriesSecondBatchCount, createdUserStoriesSecondBatchCount, updatedUserStoriesSecondBatchCount);
-            Assert.That(createdUserStoriesFirstBatchCount == updatedUserStoriesSecondBatchCount,
-                "The expected number of user stories from UserStoryGeneration call is {0} but {1} are updated.",
-                createdUserStoriesFirstBatchCount, updatedUserStoriesSecondBatchCount);
+            ValidateIsNewFlagForUserStories(userStoriesFirstBatch, userStoriesSecondBatch);
         }
 
         [TestCase]
@@ -420,6 +307,8 @@ namespace StorytellerTests
             Assert.AreEqual(expectedStoryTitle, stTitleProperty.Value);
         }
 
+        #endregion Tests
+
         #region 400 Bad Request
 
         [TestRail(246537)]
@@ -447,7 +336,7 @@ namespace StorytellerTests
 
         #endregion 400 Bad Request
 
-        #endregion Tests
+        #region private functions
 
         /// <summary>
         /// Gets the StorytellerProperty from the list that has the specified Name.
@@ -482,5 +371,131 @@ namespace StorytellerTests
 
             return "<p>"+text+"</p>";
         }
+
+        /// <summary>
+        /// Validate number of user task shapes for the process
+        /// </summary>
+        /// <param name="novaProcess">the nova process artifact to validate</param>
+        /// <param name="expectedProcessShapeCount">expected user task process shape count</param>
+        /// <param name="actualProcessUserTaskShapeCount">actual user task process shape count</param>
+        private static void ValidateProcessUserTaskCount(NovaProcess novaProcess, int expectedProcessUserTaskShapeCount, int actualProcessUserTaskShapeCount)
+        {
+            ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
+
+            Assert.AreEqual(expectedProcessUserTaskShapeCount, actualProcessUserTaskShapeCount,
+                "The expected number of UserTasks for the Process is {0} but The actual number of UserTasks returned is {1}.",
+                expectedProcessUserTaskShapeCount, actualProcessUserTaskShapeCount);
+
+            Logger.WriteDebug("The number of UserTasks inside of the Process is: {0}", actualProcessUserTaskShapeCount);
+        }
+
+        /// <summary>
+        /// Validate Contents of generated user stories for the process
+        /// </summary>
+        /// <param name="novaProcess">the nova process artifact to validate</param>
+        /// <param name="userStories">userstories generated from the nova process artifact</param>
+        private static void ValidateGeneratedUserStories (NovaProcess novaProcess, List<IStorytellerUserStory> userStories)
+        {
+            ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
+            ThrowIf.ArgumentNull(userStories, nameof(userStories));
+
+            foreach (var shape in novaProcess.Process.GetProcessShapesByShapeType(ProcessShapeType.UserTask))
+            {
+                var userStoryCounter = 0;
+
+                foreach (var us in userStories.Where(us => us.ProcessTaskId.Equals(shape.Id)))
+                {
+                    userStoryCounter++;
+
+                    // -- Verifying userStory contents -- 
+                    Assert.That(us.Name.Equals(shape.Name), "Generated US name {0} doesn't match with the source UT name {1}", us.Name, shape.Name);
+
+                    // TODO Assert that UserStory ID == 
+                    //Assert.That(userStory.Id.Equals(processShape.PropertyValues["storyLinks"]), "Generated US name {0} doesn't match with the source UT name {1}", userStory.Name, processShape.Name);
+
+                    // Assert that UserStory Property's Name value with Shape's Name Value 
+                    Assert.That(us.SystemProperties.Find(s => s.Name.Equals("Name")).Value.Equals(shape.Name),
+                        "Generated US's Property Name {0} doesn't match with the source UT name {1}",
+                        us.SystemProperties.Find(s => s.Name.Equals("Name")).Value, shape.Name);
+
+                    // Assert that UserStory ST-Title ==
+                    // Assert that UserStory ST-Acceptance Criteria ==
+                }
+
+                Assert.AreNotEqual(0, userStoryCounter, "No UserStory matches with the UserTask whose ID: {0} is created", shape.Id);
+                Assert.AreEqual(1,userStoryCounter, "More than one UserStories are generated for the UserTask whose ID: {0}.", shape.Id);
+            }
+        }
+
+        /// <summary>
+        /// Validate IsNew Flags from generated userstories
+        /// </summary>
+        /// <param name="userStoriesFirstBatch">user stories generated from first generateUserStories</param>
+        /// <param name="userStoriesSecondBatch">user stories generated from second generateUserStories</param>
+        private static void ValidateIsNewFlagForUserStories(List<IStorytellerUserStory> userStoriesFirstBatch, List<IStorytellerUserStory> userStoriesSecondBatch)
+        {
+            ThrowIf.ArgumentNull(userStoriesFirstBatch, nameof(userStoriesFirstBatch));
+            ThrowIf.ArgumentNull(userStoriesSecondBatch, nameof(userStoriesSecondBatch));
+
+            var createdUserStoriesFirstBatchCount = userStoriesFirstBatch.Count;
+            var totalUserStoriesSecondBatchCount = userStoriesSecondBatch.Count;
+            var createdUserStoriesSecondBatchCount = userStoriesSecondBatch.FindAll(u => u.IsNew.Equals(true)).Count;
+            var updatedUserStoriesSecondBatchCount = userStoriesSecondBatch.FindAll(u => u.IsNew.Equals(false)).Count;
+
+            Assert.AreEqual(totalUserStoriesSecondBatchCount, createdUserStoriesSecondBatchCount + updatedUserStoriesSecondBatchCount,
+                "The user stories either updated or created: {0} should be equal to addition of the created: {1} and updated: {2}",
+                totalUserStoriesSecondBatchCount, createdUserStoriesSecondBatchCount, updatedUserStoriesSecondBatchCount);
+            Assert.AreEqual(createdUserStoriesFirstBatchCount, updatedUserStoriesSecondBatchCount,
+                "The expected number of user stories from UserStoryGeneration call is {0} but {1} are updated.",
+                createdUserStoriesFirstBatchCount, updatedUserStoriesSecondBatchCount);
+        }
+
+        /// <summary>
+        /// Add UserTasksToProcess
+        /// </summary>
+        /// <param name="novaProcess">the nova process artifact to update</param>
+        /// <param name="additionalUserTasks">the number of UserTasks to add</param>
+        private static void AddUserTasksToNovaProcess(NovaProcess novaProcess, int additionalUserTasks)
+        {
+            ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
+
+            // Get the process artifact
+            // Add UserTasks - iteration
+            var precondition = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+
+            // Find outgoing process link for precondition task
+            var processLink = novaProcess.Process.GetOutgoingLinkForShape(precondition);
+
+            for (int i = 0; i < additionalUserTasks; i++)
+            {
+                var userTask = novaProcess.Process.AddUserAndSystemTask(processLink);
+                var processShape = novaProcess.Process.GetNextShape(userTask);
+
+                processLink = novaProcess.Process.GetOutgoingLinkForShape(processShape);
+            }
+        }
+
+        /// <summary>
+        /// Get the updated NovaProcess with additional UserTasks
+        /// </summary>
+        /// <param name="novaProcess">the nova process to update</param>
+        /// <param name="additionalUserTasks">the number of UserTasks to add</param>
+        /// <returns>the  updated nova process with additonal user tasks</returns>
+        private NovaProcess GetNovaProcessWithAdditionalShapes(NovaProcess novaProcess, int additionalUserTasks)
+        {
+            ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
+
+            AddUserTasksToNovaProcess(novaProcess, additionalUserTasks);
+            Helper.Storyteller.UpdateNovaProcess(_user, novaProcess);
+
+            // Publish the updated Process
+            var artifact = new Artifact(Helper.ArtifactStore.Address, novaProcess.Id, _project.Id);
+            Helper.ArtifactStore.PublishArtifact(artifact, _user);
+
+            // Get the updated nova process
+            return Helper.Storyteller.GetNovaProcess(_user, novaProcess.Id);
+        }
+
+        #endregion private functions
     }
 }

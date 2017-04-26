@@ -2,10 +2,10 @@
 using CustomAttributes;
 using Helper;
 using Model;
-using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
+using Model.ModelHelpers;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Enums;
 using Model.StorytellerModel.Impl;
@@ -210,12 +210,10 @@ namespace StorytellerTests
         public void UpdateNonfunctionalRequirementsWithInlineTrace_VerifyReturnedMessage()
         {
             // Setup:
-            var processArtifact = Helper.Storyteller.CreateAndPublishProcessArtifact(_project, _user);
-
-            var process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
+            var novaProcess = Helper.Storyteller.CreateAndPublishNovaProcessArtifact(_project, _user);
 
             // Create target artifact for inline trace
-            var linkedArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var linkedArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Actor);
 
             string inlineTraceText;
             int linkedArtifactId = linkedArtifact.Id;
@@ -223,17 +221,20 @@ namespace StorytellerTests
             try
             {
                 //get text with inline trace to the specified artifact
-                inlineTraceText = GetTextForInlineTrace(new List<IArtifact>() {linkedArtifact});
+                inlineTraceText = GetTextForInlineTrace(new List<ArtifactWrapper>() {linkedArtifact});
             }
             finally
             {
                 //delete artifact which is target for inline trace
-                linkedArtifact.Delete();
-                linkedArtifact.Publish();
+                linkedArtifact.Delete(_user);
+                linkedArtifact.Lock(_user);
+                linkedArtifact.Publish(_user);
             }
 
             // Generate User Stories from the Process
-            var userStories = Helper.Storyteller.GenerateUserStories(_user, process);
+            List<IStorytellerUserStory> userStories = null;
+            Assert.DoesNotThrow(() => userStories = Helper.Storyteller.GenerateUserStories(_user, novaProcess.Process),
+                "'POST {0}' should return 200 OK when passed a valid process ID!", SVC_USERSTORIES_PATH);
 
             // Execute:
             var updatePropertyResult = userStories[0].UpdateNonFunctionalRequirements(_user, inlineTraceText);
@@ -244,12 +245,12 @@ namespace StorytellerTests
                 updatePropertyResult.Messages.Count());
 
             string expectedMessage = I18NHelper.FormatInvariant("Artifact with ID {0} was inaccessible. A manual trace was not created.", linkedArtifactId);
-            Assert.That(updatePropertyResult.Messages.ElementAt(0).Message.Equals(expectedMessage), "Returned message must be '{0}', but it is '{1}'",
+            Assert.AreEqual(expectedMessage, updatePropertyResult.Messages.ElementAt(0).Message, "Returned message must be '{0}', but it is '{1}'",
                 expectedMessage, updatePropertyResult.Messages.ElementAt(0).Message);
             Assert.AreEqual(updatePropertyResult.Messages.ElementAt(0).ItemId, linkedArtifactId, "Returned ID must be {0}, but it is {1}",
                 linkedArtifactId, updatePropertyResult.Messages.ElementAt(0).ItemId);
 
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, processArtifact.Id, expectedIndicatorFlags: null);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, novaProcess.Id, expectedIndicatorFlags: null);
         }
 
         [TestCase]
@@ -258,15 +259,14 @@ namespace StorytellerTests
         public void UpdateNonfunctionalRequirementsWithInlineTrace_VerifySuccess()
         {
             // Setup:
-            var processArtifact = Helper.Storyteller.CreateAndPublishProcessArtifact(_project, _user);
-
-            var process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
+            var novaProcess = Helper.Storyteller.CreateAndPublishNovaProcessArtifact(_project, _user);
+            var wrappedProcess = Helper.WrapArtifact(novaProcess, _project, _user);
 
             //get text with inline trace to the specified artifact
-            var inlineTraceText = GetTextForInlineTrace(new List<IArtifact>() { processArtifact });
+            var inlineTraceText = GetTextForInlineTrace(new List<ArtifactWrapper>() { wrappedProcess });
 
             // Generate User Stories from the Process
-            var userStories = Helper.Storyteller.GenerateUserStories(_user, process);
+            var userStories = Helper.Storyteller.GenerateUserStories(_user, novaProcess.Process);
 
             // Execute:
             Assert.DoesNotThrow(() =>
@@ -275,7 +275,7 @@ namespace StorytellerTests
             }, "Update Nonfunctional Requirements must not return an error.");
 
             // Verify:
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, processArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, novaProcess.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
         }
 
         [TestCase]
@@ -284,12 +284,9 @@ namespace StorytellerTests
         public void UserStoryGenerationProcessWithDefaultUserTask_VerifyingSTTitle()
         {
             // Create and publish a process artifact
-            var processArtifact = Helper.Storyteller.CreateAndPublishProcessArtifact(_project, _user);
-
-            // Get process
-            var process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
+            var novaProcess = Helper.Storyteller.CreateAndPublishNovaProcessArtifact(_project, _user);
             
-            var userTasksOnProcess = process.GetProcessShapesByShapeType(ProcessShapeType.UserTask);
+            var userTasksOnProcess = novaProcess.Process.GetProcessShapesByShapeType(ProcessShapeType.UserTask);
             // Get value of the persona property
             var persona = userTasksOnProcess[0].PropertyValues["persona"].Value;
             // Get value of the User Task name
@@ -301,7 +298,7 @@ namespace StorytellerTests
                 css_font_normal, css_font_bold, persona.ToString(), taskName);
 
             // Generated User Stories from the Process
-            var userStories = Helper.Storyteller.GenerateUserStories(_user, process);
+            var userStories = Helper.Storyteller.GenerateUserStories(_user, novaProcess.Process);
             // Check that ST-Title property has expected value
             var stTitleProperty = GetPropertyByName(userStories[0].CustomProperties, "ST-Title");
             Assert.AreEqual(expectedStoryTitle, stTitleProperty.Value);
@@ -319,7 +316,7 @@ namespace StorytellerTests
         public void GenerateUserStories_InvalidArtifactId_400BadRequest(string artifactId, string expectedErrorMessage)
         {
             // Setup:
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.Projects_id_.Processes_id_.USERSTORIES, _project.Id, artifactId);
+            string path = I18NHelper.FormatInvariant(SVC_USERSTORIES_PATH, _project.Id, artifactId);
 
             var restApi = new RestApiFacade(Helper.ArtifactStore.Address, _user?.Token?.AccessControlToken);
 
@@ -356,7 +353,7 @@ namespace StorytellerTests
         /// </summary>
         /// <param name="artifacts">list of target artifacts for inline traces</param>
         /// <returns>Text with inline traces</returns>
-        private static string GetTextForInlineTrace(List<IArtifact> artifacts)
+        private static string GetTextForInlineTrace(List<ArtifactWrapper> artifacts)
         {
             var text = string.Empty;
 
@@ -366,7 +363,7 @@ namespace StorytellerTests
                 "href=\"{0}?ArtifactId={1}\" target=\"\" artifactid=\"{1}\"" +
                 " linkassemblyqualifiedname=\"BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, BluePrintSys.RC.Client.SL.RichText, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\"" +
                 " text=\"{1}: {2}\" canclick=\"True\" canedit=\"False\" isvalid=\"True\"><span style=\"text-decoration: underline;\">{1}: {2}</span></a>&nbsp;",
-                artifact.Address, artifact.Id, artifact.Name);
+                artifact.ArtifactStore.Address, artifact.Id, artifact.Name);
             }
 
             return "<p>"+text+"</p>";

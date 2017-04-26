@@ -490,11 +490,11 @@ namespace Helper
         ///     should have the same ParentId.</param>
         /// <param name="propertyCompareOptions">(optional) Specifies which properties to compare.  By default, all properties are compared.</param>
         /// <param name="attachmentCompareOptions">(optional) Specifies which Attachments properties to compare.  By default, all properties are compared.</param>
-        /// <param name="copiedProcessStoryLinksShouldBeNull">(optional) Pass true to indicate copied process stroy links should be null. Default is false.</param>
+        /// <param name="actualProcessStoryLinksShouldBeNull">(optional) Pass true to indicate actual process story links should be null. Default is false.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
         public static void AssertSubArtifactsAreEqual(NovaSubArtifact expectedSubArtifact, NovaSubArtifact actualSubArtifact, IArtifactStore artifactStore, IUser user,
             int? expectedParentId = null, NovaItem.PropertyCompareOptions propertyCompareOptions = null, Attachments.CompareOptions attachmentCompareOptions = null,
-            bool copiedProcessStoryLinksShouldBeNull = false)
+            bool actualProcessStoryLinksShouldBeNull = false)
         {
             ThrowIf.ArgumentNull(expectedSubArtifact, nameof(expectedSubArtifact));
             ThrowIf.ArgumentNull(actualSubArtifact, nameof(actualSubArtifact));
@@ -539,7 +539,7 @@ namespace Helper
             if (propertyCompareOptions.CompareSpecificPropertyValues)
             {
                 ComparePropertyValuesLists(expectedSubArtifact.SpecificPropertyValues, actualSubArtifact.SpecificPropertyValues,
-                    skipVirtualProperties: true, copiedProcessStoryLinksShouldBeNull: copiedProcessStoryLinksShouldBeNull);
+                    skipVirtualProperties: true, actualProcessStoryLinksShouldBeNull: actualProcessStoryLinksShouldBeNull);
             }
 
             // NOTE: Currently, NovaSubArtifacts don't return any Attachments, DocReferences or Traces.  You need to make separate calls to get those.
@@ -573,9 +573,9 @@ namespace Helper
         /// <param name="actualPropertyValues">List of actual Custom Properties</param>
         /// <param name="skipVirtualProperties">(Optional) Set true to skip comparing properties with empty 'name' or 'typeid' -1.
         ///     Set 'true' when comparing Specific properties.</param>
-        /// <param name="copiedProcessStoryLinksShouldBeNull">(optional) Pass true to indicate copied process stroy links should be null. Default is false.</param>
+        /// <param name="actualProcessStoryLinksShouldBeNull">(optional) Pass true to indicate actual process story links should be null. Default is false.</param>
         private static void ComparePropertyValuesLists(List<CustomProperty> expectedPropertyValues,
-            List<CustomProperty> actualPropertyValues, bool skipVirtualProperties = false, bool copiedProcessStoryLinksShouldBeNull = false)
+            List<CustomProperty> actualPropertyValues, bool skipVirtualProperties = false, bool actualProcessStoryLinksShouldBeNull = false)
         {
             Assert.AreEqual(expectedPropertyValues.Count, actualPropertyValues.Count,
                     "The number of Custom Properties is different!");
@@ -599,7 +599,7 @@ namespace Helper
 
                 if (actualProperty != null)
                 {
-                    AssertCustomPropertiesAreEqual(expectedProperty, actualProperty, copiedProcessStoryLinksShouldBeNull);
+                    AssertCustomPropertiesAreEqual(expectedProperty, actualProperty, actualProcessStoryLinksShouldBeNull);
                 }
             }
         }
@@ -609,9 +609,9 @@ namespace Helper
         /// </summary>
         /// <param name="expectedProperty">The expected custom property.</param>
         /// <param name="actualProperty">The actual custom property to be compared with the expected custom property.</param>
-        /// <param name="copiedProcessStoryLinksShouldBeNull">(optional) Pass true to indicate copied process stroy links should be null. Default is false.</param>
+        /// <param name="actualProcessStoryLinksShouldBeNull">(optional) Pass true to indicate actual process story links should be null. Default is false.</param>
         public static void AssertCustomPropertiesAreEqual(CustomProperty expectedProperty, CustomProperty actualProperty, 
-            bool copiedProcessStoryLinksShouldBeNull = false)
+            bool actualProcessStoryLinksShouldBeNull = false)
         {
             ThrowIf.ArgumentNull(expectedProperty, nameof(expectedProperty));
             ThrowIf.ArgumentNull(actualProperty, nameof(actualProperty));
@@ -630,7 +630,7 @@ namespace Helper
                 string expectedPropertyString = expectedProperty?.CustomPropertyValue?.ToString();
                 string actualPropertyString = actualProperty?.CustomPropertyValue?.ToString();
 
-                if (copiedProcessStoryLinksShouldBeNull && expectedProperty.Name == "StoryLink")
+                if (actualProcessStoryLinksShouldBeNull && expectedProperty.Name == "StoryLink")
                 {
                     Assert.IsNull(actualPropertyString, "The copied process StoryLink value should be null!");
                 }

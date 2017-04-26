@@ -203,7 +203,18 @@ namespace Model.StorytellerModel
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <returns>The REST response content of the publish process request</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        NovaPublishArtifactResult PublishProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null);
+        INovaArtifactsAndProjectsResponse PublishProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Publish a Nova Process  (Storyteller 2.1+)
+        /// svc/bpartifactstore/artifacts/publish
+        /// </summary>
+        /// <param name="user">The user credentials for the request to publish a process</param>
+        /// <param name="novaProcess">The Nova process to publish</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
+        /// <returns>The REST response content of the publish process request</returns>
+        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
+        INovaArtifactsAndProjectsResponse PublishNovaProcess(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Discard changes to a process artifact

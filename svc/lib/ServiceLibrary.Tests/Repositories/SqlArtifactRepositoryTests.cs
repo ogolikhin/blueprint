@@ -7,6 +7,7 @@ using Moq;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Workflow;
 
 namespace ServiceLibrary.Repositories
 {
@@ -1534,15 +1535,11 @@ namespace ServiceLibrary.Repositories
             const int artifactId = 3;
             const int userId = 99;
             var arifactBasicDetails = new List<ArtifactBasicDetails> { new ArtifactBasicDetails { LatestDeleted = false } };
-
-            var permissions = new Dictionary<int, RolePermissions>();
-
+            
             var cxn = new SqlConnectionWrapperMock();
             cxn.SetupQueryAsync("GetArtifactBasicDetails", new Dictionary<string, object> { { "itemId", artifactId }, { "userId", userId } }, arifactBasicDetails);
 
-            var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
-            mockArtifactPermissionsRepository.Setup(m => m.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true))
-                .ReturnsAsync(permissions);
+            var mockArtifactPermissionsRepository = CreatePermissionsRepositoryMock(new int[0], userId, RolePermissions.Read);
 
             var repository = new SqlArtifactRepository(cxn.Object, null, mockArtifactPermissionsRepository.Object);
 
@@ -1575,16 +1572,12 @@ namespace ServiceLibrary.Repositories
                 new ArtifactVersion { ItemId = 1, ParentId = null, VersionProjectId = projectId, Name = "project", ItemTypeId = 66 },
                 new ArtifactVersion { ItemId = 2, ParentId = 1, VersionProjectId = projectId, Name = "folder", ItemTypeId = 77 }
             };
-
-            var permissions = new Dictionary<int, RolePermissions> { { artifactId, RolePermissions.Read } };
-
+            
             var cxn = new SqlConnectionWrapperMock();
             cxn.SetupQueryAsync("GetArtifactBasicDetails", new Dictionary<string, object> { { "itemId", artifactId }, { "userId", userId } }, arifactBasicDetails);
             cxn.SetupQueryAsync("GetArtifactNavigationPath", new Dictionary<string, object> { { "artifactId", artifactId }, { "userId", userId } }, ancestorsAndSelf);
 
-            var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
-            mockArtifactPermissionsRepository.Setup(m => m.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true))
-                .ReturnsAsync(permissions);
+            var mockArtifactPermissionsRepository = CreatePermissionsRepositoryMock(new[] {artifactId}, userId, RolePermissions.Read);
 
             var repository = new SqlArtifactRepository(cxn.Object, null, mockArtifactPermissionsRepository.Object);
 
@@ -1854,10 +1847,7 @@ namespace ServiceLibrary.Repositories
 
             var permissions = new Dictionary<int, RolePermissions>();
             permissions.Add(artifactIds[0], rolePermissions);
-            var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
-            mockArtifactPermissionsRepository.Setup(
-                m => m.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true))
-                .ReturnsAsync(permissions);
+            var mockArtifactPermissionsRepository = CreatePermissionsRepositoryMock(artifactIds, userId, rolePermissions);
 
             return new SqlArtifactRepository(cxn.Object, null, mockArtifactPermissionsRepository.Object);
         }
@@ -1938,5 +1928,82 @@ namespace ServiceLibrary.Repositories
         }
 
         #endregion GetAuthorHistoriesWithPermissionsCheck
+
+        #region GetTransitions
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task GetTransitions_NotFoundArtifact_ThrowsException()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlArtifactRepository(cxn.Object);
+            cxn.SetupQueryAsync("GetArtifactBasicDetails",
+              new Dictionary<string, object>
+              {
+                    {"userId", 1},
+                    {"itemId", 1}
+              },
+              new List<ArtifactBasicDetails>());
+
+            // Act
+            await repository.GetTransitions(1, 1);
+        }
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task GetTransitions_NoReadPermissions_ThrowsException()
+        {
+            // Arrange
+            var permissionsRepository = CreatePermissionsRepositoryMock(new[] {1}, 1, RolePermissions.None);
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlArtifactRepository(cxn.Object, null, permissionsRepository.Object);
+            cxn.SetupQueryAsync("GetArtifactBasicDetails",
+              new Dictionary<string, object>
+              {
+                    {"userId", 1},
+                    {"itemId", 1}
+              },
+              new List<ArtifactBasicDetails>() {new ArtifactBasicDetails()});
+            // Act
+            await repository.GetTransitions(1, 1);
+        }
+        [TestMethod]
+        public async Task GetTransitions_WithReadPermissions_SuccessfullyReads()
+        {
+            // Arrange
+            var permissionsRepository = CreatePermissionsRepositoryMock(new[] { 1 }, 1, RolePermissions.Read);
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlArtifactRepository(cxn.Object, null, permissionsRepository.Object);
+            cxn.SetupQueryAsync("GetArtifactBasicDetails",
+              new Dictionary<string, object>
+              {
+                    {"userId", 1},
+                    {"itemId", 1}
+              },
+              new List<ArtifactBasicDetails>() { new ArtifactBasicDetails() });
+            const int transitionId = 5;
+            cxn.SetupQueryAsync("GetAvailableTransitions",
+             new Dictionary<string, object>
+             {
+                    {"artifactId", 1},
+                    {"userId", 1}
+             },
+             new List<Transitions>() { new Transitions() {TransitionId = transitionId } });
+            // Act
+            var result = (await repository.GetTransitions(1, 1)).ToList();
+
+            Assert.IsTrue(result.Count > 0);
+            Assert.IsTrue(result[0].TransitionId == transitionId);
+        }
+        #endregion
+
+        private static Mock<IArtifactPermissionsRepository> CreatePermissionsRepositoryMock(int[] artifactIds, int userId, RolePermissions rolePermissions )
+        {
+            var permissions = artifactIds.ToDictionary(id => id, id => rolePermissions);
+            var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
+            mockArtifactPermissionsRepository.Setup(
+                m => m.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true))
+                .ReturnsAsync(permissions);
+            return mockArtifactPermissionsRepository;
+        }
     }
 }

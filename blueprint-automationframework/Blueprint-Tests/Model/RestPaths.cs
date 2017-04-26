@@ -280,7 +280,7 @@ namespace Model
 
                 public static class Reviews_id_
                 {
-                    public const string CONTENT                     = "svc/bpartifactstore/reviews/{0}/content";
+                    public const string CONTENT                     = "svc/artifactstore/containers/{0}/content";
                 }
 
                 public static class Status

@@ -440,8 +440,8 @@ namespace Helper
             int? parentId = null, double? orderIndex = null, string name = null, string artifactTypeName = null)
         {
             var wrappedArtifact = CreateNovaArtifact(user, project, itemType, parentId, orderIndex, name, artifactTypeName);
-            var response = wrappedArtifact.Publish(user);
-            wrappedArtifact.Artifact.Version = response.Artifacts[0].Version;   // Update Version from -1 to 1.
+            wrappedArtifact.Publish(user);
+//            wrappedArtifact.Artifact.Version = response.Artifacts[0].Version;   // Update Version from -1 to 1.
 
             return wrappedArtifact;
         }
@@ -472,7 +472,7 @@ namespace Helper
                 {
                     Id = artifact.Artifact.Id,
                     ProjectId = artifact.Artifact.ProjectId,
-                    Description = I18NHelper.FormatInvariant("Description for version: {0}", artifact.Version + 1)
+                    Description = I18NHelper.FormatInvariant(StringUtilities.WrapInHTML("Description for version: {0}"), artifact.Version + 1)
                 };
 
                 artifact.Lock(user);

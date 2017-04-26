@@ -216,7 +216,7 @@ namespace Model.ModelHelpers
 
             var response = ArtifactStore.PublishArtifacts(new List<int> { Artifact.Id }, user);
 
-            CSharpUtilities.ReplaceAllNonNullProperties(response.Artifacts[0], Artifact);
+            Artifact.Version = response.Artifacts[0].Version;
 
             // If it was marked for deletion, publishing it will make it permanently deleted.
             if (ArtifactState.IsMarkedForDeletion)

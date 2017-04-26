@@ -64,32 +64,29 @@ namespace ArtifactStoreTests
 
         #region 201 Created tests
 
-        [TestCase(BaseArtifactType.Actor, BaseArtifactType.Glossary)]
-        [TestCase(BaseArtifactType.Document, BaseArtifactType.Actor)]
-        [TestCase(BaseArtifactType.Glossary, BaseArtifactType.TextualRequirement)]
-        [TestCase(BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder)]  // Folders can only be children of other folders.
-        [TestCase(BaseArtifactType.TextualRequirement, BaseArtifactType.Document)]
+        [TestCase(ItemTypePredefined.Actor, ItemTypePredefined.Glossary)]
+        [TestCase(ItemTypePredefined.Document, ItemTypePredefined.Actor)]
+        [TestCase(ItemTypePredefined.Glossary, ItemTypePredefined.TextualRequirement)]
+        [TestCase(ItemTypePredefined.PrimitiveFolder, ItemTypePredefined.PrimitiveFolder)]  // Folders can only be children of other folders.
+        [TestCase(ItemTypePredefined.TextualRequirement, ItemTypePredefined.Document)]
         [TestRail(191047)]
         [Description("Create and save a source & destination artifact.  Copy the source artifact under the destination artifact.  Verify the source artifact is unchanged " +
             "and the new artifact is identical to the source artifact.  New copied artifact should not be published.")]
-        public void CopyArtifact_SingleSavedArtifact_ToNewParent_ReturnsNewArtifact(BaseArtifactType sourceArtifactType, BaseArtifactType targetArtifactType)
+        public void CopyArtifact_SingleSavedArtifact_ToNewParent_ReturnsNewArtifact(ItemTypePredefined sourceArtifactType, ItemTypePredefined targetArtifactType)
         {
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            var sourceArtifact = Helper.CreateAndSaveArtifact(_project, author, sourceArtifactType);
-            var targetArtifact = Helper.CreateAndSaveArtifact(_project, author, targetArtifactType);
-
-            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, sourceArtifact.Id);
+            var sourceArtifact = Helper.CreateNovaArtifact(author, _project, sourceArtifactType, _project.Id);
+            var targetArtifact = Helper.CreateNovaArtifact(author, _project, targetArtifactType, _project.Id);
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
-
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetArtifact.Id, author),
+            Assert.DoesNotThrow(() => copyResult = ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, sourceArtifact.Id, targetArtifact.Id, author),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
-            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, author, expectedVersionOfOriginalArtifact: -1);
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifact, copyResult, author, expectedVersionOfOriginalArtifact: -1);
         }
         
         [TestCase(ItemTypePredefined.Actor, ItemTypePredefined.Glossary)]
@@ -109,7 +106,7 @@ namespace ArtifactStoreTests
             var sourceArtifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(author, _project, sourceArtifactType,
                 numberOfVersions: 2, parentId: parentArtifact.Id);
 
-            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, sourceArtifact.Id);
+//            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, sourceArtifact.Id);
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
@@ -118,7 +115,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
-            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, author, expectedVersionOfOriginalArtifact: 2);
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifact, copyResult, author, expectedVersionOfOriginalArtifact: 2);
         }
 
         [TestCase(ItemTypePredefined.Actor, ItemTypePredefined.Glossary)]

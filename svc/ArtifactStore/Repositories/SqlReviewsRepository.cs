@@ -36,16 +36,26 @@ namespace ArtifactStore.Repositories
             param.Add("@userId", userId);
             param.Add("@revisionId", revisionId);
 
-            var result = await ConnectionWrapper.QueryMultipleAsync<ReviewSource, int, ReviewArtifactsStatus>(
+            var result = await ConnectionWrapper.QueryMultipleAsync<int?, int, ReviewStatus, ReviewArtifactsStatus>(
                 "GetReviewDetails", param,
                 commandType: CommandType.StoredProcedure);
+            var reviewSource = new ReviewSource();
+            var baselineId = result.Item1.SingleOrDefault();
+            if (baselineId.HasValue)
+            {
+                var artifactInfo = await _artifactVersionsRepository.GetVersionControlArtifactInfoAsync(baselineId.Value, null, userId);
+                reviewSource.Id = artifactInfo.Id;
+                reviewSource.Name = artifactInfo.Name;
+                reviewSource.Prefix = artifactInfo.Prefix;
+            }
 
             return new ReviewContainer
             {
                 Id = reviewId,
-                Source = result.Item1.SingleOrDefault(),
+                Source = reviewSource,
                 TotalArtifacts = result.Item2.SingleOrDefault(),
-                ArtifactsStatus = result.Item3.SingleOrDefault(),
+                Status = result.Item3.SingleOrDefault(),
+                ArtifactsStatus = result.Item4.SingleOrDefault(),
                 ReviewType = result.Item1.SingleOrDefault() == null? ReviewType.Informal: ReviewType.Formal
             };
         }
@@ -57,6 +67,13 @@ namespace ArtifactStore.Repositories
             {
                 throw new ResourceNotFoundException();
             }
+
+            var reviewer = await GetReviewer(containerId, userId);
+            if (reviewer == null)
+            {
+                throw new AuthorizationException();
+            }
+
             var reviewContainer = await GetReviewAsync(containerId, userId, int.MaxValue);
             reviewContainer.Name = artifactInfo.Name;
             //TODO Description
@@ -83,6 +100,24 @@ namespace ArtifactStore.Repositories
                 Total = result.Item2.SingleOrDefault()
             };
 
+        }
+
+        /// <summary>
+        /// Returns reviewer basic information:
+        ///     UserId
+        ///     Role
+        /// </summary>
+        /// <param name="reviewId"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public async Task<Reviewer> GetReviewer(int reviewId, int userId)
+        {
+            var param = new DynamicParameters();
+            param.Add("@reviewId", reviewId);
+            param.Add("@userId", userId);
+            return (await ConnectionWrapper.QueryAsync<Reviewer>(
+                "GetReviewer", param,
+                commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
     }    
 }

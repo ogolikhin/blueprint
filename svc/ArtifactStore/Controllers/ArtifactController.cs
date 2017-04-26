@@ -187,6 +187,17 @@ namespace ArtifactStore.Controllers
             return await ArtifactRepository.GetBaselineInfo(artifactIds, session.UserId, true, int.MaxValue);
         }
 
+        /// <summary>
+        /// Get workflow transitions for current artifact
+        /// </summary>
+        /// <remarks>
+        /// Returns list of all possible workflow transitions based of of the current artifact and the state its in.
+        /// </remarks>
+        /// <response code="200">OK.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>              
+        /// <response code="403">Forbidden. The user does not have permissions for the artifact.</response>
+        /// <response code="404">Not found. The artifact is not found.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("artifacts/{artifactId:int:min(1)}/transitions"), SessionRequired]
         [ActionName("GetTransitions")]

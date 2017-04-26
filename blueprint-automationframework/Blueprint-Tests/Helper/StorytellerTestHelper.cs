@@ -6,6 +6,7 @@ using Model.StorytellerModel.Impl;
 using NUnit.Framework;
 using System.ComponentModel;
 using System.Linq;
+using Model.ArtifactModel;
 using Model.StorytellerModel.Enums;
 using Utilities;
 using Utilities.Factories;
@@ -61,7 +62,7 @@ namespace Helper
         /// <param name="isSuspectExpected">(optional) Flag indicating whether the relationship is expected to be suspect (Default: false)</param>
         public static void AssertPersonaReferenceRelationshipIsCorrect(Relationship relationship, 
             IProject actorArtifactProject, 
-            NovaArtifactBase actorArtifact,
+            INovaArtifactBase actorArtifact,
             bool isReadOnlyExpected = false,
             bool isSuspectExpected = false
             )

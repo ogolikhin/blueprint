@@ -16,6 +16,7 @@ using TestCommon;
 using Utilities;
 using Utilities.Factories;
 using Model.Common.Enums;
+using Model.ModelHelpers;
 
 namespace StorytellerTests
 {
@@ -59,12 +60,12 @@ namespace StorytellerTests
             // Setup: Create a default process and update with the added persona reference
             var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _authorFullAccess);
             var addedPersonaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
-            var personaReferenceArtifact = new ArtifactBase {Id = addedPersonaReference.Id, ProjectId = addedPersonaReference.ProjectId};
+            var personaReferenceArtifact = Helper.WrappedArtifactsToDispose.Find(a => a.Id == addedPersonaReference.Id);
 
             // Execution: Move the persona reference to a new folder and update the process
             var folderArtifact = Helper.CreateAndPublishNovaArtifact(_authorFullAccess, _project, ItemTypePredefined.PrimitiveFolder);
-            Helper.SvcShared.LockArtifact(_authorFullAccess, personaReferenceArtifact);
-            Helper.ArtifactStore.MoveArtifact(_authorFullAccess, personaReferenceArtifact.Id, folderArtifact.Id);
+            personaReferenceArtifact.Lock(_authorFullAccess);
+            personaReferenceArtifact.MoveArtifact(_authorFullAccess, folderArtifact.Id);
 
             // Update and save the process; Get the persona reference from the saved process
             var savedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _authorFullAccess);
@@ -109,7 +110,7 @@ namespace StorytellerTests
             var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, userWithoutPermissionToPersonaReference);
             var defaultPersonaReference = GetPersonaReferenceFromTask(taskName, process);
             var addedPersonaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
-            var personaReferenceArtifact = new ArtifactBase { Id = addedPersonaReference.Id, ProjectId = addedPersonaReference.ProjectId };
+            var personaReferenceArtifact = Helper.WrappedArtifactsToDispose.Find(a => a.Id == addedPersonaReference.Id);
 
             Helper.AssignProjectRolePermissionsToUser(userWithoutPermissionToPersonaReference, TestHelper.ProjectRole.None, _project, personaReferenceArtifact);
 
@@ -140,7 +141,7 @@ namespace StorytellerTests
 
             var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _authorFullAccess);
             var addedPersonaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
-            var personaReferenceArtifact = new ArtifactBase { Id = addedPersonaReference.Id, ProjectId = addedPersonaReference.ProjectId };
+            var personaReferenceArtifact = Helper.WrappedArtifactsToDispose.Find(a => a.Id == addedPersonaReference.Id);
 
             Helper.AssignProjectRolePermissionsToUser(userWithoutPermission, TestHelper.ProjectRole.None, _project, personaReferenceArtifact);
 
@@ -148,7 +149,7 @@ namespace StorytellerTests
             var personaReferencBeforeUpdate = GetPersonaReferenceFromTask(taskName, publishedProcess);
 
             var anotherPersonaReference = AddPersonaReferenceToTask(taskName, publishedProcess, _authorFullAccess, _project);
-            var anotherPersonaReferenceArtifact = new ArtifactBase { Id = anotherPersonaReference.Id, ProjectId = anotherPersonaReference.ProjectId};
+            var anotherPersonaReferenceArtifact = Helper.WrappedArtifactsToDispose.Find(a => a.Id == anotherPersonaReference.Id);
 
             Helper.AssignProjectRolePermissionsToUser(userWithoutPermission, TestHelper.ProjectRole.None, _project, anotherPersonaReferenceArtifact);
 
@@ -309,15 +310,15 @@ namespace StorytellerTests
             AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, publishedProcess);
 
             // Get the actor artifact from the persona reference
-            var actorArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorFullAccess, personaReference.Id);
+            var actorArtifact = Helper.WrappedArtifactsToDispose.Find(a => a.Id == personaReference.Id);
 
             // Change the actor artifact name
-            actorArtifactDetails.Name = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+            actorArtifact.Name = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
             //Execute:
             // Publish actor with new name
-            Helper.SvcShared.LockArtifact(_authorFullAccess, actorArtifactDetails.Id);
-            Helper.UpdateNovaArtifact(_authorFullAccess, actorArtifactDetails);
+            actorArtifact.Lock(_authorFullAccess);
+            actorArtifact.Update(_authorFullAccess, actorArtifact.Artifact);
 
             // Verify:
             var updatedNovaProcess = Helper.Storyteller.GetNovaProcess(_authorFullAccess, process.Id);
@@ -325,8 +326,8 @@ namespace StorytellerTests
             var task = updatedProcess.GetProcessShapeByShapeName(taskName);
             var updatedPersonaReferenceName = task.PersonaReference.Name;
 
-            Assert.AreEqual(updatedPersonaReferenceName, actorArtifactDetails.Name, "The persona reference name was {0} but {1} was expected!",
-                updatedPersonaReferenceName, actorArtifactDetails.Name);
+            Assert.AreEqual(updatedPersonaReferenceName, actorArtifact.Name, "The persona reference name was {0} but {1} was expected!",
+                updatedPersonaReferenceName, actorArtifact.Name);
 
             AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, updatedProcess);
         }
@@ -343,7 +344,7 @@ namespace StorytellerTests
 
             // Get persona reference and persona actor artifact
             var personaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
-            var personaActorArtifact = Helper.ArtifactStore.GetArtifactDetails(_authorFullAccess, personaReference.Id);
+            var personaActorArtifact = Helper.WrappedArtifactsToDispose.Find(a => a.Id == personaReference.Id);
 
             //Execute:
             // Update process and publish
@@ -367,7 +368,7 @@ namespace StorytellerTests
 
             // Get persona reference and persona actor artifact
             var personaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
-            var personaActorArtifact = Helper.ArtifactStore.GetArtifactDetails(_authorFullAccess, personaReference.Id);
+            var personaActorArtifact = Helper.WrappedArtifactsToDispose.Find(a => a.Id == personaReference.Id);
 
             // Update process and publish
             var updatedProcess = StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, Helper.Storyteller, _authorFullAccess);
@@ -441,8 +442,8 @@ namespace StorytellerTests
             Assert.IsNotNull(publishedProcess, "There was a problem in process verification!");
 
             // Delete Actor
-            var actor = new ArtifactBase { Id = addedPersonaReference.Id, ProjectId = addedPersonaReference.ProjectId};
-            Helper.ArtifactStore.DeleteArtifact(actor, _authorFullAccess);
+            var actor = Helper.WrappedArtifactsToDispose.Find(a => a.Id == addedPersonaReference.Id);
+            actor.Delete(_authorFullAccess);
 
             // Execute:
             var userStories = Helper.Storyteller.GenerateUserStories(_authorFullAccess, process);
@@ -473,7 +474,7 @@ namespace StorytellerTests
             var publishedProcess = StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, Helper.Storyteller, _authorFullAccess);
             Assert.IsNotNull(publishedProcess, "There was a problem in process verification!");
 
-            var actor = new ArtifactBase { Id = addedPersonaReference.Id, ProjectId = addedPersonaReference.ProjectId};
+            var actor = Helper.WrappedArtifactsToDispose.Find(a => a.Id == addedPersonaReference.Id);
 
             var userWithoutPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
             Helper.AssignProjectRolePermissionsToUser(userWithoutPermissions, TestHelper.ProjectRole.None, _project, actor);
@@ -653,14 +654,14 @@ namespace StorytellerTests
         /// </summary>
         /// <param name="artifact">artifact that represent the inaccessible persona refence</param>
         /// <returns>inaccesible persona reference</returns>
-        private static ArtifactReference CreateInaccessiblePersonaReference(IArtifactBase artifact)
+        private static ArtifactReference CreateInaccessiblePersonaReference(INovaArtifactBase artifact)
         {
             var inaccessiblePersonaReference = new ArtifactReference()
             {
                 Id = -4,
                 Link = null,
                 Name = "Inaccessible Actor",
-                ProjectId = artifact.ProjectId,
+                ProjectId = (int)artifact.ProjectId,
                 TypePrefix = "<Inaccessible>",
                 BaseItemTypePredefined = ItemTypePredefined.Actor,
                 Version = null

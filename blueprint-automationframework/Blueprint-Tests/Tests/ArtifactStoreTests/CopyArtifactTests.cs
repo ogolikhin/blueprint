@@ -674,8 +674,9 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(195958)]
-        [Description("Create and publish a source Process with generated User Stories, and save a destination folder.  Copy the source artifact under the destination folder.  " +
-            "Verify the source Process is unchanged and the new Process is identical to the source Process.  Verify the source User Stories are unchanged (except for new Traces " +
+        [Description("Create and publish a source Process. Generate User Stories for the process. Create and publish a destination folder. " +
+            "Copy the source process to under the destination folder. Verify the source Process is unchanged and the new Process is identical " +
+            "to the source Process (except for subartifact StoryLinks).  Verify the source User Stories are unchanged (except for new Traces " +
             "to the copied Process).  New copied Process & User Stories should not be published.")]
         public void CopyArtifact_SinglePublishedProcessWithUserStories_ToNewFolder_ReturnsNewProcessWithUserStories()
         {
@@ -710,7 +711,7 @@ namespace ArtifactStoreTests
             };
 
             AssertCopiedSubArtifactsAreEqualToOriginal(_user, sourceArtifactDetails, copyResult.Artifact,
-                skipSubArtifactTraces: true, attachmentCompareOptions: compareOptions, skipUserStoryLinks: true);
+                skipSubArtifactTraces: true, attachmentCompareOptions: compareOptions, copiedProcessStoryLinksShouldBeNull: true);
 
             var childArtifacts = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, copyResult.Artifact.Id, _user);
 
@@ -719,9 +720,10 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(195959)]
-        [Description("Create and publish a source Process with generated User Stories, and publish a destination folder.  Copy the source artifact under the destination folder " +
-            "generate User Stories from the copied Process.  Verify the source Process is unchanged and the new Process is identical to the source Process.  Verify the source " +
-            "User Stories are unchanged (except for new Traces to the copied Process).  New copied Process & User Stories should not be published.")]
+        [Description("Create and publish a source Process. Generate User Stories for the process. Create and publish a destination folder. " +
+            "Copy the source process to under the destination folder. Generate User Stories for the copied Process.  Verify the source Process " +
+            "is unchanged and the new Process is identical to the source Process.  Verify the source " +
+            "User Stories are unchanged (except for new Traces to the copied Process). New copied Process & User Stories should not be published.")]
         public void CopyArtifact_SinglePublishedProcessWithUserStories_ToNewFolder_GenerateUserStories_NewUserStoriesAreCreated()
         {
             // Setup:
@@ -1631,10 +1633,10 @@ namespace ArtifactStoreTests
         /// <param name="copiedArtifact">The new copied artifact.</param>
         /// <param name="skipSubArtifactTraces">(optional) Pass true to skip comparison of the SubArtifact trace Relationships.</param>
         /// <param name="attachmentCompareOptions">(optional) Specifies which Attachments properties to compare.  By default, all properties are compared.</param>
-        /// <param name="skipUserStoryLinks">(optional) Pass true to skip comparison of User Story links. Default is false.</param>
+        /// <param name="copiedProcessStoryLinksShouldBeNull">(optional) Pass true to indicate copied process stroy links should be null. Default is false.</param>
         /// <exception cref="AssertionException">If any of the sub-artifact properties are different between the source and copied artifacts.</exception>
         private void AssertCopiedSubArtifactsAreEqualToOriginal(IUser user, INovaArtifactBase sourceArtifact, INovaArtifactBase copiedArtifact,
-            bool skipSubArtifactTraces = false, Attachments.CompareOptions attachmentCompareOptions = null, bool skipUserStoryLinks = false)
+            bool skipSubArtifactTraces = false, Attachments.CompareOptions attachmentCompareOptions = null, bool copiedProcessStoryLinksShouldBeNull = false)
         {
             ThrowIf.ArgumentNull(sourceArtifact, nameof(sourceArtifact));
             ThrowIf.ArgumentNull(copiedArtifact, nameof(copiedArtifact));
@@ -1654,12 +1656,12 @@ namespace ArtifactStoreTests
                 {
                     CompareArtifactIds = false,
                     CompareTraces = !skipSubArtifactTraces,
-                    CompareUserStoryLinks = skipUserStoryLinks
                 };
                 ArtifactStoreHelper.AssertSubArtifactsAreEqual(sourceSubArtifact, copiedSubArtifact, Helper.ArtifactStore, user,
-                     copiedArtifact.Id, propertyCompareOptions, attachmentCompareOptions);
+                     copiedArtifact.Id, propertyCompareOptions, attachmentCompareOptions, copiedProcessStoryLinksShouldBeNull);
 
-                ArtifactStoreHelper.VerifyIndicatorFlags(Helper, user, copiedArtifact.Id, sourceSubArtifact.IndicatorFlags, (int)copiedSubArtifact.Id);
+                ArtifactStoreHelper.VerifyIndicatorFlags(Helper, user, copiedArtifact.Id, sourceSubArtifact.IndicatorFlags, 
+                    (int)copiedSubArtifact.Id);
             }
         }
 

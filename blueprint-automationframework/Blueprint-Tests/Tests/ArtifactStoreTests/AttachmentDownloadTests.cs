@@ -163,7 +163,7 @@ namespace ArtifactStoreTests
 
             var subArtifact = Helper.ArtifactStore.GetSubartifact(_adminUser, artifact.Id, subArtifacts[0].Id);
 
-            var attachment = ArtifactStoreHelper.AddSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifact, _attachmentFile, Helper.ArtifactStore);
+            var attachment = ArtifactStoreHelper.AddSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifact.Id.Value, _attachmentFile, Helper.ArtifactStore);
             Assert.AreEqual(1, attachment.AttachedFiles.Count, "SubArtifact should have 1 file attached.");
 
             artifact.Publish(_adminUser);
@@ -197,7 +197,7 @@ namespace ArtifactStoreTests
 
             // User Task is subArtifacts[2] - Add attachment to the sub-artifact.
             var subArtifact = Helper.ArtifactStore.GetSubartifact(_adminUser, artifact.Id, subArtifacts[2].Id);
-            var attachment = ArtifactStoreHelper.AddSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifact, _attachmentFile, Helper.ArtifactStore);
+            var attachment = ArtifactStoreHelper.AddSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifact.Id.Value, _attachmentFile, Helper.ArtifactStore);
             artifact.Publish(_adminUser);
 
             // Verify attachment was added.

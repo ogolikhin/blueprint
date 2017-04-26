@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Net;
+using NUnit.Framework;
 using Utilities;
 using Utilities.Facades;
 
@@ -23,15 +24,15 @@ namespace Model.ArtifactModel.Impl
                 expectedStatusCodes: expectedStatusCodes);
         }
 
-        public bool Equals(AttachedFile attachedFile)
+        /// <summary>
+        /// Asserts that the OpenApiAttachment properties match the AttachedFile properties.
+        /// </summary>
+        /// <param name="expectedOpenApiAttachment">The OpenApiAttachment whose properties are expected.</param>
+        /// <param name="attachedFile">The AttachedFile from Nova.</param>
+        public static void AssertAreEqual(OpenApiAttachment expectedOpenApiAttachment, AttachedFile attachedFile)
         {
-            if (attachedFile == null)
-            { return false; }
-            else
-            {
-                return (((attachedFile.AttachmentId) == Id) && 
-                    (attachedFile.FileName == FileName));
-            }
+            Assert.AreEqual(expectedOpenApiAttachment?.Id, attachedFile?.AttachmentId, "The Id and AttachmentId properties don't match!");
+            Assert.AreEqual(expectedOpenApiAttachment?.FileName, attachedFile?.FileName, "The FileName properties don't match!");
         }
     }
 }

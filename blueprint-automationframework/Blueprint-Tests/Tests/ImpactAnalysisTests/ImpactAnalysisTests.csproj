@@ -8,8 +8,8 @@
     <ProjectGuid>{EE6F7461-DF13-4A0A-9848-1B1CAB6FD999}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ImpactAnalysis</RootNamespace>
-    <AssemblyName>ImpactAnalysis</AssemblyName>
+    <RootNamespace>ImpactAnalysisTests</RootNamespace>
+    <AssemblyName>ImpactAnalysisTests</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

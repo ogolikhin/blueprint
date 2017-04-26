@@ -1545,7 +1545,7 @@ namespace Helper
         /// </summary>
         /// <param name="user">User to perform an operation.</param>
         /// <param name="artifact">The artifact containing the sub-artifact to attach a file to.</param>
-        /// <param name="subArtifact">The sub-artifact to attach a file to.</param>
+        /// <param name="subArtifactId">The ID of the sub-artifact to attach a file to.</param>
         /// <param name="file">The file to attach.</param>
         /// <param name="artifactStore">IArtifactStore.</param>
         /// <param name="shouldLockArtifact">(optional) Pass false if the artifact is already locked (or unpublished).</param>
@@ -1553,12 +1553,12 @@ namespace Helper
         public static Attachments AddSubArtifactAttachmentAndSave(
             IUser user,
             ArtifactWrapper artifact,
-            NovaItem subArtifact,
+            int subArtifactId,
             INovaFile file,
             IArtifactStore artifactStore,
             bool shouldLockArtifact = true)
         {
-            return AddSubArtifactAttachmentsAndSave(user, artifact, subArtifact, new List<INovaFile> { file }, artifactStore, shouldLockArtifact);
+            return AddSubArtifactAttachmentsAndSave(user, artifact, subArtifactId, new List<INovaFile> { file }, artifactStore, shouldLockArtifact);
         }
 
         /// <summary>
@@ -1566,7 +1566,7 @@ namespace Helper
         /// </summary>
         /// <param name="user">User to perform an operation.</param>
         /// <param name="artifact">The artifact containing the sub-artifact to attach a file to.</param>
-        /// <param name="subArtifact">The sub-artifact to attach a file to.</param>
+        /// <param name="subArtifactId">The ID of the sub-artifact to attach a file to.</param>
         /// <param name="files">List of files to attach.</param>
         /// <param name="artifactStore">IArtifactStore.</param>
         /// <param name="shouldLockArtifact">(optional) Pass false if the artifact is already locked (or unpublished).</param>
@@ -1574,18 +1574,16 @@ namespace Helper
         public static Attachments AddSubArtifactAttachmentsAndSave(
             IUser user,
             ArtifactWrapper artifact,
-            NovaItem subArtifact,
+            int subArtifactId,
             List<INovaFile> files,
             IArtifactStore artifactStore,
             bool shouldLockArtifact = true)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
-            ThrowIf.ArgumentNull(subArtifact, nameof(subArtifact));
+            ThrowIf.ArgumentNull(subArtifactId, nameof(subArtifactId));
             ThrowIf.ArgumentNull(files, nameof(files));
             ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
-
-            Assert.AreEqual(artifact.Id, subArtifact.ParentId, "subArtifact should belong to Artifact");
 
             if (shouldLockArtifact)
             {
@@ -1593,7 +1591,7 @@ namespace Helper
             }
 
             var subArtifactToAdd = new NovaSubArtifact();
-            subArtifactToAdd.Id = subArtifact.Id;
+            subArtifactToAdd.Id = subArtifactId;
 
             foreach (var file in files)
             {
@@ -1608,7 +1606,7 @@ namespace Helper
 
             artifact.Update(user, updateArtifact);
 
-            var attachments = artifactStore.GetAttachments(user, artifact.Id, subArtifactId: subArtifact.Id);
+            var attachments = artifactStore.GetAttachments(user, artifact.Id, subArtifactId: subArtifactId);
             Assert.IsTrue(attachments.AttachedFiles.Count >= files.Count, "All attachments should be added.");
 
             return attachments;

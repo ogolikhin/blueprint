@@ -148,7 +148,7 @@ namespace AdminStore.Controllers
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
-            var user = await _userRepository.GetUser(userId);
+            var user = await _userRepository.GetUserDto(userId);
 
             if (user.UserId == 0)
                 return NotFound();

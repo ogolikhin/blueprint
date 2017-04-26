@@ -40,8 +40,33 @@ namespace Helper
 
             Logger.WriteTrace("{0}.{1} called.", nameof(SearchServiceTestHelper), nameof(SetupFullTextSearchData));
 
+            var artifacts = new List<ArtifactWrapper>();
+
+            var projectsSubset = new List<IProject> { projects[0], projects[1] };
+
+            // This keeps the artifact description constant for all created artifacts
+            var randomArtifactDescription = "Description " + RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces();
+
             if (selectedBaseArtifactTypes == null)
             {
+                foreach (var project in projectsSubset)
+                    {
+                        var randomBaselineName = "Artifact_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces();
+                        var artifactBaseline = testHelper.CreateBaseline(user, project, name: randomBaselineName);
+                        artifactBaseline.SaveWithNewDescription(user, randomArtifactDescription);
+                        artifactBaseline.Publish(user);
+                        artifactBaseline.RefreshArtifactFromServer(user);
+
+                        var randomCollectionName = "Artifact_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces();
+                        var artifactCollection = testHelper.CreateUnpublishedCollection(project, user, name: randomCollectionName);
+                        artifactCollection.SaveWithNewDescription(user, randomArtifactDescription);
+                        artifactCollection.Publish(user);
+                        artifactCollection.RefreshArtifactFromServer(user);
+
+                        artifacts.Add(artifactBaseline);
+                        artifacts.Add(artifactCollection);
+                    }
+
                 selectedBaseArtifactTypes = new List<ItemTypePredefined>();
                 foreach (var tp in TestCaseSources.AllArtifactTypesForNovaRestMethods)
                 {
@@ -49,16 +74,10 @@ namespace Helper
                     selectedBaseArtifactTypes.Add(itm);
                 }
             }
+
             var baseArtifactTypes = selectedBaseArtifactTypes ??
                 (TestCaseSources.AllArtifactTypesForNovaRestMethods).Select(artifactType =>
                 (ItemTypePredefined)artifactType);
-
-            var artifacts = new List<ArtifactWrapper>();
-
-            var projectsSubset = new List<IProject> {projects[0], projects[1]};
-
-            // This keeps the artifact description constant for all created artifacts
-            var randomArtifactDescription = "Description " + RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces();
 
             foreach (var artifactType in baseArtifactTypes)
             {

@@ -197,7 +197,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(266957)]
-        [Description("Add published Artifact with children Artifacts to Baseline, user don't have access to one of children, " +
+        [Description("Add published Artifact with children Artifacts to Baseline, user don't have access to one of the children, " +
             "check that only artifacts accessible to user were added to the Baseline.")]
         public void AddArtifactToBaseline_ArtifactWithDescendants_UserHasAccessToParentArtifactOnly_OnlyAccessibleArtifactsAddedToBaseline()
         {

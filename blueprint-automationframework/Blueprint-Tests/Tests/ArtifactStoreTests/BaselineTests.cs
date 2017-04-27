@@ -25,7 +25,11 @@ namespace ArtifactStoreTests
         private IUser _user = null;
         private IProject _project = null;
 
-        private const string expectedInternalExceptionMessage = "Exception of type 'BluePrintSys.RC.Business.Internal.Models.InternalApiBusinessException' was thrown.";
+        private readonly string draftDescription = TestHelper.DraftDescription;
+        private readonly string publishedDescription = TestHelper.PublishedDescription;
+
+        private const string expectedInternalExceptionMessage = 
+            "Exception of type 'BluePrintSys.RC.Business.Internal.Models.InternalApiBusinessException' was thrown.";
 
         private static Dictionary<int, string> ProjectExpectedCreationDateMap { get; } = new Dictionary<int, string>
         {
@@ -96,19 +100,14 @@ namespace ArtifactStoreTests
 
         #region Add Artifact to Baseline
 
-        [TestCase(true)]
-        [TestCase(false)]
+        [TestCase(TestHelper.TestArtifactState.Published)]
+        [TestCase(TestHelper.TestArtifactState.PublishedWithDraft)]
         [TestRail(266914)]
         [Description("Add published or published with draft Artifact to Baseline, check that Baseline and its artifacts have expected values.")]
-        public void AddArtifactToBaseline_PublishedOrDraftArtifact_ValidateReturnedBaseline(bool published)
+        public void AddArtifactToBaseline_PublishedOrDraftArtifact_ValidateReturnedBaseline(TestHelper.TestArtifactState artifactState)
         {
             // Setup:
-            var artifactToAdd = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_user, _project, ItemTypePredefined.Actor, numberOfVersions: 2);
-
-            if (!published)
-            {
-                UpdateArtifactDescription(artifactToAdd);
-            }
+            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, artifactState, ItemTypePredefined.Actor, _project.Id);
 
             var baseline = Helper.CreateBaseline(_user, _project);
 
@@ -125,7 +124,17 @@ namespace ArtifactStoreTests
             Assert.AreEqual(EXPECTED_NUMBER_OF_ADDED_ARTIFACTS, numberOfAddedArtifacts, "AddArtifactToBaseline should return expected number of added artifacts.");
             var updatedBaseline = GetAndValidateBaseline(_user, baseline.Id, new List<int> { artifactToAdd.Id });
 
-            Assert.AreEqual(artifactToAdd.Description, updatedBaseline.Artifacts[0].Description, "Artifact in Baseline should have expected description.");
+            switch (artifactState)
+            {
+                case TestHelper.TestArtifactState.Published:
+                    Assert.AreEqual(publishedDescription, updatedBaseline.Artifacts[0].Description, "Artifact in Baseline should have expected description.");
+                    break;
+                case TestHelper.TestArtifactState.PublishedWithDraft:
+                    Assert.AreEqual(draftDescription, updatedBaseline.Artifacts[0].Description, "Artifact in Baseline should have expected description.");
+                    break;
+                default:
+                     break;
+             }
         }
 
         [TestCase]
@@ -306,19 +315,14 @@ namespace ArtifactStoreTests
 
         #region Add Collection to Baseline
 
-        [TestCase(true)]
-        [TestCase(false)]
+        [TestCase(TestHelper.TestArtifactState.Published)]
+        [TestCase(TestHelper.TestArtifactState.PublishedWithDraft)]
         [TestRail(266913)]
         [Description("Add one published or published with draft Artifact to Collection, add Collection to Baseline, check that Baseline has expected values.")]
-        public void AddArtifactToBaseline_CollectionAddToBaseline_ValidateReturnedBaseline(bool published)
+        public void AddArtifactToBaseline_CollectionAddToBaseline_ValidateReturnedBaseline(TestHelper.TestArtifactState artifactState)
         {
             // Setup:
-            var artifactToAdd = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Actor, _project.Id);
-
-            if (!published)
-            {
-                UpdateArtifactDescription(artifactToAdd);
-            }
+            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, artifactState, ItemTypePredefined.Actor, _project.Id);
 
             var collection = Helper.CreateUnpublishedCollectionWithArtifactsInSpecificState(_user, _project, TestHelper.TestArtifactState.Created,
                 new List<int> { artifactToAdd.Id });
@@ -437,9 +441,8 @@ namespace ArtifactStoreTests
         public void EditBaselineArtifacts_AddPublishedArtifactToBaseline_ValidateReturnedBaseline()
         {
             // Setup:
-            var artifactToAdd = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Actor, _project.Id);
-
-            UpdateArtifactDescription(artifactToAdd);
+            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.PublishedWithDraft, 
+                ItemTypePredefined.Actor, _project.Id);
 
             var baselineArtifact = Helper.CreateBaseline(_user, _project);
             var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
@@ -1066,14 +1069,6 @@ namespace ArtifactStoreTests
                 formattedReceivedMinimalUtcTimestamp,
                 "{0} was expected from MinimalUtcTimestamp but {1} was returned from the receievedBaseline",
                 projectExpectedCreationDateMap[project.Id], formattedReceivedMinimalUtcTimestamp);
-        }
-
-        private void UpdateArtifactDescription(Model.ModelHelpers.ArtifactWrapper artifact)
-        {
-            artifact.Lock(_user);
-            var updatedArtifact = ArtifactStoreHelper.CreateNovaArtifactDetailsForUpdate(artifact);
-            updatedArtifact.Description = "This is an unpublished artifact with changed description!";
-            artifact.Update(_user, updatedArtifact);
         }
 
         #endregion Private Functions

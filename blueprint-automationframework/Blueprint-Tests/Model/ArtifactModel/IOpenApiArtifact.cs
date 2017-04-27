@@ -13,6 +13,16 @@ namespace Model.ArtifactModel
         #endregion Serialized JSON Properties
 
         /// <summary>
+        /// Add attachment to the specified artifact.
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="projectId">Id of project containing artifact to add attachment.</param>
+        /// <param name="artifactId">Id of artifact to add attachment.</param>
+        /// <param name="file">File to attach.</param>
+        /// <returns>OpenApiAttachment object.</returns>
+        OpenApiAttachment AddArtifactAttachment(IUser user, int projectId, int artifactId, IFile file);
+
+        /// <summary>
         /// Save the artifact on Blueprint server.
         /// </summary>
         /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to delete using the credentials

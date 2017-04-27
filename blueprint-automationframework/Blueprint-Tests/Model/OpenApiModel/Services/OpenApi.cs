@@ -399,51 +399,28 @@ namespace Model.OpenApiModel.Services
 
         #region Attachment methods
 
-        /// <summary>
-        /// Add attachment to the specified artifact.
-        /// (Runs:  'POST /api/v1/projects/{projectId}/artifacts/{artifactId}/attachments')
-        /// </summary>
-        /// <param name="address">The base URL of the Blueprint server.</param>
-        /// <param name="projectId">Id of project containing artifact to add attachment.</param>
-        /// <param name="artifactId">Id of artifact to add attachment.</param>
-        /// <param name="file">File to attach.</param>
-        /// <param name="user">The user to authenticate with.</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '201 Created' is expected.</param>
-        /// <returns>OpenApiAttachment object.</returns>
-        public static OpenApiAttachment AddArtifactAttachment(string address,
+        /// <seealso cref="IOpenApi.AddArtifactAttachment(IUser, int, int, IFile)"/>
+        public OpenApiAttachment AddArtifactAttachment(
+            IUser user,
             int projectId,
             int artifactId,
-            IFile file,
-            IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null)
+            IFile file)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(file, nameof(file));
 
             string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.Artifacts_id_.ATTACHMENTS, projectId, artifactId);
 
-            return AddItemAttachment(address, path, file, user, expectedStatusCodes);
+            return AddItemAttachment(Address, path, file, user);
         }
 
-        /// <summary>
-        /// Add attachment to the specified sub-artifact.
-        /// (Runs:  'POST /api/v1/projects/{projectId}/artifacts/{artifactId}/subartifacts/{subArtifactId}/attachments')
-        /// </summary>
-        /// <param name="address">The base URL of the Blueprint server.</param>
-        /// <param name="projectId">Id of project containing artifact to add attachment.</param>
-        /// <param name="artifactId">Id of artifact to add attachment.</param>
-        /// <param name="subArtifactId">Id of subartifact to attach file.</param>
-        /// <param name="file">File to attach.</param>
-        /// <param name="user">The user to authenticate with.</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '201 Created' is expected.</param>
-        /// <returns>OpenApiAttachment object.</returns>
-        public static OpenApiAttachment AddSubArtifactAttachment(string address,
+        /// <seealso cref="IOpenApi.AddSubArtifactAttachment(IUser, int, int, int, IFile)"/>
+        public OpenApiAttachment AddSubArtifactAttachment(
+            IUser user,
             int projectId,
             int artifactId,
             int subArtifactId,
-            IFile file,
-            IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null)
+            IFile file)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(file, nameof(file));
@@ -451,7 +428,7 @@ namespace Model.OpenApiModel.Services
             string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.Artifacts_id_.SubArtifacts_id_.ATTACHMENTS,
                 projectId, artifactId, subArtifactId);
 
-            return AddItemAttachment(address, path, file, user, expectedStatusCodes);
+            return AddItemAttachment(Address, path, file, user);
         }
 
         /// <summary>

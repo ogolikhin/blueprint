@@ -65,7 +65,7 @@ namespace ArtifactStoreTests
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
             // Execute:
-            Assert.DoesNotThrow(() => ArtifactStoreHelper.AddArtifactAttachmentAndSave(author, artifact, _attachmentFile, Helper.ArtifactStore),
+            Assert.DoesNotThrow(() => ArtifactStoreHelper.AddArtifactAttachmentAndSave(author, artifact, _attachmentFile, Helper.ArtifactStore, shouldReturnAttachments: false),
                 "Exception caught while trying to update an artifact!");
 
             // Verify:
@@ -84,10 +84,9 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.TextualRequirement);
-            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_user, artifact, _attachmentFile, Helper.ArtifactStore);
+            var attachment = ArtifactStoreHelper.AddArtifactAttachmentAndSave(_user, artifact, _attachmentFile, Helper.ArtifactStore);
             artifact.Publish(_user);
 
-            var attachment = Helper.ArtifactStore.GetAttachments(_user, artifact.Id);
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
             // Execute:
@@ -116,9 +115,11 @@ namespace ArtifactStoreTests
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
             // Execute:
-            Assert.DoesNotThrow(() => ArtifactStoreHelper.AddArtifactAttachmentsAndSave(
-                author, artifact, new List<INovaFile> { _attachmentFile, attachmentFile1 }, Helper.ArtifactStore),
-                "Exception caught while trying to update an artifact!");
+            Assert.DoesNotThrow(() =>
+            {
+                ArtifactStoreHelper.AddArtifactAttachmentsAndSave(author, artifact, new List<INovaFile> { _attachmentFile, attachmentFile1 },
+                    Helper.ArtifactStore, shouldReturnAttachments: false);
+            }, "Exception caught while trying to update an artifact!");
 
             // Verify:
             var attachmentAfterTest = Helper.ArtifactStore.GetAttachments(author, artifact.Id);
@@ -143,8 +144,10 @@ namespace ArtifactStoreTests
             Assert.AreEqual(0, attachmentBeforeTest.AttachedFiles.Count, "Artifact shouldn't have attachments at this point.");
 
             // Execute:
-            Assert.Throws<Http409ConflictException>(() => ArtifactStoreHelper.AddArtifactAttachmentAndSave(
-                _user, artifact, _attachmentFile, Helper.ArtifactStore), "Unexpected Exception caught while trying to update an artifact!");
+            Assert.Throws<Http409ConflictException>(() =>
+            {
+                ArtifactStoreHelper.AddArtifactAttachmentAndSave(_user, artifact, _attachmentFile, Helper.ArtifactStore, shouldReturnAttachments: false);
+            }, "Unexpected Exception caught while trying to update an artifact!");
             
             // Verify:
             var attachmentAfterTest = Helper.ArtifactStore.GetAttachments(_user, artifact.Id);

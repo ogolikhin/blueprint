@@ -194,7 +194,10 @@ namespace StorytellerTests
 
             // Create an artifact representing the process artifact that was created and add it to the 
             // list of artifacts to lock
-            var artifactsToLock = new List<IArtifactBase> { Helper.Storyteller.Artifacts.Find(a => a.Id == process.Id) };
+
+            var processArtifact = new Artifact { Id = process.Id, Address = Helper.ArtifactStore.Address };
+
+            var artifactsToLock = new List<IArtifactBase> { processArtifact };
 
             // Second user locks the artifact
             Helper.SvcShared.LockArtifacts(_user2, artifactsToLock);

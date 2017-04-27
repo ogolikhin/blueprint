@@ -773,6 +773,39 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, ItemIndicatorFlags.HasAttachmentsOrDocumentRefs);
         }
 
+        [TestCase]
+        [TestRail(303324)]
+        [Description("Create and publish artifact with attachment, add artifact to baseline and publish baseline, " +
+            "delete baseline and publish changes, get attachments for baselineId - " +
+            "should be returned 404 with the expected message.")]
+        public void GetAttachmentSpecifyBaselineId_DeletedBaseline_Returned404()
+        {
+            // Setup:
+            var artifact = Helper.CreateNovaArtifact(_adminUser, _project, ItemTypePredefined.Actor);
+
+            var novaAttachmentFile = FileStoreTestHelper.UploadNovaFileToFileStore(_adminUser, _fileName, _fileType, defaultExpireTime, Helper.FileStore);
+            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, novaAttachmentFile,
+                Helper.ArtifactStore, shouldReturnAttachments: false);
+            artifact.Publish(_adminUser);
+
+            var baselineArtifact = Helper.CreateBaseline(_adminUser, _project, artifactToAddId: artifact.Id);
+            baselineArtifact.Publish(_adminUser);
+            baselineArtifact.Delete(_adminUser);
+            baselineArtifact.Publish(_adminUser);
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() =>
+            {
+                Helper.ArtifactStore.GetAttachments(_authorUser, artifact.Id,
+                    baselineId: baselineArtifact.Id);
+            }, "'GET {0}?baselineId=x' should return 404 error when passed an Id of deleted baseline.",
+                RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
+
+            // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound,
+                "Version Index or Baseline Timestamp is not found.");
+        }
+
         #endregion 404 Not Found
 
         // TODO: Implement GetAttachment_PublishedArtifactWithDocReferenceUserHasNoPermissionToDocReference_403Forbidden  TestRail ID: 154596

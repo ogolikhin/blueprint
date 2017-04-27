@@ -36,35 +36,36 @@ namespace AdminStoreTests.UsersTests
 
         #endregion Setup and Cleanup
 
+        //[Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
+        //[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId = "System.Int32.TryParse(System.String,System.Int32@)")]
+        //[TestCase]
+        //[Description("Create an instance user. Get the created user using the id of the user that was just created. " +
+        //     "Verify the same user that was created is returned.")]
+        //[TestRail(303340)]
+        //public void CreateInstanceUser_ValidUser_ReturnsCorrectUser()
+        //{
+        //    int userId;
+
+        //    var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
+
+        //    var response = Helper.AdminStore.CreateUser(_adminUser, createdUser);
+
+        //    Assert.DoesNotThrow(() =>
+        //    {
+        //        createdUser = Helper.AdminStore.GetUserById(_adminUser, userId);
+        //    }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH);
+
+        //    InstanceUser retrievedUser = null;
+
+        //    Assert.DoesNotThrow(() =>
+        //    {
+        //        retrievedUser = Helper.AdminStore.GetUserById(_adminUser, userId);
+        //    }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH);
+
+        //    Assert.AreEqual(retrievedUser.Id, userId, "The returned InstanceUser does not match the expected!");
+        //}
+
         [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId = "System.Int32.TryParse(System.String,System.Int32@)")]
-        [TestCase]
-        [Description("Create an instance user. Get the created user using the id of the user that was just created. " +
-             "Verify the same user that was created is returned.")]
-        [TestRail(303340)]
-        public void CreateInstanceUser_ValidUser_ReturnsCorrectUser()
-        {
-            //int userId;
-
-            //var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
-
-            //var response = Helper.AdminStore.CreateUser(_adminUser, createdUser);
-
-            //Assert.DoesNotThrow(() =>
-            //{
-            //    createdUser = Helper.AdminStore.GetUserById(_adminUser, userId);
-            //}, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH);
-
-            //InstanceUser retrievedUser = null;
-
-            //Assert.DoesNotThrow(() =>
-            //{
-            //    retrievedUser = Helper.AdminStore.GetUserById(_adminUser, userId);
-            //}, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH);
-
-            //Assert.AreEqual(retrievedUser.Id, userId, "The returned InstanceUser does not match the expected!");
-        }
-
         [TestCase]
         [Description("Create a user directly to database. Get the created user using the id of the user that was just created. " +
                      "Verify the same user that was created is returned.")]

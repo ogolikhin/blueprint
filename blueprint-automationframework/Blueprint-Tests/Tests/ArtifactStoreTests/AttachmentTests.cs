@@ -460,6 +460,51 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, ItemIndicatorFlags.HasAttachmentsOrDocumentRefs);
         }
 
+        [TestCase]
+        [TestRail(303323)]
+        [Description("Create and publish artifact with attachment, add artifact to baseline and publish baseline, " +
+            "delete artifact's attachment and publish changes, get attachments for baselineId and for live artifact, " +
+            "attachments should have expected values.")]
+        public void GetAttachmentSpecifyBaselineId_ArtifactWithAttachementInBaseline_CorrectAttachmentIsReturned()
+        {
+            // Setup:
+            var artifact = Helper.CreateNovaArtifact(_adminUser, _project, ItemTypePredefined.Actor);
+            
+            var novaAttachmentFile = FileStoreTestHelper.UploadNovaFileToFileStore(_adminUser, _fileName, _fileType, defaultExpireTime, Helper.FileStore);
+            var baselineAttachment1 = ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, novaAttachmentFile,
+                Helper.ArtifactStore, shouldReturnAttachments: true);
+            artifact.Publish(_adminUser);
+
+            var baselineArtifact = Helper.CreateBaseline(_adminUser, _project, artifactToAddId: artifact.Id);
+            var baseline = Helper.ArtifactStore.GetBaseline(_adminUser, baselineArtifact.Id);
+            var sealedDate = DateTime.UtcNow;
+            baseline.UtcTimestamp = sealedDate;
+            baseline.BaselineCurrentClientUtcTime = sealedDate;
+            baseline.IsSealed = true;
+            baselineArtifact.Update(_adminUser, baseline);
+            baselineArtifact.Publish(_adminUser);
+
+            ArtifactStoreHelper.DeleteArtifactAttachmentAndSave(_adminUser, artifact,
+                baselineAttachment1.AttachedFiles[0].AttachmentId, Helper.ArtifactStore);
+            artifact.Publish(_adminUser);
+
+            Attachments latestVersionAttachment = null;
+            Attachments baselineAttachment2 = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                latestVersionAttachment = Helper.ArtifactStore.GetAttachments(_authorUser, artifact.Id);
+                baselineAttachment2 = Helper.ArtifactStore.GetAttachments(_authorUser, artifact.Id,
+                    baselineId: baseline.Id);
+            }, "'GET {0}?baselineId=x' shouldn't return any error when passed a valid baselineId.",
+                RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
+
+            // Verify:
+            Assert.AreEqual(0, latestVersionAttachment.AttachedFiles.Count, "List of attached files must be empty.");
+            Assert.AreEqual(1, baselineAttachment2.AttachedFiles.Count, "List of attached files must have 1 item.");
+        }
+
         #endregion Positive tests
 
         #region 400 Bad Request

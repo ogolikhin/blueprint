@@ -446,19 +446,21 @@ namespace Model.Impl
             return discussionReplies;
         }
 
-        /// <seealso cref="IArtifactStore.GetAttachments(IUser, int, bool?, int?, int?)"/>
-        public Attachments GetAttachments(IUser user, int artifactId, bool? addDrafts = null, int? versionId = null, int? subArtifactId = null)
+        /// <seealso cref="IArtifactStore.GetAttachments(IUser, int, bool?, int?, int?, int?)"/>
+        public Attachments GetAttachments(IUser user, int artifactId, bool? addDrafts = null, int? versionId = null,
+            int? baselineId = null, int? subArtifactId = null)
         {
-            return GetAttachments(Address, artifactId, user, addDrafts, versionId, subArtifactId);
+            return GetAttachments(Address, artifactId, user, addDrafts, versionId, baselineId, subArtifactId);
         }
 
-        /// <seealso cref="IArtifactStore.GetAttachments(IArtifactBase, IUser, bool?, int?, int?, List{HttpStatusCode}, IServiceErrorMessage)"/>
-        public Attachments GetAttachments(IArtifactBase artifact, IUser user, bool? addDrafts = null, int? versionId = null,
-            int? subArtifactId = null, List<HttpStatusCode> expectedStatusCodes = null, IServiceErrorMessage expectedServiceErrorMessage = null)
+        /// <seealso cref="IArtifactStore.GetAttachments(IArtifactBase, IUser, bool?, int?, int?, int?, List{HttpStatusCode}, IServiceErrorMessage)"/>
+        public Attachments GetAttachments(IArtifactBase artifact, IUser user, bool? addDrafts = null,
+            int? versionId = null, int? baselineId = null, int? subArtifactId = null,
+            List<HttpStatusCode> expectedStatusCodes = null, IServiceErrorMessage expectedServiceErrorMessage = null)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
             
-            return GetAttachments(Address, artifact.Id, user, addDrafts, versionId, subArtifactId,
+            return GetAttachments(Address, artifact.Id, user, addDrafts, versionId, subArtifactId, baselineId,
                 expectedStatusCodes, expectedServiceErrorMessage);
         }
 
@@ -1379,6 +1381,7 @@ namespace Model.Impl
             IUser user,
             bool? addDrafts = null,
             int? versionId = null,
+            int? baselineId = null,
             int? subArtifactId = null,
             List<HttpStatusCode> expectedStatusCodes = null,
             IServiceErrorMessage expectedServiceErrorMessage = null)
@@ -1397,6 +1400,11 @@ namespace Model.Impl
             if (versionId != null)
             {
                 queryParameters.Add("versionId", versionId.ToString());
+            }
+
+            if (baselineId != null)
+            {
+                queryParameters.Add("baselineId", baselineId.ToString());
             }
 
             if (subArtifactId != null)

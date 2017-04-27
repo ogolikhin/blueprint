@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Globalization;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -77,7 +75,7 @@ namespace AdminStore.Controllers
                 var loginUser = await _userRepository.GetLoginUserByIdAsync(session.UserId);
                 if (loginUser == null)
                 {
-                    throw new AuthenticationException(string.Format("User does not exist with UserId: {0}", session.UserId));
+                    throw new AuthenticationException(string.Format("User does not exist with Id: {0}", session.UserId));
                 }
                 loginUser.LicenseType = session.LicenseLevel;
                 loginUser.IsSso = session.IsSso;
@@ -111,10 +109,8 @@ namespace AdminStore.Controllers
             {
                 return BadRequest(ErrorMessages.InvalidPageOrPageNumber);
             }
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            var userId = session.UserId;
             var permissions = new List<int> { Convert.ToInt32(InstanceAdminPrivileges.ViewUsers) };
-            if (!await _privilegesRepository.IsUserHasPermissions(permissions, userId))
+            if (!await _privilegesRepository.IsUserHasPermissions(permissions, SessionUserId))
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
@@ -143,10 +139,8 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(User))]
         public async Task<IHttpActionResult> GetUser(int userId)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            var uId = session.UserId;
             var permissions = new List<int> { Convert.ToInt32(InstanceAdminPrivileges.ViewUsers) };
-            if (!await _privilegesRepository.IsUserHasPermissions(permissions, uId))
+            if (!await _privilegesRepository.IsUserHasPermissions(permissions, SessionUserId))
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }

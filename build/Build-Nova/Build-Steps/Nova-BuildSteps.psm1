@@ -25,6 +25,9 @@ function Setup-Environment {
 
     #Run nuget
     Invoke-MyExpression "c:\nuget.exe" "restore ""$workspace\svc\Services.sln"" -PackagesDirectory ""$workspace/packages"""
+
+    #Run nuget for services
+    Invoke-MyExpression "c:\nuget.exe" "restore ""$workspace\win_svc\WindowsServices\WindowsServices.sln"""
 }
 
 function Build-Nova-Services{
@@ -59,6 +62,32 @@ function Build-Nova-Services{
     Invoke-MsBuild @msBuildArgs -project $workspace\svc\AdminStore\AdminStore.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\AdminStore`"" + $sharedTrailingArgs
     Invoke-MsBuild @msBuildArgs -project $workspace\svc\ArtifactStore\ArtifactStore.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\ArtifactStore`"" + $sharedTrailingArgs
     Invoke-MsBuild @msBuildArgs -project $workspace\svc\SearchService\SearchService.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\SearchService`"" + $sharedTrailingArgs
+}
+
+function Build-Nova-Windows-Services{
+    param(
+        [Parameter(Mandatory=$true)][string]$workspace,
+        [Parameter(Mandatory=$true)][string]$blueprintVersion,
+
+        [Parameter(Mandatory=$true)][string]$msBuildPath,
+        [Parameter(Mandatory=$true)][string]$msBuildVerbosity,
+        [Parameter(Mandatory=$true)][string]$visualStudioVersion,
+
+        #Unused, for splatting the same hashtable into multiple methods without error.
+        [Parameter(ValueFromRemainingArguments=$true)] $vars
+    )
+
+    $msBuildArgs = @{
+        verbosity = $msBuildVerbosity
+        configuration = "Release" 
+        visualStudioVersion = $visualStudioVersion 
+        msbuildPath = $msBuildPath
+    }
+
+    Write-Section "Building Nova Windows services"
+
+    Invoke-MsBuild @msBuildArgs -project $workspace\win_svc\WindowsServices\ImageRenderService\ImageRenderService.csproj -trailingArguments "/p:Platform='x64' /p:OutDir=`"$workspace\win_svc\DeployArtifacts\ImageRenderService`""
+
 }
 
 function Build-Nova-Html{

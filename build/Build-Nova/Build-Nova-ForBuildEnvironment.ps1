@@ -41,6 +41,7 @@ $buildParams = @{
 
 Setup-Environment @buildParams -removeFiles $removeFiles
 Build-Nova-Services @buildParams
+Build-Nova-Windows-Services @buildParams
 
 if($RunTests)
 {

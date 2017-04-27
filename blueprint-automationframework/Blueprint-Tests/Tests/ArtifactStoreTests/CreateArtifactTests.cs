@@ -65,9 +65,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 201 Created when trying to create an artifact of type: '{1}'!", SVC_PATH, artifactType);
 
             // Verify:
-            Assert.NotNull(newArtifact, "'POST {0}' returned null for an artifact of type: {1}!", SVC_PATH, artifactType);
-            Assert.AreEqual(randomName, newArtifact.Name, "The artifact Name is incorrect!");
-            // TODO: Validate other properties.
+            ValidateCreateResponse(newArtifact, authorUser, TestHelper.ProjectRole.Author, randomName, _project, _project.Id, artifactType);
 
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(authorUser, newArtifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, newArtifact);
@@ -115,8 +113,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             Assert.NotNull(newArtifact, "'POST {0}' returned null for an artifact of type: {1}!", SVC_PATH, artifactType);
-            Assert.AreEqual(randomName, newArtifact.Name, "The artifact Name is incorrect!");
-            // TODO: Validate other properties.
+            ValidateCreateResponse(newArtifact, authorUser, TestHelper.ProjectRole.Author, randomName, _project, collectionFolder.Id, artifactType);
 
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(authorUser, newArtifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, newArtifact);
@@ -883,6 +880,97 @@ namespace ArtifactStoreTests
             };
 
             return artifactDetails;
+        }
+
+        /// <summary>
+        /// Validates all the properties of a newly created artifact.
+        /// </summary>
+        /// <param name="newArtifact">The new artifact.</param>
+        /// <param name="user">The user that created the artifact.</param>
+        /// <param name="projectRole">The project role of the user.</param>
+        /// <param name="expectedName">The expected name of the artifact.</param>
+        /// <param name="project">The project where the artifact exists.</param>
+        /// <param name="expectedParentId">The expected parent ID.</param>
+        /// <param name="itemType">The artifact type of the artifact.</param>
+        private static void ValidateCreateResponse(
+            INovaArtifactDetails newArtifact,
+            IUser user,
+            TestHelper.ProjectRole projectRole,
+            string expectedName,
+            IProject project,
+            int expectedParentId,
+            ItemTypePredefined itemType)
+        {
+            Assert.NotNull(newArtifact, "'POST {0}' returned null for an artifact of type: {1}!", SVC_PATH, itemType);
+
+            Assert.AreEqual(user.DisplayName, newArtifact.CreatedBy.DisplayName, "The artifact {0}.{1} property is incorrect!",
+                nameof(newArtifact.CreatedBy), nameof(newArtifact.CreatedBy.DisplayName));
+            Assert.AreEqual(user.Id, newArtifact.CreatedBy.Id, "The artifact {0}.{1} property is incorrect!",
+                nameof(newArtifact.CreatedBy), nameof(newArtifact.CreatedBy.Id));
+
+            Assert.IsNull(newArtifact.CreatedOn, "The artifact {0} property should be null!", nameof(newArtifact.CreatedOn));
+
+            if (itemType == ItemTypePredefined.TextualRequirement)
+            {
+                Assert.NotNull(newArtifact.Description, "The artifact {0} property should NOT be null!", nameof(newArtifact.Description));
+                Assert.NotNull(newArtifact.ItemTypeIconId, "The artifact {0} property should NOT be null!", nameof(newArtifact.ItemTypeIconId));
+                Assert.That(newArtifact.CustomPropertyValues.Count > 0, "The artifact {0} property should NOT be empty!", nameof(newArtifact.CustomPropertyValues));
+            }
+            else
+            {
+                Assert.IsNull(newArtifact.Description, "The artifact {0} property should be null!", nameof(newArtifact.Description));
+                Assert.IsNull(newArtifact.ItemTypeIconId, "The artifact {0} property should be null!", nameof(newArtifact.ItemTypeIconId));
+                Assert.AreEqual(0, newArtifact.CustomPropertyValues.Count, "The artifact {0} property should be empty!", nameof(newArtifact.CustomPropertyValues));
+            }
+
+            Assert.That(newArtifact.Id > 0, "The artifact {0} property should be > 0!", nameof(newArtifact.Id));
+
+            var novaArtifactType = project.NovaArtifactTypes.Find(a => a.PredefinedType == itemType);
+            Assert.AreEqual(novaArtifactType.Id, newArtifact.ItemTypeId, "The artifact {0} property is incorrect!", nameof(newArtifact.ItemTypeId));
+            Assert.AreEqual(novaArtifactType.Name, newArtifact.ItemTypeName, "The artifact {0} property is incorrect!", nameof(newArtifact.ItemTypeName));
+            Assert.AreEqual(novaArtifactType.VersionId, newArtifact.ItemTypeVersionId, "The artifact {0} property is incorrect!", nameof(newArtifact.ItemTypeVersionId));
+
+            Assert.IsNull(newArtifact.LastEditedBy, "The artifact {0} property should be null!", nameof(newArtifact.LastEditedBy));
+            Assert.IsNull(newArtifact.LastEditedOn, "The artifact {0} property should be null!", nameof(newArtifact.LastEditedOn));
+
+            Assert.AreEqual(false, newArtifact.LastSaveInvalid, "The artifact {0} property is incorrect!", nameof(newArtifact.LastSaveInvalid));
+
+            Assert.AreEqual(user.DisplayName, newArtifact.LockedByUser.DisplayName, "The artifact {0}.{1} property is incorrect!",
+                nameof(newArtifact.LockedByUser), nameof(newArtifact.CreatedBy.DisplayName));
+            Assert.AreEqual(user.Id, newArtifact.LockedByUser.Id, "The artifact {0}.{1} property is incorrect!",
+                nameof(newArtifact.LockedByUser), nameof(newArtifact.CreatedBy.Id));
+
+            Assert.AreEqual(expectedName, newArtifact.Name, "The artifact {0} property is incorrect!", nameof(newArtifact.Name));
+            Assert.That(newArtifact.OrderIndex > 1, "The artifact {0} property should be > 1!", nameof(newArtifact.OrderIndex));
+            Assert.AreEqual(expectedParentId, newArtifact.ParentId, "The artifact {0} property is incorrect!", nameof(newArtifact.ParentId));
+
+            var expectedPermissions = TestHelper.GetRolePermissionsForProjectRole(projectRole);
+            Assert.AreEqual(expectedPermissions, newArtifact.Permissions, "The artifact {0} property is incorrect!", nameof(newArtifact.Permissions));
+            Assert.AreEqual((int)itemType, newArtifact.PredefinedType, "The artifact {0} property is incorrect!", nameof(newArtifact.PredefinedType));
+            Assert.AreEqual(novaArtifactType.Prefix, newArtifact.Prefix, "The artifact {0} property is incorrect!", nameof(newArtifact.Prefix));
+            Assert.AreEqual(project.Id, newArtifact.ProjectId, "The artifact {0} property is incorrect!", nameof(newArtifact.ProjectId));
+            Assert.AreEqual(-1, newArtifact.Version, "The artifact {0} property is incorrect!", nameof(newArtifact.Version));
+
+            Assert.AreEqual(0, newArtifact.AttachmentValues.Count, "The artifact {0} property should be empty!", nameof(newArtifact.AttachmentValues));
+
+            int expectedNumberOfSpecificProperties = 0;
+
+            switch (itemType)
+            {
+                case ItemTypePredefined.Actor:
+                    expectedNumberOfSpecificProperties = 2;
+                    break;
+                case ItemTypePredefined.Document:
+                case ItemTypePredefined.Process:
+                    expectedNumberOfSpecificProperties = 1;
+                    break;
+            }
+
+            Assert.AreEqual(expectedNumberOfSpecificProperties, newArtifact.SpecificPropertyValues.Count,
+                "The artifact {0} property has wrong number of elements in list!", nameof(newArtifact.SpecificPropertyValues));
+
+            Assert.IsNull(newArtifact.SubArtifacts, "The artifact {0} property should be null!", nameof(newArtifact.SubArtifacts));
+            Assert.IsNull(newArtifact.Traces, "The artifact {0} property should be null!", nameof(newArtifact.Traces));
         }
 
         #endregion Private functions

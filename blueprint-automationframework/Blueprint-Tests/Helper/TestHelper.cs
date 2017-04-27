@@ -1534,7 +1534,7 @@ namespace Helper
         /// </summary>
         /// <param name="role">The Project Role whose permissions you want to get.</param>
         /// <returns>The permissions for the Project Role.</returns>
-        private static RolePermissions GetRolePermissionsForProjectRole(ProjectRole role)
+        public static RolePermissions GetRolePermissionsForProjectRole(ProjectRole role)
         {
             var rolePermissions = RolePermissions.None;
 

@@ -324,7 +324,8 @@ namespace Model.Impl
 
                 return restApi.SendRequestAndDeserializeObject<InstanceUser>(
                     path,
-                    RestRequestMethod.GET);
+                    RestRequestMethod.GET,
+                    shouldControlJsonChanges: false);
             }
             catch (WebException ex)
             {
@@ -346,7 +347,8 @@ namespace Model.Impl
 
                 return restApi.SendRequestAndDeserializeObject<InstanceUser>(
                     path,
-                    RestRequestMethod.GET);
+                    RestRequestMethod.GET,
+                    shouldControlJsonChanges: false);
             }
             catch (WebException ex)
             {
@@ -356,32 +358,51 @@ namespace Model.Impl
             }
         }
 
-        /// <seealso cref="IAdminStore.GetUsers(IUser, int?, int?, string, string)"/>
-        public List<InstanceUser> GetUsers(IUser adminUser, int? page = null, int? pageSize = null, string filter = null, string sort = null)
+        /// <seealso cref="IAdminStore.GetUsers(IUser, int?, int?, string, string, string[], string)"/>
+        public List<InstanceUser> GetUsers(IUser adminUser, 
+            int? offset = null, 
+            int? limit = null, 
+            string sort = null, 
+            string order = null,
+            string[] propertyFilters = null,
+            string search = null)
         {
             var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Users.USERS);
 
             var queryParameters = new Dictionary<string, string>();
 
-            if (page != null)
+            if (offset != null)
             {
-                queryParameters.Add("page", page.ToStringInvariant());
+                queryParameters.Add("offset", offset.ToStringInvariant());
             }
 
-            if (pageSize != null)
+            if (limit != null)
             {
-                queryParameters.Add("pageSize", pageSize.ToStringInvariant());
-            }
-
-            if (!string.IsNullOrEmpty(filter))
-            {
-                queryParameters.Add("filter", filter);
+                queryParameters.Add("limit", limit.ToStringInvariant());
             }
 
             if (!string.IsNullOrEmpty(sort))
             {
                 queryParameters.Add("sort", sort);
+            }
+
+            if (!string.IsNullOrEmpty(order))
+            {
+                queryParameters.Add("order", order);
+            }
+
+            if (propertyFilters != null)
+            {
+                for (int i=0; i < propertyFilters.Length; i++)
+                {
+                    queryParameters.Add(I18NHelper.FormatInvariant("property{0}", i), propertyFilters[i]);
+                }
+            }
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                queryParameters.Add("search", search);
             }
 
             try
@@ -391,7 +412,8 @@ namespace Model.Impl
                 return restApi.SendRequestAndDeserializeObject< List<InstanceUser>>(
                     path,
                     RestRequestMethod.GET,
-                    queryParameters: queryParameters);
+                    queryParameters: queryParameters,
+                    shouldControlJsonChanges: false);
             }
             catch (WebException ex)
             {

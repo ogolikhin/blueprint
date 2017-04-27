@@ -136,7 +136,7 @@ namespace AdminStore.Controllers
         /// </returns>
         [SessionRequired]
         [Route("{userId:int:min(1)}")]
-        [ResponseType(typeof(User))]
+        [ResponseType(typeof(UserDto))]
         public async Task<IHttpActionResult> GetUser(int userId)
         {
             var permissions = new List<int> { Convert.ToInt32(InstanceAdminPrivileges.ViewUsers) };

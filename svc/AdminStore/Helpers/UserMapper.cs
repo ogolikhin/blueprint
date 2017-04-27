@@ -26,24 +26,9 @@ namespace AdminStore.Helpers
                     InstanceAdminRoleId = user.InstanceAdminRoleId,
                     Login = user.Login,
                     LastName = user.LastName,
-                    Source = user.Source
+                    Source = user.Source,
+                    LicenseType = user.LicenseType
                 };
-            switch (user.LicenseType)
-            {
-                //0 and 1 - the same values, got it from spec
-                case 0:
-                    result.LicenseType = "Viewer";
-                    break;
-                case 1:
-                    result.LicenseType = "Viewer";
-                    break;
-                case 2:
-                    result.LicenseType = "Collaborator";
-                    break;
-                case 3:
-                    result.LicenseType = "Author";
-                    break;
-            }
             return result;
         }
 

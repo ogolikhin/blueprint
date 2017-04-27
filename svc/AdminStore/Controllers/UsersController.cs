@@ -21,7 +21,7 @@ namespace AdminStore.Controllers
     [ApiControllerJsonConfig]
     [RoutePrefix("users")]
     [BaseExceptionFilter]
-    public class UsersController : ApiController
+    public class UsersController : BaseApiController
     {
         internal readonly IAuthenticationRepository _authenticationRepository;
         internal readonly ISqlUserRepository _userRepository;
@@ -109,10 +109,8 @@ namespace AdminStore.Controllers
             {
                 return BadRequest(ErrorMessages.InvalidPageOrPageNumber);
             }
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            var userId = session.UserId;
             var permissions = new List<int> { Convert.ToInt32(InstanceAdminPrivileges.ViewUsers) };
-            if (!await _privilegesRepository.IsUserHasPermissions(permissions, userId))
+            if (!await _privilegesRepository.IsUserHasPermissions(permissions, SessionUserId))
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
@@ -141,10 +139,8 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(User))]
         public async Task<IHttpActionResult> GetUser(int userId)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            var uId = session.UserId;
             var permissions = new List<int> { Convert.ToInt32(InstanceAdminPrivileges.ViewUsers) };
-            if (!await _privilegesRepository.IsUserHasPermissions(permissions, uId))
+            if (!await _privilegesRepository.IsUserHasPermissions(permissions, SessionUserId))
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
@@ -403,13 +399,47 @@ namespace AdminStore.Controllers
         [HttpPost]
         [SessionRequired]
         [ResponseType(typeof(int))]
-        [Route(""), BaseExceptionFilter]
-        public async Task<HttpResponseMessage> PostUser([FromBody] CreationUserDto user)
+        [Route("")]
+        public async Task<HttpResponseMessage> PostUser([FromBody] UserDto user)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            if (session == null)
+            if (user == null)
             {
-                throw new BadRequestException(ErrorMessages.SessionIsEmpty);
+                throw new BadRequestException(ErrorMessages.UserModelIsEmpty, ErrorCodes.BadRequest);
+            }
+
+            if (!(await UserPermissionsValidator.HasValidPermissions(SessionUserId, user, _privilegesRepository)))
+            {
+                throw new AuthorizationException(ErrorMessages.UserDoesNotHavePermissions, ErrorCodes.Forbidden);
+            }
+            var databaseUser = UsersHelper.CreateDbUserFromDto(user);
+
+            var userId = await _userRepository.AddUserAsync(databaseUser);
+            return Request.CreateResponse<int>(HttpStatusCode.Created, userId);
+        }
+
+        /// <summary>
+        /// Update database user
+        /// </summary>
+        /// <param name="userId">User's identity</param>
+        /// <param name="user">User's model</param>
+        /// <remarks>
+        /// Returns Ok result.
+        /// </remarks>
+        /// <response code="200">OK. The database user is updated.</response>
+        /// <response code="400">BadRequest. Some errors. </response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for updating the user.</response>
+        /// <response code="404">NotFound. The user with the current userId doesn’t exist or removed from the system.</response>
+        /// <response code="409">Conflict. The current version from the request doesn’t match the current version in DB.</response>
+        [HttpPut]
+        [SessionRequired]
+        [ResponseType(typeof (HttpResponseMessage))]
+        [Route("{userId:int}")]
+        public async Task<IHttpActionResult> UpdateUser(int userId, [FromBody] UserDto user)
+        {
+            if (userId == 0)
+            {
+                throw new BadRequestException(ErrorMessages.IncorrectUserId, ErrorCodes.BadRequest);
             }
 
             if (user == null)
@@ -417,52 +447,15 @@ namespace AdminStore.Controllers
                 throw new BadRequestException(ErrorMessages.UserModelIsEmpty, ErrorCodes.BadRequest);
             }
 
-            var userPermissions = await _privilegesRepository.GetUserPermissionsAsync(session.UserId);
-            if (!PermissionsChecker.IsFlagBelongPermissions(userPermissions, InstanceAdminPrivileges.ManageUsers))
-                throw new AuthorizationException(ErrorMessages.UserDoesNotHavePermissions, ErrorCodes.Forbidden);
-
-            if (user.InstanceAdminRoleId.HasValue &&
-                (!PermissionsChecker.IsFlagBelongPermissions(userPermissions,
-                    InstanceAdminPrivileges.AssignAdminRoles)))
+            if (!(await UserPermissionsValidator.HasValidPermissions(SessionUserId, user, _privilegesRepository)))
             {
                 throw new AuthorizationException(ErrorMessages.UserDoesNotHavePermissions, ErrorCodes.Forbidden);
             }
 
-            ModelValidator.ValidateUserModel(user);
+            var databaseUser = UsersHelper.CreateDbUserFromDto(user, userId);
+            await _userRepository.UpdateUserAsync(databaseUser);
 
-            var databaseUser = new User
-            {
-                Department = user.Department,
-                Enabled = user.Enabled,
-                ExpirePassword = user.ExpirePassword,
-                GroupMembership = user.GroupMembership,
-                Guest = user.Guest,
-                Image_ImageId = user.ImageId,
-                Title = user.Title,
-                Login = user.Login,
-                Source = user.Source,
-                InstanceAdminRoleId = user.InstanceAdminRoleId,
-                AllowFallback = user.AllowFallback,
-                DisplayName = user.DisplayName,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email,
-                UserSALT = Guid.NewGuid()
-            };
-
-            if (!user.AllowFallback.HasValue || !user.AllowFallback.Value)
-            {
-                var decodedPassword = SystemEncryptions.Decode(user.NewPassword);
-                ModelValidator.ValidateUserPassword(decodedPassword);
-                databaseUser.Password = HashingUtilities.GenerateSaltedHash(decodedPassword, databaseUser.UserSALT);
-            }
-            else
-            {
-                databaseUser.Password = null;
-            }
-
-            var userId = await _userRepository.AddUserAsync(databaseUser);
-            return Request.CreateResponse<int>(HttpStatusCode.Created, userId);
+            return Ok();
         }
     }
 }

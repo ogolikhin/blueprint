@@ -1,4 +1,14 @@
-﻿namespace AdminStore.Helpers
+﻿using System;
+using System.Net;
+using System.Threading.Tasks;
+using System.Web.Http;
+using AdminStore.Models;
+using AdminStore.Repositories;
+using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
+
+namespace AdminStore.Helpers
 {
     public static class UsersHelper
     {
@@ -68,5 +78,12 @@
             }
             return orderField;
         }
+
+        public static User CreateDbUserFromDto(UserDto user, int userId = 0)
+        {
+            UserValidator.ValidateModel(user);
+            var dbUserModel = UserConverter.ConvertToDbUser(user, userId);
+            return dbUserModel;
+        }     
     }
 }

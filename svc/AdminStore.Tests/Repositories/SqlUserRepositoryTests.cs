@@ -391,5 +391,45 @@ namespace AdminStore.Repositories
         }
 
         #endregion AddUserAsync
+
+        #region UpdateUsersync
+
+        [TestMethod]
+        public async Task UpdateUserAsync_SuccessfulUpdateOfUser_ReturnOk()
+        {
+            // Arrange
+            var user = new User()
+            {
+                Login = "LoginUserUpdate",
+                FirstName = "FirstNameValueUpdate",
+                LastName = "LastNameValueUpdate",
+                DisplayName = "DisplayNameValueUpdate",
+                Email = "email@test.com",
+                Source = UserGroupSource.Database,
+                AllowFallback = false,
+                Enabled = true,
+                ExpirePassword = true,
+                Password = "dGVzdA==",
+                UserSALT = Guid.NewGuid(),
+                Title = "TitleValue",
+                Department = "DepartmentvalueUpdate",
+                GroupMembership = new int[] { 1 },
+                Guest = false,
+                CurrentVersion = 1
+            };
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
+            var errorId = 1;
+
+            cxn.SetupExecuteAsync("UpdateUser", It.IsAny<Dictionary<string, object>>(), 1, new Dictionary<string, object> { { "ErrorCode", errorId } });
+
+            // Act
+            await repository.UpdateUserAsync(user);
+
+            // Assert
+            cxn.Verify();
+        }
+
+        #endregion UpdateUsersync
     }
 }

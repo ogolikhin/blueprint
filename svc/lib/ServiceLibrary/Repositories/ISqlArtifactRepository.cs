@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Workflow;
 
 namespace ServiceLibrary.Repositories
 {
@@ -28,5 +29,7 @@ namespace ServiceLibrary.Repositories
         Task<IEnumerable<ProjectNameIdPair>> GetProjectNameByIdsAsync(IEnumerable<int> projectIds);
 
         Task<IEnumerable<BaselineInfo>> GetBaselineInfo(IEnumerable<int> artifactIds, int userId, bool addDrafts, int revisionId);
+
+        Task<IEnumerable<Transitions>> GetTransitions(int artifactId, int userId);
     }
 }

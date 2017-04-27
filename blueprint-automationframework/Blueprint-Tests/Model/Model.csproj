@@ -69,6 +69,8 @@
     <Compile Include="ArtifactModel\Impl\AuthorHistoryItem.cs" />
     <Compile Include="ArtifactModel\Impl\Baseline.cs" />
     <Compile Include="ArtifactModel\Impl\Collection.cs" />
+    <Compile Include="Factories\ImpactAnalysisFactory.cs" />
+    <Compile Include="NovaModel\Components\OperationsResults\GetReviewArtifactsResultSet.cs" />
     <Compile Include="ArtifactModel\Impl\RaptorComment.cs" />
     <Compile Include="ArtifactModel\Impl\NovaCollectionBase.cs" />
     <Compile Include="ArtifactModel\Impl\CollectionItem.cs" />
@@ -100,7 +102,6 @@
     <Compile Include="NovaModel\Components\ImpactAnalysisService\ImpactAnalysisResult.cs" />
     <Compile Include="NovaModel\Components\ImpactAnalysisService\ImpactAnalysisTree.cs" />
     <Compile Include="NovaModel\Metadata\ItemTypeInformation.cs" />
-    <Compile Include="NovaModel\Metadata\ItemTypesInformation.cs" />
     <Compile Include="NovaModel\Components\RapidReview\IDiagramElement.cs" />
     <Compile Include="NovaModel\Components\RapidReview\LabelStyle.cs" />
     <Compile Include="NovaModel\Components\RapidReview\Point.cs" />

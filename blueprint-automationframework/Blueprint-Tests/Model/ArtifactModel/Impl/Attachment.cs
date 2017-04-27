@@ -210,10 +210,13 @@ namespace Model.ArtifactModel.Impl
         public ChangeType ChangeType { get; set; }
 
         /// <summary>
-        /// Creates new AttachmentValue from INovaFile
-        /// Use to pass into UpdateArtifact to add attachment
+        /// Creates new AttachmentValue from INovaFile.
+        /// Use to pass into UpdateArtifact to add attachment.
         /// </summary>
-        public AttachmentValue(IUser user, INovaFile file)
+        /// <param name="user">The user that will add the attachment.</param>
+        /// <param name="file">The file to be attached.</param>
+        /// <param name="changeType">(optional) The type of change.  By default it adds the specified attachment.</param>
+        public AttachmentValue(IUser user, INovaFile file, ChangeType changeType = ChangeType.Create)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(file, nameof(file));
@@ -225,17 +228,19 @@ namespace Model.ArtifactModel.Impl
             AttachmentId = null; //null for add, real id to delete existing attachment
             Guid = file.Guid;
             UploadedDate = null;
-            ChangeType = ChangeType.Create;
+            ChangeType = changeType;
         }
 
         /// <summary>
-        /// Creates new AttachmentValue from AttachmentId
-        /// Use to pass into UpdateArtifact to delete existing attachment
+        /// Creates new AttachmentValue from AttachmentId.
+        /// Use to pass into UpdateArtifact to delete existing attachment.
         /// </summary>
-        public AttachmentValue(int attachmentId)
+        /// <param name="attachmentId">The ID of the attachment.</param>
+        /// <param name="changeType">(optional) The type of change.  By default it deletes the specified attachment.</param>
+        public AttachmentValue(int attachmentId, ChangeType changeType = ChangeType.Delete)
         {
             AttachmentId = attachmentId; //null for add, real id to delete existing attachment
-            ChangeType = ChangeType.Delete;
+            ChangeType = changeType;
         }
     }
 }

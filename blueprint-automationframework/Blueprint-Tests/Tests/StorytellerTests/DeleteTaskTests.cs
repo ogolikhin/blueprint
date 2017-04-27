@@ -5,6 +5,7 @@ using NUnit.Framework;
 using Helper;
 using Model.StorytellerModel.Impl;
 using System.Linq;
+using Model.ArtifactModel.Impl;
 using Model.StorytellerModel.Enums;
 using TestCommon;
 
@@ -158,13 +159,10 @@ namespace StorytellerTests
             Assert.That(Helper.Storyteller.Artifacts != null, "Artifact List is missing.");
             
             // Delete the process artifact that were added from the test.
-            var artifact = Helper.Storyteller.Artifacts.Find(a => a.IsPublished && a.Id.Equals(returnedProcess.Id));
+            var novaProcess = new NovaProcess {Id = returnedProcess.Id, ProjectId = returnedProcess.Id, Process = (Process)returnedProcess};
+            var deletedArtifacts = Helper.Storyteller.DeleteNovaProcessArtifact(_user, novaProcess);
 
-            // Delete with existing child artifacts which are any existing user story artifact(s)
-            var deletedArtifacts = Helper.Storyteller.DeleteProcessArtifact(artifact,
-                    deleteChildren: true);
-
-            int deletedChildArtfacts = deletedArtifacts.FindAll(d => !d.ArtifactId.Equals(returnedProcess.Id)).Count();
+            int deletedChildArtfacts = deletedArtifacts.FindAll(d => !d.Id.Equals(returnedProcess.Id)).Count();
 
             // Assert that total number of user stories on blueprint main experience is still same as
             // the total number of user stories generated prior to the single user task deletion

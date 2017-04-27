@@ -241,7 +241,7 @@ namespace ArtifactStoreTests
 
             // Create & add attachment to sub-artifact:
             var attachmentFile = FileStoreTestHelper.CreateNovaFileWithRandomByteArray();
-            var attachment = sourceArtifact.AddSubArtifactAttachment(subArtifacts[0].Id, attachmentFile, _user);
+            var attachment = sourceArtifact.AddSubArtifactAttachment(_user, subArtifacts[0].Id, attachmentFile);
             Assert.IsNotNull(attachment, "Artifact with attachment is not created!");
 
             // Add discussion

@@ -1,5 +1,4 @@
 ﻿using Model;
-using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.StorytellerModel;
@@ -7,6 +6,7 @@ using Model.StorytellerModel.Impl;
 using NUnit.Framework;
 using System.ComponentModel;
 using System.Linq;
+using Model.ArtifactModel;
 using Model.StorytellerModel.Enums;
 using Utilities;
 using Utilities.Factories;
@@ -62,7 +62,7 @@ namespace Helper
         /// <param name="isSuspectExpected">(optional) Flag indicating whether the relationship is expected to be suspect (Default: false)</param>
         public static void AssertPersonaReferenceRelationshipIsCorrect(Relationship relationship, 
             IProject actorArtifactProject, 
-            IArtifactBase actorArtifact,
+            INovaArtifactBase actorArtifact,
             bool isReadOnlyExpected = false,
             bool isSuspectExpected = false
             )
@@ -129,22 +129,11 @@ namespace Helper
             ThrowIf.ArgumentNull(storyteller, nameof(storyteller));
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            // Update the process using UpdateProcess
-            storyteller.UpdateProcess(user, processToVerify);
+            var novaProcess = new NovaProcess { Id = processToVerify.Id, ProjectId = processToVerify.ProjectId, Process = (Process)processToVerify };
 
-            // Get the process using GetProcess
-            var processReturnedFromGet = storyteller.GetProcess(user, processToVerify.Id);
+            var updatedNovaProcess = UpdateAndVerifyNovaProcess(novaProcess, storyteller, user);
 
-            Assert.IsNotNull(processReturnedFromGet, "GetProcess() returned a null process.");
-
-            // Assert that the process returned from the GetProcess method is identical to the process sent with the UpdateProcess method
-            // Allow negative shape ids in the process being verified
-            Process.AssertAreEqual(processToVerify, processReturnedFromGet, allowNegativeShapeIds: true);
-
-            // Assert that the decision branch destination links are in sync during the get opertations
-            AssertDecisionBranchDestinationLinksAreInsync(processReturnedFromGet);
-
-            return processReturnedFromGet;
+            return updatedNovaProcess.Process;
         }
 
         /// <summary>
@@ -187,6 +176,8 @@ namespace Helper
         /// <returns> The process returned from Get Process </returns>
         public static IProcess UpdateVerifyAndPublishProcess(IProcess processToVerify, IStoryteller storyteller, IUser user)
         {
+            ThrowIf.ArgumentNull(storyteller, nameof(storyteller));
+
             // Update and verify the process
             var processReturnedFromGet = UpdateAndVerifyProcess(processToVerify, storyteller, user);
 
@@ -284,14 +275,9 @@ namespace Helper
             ThrowIf.ArgumentNull(user, nameof(user));
 
             // Create default process artifact
-            var addedProcessArtifact = storyteller.CreateAndSaveProcessArtifact(project, user);
+            var novaProcess = CreateAndGetDefaultNovaProcess(storyteller, project, user);
 
-            // Get default process
-            var process = storyteller.GetProcess(user, addedProcessArtifact.Id);
-
-            Assert.IsNotNull(process, "The process returned from GetProcess() was null.");
-
-            return process;
+            return novaProcess.Process;
         }
 
         /// <summary>
@@ -312,10 +298,7 @@ namespace Helper
             ThrowIf.ArgumentNull(user, nameof(user));
 
             // Create default Nova process artifact
-            var addedProcessArtifact = storyteller.CreateAndSaveNovaProcessArtifact(project, user);
-
-            // Get default Nova process
-            var novaProcess = storyteller.GetNovaProcess(user, addedProcessArtifact.Id);
+            var novaProcess = storyteller.CreateAndSaveNovaProcessArtifact(project, user);
 
             Assert.IsNotNull(novaProcess, "The Nova process returned from GetNovaProcess() was null.");
 

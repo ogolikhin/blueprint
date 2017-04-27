@@ -1,15 +1,16 @@
-﻿using System.Linq;
+﻿using Common;
 using CustomAttributes;
+using Helper;
 using Model;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
-using NUnit.Framework;
-using System.Collections.Generic;
-using Common;
+using Model.ModelHelpers;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
-using Helper;
+using NUnit.Framework;
+using System.Collections.Generic;
 using TestCommon;
 using Utilities;
 using Utilities.Facades;
@@ -20,7 +21,7 @@ namespace StorytellerTests
     [Category(Categories.Storyteller)]
     public class BasicTests : TestBase
     {
-        private IUser _user;
+        private IUser _adminUser;
         private IProject _project;
 
         #region Setup and Cleanup
@@ -29,8 +30,8 @@ namespace StorytellerTests
         public void ClassSetUp()
         {
             Helper = new TestHelper();
-            _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            _project = ProjectFactory.GetProject(_user);
+            _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            _project = ProjectFactory.GetProject(_adminUser);
         }
 
         [TestFixtureTearDown]
@@ -50,9 +51,9 @@ namespace StorytellerTests
             int defaultLinksCount, 
             int defaultPropertyValuesCount)
         {
-            var artifact = Helper.Storyteller.CreateAndSaveProcessArtifact(_project, _user);
+            var artifact = Helper.CreateNovaArtifact(_adminUser, _project, ItemTypePredefined.Process);
 
-            var returnedProcess = Helper.Storyteller.GetProcess(_user, artifact.Id);
+            var returnedProcess = Helper.Storyteller.GetProcess(_adminUser, artifact.Id);
 
             Assert.IsNotNull(returnedProcess, "The returned process was null.");
 
@@ -69,12 +70,12 @@ namespace StorytellerTests
         [TestCase]
         public void GetProcesses_ReturnedListContainsCreatedProcess()
         {
-            var artifact = Helper.Storyteller.CreateAndSaveProcessArtifact(_project, _user);
+            var artifact = Helper.CreateNovaArtifact(_adminUser, _project, ItemTypePredefined.Process);
             List<IProcess> processList = null;
 
             Assert.DoesNotThrow(() =>
             {
-                processList = (List<IProcess>)Helper.Storyteller.GetProcesses(_user, _project.Id);
+                processList = (List<IProcess>)Helper.Storyteller.GetProcesses(_adminUser, _project.Id);
             }, "GetProcesses must not return an error.");
 
             // Get returned process from list of processes
@@ -83,22 +84,19 @@ namespace StorytellerTests
             Assert.IsNotNull(returnedProcess, "List of processes must have newly created process, but it doesn't.");
         }
 
-        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForNovaRestMethods))]
         [TestRail(102883)]
         [Description("Create artifact, save and publish it. Search created artifact by name within all projects. Search must return created artifact.")]
-        public void GetSearchArtifactResultsAllProjects_ReturnedListContainsCreatedArtifact(BaseArtifactType artifactType)
+        public void GetSearchArtifactResultsAllProjects_ReturnedListContainsCreatedArtifact(ItemTypePredefined artifactType)
         {
             //Create an artifact with ArtifactType and populate all required values without properties
-            var artifact = Helper.CreateArtifact(_project, _user, artifactType);
-
-            artifact.Save(_user);
-            artifact.Publish(_user);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, artifactType);
 
             IList<IArtifactBase> artifactsList = null;
 
             Assert.DoesNotThrow(() =>
             {
-                artifactsList = Artifact.SearchArtifactsByName(address: Helper.Storyteller.Address, user: _user, searchSubstring: artifact.Name);
+                artifactsList = Artifact.SearchArtifactsByName(address: Helper.Storyteller.Address, user: _adminUser, searchSubstring: artifact.Name);
             }, "{0}.{1}() shouldn't throw an exception when passed valid parameters!", nameof(Artifact), nameof(Artifact.SearchArtifactsByName));
 
             Assert.IsTrue(artifactsList.Count > 0, "No artifacts were found after adding an artifact!");
@@ -110,13 +108,11 @@ namespace StorytellerTests
         public void GetSearchArtifactResults_ReturnedListHasExpectedLength()
         {
             //Create an artifact with ArtifactType and populate all required values without properties
-            var artifactList = new List<IArtifact>();
+            var artifactList = new List<ArtifactWrapper>();
 
             for (int i = 0; i < 12; i++)
             {
-                var artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
-                artifact.Save(_user);
-                artifact.Publish(_user);
+                var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.Actor);
                 artifactList.Add(artifact);
             }
 
@@ -126,32 +122,29 @@ namespace StorytellerTests
 
             Assert.DoesNotThrow(() =>
             {
-                searchResultList = Artifact.SearchArtifactsByName(address: Helper.Storyteller.Address, user: _user, searchSubstring: searchString);
+                searchResultList = Artifact.SearchArtifactsByName(address: Helper.Storyteller.Address, user: _adminUser, searchSubstring: searchString);
             }, "{0}.{1}() shouldn't throw an exception when passed valid parameters!", nameof(Artifact), nameof(Artifact.SearchArtifactsByName));
 
             Assert.IsTrue(searchResultList.Count == 10, "Search results must have 10 artifacts, but they have '{0}'.", searchResultList.Count);
         }
 
-        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForNovaRestMethods))]
         [TestRail(123257)]
         [Description("Create artifact, save and publish it. Search created artifact by name within the project where artifact was created. Search must return created artifact.")]
-        public void GetSearchArtifactResultsForOneProject_ReturnedListContainsCreatedArtifact(BaseArtifactType artifactType)
+        public void GetSearchArtifactResultsForOneProject_ReturnedListContainsCreatedArtifact(ItemTypePredefined artifactType)
         {
             //Create an artifact with ArtifactType and populate all required values without properties
-            var artifact = Helper.CreateArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, artifactType);
 
-            artifact.Save(_user);
-            artifact.Publish(_user);
-
-            IList<IArtifactBase> artifactsList = null;
+            IList<IArtifactBase> searchResultList = null;
 
             Assert.DoesNotThrow(() =>
             {
-                artifactsList = Artifact.SearchArtifactsByName(address: Helper.Storyteller.Address, user: _user,
+                searchResultList = Artifact.SearchArtifactsByName(address: Helper.Storyteller.Address, user: _adminUser,
                     searchSubstring: artifact.Name, project: _project);
             }, "{0}.{1}() shouldn't throw an exception when passed valid parameters!", nameof(Artifact), nameof(Artifact.SearchArtifactsByName));
 
-            Assert.IsTrue(artifactsList.Count > 0, "No artifacts were found after adding an artifact!");
+            Assert.IsTrue(searchResultList.Count > 0, "No artifacts were found after adding an artifact!");
         }
 
         [TestCase]
@@ -160,7 +153,7 @@ namespace StorytellerTests
         public void DiscardArtifactAddedUserTask_VerifyResult()
         {
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _adminUser);
 
             // Find the end shape
             var endShape = process.GetProcessShapeByShapeName(Process.EndName);
@@ -174,15 +167,15 @@ namespace StorytellerTests
             process.AddUserAndSystemTask(endIncomingLink);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
-            var processArtifact = Helper.Storyteller.Artifacts.Where(artifact => artifact.Id == process.Id).First();
-            
+            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _adminUser);
+            var processArtifact = new Artifact { Id = process.Id , Address = Helper.ArtifactStore.Address };
+
             List<NovaDiscardArtifactResult> discardResultList = null;
             string expectedMessage = "Successfully discarded";
 
             Assert.DoesNotThrow(() =>
             {
-                discardResultList = processArtifact.NovaDiscard(_user);
+                discardResultList = processArtifact.NovaDiscard(_adminUser);
             }, "Discard must return no errors.");
 
             Assert.AreEqual(expectedMessage, discardResultList[0].Message, "Returned message must be {0}, but {1} was returned",
@@ -204,7 +197,7 @@ namespace StorytellerTests
             // Setup:
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.PROCESSES_id_, artifactId);
 
-            var restApi = new RestApiFacade(Helper.ArtifactStore.Address, _user?.Token?.AccessControlToken);
+            var restApi = new RestApiFacade(Helper.ArtifactStore.Address, _adminUser?.Token?.AccessControlToken);
 
             // Execute & Verify:
             var ex = Assert.Throws<Http400BadRequestException>(() => restApi.SendRequestAndDeserializeObject<NovaArtifactResponse, object>(

@@ -456,12 +456,12 @@ namespace Model.Impl
         /// <seealso cref="IArtifactStore.GetAttachments(IArtifactBase, IUser, bool?, int?, int?, int?, List{HttpStatusCode}, IServiceErrorMessage)"/>
         public Attachments GetAttachments(IArtifactBase artifact, IUser user, bool? addDrafts = null,
             int? versionId = null, int? baselineId = null, int? subArtifactId = null,
-            List<HttpStatusCode> expectedStatusCodes = null, IServiceErrorMessage expectedServiceErrorMessage = null)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
             
             return GetAttachments(Address, artifact.Id, user, addDrafts, versionId, subArtifactId, baselineId,
-                expectedStatusCodes, expectedServiceErrorMessage);
+                expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.GetRelationships(IUser, IArtifactBase, int?, bool?, int?, int?, List{HttpStatusCode})"/>
@@ -1374,7 +1374,6 @@ namespace Model.Impl
         /// <param name="versionId">(optional) The version of the attachment to retrieve.</param>
         /// <param name="subArtifactId">(optional) The ID of a sub-artifact of this artifact that has the attachment to get.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <param name="expectedServiceErrorMessage">(optional) Expected error message for the request.</param>
         /// <returns>Attachment object for the specified artifact/subartifact.</returns>
         public static Attachments GetAttachments(string address,
             int artifactId,
@@ -1383,8 +1382,7 @@ namespace Model.Impl
             int? versionId = null,
             int? baselineId = null,
             int? subArtifactId = null,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            IServiceErrorMessage expectedServiceErrorMessage = null)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(address, nameof(address));
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -1428,13 +1426,6 @@ namespace Model.Impl
             catch (Exception)
             {
                 Logger.WriteDebug("Content = '{0}'", restApi.Content);
-
-                if (expectedServiceErrorMessage != null)
-                {
-                    var serviceErrorMessage = JsonConvert.DeserializeObject<ServiceErrorMessage>(restApi.Content);
-                    serviceErrorMessage.AssertEquals(expectedServiceErrorMessage);
-                }
-
                 throw;
             }
         }

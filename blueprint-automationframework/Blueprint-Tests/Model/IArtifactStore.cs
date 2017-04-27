@@ -303,11 +303,10 @@ namespace Model
         /// <param name="baselineId">(optional) The id of baseline to get version of the attachment to retrieve.</param>
         /// <param name="subArtifactId">(optional) The ID of a sub-artifact of this artifact that has the attachment to get.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <param name="expectedServiceErrorMessage">(optional) Expected error message for the request.</param>
         /// <returns>Attachment object for the specified artifact/subartifact.</returns>
         Attachments GetAttachments(IArtifactBase artifact, IUser user, bool? addDrafts = null,
             int? versionId = null, int? baselineId = null, int? subArtifactId = null,
-            List<HttpStatusCode> expectedStatusCodes = null, IServiceErrorMessage expectedServiceErrorMessage = null);
+            List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets relationships for the specified artifact/subartifact

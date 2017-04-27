@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
-using CefSharp.OffScreen;
 
 namespace ImageRenderService.ImageGen
 {
@@ -21,24 +20,24 @@ namespace ImageRenderService.ImageGen
         {
             _instance = new BrowserPool
             {
-                _freeBrowsers = new ConcurrentBag<ChromiumWebBrowser>()
+                _freeBrowsers = new ConcurrentBag<IVirtualBrowser>()
             };
             _instance._browserPool = new Semaphore(_instance.MAXSIZE, _instance.MAXSIZE);
             return _instance;
         }
 
-        private ConcurrentBag<ChromiumWebBrowser> _freeBrowsers;
+        private ConcurrentBag<IVirtualBrowser> _freeBrowsers;
         private readonly int MAXSIZE = 3;
         private Semaphore _browserPool;
 
-        public async Task<ChromiumWebBrowser> Rent()
+        public async Task<IVirtualBrowser> Rent()
         {
             if (!_browserPool.WaitOne(MaxWaitTimeSeconds*1000))
             {
                 return null;
             }
-            
-            ChromiumWebBrowser browser;
+
+            IVirtualBrowser browser;
             //if there is a free browser - use it
             if (_freeBrowsers.TryTake(out browser))
             {
@@ -46,7 +45,7 @@ namespace ImageRenderService.ImageGen
             }
 
             //create a new browser
-            browser = new ChromiumWebBrowser();
+            browser = new VirtualBrowser();
 
             //initialize it
             if (!browser.IsBrowserInitialized)
@@ -62,7 +61,7 @@ namespace ImageRenderService.ImageGen
             return browser;
         }
 
-        public void Return(ChromiumWebBrowser browser)
+        public void Return(IVirtualBrowser browser)
         {
             _freeBrowsers.Add(browser);
             _browserPool.Release(1);

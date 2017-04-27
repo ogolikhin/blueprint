@@ -123,6 +123,8 @@
     <Compile Include="ImageGen\IImageGenHelper.cs" />
     <Compile Include="ImageGen\ImageGenHelper.cs" />
     <Compile Include="ImageGen\ImageGenService.cs" />
+    <Compile Include="ImageGen\IVirtualBrowser.cs" />
+    <Compile Include="ImageGen\VirtualBrowser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Helpers\ServiceHelper.cs" />

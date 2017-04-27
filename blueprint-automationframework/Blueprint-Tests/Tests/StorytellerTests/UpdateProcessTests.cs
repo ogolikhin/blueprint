@@ -380,11 +380,10 @@ namespace StorytellerTests
             var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
 
             // Create and save process artifact to be used as include; enable recursive delete flag
-            var includedProcessArtifact = Helper.Storyteller.CreateAndSaveProcessArtifact(_project, _user);
-
+            var includedProcessArtifact = Helper.Storyteller.CreateAndSaveNovaProcessArtifact(_project, _user);
             // Add include to default user task
             var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
-            defaultUserTask.AddAssociatedArtifact(Helper.ArtifactStore.GetArtifactDetails(_user, includedProcessArtifact.Id));
+            defaultUserTask.AddAssociatedArtifact(includedProcessArtifact);
 
             // Update and Verify the modified process
             StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
@@ -440,11 +439,8 @@ namespace StorytellerTests
         [Description("Upload an Image file to Default Precondition and verify returned process model")]
         public void UploadImageToDefaultPrecondition_VerifyImage(uint fileSize, string fakeFileName, string fileType)
         {
-            // Create a Process artifact
-            var addedProcessArtifact = Helper.Storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user);
-
-            // Get default process
-            var returnedProcess = Helper.Storyteller.GetProcess(_user, addedProcessArtifact.Id);
+            // Create and get a default nova process artifact
+            var addedNovaProcess = Helper.Storyteller.CreateAndSaveNovaProcessArtifact(project: _project, user: _user);
 
             // Setup: create a file with a random byte array.
             var file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
@@ -453,21 +449,19 @@ namespace StorytellerTests
             var deserialzedUploadResult = Helper.Storyteller.UploadFile(_user, file, DateTime.Now.AddDays(1));
 
             // Update the default precondition properties in the retrieved process model with Guid and UriToFile
-            var defaultPreconditionShape = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var defaultPreconditionShape = addedNovaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             defaultPreconditionShape.PropertyValues[PropertyTypeName.AssociatedImageUrl.ToString().LowerCaseFirstCharacter()].Value = deserialzedUploadResult.UriToFile;
             defaultPreconditionShape.PropertyValues[PropertyTypeName.ImageId.ToString().LowerCaseFirstCharacter()].Value = deserialzedUploadResult.Guid;
 
             // Save the process with the updated properties
-            Helper.Storyteller.UpdateProcess(_user, returnedProcess);
-
-            returnedProcess = Helper.Storyteller.GetProcess(_user, returnedProcess.Id);
+            addedNovaProcess = Helper.Storyteller.UpdateNovaProcess(_user, addedNovaProcess);
 
             // Publish the process
-            Helper.Storyteller.PublishProcess(_user, returnedProcess);
+            Helper.Storyteller.PublishNovaProcess(_user, addedNovaProcess);
 
             // Assert that the Default Precondition SystemTask contains value
-            defaultPreconditionShape = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            defaultPreconditionShape = addedNovaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             var updatedAssociatedImageUrl = defaultPreconditionShape.PropertyValues[PropertyTypeName.AssociatedImageUrl.ToString().LowerCaseFirstCharacter()].Value.ToString();
             var updatedImageId = defaultPreconditionShape.PropertyValues[PropertyTypeName.ImageId.ToString().LowerCaseFirstCharacter()].Value.ToString();

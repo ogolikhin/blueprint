@@ -232,8 +232,7 @@ namespace ArtifactStoreTests
             var userTasks = process.GetProcessShapesByShapeType(ProcessShapeType.UserTask);
             Assert.That(userTasks.Count > 1, "There should be more than one User Task!");
 
-            Assert.AreEqual(1, Helper.Storyteller.Artifacts.Count, "There should only be 1 Process artifact in Storyteller!");
-            var targetArtifact = Helper.Storyteller.Artifacts[0];
+            var targetArtifact = new ArtifactBase {Id = process.Id, ProjectId = process.ProjectId};
 
             int subArtifactId = userTasks[0].Id;
 

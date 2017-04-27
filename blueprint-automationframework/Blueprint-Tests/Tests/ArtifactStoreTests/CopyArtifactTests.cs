@@ -669,31 +669,35 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(195958)]
-        [Description("Create and publish a source Process with generated User Stories, and save a destination folder.  Copy the source artifact under the destination folder.  " +
-            "Verify the source Process is unchanged and the new Process is identical to the source Process.  Verify the source User Stories are unchanged (except for new Traces " +
+        [Description("Create and publish a source Process. Generate User Stories for the process. Create and publish a destination folder. " +
+            "Copy the source process to be under the destination folder. Verify the source Process is unchanged and the new Process is identical " +
+            "to the source Process (except for subartifact StoryLinks).  Verify the source User Stories are unchanged (except for new Traces " +
             "to the copied Process).  New copied Process & User Stories should not be published.")]
         public void CopyArtifact_SinglePublishedProcessWithUserStories_ToNewFolder_ReturnsNewProcessWithUserStories()
         {
             // Setup:
-            List<IStorytellerUserStory> userStories;
-            var sourceArtifact = CreateComplexProcessAndGenerateUserStories(_user, out userStories);
-            var targetFolder = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+            var tuple = CreateComplexProcessAndGenerateUserStories(_user);
+            var userStories = tuple.Item1;
+            var sourceArtifact = tuple.Item2;
 
-            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
+            var targetFolder = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
 
             // Execute:
-            CopyNovaArtifactResultSet copyResult = null;
+            Tuple<CopyNovaArtifactResultSet, List<ArtifactWrapper>> copyResult = null;
 
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetFolder.Id, _user),
+            Assert.DoesNotThrow(() => copyResult = sourceArtifact.CopyTo(_user, _project, targetFolder.Id),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
             int expectedNumberOfArtifactsCopied = userStories.Count + 1;
-            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, _user, expectedNumberOfArtifactsCopied,
-                expectedVersionOfOriginalArtifact: sourceArtifactDetails.Version.Value);
+
+            Assert.IsNotNull(sourceArtifact.Version, "Artifact version cannot be null for published process!");
+
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifact, copyResult.Item1, _user, expectedNumberOfArtifactsCopied,
+                expectedVersionOfOriginalArtifact: sourceArtifact.Version.Value);
 
             // Verify User Stories were copied.
-            VerifyChildrenWereCopied(_user, sourceArtifactDetails, copyResult.Artifact, skipSubArtifactTraces: true);
+            VerifyChildrenWereCopied(_user, sourceArtifact, copyResult.Item1.Artifact, skipSubArtifactTraces: true);
 
             var compareOptions = new Attachments.CompareOptions
             {
@@ -701,53 +705,54 @@ namespace ArtifactStoreTests
                 CompareUploadedDates = false
             };
 
-            AssertCopiedSubArtifactsAreEqualToOriginal(_user, sourceArtifactDetails, copyResult.Artifact,
-                skipSubArtifactTraces: true, attachmentCompareOptions: compareOptions);
+            AssertCopiedSubArtifactsAreEqualToOriginal(_user, sourceArtifact, copyResult.Item1.Artifact,
+                skipSubArtifactTraces: true, attachmentCompareOptions: compareOptions, actualProcessStoryLinksShouldBeNull: true);
 
-            var childArtifacts = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, copyResult.Artifact.Id, _user);
+            var childArtifacts = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, copyResult.Item1.Artifact.Id, _user);
 
             Assert.AreEqual(userStories.Count, childArtifacts.Count, "The User Stories of the Process didn't get copied!");
         }
 
         [TestCase]
         [TestRail(195959)]
-        [Description("Create and publish a source Process with generated User Stories, and publish a destination folder.  Copy the source artifact under the destination folder " +
-            "generate User Stories from the copied Process.  Verify the source Process is unchanged and the new Process is identical to the source Process.  Verify the source " +
-            "User Stories are unchanged (except for new Traces to the copied Process).  New copied Process & User Stories should not be published.")]
+        [Description("Create and publish a source Process. Generate User Stories for the process. Create and publish a destination folder. " +
+            "Copy the source process to be under the destination folder. Generate User Stories for the copied Process.  Verify the source Process " +
+            "is unchanged and the new Process is identical to the source Process.  Verify the source " +
+            "User Stories are unchanged (except for new Traces to the copied Process). New copied Process & User Stories should not be published.")]
         public void CopyArtifact_SinglePublishedProcessWithUserStories_ToNewFolder_GenerateUserStories_NewUserStoriesAreCreated()
         {
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            List<IStorytellerUserStory> sourceUserStories;
-            var sourceArtifact = CreateComplexProcessAndGenerateUserStories(author, out sourceUserStories);
-            var targetFolder = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.PrimitiveFolder);
+            var tuple = CreateComplexProcessAndGenerateUserStories(author);
+            var sourceUserStories = tuple.Item1;
+            var sourceArtifact = tuple.Item2;
 
             var sourceChildrenBefore = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, sourceArtifact.Id, author);
             Assert.AreEqual(sourceUserStories.Count, sourceChildrenBefore.Count,"Wrong number of children under the source Process artifact!");
-             
-            var sourceArtifactDetailsBefore = Helper.ArtifactStore.GetArtifactDetails(author, sourceArtifact.Id);
+
+            var targetFolder = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.PrimitiveFolder);
 
             // Execute:
-            CopyNovaArtifactResultSet copyResult = null;
+            Tuple<CopyNovaArtifactResultSet, List<ArtifactWrapper>> copyResult = null;
 
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetFolder.Id, author),
+            Assert.DoesNotThrow(() => copyResult = sourceArtifact.CopyTo(author, _project, targetFolder.Id),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Generate User Stories on the copied Process.
-            var copiedProcess = Helper.Storyteller.GetProcess(author, copyResult.Artifact.Id);
+            var copiedProcess = Helper.Storyteller.GetNovaProcess(author, copyResult.Item1.Artifact.Id);
 
             // The Process needs to be published before we can generate User Stories.
-            var copiedArtifact = _wrappedArtifacts.Find(a => a.Id.Equals(copiedProcess.Id));
-            copiedArtifact.Publish(author);
+            Helper.Storyteller.PublishProcess(author, copiedProcess.Process);
 
-            var copiedUserStories = Helper.Storyteller.GenerateUserStories(author, copiedProcess, shouldDeleteChildren: false);
+            var copiedUserStories = Helper.Storyteller.GenerateUserStories(author, copiedProcess.Process, shouldDeleteChildren: false);
+
             Assert.NotNull(copiedUserStories, "No User Stories were generated!");
             Assert.AreEqual(3, copiedUserStories.Count, "There should be 3 User Stories generated!");
 
             // Verify:
             var sourceArtifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(author, sourceArtifact.Id);
-            ArtifactStoreHelper.AssertArtifactsEqual(sourceArtifactDetailsBefore, sourceArtifactDetailsAfter, skipIdAndVersion: true, skipPublishedProperties: true);
+            ArtifactStoreHelper.AssertArtifactsEqual(sourceArtifact, sourceArtifactDetailsAfter, skipIdAndVersion: true, skipPublishedProperties: true);
 
             // Verify the original User Stories didn't get modified by generating User Stories on the copied Process.
             var sourceChildrenAfter = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, sourceArtifact.Id, author);
@@ -767,14 +772,14 @@ namespace ArtifactStoreTests
                 StorytellerUserStory.AssertAreEqual(sourceUserStories[i], copiedUserStories[i], skipIds: true);
             }
 
-            var childArtifacts = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, copyResult.Artifact.Id, author);
+            var childArtifacts = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, copyResult.Item1.Artifact.Id, author);
 
             Assert.AreEqual(sourceUserStories.Count * 2, childArtifacts.Count, "The User Stories of the Process didn't get copied!");
         }
 
         [TestCase]
         [TestRail(195995)]
-        [Description("Create and publish a source Process with Link Labels, and save a destination folder.  Copy the source artifact under the destination folder.  " +
+        [Description("Create and publish a source Process with Link Labels, and save a destination folder.  Copy the source artifact to be under the destination folder.  " +
             "Verify the source Process is unchanged and the new Process is identical to the source Process.  Verify the Link Labels were also copied. " +
             "New copied Process should not be published.")]
         public void CopyArtifact_SinglePublishedProcessWithLinkLabels_ToNewFolder_ReturnsNewProcessWithLinkLabels()
@@ -785,20 +790,21 @@ namespace ArtifactStoreTests
             sourceProcess = StorytellerTestHelper.AddRandomLinkLabelsToProcess(Helper.Storyteller, sourceProcess, _user);
             sourceProcess = StorytellerTestHelper.UpdateVerifyAndPublishProcess(sourceProcess, Helper.Storyteller, _user);
 
-            var sourceArtifact = Helper.Storyteller.Artifacts.Find(a => a.Id.Equals(sourceProcess.Id));
-            var targetFolder = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+            var sourceArtifact = Helper.WrapArtifact(Helper.ArtifactStore.GetArtifactDetails(_user, sourceProcess.Id), _project,_user);
 
-            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
+            var targetFolder = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
 
             // Execute:
-            CopyNovaArtifactResultSet copyResult = null;
+            Tuple<CopyNovaArtifactResultSet, List<ArtifactWrapper>> copyResult = null;
 
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetFolder.Id, _user),
+            Assert.DoesNotThrow(() => copyResult = sourceArtifact.CopyTo(_user, _project, targetFolder.Id),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
-            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, _user,
-                expectedVersionOfOriginalArtifact: sourceArtifactDetails.Version.Value);
+            Assert.IsNotNull(sourceArtifact.Version, "Artifact version cannot be null for published process!");
+
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifact, copyResult.Item1, _user,
+                expectedVersionOfOriginalArtifact: sourceArtifact.Version.Value);
 
             var compareOptions = new Attachments.CompareOptions
             {
@@ -806,11 +812,11 @@ namespace ArtifactStoreTests
                 CompareUploadedDates = false
             };
 
-            AssertCopiedSubArtifactsAreEqualToOriginal(_user, sourceArtifactDetails, copyResult.Artifact,
+            AssertCopiedSubArtifactsAreEqualToOriginal(_user, sourceArtifact, copyResult.Item1.Artifact,
                 skipSubArtifactTraces: true, attachmentCompareOptions: compareOptions);
 
-            var copiedProcess = Helper.Storyteller.GetProcess(_user, copyResult.Artifact.Id);
-
+            var copiedNovaProcess = Helper.Storyteller.GetNovaProcess(_user, copyResult.Item1.Artifact.Id);
+            var copiedProcess = copiedNovaProcess.Process;
             Process.AssertAreEqual(sourceProcess, copiedProcess, isCopiedProcess: true);
 
             // Compare the Process Links.
@@ -1598,9 +1604,9 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.AssertArtifactsEqual(originalArtifact, copyResult.Artifact, skipIdAndVersion: true, skipParentId: true, skipOrderIndex: true, 
                 skipCreatedBy: skipCreatedBy, skipPublishedProperties: true, skipPermissions: skipPermissions, skipDescription: skipDescription);
 
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, copyResult.Artifact.Id);
-            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, copyResult.Artifact, skipDescription: skipDescription);
-            Assert.AreEqual(-1, artifactDetails.Version, "Version of copied artifact should be -1 (i.e. not published)!");
+            var copyResultArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, copyResult.Artifact.Id);
+            ArtifactStoreHelper.AssertArtifactsEqual(copyResultArtifactDetails, copyResult.Artifact, skipDescription: skipDescription);
+            Assert.AreEqual(-1, copyResultArtifactDetails.Version, "Version of copied artifact should be -1 (i.e. not published)!");
 
             // Make sure original artifact didn't change.
             var originalArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, originalArtifact.Id);
@@ -1622,9 +1628,10 @@ namespace ArtifactStoreTests
         /// <param name="copiedArtifact">The new copied artifact.</param>
         /// <param name="skipSubArtifactTraces">(optional) Pass true to skip comparison of the SubArtifact trace Relationships.</param>
         /// <param name="attachmentCompareOptions">(optional) Specifies which Attachments properties to compare.  By default, all properties are compared.</param>
+        /// <param name="actualProcessStoryLinksShouldBeNull">(optional) Pass true to indicate copied process stroy links should be null. Default is false.</param>
         /// <exception cref="AssertionException">If any of the sub-artifact properties are different between the source and copied artifacts.</exception>
         private void AssertCopiedSubArtifactsAreEqualToOriginal(IUser user, INovaArtifactBase sourceArtifact, INovaArtifactBase copiedArtifact,
-            bool skipSubArtifactTraces = false, Attachments.CompareOptions attachmentCompareOptions = null)
+            bool skipSubArtifactTraces = false, Attachments.CompareOptions attachmentCompareOptions = null, bool actualProcessStoryLinksShouldBeNull = false)
         {
             ThrowIf.ArgumentNull(sourceArtifact, nameof(sourceArtifact));
             ThrowIf.ArgumentNull(copiedArtifact, nameof(copiedArtifact));
@@ -1643,12 +1650,13 @@ namespace ArtifactStoreTests
                 var propertyCompareOptions = new NovaItem.PropertyCompareOptions()
                 {
                     CompareArtifactIds = false,
-                    CompareTraces = !skipSubArtifactTraces
+                    CompareTraces = !skipSubArtifactTraces,
                 };
                 ArtifactStoreHelper.AssertSubArtifactsAreEqual(sourceSubArtifact, copiedSubArtifact, Helper.ArtifactStore, user,
-                     copiedArtifact.Id, propertyCompareOptions, attachmentCompareOptions);
+                     copiedArtifact.Id, propertyCompareOptions, attachmentCompareOptions, actualProcessStoryLinksShouldBeNull);
 
-                ArtifactStoreHelper.VerifyIndicatorFlags(Helper, user, copiedArtifact.Id, sourceSubArtifact.IndicatorFlags, (int)copiedSubArtifact.Id);
+                ArtifactStoreHelper.VerifyIndicatorFlags(Helper, user, copiedArtifact.Id, sourceSubArtifact.IndicatorFlags, 
+                    (int)copiedSubArtifact.Id);
             }
         }
 
@@ -1716,9 +1724,8 @@ namespace ArtifactStoreTests
         /// Creates a complex Process diagram and generates User Stories.
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>
-        /// <param name="userStories">[out] The generated User Stories will be returned in this list.</param>
-        /// <returns>The new Process artifact.</returns>
-        private IArtifact CreateComplexProcessAndGenerateUserStories(IUser user, out List<IStorytellerUserStory> userStories)
+        /// <returns>A tuple of (a) a list of generated user stories and (b) an ArtifactWrapper object for the created process.</returns>
+        private Tuple<List<IStorytellerUserStory>, ArtifactWrapper> CreateComplexProcessAndGenerateUserStories(IUser user)
         {
             /*  Create and publish a Process diagram that looks like this:
                 [S]--[P]--+--<UD1>--+--[UT]---+--[ST]---+--[UT4]--<SD1>--+--[ST5]--+--[E]
@@ -1730,12 +1737,15 @@ namespace ArtifactStoreTests
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(sourceProcess, Helper.Storyteller, user);
 
             // Generate User Stories.
-            userStories = Helper.Storyteller.GenerateUserStories(user, sourceProcess);
+            var userStories = Helper.Storyteller.GenerateUserStories(user, sourceProcess);
             Assert.NotNull(userStories, "No User Stories were generated!");
             Assert.AreEqual(3, userStories.Count, "There should be 3 User Stories generated!");
 
-            var sourceArtifact = Helper.Storyteller.Artifacts.Find(a => a.Id.Equals(sourceProcess.Id));
-            return sourceArtifact;
+            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, sourceProcess.Id);
+
+            var sourceArtifact = Helper.WrapArtifact(sourceArtifactDetails, _project, user);
+
+            return new Tuple<List<IStorytellerUserStory>, ArtifactWrapper>(userStories, sourceArtifact);
         }
 
         /// <summary>

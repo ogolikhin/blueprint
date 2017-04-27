@@ -11,7 +11,7 @@ namespace AdminStore.Models
         public string DisplayName { get; set; }
         public string Email { get; set; }
         public UserGroupSource Source { get; set; }
-        public string LicenseType { get; set; }
+        public int LicenseType { get; set; }
         public bool? AllowFallback { get; set; }
         public int? InstanceAdminRoleId { get; set; }       
         public bool Guest { get; set; }

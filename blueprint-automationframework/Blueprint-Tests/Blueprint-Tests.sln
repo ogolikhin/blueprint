@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Model", "Model\Model.csproj", "{52DB8811-A018-4CEC-BA81-8DDA947CC007}"
 EndProject
@@ -48,7 +48,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestCommon", "Tests\TestCom
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SearchServiceTests", "Tests\SearchServiceTests\SearchServiceTests.csproj", "{0FD31353-E508-44D7-A32D-3E990B6D98E3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImpactAnalysis", "Tests\ImpactAnalysisTests\ImpactAnalysis.csproj", "{EE6F7461-DF13-4A0A-9848-1B1CAB6FD999}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImpactAnalysisTests", "Tests\ImpactAnalysisTests\ImpactAnalysisTests.csproj", "{EE6F7461-DF13-4A0A-9848-1B1CAB6FD999}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

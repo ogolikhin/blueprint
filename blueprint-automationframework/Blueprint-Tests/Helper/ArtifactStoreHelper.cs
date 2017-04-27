@@ -490,9 +490,11 @@ namespace Helper
         ///     should have the same ParentId.</param>
         /// <param name="propertyCompareOptions">(optional) Specifies which properties to compare.  By default, all properties are compared.</param>
         /// <param name="attachmentCompareOptions">(optional) Specifies which Attachments properties to compare.  By default, all properties are compared.</param>
+        /// <param name="actualProcessStoryLinksShouldBeNull">(optional) Pass true to indicate actual process story links should be null. Default is false.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
         public static void AssertSubArtifactsAreEqual(NovaSubArtifact expectedSubArtifact, NovaSubArtifact actualSubArtifact, IArtifactStore artifactStore, IUser user,
-            int? expectedParentId = null, NovaItem.PropertyCompareOptions propertyCompareOptions = null, Attachments.CompareOptions attachmentCompareOptions = null)
+            int? expectedParentId = null, NovaItem.PropertyCompareOptions propertyCompareOptions = null, Attachments.CompareOptions attachmentCompareOptions = null,
+            bool actualProcessStoryLinksShouldBeNull = false)
         {
             ThrowIf.ArgumentNull(expectedSubArtifact, nameof(expectedSubArtifact));
             ThrowIf.ArgumentNull(actualSubArtifact, nameof(actualSubArtifact));
@@ -537,7 +539,7 @@ namespace Helper
             if (propertyCompareOptions.CompareSpecificPropertyValues)
             {
                 ComparePropertyValuesLists(expectedSubArtifact.SpecificPropertyValues, actualSubArtifact.SpecificPropertyValues,
-                    skipVirtualProperties: true);
+                    skipVirtualProperties: true, actualProcessStoryLinksShouldBeNull: actualProcessStoryLinksShouldBeNull);
             }
 
             // NOTE: Currently, NovaSubArtifacts don't return any Attachments, DocReferences or Traces.  You need to make separate calls to get those.
@@ -571,8 +573,9 @@ namespace Helper
         /// <param name="actualPropertyValues">List of actual Custom Properties</param>
         /// <param name="skipVirtualProperties">(Optional) Set true to skip comparing properties with empty 'name' or 'typeid' -1.
         ///     Set 'true' when comparing Specific properties.</param>
+        /// <param name="actualProcessStoryLinksShouldBeNull">(optional) Pass true to indicate actual process story links should be null. Default is false.</param>
         private static void ComparePropertyValuesLists(List<CustomProperty> expectedPropertyValues,
-            List<CustomProperty> actualPropertyValues, bool skipVirtualProperties = false)
+            List<CustomProperty> actualPropertyValues, bool skipVirtualProperties = false, bool actualProcessStoryLinksShouldBeNull = false)
         {
             Assert.AreEqual(expectedPropertyValues.Count, actualPropertyValues.Count,
                     "The number of Custom Properties is different!");
@@ -596,7 +599,7 @@ namespace Helper
 
                 if (actualProperty != null)
                 {
-                    AssertCustomPropertiesAreEqual(expectedProperty, actualProperty);
+                    AssertCustomPropertiesAreEqual(expectedProperty, actualProperty, actualProcessStoryLinksShouldBeNull);
                 }
             }
         }
@@ -606,7 +609,9 @@ namespace Helper
         /// </summary>
         /// <param name="expectedProperty">The expected custom property.</param>
         /// <param name="actualProperty">The actual custom property to be compared with the expected custom property.</param>
-        public static void AssertCustomPropertiesAreEqual(CustomProperty expectedProperty, CustomProperty actualProperty)
+        /// <param name="actualProcessStoryLinksShouldBeNull">(optional) Pass true to indicate actual process story links should be null. Default is false.</param>
+        public static void AssertCustomPropertiesAreEqual(CustomProperty expectedProperty, CustomProperty actualProperty, 
+            bool actualProcessStoryLinksShouldBeNull = false)
         {
             ThrowIf.ArgumentNull(expectedProperty, nameof(expectedProperty));
             ThrowIf.ArgumentNull(actualProperty, nameof(actualProperty));
@@ -624,7 +629,16 @@ namespace Helper
             {
                 string expectedPropertyString = expectedProperty?.CustomPropertyValue?.ToString();
                 string actualPropertyString = actualProperty?.CustomPropertyValue?.ToString();
-                Assert.AreEqual(expectedPropertyString, actualPropertyString, "The CustomPropertyValues don't match!");
+
+                if (actualProcessStoryLinksShouldBeNull && expectedProperty.Name == "StoryLink")
+                {
+                    Assert.IsNull(actualPropertyString, "The copied process StoryLink value should be null!");
+                }
+                else
+                {
+                    Assert.AreEqual(expectedPropertyString, actualPropertyString, "The CustomPropertyValues don't match!");
+                }
+
                 return;
             }
 
@@ -1531,7 +1545,7 @@ namespace Helper
         /// </summary>
         /// <param name="user">User to perform an operation.</param>
         /// <param name="artifact">The artifact containing the sub-artifact to attach a file to.</param>
-        /// <param name="subArtifact">The sub-artifact to attach a file to.</param>
+        /// <param name="subArtifactId">The ID of the sub-artifact to attach a file to.</param>
         /// <param name="file">The file to attach.</param>
         /// <param name="artifactStore">IArtifactStore.</param>
         /// <param name="shouldLockArtifact">(optional) Pass false if the artifact is already locked (or unpublished).</param>
@@ -1539,12 +1553,12 @@ namespace Helper
         public static Attachments AddSubArtifactAttachmentAndSave(
             IUser user,
             ArtifactWrapper artifact,
-            NovaItem subArtifact,
+            int subArtifactId,
             INovaFile file,
             IArtifactStore artifactStore,
             bool shouldLockArtifact = true)
         {
-            return AddSubArtifactAttachmentsAndSave(user, artifact, subArtifact, new List<INovaFile> { file }, artifactStore, shouldLockArtifact);
+            return AddSubArtifactAttachmentsAndSave(user, artifact, subArtifactId, new List<INovaFile> { file }, artifactStore, shouldLockArtifact);
         }
 
         /// <summary>
@@ -1552,7 +1566,7 @@ namespace Helper
         /// </summary>
         /// <param name="user">User to perform an operation.</param>
         /// <param name="artifact">The artifact containing the sub-artifact to attach a file to.</param>
-        /// <param name="subArtifact">The sub-artifact to attach a file to.</param>
+        /// <param name="subArtifactId">The ID of the sub-artifact to attach a file to.</param>
         /// <param name="files">List of files to attach.</param>
         /// <param name="artifactStore">IArtifactStore.</param>
         /// <param name="shouldLockArtifact">(optional) Pass false if the artifact is already locked (or unpublished).</param>
@@ -1560,18 +1574,16 @@ namespace Helper
         public static Attachments AddSubArtifactAttachmentsAndSave(
             IUser user,
             ArtifactWrapper artifact,
-            NovaItem subArtifact,
+            int subArtifactId,
             List<INovaFile> files,
             IArtifactStore artifactStore,
             bool shouldLockArtifact = true)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
-            ThrowIf.ArgumentNull(subArtifact, nameof(subArtifact));
+            ThrowIf.ArgumentNull(subArtifactId, nameof(subArtifactId));
             ThrowIf.ArgumentNull(files, nameof(files));
             ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
-
-            Assert.AreEqual(artifact.Id, subArtifact.ParentId, "subArtifact should belong to Artifact");
 
             if (shouldLockArtifact)
             {
@@ -1579,7 +1591,7 @@ namespace Helper
             }
 
             var subArtifactToAdd = new NovaSubArtifact();
-            subArtifactToAdd.Id = subArtifact.Id;
+            subArtifactToAdd.Id = subArtifactId;
 
             foreach (var file in files)
             {
@@ -1594,7 +1606,7 @@ namespace Helper
 
             artifact.Update(user, updateArtifact);
 
-            var attachments = artifactStore.GetAttachments(user, artifact.Id, subArtifactId: subArtifact.Id);
+            var attachments = artifactStore.GetAttachments(user, artifact.Id, subArtifactId: subArtifactId);
             Assert.IsTrue(attachments.AttachedFiles.Count >= files.Count, "All attachments should be added.");
 
             return attachments;

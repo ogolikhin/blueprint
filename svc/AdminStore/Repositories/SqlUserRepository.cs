@@ -223,6 +223,14 @@ namespace AdminStore.Repositories
             return userId;
         }
 
+        public async Task<IEnumerable<int>> DeleteUsers(OperationScope body, string search)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@UserIds", SqlConnectionWrapper.ToDataTable(body.Ids));
+            parameters.Add("@Search", search);
+            return await _connectionWrapper.QueryAsync<int>("DeleteUsers", parameters, commandType: CommandType.StoredProcedure);
+        }
+
         public async Task<IEnumerable<int>> DeleteUsers(IEnumerable<int> userIds)
         {
             var prm = new DynamicParameters();

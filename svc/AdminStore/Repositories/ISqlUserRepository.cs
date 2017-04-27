@@ -36,6 +36,6 @@ namespace AdminStore.Repositories
         Task<User> GetUser(int userId);
 
         Task<int> AddUserAsync(User loginUser);
-        Task<IEnumerable<int>> DeleteUsers(IEnumerable<int> userIds);
+        Task<IEnumerable<int>> DeleteUsers(OperationScope body, string search);
     }
 }

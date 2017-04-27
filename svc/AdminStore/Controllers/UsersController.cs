@@ -130,14 +130,15 @@ namespace AdminStore.Controllers
         /// <summary>
         /// Delete user/users from the system
         /// </summary>
-        /// <param name="ids">list of user ids for deletion</param>
+        /// <param name="body">list of user ids and selectAll flag</param>
+        /// <param name="search">search filter</param>
         /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
         /// <response code="403">Forbidden if used doesn’t have permissions to get users list</response>
-        [HttpDelete]
+        [HttpPost]
         [SessionRequired]
         [Route("")]
         [ResponseType(typeof(IEnumerable<int>))]
-        public async Task<IHttpActionResult> DeleteUsers([FromUri] IEnumerable<int> ids)
+        public async Task<IHttpActionResult> DeleteUsers([FromBody]OperationScope body, string search)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             var userId = session.UserId;

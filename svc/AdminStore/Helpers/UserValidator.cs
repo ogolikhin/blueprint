@@ -1,13 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
 using AdminStore.Models;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 
 namespace AdminStore.Helpers
 {
-    public class ModelValidator
+    public class UserValidator
     {
-        public static void ValidateUserModel(UserDto user)
+        public static void ValidateModel(UserDto user)
         {
             if (string.IsNullOrEmpty(user.Login))
             {
@@ -62,16 +65,6 @@ namespace AdminStore.Helpers
             if (!string.IsNullOrEmpty(user.Department) && (user.Department.Length < 1 || user.Department.Length > 255))
             {
                 throw new BadRequestException(ErrorMessages.DepartmentFieldLimitation, ErrorCodes.BadRequest);
-            }           
-        }
-
-        public static void ValidateUserPassword(string password)
-        {           
-            string errorMessage;
-            var isValidPassword = PasswordValidationHelper.ValidatePassword(password, true, out errorMessage);
-            if (!isValidPassword)
-            {
-                throw new BadRequestException(errorMessage, ErrorCodes.BadRequest);
             }
         }
     }

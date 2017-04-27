@@ -111,12 +111,15 @@
       <Link>Properties\SolutionAssemblyVersion.cs</Link>
     </Compile>
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\BaseApiController.cs" />
     <Compile Include="Controllers\InstanceController.cs" />
     <Compile Include="Controllers\JobsController.cs" />
     <Compile Include="Controllers\LogController.cs" />
     <Compile Include="Helpers\ModelValidator.cs" />
     <Compile Include="Helpers\PermissionsChecker.cs" />
-    <Compile Include="Models\CreationUserDto.cs" />
+    <Compile Include="Helpers\UserConverter.cs" />
+    <Compile Include="Helpers\UserPermissionsValidator.cs" />
+    <Compile Include="Helpers\UserValidator.cs" />
     <Compile Include="Models\UserDto.cs" />
     <Compile Include="Helpers\EmailHelper.cs" />
     <Compile Include="Helpers\HashingUtilities.cs" />

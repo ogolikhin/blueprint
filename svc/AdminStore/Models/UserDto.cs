@@ -13,7 +13,7 @@ namespace AdminStore.Models
         public string LicenseType { get; set; }
         public bool? AllowFallback { get; set; }
         public int? InstanceAdminRoleId { get; set; }
-        public int UserId { get; set; }
+        public int Id { get; set; }
         public bool Guest { get; set; }
         public int CurrentVersion { get; set; }
         public bool Enabled { get; set; }

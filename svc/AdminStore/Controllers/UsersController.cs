@@ -75,7 +75,7 @@ namespace AdminStore.Controllers
                 var loginUser = await _userRepository.GetLoginUserByIdAsync(session.UserId);
                 if (loginUser == null)
                 {
-                    throw new AuthenticationException(string.Format("User does not exist with UserId: {0}", session.UserId));
+                    throw new AuthenticationException(string.Format("User does not exist with Id: {0}", session.UserId));
                 }
                 loginUser.LicenseType = session.LicenseLevel;
                 loginUser.IsSso = session.IsSso;
@@ -150,7 +150,7 @@ namespace AdminStore.Controllers
             }
             var user = await _userRepository.GetUserDto(userId);
 
-            if (user.UserId == 0)
+            if (user.Id == 0)
                 return NotFound();
 
             return Ok(user);

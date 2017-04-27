@@ -824,7 +824,7 @@ namespace AdminStore.Controllers
             var sort = string.Empty;
             var filter = string.Empty;
 
-            var users = new List<UserDto>() { new UserDto() { UserId = 1 } };
+            var users = new List<UserDto>() { new UserDto() { Id = 1 } };
             var settings = new TableSettings() { PageSize = 3, Page = 1 };
             QueryResult returnResult = new QueryResult()
             {
@@ -892,7 +892,7 @@ namespace AdminStore.Controllers
         public async Task GetUser_AllParamsAreCorrectAndPermissionsOk_RepositoryReturnUser()
         {
             //arrange
-            var user = new UserDto() { UserId = 5 };
+            var user = new UserDto() { Id = 5 };
             _usersRepoMock.Setup(repo => repo.GetUserDto(It.Is<int>(i => i > 0))).ReturnsAsync(user);
             _privilegesRepository.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(true);
 

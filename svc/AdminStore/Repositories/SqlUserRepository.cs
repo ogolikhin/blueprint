@@ -244,7 +244,7 @@ namespace AdminStore.Repositories
             if (loginUser.GroupMembership != null)
                 parameters.Add("@GroupMembership", SqlConnectionWrapper.ToDataTable(loginUser.GroupMembership, "Int32Collection", "Int32Value"));
             parameters.Add("@Guest", loginUser.Guest);
-            parameters.Add("@UserId", loginUser.UserId);
+            parameters.Add("@UserId", loginUser.Id);
             parameters.Add("@CurrentVersion", loginUser.CurrentVersion);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 

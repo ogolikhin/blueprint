@@ -23,7 +23,7 @@ namespace AdminStore.Controllers
     [ApiControllerJsonConfig]
     [RoutePrefix("users")]
     [BaseExceptionFilter]
-    public class UsersController : ApiController
+    public class UsersController : BaseApiController
     {
         internal readonly IAuthenticationRepository _authenticationRepository;
         internal readonly ISqlUserRepository _userRepository;
@@ -152,7 +152,7 @@ namespace AdminStore.Controllers
             }
             var user = await _userRepository.GetUser(userId);
 
-            if (user.UserId == 0)
+            if (user.Id == 0)
                 return NotFound();
 
             return Ok(user);
@@ -408,14 +408,12 @@ namespace AdminStore.Controllers
         [Route("")]
         public async Task<HttpResponseMessage> PostUser([FromBody] UserDto user)
         {
-            var sessionUserId = SessionHelper.GetUserIdFromSession(Request);
-
             if (user == null)
             {
                 throw new BadRequestException(ErrorMessages.UserModelIsEmpty, ErrorCodes.BadRequest);
             }
 
-            if (!(await UserPermissionsValidator.HasValidPermissions(sessionUserId, user, _privilegesRepository)))
+            if (!(await UserPermissionsValidator.HasValidPermissions(SessionUserId, user, _privilegesRepository)))
             {
                 throw new AuthorizationException(ErrorMessages.UserDoesNotHavePermissions, ErrorCodes.Forbidden);
             }
@@ -445,8 +443,6 @@ namespace AdminStore.Controllers
         [Route("{userId:int}")]
         public async Task<IHttpActionResult> UpdateUser(int userId, [FromBody] UserDto user)
         {
-            var sessionUserId = SessionHelper.GetUserIdFromSession(Request);
-
             if (userId == 0)
             {
                 throw new BadRequestException(ErrorMessages.IncorrectUserId, ErrorCodes.BadRequest);
@@ -457,7 +453,7 @@ namespace AdminStore.Controllers
                 throw new BadRequestException(ErrorMessages.UserModelIsEmpty, ErrorCodes.BadRequest);
             }
 
-            if (!(await UserPermissionsValidator.HasValidPermissions(sessionUserId, user, _privilegesRepository)))
+            if (!(await UserPermissionsValidator.HasValidPermissions(SessionUserId, user, _privilegesRepository)))
             {
                 throw new AuthorizationException(ErrorMessages.UserDoesNotHavePermissions, ErrorCodes.Forbidden);
             }

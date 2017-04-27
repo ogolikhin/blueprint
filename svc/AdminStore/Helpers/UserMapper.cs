@@ -11,7 +11,7 @@ namespace AdminStore.Helpers
             var result =
                 new UserDto()
                 {
-                    UserId = user.UserId,
+                    Id = user.Id,
                     Title = user.Title,
                     AllowFallback = user.AllowFallback,
                     CurrentVersion = user.CurrentVersion,

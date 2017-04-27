@@ -30,7 +30,7 @@ namespace AdminStore.Helpers
                 LastName = user.LastName,
                 Email = user.Email,
                 UserSALT = Guid.NewGuid(),
-                UserId = userId,
+                Id = userId,
                 CurrentVersion = user.CurrentVersion
             };
 

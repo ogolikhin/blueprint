@@ -323,7 +323,7 @@ namespace AdminStore.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlUserRepository(cxn.Object, cxn.Object);
             var userId = 10;
-            User[] returnResult = { new User() { UserId = 5 } };
+            User[] returnResult = { new User() { Id = 5 } };
             cxn.SetupQueryAsync("GetUserDetails", new Dictionary<string, object>() { { "UserId", userId } }, returnResult);
 
             //act

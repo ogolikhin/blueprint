@@ -1,11 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 namespace AdminStore.Models
 {
     public class User : LoginUser
     {
-        public int UserId { get; set; }
         public bool Guest { get; set; }
         public int CurrentVersion { get; set; }
         public string Password { get; set; }
@@ -21,7 +21,6 @@ namespace AdminStore.Models
         public DateTime? LastPasswordChangeTimestamp { get; set; }
         public int? Image_ImageId { get; set; }
         public string InstanceAdminRoleName { get; set; }
-        [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")]
-        public int[] GroupMembership { get; set; }
+        public IEnumerable<int> GroupMembership { get; set; }
     }
 }

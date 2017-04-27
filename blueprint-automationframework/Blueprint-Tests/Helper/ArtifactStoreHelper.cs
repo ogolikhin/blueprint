@@ -157,6 +157,7 @@ namespace Helper
         /// </summary>
         /// <param name="novaArtifactResponse">The artifact returned by the Nova call.</param>
         /// <param name="artifact">The artifact to compare against.</param>
+        [SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
         public static void AssertNovaArtifactResponsePropertiesMatchWithArtifactSkipVersion(
             INovaArtifactResponse novaArtifactResponse,
             IArtifactBase artifact)
@@ -188,6 +189,7 @@ namespace Helper
         /// <param name="artifact">The artifact to compare against.</param>
         /// <param name="expectedVersion">(optional) The version expected in the NovaArtifactResponse.
         ///     By default it compares the version of the NovaArtifactResponse with the artifact.</param>
+        [SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
         public static void AssertNovaArtifactResponsePropertiesMatchWithArtifact(
             INovaArtifactResponse novaArtifactResponse,
             INovaArtifactDetails artifact,
@@ -281,10 +283,10 @@ namespace Helper
         /// Asserts that the response from the Nova call contains all the specified artifacts.
         /// </summary>
         /// <param name="artifactAndProjectResponse">The response from the Nova call.</param>
-        /// <param name="artifacts">The OpenApi artifacts that we sent to the Nova call.</param>
+        /// <param name="artifacts">The artifacts that we sent to the Nova call.</param>
         public static void AssertArtifactsAndProjectsResponseContainsAllArtifactsInList(
             INovaArtifactsAndProjectsResponse artifactAndProjectResponse,
-            List<IArtifactBase> artifacts)
+            List<INovaArtifactDetails> artifacts)
         {
             ThrowIf.ArgumentNull(artifactAndProjectResponse, nameof(artifactAndProjectResponse));
             ThrowIf.ArgumentNull(artifacts, nameof(artifacts));
@@ -294,7 +296,7 @@ namespace Helper
                 var novaArtifactResponse = artifactAndProjectResponse.Artifacts.Find(a => a.Id == artifact.Id);
                 Assert.NotNull(novaArtifactResponse, "Couldn't find artifact ID {0} in the list of artifacts!");
 
-                AssertNovaArtifactResponsePropertiesMatchWithArtifactSkipVersion(novaArtifactResponse, artifact);
+                NovaArtifactDetails.AssertAreEqual(novaArtifactResponse, artifact);
             }
         }
 
@@ -439,38 +441,6 @@ namespace Helper
         }
 
         /// <summary>
-        /// Asserts that the specified INovaArtifactDetails object is equal to the specified INovaArtifactResponse.
-        /// </summary>
-        /// <param name="artifact1">The first INovaArtifactDetails to compare against.</param>
-        /// <param name="artifact2">The second INovaArtifactResponse to compare against.</param>
-        /// <param name="skipDatesAndDescription">(optional) Pass true to skip comparing the Created*, LastEdited* and Description properties.
-        ///     This is needed when comparing the response of the GetUnpublishedChanges REST call which always returns null for those fields.</param>
-        /// <exception cref="AssertionException">If any of the properties are different.</exception>
-        public static void AssertArtifactsEqual(INovaArtifactDetails artifact1, INovaArtifactResponse artifact2, bool skipDatesAndDescription = false)
-        {
-            ThrowIf.ArgumentNull(artifact1, nameof(artifact1));
-            ThrowIf.ArgumentNull(artifact2, nameof(artifact2));
-
-            Assert.AreEqual(artifact1.Id, artifact2.Id, "The Id parameters don't match!");
-            Assert.AreEqual(artifact1.Name, artifact2.Name, "The Name  parameters don't match!");
-            Assert.AreEqual(artifact1.ParentId, artifact2.ParentId, "The ParentId  parameters don't match!");
-            Assert.AreEqual(artifact1.OrderIndex, artifact2.OrderIndex, "The OrderIndex  parameters don't match!");
-            Assert.AreEqual(artifact1.ItemTypeId, artifact2.ItemTypeId, "The ItemTypeId  parameters don't match!");
-            Assert.AreEqual(artifact1.ProjectId, artifact2.ProjectId, "The ProjectId  parameters don't match!");
-            Assert.AreEqual(artifact1.Version, artifact2.Version, "The Version  parameters don't match!");
-
-            if (!skipDatesAndDescription)
-            {
-                Assert.AreEqual(artifact1.Description, artifact2.Description, "The Description  parameters don't match!");
-                Assert.AreEqual(artifact1.CreatedOn, artifact2.CreatedOn, "The CreatedOn  parameters don't match!");
-                Assert.AreEqual(artifact1.LastEditedOn, artifact2.LastEditedOn, "The LastEditedOn  parameters don't match!");
-
-                Identification.AssertEquals(artifact1.CreatedBy, artifact2.CreatedBy);
-                Identification.AssertEquals(artifact1.LastEditedBy, artifact2.LastEditedBy);
-            }
-        }
-
-        /// <summary>
         /// Asserts that the INovaArtifactDetails & INovaVersionControlArtifactInfo objects are equal.
         /// </summary>
         /// <param name="artifact1">The first INovaArtifactDetails to compare against.</param>
@@ -520,9 +490,11 @@ namespace Helper
         ///     should have the same ParentId.</param>
         /// <param name="propertyCompareOptions">(optional) Specifies which properties to compare.  By default, all properties are compared.</param>
         /// <param name="attachmentCompareOptions">(optional) Specifies which Attachments properties to compare.  By default, all properties are compared.</param>
+        /// <param name="actualProcessStoryLinksShouldBeNull">(optional) Pass true to indicate actual process story links should be null. Default is false.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
         public static void AssertSubArtifactsAreEqual(NovaSubArtifact expectedSubArtifact, NovaSubArtifact actualSubArtifact, IArtifactStore artifactStore, IUser user,
-            int? expectedParentId = null, NovaItem.PropertyCompareOptions propertyCompareOptions = null, Attachments.CompareOptions attachmentCompareOptions = null)
+            int? expectedParentId = null, NovaItem.PropertyCompareOptions propertyCompareOptions = null, Attachments.CompareOptions attachmentCompareOptions = null,
+            bool actualProcessStoryLinksShouldBeNull = false)
         {
             ThrowIf.ArgumentNull(expectedSubArtifact, nameof(expectedSubArtifact));
             ThrowIf.ArgumentNull(actualSubArtifact, nameof(actualSubArtifact));
@@ -567,7 +539,7 @@ namespace Helper
             if (propertyCompareOptions.CompareSpecificPropertyValues)
             {
                 ComparePropertyValuesLists(expectedSubArtifact.SpecificPropertyValues, actualSubArtifact.SpecificPropertyValues,
-                    skipVirtualProperties: true);
+                    skipVirtualProperties: true, actualProcessStoryLinksShouldBeNull: actualProcessStoryLinksShouldBeNull);
             }
 
             // NOTE: Currently, NovaSubArtifacts don't return any Attachments, DocReferences or Traces.  You need to make separate calls to get those.
@@ -601,8 +573,9 @@ namespace Helper
         /// <param name="actualPropertyValues">List of actual Custom Properties</param>
         /// <param name="skipVirtualProperties">(Optional) Set true to skip comparing properties with empty 'name' or 'typeid' -1.
         ///     Set 'true' when comparing Specific properties.</param>
+        /// <param name="actualProcessStoryLinksShouldBeNull">(optional) Pass true to indicate actual process story links should be null. Default is false.</param>
         private static void ComparePropertyValuesLists(List<CustomProperty> expectedPropertyValues,
-            List<CustomProperty> actualPropertyValues, bool skipVirtualProperties = false)
+            List<CustomProperty> actualPropertyValues, bool skipVirtualProperties = false, bool actualProcessStoryLinksShouldBeNull = false)
         {
             Assert.AreEqual(expectedPropertyValues.Count, actualPropertyValues.Count,
                     "The number of Custom Properties is different!");
@@ -626,7 +599,7 @@ namespace Helper
 
                 if (actualProperty != null)
                 {
-                    AssertCustomPropertiesAreEqual(expectedProperty, actualProperty);
+                    AssertCustomPropertiesAreEqual(expectedProperty, actualProperty, actualProcessStoryLinksShouldBeNull);
                 }
             }
         }
@@ -636,7 +609,9 @@ namespace Helper
         /// </summary>
         /// <param name="expectedProperty">The expected custom property.</param>
         /// <param name="actualProperty">The actual custom property to be compared with the expected custom property.</param>
-        public static void AssertCustomPropertiesAreEqual(CustomProperty expectedProperty, CustomProperty actualProperty)
+        /// <param name="actualProcessStoryLinksShouldBeNull">(optional) Pass true to indicate actual process story links should be null. Default is false.</param>
+        public static void AssertCustomPropertiesAreEqual(CustomProperty expectedProperty, CustomProperty actualProperty, 
+            bool actualProcessStoryLinksShouldBeNull = false)
         {
             ThrowIf.ArgumentNull(expectedProperty, nameof(expectedProperty));
             ThrowIf.ArgumentNull(actualProperty, nameof(actualProperty));
@@ -654,7 +629,16 @@ namespace Helper
             {
                 string expectedPropertyString = expectedProperty?.CustomPropertyValue?.ToString();
                 string actualPropertyString = actualProperty?.CustomPropertyValue?.ToString();
-                Assert.AreEqual(expectedPropertyString, actualPropertyString, "The CustomPropertyValues don't match!");
+
+                if (actualProcessStoryLinksShouldBeNull && expectedProperty.Name == "StoryLink")
+                {
+                    Assert.IsNull(actualPropertyString, "The copied process StoryLink value should be null!");
+                }
+                else
+                {
+                    Assert.AreEqual(expectedPropertyString, actualPropertyString, "The CustomPropertyValues don't match!");
+                }
+
                 return;
             }
 
@@ -819,15 +803,15 @@ namespace Helper
         /// </summary>
         /// <param name="expectedArtifact">The expected artifact</param>
         /// <param name="actualCollectionItem">The actual collection item</param>
-        public static void AssertAreEqual(IArtifactBase expectedArtifact, CollectionItem actualCollectionItem)
+        public static void AssertAreEqual(INovaArtifactDetails expectedArtifact, CollectionItem actualCollectionItem)
         {
             ThrowIf.ArgumentNull(expectedArtifact, nameof(expectedArtifact));
             ThrowIf.ArgumentNull(actualCollectionItem, nameof(actualCollectionItem));
 
             Assert.AreEqual(expectedArtifact.Id, actualCollectionItem.Id);
             Assert.AreEqual(expectedArtifact.Name, actualCollectionItem.Name);
-            Assert.AreEqual(expectedArtifact.ArtifactTypeId, actualCollectionItem.ItemTypeId);
-            Assert.AreEqual(expectedArtifact.BaseArtifactType.ToItemTypePredefined(), actualCollectionItem.ItemTypePredefined);
+            Assert.AreEqual(expectedArtifact.ItemTypeId, actualCollectionItem.ItemTypeId);
+            Assert.AreEqual(expectedArtifact.PredefinedType, (int)actualCollectionItem.ItemTypePredefined);
         }
 
         #endregion Custom Asserts
@@ -897,7 +881,8 @@ namespace Helper
         /// <param name="propertyName">(optional) The name of the artifact property where the image should be embedded.</param>
         /// <param name="numberOfImagesToAdd">(optional) The number of images to embed in the property.</param>
         /// <returns>The INovaArtifactDetails after saving the artifact.</returns>
-        public static INovaArtifactDetails AddRandomImageToArtifactProperty(NovaArtifactDetails artifactDetails,
+        public static INovaArtifactDetails AddRandomImageToArtifactProperty(
+            INovaArtifactDetails artifactDetails,
             IUser user,
             IArtifactStore artifactStore,
             int width = 100,
@@ -965,14 +950,14 @@ namespace Helper
         /// </summary>
         /// <param name="collection">collection returned from get collection call</param>
         /// <param name="artifactList">list of artifact that represents expected artifacts from the returned collection call</param>
-        public static void ValidateCollection(NovaCollectionBase collection, List<IArtifactBase> artifactList)
+        public static void ValidateCollection(NovaCollectionBase collection, List<INovaArtifactDetails> artifactList)
         {
             ThrowIf.ArgumentNull(collection, nameof(collection));
             ThrowIf.ArgumentNull(artifactList, nameof(artifactList));
 
-            Assert.AreEqual(artifactList.Count(), collection.Artifacts.Count(),
+            Assert.AreEqual(artifactList.Count, collection.Artifacts.Count,
                 "{0} artifacts are expected from collection but {1} are returned.",
-                artifactList.Count(), collection.Artifacts.Count());
+                artifactList.Count, collection.Artifacts.Count);
 
             if (artifactList.Any())
             {
@@ -1472,21 +1457,20 @@ namespace Helper
         /// Attaches files to the artifact (Save changes).
         /// </summary>
         /// <param name="user">User to perform an operation.</param>
-        /// <param name="artifact">Artifact.</param>
+        /// <param name="artifact">The artifact to add attachments to.</param>
         /// <param name="files">List of files to attach.</param>
         /// <param name="artifactStore">IArtifactStore.</param>
         /// <param name="shouldLockArtifact">(optional) Pass false if you already locked the artifact.
         ///     By default this function will lock the artifact.</param>
-        /// <param name="expectedLockResult">(optional) The expected LockResult returned in the JSON body.  This is only checked if StatusCode = 200.
-        ///     If null, only Success is expected.</param>
+        /// <param name="shouldReturnAttachments">(optional) Pass false if you don't want to get the attachments after the update; in which case this function will return null.</param>
         /// <returns>The attachments that were added.</returns>
         public static Attachments AddArtifactAttachmentsAndSave(
             IUser user,
-            IArtifact artifact,
+            ArtifactWrapper artifact,
             List<INovaFile> files,
             IArtifactStore artifactStore,
             bool shouldLockArtifact = true,
-            LockResult expectedLockResult = LockResult.Success)
+            bool shouldReturnAttachments = true)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
@@ -1495,79 +1479,119 @@ namespace Helper
 
             if (shouldLockArtifact)
             {
-                artifact.Lock(user, expectedLockResult: expectedLockResult);
+                artifact.Lock(user);
             }
 
-            var artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
+            var updateArtifact = CreateNovaArtifactDetailsForUpdate(artifact);
 
             foreach (var file in files)
             {
-                artifactDetails.AttachmentValues.Add(new AttachmentValue(user, file));
+                var attachmentValue = new AttachmentValue(user, file);
+                artifact.AttachmentValues.Add(attachmentValue);
+                updateArtifact.AttachmentValues.Add(attachmentValue);
             }
 
-            Artifact.UpdateArtifact(artifact, user, artifactDetails, address: artifactStore.Address);
-            var attachments = artifactStore.GetAttachments(artifact, user);
-            Assert.IsTrue(attachments.AttachedFiles.Count >= files.Count, "All attachments should be added.");
+            artifact.Update(user, updateArtifact);
 
-            return attachments;
+            if (shouldReturnAttachments)
+            {
+                var attachments = artifactStore.GetAttachments(user, artifact.Id);
+                Assert.IsTrue(attachments.AttachedFiles.Count >= files.Count, "All attachments should be added.");
+
+                return attachments;
+            }
+
+            return null;
         }
 
         /// <summary>
         /// Attaches file to the artifact (Save changes).
         /// </summary>
         /// <param name="user">User to perform an operation.</param>
-        /// <param name="artifact">Artifact.</param>
+        /// <param name="artifact">The artifact to add the attachment to.</param>
         /// <param name="file">The file to attach.</param>
         /// <param name="artifactStore">IArtifactStore.</param>
         /// <param name="shouldLockArtifact">(optional) Pass false if you already locked the artifact.
         ///     By default this function will lock the artifact.</param>
+        /// <param name="shouldReturnAttachments">(optional) Pass false if you don't want to get the attachments after the update; in which case this function will return null.</param>
         /// <param name="expectedAttachedFilesCount">(optional) The expected number of attached files after adding the attachment.</param>
-        /// <param name="expectedLockResult">(optional) The expected LockResult returned in the JSON body.  This is only checked if StatusCode = 200.
-        ///     If null, only Success is expected.</param>
         /// <returns>The attachments that were added.</returns>
         public static Attachments AddArtifactAttachmentAndSave(
             IUser user,
-            IArtifact artifact,
+            ArtifactWrapper artifact,
             INovaFile file,
             IArtifactStore artifactStore,
             bool shouldLockArtifact = true,
-            int expectedAttachedFilesCount = 1,
-            LockResult expectedLockResult = LockResult.Success)
+            bool shouldReturnAttachments = true,
+            int expectedAttachedFilesCount = 1)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
             ThrowIf.ArgumentNull(file, nameof(file));
             ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
 
-            var attachments = AddArtifactAttachmentsAndSave(user, artifact, new List<INovaFile> { file }, artifactStore, shouldLockArtifact, expectedLockResult);
-            Assert.AreEqual(expectedAttachedFilesCount, attachments.AttachedFiles.Count, "The attachment should be added.");
+            var attachments = AddArtifactAttachmentsAndSave(user, artifact, new List<INovaFile> { file }, artifactStore, shouldLockArtifact, shouldReturnAttachments);
+
+            if (shouldReturnAttachments)
+            {
+                Assert.AreEqual(expectedAttachedFilesCount, attachments.AttachedFiles.Count, "The attachment should be added.");
+            }
 
             return attachments;
         }
 
         /// <summary>
-        /// Attaches file to the subartifact (Save changes).
+        /// Attaches file to the subartifact (Save changes).  The artifact will first be locked unless you pass false for shouldLockArtifact.
         /// </summary>
         /// <param name="user">User to perform an operation.</param>
-        /// <param name="artifact">Artifact.</param>
-        /// <param name="subArtifact">SubArtifact.</param>
+        /// <param name="artifact">The artifact containing the sub-artifact to attach a file to.</param>
+        /// <param name="subArtifactId">The ID of the sub-artifact to attach a file to.</param>
+        /// <param name="file">The file to attach.</param>
+        /// <param name="artifactStore">IArtifactStore.</param>
+        /// <param name="shouldLockArtifact">(optional) Pass false if the artifact is already locked (or unpublished).</param>
+        /// <returns>The attachment that was added.</returns>
+        public static Attachments AddSubArtifactAttachmentAndSave(
+            IUser user,
+            ArtifactWrapper artifact,
+            int subArtifactId,
+            INovaFile file,
+            IArtifactStore artifactStore,
+            bool shouldLockArtifact = true)
+        {
+            return AddSubArtifactAttachmentsAndSave(user, artifact, subArtifactId, new List<INovaFile> { file }, artifactStore, shouldLockArtifact);
+        }
+
+        /// <summary>
+        /// Attaches file to the subartifact (Save changes).  The artifact will first be locked unless you pass false for shouldLockArtifact.
+        /// </summary>
+        /// <param name="user">User to perform an operation.</param>
+        /// <param name="artifact">The artifact containing the sub-artifact to attach a file to.</param>
+        /// <param name="subArtifactId">The ID of the sub-artifact to attach a file to.</param>
         /// <param name="files">List of files to attach.</param>
         /// <param name="artifactStore">IArtifactStore.</param>
-        public static void AddSubArtifactAttachmentAndSave(IUser user, IArtifact artifact, NovaItem subArtifact,
-            List<INovaFile> files, IArtifactStore artifactStore)
+        /// <param name="shouldLockArtifact">(optional) Pass false if the artifact is already locked (or unpublished).</param>
+        /// <returns>The attachments that were added.</returns>
+        public static Attachments AddSubArtifactAttachmentsAndSave(
+            IUser user,
+            ArtifactWrapper artifact,
+            int subArtifactId,
+            List<INovaFile> files,
+            IArtifactStore artifactStore,
+            bool shouldLockArtifact = true)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
-            ThrowIf.ArgumentNull(subArtifact, nameof(subArtifact));
+            ThrowIf.ArgumentNull(subArtifactId, nameof(subArtifactId));
             ThrowIf.ArgumentNull(files, nameof(files));
             ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
-            Assert.AreEqual(artifact.Id, subArtifact.ParentId, "subArtifact should belong to Artifact");
 
-            artifact.Lock(user);
-            var artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
+            if (shouldLockArtifact)
+            {
+                artifact.Lock(user);
+            }
 
             var subArtifactToAdd = new NovaSubArtifact();
-            subArtifactToAdd.Id = subArtifact.Id;
+            subArtifactToAdd.Id = subArtifactId;
 
             foreach (var file in files)
             {
@@ -1575,12 +1599,46 @@ namespace Helper
             }
 
             var subArtifacts = new List<NovaSubArtifact> { subArtifactToAdd };
+            var updateArtifact = CreateNovaArtifactDetailsForUpdate(artifact);
 
-            artifactDetails.SubArtifacts = subArtifacts;
+            artifact.SubArtifacts = subArtifacts;
+            updateArtifact.SubArtifacts = subArtifacts;
 
-            Artifact.UpdateArtifact(artifact, user, artifactDetails, address: artifactStore.Address);
-            var attachment = artifactStore.GetAttachments(artifact, user, subArtifactId: subArtifact.Id);
-            Assert.IsTrue(attachment.AttachedFiles.Count >= files.Count, "All attachments should be added.");
+            artifact.Update(user, updateArtifact);
+
+            var attachments = artifactStore.GetAttachments(user, artifact.Id, subArtifactId: subArtifactId);
+            Assert.IsTrue(attachments.AttachedFiles.Count >= files.Count, "All attachments should be added.");
+
+            return attachments;
+        }
+
+        /// <summary>
+        /// Deletes file from the artifact (Save changes).
+        /// </summary>
+        /// <param name="user">User to perform an operation.</param>
+        /// <param name="artifact">The artifact that has the attachment to be deleted.</param>
+        /// <param name="fileId">Id of the file to delete. File must be attached to the artifact.</param>
+        /// <param name="artifactStore">IArtifactStore.</param>
+        public static void DeleteArtifactAttachmentAndSave(IUser user, ArtifactWrapper artifact, int fileId, IArtifactStore artifactStore)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
+
+            var attachments = artifactStore.GetAttachments(user, artifact.Id);
+            Assert.IsNotNull(attachments, "Getattachments shouldn't return null.");
+            Assert.IsTrue(attachments.AttachedFiles.Count > 0, "Artifact should have at least one attachment.");
+
+            var fileToDelete = attachments.AttachedFiles.FirstOrDefault(f => f.AttachmentId == fileId);
+            Assert.NotNull(fileToDelete, "Couldn't find an Attachment with ID: '{0}'.", fileId);
+            Assert.AreEqual(fileId, fileToDelete.AttachmentId, "Attachments must contain file with fileId.");
+
+            artifact.Lock(user);
+
+            var artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
+            artifactDetails.AttachmentValues.Add(new AttachmentValue(fileToDelete.AttachmentId));
+
+            artifact.Update(user, artifactDetails);
         }
 
         /// <summary>
@@ -1620,7 +1678,7 @@ namespace Helper
         /// <param name="subArtifact">SubArtifact.</param>
         /// <param name="fileId">Id of the file to delete. File must be attached to the artifact.</param>
         /// <param name="artifactStore">IArtifactStore.</param>
-        public static void DeleteSubArtifactAttachmentAndSave(IUser user, IArtifact artifact, NovaItem subArtifact,
+        public static void DeleteSubArtifactAttachmentAndSave(IUser user, ArtifactWrapper artifact, NovaItem subArtifact,
             int fileId, IArtifactStore artifactStore)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -1629,7 +1687,7 @@ namespace Helper
             ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
             Assert.AreEqual(artifact.Id, subArtifact.ParentId, "Subartifact should belong to artifact.");
 
-            var attachment = artifactStore.GetAttachments(artifact, user, subArtifactId: subArtifact.Id);
+            var attachment = artifactStore.GetAttachments(user, artifact.Id, subArtifactId: subArtifact.Id);
             Assert.IsNotNull(attachment, "Getattachments shouldn't return null.");
             Assert.IsTrue(attachment.AttachedFiles.Count > 0, "Artifact should have at least one attachment.");
 
@@ -1639,8 +1697,8 @@ namespace Helper
 
             artifact.Lock(user);
 
-            var artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
-            artifactDetails.AttachmentValues.Add(new AttachmentValue(fileToDelete.AttachmentId));
+            var updateArtifact = CreateNovaArtifactDetailsForUpdate(artifact);
+            updateArtifact.AttachmentValues.Add(new AttachmentValue(fileToDelete.AttachmentId));
 
             var subArtifactToAdd = new NovaSubArtifact();
             subArtifactToAdd.Id = subArtifact.Id;
@@ -1648,25 +1706,23 @@ namespace Helper
 
             var subArtifacts = new List<NovaSubArtifact> { subArtifactToAdd };
 
-            artifactDetails.SubArtifacts = subArtifacts;
-            Artifact.UpdateArtifact(artifact, user, artifactDetails, address: artifactStore.Address);
+            updateArtifact.SubArtifacts = subArtifacts;
+            artifact.Update(user, updateArtifact);
         }
 
         /// <summary>
-        /// Creates a new NovaArtifactDetails with the published artifact
+        /// Creates a new INovaArtifactDetails with the minimal properties required for updating an artifact.
         /// </summary>
-        /// <param name="artifact">The artifact which contains properties that NovaArtiactDetails refers to</param>
-        /// <returns>NovaArtifactDetails</returns>
-        public static NovaArtifactDetails CreateNovaArtifactDetailsWithArtifact(IArtifactBase artifact)
+        /// <param name="artifact">The artifact which contains properties that NovaArtiactDetails refers to.</param>
+        /// <returns>The INovaArtifactDetails with the minimal required properties for update.</returns>
+        public static INovaArtifactDetails CreateNovaArtifactDetailsForUpdate(INovaArtifactBase artifact)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
             var novaArtifactDetails = new NovaArtifactDetails
             {
                 Id = artifact.Id,
-                ProjectId = artifact.ProjectId,
-                ParentId = artifact.ParentId,
-                Version = artifact.Version,
+                ProjectId = artifact.ProjectId
             };
             return novaArtifactDetails;
         }
@@ -1674,13 +1730,14 @@ namespace Helper
         /// <summary>
         /// Creates inline trace text for the provided artifact. For use with RTF properties.
         /// </summary>
-        /// <param name="inlineTraceArtifact">target artifact for inline traces</param>
-        /// <param name="inlineTraceArtifactDetails">target artifactDetails for inline traces</param>
-        /// <returns>inline trace text</returns>
-        public static string CreateArtifactInlineTraceValue(IArtifactBase inlineTraceArtifact, INovaArtifactDetails inlineTraceArtifactDetails)
+        /// <param name="inlineTraceArtifact">The target artifact for inline traces.</param>
+        /// <param name="blueprintServerAddress">The base address of the Blueprint server.</param>
+        /// <returns>The inline trace text.</returns>
+        public static string CreateArtifactInlineTraceValue(
+            ArtifactWrapper inlineTraceArtifact,
+            string blueprintServerAddress)
         {
             ThrowIf.ArgumentNull(inlineTraceArtifact, nameof(inlineTraceArtifact));
-            ThrowIf.ArgumentNull(inlineTraceArtifactDetails, nameof(inlineTraceArtifactDetails));
 
             string inlineTraceText = I18NHelper.FormatInvariant(
                 "<html><head></head><body style=\"padding: 1px 0px 0px; font-family: 'Portable User Interface'; font-size: 10.67px\">" +
@@ -1691,7 +1748,7 @@ namespace Helper
                 "font-style: normal; font-weight: normal; text-decoration: underline; color: #0000FF\">{2}{1}: {3}</span></a><span " +
                 "style=\"-c1-editable: true; font-family: 'Portable User Interface'; font-size: 10.67px; font-style: normal; font-weight: normal; color: Black\">" +
                 "&#x200b;</span></p></div></body></html>",
-                inlineTraceArtifact.Address, inlineTraceArtifact.Id, inlineTraceArtifactDetails.Prefix, inlineTraceArtifactDetails.Name, inlineTraceArtifact.Project.Name);
+                blueprintServerAddress, inlineTraceArtifact.Id, inlineTraceArtifact.Prefix, inlineTraceArtifact.Name, inlineTraceArtifact.ArtifactState.Project.Name);
 
             return inlineTraceText;
         }
@@ -1706,21 +1763,21 @@ namespace Helper
         /// <param name="file">The file to attach.</param>
         /// <param name="shouldPublishArtifact">(optional) Pass true to publish the artifact before adding the attachment.  Default is no publish.</param>
         /// <returns>The new artifact.</returns>
-        public static IArtifact CreateArtifactWithAttachment(TestHelper helper,
+        public static ArtifactWrapper CreateArtifactWithAttachment(TestHelper helper,
             IProject project,
             IUser user,
-            BaseArtifactType artifactType,
+            ItemTypePredefined artifactType,
             IFileMetadata file,
             bool shouldPublishArtifact = false)
         {
             ThrowIf.ArgumentNull(helper, nameof(helper));
             ThrowIf.ArgumentNull(file, nameof(file));
 
-            var artifact = helper.CreateAndSaveArtifact(project, user, artifactType);
+            var artifact = helper.CreateNovaArtifact(user, project, artifactType);
 
             if (shouldPublishArtifact)
             {
-                artifact.Publish();
+                artifact.Publish(user);
             }
 
             // Create & add attachment to the artifact.
@@ -1767,28 +1824,30 @@ namespace Helper
         /// <summary>
         /// Validates inline trace link returned from artifact details
         /// </summary>
-        /// <param name="artifactdetails">The artifact details containing the inline trace link which needs validation</param>
+        /// <param name="artifactDetails">The artifact details containing the inline trace link which needs validation</param>
         /// <param name="inlineTraceArtifact">The artifact contained within the inline trace link</param>
         /// <param name="validInlineTraceLink">A flag indicating whether the inline trace link is expected to be valid or not</param>
-        public static void ValidateInlineTraceLinkFromArtifactDetails(NovaArtifactDetails artifactdetails,
-            IArtifactBase inlineTraceArtifact,
+        [SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
+        public static void ValidateInlineTraceLinkFromArtifactDetails(
+            INovaArtifactDetails artifactDetails,
+            INovaArtifactDetails inlineTraceArtifact,
             bool validInlineTraceLink)
         {
-            ThrowIf.ArgumentNull(artifactdetails, nameof(artifactdetails));
+            ThrowIf.ArgumentNull(artifactDetails, nameof(artifactDetails));
             ThrowIf.ArgumentNull(inlineTraceArtifact, nameof(inlineTraceArtifact));
 
             // Validation: Verify that the artifactDetails' description field which contain inline trace link contains the valid
             // inline trace information (name of the inline trace artifact).
-            Assert.That(artifactdetails.Description.Contains(inlineTraceArtifact.Name),
+            Assert.That(artifactDetails.Description.Contains(inlineTraceArtifact.Name),
                 "Expected outcome should not contains {0} on returned artifactdetails. Returned inline trace content is {1}.",
                 inlineTraceArtifact.Name,
-                artifactdetails.Description);
+                artifactDetails.Description);
 
-            Assert.AreEqual(validInlineTraceLink, IsValidInlineTrace(artifactdetails.Description),
+            Assert.AreEqual(validInlineTraceLink, IsValidInlineTrace(artifactDetails.Description),
                 "Expected {0} for valid inline trace but {1} was returned. The returned inlinetrace link is {2}.",
                 validInlineTraceLink,
                 !validInlineTraceLink,
-                artifactdetails.Description);
+                artifactDetails.Description);
         }
 
         /// <summary>
@@ -1797,8 +1856,9 @@ namespace Helper
         /// <param name="subArtifact">The subartifact containing the inline trace link which needs validation</param>
         /// <param name="inlineTraceArtifact">The artifact contained within the inline trace link</param>
         /// <param name="validInlineTraceLink">A flag indicating whether the inline trace link is expected to be valid or not</param>
-        public static void ValidateInlineTraceLinkFromSubArtifactDetails(NovaItem subArtifact,
-            IArtifactBase inlineTraceArtifact,
+        public static void ValidateInlineTraceLinkFromSubArtifactDetails(
+            NovaItem subArtifact,
+            ArtifactWrapper inlineTraceArtifact,
             bool validInlineTraceLink)
         {
             ThrowIf.ArgumentNull(subArtifact, nameof(subArtifact));
@@ -1858,11 +1918,12 @@ namespace Helper
         }
 
         /// <summary>
-        /// Creates new rich text that includes inline trace(s)
+        /// Creates new rich text that includes inline trace(s).
         /// </summary>
-        /// <param name="artifacts">The artifacts being added as inline trace(s)</param>
-        /// <returns>A formatted rich text string with inline traces(s)</returns>
-        public static string CreateTextForProcessInlineTrace(IList<IArtifact> artifacts)
+        /// <param name="artifacts">The artifacts being added as inline trace(s).</param>
+        /// <param name="blueprintBaseAddress">The base address of the Blueprint server.</param>
+        /// <returns>A formatted rich text string with inline traces(s).</returns>
+        public static string CreateTextForProcessInlineTrace(IList<ArtifactWrapper> artifacts, string blueprintBaseAddress)
         {
             ThrowIf.ArgumentNull(artifacts, nameof(artifacts));
 
@@ -1870,17 +1931,11 @@ namespace Helper
 
             foreach (var artifact in artifacts)
             {
-                var openApiProperty = artifact.Properties.FirstOrDefault(p => p.Name == "ID");
-
-                if (openApiProperty != null)
-                {
-                    text = text + I18NHelper.FormatInvariant("<a href=\"{0}/?/ArtifactId={1}\" target=\"\" artifactid=\"{1}\"" +
-                        " linkassemblyqualifiedname=\"BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, BluePrintSys.RC.Client.SL.RichText, " +
-                        "Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\" canclick=\"True\" isvalid=\"True\" title=\"Project: {3}\">" +
-                        "<span style=\"text-decoration: underline; color: #0000ff\">{4}: {2}</span></a>",
-                        artifact.Address, artifact.Id, artifact.Name, artifact.Project.Name,
-                        openApiProperty.TextOrChoiceValue);
-                }
+                text = text + I18NHelper.FormatInvariant("<a href=\"{0}/?/ArtifactId={1}\" target=\"\" artifactid=\"{1}\"" +
+                    " linkassemblyqualifiedname=\"BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, BluePrintSys.RC.Client.SL.RichText, " +
+                    "Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\" canclick=\"True\" isvalid=\"True\" title=\"Project: {3}\">" +
+                    "<span style=\"text-decoration: underline; color: #0000ff\">{4}{1}: {2}</span></a>",
+                    blueprintBaseAddress, artifact.Id, artifact.Name, artifact.ArtifactState.Project.Name, artifact.Prefix);
             }
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(text), "Text for inline trace was null or whitespace!");
@@ -1900,7 +1955,8 @@ namespace Helper
         /// <param name="traceDirection">(optional)Trace direction. 'From' by default.</param>
         /// <param name="isSuspect">(optional)isSuspect, true for suspect trace, false otherwise.</param>
         /// <param name="targetSubArtifact">(optional)subArtifact for trace target(creates trace with subartifact).</param>
-        public static void UpdateManualArtifactTraceAndSave(IUser user,
+        /// <returns>NovaTrace object.</returns>
+        public static NovaTrace UpdateManualArtifactTraceAndSave(IUser user,
             int artifactId,
             int traceTargetArtifactId,
             int traceTargetArtifactProjectId,
@@ -1931,6 +1987,8 @@ namespace Helper
 
             ArtifactStore.UpdateArtifact(artifactStore.Address, user, artifactDetails);
             // TODO: add assertions about changed traces
+
+            return traceToCreate;
         }
 
         //TODO: Refactor and add to ItemTypePredefinedExtensions.ca
@@ -2043,7 +2101,7 @@ namespace Helper
         /// <param name="text">The new text that will be set in the property.</param>
         /// <param name="propertyName">(optional) The name of the artifact property to update. By default it is Description.</param>
         /// <returns>The INovaArtifactDetails after saving the artifact.</returns>
-        public static INovaArtifactDetails SetArtifactTextProperty(NovaArtifactDetails artifactDetails,
+        public static INovaArtifactDetails SetArtifactTextProperty(INovaArtifactDetails artifactDetails,
             IUser user,
             IArtifactStore artifactStore,
             string text,

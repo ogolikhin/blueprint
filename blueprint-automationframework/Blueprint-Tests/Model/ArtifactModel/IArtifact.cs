@@ -144,7 +144,7 @@ namespace Model.ArtifactModel
         /// <param name="user">The user credentials to authenticate with</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>Newly created Reply for artifact/subartifact discussion.</returns>
-        IReplyAdapter PostRapidReviewDiscussionReply(
+        IRaptorReply PostRapidReviewDiscussionReply(
             ICommentBaseAdapter discussion,
             string comment,
             IUser user,
@@ -174,7 +174,7 @@ namespace Model.ArtifactModel
         /// <param name="user">The user credentials for the request.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>The updated Reply.</returns>
-        IReplyAdapter UpdateRapidReviewDiscussionReply(
+        IRaptorReply UpdateRapidReviewDiscussionReply(
             IReplyAdapter replyToUpdate,
             string comment,
             IUser user,
@@ -209,22 +209,18 @@ namespace Model.ArtifactModel
         /// <summary>
         /// Adds attachment to the specified artifact.
         /// </summary>
-        /// <param name="file">File to attach</param>
         /// <param name="user">The user to authenticate with</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected.</param>
+        /// <param name="file">File to attach</param>
         /// <returns>OpenApiAttachment object</returns>
-        OpenApiAttachment AddArtifactAttachment(IFile file, IUser user, 
-            List<HttpStatusCode> expectedStatusCodes = null);
+        OpenApiAttachment AddArtifactAttachment(IUser user, IFile file);
 
         /// <summary>
         /// Adds attachment to the specified subartifact.
         /// </summary>
+        /// <param name="user">The user to authenticate with</param>
         /// <param name="subArtifactId">Id of subartifact to attach file</param>
         /// <param name="file">File to attach</param>
-        /// <param name="user">The user to authenticate with</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected.</param>
         /// <returns>OpenApiAttachment object</returns>
-        OpenApiAttachment AddSubArtifactAttachment(int subArtifactId,
-            IFile file, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+        OpenApiAttachment AddSubArtifactAttachment(IUser user, int subArtifactId, IFile file);
     }
 }

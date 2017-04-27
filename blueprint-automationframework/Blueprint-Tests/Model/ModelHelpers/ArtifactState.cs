@@ -42,7 +42,7 @@ namespace Model.ModelHelpers
         /// True if this artifact was locked.
         /// </summary>
         [JsonIgnore]
-        public bool IsLocked { get { return (LockOwner != null); } }
+        public bool IsLocked => (LockOwner != null);
 
         /// <summary>
         /// True if this artifact was deleted (but not published).

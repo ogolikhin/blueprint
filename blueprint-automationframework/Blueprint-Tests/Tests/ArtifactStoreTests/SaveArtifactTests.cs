@@ -188,10 +188,10 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.AssertCustomPropertiesAreEqual(property, returnedProperty);
         }
 
-        [TestCase(BaseArtifactType.TextualRequirement)]
+        [TestCase(ItemTypePredefined.TextualRequirement)]
         [TestRail(2673578)]
         [Description("Create & publish.  Add discussion, attachment and trace to the artifact (save or publish).  Verify IndicatorFlags has all indicators.")]
-        public void UpdateArtifact_WithDiscussionAttachmentAndTraceToFolder_ReturnsNewArtifactWithAttachment(BaseArtifactType artifactType)
+        public void UpdateArtifact_WithDiscussionAttachmentAndTraceToFolder_ReturnsNewArtifactWithAttachment(ItemTypePredefined artifactType)
         {
             // Setup:
             const string COMMENT = "Comment";
@@ -202,18 +202,18 @@ namespace ArtifactStoreTests
             Assert.IsNotNull(sourceArtifact, "Artifact with attachment is not created!");
 
             // Add discussion
-            var discussion = sourceArtifact.PostRapidReviewArtifactDiscussion(COMMENT, _user);
+            var discussion = Helper.SvcComponents.PostRapidReviewDiscussion(_user, sourceArtifact.Id, COMMENT);
             Assert.IsNotNull(discussion, "Discussion is not created for the artifact!");
 
             // Add trace
-            var targetArtifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+            var targetArtifact = Helper.CreateNovaArtifact(_user, _project, ItemTypePredefined.PrimitiveFolder);
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
 
             var trace = new NovaTrace(targetArtifact);
             artifactDetails.Traces = new List<NovaTrace> { trace };
 
             // Execute:
-            Assert.DoesNotThrow(() => { Artifact.UpdateArtifact(sourceArtifact, _user, artifactDetails); }, "Update artifact shouldn't throw any error.");
+            Assert.DoesNotThrow(() => { sourceArtifact.Update(_user, artifactDetails); }, "Update artifact shouldn't throw any error.");
 
             // Verify:
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, sourceArtifact.Id, ItemIndicatorFlags.HasComments);
@@ -241,7 +241,7 @@ namespace ArtifactStoreTests
 
             // Create & add attachment to sub-artifact:
             var attachmentFile = FileStoreTestHelper.CreateNovaFileWithRandomByteArray();
-            var attachment = sourceArtifact.AddSubArtifactAttachment(subArtifacts[0].Id, attachmentFile, _user);
+            var attachment = sourceArtifact.AddSubArtifactAttachment(_user, subArtifacts[0].Id, attachmentFile);
             Assert.IsNotNull(attachment, "Artifact with attachment is not created!");
 
             // Add discussion

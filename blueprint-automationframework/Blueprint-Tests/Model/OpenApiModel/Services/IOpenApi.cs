@@ -76,6 +76,42 @@ namespace Model.OpenApiModel.Services
 
         #endregion Artifact methods
 
+        #region Attachment methods
+
+        /// <summary>
+        /// Add attachment to the specified artifact.
+        /// (Runs:  'POST /api/v1/projects/{projectId}/artifacts/{artifactId}/attachments')
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="projectId">Id of project containing artifact to add attachment.</param>
+        /// <param name="artifactId">Id of artifact to add attachment.</param>
+        /// <param name="file">File to attach.</param>
+        /// <returns>OpenApiAttachment object.</returns>
+        OpenApiAttachment AddArtifactAttachment(
+            IUser user,
+            int projectId,
+            int artifactId,
+            IFile file);
+
+        /// <summary>
+        /// Add attachment to the specified sub-artifact.
+        /// (Runs:  'POST /api/v1/projects/{projectId}/artifacts/{artifactId}/subartifacts/{subArtifactId}/attachments')
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="projectId">Id of project containing artifact to add attachment.</param>
+        /// <param name="artifactId">Id of artifact to add attachment.</param>
+        /// <param name="subArtifactId">Id of subartifact to attach file.</param>
+        /// <param name="file">File to attach.</param>
+        /// <returns>OpenApiAttachment object.</returns>
+        OpenApiAttachment AddSubArtifactAttachment(
+            IUser user,
+            int projectId,
+            int artifactId,
+            int subArtifactId,
+            IFile file);
+
+        #endregion Attachment methods
+
         #region User methods
 
         /// <summary>

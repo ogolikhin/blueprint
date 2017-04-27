@@ -20,14 +20,14 @@ namespace ImageRenderService.ImageGen
         {
             _instance = new BrowserPool
             {
-                _freeBrowsers = new ConcurrentBag<IVirtualBrowser>()
+                _freeBrowsers = new ConcurrentBag<IVirtualBrowser>(),
+                _browserPool = new Semaphore(MaxSize, MaxSize)
             };
-            _instance._browserPool = new Semaphore(_instance.MAXSIZE, _instance.MAXSIZE);
             return _instance;
         }
 
         private ConcurrentBag<IVirtualBrowser> _freeBrowsers;
-        private readonly int MAXSIZE = 3;
+        private const int MaxSize = 3;
         private Semaphore _browserPool;
 
         public async Task<IVirtualBrowser> Rent()

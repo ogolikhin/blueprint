@@ -92,6 +92,7 @@
     <Compile Include="ProjectTests.cs" />
     <Compile Include="PublishArtifactTests.cs" />
     <Compile Include="RelationshipsTests.cs" />
+    <Compile Include="ReviewTests.cs" />
     <Compile Include="SaveArtifactTests.cs" />
     <Compile Include="SaveAttachmentTests.cs" />
     <Compile Include="SaveTracesTests.cs" />

@@ -10,6 +10,7 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
 using BluePrintSys.RC.Service.Business.Baselines.Impl;
+using ServiceLibrary.Models.Workflow;
 
 namespace ServiceLibrary.Repositories
 {
@@ -308,20 +309,7 @@ namespace ServiceLibrary.Repositories
 
             return directAncestorUserVersion.DirectPermissions != null
                 ? directAncestorUserVersion
-                : FindAncestorUserVersionWithDirectPermissions(dicUserArtifactVersions, directAncestorUserVersion);
-        }
-
-        private ArtifactVersion FindAncestorUserVersionWithDirectPermissions(Dictionary<int, ArtifactVersion> dicUserArtifactVersions, ArtifactVersion userArtifactVersion)
-        {
-            if (userArtifactVersion?.ParentId == null)
-                return null;
-
-            ArtifactVersion ancestorUserVersion;
-            dicUserArtifactVersions.TryGetValue(userArtifactVersion.ParentId.GetValueOrDefault(), out ancestorUserVersion);
-
-            return ancestorUserVersion.DirectPermissions != null
-                ? ancestorUserVersion
-                : FindAncestorUserVersionWithDirectPermissions(dicUserArtifactVersions, ancestorUserVersion);
+                : FindAncestorOrProjectUserVersionWithDirectPermissions(dicUserArtifactVersions, directAncestorUserVersion, projectId);
         }
 
         private ArtifactVersion GetUserArtifactVersion(List<ArtifactVersion> headAndDraft)
@@ -358,9 +346,25 @@ namespace ServiceLibrary.Repositories
 
         private static void ThrowForbiddenException(int projectId, int? artifactId)
         {
-            var errorMessage = artifactId == null
-                ? I18NHelper.FormatInvariant("User does not have permissions for Project (Id:{0}).", projectId)
-                : I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", artifactId);
+            if (artifactId.HasValue)
+            {
+                ThrowArtifactForbiddenException(artifactId.Value);
+            }
+            var errorMessage = I18NHelper.FormatInvariant("User does not have permissions for Project (Id:{0}).",
+                projectId);
+            throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
+        }
+
+        private static void ThrowArtifactNotFoundException(int artifactId)
+        {
+            var errorMessage = I18NHelper.FormatInvariant("Artifact (Id:{0}) is not found.", artifactId);
+            throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
+        }
+
+        private static void ThrowArtifactForbiddenException(int artifactId)
+        {
+            var errorMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).",
+                                   artifactId);
             throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
         }
 
@@ -530,12 +534,8 @@ namespace ServiceLibrary.Repositories
                 throw new ArgumentOutOfRangeException(nameof(artifactId));
             if (userId < 1)
                 throw new ArgumentOutOfRangeException(nameof(userId));
-
-            var prm = new DynamicParameters();
-            prm.Add("@userId", userId);
-            prm.Add("@itemId", artifactId);
-            var artifactBasicDetails = (await _connectionWrapper.QueryAsync<ArtifactBasicDetails>(
-                "GetArtifactBasicDetails", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+            
+            var artifactBasicDetails = await GetArtifactBasicDetails(artifactId, userId);
             if (artifactBasicDetails == null || artifactBasicDetails.LatestDeleted)
             {
                 var errorMessage = I18NHelper.FormatInvariant("Item (Id:{0}) is not found.", artifactId);
@@ -548,7 +548,7 @@ namespace ServiceLibrary.Repositories
                 throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
             }
 
-            prm = new DynamicParameters();
+            var prm = new DynamicParameters();
             prm.Add("@artifactId", artifactId);
             prm.Add("@userId", userId);
 
@@ -561,6 +561,15 @@ namespace ServiceLibrary.Repositories
                 ProjectId = a.VersionProjectId,
                 ItemTypeId = a.ItemTypeId
             }).ToList();
+        }
+
+        private async Task<ArtifactBasicDetails> GetArtifactBasicDetails(int artifactId, int userId)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@userId", userId);
+            prm.Add("@itemId", artifactId);
+            return (await _connectionWrapper.QueryAsync<ArtifactBasicDetails>(
+                "GetArtifactBasicDetails", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
 
         // This method does not return the self.
@@ -749,9 +758,37 @@ namespace ServiceLibrary.Repositories
             {
                 ItemId = i.ItemId,
                 IsSealed = BaselineRawDataHelper.ExtractIsSelead(i.RawData),
-                UtcTimestamp = BaselineRawDataHelper.ExtractSnapTime(i.RawData)
+                UtcTimestamp = BaselineRawDataHelper.ExtractTimestamp(i.RawData)
             }).ToList();
         }
 
+        #region artifact workflow
+        public async Task<IEnumerable<Transitions>> GetTransitions(int artifactId, int userId)
+        {
+            var artifactBasicDetails = await GetArtifactBasicDetails(artifactId, userId);
+            if (artifactBasicDetails == null)
+            {
+                ThrowArtifactNotFoundException(artifactId);
+            }
+
+            var artifactsPermissions =
+                await _artifactPermissionsRepository.GetArtifactPermissions(new List<int> {artifactId}, userId);
+
+            if (!artifactsPermissions.ContainsKey(artifactId) || !artifactsPermissions[artifactId].HasFlag(RolePermissions.Read))
+            {
+                ThrowArtifactForbiddenException(artifactId);
+            }
+            return await GetTransitionsInternal(artifactId, userId);
+        }
+
+        private async Task<IEnumerable<Transitions>> GetTransitionsInternal(int artifactId, int userId)
+        {
+            var param = new DynamicParameters();
+            param.Add("@artifactId", artifactId);
+            param.Add("@userId", userId);
+
+            return await _connectionWrapper.QueryAsync<Transitions>("GetAvailableTransitions", param, commandType: CommandType.StoredProcedure);
+        }
+        #endregion
     }
 }

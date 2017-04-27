@@ -206,7 +206,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="ISvcComponents.PostRapidReviewDiscussionReply(IUser, int, int, string, List{HttpStatusCode})"/>
-        public IReplyAdapter PostRapidReviewDiscussionReply(
+        public IRaptorReply PostRapidReviewDiscussionReply(
             IUser user,
             int itemId,
             int discussionId,
@@ -290,7 +290,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="ISvcComponents.UpdateRapidReviewDiscussionReply(IUser, int, int, int, string, List{HttpStatusCode})"/>
-        public IReplyAdapter UpdateRapidReviewDiscussionReply(
+        public IRaptorReply UpdateRapidReviewDiscussionReply(
             IUser user,
             int itemId,
             int discussionId,

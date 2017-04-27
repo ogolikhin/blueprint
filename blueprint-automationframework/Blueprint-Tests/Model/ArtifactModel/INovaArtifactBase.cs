@@ -51,7 +51,7 @@ namespace Model.ArtifactModel
         string Description { get; set; }
         string ItemTypeName { get; set; }
         int? ItemTypeIconId { get; set; }
-        int ItemTypeVersionId { get; set; }
+        int? ItemTypeVersionId { get; set; }
         bool? LastSaveInvalid { get; set; }
         RolePermissions? Permissions { get; set; }
         double? OrderIndex { get; set; }
@@ -68,24 +68,13 @@ namespace Model.ArtifactModel
 
         #endregion Serialized JSON Properties
     }
-
-    public interface INovaArtifactResponse : INovaArtifactBase
+    
+    public interface INovaArtifactResponse : INovaArtifactDetails
     {
-        #region Serialized JSON Properties
-
-        Identification CreatedBy { get; set; }
-        DateTime? CreatedOn { get; set; }
-        string Description { get; set; }
-        int? ItemTypeIconId { get; set; }
-        Identification LastEditedBy { get; set; }
-        DateTime? LastEditedOn { get; set; }
-        double OrderIndex { get; set; }
-        int PredefinedType { get; set; }
-        string Prefix { get; set; }
-
-        #endregion Serialized JSON Properties
+        // TODO: Remove this interface and use INovaArtifactDetails instead.
+        // I'm just doing this for now because it's referenced in over 160 places!
     }
-
+    
     public interface INovaProject
     {
         #region Serialized JSON Properties

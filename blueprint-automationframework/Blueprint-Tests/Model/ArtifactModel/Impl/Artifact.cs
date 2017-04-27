@@ -268,7 +268,7 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <seealso cref="IArtifact.PostRapidReviewDiscussionReply(ICommentBaseAdapter, string, IUser, List{HttpStatusCode})"/>
-        public IReplyAdapter PostRapidReviewDiscussionReply(
+        public IRaptorReply PostRapidReviewDiscussionReply(
             ICommentBaseAdapter discussion,
             string comment,
             IUser user,
@@ -298,7 +298,7 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <seealso cref="IArtifact.UpdateRapidReviewDiscussionReply(IReplyAdapter, string, IUser, List{HttpStatusCode})"/>
-        public IReplyAdapter UpdateRapidReviewDiscussionReply(
+        public IRaptorReply UpdateRapidReviewDiscussionReply(
             IReplyAdapter replyToUpdate,
             string comment,
             IUser user,
@@ -341,23 +341,24 @@ namespace Model.ArtifactModel.Impl
             return service.DeleteRapidReviewDiscussionReply(user, Id, replyToDelete.ReplyId, expectedStatusCodes);
         }
 
-        public OpenApiAttachment AddArtifactAttachment(IFile file, IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IArtifact.AddArtifactAttachment(IUser, IFile)"/>
+        public OpenApiAttachment AddArtifactAttachment(IUser user, IFile file)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(file, nameof(file));
 
-            return AddArtifactAttachment(Address, ProjectId, Id, file, user, expectedStatusCodes);
+            var service = OpenApiFactory.GetOpenApiFromTestConfig();
+            return service.AddArtifactAttachment(user, ProjectId, Id, file);
         }
 
-        public OpenApiAttachment AddSubArtifactAttachment(int subArtifactId,
-            IFile file, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IArtifact.AddSubArtifactAttachment(IUser, int, IFile)"/>
+        public OpenApiAttachment AddSubArtifactAttachment(IUser user, int subArtifactId, IFile file)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(file, nameof(file));
 
-            return AddSubArtifactAttachment(Address, ProjectId, Id, subArtifactId, file,
-                user, expectedStatusCodes);
+            var service = OpenApiFactory.GetOpenApiFromTestConfig();
+            return service.AddSubArtifactAttachment(user, ProjectId, Id, subArtifactId, file);
         }
 
         #endregion Methods
@@ -699,41 +700,6 @@ namespace Model.ArtifactModel.Impl
             }
 
             return publishResults[0];
-        }
-
-        /// <summary>
-        /// add attachment to the specified artifact
-        /// </summary>
-        /// <param name="address">The base url of the Blueprint</param>
-        /// <param name="projectId">Id of project containing artifact to add attachment</param>
-        /// <param name="artifactId">Id of artifact to add attachment</param>
-        /// <param name="file">File to attach</param>
-        /// <param name="user">The user to authenticate with</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected.</param>
-        /// <returns>OpenApiAttachment object</returns>
-        public static OpenApiAttachment AddArtifactAttachment(string address,
-            int projectId, int artifactId, IFile file, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            return OpenApiArtifact.AddArtifactAttachment(address, projectId, artifactId,
-                file, user, expectedStatusCodes);
-        }
-
-        /// <summary>
-        /// add attachment to the specified artifact
-        /// </summary>
-        /// <param name="address">The base url of the Blueprint</param>
-        /// <param name="projectId">Id of project containing artifact to add attachment</param>
-        /// <param name="artifactId">Id of artifact to add attachment</param>
-        /// <param name="subArtifactId">Id of subartifact to attach file</param>
-        /// <param name="file">File to attach</param>
-        /// <param name="user">The user to authenticate with</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected.</param>
-        /// <returns>OpenApiAttachment object</returns>
-        public static OpenApiAttachment AddSubArtifactAttachment(string address,
-            int projectId, int artifactId, int subArtifactId, IFile file, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            return OpenApiArtifact.AddSubArtifactAttachment(address, projectId,
-                artifactId, subArtifactId, file, user, expectedStatusCodes);
         }
         
         #endregion Static Methods

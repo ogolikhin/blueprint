@@ -51,25 +51,25 @@ namespace ArtifactStoreTests
 
         #region Publish Collection Artifact Tests
 
-        [TestCase(1, BaseArtifactType.Actor, true)]
-        [TestCase(2, BaseArtifactType.Glossary, false)]
-        [TestCase(3, BaseArtifactType.Document, true)]
-        [TestCase(4, BaseArtifactType.Process, false)]
+        [TestCase(1, ItemTypePredefined.Actor, true)]
+        [TestCase(2, ItemTypePredefined.Glossary, false)]
+        [TestCase(3, ItemTypePredefined.Document, true)]
+        [TestCase(4, ItemTypePredefined.Process, false)]
         [TestRail(230691)]
         [Description("Publish a collection that contains either saved or published artifact(s). Verify contents of the published collection.")]
         public void PublishArtifact_PublishCollectionContainingSavedOrPublishedArtifacts_VerifyCollectionContents(
             int numberOfArtifacts,
-            BaseArtifactType includingArtifactType,
+            ItemTypePredefined includingArtifactType,
             bool shouldPublishIncludingArtifacts)
         {
             // Setup: Create a collection and add published artifacts
-            var collectionArtifact = Helper.CreateAndSaveCollection(_project, _authorUser);
+            var collectionArtifact = Helper.CreateUnpublishedCollection(_project, _authorUser);
 
             var savedOrPublishedArtifacts = Helper.CreateAndSaveMultipleArtifacts(_project, _authorUser, includingArtifactType, numberOfArtifacts);
 
-            if(shouldPublishIncludingArtifacts)
+            if (shouldPublishIncludingArtifacts)
             {
-                savedOrPublishedArtifacts.ForEach(a => a.Publish());
+                savedOrPublishedArtifacts.ForEach(a => a.Publish(_authorUser));
             }
 
             savedOrPublishedArtifacts.ForEach(artifact => Helper.ArtifactStore.AddArtifactToCollection(_authorUser, artifact.Id, collectionArtifact.Id));
@@ -77,33 +77,30 @@ namespace ArtifactStoreTests
             // Execution: Publish the collection that contains published artifacts
             INovaArtifactsAndProjectsResponse publishedResponse = null;
 
-            Assert.DoesNotThrow(() => publishedResponse = Helper.ArtifactStore.PublishArtifact(collectionArtifact, _authorUser),
+            Assert.DoesNotThrow(() => publishedResponse = collectionArtifact.Publish(_authorUser),
                 "POST {0} call failed when using it with collection (Id: {1}) contains published artifacts!", PUBLISH_PATH, collectionArtifact.Id);
 
             // Validation: Verify that published collection contains valid data added 
-            var collectionArtifactList = new List<IArtifactBase> { collectionArtifact };
+            var collectionArtifactList = new List<INovaArtifactDetails> { collectionArtifact };
 
             ArtifactStoreHelper.AssertArtifactsAndProjectsResponseContainsAllArtifactsInList(publishedResponse, collectionArtifactList);
 
             var collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id);
 
-            ArtifactStoreHelper.ValidateCollection(collection, savedOrPublishedArtifacts);
-
-            //Temporary disposal call for collection: Delete collection
-            Helper.ArtifactStore.DeleteArtifact(collectionArtifact, _authorUser);
+            ArtifactStoreHelper.ValidateCollection(collection, savedOrPublishedArtifacts.ConvertAll(a => (INovaArtifactDetails)a));
         }
 
         [TestCase]
         [TestRail(230693)]
-        [Description("Publish a collection with a user doesn't have permission to its publshed artifact. Verify the content of published collection with different permission based users.")]
+        [Description("Publish a collection with a user doesn't have permission to its publshed artifact.  Verify the content of published collection with " +
+                     "different permission based users.")]
         public void PublishArtifact_PublishCollectionWithUserWithNoPermissionToItsPublishedArtifact_VerifyCollectionWithDifferentPermissionBasedUsers()
         {
             // Setup: Create a collection which contains inaccessible published artifact to the user
             var authorWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            var collectionArtifact = Helper.CreateAndSaveCollection(_project, authorWithoutPermission);
-
-            var publishedArtifact = Helper.CreateAndPublishArtifact(_project, authorWithoutPermission, BaseArtifactType.Actor);
+            var collectionArtifact = Helper.CreateUnpublishedCollection(_project, authorWithoutPermission);
+            var publishedArtifact = Helper.CreateAndPublishNovaArtifact(authorWithoutPermission, _project, ItemTypePredefined.Actor);
 
             Helper.ArtifactStore.AddArtifactToCollection(authorWithoutPermission, publishedArtifact.Id, collectionArtifact.Id);
 
@@ -112,27 +109,23 @@ namespace ArtifactStoreTests
             // Execution: Publish the collection which contains inaccessible artifact to the user
             INovaArtifactsAndProjectsResponse publishedResponse = null;
 
-            Assert.DoesNotThrow(() => publishedResponse = Helper.ArtifactStore.PublishArtifact(collectionArtifact, authorWithoutPermission),
+            Assert.DoesNotThrow(() => publishedResponse = collectionArtifact.Publish(authorWithoutPermission),
                 "POST {0} call failed when using it with collection (Id: {1}) containing an inaccessible artifact to a user!",
                 PUBLISH_PATH, collectionArtifact.Id);
 
             // Validation: Verify that collection published with users with different permission
-            var collectionArtifactList = new List<IArtifactBase> { collectionArtifact };
+            var collectionArtifactList = new List<INovaArtifactDetails> { collectionArtifact };
 
             ArtifactStoreHelper.AssertArtifactsAndProjectsResponseContainsAllArtifactsInList(publishedResponse, collectionArtifactList);
 
             var collectionRetrievedByUserWithoutPermission = Helper.ArtifactStore.GetCollection(authorWithoutPermission, collectionArtifact.Id);
 
-            ArtifactStoreHelper.ValidateCollection(collectionRetrievedByUserWithoutPermission, new List<IArtifactBase>());
+            ArtifactStoreHelper.ValidateCollection(collectionRetrievedByUserWithoutPermission, new List<INovaArtifactDetails>());
 
             var collectionRetrivedByUserWithPermission = Helper.ArtifactStore.GetCollection(_user, collectionArtifact.Id);
-
-            var publishedArtifactList = new List<IArtifactBase> { publishedArtifact };
+            var publishedArtifactList = new List<INovaArtifactDetails> { publishedArtifact };
 
             ArtifactStoreHelper.ValidateCollection(collectionRetrivedByUserWithPermission, publishedArtifactList);
-
-            //Temporary disposal call for collection: Delete collection
-            Helper.ArtifactStore.DeleteArtifact(collectionArtifact, authorWithoutPermission);
         }
 
         [TestCase(1)]
@@ -142,33 +135,30 @@ namespace ArtifactStoreTests
         public void PublishArtifact_PublishCollectionContainingDeletedArtifacts_VerifyCollection(int numberOfArtifacts)
         {
             // Setup: Create a collection and add artifacts in it
-            var collectionArtifact = Helper.CreateAndSaveCollection(_project, _authorUser);
-
-            var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _authorUser, BaseArtifactType.Actor, numberOfArtifacts);
+            var collectionArtifact = Helper.CreateUnpublishedCollection(_project, _authorUser);
+            var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _authorUser, ItemTypePredefined.Actor, numberOfArtifacts);
             
             publishedArtifacts.ForEach(artifact => Helper.ArtifactStore.AddArtifactToCollection(_authorUser, artifact.Id, collectionArtifact.Id));
 
             // Execution: Publish the collection with deleted artifacts
             var deletedArtifacts = new List<INovaArtifactResponse>();
 
-            publishedArtifacts.ForEach(artifact => deletedArtifacts.AddRange(Helper.ArtifactStore.DeleteArtifact(artifact, _authorUser)));
+            publishedArtifacts.ForEach(artifact => deletedArtifacts.AddRange(artifact.Delete(_authorUser)));
 
             INovaArtifactsAndProjectsResponse publishedResponse = null;
 
-            Assert.DoesNotThrow(() => publishedResponse = Helper.ArtifactStore.PublishArtifact(collectionArtifact, _authorUser),
+            Assert.DoesNotThrow(() => publishedResponse = collectionArtifact.Publish(_authorUser),
                 "POST {0} call failed when using it with collection (Id: {1}) contains deleted artifacts!", PUBLISH_PATH, collectionArtifact.Id);
 
             // Validation: Verify that collection response
-            var collectionArtifactList = new List<IArtifactBase> { collectionArtifact };
+            var collectionArtifactList = new List<ArtifactWrapper> { collectionArtifact };
 
-            ArtifactStoreHelper.AssertArtifactsAndProjectsResponseContainsAllArtifactsInList(publishedResponse, collectionArtifactList);
+            ArtifactStoreHelper.AssertArtifactsAndProjectsResponseContainsAllArtifactsInList(
+                publishedResponse, collectionArtifactList.ConvertAll(a => (INovaArtifactDetails)a));
 
             var collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id);
 
-            ArtifactStoreHelper.ValidateCollection(collection, new List<IArtifactBase>());
-
-            //Temporary disposal call for collection: Delete collection
-            Helper.ArtifactStore.DeleteArtifact(collectionArtifact, _authorUser);
+            ArtifactStoreHelper.ValidateCollection(collection, new List<INovaArtifactDetails>());
         }
 
         #endregion Publish Collection Artifact Tests
@@ -685,16 +675,14 @@ namespace ArtifactStoreTests
         [TestCase()]
         [TestRail(191155)]
         [Description("Create & save collection artifact and collection folder.  Publish them with all=true.  " + 
-            "Verify the published collection artifact and collection folder have been returned with proper content.")]
+                     "Verify the published collection artifact and collection folder have been returned with proper content.")]
         public void PublishAllArtifacts_CollectionAndCollectionFolder_ReturnsPublishedArtifact()
         {
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            var defaultCollectionFolder = _project.GetDefaultCollectionFolder(author);
-
-            var collectionFolder = Helper.CreateAndSaveCollectionFolder(_project, author, defaultCollectionFolder.Id);
-            var collectionArtifact = Helper.CreateAndSaveCollection(_project, author, collectionFolder.Id);
+            var collectionFolder = Helper.CreateUnpublishedCollectionFolder(_project, author);
+            var collectionArtifact = Helper.CreateUnpublishedCollection(_project, author, collectionFolder.Id);
 
             INovaArtifactsAndProjectsResponse publishResponse = null;
 
@@ -950,23 +938,23 @@ namespace ArtifactStoreTests
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotPublishOverValidationErrors, expectedExceptionMessage);
         }
 
-        [TestCase("value\":10.0", "value\":999.0", BaseArtifactType.Actor, 0)] //Insert value into Numeric field which is out of range in grandparent artifact
-        [TestCase("value\":10.0", "value\":999.0", BaseArtifactType.Actor, 1)] //Insert value into Numeric field which is out of range in parent artifact
-        [TestCase("value\":10.0", "value\":999.0", BaseArtifactType.Actor, 2)] //Insert value into Numeric field which is out of range in child artifact
-        [TestCase("value\":\"20", "value\":\"21", BaseArtifactType.Actor, 0)] //Insert value into Date field which is out of range in grandparent artifact
-        [TestCase("value\":\"20", "value\":\"21", BaseArtifactType.Actor, 1)] //Insert value into Date field which is out of range in parent artifact
-        [TestCase("value\":\"20", "value\":\"21", BaseArtifactType.Actor, 2)] //Insert value into Date field which is out of range in child artifact
+        [TestCase("value\":10.0", "value\":999.0", ItemTypePredefined.Actor, 0)] //Insert value into Numeric field which is out of range in grandparent artifact
+        [TestCase("value\":10.0", "value\":999.0", ItemTypePredefined.Actor, 1)] //Insert value into Numeric field which is out of range in parent artifact
+        [TestCase("value\":10.0", "value\":999.0", ItemTypePredefined.Actor, 2)] //Insert value into Numeric field which is out of range in child artifact
+        [TestCase("value\":\"20", "value\":\"21", ItemTypePredefined.Actor, 0)] //Insert value into Date field which is out of range in grandparent artifact
+        [TestCase("value\":\"20", "value\":\"21", ItemTypePredefined.Actor, 1)] //Insert value into Date field which is out of range in parent artifact
+        [TestCase("value\":\"20", "value\":\"21", ItemTypePredefined.Actor, 2)] //Insert value into Date field which is out of range in child artifact
         [Category(Categories.CustomData)]
         [TestRail(166129)]
         [Description("Try to publish an artifact with a value of property that out of its permitted range. Verify 409 Conflict is returned.")]
-        public void PublishAllArtifacts_PropertyOutOfRange_Conflict(string toChange, string changeTo, BaseArtifactType artifactType, int index)
+        public void PublishAllArtifacts_PropertyOutOfRange_Conflict(string toChange, string changeTo, ItemTypePredefined artifactType, int index)
         {
             // Setup:
             var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
 
-            var artifactTypes = new BaseArtifactType[] { artifactType, artifactType, artifactType };
+            var artifactTypes = new ItemTypePredefined[] { artifactType, artifactType, artifactType };
             var artifactList = Helper.CreatePublishedArtifactChain(projectCustomData, _user, artifactTypes);
-            artifactList[index].Lock();
+            artifactList[index].Lock(_user);
 
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifactList[index].Id);
 
@@ -981,7 +969,7 @@ namespace ArtifactStoreTests
                 "'PATCH {0}' should return 200 OK if properties are out of range!", UPDATE_ARTIFACT_ID_PATH);
 
             // Execute:
-            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifacts(artifactList.ConvertAll(o => (IArtifactBase)o), _user, publishAll: true),
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifacts(artifactList.Select(o => o.Id).ToList(), _user, publishAll: true),
                 "'POST {0}' should return 409 Conflict if an artifact already published!", PUBLISH_PATH);
 
             // Verify:

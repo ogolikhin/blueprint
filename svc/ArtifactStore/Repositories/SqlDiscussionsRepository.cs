@@ -122,16 +122,13 @@ namespace ArtifactStore.Repositories
                 var userInfo = (UserInfo)null;
                 if (userInfos.TryGetValue(comment.UserId, out userInfo))
                 {
-                    comment.UserName = userInfo.DisplayName;
+                    comment.DisplayName = userInfo.DisplayName;
                 }
                 comment.LastEditedOn = DateTime.SpecifyKind(comment.LastEditedOn, DateTimeKind.Utc);
                 comment.IsGuest = userInfo.IsGuest;
                 comment.Comment = await _mentionHelper.ProcessComment(comment.Comment, areEmailDiscussionsEnabled);
 
-                if (onCommentInit != null)
-                {
-                    onCommentInit(comment);
-                }
+                onCommentInit?.Invoke(comment);
             }
         }
 

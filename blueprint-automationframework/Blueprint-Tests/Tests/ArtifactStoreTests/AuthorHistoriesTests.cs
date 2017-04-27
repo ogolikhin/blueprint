@@ -47,7 +47,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                artifactHistory = Helper.ArtifactStore.GetArtifactsAuthorHistory(new List<int>{artifact.Id}, _adminUser);
+                artifactHistory = Helper.ArtifactStore.GetArtifactsAuthorHistory(new List<int>{ artifact.Id }, _adminUser);
             }, "GetArtifactsAuthorHistory should return 200 OK when sent with valid parameters!");
 
             // Verify:
@@ -56,7 +56,7 @@ namespace ArtifactStoreTests
                 ValidateArtifactHistory(artifactHistory, new List<INovaArtifactDetails> { artifact });
             }
 
-            if ((state == TestHelper.TestArtifactState.Created))
+            if (state == TestHelper.TestArtifactState.Created)
             {
                 Assert.IsEmpty(artifactHistory, "Author history should be empty for never published artifact.");
             }
@@ -93,9 +93,11 @@ namespace ArtifactStoreTests
         private static void ValidateArtifactHistory(List<AuthorHistoryItem> historyItems, List<INovaArtifactDetails> artifacts)
         {
             Assert.AreEqual(artifacts.Count, historyItems.Count, "List of Author history items should have expected number of elements.");
+
             foreach (var artifact in artifacts)
             {
                 var historyItem = historyItems.Find(item => item.ItemId == artifact.Id);
+
                 Assert.IsNotNull(historyItem, "Each artifact should be in history items list.");
                 Assert.AreEqual(artifact.CreatedBy.Id, historyItem.CreatedByUserId, "Artifacts Author History item should have expected CreatedByUserId");
                 Assert.AreEqual(artifact.CreatedOn, historyItem.CreatedOn, "Artifacts Author History item should have expected CreatedOn");

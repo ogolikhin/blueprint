@@ -25,6 +25,9 @@ function Setup-Environment {
 
     #Run nuget
     Invoke-MyExpression "c:\nuget.exe" "restore ""$workspace\svc\Services.sln"" -PackagesDirectory ""$workspace/packages"""
+
+    #Run nuget for services
+    Invoke-MyExpression "c:\nuget.exe" "restore ""$workspace\win_svc\WindowsServices.sln"""
 }
 
 function Build-Nova-Services{
@@ -61,6 +64,32 @@ function Build-Nova-Services{
     Invoke-MsBuild @msBuildArgs -project $workspace\svc\SearchService\SearchService.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\SearchService`"" + $sharedTrailingArgs
 }
 
+function Build-Nova-Windows-Services{
+    param(
+        [Parameter(Mandatory=$true)][string]$workspace,
+        [Parameter(Mandatory=$true)][string]$blueprintVersion,
+
+        [Parameter(Mandatory=$true)][string]$msBuildPath,
+        [Parameter(Mandatory=$true)][string]$msBuildVerbosity,
+        [Parameter(Mandatory=$true)][string]$visualStudioVersion,
+
+        #Unused, for splatting the same hashtable into multiple methods without error.
+        [Parameter(ValueFromRemainingArguments=$true)] $vars
+    )
+
+    $msBuildArgs = @{
+        verbosity = $msBuildVerbosity
+        configuration = "Release" 
+        visualStudioVersion = $visualStudioVersion 
+        msbuildPath = $msBuildPath
+    }
+
+    Write-Section "Building Nova Windows services"
+
+    Invoke-MsBuild @msBuildArgs -project $workspace\win_svc\ImageRenderService\ImageRenderService.csproj -trailingArguments "/p:Platform='x64' /p:OutDir=`"$workspace\win_svc\DeployArtifacts\ImageRenderService`""
+
+}
+
 function Build-Nova-Html{
     param(
         [Parameter(Mandatory=$true)][string]$workspace,
@@ -82,25 +111,25 @@ function Build-Nova-Html{
     {
         pushd "$workspace\app\NovaWeb"
    
-        Invoke-MyExpression "npm" "install"
-        Invoke-MyExpression "npm" "update"
+        Invoke-MyExpression "yarn" "install"
+        Invoke-MyExpression "yarn" "upgrade"
 
         # Increment build version number
         $version = $blueprintVersion.split(".")
         $semver = $version[0] + "." + $version[1] + "." + $version[2] + "-" + $version[3]
-        Invoke-MyExpression "npm" "version $semver" -ignoreErrorCode
+        Invoke-MyExpression "yarn" "version --new-version $semver" -ignoreErrorCode
 
         # Build Nova Application
         if($BuildDebug) {
-            Invoke-MyExpression "npm" "run build -- --debug"
+            Invoke-MyExpression "yarn" "run build -- --debug"
         } else {
-            Invoke-MyExpression "npm" "run build"
+            Invoke-MyExpression "yarn" "run build"
         }
 
         if($RunTests)
         {
             # Test Nova Application
-            Invoke-MyExpression "npm" "run test"
+            Invoke-MyExpression "yarn" "run test"
         }
     }
     finally

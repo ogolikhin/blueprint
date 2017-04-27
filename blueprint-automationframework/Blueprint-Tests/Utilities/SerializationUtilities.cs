@@ -192,5 +192,23 @@ namespace Utilities
 
             return JToken.DeepEquals(jsonToken1, jsonToken2);
         }
+
+        /// <summary>
+        /// Chech whether string is a serialized JSON object
+        /// </summary>
+        /// <param name="jsonString">String to check.</param>
+        /// <returns>True if string is a serialized JSON object, false otherwise.</returns>
+        public static bool IsStringAJson(string jsonString)
+        {
+            try
+            {
+                JToken.Parse(jsonString);
+                return true;
+            }
+            catch (JsonReaderException)
+            {
+                return false;
+            }
+        }
     }
 }

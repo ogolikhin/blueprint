@@ -13,6 +13,7 @@ using Utilities.Facades;
 using System.Web;
 using System.Net.Mime;
 using Model.Factories;
+using Model.ArtifactModel.Impl.OperationsResults;
 using Model.NovaModel.Impl;
 
 namespace Model.Impl
@@ -110,9 +111,9 @@ namespace Model.Impl
             return CreateArtifact(Address, user, baseArtifactType, name, project, parentArtifact?.Id, orderIndex, expectedStatusCodes);
         }
 
-        /// <seealso cref="IArtifactStore.UpdateArtifact(IUser, NovaArtifactDetails, List{HttpStatusCode})"/>
+        /// <seealso cref="IArtifactStore.UpdateArtifact(IUser, INovaArtifactDetails, List{HttpStatusCode})"/>
         public INovaArtifactDetails UpdateArtifact(IUser user,
-            NovaArtifactDetails novaArtifactDetails,
+            INovaArtifactDetails novaArtifactDetails,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             return UpdateArtifact(Address, user, novaArtifactDetails);
@@ -124,8 +125,6 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
             var deletedArtifacts = DeleteArtifact(artifact.Id, user, expectedStatusCodes);
-
-            var deletedArtifactsToReturn = deletedArtifacts.ConvertAll(o => (INovaArtifactResponse)o);
 
             // Set the IsMarkedForDeletion flag for the artifact that we deleted so the Dispose() works properly.
             foreach (var deletedArtifact in deletedArtifacts)
@@ -158,19 +157,21 @@ namespace Model.Impl
                 }
             }
 
-            return deletedArtifactsToReturn;
+            return deletedArtifacts;
         }
 
         /// <seealso cref="IArtifactStore.DeleteArtifact(int, IUser, List{HttpStatusCode})"/>
-        public List<NovaArtifactResponse> DeleteArtifact(int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        public List<INovaArtifactResponse> DeleteArtifact(int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
-            return restApi.SendRequestAndDeserializeObject<List<NovaArtifactResponse>>(
+            var response = restApi.SendRequestAndDeserializeObject<List<NovaArtifactResponse>>(
                 path,
                 RestRequestMethod.DELETE,
                 expectedStatusCodes: expectedStatusCodes);
+
+            return response?.ConvertAll(o => (INovaArtifactResponse)o);
         }
 
         /// <seealso cref="IArtifactStore.DiscardArtifact(IArtifactBase, IUser, bool?, List{HttpStatusCode})"/>
@@ -445,6 +446,12 @@ namespace Model.Impl
             return discussionReplies;
         }
 
+        /// <seealso cref="IArtifactStore.GetAttachments(IUser, int, bool?, int?, int?)"/>
+        public Attachments GetAttachments(IUser user, int artifactId, bool? addDrafts = null, int? versionId = null, int? subArtifactId = null)
+        {
+            return GetAttachments(Address, artifactId, user, addDrafts, versionId, subArtifactId);
+        }
+
         /// <seealso cref="IArtifactStore.GetAttachments(IArtifactBase, IUser, bool?, int?, int?, List{HttpStatusCode}, IServiceErrorMessage)"/>
         public Attachments GetAttachments(IArtifactBase artifact, IUser user, bool? addDrafts = null, int? versionId = null,
             int? subArtifactId = null, List<HttpStatusCode> expectedStatusCodes = null, IServiceErrorMessage expectedServiceErrorMessage = null)
@@ -565,16 +572,56 @@ namespace Model.Impl
             return artifactBaseInfo;
         }
 
-        /// <seealso cref="IArtifactStore.MoveArtifact(IArtifactBase, IArtifactBase, IUser, double?, List{HttpStatusCode})"/>
+        /// <seealso cref="IArtifactStore.MoveArtifact(IArtifactBase, IArtifactBase, IUser, double?)"/>
         public INovaArtifactDetails MoveArtifact(IArtifactBase artifact,
             IArtifactBase newParent,
             IUser user = null,
-            double? orderIndex = null,
-            List<HttpStatusCode> expectedStatusCodes = null)
+            double? orderIndex = null)
         {
             ThrowIf.ArgumentNull(newParent, nameof(newParent));
 
-            return MoveArtifact(Address, artifact, newParent.Id, user, orderIndex, expectedStatusCodes);
+            return MoveArtifact(artifact, newParent.Id, user, orderIndex);
+        }
+
+        /// <seealso cref="IArtifactStore.MoveArtifact(IArtifactBase, int, IUser, double?)"/>
+        public INovaArtifactDetails MoveArtifact(
+            IArtifactBase artifact,
+            int newParentId,
+            IUser user,
+            double? orderIndex = null)
+        {
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+
+            var movedArtifact = MoveArtifact(user, artifact.Id, newParentId, orderIndex);
+
+            artifact.IsSaved = true;
+
+            return movedArtifact;
+        }
+
+        /// <seealso cref="IArtifactStore.MoveArtifact(IUser, int, int, double?)"/>
+        public INovaArtifactDetails MoveArtifact(
+            IUser user,
+            int artifactId,
+            int newParentId,
+            double? orderIndex = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.MOVE_TO_id_, artifactId, newParentId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            Dictionary<string, string> queryParams = null;
+
+            if (orderIndex != null)
+            {
+                queryParams = new Dictionary<string, string> { { "orderIndex", orderIndex.Value.ToStringInvariant() } };
+            }
+
+            var movedArtifact = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails>(
+                path,
+                RestRequestMethod.POST,
+                queryParameters: queryParams);
+
+            return movedArtifact;
         }
 
         /// <seealso cref="IArtifactStore.PublishArtifact(IArtifactBase, IUser, List{HttpStatusCode})"/>
@@ -675,7 +722,7 @@ namespace Model.Impl
         public AddToCollectionResult AddArtifactToCollection(IUser user, int artifactId, int collectionId, bool includeDescendants = false,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Collection_id_.CONTENT, collectionId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Collections_id_.CONTENT, collectionId);
             return AddArtifactToBaselineOrCollection<AddToCollectionResult>(user, artifactId, path, includeDescendants, expectedStatusCodes);
         }
 
@@ -726,7 +773,7 @@ namespace Model.Impl
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             //
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Baseline_id_.CONTENT, baselineId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Baselines_id_.CONTENT, baselineId);
             return AddArtifactToBaselineOrCollection<AddToBaselineResult>(user, artifactId, path, includeDescendants, expectedStatusCodes);
         }
 
@@ -844,6 +891,26 @@ namespace Model.Impl
                 expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: true);
         }
 
+        /// <seealso cref="IArtifactStore.GetBaselineInfo(List{int}, IUser)"/>
+        public List<BaselineInfo> GetBaselineInfo(List<int> baselineIds, IUser user)
+        {
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            return restApi.SendRequestAndDeserializeObject<List<BaselineInfo>, List<int>>(
+                RestPaths.Svc.ArtifactStore.Artifacts.BASELINE_INFO, RestRequestMethod.POST,
+                baselineIds, shouldControlJsonChanges: true);
+        }
+
+        /// <seealso cref="IArtifactStore.GetReviewArtifacts(IUser, int)"/>
+        public GetReviewArtifactsResultSet GetReviewArtifacts(IUser user, int reviewId)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Reviews_id_.CONTENT, reviewId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            return restApi.SendRequestAndDeserializeObject<GetReviewArtifactsResultSet>(path,
+                RestRequestMethod.GET, shouldControlJsonChanges: true);
+        }
+
         #region Process methods
 
         /// <seealso cref="IArtifactStore.DeleteNovaProcessArtifact(IUser, NovaProcess, List{HttpStatusCode})"/>
@@ -903,7 +970,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.UpdateNovaProcess(IUser, NovaProcess, List{HttpStatusCode})"/>
-        public NovaProcess UpdateNovaProcess(
+        public INovaArtifactDetails UpdateNovaProcess(
             IUser user,
             NovaProcess novaProcess,
             List<HttpStatusCode> expectedStatusCodes = null)
@@ -918,7 +985,7 @@ namespace Model.Impl
             Logger.WriteInfo("{0} Updating Process ID: {1}, Name: {2}", nameof(ArtifactStore), novaProcess.Id, novaProcess.Name);
 
             var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
-            var restResponse = restApi.SendRequestAndDeserializeObject<NovaProcess, NovaProcess>(
+            var restResponse = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails, NovaProcess>(
                 path,
                 RestRequestMethod.PATCH,
                 novaProcess,
@@ -1274,7 +1341,7 @@ namespace Model.Impl
         /// <param name="novaArtifactDetails">The artifact details of the Nova artifact being updated</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The new Nova artifact that was created.</returns>
-        public static INovaArtifactDetails UpdateArtifact(string address, IUser user, NovaArtifactDetails novaArtifactDetails,
+        public static INovaArtifactDetails UpdateArtifact(string address, IUser user, INovaArtifactDetails novaArtifactDetails,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(address, nameof(address));
@@ -1287,7 +1354,7 @@ namespace Model.Impl
             var newArtifact = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails, NovaArtifactDetails>(
                 path,
                 RestRequestMethod.PATCH,
-                novaArtifactDetails,
+                (NovaArtifactDetails)novaArtifactDetails,
                 expectedStatusCodes: expectedStatusCodes,
                 shouldControlJsonChanges: false);
 
@@ -1456,38 +1523,6 @@ namespace Model.Impl
         }
 
         /// <summary>
-        /// Moves an artifact to a different parent.
-        /// (Runs: POST {server}/svc/bpartifactstore/artifacts/{artifactId}/moveTo/{newParentId}?orderIndex={orderIndex})
-        /// </summary>
-        /// <param name="address">The base address of the ArtifactStore.</param>
-        /// <param name="artifact">The artifact to move.</param>
-        /// <param name="newParentId">The ID of the new parent where this artifact will be moved to.</param>
-        /// <param name="user">The user to authenticate with.</param>
-        /// <param name="orderIndex">(optional) The order index (relative to other artifacts) where this artifact should be moved to.
-        ///     By default the artifact is moved to the end (after the last artifact).</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>The details of the artifact that we moved.</returns>
-        public static INovaArtifactDetails MoveArtifact(string address,
-            IArtifactBase artifact,
-            int newParentId,
-            IUser user,
-            double? orderIndex = null,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            ThrowIf.ArgumentNull(address, nameof(address));
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
-
-            var movedArtifact = MoveArtifact(address, artifact.Id, newParentId, user, orderIndex, expectedStatusCodes);
-
-            if ((expectedStatusCodes == null) || expectedStatusCodes.Contains(HttpStatusCode.OK))
-            {
-                artifact.IsSaved = true;
-            }
-
-            return movedArtifact;
-        }
-
-        /// <summary>
         /// Discards a list of artifacts.
         /// </summary>
         /// <param name="address">The base address of the ArtifactStore.</param>
@@ -1595,48 +1630,6 @@ namespace Model.Impl
                 shouldControlJsonChanges: true);
 
             return traceDetails;
-        }
-
-        /// <summary>
-        /// Moves an artifact to a different parent.
-        /// (Runs: POST {server}/svc/bpartifactstore/artifacts/{artifactId}/moveTo/{newParentId}?orderIndex={orderIndex})
-        /// </summary>
-        /// <param name="address">The base address of the ArtifactStore.</param>
-        /// <param name="artifactId">The Id of artifact to move.</param>
-        /// <param name="newParentId">The ID of the new parent where this artifact will be moved to.</param>
-        /// <param name="user">The user to authenticate with.</param>
-        /// <param name="orderIndex">(optional) The order index (relative to other artifacts) where this artifact should be moved to.
-        ///     By default the artifact is moved to the end (after the last artifact).</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>The details of the artifact that we moved.</returns>
-        public static INovaArtifactDetails MoveArtifact(string address,
-            int artifactId,
-            int newParentId,
-            IUser user,
-            double? orderIndex = null,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            ThrowIf.ArgumentNull(address, nameof(address));
-
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.MOVE_TO_id_, artifactId,
-                newParentId);
-            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
-
-            Dictionary<string, string> queryParams = null;
-
-            if (orderIndex != null)
-            {
-                queryParams = new Dictionary<string, string> { { "orderIndex", orderIndex.Value.ToStringInvariant() } };
-            }
-
-            var movedArtifact = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails>(
-                path,
-                RestRequestMethod.POST,
-                queryParameters: queryParams,
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: true);
-
-            return movedArtifact;
         }
 
         #endregion Static members

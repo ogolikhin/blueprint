@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using Model.ArtifactModel.Enums;
+using Model.ModelHelpers;
+using Model.ArtifactModel.Impl.OperationsResults;
 
 namespace Model
 {
@@ -126,7 +128,7 @@ namespace Model
         /// <param name="novaArtifactDetails">The artifact details of the Nova artifact being updated</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The new Nova artifact that was created.</returns>
-        INovaArtifactDetails UpdateArtifact(IUser user, NovaArtifactDetails novaArtifactDetails,
+        INovaArtifactDetails UpdateArtifact(IUser user, INovaArtifactDetails novaArtifactDetails,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
@@ -147,7 +149,7 @@ namespace Model
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>A list of artifacts that were deleted.</returns>
-        List<NovaArtifactResponse> DeleteArtifact(int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+        List<INovaArtifactResponse> DeleteArtifact(int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Discard a single artifact.
@@ -276,6 +278,18 @@ namespace Model
         /// <returns>Replies for the specified comment.</returns>
         List<Reply> GetDiscussionsReplies(Discussion comment,  IUser user,
             List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets attachments for the specified artifact/subartifact
+        /// (Runs: GET svc/artifactstore/artifacts/{artifactId}/attachment?addDrafts={addDrafts})
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactId">The ID of the artifact that has the attachment to get.</param>
+        /// <param name="addDrafts">(optional) Should include attachments in draft state.  Without addDrafts it works as if addDrafts=true.</param>
+        /// <param name="versionId">(optional) The version of the attachment to retrieve.</param>
+        /// <param name="subArtifactId">(optional) The ID of a sub-artifact of this artifact that has the attachment to get.</param>
+        /// <returns>Attachment object for the specified artifact/subartifact.</returns>
+        Attachments GetAttachments(IUser user, int artifactId, bool? addDrafts = null, int? versionId = null, int? subArtifactId = null);
 
         /// <summary>
         /// Gets attachments for the specified artifact/subartifact
@@ -439,14 +453,44 @@ namespace Model
         /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
         /// <param name="orderIndex">(optional) The order index (relative to other artifacts) where this artifact should be moved to.
         ///     By default the artifact is moved to the end (after the last artifact).</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <returns>The details of the artifact that we moved.</returns>
         INovaArtifactDetails MoveArtifact(
             IArtifactBase artifact,
             IArtifactBase newParent, 
             IUser user = null,
-            double? orderIndex = null,
-            List<HttpStatusCode> expectedStatusCodes = null);
+            double? orderIndex = null);
+
+        /// <summary>
+        /// Moves an artifact to a different parent.
+        /// (Runs: POST {server}/svc/bpartifactstore/artifacts/{artifactId}/moveTo/{newParentId}?orderIndex={orderIndex})
+        /// </summary>
+        /// <param name="artifact">The artifact to move.</param>
+        /// <param name="newParentId">The ID of the new parent where this artifact will be moved to.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="orderIndex">(optional) The order index (relative to other artifacts) where this artifact should be moved to.
+        ///     By default the artifact is moved to the end (after the last artifact).</param>
+        /// <returns>The details of the artifact that we moved.</returns>
+        INovaArtifactDetails MoveArtifact(
+            IArtifactBase artifact,
+            int newParentId,
+            IUser user,
+            double? orderIndex = null);
+
+        /// <summary>
+        /// Moves an artifact to a different parent.
+        /// (Runs: POST {server}/svc/bpartifactstore/artifacts/{artifactId}/moveTo/{newParentId}?orderIndex={orderIndex})
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactId">The ID of the artifact to move.</param>
+        /// <param name="newParentId">The ID of the new parent where this artifact will be moved to.</param>
+        /// <param name="orderIndex">(optional) The order index (relative to other artifacts) where this artifact should be moved to.
+        ///     By default the artifact is moved to the end (after the last artifact).</param>
+        /// <returns>The details of the artifact that we moved.</returns>
+        INovaArtifactDetails MoveArtifact(
+            IUser user,
+            int artifactId,
+            int newParentId,
+            double? orderIndex = null);
 
         /// <summary>
         /// Publishes an artifact.
@@ -582,6 +626,22 @@ namespace Model
         /// <returns>Reviews associated with the specified Baseline,</returns>
         ReviewRelationshipsResultSet GetReviews(int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
 
+        /// <summary>
+        /// Gets BaselineInfo
+        /// </summary>
+        /// <param name="baselineIds">List of Baseline's ids for which BaselineInfo should be returned.</param>
+        /// <param name="user">user to perform the operation.</param>
+        /// <returns>List of BaselineInfo</returns>
+        List<BaselineInfo> GetBaselineInfo(List<int> baselineIds, IUser user);
+
+        /// <summary>
+        /// Gets Review Artifacts
+        /// </summary>
+        /// <param name="user">user to perform the operation. </param>
+        /// <param name="reviewId">Id of Review.</param>
+        /// <returns>Object containing list of artifacts and number of artifacts</returns>
+        GetReviewArtifactsResultSet GetReviewArtifacts(IUser user, int reviewId);
+
         #region Process methods
 
         /// <summary>
@@ -619,8 +679,8 @@ namespace Model
         /// <param name="user">The user credentials for the request to update a Nova process.</param>
         /// <param name="novaProcess">The Nova process to update</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>The updated Nova process.</returns>
-        NovaProcess UpdateNovaProcess(
+        /// <returns>A NovaArtifactDetails object.</returns>
+        INovaArtifactDetails UpdateNovaProcess(
             IUser user,
             NovaProcess novaProcess,
             List<HttpStatusCode> expectedStatusCodes = null);

@@ -79,6 +79,29 @@ namespace Model.ArtifactModel.Impl
         }
 
         #endregion INovaArtifactObservable methods
+
+        /// <summary>
+        /// Asserts that the two artifacts are equal.
+        /// </summary>
+        /// <param name="expected">The expected INovaArtifactBase.</param>
+        /// <param name="actual">The actual INovaArtifactBase.</param>
+        /// <param name="shouldCompareVersions">(optional) Pass false to skip comparison of the version parameters.</param>
+        public static void AssertAreEqual(INovaArtifactBase expected, INovaArtifactBase actual, bool shouldCompareVersions = true)
+        {
+            ThrowIf.ArgumentNull(expected, nameof(expected));
+            ThrowIf.ArgumentNull(actual, nameof(actual));
+
+            Assert.AreEqual(expected.Id, actual.Id, "The '{0}' parameters are different!", nameof(Id));
+            Assert.AreEqual(expected.ItemTypeId, actual.ItemTypeId, "The '{0}' parameters are different!", nameof(ItemTypeId));
+            Assert.AreEqual(expected.Name, actual.Name, "The '{0}' parameters are different!", nameof(Name));
+            Assert.AreEqual(expected.ParentId, actual.ParentId, "The '{0}' parameters are different!", nameof(ParentId));
+            Assert.AreEqual(expected.ProjectId, actual.ProjectId, "The '{0}' parameters are different!", nameof(ProjectId));
+
+            if (shouldCompareVersions)
+            {
+                Assert.AreEqual(expected.Version, actual.Version, "The '{0}' parameters are different!", nameof(Version));
+            }
+        }
     }
 
     public class NovaArtifactDetails : NovaArtifactBase, INovaArtifactDetails
@@ -88,7 +111,17 @@ namespace Model.ArtifactModel.Impl
         {
             return AttachmentValues.Count > 0;
         }
+        
+        public virtual bool ShouldSerializeCustomPropertyValues()
+        {
+            return (CustomPropertyValues != null);
+        }
 
+        public virtual bool ShouldSerializeSpecificPropertyValues()
+        {
+            return (SpecificPropertyValues != null);
+        }
+        
         #region Serialized JSON Properties
 
         // NOTE: Keep the properties in this order so the shouldControlJsonChanges option in RestApiFacade works properly.  This is the order of the incoming JSON.
@@ -123,7 +156,7 @@ namespace Model.ArtifactModel.Impl
         public double? OrderIndex { get; set; }
         public override int? ItemTypeId { get; set; }
         public string ItemTypeName { get; set; }
-        public int ItemTypeVersionId { get; set; }
+        public int? ItemTypeVersionId { get; set; }
         public int? ItemTypeIconId { get; set; }
         public string Prefix { get; set; }
         public List<CustomProperty> CustomPropertyValues { get; set; } = new List<CustomProperty>();
@@ -163,7 +196,7 @@ namespace Model.ArtifactModel.Impl
             get
             {
                 // Finding DocumentFile among other properties
-                var documentFileProperty = SpecificPropertyValues.FirstOrDefault(
+                var documentFileProperty = SpecificPropertyValues?.FirstOrDefault(
                     p => p.PropertyType == PropertyTypePredefined.DocumentFile);
 
                 if ((documentFileProperty == null) || (documentFileProperty.CustomPropertyValue == null))
@@ -182,7 +215,7 @@ namespace Model.ArtifactModel.Impl
             set
             {
                 // Finding DocumentFile among other properties
-                var documentFileProperty = SpecificPropertyValues.FirstOrDefault(
+                var documentFileProperty = SpecificPropertyValues?.FirstOrDefault(
                     p => p.PropertyType == PropertyTypePredefined.DocumentFile);
 
                 if (documentFileProperty != null)   // TODO: Should this throw an exception instead?
@@ -211,12 +244,18 @@ namespace Model.ArtifactModel.Impl
             }
             // Deserialization
             string specificPropertyPropertyString = specificProperty.CustomPropertyValue.ToString();
+            if(SerializationUtilities.IsStringAJson(specificPropertyPropertyString))
+            {
+                var specificPropertyValue = JsonConvert.DeserializeObject<T>(specificPropertyPropertyString);
 
-            var specificPropertyValue = JsonConvert.DeserializeObject<T>(specificPropertyPropertyString);
+                SerializationUtilities.CheckJson<T>(specificPropertyValue, specificPropertyPropertyString);
 
-            SerializationUtilities.CheckJson<T>(specificPropertyValue, specificPropertyPropertyString);
-            
-            return specificPropertyValue;
+                return specificPropertyValue;
+            }
+            else
+            {
+                return (T)(specificProperty.CustomPropertyValue);
+            }
         }
 
         /// <summary>
@@ -242,37 +281,19 @@ namespace Model.ArtifactModel.Impl
     /// <summary>
     /// This is the class returned by some ArtifactStore REST calls.
     /// </summary>
-    public class NovaArtifactResponse : NovaArtifactBase, INovaArtifactResponse
+    public class NovaArtifactResponse : NovaArtifactDetails, INovaArtifactResponse
     {
-        #region Serialized JSON Properties
+        // TODO: Remove this class and use NovaArtifactDetails directly instead (make CustomPropertyValues & SpecificPropertyValues null in constructor).
 
-        // NOTE: Keep the properties in this order so the shouldControlJsonChanges option in RestApiFacade works properly.  This is the order of the incoming JSON.
+        public override bool ShouldSerializeCustomPropertyValues()
+        {
+            return CustomPropertyValues.Count > 0;
+        }
 
-        public override int? ProjectId { get; set; }
-        public override int? Version { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends CreatedOn, even if it's null.
-        public DateTime? CreatedOn { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends LastEditedOn, even if it's null.
-        public DateTime? LastEditedOn { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends CreatedBy, even if it's null.
-        public Identification CreatedBy { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends LastEditedBy, even if it's null.
-        public Identification LastEditedBy { get; set; }
-
-        public ItemIndicatorFlags? IndicatorFlags { get; set; }
-
-        public override int Id { get; set; }
-        public override string Name { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
-        public string Description { get; set; }
-        public override int? ParentId { get; set; }
-        public double OrderIndex { get; set; }
-        public override int? ItemTypeId { get; set; }
-        public int? ItemTypeIconId { get; set; }
-        public string Prefix { get; set; }
-        public int PredefinedType { get; set; }
-
-        #endregion Serialized JSON Properties
+        public override bool ShouldSerializeSpecificPropertyValues()
+        {
+            return SpecificPropertyValues.Count > 0;
+        }
     }
 
     public class NovaProject : INovaProject
@@ -354,7 +375,7 @@ namespace Model.ArtifactModel.Impl
         public string DiagramType { get; set; }
         public double Width { get; set; }
         public double Height { get; set; }
-        public List<object> Shapes { get; set; }
+        public List<Shape> Shapes { get; set; }
         public List<object> Connections { get; set; }
         public int LibraryVersion { get; set; }
 

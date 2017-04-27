@@ -86,7 +86,7 @@ function Build-Nova-Windows-Services{
 
     Write-Section "Building Nova Windows services"
 
-    Invoke-MsBuild @msBuildArgs -project $workspace\win_svc\WindowsServices\ImageRenderService\ImageRenderService.csproj -trailingArguments "/p:Platform='x64' /p:OutDir=`"$workspace\win_svc\DeployArtifacts\ImageRenderService`""
+    Invoke-MsBuild @msBuildArgs -project $workspace\win_svc\ImageRenderService\ImageRenderService.csproj -trailingArguments "/p:Platform='x64' /p:OutDir=`"$workspace\win_svc\DeployArtifacts\ImageRenderService`""
 
 }
 

@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using TestCommon;
 using Utilities;
+using static Model.Common.Enums.PropertyTypePredefined;
 
 namespace ArtifactStoreTests
 {
@@ -47,7 +48,6 @@ namespace ArtifactStoreTests
         {
             Helper = new TestHelper();
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
             _project = ProjectFactory.GetProject(_adminUser);
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _adminUser);
             _user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
@@ -239,7 +239,6 @@ namespace ArtifactStoreTests
             GetAndValidateBaseline(_adminUser, baseline.Id, new List<int> { artifactToAdd.Id, childArtifact1.Id }); // after Publish using Instance Admin that artifact wasn't added to the Baseline
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/FGclNU5y UtcTimestamp isn't UTC
         [TestCase(-5)]
         [TestRail(267117)]
         [Description("Add published Artifact to Baseline, Baseline has timestamp before or after artifact's CreatedOn date," +
@@ -256,6 +255,11 @@ namespace ArtifactStoreTests
             var utcTimestamp = DateTime.UtcNow.AddMinutes(utcTimestampMinutesFromNow);
 
             baseline.UtcTimestamp = utcTimestamp;
+            // front-end doesn't send unchanged properties, server-side doesn't process them correctly
+            baseline.SpecificPropertyValues.Remove(baseline.SpecificPropertyValues.Find(property =>
+            property.PropertyType == BaselineIsDataAnalyticsAvailable));
+            baseline.SpecificPropertyValues.Remove(baseline.SpecificPropertyValues.Find(property =>
+            property.PropertyType == BaselineIsSealed));
             ArtifactStore.UpdateArtifact(Helper.ArtifactStore.Address, _user, baseline);
 
             int numberOfAddedArtifacts = -1;
@@ -428,7 +432,6 @@ namespace ArtifactStoreTests
 
         #region Edit Baseline Content
 
-        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/FGclNU5y UtcTimestamp isn't UTC
         [TestCase]
         [TestRail(266912)]
         [Description("Add published Artifact to Baseline, check that Baseline has expected values.")]
@@ -441,6 +444,11 @@ namespace ArtifactStoreTests
             var baselineArtifact = Helper.CreateBaseline(_user, _project);
             var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
             baseline.UpdateArtifacts(new List<int> { artifactToAdd.Id });
+            // front-end doesn't send unchanged properties, server-side doesn't process them correctly
+            baseline.SpecificPropertyValues.Remove(baseline.SpecificPropertyValues.Find(property =>
+            property.PropertyType == BaselineIsSealed));
+            baseline.SpecificPropertyValues.Remove(baseline.SpecificPropertyValues.Find(property =>
+            property.PropertyType == BaselineIsDataAnalyticsAvailable));
 
             // Execute:
             Assert.DoesNotThrow(() => {
@@ -451,7 +459,6 @@ namespace ArtifactStoreTests
             GetAndValidateBaseline(_user, baselineArtifact.Id, new List<int> { artifactToAdd.Id });
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/FGclNU5y UtcTimestamp isn't UTC
         [TestCase]
         [TestRail(267192)]
         [Description("Create and publish artifact with the child artifact, add two artifact to baseline and publish changes," + 
@@ -471,6 +478,11 @@ namespace ArtifactStoreTests
 
             var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
             baseline.UpdateArtifacts(artifactsIdsToRemove: new List<int> { artifactToRemove .Id });
+            // front-end doesn't send unchanged properties, server-side doesn't process them correctly
+            baseline.SpecificPropertyValues.Remove(baseline.SpecificPropertyValues.Find(property =>
+            property.PropertyType == BaselineIsDataAnalyticsAvailable));
+            baseline.SpecificPropertyValues.Remove(baseline.SpecificPropertyValues.Find(property =>
+            property.PropertyType == BaselineIsSealed));
             Helper.SvcShared.LockArtifacts(_user, new List<int> { baseline.Id });
             
             // Execute:
@@ -482,7 +494,6 @@ namespace ArtifactStoreTests
             GetAndValidateBaseline(_user, baselineArtifact.Id, new List<int> { artifactToAdd.Id });
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/FGclNU5y UtcTimestamp isn't UTC
         [TestCase]
         [TestRail(267373)]
         [Description("Add never published Artifact to Baseline, check that artifact wasn't added.")]
@@ -495,6 +506,11 @@ namespace ArtifactStoreTests
             var baselineArtifact = Helper.CreateBaseline(_user, _project);
             var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
             baseline.UpdateArtifacts(new List<int> { artifactToAdd.Id });
+            // front-end doesn't send unchanged properties, server-side doesn't process them correctly
+            baseline.SpecificPropertyValues.Remove(baseline.SpecificPropertyValues.Find(property =>
+            property.PropertyType == BaselineIsDataAnalyticsAvailable));
+            baseline.SpecificPropertyValues.Remove(baseline.SpecificPropertyValues.Find(property =>
+            property.PropertyType == BaselineIsSealed));
 
             // Execute:
             Assert.DoesNotThrow(() => {
@@ -560,7 +576,6 @@ namespace ArtifactStoreTests
                 isAvailableInAnalytics: setAvailableForAnalytics);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/FGclNU5y UtcTimestamp isn't UTC
         [TestCase]
         [TestRail(267202)]
         [Description("Add published Artifact to Baseline, Baseline has timestamp before artifact CreatedOn date," +
@@ -576,7 +591,12 @@ namespace ArtifactStoreTests
 
             var timestampDate = DateTime.UtcNow.AddMinutes(-3);
             baseline.UtcTimestamp = timestampDate;
-            
+            // front-end doesn't send unchanged properties, server-side doesn't process them correctly
+            baseline.SpecificPropertyValues.Remove(baseline.SpecificPropertyValues.Find(property =>
+            property.PropertyType == BaselineIsDataAnalyticsAvailable));
+            baseline.SpecificPropertyValues.Remove(baseline.SpecificPropertyValues.Find(property =>
+            property.PropertyType == BaselineIsSealed));
+
             // Execute:
             Assert.DoesNotThrow(() => {
                 ArtifactStore.UpdateArtifact(Helper.ArtifactStore.Address, _user, baseline);
@@ -612,7 +632,6 @@ namespace ArtifactStoreTests
         }
 
         [TestCase]
-        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/ATaaDfUM UtcTimestamp isn't UTC
         [TestRail(288888)]
         [Description("Create Baseline with timestamp, get BaselineInfo, check that BaselineInfo has expected values.")]
         public void GetBaselineInfo_TimestampedBaseline_ValidateResponse()
@@ -625,6 +644,11 @@ namespace ArtifactStoreTests
 
             var timestampDate = DateTime.UtcNow.AddMinutes(-3);
             baseline.UtcTimestamp = timestampDate;
+            // front-end doesn't send unchanged properties, server-side doesn't process them correctly
+            baseline.SpecificPropertyValues.Remove(baseline.SpecificPropertyValues.Find(property =>
+            property.PropertyType == BaselineIsDataAnalyticsAvailable));
+            baseline.SpecificPropertyValues.Remove(baseline.SpecificPropertyValues.Find(property =>
+            property.PropertyType == BaselineIsSealed));
             baselineArtifact.Update(_user, baseline);
 
             List<BaselineInfo> baselineInfoList = null;
@@ -641,7 +665,6 @@ namespace ArtifactStoreTests
         }
 
         [TestCase]
-        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/ATaaDfUM UtcTimestamp isn't UTC
         [TestRail(288901)]
         [Description("Create sealed Baseline with timestamp, get BaselineInfo, check that BaselineInfo has expected values.")]
         public void GetBaselineInfo_TimestampedSealedBaseline_ValidateResponse()
@@ -670,7 +693,6 @@ namespace ArtifactStoreTests
             baselineInfoList[0].AssertBaselineInfoCorrespondsToBaseline(baseline);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/ATaaDfUM UtcTimestamp isn't UTC
         [TestCase]
         [TestRail(288884)]
         [Description("Create two Baselines, get BaselineInfo and check that response has expected values.")]
@@ -903,7 +925,6 @@ namespace ArtifactStoreTests
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, expectedErrorMessage);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/FGclNU5y UtcTimestamp isn't UTC
         [TestCase]
         [TestRail(267021)]
         [Description("Try to set IsAvailableInAnalytics for unsealed Baseline, check 409 and error message.")]
@@ -940,6 +961,7 @@ namespace ArtifactStoreTests
         public void GetBaseline_ExistingBaseline_ValidateReturnedBaseline()
         {
             // Setup:
+            _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
             var viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projectCustomData);
             const int baselineId = 83;
             const int expectedArtifactsNumber = 2;
@@ -965,6 +987,7 @@ namespace ArtifactStoreTests
         public void GetReviews_ExistingSealedBaseline_ValidateReviewList()
         {
             // Setup:
+            _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
             var viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projectCustomData);
             const int baselineWithreviewsId = 110; // id of sealed Baseline which is used in 3 reviews
 

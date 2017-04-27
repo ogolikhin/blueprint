@@ -845,7 +845,7 @@ namespace AdminStore.Controllers
             _privilegesRepository.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(true);
 
             //act
-            var result = await _controller.GetAllUsers(settings.Page, settings.PageSize, filter, sort) as OkNegotiatedContentResult<QueryResult>;
+            var result = await _controller.GetAllUsers(settings) as OkNegotiatedContentResult<QueryResult>;
 
             //assert
             Assert.IsNotNull(result);
@@ -858,7 +858,7 @@ namespace AdminStore.Controllers
             //arrange
 
             //act
-            var result = await _controller.GetAllUsers(0, 0, string.Empty, string.Empty);
+            var result = await _controller.GetAllUsers(new TableSettings());
 
             //assert
             Assert.IsInstanceOfType(result, typeof(BadRequestErrorMessageResult));
@@ -874,7 +874,7 @@ namespace AdminStore.Controllers
             //act
             try
             {
-                var result = await _controller.GetAllUsers(1, 2, string.Empty, string.Empty);
+                var result = await _controller.GetAllUsers(new TableSettings() { Page = 1, PageSize = 2 });
             }
             catch (Exception ex)
             {
@@ -893,12 +893,12 @@ namespace AdminStore.Controllers
         public async Task GetUser_AllParamsAreCorrectAndPermissionsOk_RepositoryReturnUser()
         {
             //arrange
-            var user = new User() { Id = 5 };
-            _usersRepoMock.Setup(repo => repo.GetUser(It.Is<int>(i => i > 0))).ReturnsAsync(user);
+            var user = new UserDto() { Id = 5 };
+            _usersRepoMock.Setup(repo => repo.GetUserDto(It.Is<int>(i => i > 0))).ReturnsAsync(user);
             _privilegesRepository.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(true);
 
             //act
-            var result = await _controller.GetUser(5) as OkNegotiatedContentResult<User>;
+            var result = await _controller.GetUser(5) as OkNegotiatedContentResult<UserDto>;
 
             //assert
             Assert.AreEqual(user, result.Content);
@@ -930,8 +930,8 @@ namespace AdminStore.Controllers
         public async Task GetUser_ThereIsNoSuchUser_NotFoundResult()
         {
             //arrange
-            var user = new User();
-            _usersRepoMock.Setup(repo => repo.GetUser(It.Is<int>(i => i > 0))).ReturnsAsync(user);
+            var user = new UserDto();
+            _usersRepoMock.Setup(repo => repo.GetUserDto(It.Is<int>(i => i > 0))).ReturnsAsync(user);
             _privilegesRepository.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(true);
 
             //act

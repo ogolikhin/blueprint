@@ -97,10 +97,7 @@ namespace AdminStore.Controllers
         /// <summary>
         /// Get users list according to the input parameters 
         /// </summary>
-        /// <param name="page">page number</param>
-        /// <param name="pageSize">page size</param>
-        /// <param name="filter">filter</param>
-        /// <param name="sort">sott parameters</param>
+        /// <param name="settings">Table settings parameters. Such as page number, page size, filter and sort parameters</param>
         /// <returns code="200">OK if admin user session exists and user is permitted to list users</returns>
         /// <returns code="400">BadRequest if page, pageSize are missing or invalid</returns>
         /// <returns code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</returns>
@@ -108,9 +105,9 @@ namespace AdminStore.Controllers
         [SessionRequired]
         [Route("")]
         [ResponseType(typeof(QueryResult))]
-        public async Task<IHttpActionResult> GetAllUsers(int page, int pageSize, string filter, string sort)
+        public async Task<IHttpActionResult> GetAllUsers([FromUri] TableSettings settings)
         {
-            if (pageSize <= 0 || page <= 0)
+            if (settings == null || settings.PageSize <= 0 || settings.Page <= 0)
             {
                 return BadRequest(ErrorMessages.InvalidPageOrPageNumber);
             }
@@ -121,9 +118,12 @@ namespace AdminStore.Controllers
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
-            var orderField = UsersHelper.SortUsers(sort.ToLower(CultureInfo.InvariantCulture));
+            if (settings.Sort != null)
+            {
+                settings.Sort = UsersHelper.SortUsers(settings.Sort.ToLower(CultureInfo.InvariantCulture));
+            }
 
-            var result = _userRepository.GetUsers(new TableSettings() { PageSize = pageSize, Page = page, Filter = filter, Sort = orderField });
+            var result = _userRepository.GetUsers(settings);
 
             return Ok(result);
         }
@@ -150,7 +150,7 @@ namespace AdminStore.Controllers
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
-            var user = await _userRepository.GetUser(userId);
+            var user = await _userRepository.GetUserDto(userId);
 
             if (user.Id == 0)
                 return NotFound();

@@ -24,7 +24,7 @@ namespace AdminStore.Repositories
         {
             var parameters = new DynamicParameters();
             parameters.Add("@UserId", userId);
-            var permissionsResult = (await _connectionWrapper.QueryAsync<int>("CheckPermissionsForUser", parameters, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+            var permissionsResult = (await _connectionWrapper.QueryAsync<int>("GetInstancePermissionsForUser", parameters, commandType: CommandType.StoredProcedure)).FirstOrDefault();
 
             var expectedPermissions = permissionsList.Select(permission => permission & permissionsResult).ToList();
             return permissionsList.ToList().OrderBy(p => p).SequenceEqual(expectedPermissions.OrderBy(p => p));

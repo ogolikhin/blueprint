@@ -129,11 +129,14 @@ namespace ArtifactStore.Controllers
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
 
             var itemId = subArtifactId.HasValue ? subArtifactId.Value : artifactId;
-            var itemInfo = await _artifactPermissionsRepository.GetItemInfo(itemId, session.UserId);
             var revisionId = int.MaxValue;
-            if (itemInfo == null && await _artifactVersionsRepository.IsItemDeleted(itemId))
+            var isDeleted = await _artifactVersionsRepository.IsItemDeleted(itemId);
+            var itemInfo = isDeleted ?
+                await _artifactVersionsRepository.GetDeletedItemInfo(itemId):
+                await _artifactPermissionsRepository.GetItemInfo(itemId, session.UserId);
+
+            if (isDeleted)
             {
-                itemInfo = await _artifactVersionsRepository.GetDeletedItemInfo(itemId);
                 revisionId = ((DeletedItemInfo)itemInfo).VersionId;
             }
             if (itemInfo == null || await _discussionsRepository.IsDiscussionDeleted(discussionId))

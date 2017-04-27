@@ -1,7 +1,7 @@
-using System.Collections.Generic;
-using System.Net;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
+using System.Collections.Generic;
+using System.Net;
 
 namespace Helper
 {

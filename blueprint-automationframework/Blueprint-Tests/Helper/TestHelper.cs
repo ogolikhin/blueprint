@@ -66,6 +66,7 @@ namespace Helper
         public IBlueprintServer BlueprintServer { get; } = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
         public IConfigControl ConfigControl { get; } = ConfigControlFactory.GetConfigControlFromTestConfig();
         public IFileStore FileStore { get; } = FileStoreFactory.GetFileStoreFromTestConfig();
+        public ImpactAnalysis ImpactAnalysis { get; } = ImpactAnalysisFactory.GetImpactAnalysisFromTestConfig();
         public IOpenApi OpenApi { get; } = OpenApiFactory.GetOpenApiFromTestConfig();
         public ISearchService SearchService { get; } = SearchServiceFactory.GetSearchServiceFromTestConfig();
         public IStoryteller Storyteller { get; } = StorytellerFactory.GetStorytellerFromTestConfig();

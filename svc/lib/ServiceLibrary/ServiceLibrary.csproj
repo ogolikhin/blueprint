@@ -162,6 +162,7 @@
     <Compile Include="Models\SubArtifact.cs" />
     <Compile Include="Models\UserGroup.cs" />
     <Compile Include="Models\UserInfo.cs" />
+    <Compile Include="Models\Workflow\Transitions.cs" />
     <Compile Include="Repositories\ConfigControl\IServiceLogRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IConfigRepository.cs" />
     <Compile Include="Repositories\ConfigControl\ServiceLogRepository.cs" />

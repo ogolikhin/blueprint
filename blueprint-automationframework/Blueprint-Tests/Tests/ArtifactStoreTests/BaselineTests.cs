@@ -25,7 +25,6 @@ namespace ArtifactStoreTests
         private IUser _adminUser = null;
         private IUser _user = null;
         private IProject _project = null;
-        private IProject _projectCustomData = null;
 
         private readonly string draftDescription = TestHelper.DraftDescription;
         private readonly string publishedDescription = TestHelper.PublishedDescription;
@@ -241,7 +240,7 @@ namespace ArtifactStoreTests
 
         [TestCase(-5)]
         [TestRail(267117)]
-        [Description("Add published Artifact to Baseline, Baseline has timestamp before or after artifact's CreatedOn date," +
+        [Description("Add published Artifact to Baseline, Baseline has timestamp before artifact's CreatedOn date," +
             "check that artifact was not added and call returns 1 for Nonnexistent Artifacts, when  Baseline has timestamp before artifact's CreatedOn date.")]
         public void AddArtifactToBaseline_PublishedArtifact_BaselineWithTimeStampBeforeArtifactCreatedOn_CheckWhatWasAdded(int utcTimestampMinutesFromNow)
         {
@@ -961,7 +960,7 @@ namespace ArtifactStoreTests
         public void GetBaseline_ExistingBaseline_ValidateReturnedBaseline()
         {
             // Setup:
-            _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
+            var _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
             var viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projectCustomData);
             const int baselineId = 83;
             const int expectedArtifactsNumber = 2;
@@ -981,13 +980,14 @@ namespace ArtifactStoreTests
         #endregion
 
         [Category(Categories.GoldenData)]
+        [Category(Categories.CustomData)]
         [TestCase]
         [TestRail(267352)]
         [Description("Get list of Reviews associated with baseline from Custom Data project, check that Reviews have expected values.")]
         public void GetReviews_ExistingSealedBaseline_ValidateReviewList()
         {
             // Setup:
-            _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
+            var _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
             var viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projectCustomData);
             const int baselineWithreviewsId = 110; // id of sealed Baseline which is used in 3 reviews
 

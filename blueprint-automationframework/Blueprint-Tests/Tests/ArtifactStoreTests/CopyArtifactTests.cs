@@ -106,8 +106,6 @@ namespace ArtifactStoreTests
             var sourceArtifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(author, _project, sourceArtifactType,
                 numberOfVersions: 2, parentId: parentArtifact.Id);
 
-//            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, sourceArtifact.Id);
-
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
 

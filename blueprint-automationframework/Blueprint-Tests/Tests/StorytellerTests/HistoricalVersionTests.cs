@@ -10,7 +10,9 @@ using TestCommon;
 
 namespace StorytellerTests
 {
+    // TODO: Fix this to have 1 copy using NovaProcess and 1 copy using ST 1.0 Process
     [TestFixture]
+    [Ignore(IgnoreReasons.TestBug)] 
     [Category(Categories.Storyteller)]
     public class HistoricalVersionTests : TestBase
     {

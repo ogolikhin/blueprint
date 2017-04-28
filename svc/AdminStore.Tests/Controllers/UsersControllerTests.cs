@@ -30,12 +30,12 @@ namespace AdminStore.Controllers
         private UsersController _controller;
         private Mock<IHttpClientProvider> _httpClientProviderMock;
         private Mock<ISqlPrivilegesRepository> _privilegesRepository;
-        private CreationUserDto _user;
+        private UserDto _user;
 
         private const int FullPermissions = 524287;
         private const int NoManageUsersPermissions = 13312;
         private const int NoAssignAdminRolesPermissions = 15360;
-        private const int CreatedUserId = 100;
+        private const int UserId = 100;
         private const string ExistedUserLogin = "ExistedUser";
 
         [TestInitialize]
@@ -59,7 +59,7 @@ namespace AdminStore.Controllers
             _controller.Request.Properties[ServiceConstants.SessionProperty] = session;
             _controller.Request.RequestUri = new Uri("http://localhost");
 
-            _user = new CreationUserDto()
+            _user = new UserDto()
             {
                 Login = "UserLogin",
                 FirstName = "FirstNameValue",
@@ -70,15 +70,16 @@ namespace AdminStore.Controllers
                 AllowFallback = false,
                 Enabled = true,
                 ExpirePassword = true,
-                NewPassword = "MTIzNFJFV1EhQCMk",
+                Password  = "MTIzNFJFV1EhQCMk",
                 Title = "TitleValue",
                 Department = "Departmentvalue",
                 GroupMembership = new int[] { 1 },
                 Guest = false
             };
+
             _usersRepoMock
                 .Setup(repo => repo.AddUserAsync(It.Is<User>(u => u.Login != ExistedUserLogin)))
-                .ReturnsAsync(CreatedUserId);
+                .ReturnsAsync(UserId);
 
             var badRequestException = new BadRequestException(ErrorMessages.LoginNameUnique);
             _usersRepoMock
@@ -824,7 +825,7 @@ namespace AdminStore.Controllers
             var sort = string.Empty;
             var filter = string.Empty;
 
-            var users = new List<UserDto>() { new UserDto() { UserId = 1 } };
+            var users = new List<UserDto>() { new UserDto() { Id = 1 } };
             var settings = new TableSettings() { PageSize = 3, Page = 1 };
             QueryResult returnResult = new QueryResult()
             {
@@ -892,12 +893,12 @@ namespace AdminStore.Controllers
         public async Task GetUser_AllParamsAreCorrectAndPermissionsOk_RepositoryReturnUser()
         {
             //arrange
-            var user = new User() { UserId = 5 };
-            _usersRepoMock.Setup(repo => repo.GetUser(It.Is<int>(i => i > 0))).ReturnsAsync(user);
+            var user = new UserDto() { Id = 5 };
+            _usersRepoMock.Setup(repo => repo.GetUserDto(It.Is<int>(i => i > 0))).ReturnsAsync(user);
             _privilegesRepository.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(true);
 
             //act
-            var result = await _controller.GetUser(5) as OkNegotiatedContentResult<User>;
+            var result = await _controller.GetUser(5) as OkNegotiatedContentResult<UserDto>;
 
             //assert
             Assert.AreEqual(user, result.Content);
@@ -929,8 +930,8 @@ namespace AdminStore.Controllers
         public async Task GetUser_ThereIsNoSuchUser_NotFoundResult()
         {
             //arrange
-            var user = new User();
-            _usersRepoMock.Setup(repo => repo.GetUser(It.Is<int>(i => i > 0))).ReturnsAsync(user);
+            var user = new UserDto();
+            _usersRepoMock.Setup(repo => repo.GetUserDto(It.Is<int>(i => i > 0))).ReturnsAsync(user);
             _privilegesRepository.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(true);
 
             //act
@@ -956,7 +957,7 @@ namespace AdminStore.Controllers
 
             // Assert
             Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
-            Assert.AreEqual(CreatedUserId, await result.Content.ReadAsAsync<int>());
+            Assert.AreEqual(UserId, await result.Content.ReadAsAsync<int>());
         }
 
         [TestMethod]
@@ -1204,7 +1205,7 @@ namespace AdminStore.Controllers
         public async Task PostUser_PasswordEmpty_ReturnBadRequestResult()
         {
             // Arrange
-            _user.NewPassword = string.Empty;
+            _user.Password = string.Empty;
             _privilegesRepository
                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
                .ReturnsAsync(FullPermissions);
@@ -1221,13 +1222,102 @@ namespace AdminStore.Controllers
         public async Task PostUser_PasswordContainsOnlyAlphanumericCharacters_ReturnBadRequestResult()
         {
             // Arrange
-            _user.NewPassword = "MTIzNDU2Nzg=";
+            _user.Password = "MTIzNDU2Nzg=";
             _privilegesRepository
                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
                .ReturnsAsync(FullPermissions);
 
             // Act
             await _controller.PostUser(_user);
+
+            // Assert
+            // Exception
+        }
+        #endregion
+
+        #region Update user
+
+        [TestMethod]
+        public async Task UpdateUser_SuccessfulUpdateOfUser_ReturnOkResult()
+        {
+            // Arrange
+            _privilegesRepository
+                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+                .ReturnsAsync(FullPermissions);
+
+            // Act
+            var result = await _controller.UpdateUser(UserId, _user);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(OkResult));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task UpdateUser_UserNotFound_ReturnNotFoundErrorResult()
+        {
+            // Arrange
+            _privilegesRepository
+                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+                .ReturnsAsync(FullPermissions);
+
+            var resourceNotFoundExeption = new ResourceNotFoundException(ErrorMessages.UserNotExist);
+            _usersRepoMock.Setup(repo => repo.UpdateUserAsync(It.IsAny<User>())).Throws(resourceNotFoundExeption);
+
+            // Act
+            await _controller.UpdateUser(UserId, _user);
+
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ConflictException))]
+        public async Task UpdateUser_UserHasDifferentVersion_ReturnConflicErrorResult()
+        {
+            // Arrange
+            _privilegesRepository
+                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+                .ReturnsAsync(FullPermissions);
+
+            var conflictExeption = new ConflictException(ErrorMessages.UserVersionsNotEqual);
+            _usersRepoMock.Setup(repo => repo.UpdateUserAsync(It.IsAny<User>())).Throws(conflictExeption);
+
+            // Act
+            await _controller.UpdateUser(UserId, _user);
+
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task UpdateUser_UserIdNotPassed_ReturnBadRequestErrorResult()
+        {
+            // Arrange
+            _privilegesRepository
+                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+                .ReturnsAsync(FullPermissions);
+
+            // Act
+            await _controller.UpdateUser(0, _user);
+
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task UpdateUser_UserModelIsEmpty_ReturnBadRequestErrorResult()
+        {
+            // Arrange
+            _privilegesRepository
+                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+                .ReturnsAsync(FullPermissions);
+
+            // Act
+            await _controller.UpdateUser(UserId, null);
 
             // Assert
             // Exception

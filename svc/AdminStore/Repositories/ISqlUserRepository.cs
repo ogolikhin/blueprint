@@ -34,8 +34,11 @@ namespace AdminStore.Repositories
         QueryResult GetUsers(TableSettings settings);
 
         Task<User> GetUser(int userId);
+        Task<UserDto> GetUserDto(int userId);
 
         Task<int> AddUserAsync(User loginUser);
+
+        Task UpdateUserAsync(User loginUser);
         Task<IEnumerable<int>> DeleteUsers(OperationScope body, string search);
     }
 }

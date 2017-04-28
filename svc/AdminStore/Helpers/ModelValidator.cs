@@ -7,7 +7,7 @@ namespace AdminStore.Helpers
 {
     public class ModelValidator
     {
-        public static void ValidateUserModel(CreationUserDto user)
+        public static void ValidateUserModel(UserDto user)
         {
             if (string.IsNullOrEmpty(user.Login))
             {

@@ -1,4 +1,6 @@
-﻿namespace AdminStore.Helpers
+﻿using AdminStore.Models;
+
+namespace AdminStore.Helpers
 {
     public static class UsersHelper
     {
@@ -68,5 +70,12 @@
             }
             return orderField;
         }
+
+        public static User CreateDbUserFromDto(UserDto user, int userId = 0)
+        {
+            UserValidator.ValidateModel(user);
+            var dbUserModel = UserConverter.ConvertToDbUser(user, userId);
+            return dbUserModel;
+        }     
     }
 }

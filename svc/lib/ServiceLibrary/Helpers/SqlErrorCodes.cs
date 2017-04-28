@@ -10,6 +10,8 @@ namespace ServiceLibrary.Helpers
     {
         None = 0,
 		GeneralSqlError = 50000,
-        UserLoginExist = 50001
+        UserLoginExist = 50001,
+        UserLoginNotExist = 50002,
+        UserVersionsNotEqual = 50003
     }
 }

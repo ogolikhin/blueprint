@@ -277,7 +277,6 @@ namespace Model.ModelHelpers
 
             var updatedArtifact = ArtifactStore.UpdateArtifact(user, updateArtifact);
             CSharpUtilities.ReplaceAllNonNullProperties(updateArtifact, Artifact);
-            CSharpUtilities.ReplaceAllNonNullProperties(updatedArtifact, Artifact);
 
             ArtifactState.IsDraft = true;
 

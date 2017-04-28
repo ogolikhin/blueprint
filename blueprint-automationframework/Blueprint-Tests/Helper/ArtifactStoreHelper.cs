@@ -1600,7 +1600,6 @@ namespace Helper
             var subArtifacts = new List<NovaSubArtifact> { subArtifactToAdd };
             var updateArtifact = CreateNovaArtifactDetailsForUpdate(artifact);
 
-            artifact.SubArtifacts = subArtifacts;
             updateArtifact.SubArtifacts = subArtifacts;
 
             artifact.Update(user, updateArtifact);

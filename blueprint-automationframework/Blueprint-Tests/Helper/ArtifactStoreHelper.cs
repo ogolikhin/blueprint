@@ -1487,7 +1487,6 @@ namespace Helper
             foreach (var file in files)
             {
                 var attachmentValue = new AttachmentValue(user, file);
-                artifact.AttachmentValues.Add(attachmentValue);
                 updateArtifact.AttachmentValues.Add(attachmentValue);
             }
 

@@ -190,10 +190,11 @@ namespace Helper
         /// <summary>
         /// Verify process status by checking the status boolean parameters from the process model
         /// </summary>
-        /// <param name="retrievedProcess">The process model retrieved from the server side</param>
         /// <param name="processStatusState">The process status state that represents expected status of the returned process</param>
-        public static void VerifyProcessStatus(IProcess retrievedProcess, ProcessStatusState processStatusState)
+        /// <param name="retrievedProcess">The process model retrieved from the server side</param>
+        public static void VerifyProcessStatus(ProcessStatusState processStatusState, IProcess retrievedProcess)
         {
+            ThrowIf.ArgumentNull(processStatusState, nameof(processStatusState));
             ThrowIf.ArgumentNull(retrievedProcess, nameof(retrievedProcess));
 
             ProcessStatus expectedStatus = null;
@@ -231,30 +232,30 @@ namespace Helper
 
             var retrievedProcessStatus = retrievedProcess.Status;
 
-            Assert.That(retrievedProcessStatus.IsLocked.Equals(expectedStatus.IsLocked),
-                "{0} from the process model is {1} but {2} is expected.",
-                nameof(retrievedProcessStatus.IsLocked), retrievedProcessStatus.IsLocked, expectedStatus.IsLocked);
+            Assert.AreEqual(expectedStatus.IsLocked, retrievedProcessStatus.IsLocked, 
+                "{0} from the process model is {0} is expected from {1} but {2} is returned.",
+                expectedStatus.IsLocked, nameof(retrievedProcessStatus.IsLocked), retrievedProcessStatus.IsLocked);
 
-            Assert.That(retrievedProcessStatus.IsLockedByMe.Equals(expectedStatus.IsLockedByMe),
-                "{0} from the process model is {1} but {2} is expected.",
-                nameof(retrievedProcessStatus.IsLockedByMe), retrievedProcessStatus.IsLockedByMe, expectedStatus.IsLockedByMe);
+            Assert.AreEqual(expectedStatus.IsLockedByMe, retrievedProcessStatus.IsLockedByMe,
+                "{0} from the process model is {0} is expected from {1} but {2} is returned.",
+                expectedStatus.IsLockedByMe, nameof(retrievedProcessStatus.IsLockedByMe), retrievedProcessStatus.IsLockedByMe);
 
-            Assert.That(retrievedProcessStatus.IsDeleted.Equals(expectedStatus.IsDeleted),
-                "{0} from the process model is {1} but {2} is expected.",
-                nameof(retrievedProcessStatus.IsDeleted), retrievedProcessStatus.IsDeleted, expectedStatus.IsDeleted);
+            Assert.AreEqual(expectedStatus.IsDeleted, retrievedProcessStatus.IsDeleted,
+                "{0} from the process model is {0} is expected from {1} but {2} is returned.",
+                expectedStatus.IsDeleted, nameof(retrievedProcessStatus.IsDeleted), retrievedProcessStatus.IsDeleted);
 
-            Assert.That(retrievedProcessStatus.IsReadOnly.Equals(expectedStatus.IsReadOnly),
-                "{0} from the process model is {1} but {2} is expected.",
-                nameof(retrievedProcessStatus.IsReadOnly), retrievedProcessStatus.IsReadOnly, expectedStatus.IsReadOnly);
+            Assert.AreEqual(expectedStatus.IsReadOnly, retrievedProcessStatus.IsReadOnly,
+                "{0} from the process model is {0} is expected from {1} but {2} is returned.",
+                expectedStatus.IsReadOnly, nameof(retrievedProcessStatus.IsReadOnly), retrievedProcessStatus.IsReadOnly);
 
-            Assert.That(retrievedProcessStatus.IsUnpublished.Equals(expectedStatus.IsUnpublished),
-                "{0} from the process model is {1} but {2} is expected.",
-                nameof(retrievedProcessStatus.IsUnpublished), retrievedProcessStatus.IsUnpublished, expectedStatus.IsUnpublished);
+            Assert.AreEqual(expectedStatus.IsUnpublished, retrievedProcessStatus.IsUnpublished,
+                "{0} from the process model is {0} is expected from {1} but {2} is returned.",
+                expectedStatus.IsUnpublished, nameof(retrievedProcessStatus.IsUnpublished), retrievedProcessStatus.IsUnpublished);
 
-            Assert.That(retrievedProcessStatus.HasEverBeenPublished.Equals(expectedStatus.HasEverBeenPublished),
-                "{0} from the process model is {1} but {2} is expected.",
-                nameof(retrievedProcessStatus.HasEverBeenPublished), retrievedProcessStatus.HasEverBeenPublished,
-                expectedStatus.HasEverBeenPublished);
+            Assert.AreEqual(expectedStatus.HasEverBeenPublished, retrievedProcessStatus.HasEverBeenPublished,
+                "{0} from the process model is {0} is expected from {1} but {2} is returned.",
+                expectedStatus.HasEverBeenPublished, nameof(retrievedProcessStatus.HasEverBeenPublished), retrievedProcessStatus.HasEverBeenPublished);
+
         }
 
         /// <summary>

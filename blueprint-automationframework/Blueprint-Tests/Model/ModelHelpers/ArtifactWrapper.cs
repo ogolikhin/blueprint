@@ -208,6 +208,9 @@ namespace Model.ModelHelpers
 
         /// <summary>
         /// Publishes this artifact.  You must lock the artifact before publishing.
+        /// NOTE: This method only updates the Version of the wrapped artifact with the new version returned by the Publish call.  All other
+        /// properties are the same as they were before this function was called.  If you need this object to have all of the properties the
+        /// same as they are on the server, call RefreshArtifactFromServer().
         /// </summary>
         /// <param name="user">The user to perform the publish.</param>
         /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
@@ -244,6 +247,9 @@ namespace Model.ModelHelpers
 
         /// <summary>
         /// Updates this artifact with a new random Description.  You must lock the artifact before saving.
+        /// NOTE: This method only updates the Description of the wrapped artifact with the new random description.  All other properties
+        /// are the same as they were before this function was called.  If you need this object to have all of the properties the same as
+        /// they are on the server, call RefreshArtifactFromServer().
         /// </summary>
         /// <param name="user">The user to perform the update.</param>
         /// <param name="description">(optional) The new description to save.  By default a random description is generated.</param>
@@ -259,13 +265,15 @@ namespace Model.ModelHelpers
                 Description = description ?? "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5)
             };
 
+            Artifact.Description = changes.Description;
+
             return Update(user, changes);
         }
 
         /// <summary>
         /// Updates this artifact with the properties specified in the updateArtifact.  You must lock the artifact before updating.
-        /// NOTE: This method tries to update the wrapped artifact properties with the new values, but some properties can only be updated
-        /// by doing a GET call.  If you need this object to have all of the properties the same as they are on the server, call RefreshArtifactFromServer().
+        /// NOTE: This method does not update the wrapped artifact with the properties you updated.  If you need this object to have all
+        /// of the properties the same as they are on the server, call RefreshArtifactFromServer().
         /// </summary>
         /// <param name="user">The user to perform the update.</param>
         /// <param name="updateArtifact">The artifact whose non-null properties will be used to update this artifact.</param>
@@ -277,82 +285,9 @@ namespace Model.ModelHelpers
 
             var updatedArtifact = ArtifactStore.UpdateArtifact(user, updateArtifact);
 
-            // Don't replace Lists.  We need to merge the items in the lists.
-            var propertiesNotToBeReplaced = new List<string>
-            {
-                nameof(INovaArtifactDetails.AttachmentValues),
-                nameof(INovaArtifactDetails.CustomPropertyValues),
-                nameof(INovaArtifactDetails.SpecificPropertyValues)
-            };
-
-            CSharpUtilities.ReplaceAllNonNullProperties(updateArtifact, Artifact, propertiesNotToBeReplaced);
-            CSharpUtilities.ReplaceAllNonNullProperties(updatedArtifact, Artifact, propertiesNotToBeReplaced);
-
-            // Merge the list properties.
-            MergeAttachmentValues(updateArtifact.AttachmentValues, Artifact.AttachmentValues);
-            MergeCustomPropertyValues(updateArtifact.CustomPropertyValues, Artifact.CustomPropertyValues);
-            MergeCustomPropertyValues(updateArtifact.SpecificPropertyValues, Artifact.SpecificPropertyValues);
-
             ArtifactState.IsDraft = true;
 
             return updatedArtifact;
-        }
-
-        /// <summary>
-        /// Merges Attachments from the source list into the target list.
-        /// </summary>
-        /// <param name="sourceAttachments">The list whose Attachments will be copied from.</param>
-        /// <param name="targetAttachments">The list that will have Attachments replaced or added to.</param>
-        private static void MergeAttachmentValues(List<AttachmentValue> sourceAttachments, List<AttachmentValue> targetAttachments)
-        {
-            ThrowIf.ArgumentNull(targetAttachments, nameof(targetAttachments));
-
-            if (sourceAttachments != null)
-            {
-                foreach (var attachment in sourceAttachments)
-                {
-                    var foundAttachment = targetAttachments.Find(a => a.Guid == attachment.Guid);
-
-                    if (foundAttachment != null)
-                    {
-                        // Replace existing Attachment.
-                        targetAttachments.Remove(foundAttachment);
-                    }
-
-                    if (attachment.ChangeType != ChangeType.Delete) // i.e. Create or Update.
-                    {
-                        // Add the source Attachment.
-                        targetAttachments.Add(attachment);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Merges Custom Properties from the source list into the target list.
-        /// </summary>
-        /// <param name="sourceCustomProperty">The list whose Custom Properties will be copied from.</param>
-        /// <param name="targetCustomProperty">The list that will have Custom Properties replaced or added to.</param>
-        private static void MergeCustomPropertyValues(List<CustomProperty> sourceCustomProperty, List<CustomProperty> targetCustomProperty)
-        {
-            ThrowIf.ArgumentNull(targetCustomProperty, nameof(targetCustomProperty));
-
-            if (sourceCustomProperty != null)
-            {
-                foreach (var customProperty in sourceCustomProperty)
-                {
-                    var foundCustomProperty = targetCustomProperty.Find(a => a.Name == customProperty.Name);
-
-                    if (foundCustomProperty != null)
-                    {
-                        // Replace existing CustomProperty.
-                        targetCustomProperty.Remove(foundCustomProperty);
-                    }
-
-                    // Add the source CustomProperty.
-                    targetCustomProperty.Add(customProperty);
-                }
-            }
         }
 
         #region INovaArtifactObservable members

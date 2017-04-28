@@ -12,7 +12,9 @@ using Utilities.Factories;
 namespace AdminStoreTests.UsersTests
 {
     [TestFixture]
+    [Category(Categories.AdminPortal)]
     [Category(Categories.AdminStore)]
+
     public class InstanceUserTests : TestBase
     {
         private const string USERS_PATH = RestPaths.Svc.AdminStore.Users.USERS;

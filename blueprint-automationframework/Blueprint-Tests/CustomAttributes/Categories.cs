@@ -7,6 +7,7 @@ namespace CustomAttributes
 
         public const string AccessControl = "AccessControl";
         public const string AccessControlDouble = "AccessControlDouble";
+        public const string AdminPortal = "AdminPortal";
         public const string AdminStore = "AdminStore";
         public const string ArtifactStore = "ArtifactStore";
         public const string ArtifactVersion = "ArtifactVersion";

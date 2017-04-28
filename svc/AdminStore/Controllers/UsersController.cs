@@ -445,16 +445,16 @@ namespace AdminStore.Controllers
 
             await _privilegesManager.Demand(SessionUserId, InstanceAdminPrivileges.ManageUsers);
 
-            //var existingUser = await _userRepository.GetUser(userId);
-            //if (existingUser == null)
-            //{
-            //    throw new BadRequestException(ErrorMessages.UserNotExist, ErrorCodes.ResourceNotFound);
-            //}
+            var existingUser = await _userRepository.GetUser(userId);
+            if (existingUser == null)
+            {
+                throw new BadRequestException(ErrorMessages.UserNotExist, ErrorCodes.ResourceNotFound);
+            }
 
-            //if (existingUser.InstanceAdminRoleId != user.InstanceAdminRoleId)
-            //{
-            //    await _privilegesManager.Demand(userId, InstanceAdminPrivileges.AssignAdminRoles);
-            //}
+            if (existingUser.InstanceAdminRoleId != user.InstanceAdminRoleId)
+            {
+                await _privilegesManager.Demand(SessionUserId, InstanceAdminPrivileges.AssignAdminRoles);
+            }
 
             var databaseUser = UsersHelper.CreateDbUserFromDto(user, userId);
             await _userRepository.UpdateUserAsync(databaseUser);

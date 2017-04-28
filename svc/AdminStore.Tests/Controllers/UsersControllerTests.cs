@@ -1250,12 +1250,16 @@ namespace AdminStore.Controllers
         #region Update user
 
         [TestMethod]
-        public async Task UpdateUser_SuccessfulUpdateOfUser_ReturnOkResult()
+        public async Task UpdateUser_AllRequirementsSatisfied_ReturnOkResult()
         {
             // Arrange
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
+            var existingUser = new User { Id = UserId, InstanceAdminRoleId = null };
+            _usersRepoMock
+                .Setup(r => r.GetUser(UserId))
+                .ReturnsAsync(existingUser);
 
             // Act
             var result = await _controller.UpdateUser(UserId, _user);
@@ -1273,6 +1277,10 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
+            var existingUser = new User { Id = UserId, InstanceAdminRoleId = null };
+            _usersRepoMock
+                .Setup(r => r.GetUser(UserId))
+                .ReturnsAsync(existingUser);
 
             var resourceNotFoundExeption = new ResourceNotFoundException(ErrorMessages.UserNotExist);
             _usersRepoMock.Setup(repo => repo.UpdateUserAsync(It.IsAny<User>())).Throws(resourceNotFoundExeption);
@@ -1292,6 +1300,10 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
+            var existingUser = new User { Id = UserId, InstanceAdminRoleId = null };
+            _usersRepoMock
+                .Setup(r => r.GetUser(UserId))
+                .ReturnsAsync(existingUser);
 
             var conflictExeption = new ConflictException(ErrorMessages.UserVersionsNotEqual);
             _usersRepoMock.Setup(repo => repo.UpdateUserAsync(It.IsAny<User>())).Throws(conflictExeption);
@@ -1334,6 +1346,71 @@ namespace AdminStore.Controllers
             // Assert
             // Exception
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task UpdateUser_ChangeInInstanceRolePrivilege_WithoutAssignInstanceRolePrivilege_ThrowsAuthenticationException()
+        {
+            // Arrange
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
+            var existingUser = new User { Id = UserId, InstanceAdminRoleId = null };
+            _usersRepoMock
+                .Setup(r => r.GetUser(UserId))
+                .ReturnsAsync(existingUser);
+
+            _user.InstanceAdminRoleId = 1;
+
+            // Act
+            await _controller.UpdateUser(UserId, _user);
+        }
+
+        [TestMethod]
+        public async Task UpdateUser_ChangeInInstanceRolePrivilege_WithAssignInstanceRolePrivilege_ReturnsOk()
+        {
+            // Arrange
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AssignAdminRoles);
+            var existingUser = new User { Id = UserId, InstanceAdminRoleId = null };
+            _usersRepoMock
+                .Setup(r => r.GetUser(UserId))
+                .ReturnsAsync(existingUser);
+
+            _user.InstanceAdminRoleId = 1;
+
+            // Act
+            var result = await _controller.UpdateUser(UserId, _user);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(OkResult));
+        }
+
+        [TestMethod]
+        public async Task UpdateUser_ChangeInNonInstanceRolePrivilege_WithoutAssignInstanceRolePrivilege_ReturnsOk()
+        {
+            // Arrange
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
+            var existingUser = new User { Id = UserId, InstanceAdminRoleId = 1 };
+            _usersRepoMock
+                .Setup(r => r.GetUser(UserId))
+                .ReturnsAsync(existingUser);
+
+            _user.DisplayName = "New DisplayName";
+            _user.InstanceAdminRoleId = 1;
+
+            // Act
+            var result = await _controller.UpdateUser(UserId, _user);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(OkResult));
+        }
+
         #endregion
     }
 }

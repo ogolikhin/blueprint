@@ -846,7 +846,9 @@ namespace AdminStore.Controllers
 
             _usersRepoMock.Setup(repo => repo.GetUsers(It.Is<TableSettings>(t => t.PageSize > 0 && t.Page > 0)))
                 .Returns(returnResult);
-            _privilegesRepository.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(true);
+            _privilegesRepository
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
 
             //act
             var result = await _controller.GetAllUsers(settings) as OkNegotiatedContentResult<QueryResult>;
@@ -873,7 +875,9 @@ namespace AdminStore.Controllers
         {
             //arrange
             Exception exception = null;
-            _privilegesRepository.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(false);
+            _privilegesRepository
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.None);
 
             //act
             try
@@ -886,8 +890,7 @@ namespace AdminStore.Controllers
             }
 
             //assert
-            Assert.IsInstanceOfType(exception, typeof(HttpResponseException));
-            Assert.AreEqual(HttpStatusCode.Forbidden, ((HttpResponseException)exception).Response.StatusCode);
+            Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
         }
         #endregion
 
@@ -899,7 +902,9 @@ namespace AdminStore.Controllers
             //arrange
             var user = new UserDto() { Id = 5 };
             _usersRepoMock.Setup(repo => repo.GetUserDto(It.Is<int>(i => i > 0))).ReturnsAsync(user);
-            _privilegesRepository.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(true);
+            _privilegesRepository
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
 
             //act
             var result = await _controller.GetUser(5) as OkNegotiatedContentResult<UserDto>;
@@ -913,7 +918,9 @@ namespace AdminStore.Controllers
         {
             //arrange
             Exception exception = null;
-            _privilegesRepository.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(false);
+            _privilegesRepository
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.None);
 
             //act
             try
@@ -926,8 +933,7 @@ namespace AdminStore.Controllers
             }
 
             //assert
-            Assert.IsInstanceOfType(exception, typeof(HttpResponseException));
-            Assert.AreEqual(HttpStatusCode.Forbidden, ((HttpResponseException)exception).Response.StatusCode);
+            Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
         }
 
         [TestMethod]
@@ -936,7 +942,9 @@ namespace AdminStore.Controllers
             //arrange
             var user = new UserDto();
             _usersRepoMock.Setup(repo => repo.GetUserDto(It.Is<int>(i => i > 0))).ReturnsAsync(user);
-            _privilegesRepository.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(true);
+            _privilegesRepository
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
 
             //act
             var result = await _controller.GetUser(1) as NotFoundResult;

@@ -18,15 +18,15 @@ namespace ArtifactStore.Repositories
 
         private readonly ISqlItemInfoRepository _itemInfoRepository;
 
-        public SqlReviewsRepository(): this(new SqlConnectionWrapper(ServiceConstants.RaptorMain), new SqlArtifactVersionsRepository())
+        public SqlReviewsRepository(): this(new SqlConnectionWrapper(ServiceConstants.RaptorMain), new SqlArtifactVersionsRepository(), new SqlItemInfoRepository())
         {
         }
 
-        public SqlReviewsRepository(ISqlConnectionWrapper connectionWrapper, IArtifactVersionsRepository artifactVersionsRepository)
+        public SqlReviewsRepository(ISqlConnectionWrapper connectionWrapper, IArtifactVersionsRepository artifactVersionsRepository, ISqlItemInfoRepository itemInfoRepository)
         {
             ConnectionWrapper = connectionWrapper;
             _artifactVersionsRepository = artifactVersionsRepository;
-            _itemInfoRepository = new SqlItemInfoRepository(connectionWrapper);
+            _itemInfoRepository = itemInfoRepository;
         }
 
         private async Task<ReviewContainer> GetReviewAsync(int reviewId, int userId, int revisionId)
@@ -65,13 +65,15 @@ namespace ArtifactStore.Repositories
             var artifactInfo = await _artifactVersionsRepository.GetVersionControlArtifactInfoAsync(containerId, null, userId);
             if (artifactInfo.IsDeleted || artifactInfo.PredefinedType != ItemTypePredefined.ArtifactReviewPackage)
             {
-                throw new ResourceNotFoundException();
+                string errorMessage = I18NHelper.FormatInvariant("Review (Id:{0}) is not found.", containerId);
+                throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
             }
 
             var reviewer = await GetReviewer(containerId, userId);
             if (reviewer == null)
             {
-                throw new AuthorizationException();
+                string errorMessage = I18NHelper.FormatInvariant("User does not have permissions to access the review (Id:{0}).", containerId);
+                throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
             }
 
             var reviewContainer = await GetReviewAsync(containerId, userId, int.MaxValue);

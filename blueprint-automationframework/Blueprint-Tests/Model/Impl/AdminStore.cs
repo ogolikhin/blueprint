@@ -9,6 +9,7 @@ using NUnit.Framework;
 using RestSharp.Extensions.MonoHttp;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Mime;
@@ -228,11 +229,15 @@ namespace Model.Impl
             Sessions.RemoveAll(session => session.SessionId == token);
         }
 
-        /// <seealso cref="IAdminStore.CreateUser(IUser, InstanceUser)"/>
-        public HttpStatusCode CreateUser(IUser adminUser, InstanceUser user)
+        /// <seealso cref="IAdminStore.AddUser(IUser, InstanceUser, List{HttpStatusCode})"/>
+        public int AddUser(IUser adminUser, InstanceUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
+            ThrowIf.ArgumentNull(user, nameof(user));
+
             var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
             string path = RestPaths.Svc.AdminStore.Users.USERS;
+
+            user.Password = HashingUtilities.EncodeTo64UTF8(user.Password);
 
             try
             {
@@ -241,20 +246,21 @@ namespace Model.Impl
                 var response = restApi.SendRequestAndGetResponse(
                     path,
                     RestRequestMethod.POST,
-                    bodyObject: user);
+                    bodyObject: user,
+                    expectedStatusCodes: expectedStatusCodes);
 
-                return response.StatusCode;
+                return Convert.ToInt32(response.Content, CultureInfo.InvariantCulture);
             }
             catch (WebException ex)
             {
                 Logger.WriteError("Content = '{0}'", restApi.Content);
-                Logger.WriteError("Error while performing CreateUser - {0}", ex.Message);
+                Logger.WriteError("Error while performing AddUser - {0}", ex.Message);
                 throw;
             }
         }
 
-        /// <seealso cref="IAdminStore.DeleteUser(IUser, int)"/>
-        public HttpStatusCode DeleteUser(IUser adminUser, int userId)
+        /// <seealso cref="IAdminStore.DeleteUser(IUser, int,List{HttpStatusCode})"/>
+        public HttpStatusCode DeleteUser(IUser adminUser, int userId, List<HttpStatusCode> expectedStatusCodes = null)
         {
             var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Users.USERS_id_, userId);
@@ -265,7 +271,8 @@ namespace Model.Impl
 
                 var response = restApi.SendRequestAndGetResponse(
                     path,
-                    RestRequestMethod.DELETE);
+                    RestRequestMethod.DELETE,
+                    expectedStatusCodes: expectedStatusCodes);
 
                 return response.StatusCode;
             }
@@ -312,8 +319,8 @@ namespace Model.Impl
             }
         }
 
-        /// <seealso cref="IAdminStore.GetUserById(IUser, int)"/>
-        public InstanceUser GetUserById(IUser adminUser, int userId)
+        /// <seealso cref="IAdminStore.GetUserById(IUser, int, List{HttpStatusCode})"/>
+        public InstanceUser GetUserById(IUser adminUser, int userId, List<HttpStatusCode> expectedStatusCodes = null)
         {
             var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Users.USERS_id_, userId);
@@ -325,6 +332,7 @@ namespace Model.Impl
                 return restApi.SendRequestAndDeserializeObject<InstanceUser>(
                     path,
                     RestRequestMethod.GET,
+                    expectedStatusCodes: expectedStatusCodes,
                     shouldControlJsonChanges: false);
             }
             catch (WebException ex)
@@ -335,8 +343,8 @@ namespace Model.Impl
             }
         }
 
-        /// <seealso cref="IAdminStore.GetUserByLogin(IUser, string)"/>
-        public InstanceUser GetUserByLogin(IUser adminUser, string login)
+        /// <seealso cref="IAdminStore.GetUserByLogin(IUser, string, List{HttpStatusCode})"/>
+        public InstanceUser GetUserByLogin(IUser adminUser, string login, List<HttpStatusCode> expectedStatusCodes = null)
         {
             var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Users.SEARCH, login);
@@ -348,6 +356,7 @@ namespace Model.Impl
                 return restApi.SendRequestAndDeserializeObject<InstanceUser>(
                     path,
                     RestRequestMethod.GET,
+                    expectedStatusCodes: expectedStatusCodes,
                     shouldControlJsonChanges: false);
             }
             catch (WebException ex)
@@ -358,14 +367,15 @@ namespace Model.Impl
             }
         }
 
-        /// <seealso cref="IAdminStore.GetUsers(IUser, int?, int?, string, string, string[], string)"/>
+        /// <seealso cref="IAdminStore.GetUsers(IUser, int?, int?, string, string, string[], string, List{HttpStatusCode})"/>
         public List<InstanceUser> GetUsers(IUser adminUser, 
             int? offset = null, 
             int? limit = null, 
             string sort = null, 
             string order = null,
             string[] propertyFilters = null,
-            string search = null)
+            string search = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Users.USERS);
@@ -413,6 +423,7 @@ namespace Model.Impl
                     path,
                     RestRequestMethod.GET,
                     queryParameters: queryParameters,
+                    expectedStatusCodes: expectedStatusCodes,
                     shouldControlJsonChanges: false);
             }
             catch (WebException ex)
@@ -423,8 +434,8 @@ namespace Model.Impl
             }
         }
 
-        /// <seealso cref="IAdminStore.UpdateUser(IUser, InstanceUser)"/>
-        public HttpStatusCode UpdateUser(IUser adminUser, InstanceUser user)
+        /// <seealso cref="IAdminStore.UpdateUser(IUser, InstanceUser, List{HttpStatusCode})"/>
+        public HttpStatusCode UpdateUser(IUser adminUser, InstanceUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
@@ -438,7 +449,8 @@ namespace Model.Impl
                 var response = restApi.SendRequestAndGetResponse(
                     path,
                     RestRequestMethod.PUT,
-                    bodyObject: user);
+                    bodyObject: user,
+                    expectedStatusCodes: expectedStatusCodes);
 
                 return response.StatusCode;
             }

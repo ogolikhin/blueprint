@@ -350,7 +350,7 @@ namespace Helper
         /// <param name="licenseLevel">(optinal) The user's license level. Defaults to Author if not specified.</param>
         /// <param name="instanceAdminRole">(optional) The users instance admin role. Defaults to DefaultInstanceAdministrator.</param>
         /// <param name="imageId">(optional) The user's image id. Defaults to null.</param>
-        /// <returns></returns>
+        /// <returns>An InstanceUser object.</returns>
         public static InstanceUser GenerateRandomInstanceUser(
             string loginName = null,
             string password = null,
@@ -361,7 +361,7 @@ namespace Helper
             int? imageId = null)
         {
 
-            string login = loginName ?? RandomGenerator.RandomAlphaNumeric(10);
+            string login = loginName ?? RandomGenerator.RandomAlphaNumeric(MinPasswordLength);
             string firstName = RandomGenerator.RandomAlphaNumeric(10);
             string lastName = RandomGenerator.RandomAlphaNumeric(10);
             string email = I18NHelper.FormatInvariant("{0}@{1}.com", login, RandomGenerator.RandomAlphaNumeric(10));
@@ -398,7 +398,7 @@ namespace Helper
                 expirePassword: false,
                 imageId: imageId,
                 groupMembership: null,
-                password: password ?? RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10) + "$"
+                password: password ?? GenerateValidPassword()
             );
 
             return instanceUser;

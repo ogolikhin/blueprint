@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Net;
 using CustomAttributes;
 using Helper;
 using Model;
+using Model.Factories;
 using Model.Impl;
 using NUnit.Framework;
 using TestCommon;
-using Utilities;
+using Utilities.Factories;
 
 namespace AdminStoreTests.UsersTests
 {
@@ -36,34 +37,32 @@ namespace AdminStoreTests.UsersTests
 
         #endregion Setup and Cleanup
 
-        //[Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
-        //[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId = "System.Int32.TryParse(System.String,System.Int32@)")]
-        //[TestCase]
-        //[Description("Create an instance user. Get the created user using the id of the user that was just created. " +
-        //     "Verify the same user that was created is returned.")]
-        //[TestRail(303340)]
-        //public void CreateInstanceUser_ValidUser_ReturnsCorrectUser()
-        //{
-        //    int userId;
+        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
+        [TestCase]
+        [Description("Create and add an instance user. Get the added user using the id of the user that was just created. " +
+             "Verify the same user that was created is returned.")]
+        [TestRail(303340)]
+        public void AddInstanceUser_ValidUser_ReturnsCorrectUser()
+        {
+            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
 
-        //    var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
+            int createdUserId = 0;
 
-        //    var response = Helper.AdminStore.CreateUser(_adminUser, createdUser);
+            Assert.DoesNotThrow(() =>
+            {
+                createdUserId = Helper.AdminStore.AddUser(_adminUser, createdUser, new List<HttpStatusCode> { HttpStatusCode.Created });
+            }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
 
-        //    Assert.DoesNotThrow(() =>
-        //    {
-        //        createdUser = Helper.AdminStore.GetUserById(_adminUser, userId);
-        //    }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH);
+            InstanceUser addedUser = null;
+            
+            Assert.DoesNotThrow(() =>
+            {
+                addedUser = Helper.AdminStore.GetUserById(_adminUser, createdUserId);
+            }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH);
 
-        //    InstanceUser retrievedUser = null;
-
-        //    Assert.DoesNotThrow(() =>
-        //    {
-        //        retrievedUser = Helper.AdminStore.GetUserById(_adminUser, userId);
-        //    }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH);
-
-        //    Assert.AreEqual(retrievedUser.Id, userId, "The returned InstanceUser does not match the expected!");
-        //}
+            Assert.AreEqual(createdUserId, addedUser.Id, "The added InstanceUser id {0} does not match the expected id {1}!", 
+                addedUser.Id, createdUserId);
+        }
 
         [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
         [TestCase]
@@ -73,6 +72,7 @@ namespace AdminStoreTests.UsersTests
         public void GetInstanceUser_ValidUser_ReturnsCorrectUser()
         {
             var user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+
             InstanceUser instanceUser = null;
 
             Assert.DoesNotThrow(() =>
@@ -80,10 +80,11 @@ namespace AdminStoreTests.UsersTests
                 instanceUser = Helper.AdminStore.GetUserById(_adminUser, user.Id);
             }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH);
 
-            Assert.AreEqual(instanceUser.Id, user.Id, "The returned InstanceUser does not match the expected!");
+            Assert.AreEqual(user.Id, instanceUser.Id, "The returned InstanceUser id {0} does not match the expected id {1}!",
+                instanceUser.Id, user.Id);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
+        [Explicit(IgnoreReasons.UnderDevelopmentDev)]
         [TestCase]
         [Description("Create users directly to database. Get a list of all users. Verify that the list of all users included the " +
                      "newly created users.")]
@@ -98,6 +99,50 @@ namespace AdminStoreTests.UsersTests
             }, "'GET {0}' should return 200 OK for a valid session token!", USERS_PATH);
 
             Assert.Greater(instanceUsers.Count, 1, "Temporary message - under QA development");
+        }
+
+        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
+        [TestCase]
+        [Description("Create a user directly to database. Get the created user using the id of the user that was just created. " +
+             "Verify the same user that was created is returned.")]
+        [TestRail(303364)]
+        public void UpdateInstanceUser_ValidUser_UserUpdatesCorrectly()
+        {
+            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
+
+            int addedUserId = 0;
+
+            Assert.DoesNotThrow(() =>
+            {
+                addedUserId = Helper.AdminStore.AddUser(_adminUser, createdUser, new List<HttpStatusCode> { HttpStatusCode.Created });
+            }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
+
+            InstanceUser returnedUser = null;
+
+            Assert.DoesNotThrow(() =>
+            {
+                returnedUser = Helper.AdminStore.GetUserById(_adminUser, addedUserId);
+            }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH);
+
+            Assert.AreEqual(returnedUser.Id, addedUserId, "The returned InstanceUser does not match the expected!");
+
+            var newFirstName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(8);
+
+            returnedUser.FirstName = newFirstName;
+
+            Assert.DoesNotThrow(() =>
+            {
+                Helper.AdminStore.UpdateUser(_adminUser, returnedUser);
+            }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH);
+
+            InstanceUser updatedUser = null;
+
+            Assert.DoesNotThrow(() =>
+            {
+                updatedUser = Helper.AdminStore.GetUserById(_adminUser, addedUserId);
+            }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH);
+
+            Assert.AreEqual(returnedUser.FirstName, updatedUser.FirstName, "The InstanceUser was not updated!");
         }
     }
 }

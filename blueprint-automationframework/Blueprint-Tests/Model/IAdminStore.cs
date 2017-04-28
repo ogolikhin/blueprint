@@ -125,13 +125,14 @@ namespace Model
         List<ISession> GetSession(string adminToken, uint pageSize, uint pageNumber);
 
         /// <summary>
-        /// Creates a user.
+        /// Adds a user.
         /// (Runs: POST /users)
         /// </summary>
-        /// <param name="adminUser">The admin user creating the user.</param>
-        /// <param name="user">An InstanceUser object representing the user to be created.</param>
-        /// <returns>The returned HTTP Status Code</returns>
-        HttpStatusCode CreateUser(IUser adminUser, InstanceUser user);
+        /// <param name="adminUser">The admin user adding the user.</param>
+        /// <param name="user">An InstanceUser object representing the user to be added.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>The id of the added user</returns>
+        int AddUser(IUser adminUser, InstanceUser user, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Deletes a user.
@@ -139,8 +140,9 @@ namespace Model
         /// </summary>
         /// <param name="adminUser">The admin user deleting the user.</param>
         /// <param name="userId">The id of the user to be deleted.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The returned HTTP Status Code</returns>
-        HttpStatusCode DeleteUser(IUser adminUser, int userId);
+        HttpStatusCode DeleteUser(IUser adminUser, int userId, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets login user for specified token.
@@ -157,8 +159,9 @@ namespace Model
         /// </summary>
         /// <param name="adminUser">The admin user getting the user.</param>
         /// <param name="userId">The user id of the user.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>An InstanceUser object</returns>
-        InstanceUser GetUserById(IUser adminUser, int userId);
+        InstanceUser GetUserById(IUser adminUser, int userId, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets a user by user login.
@@ -166,8 +169,9 @@ namespace Model
         /// </summary>
         /// <param name="adminUser">The admin user getting the user.</param>
         /// <param name="login">The login of the user.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>An InstanceUser object</returns>
-        InstanceUser GetUserByLogin(IUser adminUser, string login);
+        InstanceUser GetUserByLogin(IUser adminUser, string login, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets a list of non-deleted users matching a specified filter.
@@ -184,6 +188,7 @@ namespace Model
         /// <param name="propertyFilters">(optional) An array of filter items by property value. 
         /// The filter logic depends on the particular property.</param>
         /// <param name="search">(optional) Search query that would be applied on predefined properties specific to data.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>A list of InstanceUser objects</returns>
         List<InstanceUser> GetUsers(IUser adminUser,
             int? offset = null,
@@ -191,7 +196,8 @@ namespace Model
             string sort = null,
             string order = null,
             string[] propertyFilters = null,
-            string search = null);
+            string search = null,
+            List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Updates a user.
@@ -199,8 +205,9 @@ namespace Model
         /// </summary>
         /// <param name="adminUser">The admin user updating the user.</param>
         /// <param name="user">An InstanceUser object representing the user to update.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The returned HTTP Status Code</returns>
-        HttpStatusCode UpdateUser(IUser adminUser, InstanceUser user);
+        HttpStatusCode UpdateUser(IUser adminUser, InstanceUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Checks if the AdminStore service is ready for operation.

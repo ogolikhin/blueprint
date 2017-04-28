@@ -216,6 +216,7 @@ namespace Model
                 public const string IMAGES_id_                      = "svc/bpartifactstore/images/{0}";
                 public const string PROCESS_id_                     = "svc/bpartifactstore/process/{0}";    // NovaProcessController.GetNovaProcess
                 public const string PROCESSUPDATE_id_               = "svc/bpartifactstore/processupdate/{0}";  // NovaProcessController.UpdateNovaProcess
+                public const string REVIEWS_id_                     = "svc/artifactstore/containers/{0}";
                 public const string STATUS                          = "svc/artifactstore/status";
                 public const string USECASE_id_                     = "svc/bpartifactstore/usecase/{0}";    // NovaUseCaseController.GetUseCase
 

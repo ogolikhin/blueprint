@@ -3,7 +3,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Mail;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
@@ -20,7 +19,7 @@ namespace ImageRenderService
             var url = Request.GetQueryNameValuePairs().FirstOrDefault(p => p.Key.Equals("url")).Value;
             var formatStr = Request.GetQueryNameValuePairs().FirstOrDefault(p => p.Key.Equals("format")).Value;
             //set image format
-            ImageFormat format = formatStr == "jpeg" || formatStr == "jpg" ? ImageFormat.Jpeg : ImageFormat.Png;
+            var format = formatStr == "jpeg" || formatStr == "jpg" ? ImageFormat.Jpeg : ImageFormat.Png;
 
             //generate image
             var image = await ImageGenService.Instance.ImageGenerator.GenerateImageAsync(url, format);
@@ -42,7 +41,7 @@ namespace ImageRenderService
 
             response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
             {
-                FileName = "test."+formatStr
+                FileName = $"test.{formatStr ?? "png"}"
             };
             response.Content.Headers.ContentLength = image.Length;
 

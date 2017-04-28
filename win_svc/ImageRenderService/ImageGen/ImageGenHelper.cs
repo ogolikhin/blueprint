@@ -4,16 +4,14 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using CefSharp;
-using CefSharp.OffScreen;
 
 namespace ImageRenderService.ImageGen
 {
     public class ImageGenHelper : IImageGenHelper
     {
         private readonly IBrowserPool _browserPool;
-        private readonly Dictionary<ChromiumWebBrowser, TaskCompletionSource<bool>> 
-            _tcs = new Dictionary<ChromiumWebBrowser, TaskCompletionSource<bool>>();
+        private readonly Dictionary<IVirtualBrowser, TaskCompletionSource<bool>> 
+            _tcs = new Dictionary<IVirtualBrowser, TaskCompletionSource<bool>>();
 
         private const int MaxWaitTimeSeconds = 10;
         private const int DelayIntervalMilliseconds = 10;
@@ -25,7 +23,7 @@ namespace ImageRenderService.ImageGen
 
         public async Task<MemoryStream> GenerateImageAsync(string url, ImageFormat format)
         {
-            ChromiumWebBrowser browser = await _browserPool.Rent();
+            var browser = await _browserPool.Rent();
             if (browser == null)
             {
                 return null;
@@ -68,7 +66,7 @@ namespace ImageRenderService.ImageGen
             return new Bitmap(blank);
         }
 
-        private async Task<bool> LoadPageAsync(ChromiumWebBrowser browser, string address)
+        private async Task<bool> LoadPageAsync(IVirtualBrowser browser, string address)
         {
 
             var task = new TaskCompletionSource<bool>();
@@ -126,9 +124,9 @@ namespace ImageRenderService.ImageGen
             return true;
         }
 
-        private async void BrowserLoadingStateChanged(object sender, LoadingStateChangedEventArgs e)
+        private async void BrowserLoadingStateChanged(object sender, VirtualBrowserLoadingStateChangedEventArgs e)
         {
-            var browser = sender as ChromiumWebBrowser;
+            var browser = sender as IVirtualBrowser;
             // Check to see if loading is complete - this event is called twice, one when loading starts, second time when it's finished.
             if (browser != null && !e.IsLoading)
             {

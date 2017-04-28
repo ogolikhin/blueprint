@@ -39,7 +39,6 @@ namespace AdminStoreTests.UsersTests
 
         #endregion Setup and Cleanup
 
-        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
         [TestCase]
         [Description("Create and add an instance user. Get the added user using the id of the user that was just created. " +
              "Verify the same user that was created is returned.")]
@@ -66,7 +65,6 @@ namespace AdminStoreTests.UsersTests
                 addedUser.Id, createdUserId);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
         [TestCase]
         [Description("Create a user directly to database. Get the created user using the id of the user that was just created. " +
                      "Verify the same user that was created is returned.")]
@@ -103,7 +101,6 @@ namespace AdminStoreTests.UsersTests
             Assert.Greater(instanceUsers.Count, 1, "Temporary message - under QA development");
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
         [TestCase]
         [Description("Create a user directly to database. Get the created user using the id of the user that was just created. " +
              "Verify the same user that was created is returned.")]

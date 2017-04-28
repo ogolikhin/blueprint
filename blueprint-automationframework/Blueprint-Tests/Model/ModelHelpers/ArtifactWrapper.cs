@@ -276,8 +276,9 @@ namespace Model.ModelHelpers
             ThrowIf.ArgumentNull(user, nameof(user));
 
             var updatedArtifact = ArtifactStore.UpdateArtifact(user, updateArtifact);
-            CSharpUtilities.ReplaceAllNonNullProperties(updateArtifact, Artifact);
-            CSharpUtilities.ReplaceAllNonNullProperties(updatedArtifact, Artifact);
+//            var propertiesToNotReplace = new List<string> { "AttachmentValues", "CustomPropertyValues", "SpecificPropertyValues" };
+//            CSharpUtilities.ReplaceAllNonNullProperties(updateArtifact, Artifact, propertiesToNotReplace);
+//            CSharpUtilities.ReplaceAllNonNullProperties(updatedArtifact, Artifact, propertiesToNotReplace);
 
             ArtifactState.IsDraft = true;
 

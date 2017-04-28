@@ -441,7 +441,6 @@ namespace Helper
         {
             var wrappedArtifact = CreateNovaArtifact(user, project, itemType, parentId, orderIndex, name, artifactTypeName);
             wrappedArtifact.Publish(user);
-//            wrappedArtifact.Artifact.Version = response.Artifacts[0].Version;   // Update Version from -1 to 1.
 
             return wrappedArtifact;
         }

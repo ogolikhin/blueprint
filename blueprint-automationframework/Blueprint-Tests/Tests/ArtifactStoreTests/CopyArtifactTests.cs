@@ -113,7 +113,8 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
-            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifact, copyResult, author, expectedVersionOfOriginalArtifact: 2);
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifact, copyResult, author, expectedVersionOfOriginalArtifact: 2,
+                skipDescription: true);
         }
 
         [TestCase(ItemTypePredefined.Actor, ItemTypePredefined.Glossary)]

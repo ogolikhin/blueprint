@@ -1,8 +1,8 @@
 ﻿using CustomAttributes;
 using Helper;
 using Model;
+using Model.ArtifactModel.Enums;
 using Model.Factories;
-using Model.ArtifactModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
 using TestCommon;
@@ -52,9 +52,8 @@ namespace StorytellerTests
             var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
             // Create and publish textual requirement artifact to simulate user story artifact
-            var addedArtifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.TextualRequirement);
-            addedArtifact.Save(_user);
-            addedArtifact.Publish(_user);
+            //var addedArtifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.TextualRequirement);
+            var addedArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.TextualRequirement);
 
             // Add a story link to the default user task
             var storyLink = new StoryLink(defaultUserTask.Id, addedArtifact.Id, 1, addedArtifact.Id);
@@ -87,7 +86,7 @@ namespace StorytellerTests
             Helper.Storyteller.GenerateUserStories(_user, returnedProcess);
 
             // Get default process again with updated story link
-            returnedProcess = Helper.Storyteller.GetProcess(_user, returnedProcess.Id);
+            returnedProcess = Helper.Storyteller.GetNovaProcess(_user, returnedProcess.Id).Process;
 
             // Get default user task
             var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
@@ -97,9 +96,7 @@ namespace StorytellerTests
             var originalStoryLink = SerializationUtilities.DeserializeObject<StoryLink>(originalStoryLinksProperty.Value.ToString());
 
             // Create and publish textual requirement artifact to simulate user story artifact
-            var addedArtifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.TextualRequirement);
-            addedArtifact.Save(_user);
-            addedArtifact.Publish(_user);
+            var addedArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.TextualRequirement);
 
             // Change the default user task's story link to the added artifact
             var newStoryLink = new StoryLink(defaultUserTask.Id, addedArtifact.Id, 1, addedArtifact.Id);
@@ -144,7 +141,7 @@ namespace StorytellerTests
             Helper.Storyteller.GenerateUserStories(_user, returnedProcess);
 
             // Get default process again with updated story link
-            returnedProcess = Helper.Storyteller.GetProcess(_user, returnedProcess.Id);
+            returnedProcess = Helper.Storyteller.GetNovaProcess(_user, returnedProcess.Id).Process;
 
             // Get original story link
             var originalStoryLinksProperty =

@@ -90,6 +90,7 @@
     <Compile Include="Repositories\SqlArtifactVersionsRepositoryTests.cs" />
     <Compile Include="Repositories\SqlAttachmentsRepositoryTests.cs" />
     <Compile Include="Repositories\SqlProjectMetaRepositoryTests.cs" />
+    <Compile Include="Repositories\SqlReviewsRepositoryTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ArtifactStore\ArtifactStore.csproj">

@@ -9,12 +9,12 @@ namespace ImageRenderService.Tests.ImageGen
     public class ImageGenHelperTest
     {
         private ImageGenHelper _imageGenHelper;
-        private Mock<TestableChromiumWebBrowser> _browserMock;
+        private Mock<IVirtualBrowser> _browserMock;
 
         [TestInitialize]
         public void Initialize()
         {
-            _browserMock = new Mock<TestableChromiumWebBrowser>();
+            _browserMock = new Mock<IVirtualBrowser>();
             var browserPoolMock = new Mock<IBrowserPool>();
             browserPoolMock.Setup(pool => pool.Rent())
                 .ReturnsAsync(_browserMock.Object);

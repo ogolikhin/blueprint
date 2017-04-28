@@ -265,9 +265,11 @@ namespace Model.ModelHelpers
                 Description = description ?? "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5)
             };
 
+            var updatedArtifact = Update(user, changes);
+
             Artifact.Description = changes.Description;
 
-            return Update(user, changes);
+            return updatedArtifact;
         }
 
         /// <summary>

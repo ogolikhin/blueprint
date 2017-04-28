@@ -121,5 +121,27 @@ namespace ArtifactStore.Repositories
                 "GetReviewer", param,
                 commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
+
+        public async Task<ReviewersContent> GetReviewParticipantsAsync(int reviewId, int? offset, int? limit, int userId, int? versionId = null, bool? addDrafts = true)
+        {
+            int? revisionId = await _itemInfoRepository.GetRevisionId(reviewId, userId, versionId);
+            if (revisionId < int.MaxValue)
+            {
+                addDrafts = false;
+            }
+            var param = new DynamicParameters();
+            param.Add("@reviewId", reviewId);
+            param.Add("@offset", offset);
+            param.Add("@limit", limit);
+            param.Add("@revisionId", revisionId);
+            param.Add("@userId", userId);
+            param.Add("@addDrafts", addDrafts);
+            var participants = await ConnectionWrapper.QueryAsync<Reviewer>("GetReviewParticipantsInfo", param, commandType: CommandType.StoredProcedure);
+            var reviewersRoot = new ReviewersContent()
+            {
+                Reviewers = participants
+            };
+            return reviewersRoot;
+        }
     }    
 }

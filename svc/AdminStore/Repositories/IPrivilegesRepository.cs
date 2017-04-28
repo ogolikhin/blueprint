@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using ServiceLibrary.Models;
 
 namespace AdminStore.Repositories
 {
-    public interface ISqlPrivilegesRepository
+    public interface IPrivilegesRepository
     {
         Task<bool> IsUserHasPermissions(IEnumerable<int> permissionsList, int userId);
 
-        Task<int> GetUserPermissionsAsync(int userId);
+        Task<InstanceAdminPrivileges> GetInstanceAdminPrivilegesAsync(int userId);
     }
 }

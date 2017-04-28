@@ -165,7 +165,7 @@
     <Compile Include="Repositories\IAuthenticationRepository.cs" />
     <Compile Include="Repositories\ILdapRepository.cs" />
     <Compile Include="Repositories\ISqlInstanceRepository.cs" />
-    <Compile Include="Repositories\ISqlPrivilegesRepository.cs" />
+    <Compile Include="Repositories\IPrivilegesRepository.cs" />
     <Compile Include="Repositories\ISqlSettingsRepository.cs" />
     <Compile Include="Repositories\ISqlUserRepository.cs" />
     <Compile Include="Repositories\Jobs\IJobsRepository.cs" />

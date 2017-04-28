@@ -29,19 +29,20 @@ namespace AdminStore.Controllers
         private Mock<IApplicationSettingsRepository> _applicationSettingsRepository;
         private UsersController _controller;
         private Mock<IHttpClientProvider> _httpClientProviderMock;
-        private Mock<ISqlPrivilegesRepository> _privilegesRepository;
+        private Mock<IPrivilegesRepository> _privilegesRepository;
         private UserDto _user;
 
-        private const int FullPermissions = 524287;
-        private const int NoManageUsersPermissions = 13312;
-        private const int NoAssignAdminRolesPermissions = 15360;
+        private const InstanceAdminPrivileges FullPermissions = InstanceAdminPrivileges.AssignAdminRoles;
+        private const InstanceAdminPrivileges NoManageUsersPermissions = InstanceAdminPrivileges.ViewUsers;
+        private const InstanceAdminPrivileges NoAssignAdminRolesPermissions = InstanceAdminPrivileges.ManageUsers;
+        private const int SessionUserId = 1;
         private const int UserId = 100;
         private const string ExistedUserLogin = "ExistedUser";
 
         [TestInitialize]
         public void Initialize()
         {
-            var session = new Session { UserId = 1 };
+            var session = new Session { UserId = SessionUserId };
             _usersRepoMock = new Mock<ISqlUserRepository>();
             _logMock = new Mock<IServiceLogRepository>();
             _authRepoMock = new Mock<IAuthenticationRepository>();
@@ -49,9 +50,12 @@ namespace AdminStore.Controllers
             _emailHelperMock = new Mock<IEmailHelper>();
             _httpClientProviderMock = new Mock<IHttpClientProvider>();
             _applicationSettingsRepository = new Mock<IApplicationSettingsRepository>();
-            _privilegesRepository = new Mock<ISqlPrivilegesRepository>();
-            _controller = new UsersController(_authRepoMock.Object, _usersRepoMock.Object, _settingsRepoMock.Object,
-                _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object, _httpClientProviderMock.Object, _privilegesRepository.Object)
+            _privilegesRepository = new Mock<IPrivilegesRepository>();
+            _controller = new UsersController(
+                _authRepoMock.Object, _usersRepoMock.Object, _settingsRepoMock.Object,
+                _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object, 
+                _httpClientProviderMock.Object, _privilegesRepository.Object
+            )
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()
@@ -59,7 +63,7 @@ namespace AdminStore.Controllers
             _controller.Request.Properties[ServiceConstants.SessionProperty] = session;
             _controller.Request.RequestUri = new Uri("http://localhost");
 
-            _user = new UserDto()
+            _user = new UserDto
             {
                 Login = "UserLogin",
                 FirstName = "FirstNameValue",
@@ -949,7 +953,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             _privilegesRepository
-                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
 
             // Act
@@ -966,7 +970,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             _privilegesRepository
-                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(NoManageUsersPermissions);
 
             // Act
@@ -983,7 +987,7 @@ namespace AdminStore.Controllers
             // Arrange
             _user.InstanceAdminRoleId = 1;
             _privilegesRepository
-                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(NoAssignAdminRolesPermissions);
 
             // Act
@@ -1000,7 +1004,7 @@ namespace AdminStore.Controllers
             // Arrange
             _user.Login = string.Empty;
             _privilegesRepository
-                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
 
             // Act
@@ -1017,7 +1021,7 @@ namespace AdminStore.Controllers
             // Arrange
             _user.Login = "123";
             _privilegesRepository
-               .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+               .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(FullPermissions);
 
             // Act
@@ -1034,7 +1038,7 @@ namespace AdminStore.Controllers
             // Arrange
             _user.Login = ExistedUserLogin;
             _privilegesRepository
-               .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+               .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(FullPermissions);
 
             // Act
@@ -1051,7 +1055,7 @@ namespace AdminStore.Controllers
             // Arrange
             _user.DisplayName = string.Empty;
             _privilegesRepository
-              .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+              .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
               .ReturnsAsync(FullPermissions);
 
             // Act
@@ -1068,7 +1072,7 @@ namespace AdminStore.Controllers
             // Arrange
             _user.DisplayName = "1";
             _privilegesRepository
-              .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+              .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
               .ReturnsAsync(FullPermissions);
 
             // Act
@@ -1085,7 +1089,7 @@ namespace AdminStore.Controllers
             // Arrange
             _user.FirstName = string.Empty;
             _privilegesRepository
-              .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+              .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
               .ReturnsAsync(FullPermissions);
 
             // Act
@@ -1102,7 +1106,7 @@ namespace AdminStore.Controllers
             // Arrange
             _user.FirstName = "1";
             _privilegesRepository
-              .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+              .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
               .ReturnsAsync(FullPermissions);
 
             // Act
@@ -1119,7 +1123,7 @@ namespace AdminStore.Controllers
             // Arrange
             _user.LastName = string.Empty;
             _privilegesRepository
-              .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+              .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
               .ReturnsAsync(FullPermissions);
 
             // Act
@@ -1136,7 +1140,7 @@ namespace AdminStore.Controllers
             // Arrange
             _user.LastName = "1";
             _privilegesRepository
-              .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+              .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
               .ReturnsAsync(FullPermissions);
 
             // Act
@@ -1153,7 +1157,7 @@ namespace AdminStore.Controllers
             // Arrange
             _user.Email = "1@1";
             _privilegesRepository
-             .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+             .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
              .ReturnsAsync(FullPermissions);
 
             // Act
@@ -1170,7 +1174,7 @@ namespace AdminStore.Controllers
             // Arrange
             _user.Title = "1";
             _privilegesRepository
-             .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+             .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
              .ReturnsAsync(FullPermissions);
 
             // Act
@@ -1190,7 +1194,7 @@ namespace AdminStore.Controllers
                 _user.Department += i;
             }
             _privilegesRepository
-              .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+              .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
               .ReturnsAsync(FullPermissions);
 
             // Act
@@ -1207,7 +1211,7 @@ namespace AdminStore.Controllers
             // Arrange
             _user.Password = string.Empty;
             _privilegesRepository
-               .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+               .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(FullPermissions);
 
             // Act
@@ -1224,7 +1228,7 @@ namespace AdminStore.Controllers
             // Arrange
             _user.Password = "MTIzNDU2Nzg=";
             _privilegesRepository
-               .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+               .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(FullPermissions);
 
             // Act
@@ -1242,7 +1246,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             _privilegesRepository
-                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
 
             // Act
@@ -1259,7 +1263,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             _privilegesRepository
-                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
 
             var resourceNotFoundExeption = new ResourceNotFoundException(ErrorMessages.UserNotExist);
@@ -1278,7 +1282,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             _privilegesRepository
-                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
 
             var conflictExeption = new ConflictException(ErrorMessages.UserVersionsNotEqual);
@@ -1297,7 +1301,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             _privilegesRepository
-                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
 
             // Act
@@ -1313,7 +1317,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             _privilegesRepository
-                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
 
             // Act

@@ -11,9 +11,9 @@ namespace AdminStore.Helpers
 {
     public class UserPermissionsValidator
     {
-        public static async Task<bool> HasValidPermissions(int sessionUserId, UserDto user, ISqlPrivilegesRepository sqlPrivilegesRepository)
+        public static async Task<bool> HasValidPermissions(int sessionUserId, UserDto user, IPrivilegesRepository sqlPrivilegesRepository)
         {
-            var userPermissions = await sqlPrivilegesRepository.GetUserPermissionsAsync(sessionUserId);
+            var userPermissions = await sqlPrivilegesRepository.GetInstanceAdminPrivilegesAsync(sessionUserId);
             if (!PermissionsChecker.IsFlagBelongPermissions(userPermissions, InstanceAdminPrivileges.ManageUsers))
                 return false;
 

@@ -30,7 +30,7 @@ namespace AdminStore.Controllers
         internal readonly IApplicationSettingsRepository _applicationSettingsRepository;
         internal readonly IServiceLogRepository _log;
         internal readonly IHttpClientProvider _httpClientProvider;
-        internal readonly ISqlPrivilegesRepository _privilegesRepository;
+        internal readonly IPrivilegesRepository _privilegesRepository;
         private const string PasswordResetTokenExpirationInHoursKey = "PasswordResetTokenExpirationInHours";
         private const int DefaultPasswordResetTokenExpirationInHours = 24;
 
@@ -43,7 +43,7 @@ namespace AdminStore.Controllers
         internal UsersController(IAuthenticationRepository authenticationRepository,
             ISqlUserRepository userRepository, ISqlSettingsRepository settingsRepository,
             IEmailHelper emailHelper, IApplicationSettingsRepository applicationSettingsRepository,
-            IServiceLogRepository log, IHttpClientProvider httpClientProvider, ISqlPrivilegesRepository privilegesRepository)
+            IServiceLogRepository log, IHttpClientProvider httpClientProvider, IPrivilegesRepository privilegesRepository)
         {
             _authenticationRepository = authenticationRepository;
             _userRepository = userRepository;

@@ -7,6 +7,7 @@ using AdminStore.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 
 namespace AdminStore.Repositories
@@ -33,17 +34,17 @@ namespace AdminStore.Repositories
         #region GetUserPermissionsAsync
 
         [TestMethod]
-        public async Task GetUserPermissionsAsync_SuccessfulGettingOfPermissions_ReturnUsersPermissions()
+        public async Task GetInstanceAdminPrivilegesAsync_ExistingUser_ReturnUsersPermissions()
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlPrivilegesRepository(cxn.Object);
-            var permissions = 100;
+            var permissions = InstanceAdminPrivileges.AssignAdminRoles;
             var userId = 1;
-            cxn.SetupQueryAsync<int>("GetInstancePermissionsForUser", It.IsAny<Dictionary<string, object>>(), new List<int>() { permissions });
+            cxn.SetupExecuteScalarAsync("GetInstancePermissionsForUser", It.IsAny<Dictionary<string, object>>(), permissions);
 
             // Act
-            var result = await repository.GetUserPermissionsAsync(userId);
+            var result = await repository.GetInstanceAdminPrivilegesAsync(userId);
 
             // Assert
             cxn.Verify();

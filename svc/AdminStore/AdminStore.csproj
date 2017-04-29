@@ -120,6 +120,7 @@
     <Compile Include="Helpers\UserConverter.cs" />
     <Compile Include="Helpers\UserPermissionsValidator.cs" />
     <Compile Include="Helpers\UserValidator.cs" />
+    <Compile Include="Models\AdminRole.cs" />
     <Compile Include="Models\UserDto.cs" />
     <Compile Include="Helpers\EmailHelper.cs" />
     <Compile Include="Helpers\HashingUtilities.cs" />
@@ -142,6 +143,8 @@
     <Compile Include="Models\User.cs" />
     <Compile Include="Models\UserIcon.cs" />
     <Compile Include="Repositories\ApplicationSettingsRepository.cs" />
+    <Compile Include="Repositories\IInstanceRolesRepository.cs" />
+    <Compile Include="Repositories\InstanceRolesRepository .cs" />
     <Compile Include="Repositories\ISettingsRepository.cs" />
     <Compile Include="Controllers\LicensesController.cs" />
     <Compile Include="Controllers\SessionsController.cs" />

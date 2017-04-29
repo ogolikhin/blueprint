@@ -31,19 +31,21 @@ namespace AdminStore.Controllers
         internal readonly IServiceLogRepository _log;
         internal readonly IHttpClientProvider _httpClientProvider;
         internal readonly ISqlPrivilegesRepository _privilegesRepository;
+        internal readonly IInstanceRolesRepository _instanceRolesRepository;
         private const string PasswordResetTokenExpirationInHoursKey = "PasswordResetTokenExpirationInHours";
         private const int DefaultPasswordResetTokenExpirationInHours = 24;
 
         public UsersController() : this(new AuthenticationRepository(), new SqlUserRepository(),
             new SqlSettingsRepository(), new EmailHelper(), new ApplicationSettingsRepository(),
-            new ServiceLogRepository(), new HttpClientProvider(), new SqlPrivilegesRepository())
+            new ServiceLogRepository(), new HttpClientProvider(), new SqlPrivilegesRepository(), 
+            new InstanceRolesRepository())
         {
         }
 
         internal UsersController(IAuthenticationRepository authenticationRepository,
             ISqlUserRepository userRepository, ISqlSettingsRepository settingsRepository,
             IEmailHelper emailHelper, IApplicationSettingsRepository applicationSettingsRepository,
-            IServiceLogRepository log, IHttpClientProvider httpClientProvider, ISqlPrivilegesRepository privilegesRepository)
+            IServiceLogRepository log, IHttpClientProvider httpClientProvider, ISqlPrivilegesRepository privilegesRepository, IInstanceRolesRepository instanceRolesRepository)
         {
             _authenticationRepository = authenticationRepository;
             _userRepository = userRepository;
@@ -53,6 +55,7 @@ namespace AdminStore.Controllers
             _log = log;
             _httpClientProvider = httpClientProvider;
             _privilegesRepository = privilegesRepository;
+            _instanceRolesRepository = instanceRolesRepository;
         }
 
         /// <summary>
@@ -456,6 +459,31 @@ namespace AdminStore.Controllers
             await _userRepository.UpdateUserAsync(databaseUser);
 
             return Ok();
+        }
+
+        /// <summary>
+        /// Get the list of instance administrators roles in the instance  
+        /// </summary>
+        /// <remarks>
+        /// Returns the list of instance administrators roles.
+        /// </remarks>
+        /// <returns code="200">OK list of AdminRole models</returns>
+        /// <returns code="400">BadRequest if errors occurred</returns>
+        /// <returns code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</returns>
+        /// <returns code="403">Forbidden if used doesn’t have permissions to get the list of instance administrators roles</returns>
+        [SessionRequired]
+        [Route("instanceroles")]
+        [ResponseType(typeof(IEnumerable<AdminRole>))]
+        public async Task<IHttpActionResult> GetInstanceRoles()
+        {
+            var permissions = new List<int> { Convert.ToInt32(InstanceAdminPrivileges.ViewUsers) };
+            if (!await _privilegesRepository.IsUserHasPermissions(permissions, SessionUserId))
+            {
+                throw new AuthorizationException(ErrorMessages.UserDoesNotHavePermissions, ErrorCodes.Forbidden);
+            }
+
+            var result = await _instanceRolesRepository.GetInstanceRolesAsync();
+            return Ok(result);
         }
     }
 }

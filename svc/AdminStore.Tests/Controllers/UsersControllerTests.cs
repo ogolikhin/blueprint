@@ -30,7 +30,9 @@ namespace AdminStore.Controllers
         private UsersController _controller;
         private Mock<IHttpClientProvider> _httpClientProviderMock;
         private Mock<ISqlPrivilegesRepository> _privilegesRepository;
+        private Mock<IInstanceRolesRepository> _instanceRolesRepositoryMock;
         private UserDto _user;
+        private IEnumerable<AdminRole> _adminRoles;
 
         private const int FullPermissions = 524287;
         private const int NoManageUsersPermissions = 13312;
@@ -50,8 +52,9 @@ namespace AdminStore.Controllers
             _httpClientProviderMock = new Mock<IHttpClientProvider>();
             _applicationSettingsRepository = new Mock<IApplicationSettingsRepository>();
             _privilegesRepository = new Mock<ISqlPrivilegesRepository>();
+            _instanceRolesRepositoryMock = new Mock<IInstanceRolesRepository>();
             _controller = new UsersController(_authRepoMock.Object, _usersRepoMock.Object, _settingsRepoMock.Object,
-                _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object, _httpClientProviderMock.Object, _privilegesRepository.Object)
+                _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object, _httpClientProviderMock.Object, _privilegesRepository.Object, _instanceRolesRepositoryMock.Object)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()
@@ -85,6 +88,12 @@ namespace AdminStore.Controllers
             _usersRepoMock
                 .Setup(repo => repo.AddUserAsync(It.Is<User>(u => u.Login == ExistedUserLogin)))
                 .ThrowsAsync(badRequestException);
+
+            _adminRoles = new List<AdminRole>() {new AdminRole
+            {
+                Id = 10, Description = "Can manage standard properties and artifact types.", Name = "Instance Standards Manager",
+                Privileges = 197313
+            } };          
         }
 
         #region Constuctor
@@ -603,7 +612,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(24);
 
             _controller = new UsersController(_authRepoMock.Object, _usersRepoMock.Object, _settingsRepoMock.Object,
-                _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object, httpClientProvider, _privilegesRepository.Object)
+                _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object, httpClientProvider, _privilegesRepository.Object, _instanceRolesRepositoryMock.Object)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()
@@ -1321,6 +1330,52 @@ namespace AdminStore.Controllers
 
             // Assert
             // Exception
+        }
+        #endregion
+
+        #region GetInstanceRoles
+        [TestMethod]
+        public async Task GetInstanceRoles_SuccessfulGettingInstanceRoles_ReturnInstanceRolesListResult()
+        {
+            // Arrange
+            _privilegesRepository.Setup(t => t.IsUserHasPermissions(It.IsAny<IEnumerable<int>>(), It.IsAny<int>())).ReturnsAsync(true);
+            _instanceRolesRepositoryMock.Setup(repo => repo.GetInstanceRolesAsync()).ReturnsAsync(_adminRoles);
+
+            // Act
+            var result = await _controller.GetInstanceRoles() as OkNegotiatedContentResult<IEnumerable<AdminRole>>;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result.Content, typeof(IEnumerable<AdminRole>));
+            Assert.AreEqual(result.Content, _adminRoles);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task GetInstanceRoles_SomeError_ReturnBadRequestResult()
+        {
+            // Arrange
+            _privilegesRepository.Setup(t => t.IsUserHasPermissions(It.IsAny<IEnumerable<int>>(), It.IsAny<int>())).ReturnsAsync(true);
+            _instanceRolesRepositoryMock.Setup(repo => repo.GetInstanceRolesAsync()).ThrowsAsync(new BadRequestException());
+
+            // Act
+            var result = await _controller.GetInstanceRoles() as OkNegotiatedContentResult<IEnumerable<AdminRole>>;
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task GetInstanceRoles_NoViewUsersPermissions_ReturnForbiddenErrorResult()
+        {
+            // Arrange
+            _privilegesRepository.Setup(t => t.IsUserHasPermissions(It.IsAny<IEnumerable<int>>(), It.IsAny<int>())).ReturnsAsync(false);
+            _instanceRolesRepositoryMock.Setup(repo => repo.GetInstanceRolesAsync()).ReturnsAsync(_adminRoles);
+
+            // Act
+            var result = await _controller.GetInstanceRoles() as OkNegotiatedContentResult<IEnumerable<AdminRole>>;
+
+            // Assert
         }
         #endregion
     }

@@ -2,7 +2,7 @@
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 
-namespace AdminStore.Controllers
+namespace ServiceLibrary.Helpers
 {
     public class BaseApiController : ApiController
     {

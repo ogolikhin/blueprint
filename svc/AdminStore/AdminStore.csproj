@@ -111,7 +111,6 @@
       <Link>Properties\SolutionAssemblyVersion.cs</Link>
     </Compile>
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Controllers\BaseApiController.cs" />
     <Compile Include="Controllers\InstanceController.cs" />
     <Compile Include="Controllers\JobsController.cs" />
     <Compile Include="Controllers\LogController.cs" />
@@ -142,8 +141,6 @@
     <Compile Include="Models\User.cs" />
     <Compile Include="Models\UserIcon.cs" />
     <Compile Include="Repositories\ApplicationSettingsRepository.cs" />
-    <Compile Include="Repositories\IInstanceRolesRepository.cs" />
-    <Compile Include="Repositories\InstanceRolesRepository .cs" />
     <Compile Include="Repositories\ISettingsRepository.cs" />
     <Compile Include="Controllers\LicensesController.cs" />
     <Compile Include="Controllers\SessionsController.cs" />
@@ -166,7 +163,7 @@
     <Compile Include="Repositories\AuthenticationRepository.cs" />
     <Compile Include="Repositories\IAuthenticationRepository.cs" />
     <Compile Include="Repositories\ILdapRepository.cs" />
-    <Compile Include="Repositories\ISqlInstanceRepository.cs" />
+    <Compile Include="Repositories\IInstanceRepository.cs" />
     <Compile Include="Repositories\IPrivilegesRepository.cs" />
     <Compile Include="Repositories\ISqlSettingsRepository.cs" />
     <Compile Include="Repositories\ISqlUserRepository.cs" />

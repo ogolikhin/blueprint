@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Repositories;
 using ServiceLibrary.Attributes;
@@ -18,22 +19,30 @@ namespace AdminStore.Controllers
     [BaseExceptionFilter]
     public class InstanceController : LoggableApiController
     {
-        internal readonly ISqlInstanceRepository _instanceRepository;
+        internal readonly IInstanceRepository _instanceRepository;
         internal readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
+        internal readonly PrivilegesManager _privilegesManager;
 
         public override string LogSource { get; } = "AdminStore.Instance";
 
-        public InstanceController() : this(new SqlInstanceRepository(), new ServiceLogRepository(), new SqlArtifactPermissionsRepository())
+        public InstanceController() : this(
+            new SqlInstanceRepository(), new ServiceLogRepository(), 
+            new SqlArtifactPermissionsRepository(), new SqlPrivilegesRepository()
+        )
         {
         }
 
-        public InstanceController(
-            ISqlInstanceRepository instanceRepository,
+        public InstanceController
+        (
+            IInstanceRepository instanceRepository,
             IServiceLogRepository log,
-            IArtifactPermissionsRepository artifactPermissionsRepository) : base(log)
+            IArtifactPermissionsRepository artifactPermissionsRepository,
+            IPrivilegesRepository privilegesRepository
+        ) : base(log)
         {
             _instanceRepository = instanceRepository;
             _artifactPermissionsRepository = artifactPermissionsRepository;
+            _privilegesManager = new PrivilegesManager(privilegesRepository);
         }
 
         /// <summary>
@@ -127,6 +136,27 @@ namespace AdminStore.Controllers
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Get the list of instance administrators roles in the instance  
+        /// </summary>
+        /// <remarks>
+        /// Returns the list of instance administrators roles.
+        /// </remarks>
+        /// <returns code="200">OK list of AdminRole models</returns>
+        /// <returns code="400">BadRequest if errors occurred</returns>
+        /// <returns code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</returns>
+        /// <returns code="403">Forbidden if used doesn’t have permissions to get the list of instance administrators roles</returns>
+        [SessionRequired]
+        [Route("roles")]
+        [ResponseType(typeof(IEnumerable<AdminRole>))]
+        public async Task<IHttpActionResult> GetInstanceRoles()
+        {
+            await _privilegesManager.Demand(SessionUserId, InstanceAdminPrivileges.ViewUsers);
+
+            var result = await _instanceRepository.GetInstanceRolesAsync();
+            return Ok(result);
         }
     }
 }

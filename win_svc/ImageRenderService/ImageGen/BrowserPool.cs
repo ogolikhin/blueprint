@@ -1,15 +1,19 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Drawing;
-using System.Threading;
 using System.Threading.Tasks;
+using ImageRenderService.Helpers;
 
 namespace ImageRenderService.ImageGen
 {
     public class BrowserPool : IBrowserPool, IDisposable
     {
         private static BrowserPool _instance;
-        private const int MaxWaitTimeSeconds = 10;
+        private readonly int _maxWaitTimeSeconds = ServiceHelper.BrowserPoolWaitTimeSeconds;
+
+        private ConcurrentBag<IVirtualBrowser> _freeBrowsers;
+        private static readonly int MaxSize = ServiceHelper.BrowserPoolMaxSize;
+        private SemaphoreQueue _browserPool;
 
         private BrowserPool()
         {
@@ -21,18 +25,14 @@ namespace ImageRenderService.ImageGen
             _instance = new BrowserPool
             {
                 _freeBrowsers = new ConcurrentBag<IVirtualBrowser>(),
-                _browserPool = new Semaphore(MaxSize, MaxSize)
+                _browserPool = new SemaphoreQueue(MaxSize, MaxSize)
             };
             return _instance;
         }
 
-        private ConcurrentBag<IVirtualBrowser> _freeBrowsers;
-        private const int MaxSize = 3;
-        private Semaphore _browserPool;
-
         public async Task<IVirtualBrowser> Rent()
         {
-            if (!_browserPool.WaitOne(MaxWaitTimeSeconds*1000))
+            if (!_browserPool.Wait(_maxWaitTimeSeconds*1000))
             {
                 return null;
             }
@@ -71,7 +71,7 @@ namespace ImageRenderService.ImageGen
         {
             foreach (var chromiumWebBrowser in _freeBrowsers)
             {
-                chromiumWebBrowser.Dispose();
+                chromiumWebBrowser?.Dispose();
             }
         }
     }

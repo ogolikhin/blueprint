@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -90,20 +91,31 @@ namespace ImageRenderService.ImageGen
 
         private async Task<bool> LoadPageAsync(IVirtualBrowser browser, string address)
         {
+            bool isProcessFile;
+            try
+            {
+                var task = new TaskCompletionSource<bool>();
+                if(!_tcs.TryAdd(browser, task))
+                {
+                    Debug.Assert(false, "Unexpected Error: The dictionary does not contain a key (browser) added previously.");
+                }
 
-            var task = new TaskCompletionSource<bool>();
-            _tcs.TryAdd(browser, task);
+                isProcessFile = string.IsNullOrWhiteSpace(address);
 
-            var isProcessFile = string.IsNullOrWhiteSpace(address);
+                var effectiveAddress = isProcessFile ? Path.GetFullPath("process.html") : address;
 
-            var effectiveAddress = isProcessFile ? Path.GetFullPath("process.html") : address;
-
-            browser.Load(effectiveAddress);
-            browser.LoadingStateChanged += BrowserLoadingStateChanged;
-            await task.Task;
-
-            TaskCompletionSource<bool> removedTask;
-            _tcs.TryRemove(browser, out removedTask);
+                browser.Load(effectiveAddress);
+                browser.LoadingStateChanged += BrowserLoadingStateChanged;
+                await task.Task;
+            }
+            finally
+            {
+                TaskCompletionSource<bool> removedTask;
+                if (!_tcs.TryRemove(browser, out removedTask))
+                {
+                    Debug.Assert(false, "Unexpected Error: The dictionary already contains a key (browser).");
+                }
+            }
 
             //-------------------------------------------
             // Set the browser size.

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Drawing;
+using System.Threading;
 using System.Threading.Tasks;
 using ImageRenderService.Helpers;
 
@@ -13,7 +14,7 @@ namespace ImageRenderService.ImageGen
 
         private ConcurrentBag<IVirtualBrowser> _freeBrowsers;
         private static readonly int MaxSize = ServiceHelper.BrowserPoolMaxSize;
-        private SemaphoreQueue _browserPool;
+        private SemaphoreSlim _browserPool;
 
         private BrowserPool()
         {
@@ -25,7 +26,7 @@ namespace ImageRenderService.ImageGen
             _instance = new BrowserPool
             {
                 _freeBrowsers = new ConcurrentBag<IVirtualBrowser>(),
-                _browserPool = new SemaphoreQueue(MaxSize, MaxSize)
+                _browserPool = new SemaphoreSlim(MaxSize, MaxSize)
             };
             return _instance;
         }

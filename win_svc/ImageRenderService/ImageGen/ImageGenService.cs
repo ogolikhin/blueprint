@@ -11,7 +11,7 @@ namespace ImageRenderService.ImageGen
     {
         private HttpSelfHostServer _server;
         private readonly HttpSelfHostConfiguration _config;
-        public Uri ServiceAddress = new Uri(@"http://localhost:5555");
+        public Uri ServiceAddress = new Uri(@"http://localhost:5557");
 
         private static readonly BrowserPool BrowserPool = BrowserPool.Create();
 

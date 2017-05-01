@@ -27,7 +27,7 @@ function Setup-Environment {
     Invoke-MyExpression "c:\nuget.exe" "restore ""$workspace\svc\Services.sln"" -PackagesDirectory ""$workspace/packages"""
 
     #Run nuget for services
-    Invoke-MyExpression "c:\nuget.exe" "restore ""$workspace\win_svc\WindowsServices.sln"""
+    Invoke-MyExpression "c:\nuget.exe" "restore ""$workspace\win_svc\WindowsServices.sln"" -PackagesDirectory ""$workspace/packages"""
 }
 
 function Build-Nova-Services{

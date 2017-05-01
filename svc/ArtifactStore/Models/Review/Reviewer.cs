@@ -22,10 +22,12 @@ namespace ArtifactStore.Models.Review
         public int Viewed { get; set; }
     }
 
-    public class ReviewersContent
+    public class ReviewParticipantsContent
     {
         public IEnumerable<Reviewer> Reviewers { get; set; }
         public int TotalArtifacts { get; set; }
+
+        public int TotalParticipants { get; set; }
 
         public int TotalArtifactsRequestedApproval { get; set; }
     }

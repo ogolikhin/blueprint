@@ -102,7 +102,8 @@ namespace ArtifactStore.Repositories
                     reviewArtifact.Disapproved = reviewArtifactStatus.Disapproved;
                     reviewArtifact.Viewed = reviewArtifactStatus.Viewed;
                     reviewArtifact.Unviewed = reviewArtifactStatus.Unviewed;
-                } else
+                }
+                else
                 {
                     reviewArtifact.Pending = numUsers;
                     reviewArtifact.Approved = 0;
@@ -152,7 +153,7 @@ namespace ArtifactStore.Repositories
             param.Add("@revisionId", revisionId);
             param.Add("@addDrafts", addDrafts);
             param.Add("@userId", userId);
-            param.Add("@itemIds", SqlConnectionWrapper.ToDataTable(reviewArtifactIds, "Int32Collection", "Int32Value"));
+            param.Add("@itemIds", SqlConnectionWrapper.ToDataTable(reviewArtifactIds, "Int32Collection"));
             var result = await ConnectionWrapper.QueryMultipleAsync<ReviewArtifactStatus, int>("GetReviewArtifactsStatus", param, commandType: CommandType.StoredProcedure);
             return new ContentStatusDetails
             {

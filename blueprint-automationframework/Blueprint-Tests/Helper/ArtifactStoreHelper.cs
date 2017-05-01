@@ -1487,7 +1487,6 @@ namespace Helper
             foreach (var file in files)
             {
                 var attachmentValue = new AttachmentValue(user, file);
-                artifact.AttachmentValues.Add(attachmentValue);
                 updateArtifact.AttachmentValues.Add(attachmentValue);
             }
 
@@ -1601,7 +1600,6 @@ namespace Helper
             var subArtifacts = new List<NovaSubArtifact> { subArtifactToAdd };
             var updateArtifact = CreateNovaArtifactDetailsForUpdate(artifact);
 
-            artifact.SubArtifacts = subArtifacts;
             updateArtifact.SubArtifacts = subArtifacts;
 
             artifact.Update(user, updateArtifact);

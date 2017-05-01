@@ -2,6 +2,7 @@
 using CustomAttributes;
 using Helper;
 using Model;
+using Model.ModelHelpers;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
@@ -35,7 +36,7 @@ namespace SearchServiceTests
         protected IUser _user { get; set; } = null;
         protected IUser _userSecond { get; set; } = null;
         protected List<IProject> _projects { get; private set; } = null;
-        protected List<IArtifactBase> _publishedArtifacts { get; private set; } = null;
+        protected List<ArtifactWrapper> _publishedArtifacts { get; private set; } = null;
 
         /// <summary>
         /// This code should be called in the Setup() or ClassSetup() method to set up the test fixture.
@@ -65,14 +66,14 @@ namespace SearchServiceTests
         /// <param name="page"> (optional) page value that represents displaying page number of the rearch result</param>
         /// <param name="pageSize"> (optional) pageSize value that indicates number of items that get displayed per page</param>
         protected static void FullTextSearchResultValidation(FullTextSearchResult searchResult,
-            List<IArtifactBase> artifactsToBeFound = null,
+            List<ArtifactWrapper> artifactsToBeFound = null,
             int? page = null,
             int? pageSize = null)
         {
             ThrowIf.ArgumentNull(searchResult, nameof(searchResult));
 
             // Setup: Set comparison values
-            artifactsToBeFound = artifactsToBeFound ?? new List<IArtifactBase>();
+            artifactsToBeFound = artifactsToBeFound ?? new List<ArtifactWrapper>();
             page = page ?? DEFAULT_PAGE_VALUE;
             pageSize = pageSize ?? DEFAULT_PAGESIZE_VALUE;
 
@@ -338,7 +339,7 @@ namespace SearchServiceTests
         {
             // Setup: Create search criteria with search term that matches with description value of all published artifacts
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals(DESCRIPTION)).TextOrChoiceValue);
+            var searchTerm = StringUtilities.ConvertHtmlToText(_publishedArtifacts[0].Description);
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
 
             // Set the pageSize that can accomodate all expecting search results for the user
@@ -368,7 +369,7 @@ namespace SearchServiceTests
 
             // Create search criteria with search term that matches with deleted but not published artifact(s) description
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals(DESCRIPTION)).TextOrChoiceValue);
+            var searchTerm = StringUtilities.ConvertHtmlToText(_publishedArtifacts[0].Description);
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
 
             // Wait until first user no longer sees the artifact in search results or timeout occurs
@@ -397,7 +398,7 @@ namespace SearchServiceTests
 
             // Create search criteria with search term that matches with deleted but not published artifact(s) description
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals(DESCRIPTION)).TextOrChoiceValue);
+            var searchTerm = StringUtilities.ConvertHtmlToText(_publishedArtifacts[0].Description);
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
 
             // Set the pageSize that can accomodate all expecting search results for the user
@@ -431,7 +432,7 @@ namespace SearchServiceTests
 
             // Create search criteria with search term that matches with deleted and published artifact(s) description
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals(DESCRIPTION)).TextOrChoiceValue);
+            var searchTerm = StringUtilities.ConvertHtmlToText(_publishedArtifacts[0].Description);
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
 
             // Execute: Execute FullTextSearch with the search term using the same user
@@ -459,7 +460,7 @@ namespace SearchServiceTests
 
             // Create search criteria with search term that matches with deleted and published artifact(s) description
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals(DESCRIPTION)).TextOrChoiceValue);
+            var searchTerm = StringUtilities.ConvertHtmlToText(_publishedArtifacts[0].Description);
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
 
             // Execute: Execute FullTextSearch with the search term using the different user
@@ -479,7 +480,7 @@ namespace SearchServiceTests
         {
             // Setup: Create search criteria with search term that matches published artifact(s) name
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchCriteria = new FullTextSearchCriteria(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Name")).TextOrChoiceValue, selectedProjectIds);
+            var searchCriteria = new FullTextSearchCriteria(_publishedArtifacts[0].Name, selectedProjectIds);
 
             // Create user with no permission on any project
             var userWithNoPermissionOnAnyProject = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _projects);
@@ -506,13 +507,13 @@ namespace SearchServiceTests
         {
             // Setup: Create search criteria with search term that matches published artifact(s) description
             var searchProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals(DESCRIPTION)).TextOrChoiceValue);
+            var searchTerm = StringUtilities.ConvertHtmlToText(_publishedArtifacts[0].Description);
             var searchCriteria = new FullTextSearchCriteria(searchTerm, projectIds: searchProjectIds);
 
             // Calculate expecting values for the selected project(s) and published artifacts for the project(s)
             var selectedProjects = new List<IProject>();
             selectedProjects.AddRange(_projects.Take(numberOfProjectForPermissionTesting));
-            var publishedArtifactsForSelectedProjects = new List<IArtifactBase>();
+            var publishedArtifactsForSelectedProjects = new List<ArtifactWrapper>();
 
             foreach (var selectedProjectId in selectedProjects.ConvertAll(o => o.Id))
             {
@@ -551,12 +552,12 @@ namespace SearchServiceTests
         public void FullTextSearch_SearchOlderVersionArtifact_VerifyEmptySearchResults()
         {
             // Setup: Create few artifacts to search
-            var selectedBasedArtifactTypes = new List<BaseArtifactType> { BaseArtifactType.Actor };
+            var selectedBasedArtifactTypes = new List<ItemTypePredefined> { ItemTypePredefined.Actor };
             var publishedArtifacts = SearchServiceTestHelper.SetupFullTextSearchData(_projects, _user, Helper, selectedBasedArtifactTypes);
 
             // Create search criteria with search term that matches with current version of artifact(s) description
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchTerm = WebUtility.HtmlDecode(publishedArtifacts.First().Properties.Find(p => p.Name.Equals(DESCRIPTION)).TextOrChoiceValue);
+            var searchTerm = StringUtilities.ConvertHtmlToText(publishedArtifacts[0].Description);
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
 
             // Create search criteria with search term that matches with new version of artifact(s) description
@@ -564,11 +565,10 @@ namespace SearchServiceTests
             var newSearchCriteria = new FullTextSearchCriteria(newSearchTerm, selectedProjectIds);
 
             // Update all published artifacts with the new description value that matches with the new search criteria
-            foreach (var publishedArtifact in publishedArtifacts.ConvertAll(o => (IArtifact)o))
+            foreach (var publishedArtifact in publishedArtifacts)
             {
                 publishedArtifact.Lock(_user);
-                SearchServiceTestHelper.UpdateArtifactProperty(
-                    Helper, _user, _projects.Find(p=>p.Id.Equals(publishedArtifact.ProjectId)), publishedArtifact, publishedArtifact.BaseArtifactType, DESCRIPTION, newSearchTerm);
+                publishedArtifact.SaveWithNewDescription(_user, newSearchTerm);
                 publishedArtifact.Publish(_user);
             }
 
@@ -592,7 +592,7 @@ namespace SearchServiceTests
         public void FullTextSearch_SearchWithSearchTermReturnsMultiplePages_VerifyResultItemCountWithExpected(int pageSize)
         {
             // Setup: Create search criteria that will return multiple page for SearchResult
-            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals(DESCRIPTION)).TextOrChoiceValue);
+            var searchTerm = StringUtilities.ConvertHtmlToText(_publishedArtifacts[0].Description);
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.ConvertAll(o => o.Id));
 
             // Calculate expecting search result counts
@@ -637,7 +637,7 @@ namespace SearchServiceTests
             // Setup: Create search criteria with search term that matches published artifact(s) description
             FullTextSearchResult fullTextSearchResult = null;
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals(DESCRIPTION)).TextOrChoiceValue);
+            var searchTerm = StringUtilities.ConvertHtmlToText(_publishedArtifacts[0].Description);
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
 
             // Set the pageSize that displays all expecting search results for the user with permission on selected project(s)
@@ -675,14 +675,20 @@ namespace SearchServiceTests
             // Setup: 
             var selectedProjectIds = _projects.ConvertAll(p => p.Id);
             var project = Helper.GetProject(TestHelper.GoldenDataProject.EmptyProjectWithSubArtifactRequiredProperties, _user);
-            var artifact = Helper.CreateWrapAndSaveNovaArtifact(project, _user, ItemTypePredefined.Process, artifactTypeName: "Process");
+            var artifact = Helper.CreateNovaArtifact(_user, project, ItemTypePredefined.Process,
+                artifactTypeName: "Process");
 
             string searchTerm = "SearchText_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCase(25);
 
             // Update custom property in artifact.
-            ArtifactStoreHelper.UpdateArtifactCustomProperty(artifact, _user, project, PropertyPrimitiveType.Text, propertyName, searchTerm, Helper.ArtifactStore);
-            Helper.ArtifactStore.PublishArtifact(artifact, _user);
-
+            var artifactDetailsForUpdate = ArtifactStoreHelper.CreateNovaArtifactDetailsForUpdate(artifact);
+            var customProperty = artifact.CustomPropertyValues.Find(property => property.Name == propertyName);
+            artifactDetailsForUpdate.CustomPropertyValues.Remove(customProperty);
+            customProperty.CustomPropertyValue = searchTerm;
+            artifactDetailsForUpdate.CustomPropertyValues.Add(customProperty);
+            artifact.Update(_user, artifactDetailsForUpdate);
+            artifact.Publish(_user);
+            
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
             SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 1, timeoutInMilliseconds: 30000);
 
@@ -695,7 +701,7 @@ namespace SearchServiceTests
             Assert.AreEqual(expectedHits, fullTextSearchResult.PageItemCount,
                 "The number of hits was {0} but {1} was expected", fullTextSearchResult.PageItemCount, expectedHits);
 
-            FullTextSearchResultValidation(searchResult: fullTextSearchResult, artifactsToBeFound: new List<IArtifactBase> { artifact });
+            FullTextSearchResultValidation(searchResult: fullTextSearchResult, artifactsToBeFound: new List<ArtifactWrapper> { artifact });
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
@@ -710,7 +716,7 @@ namespace SearchServiceTests
             // Setup: 
             var selectedProjectIds = _projects.ConvertAll(p => p.Id);
             var project = Helper.GetProject(TestHelper.GoldenDataProject.EmptyProjectWithSubArtifactRequiredProperties, _user);
-            var artifact = Helper.CreateWrapAndSaveNovaArtifact(project, _user, ItemTypePredefined.Process, artifactTypeName: "Process");
+            var artifact = Helper.CreateNovaArtifact(_user, project, ItemTypePredefined.Process);
 
             string searchTerm = "SearchText_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCase(25);
 
@@ -719,8 +725,14 @@ namespace SearchServiceTests
             var processShape = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
             var novaSubArtifact = Helper.ArtifactStore.GetSubartifact(_user, artifact.Id, processShape.Id);
 
-            ArtifactStoreHelper.UpdateSubArtifactCustomProperty(artifact, novaSubArtifact, _user, project, PropertyPrimitiveType.Text, propertyName, searchTerm, Helper.ArtifactStore);
-            Helper.ArtifactStore.PublishArtifact(artifact, _user);
+            var artifactDetailsForUpdate = ArtifactStoreHelper.CreateNovaArtifactDetailsForUpdate(artifact);
+            var customProperty = novaSubArtifact.CustomPropertyValues.Find(property => property.Name == propertyName);
+            novaSubArtifact.CustomPropertyValues.Remove(customProperty);
+            customProperty.CustomPropertyValue = searchTerm;
+            novaSubArtifact.CustomPropertyValues.Add(customProperty);
+            artifactDetailsForUpdate.SubArtifacts = new List<NovaSubArtifact> { novaSubArtifact };
+            artifact.Update(_user, artifactDetailsForUpdate);
+            artifact.Publish(_user);
 
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
             SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 1, timeoutInMilliseconds: 30000);
@@ -734,7 +746,7 @@ namespace SearchServiceTests
             Assert.AreEqual(expectedHits,fullTextSearchResult.PageItemCount,
                 "The number of hits was {0} but {1} was expected", fullTextSearchResult.PageItemCount, expectedHits);
 
-            FullTextSearchResultValidation(searchResult: fullTextSearchResult, artifactsToBeFound: new List<IArtifactBase> { artifact });
+            FullTextSearchResultValidation(searchResult: fullTextSearchResult, artifactsToBeFound: new List<ArtifactWrapper> { artifact });
         }
 
         #endregion 200 OK Tests
@@ -862,11 +874,10 @@ namespace SearchServiceTests
         /// Create a stack of artifact descending ordered by Last Edited On datetime value
         /// </summary>
         /// <param name="artifactList">The list of artifact</param>
-        private static Stack<IArtifactBase> CreateDescendingOrderedLastEditedOnArtifactStack(List<IArtifactBase> artifactList)
+        private static Stack<ArtifactWrapper> CreateDescendingOrderedLastEditedOnArtifactStack(List<ArtifactWrapper> artifactList)
         {
-            return new Stack<IArtifactBase>(artifactList.OrderBy(a =>
-                Convert.ToDateTime(a.Properties.Find(p =>
-                    p.Name.Equals("Last Edited On")).DateValue, CultureInfo.InvariantCulture)));
+            return new Stack<ArtifactWrapper>(artifactList.OrderBy(a =>
+                Convert.ToDateTime(a.LastEditedOn.Value, CultureInfo.InvariantCulture)));
         }
 
         /// <summary>
@@ -874,9 +885,9 @@ namespace SearchServiceTests
         /// </summary>
         /// <param name="artifactStack">a stack of artifact descending ordered by Last Edited On datetime</param>
         /// <param name="pageSize">maximum number of artifacts that will be on the paged artifact list</param>
-        private static List<IArtifactBase> CreateArtifactListPerPage (Stack<IArtifactBase> artifactStack, int pageSize)
+        private static List<ArtifactWrapper> CreateArtifactListPerPage (Stack<ArtifactWrapper> artifactStack, int pageSize)
         {
-            var pagedArtifacts = new List<IArtifactBase>();
+            var pagedArtifacts = new List<ArtifactWrapper>();
 
             for (int i = 0; i < pageSize; i++)
             {
@@ -923,7 +934,7 @@ namespace SearchServiceTests
 
             // Create search criteria with search term that matches with deleted and published artifact(s) description
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue);
+            var searchTerm = StringUtilities.ConvertHtmlToText(_publishedArtifacts[0].Description);
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
 
             // Execute: Execute FullTextSearch with the search term using the same user
@@ -951,7 +962,7 @@ namespace SearchServiceTests
 
             // Create search criteria with search term that matches with deleted and published artifact(s) description
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue);
+            var searchTerm = StringUtilities.ConvertHtmlToText(_publishedArtifacts[0].Description);
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
 
             // Execute: Execute FullTextSearch with the search term using the different user
@@ -987,7 +998,7 @@ namespace SearchServiceTests
 
             // Execute: Execute FullTextSearch with the search term using the same user.
             // Create search criteria with search term that matches with deleted but not published artifact(s) description.
-            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue);
+            var searchTerm = StringUtilities.ConvertHtmlToText(_publishedArtifacts[0].Description);
             searchCriteria.Query = searchTerm;
             FullTextSearchResult fullTextSearchResult = null;
 
@@ -1025,7 +1036,7 @@ namespace SearchServiceTests
 
             // Execute: Execute FullTextSearch with the search term using the different user.
             // Create search criteria with search term that matches with deleted but not published artifact(s) description.
-            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue);
+            var searchTerm = StringUtilities.ConvertHtmlToText(_publishedArtifacts[0].Description);
             searchCriteria.Query = searchTerm;
             FullTextSearchResult fullTextSearchResult = null;
 

@@ -652,9 +652,9 @@ namespace Model
         /// <param name="novaProcess">The Nova process artifact to delete.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The list of Nova Artifacts that were deleted.</returns>
-        List<NovaArtifact> DeleteNovaProcessArtifact(
+        List<INovaArtifact> DeleteNovaProcessArtifact(
             IUser user,
-            NovaProcess novaProcess,
+            INovaProcess novaProcess,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
@@ -666,7 +666,7 @@ namespace Model
         /// <param name="versionIndex">(optional) The version of the process artifact.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The requested Nova process object.</returns>
-        NovaProcess GetNovaProcess(
+        INovaProcess GetNovaProcess(
             IUser user,
             int artifactId,
             int? versionIndex = null,
@@ -682,7 +682,7 @@ namespace Model
         /// <returns>A NovaArtifactDetails object.</returns>
         INovaArtifactDetails UpdateNovaProcess(
             IUser user,
-            NovaProcess novaProcess,
+            INovaProcess novaProcess,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         #endregion Process methods

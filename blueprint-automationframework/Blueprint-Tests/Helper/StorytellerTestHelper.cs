@@ -143,7 +143,7 @@ namespace Helper
         /// <param name="storyteller">The storyteller instance</param>
         /// <param name="user">The user that updates the Nova process</param>
         /// <returns> The Nova process returned from GetNovaProcess </returns>
-        public static NovaProcess UpdateAndVerifyNovaProcess(NovaProcess novaProcessToVerify, IStoryteller storyteller, IUser user)
+        public static INovaProcess UpdateAndVerifyNovaProcess(INovaProcess novaProcessToVerify, IStoryteller storyteller, IUser user)
         {
             ThrowIf.ArgumentNull(novaProcessToVerify, nameof(novaProcessToVerify));
             ThrowIf.ArgumentNull(storyteller, nameof(storyteller));
@@ -288,7 +288,7 @@ namespace Helper
         /// <param name="project">The project where the Nova process artifact is created</param>
         /// <param name="user">The user creating the Nova process artifact</param>
         /// <returns>The created Nova process</returns>
-        public static NovaProcess CreateAndGetDefaultNovaProcess(IStoryteller storyteller, IProject project, IUser user)
+        public static INovaProcess CreateAndGetDefaultNovaProcess(IStoryteller storyteller, IProject project, IUser user)
         {
             /*
                 [S]--[P]--+--[UT1]--+--[ST2]--+--[E]

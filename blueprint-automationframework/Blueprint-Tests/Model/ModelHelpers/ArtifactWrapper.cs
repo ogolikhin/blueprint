@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using Model.ArtifactModel;
-using Model.ArtifactModel.Enums;
+﻿using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
 using Utilities;
 using Utilities.Factories;
 
@@ -12,6 +11,7 @@ namespace Model.ModelHelpers
 {
     public class ArtifactWrapper : INovaArtifactDetails, INovaArtifactObservable
     {
+        //[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public ArtifactState ArtifactState { get; } = new ArtifactState();
         public IArtifactStore ArtifactStore { get; private set; }
         public ISvcShared SvcShared { get; private set; }
@@ -280,7 +280,7 @@ namespace Model.ModelHelpers
         /// <param name="user">The user to perform the update.</param>
         /// <param name="updateArtifact">The artifact whose non-null properties will be used to update this artifact.</param>
         /// <returns>The result of the update artifact call.</returns>
-        public INovaArtifactDetails Update(IUser user, INovaArtifactDetails updateArtifact)
+        public virtual INovaArtifactDetails Update(IUser user, INovaArtifactDetails updateArtifact)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(updateArtifact, nameof(updateArtifact));

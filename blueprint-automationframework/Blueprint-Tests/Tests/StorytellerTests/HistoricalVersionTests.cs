@@ -1,6 +1,7 @@
 ﻿using CustomAttributes;
 using Helper;
 using Model;
+using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.StorytellerModel;
@@ -179,7 +180,7 @@ namespace StorytellerTests
         /// <param name="novaProcess">the nova process to validate</param>
         /// <param name="stProcess">the equvalent storyteller 1.0 process to validate</param>
         /// <param name="expectedVersion">the expected version number to validate against</param>
-        private static void ValidateProcessVersion(NovaProcess novaProcess, IProcess stProcess, int expectedVersion)
+        private static void ValidateProcessVersion(INovaProcess novaProcess, IProcess stProcess, int expectedVersion)
         {
             // Assert that the created process is non historical version by checking status and version
             Assert.IsFalse(IsHistoricalVersion(stProcess), "A historical version was returned when it was not expected.");

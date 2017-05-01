@@ -24,7 +24,6 @@ namespace AdminStore.Controllers
         private Mock<IArtifactPermissionsRepository> _artifactPermissionsRepositoryMock;
         private Mock<IPrivilegesRepository> _privilegeRepositoryMock;
         private InstanceController _controller;
-        private IEnumerable<AdminRole> _instanceAdminRoles;
 
         [TestInitialize]
         public void Initialize()
@@ -46,16 +45,6 @@ namespace AdminStore.Controllers
             )
             {
                 Request = request
-            };
-
-            _instanceAdminRoles = new List<AdminRole> {
-                new AdminRole
-                {
-                    Id = 10,
-                    Description = "Can manage standard properties and artifact types.",
-                    Name = "Instance Standards Manager",
-                    Privileges = 197313
-                }
             };
         }
 
@@ -157,20 +146,29 @@ namespace AdminStore.Controllers
         public async Task GetInstanceRoles_SuccessfulGettingInstanceRoles_ReturnInstanceRolesListResult()
         {
             // Arrange
+            var instanceAdminRoles = new List<AdminRole>
+            {
+                new AdminRole
+                {
+                    Id = 10,
+                    Description = "Can manage standard properties and artifact types.",
+                    Name = "Instance Standards Manager",
+                    Privileges = 197313
+                }
+            };
             _privilegeRepositoryMock
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
                 .ReturnsAsync(InstanceAdminPrivileges.AssignAdminRoles);
             _instanceRepositoryMock
                 .Setup(repo => repo.GetInstanceRolesAsync())
-                .ReturnsAsync(_instanceAdminRoles);
+                .ReturnsAsync(instanceAdminRoles);
 
             // Act
             var result = await _controller.GetInstanceRoles() as OkNegotiatedContentResult<IEnumerable<AdminRole>>;
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result.Content, typeof(IEnumerable<AdminRole>));
-            Assert.AreEqual(result.Content, _instanceAdminRoles);
+            Assert.AreEqual(result.Content, instanceAdminRoles);
         }
 
         [TestMethod]
@@ -186,7 +184,7 @@ namespace AdminStore.Controllers
                 .ThrowsAsync(new BadRequestException());
 
             // Act
-            var result = await _controller.GetInstanceRoles() as OkNegotiatedContentResult<IEnumerable<AdminRole>>;
+            var result = await _controller.GetInstanceRoles();
         }
 
         [TestMethod]
@@ -199,10 +197,10 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(InstanceAdminPrivileges.None);
             _instanceRepositoryMock
                 .Setup(repo => repo.GetInstanceRolesAsync())
-                .ReturnsAsync(_instanceAdminRoles);
+                .ThrowsAsync(new BadRequestException());
 
             // Act
-            var result = await _controller.GetInstanceRoles() as OkNegotiatedContentResult<IEnumerable<AdminRole>>;
+            var result = await _controller.GetInstanceRoles();
         }
 
         #endregion

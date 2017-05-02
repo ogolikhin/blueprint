@@ -183,12 +183,14 @@ namespace ArtifactStoreTests
         public void CreateArtifact_ValidBaselineOrBaselineFolderUnderBaselineFolder_CanGetArtifact(ItemTypePredefined artifactType)
         {
             // Setup:
-            var parentBaselineFolder = Helper.CreateBaselineFolder(_authorUser, _project);
+            var authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);  // Author without Delete permission.
+            var parentBaselineFolder = Helper.CreateBaselineFolder(authorUser, _project);
+            string randomName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
             // Execute:
             INovaArtifactDetails newArtifact = null;
 
-            Assert.DoesNotThrow(() => newArtifact = CreateArtifactWithRandomName(artifactType, _authorUser, _project, parentBaselineFolder.Id),
+            Assert.DoesNotThrow(() => newArtifact = Helper.CreateNovaArtifact(authorUser, _project, artifactType, parentBaselineFolder.Id, name: randomName),
                 "'POST {0}' should return 201 Created when trying to create an artifact of type: '{1}'!", SVC_PATH, artifactType);
 
             // Verify:
@@ -198,7 +200,7 @@ namespace ArtifactStoreTests
 
             if (newArtifact.ItemTypeId == _project.GetNovaBaseItemTypeId(ItemTypePredefined.ArtifactBaseline))
             {
-                var baseline = Helper.ArtifactStore.GetBaseline(_authorUser, newArtifact.Id);
+                var baseline = Helper.ArtifactStore.GetBaseline(authorUser, newArtifact.Id);
                 artifactDetails = baseline;
 
                 Assert.AreEqual(0, baseline.Artifacts?.Count, "The {0} property should empty!", nameof(baseline.Artifacts));
@@ -207,13 +209,14 @@ namespace ArtifactStoreTests
             }
             else if (newArtifact.ItemTypeId == _project.GetNovaBaseItemTypeId(ItemTypePredefined.BaselineFolder))
             {
-                artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, newArtifact.Id);
+                artifactDetails = Helper.ArtifactStore.GetArtifactDetails(authorUser, newArtifact.Id);
             }
             else
             {
                 Assert.Fail("Created Artifact has unexpected ItemType.");
             }
 
+            ValidateCreateResponse(newArtifact, authorUser, TestHelper.ProjectRole.Author, randomName, _project, parentBaselineFolder.Id, artifactType);
             NovaArtifactDetails.AssertArtifactsEqual(artifactDetails, newArtifact);
         }
 
@@ -959,6 +962,9 @@ namespace ArtifactStoreTests
             {
                 case ItemTypePredefined.Actor:
                     expectedNumberOfSpecificProperties = 2;
+                    break;
+                case ItemTypePredefined.ArtifactBaseline:
+                    expectedNumberOfSpecificProperties = 3;
                     break;
                 case ItemTypePredefined.Document:
                 case ItemTypePredefined.Process:

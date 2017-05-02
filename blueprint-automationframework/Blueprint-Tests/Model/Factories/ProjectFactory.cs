@@ -83,8 +83,15 @@ namespace Model.Factories
         ///  By default, set to true</param>
         /// <param name="shouldRetrievePropertyTypes">(optional) Define if Property values also need to be retrieved
         ///  as part of ArtifactType list. By default, set to false</param>
+        /// <param name="shouldRetrieveNovaArtifactTypes">(optional) Define if NovaArtifactType list needs to be retrieved.
+        ///     By default, set to true</param>
         /// <returns>The first valid project object that retrieved from Blueprint server or valid project object with the project name specified </returns>
-        public static IProject GetProject(IUser user, string projectName = null, bool shouldRetrieveArtifactTypes = true, bool shouldRetrievePropertyTypes = false)
+        public static IProject GetProject(
+            IUser user,
+            string projectName = null,
+            bool shouldRetrieveArtifactTypes = true,
+            bool shouldRetrievePropertyTypes = false,
+            bool shouldRetrieveNovaArtifactTypes = true)
         {
             var projects = GetAllProjects(user);
 
@@ -104,6 +111,12 @@ namespace Model.Factories
             {
                 project.GetAllOpenApiArtifactTypes(address: Address, user: user,
                     shouldRetrievePropertyTypes: shouldRetrievePropertyTypes);
+            }
+
+            if (shouldRetrieveNovaArtifactTypes)
+            {
+                var artifactStore = ArtifactStoreFactory.GetArtifactStoreFromTestConfig();
+                project.GetAllNovaArtifactTypes(artifactStore, user);
             }
 
             return project;

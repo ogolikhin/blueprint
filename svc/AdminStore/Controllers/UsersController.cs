@@ -23,6 +23,9 @@ namespace AdminStore.Controllers
     [BaseExceptionFilter]
     public class UsersController : BaseApiController
     {
+        private const string PasswordResetTokenExpirationInHoursKey = "PasswordResetTokenExpirationInHours";
+        private const int DefaultPasswordResetTokenExpirationInHours = 24;
+
         internal readonly IAuthenticationRepository _authenticationRepository;
         internal readonly ISqlUserRepository _userRepository;
         internal readonly ISqlSettingsRepository _settingsRepository;
@@ -30,9 +33,7 @@ namespace AdminStore.Controllers
         internal readonly IApplicationSettingsRepository _applicationSettingsRepository;
         internal readonly IServiceLogRepository _log;
         internal readonly IHttpClientProvider _httpClientProvider;
-        internal readonly ISqlPrivilegesRepository _privilegesRepository;
-        private const string PasswordResetTokenExpirationInHoursKey = "PasswordResetTokenExpirationInHours";
-        private const int DefaultPasswordResetTokenExpirationInHours = 24;
+        internal readonly PrivilegesManager _privilegesManager;
 
         public UsersController() : this(new AuthenticationRepository(), new SqlUserRepository(),
             new SqlSettingsRepository(), new EmailHelper(), new ApplicationSettingsRepository(),
@@ -40,10 +41,13 @@ namespace AdminStore.Controllers
         {
         }
 
-        internal UsersController(IAuthenticationRepository authenticationRepository,
-            ISqlUserRepository userRepository, ISqlSettingsRepository settingsRepository,
-            IEmailHelper emailHelper, IApplicationSettingsRepository applicationSettingsRepository,
-            IServiceLogRepository log, IHttpClientProvider httpClientProvider, ISqlPrivilegesRepository privilegesRepository)
+        internal UsersController
+        (
+            IAuthenticationRepository authenticationRepository, ISqlUserRepository userRepository, 
+            ISqlSettingsRepository settingsRepository, IEmailHelper emailHelper, 
+            IApplicationSettingsRepository applicationSettingsRepository, IServiceLogRepository log, 
+            IHttpClientProvider httpClientProvider, IPrivilegesRepository privilegesRepository
+        )
         {
             _authenticationRepository = authenticationRepository;
             _userRepository = userRepository;
@@ -52,7 +56,7 @@ namespace AdminStore.Controllers
             _applicationSettingsRepository = applicationSettingsRepository;
             _log = log;
             _httpClientProvider = httpClientProvider;
-            _privilegesRepository = privilegesRepository;
+            _privilegesManager = new PrivilegesManager(privilegesRepository);
         }
 
         /// <summary>
@@ -109,11 +113,9 @@ namespace AdminStore.Controllers
             {
                 return BadRequest(ErrorMessages.InvalidPageOrPageNumber);
             }
-            var permissions = new List<int> { Convert.ToInt32(InstanceAdminPrivileges.ViewUsers) };
-            if (!await _privilegesRepository.IsUserHasPermissions(permissions, SessionUserId))
-            {
-                throw new HttpResponseException(HttpStatusCode.Forbidden);
-            }
+
+            await _privilegesManager.Demand(SessionUserId, InstanceAdminPrivileges.ViewUsers);
+
             if (settings.Sort != null)
             {
                 settings.Sort = UsersHelper.SortUsers(settings.Sort.ToLower(CultureInfo.InvariantCulture));
@@ -141,11 +143,8 @@ namespace AdminStore.Controllers
             {
                 return BadRequest(ErrorMessages.InvalideDeleteUsersParameters);
             }
-            var permissions = new List<int> { Convert.ToInt32(InstanceAdminPrivileges.ManageUsers) };
-            if (!await _privilegesRepository.IsUserHasPermissions(permissions, SessionUserId))
-            {
-                throw new HttpResponseException(HttpStatusCode.Forbidden);
-            }
+            await _privilegesManager.Demand(SessionUserId, InstanceAdminPrivileges.ManageUsers);
+
             var result = await _userRepository.DeleteUsers(body, search);
 
             return Ok(result);
@@ -167,15 +166,14 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(UserDto))]
         public async Task<IHttpActionResult> GetUser(int userId)
         {
-            var permissions = new List<int> { Convert.ToInt32(InstanceAdminPrivileges.ViewUsers) };
-            if (!await _privilegesRepository.IsUserHasPermissions(permissions, SessionUserId))
-            {
-                throw new HttpResponseException(HttpStatusCode.Forbidden);
-            }
+            await _privilegesManager.Demand(SessionUserId, InstanceAdminPrivileges.ViewUsers);
+
             var user = await _userRepository.GetUserDto(userId);
 
             if (user.Id == 0)
+            {
                 return NotFound();
+            }
 
             return Ok(user);
         }
@@ -435,10 +433,9 @@ namespace AdminStore.Controllers
                 throw new BadRequestException(ErrorMessages.UserModelIsEmpty, ErrorCodes.BadRequest);
             }
 
-            if (!(await UserPermissionsValidator.HasValidPermissions(SessionUserId, user, _privilegesRepository)))
-            {
-                throw new AuthorizationException(ErrorMessages.UserDoesNotHavePermissions, ErrorCodes.Forbidden);
-            }
+            var privileges = user.InstanceAdminRoleId.HasValue ? InstanceAdminPrivileges.AssignAdminRoles : InstanceAdminPrivileges.ManageUsers;
+            await _privilegesManager.Demand(SessionUserId, privileges);
+
             var databaseUser = UsersHelper.CreateDbUserFromDto(user);
 
             var userId = await _userRepository.AddUserAsync(databaseUser);
@@ -475,9 +472,17 @@ namespace AdminStore.Controllers
                 throw new BadRequestException(ErrorMessages.UserModelIsEmpty, ErrorCodes.BadRequest);
             }
 
-            if (!(await UserPermissionsValidator.HasValidPermissions(SessionUserId, user, _privilegesRepository)))
+            await _privilegesManager.Demand(SessionUserId, InstanceAdminPrivileges.ManageUsers);
+
+            var existingUser = await _userRepository.GetUser(userId);
+            if (existingUser == null)
             {
-                throw new AuthorizationException(ErrorMessages.UserDoesNotHavePermissions, ErrorCodes.Forbidden);
+                throw new BadRequestException(ErrorMessages.UserNotExist, ErrorCodes.ResourceNotFound);
+            }
+
+            if (existingUser.InstanceAdminRoleId != user.InstanceAdminRoleId)
+            {
+                await _privilegesManager.Demand(SessionUserId, InstanceAdminPrivileges.AssignAdminRoles);
             }
 
             var databaseUser = UsersHelper.CreateDbUserFromDto(user, userId);

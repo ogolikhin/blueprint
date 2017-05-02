@@ -300,5 +300,36 @@ namespace AdminStore.Repositories
             Assert.AreEqual(navigationPaths.Count, 1);
             Assert.AreEqual(result.Last().Name, navigationPaths.Last());
         }
+
+        #region GetInstanceRolesAsync
+
+        [TestMethod]
+        public async Task GetInstanceRolesAsync_SuccessfulGettingInstanceRoles_ReturnInstanceRolesList()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            var adminRoles = new List<AdminRole>()
+            {
+                new AdminRole
+                {
+                    Id = 10,
+                    Description = "Can manage standard properties and artifact types.",
+                    Name = "Instance Standards Manager",
+                    Privileges = 197313
+                }
+            };
+
+            cxn.SetupQueryAsync("GetInstanceAdminRoles", null, adminRoles);
+
+            // Act
+            var result = await repository.GetInstanceRolesAsync();
+
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(result, adminRoles);
+        }
+
+        #endregion GetInstanceRolesAsync
     }
 }

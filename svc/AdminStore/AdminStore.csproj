@@ -111,15 +111,14 @@
       <Link>Properties\SolutionAssemblyVersion.cs</Link>
     </Compile>
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Controllers\BaseApiController.cs" />
     <Compile Include="Controllers\InstanceController.cs" />
     <Compile Include="Controllers\JobsController.cs" />
     <Compile Include="Controllers\LogController.cs" />
     <Compile Include="Helpers\ModelValidator.cs" />
-    <Compile Include="Helpers\PermissionsChecker.cs" />
     <Compile Include="Helpers\UserConverter.cs" />
-    <Compile Include="Helpers\UserPermissionsValidator.cs" />
+    <Compile Include="Helpers\PrivilegesManager.cs" />
     <Compile Include="Helpers\UserValidator.cs" />
+    <Compile Include="Models\AdminRole.cs" />
     <Compile Include="Models\OperationScope.cs" />
     <Compile Include="Models\DeleteResult.cs" />
     <Compile Include="Models\UserDto.cs" />
@@ -166,8 +165,8 @@
     <Compile Include="Repositories\AuthenticationRepository.cs" />
     <Compile Include="Repositories\IAuthenticationRepository.cs" />
     <Compile Include="Repositories\ILdapRepository.cs" />
-    <Compile Include="Repositories\ISqlInstanceRepository.cs" />
-    <Compile Include="Repositories\ISqlPrivilegesRepository.cs" />
+    <Compile Include="Repositories\IInstanceRepository.cs" />
+    <Compile Include="Repositories\IPrivilegesRepository.cs" />
     <Compile Include="Repositories\ISqlSettingsRepository.cs" />
     <Compile Include="Repositories\ISqlUserRepository.cs" />
     <Compile Include="Repositories\Jobs\IJobsRepository.cs" />

@@ -453,7 +453,7 @@ namespace Model.Impl
             return GetAttachments(Address, artifactId, user, addDrafts, versionId, baselineId, subArtifactId);
         }
 
-        /// <seealso cref="IArtifactStore.GetAttachments(IArtifactBase, IUser, bool?, int?, int?, int?, List{HttpStatusCode}, IServiceErrorMessage)"/>
+        /// <seealso cref="IArtifactStore.GetAttachments(IArtifactBase, IUser, bool?, int?, int?, int?, List{HttpStatusCode})"/>
         public Attachments GetAttachments(IArtifactBase artifact, IUser user, bool? addDrafts = null,
             int? versionId = null, int? baselineId = null, int? subArtifactId = null,
             List<HttpStatusCode> expectedStatusCodes = null)
@@ -904,12 +904,12 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.GetReviewArtifacts(IUser, int)"/>
-        public GetReviewArtifactsResultSet GetReviewArtifacts(IUser user, int reviewId)
+        public ReviewContent GetReviewArtifacts(IUser user, int reviewId)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Reviews_id_.CONTENT, reviewId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
-            return restApi.SendRequestAndDeserializeObject<GetReviewArtifactsResultSet>(path,
+            return restApi.SendRequestAndDeserializeObject<ReviewContent>(path,
                 RestRequestMethod.GET, shouldControlJsonChanges: true);
         }
 
@@ -1382,6 +1382,7 @@ namespace Model.Impl
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="addDrafts">(optional) Should include attachments in draft state.  Without addDrafts it works as if addDrafts=true.</param>
         /// <param name="versionId">(optional) The version of the attachment to retrieve.</param>
+        /// <param name="baselineId">(optional) The id of baseline to get version of the attachment to retrieve.</param>
         /// <param name="subArtifactId">(optional) The ID of a sub-artifact of this artifact that has the attachment to get.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>Attachment object for the specified artifact/subartifact.</returns>

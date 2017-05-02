@@ -42,9 +42,9 @@ namespace ArtifactStoreTests
             _user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projectCustomData);
             const int reviewId = 111;
             const int numberOfArtifacts = 15;
-            
+
             // Execute: 
-            GetReviewArtifactsResultSet reviewArtifacts = null;
+            ReviewContent reviewArtifacts = null;
             Assert.DoesNotThrow(() => reviewArtifacts = Helper.ArtifactStore.GetReviewArtifacts(_user, reviewId),
                 "{0} should be successful.", nameof(Helper.ArtifactStore.GetReviewArtifacts));
 

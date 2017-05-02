@@ -8,6 +8,7 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using AdminStore.Helpers;
 using AdminStore.Models;
+using AdminStore.Models.Enums;
 using AdminStore.Repositories;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Exceptions;
@@ -410,7 +411,7 @@ namespace AdminStore.Controllers
             var privileges = user.InstanceAdminRoleId.HasValue ? InstanceAdminPrivileges.AssignAdminRoles : InstanceAdminPrivileges.ManageUsers;
             await _privilegesManager.Demand(SessionUserId, privileges);
 
-            var databaseUser = UsersHelper.CreateDbUserFromDto(user);
+            var databaseUser = UsersHelper.CreateDbUserFromDto(user, UserOperationMode.Create);
 
             var userId = await _userRepository.AddUserAsync(databaseUser);
             return Request.CreateResponse<int>(HttpStatusCode.Created, userId);
@@ -459,7 +460,7 @@ namespace AdminStore.Controllers
                 await _privilegesManager.Demand(SessionUserId, InstanceAdminPrivileges.AssignAdminRoles);
             }
 
-            var databaseUser = UsersHelper.CreateDbUserFromDto(user, userId);
+            var databaseUser = UsersHelper.CreateDbUserFromDto(user, UserOperationMode.Edit, userId);
             await _userRepository.UpdateUserAsync(databaseUser);
 
             return Ok();

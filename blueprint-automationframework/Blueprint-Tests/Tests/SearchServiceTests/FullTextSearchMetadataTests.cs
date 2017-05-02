@@ -37,7 +37,8 @@ namespace SearchServiceTests
             Helper = new TestHelper();
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _user2 = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            _projects = ProjectFactory.GetAllProjects(_user, true, true);
+            _projects = ProjectFactory.GetAllProjects(_user, shouldRetrieveArtifactTypes: true,
+                shouldRetriveNovaArtifactTypes: true);
             _artifacts = SearchServiceTestHelper.SetupFullTextSearchData(_projects, _user, Helper);
         }
 

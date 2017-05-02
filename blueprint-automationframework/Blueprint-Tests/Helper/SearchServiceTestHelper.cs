@@ -49,19 +49,15 @@ namespace Helper
 
             if (selectedBaseArtifactTypes == null)
             {
+                var randomBaselineName = "Artifact_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces();
+                var randomCollectionName = "Artifact_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces();
                 foreach (var project in projectsSubset)
                     {
-                        var randomBaselineName = "Artifact_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces();
                         var artifactBaseline = testHelper.CreateBaseline(user, project, name: randomBaselineName);
                         artifactBaseline.SaveWithNewDescription(user, randomArtifactDescription);
-                        artifactBaseline.Publish(user);
-                        artifactBaseline.RefreshArtifactFromServer(user);
 
-                        var randomCollectionName = "Artifact_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces();
                         var artifactCollection = testHelper.CreateUnpublishedCollection(project, user, name: randomCollectionName);
                         artifactCollection.SaveWithNewDescription(user, randomArtifactDescription);
-                        artifactCollection.Publish(user);
-                        artifactCollection.RefreshArtifactFromServer(user);
 
                         artifacts.Add(artifactBaseline);
                         artifacts.Add(artifactCollection);
@@ -85,16 +81,16 @@ namespace Helper
 
                 foreach (var project in projectsSubset)
                 {
-                    // Create artifact in first project with random Name & Description
+                    // Create artifact in the project with random Name & Description
                     var artifact = testHelper.CreateNovaArtifact(user, project, artifactType, name: randomArtifactName);
                     artifact.SaveWithNewDescription(user, randomArtifactDescription);
-
-                    artifact.Publish(user);
-                    artifact.RefreshArtifactFromServer(user);
 
                     artifacts.Add(artifact);
                 }
             }
+
+            artifacts.ForEach(a => a.Publish(user));
+            artifacts.ForEach(a => a.RefreshArtifactFromServer(user));
 
             // Wait for all artifacts to be available to the search service
             var searchCriteria = new FullTextSearchCriteria(randomArtifactDescription, projectIds: projectsSubset.Select(p => p.Id));
@@ -166,8 +162,8 @@ namespace Helper
         /// <summary>
         /// Gets the list of all Item Type Ids for a list of projects and base artifact types.
         /// </summary>
-        /// <param name="projects"></param>
-        /// <param name="baseArtifactTypes"></param>
+        /// <param name="projects">List of projects</param>
+        /// <param name="baseArtifactTypes">List of Artifact Types</param>
         /// <returns>List of ItemTypeId</returns>
         public static List<int> GetItemTypeIdsForBaseArtifactTypes(List<IProject> projects,
             List<ItemTypePredefined> artifactTypes)

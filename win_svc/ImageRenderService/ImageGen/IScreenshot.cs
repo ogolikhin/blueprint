@@ -8,7 +8,7 @@ namespace ImageRenderService.ImageGen
 {
     public interface IScreenshot : IDisposable
     {
-        void Save(MemoryStream stream, ImageFormat format);
+        void Save(Stream stream, ImageFormat format);
         Bitmap Image { get; set; }
         int Width { get; }
         int Height { get; }

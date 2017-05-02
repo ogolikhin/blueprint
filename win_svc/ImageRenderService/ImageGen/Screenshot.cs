@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 
@@ -8,10 +9,14 @@ namespace ImageRenderService.ImageGen
     {
         public Screenshot(Bitmap image)
         {
+            if (image == null)
+            {
+                throw new ArgumentNullException();
+            }
             Image = image;
         }
 
-        public void Save(MemoryStream stream, ImageFormat format)
+        public void Save(Stream stream, ImageFormat format)
         {
             Image.Save(stream, format);
         }

@@ -55,7 +55,7 @@ namespace ImageRenderService.Tests.ImageGen
             await _imageGenHelper.GenerateImageAsync(url, ImageFormat.Png);
 
             //Assert
-            screenshotMock.Verify(b => b.Save(It.IsAny<MemoryStream>(), It.IsAny<ImageFormat>()));
+            screenshotMock.Verify(b => b.Save(It.IsAny<Stream>(), It.IsAny<ImageFormat>()));
         }
 
         [TestMethod]

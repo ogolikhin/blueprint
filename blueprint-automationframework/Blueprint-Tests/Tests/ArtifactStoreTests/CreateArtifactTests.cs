@@ -910,22 +910,22 @@ namespace ArtifactStoreTests
 
             Assert.IsNull(newArtifact.CreatedOn, "The artifact {0} property should be null!", nameof(newArtifact.CreatedOn));
 
+            // Description is RichText, so check if it's null or a RichText equivalent of empty.
+            Assert.AreEqual(string.Empty, StringUtilities.ConvertHtmlToText(newArtifact.Description), "The artifact {0} property should be null or empty!", nameof(newArtifact.Description));
+
             if (itemType == ItemTypePredefined.TextualRequirement)
             {
-                Assert.NotNull(newArtifact.Description, "The artifact {0} property should NOT be null!", nameof(newArtifact.Description));
-                Assert.NotNull(newArtifact.ItemTypeIconId, "The artifact {0} property should NOT be null!", nameof(newArtifact.ItemTypeIconId));
                 Assert.That(newArtifact.CustomPropertyValues.Count > 0, "The artifact {0} property should NOT be empty!", nameof(newArtifact.CustomPropertyValues));
             }
             else
             {
-                Assert.IsNull(newArtifact.Description, "The artifact {0} property should be null!", nameof(newArtifact.Description));
-                Assert.IsNull(newArtifact.ItemTypeIconId, "The artifact {0} property should be null!", nameof(newArtifact.ItemTypeIconId));
                 Assert.AreEqual(0, newArtifact.CustomPropertyValues.Count, "The artifact {0} property should be empty!", nameof(newArtifact.CustomPropertyValues));
             }
 
             Assert.That(newArtifact.Id > 0, "The artifact {0} property should be > 0!", nameof(newArtifact.Id));
 
             var novaArtifactType = project.NovaArtifactTypes.Find(a => a.PredefinedType == itemType);
+            Assert.AreEqual(novaArtifactType.IconImageId, newArtifact.ItemTypeIconId, "The artifact {0} property is incorrect!", nameof(newArtifact.ItemTypeIconId));
             Assert.AreEqual(novaArtifactType.Id, newArtifact.ItemTypeId, "The artifact {0} property is incorrect!", nameof(newArtifact.ItemTypeId));
             Assert.AreEqual(novaArtifactType.Name, newArtifact.ItemTypeName, "The artifact {0} property is incorrect!", nameof(newArtifact.ItemTypeName));
             Assert.AreEqual(novaArtifactType.VersionId, newArtifact.ItemTypeVersionId, "The artifact {0} property is incorrect!", nameof(newArtifact.ItemTypeVersionId));

@@ -71,12 +71,17 @@ namespace Utilities
         }
 
         /// <summary>
-        /// Convert HTML text into plain text
+        /// Convert HTML text into plain text.
         /// </summary>
-        /// <param name="htmlText"> HTML text to convert to plain text</param>
-        /// <returns>plain text</returns>
+        /// <param name="htmlText">HTML text to convert to plain text.</param>
+        /// <returns>The plain text that was extracted from the HTML text.</returns>
         public static string ConvertHtmlToText(string htmlText)
         {
+            if (htmlText == null)
+            {
+                return string.Empty;
+            }
+
             string plainText = WebUtility.HtmlDecode( Regex.Replace(htmlText, "<(.|\n)*?>", "") );
             //TODO: Better way of removing zero-width space from htmlText?
             char ZeroWidthSpace = (char)8203;

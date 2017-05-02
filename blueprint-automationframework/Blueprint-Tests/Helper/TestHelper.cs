@@ -912,7 +912,7 @@ namespace Helper
         /// <param name="user">The user to perform the operation.</param>
         /// <param name="project">The project in which Baseline Folder will be created.</param>
         /// <param name="name">(optional) The name of Baseline Folder to create.  By default a random name will be used.</param>
-        /// <param name="parentId">(optional) The ID of the parent artifact where Baseline Folder should be created.  
+        /// <param name="parentId">(optional) The ID of the parent Baseline Folder where the Baseline Folder should be created.  
         ///     By default it will be created in the default Baselines and Reviews folder for the project.</param>
         /// <returns>The Baseline Folder artifact.</returns>
         public ArtifactWrapper CreateBaselineFolder(

@@ -1,8 +1,6 @@
-﻿using System.Drawing;
-using System.Drawing.Imaging;
+﻿using System.Drawing.Imaging;
 using System.IO;
 using System.Threading.Tasks;
-using CefSharp;
 using ImageRenderService.ImageGen;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;

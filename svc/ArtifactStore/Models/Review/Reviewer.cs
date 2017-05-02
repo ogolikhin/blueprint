@@ -1,24 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace ArtifactStore.Models.Review
 {
+    [DataContract]
     public class Reviewer
     {
+        [DataMember(Name = "Id")]
         public int UserId { get; set; }
 
+        [DataMember]
         public string DisplayName { get; set; }
 
+        [DataMember]
         public ReviwerRole Role { get; set; }
 
+        [DataMember]
         public ReviewStatus Status { get; set; }
 
+        [DataMember]
         public DateTime? CompleteReviewDateTime { get; set; }
 
+        [DataMember]
         public int Approved { get; set; }
 
+        [DataMember]
         public int Disapproved { get; set; }
 
+        [DataMember]
         public int Viewed { get; set; }
     }
 

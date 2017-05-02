@@ -26,7 +26,7 @@ namespace ArtifactStoreTests
         {
             Helper = new TestHelper();
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            _projects = ProjectFactory.GetAllProjects(_adminUser, shouldRetrievePropertyTypes: true);
+            _projects = ProjectFactory.GetAllProjects(_adminUser, shouldRetrieveArtifactTypes: true);
             _projectTest = _projects[0];
             _authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _projectTest);
         }

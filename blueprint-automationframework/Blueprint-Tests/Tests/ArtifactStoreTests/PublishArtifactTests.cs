@@ -512,7 +512,7 @@ namespace ArtifactStoreTests
         public void PublishArtifact_ArtifactsSavedInMultipleProjects_ArtifactsHaveVersion1(BaseArtifactType artifactType, int numberOfArtifacts)
         {
             // Setup:
-            var projects = ProjectFactory.GetAllProjects(_user, shouldRetrievePropertyTypes: true);
+            var projects = ProjectFactory.GetAllProjects(_user, shouldRetrieveArtifactTypes: true);
             Assert.GreaterOrEqual(projects.Count, 2, "This test requires at least 2 projects to exist!");
 
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projects);
@@ -550,7 +550,7 @@ namespace ArtifactStoreTests
         public void PublishArtifactWithAllTrue_ArtifactsSavedInMultipleProjects_SendEmptyListToPublish_ArtifactsHaveVersion1(BaseArtifactType artifactType, int numberOfArtifacts)
         {
             // Setup:
-            var projects = ProjectFactory.GetAllProjects(_user, shouldRetrievePropertyTypes: true);
+            var projects = ProjectFactory.GetAllProjects(_user, shouldRetrieveArtifactTypes: true);
             Assert.GreaterOrEqual(projects.Count, 2, "This test requires at least 2 projects to exist!");
 
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projects);

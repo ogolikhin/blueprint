@@ -1,4 +1,5 @@
-﻿using ArtifactStore.Models.Review;
+﻿using ArtifactStore.Models;
+using ArtifactStore.Models.Review;
 using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
@@ -70,21 +71,26 @@ namespace ArtifactStore.Repositories
             };
         }
 
-        public async Task<ReviewContainer> GetReviewContainerAsync(int containerId, int userId)
+        private async Task<VersionControlArtifactInfo> GetAndValidateReviewInfo(int reviewId, int userId)
         {
-            var artifactInfo = await _artifactVersionsRepository.GetVersionControlArtifactInfoAsync(containerId, null, userId);
+            var artifactInfo = await _artifactVersionsRepository.GetVersionControlArtifactInfoAsync(reviewId, null, userId);
             if (artifactInfo.IsDeleted || artifactInfo.PredefinedType != ItemTypePredefined.ArtifactReviewPackage)
             {
-                string errorMessage = I18NHelper.FormatInvariant("Review (Id:{0}) is not found.", containerId);
+                string errorMessage = I18NHelper.FormatInvariant("Review (Id:{0}) is not found.", reviewId);
                 throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
             }
-
-            var reviewer = await GetReviewer(containerId, userId);
+            var reviewer = await GetReviewer(reviewId, userId);
             if (reviewer == null)
             {
-                string errorMessage = I18NHelper.FormatInvariant("User does not have permissions to access the review (Id:{0}).", containerId);
+                string errorMessage = I18NHelper.FormatInvariant("User does not have permissions to access the review (Id:{0}).", reviewId);
                 throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
             }
+            return artifactInfo;
+        }
+
+        public async Task<ReviewContainer> GetReviewContainerAsync(int containerId, int userId)
+        {
+            var artifactInfo = await GetAndValidateReviewInfo(containerId, userId);
 
             var reviewContainer = await GetReviewAsync(containerId, userId, int.MaxValue);
             reviewContainer.Name = artifactInfo.Name;
@@ -94,6 +100,7 @@ namespace ArtifactStore.Repositories
 
         public async Task<ReviewContent> GetContentAsync(int reviewId, int userId, int? offset, int? limit, int? versionId = null, bool? addDrafts = true)
         {
+            await GetAndValidateReviewInfo(reviewId, userId);
             var reviewArtifacts = await GetReviewArtifactsAsync(reviewId, userId, offset, limit, versionId, addDrafts);
             var reviewArtifactIds = reviewArtifacts.Items.Select(a => a.Id).ToList();
             var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(reviewArtifactIds, userId);

@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using AdminStore.Models;
 using Dapper;
-using ServiceLibrary.Repositories;
-using ServiceLibrary.Helpers;
-using System.Data;
-using System.Linq;
 using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Repositories;
 
 namespace AdminStore.Repositories
 {
-    public class SqlInstanceRepository : ISqlInstanceRepository
+    public class SqlInstanceRepository : IInstanceRepository
     {
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
 
@@ -96,6 +96,12 @@ namespace AdminStore.Repositories
                 projectPaths.RemoveAll(p => p.Level == 0);
 
             return projectPaths.OrderByDescending(p => p.Level).Select(p => p.Name).ToList();
+        }
+
+        public async Task<IEnumerable<AdminRole>> GetInstanceRolesAsync()
+        {
+            var result = await ConnectionWrapper.QueryAsync<AdminRole>("GetInstanceAdminRoles", commandType: CommandType.StoredProcedure);
+            return result;
         }
     }
 }

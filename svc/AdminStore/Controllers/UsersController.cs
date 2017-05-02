@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -31,22 +30,23 @@ namespace AdminStore.Controllers
         internal readonly ISqlSettingsRepository _settingsRepository;
         internal readonly IEmailHelper _emailHelper;
         internal readonly IApplicationSettingsRepository _applicationSettingsRepository;
-        internal readonly IInstanceRolesRepository _instanceRolesRepository;
         internal readonly IServiceLogRepository _log;
         internal readonly IHttpClientProvider _httpClientProvider;
         internal readonly PrivilegesManager _privilegesManager;
 
         public UsersController() : this(new AuthenticationRepository(), new SqlUserRepository(),
             new SqlSettingsRepository(), new EmailHelper(), new ApplicationSettingsRepository(),
-            new ServiceLogRepository(), new HttpClientProvider(), new SqlPrivilegesRepository(), 
-            new InstanceRolesRepository())
+            new ServiceLogRepository(), new HttpClientProvider(), new SqlPrivilegesRepository())
         {
         }
 
-        internal UsersController(IAuthenticationRepository authenticationRepository,
-            ISqlUserRepository userRepository, ISqlSettingsRepository settingsRepository,
-            IEmailHelper emailHelper, IApplicationSettingsRepository applicationSettingsRepository,
-            IServiceLogRepository log, IHttpClientProvider httpClientProvider, IPrivilegesRepository privilegesRepository, IInstanceRolesRepository instanceRolesRepository)
+        internal UsersController
+        (
+            IAuthenticationRepository authenticationRepository, ISqlUserRepository userRepository, 
+            ISqlSettingsRepository settingsRepository, IEmailHelper emailHelper, 
+            IApplicationSettingsRepository applicationSettingsRepository, IServiceLogRepository log, 
+            IHttpClientProvider httpClientProvider, IPrivilegesRepository privilegesRepository
+        )
         {
             _authenticationRepository = authenticationRepository;
             _userRepository = userRepository;
@@ -56,7 +56,6 @@ namespace AdminStore.Controllers
             _log = log;
             _httpClientProvider = httpClientProvider;
             _privilegesManager = new PrivilegesManager(privilegesRepository);
-            _instanceRolesRepository = instanceRolesRepository;
         }
 
         /// <summary>
@@ -464,27 +463,6 @@ namespace AdminStore.Controllers
             await _userRepository.UpdateUserAsync(databaseUser);
 
             return Ok();
-        }
-
-        /// <summary>
-        /// Get the list of instance administrators roles in the instance  
-        /// </summary>
-        /// <remarks>
-        /// Returns the list of instance administrators roles.
-        /// </remarks>
-        /// <returns code="200">OK list of AdminRole models</returns>
-        /// <returns code="400">BadRequest if errors occurred</returns>
-        /// <returns code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</returns>
-        /// <returns code="403">Forbidden if used doesn’t have permissions to get the list of instance administrators roles</returns>
-        [SessionRequired]
-        [Route("instanceroles")]
-        [ResponseType(typeof(IEnumerable<AdminRole>))]
-        public async Task<IHttpActionResult> GetInstanceRoles()
-        {
-            await _privilegesManager.Demand(SessionUserId, InstanceAdminPrivileges.ViewUsers);
-
-            var result = await _instanceRolesRepository.GetInstanceRolesAsync();
-            return Ok(result);
         }
     }
 }

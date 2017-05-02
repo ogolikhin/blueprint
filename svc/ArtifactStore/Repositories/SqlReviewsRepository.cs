@@ -197,8 +197,8 @@ namespace ArtifactStore.Repositories
             var participants = await ConnectionWrapper.QueryMultipleAsync<Reviewer, int>("GetReviewParticipants", param, commandType: CommandType.StoredProcedure);
             var reviewersRoot = new ReviewParticipantsContent()
             {
-                Reviewers = participants.Item1.ToList(),
-                TotalParticipants = participants.Item2.SingleOrDefault()
+                Items = participants.Item1.ToList(),
+                Total = participants.Item2.SingleOrDefault()
             };
             return reviewersRoot;
         }

@@ -39,6 +39,6 @@ namespace AdminStore.Repositories
         Task<int> AddUserAsync(User loginUser);
 
         Task UpdateUserAsync(User loginUser);
-        Task<IEnumerable<int>> DeleteUsers(OperationScope body, string search);
+        Task<int> DeleteUsers(OperationScope body, string search);
     }
 }

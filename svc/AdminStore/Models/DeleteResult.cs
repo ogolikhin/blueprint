@@ -2,7 +2,7 @@
 
 namespace AdminStore.Models
 {
-    public class OperationScopeResult
+    public class DeleteResult
     {
         public bool IsSuccess { get; set; }
         public string Message { get; set; }

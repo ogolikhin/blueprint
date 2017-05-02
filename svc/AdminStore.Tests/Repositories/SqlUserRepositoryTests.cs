@@ -362,40 +362,65 @@ namespace AdminStore.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlUserRepository(cxn.Object, cxn.Object);
             int[] userIds = { 1, 2, 3 };
-            var userIdTable = SqlConnectionWrapper.ToDataTable(userIds);
-            var returntResult = new[] {1, 2, 3};
-            
-            cxn.SetupQueryAsync("DeleteUsers", new Dictionary<string, object> { { "UserIds", userIdTable } }, returntResult);
+            var operationScope = new OperationScope()
+            {
+                Ids = userIds,
+                SelectAll = false
+            };
+
+            var userIdTable = SqlConnectionWrapper.ToDataTable(operationScope.Ids);
+            var returntResult = 3;
+
+            cxn.SetupExecuteScalarAsync("DeleteUsers",
+                new Dictionary<string, object>
+                {
+                    {"UserIds", userIdTable},
+                    {"Search", ""},
+                    {"SelectAll", operationScope.SelectAll}
+                },
+                returntResult);
 
             //act
-            var result = await repository.DeleteUsers(userIds);
+            var result = await repository.DeleteUsers(operationScope, string.Empty);
 
             //assert
             cxn.Verify();
-            CollectionAssert.AreEquivalent(result.ToList(), returntResult);
+            Assert.AreEqual(result, returntResult);
         }
 
         [TestMethod]
-        public async Task DeleteUsers_UsersToDeleteAreNotExists_QueryReturn()
+        public async Task DeleteUsers_UsersToDeleteAreNotExists_QueryReturnEmptyCollection()
         {
             //arrange
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlUserRepository(cxn.Object, cxn.Object);
-            int[] userIds = { 1, 2, 3 };
-            var userIdTable = SqlConnectionWrapper.ToDataTable(userIds);
-            var returntResult = new[] { 1, 2, 3 };
+            int[] userIds = { };
+            var operationScope = new OperationScope()
+            {
+                Ids = userIds,
+                SelectAll = false
+            };
 
-            cxn.SetupQueryAsync("DeleteUsers", new Dictionary<string, object> { { "UserIds", userIdTable } }, returntResult);
+            var userIdTable = SqlConnectionWrapper.ToDataTable(operationScope.Ids);
+            var returntResult = 0;
+
+            cxn.SetupExecuteScalarAsync("DeleteUsers",
+                new Dictionary<string, object>
+                {
+                    {"UserIds", userIdTable},
+                    {"Search", ""},
+                    {"SelectAll", operationScope.SelectAll}
+                },
+                returntResult);
 
             //act
-            var result = await repository.DeleteUsers(userIds);
+            var result = await repository.DeleteUsers(operationScope, string.Empty);
 
             //assert
             cxn.Verify();
-            CollectionAssert.AreEquivalent(result.ToList(), returntResult);
+            Assert.AreEqual(result, returntResult);
         }
-
-
+        
         #endregion
 
         #region AddUserAsync

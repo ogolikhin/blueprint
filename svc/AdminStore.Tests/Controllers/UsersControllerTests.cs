@@ -70,7 +70,7 @@ namespace AdminStore.Controllers
                 AllowFallback = false,
                 Enabled = true,
                 ExpirePassword = true,
-                Password  = "MTIzNFJFV1EhQCMk",
+                Password = "MTIzNFJFV1EhQCMk",
                 Title = "TitleValue",
                 Department = "Departmentvalue",
                 GroupMembership = new int[] { 1 },
@@ -885,6 +885,25 @@ namespace AdminStore.Controllers
             Assert.IsInstanceOfType(exception, typeof(HttpResponseException));
             Assert.AreEqual(HttpStatusCode.Forbidden, ((HttpResponseException)exception).Response.StatusCode);
         }
+        #endregion
+
+        #region Deletete users
+
+        [TestMethod]
+        public async Task DeleteUsers_ParamsAreNotCorrect_BadRequestResult()
+        {
+            //arrange
+            _privilegesRepository
+                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+                .ReturnsAsync(FullPermissions);
+
+            //act
+            var result = await _controller.DeleteUsers(new OperationScope(), string.Empty);
+
+            //assert
+            Assert.IsInstanceOfType(result, typeof(BadRequestErrorMessageResult));
+        }
+
         #endregion
 
         #region GetUser

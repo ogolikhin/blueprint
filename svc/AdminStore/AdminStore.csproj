@@ -121,7 +121,7 @@
     <Compile Include="Helpers\UserPermissionsValidator.cs" />
     <Compile Include="Helpers\UserValidator.cs" />
     <Compile Include="Models\OperationScope.cs" />
-    <Compile Include="Models\OperationScopeResult.cs" />
+    <Compile Include="Models\DeleteResult.cs" />
     <Compile Include="Models\UserDto.cs" />
     <Compile Include="Helpers\EmailHelper.cs" />
     <Compile Include="Helpers\HashingUtilities.cs" />

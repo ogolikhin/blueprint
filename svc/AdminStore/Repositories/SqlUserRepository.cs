@@ -229,19 +229,24 @@ namespace AdminStore.Repositories
             return userId;
         }
 
-        public async Task<IEnumerable<int>> DeleteUsers(OperationScope body, string search)
+        public async Task<int> DeleteUsers(OperationScope body, string search)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@UserIds", SqlConnectionWrapper.ToDataTable(body.Ids));
             parameters.Add("@Search", search);
-            return await _connectionWrapper.QueryAsync<int>("DeleteUsers", parameters, commandType: CommandType.StoredProcedure);
-        }
-
-        public async Task<IEnumerable<int>> DeleteUsers(IEnumerable<int> userIds)
-        {
-            var prm = new DynamicParameters();
-            prm.Add("@UserIds", SqlConnectionWrapper.ToDataTable(userIds));
-            return await _connectionWrapper.QueryAsync<int>("DeleteUsers", prm, commandType: CommandType.StoredProcedure);
+            parameters.Add("@SelectAll", body.SelectAll);
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            var result = await _connectionWrapper.ExecuteScalarAsync<int>("DeleteUsers", parameters, commandType: CommandType.StoredProcedure);
+            var errorCode = parameters.Get<int?>("ErrorCode");
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.GeneralSqlError:
+                        throw new BadRequestException(ErrorMessages.GeneralErrorOfDeletingUsers);
+                }
+            }
+            return result;
         }
 
         public async Task UpdateUserAsync(User loginUser)

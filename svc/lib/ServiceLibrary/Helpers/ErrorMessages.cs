@@ -21,9 +21,11 @@
         public static readonly string UserModelIsEmpty = "The user model is empty.";
         public static readonly string GeneralErrorOfCreatingUser = "The user was not created.";
         public static readonly string GeneralErrorOfUpdatingUser = "The user was not updated.";
+        public static readonly string GeneralErrorOfDeletingUsers = "An error has occurred when performed the operation";
         public static readonly string UserNotExist = "The user with the current userId doesn’t exist or removed from the system.";
         public static readonly string UserVersionsNotEqual = "The current version from the request doesn’t match the current version in DB.";
         public static readonly string IncorrectUserId = "Incorrect userId.";
+        public static readonly string InvalideDeleteUsersParameters = "Invalid parameters to delete users";
 
     }
 }

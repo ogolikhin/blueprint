@@ -33,7 +33,6 @@ namespace AdminStore.Controllers
         internal readonly ISqlPrivilegesRepository _privilegesRepository;
         private const string PasswordResetTokenExpirationInHoursKey = "PasswordResetTokenExpirationInHours";
         private const int DefaultPasswordResetTokenExpirationInHours = 24;
-        private int _userId { get; set; }
 
         public UsersController() : this(new AuthenticationRepository(), new SqlUserRepository(),
             new SqlSettingsRepository(), new EmailHelper(), new ApplicationSettingsRepository(),
@@ -134,20 +133,22 @@ namespace AdminStore.Controllers
         /// <response code="403">Forbidden if used doesn’t have permissions to get users list</response>
         [HttpPost]
         [SessionRequired]
-        [Route("")]
+        [Route("delete")]
         [ResponseType(typeof(IEnumerable<int>))]
-        public async Task<IHttpActionResult> DeleteUsers([FromBody]OperationScope body, string search)
+        public async Task<IHttpActionResult> DeleteUsers([FromBody]OperationScope body,[FromUri]string search = null)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            var userId = session.UserId;
+            if (body?.Ids == null || !body.Ids.Any())
+            {
+                return BadRequest(ErrorMessages.InvalideDeleteUsersParameters);
+            }
             var permissions = new List<int> { Convert.ToInt32(InstanceAdminPrivileges.ManageUsers) };
-            if (!await _privilegesRepository.IsUserHasPermissions(permissions, userId))
+            if (!await _privilegesRepository.IsUserHasPermissions(permissions, SessionUserId))
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
-            var result = await _userRepository.GetLoginUserByIdAsync(session.UserId);
+            var result = await _userRepository.DeleteUsers(body, search);
 
-            return Ok();
+            return Ok(result);
         }
 
 
@@ -460,7 +461,7 @@ namespace AdminStore.Controllers
         /// <response code="409">Conflict. The current version from the request doesn’t match the current version in DB.</response>
         [HttpPut]
         [SessionRequired]
-        [ResponseType(typeof (HttpResponseMessage))]
+        [ResponseType(typeof(HttpResponseMessage))]
         [Route("{userId:int}")]
         public async Task<IHttpActionResult> UpdateUser(int userId, [FromBody] UserDto user)
         {

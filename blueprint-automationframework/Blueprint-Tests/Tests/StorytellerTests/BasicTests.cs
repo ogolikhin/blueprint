@@ -59,10 +59,10 @@ namespace StorytellerTests
         public void GetNovaProcess_GetDefaultProcess_VerifyReturnedProcess()
         {
             // Setup:
-            var novaProcessArtifact = Helper.CreateNovaArtifact(_adminUser, _project, ItemTypePredefined.Process);
+            var novaProcessArtifact = Helper.CreateNovaProcessArtifact(_adminUser, _project);
 
             // Execute:
-            NovaProcess returnedNovaProcess = null;
+            INovaProcess returnedNovaProcess = null;
             Assert.DoesNotThrow(() => returnedNovaProcess = Helper.Storyteller.GetNovaProcess(_adminUser, novaProcessArtifact.Id),
                 "'GET {0}' should return 200 when valid process ID is passed.", SVC_PATH);
 
@@ -236,7 +236,7 @@ namespace StorytellerTests
         /// </summary>
         /// <param name="expectedDefaultArtifact">the nova artifact used to verify actual returned nova process</param>
         /// <param name="actualNovaProcess">the nova process to verify</param>
-        private static void VerifyDefaultNovaProcess(ArtifactWrapper expectedDefaultArtifact, NovaProcess actualNovaProcess)
+        private static void VerifyDefaultNovaProcess(ArtifactWrapper expectedDefaultArtifact, INovaProcess actualNovaProcess)
         {
             ThrowIf.ArgumentNull(expectedDefaultArtifact, nameof(expectedDefaultArtifact));
             ThrowIf.ArgumentNull(actualNovaProcess, nameof(actualNovaProcess));

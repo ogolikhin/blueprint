@@ -24,13 +24,7 @@ namespace ImageRenderService.ImageGen
             set { _browser.Size = value; }
         }
 
-        public Bitmap Bitmap
-        {
-            get
-            {
-                return _browser.Bitmap;
-            }
-        }
+        public IScreenshot Bitmap => new Screenshot(_browser.Bitmap);
 
         public event EventHandler BrowserInitialized
         {
@@ -39,11 +33,16 @@ namespace ImageRenderService.ImageGen
         }
 
 
-        private VirtualBrowserLoadingStateChangedEventArgs convertEventArgs(LoadingStateChangedEventArgs args)
+        private VirtualBrowserLoadingStateChangedEventArgs ConvertEventArgs(LoadingStateChangedEventArgs args)
         {
+
             return new VirtualBrowserLoadingStateChangedEventArgs
             {
-                IsLoading = args.IsLoading
+                IsLoading = args.IsLoading,
+                Browser = this,
+                CanGoBack = args.CanGoBack,
+                CanGoForward = args.CanGoForward,
+                CanReload = args.CanReload
             };
         }
 
@@ -55,7 +54,7 @@ namespace ImageRenderService.ImageGen
             add {
                 _loadingStateChangedDelegates[value] = (s, e) =>
                 {
-                    value(this, convertEventArgs(e));
+                    value(this, ConvertEventArgs(e));
                 };
                 _browser.LoadingStateChanged += _loadingStateChangedDelegates[value];
             }
@@ -71,9 +70,20 @@ namespace ImageRenderService.ImageGen
             _browser.Load(url);
         }
 
-        public Task<Bitmap> ScreenshotAsync(bool ignoreExistingScreenshot = false)
+        public Task<IScreenshot> ScreenshotAsync(bool ignoreExistingScreenshot = false)
         {
-            return _browser.ScreenshotAsync(ignoreExistingScreenshot);
+            //return _browser.ScreenshotAsync(ignoreExistingScreenshot);
+            var tcs = new TaskCompletionSource<IScreenshot>();
+            _browser.ScreenshotAsync(ignoreExistingScreenshot).ContinueWith(t =>
+            {
+                if (t.IsFaulted)
+                    tcs.TrySetException(t.Exception.InnerExceptions);
+                else if (t.IsCanceled)
+                    tcs.TrySetCanceled();
+                else
+                    tcs.TrySetResult(new Screenshot(t.Result));
+            }, TaskContinuationOptions.ExecuteSynchronously);
+            return tcs.Task;
         }
 
         public Task<VirtualBrowserJavascriptResponse> EvaluateScriptAsync(string script, TimeSpan? timeout = null)

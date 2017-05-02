@@ -72,7 +72,6 @@ namespace ImageRenderService.ImageGen
 
         public Task<IScreenshot> ScreenshotAsync(bool ignoreExistingScreenshot = false)
         {
-            //return _browser.ScreenshotAsync(ignoreExistingScreenshot);
             var tcs = new TaskCompletionSource<IScreenshot>();
             _browser.ScreenshotAsync(ignoreExistingScreenshot).ContinueWith(t =>
             {

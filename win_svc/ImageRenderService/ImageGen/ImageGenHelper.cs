@@ -80,12 +80,12 @@ namespace ImageRenderService.ImageGen
         }
 
         //This is needed from rendering transparent background as black
-        private Bitmap DrawImageOnWhiteBackground(IScreenshot image, int width, int height)
+        private Bitmap DrawImageOnWhiteBackground(IScreenshot screenshot, int width, int height)
         {
             Bitmap blank = new Bitmap(width, height);
             Graphics g = Graphics.FromImage(blank);
             g.Clear(Color.White);
-            g.DrawImage(image.Image, 0, 0, width, height);
+            g.DrawImage(screenshot.Image, 0, 0, width, height);
             return new Bitmap(blank);
         }
 
@@ -105,7 +105,7 @@ namespace ImageRenderService.ImageGen
                 var effectiveAddress = isProcessFile ? Path.GetFullPath("process.html") : address;
 
                 browser.LoadingStateChanged += BrowserLoadingStateChanged;
-				browser.Load(effectiveAddress);
+                browser.Load(effectiveAddress);
                 
                 await task.Task;
             }

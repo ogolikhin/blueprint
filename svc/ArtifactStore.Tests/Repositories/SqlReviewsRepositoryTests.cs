@@ -21,6 +21,7 @@ namespace ArtifactStore.Repositories
 
         private Mock<IArtifactVersionsRepository> _artifactVersionsRepositoryMock;
         private Mock<ISqlItemInfoRepository> _itemInfoRepositoryMock;
+        private Mock<IArtifactPermissionsRepository> _artifactPermissionsRepositoryMock;
 
         [TestInitialize]
         public void Initialize()
@@ -28,7 +29,11 @@ namespace ArtifactStore.Repositories
             _cxn = new SqlConnectionWrapperMock();
             _artifactVersionsRepositoryMock = new Mock<IArtifactVersionsRepository>(MockBehavior.Strict);
             _itemInfoRepositoryMock = new Mock<ISqlItemInfoRepository>(MockBehavior.Strict);
-            _reviewsRepository = new SqlReviewsRepository(_cxn.Object, _artifactVersionsRepositoryMock.Object, _itemInfoRepositoryMock.Object);
+            _artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>(MockBehavior.Strict);
+            _reviewsRepository = new SqlReviewsRepository(_cxn.Object, 
+                    _artifactVersionsRepositoryMock.Object, 
+                    _itemInfoRepositoryMock.Object,
+                    _artifactPermissionsRepositoryMock.Object);
         }
 
         [TestMethod]

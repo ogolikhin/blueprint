@@ -292,7 +292,9 @@ namespace ArtifactStore.Repositories
             var permisionDictionary = new Dictionary<int, RolePermissions>();
             permisionDictionary.Add(2, RolePermissions.Read);
             _artifactPermissionsRepositoryMock.Setup(m => m.GetArtifactPermissions(It.IsAny<List<int>>(), userId, false, int.MaxValue, true)).ReturnsAsync(permisionDictionary);
-
+            _artifactPermissionsRepositoryMock.Setup(a => a.HasPermissions(It.IsAny<int>(),
+                                It.IsAny<Dictionary<int, RolePermissions>>(),
+                                It.IsAny<RolePermissions>())).Returns(true);
             // Act
             var result = await _relationshipsRepository.GetReviewRelationships(itemId, userId, addDrafts);
 

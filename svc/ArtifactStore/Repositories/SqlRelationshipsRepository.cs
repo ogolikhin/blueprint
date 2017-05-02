@@ -273,7 +273,7 @@ namespace ArtifactStore.Repositories
                 var reviewPermissions = await _artifactPermissionsRepository.GetArtifactPermissions(distinctReviewIds, userId);
                 foreach (var reviewId in distinctReviewIds)
                 {
-                    if (HasPermissions(reviewId, reviewPermissions, RolePermissions.Read))
+                    if (_artifactPermissionsRepository.HasPermissions(reviewId, reviewPermissions, RolePermissions.Read))
                     {
                         reviewIdsWithAccess.Add(reviewId);
                     }
@@ -304,11 +304,6 @@ namespace ArtifactStore.Repositories
                 result.ReviewArtifacts = referencedReviewArtifacts;
             }
             return result;
-        }
-        private bool HasPermissions(int itemId, Dictionary<int, RolePermissions> permissions, RolePermissions permissionType)
-        {
-            RolePermissions permission;
-            return permissions.TryGetValue(itemId, out permission) && permission.HasFlag(permissionType);
         }
     }
 }

@@ -90,29 +90,19 @@ namespace ArtifactStore.Controllers
                 artifactIds.Add(documentReference.ArtifactId);
             }
             var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(artifactIds, session.UserId);
-            if(!HasReadPermissions(artifactId, permissions))
+            if(!ArtifactPermissionsRepository.HasPermissions(artifactId, permissions, RolePermissions.Read))
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
             var docRef = result.DocumentReferences.ToList();
             foreach (var documentReference in docRef)
             {
-                if (!HasReadPermissions(documentReference.ArtifactId, permissions))
+                if (!ArtifactPermissionsRepository.HasPermissions(documentReference.ArtifactId, permissions, RolePermissions.Read))
                 {
                     result.DocumentReferences.Remove(documentReference);
                 }
             }
             return result;
-        }
-
-        private static bool HasReadPermissions(int itemId, Dictionary<int, RolePermissions> permissions)
-        {
-            RolePermissions permission = RolePermissions.None;
-            if (!permissions.TryGetValue(itemId, out permission) || !permission.HasFlag(RolePermissions.Read))
-            {
-                return false;
-            }
-            return true;
         }
     }
 }

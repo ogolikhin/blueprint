@@ -19,15 +19,24 @@ namespace ArtifactStore.Repositories
 
         private readonly ISqlItemInfoRepository _itemInfoRepository;
 
-        public SqlReviewsRepository(): this(new SqlConnectionWrapper(ServiceConstants.RaptorMain), new SqlArtifactVersionsRepository(), new SqlItemInfoRepository())
+        private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
+
+        public SqlReviewsRepository(): this(new SqlConnectionWrapper(ServiceConstants.RaptorMain), 
+                                            new SqlArtifactVersionsRepository(), 
+                                            new SqlItemInfoRepository(),
+                                            new SqlArtifactPermissionsRepository())
         {
         }
 
-        public SqlReviewsRepository(ISqlConnectionWrapper connectionWrapper, IArtifactVersionsRepository artifactVersionsRepository, ISqlItemInfoRepository itemInfoRepository)
+        public SqlReviewsRepository(ISqlConnectionWrapper connectionWrapper, 
+                                    IArtifactVersionsRepository artifactVersionsRepository, 
+                                    ISqlItemInfoRepository itemInfoRepository,
+                                    IArtifactPermissionsRepository artifactPermissionsRepository)
         {
             ConnectionWrapper = connectionWrapper;
             _artifactVersionsRepository = artifactVersionsRepository;
             _itemInfoRepository = itemInfoRepository;
+            _artifactPermissionsRepository = artifactPermissionsRepository;
         }
 
         private async Task<ReviewContainer> GetReviewAsync(int reviewId, int userId, int revisionId)
@@ -87,6 +96,7 @@ namespace ArtifactStore.Repositories
         {
             var reviewArtifacts = await GetReviewArtifactsAsync(reviewId, userId, offset, limit, versionId, addDrafts);
             var reviewArtifactIds = reviewArtifacts.Items.Select(a => a.Id).ToList();
+            var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(reviewArtifactIds, userId);
             var reviewArtifactStatuses = await GetReviewArtifactStatusesAsync(reviewId, userId, offset, limit, versionId, addDrafts, reviewArtifactIds);
             var numUsers = reviewArtifactStatuses.NumUsers;
             var artifactStatusDictionary = reviewArtifactStatuses.ItemStatuses.ToDictionary(a => a.ArtifactId);
@@ -95,21 +105,32 @@ namespace ArtifactStore.Repositories
 
             foreach (var reviewArtifact in reviewArtifacts.Items)
             {
-                if (artifactStatusDictionary.TryGetValue(reviewArtifact.Id, out reviewArtifactStatus))
+                if (_artifactPermissionsRepository.HasPermissions(reviewArtifact.Id, artifactPermissionsDictionary, RolePermissions.Read))
                 {
-                    reviewArtifact.Pending = reviewArtifactStatus.Pending;
-                    reviewArtifact.Approved = reviewArtifactStatus.Approved;
-                    reviewArtifact.Disapproved = reviewArtifactStatus.Disapproved;
-                    reviewArtifact.Viewed = reviewArtifactStatus.Viewed;
-                    reviewArtifact.Unviewed = reviewArtifactStatus.Unviewed;
-                }
-                else
+                    if (artifactStatusDictionary.TryGetValue(reviewArtifact.Id, out reviewArtifactStatus))
+                    {
+                        reviewArtifact.Pending = reviewArtifactStatus.Pending;
+                        reviewArtifact.Approved = reviewArtifactStatus.Approved;
+                        reviewArtifact.Disapproved = reviewArtifactStatus.Disapproved;
+                        reviewArtifact.Viewed = reviewArtifactStatus.Viewed;
+                        reviewArtifact.Unviewed = reviewArtifactStatus.Unviewed;
+                    }
+                    else
+                    {
+                        reviewArtifact.Pending = numUsers;
+                        reviewArtifact.Approved = 0;
+                        reviewArtifact.Disapproved = 0;
+                        reviewArtifact.Viewed = 0;
+                        reviewArtifact.Unviewed = numUsers;
+                    }
+                    reviewArtifact.HasAccess = true;
+                } else
                 {
-                    reviewArtifact.Pending = numUsers;
-                    reviewArtifact.Approved = 0;
-                    reviewArtifact.Disapproved = 0;
-                    reviewArtifact.Viewed = 0;
-                    reviewArtifact.Unviewed = numUsers;
+                    reviewArtifact.Name = string.Empty;
+                    reviewArtifact.ArtifactTypeId = 0;
+                    reviewArtifact.ArtifactTypeName = string.Empty;
+                    reviewArtifact.ItemTypePredefined = 0;
+                    reviewArtifact.HasAccess = false;
                 }
             }
             return reviewArtifacts;

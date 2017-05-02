@@ -904,12 +904,12 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.GetReviewArtifacts(IUser, int)"/>
-        public GetReviewArtifactsResultSet GetReviewArtifacts(IUser user, int reviewId)
+        public ReviewContent GetReviewArtifacts(IUser user, int reviewId)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Reviews_id_.CONTENT, reviewId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
-            return restApi.SendRequestAndDeserializeObject<GetReviewArtifactsResultSet>(path,
+            return restApi.SendRequestAndDeserializeObject<ReviewContent>(path,
                 RestRequestMethod.GET, shouldControlJsonChanges: true);
         }
 

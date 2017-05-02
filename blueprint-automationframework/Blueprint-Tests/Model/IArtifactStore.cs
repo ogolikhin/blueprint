@@ -642,7 +642,7 @@ namespace Model
         /// <param name="user">user to perform the operation. </param>
         /// <param name="reviewId">Id of Review.</param>
         /// <returns>Object containing list of artifacts and number of artifacts</returns>
-        GetReviewArtifactsResultSet GetReviewArtifacts(IUser user, int reviewId);
+        ReviewContent GetReviewArtifacts(IUser user, int reviewId);
 
         #region Process methods
 

@@ -94,7 +94,6 @@
     <Compile Include="..\..\svc\SolutionAssemblyVersion.cs">
       <Link>Properties\SolutionAssemblyVersion.cs</Link>
     </Compile>
-    <Compile Include="ImageGen\BrowserPoolTest.cs" />
     <Compile Include="ImageGen\ImageGenHelperTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

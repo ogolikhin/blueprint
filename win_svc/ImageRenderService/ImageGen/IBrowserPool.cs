@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using CefSharp.OffScreen;
 
 namespace ImageRenderService.ImageGen
 {

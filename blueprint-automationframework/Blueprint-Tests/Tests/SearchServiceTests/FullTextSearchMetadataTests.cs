@@ -4,6 +4,7 @@ using System.Globalization;
 using CustomAttributes;
 using Helper;
 using Model;
+using Model.ModelHelpers;
 using NUnit.Framework;
 using System.Linq;
 using System.Net;
@@ -26,7 +27,7 @@ namespace SearchServiceTests
         private static IUser _user;
         private static IUser _user2;
         private static List<IProject> _projects;
-        private static List<IArtifactBase> _artifacts;
+        private static List<ArtifactWrapper> _artifacts;
 
         protected const string FULLTEXTSEARCHMETADATA_PATH = RestPaths.Svc.SearchService.FullTextSearch.METADATA;
         const int DEFAULT_PAGE_SIZE_VALUE = 10;
@@ -205,12 +206,10 @@ namespace SearchServiceTests
             ThrowIf.ArgumentNull(baseArtifactTypes, nameof(baseArtifactTypes));
 
             // Setup: 
-            var openApiProperty = _artifacts.First().Properties.FirstOrDefault(p => p.Name == DESCRIPTION);
-
-            Assert.That(openApiProperty != null, "Description property for artifact could not be found!");
+            string description = _artifacts[0].Description;
 
             // Search for Description property value which is common to all artifacts
-            var searchTerm = WebUtility.HtmlDecode(openApiProperty.TextOrChoiceValue);
+            var searchTerm = StringUtilities.ConvertHtmlToText(description);
             var itemTypeIds = SearchServiceTestHelper.GetItemTypeIdsForBaseArtifactTypes(_projects, baseArtifactTypes.ToList());
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id), itemTypeIds);
 
@@ -503,11 +502,10 @@ namespace SearchServiceTests
             TestHelper.ProjectRole projectRole)
         {
             // Setup: 
-            var openApiProperty = _artifacts.First().Properties.FirstOrDefault(p => p.Name == DESCRIPTION);
-            Assert.That(openApiProperty != null, "Description property for artifact could not be found!");
-
+            string description = _artifacts[0].Description;
+            
             // Search for Description property value which is common to all artifacts
-            var searchTerm = WebUtility.HtmlDecode(openApiProperty.TextOrChoiceValue);
+            var searchTerm = StringUtilities.ConvertHtmlToText(description);
 
             // Set search criteria over all projects
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id));
@@ -542,11 +540,10 @@ namespace SearchServiceTests
             TestHelper.ProjectRole projectRole)
         {
             // Setup:
-            var openApiProperty = _artifacts.First().Properties.FirstOrDefault(p => p.Name == DESCRIPTION);
-            Assert.That(openApiProperty != null, "Description property for artifact could not be found!");
-
+            string description = _artifacts[0].Description;
+            
             // Search for Description property value which is common to all artifacts
-            var searchTerm = WebUtility.HtmlDecode(openApiProperty.TextOrChoiceValue);
+            var searchTerm = StringUtilities.ConvertHtmlToText(description);
 
             // Set search criteria over all projects
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id));
@@ -749,7 +746,7 @@ namespace SearchServiceTests
         }
 
         /// <summary>
-        /// Creates the expected serach metadata result for the specified serch criteria
+        /// Creates the expected serach metadata result for the specified search criteria
         /// </summary>
         /// <param name="searchCriteria">The criteria used for the search</param>
         /// <param name="propertyToSearch">The property name to be used for the search</param>
@@ -763,43 +760,50 @@ namespace SearchServiceTests
             pageSize = pageSize ?? DEFAULT_PAGE_SIZE_VALUE;
             pageSize = pageSize < 1 ? DEFAULT_PAGE_SIZE_VALUE : pageSize;
 
-            var selectedArtifacts = new List<IArtifactBase>();
-
-            if (propertyToSearch.ToUpper(CultureInfo.InvariantCulture).Equals("DESCRIPTION"))
-            {
-                searchCriteria.Query = WebUtility.HtmlEncode(searchCriteria.Query);
-            }
+            var selectedArtifacts = new List<ArtifactWrapper>();
 
             foreach (var artifact in _artifacts)
             {
-                if (artifact.Properties.Find(p => p.Name == propertyToSearch).TextOrChoiceValue == searchCriteria.Query)
+                switch (propertyToSearch)
                 {
-                    selectedArtifacts.Add(artifact);
+                    case "Name":
+                        if (artifact.Name == searchCriteria.Query)
+                        {
+                            selectedArtifacts.Add(artifact);
+                        }
+                        break;
+                    case "Description":
+                        if (StringUtilities.ConvertHtmlToText(artifact.Description) == searchCriteria.Query)
+                        {
+                            selectedArtifacts.Add(artifact);
+                        }
+                        break;
+                    default:
+                        break;
                 }
             }
 
-            selectedArtifacts = selectedArtifacts.Where(a => searchCriteria.ProjectIds.Contains(a.ProjectId)).ToList();
+            selectedArtifacts = selectedArtifacts.Where(a => searchCriteria.ProjectIds.Contains(a.ProjectId.Value)).ToList();
 
             if (searchCriteria.ItemTypeIds != null)
             {
-                selectedArtifacts = selectedArtifacts.Where(a => searchCriteria.ItemTypeIds.Contains(a.ArtifactTypeId)).ToList();
-
+                selectedArtifacts = selectedArtifacts.Where(a => searchCriteria.ItemTypeIds.Contains(a.ItemTypeId.Value)).ToList();
             }
 
             Assert.IsNotNull(selectedArtifacts, "No artifacts meet the search criteria!");
 
             var fullTextSearchTypeItems = new List<FullTextSearchTypeItem>();
 
-            foreach (var artifactTypeId in selectedArtifacts.Select(a => a.ArtifactTypeId).Distinct())
+            foreach (var artifactTypeId in selectedArtifacts.Select(a => a.ItemTypeId.Value).Distinct())
             {
-                var firstOrDefault = selectedArtifacts.FirstOrDefault(a => a.ArtifactTypeId == artifactTypeId);
+                var firstOrDefault = selectedArtifacts.FirstOrDefault(a => a.ItemTypeId.Value == artifactTypeId);
 
                 if (firstOrDefault != null)
                 {
                     var fullTextSearchTypeItem = new FullTextSearchTypeItem
                     {
-                        Count = selectedArtifacts.Count(a => a.ArtifactTypeId == artifactTypeId),
-                        TypeName = firstOrDefault.ArtifactTypeName,
+                        Count = selectedArtifacts.Count(a => a.ItemTypeId == artifactTypeId),
+                        TypeName = firstOrDefault.ItemTypeName,
                         ItemTypeId = artifactTypeId
                     };
 

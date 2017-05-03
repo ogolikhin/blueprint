@@ -131,8 +131,9 @@ namespace ArtifactStore.Repositories
                     reviewArtifact.HasAccess = true;
                 } else {
                     reviewArtifact.Name = string.Empty;
-                    reviewArtifact.ArtifactTypeId = 0;
-                    reviewArtifact.ArtifactTypeName = string.Empty;
+                    reviewArtifact.ItemTypeId = 0;
+                    reviewArtifact.IsApprovalRequired = false;
+                    reviewArtifact.HasComments = false;
                     reviewArtifact.ItemTypePredefined = 0;
                     reviewArtifact.HasAccess = false;
                 }

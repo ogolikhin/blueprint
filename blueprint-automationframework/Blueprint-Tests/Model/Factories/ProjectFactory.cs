@@ -3,11 +3,9 @@ using Model.Impl;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Net;
 using Model.OpenApiModel.Services;
 using TestConfig;
 using Utilities;
-using Utilities.Facades;
 using Utilities.Factories;
 
 namespace Model.Factories
@@ -54,8 +52,10 @@ namespace Model.Factories
         /// </summary>
         /// <param name="user">The user making the REST request.</param>
         /// <param name="shouldRetrievePropertyTypes">(optional) Pass true if you also want to get the property types for each project.</param>
+        /// <param name="shouldRetrieveNovaArtifactTypes">(optional) Pass true if you also want to get the Nova artifact types for each project.</param>
         /// <returns>A list of projects that were found.</returns>
-        public static List<IProject> GetAllProjects(IUser user, bool shouldRetrievePropertyTypes = false)
+        public static List<IProject> GetAllProjects(IUser user, bool shouldRetrieveArtifactTypes = false, 
+            bool shouldRetriveNovaArtifactTypes = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
@@ -65,9 +65,14 @@ namespace Model.Factories
             {
                 project.ArtifactStore = ArtifactStore;
 
-                if (shouldRetrievePropertyTypes)
+                if (shouldRetrieveArtifactTypes)
                 {
                     project.GetAllOpenApiArtifactTypes(Address, user);
+                }
+
+                if (shouldRetriveNovaArtifactTypes)
+                {
+                    project.NovaArtifactTypes.AddRange(project.GetAllNovaArtifactTypes(ArtifactStore, user));
                 }
             }
 
@@ -83,8 +88,15 @@ namespace Model.Factories
         ///  By default, set to true</param>
         /// <param name="shouldRetrievePropertyTypes">(optional) Define if Property values also need to be retrieved
         ///  as part of ArtifactType list. By default, set to false</param>
+        /// <param name="shouldRetrieveNovaArtifactTypes">(optional) Define if NovaArtifactType list needs to be retrieved.
+        ///     By default, set to true</param>
         /// <returns>The first valid project object that retrieved from Blueprint server or valid project object with the project name specified </returns>
-        public static IProject GetProject(IUser user, string projectName = null, bool shouldRetrieveArtifactTypes = true, bool shouldRetrievePropertyTypes = false)
+        public static IProject GetProject(
+            IUser user,
+            string projectName = null,
+            bool shouldRetrieveArtifactTypes = true,
+            bool shouldRetrievePropertyTypes = false,
+            bool shouldRetrieveNovaArtifactTypes = true)
         {
             var projects = GetAllProjects(user);
 
@@ -104,6 +116,12 @@ namespace Model.Factories
             {
                 project.GetAllOpenApiArtifactTypes(address: Address, user: user,
                     shouldRetrievePropertyTypes: shouldRetrievePropertyTypes);
+            }
+
+            if (shouldRetrieveNovaArtifactTypes)
+            {
+                var artifactStore = ArtifactStoreFactory.GetArtifactStoreFromTestConfig();
+                project.GetAllNovaArtifactTypes(artifactStore, user);
             }
 
             return project;

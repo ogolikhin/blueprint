@@ -168,13 +168,15 @@ namespace Helper
         /// <param name="user">User for authentication.</param>
         /// <param name="artifactType">ArtifactType.</param>
         /// <param name="parentArtifact">(optional) The parent artifact.  By default artifact will be created in root of the project.</param>
+        /// <param name="name">(optional) The name of the artifact.  By default a random name is used.</param>
         /// <returns>The new artifact object.</returns>
         public IOpenApiArtifact CreateAndSaveOpenApiArtifact(IProject project,
             IUser user,
             BaseArtifactType artifactType,
-            IArtifactBase parentArtifact = null)
+            IArtifactBase parentArtifact = null,
+            string name = null)
         {
-            var artifact = ArtifactFactory.CreateOpenApiArtifact(project, user, artifactType, parent: parentArtifact);
+            var artifact = ArtifactFactory.CreateOpenApiArtifact(project, user, artifactType, parent: parentArtifact, name: name);
             Artifacts.Add(artifact);
             artifact.RegisterObserver(this);
             artifact.Save();
@@ -850,32 +852,76 @@ namespace Helper
         }
 
         /// <summary>
-        /// Creates a new Baseline. Optionally adds artifact using AddToBaseline function (not artifact update)
+        /// Creates a new Baseline, Baseline Folder or Review.
         /// </summary>
         /// <param name="user">The user to perform the operation.</param>
-        /// <param name="project">The project in which Baseline will be created.</param>
-        /// <param name="name">(optional) The name of Baseline to create. By default random name will be used.</param>
-        /// <param name="parentId">(optional) The id of the parent artifact where Baseline should be created. By default it will be created in the Baselines and Reviews folder.</param>
-        /// <param name="artifactToAddId">(optional) Artifact ID to be added to baseline.  By default empty baseline will be created.</param>
-        /// <returns>The Baseline artifact.</returns>
-        public ArtifactWrapper CreateBaseline(IUser user, IProject project, string name = null, int? parentId = null,
-            int? artifactToAddId = null)
+        /// <param name="project">The project in which Baseline, Baseline Folder or Review artifact will be created.</param>
+        /// <param name="artifactType">The artifact type to create (pass either ArtifactBaseline, BaselineFolder or ArtifactReviewPackage).</param>
+        /// <param name="name">(optional) The name of artifact to create.  By default a random name will be used.</param>
+        /// <param name="parentId">(optional) The ID of the parent artifact where this Baseline, Baseline Folder or Review should be created.  
+        ///     By default it will be created in the default Baselines and Reviews folder for the project.</param>
+        /// <returns>The Baseline, Baseline Folder or Review artifact.</returns>
+        public ArtifactWrapper CreateBaselineOrBaselineFolderOrReview(
+            IUser user,
+            IProject project,
+            BaselineAndCollectionTypePredefined artifactType,
+            string name = null,
+            int? parentId = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(project, nameof(project));
 
-            parentId = parentId?? project.GetDefaultBaselineFolder(user).Id;
+            parentId = parentId ?? project.GetDefaultBaselineFolder(user).Id;
 
             name = name ?? RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
-            var baselineArtifact = CreateNovaArtifact(user, project, ItemTypePredefined.ArtifactBaseline, parentId.Value,
-                name: name);
+            return CreateNovaArtifact(user, project, (ItemTypePredefined)artifactType, parentId.Value, name: name);
+        }
+
+        /// <summary>
+        /// Creates a new Baseline. Optionally adds artifact using AddToBaseline function (not artifact update)
+        /// </summary>
+        /// <param name="user">The user to perform the operation.</param>
+        /// <param name="project">The project in which Baseline will be created.</param>
+        /// <param name="name">(optional) The name of Baseline to create.  By default a random name will be used.</param>
+        /// <param name="parentId">(optional) The ID of the parent artifact where Baseline should be created.  
+        ///     By default it will be created in the default Baselines and Reviews folder for the project.</param>
+        /// <param name="artifactToAddId">(optional) Artifact ID to be added to baseline.  By default empty baseline will be created.</param>
+        /// <returns>The Baseline artifact.</returns>
+        public ArtifactWrapper CreateBaseline(
+            IUser user,
+            IProject project,
+            string name = null,
+            int? parentId = null,
+            int? artifactToAddId = null)
+        {
+            var baselineArtifact = CreateBaselineOrBaselineFolderOrReview(user, project, BaselineAndCollectionTypePredefined.ArtifactBaseline, name, parentId);
+
             if (artifactToAddId != null)
             {
                 var result = ArtifactStore.AddArtifactToBaseline(user, artifactToAddId.Value, baselineArtifact.Id);
                 Assert.GreaterOrEqual(result.ArtifactCount, 1, "At least one artifact should be added to Baseline.");
             }
+
             return baselineArtifact;
+        }
+
+        /// <summary>
+        /// Creates a new Baseline Folder.
+        /// </summary>
+        /// <param name="user">The user to perform the operation.</param>
+        /// <param name="project">The project in which Baseline Folder will be created.</param>
+        /// <param name="name">(optional) The name of Baseline Folder to create.  By default a random name will be used.</param>
+        /// <param name="parentId">(optional) The ID of the parent Baseline Folder where the Baseline Folder should be created.  
+        ///     By default it will be created in the default Baselines and Reviews folder for the project.</param>
+        /// <returns>The Baseline Folder artifact.</returns>
+        public ArtifactWrapper CreateBaselineFolder(
+            IUser user,
+            IProject project,
+            string name = null,
+            int? parentId = null)
+        {
+            return CreateBaselineOrBaselineFolderOrReview(user, project, BaselineAndCollectionTypePredefined.BaselineFolder, name, parentId);
         }
 
         /// <summary>
@@ -1533,7 +1579,7 @@ namespace Helper
         /// </summary>
         /// <param name="role">The Project Role whose permissions you want to get.</param>
         /// <returns>The permissions for the Project Role.</returns>
-        private static RolePermissions GetRolePermissionsForProjectRole(ProjectRole role)
+        public static RolePermissions GetRolePermissionsForProjectRole(ProjectRole role)
         {
             var rolePermissions = RolePermissions.None;
 
@@ -2045,7 +2091,7 @@ namespace Helper
         }
 
         /// <summary>
-        /// Verifies that the error message returned in the rest response contains the expected message.
+        /// Verifies that the error message returned in the REST response equals the expected message.
         /// Ex. 'message="Expected error message"'
         /// </summary>
         /// <param name="restResponse">The RestResponse that was returned.</param>
@@ -2064,6 +2110,28 @@ namespace Helper
             Assert.AreEqual(expectedErrorMessage, errorMessage.Message,
                 "The error message does not contain the expected error message!\nActual Error Message: {0}",
                 errorMessage.Message);
+        }
+
+        /// <summary>
+        /// Verifies that the body returned in the REST response equals the expected string.
+        /// Ex. '"Unauthorized call"'
+        /// </summary>
+        /// <param name="restResponse">The RestResponse that was returned.</param>
+        /// <param name="expectedBody">The expected body contents.</param>
+        public static void ValidateBodyContents(RestResponse restResponse, string expectedBody)
+        {
+            ValidateNoStackTraceInResponse(restResponse);
+
+            string actualBody = null;
+
+            Assert.DoesNotThrow(() =>
+            {
+                actualBody = JsonConvert.DeserializeObject<string>(restResponse.Content);
+            }, "Failed to deserialize the content of the REST response into a MessageResult object!");
+
+            Assert.AreEqual(expectedBody, actualBody,
+                "The error message does not contain the expected string!\nActual body: '{0}'",
+                actualBody);
         }
 
         #endregion Custom Asserts

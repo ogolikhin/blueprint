@@ -491,8 +491,8 @@ namespace SearchServiceTests
             ValidateSearchMetaDataPermissionsTest(fullTextSearchMetaDataResult, expectedHitCount, expectedTotalPageCount);
         }
 
-        [TestCase(13, 2, TestHelper.ProjectRole.AuthorFullAccess)]
-        [TestCase(13, 2, TestHelper.ProjectRole.Viewer)]
+        [TestCase(15, 2, TestHelper.ProjectRole.AuthorFullAccess)]
+        [TestCase(15, 2, TestHelper.ProjectRole.Viewer)]
         [TestCase(0, 0, TestHelper.ProjectRole.None)]
         [TestRail(182372)]
         [Description("Search for artifact in a single project with user with different permissions. Executed search must return search metadata result " +
@@ -529,8 +529,8 @@ namespace SearchServiceTests
             ValidateSearchMetaDataPermissionsTest(fullTextSearchMetaDataResult, expectedHitCount, expectedTotalPageCount);
         }
 
-        [TestCase(26, 3, TestHelper.ProjectRole.AuthorFullAccess)]
-        [TestCase(26, 3, TestHelper.ProjectRole.Viewer)]
+        [TestCase(30, 3, TestHelper.ProjectRole.AuthorFullAccess)]
+        [TestCase(30, 3, TestHelper.ProjectRole.Viewer)]
         [TestCase(0, 0, TestHelper.ProjectRole.None)]
         [TestRail(182376)]
         [Description("Search for artifact in multiple projects with user with varying permissions. Executed search must return search metadata result " +

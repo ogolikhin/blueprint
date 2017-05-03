@@ -934,7 +934,7 @@ namespace Model.Impl
             return addJobResult;
         }
 
-        public List<AdminRole> GetInstanceRoles(IUser adminUser, List<HttpStatusCode> expectedStatusCodes = null)
+        public List<AdminRole> GetInstanceRoles(IUser adminUser)
         {
             var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
             string path = RestPaths.Svc.AdminStore.Users.INSTANCE_ROLES;
@@ -946,7 +946,7 @@ namespace Model.Impl
                 return restApi.SendRequestAndDeserializeObject<List<AdminRole>>(
                     path,
                     RestRequestMethod.GET,
-                    expectedStatusCodes: expectedStatusCodes,
+                    expectedStatusCodes: new List<HttpStatusCode> { HttpStatusCode.OK},
                     shouldControlJsonChanges: true);
             }
             catch (WebException ex)

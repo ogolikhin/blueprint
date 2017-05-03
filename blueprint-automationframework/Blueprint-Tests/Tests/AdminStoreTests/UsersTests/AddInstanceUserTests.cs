@@ -1,13 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Net;
-using CustomAttributes;
+﻿using CustomAttributes;
 using Helper;
 using Model;
-using Model.Factories;
 using Model.Impl;
 using NUnit.Framework;
 using TestCommon;
-using Utilities.Factories;
 
 namespace AdminStoreTests.UsersTests
 {
@@ -17,7 +13,6 @@ namespace AdminStoreTests.UsersTests
 
     public class AddInstanceUserTests : TestBase
     {
-        private const string USERS_PATH = RestPaths.Svc.AdminStore.Users.USERS;
         private const string USER_PATH = RestPaths.Svc.AdminStore.Users.USERS_id_;
 
         private IUser _adminUser = null;

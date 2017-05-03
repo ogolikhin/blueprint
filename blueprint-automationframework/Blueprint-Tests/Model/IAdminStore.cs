@@ -402,8 +402,7 @@ namespace Model
         /// Gets a list of Instance Admin Roles
         /// </summary>
         /// <param name="adminUser">The admin user getting the instance roles list.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The retrieved list of Instance Admin Roles</returns>
-        List<AdminRole> GetInstanceRoles(IUser adminUser, List<HttpStatusCode> expectedStatusCodes = null);
+        List<AdminRole> GetInstanceRoles(IUser adminUser);
     }
 }

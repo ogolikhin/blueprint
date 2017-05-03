@@ -143,5 +143,21 @@ namespace AdminStoreTests.UsersTests
 
             Assert.AreEqual(returnedUser.FirstName, updatedUser.FirstName, "The InstanceUser was not updated!");
         }
+
+        [Explicit(IgnoreReasons.UnderDevelopmentDev)]
+        [TestCase]
+        [Description("Get the list of instance administrator roles.")]
+        [TestRail(999999)]
+        public void GetInstanceRoles_ValidUsers_ReturnsCorrectUsers()
+        {
+            List<AdminRole> adminRoles = null;
+
+            Assert.DoesNotThrow(() =>
+            {
+                adminRoles = Helper.AdminStore.GetInstanceRoles(_adminUser);
+            }, "'GET {0}' should return 200 OK for a valid session token!", USERS_PATH);
+
+            Assert.Greater(adminRoles.Count, 1, "Temporary message - under QA development");
+        }
     }
 }

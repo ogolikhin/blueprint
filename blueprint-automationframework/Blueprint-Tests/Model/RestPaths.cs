@@ -120,7 +120,6 @@ namespace Model
                 {
                     public const string GROUPS                      = "svc/adminstore/groups";
                     public const string GROUPS_id_                  = "svc/adminstore/groups/{0}";
-                    public const string INSTANCE_ROLES              = "svc/adminstore/groups/instanceroles";
                     public const string SEARCH                      = "svc/adminstore/groups/search"; 
                 }
 
@@ -181,6 +180,7 @@ namespace Model
 
                 public static class Users
                 {
+                    public const string INSTANCE_ROLES              = "svc/adminstore/users/instanceroles";
                     public const string LOGINUSER                   = "svc/adminstore/users/loginuser";
                     public const string RESET                       = "svc/adminstore/users/reset";
                     public const string SEARCH                      = "svc/adminstore/users/search";

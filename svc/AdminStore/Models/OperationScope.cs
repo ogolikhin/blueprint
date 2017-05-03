@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace AdminStore.Models
 {
@@ -6,5 +7,10 @@ namespace AdminStore.Models
     {
         public bool SelectAll { get; set; }
         public IEnumerable<int> Ids { get; set; }
+
+        public bool Validate()
+        {
+            return ((Ids == null || !Ids.ToList().Any() && SelectAll == false));
+        }
     }
 }

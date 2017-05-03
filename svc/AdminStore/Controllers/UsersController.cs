@@ -43,9 +43,9 @@ namespace AdminStore.Controllers
 
         internal UsersController
         (
-            IAuthenticationRepository authenticationRepository, ISqlUserRepository userRepository, 
-            ISqlSettingsRepository settingsRepository, IEmailHelper emailHelper, 
-            IApplicationSettingsRepository applicationSettingsRepository, IServiceLogRepository log, 
+            IAuthenticationRepository authenticationRepository, ISqlUserRepository userRepository,
+            ISqlSettingsRepository settingsRepository, IEmailHelper emailHelper,
+            IApplicationSettingsRepository applicationSettingsRepository, IServiceLogRepository log,
             IHttpClientProvider httpClientProvider, IPrivilegesRepository privilegesRepository
         )
         {
@@ -141,13 +141,17 @@ namespace AdminStore.Controllers
         {
             if (body == null || ((body.Ids == null || !body.Ids.Any()) && body.SelectAll == false))
             {
-                return BadRequest(ErrorMessages.InvalideDeleteUsersParameters);
+                return BadRequest(ErrorMessages.InvalidDeleteUsersParameters);
+            }
+            if (body.Ids != null && body.Ids.Contains(SessionUserId))
+            {
+                body.Ids.ToList().Remove(SessionUserId);
             }
             await _privilegesManager.Demand(SessionUserId, InstanceAdminPrivileges.ManageUsers);
 
             var result = await _userRepository.DeleteUsers(body, search);
 
-            return Ok(result);
+            return Ok(new DeleteResult() { TotalDeleted = result });
         }
 
 

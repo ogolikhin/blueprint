@@ -70,7 +70,7 @@ namespace ArtifactStoreTests
 
             // Execute: 
             Assert.DoesNotThrow(() => reviewContainer = Helper.ArtifactStore.GetReviewContainer(admin, reviewId),
-                "{0} should return 403 for non-reviewer user.", nameof(Helper.ArtifactStore.GetReviewContainer));
+                "{0} should throw no error.", nameof(Helper.ArtifactStore.GetReviewContainer));
 
             // Verify:
             Assert.AreEqual(15, reviewContainer.TotalArtifacts, "TotalArtifacts should be equal to the expected number of artifacts in Review.");

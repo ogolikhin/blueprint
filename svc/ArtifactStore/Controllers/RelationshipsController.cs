@@ -77,7 +77,7 @@ namespace ArtifactStore.Controllers
             var artifactIds = new List<int> { artifactId };
             artifactIds = artifactIds.Union(result.ManualTraces.Select(a=>a.ArtifactId)).Union(result.OtherTraces.Select(a => a.ArtifactId)).Distinct().ToList();
             var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, session.UserId);
-            if (!_artifactPermissionsRepository.HasPermissions(artifactId, permissions, RolePermissions.Read))
+            if (!SqlArtifactPermissionsRepository.HasPermissions(artifactId, permissions, RolePermissions.Read))
             {
                 throw new AuthorizationException();
             }
@@ -85,7 +85,7 @@ namespace ArtifactStore.Controllers
             ApplyRelationshipPermissions(permissions, result.ManualTraces);
             ApplyRelationshipPermissions(permissions, result.OtherTraces);
 
-            result.CanEdit = _artifactPermissionsRepository.HasPermissions(artifactId, permissions, RolePermissions.Trace) && _artifactPermissionsRepository.HasPermissions(artifactId, permissions, RolePermissions.Edit);
+            result.CanEdit = SqlArtifactPermissionsRepository.HasPermissions(artifactId, permissions, RolePermissions.Trace) && SqlArtifactPermissionsRepository.HasPermissions(artifactId, permissions, RolePermissions.Edit);
 
             return result;
         }
@@ -118,7 +118,7 @@ namespace ArtifactStore.Controllers
 
             var itemIds = new List<int> { artifactId };
             var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(itemIds, session.UserId);
-            if (!_artifactPermissionsRepository.HasPermissions(artifactId, permissions, RolePermissions.Read))
+            if (!SqlArtifactPermissionsRepository.HasPermissions(artifactId, permissions, RolePermissions.Read))
             {
                 throw new AuthorizationException();
             }
@@ -156,7 +156,7 @@ namespace ArtifactStore.Controllers
             var result = await _relationshipsRepository.GetReviewRelationships(artifactId, session.UserId, effectiveAddDraft, versionId);
             var artifactIds = new List<int> { artifactId };
             var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, session.UserId);
-            if (!_artifactPermissionsRepository.HasPermissions(artifactId, permissions, RolePermissions.Read))
+            if (!SqlArtifactPermissionsRepository.HasPermissions(artifactId, permissions, RolePermissions.Read))
             {
                 throw new AuthorizationException();
             }
@@ -167,13 +167,13 @@ namespace ArtifactStore.Controllers
         {
             foreach (var relationship in relationships)
             {
-                if (!_artifactPermissionsRepository.HasPermissions(relationship.ArtifactId, permissions, RolePermissions.Read))
+                if (!SqlArtifactPermissionsRepository.HasPermissions(relationship.ArtifactId, permissions, RolePermissions.Read))
                 {
                     MakeRelationshipUnauthorized(relationship);
                 }
 
-                if ((_artifactPermissionsRepository.HasPermissions(relationship.ArtifactId, permissions, RolePermissions.Trace) &&
-                     _artifactPermissionsRepository.HasPermissions(relationship.ArtifactId, permissions, RolePermissions.Edit)) == false)
+                if ((SqlArtifactPermissionsRepository.HasPermissions(relationship.ArtifactId, permissions, RolePermissions.Trace) &&
+                     SqlArtifactPermissionsRepository.HasPermissions(relationship.ArtifactId, permissions, RolePermissions.Edit)) == false)
                 {
                     relationship.ReadOnly = true;
                 }

@@ -90,14 +90,14 @@ namespace ArtifactStore.Controllers
                 artifactIds.Add(documentReference.ArtifactId);
             }
             var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(artifactIds, session.UserId);
-            if(!ArtifactPermissionsRepository.HasPermissions(artifactId, permissions, RolePermissions.Read))
+            if(!SqlArtifactPermissionsRepository.HasPermissions(artifactId, permissions, RolePermissions.Read))
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
             var docRef = result.DocumentReferences.ToList();
             foreach (var documentReference in docRef)
             {
-                if (!ArtifactPermissionsRepository.HasPermissions(documentReference.ArtifactId, permissions, RolePermissions.Read))
+                if (!SqlArtifactPermissionsRepository.HasPermissions(documentReference.ArtifactId, permissions, RolePermissions.Read))
                 {
                     result.DocumentReferences.Remove(documentReference);
                 }

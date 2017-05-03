@@ -273,7 +273,7 @@ namespace ArtifactStore.Repositories
                 var reviewPermissions = await _artifactPermissionsRepository.GetArtifactPermissions(distinctReviewIds, userId);
                 foreach (var reviewId in distinctReviewIds)
                 {
-                    if (_artifactPermissionsRepository.HasPermissions(reviewId, reviewPermissions, RolePermissions.Read))
+                    if (SqlArtifactPermissionsRepository.HasPermissions(reviewId, reviewPermissions, RolePermissions.Read))
                     {
                         reviewIdsWithAccess.Add(reviewId);
                     }

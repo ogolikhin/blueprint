@@ -172,10 +172,6 @@ namespace ArtifactStore.Controllers
             _artifactPermissionsRepositoryMock.Setup(a => a.GetArtifactPermissions(new List<int> { 1, 123 }, 1, false, int.MaxValue, true))
                 .ReturnsAsync(new Dictionary<int, RolePermissions> { { 1, RolePermissions.Read }, { 123, RolePermissions.Read } });
 
-            _artifactPermissionsRepositoryMock.Setup(a => a.HasPermissions(It.IsAny<int>(), 
-                                                        It.IsAny<Dictionary<int, RolePermissions>>(),
-                                                        It.IsAny<RolePermissions>())).Returns(true);
-
             var controller = new AttachmentsController(_attachmentsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsMock.Object)
             {
                 Request = new HttpRequestMessage()

@@ -80,9 +80,6 @@ namespace ArtifactStore.Controllers
 
             _artifactPermissionsRepositoryMock.Setup(m => m.GetItemInfo(artifactId, _session.UserId, true, int.MaxValue)).ReturnsAsync(itemInfo);
             _artifactPermissionsRepositoryMock.Setup(m => m.GetArtifactPermissions(It.IsAny<List<int>>(), _session.UserId, false, int.MaxValue, true)).ReturnsAsync(permisionDictionary);
-            _artifactPermissionsRepositoryMock.Setup(a => a.HasPermissions(It.IsAny<int>(),
-                                            It.IsAny<Dictionary<int, RolePermissions>>(),
-                                            It.IsAny<RolePermissions>())).Returns(true);
             _relationshipsRepositoryMock.Setup(m => m.GetRelationships(artifactId, _session.UserId, It.IsAny<int?>(), true, It.IsAny<int?>(), null)).ReturnsAsync(resultSet);
             var controller = new RelationshipsController(_relationshipsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsRepositoryMock.Object)
             {
@@ -126,9 +123,6 @@ namespace ArtifactStore.Controllers
 
             _artifactPermissionsRepositoryMock.Setup(m => m.GetItemInfo(artifactId, _session.UserId, true, int.MaxValue)).ReturnsAsync(itemInfo);
             _artifactPermissionsRepositoryMock.Setup(m => m.GetArtifactPermissions(It.IsAny<List<int>>(), _session.UserId, false, int.MaxValue, true)).ReturnsAsync(permisionDictionary);
-            _artifactPermissionsRepositoryMock.Setup(a => a.HasPermissions(It.IsAny<int>(),
-                                            It.IsAny<Dictionary<int, RolePermissions>>(),
-                                            It.IsAny<RolePermissions>())).Returns(true);
             _relationshipsRepositoryMock.Setup(m => m.GetRelationships(artifactId, _session.UserId, It.IsAny<int?>(), true, It.IsAny<int?>(), null)).ReturnsAsync(resultSet);
             var controller = new RelationshipsController(_relationshipsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsRepositoryMock.Object)
             {
@@ -159,12 +153,6 @@ namespace ArtifactStore.Controllers
             _artifactPermissionsRepositoryMock.Setup(m => m.GetItemInfo(artifactId, _session.UserId, true, int.MaxValue)).ReturnsAsync(itemInfo);
             _artifactPermissionsRepositoryMock.Setup(m => m.GetArtifactPermissions(It.IsAny<List<int>>(), _session.UserId, false, int.MaxValue, true)).ReturnsAsync(permisionDictionary);
             _relationshipsRepositoryMock.Setup(m => m.GetRelationships(artifactId, _session.UserId, It.IsAny<int?>(), true, It.IsAny<int?>(), null)).ReturnsAsync(resultSet);
-            _artifactPermissionsRepositoryMock.Setup(a => a.HasPermissions(It.IsAny<int>(),
-                                            It.IsAny<Dictionary<int, RolePermissions>>(),
-                                            RolePermissions.Read)).Returns(true);
-            _artifactPermissionsRepositoryMock.Setup(a => a.HasPermissions(It.IsAny<int>(),
-                                It.IsAny<Dictionary<int, RolePermissions>>(),
-                                RolePermissions.Edit)).Returns(false);
             var controller = new RelationshipsController(_relationshipsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsRepositoryMock.Object)
             {
                 Request = new HttpRequestMessage()
@@ -193,12 +181,6 @@ namespace ArtifactStore.Controllers
 
             _artifactPermissionsRepositoryMock.Setup(m => m.GetItemInfo(artifactId, _session.UserId, true, int.MaxValue)).ReturnsAsync(itemInfo);
             _artifactPermissionsRepositoryMock.Setup(m => m.GetArtifactPermissions(It.IsAny<List<int>>(), _session.UserId, false, int.MaxValue, true)).ReturnsAsync(permisionDictionary);
-            _artifactPermissionsRepositoryMock.Setup(a => a.HasPermissions(artifactId,
-                                It.IsAny<Dictionary<int, RolePermissions>>(),
-                                It.IsAny<RolePermissions>())).Returns(true);
-            _artifactPermissionsRepositoryMock.Setup(a => a.HasPermissions(destId,
-                    It.IsAny<Dictionary<int, RolePermissions>>(),
-                    It.IsAny<RolePermissions>())).Returns(false);
             _relationshipsRepositoryMock.Setup(m => m.GetRelationships(artifactId, _session.UserId, It.IsAny<int?>(), true, It.IsAny<int?>(), null)).ReturnsAsync(resultSet);
             var controller = new RelationshipsController(_relationshipsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsRepositoryMock.Object)
             {
@@ -229,9 +211,6 @@ namespace ArtifactStore.Controllers
 
             _artifactPermissionsRepositoryMock.Setup(m => m.GetItemInfo(artifactId, _session.UserId, true, int.MaxValue)).ReturnsAsync(itemInfo);
             _artifactPermissionsRepositoryMock.Setup(m => m.GetArtifactPermissions(It.IsAny<List<int>>(), _session.UserId, false, int.MaxValue, true)).ReturnsAsync(permisionDictionary);
-            _artifactPermissionsRepositoryMock.Setup(a => a.HasPermissions(It.IsAny<int>(),
-                                It.IsAny<Dictionary<int, RolePermissions>>(),
-                                It.IsAny<RolePermissions>())).Returns(true);
             _relationshipsRepositoryMock.Setup(m => m.GetRelationships(artifactId, _session.UserId, It.IsAny<int?>(), true, It.IsAny<int?>(), null)).ReturnsAsync(resultSet);
             var controller = new RelationshipsController(_relationshipsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsRepositoryMock.Object)
             {
@@ -285,12 +264,6 @@ namespace ArtifactStore.Controllers
 
             _artifactPermissionsRepositoryMock.Setup(m => m.GetItemInfo(artifactId, _session.UserId, true, int.MaxValue)).ReturnsAsync(itemInfo);
             _artifactPermissionsRepositoryMock.Setup(m => m.GetArtifactPermissions(It.IsAny<List<int>>(), _session.UserId, false, int.MaxValue, true)).ReturnsAsync(permisionDictionary);
-            _artifactPermissionsRepositoryMock.Setup(a => a.HasPermissions(artifactId,
-                    It.IsAny<Dictionary<int, RolePermissions>>(),
-                    It.IsAny<RolePermissions>())).Returns(true);
-            _artifactPermissionsRepositoryMock.Setup(a => a.HasPermissions(destId,
-                                It.IsAny<Dictionary<int, RolePermissions>>(),
-                                It.IsAny<RolePermissions>())).Returns(false);
             _relationshipsRepositoryMock.Setup(m => m.GetRelationships(artifactId, _session.UserId, It.IsAny<int?>(), true, It.IsAny<int?>(), null)).ReturnsAsync(resultSet);
             var controller = new RelationshipsController(_relationshipsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsRepositoryMock.Object)
             {
@@ -341,9 +314,6 @@ namespace ArtifactStore.Controllers
             _artifactPermissionsRepositoryMock.Setup(m => m.GetItemInfo(artifactId, _session.UserId, true, int.MaxValue)).ReturnsAsync(itemInfo);
             _artifactPermissionsRepositoryMock.Setup(m => m.GetItemInfo(subartifactId, _session.UserId, true, int.MaxValue)).ReturnsAsync(itemInfo);
             _artifactPermissionsRepositoryMock.Setup(m => m.GetArtifactPermissions(It.IsAny<List<int>>(), _session.UserId, false, int.MaxValue, true)).ReturnsAsync(permisionDictionary);
-            _artifactPermissionsRepositoryMock.Setup(a => a.HasPermissions(It.IsAny<int>(),
-                                It.IsAny<Dictionary<int, RolePermissions>>(),
-                                It.IsAny<RolePermissions>())).Returns(true);
             _relationshipsRepositoryMock.Setup(m => m.GetRelationships(artifactId, _session.UserId, It.IsAny<int?>(), true, It.IsAny<int?>(), null)).ReturnsAsync(resultSet);
             var controller = new RelationshipsController(_relationshipsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsRepositoryMock.Object)
             {
@@ -420,9 +390,6 @@ namespace ArtifactStore.Controllers
 
             _artifactPermissionsRepositoryMock.Setup(m => m.GetItemInfo(It.IsAny<int>(), _session.UserId, true, int.MaxValue)).ReturnsAsync(new ItemInfo { });
             _artifactPermissionsRepositoryMock.Setup(m => m.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), _session.UserId, false, int.MaxValue, true)).ReturnsAsync(permisionDictionary);
-            _artifactPermissionsRepositoryMock.Setup(a => a.HasPermissions(It.IsAny<int>(),
-                                            It.IsAny<Dictionary<int, RolePermissions>>(),
-                                            It.IsAny<RolePermissions>())).Returns(true);
             _relationshipsRepositoryMock.Setup(m => m.GetRelationshipExtendedInfo(artifactId, _session.UserId, null, false)).ReturnsAsync(new RelationshipExtendedInfo { ArtifactId = 1 });
 
             var controller = new RelationshipsController(_relationshipsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsRepositoryMock.Object)
@@ -485,9 +452,6 @@ namespace ArtifactStore.Controllers
             _artifactVersionsRepositoryMock.Setup(m => m.IsItemDeleted(artifactId)).ReturnsAsync(true);
             _artifactVersionsRepositoryMock.Setup(m => m.GetDeletedItemInfo(artifactId)).ReturnsAsync(itemInfo);
             _artifactPermissionsRepositoryMock.Setup(m => m.GetArtifactPermissions(It.IsAny<List<int>>(), _session.UserId, false, int.MaxValue, true)).ReturnsAsync(permisionDictionary);
-            _artifactPermissionsRepositoryMock.Setup(a => a.HasPermissions(It.IsAny<int>(),
-                                It.IsAny<Dictionary<int, RolePermissions>>(),
-                                It.IsAny<RolePermissions>())).Returns(true);
             _relationshipsRepositoryMock.Setup(m => m.GetRelationships(artifactId, _session.UserId, It.IsAny<int?>(), false, versionId, null)).ReturnsAsync(expected);
        
 
@@ -548,9 +512,6 @@ namespace ArtifactStore.Controllers
             _artifactVersionsRepositoryMock.Setup(m => m.IsItemDeleted(artifactId)).ReturnsAsync(isDeleted);
             _artifactVersionsRepositoryMock.Setup(m => m.GetDeletedItemInfo(artifactId)).ReturnsAsync(itemInfo);
             _artifactPermissionsRepositoryMock.Setup(m => m.GetArtifactPermissions(It.IsAny<List<int>>(), _session.UserId, false, int.MaxValue, true)).ReturnsAsync(permisionDictionary);
-            _artifactPermissionsRepositoryMock.Setup(a => a.HasPermissions(It.IsAny<int>(),
-                                            It.IsAny<Dictionary<int, RolePermissions>>(),
-                                            It.IsAny<RolePermissions>())).Returns(true);
             _relationshipsRepositoryMock.Setup(m => m.GetRelationshipExtendedInfo(artifactId, _session.UserId, null, isDeleted)).ReturnsAsync(expected);
 
             var controller = new RelationshipsController(_relationshipsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsRepositoryMock.Object)
@@ -630,9 +591,6 @@ namespace ArtifactStore.Controllers
             permisionDictionary.Add(destId, RolePermissions.Read);
             _artifactPermissionsRepositoryMock.Setup(m => m.GetItemInfo(artifactId, _session.UserId, true, int.MaxValue)).ReturnsAsync(itemInfo);
             _artifactPermissionsRepositoryMock.Setup(m => m.GetArtifactPermissions(It.IsAny<List<int>>(), _session.UserId, false, int.MaxValue, true)).ReturnsAsync(permisionDictionary);
-            _artifactPermissionsRepositoryMock.Setup(a => a.HasPermissions(It.IsAny<int>(),
-                                It.IsAny<Dictionary<int, RolePermissions>>(),
-                                It.IsAny<RolePermissions>())).Returns(true);
             _relationshipsRepositoryMock.Setup(m => m.GetReviewRelationships(artifactId, _session.UserId, true, It.IsAny<int?>())).ReturnsAsync(resultSet);
             var controller = new RelationshipsController(_relationshipsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsRepositoryMock.Object)
             {

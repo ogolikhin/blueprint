@@ -112,14 +112,19 @@ namespace ArtifactStore.Repositories
 
             foreach (var reviewArtifact in reviewArtifacts.Items)
             {
-                if (_artifactPermissionsRepository.HasPermissions(reviewArtifact.Id, artifactPermissionsDictionary, RolePermissions.Read))
+                if (SqlArtifactPermissionsRepository.HasPermissions(reviewArtifact.Id, artifactPermissionsDictionary, RolePermissions.Read))
                 {
-                    var hasValue = artifactStatusDictionary.TryGetValue(reviewArtifact.Id, out reviewArtifactStatus);
-                    reviewArtifact.Pending = hasValue ? reviewArtifactStatus.Pending : numUsers;
-                    reviewArtifact.Approved = hasValue ? reviewArtifactStatus.Approved : 0;
-                    reviewArtifact.Disapproved = hasValue ? reviewArtifactStatus.Disapproved : 0;
-                    reviewArtifact.Viewed = hasValue ? reviewArtifactStatus.Viewed : 0;
-                    reviewArtifact.Unviewed = hasValue ? reviewArtifactStatus.Unviewed : numUsers;
+                    if (artifactStatusDictionary.TryGetValue(reviewArtifact.Id, out reviewArtifactStatus))
+                    {
+                        reviewArtifact.Pending = reviewArtifactStatus.Pending;
+                        reviewArtifact.Approved = reviewArtifactStatus.Approved;
+                        reviewArtifact.Disapproved = reviewArtifactStatus.Disapproved;
+                        reviewArtifact.Viewed = reviewArtifactStatus.Viewed;
+                        reviewArtifact.Unviewed = reviewArtifactStatus.Unviewed;
+                    } else {
+                        reviewArtifact.Pending = numUsers;
+                        reviewArtifact.Unviewed = numUsers;
+                    }
                     reviewArtifact.HasAccess = true;
                 } else {
                     reviewArtifact.Name = string.Empty;

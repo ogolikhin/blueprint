@@ -17,6 +17,6 @@ namespace ServiceLibrary.Repositories
         Task<ISet<int>> GetBaselineArtifacts(int baselineId, int userId, bool addDrafts = true,
             int revisionId = int.MaxValue);
 
-        bool HasPermissions(int itemId, Dictionary<int, RolePermissions> permissions, RolePermissions permissionType);
+        //bool HasPermissions(int itemId, Dictionary<int, RolePermissions> permissions, RolePermissions permissionType);
     }
 }

@@ -2,17 +2,17 @@
 using Model;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
-using Model.Impl;
+using Model.ModelHelpers;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading;
 using Model.OpenApiModel.Services;
 using Model.SearchServiceModel.Impl;
 using Utilities;
 using Utilities.Factories;
+using Model.ArtifactModel.Enums;
 
 namespace Helper
 {
@@ -30,8 +30,8 @@ namespace Helper
         /// <returns>List of created artifacts</returns>
         /// <param name="timeoutInMilliseconds">(optional) Timeout in milliseconds after which search will terminate 
         /// if not successful </param>
-        public static List<IArtifactBase> SetupFullTextSearchData(List<IProject> projects, IUser user, TestHelper testHelper,
-            List<BaseArtifactType> selectedBaseArtifactTypes = null,
+        public static List<ArtifactWrapper> SetupFullTextSearchData(List<IProject> projects, IUser user, TestHelper testHelper,
+            List<ItemTypePredefined> selectedBaseArtifactTypes = null,
             int timeoutInMilliseconds = DEFAULT_TIMEOUT_FOR_SEARCH_INDEXER_UPDATE_IN_MS)
         {
             ThrowIf.ArgumentNull(projects, nameof(projects));
@@ -40,14 +40,40 @@ namespace Helper
 
             Logger.WriteTrace("{0}.{1} called.", nameof(SearchServiceTestHelper), nameof(SetupFullTextSearchData));
 
-            var baseArtifactTypes = selectedBaseArtifactTypes ?? TestCaseSources.AllArtifactTypesForOpenApiRestMethods;
+            var artifacts = new List<ArtifactWrapper>();
 
-            var artifacts = new List<IArtifactBase>();
-
-            var projectsSubset = new List<IProject> {projects[0], projects[1]};
+            var projectsSubset = new List<IProject> { projects[0], projects[1] };
 
             // This keeps the artifact description constant for all created artifacts
             var randomArtifactDescription = "Description " + RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces();
+
+            if (selectedBaseArtifactTypes == null)
+            {
+                var randomBaselineName = "Artifact_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces();
+                var randomCollectionName = "Artifact_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces();
+                foreach (var project in projectsSubset)
+                    {
+                        var artifactBaseline = testHelper.CreateBaseline(user, project, name: randomBaselineName);
+                        artifactBaseline.SaveWithNewDescription(user, randomArtifactDescription);
+
+                        var artifactCollection = testHelper.CreateUnpublishedCollection(project, user, name: randomCollectionName);
+                        artifactCollection.SaveWithNewDescription(user, randomArtifactDescription);
+
+                        artifacts.Add(artifactBaseline);
+                        artifacts.Add(artifactCollection);
+                    }
+
+                selectedBaseArtifactTypes = new List<ItemTypePredefined>();
+                foreach (var tp in TestCaseSources.AllArtifactTypesForNovaRestMethods)
+                {
+                    var itm = (ItemTypePredefined)tp;
+                    selectedBaseArtifactTypes.Add(itm);
+                }
+            }
+
+            var baseArtifactTypes = selectedBaseArtifactTypes ??
+                (TestCaseSources.AllArtifactTypesForNovaRestMethods).Select(artifactType =>
+                (ItemTypePredefined)artifactType);
 
             foreach (var artifactType in baseArtifactTypes)
             {
@@ -55,22 +81,16 @@ namespace Helper
 
                 foreach (var project in projectsSubset)
                 {
-                    // Create artifact in first project with random Name & Description
-                    var artifact = testHelper.CreateAndSaveArtifact(project, user, artifactType);
-
-                    var propertiesToUpdate = new Dictionary<string, object>
-                    {
-                        {"Name", randomArtifactName},
-                        {"Description", WebUtility.HtmlEncode(randomArtifactDescription)}
-                    };
-
-                    UpdateArtifactProperties(testHelper, user, project, artifact, artifactType, propertiesToUpdate);
+                    // Create artifact in the project with random Name & Description
+                    var artifact = testHelper.CreateNovaArtifact(user, project, artifactType, name: randomArtifactName);
+                    artifact.SaveWithNewDescription(user, randomArtifactDescription);
 
                     artifacts.Add(artifact);
                 }
             }
 
-            ArtifactBase.PublishArtifacts(artifacts, artifacts.First().Address, user);
+            artifacts.ForEach(a => a.Publish(user));
+            artifacts.ForEach(a => a.RefreshArtifactFromServer(user));
 
             // Wait for all artifacts to be available to the search service
             var searchCriteria = new FullTextSearchCriteria(randomArtifactDescription, projectIds: projectsSubset.Select(p => p.Id));
@@ -142,22 +162,22 @@ namespace Helper
         /// <summary>
         /// Gets the list of all Item Type Ids for a list of projects and base artifact types.
         /// </summary>
-        /// <param name="projects"></param>
-        /// <param name="baseArtifactTypes"></param>
+        /// <param name="projects">List of projects</param>
+        /// <param name="baseArtifactTypes">List of Artifact Types</param>
         /// <returns>List of ItemTypeId</returns>
         public static List<int> GetItemTypeIdsForBaseArtifactTypes(List<IProject> projects,
-            List<BaseArtifactType> baseArtifactTypes)
+            List<ItemTypePredefined> artifactTypes)
         {
             ThrowIf.ArgumentNull(projects, nameof(projects));
-            ThrowIf.ArgumentNull(baseArtifactTypes, nameof(baseArtifactTypes));
+            ThrowIf.ArgumentNull(artifactTypes, nameof(artifactTypes));
 
             var itemTypeIds = new List<int>();
 
-            foreach (var baseArtifactType in baseArtifactTypes)
+            foreach (var baseArtifactType in artifactTypes)
             {
                 foreach (var project in projects)
                 {
-                    var itemTypeId = GetItemTypeIdForBaseArtifactType(project.ArtifactTypes, baseArtifactType);
+                    var itemTypeId = GetItemTypeIdForBaseArtifactType(project.NovaArtifactTypes, baseArtifactType);
 
                     itemTypeIds.Add(itemTypeId);
                 }
@@ -174,22 +194,12 @@ namespace Helper
         /// <param name="artifactTypeName"></param>
         /// <returns>An ItemTypeId</returns>
         public static int GetItemTypeIdForBaseArtifactType(
-            List<OpenApiArtifactType> artifactTypes,
-            BaseArtifactType baseArtifactType,
-            string artifactTypeName = null)
+            List<NovaArtifactType> artifactTypes,
+            ItemTypePredefined baseArtifactType)
         {
             ThrowIf.ArgumentNull(artifactTypes, nameof(artifactTypes));
 
-            OpenApiArtifactType artifactType;
-
-            if (artifactTypeName == null)
-            {
-                artifactType = artifactTypes.Find(t => t.BaseArtifactType == baseArtifactType);
-            }
-            else
-            {
-                artifactType = artifactTypes.Find(t => t.BaseArtifactType == baseArtifactType && t.Name == artifactTypeName);
-            }
+            var artifactType = artifactTypes.Find(t => t.PredefinedType == baseArtifactType);
 
             return artifactType.Id;
         }
@@ -212,40 +222,6 @@ namespace Helper
             var artifactDetails = testHelper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
 
             CSharpUtilities.SetProperty(propertyToUpdate, value, artifactDetails);
-
-            INovaArtifactDetails updateResult = null;
-
-            Assert.DoesNotThrow(() => updateResult = Artifact.UpdateArtifact(artifact, user, artifactDetails, address: testHelper.BlueprintServer.Address),
-                "Exception caught while trying to update an artifact of type: '{0}'!", artifactType);
-
-            Assert.AreEqual(artifactDetails.CreatedBy?.DisplayName, updateResult.CreatedBy?.DisplayName, "The CreatedBy properties don't match!");
-
-            var openApiArtifact = OpenApi.GetArtifact(testHelper.BlueprintServer.Address, project, artifact.Id, user);
-            ArtifactStoreHelper.AssertArtifactsEqual(updateResult, artifactDetails);
-
-            TestHelper.AssertArtifactsAreEqual(artifact, openApiArtifact);
-        }
-
-        /// <summary>
-        /// Updates artifact properties
-        /// </summary>
-        /// <param name="testHelper">An instance of TestHelper</param>
-        /// <param name="user">The user updating the artifact</param>
-        /// <param name="project">The project containing the artifact</param>
-        /// <param name="artifact">The artifact to update.</param>
-        /// <param name="artifactType">The type of artifact.</param>
-        /// <param name="propertiesToUpdate">Dictionary of properties to update (Key: property name; Value: property value</param>
-        public static void UpdateArtifactProperties<T>(TestHelper testHelper, IUser user, IProject project, IArtifact artifact, BaseArtifactType artifactType, Dictionary<string, T> propertiesToUpdate)
-        {
-            ThrowIf.ArgumentNull(testHelper, nameof(testHelper));
-            ThrowIf.ArgumentNull(propertiesToUpdate, nameof(propertiesToUpdate));
-
-            var artifactDetails = testHelper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
-
-            foreach (var kvp in propertiesToUpdate)
-            {
-                CSharpUtilities.SetProperty(kvp.Key, kvp.Value, artifactDetails);
-            }
 
             INovaArtifactDetails updateResult = null;
 

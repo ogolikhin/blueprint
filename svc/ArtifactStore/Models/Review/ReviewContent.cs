@@ -6,8 +6,9 @@ namespace ArtifactStore.Models.Review
         public int Id { get; set; }
         public string Name { get; set; }
         public int ArtifactTypeId { get; set; }
-        public string ArtifactTypeName { get; set; }
         public int ItemTypePredefined { get; set; }
+        public bool HasComments { get; set; }
+        public bool IsApprovalRequired { get; set; }
         public int Pending { get; set; }
         public int Approved {get; set; }
         public int Disapproved { get; set; }

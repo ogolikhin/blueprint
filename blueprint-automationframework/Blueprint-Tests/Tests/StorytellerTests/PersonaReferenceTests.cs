@@ -414,12 +414,12 @@ namespace StorytellerTests
 
             if (taskName == Process.DefaultUserTaskName)
             {
-                expectedPersonaName = I18NHelper.FormatInvariant("Given the System is Precondition When {0} attempts to {1} Then the System will be {2}", addedPersonaReference.Name,
+                expectedPersonaName = I18NHelper.FormatInvariant("Given the System is Precondition\r\nWhen {0} attempts to {1}\r\nThen the System will be {2}", addedPersonaReference.Name,
                     Process.DefaultUserTaskName, Process.DefaultSystemTaskName);
             }
             else
             {
-                expectedPersonaName = I18NHelper.FormatInvariant("Given the System is Precondition When User attempts to {0} Then the {1} will be {2}", Process.DefaultUserTaskName,
+                expectedPersonaName = I18NHelper.FormatInvariant("Given the System is Precondition\r\nWhen User attempts to {0}\r\nThen the {1} will be {2}", Process.DefaultUserTaskName,
                     addedPersonaReference.Name, Process.DefaultSystemTaskName);
             }
 
@@ -452,7 +452,7 @@ namespace StorytellerTests
             Assert.IsNotNull(userStories, "There is no user story generated!");
 
             var returnedProperty = userStories.First().CustomProperties.Find(p => p.Name == "ST-Acceptance Criteria");
-            var expectedUserStoryText = I18NHelper.FormatInvariant("Given the System is Precondition When User attempts to {0} Then the System will be {1}",
+            var expectedUserStoryText = I18NHelper.FormatInvariant("Given the System is Precondition\r\nWhen User attempts to {0}\r\nThen the System will be {1}",
                 Process.DefaultUserTaskName, Process.DefaultSystemTaskName);
             Assert.AreEqual(expectedUserStoryText, ConvertHtmlToText(returnedProperty.Value), "Generated user story does not have default persona names!");
         }
@@ -491,12 +491,12 @@ namespace StorytellerTests
 
             if (taskName == Process.DefaultUserTaskName)
             {
-                expectedPersonaName = I18NHelper.FormatInvariant("Given the System is Precondition When {0} attempts to {1} Then the System will be {2}",
+                expectedPersonaName = I18NHelper.FormatInvariant("Given the System is Precondition\r\nWhen {0} attempts to {1}\r\nThen the System will be {2}",
                     INACCESSIBLE_ACTOR, Process.DefaultUserTaskName, Process.DefaultSystemTaskName);
             }
             else
             {
-                expectedPersonaName = I18NHelper.FormatInvariant("Given the System is Precondition When User attempts to {0} Then the {1} will be {2}",
+                expectedPersonaName = I18NHelper.FormatInvariant("Given the System is Precondition\r\nWhen User attempts to {0}\r\nThen the {1} will be {2}",
                     Process.DefaultUserTaskName, INACCESSIBLE_ACTOR, Process.DefaultSystemTaskName);
             }
 
@@ -548,19 +548,13 @@ namespace StorytellerTests
         #region Private Methods
 
         /// <summary>
-        /// This function removes tags and other symbols
+        /// This function removes tags and other symbols.
         /// </summary>
-        /// <param name="htmlCode"></param>
-        /// <returns>Plain text</returns>
+        /// <param name="htmlCode">The HTML text.</param>
+        /// <returns>Plain text (with whitespace trimmed from start and end).</returns>
         public static string ConvertHtmlToText(string htmlCode)
         {
-            string str = System.Text.RegularExpressions.Regex.Replace(
-              htmlCode, "<[^>]*>|\n|\t|&nbsp;", "");
-
-            str = System.Text.RegularExpressions.Regex.Replace(
-              str, "\r", " ");
-
-            return str.Trim();
+            return StringUtilities.ConvertHtmlToText(htmlCode).Trim();
         }
 
         /// <summary>

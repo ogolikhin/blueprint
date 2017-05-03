@@ -4,10 +4,52 @@ namespace ImageRenderService.Helpers
 {
     public static class ServiceHelper
     {
-        private static string GetConfigValue(string key, string defaultValue)
+        #region Public Properties
+
+        public static string ServiceName
+            => GetConfigStringValue(ServiceConfiguration.ServiceNameKey, ServiceConfiguration.DefaultServiceName);
+
+        public static int BrowserPoolMaxSize => GetConfigIntValue(ServiceConfiguration.BrowserPoolMaxSizeKey,
+            ServiceConfiguration.DefaultBrowserPoolMaxSize);
+
+        public static int BrowserPoolWaitTimeSeconds
+            => GetConfigIntValue(ServiceConfiguration.BrowserPoolWaitTimeSecondsKey,
+                ServiceConfiguration.DefaultBrowserPoolWaitTimeSeconds);
+
+        public static int BrowserResizeEventMaxWaitTimeSeconds
+            => GetConfigIntValue(ServiceConfiguration.BrowserResizeEventMaxWaitTimeSecondsKey,
+                ServiceConfiguration.DefaultBrowserResizeEventMaxWaitTimeSeconds);
+
+        public static int BrowserResizeEventDelayIntervalMilliseconds
+            => GetConfigIntValue(ServiceConfiguration.BrowserResizeEventDelayIntervalMillisecondsKey,
+                ServiceConfiguration.DefaultBrowserResizeEventDelayIntervalMilliseconds);
+
+        public static int BrowserRenderDelayMilliseconds
+            => GetConfigIntValue(ServiceConfiguration.BrowserRenderDelayMillisecondsKey,
+                ServiceConfiguration.DefaultBrowserRenderDelayMilliseconds);
+
+        #endregion
+
+
+        #region Private Methods
+
+        private static string GetConfigStringValue(string key, string defaultValue)
         {
             return ConfigurationManager.AppSettings[key] ?? defaultValue;
         }
-        public static string ServiceName => GetConfigValue(ServiceConfiguration.ServiceNameKey, ServiceConfiguration.DefaultServiceName);
+
+        private static int GetConfigIntValue(string key, int defaultValue)
+        {
+            var strValue = ConfigurationManager.AppSettings[key];
+            int intValue;
+            if (string.IsNullOrWhiteSpace(strValue) || !int.TryParse(strValue, out intValue))
+            {
+                intValue = defaultValue;
+            }
+            return intValue;
+        }
+
+        #endregion
+
     }
 }

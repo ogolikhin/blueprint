@@ -934,6 +934,29 @@ namespace Model.Impl
             return addJobResult;
         }
 
+        public List<AdminRole> GetInstanceRoles(IUser adminUser)
+        {
+            var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
+            string path = RestPaths.Svc.AdminStore.Users.INSTANCE_ROLES;
+
+            try
+            {
+                Logger.WriteInfo("Getting instance roles...");
+
+                return restApi.SendRequestAndDeserializeObject<List<AdminRole>>(
+                    path,
+                    RestRequestMethod.GET,
+                    expectedStatusCodes: new List<HttpStatusCode> { HttpStatusCode.OK},
+                    shouldControlJsonChanges: true);
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while performing GetInstanceRoles - {0}", ex.Message);
+                throw;
+            }
+        }
+
         #endregion Members inherited from IAdminStore
 
         #region Members inherited from IDisposable

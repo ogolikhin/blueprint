@@ -129,6 +129,32 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, author, artifact.Id, ItemIndicatorFlags.HasAttachmentsOrDocumentRefs);
         }
 
+        [TestCase]
+        [TestRail(303322)]
+        [Description("Add attachment to the newly created Baseline, check that it throws no error, check that attachement has expected value.")]
+        public void AddAttachment_CreatedBaseline_AttachmentHasExpectedValue()
+        {
+            // Setup:
+            var baselineArtifact = Helper.CreateBaseline(_user, _project);
+            baselineArtifact.Publish(_user);
+            var attachmentBeforeTest = Helper.ArtifactStore.GetAttachments(_user, baselineArtifact.Id);
+            Assert.AreEqual(0, attachmentBeforeTest.AttachedFiles.Count, "Baseline shouldn't have attachments at this point.");
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+
+            // Execute:
+            Assert.DoesNotThrow(() => ArtifactStoreHelper.AddArtifactAttachmentAndSave(author, baselineArtifact,
+                _attachmentFile, Helper.ArtifactStore, shouldReturnAttachments: false),
+                "Exception caught while trying to update a baseline!");
+
+            // Verify:
+            var attachmentAfterTest = Helper.ArtifactStore.GetAttachments(author, baselineArtifact.Id);
+            Assert.AreEqual(1, attachmentAfterTest.AttachedFiles.Count, "Baseline should have 1 attachments at this point.");
+            Assert.AreEqual(_attachmentFile.FileName, attachmentAfterTest.AttachedFiles[0].FileName, "Filename must have expected value.");
+            Assert.AreEqual(0, attachmentAfterTest.DocumentReferences.Count, "List of Document References must be empty.");
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, author, baselineArtifact.Id, ItemIndicatorFlags.HasAttachmentsOrDocumentRefs);
+        }
+
         #endregion 200 OK Tests
 
         #region 409 Conflict Tests

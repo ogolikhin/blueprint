@@ -1,5 +1,6 @@
 ﻿using System;
 using AdminStore.Models;
+using AdminStore.Models.Enums;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 
@@ -7,7 +8,7 @@ namespace AdminStore.Helpers
 {
     public class UserConverter
     {
-        public static User ConvertToDbUser(UserDto user, int userId = 0)
+        public static User ConvertToDbUser(UserDto user, UserOperationMode userOperationMode, int userId = 0)
         {
             var databaseUser = new User
             {
@@ -31,20 +32,24 @@ namespace AdminStore.Helpers
                 CurrentVersion = user.CurrentVersion
             };
 
-            if (!user.AllowFallback.HasValue || !user.AllowFallback.Value)
+            if (userOperationMode == UserOperationMode.Create)
             {
-                var decodedPasword = SystemEncryptions.Decode(user.Password);
-                string errorMessage;
-                var isValidPassword = PasswordValidationHelper.ValidatePassword(decodedPasword, true, out errorMessage);
-                if (!isValidPassword)
+                if (!user.AllowFallback.HasValue || !user.AllowFallback.Value)
                 {
-                    throw new BadRequestException(errorMessage, ErrorCodes.BadRequest);
+                    var decodedPasword = SystemEncryptions.Decode(user.Password);
+                    string errorMessage;
+                    var isValidPassword = PasswordValidationHelper.ValidatePassword(decodedPasword, true,
+                        out errorMessage);
+                    if (!isValidPassword)
+                    {
+                        throw new BadRequestException(errorMessage, ErrorCodes.BadRequest);
+                    }
+                    databaseUser.Password = HashingUtilities.GenerateSaltedHash(decodedPasword, databaseUser.UserSALT);
                 }
-                databaseUser.Password = HashingUtilities.GenerateSaltedHash(decodedPasword, databaseUser.UserSALT);
-            }
-            else
-            {
-                databaseUser.Password = null;
+                else
+                {
+                    databaseUser.Password = null;
+                }
             }
             return databaseUser;
         }

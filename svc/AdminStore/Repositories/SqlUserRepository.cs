@@ -262,7 +262,6 @@ namespace AdminStore.Repositories
             parameters.Add("@FirstName", loginUser.FirstName);
             parameters.Add("@LastName", loginUser.LastName);
             parameters.Add("@ImageId", loginUser.Image_ImageId);
-            parameters.Add("@Password", loginUser.Password);
             parameters.Add("@UserSALT", loginUser.UserSALT);
             parameters.Add("@Email", loginUser.Email);
             parameters.Add("@Title", loginUser.Title);

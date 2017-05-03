@@ -1,4 +1,9 @@
 ﻿using AdminStore.Models;
+using AdminStore.Models.Enums;
+using AdminStore.Repositories;
+using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
 
 namespace AdminStore.Helpers
 {
@@ -71,10 +76,10 @@ namespace AdminStore.Helpers
             return orderField;
         }
 
-        public static User CreateDbUserFromDto(UserDto user, int userId = 0)
+        public static User CreateDbUserFromDto(UserDto user, UserOperationMode userOperationMode, int userId = 0)
         {
             UserValidator.ValidateModel(user);
-            var dbUserModel = UserConverter.ConvertToDbUser(user, userId);
+            var dbUserModel = UserConverter.ConvertToDbUser(user, userOperationMode, userId);
             return dbUserModel;
         }     
     }

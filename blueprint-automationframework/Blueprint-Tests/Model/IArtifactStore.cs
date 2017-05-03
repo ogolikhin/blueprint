@@ -1,12 +1,12 @@
+using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
+using Model.ArtifactModel.Impl;
+using Model.ArtifactModel.Impl.OperationsResults;
 using Model.Impl;
 using Model.NovaModel.Impl;
-using Model.ArtifactModel;
-using Model.ArtifactModel.Impl;
 using System;
 using System.Collections.Generic;
 using System.Net;
-using Model.ArtifactModel.Enums;
-using Model.ArtifactModel.Impl.OperationsResults;
 
 namespace Model
 {
@@ -117,6 +117,24 @@ namespace Model
             string name,
             IProject project,
             INovaArtifactBase parentArtifact = null,
+            double? orderIndex = null,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+
+        /// <summary>
+        /// Creates a new Nova Process artifact.
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="name">The name of the new artifact.</param>
+        /// <param name="project">The project where the artifact will be created in.</param>
+        /// <param name="parentArtifact">(optional) The parent of the new artifact.</param>
+        /// <param name="orderIndex">(optional) The order index of the new artifact.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 201 Created is expected.</param>
+        /// <returns>The new Nova Process artifact that was created.</returns>
+        INovaProcess CreateNovaProcessArtifact(IUser user,
+            string name,
+            IProject project,
+            IArtifactBase parentArtifact = null,
             double? orderIndex = null,
             List<HttpStatusCode> expectedStatusCodes = null);
 
@@ -654,9 +672,9 @@ namespace Model
         /// <param name="novaProcess">The Nova process artifact to delete.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The list of Nova Artifacts that were deleted.</returns>
-        List<NovaArtifact> DeleteNovaProcessArtifact(
+        List<INovaArtifact> DeleteNovaProcessArtifact(
             IUser user,
-            NovaProcess novaProcess,
+            INovaProcess novaProcess,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
@@ -668,7 +686,7 @@ namespace Model
         /// <param name="versionIndex">(optional) The version of the process artifact.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The requested Nova process object.</returns>
-        NovaProcess GetNovaProcess(
+        INovaProcess GetNovaProcess(
             IUser user,
             int artifactId,
             int? versionIndex = null,
@@ -684,7 +702,7 @@ namespace Model
         /// <returns>A NovaArtifactDetails object.</returns>
         INovaArtifactDetails UpdateNovaProcess(
             IUser user,
-            NovaProcess novaProcess,
+            INovaProcess novaProcess,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         #endregion Process methods

@@ -1,20 +1,20 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using Common;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
+using Model.ArtifactModel.Impl.OperationsResults;
+using Model.Factories;
+using Model.NovaModel.Impl;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Mime;
+using System.Web;
 using Utilities;
 using Utilities.Facades;
-using System.Web;
-using System.Net.Mime;
-using Model.Factories;
-using Model.ArtifactModel.Impl.OperationsResults;
-using Model.NovaModel.Impl;
 
 namespace Model.Impl
 {
@@ -109,6 +109,25 @@ namespace Model.Impl
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             return CreateArtifact(Address, user, baseArtifactType, name, project, parentArtifact?.Id, orderIndex, expectedStatusCodes);
+        }
+
+        /// <seealso cref="IArtifactStore.CreateNovaProcessArtifact(IUser, string, IProject, INovaArtifactBase, double?, List{HttpStatusCode})"/>
+        public INovaProcess CreateNovaProcessArtifact(IUser user,
+            string name,
+            IProject project,
+            IArtifactBase parentArtifact = null,
+            double? orderIndex = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return CreateNovaProcessArtifact(
+                Address,
+                user,
+                name,
+                project,
+                artifactTypeName: null,
+                parentArtifactId: parentArtifact?.Id,
+                orderIndex: orderIndex,
+                expectedStatusCodes: expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.UpdateArtifact(IUser, INovaArtifactDetails, List{HttpStatusCode})"/>
@@ -917,9 +936,9 @@ namespace Model.Impl
 
         /// <seealso cref="IArtifactStore.DeleteNovaProcessArtifact(IUser, NovaProcess, List{HttpStatusCode})"/>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
-        public List<NovaArtifact> DeleteNovaProcessArtifact(
+        public List<INovaArtifact> DeleteNovaProcessArtifact(
             IUser user,
-            NovaProcess novaProcess,
+            INovaProcess novaProcess,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(ArtifactStore), nameof(DeleteNovaProcessArtifact));
@@ -932,15 +951,18 @@ namespace Model.Impl
             Logger.WriteInfo("{0} Deleting Nova Process ID: {1}, name: {2}", nameof(ArtifactStore), novaProcess.Id, novaProcess.Name);
 
             var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
-            return restApi.SendRequestAndDeserializeObject<List<NovaArtifact>>(
+
+            var response = restApi.SendRequestAndDeserializeObject<List<NovaArtifact>>(
                 path,
                 RestRequestMethod.DELETE,
                 expectedStatusCodes: expectedStatusCodes,
                 shouldControlJsonChanges: false);
+
+            return response.ConvertAll(o => (INovaArtifact)o);
         }
 
         /// <seealso cref="IArtifactStore.GetNovaProcess(IUser, int, int?, List{HttpStatusCode})"/>
-        public NovaProcess GetNovaProcess(
+        public INovaProcess GetNovaProcess(
             IUser user,
             int artifactId,
             int? versionIndex = null,
@@ -974,7 +996,7 @@ namespace Model.Impl
         /// <seealso cref="IArtifactStore.UpdateNovaProcess(IUser, NovaProcess, List{HttpStatusCode})"/>
         public INovaArtifactDetails UpdateNovaProcess(
             IUser user,
-            NovaProcess novaProcess,
+            INovaProcess novaProcess,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(ArtifactStore), nameof(UpdateNovaProcess));
@@ -987,7 +1009,7 @@ namespace Model.Impl
             Logger.WriteInfo("{0} Updating Process ID: {1}, Name: {2}", nameof(ArtifactStore), novaProcess.Id, novaProcess.Name);
 
             var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
-            var restResponse = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails, NovaProcess>(
+            var restResponse = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails, INovaProcess>(
                 path,
                 RestRequestMethod.PATCH,
                 novaProcess,
@@ -1326,13 +1348,80 @@ namespace Model.Impl
                 OrderIndex = orderIndex
             };
 
-            var newArtifact = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails, NovaArtifactDetails>(
+            var newArtifact = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails, INovaArtifactDetails>(
                 path,
                 RestRequestMethod.POST,
                 jsonBody,
                 expectedStatusCodes: expectedStatusCodes);
 
             return newArtifact;
+        }
+
+        /// <summary>
+        /// Creates a new Nova Process artifact using named Artifact Type.
+        /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="name">The name of the new artifact.</param>
+        /// <param name="project">The project where the artifact will be created in.</param>
+        /// <param name="artifactTypeName">(optional) Name of the artifact type to be used to create the artifact</param>
+        /// <param name="parentArtifactId">(optional) The ID of the parent of the new artifact.</param>
+        /// <param name="orderIndex">(optional) The order index of the new artifact.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 201 Created is expected.</param>
+        /// <returns>The new Nova artifact that was created.</returns>
+        public static INovaProcess CreateNovaProcessArtifact(string address,
+            IUser user,
+            string name,
+            IProject project,
+            string artifactTypeName = null,
+            int? parentArtifactId = null,
+            double? orderIndex = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(address, nameof(address));
+            ThrowIf.ArgumentNull(project, nameof(project));
+
+            string path = RestPaths.Svc.ArtifactStore.Artifacts.CREATE;
+            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
+
+            // Set expectedStatusCodes to 201 Created by default if it's null.
+            expectedStatusCodes = expectedStatusCodes ?? new List<HttpStatusCode> { HttpStatusCode.Created };
+
+            // Get the custom artifact type for the project.
+            if (project.NovaPropertyTypes.Count == 0)
+            {
+                project.GetAllNovaArtifactTypes(project.ArtifactStore, user);
+            }
+            NovaArtifactType itemType;
+
+            if (artifactTypeName == null)
+            {
+                itemType = project.NovaArtifactTypes.Find(at => at.PredefinedType == ItemTypePredefined.Process);
+            }
+            else
+            {
+                itemType = project.NovaArtifactTypes.Find(at => at.PredefinedType == ItemTypePredefined.Process && at.Name.Equals(artifactTypeName));
+            }
+
+            Assert.NotNull(itemType, "No custom artifact type was found in project '{0}' for ItemTypePredefined: {1}!",
+                project.Name, ItemTypePredefined.Process);
+
+            var jsonBody = new NovaProcess
+            {
+                Name = name,
+                ProjectId = project.Id,
+                ItemTypeId = itemType.Id,
+                ParentId = parentArtifactId ?? project.Id,
+                OrderIndex = orderIndex
+            };
+
+            var newNovaProcessArtifact = restApi.SendRequestAndDeserializeObject<NovaProcess, INovaProcess>(
+                path,
+                RestRequestMethod.POST,
+                jsonBody,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return newNovaProcessArtifact;
         }
 
         /// <summary>

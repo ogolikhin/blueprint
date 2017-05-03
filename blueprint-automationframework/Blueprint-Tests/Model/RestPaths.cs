@@ -262,6 +262,11 @@ namespace Model
                     public const string CONTENT                     = "svc/bpartifactstore/collections/{0}/content"; //  Add artifact to Collection
                 }
 
+                public static class Containers_id_
+                {
+                    public const string PARTICIPANTS                = "svc/artifactstore/containers/{0}/participants";
+                }
+
                 [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
                 public static class Projects_id_
                 {

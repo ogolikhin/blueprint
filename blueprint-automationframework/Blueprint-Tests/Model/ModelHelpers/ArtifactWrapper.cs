@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Model.ArtifactModel;
-using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Newtonsoft.Json;
 using NUnit.Framework;

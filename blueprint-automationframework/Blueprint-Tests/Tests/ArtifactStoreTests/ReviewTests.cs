@@ -96,5 +96,27 @@ namespace ArtifactStoreTests
             Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetReviewContainer(_adminUser, reviewId),
                 "{0} should return 403 for non-reviewer user.", nameof(Helper.ArtifactStore.GetReviewContainer));
         }
+
+        [Category(Categories.GoldenData)]
+        [TestCase]
+        [TestRail(303522)]
+        [Description("Get Review Participants by Review id from Custom Data project should return expected number of reviewers.")]
+        public void GetReviewParticipants_ExistingReview_CheckReviewersCount()
+        {
+            // Setup:
+            _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
+            const int reviewId = 111;
+
+            ReviewParticipantsContent reviewParticipants = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            reviewParticipants = Helper.ArtifactStore.GetReviewParticipants(_adminUser, reviewId), "GetReviewParticipants " +
+            "should return 200 success.");
+
+            // Verify:
+            Assert.AreEqual(1, reviewParticipants.Total, "ReviewParticipantsContent should have expected number of Reviewers.");
+            Assert.AreEqual(1, reviewParticipants.Items?.Count, "List of Reviewers should have expected number of items.");
+        }
     }
 }

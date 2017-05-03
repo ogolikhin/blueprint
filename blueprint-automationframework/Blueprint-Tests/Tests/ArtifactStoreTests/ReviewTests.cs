@@ -86,7 +86,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(303349)]
         [Description("Get Review Content by id from Custom Data project, non-reviewer user, check that server returns 403.")]
-        public void GetReviewContainer_ExistingReview_NonReviewer_Returns403()
+        public void GetReviewContainer_ExistingReview_NonReviewer_403Forbidden()
         {
             // Setup:
             _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);

@@ -43,7 +43,7 @@ namespace Model.Factories
         /// </summary>
         /// <param name="instanceAdminRole">(optional) The Instance Admin Role to assign to the user.  Pass null if you don't want any role assigned.</param>
         /// <param name="source">(optional) Where the user exists.</param>
-        /// <param name="licenseType">(optional) The license type of the user (Author, Collaborator, Viewer).</param>
+        /// <param name="licenseLevel">(optional) The license type of the user (Author, Collaborator, Viewer).</param>
         /// <returns>A new unique user object that was added to the database.</returns>
         public static IUser CreateUserAndAddToDatabase(InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
             UserSource source = UserSource.Database, LicenseLevel licenseLevel = LicenseLevel.Author)
@@ -97,7 +97,7 @@ namespace Model.Factories
         /// Creates a new user object with random values.
         /// </summary>
         /// <param name="source">(optional) Where the user exists.</param>
-        /// <param name="licenseType">The license type of the user (Author, Collaborator, Viewer).</param>
+        /// <param name="licenseLevel">The license type of the user (Author, Collaborator, Viewer).</param>
         /// <returns>A new unique user object.</returns>
         public static IUser CreateUserOnly(
             UserSource source = UserSource.Database,

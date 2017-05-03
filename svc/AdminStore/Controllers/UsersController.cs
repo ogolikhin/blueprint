@@ -137,7 +137,7 @@ namespace AdminStore.Controllers
         [SessionRequired]
         [Route("delete")]
         [ResponseType(typeof(IEnumerable<int>))]
-        public async Task<IHttpActionResult> DeleteUsers([FromBody]OperationScope body,[FromUri]string search = null)
+        public async Task<IHttpActionResult> DeleteUsers([FromBody]OperationScope body, string search = null)
         {
             if (body == null || ((body.Ids == null || !body.Ids.Any()) && body.SelectAll == false))
             {

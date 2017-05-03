@@ -96,7 +96,6 @@
     </Compile>
     <Compile Include="ImageGen\BrowserPoolTest.cs" />
     <Compile Include="ImageGen\ImageGenHelperTest.cs" />
-    <Compile Include="ImageGen\TestableChromiumWebBrowser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

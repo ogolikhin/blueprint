@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -207,6 +208,9 @@ namespace Model.ModelHelpers
 
         /// <summary>
         /// Publishes this artifact.  You must lock the artifact before publishing.
+        /// NOTE: This method only updates the Version of the wrapped artifact with the new version returned by the Publish call.  All other
+        /// properties are the same as they were before this function was called.  If you need this object to have all of the properties the
+        /// same as they are on the server, call RefreshArtifactFromServer().
         /// </summary>
         /// <param name="user">The user to perform the publish.</param>
         /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
@@ -243,11 +247,14 @@ namespace Model.ModelHelpers
 
         /// <summary>
         /// Updates this artifact with a new random Description.  You must lock the artifact before saving.
+        /// NOTE: This method only updates the Description of the wrapped artifact with the new random description.  All other properties
+        /// are the same as they were before this function was called.  If you need this object to have all of the properties the same as
+        /// they are on the server, call RefreshArtifactFromServer().
         /// </summary>
         /// <param name="user">The user to perform the update.</param>
         /// <param name="description">(optional) The new description to save.  By default a random description is generated.</param>
-        /// <returns>The updated artifact.</returns>
-        public ArtifactWrapper SaveWithNewDescription(IUser user, string description = null)
+        /// <returns>The result of the update artifact call.</returns>
+        public INovaArtifactDetails SaveWithNewDescription(IUser user, string description = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
@@ -258,27 +265,27 @@ namespace Model.ModelHelpers
                 Description = description ?? "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5)
             };
 
-            var updatedArtifact = ArtifactStore.UpdateArtifact(user, changes);
-            CSharpUtilities.ReplaceAllNonNullProperties(changes, Artifact);
-            CSharpUtilities.ReplaceAllNonNullProperties(updatedArtifact, Artifact);
+            var updatedArtifact = Update(user, changes);
 
-            return this;
+            Artifact.Description = changes.Description;
+
+            return updatedArtifact;
         }
 
         /// <summary>
         /// Updates this artifact with the properties specified in the updateArtifact.  You must lock the artifact before updating.
+        /// NOTE: This method does not update the wrapped artifact with the properties you updated.  If you need this object to have all
+        /// of the properties the same as they are on the server, call RefreshArtifactFromServer().
         /// </summary>
         /// <param name="user">The user to perform the update.</param>
         /// <param name="updateArtifact">The artifact whose non-null properties will be used to update this artifact.</param>
-        /// <returns>The updated artifact.</returns>
+        /// <returns>The result of the update artifact call.</returns>
         public INovaArtifactDetails Update(IUser user, INovaArtifactDetails updateArtifact)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(updateArtifact, nameof(updateArtifact));
 
             var updatedArtifact = ArtifactStore.UpdateArtifact(user, updateArtifact);
-//            var propertiesToNotReplace = new List<string> { "AttachmentValues", "CustomPropertyValues", "SpecificPropertyValues" };
-//            CSharpUtilities.ReplaceAllNonNullProperties(updateArtifact, Artifact, propertiesToNotReplace);
-//            CSharpUtilities.ReplaceAllNonNullProperties(updatedArtifact, Artifact, propertiesToNotReplace);
 
             ArtifactState.IsDraft = true;
 

@@ -467,15 +467,10 @@ namespace Helper
 
             for (int i = 1; i < numberOfVersions; ++i)
             {
-                var changes = new NovaArtifactDetails
-                {
-                    Id = artifact.Artifact.Id,
-                    ProjectId = artifact.Artifact.ProjectId,
-                    Description = I18NHelper.FormatInvariant(StringUtilities.WrapInHTML("Description for version: {0}"), artifact.Version + 1)
-                };
+                string newDescription = I18NHelper.FormatInvariant("Description for version: {0}", artifact.Version + 1);
 
                 artifact.Lock(user);
-                artifact.Update(user, changes);
+                artifact.SaveWithNewDescription(user, newDescription);
                 artifact.Publish(user);
             }
 

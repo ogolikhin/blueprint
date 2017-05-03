@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using TestCommon;
 using Utilities.Factories;
 using Model.ArtifactModel.Enums;
-using Model.Impl;
+using Model.ModelHelpers;
 
 namespace SearchServiceTests
 {
@@ -53,7 +53,8 @@ namespace SearchServiceTests
         public void SearchArtifactByPartialName_2Projects_VerifySearchResult(int startCharsToRemove, int endCharsToRemove)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.Actor);
+            var artifact = Helper.CreateNovaArtifactInSpecificState(_adminUser, _firstProject,
+                TestHelper.TestArtifactState.Published, ItemTypePredefined.Actor, _firstProject.Id);
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             string partialName = artifact.Name;
 
@@ -86,8 +87,10 @@ namespace SearchServiceTests
         public void SearchArtifactByFullName_2Projects_VerifySearchResult()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.Document);
-            var artifact2 = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.Storyboard);
+            var artifact = Helper.CreateNovaArtifactInSpecificState(_adminUser, _firstProject,
+                TestHelper.TestArtifactState.Published, ItemTypePredefined.Document, _firstProject.Id);
+            var artifact2 = Helper.CreateNovaArtifactInSpecificState(_adminUser, _firstProject,
+                TestHelper.TestArtifactState.Published, ItemTypePredefined.Storyboard, _firstProject.Id);
 
             Assert.AreNotEqual(artifact.Name, artifact2.Name, "Random artifacts should have different names.");
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
@@ -111,7 +114,8 @@ namespace SearchServiceTests
         public void SearchArtifactNonExistingName_2Projects_VerifyEmptyResult()
         {
             // Setup:
-            Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.Glossary);
+            Helper.CreateNovaArtifactInSpecificState(_adminUser, _firstProject,
+                TestHelper.TestArtifactState.Published, ItemTypePredefined.Glossary, _firstProject.Id);
 
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             string nonExistingArtifactName = RandomGenerator.RandomLowerCase(50);
@@ -133,7 +137,7 @@ namespace SearchServiceTests
         public void SearchDraftNeverPublishedArtifactByName_ParentProject_VerifyEmptySearchResult()
         {
             // Setup:
-            var artifact = Helper.CreateAndSaveArtifact(_firstProject, _authorUser, BaseArtifactType.Process);
+            var artifact = Helper.CreateNovaArtifact(_authorUser, _firstProject, ItemTypePredefined.Process);
             var searchCriteria = new ItemNameSearchCriteria(artifact.Name, _firstProject.Id);
             ItemNameSearchResultSet results = null;
 
@@ -153,7 +157,8 @@ namespace SearchServiceTests
         public void SearchDeletedArtifactByFullName_AllProjects_VerifySearchResult()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.UseCaseDiagram);
+            var artifact = Helper.CreateNovaArtifactInSpecificState(_adminUser, _firstProject,
+                TestHelper.TestArtifactState.Published, ItemTypePredefined.UseCaseDiagram, _firstProject.Id);
             artifact.Delete(_adminUser);
             artifact.Publish(_adminUser);
 
@@ -177,8 +182,12 @@ namespace SearchServiceTests
         {
             // Setup:
             string artifactName = RandomGenerator.RandomAlphaNumeric(12);
-            var artifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.UIMockup, name: artifactName);
-            Helper.CreateAndPublishArtifact(_secondProject, _adminUser, BaseArtifactType.UIMockup, name: artifactName);
+            var artifact = Helper.CreateNovaArtifactInSpecificState(_adminUser, _firstProject,
+                TestHelper.TestArtifactState.Published, ItemTypePredefined.UIMockup, _firstProject.Id,
+                artifactName: artifactName);
+            Helper.CreateNovaArtifactInSpecificState(_adminUser, _secondProject,
+                TestHelper.TestArtifactState.Published, ItemTypePredefined.UIMockup, _secondProject.Id,
+                artifactName: artifactName);
 
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             var searchCriteria = new ItemNameSearchCriteria(artifact.Name, selectedProjectIds);
@@ -203,9 +212,13 @@ namespace SearchServiceTests
         {
             // Setup:
             string artifactName = RandomGenerator.RandomAlphaNumeric(12);
-            var artifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.UseCase, name: artifactName);
-            Helper.CreateAndPublishArtifact(_secondProject, _adminUser, BaseArtifactType.UIMockup, name: artifactName);
-
+            var artifact = Helper.CreateNovaArtifactInSpecificState(_adminUser, _firstProject,
+                TestHelper.TestArtifactState.Published, ItemTypePredefined.UseCase, _firstProject.Id,
+                artifactName: artifactName);
+            Helper.CreateNovaArtifactInSpecificState(_adminUser, _secondProject,
+                TestHelper.TestArtifactState.Published, ItemTypePredefined.UIMockup, _secondProject.Id,
+                artifactName: artifactName);
+            
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             var searchCriteria = new ItemNameSearchCriteria(artifact.Name, selectedProjectIds);
             ItemNameSearchResultSet results = null;
@@ -229,13 +242,17 @@ namespace SearchServiceTests
         {
             // Setup:
             string artifactName = RandomGenerator.RandomAlphaNumeric(12);
-            var artifacts = new List<IArtifact>();
+            var artifacts = new List<ArtifactWrapper>();
 
             // Create and publish Storyboard and Actor in each project.  All artifacts have the same name.
             foreach (var project in _projects)
             {
-                artifacts.Add(Helper.CreateAndPublishArtifact(project, _adminUser, BaseArtifactType.Storyboard, name: artifactName));
-                artifacts.Add(Helper.CreateAndPublishArtifact(project, _adminUser, BaseArtifactType.Actor, name: artifactName));
+                artifacts.Add(Helper.CreateNovaArtifactInSpecificState(_adminUser, project,
+                TestHelper.TestArtifactState.Published, ItemTypePredefined.Storyboard, project.Id,
+                artifactName: artifactName));
+                artifacts.Add(Helper.CreateNovaArtifactInSpecificState(_adminUser, project,
+                TestHelper.TestArtifactState.Published, ItemTypePredefined.Actor, project.Id,
+                artifactName: artifactName));
             }
 
             Assert.AreEqual(2 * _projects.Count, artifacts.Count, "Expected number of artifacts is number of projects times 2.");
@@ -308,9 +325,12 @@ namespace SearchServiceTests
         public void SearchArtifactByFullName_2Projects_VerifyPath()
         {
             // Setup:
-            var parentFolder = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.PrimitiveFolder);
-            var parentArtifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.UseCase, parentFolder);
-            var artifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.Actor, parentArtifact);
+            var parentFolder = Helper.CreateNovaArtifactInSpecificState(_adminUser, _firstProject,
+                TestHelper.TestArtifactState.Published, ItemTypePredefined.PrimitiveFolder, _firstProject.Id);
+            var parentArtifact = Helper.CreateNovaArtifactInSpecificState(_adminUser, _firstProject,
+                TestHelper.TestArtifactState.Published, ItemTypePredefined.UseCase, parentFolder.Id);
+            var artifact = Helper.CreateNovaArtifactInSpecificState(_adminUser, _firstProject,
+                TestHelper.TestArtifactState.Published, ItemTypePredefined.Actor, parentArtifact.Id);
 
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             var searchCriteria = new ItemNameSearchCriteria(artifact.Name, selectedProjectIds);
@@ -344,7 +364,9 @@ namespace SearchServiceTests
 
             for (int i = 0; i < numberOfArtifacts; i++)
             {
-                Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.UIMockup, name: artifactName);
+                Helper.CreateNovaArtifactInSpecificState(_adminUser, _firstProject,
+                TestHelper.TestArtifactState.Published, ItemTypePredefined.UIMockup, _firstProject.Id,
+                artifactName: artifactName);
             }
             
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
@@ -370,7 +392,9 @@ namespace SearchServiceTests
 
             for (int i = 0; i < numberOfArtifacts; i++)
             {
-                Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.UIMockup, name: artifactName);
+                Helper.CreateNovaArtifactInSpecificState(_adminUser, _firstProject,
+                TestHelper.TestArtifactState.Published, ItemTypePredefined.UIMockup, _firstProject.Id,
+                artifactName: artifactName);
             }
             
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
@@ -393,7 +417,8 @@ namespace SearchServiceTests
         public void SearchArtifactByFullName_IncludeArtifactPathFalse_VerifyPathIsNull()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.DomainDiagram);
+            var artifact = Helper.CreateNovaArtifactInSpecificState(_adminUser, _firstProject,
+                TestHelper.TestArtifactState.Published, ItemTypePredefined.DomainDiagram, _firstProject.Id);
 
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             var searchCriteria = new ItemNameSearchCriteria(artifact.Name, selectedProjectIds);
@@ -419,21 +444,25 @@ namespace SearchServiceTests
         {
             // Setup:
             string artifactName = RandomGenerator.RandomAlphaNumeric(12);
-            var artifacts = new List<IArtifact>();
+            var artifacts = new List<ArtifactWrapper>();
 
             // Create and publish Storyboard and Actor in each project.  All artifacts have the same name.
             foreach (var pr in _projects)
             {
-                artifacts.Add(Helper.CreateAndPublishArtifact(pr, _adminUser, BaseArtifactType.Storyboard, name: artifactName));
-                artifacts.Add(Helper.CreateAndPublishArtifact(pr, _adminUser, BaseArtifactType.Actor, name: artifactName));
+                artifacts.Add(Helper.CreateNovaArtifactInSpecificState(_adminUser, pr,
+                TestHelper.TestArtifactState.Published, ItemTypePredefined.Storyboard, pr.Id,
+                artifactName: artifactName));
+                artifacts.Add(Helper.CreateNovaArtifactInSpecificState(_adminUser, pr,
+                TestHelper.TestArtifactState.Published, ItemTypePredefined.Actor, pr.Id,
+                artifactName: artifactName));
             }
 
             Assert.AreEqual(2 * _projects.Count, artifacts.Count, "Expected number of artifacts is number of projects times 2.");
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
 
             // Create list of TypeId for search criteria, TypeId depends from Project; TypeId == ArtifactTypeId.
-            int actorTypeIdInFirstProject = (artifacts.Find(a => (a.BaseArtifactType == BaseArtifactType.Actor &&
-                a.ProjectId == _projects[0].Id))).ArtifactTypeId;
+            int actorTypeIdInFirstProject = (artifacts.Find(a => (a.PredefinedType == (int)ItemTypePredefined.Actor &&
+                a.ProjectId == _projects[0].Id))).ItemTypeId.Value;
 
             var itemTypeIdSearchCriteria = new ItemNameSearchCriteria(artifactName, selectedProjectIds, new List<int> { actorTypeIdInFirstProject });
             // Search by name and TypeId across all projects.
@@ -475,8 +504,10 @@ namespace SearchServiceTests
         public void SearchArtifactByFullName_2ProjectsArtifactWithChild_VerifyHasChildren()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.UseCase);
-            var childArtifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.Process, artifact);
+            var artifact = Helper.CreateNovaArtifactInSpecificState(_adminUser, _firstProject,
+                TestHelper.TestArtifactState.Published, ItemTypePredefined.UseCase, _firstProject.Id);
+            var childArtifact = Helper.CreateNovaArtifactInSpecificState(_adminUser, _firstProject,
+                TestHelper.TestArtifactState.Published, ItemTypePredefined.Process, artifact.Id);
 
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             var searchCriteria = new ItemNameSearchCriteria(artifact.Name, selectedProjectIds);
@@ -502,7 +533,8 @@ namespace SearchServiceTests
         public void SearchArtifactByFullName_2ProjectsArtifactLockedByOtherUser_VerifyLockedBy()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.UseCase);
+            var artifact = Helper.CreateNovaArtifactInSpecificState(_adminUser, _firstProject,
+                TestHelper.TestArtifactState.Published, ItemTypePredefined.UseCase, _firstProject.Id);
 
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             var searchCriteria = new ItemNameSearchCriteria(artifact.Name, selectedProjectIds);
@@ -536,11 +568,12 @@ namespace SearchServiceTests
             string artifactName = RandomGenerator.RandomAlphaNumeric(8);
 
             var baseline = Helper.CreateBaseline(_adminUser, _firstProject, name: artifactName);
-            Helper.ArtifactStore.PublishArtifacts(new List<int> { baseline.Id }, _adminUser);
+            baseline.Publish(_adminUser);
             var collection = Helper.CreateUnpublishedCollection(_firstProject, _adminUser, name: artifactName);
-            Helper.ArtifactStore.PublishArtifacts(new List<int> { collection.Id }, _adminUser);
-            var artifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.DomainDiagram,
-                name: artifactName);
+            collection.Publish(_adminUser);
+            var artifact = Helper.CreateNovaArtifactInSpecificState(_adminUser, _firstProject,
+                TestHelper.TestArtifactState.Published, ItemTypePredefined.DomainDiagram, _firstProject.Id,
+                artifactName: artifactName);
 
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             var searchCriteria = new ItemNameSearchCriteria(artifactName, selectedProjectIds);
@@ -573,19 +606,6 @@ namespace SearchServiceTests
                 Assert.That(results.Items.Exists(si => DoesSearchItemCorrespondToArtifact(collection, si)), "Published collection must be in search results.");
             }
             Assert.AreEqual(expectedSearchResultNumber, results.Items.Count, "List of SearchItems should have expected number of items.");
-        }
-
-        /// <summary>
-        /// Returns true if ItemNameSearchResult contains information about Artifact and false otherwise
-        /// </summary>
-        /// <param name="artifact">artifact to compare</param>
-        /// <param name="searchItem">searchItem to compare</param>
-        private static bool DoesSearchItemCorrespondToArtifact(IArtifact artifact, ItemNameSearchResult searchItem)
-        {
-            return ((searchItem.Id == artifact.Id) &&
-                    (searchItem.Name == artifact.Name) &&
-                    (searchItem.ProjectId == artifact.ProjectId) &&
-                    (searchItem.ItemTypeId == artifact.ArtifactTypeId));
         }
 
         /// <summary>

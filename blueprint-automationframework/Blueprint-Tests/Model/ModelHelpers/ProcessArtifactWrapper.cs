@@ -11,14 +11,9 @@ namespace Model.ModelHelpers
         /// The artifact that is being wrapped.
         /// </summary>
         [JsonIgnore]
-        public  INovaProcess NovaProcess { get { return (INovaProcess)Artifact; } set {Artifact = value; } }
-
-//        public new INovaArtifactDetails Artifact
-//        {
-//            get { return NovaProcess; }
-//            set { NovaProcess = (INovaProcess)value; }
-//        }
-
+        public  INovaProcess NovaProcess {
+            get { return (INovaProcess)Artifact; }
+            set {Artifact = value; } }
 
         public Process Process
         {
@@ -35,7 +30,16 @@ namespace Model.ModelHelpers
 
         #region Constructors
 
-        public ProcessArtifactWrapper(INovaArtifactDetails artifact, IArtifactStore artifactStore, ISvcShared svcShared, IProject project, IUser createdBy) : base(artifact, artifactStore, svcShared, project, createdBy)
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="artifact">The nova process artifact to wrap.</param>
+        /// <param name="artifactStore">The ArtifactStore to use for REST calls.</param>
+        /// <param name="svcShared">The SvcShared to use for REST calls.</param>
+        /// <param name="project">The project where the artifact was created.</param>
+        /// <param name="createdBy">The user who created the artifact.</param>
+        /// <exception cref="AssertionException">If the Project ID of the artifact is different than the ID of the IProject.</exception>
+        public ProcessArtifactWrapper(INovaProcess artifact, IArtifactStore artifactStore, ISvcShared svcShared, IProject project, IUser createdBy) : base(artifact, artifactStore, svcShared, project, createdBy)
         {
         }
 
@@ -59,6 +63,15 @@ namespace Model.ModelHelpers
             ArtifactState.IsDraft = true;
 
             return updatedArtifact;
+        }
+
+        /// <summary>
+        /// Gets the artifact from ArtifactStore and replaces the current artifact with the properties returned from the server.
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        public override void RefreshArtifactFromServer(IUser user)
+        {
+            Artifact = ArtifactStore.GetNovaProcess(user, Id);
         }
     }
 }

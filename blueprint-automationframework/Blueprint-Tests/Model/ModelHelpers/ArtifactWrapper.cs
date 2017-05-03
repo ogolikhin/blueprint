@@ -11,7 +11,6 @@ namespace Model.ModelHelpers
 {
     public class ArtifactWrapper : INovaArtifactDetails, INovaArtifactObservable
     {
-        //[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public ArtifactState ArtifactState { get; } = new ArtifactState();
         public IArtifactStore ArtifactStore { get; private set; }
         public ISvcShared SvcShared { get; private set; }
@@ -240,7 +239,7 @@ namespace Model.ModelHelpers
         /// Gets the artifact from ArtifactStore and replaces the current artifact with the properties returned from the server.
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>
-        public void RefreshArtifactFromServer(IUser user)
+        public virtual void RefreshArtifactFromServer(IUser user)
         {
             Artifact = ArtifactStore.GetArtifactDetails(user, Id);
         }

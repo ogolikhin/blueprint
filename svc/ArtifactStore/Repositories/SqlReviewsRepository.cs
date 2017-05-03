@@ -1,4 +1,5 @@
-﻿using ArtifactStore.Models.Review;
+﻿using ArtifactStore.Models;
+using ArtifactStore.Models.Review;
 using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
@@ -19,15 +20,24 @@ namespace ArtifactStore.Repositories
 
         private readonly ISqlItemInfoRepository _itemInfoRepository;
 
-        public SqlReviewsRepository(): this(new SqlConnectionWrapper(ServiceConstants.RaptorMain), new SqlArtifactVersionsRepository(), new SqlItemInfoRepository())
+        private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
+
+        public SqlReviewsRepository(): this(new SqlConnectionWrapper(ServiceConstants.RaptorMain), 
+                                            new SqlArtifactVersionsRepository(), 
+                                            new SqlItemInfoRepository(),
+                                            new SqlArtifactPermissionsRepository())
         {
         }
 
-        public SqlReviewsRepository(ISqlConnectionWrapper connectionWrapper, IArtifactVersionsRepository artifactVersionsRepository, ISqlItemInfoRepository itemInfoRepository)
+        public SqlReviewsRepository(ISqlConnectionWrapper connectionWrapper, 
+                                    IArtifactVersionsRepository artifactVersionsRepository, 
+                                    ISqlItemInfoRepository itemInfoRepository,
+                                    IArtifactPermissionsRepository artifactPermissionsRepository)
         {
             ConnectionWrapper = connectionWrapper;
             _artifactVersionsRepository = artifactVersionsRepository;
             _itemInfoRepository = itemInfoRepository;
+            _artifactPermissionsRepository = artifactPermissionsRepository;
         }
 
         private async Task<ReviewContainer> GetReviewAsync(int reviewId, int userId, int revisionId)
@@ -69,7 +79,6 @@ namespace ArtifactStore.Repositories
                 string errorMessage = I18NHelper.FormatInvariant("Review (Id:{0}) is not found.", containerId);
                 throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
             }
-
             var reviewer = await GetReviewer(containerId, userId);
             if (reviewer == null)
             {
@@ -87,6 +96,17 @@ namespace ArtifactStore.Repositories
         {
             var reviewArtifacts = await GetReviewArtifactsAsync(reviewId, userId, offset, limit, versionId, addDrafts);
             var reviewArtifactIds = reviewArtifacts.Items.Select(a => a.Id).ToList();
+
+            reviewArtifactIds.Add(reviewId);
+
+            var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(reviewArtifactIds, userId);
+
+            if (!SqlArtifactPermissionsRepository.HasPermissions(reviewId, artifactPermissionsDictionary, RolePermissions.Read))
+            {
+                string errorMessage = I18NHelper.FormatInvariant("User does not have permissions to access the review (Id:{0}).", reviewId);
+                throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
+            }
+
             var reviewArtifactStatuses = await GetReviewArtifactStatusesAsync(reviewId, userId, offset, limit, versionId, addDrafts, reviewArtifactIds);
             var numUsers = reviewArtifactStatuses.NumUsers;
             var artifactStatusDictionary = reviewArtifactStatuses.ItemStatuses.ToDictionary(a => a.ArtifactId);
@@ -95,21 +115,26 @@ namespace ArtifactStore.Repositories
 
             foreach (var reviewArtifact in reviewArtifacts.Items)
             {
-                if (artifactStatusDictionary.TryGetValue(reviewArtifact.Id, out reviewArtifactStatus))
+                if (SqlArtifactPermissionsRepository.HasPermissions(reviewArtifact.Id, artifactPermissionsDictionary, RolePermissions.Read))
                 {
-                    reviewArtifact.Pending = reviewArtifactStatus.Pending;
-                    reviewArtifact.Approved = reviewArtifactStatus.Approved;
-                    reviewArtifact.Disapproved = reviewArtifactStatus.Disapproved;
-                    reviewArtifact.Viewed = reviewArtifactStatus.Viewed;
-                    reviewArtifact.Unviewed = reviewArtifactStatus.Unviewed;
-                }
-                else
-                {
-                    reviewArtifact.Pending = numUsers;
-                    reviewArtifact.Approved = 0;
-                    reviewArtifact.Disapproved = 0;
-                    reviewArtifact.Viewed = 0;
-                    reviewArtifact.Unviewed = numUsers;
+                    if (artifactStatusDictionary.TryGetValue(reviewArtifact.Id, out reviewArtifactStatus))
+                    {
+                        reviewArtifact.Pending = reviewArtifactStatus.Pending;
+                        reviewArtifact.Approved = reviewArtifactStatus.Approved;
+                        reviewArtifact.Disapproved = reviewArtifactStatus.Disapproved;
+                        reviewArtifact.Viewed = reviewArtifactStatus.Viewed;
+                        reviewArtifact.Unviewed = reviewArtifactStatus.Unviewed;
+                    } else {
+                        reviewArtifact.Pending = numUsers;
+                        reviewArtifact.Unviewed = numUsers;
+                    }
+                    reviewArtifact.HasAccess = true;
+                } else {
+                    reviewArtifact.Name = string.Empty;
+                    reviewArtifact.ArtifactTypeId = 0;
+                    reviewArtifact.ArtifactTypeName = string.Empty;
+                    reviewArtifact.ItemTypePredefined = 0;
+                    reviewArtifact.HasAccess = false;
                 }
             }
             return reviewArtifacts;

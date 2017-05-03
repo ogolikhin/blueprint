@@ -11,7 +11,6 @@ namespace AdminStoreTests.UsersTests
     [TestFixture]
     [Category(Categories.AdminPortal)]
     [Category(Categories.AdminStore)]
-
     public class GetInstanceRolesTests : TestBase
     {
         private const string USERS_PATH = RestPaths.Svc.AdminStore.Users.USERS;
@@ -38,7 +37,7 @@ namespace AdminStoreTests.UsersTests
         [Explicit(IgnoreReasons.UnderDevelopmentDev)]
         [TestCase]
         [Description("Retrieve all existing instance admin roles. " +
-             "Verify the same user that was created is returned.")]
+                     "Verify the same user that was created is returned.")]
         [TestRail(303472)]
         public void GetInstanceAdminRoles_ValidRoles_RolesRetrieved()
         {

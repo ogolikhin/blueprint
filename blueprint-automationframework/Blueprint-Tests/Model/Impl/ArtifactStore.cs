@@ -916,7 +916,7 @@ namespace Model.Impl
         /// <seealso cref="IArtifactStore.GetReviewContainer(IUser, int)"/>
         public ReviewContainer GetReviewContainer(IUser user, int reviewId)
         {
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.REVIEWS_id_, reviewId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.CONTAINERS_id_, reviewId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
             return restApi.SendRequestAndDeserializeObject<ReviewContainer>(path,

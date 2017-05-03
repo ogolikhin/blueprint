@@ -649,7 +649,7 @@ namespace Model
         /// </summary>
         /// <param name="user">user to perform the operation.</param>
         /// <param name="reviewId">Id of Review.</param>
-        /// <returns></returns>
+        /// <returns>ReviewContainer</returns>
         ReviewContainer GetReviewContainer(IUser user, int reviewId);
 
         #region Process methods

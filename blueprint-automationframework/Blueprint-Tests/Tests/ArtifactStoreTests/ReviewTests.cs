@@ -7,6 +7,7 @@ using Model.Factories;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
+using TestConfig;
 
 namespace ArtifactStoreTests
 {
@@ -62,8 +63,13 @@ namespace ArtifactStoreTests
             // Setup:
             _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
             const int reviewId = 111;
-            var sessionToken = Helper.AdminStore.AddSession("admin", "$Admin93");
-            var admin = UserFactory.CreateUserOnly("admin", "$Admin93");
+
+            var testConfig = TestConfiguration.GetInstance();
+            string userName = testConfig.Username;
+            string password = testConfig.Password;
+
+            var sessionToken = Helper.AdminStore.AddSession(userName, password);
+            var admin = UserFactory.CreateUserOnly(userName, password);
             admin.SetToken(sessionToken.SessionId);
 
             ReviewContainer reviewContainer = null;

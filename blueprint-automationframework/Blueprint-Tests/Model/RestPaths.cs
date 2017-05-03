@@ -210,6 +210,7 @@ namespace Model
                 public const string ARTIFACTS_id_                   = "svc/bpartifactstore/artifacts/{0}";  // XXX: For some reason they decided to put this call in blueprint-current!
                 public const string BASELINE_id_                    = "svc/bpartifactstore/baselines/{0}"; // Baseline
                 public const string COLLECTION_id_                  = "svc/bpartifactstore/collections/{0}"; // Collection
+                public const string CONTAINERS_id_                  = "svc/artifactstore/containers/{0}";
                 public const string DIAGRAM_id_                     = "svc/bpartifactstore/diagram/{0}";    // NovaDiagramController.GetDiagram
                 public const string GLOSSARY_id_                    = "svc/bpartifactstore/glossary/{0}";   // NovaGlossaryController.GetGlossary
                 public const string IMAGES                          = "svc/bpartifactstore/images";

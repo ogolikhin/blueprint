@@ -8,7 +8,7 @@ namespace Model.Impl
     public class InstanceUser : LoginUser
     {
         /// <summary>
-        /// True if the user is a guest user, fals otherwise.
+        /// True if the user is a guest user, false otherwise.
         /// </summary>
         public bool Guest { get; set; }
 

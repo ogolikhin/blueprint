@@ -229,8 +229,8 @@ namespace Model.Impl
             Sessions.RemoveAll(session => session.SessionId == token);
         }
 
-        /// <seealso cref="IAdminStore.AddUser(IUser, InstanceUser, List{HttpStatusCode})"/>
-        public int AddUser(IUser adminUser, InstanceUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IAdminStore.AddUser(IUser, InstanceUser)"/>
+        public int AddUser(IUser adminUser, InstanceUser user)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
@@ -247,9 +247,9 @@ namespace Model.Impl
                     path,
                     RestRequestMethod.POST,
                     bodyObject: user,
-                    expectedStatusCodes: expectedStatusCodes);
+                    expectedStatusCodes: new List<HttpStatusCode> { HttpStatusCode.Created });
 
-                return Convert.ToInt32(response.Content, CultureInfo.InvariantCulture);
+                return I18NHelper.Int32ParseInvariant(response.Content);
             }
             catch (WebException ex)
             {
@@ -259,8 +259,8 @@ namespace Model.Impl
             }
         }
 
-        /// <seealso cref="IAdminStore.DeleteUser(IUser, int,List{HttpStatusCode})"/>
-        public HttpStatusCode DeleteUser(IUser adminUser, int userId, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IAdminStore.DeleteUser(IUser, int)"/>
+        public HttpStatusCode DeleteUser(IUser adminUser, int userId)
         {
             var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Users.USERS_id_, userId);
@@ -272,7 +272,7 @@ namespace Model.Impl
                 var response = restApi.SendRequestAndGetResponse(
                     path,
                     RestRequestMethod.DELETE,
-                    expectedStatusCodes: expectedStatusCodes);
+                    expectedStatusCodes: new List<HttpStatusCode> { HttpStatusCode.NoContent });
 
                 return response.StatusCode;
             }
@@ -319,8 +319,8 @@ namespace Model.Impl
             }
         }
 
-        /// <seealso cref="IAdminStore.GetUserById(IUser, int, List{HttpStatusCode})"/>
-        public InstanceUser GetUserById(IUser adminUser, int userId, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IAdminStore.GetUserById(IUser, int)"/>
+        public InstanceUser GetUserById(IUser adminUser, int userId)
         {
             var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Users.USERS_id_, userId);
@@ -332,7 +332,7 @@ namespace Model.Impl
                 return restApi.SendRequestAndDeserializeObject<InstanceUser>(
                     path,
                     RestRequestMethod.GET,
-                    expectedStatusCodes: expectedStatusCodes,
+                    expectedStatusCodes: new List<HttpStatusCode> { HttpStatusCode.OK },
                     shouldControlJsonChanges: false);
             }
             catch (WebException ex)
@@ -343,8 +343,8 @@ namespace Model.Impl
             }
         }
 
-        /// <seealso cref="IAdminStore.GetUserByLogin(IUser, string, List{HttpStatusCode})"/>
-        public InstanceUser GetUserByLogin(IUser adminUser, string login, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IAdminStore.GetUserByLogin(IUser, string)"/>
+        public InstanceUser GetUserByLogin(IUser adminUser, string login)
         {
             var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Users.SEARCH, login);
@@ -356,7 +356,7 @@ namespace Model.Impl
                 return restApi.SendRequestAndDeserializeObject<InstanceUser>(
                     path,
                     RestRequestMethod.GET,
-                    expectedStatusCodes: expectedStatusCodes,
+                    expectedStatusCodes: new List<HttpStatusCode> { HttpStatusCode.OK },
                     shouldControlJsonChanges: false);
             }
             catch (WebException ex)
@@ -367,15 +367,14 @@ namespace Model.Impl
             }
         }
 
-        /// <seealso cref="IAdminStore.GetUsers(IUser, int?, int?, string, string, string[], string, List{HttpStatusCode})"/>
+        /// <seealso cref="IAdminStore.GetUsers(IUser, int?, int?, string, string, string[], string)"/>
         public List<InstanceUser> GetUsers(IUser adminUser, 
             int? offset = null, 
             int? limit = null, 
             string sort = null, 
             string order = null,
             string[] propertyFilters = null,
-            string search = null,
-            List<HttpStatusCode> expectedStatusCodes = null)
+            string search = null)
         {
             var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Users.USERS);
@@ -423,7 +422,7 @@ namespace Model.Impl
                     path,
                     RestRequestMethod.GET,
                     queryParameters: queryParameters,
-                    expectedStatusCodes: expectedStatusCodes,
+                    expectedStatusCodes: new List<HttpStatusCode> { HttpStatusCode.OK },
                     shouldControlJsonChanges: false);
             }
             catch (WebException ex)
@@ -434,8 +433,8 @@ namespace Model.Impl
             }
         }
 
-        /// <seealso cref="IAdminStore.UpdateUser(IUser, InstanceUser, List{HttpStatusCode})"/>
-        public HttpStatusCode UpdateUser(IUser adminUser, InstanceUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IAdminStore.UpdateUser(IUser, InstanceUser)"/>
+        public HttpStatusCode UpdateUser(IUser adminUser, InstanceUser user)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
@@ -450,7 +449,7 @@ namespace Model.Impl
                     path,
                     RestRequestMethod.PUT,
                     bodyObject: user,
-                    expectedStatusCodes: expectedStatusCodes);
+                    expectedStatusCodes: new List<HttpStatusCode> { HttpStatusCode.OK });
 
                 return response.StatusCode;
             }

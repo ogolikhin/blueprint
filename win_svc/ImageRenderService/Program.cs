@@ -27,6 +27,12 @@ namespace ImageRenderService
                 x.SetDescription("Generate Process images.");
                 x.SetDisplayName($"{ServiceHelper.ServiceName} service");
                 x.SetServiceName(ServiceHelper.ServiceName);
+
+                x.StartAutomatically();
+                x.EnableServiceRecovery(rc =>
+                {
+                    rc.RestartService(1);
+                });
             });
 
             // See #2 above.

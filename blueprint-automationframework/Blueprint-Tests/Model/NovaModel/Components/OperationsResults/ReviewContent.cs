@@ -2,16 +2,22 @@
 
 namespace Model.ArtifactModel.Impl.OperationsResults
 {
-    // see blueprint-current/Source/BluePrintSys.RC.Business.Internal/Components/Nova/Models/GetReviewArtifactsResultSet.cs
+    // see blueprint/svc/ArtifactStore/Models/Review/ReviewContent.cs
     public class ReviewArtifact
     {
         public int Id { get; set; }
         public string Name { get; set; }
         public int ArtifactTypeId { get; set; }
         public string ArtifactTypeName { get; set; }
+        public int ItemTypePredefined { get; set; }
+        public int Pending { get; set; }
+        public int Approved { get; set; }
+        public int Disapproved { get; set; }
+        public int Viewed { get; set; }
+        public int Unviewed { get; set; }
     }
 
-    public class GetReviewArtifactsResultSet
+    public class ReviewContent
     {
         public List<ReviewArtifact> Items { get; set; }
         public int Total { get; set; }

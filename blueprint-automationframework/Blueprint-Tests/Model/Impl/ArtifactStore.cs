@@ -111,25 +111,6 @@ namespace Model.Impl
             return CreateArtifact(Address, user, baseArtifactType, name, project, parentArtifact?.Id, orderIndex, expectedStatusCodes);
         }
 
-        /// <seealso cref="IArtifactStore.CreateNovaProcessArtifact(IUser, string, IProject, INovaArtifactBase, double?, List{HttpStatusCode})"/>
-        public INovaProcess CreateNovaProcessArtifact(IUser user,
-            string name,
-            IProject project,
-            IArtifactBase parentArtifact = null,
-            double? orderIndex = null,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            return CreateNovaProcessArtifact(
-                Address,
-                user,
-                name,
-                project,
-                artifactTypeName: null,
-                parentArtifactId: parentArtifact?.Id,
-                orderIndex: orderIndex,
-                expectedStatusCodes: expectedStatusCodes);
-        }
-
         /// <seealso cref="IArtifactStore.UpdateArtifact(IUser, INovaArtifactDetails, List{HttpStatusCode})"/>
         public INovaArtifactDetails UpdateArtifact(IUser user,
             INovaArtifactDetails novaArtifactDetails,
@@ -1355,73 +1336,6 @@ namespace Model.Impl
                 expectedStatusCodes: expectedStatusCodes);
 
             return newArtifact;
-        }
-
-        /// <summary>
-        /// Creates a new Nova Process artifact using named Artifact Type.
-        /// </summary>
-        /// <param name="address">The base address of the ArtifactStore.</param>
-        /// <param name="user">The user to authenticate with.</param>
-        /// <param name="name">The name of the new artifact.</param>
-        /// <param name="project">The project where the artifact will be created in.</param>
-        /// <param name="artifactTypeName">(optional) Name of the artifact type to be used to create the artifact</param>
-        /// <param name="parentArtifactId">(optional) The ID of the parent of the new artifact.</param>
-        /// <param name="orderIndex">(optional) The order index of the new artifact.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 201 Created is expected.</param>
-        /// <returns>The new Nova artifact that was created.</returns>
-        public static INovaProcess CreateNovaProcessArtifact(string address,
-            IUser user,
-            string name,
-            IProject project,
-            string artifactTypeName = null,
-            int? parentArtifactId = null,
-            double? orderIndex = null,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            ThrowIf.ArgumentNull(address, nameof(address));
-            ThrowIf.ArgumentNull(project, nameof(project));
-
-            string path = RestPaths.Svc.ArtifactStore.Artifacts.CREATE;
-            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
-
-            // Set expectedStatusCodes to 201 Created by default if it's null.
-            expectedStatusCodes = expectedStatusCodes ?? new List<HttpStatusCode> { HttpStatusCode.Created };
-
-            // Get the custom artifact type for the project.
-            if (project.NovaPropertyTypes.Count == 0)
-            {
-                project.GetAllNovaArtifactTypes(project.ArtifactStore, user);
-            }
-            NovaArtifactType itemType;
-
-            if (artifactTypeName == null)
-            {
-                itemType = project.NovaArtifactTypes.Find(at => at.PredefinedType == ItemTypePredefined.Process);
-            }
-            else
-            {
-                itemType = project.NovaArtifactTypes.Find(at => at.PredefinedType == ItemTypePredefined.Process && at.Name.Equals(artifactTypeName));
-            }
-
-            Assert.NotNull(itemType, "No custom artifact type was found in project '{0}' for ItemTypePredefined: {1}!",
-                project.Name, ItemTypePredefined.Process);
-
-            var jsonBody = new NovaProcess
-            {
-                Name = name,
-                ProjectId = project.Id,
-                ItemTypeId = itemType.Id,
-                ParentId = parentArtifactId ?? project.Id,
-                OrderIndex = orderIndex
-            };
-
-            var newNovaProcessArtifact = restApi.SendRequestAndDeserializeObject<NovaProcess, INovaProcess>(
-                path,
-                RestRequestMethod.POST,
-                jsonBody,
-                expectedStatusCodes: expectedStatusCodes);
-
-            return newNovaProcessArtifact;
         }
 
         /// <summary>

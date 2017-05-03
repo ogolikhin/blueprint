@@ -71,7 +71,7 @@ namespace Model.ModelHelpers
         /// <param name="user">The user to authenticate with.</param>
         public override void RefreshArtifactFromServer(IUser user)
         {
-            Artifact = ArtifactStore.GetNovaProcess(user, Id);
+            NovaProcess = ArtifactStore.GetNovaProcess(user, Id);
         }
     }
 }

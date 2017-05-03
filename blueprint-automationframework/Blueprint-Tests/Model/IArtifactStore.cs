@@ -120,24 +120,6 @@ namespace Model
             double? orderIndex = null,
             List<HttpStatusCode> expectedStatusCodes = null);
 
-
-        /// <summary>
-        /// Creates a new Nova Process artifact.
-        /// </summary>
-        /// <param name="user">The user to authenticate with.</param>
-        /// <param name="name">The name of the new artifact.</param>
-        /// <param name="project">The project where the artifact will be created in.</param>
-        /// <param name="parentArtifact">(optional) The parent of the new artifact.</param>
-        /// <param name="orderIndex">(optional) The order index of the new artifact.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 201 Created is expected.</param>
-        /// <returns>The new Nova Process artifact that was created.</returns>
-        INovaProcess CreateNovaProcessArtifact(IUser user,
-            string name,
-            IProject project,
-            IArtifactBase parentArtifact = null,
-            double? orderIndex = null,
-            List<HttpStatusCode> expectedStatusCodes = null);
-
         /// <summary>
         /// Updates a Nova artifact.
         /// </summary>

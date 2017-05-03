@@ -12,7 +12,7 @@ namespace Model.NovaModel.Impl
 
         public string DisplayName { get; set; }
 
-        public ReviwerRole Role { get; set; }
+        public ReviewerRole Role { get; set; }
 
         public ReviewStatus Status { get; set; }
 
@@ -26,7 +26,7 @@ namespace Model.NovaModel.Impl
         public int Viewed { get; set; }
     }
 
-    public enum ReviwerRole
+    public enum ReviewerRole
     {
         Reviewer = 0,
         Approver = 1

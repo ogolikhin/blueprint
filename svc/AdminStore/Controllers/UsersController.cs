@@ -139,7 +139,7 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(IEnumerable<int>))]
         public async Task<IHttpActionResult> DeleteUsers([FromBody]OperationScope body,[FromUri]string search = null)
         {
-            if (body?.Ids == null || !body.Ids.Any())
+            if (body == null || ((body.Ids == null || !body.Ids.Any()) && body.SelectAll == false))
             {
                 return BadRequest(ErrorMessages.InvalideDeleteUsersParameters);
             }

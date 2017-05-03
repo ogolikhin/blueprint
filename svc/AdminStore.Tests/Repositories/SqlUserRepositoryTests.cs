@@ -389,7 +389,7 @@ namespace AdminStore.Repositories
         }
 
         [TestMethod]
-        public async Task DeleteUsers_UsersToDeleteAreNotExists_QueryReturnEmptyCollection()
+        public async Task DeleteUsers_UsersToDeleteDoNotExists_QueryReturnEmptyCollection()
         {
             //arrange
             var cxn = new SqlConnectionWrapperMock();

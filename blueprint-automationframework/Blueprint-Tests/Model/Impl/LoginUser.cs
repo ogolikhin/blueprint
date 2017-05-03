@@ -75,7 +75,7 @@ namespace Model.Impl
 
         public LoginUser(string login, string firstName, string lastName, string displayName, string email,
             UserSource source, bool eulaAccepted, LicenseLevel license, bool isSso, bool? allowFallback, 
-            InstanceAdminRole instanceAdminRole, InstanceAdminPrivileges instanceAdminPrivileges)
+            InstanceAdminRole? instanceAdminRole, InstanceAdminPrivileges instanceAdminPrivileges)
         {
             Login = login;
             FirstName = firstName;

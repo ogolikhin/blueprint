@@ -219,11 +219,13 @@ namespace ArtifactStore.Repositories
             param.Add("@revisionId", revisionId);
             param.Add("@userId", userId);
             param.Add("@addDrafts", addDrafts);
-            var participants = await ConnectionWrapper.QueryMultipleAsync<Reviewer, int>("GetReviewParticipants", param, commandType: CommandType.StoredProcedure);
+            var participants = await ConnectionWrapper.QueryMultipleAsync<Reviewer, int, int, int>("GetReviewParticipants", param, commandType: CommandType.StoredProcedure);
             var reviewersRoot = new ReviewParticipantsContent()
             {
                 Items = participants.Item1.ToList(),
-                Total = participants.Item2.SingleOrDefault()
+                Total = participants.Item2.SingleOrDefault(),
+                TotalArtifacts = participants.Item3.SingleOrDefault(),
+                TotalArtifactsRequestedApproval = participants.Item4.SingleOrDefault()
             };
             return reviewersRoot;
         }

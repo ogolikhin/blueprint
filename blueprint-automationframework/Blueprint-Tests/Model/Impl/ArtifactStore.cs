@@ -985,7 +985,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.UpdateNovaProcess(IUser, NovaProcess, List{HttpStatusCode})"/>
-        public INovaArtifactDetails UpdateNovaProcess(
+        public INovaProcess UpdateNovaProcess(
             IUser user,
             INovaProcess novaProcess,
             List<HttpStatusCode> expectedStatusCodes = null)
@@ -1000,7 +1000,7 @@ namespace Model.Impl
             Logger.WriteInfo("{0} Updating Process ID: {1}, Name: {2}", nameof(ArtifactStore), novaProcess.Id, novaProcess.Name);
 
             var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
-            var restResponse = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails, INovaProcess>(
+            var restResponse = restApi.SendRequestAndDeserializeObject<NovaProcess, INovaProcess>(
                 path,
                 RestRequestMethod.PATCH,
                 novaProcess,

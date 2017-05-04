@@ -1103,7 +1103,6 @@ namespace Helper
             ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
 
             var wrappedProcessArtifact = new ProcessArtifactWrapper(novaProcess, ArtifactStore, SvcShared, project, createdBy);
-            wrappedProcessArtifact.Process = novaProcess.Process;
             WrappedArtifactsToDispose.Add(wrappedProcessArtifact);
 
             return wrappedProcessArtifact;

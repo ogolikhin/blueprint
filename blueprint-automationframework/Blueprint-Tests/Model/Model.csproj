@@ -71,6 +71,7 @@
     <Compile Include="ArtifactModel\Impl\Collection.cs" />
     <Compile Include="ArtifactModel\INovaProcess.cs" />
     <Compile Include="Factories\ImpactAnalysisFactory.cs" />
+    <Compile Include="Impl\AdminRole.cs" />
     <Compile Include="ModelHelpers\ProcessArtifactWrapper.cs" />
     <Compile Include="NovaModel\Components\OperationsResults\ReviewContent.cs" />
     <Compile Include="ArtifactModel\Impl\RaptorComment.cs" />
@@ -103,6 +104,7 @@
     <Compile Include="NovaModel\Components\ImpactAnalysisService\ImpactAnalysisNode.cs" />
     <Compile Include="NovaModel\Components\ImpactAnalysisService\ImpactAnalysisResult.cs" />
     <Compile Include="NovaModel\Components\ImpactAnalysisService\ImpactAnalysisTree.cs" />
+    <Compile Include="NovaModel\Impl\ReviewContainer.cs" />
     <Compile Include="NovaModel\Metadata\ItemTypeInformation.cs" />
     <Compile Include="NovaModel\Components\RapidReview\IDiagramElement.cs" />
     <Compile Include="NovaModel\Components\RapidReview\LabelStyle.cs" />

@@ -644,6 +644,14 @@ namespace Model
         /// <returns>Object containing list of artifacts and number of artifacts</returns>
         ReviewContent GetReviewArtifacts(IUser user, int reviewId);
 
+        /// <summary>
+        /// Gets review header information
+        /// </summary>
+        /// <param name="user">user to perform the operation.</param>
+        /// <param name="reviewId">Id of Review.</param>
+        /// <returns>ReviewContainer</returns>
+        ReviewContainer GetReviewContainer(IUser user, int reviewId);
+
         #region Process methods
 
         /// <summary>

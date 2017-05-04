@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
@@ -20,6 +21,7 @@ namespace ArtifactStore.Models.Review
         public ReviewStatus Status { get; set; }
 
         [DataMember]
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public DateTime? CompleteReviewDateTime { get; set; }
 
         [DataMember]

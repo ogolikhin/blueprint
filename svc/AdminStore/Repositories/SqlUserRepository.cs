@@ -191,6 +191,9 @@ namespace AdminStore.Repositories
         public async Task<UserDto> GetUserDtoAsync(int userId)
         {
             var user = await GetUserAsync(userId);
+
+            user.LicenseType = await GetEffectiveUserLicenseAsync(userId);
+
             return UserMapper.Map(user);
         }
 

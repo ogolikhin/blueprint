@@ -127,33 +127,25 @@ namespace AdminStore.Repositories
             return await _adminStorageConnectionWrapper.QueryAsync<PasswordRecoveryToken>("GetUserPasswordRecoveryTokens", prm, commandType: CommandType.StoredProcedure);
         }
 
-        public QueryResult GetUsers(TableSettings settings)
+        public QueryResult<UserDto> GetUsers(Pagination pagination, string orderField, string search)
         {
-            var total = 0;
-            var users = GetUsersList(settings, out total).ToList();
-            var result = new QueryResult()
+            int total;
+            var users = GetUsersList(pagination, orderField, search, out total).ToList();
+            return new QueryResult<UserDto>()
             {
-                Data = new Data(),
-                Pagination = new Pagination()
-                {
-                    TotalCount = total,
-                    Page = settings.Page,
-                    PageSize = settings.PageSize,
-                    Count = users.Count
-                }
+                Total = total,
+                Items = UserMapper.Map(users)
             };
-            var mappedUsers = UserMapper.Map(users).ToArray();
-            result.Data.Users = mappedUsers;
-            return result;
         }
 
-        private IEnumerable<User> GetUsersList(TableSettings settings, out int total)
+
+        private IEnumerable<User> GetUsersList(Pagination pagination, string orderField, string search, out int total)
         {
             var parameters = new DynamicParameters();
-            parameters.Add("@Page", settings.Page);
-            parameters.Add("@PageSize", settings.PageSize);
-            parameters.Add("@SearchUser", settings.Filter);
-            parameters.Add("@OrderField", string.IsNullOrEmpty(settings.Sort) ? "displayName" : settings.Sort);
+            parameters.Add("@Offset", pagination.Offset);
+            parameters.Add("@Limit", pagination.Limit);
+            parameters.Add("@Search", search);
+            parameters.Add("@OrderField", string.IsNullOrEmpty(orderField) ? "displayName" : orderField);
             parameters.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
             var usersList = (_connectionWrapper.Query<User>("GetUsers", parameters, commandType: CommandType.StoredProcedure)).ToList();
             total = parameters.Get<int>("Total");

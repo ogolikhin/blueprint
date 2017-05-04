@@ -31,7 +31,7 @@ namespace AdminStore.Repositories
 
         Task<IEnumerable<PasswordRecoveryToken>> GetPasswordRecoveryTokensAsync(Guid token);
 
-        QueryResult GetUsers(TableSettings settings);
+        QueryResult<UserDto> GetUsers(Pagination pagination, string orderField, string search);
 
         Task<User> GetUser(int userId);
         Task<UserDto> GetUserDto(int userId);

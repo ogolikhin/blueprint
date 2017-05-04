@@ -1,78 +1,44 @@
 ﻿using AdminStore.Models;
 using AdminStore.Models.Enums;
-using AdminStore.Repositories;
-using ServiceLibrary.Exceptions;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Models;
 
 namespace AdminStore.Helpers
 {
     public static class UsersHelper
     {
-        public static string SortUsers(string sortString)
+        public static string SortUsers(Sorting sorting)
         {
             var orderField = "displayName";
-            var sortArray = sortString.Split(',');
-            foreach (var sort in sortArray)
+            switch (sorting.Sort)
             {
-                switch (sort)
-                {
-                    case "source":
-                        orderField = "source";
-                        break;
-                    case "-source":
-                        orderField = "-source";
-                        break;
-                    case "enabled":
-                        orderField = "enabled";
-                        break;
-                    case "-enabled":
-                        orderField = "-enabled";
-                        break;
-                    case "license":
-                        orderField = "license";
-                        break;
-                    case "-license":
-                        orderField = "-license";
-                        break;
-                    case "role":
-                        orderField = "role";
-                        break;
-                    case "-role":
-                        orderField = "-role";
-                        break;
-                    case "department":
-                        orderField = "department";
-                        break;
-                    case "-department":
-                        orderField = "-department";
-                        break;
-                    case "title":
-                        orderField = "title";
-                        break;
-                    case "-title":
-                        orderField = "-title";
-                        break;
-                    case "email":
-                        orderField = "email";
-                        break;
-                    case "-email":
-                        orderField = "-email";
-                        break;
-                    case "displayName":
-                        orderField = "displayName";
-                        break;
-                    case "-displayName":
-                        orderField = "-displayName";
-                        break;
-                    case "login":
-                        orderField = "login";
-                        break;
-                    case "-login":
-                        orderField = "-login";
-                        break;
-                }
+                case "source":
+                    orderField = sorting.Order == "asc" ? "source" : "-source";
+                    break;
+                case "enabled":
+                    orderField = sorting.Order == "asc" ? "enabled" : "-enabled";
+                    break;
+                case "license":
+                    orderField = sorting.Order == "asc" ? "license" : "-license";
+                    break;
+                case "role":
+                    orderField = sorting.Order == "asc" ? "role" : "-role";
+                    break;
+                case "department":
+                    orderField = sorting.Order == "asc" ? "department" : "-department";
+                    break;
+                case "title":
+                    orderField = sorting.Order == "asc" ? "title" : "-title";
+                    break;
+                case "email":
+                    orderField = sorting.Order == "asc" ? "email" : "-email";
+                    break;
+                case "displayName":
+                    orderField = sorting.Order == "asc" ? "displayName" : "-displayName";
+                    break;
+                case "login":
+                    orderField = sorting.Order == "asc" ? "login" : "-login";
+                    break;
             }
+
             return orderField;
         }
 
@@ -81,6 +47,6 @@ namespace AdminStore.Helpers
             UserValidator.ValidateModel(user);
             var dbUserModel = UserConverter.ConvertToDbUser(user, userOperationMode, userId);
             return dbUserModel;
-        }     
+        }
     }
 }

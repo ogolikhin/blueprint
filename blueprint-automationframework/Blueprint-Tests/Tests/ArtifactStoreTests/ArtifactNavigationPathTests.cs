@@ -245,23 +245,23 @@ namespace ArtifactStoreTests
             VerifyAncestorsInformation(basicArtifactInfoList, artifactChain.Last().ParentId);
         }
 
-        [TestCase(BaseArtifactType.PrimitiveFolder, // PrimitiveFolders can only have projects as parents.
-            BaseArtifactType.Actor,
-            BaseArtifactType.BusinessProcess,
-            BaseArtifactType.Document,
-            BaseArtifactType.DomainDiagram,
-            BaseArtifactType.GenericDiagram,
-            BaseArtifactType.Glossary,
-            BaseArtifactType.Process,
-            BaseArtifactType.Storyboard,
-            BaseArtifactType.TextualRequirement,
-            BaseArtifactType.UIMockup,
-            BaseArtifactType.UseCase,
-            BaseArtifactType.UseCaseDiagram)]
+        [TestCase(ItemTypePredefined.PrimitiveFolder, // PrimitiveFolders can only have projects as parents.
+                  ItemTypePredefined.Actor,
+                  ItemTypePredefined.BusinessProcess,
+                  ItemTypePredefined.Document,
+                  ItemTypePredefined.DomainDiagram,
+                  ItemTypePredefined.GenericDiagram,
+                  ItemTypePredefined.Glossary,
+                  ItemTypePredefined.Process,
+                  ItemTypePredefined.Storyboard,
+                  ItemTypePredefined.TextualRequirement,
+                  ItemTypePredefined.UIMockup,
+                  ItemTypePredefined.UseCase,
+                  ItemTypePredefined.UseCaseDiagram)]
         [TestRail(185204)]
         [Description("Create a chain of saved parent/child artifacts and other top level artifacts.  Verify a list of top level artifact information " +
                      "is returned and values of properties are correct.")]
-        public void ArtifactNavigation_SavedChainWithAllArtifactTypes_ReturnListOfArtifactInfo(params BaseArtifactType[] artifactTypeChain)
+        public void ArtifactNavigation_SavedChainWithAllArtifactTypes_ReturnListOfArtifactInfo(params ItemTypePredefined[] artifactTypeChain)
         {
             ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
 

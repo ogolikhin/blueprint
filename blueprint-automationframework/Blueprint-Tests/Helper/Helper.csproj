@@ -56,6 +56,7 @@
     <Compile Include="CommonServiceHelper.cs" />
     <Compile Include="ConcurrentTestHelper.cs" />
     <Compile Include="ErrorCodes.cs" />
+    <Compile Include="InstanceAdminErrorMessages.cs" />
     <Compile Include="ExceptionHelper.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="SearchServiceTestHelper.cs" />

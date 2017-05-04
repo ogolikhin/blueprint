@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
 using Utilities;
 using Utilities.Factories;
 
@@ -215,7 +215,7 @@ namespace Model.ModelHelpers
         /// Gets the artifact from ArtifactStore and replaces the current artifact with the properties returned from the server.
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>
-        public void RefreshArtifactFromServer(IUser user)
+        public virtual void RefreshArtifactFromServer(IUser user)
         {
             Artifact = ArtifactStore.GetArtifactDetails(user, Id);
         }
@@ -255,7 +255,7 @@ namespace Model.ModelHelpers
         /// <param name="user">The user to perform the update.</param>
         /// <param name="updateArtifact">The artifact whose non-null properties will be used to update this artifact.</param>
         /// <returns>The result of the update artifact call.</returns>
-        public INovaArtifactDetails Update(IUser user, INovaArtifactDetails updateArtifact)
+        public virtual INovaArtifactDetails Update(IUser user, INovaArtifactDetails updateArtifact)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(updateArtifact, nameof(updateArtifact));

@@ -73,6 +73,5 @@ namespace Model.Impl
             GroupMembership = groupMembership;
             Password = password;
         }
-
     }
 }

@@ -29,7 +29,5 @@ namespace ServiceLibrary.Repositories
         Task<IEnumerable<ProjectNameIdPair>> GetProjectNameByIdsAsync(IEnumerable<int> projectIds);
 
         Task<IEnumerable<BaselineInfo>> GetBaselineInfo(IEnumerable<int> artifactIds, int userId, bool addDrafts, int revisionId);
-
-        Task<IEnumerable<Transitions>> GetTransitions(int artifactId, int userId);
     }
 }

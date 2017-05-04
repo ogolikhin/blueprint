@@ -6,7 +6,6 @@ using Model.ArtifactModel.Impl;
 using Model.Common.Enums;
 using Model.Factories;
 using Model.Impl;
-using static Model.Impl.ArtifactStore;
 using Model.JobModel;
 using Model.ModelHelpers;
 using Model.OpenApiModel.Services;
@@ -22,6 +21,7 @@ using System.Linq;
 using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
+using static Model.Impl.ArtifactStore;
 
 namespace Helper
 {
@@ -1061,6 +1061,54 @@ namespace Helper
         }
 
         #endregion Artifact Management
+
+        #region Process Artifact Management
+
+        /// <summary>
+        /// Creates and saves a new Nova Process artifact (wrapped inside an ProcessArtifactWrapper that tracks the state of the process artifact.).
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="project">The project where the Nova artifact should be created.</param>
+        /// <param name="parentId">(optional) The parent ID of this Nova artifact.
+        ///     By default the parent should be the project.</param>
+        /// <param name="orderIndex">(optional) The order index of this Nova artifact.
+        ///     By default the order index should be after the last artifact.</param>
+        /// <param name="name">(optional) The artifact name.  By default a random name is created.</param>
+        /// <returns>The Nova artifact wrapped in an ProcessArtifactWrapper that tracks the state of the artifact.</returns>
+        public ProcessArtifactWrapper CreateNovaProcessArtifact(
+            IUser user, IProject project,
+            int? parentId = null, double? orderIndex = null, string name = null)
+        {
+            ThrowIf.ArgumentNull(project, nameof(project));
+
+            name = name ?? RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+
+            var artifact  = Model.Impl.ArtifactStore.CreateArtifact(ArtifactStore.Address, user,
+                ItemTypePredefined.Process, name, project, parentId, orderIndex);
+
+            var process = Storyteller.GetNovaProcess(user, artifact.Id);
+
+            return WrapProcessArtifact(process, project, user);
+        }
+
+        /// <summary>
+        /// Wraps an INovaProcess in an ProcessArtifactWrapper and adds it the list of artifacts that get disposed.
+        /// </summary>
+        /// <param name="novaProcess">The INovaProcess that was created by ArtifactStore.</param>
+        /// <param name="project">The project where the artifact was created.</param>
+        /// <param name="createdBy">The user that created this artifact.</param>
+        /// <returns>The ProcessArtifactWrapper for the novaProcessArtifact.</returns>
+        public ProcessArtifactWrapper WrapProcessArtifact(INovaProcess novaProcess, IProject project, IUser createdBy)
+        {
+            ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
+
+            var wrappedProcessArtifact = new ProcessArtifactWrapper(novaProcess, ArtifactStore, SvcShared, project, createdBy);
+            WrappedArtifactsToDispose.Add(wrappedProcessArtifact);
+
+            return wrappedProcessArtifact;
+        }
+
+        #endregion Process Artifact Management
 
         #region Nova Artifact Management
         public enum TestArtifactState

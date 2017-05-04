@@ -141,6 +141,7 @@
     <Compile Include="Models\TableSettings.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Models\UserIcon.cs" />
+    <Compile Include="Models\UserLicense.cs" />
     <Compile Include="Repositories\ApplicationSettingsRepository.cs" />
     <Compile Include="Repositories\ISettingsRepository.cs" />
     <Compile Include="Controllers\LicensesController.cs" />
@@ -167,7 +168,7 @@
     <Compile Include="Repositories\IInstanceRepository.cs" />
     <Compile Include="Repositories\IPrivilegesRepository.cs" />
     <Compile Include="Repositories\ISqlSettingsRepository.cs" />
-    <Compile Include="Repositories\ISqlUserRepository.cs" />
+    <Compile Include="Repositories\IUserRepository.cs" />
     <Compile Include="Repositories\Jobs\IJobsRepository.cs" />
     <Compile Include="Repositories\Jobs\JobsRepository.cs" />
     <Compile Include="Repositories\LdapRepository.cs" />

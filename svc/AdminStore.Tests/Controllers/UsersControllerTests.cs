@@ -21,7 +21,7 @@ namespace AdminStore.Controllers
     [TestClass]
     public class UsersControllerTests
     {
-        private Mock<ISqlUserRepository> _usersRepoMock;
+        private Mock<IUserRepository> _usersRepoMock;
         private Mock<IServiceLogRepository> _logMock;
         private Mock<IAuthenticationRepository> _authRepoMock;
         private Mock<ISqlSettingsRepository> _settingsRepoMock;
@@ -43,7 +43,7 @@ namespace AdminStore.Controllers
         public void Initialize()
         {
             var session = new Session { UserId = SessionUserId };
-            _usersRepoMock = new Mock<ISqlUserRepository>();
+            _usersRepoMock = new Mock<IUserRepository>();
             _logMock = new Mock<IServiceLogRepository>();
             _authRepoMock = new Mock<IAuthenticationRepository>();
             _settingsRepoMock = new Mock<ISqlSettingsRepository>();
@@ -827,36 +827,24 @@ namespace AdminStore.Controllers
         public async Task GetAllUsers_AllParamsAreCorrect_RepositoryReturnUsers()
         {
             //arrange
-            var sort = string.Empty;
-            var filter = string.Empty;
-
-            var users = new List<UserDto>() { new UserDto() { Id = 1 } };
             var settings = new TableSettings() { PageSize = 3, Page = 1 };
-            QueryResult returnResult = new QueryResult()
+            var returnResult = new QueryResult<UserDto>
             {
-                Data = new Data(),
-                Pagination = new Pagination()
-                {
-                    Page = settings.Page,
-                    PageSize = settings.PageSize
-                }
+                Items = new List<UserDto>() { new UserDto() { Id = 1 } },
+                Total = 10
             };
-            returnResult.Data.Users = users.ToArray();
 
-            returnResult.Data.Users = users.ToArray();
-
-            _usersRepoMock.Setup(repo => repo.GetUsers(It.Is<TableSettings>(t => t.PageSize > 0 && t.Page > 0)))
-                .Returns(returnResult);
+            _usersRepoMock.Setup(repo => repo.GetUsersAsync(It.Is<TableSettings>(t => t.PageSize > 0 && t.Page > 0)))
+                .ReturnsAsync(returnResult);
             _privilegesRepository
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
 
             //act
-            var result = await _controller.GetAllUsers(settings) as OkNegotiatedContentResult<QueryResult>;
+            var result = await _controller.GetAllUsers(settings) as OkNegotiatedContentResult<QueryResult<UserDto>>;
 
             //assert
             Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result.Content, typeof(QueryResult));
         }
 
         [TestMethod]
@@ -902,7 +890,7 @@ namespace AdminStore.Controllers
         {
             //arrange
             var user = new UserDto() { Id = 5 };
-            _usersRepoMock.Setup(repo => repo.GetUserDto(It.Is<int>(i => i > 0))).ReturnsAsync(user);
+            _usersRepoMock.Setup(repo => repo.GetUserDtoAsync(It.Is<int>(i => i > 0))).ReturnsAsync(user);
             _privilegesRepository
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
@@ -942,7 +930,7 @@ namespace AdminStore.Controllers
         {
             //arrange
             var user = new UserDto();
-            _usersRepoMock.Setup(repo => repo.GetUserDto(It.Is<int>(i => i > 0))).ReturnsAsync(user);
+            _usersRepoMock.Setup(repo => repo.GetUserDtoAsync(It.Is<int>(i => i > 0))).ReturnsAsync(user);
             _privilegesRepository
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
@@ -1259,7 +1247,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(FullPermissions);
             var existingUser = new User { Id = UserId, InstanceAdminRoleId = null };
             _usersRepoMock
-                .Setup(r => r.GetUser(UserId))
+                .Setup(r => r.GetUserAsync(UserId))
                 .ReturnsAsync(existingUser);
 
             // Act
@@ -1280,7 +1268,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(FullPermissions);
             var existingUser = new User { Id = UserId, InstanceAdminRoleId = null };
             _usersRepoMock
-                .Setup(r => r.GetUser(UserId))
+                .Setup(r => r.GetUserAsync(UserId))
                 .ReturnsAsync(existingUser);
 
             var resourceNotFoundExeption = new ResourceNotFoundException(ErrorMessages.UserNotExist);
@@ -1303,7 +1291,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(FullPermissions);
             var existingUser = new User { Id = UserId, InstanceAdminRoleId = null };
             _usersRepoMock
-                .Setup(r => r.GetUser(UserId))
+                .Setup(r => r.GetUserAsync(UserId))
                 .ReturnsAsync(existingUser);
 
             var conflictExeption = new ConflictException(ErrorMessages.UserVersionsNotEqual);
@@ -1358,7 +1346,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
             var existingUser = new User { Id = UserId, InstanceAdminRoleId = null };
             _usersRepoMock
-                .Setup(r => r.GetUser(UserId))
+                .Setup(r => r.GetUserAsync(UserId))
                 .ReturnsAsync(existingUser);
 
             _user.InstanceAdminRoleId = 1;
@@ -1376,7 +1364,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(InstanceAdminPrivileges.AssignAdminRoles);
             var existingUser = new User { Id = UserId, InstanceAdminRoleId = null };
             _usersRepoMock
-                .Setup(r => r.GetUser(UserId))
+                .Setup(r => r.GetUserAsync(UserId))
                 .ReturnsAsync(existingUser);
 
             _user.InstanceAdminRoleId = 1;
@@ -1398,7 +1386,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
             var existingUser = new User { Id = UserId, InstanceAdminRoleId = 1 };
             _usersRepoMock
-                .Setup(r => r.GetUser(UserId))
+                .Setup(r => r.GetUserAsync(UserId))
                 .ReturnsAsync(existingUser);
 
             _user.DisplayName = "New DisplayName";

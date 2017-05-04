@@ -322,6 +322,9 @@ namespace Model.ModelHelpers
                 case ArtifactOperation.Update:
                     ArtifactState.IsDraft = true;
                     break;
+
+                default:
+                    throw new ArgumentException("An invalid ArtifactOperation was passed!", nameof(operation));
             }
         }
 

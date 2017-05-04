@@ -125,13 +125,13 @@ namespace Model
         List<ISession> GetSession(string adminToken, uint pageSize, uint pageNumber);
 
         /// <summary>
-        /// Creates a user.
+        /// Adds a user.
         /// (Runs: POST /users)
         /// </summary>
-        /// <param name="adminUser">The admin user creating the user.</param>
-        /// <param name="user">An InstanceUser object representing the user to be created.</param>
-        /// <returns>The returned HTTP Status Code</returns>
-        HttpStatusCode CreateUser(IUser adminUser, InstanceUser user);
+        /// <param name="adminUser">The admin user adding the user.</param>
+        /// <param name="user">An InstanceUser object representing the user to be added.</param>
+        /// <returns>The id of the added user</returns>
+        int AddUser(IUser adminUser, InstanceUser user);
 
         /// <summary>
         /// Deletes a user.
@@ -171,15 +171,27 @@ namespace Model
 
         /// <summary>
         /// Gets a list of non-deleted users matching a specified filter.
-        /// (Runs: GET /users?page={page}&pageSize={pageSize}&filter={filter}&sort={sort})
+        /// (Runs: GET /users?  with the following parameters: offset={integer}, limit={integer}, sort={string}, order={asc|desc}
+        /// property1={value}..., propertyN={value}, search={string}
         /// </summary>
         /// <param name="adminUser">The admin user getting the users.</param>
-        /// <param name="page">(optional) The page number of the user list (determined by pageSize).</param>
-        /// <param name="pageSize">(optional) The number of users on a page.</param>
-        /// <param name="filter">(optional) A query filter to determine which users to diplay.</param>
-        /// <param name="sort">(optional) A comma-delimited list of columns to sort by.</param>
+        /// <param name="offset">(optional) 0-based index of the first item to return. The default is 0.</param>
+        /// <param name="limit">(optional) Maximum number of items to return (if any). 
+        /// The server may return fewer items than requested.</param>
+        /// <param name="sort">(optional) Property name by which to sort results.</param>
+        /// <param name="order">(optional) "asc" sorts in ascending order; "desc" sorts in descending order. 
+        /// The default order depends on the particular property.</param>
+        /// <param name="propertyFilters">(optional) An array of filter items by property value. 
+        /// The filter logic depends on the particular property.</param>
+        /// <param name="search">(optional) Search query that would be applied on predefined properties specific to data.</param>
         /// <returns>A list of InstanceUser objects</returns>
-        List<InstanceUser> GetUsers(IUser adminUser, int? page = null, int? pageSize = null, string filter = null, string sort = null);
+        List<InstanceUser> GetUsers(IUser adminUser,
+            int? offset = null,
+            int? limit = null,
+            string sort = null,
+            string order = null,
+            string[] propertyFilters = null,
+            string search = null);
 
         /// <summary>
         /// Updates a user.
@@ -188,7 +200,7 @@ namespace Model
         /// <param name="adminUser">The admin user updating the user.</param>
         /// <param name="user">An InstanceUser object representing the user to update.</param>
         /// <returns>The returned HTTP Status Code</returns>
-        HttpStatusCode UpdateUser(IUser adminUser, InstanceUser user);
+        HttpStatusCode UpdateUser(IUser adminUser, InstanceUser user = null);
 
         /// <summary>
         /// Checks if the AdminStore service is ready for operation.
@@ -385,5 +397,12 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 201 Created is expected</param>
         /// <returns>AddJobResult</returns>
         AddJobResult QueueGenerateProcessTestsJob(IUser user, GenerateProcessTestsJobParameters processTestJobParametersRequest, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets a list of Instance Admin Roles
+        /// </summary>
+        /// <param name="adminUser">The admin user getting the instance roles list.</param>
+        /// <returns>The retrieved list of Instance Admin Roles</returns>
+        List<AdminRole> GetInstanceRoles(IUser adminUser);
     }
 }

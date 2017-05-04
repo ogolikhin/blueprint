@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using Model.ArtifactModel.Enums;
-using Model.ModelHelpers;
 using Model.ArtifactModel.Impl.OperationsResults;
 
 namespace Model
@@ -287,9 +286,11 @@ namespace Model
         /// <param name="artifactId">The ID of the artifact that has the attachment to get.</param>
         /// <param name="addDrafts">(optional) Should include attachments in draft state.  Without addDrafts it works as if addDrafts=true.</param>
         /// <param name="versionId">(optional) The version of the attachment to retrieve.</param>
+        /// <param name="baselineId">(optional) The id of baseline to get version of the attachment to retrieve.</param>
         /// <param name="subArtifactId">(optional) The ID of a sub-artifact of this artifact that has the attachment to get.</param>
         /// <returns>Attachment object for the specified artifact/subartifact.</returns>
-        Attachments GetAttachments(IUser user, int artifactId, bool? addDrafts = null, int? versionId = null, int? subArtifactId = null);
+        Attachments GetAttachments(IUser user, int artifactId, bool? addDrafts = null, int? versionId = null,
+            int? baselineId = null, int? subArtifactId = null);
 
         /// <summary>
         /// Gets attachments for the specified artifact/subartifact
@@ -299,12 +300,13 @@ namespace Model
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="addDrafts">(optional) Should include attachments in draft state.  Without addDrafts it works as if addDrafts=true.</param>
         /// <param name="versionId">(optional) The version of the attachment to retrieve.</param>
+        /// <param name="baselineId">(optional) The id of baseline to get version of the attachment to retrieve.</param>
         /// <param name="subArtifactId">(optional) The ID of a sub-artifact of this artifact that has the attachment to get.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <param name="expectedServiceErrorMessage">(optional) Expected error message for the request.</param>
         /// <returns>Attachment object for the specified artifact/subartifact.</returns>
-        Attachments GetAttachments(IArtifactBase artifact, IUser user, bool? addDrafts = null, int? versionId = null,
-            int? subArtifactId = null, List<HttpStatusCode> expectedStatusCodes = null, IServiceErrorMessage expectedServiceErrorMessage = null);
+        Attachments GetAttachments(IArtifactBase artifact, IUser user, bool? addDrafts = null,
+            int? versionId = null, int? baselineId = null, int? subArtifactId = null,
+            List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets relationships for the specified artifact/subartifact
@@ -640,7 +642,27 @@ namespace Model
         /// <param name="user">user to perform the operation. </param>
         /// <param name="reviewId">Id of Review.</param>
         /// <returns>Object containing list of artifacts and number of artifacts</returns>
-        GetReviewArtifactsResultSet GetReviewArtifacts(IUser user, int reviewId);
+        ReviewContent GetReviewArtifacts(IUser user, int reviewId);
+
+        /// <summary>
+        /// Gets review header information
+        /// </summary>
+        /// <param name="user">user to perform the operation.</param>
+        /// <param name="reviewId">Id of Review.</param>
+        /// <returns>ReviewContainer</returns>
+        ReviewContainer GetReviewContainer(IUser user, int reviewId);
+
+        /// <summary>
+        /// Gets list of Reviewers and additional information.
+        /// </summary>
+        /// <param name="user">user to perform the operation.</param>
+        /// <param name="reviewId">Id of Review.</param>
+        /// <param name="offset">(optional) The offset for the pagination.</param>
+        /// <param name="limit">(optional) Maximum number of users to be returned.</param>
+        /// <param name="versionId">(optional)Id of version.</param>
+        /// <returns>ReviewParticipantsContent</returns>
+        ReviewParticipantsContent GetReviewParticipants(IUser user, int reviewId, int? offset = 0, int? limit = 50,
+            int? versionId = null);
 
         #region Process methods
 

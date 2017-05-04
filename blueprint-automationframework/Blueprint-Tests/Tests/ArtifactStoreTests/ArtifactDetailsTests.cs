@@ -42,7 +42,7 @@ namespace ArtifactStoreTests
         {
             Helper = new TestHelper();
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            _projects = ProjectFactory.GetAllProjects(_user, shouldRetrievePropertyTypes: true);
+            _projects = ProjectFactory.GetAllProjects(_user, shouldRetrieveArtifactTypes: true);
             _project = _projects[0];
         }
 

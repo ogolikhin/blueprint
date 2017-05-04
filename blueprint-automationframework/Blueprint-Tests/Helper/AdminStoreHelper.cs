@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Model.Common.Enums;
 using Utilities;
 using Utilities.Factories;
 
@@ -337,6 +338,70 @@ namespace Helper
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Generates a random Instance User for user management
+        /// </summary>
+        /// <param name="loginName">(optional) The login name of the user. Randomly generated if not specified.</param>
+        /// <param name="password">(optional) The user's password. Randomly generated if not specified.</param>
+        /// <param name="source">(optional) The source of the user. Defaults to Database if not specified.</param>
+        /// <param name="displayname">(optional) The user's display name. Randomly generated if not specified.</param>
+        /// <param name="licenseLevel">(optinal) The user's license level. Defaults to Author if not specified.</param>
+        /// <param name="instanceAdminRole">(optional) The users instance admin role. Defaults to DefaultInstanceAdministrator.</param>
+        /// <param name="imageId">(optional) The user's image id. Defaults to null.</param>
+        /// <returns>An InstanceUser object.</returns>
+        public static InstanceUser GenerateRandomInstanceUser(
+            string loginName = null,
+            string password = null,
+            UserSource source = UserSource.Database,
+            string displayname = null,
+            LicenseLevel licenseLevel = LicenseLevel.Author,
+            InstanceAdminRole instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
+            int? imageId = null)
+        {
+
+            string login = loginName ?? RandomGenerator.RandomAlphaNumeric(MinPasswordLength);
+            string firstName = RandomGenerator.RandomAlphaNumeric(10);
+            string lastName = RandomGenerator.RandomAlphaNumeric(10);
+            string email = I18NHelper.FormatInvariant("{0}@{1}.com", login, RandomGenerator.RandomAlphaNumeric(10));
+
+            InstanceAdminPrivileges adminPrivileges =
+                InstanceAdminPrivileges.AccessAllProjectData |
+                InstanceAdminPrivileges.ManageInstanceSettings |
+                InstanceAdminPrivileges.ManageAdminRoles |
+                InstanceAdminPrivileges.DeleteProjects |
+                InstanceAdminPrivileges.AssignAdminRoles |
+                InstanceAdminPrivileges.ManageStandardPropertiesAndArtifactTypes |
+                InstanceAdminPrivileges.CanManageAllRunningJobs |
+                InstanceAdminPrivileges.CanReportOnAllProjects;
+                                                        
+            var instanceUser = new InstanceUser
+            (
+                login,
+                firstName,
+                lastName,
+                displayname ?? I18NHelper.FormatInvariant("{0} {1}", firstName, lastName),
+                email,
+                source,
+                eulaAccepted: true,
+                license: licenseLevel,
+                isSso: false,
+                allowFallback: false,
+                instanceAdminRole: instanceAdminRole,
+                instanceAdminPrivileges: adminPrivileges,
+                guest: false,
+                currentVersion: -1,
+                enabled: true,
+                title: RandomGenerator.RandomAlphaNumeric(10),
+                department: RandomGenerator.RandomAlphaNumeric(10),
+                expirePassword: false,
+                imageId: imageId,
+                groupMembership: null,
+                password: password ?? GenerateValidPassword()
+            );
+
+            return instanceUser;
         }
 
         #endregion User Management

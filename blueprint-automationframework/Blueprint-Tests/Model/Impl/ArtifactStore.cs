@@ -446,20 +446,22 @@ namespace Model.Impl
             return discussionReplies;
         }
 
-        /// <seealso cref="IArtifactStore.GetAttachments(IUser, int, bool?, int?, int?)"/>
-        public Attachments GetAttachments(IUser user, int artifactId, bool? addDrafts = null, int? versionId = null, int? subArtifactId = null)
+        /// <seealso cref="IArtifactStore.GetAttachments(IUser, int, bool?, int?, int?, int?)"/>
+        public Attachments GetAttachments(IUser user, int artifactId, bool? addDrafts = null, int? versionId = null,
+            int? baselineId = null, int? subArtifactId = null)
         {
-            return GetAttachments(Address, artifactId, user, addDrafts, versionId, subArtifactId);
+            return GetAttachments(Address, artifactId, user, addDrafts, versionId, baselineId, subArtifactId);
         }
 
-        /// <seealso cref="IArtifactStore.GetAttachments(IArtifactBase, IUser, bool?, int?, int?, List{HttpStatusCode}, IServiceErrorMessage)"/>
-        public Attachments GetAttachments(IArtifactBase artifact, IUser user, bool? addDrafts = null, int? versionId = null,
-            int? subArtifactId = null, List<HttpStatusCode> expectedStatusCodes = null, IServiceErrorMessage expectedServiceErrorMessage = null)
+        /// <seealso cref="IArtifactStore.GetAttachments(IArtifactBase, IUser, bool?, int?, int?, int?, List{HttpStatusCode})"/>
+        public Attachments GetAttachments(IArtifactBase artifact, IUser user, bool? addDrafts = null,
+            int? versionId = null, int? baselineId = null, int? subArtifactId = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
             
-            return GetAttachments(Address, artifact.Id, user, addDrafts, versionId, subArtifactId,
-                expectedStatusCodes, expectedServiceErrorMessage);
+            return GetAttachments(Address, artifact.Id, user, addDrafts, versionId, subArtifactId, baselineId,
+                expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.GetRelationships(IUser, IArtifactBase, int?, bool?, int?, int?, List{HttpStatusCode})"/>
@@ -902,12 +904,49 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.GetReviewArtifacts(IUser, int)"/>
-        public GetReviewArtifactsResultSet GetReviewArtifacts(IUser user, int reviewId)
+        public ReviewContent GetReviewArtifacts(IUser user, int reviewId)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Reviews_id_.CONTENT, reviewId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
-            return restApi.SendRequestAndDeserializeObject<GetReviewArtifactsResultSet>(path,
+            return restApi.SendRequestAndDeserializeObject<ReviewContent>(path,
+                RestRequestMethod.GET, shouldControlJsonChanges: true);
+        }
+
+        /// <seealso cref="IArtifactStore.GetReviewContainer(IUser, int)"/>
+        public ReviewContainer GetReviewContainer(IUser user, int reviewId)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.CONTAINERS_id_, reviewId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            return restApi.SendRequestAndDeserializeObject<ReviewContainer>(path,
+                RestRequestMethod.GET, shouldControlJsonChanges: true);
+        }
+
+        /// <seealso cref="IArtifactStore.GetReviewParticipants(IUser, int, int?, int?, int?)"/>
+        public ReviewParticipantsContent GetReviewParticipants(IUser user, int reviewId, int? offset = 0, int? limit = 50,
+            int? versionId = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Containers_id_.PARTICIPANTS, reviewId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+            var queryParams = new Dictionary<string, string>();
+
+            if (offset != null)
+            {
+                queryParams.Add("offset", offset.ToString());
+            }
+
+            if (limit != null)
+            {
+                queryParams.Add("limit", limit.ToString());
+            }
+
+            if (versionId != null)
+            {
+                queryParams.Add("versionId", versionId.ToString());
+            }
+
+            return restApi.SendRequestAndDeserializeObject<ReviewParticipantsContent>(path,
                 RestRequestMethod.GET, shouldControlJsonChanges: true);
         }
 
@@ -1370,18 +1409,18 @@ namespace Model.Impl
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="addDrafts">(optional) Should include attachments in draft state.  Without addDrafts it works as if addDrafts=true.</param>
         /// <param name="versionId">(optional) The version of the attachment to retrieve.</param>
+        /// <param name="baselineId">(optional) The id of baseline to get version of the attachment to retrieve.</param>
         /// <param name="subArtifactId">(optional) The ID of a sub-artifact of this artifact that has the attachment to get.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <param name="expectedServiceErrorMessage">(optional) Expected error message for the request.</param>
         /// <returns>Attachment object for the specified artifact/subartifact.</returns>
         public static Attachments GetAttachments(string address,
             int artifactId,
             IUser user,
             bool? addDrafts = null,
             int? versionId = null,
+            int? baselineId = null,
             int? subArtifactId = null,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            IServiceErrorMessage expectedServiceErrorMessage = null)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(address, nameof(address));
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -1397,6 +1436,11 @@ namespace Model.Impl
             if (versionId != null)
             {
                 queryParameters.Add("versionId", versionId.ToString());
+            }
+
+            if (baselineId != null)
+            {
+                queryParameters.Add("baselineId", baselineId.ToString());
             }
 
             if (subArtifactId != null)
@@ -1420,13 +1464,6 @@ namespace Model.Impl
             catch (Exception)
             {
                 Logger.WriteDebug("Content = '{0}'", restApi.Content);
-
-                if (expectedServiceErrorMessage != null)
-                {
-                    var serviceErrorMessage = JsonConvert.DeserializeObject<ServiceErrorMessage>(restApi.Content);
-                    serviceErrorMessage.AssertEquals(expectedServiceErrorMessage);
-                }
-
                 throw;
             }
         }

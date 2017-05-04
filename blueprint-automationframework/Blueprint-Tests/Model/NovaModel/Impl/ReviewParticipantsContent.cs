@@ -1,42 +1,41 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
+using Newtonsoft.Json;
 
-namespace ArtifactStore.Models.Review
+namespace Model.NovaModel.Impl
 {
-    [DataContract]
+    // see blueprint/svc/ArtifactStore/Models/Review/Reviewer.cs
     public class Reviewer
     {
-        [DataMember(Name = "Id")]
+        [JsonProperty("Id")]
         public int UserId { get; set; }
 
-        [DataMember]
         public string DisplayName { get; set; }
 
-        [DataMember]
-        public ReviwerRole Role { get; set; }
+        public ReviewerRole Role { get; set; }
 
-        [DataMember]
         public ReviewStatus Status { get; set; }
 
-        [DataMember]
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]
         public DateTime? CompleteReviewDateTime { get; set; }
 
-        [DataMember]
         public int Approved { get; set; }
 
-        [DataMember]
         public int Disapproved { get; set; }
 
-        [DataMember]
         public int Viewed { get; set; }
+    }
+
+    public enum ReviewerRole
+    {
+        Reviewer = 0,
+        Approver = 1
     }
 
     public class ReviewParticipantsContent
     {
-        public IEnumerable<Reviewer> Items { get; set; }
+        public List<Reviewer> Items { get; set; }
+
         public int TotalArtifacts { get; set; }
 
         public int Total { get; set; }

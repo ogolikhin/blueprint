@@ -1929,72 +1929,7 @@ namespace ServiceLibrary.Repositories
 
         #endregion GetAuthorHistoriesWithPermissionsCheck
 
-        #region GetTransitions
-        [TestMethod]
-        [ExpectedException(typeof(ResourceNotFoundException))]
-        public async Task GetTransitions_NotFoundArtifact_ThrowsException()
-        {
-            // Arrange
-            var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlArtifactRepository(cxn.Object);
-            cxn.SetupQueryAsync("GetArtifactBasicDetails",
-              new Dictionary<string, object>
-              {
-                    {"userId", 1},
-                    {"itemId", 1}
-              },
-              new List<ArtifactBasicDetails>());
-
-            // Act
-            await repository.GetTransitions(1, 1);
-        }
-        [TestMethod]
-        [ExpectedException(typeof(AuthorizationException))]
-        public async Task GetTransitions_NoReadPermissions_ThrowsException()
-        {
-            // Arrange
-            var permissionsRepository = CreatePermissionsRepositoryMock(new[] {1}, 1, RolePermissions.None);
-            var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlArtifactRepository(cxn.Object, null, permissionsRepository.Object);
-            cxn.SetupQueryAsync("GetArtifactBasicDetails",
-              new Dictionary<string, object>
-              {
-                    {"userId", 1},
-                    {"itemId", 1}
-              },
-              new List<ArtifactBasicDetails>() {new ArtifactBasicDetails()});
-            // Act
-            await repository.GetTransitions(1, 1);
-        }
-        [TestMethod]
-        public async Task GetTransitions_WithReadPermissions_SuccessfullyReads()
-        {
-            // Arrange
-            var permissionsRepository = CreatePermissionsRepositoryMock(new[] { 1 }, 1, RolePermissions.Read);
-            var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlArtifactRepository(cxn.Object, null, permissionsRepository.Object);
-            cxn.SetupQueryAsync("GetArtifactBasicDetails",
-              new Dictionary<string, object>
-              {
-                    {"userId", 1},
-                    {"itemId", 1}
-              },
-              new List<ArtifactBasicDetails>() { new ArtifactBasicDetails() });
-            const int transitionId = 5;
-            cxn.SetupQueryAsync("GetAvailableTransitions",
-             new Dictionary<string, object>
-             {
-                    {"artifactId", 1},
-                    {"userId", 1}
-             },
-             new List<Transitions>() { new Transitions() {TransitionId = transitionId } });
-            // Act
-            var result = (await repository.GetTransitions(1, 1)).ToList();
-
-            Assert.IsTrue(result.Count > 0);
-            Assert.IsTrue(result[0].TransitionId == transitionId);
-        }
-        #endregion
+        
 
         private static Mock<IArtifactPermissionsRepository> CreatePermissionsRepositoryMock(int[] artifactIds, int userId, RolePermissions rolePermissions )
         {

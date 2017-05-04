@@ -9,6 +9,7 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories.Workflow;
 
 namespace ArtifactStore.Controllers
 {
@@ -16,17 +17,17 @@ namespace ArtifactStore.Controllers
     [BaseExceptionFilter]
     public class WorkflowController : LoggableApiController
     {
-        internal readonly ISqlArtifactRepository ArtifactRepository;
+        internal readonly ISqlWorkflowRepository WorkflowRepository;
 
         public override string LogSource { get; } = "ArtifactStore.Workflow";
 
-        public WorkflowController() : this(new SqlArtifactRepository())
+        public WorkflowController() : this(new SqlWorkflowRepository())
         {
         }
 
-        public WorkflowController(ISqlArtifactRepository instanceRepository) 
+        public WorkflowController(ISqlWorkflowRepository workflowRepository) 
         {
-            ArtifactRepository = instanceRepository;
+            WorkflowRepository = workflowRepository;
         }
 
         /// <summary>
@@ -46,7 +47,7 @@ namespace ArtifactStore.Controllers
         public async Task<IEnumerable<Transitions>> GetTransitions(int artifactId)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return await ArtifactRepository.GetTransitions(artifactId, session.UserId);
+            return await WorkflowRepository.GetTransitions(artifactId, session.UserId);
         }
     }
 

@@ -16,7 +16,6 @@ namespace Model.NovaModel.Impl
 
         public ReviewStatus Status { get; set; }
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Include)]
         public DateTime? CompleteReviewDateTime { get; set; }
 
         public int Approved { get; set; }

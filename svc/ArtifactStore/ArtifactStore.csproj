@@ -110,6 +110,7 @@
     <Compile Include="Controllers\RelationshipsController.cs" />
     <Compile Include="Controllers\ReviewContainersController.cs" />
     <Compile Include="Controllers\StatusController.cs" />
+    <Compile Include="Controllers\WorkflowController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

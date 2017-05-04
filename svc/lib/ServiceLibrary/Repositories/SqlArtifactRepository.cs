@@ -10,15 +10,12 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
 using BluePrintSys.RC.Service.Business.Baselines.Impl;
-using ServiceLibrary.Models.Workflow;
 
 namespace ServiceLibrary.Repositories
 {
-    public class SqlArtifactRepository : ISqlArtifactRepository
+    public class SqlArtifactRepository : SqlBaseArtifactRepository, ISqlArtifactRepository
     {
-        private readonly ISqlConnectionWrapper _connectionWrapper;
         private readonly ISqlItemInfoRepository _itemInfoRepository;
-        private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
 
         public SqlArtifactRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
@@ -34,10 +31,9 @@ namespace ServiceLibrary.Repositories
         public SqlArtifactRepository(ISqlConnectionWrapper connectionWrapper,
             SqlItemInfoRepository itemInfoRepository,
             IArtifactPermissionsRepository artifactPermissionsRepository)
+            : base(connectionWrapper, artifactPermissionsRepository)
         {
-            _connectionWrapper = connectionWrapper;
             _itemInfoRepository = itemInfoRepository;
-            _artifactPermissionsRepository = artifactPermissionsRepository;
         }
 
         #region GetProjectOrArtifactChildrenAsync
@@ -53,19 +49,23 @@ namespace ServiceLibrary.Repositories
 
             // We do not treat the project as the artifact
             if (artifactId == projectId)
-                ThrowNotFoundException(projectId, artifactId);
+            {
+                ExceptionHelper.ThrowNotFoundException(projectId, artifactId);
+            }
 
             var prm = new DynamicParameters();
             prm.Add("@projectId", projectId);
             prm.Add("@artifactId", artifactId ?? projectId);
             prm.Add("@userId", userId);
 
-            var artifactVersions = (await _connectionWrapper.QueryAsync<ArtifactVersion>("GetArtifactChildren", prm,
+            var artifactVersions = (await ConnectionWrapper.QueryAsync<ArtifactVersion>("GetArtifactChildren", prm,
                     commandType: CommandType.StoredProcedure)).ToList();
 
             // The artifact or the project is not found
             if (!artifactVersions.Any())
-                ThrowNotFoundException(projectId, artifactId);
+            {
+                ExceptionHelper.ThrowNotFoundException(projectId, artifactId);
+            }
 
             var dicUserArtifactVersions = artifactVersions.GroupBy(v => v.ItemId).ToDictionary(g => g.Key, g => GetUserArtifactVersion(g.ToList()));
 
@@ -84,7 +84,7 @@ namespace ServiceLibrary.Repositories
                 prm.Add("@projectId", projectId);
                 prm.Add("@userId", userId);
 
-                var orphanVersions = (await _connectionWrapper.QueryAsync<ArtifactVersion>("GetProjectOrphans", prm,
+                var orphanVersions = (await ConnectionWrapper.QueryAsync<ArtifactVersion>("GetProjectOrphans", prm,
                     commandType: CommandType.StoredProcedure)).ToList();
 
                 if (orphanVersions.Any())
@@ -131,14 +131,14 @@ namespace ServiceLibrary.Repositories
             // The artifact or the project is not found
             if (parentUserArtifactVersion == null)
             {
-                ThrowNotFoundException(projectId, artifactId);
+                ExceptionHelper.ThrowNotFoundException(projectId, artifactId);
             }
 
             // The artifact or the project has the direct permissions without Read
             if (parentUserArtifactVersion.DirectPermissions.HasValue
                     && !parentUserArtifactVersion.DirectPermissions.GetValueOrDefault().HasFlag(RolePermissions.Read))
             {
-                ThrowForbiddenException(projectId, artifactId);
+                ExceptionHelper.ThrowForbiddenException(projectId, artifactId);
             }
 
             if (!parentUserArtifactVersion.DirectPermissions.HasValue)
@@ -157,7 +157,7 @@ namespace ServiceLibrary.Repositories
             // The artifact or the project effective permissions does not have Read
             if (!parentUserArtifactVersion.EffectivePermissions.GetValueOrDefault().HasFlag(RolePermissions.Read))
             {
-                ThrowForbiddenException(projectId, artifactId);
+                ExceptionHelper.ThrowForbiddenException(projectId, artifactId);
             }
 
             var userArtifactVersionChildren = ProcessChildren(dicUserArtifactVersions, parentUserArtifactVersion);
@@ -336,37 +336,7 @@ namespace ServiceLibrary.Repositories
             return headOrDraft;
         }
 
-        private static void ThrowNotFoundException(int projectId, int? artifactId)
-        {
-            var errorMessage = artifactId == null
-                ? I18NHelper.FormatInvariant("The project (Id:{0}) can no longer be accessed. It may have been deleted, or is no longer accessible by you.", projectId)
-                : I18NHelper.FormatInvariant("Artifact (Id:{0}) in Project (Id:{1}) is not found.", artifactId, projectId);
-            throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
-        }
-
-        private static void ThrowForbiddenException(int projectId, int? artifactId)
-        {
-            if (artifactId.HasValue)
-            {
-                ThrowArtifactForbiddenException(artifactId.Value);
-            }
-            var errorMessage = I18NHelper.FormatInvariant("User does not have permissions for Project (Id:{0}).",
-                projectId);
-            throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
-        }
-
-        private static void ThrowArtifactNotFoundException(int artifactId)
-        {
-            var errorMessage = I18NHelper.FormatInvariant("Artifact (Id:{0}) is not found.", artifactId);
-            throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
-        }
-
-        private static void ThrowArtifactForbiddenException(int artifactId)
-        {
-            var errorMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).",
-                                   artifactId);
-            throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
-        }
+        
 
         #endregion GetProjectOrArtifactChildrenAsync
 
@@ -379,7 +349,7 @@ namespace ServiceLibrary.Repositories
             getSubArtifactsDraftPrm.Add("@userId", userId);
             getSubArtifactsDraftPrm.Add("@revisionId", revisionId);
             getSubArtifactsDraftPrm.Add("@includeDrafts", includeDrafts);
-            return (await _connectionWrapper.QueryAsync<SubArtifact>("GetSubArtifacts", getSubArtifactsDraftPrm, commandType: CommandType.StoredProcedure));
+            return (await ConnectionWrapper.QueryAsync<SubArtifact>("GetSubArtifacts", getSubArtifactsDraftPrm, commandType: CommandType.StoredProcedure));
         }
 
         public async Task<IEnumerable<SubArtifact>> GetSubArtifactTreeAsync(int artifactId, int userId, int revisionId = int.MaxValue, bool includeDrafts = true)
@@ -463,13 +433,13 @@ namespace ServiceLibrary.Repositories
 
             // One of the return items is supposed to be the project
             var ancestorsAndSelfIds = (await
-                _connectionWrapper.QueryAsync<ArtifactVersion>("GetArtifactAncestorsAndSelf", prm,
+                ConnectionWrapper.QueryAsync<ArtifactVersion>("GetArtifactAncestorsAndSelf", prm,
                     commandType: CommandType.StoredProcedure)).Select(av => av.ItemId).ToList();
 
             var setAncestorsAndSelfIds = new HashSet<int>(ancestorsAndSelfIds);
 
             if (!setAncestorsAndSelfIds.Any())
-                ThrowNotFoundException(projectId, expandedToArtifactId);
+                ExceptionHelper.ThrowNotFoundException(projectId, expandedToArtifactId);
 
             if (!includeChildren)
                 setAncestorsAndSelfIds.Remove(expandedToArtifactId);
@@ -497,7 +467,7 @@ namespace ServiceLibrary.Repositories
 
             if (!isFetched)
             {
-                ThrowForbiddenException(projectId, expandedToArtifactId);
+                ExceptionHelper.ThrowForbiddenException(projectId, expandedToArtifactId);
             }
 
             return rootArtifacts;
@@ -535,13 +505,13 @@ namespace ServiceLibrary.Repositories
             if (userId < 1)
                 throw new ArgumentOutOfRangeException(nameof(userId));
             
-            var artifactBasicDetails = await GetArtifactBasicDetails(artifactId, userId);
+            var artifactBasicDetails = await GetArtifactBasicDetails(ConnectionWrapper, artifactId, userId);
             if (artifactBasicDetails == null || artifactBasicDetails.LatestDeleted)
             {
                 var errorMessage = I18NHelper.FormatInvariant("Item (Id:{0}) is not found.", artifactId);
                 throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
             }
-            var itemIdsPermissions = (await _artifactPermissionsRepository.GetArtifactPermissions(new [] { artifactId }, userId));
+            var itemIdsPermissions = (await ArtifactPermissionsRepository.GetArtifactPermissions(new [] { artifactId }, userId));
             if (!itemIdsPermissions.ContainsKey(artifactId) || !itemIdsPermissions[artifactId].HasFlag(RolePermissions.Read))
             {
                 var errorMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", artifactId);
@@ -552,7 +522,7 @@ namespace ServiceLibrary.Repositories
             prm.Add("@artifactId", artifactId);
             prm.Add("@userId", userId);
 
-            var ancestorsAndSelf =  (await _connectionWrapper.QueryAsync<ArtifactVersion>("GetArtifactNavigationPath", prm, commandType: CommandType.StoredProcedure))
+            var ancestorsAndSelf =  (await ConnectionWrapper.QueryAsync<ArtifactVersion>("GetArtifactNavigationPath", prm, commandType: CommandType.StoredProcedure))
                 .ToList();
             return OrderAncestors(ancestorsAndSelf, artifactId).Select(a => new Artifact
             {
@@ -563,14 +533,7 @@ namespace ServiceLibrary.Repositories
             }).ToList();
         }
 
-        private async Task<ArtifactBasicDetails> GetArtifactBasicDetails(int artifactId, int userId)
-        {
-            var prm = new DynamicParameters();
-            prm.Add("@userId", userId);
-            prm.Add("@itemId", artifactId);
-            return (await _connectionWrapper.QueryAsync<ArtifactBasicDetails>(
-                "GetArtifactBasicDetails", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
-        }
+        
 
         // This method does not return the self.
         private static IEnumerable<ArtifactVersion> OrderAncestors(List<ArtifactVersion> ancestorsAndSelf, int artifactId)
@@ -615,7 +578,7 @@ namespace ServiceLibrary.Repositories
             param.Add("@revisionId", revisionId ?? int.MaxValue);
             param.Add("@addDrafts", addDraft);
 
-            var itemPaths = (await _connectionWrapper.QueryAsync<ArtifactsNavigationPath>("GetArtifactsNavigationPaths", param, commandType: CommandType.StoredProcedure)).ToList();
+            var itemPaths = (await ConnectionWrapper.QueryAsync<ArtifactsNavigationPath>("GetArtifactsNavigationPaths", param, commandType: CommandType.StoredProcedure)).ToList();
 
             var artifactNavigationPaths = new Dictionary<int, IDictionary<int, Artifact>>();
 
@@ -721,7 +684,7 @@ namespace ServiceLibrary.Repositories
             var param = new DynamicParameters();
             param.Add("@projectIds", SqlConnectionWrapper.ToDataTable(projectIds, "Int32Collection", "Int32Value"));
             
-            return (await _connectionWrapper.QueryAsync<ProjectNameIdPair>("GetProjectNameByIds", param, commandType: CommandType.StoredProcedure));            
+            return (await ConnectionWrapper.QueryAsync<ProjectNameIdPair>("GetProjectNameByIds", param, commandType: CommandType.StoredProcedure));            
         }
 
         #endregion GetProjectNameByIdsAsync
@@ -732,7 +695,7 @@ namespace ServiceLibrary.Repositories
             param.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
             param.Add("@revisionId", int.MaxValue);
 
-            return (await _connectionWrapper.QueryAsync<SqlAuthorHistory>("GetOpenArtifactAuthorHistories", param, commandType: CommandType.StoredProcedure)).Select(a => (AuthorHistory)a);
+            return (await ConnectionWrapper.QueryAsync<SqlAuthorHistory>("GetOpenArtifactAuthorHistories", param, commandType: CommandType.StoredProcedure)).Select(a => (AuthorHistory)a);
         }
 
         public async Task<IEnumerable<AuthorHistory>> GetAuthorHistoriesWithPermissionsCheck(IEnumerable<int> artifactIds, int userId)
@@ -742,7 +705,7 @@ namespace ServiceLibrary.Repositories
                 throw new ArgumentOutOfRangeException(nameof(artifactIds));
             }
 
-            var artifactsPermissions = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, userId);
+            var artifactsPermissions = await ArtifactPermissionsRepository.GetArtifactPermissions(artifactIds, userId);
 
             var readPermissions = artifactsPermissions.Where(perm => perm.Value.HasFlag(RolePermissions.Read));
 
@@ -751,7 +714,7 @@ namespace ServiceLibrary.Repositories
 
         public async Task<IEnumerable<BaselineInfo>> GetBaselineInfo(IEnumerable<int> artifactIds, int userId, bool addDrafts = true, int revisionId = int.MaxValue)
         {
-            var artifactsPermissions = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, userId);
+            var artifactsPermissions = await ArtifactPermissionsRepository.GetArtifactPermissions(artifactIds, userId);
             var artifactsWithReadPermissions = artifactsPermissions.Where(p => p.Value.HasFlag(RolePermissions.Read)).Select(p => p.Key);
             var itemsRawData = await _itemInfoRepository.GetItemsRawDataCreatedDate(userId, artifactsWithReadPermissions, addDrafts, revisionId);
             return itemsRawData.Select(i => new BaselineInfo
@@ -762,33 +725,6 @@ namespace ServiceLibrary.Repositories
             }).ToList();
         }
 
-        #region artifact workflow
-        public async Task<IEnumerable<Transitions>> GetTransitions(int artifactId, int userId)
-        {
-            var artifactBasicDetails = await GetArtifactBasicDetails(artifactId, userId);
-            if (artifactBasicDetails == null)
-            {
-                ThrowArtifactNotFoundException(artifactId);
-            }
-
-            var artifactsPermissions =
-                await _artifactPermissionsRepository.GetArtifactPermissions(new List<int> {artifactId}, userId);
-
-            if (!artifactsPermissions.ContainsKey(artifactId) || !artifactsPermissions[artifactId].HasFlag(RolePermissions.Read))
-            {
-                ThrowArtifactForbiddenException(artifactId);
-            }
-            return await GetTransitionsInternal(artifactId, userId);
-        }
-
-        private async Task<IEnumerable<Transitions>> GetTransitionsInternal(int artifactId, int userId)
-        {
-            var param = new DynamicParameters();
-            param.Add("@artifactId", artifactId);
-            param.Add("@userId", userId);
-
-            return await _connectionWrapper.QueryAsync<Transitions>("GetAvailableTransitions", param, commandType: CommandType.StoredProcedure);
-        }
-        #endregion
+        
     }
 }

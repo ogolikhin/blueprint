@@ -4,8 +4,15 @@ using System.Collections.Generic;
 namespace Model.ArtifactModel.Impl
 {
     // Mostly taken from: blueprint-current/Source/BluePrintSys.RC.Business.Internal/Components/Nova/Models/NovaProcess.cs
-    public class NovaProcess : NovaArtifactDetails
+    public class NovaProcess : NovaArtifactDetails, INovaProcess
     {
+        /// <summary>
+        /// Constructor needed to deserialize it as generic type.
+        /// </summary>
+        public NovaProcess()
+        {
+        }
+
         public Process Process { get; set; }
     }
 

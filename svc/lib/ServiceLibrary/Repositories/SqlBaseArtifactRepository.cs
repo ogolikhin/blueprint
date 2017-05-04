@@ -8,8 +8,8 @@ namespace ServiceLibrary.Repositories
 {
     public class SqlBaseArtifactRepository
     {
-        protected readonly ISqlConnectionWrapper ConnectionWrapper;
-        protected readonly IArtifactPermissionsRepository ArtifactPermissionsRepository;
+        protected ISqlConnectionWrapper ConnectionWrapper;
+        protected IArtifactPermissionsRepository ArtifactPermissionsRepository;
 
         public SqlBaseArtifactRepository(ISqlConnectionWrapper connectionWrapper,
             IArtifactPermissionsRepository artifactPermissionsRepository)

@@ -44,29 +44,29 @@ namespace StorytellerTests
 
         #region Tests
 
+        // TODO: This test case is currently duplicate copy of [TestRail(164531)]
+        // Will remove this shortly since there is no value on this test case
         [TestCase]
         [Description("Clear the name of process and verify the returned process has a validation error" +
                      "indicating that the process name is required.")]
-        public void UpdateProcessWithoutProcessName_VerifyGetProcessReturnsValidationError()
+        public void UpdateNovaProcessWithoutProcessName_VerifyGetProcessReturnsValidationError()
         {
             // Create and get the default process
             var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Modify default process Name
-            novaProcess.Name = string.Empty;
+            novaProcess.NovaProcess.Name = string.Empty;
 
             var ex = Assert.Throws<Http400BadRequestException>(
                 () =>
                    // Get and deserialize response
-                   Helper.Storyteller.UpdateProcess(
+                   Helper.Storyteller.UpdateNovaProcess(
                         _user,
-                        novaProcess.Process)
+                        novaProcess.NovaProcess)
                 );
 
-            var deserializedResponse = SerializationUtilities.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
-
             // Assert that the deserialized response indicates that the process name is required
-            AssertValidationResponse(deserializedResponse, ProcessValidationResponse.NameRequired);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NameCannotBeEmpty, "The Item name cannot be empty");
         }
 
         [TestCase]

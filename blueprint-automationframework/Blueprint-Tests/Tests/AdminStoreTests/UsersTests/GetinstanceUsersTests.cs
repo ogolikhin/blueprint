@@ -1,13 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.Net;
 using CustomAttributes;
 using Helper;
 using Model;
-using Model.Factories;
 using Model.Impl;
 using NUnit.Framework;
 using TestCommon;
-using Utilities.Factories;
 
 namespace AdminStoreTests.UsersTests
 {

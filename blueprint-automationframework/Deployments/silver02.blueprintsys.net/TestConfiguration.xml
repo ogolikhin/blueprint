@@ -1,7 +1,7 @@
 <TestConfiguration>
 
   <!-- This is the URL of the Blueprint server to test against. -->
-  <BlueprintServer address="http://silver02.blueprintsys.net/" username="admin" password="$Blueprint99" />
+  <BlueprintServer address="http://silver02.blueprintsys.net/" username="admin" password="$Admin93" />
 
   <BlueprintServices>
     <Service name="AdminStore"    address="http://silver02.blueprintsys.net/" />

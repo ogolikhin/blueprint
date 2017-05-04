@@ -652,6 +652,18 @@ namespace Model
         /// <returns>ReviewContainer</returns>
         ReviewContainer GetReviewContainer(IUser user, int reviewId);
 
+        /// <summary>
+        /// Gets list of Reviewers and additional information.
+        /// </summary>
+        /// <param name="user">user to perform the operation.</param>
+        /// <param name="reviewId">Id of Review.</param>
+        /// <param name="offset">(optional) The offset for the pagination.</param>
+        /// <param name="limit">(optional) Maximum number of users to be returned.</param>
+        /// <param name="versionId">(optional)Id of version.</param>
+        /// <returns>ReviewParticipantsContent</returns>
+        ReviewParticipantsContent GetReviewParticipants(IUser user, int reviewId, int? offset = 0, int? limit = 50,
+            int? versionId = null);
+
         #region Process methods
 
         /// <summary>

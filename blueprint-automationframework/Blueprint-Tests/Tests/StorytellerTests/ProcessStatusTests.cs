@@ -1,7 +1,7 @@
 ﻿using CustomAttributes;
 using Helper;
 using Model;
-using Model.ArtifactModel.Impl;
+using Model.ArtifactModel;
 using Model.Factories;
 using Model.StorytellerModel.Enums;
 using Model.StorytellerModel.Impl;
@@ -95,9 +95,9 @@ namespace StorytellerTests
         /// <param name="user1">the primary user</param>
         /// <param name="user2">the secondary user</param>
         /// <returns>updated nova process</returns>
-        private static NovaProcess SetAndValidateProcessStatus(
+        private static INovaProcess SetAndValidateProcessStatus(
             TestHelper helper,
-            NovaProcess novaProcess,
+            INovaProcess novaProcess,
             ProcessStatusState processStatusState,
             IUser user1,
             IUser user2)

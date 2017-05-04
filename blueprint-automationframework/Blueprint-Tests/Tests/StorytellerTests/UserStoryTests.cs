@@ -2,6 +2,7 @@
 using CustomAttributes;
 using Helper;
 using Model;
+using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
@@ -372,7 +373,7 @@ namespace StorytellerTests
         /// <param name="novaProcess">the nova process artifact to validate</param>
         /// <param name="expectedProcessShapeCount">expected user task process shape count</param>
         /// <param name="actualProcessUserTaskShapeCount">actual user task process shape count</param>
-        private static void ValidateProcessUserTaskCount(NovaProcess novaProcess, int expectedProcessUserTaskShapeCount, int actualProcessUserTaskShapeCount)
+        private static void ValidateProcessUserTaskCount(INovaProcess novaProcess, int expectedProcessUserTaskShapeCount, int actualProcessUserTaskShapeCount)
         {
             ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
 
@@ -388,7 +389,7 @@ namespace StorytellerTests
         /// </summary>
         /// <param name="novaProcess">the nova process artifact to validate</param>
         /// <param name="userStories">userstories generated from the nova process artifact</param>
-        private static void ValidateGeneratedUserStories (NovaProcess novaProcess, List<IStorytellerUserStory> userStories)
+        private static void ValidateGeneratedUserStories (INovaProcess novaProcess, List<IStorytellerUserStory> userStories)
         {
             ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
             ThrowIf.ArgumentNull(userStories, nameof(userStories));
@@ -455,7 +456,7 @@ namespace StorytellerTests
         /// </summary>
         /// <param name="novaProcess">the nova process artifact to update</param>
         /// <param name="additionalUserTasks">the number of UserTasks to add</param>
-        private static void AddUserTasksToNovaProcess(NovaProcess novaProcess, int additionalUserTasks)
+        private static void AddUserTasksToNovaProcess(INovaProcess novaProcess, int additionalUserTasks)
         {
             ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
 
@@ -481,7 +482,7 @@ namespace StorytellerTests
         /// <param name="novaProcess">the nova process to update</param>
         /// <param name="additionalUserTasks">the number of UserTasks to add</param>
         /// <returns>the updated nova process with additonal user tasks</returns>
-        private NovaProcess GetNovaProcessWithAdditionalShapes(NovaProcess novaProcess, int additionalUserTasks)
+        private INovaProcess GetNovaProcessWithAdditionalShapes(INovaProcess novaProcess, int additionalUserTasks)
         {
             ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
 

@@ -264,5 +264,11 @@ namespace ServiceLibrary.Repositories
             throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);            
         }
 
+        public static bool HasPermissions(int itemId, Dictionary<int, RolePermissions> permissions, RolePermissions permissionType)
+        {
+            RolePermissions permission;
+            return permissions.TryGetValue(itemId, out permission) && permission.HasFlag(permissionType);
+        }
+
     }
 }

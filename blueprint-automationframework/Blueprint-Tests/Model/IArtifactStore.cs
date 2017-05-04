@@ -1,12 +1,12 @@
+using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
+using Model.ArtifactModel.Impl;
+using Model.ArtifactModel.Impl.OperationsResults;
 using Model.Impl;
 using Model.NovaModel.Impl;
-using Model.ArtifactModel;
-using Model.ArtifactModel.Impl;
 using System;
 using System.Collections.Generic;
 using System.Net;
-using Model.ArtifactModel.Enums;
-using Model.ArtifactModel.Impl.OperationsResults;
 
 namespace Model
 {
@@ -644,20 +644,27 @@ namespace Model
         /// <returns>Object containing list of artifacts and number of artifacts</returns>
         ReviewContent GetReviewArtifacts(IUser user, int reviewId);
 
-        #region Process methods
+        /// <summary>
+        /// Gets review header information
+        /// </summary>
+        /// <param name="user">user to perform the operation.</param>
+        /// <param name="reviewId">Id of Review.</param>
+        /// <returns>ReviewContainer</returns>
+        ReviewContainer GetReviewContainer(IUser user, int reviewId);
 
         /// <summary>
-        /// Delete a Nova process artifact
-        /// (Runs:  'DELETE 'svc/bpartifactstore/artifacts/{0}')
+        /// Gets list of Reviewers and additional information.
         /// </summary>
-        /// <param name="user">The user credentials for the request to delete a Nova process.</param>
-        /// <param name="novaProcess">The Nova process artifact to delete.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>The list of Nova Artifacts that were deleted.</returns>
-        List<NovaArtifact> DeleteNovaProcessArtifact(
-            IUser user,
-            NovaProcess novaProcess,
-            List<HttpStatusCode> expectedStatusCodes = null);
+        /// <param name="user">user to perform the operation.</param>
+        /// <param name="reviewId">Id of Review.</param>
+        /// <param name="offset">(optional) The offset for the pagination.</param>
+        /// <param name="limit">(optional) Maximum number of users to be returned.</param>
+        /// <param name="versionId">(optional)Id of version.</param>
+        /// <returns>ReviewParticipantsContent</returns>
+        ReviewParticipantsContent GetReviewParticipants(IUser user, int reviewId, int? offset = 0, int? limit = 50,
+            int? versionId = null);
+
+        #region Process methods
 
         /// <summary>
         /// Get a Nova Process (Storyteller 2.1+)
@@ -668,7 +675,7 @@ namespace Model
         /// <param name="versionIndex">(optional) The version of the process artifact.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The requested Nova process object.</returns>
-        NovaProcess GetNovaProcess(
+        INovaProcess GetNovaProcess(
             IUser user,
             int artifactId,
             int? versionIndex = null,
@@ -681,10 +688,10 @@ namespace Model
         /// <param name="user">The user credentials for the request to update a Nova process.</param>
         /// <param name="novaProcess">The Nova process to update</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>A NovaArtifactDetails object.</returns>
-        INovaArtifactDetails UpdateNovaProcess(
+        /// <returns>A NovaProcess object.</returns>
+        INovaProcess UpdateNovaProcess(
             IUser user,
-            NovaProcess novaProcess,
+            INovaProcess novaProcess,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         #endregion Process methods

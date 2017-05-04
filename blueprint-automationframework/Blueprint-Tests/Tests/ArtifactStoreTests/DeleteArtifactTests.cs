@@ -8,7 +8,6 @@ using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
-using Model.Impl;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
@@ -46,8 +45,8 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Actor)]
         [TestRail(165741)]
-        [Description("Create & publish an artifact.  Delete the artifact - it should return 200 OK and the deleted artifact." +
-            "Try to get the artifact and verify you get a 404 since it was deleted.")]
+        [Description("Create & publish an artifact.  Delete the artifact - it should return 200 OK and the deleted artifact.  " +
+                     "Try to get the artifact and verify you get a 404 since it was deleted.")]
         public void DeleteArtifact_PublishedArtifactWithNoChildren_ArtifactIsDeleted(BaseArtifactType artifactType)
         {
             // Setup:
@@ -70,8 +69,8 @@ namespace ArtifactStoreTests
         [TestCase(ItemTypePredefined.ArtifactCollection)]
         [TestCase(ItemTypePredefined.CollectionFolder)]
         [TestRail(185237)]
-        [Description("Create & publish a collection or collection folder.  Delete the artifact - it should return 200 OK and the deleted artifact." +
-            "Try to get the artifact and verify you get a 404 since it was deleted.")]
+        [Description("Create & publish a collection or collection folder.  Delete the artifact - it should return 200 OK and the deleted artifact.  " +
+                     "Try to get the artifact and verify you get a 404 since it was deleted.")]
         public void DeleteArtifact_PublishedCollectionOrCollectionFolderWithNoChildren_ArtifactIsDeleted(ItemTypePredefined artifactType)
         {
             // Setup:
@@ -98,8 +97,8 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Actor)]
         [TestRail(165747)]
-        [Description("Create & save an artifact.  Delete the artifact - it should return 200 OK and the deleted artifact." +
-            "Try to get the artifact and verify you get a 404 since it was deleted.")]
+        [Description("Create & save an artifact.  Delete the artifact - it should return 200 OK and the deleted artifact.  " +
+                     "Try to get the artifact and verify you get a 404 since it was deleted.")]
         public void DeleteArtifact_SavedArtifactWithNoChildren_ArtifactIsDeleted(BaseArtifactType artifactType)
         {
             // Setup:
@@ -121,8 +120,8 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Actor)]
         [TestRail(165748)]
-        [Description("Create & publish an artifact, then save a draft.  Delete the artifact - it should return 200 OK and the deleted artifact." +
-            "Try to get the artifact and verify you get a 404 since it was deleted.")]
+        [Description("Create & publish an artifact, then save a draft.  Delete the artifact - it should return 200 OK and the deleted artifact.  " +
+                     "Try to get the artifact and verify you get a 404 since it was deleted.")]
         public void DeleteArtifact_PublishedWithDraftArtifactWithNoChildren_ArtifactIsDeleted(BaseArtifactType artifactType)
         {
             // Setup:
@@ -146,8 +145,8 @@ namespace ArtifactStoreTests
         [TestCase(1, ItemTypePredefined.Actor, ItemTypePredefined.Glossary, ItemTypePredefined.Process)]
         [TestCase(2, ItemTypePredefined.Actor, ItemTypePredefined.Glossary, ItemTypePredefined.Process)]
         [TestRail(165798)]
-        [Description("Create & publish an artifact with a child & grandchild.  Delete one of the artifacts in the chain - it should return 200 OK and the deleted artifact and its children." +
-            "Try to get the artifact & its children and verify you get a 404 since it was deleted.")]
+        [Description("Create & publish an artifact with a child & grandchild.  Delete one of the artifacts in the chain - it should return 200 OK and the deleted artifact and its children.  " +
+                     "Try to get the artifact & its children and verify you get a 404 since it was deleted.")]
         public void DeleteArtifact_PublishedArtifactWithChildren_ArtifactIsDeleted(int indexToDelete, params ItemTypePredefined[] artifactTypeChain)
         {
             ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
@@ -173,8 +172,8 @@ namespace ArtifactStoreTests
         [TestCase(1, BaseArtifactType.Actor, BaseArtifactType.Glossary, BaseArtifactType.Process)]
         [TestCase(2, BaseArtifactType.Actor, BaseArtifactType.Glossary, BaseArtifactType.Process)]
         [TestRail(165799)]
-        [Description("Create & save an artifact with a child & grandchild.  Delete one of the artifacts in the chain - it should return 200 OK and the deleted artifact and its children." +
-            "Try to get the artifact & its children and verify you get a 404 since it was deleted.")]
+        [Description("Create & save an artifact with a child & grandchild.  Delete one of the artifacts in the chain - it should return 200 OK and the deleted artifact and its children.  " +
+                     "Try to get the artifact & its children and verify you get a 404 since it was deleted.")]
         public void DeleteArtifact_SavedArtifactWithChildren_ArtifactIsDeleted(int indexToDelete, params BaseArtifactType[] artifactTypeChain)
         {
             ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
@@ -199,7 +198,7 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Actor, BaseArtifactType.Process)]
         [TestRail(165809)]
         [Description("Create & publish a parent artifact and create a child artifact that is only saved but not published.  Delete the parent artifact.  " +
-            "Verify it returns 200 OK with the deleted artifact and its children.  Try to get the artifact & its children and verify you get a 404 since they were deleted.")]
+                     "Verify it returns 200 OK with the deleted artifact and its children.  Try to get the artifact & its children and verify you get a 404 since they were deleted.")]
         public void DeleteArtifact_PublishedArtifactWithSavedChild_ArtifactIsDeleted(BaseArtifactType parentArtifactType, BaseArtifactType childArtifactType)
         {
             // Setup:
@@ -225,7 +224,7 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Actor, BaseArtifactType.Process)]
         [TestRail(165810)]
         [Description("Create & publish parent & child artifacts then modify & save the child artifact.  Delete the parent artifact.  " +
-            "Verify it returns 200 OK with the deleted artifact and its children.  Try to get the artifact & its children and verify you get a 404 since they were deleted.")]
+                     "Verify it returns 200 OK with the deleted artifact and its children.  Try to get the artifact & its children and verify you get a 404 since they were deleted.")]
         public void DeleteArtifact_PublishedArtifactWithPublishedChildWithDraft_ArtifactIsDeleted(BaseArtifactType parentArtifactType, BaseArtifactType childArtifactType)
         {
             // Setup:
@@ -252,8 +251,8 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(165821)]
-        [Description("Create & publish 2 artifacts and add a manual trace between them.  Delete the first artifact - it should return 200 OK and the deleted artifact." +
-            "Try to get the artifact and verify you get a 404 since it was deleted.  Get the relationships of the second artifact and verify there are no traces.")]
+        [Description("Create & publish 2 artifacts and add a manual trace between them.  Delete the first artifact - it should return 200 OK and the deleted artifact.  " +
+                     "Try to get the artifact and verify you get a 404 since it was deleted.  Get the relationships of the second artifact and verify there are no traces.")]
         public void DeleteArtifact_PublishedArtifactWithManualTrace_ArtifactAndTraceIsDeleted()
         {
             // Setup:
@@ -278,8 +277,8 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(165822)]
-        [Description("Create & save 2 artifacts and add a manual trace between them.  Delete the first artifact - it should return 200 OK and the deleted artifact." +
-            "Try to get the artifact and verify you get a 404 since it was deleted.  Get the relationships of the second artifact and verify there are no traces.")]
+        [Description("Create & save 2 artifacts and add a manual trace between them.  Delete the first artifact - it should return 200 OK and the deleted artifact.  " +
+                     "Try to get the artifact and verify you get a 404 since it was deleted.  Get the relationships of the second artifact and verify there are no traces.")]
         public void DeleteArtifact_SavedArtifactWithManualTrace_ArtifactAndTraceIsDeleted()
         {
             // Setup:
@@ -304,9 +303,9 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Actor, BaseArtifactType.Process)]
         [TestRail(190725)]
-        [Description("Create & publish a grand-parent, parent & child artifact then move the parent to be under the project.  " +
-            "Delete the parent artifact and publish all 3 artifacts.  Now delete the parent.  Verify it returns 200 OK with the deleted artifact and child.  " +
-            "Try to get the artifact & its child and verify you get a 404 since they were deleted.")]
+        [Description("Create & publish a grandparent, parent & child artifact then move the parent to be under the project.  " +
+                     "Delete the parent artifact and publish all 3 artifacts.  Now delete the parent.  Verify it returns 200 OK with the deleted artifact and child.  " +
+                     "Try to get the artifact & its child and verify you get a 404 since they were deleted.")]
         public void DeleteArtifact_GrandParentAndParentAndChild_ParentIsMovedUnderProject_GrandParentIsDeletedAndPublished_DeleteParent_ArtifactIsDeleted(
             BaseArtifactType parentArtifactType, BaseArtifactType childArtifactType)
         {
@@ -345,7 +344,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(267246)]
-        [Description("Delete published Baseline, verify that Baseline was deleted.")]
+        [Description("Create & publish a Baseline with an artifact.  Delete the Baseline.  Verify that Baseline was deleted.")]
         public void DeleteArtifact_PublishedBaseline_BaselineIsDeleted()
         {
             // Setup:
@@ -370,7 +369,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(267250)]
-        [Description("Create Baseline folder with non-empty Baseline, publish all, delete Baseline folder - check folder and Baseline were deleted.")]
+        [Description("Create a Baseline folder with a non-empty Baseline, publish all, delete Baseline folder - verify the folder and Baseline were deleted.")]
         public void DeleteArtifact_PublishedBaselineFolderWithBaseline_BaselineFolderIsDeleted()
         {
             // Setup:
@@ -405,8 +404,8 @@ namespace ArtifactStoreTests
         [TestRail(246533)]
         [TestCase("9999999999", "The request is invalid.")]
         [TestCase("&amp;", "A potentially dangerous Request.Path value was detected from the client (&).")]
-        [Description("Create a rest path that tries to delete an artifact with an invalid artifact Id. " +
-                     "Attempt to delete the artifact. Verify that HTTP 400 Bad Request exception is thrown.")]
+        [Description("Create a REST path that tries to delete an artifact with an invalid artifact Id. " +
+                     "Attempt to delete the artifact. Verify that HTTP 400 Bad Request is returned.")]
         public void DeleteArtifact_InvalidArtifactId_400BadRequest(string artifactId, string expectedErrorMessage)
         {
             // Setup:
@@ -414,7 +413,7 @@ namespace ArtifactStoreTests
 
             var restApi = new RestApiFacade(Helper.ArtifactStore.Address, _user?.Token?.AccessControlToken);
 
-            // Execute & Verify:
+            // Execute:
             var ex = Assert.Throws<Http400BadRequestException>(() => restApi.SendRequestAndDeserializeObject<NovaArtifactResponse, object>(
                path,
                RestRequestMethod.DELETE,
@@ -431,8 +430,8 @@ namespace ArtifactStoreTests
 
         [TestRail(165823)]
         [TestCase(BaseArtifactType.Actor)]
-        [Description("Create an artifact and publish. Attempt to delete the artifact with a user that does not have authorization " +
-                     "to delete. Verify that HTTP 401 Unauthorized exception is thrown.")]
+        [Description("Create an artifact and publish. Attempt to delete the artifact with a user that does not have a valid token. " +
+                     "Verify that HTTP 401 Unauthorized exception is thrown.")]
         public void DeleteArtifact_UserDoesNotHaveAuthorizationToDelete_401Unauthorized(BaseArtifactType artifactType)
         {
             // Setup:
@@ -447,7 +446,7 @@ namespace ArtifactStoreTests
         [TestRail(165843)]
         [TestCase(BaseArtifactType.Actor)]
         [Description("Create an artifact and publish. Attempt to delete the artifact with a missing token header. " +
-                     "Verify that HTTP 401 Unauthorized exception is thrown.")]
+                     "Verify that HTTP 401 Unauthorized is returned.")]
         public void DeleteArtifact_MissingTokenHeader_401Unauthorized(BaseArtifactType artifactType)
         {
             // Setup:
@@ -464,8 +463,8 @@ namespace ArtifactStoreTests
 
         [TestRail(165817)]
         [TestCase(BaseArtifactType.Actor)]
-        [Description("Create and publish an artifact. Attempt to delete the artifact with a user that does not have permission " +
-                     "to delete. Verify that HTTP 403 Forbidden exception is thrown.")]
+        [Description("Create and publish an artifact. Attempt to delete the artifact with a user that does not have permission to delete. " +
+                     "Verify that HTTP 403 Forbidden is returned.")]
         public void DeleteArtifact_UserDoesNotHavePermissionToDelete_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup:
@@ -487,8 +486,8 @@ namespace ArtifactStoreTests
 
         [TestRail(267471)]
         [TestCase(BaseArtifactType.Actor)]
-        [Description("Create and publish an artifact. Attempt to delete the artifact with a user that does not have permission " +
-             "to read. Verify that HTTP 403 Forbidden exception is thrown.")]
+        [Description("Create and publish an artifact. Attempt to delete the artifact with a user that does not have permission to read. " +
+                     "Verify that HTTP 403 Forbidden is returned.")]
         public void DeleteArtifact_UserDoesNotHaveReadPermission_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup:
@@ -510,7 +509,7 @@ namespace ArtifactStoreTests
         [TestRail(165844)]
         [TestCase(BaseArtifactType.Process, BaseArtifactType.Actor)]
         [Description("User attempts to delete a parent artifact when they do not have permission to delete the child. " +
-             "Verify 403 Forbidden is thrown.")]
+                     "Verify 403 Forbidden is returned.")]
         public void DeleteArtifact_UserTriesToDeleteParentArtifactWithoutPermissionToDeleteChildArtifact_403Forbidden(
             BaseArtifactType parentArtifactType, BaseArtifactType childArtifactType)
         {
@@ -536,7 +535,7 @@ namespace ArtifactStoreTests
         [TestCase(ItemTypePredefined.ArtifactCollection)]
         [TestCase(ItemTypePredefined.CollectionFolder)]
         [Description("Create and publish a Collection or Collection Folder artifact.  Attempt to delete the artifact with a user that does not have permission to delete. " +
-                     "Verify that HTTP 403 Forbidden exception is thrown.")]
+                     "Verify that HTTP 403 Forbidden is returned.")]
         public void DeleteArtifact_UserDoesNotHavePermissionToDeleteCollectionOrCollectionFolder_403Forbidden(ItemTypePredefined artifactType)
         {
             // Setup:
@@ -562,8 +561,8 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(267247)]
-        [Description("Try to delete published sealed Baseline, verify 403 error message.")]
-        public void DeleteArtifact_SealedBaseline_Check403Error()
+        [Description("Try to delete a published sealed Baseline, verify 403 Forbidden is returned.")]
+        public void DeleteArtifact_SealedBaseline_403Forbidden()
         {
             // Setup:
             var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published, ItemTypePredefined.Actor,
@@ -587,8 +586,8 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(267253)]
-        [Description("Create Baseline folder with non-empty sealed Baseline, publish all, try to delete Baseline folder - check 403 error message.")]
-        public void DeleteArtifact_PublishedBaselineFolderWithSealedBaseline_Check403Error()
+        [Description("Create Baseline folder with non-empty sealed Baseline, publish all, try to delete Baseline folder - verify 403 Forbidden is returned.")]
+        public void DeleteArtifact_PublishedBaselineFolderWithSealedBaseline_403Forbidden()
         {
             // Setup:
             var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
@@ -620,8 +619,8 @@ namespace ArtifactStoreTests
 
         [TestRail(165818)]
         [TestCase(BaseArtifactType.Actor)]
-        [Description("Create and publish an artifact. Delete the artifact. Attempt to delete the same artifact again. Verify that " +
-                     "HTTP 404 Not Found Exception is thrown.")]
+        [Description("Create and publish an artifact. Delete the artifact. Attempt to delete the same artifact again. " +
+                     "Verify that HTTP 404 Not Found is returned.")]
         public void DeleteArtifact_DeletedArtifactNotPublished_404NotFound(BaseArtifactType artifactType)
         {
             // Setup:
@@ -641,7 +640,7 @@ namespace ArtifactStoreTests
         [TestRail(165819)]
         [TestCase(BaseArtifactType.Actor)]
         [Description("Create and publish an artifact. Delete the artifact and publish.  Attempt to delete the same artifact again. " +
-                     "Verify that HTTP 404 Not Found Exception is thrown.")]
+                     "Verify that HTTP 404 Not Found is returned.")]
         public void DeleteArtifact_DeletedArtifactPublished_404NotFound(BaseArtifactType artifactType)
         {
             // Setup:
@@ -664,7 +663,7 @@ namespace ArtifactStoreTests
         [TestCase(ItemTypePredefined.ArtifactCollection)]
         [TestCase(ItemTypePredefined.CollectionFolder)]
         [Description("Create and publish a Collection or Collection Folder artifact.  Delete the artifact.  Attempt to delete the same artifact again.  " +
-                     "Verify that HTTP 404 Not Found Exception is thrown.")]
+                     "Verify that HTTP 404 Not Found is returned.")]
         public void DeleteArtifact_DeletedCollectionOrCollectionFolderNotPublished_404NotFound(ItemTypePredefined artifactType)
         {
             // Setup:
@@ -689,7 +688,7 @@ namespace ArtifactStoreTests
         [TestCase(ItemTypePredefined.ArtifactCollection)]
         [TestCase(ItemTypePredefined.CollectionFolder)]
         [Description("Create and publish a Collection or Collection Folder artifact.  Delete the artifact and publish.  Attempt to delete the same artifact again.  " +
-                     "Verify that HTTP 404 Not Found Exception is thrown.")]
+                     "Verify that HTTP 404 Not Found is returned.")]
         public void DeleteArtifact_DeletedCollectionOrCollectionFolderPublished_404NotFound(ItemTypePredefined artifactType)
         {
             // Setup:
@@ -715,8 +714,8 @@ namespace ArtifactStoreTests
         [TestRail(165820)]
         [TestCase(BaseArtifactType.Actor, 0)]
         [TestCase(BaseArtifactType.Actor, int.MaxValue)]
-        [Description("Create and publish an artifact.  Attempt to delete the artifact after changing the artifact Id to a " +
-                     "non existent Id. Verify that HTTP 404 Not Found Exception is thrown.")]
+        [Description("Create and publish an artifact.  Attempt to delete the artifact after changing the artifact Id to a non existent Id. " +
+                     "Verify that HTTP 404 Not Found is returned.")]
         public void DeleteArtifact_NonExistentArtifact_404NotFound(BaseArtifactType artifactType, int nonExistentArtifactId)
         {
             // Setup:
@@ -743,8 +742,8 @@ namespace ArtifactStoreTests
 
         [TestRail(165824)]
         [TestCase(BaseArtifactType.Actor)]
-        [Description("Create an artifact and publish. Lock artifact. Attempt to delete the artifact with another user that does not have the " +
-                     "lock on the artifact. Verify that HTTP 409 Conflict exception is thrown.")]
+        [Description("Create an artifact and publish. Lock the artifact. Attempt to delete the artifact with another user that does not have the " +
+                     "lock on the artifact. Verify that HTTP 409 Conflict is returned.")]
         public void DeleteArtifact_UserTriesToDeleteArtifactLockedByAnotherUser_409Conflict(BaseArtifactType artifactType)
         {
             // Setup:
@@ -767,7 +766,7 @@ namespace ArtifactStoreTests
         [TestRail(165844)]
         [TestCase(BaseArtifactType.Process, BaseArtifactType.Actor)]
         [Description("Create an artifact and child and publish both artifacts. Lock child with another user. Attempt to delete the parent artifact " +
-             "with the user that does not have the lock on the child artifact. Verify that HTTP 409 Conflict exception is thrown.")]
+                     "with the user that does not have the lock on the child artifact. Verify that HTTP 409 Conflict is returned.")]
         public void DeleteArtifact_UserTriesToDeleteArtifactWithChildLockedByAnotherUser_409Conflict(
             BaseArtifactType parentArtifactType, BaseArtifactType childArtifactType)
         {
@@ -802,7 +801,7 @@ namespace ArtifactStoreTests
         [TestCase(ItemTypePredefined.ArtifactCollection)]
         [TestCase(ItemTypePredefined.CollectionFolder)]
         [Description("Create a Collection or Collection Folder artifact and publish.  Lock artifact.  Attempt to delete the artifact with another user " +
-                     "that does not have the lock on the artifact.  Verify that HTTP 409 Conflict exception is thrown.")]
+                     "that does not have the lock on the artifact.  Verify that HTTP 409 Conflict is returned.")]
         public void DeleteArtifact_UserTriesToDeleteCollectionOrCollectionFolderLockedByAnotherUser_409Conflict(ItemTypePredefined artifactType)
         {
             // Setup:
@@ -830,7 +829,7 @@ namespace ArtifactStoreTests
         [TestRail(190979)]
         [TestCase]
         [Description("Create a Collection Folder with child Collection and publish both artifacts.  Lock child with another user.  Attempt to delete the " +
-             "parent Collection Folder with the user that does not have the lock on the child Collection.  Verify that HTTP 409 Conflict exception is thrown.")]
+                     "parent Collection Folder with the user that does not have the lock on the child Collection.  Verify that HTTP 409 Conflict is returned.")]
         public void DeleteArtifact_UserTriesToDeleteCollectionFolderWithChildLockedByAnotherUser_409Conflict()
         {
             // Setup:

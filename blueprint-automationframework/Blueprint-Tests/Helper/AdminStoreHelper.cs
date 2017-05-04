@@ -355,8 +355,8 @@ namespace Helper
         /// <param name="password">(optional) The user's password. Randomly generated if not specified.</param>
         /// <param name="source">(optional) The source of the user. Defaults to Database if not specified.</param>
         /// <param name="displayname">(optional) The user's display name. Randomly generated if not specified.</param>
-        /// <param name="licenseLevel">(optinal) The user's license level. Defaults to Author if not specified.</param>
-        /// <param name="instanceAdminRole">(optional) The user's instance admin role. Defaults to DefaultInstanceAdministrator.</param>
+        /// <param name="licenseLevel">(optinal) The user's license level. Defaults to Viewer if not specified.</param>
+        /// <param name="instanceAdminRole">(optional) The user's instance admin role. Defaults to null (empty).</param>
         /// <param name="adminPrivileges">(optional) The user's instance admin privileges.  Defaults to None.</param>
         /// <param name="imageId">(optional) The user's image id. Defaults to null.</param>
         /// <returns>An InstanceUser object.</returns>
@@ -386,7 +386,7 @@ namespace Helper
                 eulaAccepted: false,
                 license: licenseLevel,
                 isSso: false,
-                allowFallback: false,
+                allowFallback: null,
                 instanceAdminRole: instanceAdminRole,
                 instanceAdminPrivileges: adminPrivileges,
                 guest: false,
@@ -394,7 +394,7 @@ namespace Helper
                 enabled: true,
                 title: RandomGenerator.RandomAlphaNumeric(10),
                 department: RandomGenerator.RandomAlphaNumeric(10),
-                expirePassword: false,
+                expirePassword: true,
                 imageId: imageId,
                 groupMembership: null,
                 password: password ?? GenerateValidPassword()
@@ -419,27 +419,27 @@ namespace Helper
                 Assert.AreEqual(expectedUser.Id, actualUser.Id, "Id is different. Expected: {0} Actual: {1}", expectedUser.Id, actualUser.Id);
             }
 
-            Assert.AreEqual(expectedUser.Login, actualUser.Login, "Login is different. Expected: {0} Actual: {1}", expectedUser.Login, actualUser.Login);
-            Assert.AreEqual(expectedUser.FirstName, actualUser.FirstName, "FirstName is different. Expected: {0} Actual: {1}", expectedUser.FirstName, actualUser.FirstName);
-            Assert.AreEqual(expectedUser.LastName, actualUser.LastName, "LastName is different. Expected: {0} Actual: {1}", expectedUser.LastName, actualUser.LastName);
-            Assert.AreEqual(expectedUser.DisplayName, actualUser.DisplayName, "DisplayName is different. Expected: {0} Actual: {1}", expectedUser.DisplayName, actualUser.DisplayName);
-            Assert.AreEqual(expectedUser.Email, actualUser.Email, "Email is different. Expected: {0} Actual: {1}", expectedUser.Email, actualUser.Email);
-            Assert.AreEqual(expectedUser.Source, actualUser.Source, "Source is different. Expected: {0} Actual: {1}", expectedUser.Source, actualUser.Source);
-            Assert.AreEqual(expectedUser.EULAAccepted, actualUser.EULAAccepted, "EULAAccepted is different. Expected: {0} Actual: {1}", expectedUser.EULAAccepted, actualUser.EULAAccepted);
-            Assert.AreEqual(expectedUser.LicenseType, actualUser.LicenseType, "LicenseType is different. Expected: {0} Actual: {1}", expectedUser.LicenseType, actualUser.LicenseType);
-            Assert.AreEqual(expectedUser.IsSso, actualUser.IsSso, "IsSso is different. Expected: {0} Actual: {1}", expectedUser.IsSso, actualUser.IsSso);
-            Assert.AreEqual(expectedUser.AllowFallback, actualUser.AllowFallback, "AllowFallback is different. Expected: {0} Actual: {1}", expectedUser.AllowFallback, actualUser.AllowFallback);
-            Assert.AreEqual(expectedUser.InstanceAdminRoleId, actualUser.InstanceAdminRoleId, "InstanceAdminRoleId is different. Expected: {0} Actual: {1}", expectedUser.InstanceAdminRoleId, actualUser.InstanceAdminRoleId);
-            Assert.AreEqual(expectedUser.InstanceAdminPrivileges, actualUser.InstanceAdminPrivileges, "InstanceAdminPrivileges is different. Expected: {0} Actual: {1}", expectedUser.InstanceAdminPrivileges, actualUser.InstanceAdminPrivileges);
-            Assert.AreEqual(expectedUser.Guest, actualUser.Guest, "Guest is different. Expected: {0} Actual: {1}", expectedUser.Guest, actualUser.Guest);
-            Assert.AreEqual(expectedUser.Enabled, actualUser.Enabled, "Enabled is different. Expected: {0} Actual: {1}", expectedUser.Enabled, actualUser.Enabled);
-            Assert.AreEqual(expectedUser.Title, actualUser.Title, "Title is different. Expected: {0} Actual: {1}", expectedUser.Title, actualUser.Title);
-            Assert.AreEqual(expectedUser.Department, actualUser.Department, "Department is different. Expected: {0} Actual: {1}", expectedUser.Department, actualUser.Department);
-            Assert.AreEqual(expectedUser.ExpirePassword, actualUser.ExpirePassword, "ExpirePassword is different. Expected: {0} Actual: {1}", expectedUser.ExpirePassword, actualUser.ExpirePassword);
-            Assert.AreEqual(expectedUser.ImageId, actualUser.ImageId, "ImageId is different. Expected: {0} Actual: {1}", expectedUser.ImageId, actualUser.ImageId);
+            Assert.AreEqual(expectedUser.Login, actualUser.Login, "Login is different.");
+            Assert.AreEqual(expectedUser.FirstName, actualUser.FirstName, "FirstName is different.");
+            Assert.AreEqual(expectedUser.LastName, actualUser.LastName, "LastName is different.");
+            Assert.AreEqual(expectedUser.DisplayName, actualUser.DisplayName, "DisplayName is different.");
+            Assert.AreEqual(expectedUser.Email, actualUser.Email, "Email is different.");
+            Assert.AreEqual(expectedUser.Source, actualUser.Source, "Source is different.");
+            Assert.AreEqual(expectedUser.EULAAccepted, actualUser.EULAAccepted, "EULAAccepted is different.");
+            Assert.AreEqual(expectedUser.LicenseType, actualUser.LicenseType, "LicenseType is different.");
+            Assert.AreEqual(expectedUser.IsSso, actualUser.IsSso, "IsSso is different.");
+            Assert.AreEqual(expectedUser.AllowFallback, actualUser.AllowFallback, "AllowFallback is different.");
+            Assert.AreEqual(expectedUser.InstanceAdminRoleId, actualUser.InstanceAdminRoleId, "InstanceAdminRoleId is different.");
+            Assert.AreEqual(expectedUser.InstanceAdminPrivileges, actualUser.InstanceAdminPrivileges, "InstanceAdminPrivileges is different.");
+            Assert.AreEqual(expectedUser.Guest, actualUser.Guest, "Guest is different.");
+            Assert.AreEqual(expectedUser.Enabled, actualUser.Enabled, "Enabled is different.");
+            Assert.AreEqual(expectedUser.Title, actualUser.Title, "Title is different.");
+            Assert.AreEqual(expectedUser.Department, actualUser.Department, "Department is different.");
+            Assert.AreEqual(expectedUser.ExpirePassword, actualUser.ExpirePassword, "ExpirePassword is different.");
+            Assert.AreEqual(expectedUser.ImageId, actualUser.ImageId, "ImageId is different.");
 
 
-            Assert.AreEqual(expectedUser.GroupMembership.Length, actualUser.GroupMembership.Length, "GroupMembership count is different. Expected: {0} Actual: {1}", expectedUser.GroupMembership.Length, actualUser.GroupMembership.Length);
+            Assert.AreEqual(expectedUser.GroupMembership.Length, actualUser.GroupMembership.Length, "GroupMembership count is different.");
 
             foreach (var group in expectedUser.GroupMembership)
             {

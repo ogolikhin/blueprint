@@ -3,7 +3,7 @@
     /// <summary>
     /// ErrorMessages class for Instance User validation errors
     /// </summary>
-    public static class ErrorMessages
+    public static class InstanceAdminErrorMessages
     {
         //Users
         public const string InvalidPageOrPageNumber = "Page, PageSize are missing or invalid.";

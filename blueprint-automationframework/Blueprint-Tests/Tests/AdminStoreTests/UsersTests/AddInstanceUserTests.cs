@@ -98,7 +98,7 @@ namespace AdminStoreTests.UsersTests
             }, "'GET {0}' should return 400 Bad Request when the user already exists!", USER_PATH);
 
             // Verify:
-            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, ErrorMessages.LoginNameUnique);
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, InstanceAdminErrorMessages.LoginNameUnique);
         }
 
         [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
@@ -120,7 +120,7 @@ namespace AdminStoreTests.UsersTests
             }, "'GET {0}' should return 400 Bad Request when the password is missing!", USER_PATH);
 
             // Verify:
-            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, ErrorMessages.PasswordMissing);
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, InstanceAdminErrorMessages.PasswordMissing);
         }
 
         [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
@@ -152,7 +152,7 @@ namespace AdminStoreTests.UsersTests
             }, "'GET {0}' should return 400 Bad Request when the login is missing!", USER_PATH);
 
             // Verify:
-            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, ErrorMessages.LoginRequired);
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, InstanceAdminErrorMessages.LoginRequired);
         }
 
         [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]

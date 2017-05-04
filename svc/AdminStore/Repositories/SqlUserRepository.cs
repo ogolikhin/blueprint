@@ -229,12 +229,13 @@ namespace AdminStore.Repositories
             return userId;
         }
 
-        public async Task<int> DeleteUsers(OperationScope body, string search)
+        public async Task<int> DeleteUsers(OperationScope body, string search, int userId)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@UserIds", SqlConnectionWrapper.ToDataTable(body.Ids));
             parameters.Add("@Search", search);
             parameters.Add("@SelectAll", body.SelectAll);
+            parameters.Add("@SessionUserId", userId);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
             var result = await _connectionWrapper.ExecuteScalarAsync<int>("DeleteUsers", parameters, commandType: CommandType.StoredProcedure);
             var errorCode = parameters.Get<int?>("ErrorCode");

@@ -8,9 +8,9 @@ namespace AdminStore.Models
         public bool SelectAll { get; set; }
         public IEnumerable<int> Ids { get; set; }
 
-        public bool Validate()
+        public bool IsUseless()
         {
-            return ((Ids == null || !Ids.ToList().Any() && SelectAll == false));
+            return ((Ids == null || (!Ids.ToList().Any() && SelectAll == false)));
         }
     }
 }

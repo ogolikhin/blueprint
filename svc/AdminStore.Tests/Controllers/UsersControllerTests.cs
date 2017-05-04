@@ -895,40 +895,6 @@ namespace AdminStore.Controllers
         }
         #endregion
 
-        #region Deletete users
-
-        [TestMethod]
-        public async Task DeleteUsers_OperationScopIsNull_BadRequestResult()
-        {
-            //arrange
-            _privilegesRepository
-                .Setup(repo => repo.GetInstanceAdminPrivilegesAsync(It.IsAny<int>()))
-                .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
-
-            //act
-            var result = await _controller.DeleteUsers(null, string.Empty);
-
-            //assert
-            Assert.IsInstanceOfType(result, typeof(BadRequestErrorMessageResult));
-        }
-
-        [TestMethod]
-        public async Task DeleteUsers_BodyIdsIsNullAndSelectAllIsFalse_BadRequestResult()
-        {
-            //arrange
-            _privilegesRepository
-                .Setup(repo => repo.GetInstanceAdminPrivilegesAsync(It.IsAny<int>()))
-                .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
-
-            //act
-            var result = await _controller.DeleteUsers(new OperationScope(), string.Empty);
-
-            //assert
-            Assert.IsInstanceOfType(result, typeof(BadRequestErrorMessageResult));
-        }
-
-        #endregion
-
         #region GetUser
 
         [TestMethod]

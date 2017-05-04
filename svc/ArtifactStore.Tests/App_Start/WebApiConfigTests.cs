@@ -39,7 +39,7 @@ namespace ArtifactStore
             config.AssertAction<ArtifactController>("GetArtifactNavigationPath", HttpMethod.Get, "artifacts/1/navigationPath");
             config.AssertAction<ArtifactController>("GetArtifactsAuthorHistories", HttpMethod.Post, "artifacts/authorHistories");
             config.AssertAction<ArtifactController>("GetBaselineInfo", HttpMethod.Post, "artifacts/baselineInfo");
-            config.AssertAction<ArtifactController>("GetTransitions", HttpMethod.Get, "artifacts/1/transitions");
+            config.AssertAction<WorkflowController>("GetTransitions", HttpMethod.Get, "artifacts/1/transitions");
             config.AssertAction<ReviewContainersController>("GetReviewContainerAsync", HttpMethod.Get, "containers/1");
             config.AssertAction<ReviewContainersController>("GetContentAsync", HttpMethod.Get, "containers/1/content");
             config.AssertAction<ReviewContainersController>("GetParticipantsAsync", HttpMethod.Get, "containers/1/participants");

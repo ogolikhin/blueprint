@@ -923,34 +923,34 @@ namespace Model.Impl
                 RestRequestMethod.GET, shouldControlJsonChanges: true);
         }
 
-        #region Process methods
-
-        /// <seealso cref="IArtifactStore.DeleteNovaProcessArtifact(IUser, NovaProcess, List{HttpStatusCode})"/>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
-        public List<INovaArtifact> DeleteNovaProcessArtifact(
-            IUser user,
-            INovaProcess novaProcess,
-            List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IArtifactStore.GetReviewParticipants(IUser, int, int?, int?, int?)"/>
+        public ReviewParticipantsContent GetReviewParticipants(IUser user, int reviewId, int? offset = 0, int? limit = 50,
+            int? versionId = null)
         {
-            Logger.WriteTrace("{0}.{1}", nameof(ArtifactStore), nameof(DeleteNovaProcessArtifact));
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Containers_id_.PARTICIPANTS, reviewId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+            var queryParams = new Dictionary<string, string>();
 
-            ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
+            if (offset != null)
+            {
+                queryParams.Add("offset", offset.ToString());
+            }
 
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, novaProcess.Id);
+            if (limit != null)
+            {
+                queryParams.Add("limit", limit.ToString());
+            }
 
-            Logger.WriteInfo("{0} Deleting Nova Process ID: {1}, name: {2}", nameof(ArtifactStore), novaProcess.Id, novaProcess.Name);
+            if (versionId != null)
+            {
+                queryParams.Add("versionId", versionId.ToString());
+            }
 
-            var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
-
-            var response = restApi.SendRequestAndDeserializeObject<List<NovaArtifact>>(
-                path,
-                RestRequestMethod.DELETE,
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: false);
-
-            return response.ConvertAll(o => (INovaArtifact)o);
+            return restApi.SendRequestAndDeserializeObject<ReviewParticipantsContent>(path,
+                RestRequestMethod.GET, shouldControlJsonChanges: true);
         }
+
+        #region Process methods
 
         /// <seealso cref="IArtifactStore.GetNovaProcess(IUser, int, int?, List{HttpStatusCode})"/>
         public INovaProcess GetNovaProcess(
@@ -985,7 +985,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.UpdateNovaProcess(IUser, NovaProcess, List{HttpStatusCode})"/>
-        public INovaArtifactDetails UpdateNovaProcess(
+        public INovaProcess UpdateNovaProcess(
             IUser user,
             INovaProcess novaProcess,
             List<HttpStatusCode> expectedStatusCodes = null)
@@ -1000,7 +1000,7 @@ namespace Model.Impl
             Logger.WriteInfo("{0} Updating Process ID: {1}, Name: {2}", nameof(ArtifactStore), novaProcess.Id, novaProcess.Name);
 
             var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
-            var restResponse = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails, INovaProcess>(
+            var restResponse = restApi.SendRequestAndDeserializeObject<NovaProcess, INovaProcess>(
                 path,
                 RestRequestMethod.PATCH,
                 novaProcess,

@@ -47,25 +47,24 @@ namespace StorytellerTests
             int lengthOfLabelSent,
             double orderIndexOfUserDecisionBranch)
         {
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneUserDecision(
-                Helper.Storyteller,
+            var novaProcess = Helper.CreateAndGetDefaultNovaProcessWithOneUserDecision(
                 _project,
                 _adminUser);
 
             // Get precondition shape in process
-            var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var precondition = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Get user decision shape in process
-            var userDecision = process.GetNextShape(precondition);
+            var userDecision = novaProcess.Process.GetNextShape(precondition);
 
             // Get link for specified branch by order index
-            var branchLink = process.GetOutgoingLinkForShape(userDecision, orderIndexOfUserDecisionBranch);
+            var branchLink = novaProcess.Process.GetOutgoingLinkForShape(userDecision, orderIndexOfUserDecisionBranch);
 
             // Set a randomized link label for the specified branch
             branchLink.Label = RandomGenerator.RandomAlphaNumericUpperAndLowerCase((uint)lengthOfLabelSent);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _adminUser);
+            Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _adminUser);
         }
 
         [TestCase(5, 0.0, ProcessType.BusinessProcess)]
@@ -77,28 +76,27 @@ namespace StorytellerTests
             double orderIndexOfUserDecisionBranch,
             ProcessType processType)
         {
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneUserDecision(
-                Helper.Storyteller,
+            var novaProcess = Helper.CreateAndGetDefaultNovaProcessWithOneUserDecision(
                 _project,
                 _adminUser);
 
             // Get precondition shape in process
-            var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var precondition = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Get user decision shape in process
-            var userDecision = process.GetNextShape(precondition);
+            var userDecision = novaProcess.Process.GetNextShape(precondition);
 
             // Get link for specified branch by order index
-            var branchLink = process.GetOutgoingLinkForShape(userDecision, orderIndexOfUserDecisionBranch);
+            var branchLink = novaProcess.Process.GetOutgoingLinkForShape(userDecision, orderIndexOfUserDecisionBranch);
 
             // Set a randomized link label for the specified branch
             branchLink.Label = RandomGenerator.RandomAlphaNumericUpperAndLowerCase((uint)lengthOfLabelSent);
 
             // Set the process type
-            process.ProcessType = processType;
+            novaProcess.Process.ProcessType = processType;
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _adminUser);
+            Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _adminUser);
         }
 
         [TestCase(5, 0.0)]
@@ -109,31 +107,24 @@ namespace StorytellerTests
             int lengthOfLabelSent,
             double orderIndexOfUserDecisionBranch)
         {
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneUserDecision(
-               Helper.Storyteller,
+            var novaProcess = Helper.CreateAndGetDefaultNovaProcessWithOneUserDecision(
                _project,
                _adminUser);
 
-            // Save the process
-            Helper.Storyteller.UpdateProcess(_adminUser, process);
-
-            // Get the process
-            var returnedProcess = Helper.Storyteller.GetNovaProcess(_adminUser, process.Id).Process;
-
             // Get precondition shape in process
-            var precondition = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var precondition = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Get user decision shape in process
-            var returnedUserDecision = returnedProcess.GetNextShape(precondition);
+            var returnedUserDecision = novaProcess.Process.GetNextShape(precondition);
 
             // Get link for specified branch by order index
-            var branchLink = returnedProcess.GetOutgoingLinkForShape(returnedUserDecision, orderIndexOfUserDecisionBranch);
+            var branchLink = novaProcess.Process.GetOutgoingLinkForShape(returnedUserDecision, orderIndexOfUserDecisionBranch);
 
             // Set a randomized link label for the specified branch
             branchLink.Label = RandomGenerator.RandomAlphaNumericUpperAndLowerCase((uint)lengthOfLabelSent);
 
             // Update and Verify the returned process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _adminUser);
+            Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _adminUser);
         }
 
         [TestCase(0.0)]
@@ -143,31 +134,24 @@ namespace StorytellerTests
         public void DeleteUserDecisionBranchLabel_VerifyReturnedBranchHasLabelRemoved(
             double orderIndexOfUserDecisionBranch)
         {
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneUserDecision(
-                Helper.Storyteller,
+            var novaProcess = Helper.CreateAndGetDefaultNovaProcessWithOneUserDecision(
                 _project,
                 _adminUser);
 
-            // Save the process
-            Helper.Storyteller.UpdateProcess(_adminUser, process);
-
-            // Get the process
-            var returnedProcess = Helper.Storyteller.GetNovaProcess(_adminUser, process.Id).Process;
-
             // Get precondition shape in process
-            var precondition = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var precondition = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Get user decision shape in process
-            var returnedUserDecision = returnedProcess.GetNextShape(precondition);
+            var returnedUserDecision = novaProcess.Process.GetNextShape(precondition);
 
             // Get link for specified branch by order index
-            var branchLink = returnedProcess.GetOutgoingLinkForShape(returnedUserDecision, orderIndexOfUserDecisionBranch);
+            var branchLink = novaProcess.Process.GetOutgoingLinkForShape(returnedUserDecision, orderIndexOfUserDecisionBranch);
 
             // Clear the link label for the specified branch
             branchLink.Label = null;
 
             // Update and Verify the returned process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _adminUser);
+            Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _adminUser);
         }
 
         [TestCase(1, 0.0)]
@@ -182,25 +166,24 @@ namespace StorytellerTests
             int lengthOfLabelSent,
             double orderIndexOfSystemDecisionBranch)
         {
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneSystemDecision(
-                Helper.Storyteller,
+            var novaProcess = Helper.CreateAndGetDefaultNovaProcessWithOneSystemDecision(
                 _project,
                 _adminUser);
 
             // Get default user task shape
-            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var defaultUserTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
             // Get system decision shape in process
-            var systemDecision = process.GetNextShape(defaultUserTask);
+            var systemDecision = novaProcess.Process.GetNextShape(defaultUserTask);
 
             // Get link for specified branch by order index
-            var branchLink = process.GetOutgoingLinkForShape(systemDecision, orderIndexOfSystemDecisionBranch);
+            var branchLink = novaProcess.Process.GetOutgoingLinkForShape(systemDecision, orderIndexOfSystemDecisionBranch);
 
             // Set a randomized link label for the specified branch
             branchLink.Label = RandomGenerator.RandomAlphaNumericUpperAndLowerCase((uint)lengthOfLabelSent);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _adminUser);
+            Helper.UpdateAndVerifyNovaProcess(novaProcess, _adminUser);
         }
 
         [TestCase(5, 0.0, ProcessType.BusinessProcess)]
@@ -212,28 +195,27 @@ namespace StorytellerTests
             double orderIndexOfSystemDecisionBranch,
             ProcessType processType)
         {
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneSystemDecision(
-                Helper.Storyteller,
+            var novaProcess = Helper.CreateAndGetDefaultNovaProcessWithOneSystemDecision(
                 _project,
                 _adminUser);
 
             // Get default user task shape
-            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var defaultUserTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
             // Get system decision shape in process
-            var systemDecision = process.GetNextShape(defaultUserTask);
+            var systemDecision = novaProcess.Process.GetNextShape(defaultUserTask);
 
             // Get link for specified branch by order index
-            var branchLink = process.GetOutgoingLinkForShape(systemDecision, orderIndexOfSystemDecisionBranch);
+            var branchLink = novaProcess.Process.GetOutgoingLinkForShape(systemDecision, orderIndexOfSystemDecisionBranch);
 
             // Set a randomized link label for the specified branch
             branchLink.Label = RandomGenerator.RandomAlphaNumericUpperAndLowerCase((uint)lengthOfLabelSent);
 
             // Set the process type
-            process.ProcessType = processType;
+            novaProcess.Process.ProcessType = processType;
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _adminUser);
+            Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _adminUser);
         }
 
         [TestCase(5, 0.0)]
@@ -244,31 +226,24 @@ namespace StorytellerTests
             int lengthOfLabelSent,
             double orderIndexOfSystemDecisionBranch)
         {
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneSystemDecision(
-                Helper.Storyteller,
+            var novaProcess = Helper.CreateAndGetDefaultNovaProcessWithOneSystemDecision(
                 _project,
                 _adminUser);
 
-            // Save the process
-            Helper.Storyteller.UpdateProcess(_adminUser, process);
-
-            // Get the process
-            var returnedProcess = Helper.Storyteller.GetNovaProcess(_adminUser, process.Id).Process;
-
             // Get default user task shape
-            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var defaultUserTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
             // Get system decision shape in process
-            var systemDecision = process.GetNextShape(defaultUserTask);
+            var systemDecision = novaProcess.Process.GetNextShape(defaultUserTask);
 
             // Get link for specified branch by order index
-            var branchLink = process.GetOutgoingLinkForShape(systemDecision, orderIndexOfSystemDecisionBranch);
+            var branchLink = novaProcess.Process.GetOutgoingLinkForShape(systemDecision, orderIndexOfSystemDecisionBranch);
 
             // Set a randomized link label for the specified branch
             branchLink.Label = RandomGenerator.RandomAlphaNumericUpperAndLowerCase((uint)lengthOfLabelSent);
 
             // Update and Verify the returned process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _adminUser);
+            Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _adminUser);
         }
 
         [TestCase(0.0)]
@@ -278,31 +253,24 @@ namespace StorytellerTests
         public void DeleteSystemDecisionBranchLabel_VerifyReturnedBranchHasLabelRemoved(
             double orderIndexOfSystemDecisionBranch)
         {
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneSystemDecision(
-                Helper.Storyteller,
+            var novaProcess = Helper.CreateAndGetDefaultNovaProcessWithOneSystemDecision(
                 _project,
                 _adminUser);
 
-            // Save the process
-            Helper.Storyteller.UpdateProcess(_adminUser, process);
-
-            // Get the process
-            var returnedProcess = Helper.Storyteller.GetNovaProcess(_adminUser, process.Id).Process;
-
             // Get default user task shape
-            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var defaultUserTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
             // Get system decision shape in process
-            var systemDecision = process.GetNextShape(defaultUserTask);
+            var systemDecision = novaProcess.Process.GetNextShape(defaultUserTask);
 
             // Get link for specified branch by order index
-            var branchLink = process.GetOutgoingLinkForShape(systemDecision, orderIndexOfSystemDecisionBranch);
+            var branchLink = novaProcess.Process.GetOutgoingLinkForShape(systemDecision, orderIndexOfSystemDecisionBranch);
 
             // Clear the link label for the specified branch
             branchLink.Label = null;
 
             // Update and Verify the returned process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _adminUser);
+            Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _adminUser);
         }
     }
 }

@@ -11,6 +11,8 @@ using Model.ModelHelpers;
 using Model.OpenApiModel.Services;
 using Model.SearchServiceModel;
 using Model.StorytellerModel;
+using Model.StorytellerModel.Enums;
+using Model.StorytellerModel.Impl;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
@@ -22,6 +24,7 @@ using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
 using static Model.Impl.ArtifactStore;
+using static Model.StorytellerModel.Impl.Process;
 
 namespace Helper
 {
@@ -1092,6 +1095,28 @@ namespace Helper
         }
 
         /// <summary>
+        /// Creates and publish a new Nova Process artifact (wrapped inside an ProcessArtifactWrapper that tracks the state of the artifact.).
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="project">The project where the Nova Process artifact should be created.</param>
+        /// <param name="parentId">(optional) The parent of this Nova Process artifact.
+        ///     By default the parent should be the project.</param>
+        /// <param name="orderIndex">(optional) The order index of this Nova Process artifact.
+        ///     By default the order index should be after the last artifact.</param>
+        /// <param name="name">(optional) The artifact name.  By default a random name is created.</param>
+        /// <returns>The Nova Process artifact wrapped in an ProcessArtifactWrapper that tracks the state of the artifact.</returns>
+        public ProcessArtifactWrapper CreateAndPublishNovaProcessArtifact(
+            IUser user, IProject project,
+            int? parentId = null, double? orderIndex = null, string name = null)
+        {
+            var wrappedProcessArtifact = CreateNovaProcessArtifact(user, project, parentId, orderIndex, name);
+            var response = wrappedProcessArtifact.Publish(user);
+            wrappedProcessArtifact.Artifact.Version = response.Artifacts[0].Version;
+
+            return wrappedProcessArtifact;
+        }
+
+        /// <summary>
         /// Wraps an INovaProcess in an ProcessArtifactWrapper and adds it the list of artifacts that get disposed.
         /// </summary>
         /// <param name="novaProcess">The INovaProcess that was created by ArtifactStore.</param>
@@ -1107,6 +1132,201 @@ namespace Helper
             WrappedArtifactsToDispose.Add(wrappedProcessArtifact);
 
             return wrappedProcessArtifact;
+        }
+
+        /// <summary>
+        /// Updates, verifies and publishes the process returned from UpdateProcess and GetProcess
+        /// </summary>
+        /// <param name="processToVerify">The process to verify</param>
+        /// <param name="user">The user that updates the process</param>
+        /// <returns> The nova process returned from Get Process </returns>
+        public INovaProcess UpdateVerifyAndPublishProcess(INovaProcess processToVerify, IUser user)
+        {
+            // Update and verify the process
+            var novaProcessReturnedFromGet = UpdateAndVerifyNovaProcess(processToVerify, user);
+
+            // Publish the process artifact so it can be deleted in test teardown
+            var response = ArtifactStore.PublishArtifact(novaProcessReturnedFromGet.Id, user);
+
+            novaProcessReturnedFromGet.Version = response.Artifacts.First().Version;
+
+            return novaProcessReturnedFromGet;
+        }
+
+        /// <summary>
+        /// Updates and verifies a Nova Process
+        /// </summary>
+        /// <param name="novaProcessToVerify">The Nova process to verify</param>
+        /// <param name="storyteller">The storyteller instance</param>
+        /// <param name="user">The user that updates the Nova process</param>
+        /// <returns> The Nova process returned from GetNovaProcess </returns>
+        public INovaProcess UpdateAndVerifyNovaProcess(INovaProcess novaProcessToVerify, IUser user)
+        {
+            ThrowIf.ArgumentNull(novaProcessToVerify, nameof(novaProcessToVerify));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            // Update the process using UpdateNovaProcess
+            ArtifactStore.UpdateNovaProcess(user, novaProcessToVerify);
+
+            // Get the process using GetNovaProcess
+            var novaProcessReturnedFromGet = ArtifactStore.GetNovaProcess(user, novaProcessToVerify.Id);
+
+            Assert.IsNotNull(novaProcessReturnedFromGet, "GetNovaProcess() returned a null Nova process.");
+
+            // Assert that the process returned from the GetNovaProcess method is identical to the process sent with the UpdateNovaProcess method
+            // Allow negative shape ids in the process being verified
+            AssertAreEqual(novaProcessToVerify.Process, novaProcessReturnedFromGet.Process, allowNegativeShapeIds: true);
+
+            // Assert that the decision branch destination links are in sync during the get operations
+            AssertDecisionBranchDestinationLinksAreInsync(novaProcessReturnedFromGet.Process);
+
+            return novaProcessReturnedFromGet;
+        }
+
+        /// <summary>
+        /// Assert that DecisionBranchDestinationLinks information are up-to-dated with number of branches from the process model
+        /// </summary>
+        /// <param name="process">The process to be verified for branch merging links</param>
+        private static void AssertDecisionBranchDestinationLinksAreInsync(IProcess process)
+        {
+            // Total number of branches from the process
+            var userDecisions = process.GetProcessShapesByShapeType(ProcessShapeType.UserDecision);
+            var systemDecisions = process.GetProcessShapesByShapeType(ProcessShapeType.SystemDecision);
+
+            // Adding all branches from available decisions from the process
+            int totalNumberOfBranchesFromUserDecision =
+                userDecisions.Sum(ud => process.GetOutgoingLinksForShape(ud).Count() - 1);
+
+            int totalNumberOfBranchesFromSystemDecision =
+                systemDecisions.Sum(sd => process.GetOutgoingLinksForShape(sd).Count() - 1);
+
+            int totalNumberOfBranches = totalNumberOfBranchesFromUserDecision + totalNumberOfBranchesFromSystemDecision;
+
+            var decisionBranchDesinationLinkCount = process.DecisionBranchDestinationLinks?.Count ?? 0;
+
+            // Verify that total number of DecisionBranchDestinationLinks equal to total number of branch from the process
+            Assert.That(decisionBranchDesinationLinkCount.Equals(totalNumberOfBranches),
+                "The total number of branches from the process is {0} but The DecisionBranchDestinationLink contains {1} links.",
+                totalNumberOfBranches, decisionBranchDesinationLinkCount);
+        }
+
+        /// <summary>
+        /// Create and Get the Default Nova Process
+        /// </summary>
+        /// <param name="project">The project where the Nova process artifact is created</param>
+        /// <param name="user">The user creating the Nova process artifact</param>
+        /// <returns>The created Nova process</returns>
+        public ProcessArtifactWrapper CreateAndGetDefaultNovaProcess(IProject project, IUser user)
+        {
+            /*
+                [S]--[P]--+--[UT1]--+--[ST2]--+--[E]
+            */
+
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            // Create default Nova process artifact
+            var novaProcess = CreateNovaProcessArtifact(user, project);
+
+            Assert.IsNotNull(novaProcess, "The Nova process returned from GetNovaProcess() was null.");
+
+            return novaProcess;
+        }
+
+        /// <summary>
+        /// Create and Get the Default Nova Process With One Added User Decision
+        /// </summary>
+        /// <param name="storyteller">The storyteller instance</param>
+        /// <param name="project">The project where the process artifact is created</param>
+        /// <param name="user">The user creating the process artifact</param>
+        /// <param name="updateProcess">(optional) Update the process if true; Default = true</param>
+        /// <returns>The created Nova process</returns>
+        public ProcessArtifactWrapper CreateAndGetDefaultNovaProcessWithOneUserDecision(IProject project, IUser user, bool updateProcess = true)
+        {
+            /*
+                [S]--[P]--+--<UD>--+--[UT1]--+--[ST2]--+--[E]
+                              |                        |
+                              +-------[UT3]--+--[ST4]--+
+            */
+
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            // Create and get the default process
+            var novaProcess = CreateAndGetDefaultNovaProcess(project, user);
+
+            // Find precondition
+            var precondition = novaProcess.Process.GetProcessShapeByShapeName(DefaultPreconditionName);
+
+            // Find the outgoing link for the precondition
+            var outgoingLinkForPrecondition = novaProcess.Process.GetOutgoingLinkForShape(precondition);
+
+            // Get the branch end point
+            var endShape = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
+
+            // Add Decision point with branch to end
+            novaProcess.Process.AddUserDecisionPointWithBranchAfterShape(precondition, outgoingLinkForPrecondition.Orderindex + 1, endShape.Id);
+
+            // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
+            if (updateProcess)
+            {
+                novaProcess.Update(user, novaProcess.Artifact);
+                novaProcess.RefreshArtifactFromServer(user);
+                return novaProcess;
+            }
+            else
+            {
+                return novaProcess;
+            }
+        }
+
+        /// <summary>
+        /// Create and Get the Default Nova Process With One Added System Decision
+        /// </summary>
+        /// <param name="project">The project where the process artifact is created</param>
+        /// <param name="user">The user creating the process artifact</param>
+        /// <param name="updateProcess">(optional) Update the process if true; Default = true</param>
+        /// <returns>The created Nova process</returns>
+        public ProcessArtifactWrapper CreateAndGetDefaultNovaProcessWithOneSystemDecision(IProject project, IUser user, bool updateProcess = true)
+        {
+            /*
+            [S]--[P]--+--[UT1]--+--<SD1>--+--[ST1]--+--[E]
+                                     |              |
+                                     +----+--[ST2]--+
+            */
+
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            // Create and get the default process 
+            var novaProcess = CreateAndGetDefaultNovaProcess(project, user);
+
+            // Find the first UserTask
+            var firstUserTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            // Find the target SystemTask
+            var targetSystemTask = novaProcess.Process.GetNextShape(firstUserTask);
+
+            // Find the branch end point for system decision points
+            var endShape = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
+
+            // Find the outgoing link for the first user task
+            var outgoingLinkForFirstUserTask = novaProcess.Process.GetOutgoingLinkForShape(firstUserTask);
+
+            // Add System Decision point with branch merging to branchEndPoint
+            novaProcess.Process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, outgoingLinkForFirstUserTask.Orderindex + 1, endShape.Id);
+
+            // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
+            if (updateProcess)
+            {
+                novaProcess.Update(user, novaProcess.Artifact);
+                novaProcess.RefreshArtifactFromServer(user);
+                return novaProcess;
+            }
+            else
+            {
+                return novaProcess;
+            }
         }
 
         #endregion Process Artifact Management

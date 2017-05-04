@@ -104,6 +104,7 @@
     <Compile Include="Repositories\ConfigControl\ServiceLogRepositoryTests.cs" />
     <Compile Include="Repositories\SqlInstanceSettingsRepositoryMock.cs" />
     <Compile Include="Repositories\SqlUserRepositoryMock.cs" />
+    <Compile Include="Repositories\Workflow\SqlWorkflowRepositoryTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ServiceLibrary\ServiceLibrary.csproj">

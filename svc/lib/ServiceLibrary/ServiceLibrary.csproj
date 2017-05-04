@@ -172,6 +172,8 @@
     <Compile Include="Repositories\JobExecutorStatusRepository.cs" />
     <Compile Include="Repositories\SqlArtifactPermissionsRepository.cs" />
     <Compile Include="Repositories\SqlArtifactRepository.cs" />
+    <Compile Include="Helpers\ExceptionHelper.cs" />
+    <Compile Include="Repositories\SqlBaseArtifactRepository.cs" />
     <Compile Include="Repositories\SqlConnectionWrapper.cs" />
     <Compile Include="Repositories\ConfigControl\ServiceConfigRepository.cs" />
     <Compile Include="Repositories\ServiceDependencyStatusRepository.cs" />
@@ -182,6 +184,8 @@
     <Compile Include="Repositories\SqlUsersRepository.cs" />
     <Compile Include="Exceptions\SqlTimeoutException.cs" />
     <Compile Include="Repositories\BaselineRawDataHelper.cs" />
+    <Compile Include="Repositories\Workflow\SqlWorkflowRepository.cs" />
+    <Compile Include="Repositories\Workflow\ISqlWorkflowRepository.cs" />
     <Compile Include="Swagger\SwaggerConfig.cs" />
     <Compile Include="Models\Files\NetworkContentStream.cs" />
     <Compile Include="Helpers\WebHeaderCollectionExtensions.cs" />

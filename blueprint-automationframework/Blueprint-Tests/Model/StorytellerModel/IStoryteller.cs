@@ -243,8 +243,8 @@ namespace Model.StorytellerModel
         /// <param name="user">The user credentials for the request to delete a Nova process</param>
         /// <param name="novaProcess">The Nova process artifact to delete</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
-        /// <returns>The list of Nova Artifacts that were deleted.</returns>
-        List<INovaArtifact> DeleteNovaProcessArtifact(IUser user, INovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null);
+        /// <returns>The list of NovaArtifactResponses that were deleted.</returns>
+        List<INovaArtifactResponse> DeleteNovaProcessArtifact(IUser user, INovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Retrieves the Storyteller limit from the ApplicationSettings table

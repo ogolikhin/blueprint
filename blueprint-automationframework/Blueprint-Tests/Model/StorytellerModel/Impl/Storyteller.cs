@@ -382,9 +382,12 @@ namespace Model.StorytellerModel.Impl
         }
 
         /// <seealso cref="IStoryteller.DeleteNovaProcessArtifact(IUser, INovaProcess, List{HttpStatusCode})"/>
-        public List<INovaArtifact> DeleteNovaProcessArtifact(IUser user, INovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null)
+        public List<INovaArtifactResponse> DeleteNovaProcessArtifact(IUser user, INovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return _artifactStore.DeleteNovaProcessArtifact(user, novaProcess, expectedStatusCodes);
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
+
+            return _artifactStore.DeleteArtifact(novaProcess.Id, user, expectedStatusCodes);
         }
         
         public int GetStorytellerShapeLimitFromDb

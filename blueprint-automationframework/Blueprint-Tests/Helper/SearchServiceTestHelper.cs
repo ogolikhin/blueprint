@@ -148,7 +148,7 @@ namespace Helper
                     (waitForArtifactsToDisappear && fullTextSearchMetaDataResult.TotalCount > artifactCount)
                     ));
 
-            var secondsSpentWaiting = (DateTime.Now - startTime).Seconds;
+            var secondsSpentWaiting = (DateTime.Now - startTime).TotalSeconds;
 
             var errorMessage = I18NHelper.FormatInvariant(
                     "Created artifact count of {0} does not match expected artifact count of {1} after {2} seconds.",

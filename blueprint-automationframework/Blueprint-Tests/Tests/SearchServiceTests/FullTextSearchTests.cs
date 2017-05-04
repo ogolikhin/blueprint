@@ -384,7 +384,7 @@ namespace SearchServiceTests
         }
 
         [TestCase]
-        [TestRail(182370)]
+        [TestRail(182370)]// TODO: delete or rewrite test and generate new TestRail ID
         [Ignore(IgnoreReasons.ProductBug)]  // TFS Bug: 4191  The GET svc/searchservice/itemsearch/fulltextmetadata call doesn't find saved (unpublished) changes
         [Description("Searching with the search criteria that matches with deleted but not published artifacts. Execute Search - Must return SearchResult with list of FullTextSearchItems.")]
         public void FullTextSearch_SearchDeletedNotPublishedArtifact_VerifyWithDifferentUserSearchResultIncludesItem()
@@ -1021,7 +1021,7 @@ namespace SearchServiceTests
                 publishedArtifact.Delete(_user);
             }
 
-            var artifact = Helper.CreateAndPublishArtifact(_projects.First(), _user, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _projects[0], ItemTypePredefined.Actor);
 
             // Create search criteria with search term that matches with deleted but not published artifact(s) description.
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);

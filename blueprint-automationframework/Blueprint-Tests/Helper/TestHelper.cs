@@ -1140,7 +1140,7 @@ namespace Helper
         /// <param name="processToVerify">The process to verify</param>
         /// <param name="user">The user that updates the process</param>
         /// <returns> The nova process returned from Get Process </returns>
-        public INovaProcess UpdateVerifyAndPublishProcess(INovaProcess processToVerify, IUser user)
+        public INovaProcess UpdateVerifyAndPublishNovaProcess(INovaProcess processToVerify, IUser user)
         {
             // Update and verify the process
             var novaProcessReturnedFromGet = UpdateAndVerifyNovaProcess(processToVerify, user);
@@ -1315,6 +1315,681 @@ namespace Helper
 
             // Add System Decision point with branch merging to branchEndPoint
             novaProcess.Process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, outgoingLinkForFirstUserTask.Orderindex + 1, endShape.Id);
+
+            // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
+            if (updateProcess)
+            {
+                novaProcess.Update(user, novaProcess.Artifact);
+                novaProcess.RefreshArtifactFromServer(user);
+                return novaProcess;
+            }
+            else
+            {
+                return novaProcess;
+            }
+        }
+
+        /// <summary>
+        /// Create and Get the Default Nova Process With a System Decision that contains Multiple Condition Branches
+        /// </summary>
+        /// <param name="project">The project where the process artifact is created</param>
+        /// <param name="user">The user creating the process artifact</param>
+        /// <param name="additionalBranches">The number of additional branches after first two branches for the system decision (main branch and first additional branch created with the system decision)</param>
+        /// <param name="updateProcess">(optional) Update the process if true; Default = true</param>
+        /// <returns>The created Nova process</returns>
+        public ProcessArtifactWrapper CreateAndGetDefaultNovaProcessWithOneSystemDecisionContainingMultipleConditions(IProject project, IUser user, int additionalBranches, bool updateProcess = true)
+        {
+            /*
+            [S]--[P]--+--[UT1]--<SD1>--+--[ST1]--+--[E]
+                                  |              |
+                                  +----+--[ST2]--+
+                                  |              |
+                                  +----+--[ST3]--+    <--- additionalBranches: 1
+            */
+
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            // Create and get the default process
+            var novaProcess = CreateAndGetDefaultNovaProcessWithOneSystemDecision(project, user,
+                updateProcess: false);
+
+            // Find the first UserTask
+            var firstUserTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            // Find the outgoing link for the first user task
+            var outgoingLinkForFirstUserTask = novaProcess.Process.GetOutgoingLinkForShape(firstUserTask);
+
+            // branchOrderIndex for existing system decision
+            var defaultAdditionalBranchOrderIndex = outgoingLinkForFirstUserTask.Orderindex + 2;
+
+            // Find the System Decision point with branch merging to branchEndPoint
+            var systemDecision = novaProcess.Process.GetProcessShapeById(outgoingLinkForFirstUserTask.DestinationId);
+
+            // Find the branch end point for system decision points
+            var endShape = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
+
+            for (int i = 0; i < additionalBranches; i++)
+            {
+                // Add branch to the existing System Decision
+                novaProcess.Process.AddBranchWithSystemTaskToSystemDecisionPoint(systemDecision, defaultAdditionalBranchOrderIndex + i, endShape.Id);
+            }
+
+            if (updateProcess)
+            {
+                novaProcess.Update(user, novaProcess.Artifact);
+                novaProcess.RefreshArtifactFromServer(user);
+                return novaProcess;
+            }
+            else
+            {
+                return novaProcess;
+            }
+        }
+
+        /// <summary>
+        /// Create and Get the Default Nova Process With Inner and Outer System Decisions
+        /// </summary>
+        /// <param name="project">The project where the process artifact is created</param>
+        /// <param name="user">The user creating the process artifact</param>
+        /// <param name="updateProcess">(optional) Update the process if true; Default = true</param>
+        /// <returns>The created Nova process</returns>
+        public ProcessArtifactWrapper CreateAndGetDefaultNovaProcessWithInnerAndOuterSystemDecisions(IProject project, IUser user, bool updateProcess = true)
+        {
+            /*
+            [S]--[P]--+--[UT1]--<SD2>--+--<SD1>--+--[ST1]--+--[E]
+                                  |         |              |
+                                  |         +----+--[ST2]--+
+                                  |                        |
+                                  +----+--[ST3]--+---------+
+            */
+
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            // Create and get the default process
+            var novaProcess = CreateAndGetDefaultNovaProcessWithOneSystemDecision(project, user,
+                updateProcess: false);
+
+            // Find the first UserTask
+            var firstUserTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            // Find the branch end point for system decision points
+            var endShape = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
+
+            // Find the outgoing link for the first user task
+            var outgoingLinkForFirstUserTask = novaProcess.Process.GetOutgoingLinkForShape(firstUserTask);
+
+            // Find the system decision before the defaut system task
+            var innerSystemDecision = novaProcess.Process.GetProcessShapeById(outgoingLinkForFirstUserTask.DestinationId);
+
+            // Add the system decision before the added system decision
+            novaProcess.Process.AddSystemDecisionPointWithBranchBeforeSystemTask(innerSystemDecision,
+                outgoingLinkForFirstUserTask.Orderindex + 1, endShape.Id);
+
+            // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
+            if (updateProcess)
+            {
+                novaProcess.Update(user, novaProcess.Artifact);
+                novaProcess.RefreshArtifactFromServer(user);
+                return novaProcess;
+            }
+            else
+            {
+                return novaProcess;
+            }
+        }
+
+        /// <summary>
+        /// Create and Get the Default Nova Process With a System Decision which contains another System Decision on the Second Branch
+        /// </summary>
+        /// <param name="project">The project where the process artifact is created</param>
+        /// <param name="user">The user creating the process artifact</param>
+        /// <param name="updateProcess">(optional) Update the process if true; Default = true</param>
+        /// <returns>The created Nova process</returns>
+        public ProcessArtifactWrapper CreateAndGetDefaultNovaProcessWithSystemDecisionContainingSystemDecisionOnBranch(IProject project, IUser user, bool updateProcess = true)
+        {
+            /*
+            [S]--[P]--+--[UT1]--<SD1>--+--[ST1]---------+--[E]
+                                  |                     |
+                                  +----<SD2>--+--[ST2]--+
+                                         |              |
+                                         +----+--[ST3]--+
+            */
+
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            // Create and get the default process with a system decision
+            var novaProcess = CreateAndGetDefaultNovaProcessWithOneSystemDecision(project, user,
+                updateProcess: false);
+
+            // Find the first UserTask
+            var firstUserTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            // Find the branch end point for system decision points
+            var endShape = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
+
+            // Find the outgoing link for the first user task
+            var outgoingLinkForFirstUserTask = novaProcess.Process.GetOutgoingLinkForShape(firstUserTask);
+
+            // Get the link between the system decision point and the System task on the second branch
+            var secondBranchLink = novaProcess.Process.Links.Find(l => l.Orderindex.Equals(outgoingLinkForFirstUserTask.Orderindex + 1));
+
+            // Get the system task on the second branch for adding the additional System Decision Point
+            var systemTaskFromSecondBranch = novaProcess.Process.GetProcessShapeById(secondBranchLink.DestinationId);
+
+            // Add the system decision before the system task on the second branch
+            novaProcess.Process.AddSystemDecisionPointWithBranchBeforeSystemTask(systemTaskFromSecondBranch,
+                outgoingLinkForFirstUserTask.Orderindex + 1, endShape.Id);
+
+            // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
+            if (updateProcess)
+            {
+                novaProcess.Update(user, novaProcess.Artifact);
+                novaProcess.RefreshArtifactFromServer(user);
+                return novaProcess;
+            }
+            else
+            {
+                return novaProcess;
+            }
+        }
+
+        /// <summary>
+        /// Create and Get the Default Nova Process With Two Sequential User Tasks and One System Decision the second branch merges
+        /// before the second user task
+        /// </summary>
+        /// <param name="project">The project where the process artifact is created</param>
+        /// <param name="user">The user creating the process artifact</param>
+        /// <param name="updateProcess">(optional) Update the process if true; Default = true</param>
+        /// <returns>The created Nova process</returns>
+        public ProcessArtifactWrapper CreateAndGetDefaultNovaProcessWithTwoSequentialUserTasksAndOneSystemDecision(
+            IProject project, IUser user, bool updateProcess = true)
+        {
+            /*
+            [S]--[P]--+--[UT1]--<SD1>--+--[ST1]--+--+--[UT2]--+--[ST2]--+--[E]
+                                  |              |
+                                  +----+--[ST3]--+
+            */
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
+            // Create a process with two sequential user tasks
+            var novaProcess = CreateAndGetDefaultNovaProcessWithTwoSequentialUserTasks(project, user,
+                updateProcess: false);
+
+            // Find the first user task
+            var firstUserTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            // Find the first system task following the first user task
+            var firstSystemTask = novaProcess.Process.GetNextShape(firstUserTask);
+
+            // Find the second user task following the first system task
+            var secondUserTask = novaProcess.Process.GetNextShape(firstSystemTask);
+
+            // Find the outgoing link for the first user task
+            var outgoingLinkForFirstUserTask = novaProcess.Process.GetOutgoingLinkForShape(firstUserTask);
+
+            // Add a System Decision with a branch before the first system task
+            novaProcess.Process.AddSystemDecisionPointWithBranchBeforeSystemTask(firstSystemTask,
+                outgoingLinkForFirstUserTask.Orderindex + 1, secondUserTask.Id);
+
+            // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
+            if (updateProcess)
+            {
+                novaProcess.Update(user, novaProcess.Artifact);
+                novaProcess.RefreshArtifactFromServer(user);
+                return novaProcess;
+            }
+            else
+            {
+                return novaProcess;
+            }
+        }
+
+        /// <summary>
+        /// Create and Get the Default Nova Process With Two Sequential User Tasks and One System Decision that contains Multiple Condition Branches
+        /// merge before the second user task
+        /// </summary>
+        /// <param name="project">The project where the process artifact is created</param>
+        /// <param name="user">The user creating the process artifact</param>
+        /// <param name="additionalBranches">The number of additional branches after first two branches for the system decision (main branch and first additional branch created with the system decision)</param>
+        /// <param name="updateProcess">(optional) Update the process if true; Default = true</param>
+        /// <returns>The created Nova process</returns>
+        public ProcessArtifactWrapper CreateAndGetDefaultNovaProcessWithTwoSequentialUserTasksAndOneSystemDecisionContainingMultipleConditions(
+            IProject project, IUser user, int additionalBranches, bool updateProcess = true)
+        {
+            /*
+            [S]--[P]--+--[UT1]--<SD1>--+--[ST1]--+--+--[UT2]--+--[ST2]--+--[E]
+                                  |              |
+                                  +----+--[ST3]--+
+                                  |              |
+                                  +----+--[ST4]--+    <--- additionalBranches: 1
+            */
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
+            // Create a process with two sequential user tasks and a system decision
+            var novaProcess = CreateAndGetDefaultNovaProcessWithTwoSequentialUserTasksAndOneSystemDecision(project, user,
+                updateProcess: false);
+
+            // Find the first user task
+            var firstUserTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            // Find the outgoing link for the first user task
+            var outgoingLinkForFirstUserTask = novaProcess.Process.GetOutgoingLinkForShape(firstUserTask);
+
+            // Find the System Decision
+            var systemDecision = novaProcess.Process.GetNextShape(firstUserTask);
+
+            // Find the first system task following the first user task
+            var firstSystemTask = novaProcess.Process.GetProcessShapeById(novaProcess.Process.Links.Find(l => l.SourceId.Equals(systemDecision.Id) && l.Orderindex.Equals(outgoingLinkForFirstUserTask.Orderindex)).DestinationId);
+
+            // Find the second user task following the first system task
+            var secondUserTask = novaProcess.Process.GetNextShape(firstSystemTask);
+
+            // branchOrderIndex for existing system decision
+            var defaultAdditionalBranchOrderIndex = outgoingLinkForFirstUserTask.Orderindex + 2;
+
+            for (int i = 0; i < additionalBranches; i++)
+            {
+                // Add branch to the existing System Decision
+                novaProcess.Process.AddBranchWithSystemTaskToSystemDecisionPoint(systemDecision, defaultAdditionalBranchOrderIndex + i, secondUserTask.Id);
+            }
+
+            // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
+            if (updateProcess)
+            {
+                novaProcess.Update(user, novaProcess.Artifact);
+                novaProcess.RefreshArtifactFromServer(user);
+                return novaProcess;
+            }
+            else
+            {
+                return novaProcess;
+            }
+        }
+
+        /// <summary>
+        /// Create and Get the Default Nova Process With a User Decision that contains Multiple Condition Branches
+        /// </summary>
+        /// <param name="project">The project where the process artifact is created</param>
+        /// <param name="user">The user creating the process artifact</param>
+        /// <param name="additionalBranches">The number of additional branches after first two branches for the user decision (main branch and first additional branch created with the user decision)</param>
+        /// <param name="updateProcess">(optional) Update the process if true; Default = true</param>
+        /// <returns>The created Nova process</returns>
+        public ProcessArtifactWrapper CreateAndGetDefaultNovaProcessWithOneUserDecisionContainingMultipleConditions(IProject project, IUser user, int additionalBranches, bool updateProcess = true)
+        {
+            /*
+            [S]--[P]--+--<UD1>--+--[UT1]--+--[ST2]--+--[E]
+                           |                        |
+                           +--[UT3]--+--[ST4]-------+
+                           |                        |
+                           +--[UT5]--+--[ST6]-------+ <--- additionalBranches: 1
+            */
+
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            // Create and get the default process with one user decision
+            var novaProcess = CreateAndGetDefaultNovaProcessWithOneUserDecision(project, user,
+                updateProcess: false);
+
+            // Find the precondition
+            var precondition = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+
+            // Find the outgoing link for the precondition
+            var outgoingLinkForPrecondition = novaProcess.Process.GetOutgoingLinkForShape(precondition);
+
+            // branchOrderIndex for existing system decision
+            var defaultAdditionalBranchOrderIndex = outgoingLinkForPrecondition.Orderindex + 2;
+
+            // Find the User Decision point with branch merging to branchEndPoint
+            var userDecision = novaProcess.Process.GetNextShape(precondition);
+
+            // Find the branch end point for system decision points
+            var endShape = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
+
+            for (int i = 0; i < additionalBranches; i++)
+            {
+                // Add branch to the existing User Decision
+                novaProcess.Process.AddBranchWithUserAndSystemTaskToUserDecisionPoint(userDecision, defaultAdditionalBranchOrderIndex + i, endShape.Id);
+            }
+
+            if (updateProcess)
+            {
+                novaProcess.Update(user, novaProcess.Artifact);
+                novaProcess.RefreshArtifactFromServer(user);
+                return novaProcess;
+            }
+            else
+            {
+                return novaProcess;
+            }
+        }
+
+        /// <summary>
+        /// Create and Get the Default Nova Process With Two Sequential User Tasks and One User Decision the second branch merge
+        /// before the second user task
+        /// </summary>
+        /// <param name="project">The project where the process artifact is created</param>
+        /// <param name="user">The user creating the process artifact</param>
+        /// <param name="updateProcess">(optional) Update the process if true; Default = true</param>
+        /// <returns>The created Nova process</returns>
+        public ProcessArtifactWrapper CreateAndGetDefaultNovaProcessWithTwoSequentialUserTasksAndOneUserDecision(
+            IProject project, IUser user, bool updateProcess = true)
+        {
+            /*
+            [S]--[P]--+--<UD1>--+--[UT1]--+--[ST2]--+--+--[UT3]--+--[ST4]--+--[E]
+                           |                        |
+                           +-------[UT5]--+--[ST6]--+
+
+            */
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
+            // Create a process with two sequential user tasks
+            var novaProcess = CreateAndGetDefaultNovaProcessWithTwoSequentialUserTasks(project, user,
+                updateProcess: false);
+
+            // Find the first user task
+            var firstUserTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            // Find the first system task following the first user task
+            var firstSystemTask = novaProcess.Process.GetNextShape(firstUserTask);
+
+            // Find the second user task following the first system task
+            var secondUserTask = novaProcess.Process.GetNextShape(firstSystemTask);
+
+            // Find the outgoing link for the first user task
+            var outgoingLinkForFirstUserTask = novaProcess.Process.GetOutgoingLinkForShape(firstUserTask);
+
+            // Add a User Decision with a branch before the first user task
+            novaProcess.Process.AddUserDecisionPointWithBranchBeforeShape(firstUserTask,
+                outgoingLinkForFirstUserTask.Orderindex + 1, secondUserTask.Id);
+
+            // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
+            if (updateProcess)
+            {
+                novaProcess.Update(user, novaProcess.Artifact);
+                novaProcess.RefreshArtifactFromServer(user);
+                return novaProcess;
+            }
+            else
+            {
+                return novaProcess;
+            }
+        }
+
+        /// <summary>
+        /// Create and Get the Default Nova Process With Two Sequential User Tasks and One User Decision that contains Multiple Condition Branches
+        /// merge before the second user task
+        /// </summary>
+        /// <param name="project">The project where the process artifact is created</param>
+        /// <param name="user">The user creating the process artifact</param>
+        /// <param name="additionalBranches">The number of additional branches after first two branches for the user decision (main branch and first additional branch created with the user decision)</param>
+        /// <param name="updateProcess">(optional) Update the process if true; Default = true</param>
+        /// <returns>The created Nova process</returns>
+        public ProcessArtifactWrapper CreateAndGetDefaultNovaProcessWithTwoSequentialUserTasksAndOneUserDecisionContainingMultipleConditions(
+            IProject project, IUser user, int additionalBranches, bool updateProcess = true)
+        {
+            /*
+            [S]--[P]--+--<UD1>--+--[UT1]--+--[ST2]--+--+--[UT3]--+--[ST4]--+--[E]
+                           |                        |
+                           +-------[UT5]--+--[ST6]--+
+                           |                        |
+                           +-------[UT7]--+--[ST8]--+   <--- additionalBranches: 1
+            */
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
+            // Create a process with two sequential user tasks and one user decision
+            var novaProcess = CreateAndGetDefaultNovaProcessWithTwoSequentialUserTasksAndOneUserDecision(project, user,
+                updateProcess: false);
+
+            // Find the precondition
+            var preconditon = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+
+            // Find the outgoing link for the precondition
+            var outgoingLinkForPrecondition = novaProcess.Process.GetOutgoingLinkForShape(preconditon);
+
+            // Find the User Decision
+            var userDecision = novaProcess.Process.GetNextShape(preconditon);
+
+            // Find the User Task From the main branch
+            var userTaskFromMainBranch =
+                novaProcess.Process.GetProcessShapeById(
+                    novaProcess.Process.Links.Find(
+                        l =>
+                            l.SourceId.Equals(userDecision.Id) &&
+                            l.Orderindex.Equals(outgoingLinkForPrecondition.Orderindex)).DestinationId);
+
+            // Find the first system task following the first user task from the main branch
+            var firstSystemTask = novaProcess.Process.GetNextShape(userTaskFromMainBranch);
+
+            // Find the second user task following the first system task
+            var secondUserTask = novaProcess.Process.GetNextShape(firstSystemTask);
+
+            // branchOrderIndex for existing system decision
+            var defaultAdditionalBranchOrderIndex = outgoingLinkForPrecondition.Orderindex + 2;
+
+            for (int i = 0; i < additionalBranches; i++)
+            {
+                // Add branch to the existing User Decision
+                novaProcess.Process.AddBranchWithUserAndSystemTaskToUserDecisionPoint(userDecision, defaultAdditionalBranchOrderIndex + i, secondUserTask.Id);
+            }
+
+            // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
+            if (updateProcess)
+            {
+                novaProcess.Update(user, novaProcess.Artifact);
+                novaProcess.RefreshArtifactFromServer(user);
+                return novaProcess;
+            }
+            else
+            {
+                return novaProcess;
+            }
+        }
+
+        /// <summary>
+        /// Create and Get the Default Nova Process With Two Sequential User Decisions Added
+        /// </summary>
+        /// <param name="project">The project where the process artifact is created</param>
+        /// <param name="user">The user creating the process artifact</param>
+        /// <param name="updateProcess">(optional) Update the process if true; Default = true</param>
+        /// <returns>The created Nova process</returns>
+        public ProcessArtifactWrapper CreateAndGetDefaultNovaProcessWithTwoSequentialUserDecisions(IProject project, IUser user, bool updateProcess = true)
+        {
+            /*
+                [S]--[P]--+--<UD1>--+--[UT1]--+--[ST2]--+--<UD2>--+--[UT3]--+--[ST4]--+--[E]
+                               |                        |    |                        |
+                               +-------[UT5]--+--[ST6]--+    +-------[UT7]--+--[ST8]--+
+            */
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            // Create and get the default process with one user decision
+            var novaProcess = CreateAndGetDefaultNovaProcessWithOneUserDecision(project, user, updateProcess: false);
+
+            // Find precondition task
+            var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+
+            // Find outgoing process link for precondition
+            var preconditionOutgoingLink = novaProcess.Process.GetOutgoingLinkForShape(preconditionTask);
+
+            // Determine the branch endpoint
+            var branchEndPoint = novaProcess.Process.GetNextShape(preconditionTask);
+
+            // Add user and system task before existing user decision
+            novaProcess.Process.AddUserAndSystemTask(preconditionOutgoingLink);
+
+            // Add Decision point with branch after precondition
+            novaProcess.Process.AddUserDecisionPointWithBranchAfterShape(
+                preconditionTask,
+                preconditionOutgoingLink.Orderindex + 1,
+                branchEndPoint.Id);
+
+            // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
+            if (updateProcess)
+            {
+                novaProcess.Update(user, novaProcess.Artifact);
+                novaProcess.RefreshArtifactFromServer(user);
+                return novaProcess;
+            }
+            else
+            {
+                return novaProcess;
+            }
+        }
+
+        /// <summary>
+        /// Create and Get the Default Nova Process With Two Sequential System Decisions Added
+        /// </summary>
+        /// <param name="project">The project where the process artifact is created</param>
+        /// <param name="user">The user creating the process artifact</param>
+        /// <param name="updateProcess">(optional) Update the process if true; Default = true</param>
+        /// <returns>The created Nova process</returns>
+        public ProcessArtifactWrapper CreateAndGetDefaultNovaProcessWithTwoSequentialSystemDecisions(IProject project, IUser user, bool updateProcess = true)
+        {
+            /*
+                [S]--[P]--+--[UT1]--<SD1>--+--[ST1]--+--[UT2]--<SD2>--+--[ST3]--+--[E]
+                                      |              |           |              |  
+                                      +----+--[ST2]--+           +----+--[ST4]--+
+            */
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            // Create and get the default process with one system decision
+            var novaProcess = CreateAndGetDefaultNovaProcessWithOneSystemDecision(project, user, updateProcess: false);
+
+            // Find the End shape
+            var endShape = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
+
+            // Add Additional user task along with associated system task
+            var addedUserTask = novaProcess.Process.AddUserAndSystemTask(novaProcess.Process.GetIncomingLinkForShape(endShape));
+
+            // Find the first UserTask
+            var firstUserTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            // Find the outgoing link for the first user task
+            var outgoingLinkForFirstUserTask = novaProcess.Process.GetOutgoingLinkForShape(firstUserTask);
+
+            // Find the link between first system decision to the second branch
+            var secondBranchLinkFromFirstSystemDecision = novaProcess.Process.Links.Find(
+                l => l.Orderindex.Equals(outgoingLinkForFirstUserTask.Orderindex + 1)
+                );
+
+            // Find system task on the second branch of the first system decision
+            var addedSystemTaskFromSecondBranch =
+                novaProcess.Process.GetProcessShapeById(secondBranchLinkFromFirstSystemDecision.DestinationId);
+
+            // Update first merging point so that first loop ends before the added user task
+            novaProcess.Process.GetOutgoingLinkForShape(addedSystemTaskFromSecondBranch).DestinationId = addedUserTask.Id;
+
+            // Find the second system task on the main branch added with additonal user task 
+            var secondSystemTaskFromMainBranch = novaProcess.Process.GetNextShape(addedUserTask);
+
+            // Add the second System Decision with branch merging to addedUserTask
+            novaProcess.Process.AddSystemDecisionPointWithBranchBeforeSystemTask(secondSystemTaskFromMainBranch, outgoingLinkForFirstUserTask.Orderindex + 1, endShape.Id);
+
+            // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
+            if (updateProcess)
+            {
+                novaProcess.Update(user, novaProcess.Artifact);
+                novaProcess.RefreshArtifactFromServer(user);
+                return novaProcess;
+            }
+            else
+            {
+                return novaProcess;
+            }
+        }
+
+        /// <summary>
+        /// Create and get the default Nova Process with both a User Decision and System Decision added.
+        /// </summary>
+        /// <param name="project">The project where the process artifact is created</param>
+        /// <param name="user">The user creating the process artifact</param>
+        /// <param name="updateProcess">(optional) Update the process if true; Default = true</param>
+        /// <returns>The created Nova process</returns>
+        public ProcessArtifactWrapper CreateAndGetDefaultNovaProcessWithUserAndSystemDecisions(IProject project, IUser user, bool updateProcess = true)
+        {
+            /*
+                [S]--[P]--+--<UD1>--+--[UT]---+--[ST]---+--[UT4]--<SD1>--+--[ST5]--+--[E]
+                               |                        |           |              |
+                               +-------[UT2]--+--[ST3]--+           +----+--[ST7]--+
+            */
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            // Create and get the default process with one user decision.
+            var novaProcess = CreateAndGetDefaultNovaProcessWithOneUserDecision(project, user, updateProcess: false);
+
+            // Find the End shape.
+            var endShape = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
+
+            // Add additional user & system task before the End Shape (UT4 & ST5).
+            var addedUserTask = novaProcess.Process.AddUserAndSystemTask(novaProcess.Process.GetIncomingLinkForShape(endShape));
+
+            // Find the incoming link for the last user task.
+            var incomingLinkForLastUserTask = novaProcess.Process.GetIncomingLinkForShape(addedUserTask);
+
+            // Find the link between user decision to the second branch.
+            var secondBranchLinkFromUserDecision = novaProcess.Process.Links.Find(
+                l => l.Orderindex.Equals(incomingLinkForLastUserTask.Orderindex + 1)
+                );
+
+            // Find user & system tasks on the second branch of the user decision.
+            var secondLevelUserTask = novaProcess.Process.GetProcessShapeById(secondBranchLinkFromUserDecision.DestinationId);
+            var secondLevelSystemTask = novaProcess.Process.GetNextShape(secondLevelUserTask);
+
+            // Update first merging point so that first loop ends before the added user task.
+            novaProcess.Process.GetOutgoingLinkForShape(secondLevelSystemTask).DestinationId = addedUserTask.Id;
+
+            // Find the second system task on the main branch added with additonal user task.
+            var addedSystemTask = novaProcess.Process.GetNextShape(addedUserTask);
+            var incomingLinkForAddedSystemTask = novaProcess.Process.GetIncomingLinkForShape(addedSystemTask);
+
+            // Add a System Decision with branch merging to addedUserTask (SD1 & ST7).
+            novaProcess.Process.AddSystemDecisionPointWithBranchBeforeSystemTask(addedSystemTask, incomingLinkForAddedSystemTask.Orderindex + 1, endShape.Id);
+
+            // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
+            if (updateProcess)
+            {
+                novaProcess.Update(user, novaProcess.Artifact);
+                novaProcess.RefreshArtifactFromServer(user);
+                return novaProcess;
+            }
+            else
+            {
+                return novaProcess;
+            }
+        }
+
+        /// <summary>
+        /// Create and Get the Default Nova Process With Two Sequential User Tasks Added
+        /// </summary>
+        /// <param name="project">The project where the process artifact is created</param>
+        /// <param name="user">The user creating the process artifact</param>
+        /// <param name="updateProcess">(optional) Update the process if true; Default = true</param>
+        /// <returns>The created Nova process</returns>
+        public ProcessArtifactWrapper CreateAndGetDefaultNovaProcessWithTwoSequentialUserTasks(IProject project, IUser user, bool updateProcess = true)
+        {
+            /*
+                [S]--[P]--+--[UT1]--+--[ST2]--+--[UT3]--+--[ST4]--+--[E]
+            */
+
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            // Create and get the default process
+            var novaProcess = CreateAndGetDefaultNovaProcess(project, user);
+
+            // Get the end point
+            var endShape = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
+
+            // Find outgoing process link for precondition
+            var endPointIncomingLink = novaProcess.Process.GetIncomingLinkForShape(endShape);
+
+            novaProcess.Process.AddUserAndSystemTask(endPointIncomingLink);
 
             // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
             if (updateProcess)

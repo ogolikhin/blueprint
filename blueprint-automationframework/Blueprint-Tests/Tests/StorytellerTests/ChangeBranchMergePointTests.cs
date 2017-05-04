@@ -2,10 +2,10 @@
 using Helper;
 using Model;
 using Model.Factories;
+using Model.StorytellerModel.Enums;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
 using System.Linq;
-using Model.StorytellerModel.Enums;
 using TestCommon;
 
 namespace StorytellerTests
@@ -55,37 +55,37 @@ namespace StorytellerTests
                                   +----+--[ST3]--+----------------------+
             */
             // Create and get the process with two sequential user tasks and one system decision
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialUserTasksAndOneSystemDecision(Helper.Storyteller, _project, _user);
+            var novaProcess = Helper.CreateAndGetDefaultNovaProcessWithTwoSequentialUserTasksAndOneSystemDecision(_project, _user);
 
             // Locate the start shape to locate the outgoing link to Precondition
-            var startShape = returnedProcess.GetProcessShapeByShapeName(Process.StartName);
+            var startShape = novaProcess.Process.GetProcessShapeByShapeName(Process.StartName);
 
             // Find the outgoing link for start shape
-            var outgoingLinkForStartShape = returnedProcess.GetOutgoingLinkForShape(startShape);
+            var outgoingLinkForStartShape = novaProcess.Process.GetOutgoingLinkForShape(startShape);
 
             // Find the system decision
-            var systemDecision = returnedProcess.GetProcessShapesByShapeType(ProcessShapeType.SystemDecision).First();
+            var systemDecision = novaProcess.Process.GetProcessShapesByShapeType(ProcessShapeType.SystemDecision).First();
 
             // Find the system task next from  the system decision to second branch
-            var systemTaskFromSecondBranch = returnedProcess.GetNextShape(systemDecision, outgoingLinkForStartShape.Orderindex + 1);
+            var systemTaskFromSecondBranch = novaProcess.Process.GetNextShape(systemDecision, outgoingLinkForStartShape.Orderindex + 1);
 
             // Find the outgoing link for the system task from the second branch
             var outgoingLinkForSystemTaskFromSecondBranch =
-                returnedProcess.GetOutgoingLinkForShape(systemTaskFromSecondBranch);
+                novaProcess.Process.GetOutgoingLinkForShape(systemTaskFromSecondBranch);
 
             // Locate the end shape for changing the merge point of system decision
-            var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
+            var endShape = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Change the second branch merge point of the system decision to the endShape
-            returnedProcess.ChangeBranchMergePoint(systemDecision, outgoingLinkForStartShape.Orderindex + 1, outgoingLinkForSystemTaskFromSecondBranch, endShape);
+            novaProcess.Process.ChangeBranchMergePoint(systemDecision, outgoingLinkForStartShape.Orderindex + 1, outgoingLinkForSystemTaskFromSecondBranch, endShape);
 
             // Update and Verify the modified process
-            var updatedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            var updatedProcess = Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
 
             // Verify that DecisionBranchDestinationLinks contained updated information for the updated merge point
 
             var secondDecisionBranchDestinationLink =
-                updatedProcess.GetDecisionBranchDestinationLinkForDecisionShape(systemDecision,
+                updatedProcess.Process.GetDecisionBranchDestinationLinkForDecisionShape(systemDecision,
                     outgoingLinkForStartShape.Orderindex + 1);
 
             Assert.That(secondDecisionBranchDestinationLink.DestinationId == endShape.Id,
@@ -111,40 +111,40 @@ namespace StorytellerTests
                            +-------[UT5]--+--[ST6]--+----------------------+
             */
             // Create and get the process with two sequential user tasks and one user decision
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialUserTasksAndOneUserDecision(Helper.Storyteller, _project, _user);
+            var novaProcess = Helper.CreateAndGetDefaultNovaProcessWithTwoSequentialUserTasksAndOneUserDecision(_project, _user);
 
             // Find the user decision
-            var userDecision = returnedProcess.GetProcessShapesByShapeType(ProcessShapeType.UserDecision).First();
+            var userDecision = novaProcess.Process.GetProcessShapesByShapeType(ProcessShapeType.UserDecision).First();
 
             // Locate the start shape to locate the outgoing link to Precondition
-            var startShape = returnedProcess.GetProcessShapeByShapeName(Process.StartName);
+            var startShape = novaProcess.Process.GetProcessShapeByShapeName(Process.StartName);
 
             // Find the outgoing link for start shape
-            var outgoingLinkForStartShape = returnedProcess.GetOutgoingLinkForShape(startShape);
+            var outgoingLinkForStartShape = novaProcess.Process.GetOutgoingLinkForShape(startShape);
 
             // Find the user task from the second branch
-            var userTaskFromSecondBranch = returnedProcess.GetNextShape(userDecision,
+            var userTaskFromSecondBranch = novaProcess.Process.GetNextShape(userDecision,
                 outgoingLinkForStartShape.Orderindex + 1);
 
             // Find the system task from the second branch
-            var systemTaskFromSecondBranch = returnedProcess.GetNextShape(userTaskFromSecondBranch);
+            var systemTaskFromSecondBranch = novaProcess.Process.GetNextShape(userTaskFromSecondBranch);
 
             // Find the outgoing link for the system task from the second branch
             var outgoingLinkForSystemTaskFromSecondBranch =
-                returnedProcess.GetOutgoingLinkForShape(systemTaskFromSecondBranch);
+                novaProcess.Process.GetOutgoingLinkForShape(systemTaskFromSecondBranch);
 
             // Locate the end shape for changing the merge point of user decision
-            var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
+            var endShape = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Change the second branch merge point of the user decision to the endShape
-            returnedProcess.ChangeBranchMergePoint(userDecision, outgoingLinkForStartShape.Orderindex + 1, outgoingLinkForSystemTaskFromSecondBranch, endShape);
+            novaProcess.Process.ChangeBranchMergePoint(userDecision, outgoingLinkForStartShape.Orderindex + 1, outgoingLinkForSystemTaskFromSecondBranch, endShape);
 
             // Update and Verify the modified process
-            var updatedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            var updatedProcess = Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
 
             // Verify that DecisionBranchDestinationLinks contained updated information for the updated merge point
             var secondDecisionBranchDestinationLink =
-                updatedProcess.GetDecisionBranchDestinationLinkForDecisionShape(userDecision,
+                updatedProcess.Process.GetDecisionBranchDestinationLinkForDecisionShape(userDecision,
                     outgoingLinkForStartShape.Orderindex + 1);
 
             Assert.That(secondDecisionBranchDestinationLink.DestinationId == endShape.Id,
@@ -178,41 +178,39 @@ namespace StorytellerTests
             Verify that returned process model contains correct values on DecisionBranchDestinationLinks, section of the process model contains information for merge points
             */
             // Create and get the process with two sequential user tasks and one system decision contains three branches
-            var returnedProcess =
-                StorytellerTestHelper
-                    .CreateAndGetDefaultProcessWithTwoSequentialUserTasksAndOneSystemDecisionContainingMultipleConditions
-                    (Helper.Storyteller, _project, _user, additionalBranches: 1);
+            var novaProcess = Helper.CreateAndGetDefaultNovaProcessWithTwoSequentialUserTasksAndOneSystemDecisionContainingMultipleConditions
+                    (_project, _user, additionalBranches: 1);
             
             // Locate the start shape to locate the outgoing link to Precondition
-            var startShape = returnedProcess.GetProcessShapeByShapeName(Process.StartName);
+            var startShape = novaProcess.Process.GetProcessShapeByShapeName(Process.StartName);
 
             // Find the outgoing link for start shape
-            var outgoingLinkForStartShape = returnedProcess.GetOutgoingLinkForShape(startShape);
+            var outgoingLinkForStartShape = novaProcess.Process.GetOutgoingLinkForShape(startShape);
 
             // Locate the end shape for changing the merge point of user decision
-            var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
+            var endShape = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Find the system decision
-            var systemDecision = returnedProcess.GetProcessShapesByShapeType(ProcessShapeType.SystemDecision).First();
+            var systemDecision = novaProcess.Process.GetProcessShapesByShapeType(ProcessShapeType.SystemDecision).First();
 
             // Find the system task From the third branch
             var systemTaskFromThirdBranch =
-                returnedProcess.GetNextShape(systemDecision, outgoingLinkForStartShape.Orderindex + 2);
+                novaProcess.Process.GetNextShape(systemDecision, outgoingLinkForStartShape.Orderindex + 2);
 
             // Find the outgoing link for the system task from the third branch
             var outgoingLinkForSystemTaskFromThirdBranch =
-                returnedProcess.GetOutgoingLinkForShape(systemTaskFromThirdBranch);
+                novaProcess.Process.GetOutgoingLinkForShape(systemTaskFromThirdBranch);
 
             // Change the third branch merge point of the system decision to the endShape
-            returnedProcess.ChangeBranchMergePoint(systemDecision, outgoingLinkForStartShape.Orderindex + 2, outgoingLinkForSystemTaskFromThirdBranch, endShape);
+            novaProcess.Process.ChangeBranchMergePoint(systemDecision, outgoingLinkForStartShape.Orderindex + 2, outgoingLinkForSystemTaskFromThirdBranch, endShape);
 
             // Update the process
-            var updatedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            var updatedProcess = Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
 
             // Verify that DecisionBranchDestinationLinks contained updated information for the updated merge point
 
             var thirdDecisionBranchDestinationLink =
-                updatedProcess.GetDecisionBranchDestinationLinkForDecisionShape(systemDecision,
+                updatedProcess.Process.GetDecisionBranchDestinationLinkForDecisionShape(systemDecision,
                     outgoingLinkForStartShape.Orderindex + 2);
 
             Assert.That(thirdDecisionBranchDestinationLink.DestinationId == endShape.Id,
@@ -246,43 +244,41 @@ namespace StorytellerTests
             Verify that returned process model contains correct values on DecisionBranchDestinationLinks, section of the process model contains information for merge points
             */
             // Create and get the process with two sequential user tasks and one user decision contains three branches
-            var returnedProcess =
-                StorytellerTestHelper
-                    .CreateAndGetDefaultProcessWithTwoSequentialUserTasksAndOneUserDecisionContainingMultipleConditions
-                    (Helper.Storyteller, _project, _user, additionalBranches: 1);
+            var novaProcess = Helper.CreateAndGetDefaultNovaProcessWithTwoSequentialUserTasksAndOneUserDecisionContainingMultipleConditions
+                    (_project, _user, additionalBranches: 1);
 
             // Locate the start shape to locate the outgoing link to Precondition
-            var startShape = returnedProcess.GetProcessShapeByShapeName(Process.StartName);
+            var startShape = novaProcess.Process.GetProcessShapeByShapeName(Process.StartName);
 
             // Find the outgoing link for start shape
-            var outgoingLinkForStartShape = returnedProcess.GetOutgoingLinkForShape(startShape);
+            var outgoingLinkForStartShape = novaProcess.Process.GetOutgoingLinkForShape(startShape);
 
 
             // Locate the end shape for changing the merge point of user decision
-            var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
+            var endShape = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Find the user decision
-            var userDecision = returnedProcess.GetProcessShapesByShapeType(ProcessShapeType.UserDecision).First();
+            var userDecision = novaProcess.Process.GetProcessShapesByShapeType(ProcessShapeType.UserDecision).First();
 
             // Find the user task From the third branch
-            var userTaskFromThirdBranch = returnedProcess.GetNextShape(userDecision,
+            var userTaskFromThirdBranch = novaProcess.Process.GetNextShape(userDecision,
                 outgoingLinkForStartShape.Orderindex + 2);
 
             // Find the system task From the third branch
-            var systemTaskFromThirdBranch = returnedProcess.GetNextShape(userTaskFromThirdBranch);
+            var systemTaskFromThirdBranch = novaProcess.Process.GetNextShape(userTaskFromThirdBranch);
 
             // Find the outgoing link for the system task from the third branch
-            var outgoingLinkForSystemTaskFromThirdBranch = returnedProcess.Links.Find(l => l.SourceId.Equals(systemTaskFromThirdBranch.Id));
+            var outgoingLinkForSystemTaskFromThirdBranch = novaProcess.Process.Links.Find(l => l.SourceId.Equals(systemTaskFromThirdBranch.Id));
 
             // Change the third branch merge point of the user decision to the endShape
-            returnedProcess.ChangeBranchMergePoint(userDecision, outgoingLinkForStartShape.Orderindex + 2, outgoingLinkForSystemTaskFromThirdBranch, endShape);
+            novaProcess.Process.ChangeBranchMergePoint(userDecision, outgoingLinkForStartShape.Orderindex + 2, outgoingLinkForSystemTaskFromThirdBranch, endShape);
 
             // Update the process
-            var updatedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            var updatedProcess = Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
 
             // Verify that DecisionBranchDestinationLinks contained updated information for the updated merge point
             var thirdDecisionBranchDestinationLink =
-                updatedProcess.GetDecisionBranchDestinationLinkForDecisionShape(userDecision,
+                updatedProcess.Process.GetDecisionBranchDestinationLinkForDecisionShape(userDecision,
                     outgoingLinkForStartShape.Orderindex + 2);
 
             Assert.That(thirdDecisionBranchDestinationLink.DestinationId == endShape.Id,

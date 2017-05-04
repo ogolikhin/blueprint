@@ -1,9 +1,9 @@
 ﻿using CustomAttributes;
+using Helper;
 using Model;
 using Model.Factories;
-using NUnit.Framework;
-using Helper;
 using Model.StorytellerModel.Impl;
+using NUnit.Framework;
 using TestCommon;
 
 namespace StorytellerTests
@@ -47,16 +47,16 @@ namespace StorytellerTests
                 [S]--[P]--+--[UT3]--+--[ST4]--+--[UT1]--+--[ST2]--+--[E]
             */
 
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialUserTasks(Helper.Storyteller, _project, _user);
+            var novaProcess = Helper.CreateAndGetDefaultNovaProcessWithTwoSequentialUserTasks(_project, _user);
 
-            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var defaultUserTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
-            var endShape = process.GetProcessShapeByShapeName(Process.EndName);
+            var endShape = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
-            process.MoveUserAndSystemTaskBeforeShape(defaultUserTask, endShape);
+            novaProcess.Process.MoveUserAndSystemTaskBeforeShape(defaultUserTask, endShape);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, Helper.Storyteller, _user);
+            Helper.UpdateVerifyAndPublishNovaProcess(novaProcess.NovaProcess, _user);
         }
     }
 }

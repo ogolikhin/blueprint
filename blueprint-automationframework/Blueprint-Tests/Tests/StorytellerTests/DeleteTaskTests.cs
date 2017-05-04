@@ -1,12 +1,11 @@
 ﻿using CustomAttributes;
+using Helper;
 using Model;
 using Model.Factories;
-using NUnit.Framework;
-using Helper;
-using Model.StorytellerModel.Impl;
-using System.Linq;
-using Model.ArtifactModel.Impl;
 using Model.StorytellerModel.Enums;
+using Model.StorytellerModel.Impl;
+using NUnit.Framework;
+using System.Linq;
 using TestCommon;
 
 namespace StorytellerTests
@@ -42,28 +41,29 @@ namespace StorytellerTests
         public void DeleteUserAndSystemTask_VerifyReturnedProcess()
         {
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = Helper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find precondition task
-            var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition task
-            var preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
+            var preconditionOutgoingLink = novaProcess.Process.GetOutgoingLinkForShape(preconditionTask);
 
             Assert.IsNotNull(preconditionOutgoingLink, "Process link was not found.");
 
             // Add user/system Task immediately after the precondition
-            var userTask = process.AddUserAndSystemTask(preconditionOutgoingLink);
+            var userTask = novaProcess.Process.AddUserAndSystemTask(preconditionOutgoingLink);
 
             // Save the process
-            var returnedProcess = Helper.Storyteller.UpdateProcess(_user, process);
+            novaProcess.Update(_user, novaProcess.Artifact);
+            novaProcess.RefreshArtifactFromServer(_user);
 
-            var userTaskToBeDeleted = returnedProcess.GetProcessShapeByShapeName(userTask.Name);
+            var userTaskToBeDeleted = novaProcess.Process.GetProcessShapeByShapeName(userTask.Name);
 
-            returnedProcess.DeleteUserAndSystemTask(userTaskToBeDeleted);
+            novaProcess.Process.DeleteUserAndSystemTask(userTaskToBeDeleted);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
         }
 
         [TestCase(5)]
@@ -72,13 +72,13 @@ namespace StorytellerTests
         public void DeleteMultipleUserAndSystemTasks_VerifyReturnedProcess(int numberOfAdditionalUserTasks)
         {
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = Helper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find precondition task
-            var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition task
-            var preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
+            var preconditionOutgoingLink = novaProcess.Process.GetOutgoingLinkForShape(preconditionTask);
 
             Assert.IsNotNull(preconditionOutgoingLink, "Outgoing link for the default precondition was not found.");
 
@@ -87,28 +87,28 @@ namespace StorytellerTests
 
             for (int i = 0; i < numberOfAdditionalUserTasks; i++)
             {
-                var userTask = process.AddUserAndSystemTask(targetProcessLink);
-                var processShape = process.GetNextShape(userTask);
+                var userTask = novaProcess.Process.AddUserAndSystemTask(targetProcessLink);
+                var processShape = novaProcess.Process.GetNextShape(userTask);
                 //update the targetProcessLink
-                targetProcessLink = process.GetOutgoingLinkForShape(processShape);
+                targetProcessLink = novaProcess.Process.GetOutgoingLinkForShape(processShape);
             }
 
             // Save the process
-            var returnedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
+            var returnedNovaProcess = Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
 
             // Delete multiple user tasks with associated system tasks except the default User Task and its associated system task
-            var userTasksToBeDeleted = returnedProcess.GetProcessShapesByShapeType(ProcessShapeType.UserTask);
+            var userTasksToBeDeleted = returnedNovaProcess.Process.GetProcessShapesByShapeType(ProcessShapeType.UserTask);
 
             foreach (var userTask in userTasksToBeDeleted)
             {
                 if (!(userTask.Name.Equals(Process.DefaultUserTaskName)))
                 {
-                    returnedProcess.DeleteUserAndSystemTask(userTask);
+                    returnedNovaProcess.Process.DeleteUserAndSystemTask(userTask);
                 }
             }
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            Helper.UpdateAndVerifyNovaProcess(returnedNovaProcess, _user);
         }
 
         [TestCase]
@@ -118,51 +118,54 @@ namespace StorytellerTests
         public void GenerateUserStoriesDeleteUserAndSystemTask_VerifyUserStoriesExistence()
         {
             // Create and get the default processArtifacts 
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = Helper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find precondition task
-            var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition task
-            var preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
+            var preconditionOutgoingLink = novaProcess.Process.GetOutgoingLinkForShape(preconditionTask);
 
             Assert.IsNotNull(preconditionOutgoingLink, "Outgoing link for the default precondition was not found.");
 
             // Add user/system Task immediately after the precondition
-            var userTask = process.AddUserAndSystemTask(preconditionOutgoingLink);
+            var userTask = novaProcess.Process.AddUserAndSystemTask(preconditionOutgoingLink);
 
             // Save the process
-            var returnedProcess = Helper.Storyteller.UpdateProcess(_user, process);
+            novaProcess.Update(_user, novaProcess.Artifact);
+            novaProcess.RefreshArtifactFromServer(_user);
 
             // Publish the process prior to user story generation
-            Helper.Storyteller.PublishProcess(_user, returnedProcess);
+            novaProcess.Publish(_user);
 
             // Generate User Story artfact(s) from the Process artifact
-            var userStoriesPriorToUserTaskDeletion = Helper.Storyteller.GenerateUserStories(_user, returnedProcess);
+            var userStoriesPriorToUserTaskDeletion = Helper.Storyteller.GenerateUserStories(_user, novaProcess.Process);
 
             // Get the total number of user stories generated from the process
             int totalUserStoriesPriorToUserTaskDeletion = userStoriesPriorToUserTaskDeletion.Count();
 
             // Delete a single User Task with a associated system task
-            var userTaskToBeDeleted = returnedProcess.GetProcessShapeByShapeName(userTask.Name);
+            var userTaskToBeDeleted = novaProcess.Process.GetProcessShapeByShapeName(userTask.Name);
 
-            returnedProcess.DeleteUserAndSystemTask(userTaskToBeDeleted);
+            novaProcess.Process.DeleteUserAndSystemTask(userTaskToBeDeleted);
 
             // save process with deleted user task and associated system task
-            returnedProcess = Helper.Storyteller.UpdateProcess(_user, returnedProcess);
+            novaProcess.Lock(_user);
+            novaProcess.Update(_user, novaProcess.Artifact);
+            novaProcess.RefreshArtifactFromServer(_user);
 
             // publish process
-            Helper.Storyteller.PublishProcess(_user, returnedProcess);
+            novaProcess.Publish(_user);
 
             // checking the total number of user story artifacts from blueprint 
             // by using delete the process artifact returned body type
             Assert.That(Helper.Storyteller.Artifacts != null, "Artifact List is missing.");
             
             // Delete the process artifact that were added from the test.
-            var novaProcess = new NovaProcess {Id = returnedProcess.Id, ProjectId = returnedProcess.Id, Process = (Process)returnedProcess};
-            var deletedArtifacts = Helper.Storyteller.DeleteNovaProcessArtifact(_user, novaProcess);
+            //var deletedArtifacts = Helper.Storyteller.DeleteNovaProcessArtifact(_user, novaProcess.NovaProcess);
+            var deletedArtifacts = novaProcess.Delete(_user);
 
-            int deletedChildArtfacts = deletedArtifacts.FindAll(d => !d.Id.Equals(returnedProcess.Id)).Count();
+            int deletedChildArtfacts = deletedArtifacts.FindAll(d => !d.Id.Equals(novaProcess.Id)).Count();
 
             // Assert that total number of user stories on blueprint main experience is still same as
             // the total number of user stories generated prior to the single user task deletion

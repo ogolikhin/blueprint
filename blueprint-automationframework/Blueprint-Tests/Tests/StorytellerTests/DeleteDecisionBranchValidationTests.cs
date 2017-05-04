@@ -56,35 +56,36 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = Helper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find the default UserTask
-            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var defaultUserTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
             // Find the target SystemTask
-            var targetSystemTask = process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
+            var targetSystemTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
 
             // Find the branch end point for system decision points
-            var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
+            var branchEndPoint = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Find the outgoing process link from the default UserTask
-            var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
+            var defaultUserTaskOutgoingProcessLink = novaProcess.Process.GetOutgoingLinkForShape(defaultUserTask);
 
             // Add a System Decision point with a branch merging to branchEndPoint
-            var systemDecision = process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
+            var systemDecision = novaProcess.Process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
 
             // Save the process
-            var returnedProcess = Helper.Storyteller.UpdateProcess(_user, process);
+            novaProcess.Update(_user, novaProcess.Artifact);
+            novaProcess.RefreshArtifactFromServer(_user);
 
             // Get the system decison after saving the process
-            var systemDecisionForDeletionProcess = returnedProcess.GetProcessShapeByShapeName(systemDecision.Name);
+            var systemDecisionForDeletionProcess = novaProcess.Process.GetProcessShapeByShapeName(systemDecision.Name);
 
             // Delete the specified system decision branch
-            returnedProcess.DeleteSystemDecisionBranch(systemDecisionForDeletionProcess, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint);
+            novaProcess.Process.DeleteSystemDecisionBranch(systemDecisionForDeletionProcess, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint);
 
             // Get and deserialize response 
             var ex = Assert.Throws<Http400BadRequestException>(
-                () => Helper.Storyteller.UpdateProcess( _user, returnedProcess)
+                () => Helper.ArtifactStore.UpdateNovaProcess( _user, novaProcess.NovaProcess)
                 );
 
             var deserializedResponse = SerializationUtilities.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
@@ -116,32 +117,33 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = Helper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find precondition task
-            var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition
-            var preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
+            var preconditionOutgoingLink = novaProcess.Process.GetOutgoingLinkForShape(preconditionTask);
 
             // Find the branch endpoint for the new branch
-            var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
+            var branchEndPoint = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Add user decision with branch to end
-            var userDecision = process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1);
+            var userDecision = novaProcess.Process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1);
 
             // Save the process
-            var returnedProcess = Helper.Storyteller.UpdateProcess(_user, process);
+            novaProcess.Update(_user, novaProcess.Artifact);
+            novaProcess.RefreshArtifactFromServer(_user);
 
             // Get the user decison after saving the process
-            var userDecisionForDeletionProcess = returnedProcess.GetProcessShapeByShapeName(userDecision.Name);
+            var userDecisionForDeletionProcess = novaProcess.Process.GetProcessShapeByShapeName(userDecision.Name);
 
             // Delete the specified user decision branch - work in progress
-            returnedProcess.DeleteUserDecisionBranch(userDecisionForDeletionProcess, preconditionOutgoingLink.Orderindex + 1, branchEndPoint);
+            novaProcess.Process.DeleteUserDecisionBranch(userDecisionForDeletionProcess, preconditionOutgoingLink.Orderindex + 1, branchEndPoint);
 
             // Get and deserialize response 
             var ex = Assert.Throws<Http400BadRequestException>(
-                () => Helper.Storyteller.UpdateProcess(_user, returnedProcess)
+                () => Helper.ArtifactStore.UpdateNovaProcess(_user, novaProcess.NovaProcess)
                 );
 
             var deserializedResponse = SerializationUtilities.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);

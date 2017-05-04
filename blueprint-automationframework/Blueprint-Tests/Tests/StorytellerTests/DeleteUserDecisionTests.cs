@@ -1,9 +1,9 @@
 ﻿using CustomAttributes;
+using Helper;
 using Model;
 using Model.Factories;
-using NUnit.Framework;
-using Helper;
 using Model.StorytellerModel.Impl;
+using NUnit.Framework;
 using TestCommon;
 
 namespace StorytellerTests
@@ -49,29 +49,30 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = Helper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find precondition task
-            var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition
-            var preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
+            var preconditionOutgoingLink = novaProcess.Process.GetOutgoingLinkForShape(preconditionTask);
 
             // Get the branch end point
-            var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
+            var branchEndPoint = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Add Decision point with branch to end
-            var userDecision = process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1, branchEndPoint.Id);
+            var userDecision = novaProcess.Process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1, branchEndPoint.Id);
 
             // Save the process
-            var returnedProcess = Helper.Storyteller.UpdateProcess(_user, process);
+            novaProcess.Update(_user, novaProcess.Artifact);
+            novaProcess.RefreshArtifactFromServer(_user);
 
-            var userDecisionToBeDeleted = returnedProcess.GetProcessShapeByShapeName(userDecision.Name);
+            var userDecisionToBeDeleted = novaProcess.Process.GetProcessShapeByShapeName(userDecision.Name);
 
-            returnedProcess.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, branchEndPoint);
+            novaProcess.Process.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, branchEndPoint);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
         }
 
         [TestCase]
@@ -90,29 +91,30 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = Helper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find default system task
-            var defaultSystemTask = process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
+            var defaultSystemTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
 
             // Find outgoing process link for default system task
-            var defaultSystemTaskOutgoingLink = process.GetOutgoingLinkForShape(defaultSystemTask);
+            var defaultSystemTaskOutgoingLink = novaProcess.Process.GetOutgoingLinkForShape(defaultSystemTask);
 
             // Add Decision point with branch and 2 user tasks
-            var userDecision = process.AddUserDecisionPointWithBranchAfterShape(defaultSystemTask, defaultSystemTaskOutgoingLink.Orderindex + 1);
+            var userDecision = novaProcess.Process.AddUserDecisionPointWithBranchAfterShape(defaultSystemTask, defaultSystemTaskOutgoingLink.Orderindex + 1);
 
             // Save the process
-            var returnedProcess = Helper.Storyteller.UpdateProcess(_user, process);
+            novaProcess.Update(_user, novaProcess.Artifact);
+            novaProcess.RefreshArtifactFromServer(_user);
 
-            var userDecisionToBeDeleted = returnedProcess.GetProcessShapeByShapeName(userDecision.Name);
+            var userDecisionToBeDeleted = novaProcess.Process.GetProcessShapeByShapeName(userDecision.Name);
 
             // Find the end shape
-            var endShape = process.GetProcessShapeByShapeName(Process.EndName);
+            var endShape = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
-            returnedProcess.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, endShape);
+            novaProcess.Process.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, endShape);
 
             // Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
+            Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
         }
 
         [TestCase]
@@ -134,50 +136,51 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = Helper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find precondition task
-            var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition
-            var preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
+            var preconditionOutgoingLink = novaProcess.Process.GetOutgoingLinkForShape(preconditionTask);
 
             // Determine the branch endpoint
-            var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
+            var branchEndPoint = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Add Decision point <UD2> with branch after precondition
-            var secondUserDecisionInProcess = process.AddUserDecisionPointWithBranchAfterShape(
+            var secondUserDecisionInProcess = novaProcess.Process.AddUserDecisionPointWithBranchAfterShape(
                 preconditionTask, 
                 preconditionOutgoingLink.Orderindex + 1, 
                 branchEndPoint.Id);
 
             // Find updatedoutgoing process link for precondition
-            preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
+            preconditionOutgoingLink = novaProcess.Process.GetOutgoingLinkForShape(preconditionTask);
 
             // Add new user and system task before decision point
-            process.AddUserAndSystemTask(preconditionOutgoingLink);
+            novaProcess.Process.AddUserAndSystemTask(preconditionOutgoingLink);
 
             // Find updatedoutgoing process link for precondition
-            preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
+            preconditionOutgoingLink = novaProcess.Process.GetOutgoingLinkForShape(preconditionTask);
 
             // Add decision point <UD1> after precondition
-            var firstUserDecisionInProcess = process.AddUserDecisionPointWithBranchAfterShape(
+            var firstUserDecisionInProcess = novaProcess.Process.AddUserDecisionPointWithBranchAfterShape(
                 preconditionTask, 
                 preconditionOutgoingLink.Orderindex + 1, 
                 secondUserDecisionInProcess.Id);
 
             // Save the process
-            var returnedProcess = Helper.Storyteller.UpdateProcess(_user, process);
+            novaProcess.Update(_user, novaProcess.Artifact);
+            novaProcess.RefreshArtifactFromServer(_user);
 
-            var userDecisionToBeDeleted = returnedProcess.GetProcessShapeByShapeName(firstUserDecisionInProcess.Name);
+            var userDecisionToBeDeleted = novaProcess.Process.GetProcessShapeByShapeName(firstUserDecisionInProcess.Name);
 
             // Merge point for first user decision is the second user decision on the process
-            var mergePointForFirstUserDecision = returnedProcess.GetProcessShapeByShapeName(secondUserDecisionInProcess.Name);
+            var mergePointForFirstUserDecision = novaProcess.Process.GetProcessShapeByShapeName(secondUserDecisionInProcess.Name);
 
-            returnedProcess.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, mergePointForFirstUserDecision);
+            novaProcess.Process.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, mergePointForFirstUserDecision);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
+            Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
         }
 
         [TestCase]
@@ -202,41 +205,42 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = Helper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find precondition task
-            var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find the outgoing link for the precondition
-            var preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
+            var preconditionOutgoingLink = novaProcess.Process.GetOutgoingLinkForShape(preconditionTask);
 
             // Merge point for the bothr user decisions is the process end point
-            var endShape = process.GetProcessShapeByShapeName(Process.EndName);
+            var endShape = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Add Decision point <UD2> with branch 
-            var innerUserDecision = process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1, endShape.Id);
+            var innerUserDecision = novaProcess.Process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1, endShape.Id);
 
             // Find the updated outgoing link for the precondition
-            preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
+            preconditionOutgoingLink = novaProcess.Process.GetOutgoingLinkForShape(preconditionTask);
 
             // Add user and system task before new user decision point
-            process.AddUserAndSystemTask(preconditionOutgoingLink);
+            novaProcess.Process.AddUserAndSystemTask(preconditionOutgoingLink);
 
             // Find the updated outgoing link for the precondition
-            preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
+            preconditionOutgoingLink = novaProcess.Process.GetOutgoingLinkForShape(preconditionTask);
 
             // Add an outer user decision point <UD1> after the precondition and before the new user/system task
-            process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1, endShape.Id);
+            novaProcess.Process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1, endShape.Id);
 
             // Save the process
-            var returnedProcess = Helper.Storyteller.UpdateProcess(_user, process);
+            novaProcess.Update(_user, novaProcess.Artifact);
+            novaProcess.RefreshArtifactFromServer(_user);
 
-            var userDecisionToBeDeleted = returnedProcess.GetProcessShapeByShapeName(innerUserDecision.Name);
+            var userDecisionToBeDeleted = novaProcess.Process.GetProcessShapeByShapeName(innerUserDecision.Name);
 
-            returnedProcess.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, endShape);
+            novaProcess.Process.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, endShape);
 
             // Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
+            Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
         }
 
         [TestCase]
@@ -261,41 +265,42 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = Helper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find precondition task
-            var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find the outgoing link for the precondition
-            var preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
+            var preconditionOutgoingLink = novaProcess.Process.GetOutgoingLinkForShape(preconditionTask);
 
             // Merge point for the bothr user decisions is the process end point
-            var endShape = process.GetProcessShapeByShapeName(Process.EndName);
+            var endShape = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Add Decision point <UD2> with branch
-            process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1, endShape.Id);
+            novaProcess.Process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1, endShape.Id);
 
             // Find the updated outgoing link for the precondition
-            preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
+            preconditionOutgoingLink = novaProcess.Process.GetOutgoingLinkForShape(preconditionTask);
 
             // Add user and system task before new user decision point
-            process.AddUserAndSystemTask(preconditionOutgoingLink);
+            novaProcess.Process.AddUserAndSystemTask(preconditionOutgoingLink);
 
             // Find the updated outgoing link for the precondition
-            preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
+            preconditionOutgoingLink = novaProcess.Process.GetOutgoingLinkForShape(preconditionTask);
 
             // Add an outer user decision point <UD1> after the precondition and before the new user/system task
-            var outerUserDecision = process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1, endShape.Id);
+            var outerUserDecision = novaProcess.Process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1, endShape.Id);
 
             // Save the process
-            var returnedProcess = Helper.Storyteller.UpdateProcess(_user, process);
+            novaProcess.Update(_user, novaProcess.Artifact);
+            novaProcess.RefreshArtifactFromServer(_user);
 
-            var userDecisionToBeDeleted = returnedProcess.GetProcessShapeByShapeName(outerUserDecision.Name);
+            var userDecisionToBeDeleted = novaProcess.Process.GetProcessShapeByShapeName(outerUserDecision.Name);
 
-            returnedProcess.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, endShape);
+            novaProcess.Process.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, endShape);
 
             // Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
+            Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
         }
 
         [TestCase]
@@ -316,35 +321,36 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = Helper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find precondition task
-            var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition
-            var preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
+            var preconditionOutgoingLink = novaProcess.Process.GetOutgoingLinkForShape(preconditionTask);
 
             // Find the endpoint for the new branch
-            var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
+            var branchEndPoint = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Add decision point with branch to end
-            var userDecision = process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1);
+            var userDecision = novaProcess.Process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1);
 
             // Add a second branch with task to decision point
-            process.AddBranchWithUserAndSystemTaskToUserDecisionPoint(userDecision, preconditionOutgoingLink.Orderindex + 2, branchEndPoint.Id);
+            novaProcess.Process.AddBranchWithUserAndSystemTaskToUserDecisionPoint(userDecision, preconditionOutgoingLink.Orderindex + 2, branchEndPoint.Id);
 
             // Save the process
-            var returnedProcess = Helper.Storyteller.UpdateProcess(_user, process);
+            novaProcess.Update(_user, novaProcess.Artifact);
+            novaProcess.RefreshArtifactFromServer(_user);
 
-            var userDecisionToBeDeleted = returnedProcess.GetProcessShapeByShapeName(userDecision.Name);
+            var userDecisionToBeDeleted = novaProcess.Process.GetProcessShapeByShapeName(userDecision.Name);
 
             // Merge point for the outer user decision is the process end point
-            var endShape = process.GetProcessShapeByShapeName(Process.EndName);
+            var endShape = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
-            returnedProcess.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, endShape);
+            novaProcess.Process.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, endShape);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
+            Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
         }
 
         [TestCase]
@@ -368,51 +374,52 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = Helper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find precondition task
-            var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition
-            var preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
+            var preconditionOutgoingLink = novaProcess.Process.GetOutgoingLinkForShape(preconditionTask);
 
             // Determine the branch endpoint
-            var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
+            var branchEndPoint = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Add decision point <UD1> with branch after precondition
-            var userDecision = process.AddUserDecisionPointWithBranchAfterShape(
+            var userDecision = novaProcess.Process.AddUserDecisionPointWithBranchAfterShape(
                 preconditionTask, 
                 preconditionOutgoingLink.Orderindex + 1, 
                 branchEndPoint.Id);
 
             // Outgoing process link for decision point branch
-            var outgoingProcessLinkForUserDecision = process.GetOutgoingLinkForShape(
+            var outgoingProcessLinkForUserDecision = novaProcess.Process.GetOutgoingLinkForShape(
                 userDecision,
                 preconditionOutgoingLink.Orderindex + 1);
 
             // Determine new user task from decision point outgoing process link
-            var newUserTask = process.GetProcessShapeById(outgoingProcessLinkForUserDecision.DestinationId);
+            var newUserTask = novaProcess.Process.GetProcessShapeById(outgoingProcessLinkForUserDecision.DestinationId);
 
-            var newSystemTask = process.GetNextShape(newUserTask);
+            var newSystemTask = novaProcess.Process.GetNextShape(newUserTask);
 
             // Add second user decision point <UD2> with branch to end after new system task
-            var secondUserDecision = process.AddUserDecisionPointWithBranchAfterShape(
+            var secondUserDecision = novaProcess.Process.AddUserDecisionPointWithBranchAfterShape(
                 newSystemTask, 
                 preconditionOutgoingLink.Orderindex + 1, 
                 branchEndPoint.Id);
 
             // Save the process
-            var returnedProcess = Helper.Storyteller.UpdateProcess(_user, process);
+            novaProcess.Update(_user, novaProcess.Artifact);
+            novaProcess.RefreshArtifactFromServer(_user);
 
-            var userDecisionToBeDeleted = returnedProcess.GetProcessShapeByShapeName(secondUserDecision.Name);
+            var userDecisionToBeDeleted = novaProcess.Process.GetProcessShapeByShapeName(secondUserDecision.Name);
 
             // Merge point for the second user decision is the process end point
-            var endShape = process.GetProcessShapeByShapeName(Process.EndName);
+            var endShape = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
-            returnedProcess.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, endShape);
+            novaProcess.Process.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, endShape);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
+            Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
         }
 
         [TestCase]
@@ -436,51 +443,52 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = Helper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find precondition task
-            var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition
-            var preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
+            var preconditionOutgoingLink = novaProcess.Process.GetOutgoingLinkForShape(preconditionTask);
 
             // Determine the branch endpoint
-            var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
+            var branchEndPoint = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Add decision point with branch after precondition
-            var firstUserDecision = process.AddUserDecisionPointWithBranchAfterShape(
+            var firstUserDecision = novaProcess.Process.AddUserDecisionPointWithBranchAfterShape(
                 preconditionTask,
                 preconditionOutgoingLink.Orderindex + 1,
                 branchEndPoint.Id);
 
             // Outgoing process link for decision point branch
-            var outgoingProcessLinkForUserDecision = process.GetOutgoingLinkForShape(
+            var outgoingProcessLinkForUserDecision = novaProcess.Process.GetOutgoingLinkForShape(
                 firstUserDecision,
                 preconditionOutgoingLink.Orderindex + 1);
 
             // Determine new user task from decision point outgoing process link
-            var newUserTask = process.GetProcessShapeById(outgoingProcessLinkForUserDecision.DestinationId);
+            var newUserTask = novaProcess.Process.GetProcessShapeById(outgoingProcessLinkForUserDecision.DestinationId);
 
-            var newSystemTask = process.GetNextShape(newUserTask);
+            var newSystemTask = novaProcess.Process.GetNextShape(newUserTask);
 
             // Add second user decision point with branch to end after new system task
-            process.AddUserDecisionPointWithBranchAfterShape(
+            novaProcess.Process.AddUserDecisionPointWithBranchAfterShape(
                 newSystemTask,
                 preconditionOutgoingLink.Orderindex + 1,
                 branchEndPoint.Id);
 
             // Save the process
-            var returnedProcess = Helper.Storyteller.UpdateProcess(_user, process);
+            novaProcess.Update(_user, novaProcess.Artifact);
+            novaProcess.RefreshArtifactFromServer(_user);
 
-            var userDecisionToBeDeleted = returnedProcess.GetProcessShapeByShapeName(firstUserDecision.Name);
+            var userDecisionToBeDeleted = novaProcess.Process.GetProcessShapeByShapeName(firstUserDecision.Name);
 
             // Merge point for the user decision is the process end point
-            var endShape = process.GetProcessShapeByShapeName(Process.EndName);
+            var endShape = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
-            returnedProcess.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, endShape);
+            novaProcess.Process.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, endShape);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
+            Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
         }
     }
 }

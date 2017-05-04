@@ -107,8 +107,8 @@ namespace AdminStore.Controllers
         /// <response code="403">Forbidden if used doesn’t have permissions to get users list</response>
         [SessionRequired]
         [Route("")]
-        [ResponseType(typeof(QueryResult))]
-        public async Task<IHttpActionResult> GetAllUsers([FromUri] TableSettings settings)
+        [ResponseType(typeof(QueryResult<UserDto>))]
+        public async Task<IHttpActionResult> QueryUsers([FromUri] TableSettings settings)
         {
             if (settings == null || settings.PageSize <= 0 || settings.Page <= 0)
             {

@@ -821,7 +821,7 @@ namespace AdminStore.Controllers
 
         #endregion PasswordRecovery
 
-        #region GetAllUsers
+        #region QueryUsers
 
         [TestMethod]
         public async Task GetAllUsers_AllParamsAreCorrect_RepositoryReturnUsers()
@@ -852,7 +852,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
 
             //act
-            var result = await _controller.GetAllUsers(settings) as OkNegotiatedContentResult<QueryResult>;
+            var result = await _controller.QueryUsers(settings) as OkNegotiatedContentResult<QueryResult>;
 
             //assert
             Assert.IsNotNull(result);
@@ -865,7 +865,7 @@ namespace AdminStore.Controllers
             //arrange
 
             //act
-            var result = await _controller.GetAllUsers(new TableSettings());
+            var result = await _controller.QueryUsers(new TableSettings());
 
             //assert
             Assert.IsInstanceOfType(result, typeof(BadRequestErrorMessageResult));
@@ -883,7 +883,7 @@ namespace AdminStore.Controllers
             //act
             try
             {
-                var result = await _controller.GetAllUsers(new TableSettings() { Page = 1, PageSize = 2 });
+                var result = await _controller.QueryUsers(new TableSettings() { Page = 1, PageSize = 2 });
             }
             catch (Exception ex)
             {

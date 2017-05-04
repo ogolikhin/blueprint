@@ -1,8 +1,12 @@
-﻿namespace AdminStore.Models
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
+
+namespace AdminStore.Models
 {
-    public class QueryResult
+    [JsonObject]
+    public class QueryResult<TResult>
     {
-        public Data Data { get; set; }
-        public Pagination Pagination { get; set; }
+        public int Total { get; set; }
+        public IEnumerable<TResult> Items { get; set; }
     }
 }

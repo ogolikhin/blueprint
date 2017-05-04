@@ -7,10 +7,9 @@ namespace AdminStore.Models
     {
         public bool SelectAll { get; set; }
         public IEnumerable<int> Ids { get; set; }
-
-        public bool IsUseless()
+        public bool IsSelectionEmpty()
         {
-            return ((Ids == null || (!Ids.ToList().Any() && SelectAll == false)));
+            return !SelectAll && (Ids == null || !Ids.Any());
         }
     }
 }

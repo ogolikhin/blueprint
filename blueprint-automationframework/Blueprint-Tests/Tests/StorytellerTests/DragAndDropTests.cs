@@ -47,7 +47,7 @@ namespace StorytellerTests
                 [S]--[P]--+--[UT3]--+--[ST4]--+--[UT1]--+--[ST2]--+--[E]
             */
 
-            var novaProcess = Helper.CreateAndGetDefaultNovaProcessWithTwoSequentialUserTasks(_project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcessWithTwoSequentialUserTasks(_project, _user);
 
             var defaultUserTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
@@ -56,7 +56,7 @@ namespace StorytellerTests
             novaProcess.Process.MoveUserAndSystemTaskBeforeShape(defaultUserTask, endShape);
 
             // Update and Verify the modified process
-            Helper.UpdateVerifyAndPublishNovaProcess(novaProcess.NovaProcess, _user);
+            StorytellerTestHelper.UpdateVerifyAndPublishNovaProcess(novaProcess.NovaProcess, _user);
         }
     }
 }

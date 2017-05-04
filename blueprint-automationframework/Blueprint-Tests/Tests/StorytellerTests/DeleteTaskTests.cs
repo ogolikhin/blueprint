@@ -41,7 +41,7 @@ namespace StorytellerTests
         public void DeleteUserAndSystemTask_VerifyReturnedProcess()
         {
             // Create and get the default process
-            var novaProcess = Helper.CreateAndGetDefaultNovaProcess(_project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find precondition task
             var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -63,7 +63,7 @@ namespace StorytellerTests
             novaProcess.Process.DeleteUserAndSystemTask(userTaskToBeDeleted);
 
             // Update and Verify the modified process
-            Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
         }
 
         [TestCase(5)]
@@ -72,7 +72,7 @@ namespace StorytellerTests
         public void DeleteMultipleUserAndSystemTasks_VerifyReturnedProcess(int numberOfAdditionalUserTasks)
         {
             // Create and get the default process
-            var novaProcess = Helper.CreateAndGetDefaultNovaProcess(_project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find precondition task
             var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -94,7 +94,7 @@ namespace StorytellerTests
             }
 
             // Save the process
-            var returnedNovaProcess = Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
+            var returnedNovaProcess = StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
 
             // Delete multiple user tasks with associated system tasks except the default User Task and its associated system task
             var userTasksToBeDeleted = returnedNovaProcess.Process.GetProcessShapesByShapeType(ProcessShapeType.UserTask);
@@ -108,7 +108,7 @@ namespace StorytellerTests
             }
 
             // Update and Verify the modified process
-            Helper.UpdateAndVerifyNovaProcess(returnedNovaProcess, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(returnedNovaProcess, _user);
         }
 
         [TestCase]
@@ -118,7 +118,7 @@ namespace StorytellerTests
         public void GenerateUserStoriesDeleteUserAndSystemTask_VerifyUserStoriesExistence()
         {
             // Create and get the default processArtifacts 
-            var novaProcess = Helper.CreateAndGetDefaultNovaProcess(_project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find precondition task
             var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);

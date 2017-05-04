@@ -47,7 +47,7 @@ namespace StorytellerTests
             int lengthOfLabelSent,
             double orderIndexOfUserDecisionBranch)
         {
-            var novaProcess = Helper.CreateAndGetDefaultNovaProcessWithOneUserDecision(
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcessWithOneUserDecision(
                 _project,
                 _adminUser);
 
@@ -64,7 +64,7 @@ namespace StorytellerTests
             branchLink.Label = RandomGenerator.RandomAlphaNumericUpperAndLowerCase((uint)lengthOfLabelSent);
 
             // Update and Verify the modified process
-            Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _adminUser);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _adminUser);
         }
 
         [TestCase(5, 0.0, ProcessType.BusinessProcess)]
@@ -76,7 +76,7 @@ namespace StorytellerTests
             double orderIndexOfUserDecisionBranch,
             ProcessType processType)
         {
-            var novaProcess = Helper.CreateAndGetDefaultNovaProcessWithOneUserDecision(
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcessWithOneUserDecision(
                 _project,
                 _adminUser);
 
@@ -96,7 +96,7 @@ namespace StorytellerTests
             novaProcess.Process.ProcessType = processType;
 
             // Update and Verify the modified process
-            Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _adminUser);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _adminUser);
         }
 
         [TestCase(5, 0.0)]
@@ -107,7 +107,7 @@ namespace StorytellerTests
             int lengthOfLabelSent,
             double orderIndexOfUserDecisionBranch)
         {
-            var novaProcess = Helper.CreateAndGetDefaultNovaProcessWithOneUserDecision(
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcessWithOneUserDecision(
                _project,
                _adminUser);
 
@@ -124,7 +124,7 @@ namespace StorytellerTests
             branchLink.Label = RandomGenerator.RandomAlphaNumericUpperAndLowerCase((uint)lengthOfLabelSent);
 
             // Update and Verify the returned process
-            Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _adminUser);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _adminUser);
         }
 
         [TestCase(0.0)]
@@ -134,7 +134,7 @@ namespace StorytellerTests
         public void DeleteUserDecisionBranchLabel_VerifyReturnedBranchHasLabelRemoved(
             double orderIndexOfUserDecisionBranch)
         {
-            var novaProcess = Helper.CreateAndGetDefaultNovaProcessWithOneUserDecision(
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcessWithOneUserDecision(
                 _project,
                 _adminUser);
 
@@ -151,7 +151,7 @@ namespace StorytellerTests
             branchLink.Label = null;
 
             // Update and Verify the returned process
-            Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _adminUser);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _adminUser);
         }
 
         [TestCase(1, 0.0)]
@@ -166,7 +166,7 @@ namespace StorytellerTests
             int lengthOfLabelSent,
             double orderIndexOfSystemDecisionBranch)
         {
-            var novaProcess = Helper.CreateAndGetDefaultNovaProcessWithOneSystemDecision(
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcessWithOneSystemDecision(
                 _project,
                 _adminUser);
 
@@ -183,7 +183,7 @@ namespace StorytellerTests
             branchLink.Label = RandomGenerator.RandomAlphaNumericUpperAndLowerCase((uint)lengthOfLabelSent);
 
             // Update and Verify the modified process
-            Helper.UpdateAndVerifyNovaProcess(novaProcess, _adminUser);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess, _adminUser);
         }
 
         [TestCase(5, 0.0, ProcessType.BusinessProcess)]
@@ -195,7 +195,7 @@ namespace StorytellerTests
             double orderIndexOfSystemDecisionBranch,
             ProcessType processType)
         {
-            var novaProcess = Helper.CreateAndGetDefaultNovaProcessWithOneSystemDecision(
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcessWithOneSystemDecision(
                 _project,
                 _adminUser);
 
@@ -215,7 +215,7 @@ namespace StorytellerTests
             novaProcess.Process.ProcessType = processType;
 
             // Update and Verify the modified process
-            Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _adminUser);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _adminUser);
         }
 
         [TestCase(5, 0.0)]
@@ -226,7 +226,7 @@ namespace StorytellerTests
             int lengthOfLabelSent,
             double orderIndexOfSystemDecisionBranch)
         {
-            var novaProcess = Helper.CreateAndGetDefaultNovaProcessWithOneSystemDecision(
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcessWithOneSystemDecision(
                 _project,
                 _adminUser);
 
@@ -243,7 +243,7 @@ namespace StorytellerTests
             branchLink.Label = RandomGenerator.RandomAlphaNumericUpperAndLowerCase((uint)lengthOfLabelSent);
 
             // Update and Verify the returned process
-            Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _adminUser);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _adminUser);
         }
 
         [TestCase(0.0)]
@@ -253,7 +253,7 @@ namespace StorytellerTests
         public void DeleteSystemDecisionBranchLabel_VerifyReturnedBranchHasLabelRemoved(
             double orderIndexOfSystemDecisionBranch)
         {
-            var novaProcess = Helper.CreateAndGetDefaultNovaProcessWithOneSystemDecision(
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcessWithOneSystemDecision(
                 _project,
                 _adminUser);
 
@@ -270,7 +270,7 @@ namespace StorytellerTests
             branchLink.Label = null;
 
             // Update and Verify the returned process
-            Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _adminUser);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _adminUser);
         }
     }
 }

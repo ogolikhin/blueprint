@@ -49,7 +49,7 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var novaProcess = Helper.CreateAndGetDefaultNovaProcess(_project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find precondition task
             var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -72,7 +72,7 @@ namespace StorytellerTests
             novaProcess.Process.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, branchEndPoint);
 
             // Update and Verify the modified process
-            Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
         }
 
         [TestCase]
@@ -91,7 +91,7 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var novaProcess = Helper.CreateAndGetDefaultNovaProcess(_project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find default system task
             var defaultSystemTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
@@ -114,7 +114,7 @@ namespace StorytellerTests
             novaProcess.Process.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, endShape);
 
             // Verify the modified process
-            Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
         }
 
         [TestCase]
@@ -136,7 +136,7 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var novaProcess = Helper.CreateAndGetDefaultNovaProcess(_project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find precondition task
             var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -180,7 +180,7 @@ namespace StorytellerTests
             novaProcess.Process.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, mergePointForFirstUserDecision);
 
             // Update and Verify the modified process
-            Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
         }
 
         [TestCase]
@@ -205,7 +205,7 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var novaProcess = Helper.CreateAndGetDefaultNovaProcess(_project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find precondition task
             var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -240,7 +240,7 @@ namespace StorytellerTests
             novaProcess.Process.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, endShape);
 
             // Verify the modified process
-            Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
         }
 
         [TestCase]
@@ -265,7 +265,7 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var novaProcess = Helper.CreateAndGetDefaultNovaProcess(_project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find precondition task
             var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -300,7 +300,7 @@ namespace StorytellerTests
             novaProcess.Process.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, endShape);
 
             // Verify the modified process
-            Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
         }
 
         [TestCase]
@@ -321,7 +321,7 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var novaProcess = Helper.CreateAndGetDefaultNovaProcess(_project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find precondition task
             var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -350,7 +350,7 @@ namespace StorytellerTests
             novaProcess.Process.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, endShape);
 
             // Update and Verify the modified process
-            Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
         }
 
         [TestCase]
@@ -374,7 +374,7 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var novaProcess = Helper.CreateAndGetDefaultNovaProcess(_project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find precondition task
             var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -419,7 +419,7 @@ namespace StorytellerTests
             novaProcess.Process.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, endShape);
 
             // Update and Verify the modified process
-            Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
         }
 
         [TestCase]
@@ -443,7 +443,7 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var novaProcess = Helper.CreateAndGetDefaultNovaProcess(_project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find precondition task
             var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -488,7 +488,7 @@ namespace StorytellerTests
             novaProcess.Process.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, endShape);
 
             // Update and Verify the modified process
-            Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
         }
     }
 }

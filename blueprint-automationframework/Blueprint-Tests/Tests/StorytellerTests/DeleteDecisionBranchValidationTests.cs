@@ -56,7 +56,7 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var novaProcess = Helper.CreateAndGetDefaultNovaProcess(_project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find the default UserTask
             var defaultUserTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
@@ -117,7 +117,7 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var novaProcess = Helper.CreateAndGetDefaultNovaProcess(_project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find precondition task
             var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);

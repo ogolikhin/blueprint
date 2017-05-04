@@ -46,10 +46,10 @@ namespace StorytellerTests
         public void AddStoryLinkToUserTaskWithoutStoryLink_UpdateProcess_VerifyReturnedProcessDoesNotHaveStoryLink()
         {
             // Create and get the default process
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Get default user task
-            var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var defaultUserTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
             // Create and publish textual requirement artifact to simulate user story artifact
             //var addedArtifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.TextualRequirement);
@@ -60,12 +60,12 @@ namespace StorytellerTests
             defaultUserTask.PropertyValues[STORYLINKSKEY].Value = storyLink;
 
             // Update the process using UpdateProcess in attempt to add a story link
-            var modifiedReturnedProcess = Helper.Storyteller.UpdateProcess(_user, returnedProcess);
+            var modifiedReturnedProcess = Helper.Storyteller.UpdateNovaProcess(_user, novaProcess.NovaProcess);
 
             Assert.IsNotNull(modifiedReturnedProcess, "The process returned from UpdateProcess() was null.");
 
             // Verify returned process does not contain a story link
-            Assert.IsNull(modifiedReturnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName).PropertyValues[STORYLINKSKEY].Value,
+            Assert.IsNull(modifiedReturnedProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName).PropertyValues[STORYLINKSKEY].Value,
                 "The story link was saved using UpdateProcess but should not have been saved");
         }
 
@@ -76,20 +76,20 @@ namespace StorytellerTests
         public void AddStoryLinkToUserTaskWithStoryLink_UpdateProcess_VerifyReturnedProcessDoesNotHaveStoryLink()
         {
             // Create and get the default process
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Publish process; enable recursive delete flag
-            Helper.Storyteller.PublishProcess(_user, returnedProcess);
+            novaProcess.Publish(_user);
             //deleteChildren = true;
 
             // Generate user stories for process
-            Helper.Storyteller.GenerateUserStories(_user, returnedProcess);
+            Helper.Storyteller.GenerateUserStories(_user, novaProcess.Process);
 
             // Get default process again with updated story link
-            returnedProcess = Helper.Storyteller.GetNovaProcess(_user, returnedProcess.Id).Process;
+            novaProcess.RefreshArtifactFromServer(_user);
 
             // Get default user task
-            var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var defaultUserTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
             // Get original story link
             var originalStoryLinksProperty = defaultUserTask.PropertyValues[STORYLINKSKEY];
@@ -112,7 +112,8 @@ namespace StorytellerTests
             defaultUserTask.PropertyValues[STORYLINKSKEY] = newStoryLinksProperty;
 
             // Update the process using UpdateProcess in attempt to change the story link
-            var modifiedReturnedProcess = Helper.Storyteller.UpdateProcess(_user, returnedProcess);
+            novaProcess.Lock(_user);
+            var modifiedReturnedProcess = Helper.Storyteller.UpdateProcess(_user, novaProcess.Process);
 
             Assert.IsNotNull(modifiedReturnedProcess, "The process returned from UpdateProcess() was null.");
 
@@ -131,28 +132,29 @@ namespace StorytellerTests
         public void DeleteStorylinkFromUserTask_VerifyReturnedProcessHasStoryLink()
         {
             // Create and get the default process
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Publish process; enable recursive delete flag
-            Helper.Storyteller.PublishProcess(_user, returnedProcess);
+            novaProcess.Publish(_user);
             //deleteChildren = true;
 
             // Generate user stories for process
-            Helper.Storyteller.GenerateUserStories(_user, returnedProcess);
+            Helper.Storyteller.GenerateUserStories(_user, novaProcess.Process);
 
             // Get default process again with updated story link
-            returnedProcess = Helper.Storyteller.GetNovaProcess(_user, returnedProcess.Id).Process;
+            novaProcess.RefreshArtifactFromServer(_user);
 
             // Get original story link
             var originalStoryLinksProperty =
-                returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName).PropertyValues[STORYLINKSKEY];
+                novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName).PropertyValues[STORYLINKSKEY];
             var originalStoryLink = SerializationUtilities.DeserializeObject<StoryLink>(originalStoryLinksProperty.Value.ToString());
 
             // Delete the story link for the default user task
-            returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName).PropertyValues[STORYLINKSKEY].Value = null;
+            novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName).PropertyValues[STORYLINKSKEY].Value = null;
 
             // Update the process using UpdateProcess in attempt to delete the story link
-            var modifiedReturnedProcess = Helper.Storyteller.UpdateProcess(_user, returnedProcess);
+            novaProcess.Lock(_user);
+            var modifiedReturnedProcess = Helper.Storyteller.UpdateProcess(_user, novaProcess.Process);
 
             Assert.IsNotNull(modifiedReturnedProcess, "The process returned from UpdateProcess() was null.");
 

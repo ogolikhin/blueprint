@@ -790,26 +790,25 @@ namespace ArtifactStoreTests
         public void CopyArtifact_SinglePublishedProcessWithLinkLabels_ToNewFolder_ReturnsNewProcessWithLinkLabels()
         {
             // Setup:
-            var sourceProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithUserAndSystemDecisions(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcessWithUserAndSystemDecisions(_project, _user);
 
-            sourceProcess = StorytellerTestHelper.AddRandomLinkLabelsToProcess(Helper.Storyteller, sourceProcess, _user);
-            sourceProcess = StorytellerTestHelper.UpdateVerifyAndPublishProcess(sourceProcess, Helper.Storyteller, _user);
-
-            var sourceArtifact = Helper.WrapArtifact(Helper.ArtifactStore.GetArtifactDetails(_user, sourceProcess.Id), _project,_user);
+            novaProcess.Process = (Process)StorytellerTestHelper.AddRandomLinkLabelsToProcess(Helper.Storyteller, novaProcess.Process, _user);
+            StorytellerTestHelper.UpdateVerifyAndPublishNovaProcess(novaProcess.NovaProcess, _user);
+            novaProcess.RefreshArtifactFromServer(_user);
 
             var targetFolder = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
 
             // Execute:
             Tuple<CopyNovaArtifactResultSet, List<ArtifactWrapper>> copyResult = null;
 
-            Assert.DoesNotThrow(() => copyResult = sourceArtifact.CopyTo(_user, _project, targetFolder.Id),
+            Assert.DoesNotThrow(() => copyResult = novaProcess.CopyTo(_user, _project, targetFolder.Id),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
-            Assert.IsNotNull(sourceArtifact.Version, "Artifact version cannot be null for published process!");
+            Assert.IsNotNull(novaProcess.Version, "Artifact version cannot be null for published process!");
 
-            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifact, copyResult.Item1, _user,
-                expectedVersionOfOriginalArtifact: sourceArtifact.Version.Value);
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(novaProcess, copyResult.Item1, _user,
+                expectedVersionOfOriginalArtifact: novaProcess.Version.Value);
 
             var compareOptions = new Attachments.CompareOptions
             {
@@ -817,18 +816,18 @@ namespace ArtifactStoreTests
                 CompareUploadedDates = false
             };
 
-            AssertCopiedSubArtifactsAreEqualToOriginal(_user, sourceArtifact, copyResult.Item1.Artifact,
+            AssertCopiedSubArtifactsAreEqualToOriginal(_user, novaProcess, copyResult.Item1.Artifact,
                 skipSubArtifactTraces: true, attachmentCompareOptions: compareOptions);
 
             var copiedNovaProcess = Helper.Storyteller.GetNovaProcess(_user, copyResult.Item1.Artifact.Id);
             var copiedProcess = copiedNovaProcess.Process;
-            Process.AssertAreEqual(sourceProcess, copiedProcess, isCopiedProcess: true);
+            Process.AssertAreEqual(novaProcess.Process, copiedProcess, isCopiedProcess: true);
 
             // Compare the Process Links.
-            for (int i = 0; i < sourceProcess.Links.Count; ++i)
+            for (int i = 0; i < novaProcess.Process.Links.Count; ++i)
             {
-                Assert.AreEqual(sourceProcess.Links[i].Label, copiedProcess.Links[i].Label, "Link labels do not match!");
-                Assert.AreEqual(sourceProcess.Links[i].Orderindex, copiedProcess.Links[i].Orderindex, "Link OrderIndexes do not match!");
+                Assert.AreEqual(novaProcess.Process.Links[i].Label, copiedProcess.Links[i].Label, "Link labels do not match!");
+                Assert.AreEqual(novaProcess.Process.Links[i].Orderindex, copiedProcess.Links[i].Orderindex, "Link OrderIndexes do not match!");
             }
         }
 
@@ -1737,16 +1736,16 @@ namespace ArtifactStoreTests
                                |                        |           |              |
                                +-------[UT2]--+--[ST3]--+           +----+--[ST7]--+
             */
-            var sourceProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithUserAndSystemDecisions(Helper.Storyteller, _project, user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcessWithUserAndSystemDecisions(_project, user);
 
-            StorytellerTestHelper.UpdateVerifyAndPublishProcess(sourceProcess, Helper.Storyteller, user);
+            StorytellerTestHelper.UpdateVerifyAndPublishNovaProcess(novaProcess.NovaProcess, user);
 
             // Generate User Stories.
-            var userStories = Helper.Storyteller.GenerateUserStories(user, sourceProcess);
+            var userStories = Helper.Storyteller.GenerateUserStories(user, novaProcess.Process);
             Assert.NotNull(userStories, "No User Stories were generated!");
             Assert.AreEqual(3, userStories.Count, "There should be 3 User Stories generated!");
 
-            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, sourceProcess.Id);
+            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, novaProcess.Id);
 
             var sourceArtifact = Helper.WrapArtifact(sourceArtifactDetails, _project, user);
 

@@ -181,7 +181,7 @@ namespace StorytellerTests
             novaProcess.Process.AddUserAndSystemTask(endIncomingLink);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(novaProcess.Process, Helper.Storyteller, _adminUser);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _adminUser);
 
             // Execute: 
             INovaArtifactsAndProjectsResponse discardArtifactResponse = null;

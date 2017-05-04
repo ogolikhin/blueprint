@@ -56,7 +56,7 @@ namespace StorytellerTests
             */
 
             // Create and Save the process with one system decision with two branches plus main branch
-            var novaProcess = Helper.CreateAndGetDefaultNovaProcessWithOneSystemDecisionContainingMultipleConditions(
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcessWithOneSystemDecisionContainingMultipleConditions(
                     _project, _user, additionalBranches: 1);
 
             // Find the endShape for the system decision
@@ -69,7 +69,7 @@ namespace StorytellerTests
             novaProcess.Process.DeleteSystemDecisionBranch(systemDecisionForBranchDeletion, orderIndexOfBranch, endShape);
 
             // Update and Verify the modified process
-            Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
         }
 
         [TestCase]
@@ -94,7 +94,7 @@ namespace StorytellerTests
             */
 
             // Create the process with one system decision with three branches plus main branch
-            var novaProcess = Helper.CreateAndGetDefaultNovaProcessWithOneSystemDecisionContainingMultipleConditions(
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcessWithOneSystemDecisionContainingMultipleConditions(
                     _project, _user, additionalBranches: 1, updateProcess: false);
 
             // Find the precondition
@@ -120,7 +120,7 @@ namespace StorytellerTests
             novaProcess.Process.AddSystemDecisionPointWithBranchBeforeSystemTask(systemTaskOnTheThirdBranch, outgoingLinkForSystemTaskOnTheThirdBranch.Orderindex + 1, endShape.Id);
 
             // Update and Verify the process after updating the default process for the test
-            var returnedNovaProcess = Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
+            var returnedNovaProcess = StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
 
             var systemDecisionForBranchDeletion = returnedNovaProcess.Process.GetNextShape(returnedNovaProcess.Process.GetNextShape(precondition));
 
@@ -128,7 +128,7 @@ namespace StorytellerTests
             returnedNovaProcess.Process.DeleteSystemDecisionBranch(systemDecisionForBranchDeletion, outgoingLinkForPrecondition.Orderindex + 2, endShape);
 
             // Update and Verify the modified process
-            Helper.UpdateAndVerifyNovaProcess(returnedNovaProcess, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(returnedNovaProcess, _user);
         }
 
         [TestCase]
@@ -153,7 +153,7 @@ namespace StorytellerTests
             */
 
             // Create the process with one system decision with three branches plus main branch
-            var novaProcess = Helper.CreateAndGetDefaultNovaProcessWithOneSystemDecisionContainingMultipleConditions(
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcessWithOneSystemDecisionContainingMultipleConditions(
                     _project, _user, additionalBranches: 1, updateProcess: false);
 
             // Find the precondition
@@ -179,7 +179,7 @@ namespace StorytellerTests
             novaProcess.Process.AddUserDecisionPointWithBranchAfterShape(systemTaskOnTheThirdBranch, outgoingLinkForSystemTaskOnTheThirdBranch.Orderindex + 1, endShape.Id);
 
             // Update and Verify the process after updating the default process for the test
-            var returnedNovaProcess = Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
+            var returnedNovaProcess = StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
 
             var systemDecisionForBranchDeletion = returnedNovaProcess.Process.GetNextShape(returnedNovaProcess.Process.GetNextShape(precondition));
 
@@ -187,7 +187,7 @@ namespace StorytellerTests
             returnedNovaProcess.Process.DeleteSystemDecisionBranch(systemDecisionForBranchDeletion, outgoingLinkForPrecondition.Orderindex + 2, endShape);
 
             // Update and Verify the modified process
-            Helper.UpdateAndVerifyNovaProcess(returnedNovaProcess, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(returnedNovaProcess, _user);
         }
     }
 }

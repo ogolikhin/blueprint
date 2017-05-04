@@ -54,7 +54,7 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var novaProcess = Helper.CreateAndGetDefaultNovaProcess(_project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find precondition task
             var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -72,7 +72,7 @@ namespace StorytellerTests
             novaProcess.Process.AddBranchWithUserAndSystemTaskToUserDecisionPoint(userDecision, preconditionOutgoingLink.Orderindex + 2, branchEndPoint.Id);
 
             // Update and Verify the process after updating the default process for the test
-            var returnedNovaProcess = Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
+            var returnedNovaProcess = StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
 
             var userDecisionWithBranchToBeDeleted= returnedNovaProcess.Process.GetProcessShapeByShapeName(userDecision.Name);
 
@@ -80,7 +80,7 @@ namespace StorytellerTests
             returnedNovaProcess.Process.DeleteUserDecisionBranch(userDecisionWithBranchToBeDeleted, orderIndexOfBranch, branchEndPoint);
 
             // Update and Verify the modified process
-            Helper.UpdateAndVerifyNovaProcess(returnedNovaProcess, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(returnedNovaProcess, _user);
         }
 
         [TestCase]
@@ -106,7 +106,7 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var novaProcess = Helper.CreateAndGetDefaultNovaProcessWithOneUserDecisionContainingMultipleConditions(_project, _user, additionalBranches: 1, updateProcess: false);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcessWithOneUserDecisionContainingMultipleConditions(_project, _user, additionalBranches: 1, updateProcess: false);
 
             // Find precondition
             var precondition = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -132,7 +132,7 @@ namespace StorytellerTests
                 branchEndPoint.Id);
 
             // Update and Verify the process after updating the default process for the test
-            var returnedNovaProcess = Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
+            var returnedNovaProcess = StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
 
             // Find the first user decision in the returned process
             var returnedFirstUserDecision = returnedNovaProcess.Process.GetProcessShapeByShapeName(firstUserDecision.Name);
@@ -141,7 +141,7 @@ namespace StorytellerTests
             returnedNovaProcess.Process.DeleteUserDecisionBranch(returnedFirstUserDecision, preconditionOutgoingLink.Orderindex + 2, branchEndPoint);
 
             // Update and Verify the modified process
-            Helper.UpdateAndVerifyNovaProcess(returnedNovaProcess, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(returnedNovaProcess, _user);
         }
 
         [TestCase]
@@ -167,7 +167,7 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var novaProcess = Helper.CreateAndGetDefaultNovaProcessWithOneUserDecisionContainingMultipleConditions(_project, _user, additionalBranches: 1, updateProcess: false);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcessWithOneUserDecisionContainingMultipleConditions(_project, _user, additionalBranches: 1, updateProcess: false);
 
             // Find precondition
             var precondition = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -193,7 +193,7 @@ namespace StorytellerTests
                 branchEndPoint.Id);
 
             // Update and Verify the process after updating the default process for the test
-            var returnedNovaProcess = Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
+            var returnedNovaProcess = StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
 
             // Find the first user decision in the returned process
             var returnedFirstUserDecision = returnedNovaProcess.Process.GetProcessShapeByShapeName(firstUserDecision.Name);
@@ -202,7 +202,7 @@ namespace StorytellerTests
             returnedNovaProcess.Process.DeleteUserDecisionBranch(returnedFirstUserDecision, preconditionOutgoingLink.Orderindex + 2, branchEndPoint);
 
             // Update and Verify the modified process
-            Helper.UpdateAndVerifyNovaProcess(returnedNovaProcess, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(returnedNovaProcess, _user);
         }
     }
 }

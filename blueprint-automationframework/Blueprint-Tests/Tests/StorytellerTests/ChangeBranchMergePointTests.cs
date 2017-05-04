@@ -55,7 +55,7 @@ namespace StorytellerTests
                                   +----+--[ST3]--+----------------------+
             */
             // Create and get the process with two sequential user tasks and one system decision
-            var novaProcess = Helper.CreateAndGetDefaultNovaProcessWithTwoSequentialUserTasksAndOneSystemDecision(_project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcessWithTwoSequentialUserTasksAndOneSystemDecision(_project, _user);
 
             // Locate the start shape to locate the outgoing link to Precondition
             var startShape = novaProcess.Process.GetProcessShapeByShapeName(Process.StartName);
@@ -80,7 +80,7 @@ namespace StorytellerTests
             novaProcess.Process.ChangeBranchMergePoint(systemDecision, outgoingLinkForStartShape.Orderindex + 1, outgoingLinkForSystemTaskFromSecondBranch, endShape);
 
             // Update and Verify the modified process
-            var updatedProcess = Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
+            var updatedProcess = StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
 
             // Verify that DecisionBranchDestinationLinks contained updated information for the updated merge point
 
@@ -111,7 +111,7 @@ namespace StorytellerTests
                            +-------[UT5]--+--[ST6]--+----------------------+
             */
             // Create and get the process with two sequential user tasks and one user decision
-            var novaProcess = Helper.CreateAndGetDefaultNovaProcessWithTwoSequentialUserTasksAndOneUserDecision(_project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcessWithTwoSequentialUserTasksAndOneUserDecision(_project, _user);
 
             // Find the user decision
             var userDecision = novaProcess.Process.GetProcessShapesByShapeType(ProcessShapeType.UserDecision).First();
@@ -140,7 +140,7 @@ namespace StorytellerTests
             novaProcess.Process.ChangeBranchMergePoint(userDecision, outgoingLinkForStartShape.Orderindex + 1, outgoingLinkForSystemTaskFromSecondBranch, endShape);
 
             // Update and Verify the modified process
-            var updatedProcess = Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
+            var updatedProcess = StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
 
             // Verify that DecisionBranchDestinationLinks contained updated information for the updated merge point
             var secondDecisionBranchDestinationLink =
@@ -178,7 +178,7 @@ namespace StorytellerTests
             Verify that returned process model contains correct values on DecisionBranchDestinationLinks, section of the process model contains information for merge points
             */
             // Create and get the process with two sequential user tasks and one system decision contains three branches
-            var novaProcess = Helper.CreateAndGetDefaultNovaProcessWithTwoSequentialUserTasksAndOneSystemDecisionContainingMultipleConditions
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcessWithTwoSequentialUserTasksAndOneSystemDecisionContainingMultipleConditions
                     (_project, _user, additionalBranches: 1);
             
             // Locate the start shape to locate the outgoing link to Precondition
@@ -205,7 +205,7 @@ namespace StorytellerTests
             novaProcess.Process.ChangeBranchMergePoint(systemDecision, outgoingLinkForStartShape.Orderindex + 2, outgoingLinkForSystemTaskFromThirdBranch, endShape);
 
             // Update the process
-            var updatedProcess = Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
+            var updatedProcess = StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
 
             // Verify that DecisionBranchDestinationLinks contained updated information for the updated merge point
 
@@ -244,7 +244,7 @@ namespace StorytellerTests
             Verify that returned process model contains correct values on DecisionBranchDestinationLinks, section of the process model contains information for merge points
             */
             // Create and get the process with two sequential user tasks and one user decision contains three branches
-            var novaProcess = Helper.CreateAndGetDefaultNovaProcessWithTwoSequentialUserTasksAndOneUserDecisionContainingMultipleConditions
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcessWithTwoSequentialUserTasksAndOneUserDecisionContainingMultipleConditions
                     (_project, _user, additionalBranches: 1);
 
             // Locate the start shape to locate the outgoing link to Precondition
@@ -274,7 +274,7 @@ namespace StorytellerTests
             novaProcess.Process.ChangeBranchMergePoint(userDecision, outgoingLinkForStartShape.Orderindex + 2, outgoingLinkForSystemTaskFromThirdBranch, endShape);
 
             // Update the process
-            var updatedProcess = Helper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
+            var updatedProcess = StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
 
             // Verify that DecisionBranchDestinationLinks contained updated information for the updated merge point
             var thirdDecisionBranchDestinationLink =

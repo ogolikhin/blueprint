@@ -923,6 +923,33 @@ namespace Model.Impl
                 RestRequestMethod.GET, shouldControlJsonChanges: true);
         }
 
+        /// <seealso cref="IArtifactStore.GetReviewParticipants(IUser, int, int?, int?, int?)"/>
+        public ReviewParticipantsContent GetReviewParticipants(IUser user, int reviewId, int? offset = 0, int? limit = 50,
+            int? versionId = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Containers_id_.PARTICIPANTS, reviewId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+            var queryParams = new Dictionary<string, string>();
+
+            if (offset != null)
+            {
+                queryParams.Add("offset", offset.ToString());
+            }
+
+            if (limit != null)
+            {
+                queryParams.Add("limit", limit.ToString());
+            }
+
+            if (versionId != null)
+            {
+                queryParams.Add("versionId", versionId.ToString());
+            }
+
+            return restApi.SendRequestAndDeserializeObject<ReviewParticipantsContent>(path,
+                RestRequestMethod.GET, shouldControlJsonChanges: true);
+        }
+
         #region Process methods
 
         /// <seealso cref="IArtifactStore.GetNovaProcess(IUser, int, int?, List{HttpStatusCode})"/>

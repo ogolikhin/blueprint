@@ -359,6 +359,78 @@ namespace AdminStore.Repositories
 
         #endregion
 
+        #region DeleteUsers
+
+        [TestMethod]
+        public async Task DeleteUsers_UsersToDeleteExists_QueryReturnNotEmptyResult()
+        {
+            //arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
+            int[] userIds = { 1, 2, 3 };
+            var operationScope = new OperationScope()
+            {
+                Ids = userIds,
+                SelectAll = false
+            };
+
+            var userIdTable = SqlConnectionWrapper.ToDataTable(operationScope.Ids);
+            var returntResult = 3;
+
+            cxn.SetupExecuteScalarAsync("DeleteUsers",
+                new Dictionary<string, object>
+                {
+                    {"UserIds", userIdTable},
+                    {"Search", ""},
+                    {"SessionUserId", 0},
+                    {"SelectAll", operationScope.SelectAll}
+                },
+                returntResult);
+
+            //act
+            var result = await repository.DeleteUsers(operationScope, string.Empty, 0);
+
+            //assert
+            cxn.Verify();
+            Assert.AreEqual(result, returntResult);
+        }
+
+        [TestMethod]
+        public async Task DeleteUsers_UsersToDeleteDoNotExists_QueryReturnEmptyCollection()
+        {
+            //arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
+            int[] userIds = { };
+            var operationScope = new OperationScope()
+            {
+                Ids = userIds,
+                SelectAll = false
+            };
+
+            var userIdTable = SqlConnectionWrapper.ToDataTable(operationScope.Ids);
+            var returntResult = 0;
+
+            cxn.SetupExecuteScalarAsync("DeleteUsers",
+                new Dictionary<string, object>
+                {
+                    {"UserIds", userIdTable},
+                    {"Search", ""},
+                    {"SessionUserId", 0},
+                    {"SelectAll", operationScope.SelectAll}
+                },
+                returntResult);
+
+            //act
+            var result = await repository.DeleteUsers(operationScope, string.Empty, 0);
+
+            //assert
+            cxn.Verify();
+            Assert.AreEqual(result, returntResult);
+        }
+
+        #endregion
+
         #region AddUserAsync
 
         [TestMethod]

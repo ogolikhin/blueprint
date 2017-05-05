@@ -22,7 +22,7 @@ namespace AdminStore
             config.EnsureInitialized();
 
             // Assert
-            config.AssertTotalRoutes(28, "Please update asserts in WebApiConfigTests when changing routes.");
+            config.AssertTotalRoutes(29, "Please update asserts in WebApiConfigTests when changing routes.");
             config.AssertAction<ConfigController>("GetConfigSettings", HttpMethod.Get, "config/settings");
             config.AssertAction<ConfigController>("GetConfig", HttpMethod.Get, "config/config.js");
             config.AssertAction<LicensesController>("GetLicenseTransactions", HttpMethod.Get, "licenses/transactions?days=1");
@@ -49,10 +49,11 @@ namespace AdminStore
             config.AssertAction<UsersController>("PostRequestPasswordResetAsync", HttpMethod.Post, "users/passwordrecovery/request");
             config.AssertAction<UsersController>("PostPasswordResetAsync", HttpMethod.Post, "users/passwordrecovery/reset");
             config.AssertAction<UsersController>("GetUser", HttpMethod.Get, "users/1");
-            config.AssertAction<UsersController>("GetAllUsers", HttpMethod.Get, "users?page=1&pageSize=20&filter=blueprint&sort=source,-license");
+            config.AssertAction<UsersController>("GetUsers", HttpMethod.Get, "users?offset=0&limit=20&sort=login&order=asc");
             config.AssertAction<UsersController>("PostUser", HttpMethod.Post, "users");
             config.AssertAction<UsersController>("UpdateUser", HttpMethod.Put, "users/1");
             config.AssertAction<UsersController>("PostReset", HttpMethod.Post, "users/reset?login=admin");
+            config.AssertAction<UsersController>("DeleteUsers", HttpMethod.Post, "users/delete");
         }
 
         [TestMethod]

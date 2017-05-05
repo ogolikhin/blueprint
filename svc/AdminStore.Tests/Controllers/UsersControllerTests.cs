@@ -54,7 +54,7 @@ namespace AdminStore.Controllers
 
             _controller = new UsersController(
                 _authRepoMock.Object, _usersRepoMock.Object, _settingsRepoMock.Object,
-                _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object, 
+                _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object,
                 _httpClientProviderMock.Object, _privilegesRepository.Object
             )
             {
@@ -75,7 +75,7 @@ namespace AdminStore.Controllers
                 AllowFallback = false,
                 Enabled = true,
                 ExpirePassword = true,
-                Password  = "MTIzNFJFV1EhQCMk",
+                Password = "MTIzNFJFV1EhQCMk",
                 Title = "TitleValue",
                 Department = "Departmentvalue",
                 GroupMembership = new int[] { 1 },
@@ -821,31 +821,7 @@ namespace AdminStore.Controllers
 
         #endregion PasswordRecovery
 
-        #region GetAllUsers
-
-        [TestMethod]
-        public async Task GetAllUsers_AllParamsAreCorrect_RepositoryReturnUsers()
-        {
-            //arrange
-            var settings = new TableSettings() { PageSize = 3, Page = 1 };
-            var returnResult = new QueryResult<UserDto>
-            {
-                Items = new List<UserDto>() { new UserDto() { Id = 1 } },
-                Total = 10
-            };
-
-            _usersRepoMock.Setup(repo => repo.GetUsersAsync(It.Is<TableSettings>(t => t.PageSize > 0 && t.Page > 0)))
-                .ReturnsAsync(returnResult);
-            _privilegesRepository
-                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
-                .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
-
-            //act
-            var result = await _controller.GetAllUsers(settings) as OkNegotiatedContentResult<QueryResult<UserDto>>;
-
-            //assert
-            Assert.IsNotNull(result);
-        }
+        #region GetUsers
 
         [TestMethod]
         public async Task GetAllUsers_ParamsAreNotCorrect_BadRequestResult()
@@ -853,7 +829,7 @@ namespace AdminStore.Controllers
             //arrange
 
             //act
-            var result = await _controller.GetAllUsers(new TableSettings());
+            var result = await _controller.GetUsers(null, null);
 
             //assert
             Assert.IsInstanceOfType(result, typeof(BadRequestErrorMessageResult));
@@ -871,7 +847,7 @@ namespace AdminStore.Controllers
             //act
             try
             {
-                var result = await _controller.GetAllUsers(new TableSettings() { Page = 1, PageSize = 2 });
+                var result = await _controller.GetUsers(new Pagination(), new Sorting());
             }
             catch (Exception ex)
             {
@@ -1400,6 +1376,24 @@ namespace AdminStore.Controllers
             Assert.IsInstanceOfType(result, typeof(OkResult));
         }
 
+        #endregion
+
+        #region Deletete users
+
+        [TestMethod]
+        public async Task DeleteUsers_OperationScopIsNull_BadRequestResult()
+        {
+            //arrange
+            _privilegesRepository
+                .Setup(repo => repo.GetInstanceAdminPrivilegesAsync(It.IsAny<int>()))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
+
+            //act
+            var result = await _controller.DeleteUsers(null, string.Empty);
+
+            //assert
+            Assert.IsInstanceOfType(result, typeof(BadRequestErrorMessageResult));
+        }
         #endregion
     }
 }

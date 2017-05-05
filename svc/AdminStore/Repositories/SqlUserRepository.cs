@@ -134,15 +134,18 @@ namespace AdminStore.Repositories
             var prm = new DynamicParameters();
             prm.Add("@token", token);
             return await _adminStorageConnectionWrapper.QueryAsync<PasswordRecoveryToken>("GetUserPasswordRecoveryTokens", prm, commandType: CommandType.StoredProcedure);
-        }
+        }      
 
-        public async Task<QueryResult<UserDto>> GetUsersAsync(TableSettings settings)
+        public async Task<QueryResult<UserDto>> GetUsersAsync(Pagination pagination, Sorting sorting = null, string search = null, Func<Sorting, string> sort = null)
         {
-            var result = await GetUsersInternalAsync(settings);
-
+            var orderField = string.Empty;
+            if (sort != null && sorting != null)
+            {
+                orderField = sort(sorting);
+            }
+            var result = await GetUsersInternalAsync(pagination, orderField, search);
             await PopulateEffectiveLicenseTypes(result.Items);
-
-            return new QueryResult<UserDto>
+            return new QueryResult<UserDto>()
             {
                 Items = UserMapper.Map(result.Items),
                 Total = result.Total
@@ -160,22 +163,20 @@ namespace AdminStore.Repositories
             }
         }
 
-        private async Task<QueryResult<User>> GetUsersInternalAsync(TableSettings settings)
+        private async Task<QueryResult<User>> GetUsersInternalAsync(Pagination pagination, string orderField, string search)
         {
             var parameters = new DynamicParameters();
-            parameters.Add("@Page", settings.Page);
-            parameters.Add("@PageSize", settings.PageSize);
-            parameters.Add("@SearchUser", settings.Filter);
-            parameters.Add("@OrderField", string.IsNullOrEmpty(settings.Sort) ? "displayName" : settings.Sort);
+            parameters.Add("@Offset", pagination.Offset);
+            parameters.Add("@Limit", pagination.Limit);
+            parameters.Add("@Search", search ?? string.Empty);
+            parameters.Add("@OrderField", string.IsNullOrEmpty(orderField) ? "displayName" : orderField);
             parameters.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
-
             var users = (await _connectionWrapper.QueryAsync<User>("GetUsers", parameters, commandType: CommandType.StoredProcedure)).ToList();
             var total = parameters.Get<int>("Total");
-
             return new QueryResult<User>
             {
                 Items = users,
-                Total = parameters.Get<int>("Total")
+                Total = total
             };
         }
 
@@ -249,6 +250,27 @@ namespace AdminStore.Repositories
                 }
             }
             return userId;
+        }
+
+        public async Task<int> DeleteUsers(OperationScope body, string search, int sessionUserId)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@UserIds", SqlConnectionWrapper.ToDataTable(body.Ids));
+            parameters.Add("@Search", search);
+            parameters.Add("@SelectAll", body.SelectAll);
+            parameters.Add("@SessionUserId", sessionUserId);
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            var result = await _connectionWrapper.ExecuteScalarAsync<int>("DeleteUsers", parameters, commandType: CommandType.StoredProcedure);
+            var errorCode = parameters.Get<int?>("ErrorCode");
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.GeneralSqlError:
+                        throw new BadRequestException(ErrorMessages.GeneralErrorOfDeletingUsers);
+                }
+            }
+            return result;
         }
 
         public async Task UpdateUserAsync(User loginUser)

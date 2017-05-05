@@ -18,7 +18,7 @@ namespace Helper
 {
     public static class SearchServiceTestHelper
     {
-        private const int DEFAULT_TIMEOUT_FOR_SEARCH_INDEXER_UPDATE_IN_MS = 360000;
+        private const int DEFAULT_TIMEOUT_FOR_SEARCH_INDEXER_UPDATE_IN_MS = 600000;
 
         /// <summary>
         /// Sets up artifact data for Full Text Search Service tests

@@ -117,7 +117,7 @@ namespace SearchServiceTests
         [TestFixtureSetUp]
         public void ClassSetUp()
         {
-            SetupData();
+            Assert.DoesNotThrow(SetupData, "The TestFixtureSetUp failed!");
         }
 
         [TestFixtureTearDown]

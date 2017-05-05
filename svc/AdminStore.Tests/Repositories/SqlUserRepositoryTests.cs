@@ -376,12 +376,13 @@ namespace AdminStore.Repositories
                 {
                     {"UserIds", userIdTable},
                     {"Search", ""},
+                    {"SessionUserId", 0},
                     {"SelectAll", operationScope.SelectAll}
                 },
                 returntResult);
 
             //act
-            var result = await repository.DeleteUsers(operationScope, string.Empty);
+            var result = await repository.DeleteUsers(operationScope, string.Empty, 0);
 
             //assert
             cxn.Verify();
@@ -409,18 +410,19 @@ namespace AdminStore.Repositories
                 {
                     {"UserIds", userIdTable},
                     {"Search", ""},
+                    {"SessionUserId", 0},
                     {"SelectAll", operationScope.SelectAll}
                 },
                 returntResult);
 
             //act
-            var result = await repository.DeleteUsers(operationScope, string.Empty);
+            var result = await repository.DeleteUsers(operationScope, string.Empty, 0);
 
             //assert
             cxn.Verify();
             Assert.AreEqual(result, returntResult);
         }
-        
+
         #endregion
 
         #region AddUserAsync

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace AdminStore.Models
 {
@@ -6,5 +7,9 @@ namespace AdminStore.Models
     {
         public bool SelectAll { get; set; }
         public IEnumerable<int> Ids { get; set; }
+        public bool IsSelectionEmpty()
+        {
+            return !SelectAll && (Ids == null || !Ids.Any());
+        }
     }
 }

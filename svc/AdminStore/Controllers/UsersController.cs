@@ -137,15 +137,21 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(IEnumerable<int>))]
         public async Task<IHttpActionResult> DeleteUsers([FromBody]OperationScope body, string search = null)
         {
-            if (body == null || ((body.Ids == null || !body.Ids.Any()) && body.SelectAll == false))
+            if (body == null)
             {
-                return BadRequest(ErrorMessages.InvalideDeleteUsersParameters);
+                return BadRequest(ErrorMessages.InvalidDeleteUsersParameters);
             }
+            //No scope for deletion is provided
+            if (body.IsSelectionEmpty())
+            {
+                return Ok(new DeleteResult() { TotalDeleted = 0 });
+            }
+
             await _privilegesManager.Demand(SessionUserId, InstanceAdminPrivileges.ManageUsers);
 
-            var result = await _userRepository.DeleteUsers(body, search);
+            var result = await _userRepository.DeleteUsers(body, search, SessionUserId);
 
-            return Ok(result);
+            return Ok(new DeleteResult() { TotalDeleted = result });
         }
 
 

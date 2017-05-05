@@ -25,7 +25,7 @@
         public static readonly string UserNotExist = "The user with the current userId doesn’t exist or removed from the system.";
         public static readonly string UserVersionsNotEqual = "The current version from the request doesn’t match the current version in DB.";
         public static readonly string IncorrectUserId = "Incorrect userId.";
-        public static readonly string InvalideDeleteUsersParameters = "Invalid parameters to delete users";
+        public static readonly string InvalidDeleteUsersParameters = "Invalid parameters to delete users";
 
     }
 }

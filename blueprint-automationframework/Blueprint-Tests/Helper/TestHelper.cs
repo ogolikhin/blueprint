@@ -745,9 +745,10 @@ namespace Helper
         {
             var artifactList = CreateAndSaveMultipleArtifacts(project, user, artifactType, numberOfArtifacts, parentId);
 
-            // TODO: Make one Publish call with multiple artifact Ids and update each artifact in the list with the results...
-            //       That would require you to extract some of the Publish logic from ArtifactWrapper into another function like UpdateArtifactAndMarkAsPublished().
-            artifactList.ForEach(a => a.Publish(user));
+            ArtifactStore.PublishArtifacts(artifactList.Select(a => a.Id), user);
+
+            // Update the artifact states manually because we didn't use ArtifactWrapper to Publish them.
+            artifactList.ForEach(a => a.UpdateArtifactState(ArtifactWrapper.ArtifactOperation.Publish));
 
             return artifactList;
         }
@@ -2162,7 +2163,7 @@ namespace Helper
                 {
                     foreach (var user in Users)
                     {
-                        ArtifactStore.DiscardArtifacts(artifacts: null, user: user, all: true);
+                        ArtifactStore.DiscardArtifacts(artifactIds: null, user: user, all: true);
                     }
 
                     var deleteExpectedStatusCodes = new List<System.Net.HttpStatusCode> { System.Net.HttpStatusCode.OK,

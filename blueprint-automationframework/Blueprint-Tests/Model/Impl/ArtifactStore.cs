@@ -187,6 +187,25 @@ namespace Model.Impl
             return DiscardArtifacts(Address, artifacts, user, all, expectedStatusCodes);
         }
 
+        /// <seealso cref="IArtifactStore.DiscardAllArtifacts(IUser)"/>
+        public INovaArtifactsAndProjectsResponse DiscardAllArtifacts(IUser user)
+        {
+            return DiscardArtifacts(Address, artifactIds: null, user: user, all: true);
+        }
+
+        /// <seealso cref="IArtifactStore.DiscardArtifact(IUser, int)"/>
+        public INovaArtifactsAndProjectsResponse DiscardArtifact(IUser user, int artifactId)
+        {
+            var artifacts = new List<int> { artifactId };
+            return DiscardArtifacts(Address, artifacts, user);
+        }
+
+        /// <seealso cref="IArtifactStore.DiscardArtifacts(IUser, IEnumerable{int}, bool?)"/>
+        public INovaArtifactsAndProjectsResponse DiscardArtifacts(IUser user, IEnumerable<int> artifactIds, bool? all = null)
+        {
+            return DiscardArtifacts(Address, artifactIds, user, all);
+        }
+
         /// <seealso cref="IArtifactStore.GetStatus(string, List{HttpStatusCode})"/>
         public string GetStatus(string preAuthorizedKey = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -793,8 +812,11 @@ namespace Model.Impl
             return historyItems;
         }
 
-        /// <seealso cref="IArtifactStore.PublishArtifacts(List{int}, IUser, bool?, List{HttpStatusCode})"/>
-        public NovaArtifactsAndProjectsResponse PublishArtifacts(List<int> artifactsIds, IUser user, bool? publishAll = null,
+        /// <seealso cref="IArtifactStore.PublishArtifacts(IEnumerable{int}, IUser, bool?, List{HttpStatusCode})"/>
+        public NovaArtifactsAndProjectsResponse PublishArtifacts(
+            IEnumerable<int> artifactsIds,
+            IUser user,
+            bool? publishAll = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             const string path = RestPaths.Svc.ArtifactStore.Artifacts.PUBLISH;
@@ -806,7 +828,7 @@ namespace Model.Impl
                 queryParams = new Dictionary<string, string> { { "all", publishAll.Value.ToString() } };
             }
 
-            var publishedArtifacts = restApi.SendRequestAndDeserializeObject<NovaArtifactsAndProjectsResponse, List<int>>(
+            var publishedArtifacts = restApi.SendRequestAndDeserializeObject<NovaArtifactsAndProjectsResponse, IEnumerable<int>>(
                 path,
                 RestRequestMethod.POST,
                 artifactsIds,
@@ -824,9 +846,7 @@ namespace Model.Impl
         {
             artifacts = artifacts ?? new List<IArtifactBase>();
 
-            var artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
-
-            var publishedArtifacts = PublishArtifacts(artifactIds, user, publishAll, expectedStatusCodes);
+            var publishedArtifacts = PublishArtifacts(artifacts.Select(artifact => artifact.Id), user, publishAll);
 
             if ((expectedStatusCodes == null) || expectedStatusCodes.Contains(HttpStatusCode.OK))
             {
@@ -984,7 +1004,7 @@ namespace Model.Impl
             return response;
         }
 
-        /// <seealso cref="IArtifactStore.UpdateNovaProcess(IUser, NovaProcess, List{HttpStatusCode})"/>
+        /// <seealso cref="IArtifactStore.UpdateNovaProcess(IUser, INovaProcess, List{HttpStatusCode})"/>
         public INovaProcess UpdateNovaProcess(
             IUser user,
             INovaProcess novaProcess,
@@ -1594,7 +1614,7 @@ namespace Model.Impl
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>An object containing a list of artifacts that were discarded and their projects.</returns>
         public static INovaArtifactsAndProjectsResponse DiscardArtifacts(string address,
-            List<int> artifactIds,
+            IEnumerable<int> artifactIds,
             IUser user = null,
             bool? all = null,
             List<HttpStatusCode> expectedStatusCodes = null)
@@ -1608,7 +1628,7 @@ namespace Model.Impl
                 queryParams = new Dictionary<string, string> { { "all", all.Value.ToString() } };
             }
 
-            return restApi.SendRequestAndDeserializeObject<NovaArtifactsAndProjectsResponse, List<int>>(
+            return restApi.SendRequestAndDeserializeObject<NovaArtifactsAndProjectsResponse, IEnumerable<int>>(
                 path,
                 RestRequestMethod.POST,
                 artifactIds,

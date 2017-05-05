@@ -685,7 +685,7 @@ namespace ArtifactStoreTests
             var userStories = tuple.Item1;
             var sourceArtifact = tuple.Item2;
 
-            var targetFolder = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+            var targetFolder = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.PrimitiveFolder);
 
             // Execute:
             Tuple<CopyNovaArtifactResultSet, List<ArtifactWrapper>> copyResult = null;
@@ -736,7 +736,7 @@ namespace ArtifactStoreTests
             var sourceChildrenBefore = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, sourceArtifact.Id, author);
             Assert.AreEqual(sourceUserStories.Count, sourceChildrenBefore.Count,"Wrong number of children under the source Process artifact!");
 
-            var targetFolder = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.PrimitiveFolder);
+            var targetFolder = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.PrimitiveFolder);
 
             // Execute:
             Tuple<CopyNovaArtifactResultSet, List<ArtifactWrapper>> copyResult = null;
@@ -792,11 +792,12 @@ namespace ArtifactStoreTests
             // Setup:
             var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcessWithUserAndSystemDecisions(_project, _user);
 
-            novaProcess.Process = (Process)StorytellerTestHelper.AddRandomLinkLabelsToProcess(Helper.Storyteller, novaProcess.Process, _user);
+            novaProcess.Process = (Process)StorytellerTestHelper.AddRandomLinkLabelsToProcess(Helper.Storyteller, novaProcess.Process, _user,
+                updateProcess: false);
             StorytellerTestHelper.UpdateVerifyAndPublishNovaProcess(novaProcess.NovaProcess, _user);
             novaProcess.RefreshArtifactFromServer(_user);
 
-            var targetFolder = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+            var targetFolder = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.PrimitiveFolder);
 
             // Execute:
             Tuple<CopyNovaArtifactResultSet, List<ArtifactWrapper>> copyResult = null;

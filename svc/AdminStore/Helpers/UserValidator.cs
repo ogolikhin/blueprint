@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using AdminStore.Models;
+﻿using AdminStore.Models;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 
@@ -17,7 +13,7 @@ namespace AdminStore.Helpers
                 throw new BadRequestException(ErrorMessages.LoginRequired, ErrorCodes.BadRequest);
             }
 
-            if (user.Login.Length < 4 || user.Login.Length > 256)
+            if (user.Login.Length < 4 || user.Login.Length > 255)
             {
                 throw new BadRequestException(ErrorMessages.LoginFieldLimitation, ErrorCodes.BadRequest);
             }

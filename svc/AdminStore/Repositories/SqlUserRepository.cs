@@ -12,7 +12,7 @@ using ServiceLibrary.Helpers;
 
 namespace AdminStore.Repositories
 {
-    public class SqlUserRepository : ISqlUserRepository
+    public class SqlUserRepository : IUserRepository
     {
         internal readonly ISqlConnectionWrapper _connectionWrapper;
         internal readonly ISqlConnectionWrapper _adminStorageConnectionWrapper;
@@ -38,8 +38,17 @@ namespace AdminStore.Repositories
         public async Task<int> GetEffectiveUserLicenseAsync(int userId)
         {
             var prm = new DynamicParameters();
-            prm.Add("@UserId", userId);
-            return (await _connectionWrapper.QueryAsync<int>("GetEffectiveUserLicense", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+            prm.Add("@UserIds", SqlConnectionWrapper.ToDataTable(new[] { userId }, "Int32Collection", "Int32Value"));
+            var result = (await _connectionWrapper.QueryAsync<UserLicense>("GetEffectiveUserLicense", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+
+            return result != null ? result.LicenseType : 0;
+        }
+
+        public async Task<IEnumerable<UserLicense>> GetEffectiveUserLicensesAsync(IEnumerable<int> userIds)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@UserIds", SqlConnectionWrapper.ToDataTable(userIds, "Int32Collection", "Int32Value"));
+            return (await _connectionWrapper.QueryAsync<UserLicense>("GetEffectiveUserLicense", prm, commandType: CommandType.StoredProcedure)).ToList();
         }
 
         public async Task<LoginUser> GetLoginUserByIdAsync(int userId)
@@ -125,26 +134,36 @@ namespace AdminStore.Repositories
             var prm = new DynamicParameters();
             prm.Add("@token", token);
             return await _adminStorageConnectionWrapper.QueryAsync<PasswordRecoveryToken>("GetUserPasswordRecoveryTokens", prm, commandType: CommandType.StoredProcedure);
-        }
+        }      
 
-        public QueryResult<UserDto> GetUsers(Pagination pagination, Sorting sorting = null, string search = null, Func<Sorting, string> sort = null)
+        public async Task<QueryResult<UserDto>> GetUsersAsync(Pagination pagination, Sorting sorting = null, string search = null, Func<Sorting, string> sort = null)
         {
-            int total;
             var orderField = string.Empty;
             if (sort != null && sorting != null)
             {
                 orderField = sort(sorting);
             }
-            var users = GetUsersList(pagination, orderField, search, out total).ToList();
+            var result = await GetUsersInternalAsync(pagination, orderField, search);
+            await PopulateEffectiveLicenseTypes(result.Items);
             return new QueryResult<UserDto>()
             {
-                Total = total,
-                Items = UserMapper.Map(users)
+                Items = UserMapper.Map(result.Items),
+                Total = result.Total
             };
         }
 
+        private async Task PopulateEffectiveLicenseTypes(IEnumerable<User> users)
+        {
+            var licenseTypes = (await GetEffectiveUserLicensesAsync(users.Select(u => u.Id)))
+                .ToDictionary(l => l.UserId);
 
-        private IEnumerable<User> GetUsersList(Pagination pagination, string orderField, string search, out int total)
+            foreach (var user in users)
+            {
+                user.LicenseType = licenseTypes[user.Id].LicenseType;
+            }
+        }
+
+        private async Task<QueryResult<User>> GetUsersInternalAsync(Pagination pagination, string orderField, string search)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@Offset", pagination.Offset);
@@ -152,12 +171,16 @@ namespace AdminStore.Repositories
             parameters.Add("@Search", search ?? string.Empty);
             parameters.Add("@OrderField", string.IsNullOrEmpty(orderField) ? "displayName" : orderField);
             parameters.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            var usersList = (_connectionWrapper.Query<User>("GetUsers", parameters, commandType: CommandType.StoredProcedure)).ToList();
-            total = parameters.Get<int>("Total");
-            return usersList;
+            var users = (await _connectionWrapper.QueryAsync<User>("GetUsers", parameters, commandType: CommandType.StoredProcedure)).ToList();
+            var total = parameters.Get<int>("Total");
+            return new QueryResult<User>
+            {
+                Items = users,
+                Total = total
+            };
         }
 
-        public async Task<User> GetUser(int userId)
+        public async Task<User> GetUserAsync(int userId)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@UserId", userId);
@@ -166,9 +189,12 @@ namespace AdminStore.Repositories
             return enumerable.Any() ? enumerable.First() : new User();
         }
 
-        public async Task<UserDto> GetUserDto(int userId)
+        public async Task<UserDto> GetUserDtoAsync(int userId)
         {
-            var user = await GetUser(userId);
+            var user = await GetUserAsync(userId);
+
+            user.LicenseType = await GetEffectiveUserLicenseAsync(userId);
+
             return UserMapper.Map(user);
         }
 

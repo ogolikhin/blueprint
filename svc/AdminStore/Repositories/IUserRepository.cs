@@ -33,11 +33,10 @@ namespace AdminStore.Repositories
 
         Task<IEnumerable<PasswordRecoveryToken>> GetPasswordRecoveryTokensAsync(Guid token);
 
-        Task<QueryResult<UserDto>> GetUsersAsync(TableSettings settings);
-        QueryResult<UserDto> GetUsers(Pagination pagination, Sorting sorting = null, string search = null, Func<Sorting, string> sort = null);
-
         Task<User> GetUserAsync(int userId);
 
+        Task<QueryResult<UserDto>> GetUsersAsync(Pagination pagination, Sorting sorting = null, string search = null,
+            Func<Sorting, string> sort = null);
         Task<UserDto> GetUserDtoAsync(int userId);
 
         Task<int> AddUserAsync(User loginUser);

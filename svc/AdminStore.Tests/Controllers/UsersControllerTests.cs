@@ -54,7 +54,7 @@ namespace AdminStore.Controllers
 
             _controller = new UsersController(
                 _authRepoMock.Object, _usersRepoMock.Object, _settingsRepoMock.Object,
-                _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object, 
+                _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object,
                 _httpClientProviderMock.Object, _privilegesRepository.Object
             )
             {
@@ -821,66 +821,42 @@ namespace AdminStore.Controllers
 
         #endregion PasswordRecovery
 
-        #region QueryUsers
+        #region GetUsers
 
         [TestMethod]
-        public async Task GetAllUsers_AllParamsAreCorrect_RepositoryReturnUsers()
+        public async Task GetAllUsers_ParamsAreNotCorrect_BadRequestResult()
         {
             //arrange
-            var settings = new TableSettings() { PageSize = 3, Page = 1 };
-            var returnResult = new QueryResult<UserDto>
-            {
-                Items = new List<UserDto>() { new UserDto() { Id = 1 } },
-                Total = 10
-            };
-
-            _usersRepoMock.Setup(repo => repo.GetUsersAsync(It.Is<TableSettings>(t => t.PageSize > 0 && t.Page > 0)))
-                .ReturnsAsync(returnResult);
-            _privilegesRepository
-                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
-                .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
 
             //act
-            var result = await _controller.GetAllUsers(settings) as OkNegotiatedContentResult<QueryResult<UserDto>>;
+            var result = await _controller.GetUsers(null, null);
 
             //assert
-            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(BadRequestErrorMessageResult));
         }
 
-        //[TestMethod]
-        //public async Task GetAllUsers_ParamsAreNotCorrect_BadRequestResult()
-        //{
-        //    //arrange
+        [TestMethod]
+        public async Task GetAllUsers_UserDoesNotHaveRequiredPermissions_ForbiddenResult()
+        {
+            //arrange
+            Exception exception = null;
+            _privilegesRepository
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.None);
 
-        //    //act
-        //    var result = await _controller.QueryUsers(new TableSettings());
+            //act
+            try
+            {
+                var result = await _controller.GetUsers(new Pagination(), new Sorting());
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
 
-        //    //assert
-        //    Assert.IsInstanceOfType(result, typeof(BadRequestErrorMessageResult));
-        //}
-
-        //[TestMethod]
-        //public async Task GetAllUsers_UserDoesNotHaveRequiredPermissions_ForbiddenResult()
-        //{
-        //    //arrange
-        //    Exception exception = null;
-        //    _privilegesRepository
-        //        .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
-        //        .ReturnsAsync(InstanceAdminPrivileges.None);
-
-        //    //act
-        //    try
-        //    {
-        //        var result = await _controller.QueryUsers(new TableSettings() { Page = 1, PageSize = 2 });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        exception = ex;
-        //    }
-
-        //    //assert
-        //    Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
-        //}
+            //assert
+            Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
+        }
         #endregion
 
         #region GetUser

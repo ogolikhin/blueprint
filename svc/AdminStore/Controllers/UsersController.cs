@@ -44,9 +44,9 @@ namespace AdminStore.Controllers
 
         internal UsersController
         (
-            IAuthenticationRepository authenticationRepository, IUserRepository userRepository, 
-            ISqlSettingsRepository settingsRepository, IEmailHelper emailHelper, 
-            IApplicationSettingsRepository applicationSettingsRepository, IServiceLogRepository log, 
+            IAuthenticationRepository authenticationRepository, IUserRepository userRepository,
+            ISqlSettingsRepository settingsRepository, IEmailHelper emailHelper,
+            IApplicationSettingsRepository applicationSettingsRepository, IServiceLogRepository log,
             IHttpClientProvider httpClientProvider, IPrivilegesRepository privilegesRepository
         )
         {
@@ -119,7 +119,7 @@ namespace AdminStore.Controllers
 
             await _privilegesManager.Demand(SessionUserId, InstanceAdminPrivileges.ViewUsers);
 
-            var result = _userRepository.GetUsers(pagination, sorting, search, UsersHelper.SortUsers);
+            var result = await _userRepository.GetUsersAsync(pagination, sorting, search, UsersHelper.SortUsers);
 
             return Ok(result);
         }

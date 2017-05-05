@@ -5,7 +5,7 @@ using AdminStore.Models;
 
 namespace AdminStore.Repositories
 {
-    public interface ISqlUserRepository
+    public interface IUserRepository
     {
         Task<AuthenticationUser> GetUserByLoginAsync(string login);
 
@@ -16,6 +16,8 @@ namespace AdminStore.Repositories
         Task<IEnumerable<LicenseTransactionUser>> GetLicenseTransactionUserInfoAsync(IEnumerable<int> userIds);
 
         Task<int> GetEffectiveUserLicenseAsync(int userId);
+
+        Task<IEnumerable<UserLicense>> GetEffectiveUserLicensesAsync(IEnumerable<int> userIds);
 
         Task UpdateUserOnInvalidLoginAsync(AuthenticationUser login);
 
@@ -31,15 +33,17 @@ namespace AdminStore.Repositories
 
         Task<IEnumerable<PasswordRecoveryToken>> GetPasswordRecoveryTokensAsync(Guid token);
 
-        QueryResult GetUsers(TableSettings settings);
+        Task<User> GetUserAsync(int userId);
 
-        Task<User> GetUser(int userId);
-        Task<UserDto> GetUserDto(int userId);
+        Task<QueryResult<UserDto>> GetUsersAsync(Pagination pagination, Sorting sorting = null, string search = null,
+            Func<Sorting, string> sort = null);
+        Task<UserDto> GetUserDtoAsync(int userId);
 
         Task<int> AddUserAsync(User loginUser);
 
         Task UpdateUserAsync(User loginUser);
+        Task<int> DeleteUsers(OperationScope body, string search, int sessionUserId);
 
-        Task <QueryDataResult<GroupDto>> GetUserGroupsAsync(int userId, TabularData tabularData);
+        Task <QueryResult<GroupDto>> GetUserGroupsAsync(int userId, TabularData tabularData);
     }
 }

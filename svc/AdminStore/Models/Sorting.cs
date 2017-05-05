@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using AdminStore.Models.Enums;
+﻿using AdminStore.Models.Enums;
 
 namespace AdminStore.Models
 {

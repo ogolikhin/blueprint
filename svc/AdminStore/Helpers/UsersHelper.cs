@@ -1,83 +1,29 @@
-﻿using System;
-using System.Net;
-using System.Threading.Tasks;
-using System.Web.Http;
+﻿using System.Collections.Generic;
 using AdminStore.Models;
 using AdminStore.Models.Enums;
-using AdminStore.Repositories;
-using ServiceLibrary.Exceptions;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Models;
 
 namespace AdminStore.Helpers
 {
     public static class UsersHelper
     {
-        public static string SortUsers(string sortString)
+        public static string SortUsers(Sorting sorting)
         {
-            var orderField = "displayName";
-            var sortArray = sortString.Split(',');
-            foreach (var sort in sortArray)
+            var defaultSortColumn = "displayName";
+            var sortableColumns = new HashSet<string>
             {
-                switch (sort)
-                {
-                    case "source":
-                        orderField = "source";
-                        break;
-                    case "-source":
-                        orderField = "-source";
-                        break;
-                    case "enabled":
-                        orderField = "enabled";
-                        break;
-                    case "-enabled":
-                        orderField = "-enabled";
-                        break;
-                    case "license":
-                        orderField = "license";
-                        break;
-                    case "-license":
-                        orderField = "-license";
-                        break;
-                    case "role":
-                        orderField = "role";
-                        break;
-                    case "-role":
-                        orderField = "-role";
-                        break;
-                    case "department":
-                        orderField = "department";
-                        break;
-                    case "-department":
-                        orderField = "-department";
-                        break;
-                    case "title":
-                        orderField = "title";
-                        break;
-                    case "-title":
-                        orderField = "-title";
-                        break;
-                    case "email":
-                        orderField = "email";
-                        break;
-                    case "-email":
-                        orderField = "-email";
-                        break;
-                    case "displayName":
-                        orderField = "displayName";
-                        break;
-                    case "-displayName":
-                        orderField = "-displayName";
-                        break;
-                    case "login":
-                        orderField = "login";
-                        break;
-                    case "-login":
-                        orderField = "-login";
-                        break;
-                }
-            }
-            return orderField;
+                "login",
+                "email",
+                "license",
+                "role",
+                "department",
+                "title"
+            };
+            var column = sorting.Sort;
+            var sortColumn = !string.IsNullOrWhiteSpace(column) && sortableColumns.Contains(column)
+                ? column
+                : defaultSortColumn;
+
+            return sorting.Order == SortOrder.Desc ? "-" + sortColumn : sortColumn;
         }
 
         public static User CreateDbUserFromDto(UserDto user, UserOperationMode userOperationMode, int userId = 0)
@@ -85,6 +31,6 @@ namespace AdminStore.Helpers
             UserValidator.ValidateModel(user);
             var dbUserModel = UserConverter.ConvertToDbUser(user, userOperationMode, userId);
             return dbUserModel;
-        }     
+        }
     }
 }

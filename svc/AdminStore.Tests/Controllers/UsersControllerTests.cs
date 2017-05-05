@@ -22,7 +22,7 @@ namespace AdminStore.Controllers
     [TestClass]
     public class UsersControllerTests
     {
-        private Mock<ISqlUserRepository> _usersRepoMock;
+        private Mock<IUserRepository> _usersRepoMock;
         private Mock<IServiceLogRepository> _logMock;
         private Mock<IAuthenticationRepository> _authRepoMock;
         private Mock<ISqlSettingsRepository> _settingsRepoMock;
@@ -39,15 +39,15 @@ namespace AdminStore.Controllers
         private const int SessionUserId = 1;
         private const int UserId = 100;
         private const string ExistedUserLogin = "ExistedUser";
-        private QueryDataResult<GroupDto> _userGoupsQueryDataResult;
-        private TabularPagination _userGroupsTabularPagination;
+        private QueryResult<GroupDto> _userGoupsQueryDataResult;
+        private Pagination _userGroupsTabularPagination;
         private Sorting _userGroupsSorting;
 
         [TestInitialize]
         public void Initialize()
         {
             var session = new Session { UserId = SessionUserId };
-            _usersRepoMock = new Mock<ISqlUserRepository>();
+            _usersRepoMock = new Mock<IUserRepository>();
             _logMock = new Mock<IServiceLogRepository>();
             _authRepoMock = new Mock<IAuthenticationRepository>();
             _settingsRepoMock = new Mock<ISqlSettingsRepository>();
@@ -58,7 +58,7 @@ namespace AdminStore.Controllers
 
             _controller = new UsersController(
                 _authRepoMock.Object, _usersRepoMock.Object, _settingsRepoMock.Object,
-                _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object, 
+                _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object,
                 _httpClientProviderMock.Object, _privilegesRepository.Object
             )
             {
@@ -79,7 +79,7 @@ namespace AdminStore.Controllers
                 AllowFallback = false,
                 Enabled = true,
                 ExpirePassword = true,
-                Password  = "MTIzNFJFV1EhQCMk",
+                Password = "MTIzNFJFV1EhQCMk",
                 Title = "TitleValue",
                 Department = "Departmentvalue",
                 GroupMembership = new int[] { 1 },
@@ -95,9 +95,9 @@ namespace AdminStore.Controllers
                 .Setup(repo => repo.AddUserAsync(It.Is<User>(u => u.Login == ExistedUserLogin)))
                 .ThrowsAsync(badRequestException);
 
-            _userGroupsTabularPagination = new TabularPagination() { Limit = 1, Offset = 0 };
+            _userGroupsTabularPagination = new Pagination() { Limit = 1, Offset = 0 };
             _userGroupsSorting = new Sorting() { Order = SortOrder.Asc, Sort = "Name" };
-            _userGoupsQueryDataResult = new QueryDataResult<GroupDto>() { Total = 1, Items = new List<GroupDto>() };
+            _userGoupsQueryDataResult = new QueryResult<GroupDto>() { Total = 1, Items = new List<GroupDto>() };
         }
 
         #region Constuctor
@@ -829,43 +829,7 @@ namespace AdminStore.Controllers
 
         #endregion PasswordRecovery
 
-        #region GetAllUsers
-
-        [TestMethod]
-        public async Task GetAllUsers_AllParamsAreCorrect_RepositoryReturnUsers()
-        {
-            //arrange
-            var sort = string.Empty;
-            var filter = string.Empty;
-
-            var users = new List<UserDto>() { new UserDto() { Id = 1 } };
-            var settings = new TableSettings() { PageSize = 3, Page = 1 };
-            QueryResult returnResult = new QueryResult()
-            {
-                Data = new Data(),
-                Pagination = new Pagination()
-                {
-                    Page = settings.Page,
-                    PageSize = settings.PageSize
-                }
-            };
-            returnResult.Data.Users = users.ToArray();
-
-            returnResult.Data.Users = users.ToArray();
-
-            _usersRepoMock.Setup(repo => repo.GetUsers(It.Is<TableSettings>(t => t.PageSize > 0 && t.Page > 0)))
-                .Returns(returnResult);
-            _privilegesRepository
-                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
-                .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
-
-            //act
-            var result = await _controller.GetAllUsers(settings) as OkNegotiatedContentResult<QueryResult>;
-
-            //assert
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result.Content, typeof(QueryResult));
-        }
+        #region GetUsers
 
         [TestMethod]
         public async Task GetAllUsers_ParamsAreNotCorrect_BadRequestResult()
@@ -873,7 +837,7 @@ namespace AdminStore.Controllers
             //arrange
 
             //act
-            var result = await _controller.GetAllUsers(new TableSettings());
+            var result = await _controller.GetUsers(null, null);
 
             //assert
             Assert.IsInstanceOfType(result, typeof(BadRequestErrorMessageResult));
@@ -891,7 +855,7 @@ namespace AdminStore.Controllers
             //act
             try
             {
-                var result = await _controller.GetAllUsers(new TableSettings() { Page = 1, PageSize = 2 });
+                var result = await _controller.GetUsers(new Pagination(), new Sorting());
             }
             catch (Exception ex)
             {
@@ -910,7 +874,7 @@ namespace AdminStore.Controllers
         {
             //arrange
             var user = new UserDto() { Id = 5 };
-            _usersRepoMock.Setup(repo => repo.GetUserDto(It.Is<int>(i => i > 0))).ReturnsAsync(user);
+            _usersRepoMock.Setup(repo => repo.GetUserDtoAsync(It.Is<int>(i => i > 0))).ReturnsAsync(user);
             _privilegesRepository
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
@@ -950,7 +914,7 @@ namespace AdminStore.Controllers
         {
             //arrange
             var user = new UserDto();
-            _usersRepoMock.Setup(repo => repo.GetUserDto(It.Is<int>(i => i > 0))).ReturnsAsync(user);
+            _usersRepoMock.Setup(repo => repo.GetUserDtoAsync(It.Is<int>(i => i > 0))).ReturnsAsync(user);
             _privilegesRepository
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
@@ -1267,7 +1231,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(FullPermissions);
             var existingUser = new User { Id = UserId, InstanceAdminRoleId = null };
             _usersRepoMock
-                .Setup(r => r.GetUser(UserId))
+                .Setup(r => r.GetUserAsync(UserId))
                 .ReturnsAsync(existingUser);
 
             // Act
@@ -1288,7 +1252,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(FullPermissions);
             var existingUser = new User { Id = UserId, InstanceAdminRoleId = null };
             _usersRepoMock
-                .Setup(r => r.GetUser(UserId))
+                .Setup(r => r.GetUserAsync(UserId))
                 .ReturnsAsync(existingUser);
 
             var resourceNotFoundExeption = new ResourceNotFoundException(ErrorMessages.UserNotExist);
@@ -1311,7 +1275,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(FullPermissions);
             var existingUser = new User { Id = UserId, InstanceAdminRoleId = null };
             _usersRepoMock
-                .Setup(r => r.GetUser(UserId))
+                .Setup(r => r.GetUserAsync(UserId))
                 .ReturnsAsync(existingUser);
 
             var conflictExeption = new ConflictException(ErrorMessages.UserVersionsNotEqual);
@@ -1366,7 +1330,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
             var existingUser = new User { Id = UserId, InstanceAdminRoleId = null };
             _usersRepoMock
-                .Setup(r => r.GetUser(UserId))
+                .Setup(r => r.GetUserAsync(UserId))
                 .ReturnsAsync(existingUser);
 
             _user.InstanceAdminRoleId = 1;
@@ -1384,7 +1348,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(InstanceAdminPrivileges.AssignAdminRoles);
             var existingUser = new User { Id = UserId, InstanceAdminRoleId = null };
             _usersRepoMock
-                .Setup(r => r.GetUser(UserId))
+                .Setup(r => r.GetUserAsync(UserId))
                 .ReturnsAsync(existingUser);
 
             _user.InstanceAdminRoleId = 1;
@@ -1406,7 +1370,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
             var existingUser = new User { Id = UserId, InstanceAdminRoleId = 1 };
             _usersRepoMock
-                .Setup(r => r.GetUser(UserId))
+                .Setup(r => r.GetUserAsync(UserId))
                 .ReturnsAsync(existingUser);
 
             _user.DisplayName = "New DisplayName";
@@ -1434,11 +1398,11 @@ namespace AdminStore.Controllers
             _usersRepoMock.Setup(repo => repo.GetUserGroupsAsync(It.IsAny<int>(), It.IsAny<TabularData>())).ReturnsAsync(_userGoupsQueryDataResult);
 
             //act
-            var result = await _controller.GetUserGroups(UserId, _userGroupsTabularPagination, _userGroupsSorting, string.Empty) as OkNegotiatedContentResult<QueryDataResult<GroupDto>>;
+            var result = await _controller.GetUserGroups(UserId, _userGroupsTabularPagination, _userGroupsSorting, string.Empty) as OkNegotiatedContentResult<QueryResult<GroupDto>>;
 
             //assert
             Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result.Content, typeof(QueryDataResult<GroupDto>));
+            Assert.IsInstanceOfType(result.Content, typeof(QueryResult<GroupDto>));
         }
 
         [TestMethod]
@@ -1448,7 +1412,7 @@ namespace AdminStore.Controllers
             //arrange
 
             //act
-             await _controller.GetUserGroups(UserId, new TabularPagination(), new Sorting(), string.Empty);
+             await _controller.GetUserGroups(UserId, new Pagination(), new Sorting(), string.Empty);
 
             //assert
             // Exception
@@ -1466,14 +1430,14 @@ namespace AdminStore.Controllers
             _usersRepoMock.Setup(repo => repo.GetUserGroupsAsync(It.IsAny<int>(), It.IsAny<TabularData>())).ReturnsAsync(_userGoupsQueryDataResult);
 
             //act
-            var result = await _controller.GetUserGroups(UserId, _userGroupsTabularPagination, _userGroupsSorting, string.Empty) as OkNegotiatedContentResult<QueryDataResult<GroupDto>>;
+            var result = await _controller.GetUserGroups(UserId, _userGroupsTabularPagination, _userGroupsSorting, string.Empty) as OkNegotiatedContentResult<QueryResult<GroupDto>>;
 
             //assert
             // Exception
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ResourceNotFoundException))]
+        [ExpectedException(typeof (ResourceNotFoundException))]
         public async Task GetUserGroups_UserNotFound_ResourceNotFoundResult()
         {
             //arrange
@@ -1484,10 +1448,30 @@ namespace AdminStore.Controllers
                 .ThrowsAsync(new ResourceNotFoundException(ErrorMessages.UserNotExist));
 
             //act
-            var result = await _controller.GetUserGroups(UserId, _userGroupsTabularPagination, _userGroupsSorting, string.Empty) as OkNegotiatedContentResult<QueryDataResult<GroupDto>>;
+            var result =
+                await _controller.GetUserGroups(UserId, _userGroupsTabularPagination, _userGroupsSorting, string.Empty)
+                    as OkNegotiatedContentResult<QueryResult<GroupDto>>;
 
             //assert
             // Exception
+        }
+        #endregion
+
+        #region Deletete users
+
+        [TestMethod]
+        public async Task DeleteUsers_OperationScopIsNull_BadRequestResult()
+        {
+            //arrange
+            _privilegesRepository
+                .Setup(repo => repo.GetInstanceAdminPrivilegesAsync(It.IsAny<int>()))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
+
+            //act
+            var result = await _controller.DeleteUsers(null, string.Empty);
+
+            //assert
+            Assert.IsInstanceOfType(result, typeof(BadRequestErrorMessageResult));
         }
         #endregion
     }

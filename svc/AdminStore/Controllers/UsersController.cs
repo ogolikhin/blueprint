@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -27,7 +28,7 @@ namespace AdminStore.Controllers
         private const int DefaultPasswordResetTokenExpirationInHours = 24;
 
         internal readonly IAuthenticationRepository _authenticationRepository;
-        internal readonly ISqlUserRepository _userRepository;
+        internal readonly IUserRepository _userRepository;
         internal readonly ISqlSettingsRepository _settingsRepository;
         internal readonly IEmailHelper _emailHelper;
         internal readonly IApplicationSettingsRepository _applicationSettingsRepository;
@@ -43,9 +44,9 @@ namespace AdminStore.Controllers
 
         internal UsersController
         (
-            IAuthenticationRepository authenticationRepository, ISqlUserRepository userRepository, 
-            ISqlSettingsRepository settingsRepository, IEmailHelper emailHelper, 
-            IApplicationSettingsRepository applicationSettingsRepository, IServiceLogRepository log, 
+            IAuthenticationRepository authenticationRepository, IUserRepository userRepository,
+            ISqlSettingsRepository settingsRepository, IEmailHelper emailHelper,
+            IApplicationSettingsRepository applicationSettingsRepository, IServiceLogRepository log,
             IHttpClientProvider httpClientProvider, IPrivilegesRepository privilegesRepository
         )
         {
@@ -99,32 +100,60 @@ namespace AdminStore.Controllers
         /// <summary>
         /// Get users list according to the input parameters 
         /// </summary>
-        /// <param name="settings">Table settings parameters. Such as page number, page size, filter and sort parameters</param>
-        /// <returns code="200">OK if admin user session exists and user is permitted to list users</returns>
-        /// <returns code="400">BadRequest if page, pageSize are missing or invalid</returns>
-        /// <returns code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</returns>
-        /// <returns code="403">Forbidden if used doesn’t have permissions to get users list</returns>
+        /// <param name="pagination">Limit and offset values to query users</param>
+        /// <param name="sorting">Sort and its order</param>
+        /// <param name="search">Search query parameter</param>
+        /// <response code="200">OK if admin user session exists and user is permitted to list users</response>
+        /// <response code="400">BadRequest if pagination object didn't provide</response>
+        /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
+        /// <response code="403">Forbidden if used doesn’t have permissions to get users list</response>
         [SessionRequired]
         [Route("")]
-        [ResponseType(typeof(QueryResult))]
-        public async Task<IHttpActionResult> GetAllUsers([FromUri] TableSettings settings)
+        [ResponseType(typeof(QueryResult<UserDto>))]
+        public async Task<IHttpActionResult> GetUsers([FromUri]Pagination pagination, [FromUri]Sorting sorting, string search = null)
         {
-            if (settings == null || settings.PageSize <= 0 || settings.Page <= 0)
+            if (pagination == null)
             {
-                return BadRequest(ErrorMessages.InvalidPageOrPageNumber);
+                return BadRequest(ErrorMessages.InvalidPagination);
             }
 
             await _privilegesManager.Demand(SessionUserId, InstanceAdminPrivileges.ViewUsers);
 
-            if (settings.Sort != null)
-            {
-                settings.Sort = UsersHelper.SortUsers(settings.Sort.ToLower(CultureInfo.InvariantCulture));
-            }
-
-            var result = _userRepository.GetUsers(settings);
+            var result = await _userRepository.GetUsersAsync(pagination, sorting, search, UsersHelper.SortUsers);
 
             return Ok(result);
         }
+
+        /// <summary>
+        /// Delete user/users from the system
+        /// </summary>
+        /// <param name="body">list of user ids and selectAll flag</param>
+        /// <param name="search">search filter</param>
+        /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
+        /// <response code="403">Forbidden if used doesn’t have permissions to get users list</response>
+        [HttpPost]
+        [SessionRequired]
+        [Route("delete")]
+        [ResponseType(typeof(IEnumerable<int>))]
+        public async Task<IHttpActionResult> DeleteUsers([FromBody]OperationScope body, string search = null)
+        {
+            if (body == null)
+            {
+                return BadRequest(ErrorMessages.InvalidDeleteUsersParameters);
+            }
+            //No scope for deletion is provided
+            if (body.IsSelectionEmpty())
+            {
+                return Ok(new DeleteResult() { TotalDeleted = 0 });
+            }
+
+            await _privilegesManager.Demand(SessionUserId, InstanceAdminPrivileges.ManageUsers);
+
+            var result = await _userRepository.DeleteUsers(body, search, SessionUserId);
+
+            return Ok(new DeleteResult() { TotalDeleted = result });
+        }
+
 
         /// <summary>
         /// Get user by Identifier
@@ -143,7 +172,7 @@ namespace AdminStore.Controllers
         {
             await _privilegesManager.Demand(SessionUserId, InstanceAdminPrivileges.ViewUsers);
 
-            var user = await _userRepository.GetUserDto(userId);
+            var user = await _userRepository.GetUserDtoAsync(userId);
 
             if (user.Id == 0)
             {
@@ -433,7 +462,7 @@ namespace AdminStore.Controllers
         /// <response code="409">Conflict. The current version from the request doesn’t match the current version in DB.</response>
         [HttpPut]
         [SessionRequired]
-        [ResponseType(typeof (HttpResponseMessage))]
+        [ResponseType(typeof(HttpResponseMessage))]
         [Route("{userId:int}")]
         public async Task<IHttpActionResult> UpdateUser(int userId, [FromBody] UserDto user)
         {
@@ -449,7 +478,7 @@ namespace AdminStore.Controllers
 
             await _privilegesManager.Demand(SessionUserId, InstanceAdminPrivileges.ManageUsers);
 
-            var existingUser = await _userRepository.GetUser(userId);
+            var existingUser = await _userRepository.GetUserAsync(userId);
             if (existingUser == null)
             {
                 throw new BadRequestException(ErrorMessages.UserNotExist, ErrorCodes.ResourceNotFound);
@@ -480,9 +509,9 @@ namespace AdminStore.Controllers
         /// <response code="403">Forbidden. if user doesn’t have permission to view group membership for the user with the specified userId.</response>
         /// <response code="404">NotFound. if user with userId doesn’t exists or removed from the system.</response>
         [SessionRequired]
-        [ResponseType(typeof(QueryDataResult<GroupDto>))]
+        [ResponseType(typeof(QueryResult<GroupDto>))]
         [Route("{userId:int:min(1)}/groups")]
-        public async Task<IHttpActionResult> GetUserGroups(int userId, [FromUri]TabularPagination pagination, [FromUri]Sorting sorting, [FromUri] string search = null)
+        public async Task<IHttpActionResult> GetUserGroups(int userId, [FromUri]Pagination pagination, [FromUri]Sorting sorting, [FromUri] string search = null)
         {
             if (pagination.Limit < 1)
             {

@@ -71,6 +71,7 @@ namespace AdminStore.Repositories
         #endregion GetUserByLoginAsync
 
         #region GetEffectiveUserLicense
+
         [TestMethod]
         public async Task GetEffectiveUserLicenseAsync_QueryReturnsLicenseType_ReturnsFirst()
         {
@@ -78,15 +79,17 @@ namespace AdminStore.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlUserRepository(cxn.Object, cxn.Object);
             var userId = 1;
-            int[] result = { 3 };
-            cxn.SetupQueryAsync("GetEffectiveUserLicense", new Dictionary<string, object> { { "UserId", userId } }, result);
+            var userIds = new[] { userId };
+            var userIdTable = SqlConnectionWrapper.ToDataTable(userIds, "Int32Collection", "Int32Value");
+            var result = new List<UserLicense> { new UserLicense { UserId = userId, LicenseType = 3 } };
+            cxn.SetupQueryAsync("GetEffectiveUserLicense", new Dictionary<string, object> { { "UserIds", userIdTable } }, result);
 
             // Act
             var licenseType = await repository.GetEffectiveUserLicenseAsync(userId);
 
             // Assert
             cxn.Verify();
-            Assert.AreEqual(result.First(), licenseType);
+            Assert.AreEqual(result.First().LicenseType, licenseType);
         }
 
         [TestMethod]
@@ -96,8 +99,10 @@ namespace AdminStore.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlUserRepository(cxn.Object, cxn.Object);
             var userId = 1;
-            int[] result = { };
-            cxn.SetupQueryAsync("GetEffectiveUserLicense", new Dictionary<string, object> { { "UserId", userId } }, result);
+            var userIds = new[] { userId };
+            var userIdTable = SqlConnectionWrapper.ToDataTable(userIds, "Int32Collection", "Int32Value");
+            var result = Enumerable.Empty<UserLicense>();
+            cxn.SetupQueryAsync("GetEffectiveUserLicense", new Dictionary<string, object> { { "UserIds", userIdTable } }, result);
 
             // Act
             var licenseType = await repository.GetEffectiveUserLicenseAsync(userId);
@@ -106,6 +111,7 @@ namespace AdminStore.Repositories
             cxn.Verify();
             Assert.AreEqual(0, licenseType);
         }
+
         #endregion
 
         #region GetLoginUserByIdAsync
@@ -327,7 +333,7 @@ namespace AdminStore.Repositories
             cxn.SetupQueryAsync("GetUserDetails", new Dictionary<string, object>() { { "UserId", userId } }, returnResult);
 
             //act
-            var result = await repository.GetUser(userId);
+            var result = await repository.GetUserAsync(userId);
 
             //assert
             cxn.Verify();
@@ -344,11 +350,83 @@ namespace AdminStore.Repositories
             cxn.SetupQueryAsync("GetUserDetails", new Dictionary<string, object>() { { "UserId", 0 } }, returnResult);
 
             //act
-            var result = await repository.GetUser(0);
+            var result = await repository.GetUserAsync(0);
 
             //assert
             cxn.Verify();
             Assert.AreEqual(returnResult.First(), result);
+        }
+
+        #endregion
+
+        #region DeleteUsers
+
+        [TestMethod]
+        public async Task DeleteUsers_UsersToDeleteExists_QueryReturnNotEmptyResult()
+        {
+            //arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
+            int[] userIds = { 1, 2, 3 };
+            var operationScope = new OperationScope()
+            {
+                Ids = userIds,
+                SelectAll = false
+            };
+
+            var userIdTable = SqlConnectionWrapper.ToDataTable(operationScope.Ids);
+            var returntResult = 3;
+
+            cxn.SetupExecuteScalarAsync("DeleteUsers",
+                new Dictionary<string, object>
+                {
+                    {"UserIds", userIdTable},
+                    {"Search", ""},
+                    {"SessionUserId", 0},
+                    {"SelectAll", operationScope.SelectAll}
+                },
+                returntResult);
+
+            //act
+            var result = await repository.DeleteUsers(operationScope, string.Empty, 0);
+
+            //assert
+            cxn.Verify();
+            Assert.AreEqual(result, returntResult);
+        }
+
+        [TestMethod]
+        public async Task DeleteUsers_UsersToDeleteDoNotExists_QueryReturnEmptyCollection()
+        {
+            //arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
+            int[] userIds = { };
+            var operationScope = new OperationScope()
+            {
+                Ids = userIds,
+                SelectAll = false
+            };
+
+            var userIdTable = SqlConnectionWrapper.ToDataTable(operationScope.Ids);
+            var returntResult = 0;
+
+            cxn.SetupExecuteScalarAsync("DeleteUsers",
+                new Dictionary<string, object>
+                {
+                    {"UserIds", userIdTable},
+                    {"Search", ""},
+                    {"SessionUserId", 0},
+                    {"SelectAll", operationScope.SelectAll}
+                },
+                returntResult);
+
+            //act
+            var result = await repository.DeleteUsers(operationScope, string.Empty, 0);
+
+            //assert
+            cxn.Verify();
+            Assert.AreEqual(result, returntResult);
         }
 
         #endregion

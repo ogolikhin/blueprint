@@ -127,9 +127,14 @@ namespace AdminStore.Repositories
             return await _adminStorageConnectionWrapper.QueryAsync<PasswordRecoveryToken>("GetUserPasswordRecoveryTokens", prm, commandType: CommandType.StoredProcedure);
         }
 
-        public QueryResult<UserDto> GetUsers(Pagination pagination, string orderField, string search)
+        public QueryResult<UserDto> GetUsers(Pagination pagination, Sorting sorting = null, string search = null, Func<Sorting, string> sort = null)
         {
             int total;
+            var orderField = string.Empty;
+            if (sort != null && sorting != null)
+            {
+                orderField = sort(sorting);
+            }
             var users = GetUsersList(pagination, orderField, search, out total).ToList();
             return new QueryResult<UserDto>()
             {
@@ -144,7 +149,7 @@ namespace AdminStore.Repositories
             var parameters = new DynamicParameters();
             parameters.Add("@Offset", pagination.Offset);
             parameters.Add("@Limit", pagination.Limit);
-            parameters.Add("@Search", search);
+            parameters.Add("@Search", search ?? string.Empty);
             parameters.Add("@OrderField", string.IsNullOrEmpty(orderField) ? "displayName" : orderField);
             parameters.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
             var usersList = (_connectionWrapper.Query<User>("GetUsers", parameters, commandType: CommandType.StoredProcedure)).ToList();

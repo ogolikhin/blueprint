@@ -119,6 +119,7 @@
     <Compile Include="Helpers\PrivilegesManager.cs" />
     <Compile Include="Helpers\UserValidator.cs" />
     <Compile Include="Models\AdminRole.cs" />
+    <Compile Include="Models\Enums\SortOrder.cs" />
     <Compile Include="Models\Enums\UserOperationMode.cs" />
     <Compile Include="Models\OperationScope.cs" />
     <Compile Include="Models\DeleteResult.cs" />

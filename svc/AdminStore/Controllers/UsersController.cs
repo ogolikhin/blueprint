@@ -108,12 +108,10 @@ namespace AdminStore.Controllers
         /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
         /// <response code="403">Forbidden if used doesn’t have permissions to get users list</response>
         [SessionRequired]
-        [Route("test")]
-        [AcceptVerbs("GET")]
+        [Route("")]
         [ResponseType(typeof(QueryResult<UserDto>))]
-        public async Task<IHttpActionResult> QueryUsers([FromUri]Pagination pagination, [FromUri]Sorting sorting, string search = null)
+        public async Task<IHttpActionResult> GetUsers([FromUri]Pagination pagination, [FromUri]Sorting sorting, string search = null)
         {
-            var orderField = string.Empty;
             if (pagination == null)
             {
                 return BadRequest(ErrorMessages.InvalidPagination);
@@ -121,12 +119,7 @@ namespace AdminStore.Controllers
 
             await _privilegesManager.Demand(SessionUserId, InstanceAdminPrivileges.ViewUsers);
 
-            if (sorting != null)
-            {
-                orderField = UsersHelper.SortUsers(sorting);
-            }
-
-            var result = _userRepository.GetUsers(pagination, orderField, search);
+            var result = _userRepository.GetUsers(pagination, sorting, search, UsersHelper.SortUsers);
 
             return Ok(result);
         }

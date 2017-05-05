@@ -1,4 +1,5 @@
-﻿using AdminStore.Models;
+﻿using System.Collections.Generic;
+using AdminStore.Models;
 using AdminStore.Models.Enums;
 
 namespace AdminStore.Helpers
@@ -7,39 +8,22 @@ namespace AdminStore.Helpers
     {
         public static string SortUsers(Sorting sorting)
         {
-            var orderField = "displayName";
-            switch (sorting.Sort)
+            var defaultSortColumn = "displayName";
+            var sortableColumns = new HashSet<string>
             {
-                case "source":
-                    orderField = sorting.Order == "asc" ? "source" : "-source";
-                    break;
-                case "enabled":
-                    orderField = sorting.Order == "asc" ? "enabled" : "-enabled";
-                    break;
-                case "license":
-                    orderField = sorting.Order == "asc" ? "license" : "-license";
-                    break;
-                case "role":
-                    orderField = sorting.Order == "asc" ? "role" : "-role";
-                    break;
-                case "department":
-                    orderField = sorting.Order == "asc" ? "department" : "-department";
-                    break;
-                case "title":
-                    orderField = sorting.Order == "asc" ? "title" : "-title";
-                    break;
-                case "email":
-                    orderField = sorting.Order == "asc" ? "email" : "-email";
-                    break;
-                case "displayName":
-                    orderField = sorting.Order == "asc" ? "displayName" : "-displayName";
-                    break;
-                case "login":
-                    orderField = sorting.Order == "asc" ? "login" : "-login";
-                    break;
-            }
+                "login",
+                "email",
+                "license",
+                "role",
+                "department",
+                "title"
+            };
+            var column = sorting.Sort;
+            var sortColumn = !string.IsNullOrWhiteSpace(column) && sortableColumns.Contains(column)
+                ? column
+                : defaultSortColumn;
 
-            return orderField;
+            return sorting.Order == SortOrder.Desc ? "-" + sortColumn : sortColumn;
         }
 
         public static User CreateDbUserFromDto(UserDto user, UserOperationMode userOperationMode, int userId = 0)

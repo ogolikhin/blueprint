@@ -5,7 +5,7 @@ using AdminStore.Models;
 
 namespace AdminStore.Repositories
 {
-    public interface ISqlUserRepository
+    public interface IUserRepository
     {
         Task<AuthenticationUser> GetUserByLoginAsync(string login);
 
@@ -16,6 +16,8 @@ namespace AdminStore.Repositories
         Task<IEnumerable<LicenseTransactionUser>> GetLicenseTransactionUserInfoAsync(IEnumerable<int> userIds);
 
         Task<int> GetEffectiveUserLicenseAsync(int userId);
+
+        Task<IEnumerable<UserLicense>> GetEffectiveUserLicensesAsync(IEnumerable<int> userIds);
 
         Task UpdateUserOnInvalidLoginAsync(AuthenticationUser login);
 
@@ -31,10 +33,11 @@ namespace AdminStore.Repositories
 
         Task<IEnumerable<PasswordRecoveryToken>> GetPasswordRecoveryTokensAsync(Guid token);
 
-        QueryResult GetUsers(TableSettings settings);
+        Task<QueryResult<UserDto>> GetUsersAsync(TableSettings settings);
 
-        Task<User> GetUser(int userId);
-        Task<UserDto> GetUserDto(int userId);
+        Task<User> GetUserAsync(int userId);
+
+        Task<UserDto> GetUserDtoAsync(int userId);
 
         Task<int> AddUserAsync(User loginUser);
 

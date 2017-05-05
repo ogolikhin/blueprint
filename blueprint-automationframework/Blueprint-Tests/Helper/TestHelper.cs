@@ -11,6 +11,8 @@ using Model.ModelHelpers;
 using Model.OpenApiModel.Services;
 using Model.SearchServiceModel;
 using Model.StorytellerModel;
+using Model.StorytellerModel.Enums;
+using Model.StorytellerModel.Impl;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
@@ -22,6 +24,7 @@ using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
 using static Model.Impl.ArtifactStore;
+using static Model.StorytellerModel.Impl.Process;
 
 namespace Helper
 {
@@ -1089,6 +1092,27 @@ namespace Helper
             var process = Storyteller.GetNovaProcess(user, artifact.Id);
 
             return WrapProcessArtifact(process, project, user);
+        }
+
+        /// <summary>
+        /// Creates and publish a new Nova Process artifact (wrapped inside an ProcessArtifactWrapper that tracks the state of the artifact.).
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="project">The project where the Nova Process artifact should be created.</param>
+        /// <param name="parentId">(optional) The parent of this Nova Process artifact.
+        ///     By default the parent should be the project.</param>
+        /// <param name="orderIndex">(optional) The order index of this Nova Process artifact.
+        ///     By default the order index should be after the last artifact.</param>
+        /// <param name="name">(optional) The artifact name.  By default a random name is created.</param>
+        /// <returns>The Nova Process artifact wrapped in an ProcessArtifactWrapper that tracks the state of the artifact.</returns>
+        public ProcessArtifactWrapper CreateAndPublishNovaProcessArtifact(
+            IUser user, IProject project,
+            int? parentId = null, double? orderIndex = null, string name = null)
+        {
+            var wrappedProcessArtifact = CreateNovaProcessArtifact(user, project, parentId, orderIndex, name);
+            wrappedProcessArtifact.Publish(user);
+
+            return wrappedProcessArtifact;
         }
 
         /// <summary>

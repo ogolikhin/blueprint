@@ -30,7 +30,6 @@ namespace SearchServiceTests
         protected const string FULLTEXTSEARCH_PATH = RestPaths.Svc.SearchService.FULLTEXTSEARCH;
         protected const int DEFAULT_PAGE_VALUE = 1;
         protected const int DEFAULT_PAGESIZE_VALUE = 10;
-        protected const string DESCRIPTION = "Description";
 
         protected IUser _user { get; set; } = null;
         protected IUser _userSecond { get; set; } = null;
@@ -117,7 +116,7 @@ namespace SearchServiceTests
         [TestFixtureSetUp]
         public void ClassSetUp()
         {
-            Assert.DoesNotThrow(SetupData, "The TestFixtureSetUp failed!");
+            SetupData();
         }
 
         [TestFixtureTearDown]
@@ -560,7 +559,7 @@ namespace SearchServiceTests
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
 
             // Create search criteria with search term that matches with new version of artifact(s) description
-            var newSearchTerm = "NewDescription";
+            var newSearchTerm = "NewDescription" + RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
             var newSearchCriteria = new FullTextSearchCriteria(newSearchTerm, selectedProjectIds);
 
             // Update all published artifacts with the new description value that matches with the new search criteria

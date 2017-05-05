@@ -162,7 +162,6 @@ namespace StorytellerTests
             Assert.That(Helper.Storyteller.Artifacts != null, "Artifact List is missing.");
             
             // Delete the process artifact that were added from the test.
-            //var deletedArtifacts = Helper.Storyteller.DeleteNovaProcessArtifact(_user, novaProcess.NovaProcess);
             var deletedArtifacts = novaProcess.Delete(_user);
 
             int deletedChildArtfacts = deletedArtifacts.FindAll(d => !d.Id.Equals(novaProcess.Id)).Count();

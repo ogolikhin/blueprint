@@ -134,9 +134,7 @@ namespace StorytellerTests
             // Create and get the default process
             var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
-            // Publish process; enable recursive delete flag
             novaProcess.Publish(_user);
-            //deleteChildren = true;
 
             // Generate user stories for process
             Helper.Storyteller.GenerateUserStories(_user, novaProcess.Process);

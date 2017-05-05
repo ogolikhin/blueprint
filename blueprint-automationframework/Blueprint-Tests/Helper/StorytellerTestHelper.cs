@@ -288,8 +288,7 @@ namespace Helper
             int? parentId = null, double? orderIndex = null, string name = null)
         {
             var wrappedProcessArtifact = CreateNovaProcessArtifact(user, project, parentId, orderIndex, name);
-            var response = wrappedProcessArtifact.Publish(user);
-            wrappedProcessArtifact.Artifact.Version = response.Artifacts[0].Version;
+            wrappedProcessArtifact.Publish(user);
 
             return wrappedProcessArtifact;
         }
@@ -370,14 +369,10 @@ namespace Helper
             // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
             if (updateProcess)
             {
-                novaProcess.Update(user, novaProcess.Artifact);
+                novaProcess.Update(user, novaProcess.NovaProcess);
                 novaProcess.RefreshArtifactFromServer(user);
-                return novaProcess;
             }
-            else
-            {
-                return novaProcess;
-            }
+            return novaProcess;
         }
 
         /// <summary>
@@ -419,14 +414,10 @@ namespace Helper
             // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
             if (updateProcess)
             {
-                novaProcess.Update(user, novaProcess.Artifact);
+                novaProcess.Update(user, novaProcess.NovaProcess);
                 novaProcess.RefreshArtifactFromServer(user);
-                return novaProcess;
             }
-            else
-            {
-                return novaProcess;
-            }
+            return novaProcess;
         }
 
         /// <summary>
@@ -477,14 +468,10 @@ namespace Helper
 
             if (updateProcess)
             {
-                novaProcess.Update(user, novaProcess.Artifact);
+                novaProcess.Update(user, novaProcess.NovaProcess);
                 novaProcess.RefreshArtifactFromServer(user);
-                return novaProcess;
             }
-            else
-            {
-                return novaProcess;
-            }
+            return novaProcess;
         }
 
         /// <summary>
@@ -530,14 +517,10 @@ namespace Helper
             // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
             if (updateProcess)
             {
-                novaProcess.Update(user, novaProcess.Artifact);
+                novaProcess.Update(user, novaProcess.NovaProcess);
                 novaProcess.RefreshArtifactFromServer(user);
-                return novaProcess;
             }
-            else
-            {
-                return novaProcess;
-            }
+            return novaProcess;
         }
 
         /// <summary>
@@ -586,14 +569,10 @@ namespace Helper
             // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
             if (updateProcess)
             {
-                novaProcess.Update(user, novaProcess.Artifact);
+                novaProcess.Update(user, novaProcess.NovaProcess);
                 novaProcess.RefreshArtifactFromServer(user);
-                return novaProcess;
             }
-            else
-            {
-                return novaProcess;
-            }
+            return novaProcess;
         }
 
         /// <summary>
@@ -637,14 +616,10 @@ namespace Helper
             // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
             if (updateProcess)
             {
-                novaProcess.Update(user, novaProcess.Artifact);
+                novaProcess.Update(user, novaProcess.NovaProcess);
                 novaProcess.RefreshArtifactFromServer(user);
-                return novaProcess;
             }
-            else
-            {
-                return novaProcess;
-            }
+            return novaProcess;
         }
 
         /// <summary>
@@ -699,14 +674,10 @@ namespace Helper
             // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
             if (updateProcess)
             {
-                novaProcess.Update(user, novaProcess.Artifact);
+                novaProcess.Update(user, novaProcess.NovaProcess);
                 novaProcess.RefreshArtifactFromServer(user);
-                return novaProcess;
             }
-            else
-            {
-                return novaProcess;
-            }
+            return novaProcess;
         }
 
         /// <summary>
@@ -757,14 +728,10 @@ namespace Helper
 
             if (updateProcess)
             {
-                novaProcess.Update(user, novaProcess.Artifact);
+                novaProcess.Update(user, novaProcess.NovaProcess);
                 novaProcess.RefreshArtifactFromServer(user);
-                return novaProcess;
             }
-            else
-            {
-                return novaProcess;
-            }
+            return novaProcess;
         }
 
         /// <summary>
@@ -809,14 +776,10 @@ namespace Helper
             // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
             if (updateProcess)
             {
-                novaProcess.Update(user, novaProcess.Artifact);
+                novaProcess.Update(user, novaProcess.NovaProcess);
                 novaProcess.RefreshArtifactFromServer(user);
-                return novaProcess;
             }
-            else
-            {
-                return novaProcess;
-            }
+            return novaProcess;
         }
 
         /// <summary>
@@ -879,14 +842,10 @@ namespace Helper
             // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
             if (updateProcess)
             {
-                novaProcess.Update(user, novaProcess.Artifact);
+                novaProcess.Update(user, novaProcess.NovaProcess);
                 novaProcess.RefreshArtifactFromServer(user);
-                return novaProcess;
             }
-            else
-            {
-                return novaProcess;
-            }
+            return novaProcess;
         }
 
         /// <summary>
@@ -930,14 +889,10 @@ namespace Helper
             // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
             if (updateProcess)
             {
-                novaProcess.Update(user, novaProcess.Artifact);
+                novaProcess.Update(user, novaProcess.NovaProcess);
                 novaProcess.RefreshArtifactFromServer(user);
-                return novaProcess;
             }
-            else
-            {
-                return novaProcess;
-            }
+            return novaProcess;
         }
 
         /// <summary>
@@ -993,14 +948,10 @@ namespace Helper
             // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
             if (updateProcess)
             {
-                novaProcess.Update(user, novaProcess.Artifact);
+                novaProcess.Update(user, novaProcess.NovaProcess);
                 novaProcess.RefreshArtifactFromServer(user);
-                return novaProcess;
             }
-            else
-            {
-                return novaProcess;
-            }
+            return novaProcess;
         }
 
         /// <summary>
@@ -1054,14 +1005,10 @@ namespace Helper
             // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
             if (updateProcess)
             {
-                novaProcess.Update(user, novaProcess.Artifact);
+                novaProcess.Update(user, novaProcess.NovaProcess);
                 novaProcess.RefreshArtifactFromServer(user);
-                return novaProcess;
             }
-            else
-            {
-                return novaProcess;
-            }
+            return novaProcess;
         }
 
         /// <summary>
@@ -1094,14 +1041,10 @@ namespace Helper
             // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
             if (updateProcess)
             {
-                novaProcess.Update(user, novaProcess.Artifact);
+                novaProcess.Update(user, novaProcess.NovaProcess);
                 novaProcess.RefreshArtifactFromServer(user);
-                return novaProcess;
             }
-            else
-            {
-                return novaProcess;
-            }
+            return novaProcess;
         }
 
         /// <summary>
@@ -1140,12 +1083,8 @@ namespace Helper
             {
                 novaProcess.Update(user, novaProcess.Artifact);
                 novaProcess.RefreshArtifactFromServer(user);
-                return novaProcess.Process;
             }
-            else
-            {
-                return novaProcess.Process;
-            }
+            return novaProcess.Process;
         }
 
         #endregion Public Methods

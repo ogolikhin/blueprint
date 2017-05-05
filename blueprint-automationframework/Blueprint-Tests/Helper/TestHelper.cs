@@ -1110,8 +1110,7 @@ namespace Helper
             int? parentId = null, double? orderIndex = null, string name = null)
         {
             var wrappedProcessArtifact = CreateNovaProcessArtifact(user, project, parentId, orderIndex, name);
-            var response = wrappedProcessArtifact.Publish(user);
-            wrappedProcessArtifact.Artifact.Version = response.Artifacts[0].Version;
+            wrappedProcessArtifact.Publish(user);
 
             return wrappedProcessArtifact;
         }

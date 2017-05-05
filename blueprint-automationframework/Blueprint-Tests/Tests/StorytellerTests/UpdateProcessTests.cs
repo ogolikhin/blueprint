@@ -45,7 +45,7 @@ namespace StorytellerTests
         [Description("Update the name of process and verify that the returned process has the" +
                      "modified name.")]
         [Explicit(IgnoreReasons.UnderDevelopment)]//now /svc/components/storyteller/processes/{Id} doesn't allow to update process name
-        public void ModifynovaProcessName_VerifynovaProcess()
+        public void ModifyReturnedProcessName_VerifyReturnedProcess()
         {
             // Create and get the default process
             var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
@@ -61,7 +61,7 @@ namespace StorytellerTests
         [Description("Update the process type of the process and verify that the returned process" +
                      "has the updated process type. This verifies that the process type toggle in the" +
                      "process diagram is working.")]
-        public void ModifyProcessType_VerifynovaProcess()
+        public void ModifyProcessType_VerifyReturnedProcess()
         {
             // Create and get the default process
             var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
@@ -80,7 +80,7 @@ namespace StorytellerTests
         [TestCase]
         [Description("Add a new user task after the precondition and verify that the returned process" +
                      "has the new user task in the correct position and has the correct properties.")]
-        public void AddUserTaskAfterPrecondition_VerifynovaProcess()
+        public void AddUserTaskAfterPrecondition_VerifyReturnedProcess()
         {
             // Create and get the default process
             var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
@@ -103,7 +103,7 @@ namespace StorytellerTests
         [TestCase]
         [Description("Add a new user task before the end shape and verify that the returned process" +
                      "has the new user task in the correct position and has the correct properties.")]
-        public void AddUserTaskBeforeEnd_VerifynovaProcess()
+        public void AddUserTaskBeforeEnd_VerifyReturnedProcess()
         {
             // Create and get the default process
             var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
@@ -126,7 +126,7 @@ namespace StorytellerTests
         [TestCase]
         [Description("Add a user task after an existing user task and verify that the returned process" +
                      "has the new user task in the correct position and has the correct properties.")]
-        public void AddUserTaskAfterUserTask_VerifynovaProcess()
+        public void AddUserTaskAfterUserTask_VerifyReturnedProcess()
         {
             // Create and get the default process
             var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
@@ -150,7 +150,7 @@ namespace StorytellerTests
         [Description("Add a new user decision with branch after precondition and verify that the returned " +
                      "process has the new user decision and user task in the correct position and has the " +
                      "correct properties.")]
-        public void AddUserDecisionWithBranchAfterPrecondition_VerifynovaProcess()
+        public void AddUserDecisionWithBranchAfterPrecondition_VerifyReturnedProcess()
         {
             // Create and get the default process
             var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
@@ -175,7 +175,7 @@ namespace StorytellerTests
         [Description("Add a new user decision with branch before the end shape and verify that the returned " +
                      "process has the new user decision and branch with 2 new user tasks in the correct position " +
                      "and has the correct properties.")]
-        public void AddUserDecisionWithBranchBeforeEnd_VerifynovaProcess()
+        public void AddUserDecisionWithBranchBeforeEnd_VerifyReturnedProcess()
         {
             // Create and get the default process
             var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
@@ -196,7 +196,7 @@ namespace StorytellerTests
         [TestCase]
         [Description("Add new user decision point between 2 user tasks and verify that the returned process" +
                      "has the new user decision and branch in the correct position and has the correct properties.")]
-        public void AddUserDecisionBetweenTwoUserTasks_VerifynovaProcess()
+        public void AddUserDecisionBetweenTwoUserTasks_VerifyReturnedProcess()
         {
             // Create and get the default process
             var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
@@ -221,7 +221,7 @@ namespace StorytellerTests
         [Description("Add new user decision point before a merge point and verify that returned process" +
                      "has the new user decision point, branch and 2 new user tasks and has the correct " +
                      "properties.")]
-        public void AddUserDecisionWithinMainBranchBeforeMergePoint_VerifynovaProcess()
+        public void AddUserDecisionWithinMainBranchBeforeMergePoint_VerifyReturnedProcess()
         {
             // Create and get the default process
             var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
@@ -255,7 +255,7 @@ namespace StorytellerTests
         [Description("Add a second branch to a user decision point and verify that the returned process" +
                      "has the new branch along with a new user task in the the correct position and with" +
                      "the correct properties.")]
-        public void AddSecondBranchToUserDecision_VerifynovaProcess()
+        public void AddSecondBranchToUserDecision_VerifyReturnedProcess()
         {
             // Create and get the default process
             var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
@@ -282,7 +282,7 @@ namespace StorytellerTests
         [TestCase]
         [Description("Add a new user decision point to a branch and verify that the returned process" +
                      "has the new decision point, branch and 2 user tasks and has the correct properties.")]
-        public void AddUserDecisionToBranch_VerifynovaProcess()
+        public void AddUserDecisionToBranch_VerifyReturnedProcess()
         {
             // Create and get the default process
             var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
@@ -315,7 +315,7 @@ namespace StorytellerTests
         [TestCase]
         [Description("Add a user task after a merge point and verify that the returned process" +
                      "has the new user task and the correct properties.")]
-        public void AddUserTaskAfterMergePoint_VerifynovaProcess()
+        public void AddUserTaskAfterMergePoint_VerifyReturnedProcess()
         {
             // Create and get the default process
             var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
@@ -348,7 +348,7 @@ namespace StorytellerTests
         [TestCase]
         [Description("Add a user decision point after a merge point and verify that the returned process" +
                      "has the new decision point with branch and 2 new user tasks and has correct properties.")]
-        public void AddUserDecisionPointAfterMergePoint_VerifynovaProcess()
+        public void AddUserDecisionPointAfterMergePoint_VerifyReturnedProcess()
         {
             // Create and get the default process
             var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
@@ -374,7 +374,7 @@ namespace StorytellerTests
 
         [TestCase]
         [Description("Add an include to a user task and verify that the returned process contains the added include.")]
-        public void AddIncludeToUserTask_VerifynovaProcess()
+        public void AddIncludeToUserTask_VerifyReturnedProcess()
         {
             // Create and get the default process
             var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
@@ -391,7 +391,7 @@ namespace StorytellerTests
 
         [TestCase]
         [Description("Add an include to system task and verify that the returned process contains the added include.")]
-        public void AddIncludeToSystemTask_VerifynovaProcess()
+        public void AddIncludeToSystemTask_VerifyReturnedProcess()
         {
             // Create and get the default process
             var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
@@ -409,7 +409,7 @@ namespace StorytellerTests
 
         [TestCase]
         [Description("Delete an include from a user task and verify that the returned process does not contain the include.")]
-        public void DeleteIncludeFromUserTask_VerifynovaProcess()
+        public void DeleteIncludeFromUserTask_VerifyReturnedProcess()
         {
             // Create and get the default process
             var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
@@ -476,7 +476,7 @@ namespace StorytellerTests
 
         [TestCase]
         [Description("Add a new system decision point to the default process. The new system decision point added after the default UT.")]
-        public void AddSystemDecisionWithBranchAfterDefaultUserTask_VerifynovaProcess()
+        public void AddSystemDecisionWithBranchAfterDefaultUserTask_VerifyReturnedProcess()
         {
             // Create and get the default process
             var process = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
@@ -502,7 +502,7 @@ namespace StorytellerTests
 
         [TestCase]
         [Description("Add two new system decision points to the default process. The two system decision points added one after the other after the default UT.")]
-        public void AddTwoSystemDecisionsWithBranchAfterDefaultUserTask_VerifynovaProcess()
+        public void AddTwoSystemDecisionsWithBranchAfterDefaultUserTaskVerifyReturnedProcess()
         {
             // Create and get the default process
             var process = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
@@ -540,7 +540,7 @@ namespace StorytellerTests
 
         [TestCase]
         [Description("Add a new system decision point to the default process. The system decision point gets added with two additonal branches after the default UT.")]
-        public void AddSystemDecisionWithTwoBranchesAfterDefaultUserTask_VerifynovaProcess()
+        public void AddSystemDecisionWithTwoBranchesAfterDefaultUserTaskVerifyReturnedProcess()
         {
             // Create and get the default process
             var process = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
@@ -569,7 +569,7 @@ namespace StorytellerTests
 
         [TestCase]
         [Description("Add a new system decision point to the default process. The system decision point gets added with an additonal branch which also contains a system decision point.")]
-        public void AddSystemDecisionWithBranchWithSystemDecisionAfterDefaultUserTask_VerifynovaProcess()
+        public void AddSystemDecisionWithBranchWithSystemDecisionAfterDefaultUserTaskVerifyReturnedProcess()
         {
             // Create and get the default process
             var process = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
@@ -605,7 +605,7 @@ namespace StorytellerTests
         [TestCase]
         [Description("Add a new system decision point to the default process. The system decision point gets added with two additonal branches: " +
             "one contains a system decision point along with branches and system tasks and the other contains just a system task")]
-        public void AddSystemDecisionWithBranchesWithSystemDecisionAfterDefaultUserTask_VerifynovaProcess()
+        public void AddSystemDecisionWithBranchesWithSystemDecisionAfterDefaultUserTaskVerifyReturnedProcess()
         {
             // Create and get the default process
             var process = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
@@ -644,7 +644,7 @@ namespace StorytellerTests
         [TestCase]
         [Description("Add a new system decision point to the default process. The system decision point gets added with two additonal branches: " +
             "each of them contains a system decision point along with branches and system tasks")]
-        public void AddSystemDecisionWithTwoBranchesWithSystemDecisionAfterDefaultUserTask_VerifynovaProcess()
+        public void AddSystemDecisionWithTwoBranchesWithSystemDecisionAfterDefaultUserTaskVerifyReturnedProcess()
         {
             // Create and get the default process
             var process = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
@@ -692,7 +692,7 @@ namespace StorytellerTests
         [TestCase]
         [Description("Add a new system decision point to the default process. The system decision point gets added with two additonal branches: " +
             "each of them contains a system decision point along with branches and system tasks")]
-        public void AddTwoSystemDecisionsWithBranchesOnMainBranch_VerifynovaProcess()
+        public void AddTwoSystemDecisionsWithBranchesOnMainBranchVerifyReturnedProcess()
         {
             // Create and get the default process
             var process = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
@@ -733,7 +733,7 @@ namespace StorytellerTests
 
         [TestCase]
         [Description("Add a new system decision point to the default process. The system decision point gets added with two additonal branches after the default UT. Generate User Story")]
-        public void GenerateUserStoryForSystemDecisionWithTwoBranchesAfterDefaultUserTask_VerifynovaProcess()
+        public void GenerateUserStoryForSystemDecisionWithTwoBranchesAfterDefaultUserTaskVerifyReturnedProcess()
         {
             /*
             You start with this:
@@ -783,7 +783,7 @@ namespace StorytellerTests
         [TestCase]
         [Description("Add a new system decision point to the default process. The system decision point gets added with additonal branch. " +
             "Add another system decision point immediately after 1st one (Nested SD). Generate User Story")]
-        public void GenerateUserStoryForTwoSystemDecisionsWithBranchesOnMainBranch_VerifynovaProcess()
+        public void GenerateUserStoryForTwoSystemDecisionsWithBranchesOnMainBranchVerifyReturnedProcess()
         {
             /*
            You start with this:

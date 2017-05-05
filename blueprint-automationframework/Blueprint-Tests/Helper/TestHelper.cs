@@ -2163,7 +2163,7 @@ namespace Helper
                 {
                     foreach (var user in Users)
                     {
-                        ArtifactStore.DiscardArtifacts(artifactIds: null, user: user, all: true);
+                        ArtifactStore.DiscardAllArtifacts(user);
                     }
 
                     var deleteExpectedStatusCodes = new List<System.Net.HttpStatusCode> { System.Net.HttpStatusCode.OK,

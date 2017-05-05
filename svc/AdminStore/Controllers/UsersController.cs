@@ -28,7 +28,7 @@ namespace AdminStore.Controllers
         private const int DefaultPasswordResetTokenExpirationInHours = 24;
 
         internal readonly IAuthenticationRepository _authenticationRepository;
-        internal readonly ISqlUserRepository _userRepository;
+        internal readonly IUserRepository _userRepository;
         internal readonly ISqlSettingsRepository _settingsRepository;
         internal readonly IEmailHelper _emailHelper;
         internal readonly IApplicationSettingsRepository _applicationSettingsRepository;
@@ -44,9 +44,9 @@ namespace AdminStore.Controllers
 
         internal UsersController
         (
-            IAuthenticationRepository authenticationRepository, ISqlUserRepository userRepository,
-            ISqlSettingsRepository settingsRepository, IEmailHelper emailHelper,
-            IApplicationSettingsRepository applicationSettingsRepository, IServiceLogRepository log,
+            IAuthenticationRepository authenticationRepository, IUserRepository userRepository, 
+            ISqlSettingsRepository settingsRepository, IEmailHelper emailHelper, 
+            IApplicationSettingsRepository applicationSettingsRepository, IServiceLogRepository log, 
             IHttpClientProvider httpClientProvider, IPrivilegesRepository privilegesRepository
         )
         {
@@ -172,7 +172,7 @@ namespace AdminStore.Controllers
         {
             await _privilegesManager.Demand(SessionUserId, InstanceAdminPrivileges.ViewUsers);
 
-            var user = await _userRepository.GetUserDto(userId);
+            var user = await _userRepository.GetUserDtoAsync(userId);
 
             if (user.Id == 0)
             {
@@ -478,7 +478,7 @@ namespace AdminStore.Controllers
 
             await _privilegesManager.Demand(SessionUserId, InstanceAdminPrivileges.ManageUsers);
 
-            var existingUser = await _userRepository.GetUser(userId);
+            var existingUser = await _userRepository.GetUserAsync(userId);
             if (existingUser == null)
             {
                 throw new BadRequestException(ErrorMessages.UserNotExist, ErrorCodes.ResourceNotFound);

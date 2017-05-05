@@ -120,7 +120,6 @@ namespace Model
                 {
                     public const string GROUPS                      = "svc/adminstore/groups";
                     public const string GROUPS_id_                  = "svc/adminstore/groups/{0}";
-                    public const string INSTANCE_ROLES              = "svc/adminstore/groups/instanceroles";
                     public const string SEARCH                      = "svc/adminstore/groups/search"; 
                 }
 
@@ -181,6 +180,7 @@ namespace Model
 
                 public static class Users
                 {
+                    public const string INSTANCE_ROLES              = "svc/adminstore/users/instanceroles";
                     public const string LOGINUSER                   = "svc/adminstore/users/loginuser";
                     public const string RESET                       = "svc/adminstore/users/reset";
                     public const string SEARCH                      = "svc/adminstore/users/search";
@@ -210,6 +210,7 @@ namespace Model
                 public const string ARTIFACTS_id_                   = "svc/bpartifactstore/artifacts/{0}";  // XXX: For some reason they decided to put this call in blueprint-current!
                 public const string BASELINE_id_                    = "svc/bpartifactstore/baselines/{0}"; // Baseline
                 public const string COLLECTION_id_                  = "svc/bpartifactstore/collections/{0}"; // Collection
+                public const string CONTAINERS_id_                  = "svc/artifactstore/containers/{0}";
                 public const string DIAGRAM_id_                     = "svc/bpartifactstore/diagram/{0}";    // NovaDiagramController.GetDiagram
                 public const string GLOSSARY_id_                    = "svc/bpartifactstore/glossary/{0}";   // NovaGlossaryController.GetGlossary
                 public const string IMAGES                          = "svc/bpartifactstore/images";
@@ -259,6 +260,11 @@ namespace Model
                 public static class Collections_id_
                 {
                     public const string CONTENT                     = "svc/bpartifactstore/collections/{0}/content"; //  Add artifact to Collection
+                }
+
+                public static class Containers_id_
+                {
+                    public const string PARTICIPANTS                = "svc/artifactstore/containers/{0}/participants";
                 }
 
                 [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.

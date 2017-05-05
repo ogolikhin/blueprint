@@ -2,8 +2,12 @@
 using Helper;
 using Model;
 using Model.ArtifactModel.Impl.OperationsResults;
+using Model.NovaModel.Impl;
+using Model.Factories;
 using NUnit.Framework;
 using TestCommon;
+using Utilities;
+using TestConfig;
 
 namespace ArtifactStoreTests
 {
@@ -48,6 +52,71 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(numberOfArtifacts, reviewArtifacts.Total, "GetReviewArtifacts should return expected number of artifacts.");
             Assert.AreEqual(numberOfArtifacts, reviewArtifacts.Items.Count, "GetReviewArtifacts should return expected number of artifacts.");
+        }
+
+        [Category(Categories.GoldenData)]
+        [TestCase]
+        [TestRail(303353)]
+        [Description("Get Review Content by id from Custom Data project, check that artifacts have expected values.")]
+        public void GetReviewContainer_ExistingReview_Reviewer_CheckReviewProperties()
+        {
+            // Setup:
+            _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
+            const int reviewId = 111;
+
+            var testConfig = TestConfiguration.GetInstance();
+            string userName = testConfig.Username;
+            string password = testConfig.Password;
+
+            var sessionToken = Helper.AdminStore.AddSession(userName, password);
+            var admin = UserFactory.CreateUserOnly(userName, password);
+            admin.SetToken(sessionToken.SessionId);
+
+            ReviewContainer reviewContainer = null;
+
+            // Execute: 
+            Assert.DoesNotThrow(() => reviewContainer = Helper.ArtifactStore.GetReviewContainer(admin, reviewId),
+                "{0} should throw no error.", nameof(Helper.ArtifactStore.GetReviewContainer));
+
+            // Verify:
+            Assert.AreEqual(15, reviewContainer.TotalArtifacts, "TotalArtifacts should be equal to the expected number of artifacts in Review.");
+        }
+
+        [Category(Categories.GoldenData)]
+        [TestCase]
+        [TestRail(303349)]
+        [Description("Get Review Content by id from Custom Data project, non-reviewer user, check that server returns 403.")]
+        public void GetReviewContainer_ExistingReview_NonReviewer_403Forbidden()
+        {
+            // Setup:
+            _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
+            const int reviewId = 111;
+
+            // Execute & Verify: 
+            Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetReviewContainer(_adminUser, reviewId),
+                "{0} should return 403 for non-reviewer user.", nameof(Helper.ArtifactStore.GetReviewContainer));
+        }
+
+        [Category(Categories.GoldenData)]
+        [TestCase]
+        [TestRail(303522)]
+        [Description("Get Review Participants by Review id from Custom Data project should return expected number of reviewers.")]
+        public void GetReviewParticipants_ExistingReview_CheckReviewersCount()
+        {
+            // Setup:
+            _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
+            const int reviewId = 111;
+
+            ReviewParticipantsContent reviewParticipants = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            reviewParticipants = Helper.ArtifactStore.GetReviewParticipants(_adminUser, reviewId), "GetReviewParticipants " +
+            "should return 200 success.");
+
+            // Verify:
+            Assert.AreEqual(1, reviewParticipants.Total, "ReviewParticipantsContent should have expected number of Reviewers.");
+            Assert.AreEqual(1, reviewParticipants.Items?.Count, "List of Reviewers should have expected number of items.");
         }
     }
 }

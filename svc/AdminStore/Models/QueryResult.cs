@@ -4,9 +4,9 @@ using Newtonsoft.Json;
 namespace AdminStore.Models
 {
     [JsonObject]
-    public class QueryResult<TResult>
+    public class QueryResult<T>
     {
         public int Total { get; set; }
-        public IEnumerable<TResult> Items { get; set; }
+        public IEnumerable<T> Items { get; set; }
     }
 }

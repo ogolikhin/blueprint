@@ -151,33 +151,6 @@ namespace Model
         List<INovaArtifactResponse> DeleteArtifact(int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// Discard a single artifact.
-        /// </summary>
-        /// <param name="artifact">The artifact to discard.  This can be null if the 'all' parameter is true.</param>
-        /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
-        /// <param name="all">(optional) Pass true to discard all artifacts saved by the user that have changes.  In this case, you don't need to specify the artifact to discard.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>An object containing a list of artifacts that were discarded and their projects.</returns>
-        INovaArtifactsAndProjectsResponse DiscardArtifact(IArtifactBase artifact,
-            IUser user = null,
-            bool? all = null,
-            List<HttpStatusCode> expectedStatusCodes = null);
-
-        /// <summary>
-        /// Discard a list of artifacts.
-        /// </summary>
-        /// <param name="artifacts">The artifacts to discard.  This can be null if the 'all' parameter is true.</param>
-        /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
-        /// <param name="all">(optional) Pass true to discard all artifacts saved by the user that have changes.
-        ///     In this case, you don't need to specify the artifacts to discard.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>An object containing a list of artifacts that were discarded and their projects.</returns>
-        INovaArtifactsAndProjectsResponse DiscardArtifacts(List<IArtifactBase> artifacts,
-            IUser user = null,
-            bool? all = null,
-            List<HttpStatusCode> expectedStatusCodes = null);
-
-        /// <summary>
         /// Discard all artifacts locked by the specified user.
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>

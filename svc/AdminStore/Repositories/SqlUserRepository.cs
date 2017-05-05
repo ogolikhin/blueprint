@@ -275,6 +275,45 @@ namespace AdminStore.Repositories
             }
         }
 
+
+        public async Task<QueryDataResult<GroupDto>> GetUserGroupsAsync(int userId, TabularData tabularData)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@UserId", userId);
+            parameters.Add("@Offset", tabularData.Pagination.Offset);
+            parameters.Add("@Limit", tabularData.Pagination.Limit);
+            parameters.Add("@Order", tabularData.Sorting.Order.ToString().ToLower());
+            parameters.Add("@OrderField", tabularData.Sorting.Sort?.ToLower() ?? String.Empty);
+            parameters.Add("@Search", tabularData.Search);
+            parameters.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            var userGroups = await _connectionWrapper.QueryAsync<Group>("GetUsersGroups", parameters, commandType: CommandType.StoredProcedure);
+            var total = parameters.Get<int?>("Total");
+            var errorCode = parameters.Get<int?>("ErrorCode");
+          
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int) SqlErrorCodes.GeneralSqlError:
+                        throw new BadRequestException(ErrorMessages.GeneralErrorOfGettingUserGroups);
+
+                    case (int) SqlErrorCodes.UserLoginNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.UserNotExist);
+                }
+            }
+
+            if (!total.HasValue)
+            {
+                throw new BadRequestException(ErrorMessages.TotalNull);
+            }
+
+            var mappedGroups = GroupMapper.Map(userGroups);
+          
+            var queryDataResult = new QueryDataResult<GroupDto>() {Items = mappedGroups, Total =  total.Value};
+            return queryDataResult;
+        }
+
         internal class HashedPassword
         {
             internal string Password { get; set; }

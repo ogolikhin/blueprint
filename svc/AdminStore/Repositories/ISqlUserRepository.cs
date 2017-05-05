@@ -39,5 +39,7 @@ namespace AdminStore.Repositories
         Task<int> AddUserAsync(User loginUser);
 
         Task UpdateUserAsync(User loginUser);
+
+        Task <QueryDataResult<GroupDto>> GetUserGroupsAsync(int userId, TabularData tabularData);
     }
 }

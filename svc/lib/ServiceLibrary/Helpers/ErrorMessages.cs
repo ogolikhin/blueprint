@@ -24,5 +24,10 @@
         public static readonly string UserNotExist = "The user with the current userId doesn’t exist or removed from the system.";
         public static readonly string UserVersionsNotEqual = "The current version from the request doesn’t match the current version in DB.";
         public static readonly string IncorrectUserId = "Incorrect userId.";
+        public static readonly string IncorrectLimitParameter = "The \"limit\" parameter should be more than 0.";
+        public static readonly string IncorrectOffsetParameter = "The \"offset\" parameter should not be negative.";
+        public static readonly string TotalNull = "The \"total\" is null.";
+        public static readonly string GeneralErrorOfGettingUserGroups = "The general error of getting user's groups.";
+        
     }
 }

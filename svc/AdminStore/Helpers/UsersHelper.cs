@@ -28,7 +28,7 @@ namespace AdminStore.Helpers
 
         public static User CreateDbUserFromDto(UserDto user, UserOperationMode userOperationMode, int userId = 0)
         {
-            UserValidator.ValidateModel(user);
+            UserValidator.ValidateModel(user, userOperationMode);
             var dbUserModel = UserConverter.ConvertToDbUser(user, userOperationMode, userId);
             return dbUserModel;
         }

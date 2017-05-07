@@ -351,40 +351,47 @@ namespace Helper
         /// <summary>
         /// Generates a random Instance User for user management
         /// </summary>
-        /// <param name="loginName">(optional) The login name of the user. Randomly generated if not specified.</param>
-        /// <param name="password">(optional) The user's password. Randomly generated if not specified.</param>
-        /// <param name="source">(optional) The source of the user. Defaults to Database if not specified.</param>
+        /// <param name="login">(optional) The login name of the user. Randomly generated if not specified.</param>
+        /// <param name="firstName">(optional) The first name of the user. Randomly generated if not specified.</param>
+        /// <param name="lastName">(optional) The last name of the user. Randomly generated if not specified.</param>
+        /// <param name="email">(optional) The email of the user. Randomly generated if not specified.</param>
         /// <param name="displayname">(optional) The user's display name. Randomly generated if not specified.</param>
+        /// <param name="source">(optional) The source of the user. Defaults to Database if not specified.</param>
         /// <param name="licenseLevel">(optinal) The user's license level. Defaults to Viewer if not specified.</param>
         /// <param name="instanceAdminRole">(optional) The user's instance admin role. Defaults to null (empty).</param>
         /// <param name="adminPrivileges">(optional) The user's instance admin privileges.  Defaults to None.</param>
         /// <param name="imageId">(optional) The user's image id. Defaults to null.</param>
+        /// <param name="password">(optional) The user's password. Randomly generated if not specified.</param>
         /// <returns>An InstanceUser object.</returns>
         public static InstanceUser GenerateRandomInstanceUser(
-            string loginName = null,
-            string password = null,
-            UserSource source = UserSource.Database,
+            string login = null,
+            string firstName = null,
+            string lastName = null,
+            string email = null,
             string displayname = null,
-            LicenseLevel licenseLevel = LicenseLevel.Viewer,
+            UserSource? source = null,
+            LicenseLevel? licenseLevel = null,
             InstanceAdminRole? instanceAdminRole = null,
-            InstanceAdminPrivileges adminPrivileges = InstanceAdminPrivileges.None,
-            int? imageId = null)
+            InstanceAdminPrivileges? adminPrivileges = null,
+            int? imageId = null,
+            string password = null)
         {
-            string login = loginName ?? RandomGenerator.RandomAlphaNumeric(MinPasswordLength);
-            string firstName = RandomGenerator.RandomAlphaNumeric(10);
-            string lastName = RandomGenerator.RandomAlphaNumeric(10);
-            string email = I18NHelper.FormatInvariant("{0}@{1}.com", login, RandomGenerator.RandomAlphaNumeric(10));
-                                                        
+            login = login ?? RandomGenerator.RandomAlphaNumeric(MinPasswordLength);
+            firstName = firstName ?? RandomGenerator.RandomAlphaNumeric(10);
+            lastName = lastName ?? RandomGenerator.RandomAlphaNumeric(10);
+            email = email ?? I18NHelper.FormatInvariant("{0}@{1}.com", login, RandomGenerator.RandomAlphaNumeric(10));
+            displayname = displayname ?? I18NHelper.FormatInvariant("{0} {1}", firstName, lastName);
+                         
             var instanceUser = new InstanceUser
             (
                 login,
                 firstName,
                 lastName,
-                displayname ?? I18NHelper.FormatInvariant("{0} {1}", firstName, lastName),
+                displayname,
                 email,
-                source,
+                source ?? UserSource.Database,
                 eulaAccepted: false,
-                license: licenseLevel,
+                license: licenseLevel ?? LicenseLevel.Viewer,
                 isSso: false,
                 allowFallback: null,
                 instanceAdminRole: instanceAdminRole,
@@ -439,11 +446,14 @@ namespace Helper
             Assert.AreEqual(expectedUser.ImageId, actualUser.ImageId, "ImageId is different.");
 
 
-            Assert.AreEqual(expectedUser.GroupMembership.Length, actualUser.GroupMembership.Length, "GroupMembership count is different.");
+            Assert.AreEqual(expectedUser.GroupMembership, actualUser.GroupMembership, "GroupMembership is different.");
 
-            foreach (var group in expectedUser.GroupMembership)
+            if (expectedUser.GroupMembership != null)
             {
-                Assert.Contains(group, actualUser.GroupMembership, "Expected group {0} is not found in actual group membership.", group);
+                foreach (var group in expectedUser.GroupMembership)
+                {
+                    Assert.Contains(group, actualUser.GroupMembership, "Expected group {0} is not found in actual group membership.", group);
+                }
             }
         }
 

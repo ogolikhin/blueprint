@@ -1,6 +1,7 @@
 ﻿using Model.ArtifactModel;
 using Model.StorytellerModel.Impl;
 using Newtonsoft.Json;
+using NUnit.Framework;
 using Utilities;
 
 namespace Model.ModelHelpers
@@ -11,22 +12,21 @@ namespace Model.ModelHelpers
         /// The artifact that is being wrapped.
         /// </summary>
         [JsonIgnore]
-        public  INovaProcess NovaProcess {
+        public  INovaProcess NovaProcess
+        {
             get { return (INovaProcess)Artifact; }
-            set {Artifact = value; } }
+            set { Artifact = value; }
+        }
+
+        #region INovaProcess members
 
         public Process Process
         {
-            get
-            {
-                return NovaProcess.Process;
-            }
-
-            set
-            {
-                NovaProcess.Process = value;
-            }
+            get { return NovaProcess.Process; }
+            set { NovaProcess.Process = value; }
         }
+
+        #endregion INovaProcess members
 
         #region Constructors
 
@@ -39,7 +39,8 @@ namespace Model.ModelHelpers
         /// <param name="project">The project where the artifact was created.</param>
         /// <param name="createdBy">The user who created the artifact.</param>
         /// <exception cref="AssertionException">If the Project ID of the artifact is different than the ID of the IProject.</exception>
-        public ProcessArtifactWrapper(INovaProcess artifact, IArtifactStore artifactStore, ISvcShared svcShared, IProject project, IUser createdBy) : base(artifact, artifactStore, svcShared, project, createdBy)
+        public ProcessArtifactWrapper(INovaProcess artifact, IArtifactStore artifactStore, ISvcShared svcShared, IProject project, IUser createdBy)
+            : base(artifact, artifactStore, svcShared, project, createdBy)
         {
         }
 
@@ -60,7 +61,7 @@ namespace Model.ModelHelpers
 
             var updatedArtifact = ArtifactStore.UpdateNovaProcess(user, (INovaProcess)updateArtifact);
 
-            ArtifactState.IsDraft = true;
+            UpdateArtifactState(ArtifactOperation.Update);
 
             return updatedArtifact;
         }

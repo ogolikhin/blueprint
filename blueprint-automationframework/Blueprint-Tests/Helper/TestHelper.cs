@@ -11,6 +11,8 @@ using Model.ModelHelpers;
 using Model.OpenApiModel.Services;
 using Model.SearchServiceModel;
 using Model.StorytellerModel;
+using Model.StorytellerModel.Enums;
+using Model.StorytellerModel.Impl;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
@@ -22,6 +24,7 @@ using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
 using static Model.Impl.ArtifactStore;
+using static Model.StorytellerModel.Impl.Process;
 
 namespace Helper
 {
@@ -759,17 +762,17 @@ namespace Helper
         /// <param name="user">The user who will create the artifacts.</param>
         /// <param name="artifactTypeChain">The artifact types of each artifact in the chain starting at the top parent.</param>
         /// <returns>The list of artifacts in the chain starting at the top parent.</returns>
-        public List<IArtifact> CreateSavedArtifactChain(IProject project, IUser user, BaseArtifactType[] artifactTypeChain)
+        public List<ArtifactWrapper> CreateSavedArtifactChain(IProject project, IUser user, ItemTypePredefined[] artifactTypeChain)
         {
             ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
 
-            var artifactChain = new List<IArtifact>();
-            IArtifact bottomArtifact = null;
+            var artifactChain = new List<ArtifactWrapper>();
+            ArtifactWrapper bottomArtifact = null;
 
             // Create artifact chain.
             foreach (var artifactType in artifactTypeChain)
             {
-                bottomArtifact = CreateAndSaveArtifact(project, user, artifactType, parent: bottomArtifact);
+                bottomArtifact = CreateNovaArtifact(user, project, artifactType, parentId: bottomArtifact?.Id);
                 artifactChain.Add(bottomArtifact);
             }
 
@@ -1089,6 +1092,27 @@ namespace Helper
             var process = Storyteller.GetNovaProcess(user, artifact.Id);
 
             return WrapProcessArtifact(process, project, user);
+        }
+
+        /// <summary>
+        /// Creates and publish a new Nova Process artifact (wrapped inside an ProcessArtifactWrapper that tracks the state of the artifact.).
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="project">The project where the Nova Process artifact should be created.</param>
+        /// <param name="parentId">(optional) The parent of this Nova Process artifact.
+        ///     By default the parent should be the project.</param>
+        /// <param name="orderIndex">(optional) The order index of this Nova Process artifact.
+        ///     By default the order index should be after the last artifact.</param>
+        /// <param name="name">(optional) The artifact name.  By default a random name is created.</param>
+        /// <returns>The Nova Process artifact wrapped in an ProcessArtifactWrapper that tracks the state of the artifact.</returns>
+        public ProcessArtifactWrapper CreateAndPublishNovaProcessArtifact(
+            IUser user, IProject project,
+            int? parentId = null, double? orderIndex = null, string name = null)
+        {
+            var wrappedProcessArtifact = CreateNovaProcessArtifact(user, project, parentId, orderIndex, name);
+            wrappedProcessArtifact.Publish(user);
+
+            return wrappedProcessArtifact;
         }
 
         /// <summary>

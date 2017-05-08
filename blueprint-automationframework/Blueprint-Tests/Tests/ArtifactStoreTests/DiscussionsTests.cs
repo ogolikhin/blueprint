@@ -57,7 +57,7 @@ namespace ArtifactStoreTests
             // Setup:
             var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.Actor);
 
-            var postedRaptorDiscussion = Helper.SvcComponents.PostRapidReviewDiscussion(_authorUser, artifact.Id, "draft");
+            var postedRaptorDiscussion = PostRapidReviewDiscussion(_authorUser, artifact.Id, "draft");
             var viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             DiscussionResultSet discussions = null;
@@ -84,7 +84,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.Actor);
-            var postedRaptorComment = Helper.SvcComponents.PostRapidReviewDiscussion(_adminUser, artifact.Id, "draft");
+            var postedRaptorComment = PostRapidReviewDiscussion(_adminUser, artifact.Id, "draft");
             artifact.Delete(_adminUser);
             DiscussionResultSet discussions = null;
 
@@ -213,7 +213,7 @@ namespace ArtifactStoreTests
             // Setup:
             var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.UseCase);
 
-            var postedRaptorComment = Helper.SvcComponents.PostRapidReviewDiscussion(_authorUser, artifact.Id, "original discussion text");
+            var postedRaptorComment = PostRapidReviewDiscussion(_authorUser, artifact.Id, "original discussion text");
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
 
             Assert.AreEqual(1, discussions.Discussions.Count, "There should be 1 comment returned!");
@@ -289,10 +289,7 @@ namespace ArtifactStoreTests
             // Setup:
             const string REPLY = "Reply";
             var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.UIMockup);
-            var raptorComment = Helper.SvcComponents.PostRapidReviewDiscussion(_adminUser, artifact.Id, ORIGINAL_COMMENT);
-
-            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
-                "Original comment and comment returned after discussion created different!");
+            var raptorComment = PostRapidReviewDiscussion(_adminUser, artifact.Id, ORIGINAL_COMMENT);
 
             string replyText = null;
             IRaptorReply raptorReply = null;
@@ -328,10 +325,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.UseCase);
-            var raptorComment = Helper.SvcComponents.PostRapidReviewDiscussion(_authorUser, artifact.Id, ORIGINAL_COMMENT);
-
-            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
-                "Original comment and comment returned after discussion created different!");
+            var raptorComment = PostRapidReviewDiscussion(_authorUser, artifact.Id, ORIGINAL_COMMENT);
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
             var statusId = GetStatusId(discussions, ThreadStatus.CLOSED);
@@ -366,10 +360,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.UseCase);
-            var discussion = Helper.SvcComponents.PostRapidReviewDiscussion(_authorUser, artifact.Id, ORIGINAL_COMMENT);
-
-            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), discussion.Comment,
-                "Original comment and comment returned after discussion created different!");
+            var discussion = PostRapidReviewDiscussion(_authorUser, artifact.Id, ORIGINAL_COMMENT);
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
             var statusId = GetStatusId(discussions, ThreadStatus.CLOSED);
@@ -420,10 +411,7 @@ namespace ArtifactStoreTests
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, customDataProject);
 
             var artifact = Helper.CreateAndPublishNovaArtifact(author, customDataProject, ItemTypePredefined.UseCase);
-            var raptorComment = Helper.SvcComponents.PostRapidReviewDiscussion(author, artifact.Id, ORIGINAL_COMMENT);
-
-            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
-                "Original comment and comment returned after discussion created different!");
+            var raptorComment = PostRapidReviewDiscussion(author, artifact.Id, ORIGINAL_COMMENT);
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, author);
 
@@ -461,10 +449,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.UseCase);
-            var raptorComment = Helper.SvcComponents.PostRapidReviewDiscussion(_adminUser, artifact.Id, ORIGINAL_COMMENT);
-
-            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
-                "Original comment and comment returned after discussion created different!");
+            var raptorComment = PostRapidReviewDiscussion(_adminUser, artifact.Id, ORIGINAL_COMMENT);
 
             var comment = new RaptorComment
             {
@@ -502,12 +487,8 @@ namespace ArtifactStoreTests
             for (int i = 0; i < 2; i++)
             {
                 comment = ORIGINAL_COMMENT + " " + (i + 1);
-                raptorComment = Helper.SvcComponents.PostRapidReviewDiscussion(_authorUser, artifact.Id, comment);
+                raptorComment = PostRapidReviewDiscussion(_authorUser, artifact.Id, comment);
             }
-
-            Assert.NotNull(raptorComment, "raptorComment shouldn't be null!");
-            Assert.AreEqual(StringUtilities.WrapInDiv(comment), raptorComment.Comment,
-                "Original comment and comment returned after discussion created different!");
 
             // Execute:
             Assert.DoesNotThrow(() =>
@@ -535,12 +516,8 @@ namespace ArtifactStoreTests
             for (int i = 0; i < 2; i++)
             {
                 comment = ORIGINAL_COMMENT + " " + (i + 1);
-                raptorComment = Helper.SvcComponents.PostRapidReviewDiscussion(_authorUser, artifact.Id, comment);
+                raptorComment = PostRapidReviewDiscussion(_authorUser, artifact.Id, comment);
             }
-
-            Assert.NotNull(raptorComment, "raptorComment shouldn't be null!");
-            Assert.AreEqual(StringUtilities.WrapInDiv(comment), raptorComment.Comment,
-                "Original comment and comment returned after discussion created different!");
 
             // Execute:
             Assert.DoesNotThrow(() =>
@@ -564,10 +541,7 @@ namespace ArtifactStoreTests
             const string REPLY = "Reply";
 
             var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.Glossary);
-            var raptorDiscussion = Helper.SvcComponents.PostRapidReviewDiscussion(_adminUser, artifact.Id, ORIGINAL_COMMENT);
-
-            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorDiscussion.Comment,
-                "Original comment and comment returned after discussion created different!");
+            var raptorDiscussion = PostRapidReviewDiscussion(_adminUser, artifact.Id, ORIGINAL_COMMENT);
 
             var raptorReply = Helper.SvcComponents.PostRapidReviewDiscussionReply(_authorUser, raptorDiscussion.ItemId, raptorDiscussion.DiscussionId, REPLY);
 
@@ -610,7 +584,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                postedRaptorComment = Helper.SvcComponents.PostRapidReviewDiscussion(_authorUser, artifact.Id, ORIGINAL_COMMENT);
+                postedRaptorComment = PostRapidReviewDiscussion(_authorUser, artifact.Id, ORIGINAL_COMMENT);
             }, "{0} shouldn't return an error.", nameof(Helper.SvcComponents.PostRapidReviewDiscussion));
 
             // Verify:
@@ -637,9 +611,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.Glossary);
-            var raptorComment = Helper.SvcComponents.PostRapidReviewDiscussion(_adminUser, artifact.Id, ORIGINAL_COMMENT);
-
-            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment);
+            PostRapidReviewDiscussion(_adminUser, artifact.Id, ORIGINAL_COMMENT);
 
             // Execute:
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.DISCUSSIONS, artifact.Id);
@@ -658,10 +630,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.Glossary);
-            var raptorComment = Helper.SvcComponents.PostRapidReviewDiscussion(_adminUser, artifact.Id, ORIGINAL_COMMENT);
-
-            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
-                "Original comment and comment returned after discussion created different!");
+            var raptorComment = PostRapidReviewDiscussion(_adminUser, artifact.Id, ORIGINAL_COMMENT);
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
             var statusId = GetStatusId(discussions, ThreadStatus.CLOSED);
@@ -696,10 +665,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.UIMockup);
-            var raptorComment = Helper.SvcComponents.PostRapidReviewDiscussion(_adminUser, artifact.Id, ORIGINAL_COMMENT);
-
-            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
-                "Original comment and comment returned after discussion created different!");
+            var raptorComment = PostRapidReviewDiscussion(_adminUser, artifact.Id, ORIGINAL_COMMENT);
 
             // Execute:
             Assert.Throws<Http403ForbiddenException>(() =>
@@ -723,10 +689,7 @@ namespace ArtifactStoreTests
             const string REPLY = "Reply";
 
             var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.UIMockup);
-            var raptorComment = Helper.SvcComponents.PostRapidReviewDiscussion(_adminUser,artifact.Id, ORIGINAL_COMMENT);
-
-            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
-                "Original comment and comment returned after discussion created different!");
+            var raptorComment = PostRapidReviewDiscussion(_adminUser,artifact.Id, ORIGINAL_COMMENT);
 
             var raptorReply = Helper.SvcComponents.PostRapidReviewDiscussionReply(_adminUser, raptorComment.ItemId, raptorComment.DiscussionId, REPLY);
 
@@ -754,10 +717,7 @@ namespace ArtifactStoreTests
             var user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
             var artifact = Helper.CreateAndPublishNovaArtifact(user, _project, ItemTypePredefined.Glossary);
-            var raptorComment = Helper.SvcComponents.PostRapidReviewDiscussion(user, artifact.Id, ORIGINAL_COMMENT);
-
-            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
-                "Original comment and comment returned after discussion created different!");
+            PostRapidReviewDiscussion(user, artifact.Id, ORIGINAL_COMMENT);
 
             Helper.AssignProjectRolePermissionsToUser(user, TestHelper.ProjectRole.None, _project, artifact);
 
@@ -781,10 +741,7 @@ namespace ArtifactStoreTests
             var user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
             var artifact = Helper.CreateAndPublishNovaArtifact(user, _project, ItemTypePredefined.Glossary);
-            var raptorComment = Helper.SvcComponents.PostRapidReviewDiscussion(user, artifact.Id, ORIGINAL_COMMENT);
-
-            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
-                "Original comment and comment returned after discussion created different!");
+            var raptorComment = PostRapidReviewDiscussion(user, artifact.Id, ORIGINAL_COMMENT);
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, user);
             var statusId = GetStatusId(discussions, ThreadStatus.CLOSED);
@@ -816,10 +773,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.UseCase);
-            var raptorComment = Helper.SvcComponents.PostRapidReviewDiscussion(_authorUser, artifact.Id, ORIGINAL_COMMENT);
-
-            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
-                "Original comment and comment returned after discussion created different!");
+            var raptorComment = PostRapidReviewDiscussion(_authorUser, artifact.Id, ORIGINAL_COMMENT);
 
             var comment = new RaptorComment
             {
@@ -851,7 +805,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateNovaArtifact(_adminUser, _project, ItemTypePredefined.Actor);
-            Helper.SvcComponents.PostRapidReviewDiscussion(_adminUser, artifact.Id, "draft");
+            PostRapidReviewDiscussion(_adminUser, artifact.Id, "draft");
 
             DiscussionResultSet discussions = null;
 
@@ -959,7 +913,7 @@ namespace ArtifactStoreTests
 
             var process = Helper.Storyteller.GetProcess(user, artifactId);
             var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
-            var postedRaptorComment = Helper.SvcComponents.PostRapidReviewDiscussion(user, userTask.Id, "text for UT");
+            var postedRaptorComment = PostRapidReviewDiscussion(user, userTask.Id, "text for UT");
 
             return postedRaptorComment;
         }
@@ -980,7 +934,25 @@ namespace ArtifactStoreTests
 
             return threadStatus.StatusId;
         }
-        
+
+        /// <summary>
+        /// Posts a new RapidReview Discussion to an artifact with the specified comment.
+        /// </summary>
+        /// <param name="user">The user to authenticate.</param>
+        /// <param name="artifactId">The ID of the artifact to add the discussion to.</param>
+        /// <param name="comment">The comment to add.</param>
+        /// <returns>The discussion returned by the POST call.</returns>
+        private IRaptorDiscussion PostRapidReviewDiscussion(IUser user, int artifactId, string comment)
+        {
+            var raptorDiscussion = Helper.SvcComponents.PostRapidReviewDiscussion(user, artifactId, comment);
+
+            Assert.NotNull(raptorDiscussion, "raptorComment shouldn't be null!");
+            Assert.AreEqual(StringUtilities.WrapInDiv(comment), raptorDiscussion.Comment,
+                "Original comment and comment returned after discussion created different!");
+
+            return raptorDiscussion;
+        }
+
         #endregion Private functions
     }
 }

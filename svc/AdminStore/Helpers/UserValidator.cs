@@ -1,4 +1,5 @@
 ﻿using AdminStore.Models;
+using AdminStore.Models.Enums;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 
@@ -6,7 +7,7 @@ namespace AdminStore.Helpers
 {
     public class UserValidator
     {
-        public static void ValidateModel(UserDto user)
+        public static void ValidateModel(UserDto user, UserOperationMode userOperationMode)
         {
             if (string.IsNullOrEmpty(user.Login))
             {
@@ -61,6 +62,11 @@ namespace AdminStore.Helpers
             if (!string.IsNullOrEmpty(user.Department) && (user.Department.Length < 1 || user.Department.Length > 255))
             {
                 throw new BadRequestException(ErrorMessages.DepartmentFieldLimitation, ErrorCodes.BadRequest);
+            }
+
+            if (userOperationMode == UserOperationMode.Create && user.Source != UserGroupSource.Database)
+            {
+                throw new BadRequestException(ErrorMessages.CreationOnlyDatabaseUsers, ErrorCodes.BadRequest);
             }
         }
     }

@@ -277,7 +277,6 @@ namespace AdminStore.Repositories
         {
             var parameters = new DynamicParameters();
             parameters.Add("@Login", loginUser.Login);
-            parameters.Add("@Source", (int)loginUser.Source);
             parameters.Add("@InstanceAdminRoleId", loginUser.InstanceAdminRoleId);
             parameters.Add("@AllowFallback", loginUser.AllowFallback);
             parameters.Add("@Enabled", loginUser.Enabled);

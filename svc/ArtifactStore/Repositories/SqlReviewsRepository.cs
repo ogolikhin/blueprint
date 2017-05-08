@@ -132,9 +132,11 @@ namespace ArtifactStore.Repositories
                 } else {
                     reviewArtifact.Name = string.Empty;
                     reviewArtifact.ItemTypeId = 0;
+                    reviewArtifact.Prefix = null;
                     reviewArtifact.IsApprovalRequired = false;
                     reviewArtifact.HasComments = false;
                     reviewArtifact.ItemTypePredefined = 0;
+                    reviewArtifact.IconImageId = null;
                     reviewArtifact.HasAccess = false;
                 }
             }

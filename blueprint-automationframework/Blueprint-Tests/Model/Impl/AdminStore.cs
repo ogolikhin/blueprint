@@ -237,7 +237,10 @@ namespace Model.Impl
             var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
             string path = RestPaths.Svc.AdminStore.Users.USERS;
 
-            user.Password = HashingUtilities.EncodeTo64UTF8(user.Password);
+            if (user.Password != null)
+            {
+                user.Password = HashingUtilities.EncodeTo64UTF8(user.Password);
+            }
 
             try
             {

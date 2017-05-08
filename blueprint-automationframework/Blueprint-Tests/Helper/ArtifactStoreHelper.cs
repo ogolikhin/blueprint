@@ -1944,7 +1944,40 @@ namespace Helper
         }
 
         /// <summary>
-        /// Adds trace to the artifact (and saves changes). Artifact should be locked by user.
+        /// Adds a trace between two artifacts (and saves changes).  The source artifact should be locked by user.
+        /// </summary>
+        /// <param name="user">User to perform an operation.</param>
+        /// <param name="sourceArtifactId">If of source Artifact to add trace.</param>
+        /// <param name="traceTargetArtifactId">Id of Trace's target artifact.</param>
+        /// <param name="traceTargetArtifactProjectId">Id of Trace's target artifact project.</param>
+        /// <param name="traceDirection">(optional)Trace direction. 'From' by default.</param>
+        /// <param name="isSuspect">(optional)isSuspect, true for suspect trace, false otherwise.</param>
+        /// <param name="targetSubArtifact">(optional)subArtifact for trace target(creates trace with subartifact).</param>
+        /// <returns>NovaTrace object.</returns>
+        public static NovaTrace AddManualArtifactTraceAndSave(
+            IUser user,
+            int sourceArtifactId,
+            int traceTargetArtifactId,
+            int traceTargetArtifactProjectId,
+            TraceDirection traceDirection = TraceDirection.From,
+            bool? isSuspect = null,
+            NovaItem targetSubArtifact = null)
+        {
+            var artifactStore = ArtifactStoreFactory.GetArtifactStoreFromTestConfig();
+
+            return UpdateManualArtifactTraceAndSave(user,
+                artifactId: sourceArtifactId,
+                traceTargetArtifactId: traceTargetArtifactId,
+                traceTargetArtifactProjectId: traceTargetArtifactProjectId,
+                changeType: ChangeType.Create,
+                artifactStore: artifactStore,
+                traceDirection: traceDirection,
+                isSuspect: isSuspect,
+                targetSubArtifact: targetSubArtifact);
+        }
+
+        /// <summary>
+        /// Adds (or updates or deletes) a trace between two artifacts (and saves changes).  The source artifact should be locked by user.
         /// </summary>
         /// <param name="user">User to perform an operation.</param>
         /// <param name="artifactId">If of Artifact to add trace.</param>
@@ -1956,7 +1989,8 @@ namespace Helper
         /// <param name="isSuspect">(optional)isSuspect, true for suspect trace, false otherwise.</param>
         /// <param name="targetSubArtifact">(optional)subArtifact for trace target(creates trace with subartifact).</param>
         /// <returns>NovaTrace object.</returns>
-        public static NovaTrace UpdateManualArtifactTraceAndSave(IUser user,
+        public static NovaTrace UpdateManualArtifactTraceAndSave(
+            IUser user,
             int artifactId,
             int traceTargetArtifactId,
             int traceTargetArtifactProjectId,

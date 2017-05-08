@@ -15,7 +15,6 @@ using Utilities.Factories;
 
 namespace Helper
 {
-
     public static class AdminStoreHelper
     {
         #region Project Management
@@ -249,6 +248,15 @@ namespace Helper
 
         public const uint MinPasswordLength = 8;
         public const uint MaxPasswordLength = 128;
+        public const InstanceAdminPrivileges AllPrivileges =
+                            InstanceAdminPrivileges.AccessAllProjectData |
+                            InstanceAdminPrivileges.ManageInstanceSettings |
+                            InstanceAdminPrivileges.ManageAdminRoles |
+                            InstanceAdminPrivileges.DeleteProjects |
+                            InstanceAdminPrivileges.AssignAdminRoles |
+                            InstanceAdminPrivileges.ManageStandardPropertiesAndArtifactTypes |
+                            InstanceAdminPrivileges.CanManageAllRunningJobs |
+                            InstanceAdminPrivileges.CanReportOnAllProjects;
 
         /// <summary>
         /// A class to represent a row in the PasswordRecoveryTokens database table.
@@ -343,51 +351,49 @@ namespace Helper
         /// <summary>
         /// Generates a random Instance User for user management
         /// </summary>
-        /// <param name="loginName">(optional) The login name of the user. Randomly generated if not specified.</param>
-        /// <param name="password">(optional) The user's password. Randomly generated if not specified.</param>
-        /// <param name="source">(optional) The source of the user. Defaults to Database if not specified.</param>
+        /// <param name="login">(optional) The login name of the user. Randomly generated if not specified.</param>
+        /// <param name="firstName">(optional) The first name of the user. Randomly generated if not specified.</param>
+        /// <param name="lastName">(optional) The last name of the user. Randomly generated if not specified.</param>
+        /// <param name="email">(optional) The email of the user. Randomly generated if not specified.</param>
         /// <param name="displayname">(optional) The user's display name. Randomly generated if not specified.</param>
-        /// <param name="licenseLevel">(optinal) The user's license level. Defaults to Author if not specified.</param>
-        /// <param name="instanceAdminRole">(optional) The users instance admin role. Defaults to DefaultInstanceAdministrator.</param>
+        /// <param name="source">(optional) The source of the user. Defaults to Database if not specified.</param>
+        /// <param name="licenseLevel">(optinal) The user's license level. Defaults to Viewer if not specified.</param>
+        /// <param name="instanceAdminRole">(optional) The user's instance admin role. Defaults to null (empty).</param>
+        /// <param name="adminPrivileges">(optional) The user's instance admin privileges.  Defaults to None.</param>
         /// <param name="imageId">(optional) The user's image id. Defaults to null.</param>
+        /// <param name="password">(optional) The user's password. Randomly generated if not specified.</param>
         /// <returns>An InstanceUser object.</returns>
         public static InstanceUser GenerateRandomInstanceUser(
-            string loginName = null,
-            string password = null,
-            UserSource source = UserSource.Database,
+            string login = null,
+            string firstName = null,
+            string lastName = null,
+            string email = null,
             string displayname = null,
-            LicenseLevel licenseLevel = LicenseLevel.Author,
-            InstanceAdminRole instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
-            int? imageId = null)
+            UserSource? source = null,
+            LicenseLevel? licenseLevel = null,
+            InstanceAdminRole? instanceAdminRole = null,
+            InstanceAdminPrivileges? adminPrivileges = null,
+            int? imageId = null,
+            string password = null)
         {
-
-            string login = loginName ?? RandomGenerator.RandomAlphaNumeric(MinPasswordLength);
-            string firstName = RandomGenerator.RandomAlphaNumeric(10);
-            string lastName = RandomGenerator.RandomAlphaNumeric(10);
-            string email = I18NHelper.FormatInvariant("{0}@{1}.com", login, RandomGenerator.RandomAlphaNumeric(10));
-
-            InstanceAdminPrivileges adminPrivileges =
-                InstanceAdminPrivileges.AccessAllProjectData |
-                InstanceAdminPrivileges.ManageInstanceSettings |
-                InstanceAdminPrivileges.ManageAdminRoles |
-                InstanceAdminPrivileges.DeleteProjects |
-                InstanceAdminPrivileges.AssignAdminRoles |
-                InstanceAdminPrivileges.ManageStandardPropertiesAndArtifactTypes |
-                InstanceAdminPrivileges.CanManageAllRunningJobs |
-                InstanceAdminPrivileges.CanReportOnAllProjects;
-                                                        
+            login = login ?? RandomGenerator.RandomAlphaNumeric(MinPasswordLength);
+            firstName = firstName ?? RandomGenerator.RandomAlphaNumeric(10);
+            lastName = lastName ?? RandomGenerator.RandomAlphaNumeric(10);
+            email = email ?? I18NHelper.FormatInvariant("{0}@{1}.com", login, RandomGenerator.RandomAlphaNumeric(10));
+            displayname = displayname ?? I18NHelper.FormatInvariant("{0} {1}", firstName, lastName);
+                         
             var instanceUser = new InstanceUser
             (
                 login,
                 firstName,
                 lastName,
-                displayname ?? I18NHelper.FormatInvariant("{0} {1}", firstName, lastName),
+                displayname,
                 email,
-                source,
-                eulaAccepted: true,
-                license: licenseLevel,
+                source ?? UserSource.Database,
+                eulaAccepted: false,
+                license: licenseLevel ?? LicenseLevel.Viewer,
                 isSso: false,
-                allowFallback: false,
+                allowFallback: null,
                 instanceAdminRole: instanceAdminRole,
                 instanceAdminPrivileges: adminPrivileges,
                 guest: false,
@@ -395,13 +401,56 @@ namespace Helper
                 enabled: true,
                 title: RandomGenerator.RandomAlphaNumeric(10),
                 department: RandomGenerator.RandomAlphaNumeric(10),
-                expirePassword: false,
+                expirePassword: true,
                 imageId: imageId,
                 groupMembership: null,
                 password: password ?? GenerateValidPassword()
             );
 
             return instanceUser;
+        }
+
+        /// <summary>
+        /// Asserts that 2 Instance Users are equal
+        /// </summary>
+        /// <param name="expectedUser">The first instance user being compared.</param>
+        /// <param name="actualUser">The second instanace user being compared.</param>
+        public static void AssertAreEqual(InstanceUser expectedUser, InstanceUser actualUser)
+        {
+            ThrowIf.ArgumentNull(expectedUser, nameof(expectedUser));
+            ThrowIf.ArgumentNull(actualUser, nameof(actualUser));
+
+            Assert.AreEqual(expectedUser.Id, actualUser.Id, "Id is different.");
+            Assert.AreEqual(expectedUser.CurrentVersion, actualUser.CurrentVersion, "CurrentVersion is different.");
+            Assert.AreEqual(expectedUser.Login, actualUser.Login, "Login is different.");
+            Assert.AreEqual(expectedUser.FirstName, actualUser.FirstName, "FirstName is different.");
+            Assert.AreEqual(expectedUser.LastName, actualUser.LastName, "LastName is different.");
+            Assert.AreEqual(expectedUser.DisplayName, actualUser.DisplayName, "DisplayName is different.");
+            Assert.AreEqual(expectedUser.Email, actualUser.Email, "Email is different.");
+            Assert.AreEqual(expectedUser.Source, actualUser.Source, "Source is different.");
+            Assert.AreEqual(expectedUser.EULAAccepted, actualUser.EULAAccepted, "EULAAccepted is different.");
+            Assert.AreEqual(expectedUser.LicenseType, actualUser.LicenseType, "LicenseType is different.");
+            Assert.AreEqual(expectedUser.IsSso, actualUser.IsSso, "IsSso is different.");
+            Assert.AreEqual(expectedUser.AllowFallback, actualUser.AllowFallback, "AllowFallback is different.");
+            Assert.AreEqual(expectedUser.InstanceAdminRoleId, actualUser.InstanceAdminRoleId, "InstanceAdminRoleId is different.");
+            Assert.AreEqual(expectedUser.InstanceAdminPrivileges, actualUser.InstanceAdminPrivileges, "InstanceAdminPrivileges is different.");
+            Assert.AreEqual(expectedUser.Guest, actualUser.Guest, "Guest is different.");
+            Assert.AreEqual(expectedUser.Enabled, actualUser.Enabled, "Enabled is different.");
+            Assert.AreEqual(expectedUser.Title, actualUser.Title, "Title is different.");
+            Assert.AreEqual(expectedUser.Department, actualUser.Department, "Department is different.");
+            Assert.AreEqual(expectedUser.ExpirePassword, actualUser.ExpirePassword, "ExpirePassword is different.");
+            Assert.AreEqual(expectedUser.ImageId, actualUser.ImageId, "ImageId is different.");
+
+
+            Assert.AreEqual(expectedUser.GroupMembership, actualUser.GroupMembership, "GroupMembership is different.");
+
+            if (expectedUser.GroupMembership != null)
+            {
+                foreach (var group in expectedUser.GroupMembership)
+                {
+                    Assert.Contains(group, actualUser.GroupMembership, "Expected group {0} is not found in actual group membership.", group);
+                }
+            }
         }
 
         #endregion User Management

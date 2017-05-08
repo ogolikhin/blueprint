@@ -2,12 +2,12 @@
 using CustomAttributes;
 using Helper;
 using Model;
-using Model.Impl;
 using Model.Factories;
+using Model.Impl;
+using Model.StorytellerModel.Enums;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
 using System;
-using Model.StorytellerModel.Enums;
 using TestCommon;
 using Utilities;
 using Utilities.Factories;
@@ -48,13 +48,13 @@ namespace StorytellerTests
         public void ModifyReturnedProcessName_VerifyReturnedProcess()
         {
             // Create and get the default process
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Modify default process Name
-            returnedProcess.Name = RandomGenerator.RandomValueWithPrefix("returnedProcess", 4);
+            novaProcess.Process.Name = RandomGenerator.RandomValueWithPrefix("novaProcess", 4);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess, _user);
         }
 
         [TestCase]
@@ -64,17 +64,17 @@ namespace StorytellerTests
         public void ModifyProcessType_VerifyReturnedProcess()
         {
             // Create and get the default process
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
-            var processType = returnedProcess.ProcessType;
+            var processType = novaProcess.Process.ProcessType;
 
             Assert.That(processType == ProcessType.BusinessProcess);
 
             // Modify default process Type
-            returnedProcess.ProcessType = ProcessType.UserToSystemProcess;
+            novaProcess.Process.ProcessType = ProcessType.UserToSystemProcess;
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess, _user);
         }
 
         [TestCase]
@@ -83,21 +83,21 @@ namespace StorytellerTests
         public void AddUserTaskAfterPrecondition_VerifyReturnedProcess()
         {
             // Create and get the default process
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find precondition task
-            var preconditionTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition task
-            var preconditionOutgoingLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask);
+            var preconditionOutgoingLink = novaProcess.Process.GetOutgoingLinkForShape(preconditionTask);
                 
             Assert.IsNotNull(preconditionOutgoingLink, "Process link was not found.");
 
             // Add user/system Task immediately after the precondition
-            returnedProcess.AddUserAndSystemTask(preconditionOutgoingLink);
+            novaProcess.Process.AddUserAndSystemTask(preconditionOutgoingLink);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess, _user);
         }
 
         [TestCase]
@@ -106,21 +106,21 @@ namespace StorytellerTests
         public void AddUserTaskBeforeEnd_VerifyReturnedProcess()
         {
             // Create and get the default process
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find the end shape
-            var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
+            var endShape = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Find the incoming link for the end shape
-            var endIncomingLink = returnedProcess.GetIncomingLinkForShape(endShape);
+            var endIncomingLink = novaProcess.Process.GetIncomingLinkForShape(endShape);
 
             Assert.IsNotNull(endIncomingLink, "Process link was not found.");
 
             // Add a user/system task immediately before the end shape
-            returnedProcess.AddUserAndSystemTask(endIncomingLink);
+            novaProcess.Process.AddUserAndSystemTask(endIncomingLink);
 
             // Updatea and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess, _user);
         }
 
         [TestCase]
@@ -129,21 +129,21 @@ namespace StorytellerTests
         public void AddUserTaskAfterUserTask_VerifyReturnedProcess()
         {
             // Create and get the default process
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find the end shape
-            var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
+            var endShape = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Find the incoming link for the end shape
-            var endIncomingLink = returnedProcess.GetIncomingLinkForShape(endShape);
+            var endIncomingLink = novaProcess.Process.GetIncomingLinkForShape(endShape);
 
             Assert.IsNotNull(endIncomingLink, "Process link was not found.");
 
             // Add a user/system task immediately before the end shape
-            returnedProcess.AddUserAndSystemTask(endIncomingLink);
+            novaProcess.Process.AddUserAndSystemTask(endIncomingLink);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess, _user);
         }
 
         [TestCase]
@@ -153,22 +153,22 @@ namespace StorytellerTests
         public void AddUserDecisionWithBranchAfterPrecondition_VerifyReturnedProcess()
         {
             // Create and get the default process
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find precondition task
-            var preconditionTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition
-            var preconditionOutgoingLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask);
+            var preconditionOutgoingLink = novaProcess.Process.GetOutgoingLinkForShape(preconditionTask);
 
             // Get the branch end point
-            var branchEndPoint = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
+            var branchEndPoint = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Add Decision point with branch to end
-            returnedProcess.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1, branchEndPoint.Id);
+            novaProcess.Process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1, branchEndPoint.Id);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess, _user);
         }
 
         [TestCase]
@@ -178,19 +178,19 @@ namespace StorytellerTests
         public void AddUserDecisionWithBranchBeforeEnd_VerifyReturnedProcess()
         {
             // Create and get the default process
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find the end shape
-            var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
+            var endShape = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Find incoming process link for end shape
-            var endIncomingLink = returnedProcess.GetIncomingLinkForShape(endShape);
+            var endIncomingLink = novaProcess.Process.GetIncomingLinkForShape(endShape);
 
             // Add Decision point with branch and 2 user tasks
-            returnedProcess.AddUserDecisionPointWithBranchBeforeShape(endShape, endIncomingLink.Orderindex + 1);
+            novaProcess.Process.AddUserDecisionPointWithBranchBeforeShape(endShape, endIncomingLink.Orderindex + 1);
 
             // Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess, _user);
         }
 
         [TestCase]
@@ -199,22 +199,22 @@ namespace StorytellerTests
         public void AddUserDecisionBetweenTwoUserTasks_VerifyReturnedProcess()
         {
             // Create and get the default process
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find the end shape
-            var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
+            var endShape = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Find the incoming link for the end shape
-            var endIncomingLink = returnedProcess.GetIncomingLinkForShape(endShape);
+            var endIncomingLink = novaProcess.Process.GetIncomingLinkForShape(endShape);
 
             // Add a user/system task immediately before the end shape
-            var newUserTask = returnedProcess.AddUserAndSystemTask(endIncomingLink);
+            var newUserTask = novaProcess.Process.AddUserAndSystemTask(endIncomingLink);
 
             // Add a user decision point between 2 user/system tasks
-            returnedProcess.AddUserDecisionPointWithBranchBeforeShape(newUserTask, endIncomingLink.Orderindex + 1, endShape.Id);
+            novaProcess.Process.AddUserDecisionPointWithBranchBeforeShape(newUserTask, endIncomingLink.Orderindex + 1, endShape.Id);
 
             // Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess, _user);
         }
 
         [TestCase]
@@ -224,31 +224,31 @@ namespace StorytellerTests
         public void AddUserDecisionWithinMainBranchBeforeMergePoint_VerifyReturnedProcess()
         {
             // Create and get the default process
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find precondition task
-            var preconditionTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find the outgoing link for the precondition
-            var preconditionOutgoingLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask);
+            var preconditionOutgoingLink = novaProcess.Process.GetOutgoingLinkForShape(preconditionTask);
 
             // Add Decision point with branch (make order index to to give room for internal branch
-            returnedProcess.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1);
+            novaProcess.Process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1);
 
             // Find the updated outgoing link for the precondition
-            preconditionOutgoingLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask);
+            preconditionOutgoingLink = novaProcess.Process.GetOutgoingLinkForShape(preconditionTask);
 
             // Add user and system task before new user decision point
-            returnedProcess.AddUserAndSystemTask(preconditionOutgoingLink);
+            novaProcess.Process.AddUserAndSystemTask(preconditionOutgoingLink);
 
             // Find the updated outgoing link for the precondition
-            preconditionOutgoingLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask);
+            preconditionOutgoingLink = novaProcess.Process.GetOutgoingLinkForShape(preconditionTask);
 
             // Add a user decision point after the precondition and before the new user/system task
-            returnedProcess.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1);
+            novaProcess.Process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1);
 
             // Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess, _user);
         }
 
         [TestCase]
@@ -258,25 +258,25 @@ namespace StorytellerTests
         public void AddSecondBranchToUserDecision_VerifyReturnedProcess()
         {
             // Create and get the default process
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find precondition task
-            var preconditionTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition
-            var preconditionOutgoingLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask);
+            var preconditionOutgoingLink = novaProcess.Process.GetOutgoingLinkForShape(preconditionTask);
 
             // Find the endpoint for the new branch
-            var branchEndPoint = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
+            var branchEndPoint = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Add decision point with branch to end
-            var userDecision = returnedProcess.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1);
+            var userDecision = novaProcess.Process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1);
 
             // Add branch to decision point with task
-            returnedProcess.AddBranchWithUserAndSystemTaskToUserDecisionPoint(userDecision, preconditionOutgoingLink.Orderindex + 2, branchEndPoint.Id); 
+            novaProcess.Process.AddBranchWithUserAndSystemTaskToUserDecisionPoint(userDecision, preconditionOutgoingLink.Orderindex + 2, branchEndPoint.Id); 
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess, _user);
         }
 
         [TestCase]
@@ -285,31 +285,31 @@ namespace StorytellerTests
         public void AddUserDecisionToBranch_VerifyReturnedProcess()
         {
             // Create and get the default process
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find precondition task
-            var preconditionTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition
-            var preconditionOutgoingLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask);
+            var preconditionOutgoingLink = novaProcess.Process.GetOutgoingLinkForShape(preconditionTask);
 
             // Determine the branch endpoint
-            var branchEndPoint = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
+            var branchEndPoint = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Add decision point with branch after precondition
 
-            var decisionPoint = returnedProcess.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1, branchEndPoint.Id);
+            var decisionPoint = novaProcess.Process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1, branchEndPoint.Id);
 
             // Add branch to decision point with task
-            var newUserTask = returnedProcess.AddBranchWithUserAndSystemTaskToUserDecisionPoint(decisionPoint, preconditionOutgoingLink.Orderindex + 2, branchEndPoint.Id);
+            var newUserTask = novaProcess.Process.AddBranchWithUserAndSystemTaskToUserDecisionPoint(decisionPoint, preconditionOutgoingLink.Orderindex + 2, branchEndPoint.Id);
 
-            var newSystemTask = returnedProcess.GetNextShape(newUserTask);
+            var newSystemTask = novaProcess.Process.GetNextShape(newUserTask);
 
             // Add decision point with branch to end
-            returnedProcess.AddUserDecisionPointWithBranchAfterShape(newSystemTask, preconditionOutgoingLink.Orderindex + 1, branchEndPoint.Id);
+            novaProcess.Process.AddUserDecisionPointWithBranchAfterShape(newSystemTask, preconditionOutgoingLink.Orderindex + 1, branchEndPoint.Id);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess, _user);
         }
 
         [TestCase]
@@ -318,31 +318,31 @@ namespace StorytellerTests
         public void AddUserTaskAfterMergePoint_VerifyReturnedProcess()
         {
             // Create and get the default process
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find the end shape
-            var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
+            var endShape = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Find the incoming link for the end shape
-            var endIncomingLink = returnedProcess.GetIncomingLinkForShape(endShape);
+            var endIncomingLink = novaProcess.Process.GetIncomingLinkForShape(endShape);
 
             Assert.IsNotNull(endIncomingLink, "Process link was not found.");
 
-            var newUserTask = returnedProcess.AddUserAndSystemTask(endIncomingLink);
+            var newUserTask = novaProcess.Process.AddUserAndSystemTask(endIncomingLink);
 
             // Find the precondition task
-            var precondition = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var precondition = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find the outgoing link for the precondition shape
-            var preconditionOutgoingLink = returnedProcess.GetOutgoingLinkForShape(precondition);
+            var preconditionOutgoingLink = novaProcess.Process.GetOutgoingLinkForShape(precondition);
 
             Assert.IsNotNull(preconditionOutgoingLink, "Process link was not found.");
 
             // Add user decision with branch and merge point after precondition
-            returnedProcess.AddUserDecisionPointWithBranchAfterShape(precondition, preconditionOutgoingLink.Orderindex + 1, newUserTask.Id);
+            novaProcess.Process.AddUserDecisionPointWithBranchAfterShape(precondition, preconditionOutgoingLink.Orderindex + 1, newUserTask.Id);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess, _user);
         }
 
         [TestCase]
@@ -351,25 +351,25 @@ namespace StorytellerTests
         public void AddUserDecisionPointAfterMergePoint_VerifyReturnedProcess()
         {
             // Create and get the default process
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find precondition task
-            var preconditionTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition
-            var preconditionOutgoingLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask);
+            var preconditionOutgoingLink = novaProcess.Process.GetOutgoingLinkForShape(preconditionTask);
 
             // Determine the branch endpoint
-            var branchEndPoint = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
+            var branchEndPoint = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Add Decision point with branch to end
-            var userDecisionPoint = returnedProcess.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1, branchEndPoint.Id);
+            var userDecisionPoint = novaProcess.Process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1, branchEndPoint.Id);
 
             // Add decision point before decision point; will have same branch order index as previous added branch
-            returnedProcess.AddUserDecisionPointWithBranchBeforeShape(userDecisionPoint, preconditionOutgoingLink.Orderindex + 1, userDecisionPoint.Id);
+            novaProcess.Process.AddUserDecisionPointWithBranchBeforeShape(userDecisionPoint, preconditionOutgoingLink.Orderindex + 1, userDecisionPoint.Id);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess, _user);
         }
 
         [TestCase]
@@ -377,16 +377,16 @@ namespace StorytellerTests
         public void AddIncludeToUserTask_VerifyReturnedProcess()
         {
             // Create and get the default process
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Create and save process artifact to be used as include; enable recursive delete flag
             var includedProcessArtifact = Helper.Storyteller.CreateAndSaveNovaProcessArtifact(_project, _user);
             // Add include to default user task
-            var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var defaultUserTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
             defaultUserTask.AddAssociatedArtifact(includedProcessArtifact);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess, _user);
         }
 
         [TestCase]
@@ -394,17 +394,17 @@ namespace StorytellerTests
         public void AddIncludeToSystemTask_VerifyReturnedProcess()
         {
             // Create and get the default process
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Create and publish process artifact to be used as include; enable recursive delete flag
             var includedProcessArtifact = Helper.Storyteller.CreateAndPublishProcessArtifact(_project, _user);
 
             // Add include to default user task
-            var defaultSystemTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
+            var defaultSystemTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
             defaultSystemTask.AddAssociatedArtifact(Helper.ArtifactStore.GetArtifactDetails(_user, includedProcessArtifact.Id));
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess, _user);
         }
 
         [TestCase]
@@ -412,27 +412,27 @@ namespace StorytellerTests
         public void DeleteIncludeFromUserTask_VerifyReturnedProcess()
         {
             // Create and get the default process
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Create and publish process artifact to be used as include; enable recursive delete flag
             var includedProcessArtifact = Helper.Storyteller.CreateAndPublishProcessArtifact(_project, _user);
 
             // Add include to default user task
-            var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var defaultUserTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
             defaultUserTask.AddAssociatedArtifact(Helper.ArtifactStore.GetArtifactDetails(_user, includedProcessArtifact.Id));
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess, _user);
 
             // Get the process using GetProcess
-            var processReturnedFromGet = Helper.Storyteller.GetProcess(_user, returnedProcess.Id);
+            var novaProcessReturnedFromGet = Helper.Storyteller.GetNovaProcess(_user, novaProcess.Id);
 
             // Remove the include from the default user task
-            defaultUserTask = processReturnedFromGet.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            defaultUserTask = novaProcessReturnedFromGet.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
             defaultUserTask.AssociatedArtifact = null;
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(processReturnedFromGet, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcessReturnedFromGet, _user);
         }
 
         [TestCase((uint)4096, "4KB_File.jpg", "application/json;charset=utf-8")]
@@ -479,261 +479,261 @@ namespace StorytellerTests
         public void AddSystemDecisionWithBranchAfterDefaultUserTask_VerifyReturnedProcess()
         {
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var process = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find the default UserTask
-            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var defaultUserTask = process.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
             // Find the target SystemTask
-            var targetSystemTask = process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
+            var targetSystemTask = process.Process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
 
             // Find the branch end point for the system decision point
-            var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
+            var branchEndPoint = process.Process.GetProcessShapeByShapeName(Process.EndName);
             
             // Find the outgoing process link from the default UserTask
-            var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
+            var defaultUserTaskOutgoingProcessLink = process.Process.GetOutgoingLinkForShape(defaultUserTask);
 
             // Add System Decision point with branch to end
-            process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
+            process.Process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(process, _user);
         }
 
         [TestCase]
         [Description("Add two new system decision points to the default process. The two system decision points added one after the other after the default UT.")]
-        public void AddTwoSystemDecisionsWithBranchAfterDefaultUserTask_VerifyReturnedProcess()
+        public void AddTwoSystemDecisionsWithBranchAfterDefaultUserTaskVerifyReturnedProcess()
         {
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var process = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find the default UserTask
-            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var defaultUserTask = process.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
             // Find the default SystemTask
-            var defaultSystemTask = process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
+            var defaultSystemTask = process.Process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
 
             // Find the branch end point for system decision points
-            var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
+            var branchEndPoint = process.Process.GetProcessShapeByShapeName(Process.EndName);
             
             // Find the outgoing process link from the default UserTask
-            var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
+            var defaultUserTaskOutgoingProcessLink = process.Process.GetOutgoingLinkForShape(defaultUserTask);
 
             // Find next system task
-            var systemTask = process.GetNextShape(defaultUserTask);
+            var systemTask = process.Process.GetNextShape(defaultUserTask);
 
             // Add System Decision point with branch to end
-            process.AddSystemDecisionPointWithBranchBeforeSystemTask(systemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
+            process.Process.AddSystemDecisionPointWithBranchBeforeSystemTask(systemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
 
             // Get the updated default outgoing process link from the default UserTask
-            defaultUserTaskOutgoingProcessLink = process.GetIncomingLinkForShape(defaultSystemTask);
+            defaultUserTaskOutgoingProcessLink = process.Process.GetIncomingLinkForShape(defaultSystemTask);
 
             // Find next system task
-            systemTask = process.GetNextShape(defaultUserTask);
+            systemTask = process.Process.GetNextShape(defaultUserTask);
 
             // Add System Decision point with branch to end
-            process.AddSystemDecisionPointWithBranchBeforeSystemTask(systemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
+            process.Process.AddSystemDecisionPointWithBranchBeforeSystemTask(systemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(process, _user);
         }
 
         [TestCase]
         [Description("Add a new system decision point to the default process. The system decision point gets added with two additonal branches after the default UT.")]
-        public void AddSystemDecisionWithTwoBranchesAfterDefaultUserTask_VerifyReturnedProcess()
+        public void AddSystemDecisionWithTwoBranchesAfterDefaultUserTaskVerifyReturnedProcess()
         {
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var process = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find the default UserTask
-            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var defaultUserTask = process.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
             // Find the target SystemTask
-            var targetSystemTask = process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
+            var targetSystemTask = process.Process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
 
             // Find the branch end point for system decision points
-            var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
+            var branchEndPoint = process.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Find the outgoing process link from the default UserTask
-            var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
+            var defaultUserTaskOutgoingProcessLink = process.Process.GetOutgoingLinkForShape(defaultUserTask);
 
             // Add System Decision point with a branch merging to branchEndPoint
-            var systemDecisionPoint = process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
+            var systemDecisionPoint = process.Process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
             
             // Add additonal branch to the System Decision point
-            process.AddBranchWithSystemTaskToSystemDecisionPoint(systemDecisionPoint,defaultUserTaskOutgoingProcessLink.Orderindex+2,branchEndPoint.Id);
+            process.Process.AddBranchWithSystemTaskToSystemDecisionPoint(systemDecisionPoint,defaultUserTaskOutgoingProcessLink.Orderindex+2,branchEndPoint.Id);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(process, _user);
         }
 
         [TestCase]
         [Description("Add a new system decision point to the default process. The system decision point gets added with an additonal branch which also contains a system decision point.")]
-        public void AddSystemDecisionWithBranchWithSystemDecisionAfterDefaultUserTask_VerifyReturnedProcess()
+        public void AddSystemDecisionWithBranchWithSystemDecisionAfterDefaultUserTaskVerifyReturnedProcess()
         {
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var process = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find the default UserTask
-            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var defaultUserTask = process.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
             // Find the target SystemTask
-            var targetSystemTask = process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
+            var targetSystemTask = process.Process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
 
             // Find the branch end point for system decision points
-            var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
+            var branchEndPoint = process.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Find the outgoing process link from the default UserTask
-            var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
+            var defaultUserTaskOutgoingProcessLink = process.Process.GetOutgoingLinkForShape(defaultUserTask);
 
             // Add System Decision point with a branch merging to branchEndPoint
-            process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
+            process.Process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
 
             // Get the link between the system decision point and the System task on the second branch
-            var branchingProcessLink = process.Links.Find(l => l.Orderindex.Equals(defaultUserTaskOutgoingProcessLink.Orderindex + 1));
+            var branchingProcessLink = process.Process.Links.Find(l => l.Orderindex.Equals(defaultUserTaskOutgoingProcessLink.Orderindex + 1));
 
             // Get the system task shape on the second branch for adding the additional System Decision Point
-            var systemTaskOnTheSecondBranch = process.GetProcessShapeById(branchingProcessLink.DestinationId);
+            var systemTaskOnTheSecondBranch = process.Process.GetProcessShapeById(branchingProcessLink.DestinationId);
 
             // Add the System Decision point on the second branch with the end merging to the same ending point as the first System Decision point
-            process.AddSystemDecisionPointWithBranchBeforeSystemTask(systemTaskOnTheSecondBranch, defaultUserTaskOutgoingProcessLink.Orderindex + 2, branchEndPoint.Id);
+            process.Process.AddSystemDecisionPointWithBranchBeforeSystemTask(systemTaskOnTheSecondBranch, defaultUserTaskOutgoingProcessLink.Orderindex + 2, branchEndPoint.Id);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(process, _user);
         }
 
         [TestCase]
         [Description("Add a new system decision point to the default process. The system decision point gets added with two additonal branches: " +
             "one contains a system decision point along with branches and system tasks and the other contains just a system task")]
-        public void AddSystemDecisionWithBranchesWithSystemDecisionAfterDefaultUserTask_VerifyReturnedProcess()
+        public void AddSystemDecisionWithBranchesWithSystemDecisionAfterDefaultUserTaskVerifyReturnedProcess()
         {
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var process = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find the default UserTask
-            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var defaultUserTask = process.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
             // Find the target SystemTask
-            var targetSystemTask = process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
+            var targetSystemTask = process.Process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
 
             // Find the branch end point for system decision points
-            var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
+            var branchEndPoint = process.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Find the outgoing process link from the default UserTask
-            var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
+            var defaultUserTaskOutgoingProcessLink = process.Process.GetOutgoingLinkForShape(defaultUserTask);
 
             // Add a System Decision point (root System Decision point) with a branch merging to branchEndPoint
-            var rootSystemDecisionPoint = process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
+            var rootSystemDecisionPoint = process.Process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
 
             // Get the link between the system decision point and the System task on the second branch
-            var branchingProcessLink = process.Links.Find(l => l.Orderindex.Equals(defaultUserTaskOutgoingProcessLink.Orderindex + 1));
+            var branchingProcessLink = process.Process.Links.Find(l => l.Orderindex.Equals(defaultUserTaskOutgoingProcessLink.Orderindex + 1));
 
             // Get the System Task shape on the second branch for adding the additional System Decision Point
-            var systemTaskOnTheSecondBranch = process.GetProcessShapeById(branchingProcessLink.DestinationId);
+            var systemTaskOnTheSecondBranch = process.Process.GetProcessShapeById(branchingProcessLink.DestinationId);
 
             // Add a System Decision point on the second branch that merges to branchEndPoint
-            process.AddSystemDecisionPointWithBranchBeforeSystemTask(systemTaskOnTheSecondBranch, defaultUserTaskOutgoingProcessLink.Orderindex + 2, branchEndPoint.Id);
+            process.Process.AddSystemDecisionPointWithBranchBeforeSystemTask(systemTaskOnTheSecondBranch, defaultUserTaskOutgoingProcessLink.Orderindex + 2, branchEndPoint.Id);
 
             // Add additonal branch on the root System Decision point
-            process.AddBranchWithSystemTaskToSystemDecisionPoint(rootSystemDecisionPoint, defaultUserTaskOutgoingProcessLink.Orderindex + 3, branchEndPoint.Id);
+            process.Process.AddBranchWithSystemTaskToSystemDecisionPoint(rootSystemDecisionPoint, defaultUserTaskOutgoingProcessLink.Orderindex + 3, branchEndPoint.Id);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(process, _user);
         }
 
         [TestCase]
         [Description("Add a new system decision point to the default process. The system decision point gets added with two additonal branches: " +
             "each of them contains a system decision point along with branches and system tasks")]
-        public void AddSystemDecisionWithTwoBranchesWithSystemDecisionAfterDefaultUserTask_VerifyReturnedProcess()
+        public void AddSystemDecisionWithTwoBranchesWithSystemDecisionAfterDefaultUserTaskVerifyReturnedProcess()
         {
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var process = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find the default UserTask
-            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var defaultUserTask = process.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
             // Find the target SystemTask
-            var targetSystemTask = process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
+            var targetSystemTask = process.Process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
 
             // Find the branch end point for system decision points
-            var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
+            var branchEndPoint = process.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Find the outgoing process link from the default UserTask
-            var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
+            var defaultUserTaskOutgoingProcessLink = process.Process.GetOutgoingLinkForShape(defaultUserTask);
 
             // Add a System Decision point with branch (root System Decision point) with a branch merging to branchEndPoint
-            var rootSystemDecisionPoint = process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
+            var rootSystemDecisionPoint = process.Process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
 
             // Get the link between the system decision point and the System task on the second branch
-            var branchingProcessLink = process.Links.Find(l => l.Orderindex.Equals(defaultUserTaskOutgoingProcessLink.Orderindex + 1));
+            var branchingProcessLink = process.Process.Links.Find(l => l.Orderindex.Equals(defaultUserTaskOutgoingProcessLink.Orderindex + 1));
 
             // Get the System Task shape on the second branch for adding the additional System Decision Point
-            var systemTaskOnTheSecondBranch = process.GetProcessShapeById(branchingProcessLink.DestinationId);
+            var systemTaskOnTheSecondBranch = process.Process.GetProcessShapeById(branchingProcessLink.DestinationId);
 
             // Add a System Decision point on the second branch that merges to branchEndPoint
-            process.AddSystemDecisionPointWithBranchBeforeSystemTask(systemTaskOnTheSecondBranch, defaultUserTaskOutgoingProcessLink.Orderindex + 2, branchEndPoint.Id);
+            process.Process.AddSystemDecisionPointWithBranchBeforeSystemTask(systemTaskOnTheSecondBranch, defaultUserTaskOutgoingProcessLink.Orderindex + 2, branchEndPoint.Id);
 
             // Add additonal branch on the root System Decision point
-            process.AddBranchWithSystemTaskToSystemDecisionPoint(rootSystemDecisionPoint, defaultUserTaskOutgoingProcessLink.Orderindex + 3, branchEndPoint.Id);
+            process.Process.AddBranchWithSystemTaskToSystemDecisionPoint(rootSystemDecisionPoint, defaultUserTaskOutgoingProcessLink.Orderindex + 3, branchEndPoint.Id);
 
             // Get the link between the system decision point and the System task on the second branch
-            var secondBranchingProcessLink = process.Links.Find(l => l.Orderindex.Equals(defaultUserTaskOutgoingProcessLink.Orderindex + 3));
+            var secondBranchingProcessLink = process.Process.Links.Find(l => l.Orderindex.Equals(defaultUserTaskOutgoingProcessLink.Orderindex + 3));
 
             // Get the System Task shape on the second branch for adding the additional System Decision Point
-            var systemTaskOnTheThirdBranch = process.GetProcessShapeById(secondBranchingProcessLink.DestinationId);
+            var systemTaskOnTheThirdBranch = process.Process.GetProcessShapeById(secondBranchingProcessLink.DestinationId);
 
             // Add a System Decision point on the third branch that merges to branchEndPoint
-            process.AddSystemDecisionPointWithBranchBeforeSystemTask(systemTaskOnTheThirdBranch, defaultUserTaskOutgoingProcessLink.Orderindex + 4, branchEndPoint.Id);
+            process.Process.AddSystemDecisionPointWithBranchBeforeSystemTask(systemTaskOnTheThirdBranch, defaultUserTaskOutgoingProcessLink.Orderindex + 4, branchEndPoint.Id);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(process, _user);
         }
 
         [TestCase]
         [Description("Add a new system decision point to the default process. The system decision point gets added with two additonal branches: " +
             "each of them contains a system decision point along with branches and system tasks")]
-        public void AddTwoSystemDecisionsWithBranchesOnMainBranch_VerifyReturnedProcess()
+        public void AddTwoSystemDecisionsWithBranchesOnMainBranchVerifyReturnedProcess()
         {
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var process = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find the branch end point for system decision points
-            var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
+            var branchEndPoint = process.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Find the default UserTask
-            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var defaultUserTask = process.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
             // Find the outgoing process link from the default UserTask
-            var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
+            var defaultUserTaskOutgoingProcessLink = process.Process.GetOutgoingLinkForShape(defaultUserTask);
 
             // Find the default SystemTask
-            var defaultSystemTask = process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
+            var defaultSystemTask = process.Process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
 
             // Find the outgoing process link from the default SystemTask
-            var defaultSystemTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultSystemTask);
+            var defaultSystemTaskOutgoingProcessLink = process.Process.GetOutgoingLinkForShape(defaultSystemTask);
 
             // Add a new User Task with System Task before the end Point
-            var addedUserTask = process.AddUserAndSystemTask(defaultSystemTaskOutgoingProcessLink);
+            var addedUserTask = process.Process.AddUserAndSystemTask(defaultSystemTaskOutgoingProcessLink);
 
             // Add a System Decision point with branch (first System Decision point) and close the loop before the addedUserTask
-            process.AddSystemDecisionPointWithBranchBeforeSystemTask(defaultSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, addedUserTask.Id);
+            process.Process.AddSystemDecisionPointWithBranchBeforeSystemTask(defaultSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, addedUserTask.Id);
 
             // find the outgoing process link from the addedUserTask
-            var newUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(addedUserTask);
+            var newUserTaskOutgoingProcessLink = process.Process.GetOutgoingLinkForShape(addedUserTask);
 
             // Find next system task
-            var systemTask = process.GetNextShape(addedUserTask);
+            var systemTask = process.Process.GetNextShape(addedUserTask);
 
             // Add a System Decision point with branch (second System Decision point) and close the loop before the branchEndPoint
-            process.AddSystemDecisionPointWithBranchBeforeSystemTask(systemTask, newUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
+            process.Process.AddSystemDecisionPointWithBranchBeforeSystemTask(systemTask, newUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(process, _user);
         }
 
         [TestCase]
         [Description("Add a new system decision point to the default process. The system decision point gets added with two additonal branches after the default UT. Generate User Story")]
-        public void GenerateUserStoryForSystemDecisionWithTwoBranchesAfterDefaultUserTask_VerifyReturnedProcess()
+        public void GenerateUserStoryForSystemDecisionWithTwoBranchesAfterDefaultUserTaskVerifyReturnedProcess()
         {
             /*
             You start with this:
@@ -746,33 +746,33 @@ namespace StorytellerTests
              */
 
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find the default UserTask
-            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var defaultUserTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
             // Find the target SystemTask
-            var targetSystemTask = process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
+            var targetSystemTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
 
             // Find the branch end point for system decision points
-            var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
+            var branchEndPoint = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Find the outgoing process link from the default UserTask
-            var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
+            var defaultUserTaskOutgoingProcessLink = novaProcess.Process.GetOutgoingLinkForShape(defaultUserTask);
 
             // Add System Decision point with a branch merging to branchEndPoint
-            process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
+            novaProcess.Process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateVerifyAndPublishNovaProcess(novaProcess.NovaProcess, _user);
 
             // Find number of UserTasks from the published Process
-            process = Helper.Storyteller.GetProcess(_user, process.Id);
+            var returnedNovaProcess = Helper.Storyteller.GetNovaProcess(_user, novaProcess.Id);
 
-            var userTasksOnProcess = process.GetProcessShapesByShapeType(ProcessShapeType.UserTask).Count;
+            var userTasksOnProcess = returnedNovaProcess.Process.GetProcessShapesByShapeType(ProcessShapeType.UserTask).Count;
 
             // Generate User Story artfact(s) from the Process artifact
-            var userStories = Helper.Storyteller.GenerateUserStories(_user, process);
+            var userStories = Helper.Storyteller.GenerateUserStories(_user, returnedNovaProcess.Process);
 
             Logger.WriteDebug("The number of UserStories generated is: {0}", userStories.Count);
 
@@ -783,7 +783,7 @@ namespace StorytellerTests
         [TestCase]
         [Description("Add a new system decision point to the default process. The system decision point gets added with additonal branch. " +
             "Add another system decision point immediately after 1st one (Nested SD). Generate User Story")]
-        public void GenerateUserStoryForTwoSystemDecisionsWithBranchesOnMainBranch_VerifyReturnedProcess()
+        public void GenerateUserStoryForTwoSystemDecisionsWithBranchesOnMainBranchVerifyReturnedProcess()
         {
             /*
            You start with this:
@@ -799,42 +799,42 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find the branch end point for system decision points
-            var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
+            var branchEndPoint = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Find the default UserTask
-            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var defaultUserTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
             // Find the outgoing process link from the default UserTask
-            var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
+            var defaultUserTaskOutgoingProcessLink = novaProcess.Process.GetOutgoingLinkForShape(defaultUserTask);
 
             // Find the default SystemTask
-            var defaultSystemTask = process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
+            var defaultSystemTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
 
             // Find the outgoing process link from the default SystemTask
-            var defaultSystemTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultSystemTask);
+            var defaultSystemTaskOutgoingProcessLink = novaProcess.Process.GetOutgoingLinkForShape(defaultSystemTask);
 
             // Add a new User Task with System Task before the end Point
-            var addedUserTask = process.AddUserAndSystemTask(defaultSystemTaskOutgoingProcessLink);
+            var addedUserTask = novaProcess.Process.AddUserAndSystemTask(defaultSystemTaskOutgoingProcessLink);
 
             // Add a System Decision point with branch (first System Decision point) and close the loop before the addedUserTask
-            process.AddSystemDecisionPointWithBranchBeforeSystemTask(defaultSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, addedUserTask.Id);
+            novaProcess.Process.AddSystemDecisionPointWithBranchBeforeSystemTask(defaultSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, addedUserTask.Id);
 
             // Add a System Decision point with branch (second System Decision point) and close the loop before the branchEndPoint
-            process.AddSystemDecisionPointWithBranchBeforeSystemTask(defaultSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
+            novaProcess.Process.AddSystemDecisionPointWithBranchBeforeSystemTask(defaultSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateVerifyAndPublishNovaProcess(novaProcess.NovaProcess, _user);
 
             // Find number of UserTasks from the published Process
-            process = Helper.Storyteller.GetProcess(_user, process.Id);
+            var returnedNovaProcess = Helper.Storyteller.GetNovaProcess(_user, novaProcess.Id);
 
-            var userTasksOnProcess = process.GetProcessShapesByShapeType(ProcessShapeType.UserTask).Count;
+            var userTasksOnProcess = returnedNovaProcess.Process.GetProcessShapesByShapeType(ProcessShapeType.UserTask).Count;
 
             // Generate User Story artfact(s) from the Process artifact
-            var userStories = Helper.Storyteller.GenerateUserStories(_user, process);
+            var userStories = Helper.Storyteller.GenerateUserStories(_user, returnedNovaProcess.Process);
 
             Logger.WriteDebug("The number of UserStories generated is: {0}", userStories.Count);
 
@@ -848,32 +848,32 @@ namespace StorytellerTests
         public void GetRaptorDiscussionsForSavedUnpublishedUserTask_ThrowsNoErrors()
         {
             // Create and get the default process
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find precondition task
-            var preconditionTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition task
-            var preconditionOutgoingLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask);
+            var preconditionOutgoingLink = novaProcess.Process.GetOutgoingLinkForShape(preconditionTask);
 
             Assert.IsNotNull(preconditionOutgoingLink, "Process link was not found.");
 
             // Add user/system Task immediately after the precondition
-            returnedProcess.AddUserAndSystemTask(preconditionOutgoingLink);
+            novaProcess.Process.AddUserAndSystemTask(preconditionOutgoingLink);
 
             // Save changes without publishing
-            Helper.Storyteller.UpdateProcess(_user, returnedProcess);
+            Helper.Storyteller.UpdateNovaProcess(_user, novaProcess.NovaProcess);
 
-            returnedProcess = Helper.Storyteller.GetProcess(_user, returnedProcess.Id);
+            var returnedNovaProcess = Helper.Storyteller.GetNovaProcess(_user, novaProcess.Id);
 
             // Get newly added User Task
-            var unpublishedUserTask = returnedProcess.GetNextShape(preconditionTask);
+            var unpublishedUserTask = returnedNovaProcess.Process.GetNextShape(preconditionTask);
 
             Assert.DoesNotThrow(() =>
             {
                 var discussions = Helper.SvcComponents.GetRapidReviewDiscussions(_user, unpublishedUserTask.Id, includeDraft: true);
 
-                Assert.That(discussions.ArtifactId == returnedProcess.Id, "The ArtifactID must be equal to Process id.");
+                Assert.That(discussions.ArtifactId == novaProcess.Id, "The ArtifactID must be equal to Process id.");
                 Assert.That(discussions.SubArtifactId == unpublishedUserTask.Id, "The SubArtifactID must be equal User Task id.");
             }, "Get Discussions for saved/unpublished User Task shouldn't return an error.");
         }

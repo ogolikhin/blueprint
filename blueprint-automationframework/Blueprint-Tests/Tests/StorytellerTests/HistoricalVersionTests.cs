@@ -1,6 +1,7 @@
 ﻿using CustomAttributes;
 using Helper;
 using Model;
+using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.StorytellerModel;
@@ -50,7 +51,7 @@ namespace StorytellerTests
              "were made.")]
         public void HistoricalVersion_PublishingProcessWithChanges_VerifyHistoricalVersion()
         {
-            var novaProcess = Helper.Storyteller.CreateAndSaveNovaProcessArtifact(_project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
             var stProcess = Helper.Storyteller.GetProcess(_user, novaProcess.Id);
 
             // Assert that the created process is non historical version by checking status and version
@@ -60,16 +61,17 @@ namespace StorytellerTests
                 Enum.GetName(typeof(ProcessType), ProcessType.BusinessProcess),
                 Enum.GetName(typeof(ProcessType), stProcess.ProcessType));
 
-            Helper.Storyteller.PublishNovaProcess(_user, novaProcess);
-            novaProcess = Helper.Storyteller.GetNovaProcess(_user, novaProcess.Id);
+            novaProcess.Publish(_user);
+            novaProcess.RefreshArtifactFromServer(_user);
             stProcess = Helper.Storyteller.GetProcess(_user, novaProcess.Id);
 
             // Assert that the created process is non historical version by checking status and version
-            ValidateProcessVersion(novaProcess, stProcess, FirstPublishedVersion);
+            ValidateProcessVersion(novaProcess.NovaProcess, stProcess, FirstPublishedVersion);
 
             // Modify process type to User to System Process (savedProcess)
-            stProcess.ProcessType = ProcessType.UserToSystemProcess;
-            var savedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(stProcess, Helper.Storyteller, _user);
+            novaProcess.Process.ProcessType = ProcessType.UserToSystemProcess;
+            novaProcess.Lock(_user);
+            var savedProcess = StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
             var savedNovaProcess = Helper.Storyteller.GetNovaProcess(_user, savedProcess.Id);
 
             // Assert that saving a change to a process does not increment the process version
@@ -125,25 +127,25 @@ namespace StorytellerTests
 
             Helper.Storyteller.PublishProcess(_user, savedProcess);
 
-            var publishedProcess = Helper.Storyteller.GetProcess(_user, artifact.Id);
+            var publishedProcess = Helper.Storyteller.GetNovaProcess(_user, artifact.Id);
 
-            Assert.IsFalse(IsHistoricalVersion(publishedProcess), "A historical version was returned when it was not expected.");
+            Assert.IsFalse(IsHistoricalVersion(publishedProcess.Process), "A historical version was returned when it was not expected.");
 
             // Assert that the published process has the first published version Id (1)
-            Assert.AreEqual(publishedProcess.Status.VersionId, FirstPublishedVersion,
+            Assert.AreEqual(publishedProcess.Process.Status.VersionId, FirstPublishedVersion,
                 "The process version Id was {0} but {1} was expected",
-                publishedProcess.Status.VersionId, FirstPublishedVersion);
+                publishedProcess.Process.Status.VersionId, FirstPublishedVersion);
 
             // Modify process type to User to System Process
-            publishedProcess.ProcessType = ProcessType.UserToSystemProcess;
+            publishedProcess.Process.ProcessType = ProcessType.UserToSystemProcess;
 
-            var savedProcess2 = StorytellerTestHelper.UpdateAndVerifyProcess(publishedProcess, Helper.Storyteller, _user);
+            var savedProcess2 = StorytellerTestHelper.UpdateAndVerifyNovaProcess(publishedProcess, _user);
 
             // Assert that saving a change to a process does not increment the process version
-            Assert.AreEqual(publishedProcess.Status.VersionId, savedProcess2.Status.VersionId,
+            Assert.AreEqual(publishedProcess.Process.Status.VersionId, savedProcess2.Process.Status.VersionId,
                 "The process version should not change after a process is updated.");
 
-            Helper.Storyteller.PublishProcess(_user, savedProcess2);
+            Helper.Storyteller.PublishProcess(_user, savedProcess2.Process);
 
             var publishedProcess2 = Helper.Storyteller.GetProcess(_user, artifact.Id);
 
@@ -161,12 +163,12 @@ namespace StorytellerTests
                 "Version information was provided but not returned.");
 
             // Check if the historical process version Id matches the original published process version Id
-            Assert.AreEqual(publishedProcess.Status.VersionId, historicalProcess.RequestedVersionInfo.VersionId,
+            Assert.AreEqual(publishedProcess.Process.Status.VersionId, historicalProcess.RequestedVersionInfo.VersionId,
                 "The historical version Id did not match the expected version Id.");
 
             // Verifies that the historical process matches the original version of the published process
             // before a change was made.
-            Process.AssertAreEqual(publishedProcess, historicalProcess);
+            Process.AssertAreEqual(publishedProcess.Process, historicalProcess);
         }
 
         #endregion Tests
@@ -179,7 +181,7 @@ namespace StorytellerTests
         /// <param name="novaProcess">the nova process to validate</param>
         /// <param name="stProcess">the equvalent storyteller 1.0 process to validate</param>
         /// <param name="expectedVersion">the expected version number to validate against</param>
-        private static void ValidateProcessVersion(NovaProcess novaProcess, IProcess stProcess, int expectedVersion)
+        private static void ValidateProcessVersion(INovaProcess novaProcess, IProcess stProcess, int expectedVersion)
         {
             // Assert that the created process is non historical version by checking status and version
             Assert.IsFalse(IsHistoricalVersion(stProcess), "A historical version was returned when it was not expected.");

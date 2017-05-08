@@ -6,12 +6,13 @@ using Model.ArtifactModel.Impl;
 using Model.Common.Enums;
 using Model.Factories;
 using Model.Impl;
-using static Model.Impl.ArtifactStore;
 using Model.JobModel;
 using Model.ModelHelpers;
 using Model.OpenApiModel.Services;
 using Model.SearchServiceModel;
 using Model.StorytellerModel;
+using Model.StorytellerModel.Enums;
+using Model.StorytellerModel.Impl;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
@@ -22,6 +23,8 @@ using System.Linq;
 using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
+using static Model.Impl.ArtifactStore;
+using static Model.StorytellerModel.Impl.Process;
 
 namespace Helper
 {
@@ -758,17 +761,17 @@ namespace Helper
         /// <param name="user">The user who will create the artifacts.</param>
         /// <param name="artifactTypeChain">The artifact types of each artifact in the chain starting at the top parent.</param>
         /// <returns>The list of artifacts in the chain starting at the top parent.</returns>
-        public List<IArtifact> CreateSavedArtifactChain(IProject project, IUser user, BaseArtifactType[] artifactTypeChain)
+        public List<ArtifactWrapper> CreateSavedArtifactChain(IProject project, IUser user, ItemTypePredefined[] artifactTypeChain)
         {
             ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
 
-            var artifactChain = new List<IArtifact>();
-            IArtifact bottomArtifact = null;
+            var artifactChain = new List<ArtifactWrapper>();
+            ArtifactWrapper bottomArtifact = null;
 
             // Create artifact chain.
             foreach (var artifactType in artifactTypeChain)
             {
-                bottomArtifact = CreateAndSaveArtifact(project, user, artifactType, parent: bottomArtifact);
+                bottomArtifact = CreateNovaArtifact(user, project, artifactType, parentId: bottomArtifact?.Id);
                 artifactChain.Add(bottomArtifact);
             }
 
@@ -1060,6 +1063,75 @@ namespace Helper
         }
 
         #endregion Artifact Management
+
+        #region Process Artifact Management
+
+        /// <summary>
+        /// Creates and saves a new Nova Process artifact (wrapped inside an ProcessArtifactWrapper that tracks the state of the process artifact.).
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="project">The project where the Nova artifact should be created.</param>
+        /// <param name="parentId">(optional) The parent ID of this Nova artifact.
+        ///     By default the parent should be the project.</param>
+        /// <param name="orderIndex">(optional) The order index of this Nova artifact.
+        ///     By default the order index should be after the last artifact.</param>
+        /// <param name="name">(optional) The artifact name.  By default a random name is created.</param>
+        /// <returns>The Nova artifact wrapped in an ProcessArtifactWrapper that tracks the state of the artifact.</returns>
+        public ProcessArtifactWrapper CreateNovaProcessArtifact(
+            IUser user, IProject project,
+            int? parentId = null, double? orderIndex = null, string name = null)
+        {
+            ThrowIf.ArgumentNull(project, nameof(project));
+
+            name = name ?? RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+
+            var artifact  = Model.Impl.ArtifactStore.CreateArtifact(ArtifactStore.Address, user,
+                ItemTypePredefined.Process, name, project, parentId, orderIndex);
+
+            var process = Storyteller.GetNovaProcess(user, artifact.Id);
+
+            return WrapProcessArtifact(process, project, user);
+        }
+
+        /// <summary>
+        /// Creates and publish a new Nova Process artifact (wrapped inside an ProcessArtifactWrapper that tracks the state of the artifact.).
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="project">The project where the Nova Process artifact should be created.</param>
+        /// <param name="parentId">(optional) The parent of this Nova Process artifact.
+        ///     By default the parent should be the project.</param>
+        /// <param name="orderIndex">(optional) The order index of this Nova Process artifact.
+        ///     By default the order index should be after the last artifact.</param>
+        /// <param name="name">(optional) The artifact name.  By default a random name is created.</param>
+        /// <returns>The Nova Process artifact wrapped in an ProcessArtifactWrapper that tracks the state of the artifact.</returns>
+        public ProcessArtifactWrapper CreateAndPublishNovaProcessArtifact(
+            IUser user, IProject project,
+            int? parentId = null, double? orderIndex = null, string name = null)
+        {
+            var wrappedProcessArtifact = CreateNovaProcessArtifact(user, project, parentId, orderIndex, name);
+            wrappedProcessArtifact.Publish(user);
+
+            return wrappedProcessArtifact;
+        }
+
+        /// <summary>
+        /// Wraps an INovaProcess in an ProcessArtifactWrapper and adds it the list of artifacts that get disposed.
+        /// </summary>
+        /// <param name="novaProcess">The INovaProcess that was created by ArtifactStore.</param>
+        /// <param name="project">The project where the artifact was created.</param>
+        /// <param name="createdBy">The user that created this artifact.</param>
+        /// <returns>The ProcessArtifactWrapper for the novaProcessArtifact.</returns>
+        public ProcessArtifactWrapper WrapProcessArtifact(INovaProcess novaProcess, IProject project, IUser createdBy)
+        {
+            ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
+
+            var wrappedProcessArtifact = new ProcessArtifactWrapper(novaProcess, ArtifactStore, SvcShared, project, createdBy);
+            WrappedArtifactsToDispose.Add(wrappedProcessArtifact);
+
+            return wrappedProcessArtifact;
+        }
+
+        #endregion Process Artifact Management
 
         #region Nova Artifact Management
         public enum TestArtifactState

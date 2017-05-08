@@ -2,10 +2,10 @@
 using Helper;
 using Model;
 using Model.Factories;
+using Model.StorytellerModel.Enums;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
 using System.Linq;
-using Model.StorytellerModel.Enums;
 using TestCommon;
 
 namespace StorytellerTests
@@ -50,19 +50,19 @@ namespace StorytellerTests
             [S]--[P]--+--[UT1]--+--[ST1]--[E]
             */
             // Create and get the default process with one system decision
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneSystemDecision(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcessWithOneSystemDecision(_project, _user);
 
             // Find the system decision to delete from the updated process
-            var systemDecisionToDelete = returnedProcess.GetProcessShapesByShapeType(ProcessShapeType.SystemDecision).First();
+            var systemDecisionToDelete = novaProcess.Process.GetProcessShapesByShapeType(ProcessShapeType.SystemDecision).First();
 
             // Find the branch end shape for system decision
-            var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
+            var endShape = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Delete the specified system decision
-            returnedProcess.DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(systemDecisionToDelete, endShape);
+            novaProcess.Process.DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(systemDecisionToDelete, endShape);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
         }
 
         [TestCase]
@@ -83,20 +83,20 @@ namespace StorytellerTests
                                                       |              |
                                                       +----+--[ST4]--+  
             */
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialSystemDecisions(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcessWithTwoSequentialSystemDecisions(_project, _user);
 
             // Find the first system decision to delete from the updated process
-            var firstSystemDecisionToDelete = returnedProcess.GetProcessShapesByShapeType(ProcessShapeType.SystemDecision).First();
+            var firstSystemDecisionToDelete = novaProcess.Process.GetProcessShapesByShapeType(ProcessShapeType.SystemDecision).First();
 
             // Merge point for first system decision is the second system decision on the process
-            var mergePointForFirstSystemDecision = returnedProcess.GetProcessShapesByShapeType(ProcessShapeType.UserTask).Find(
+            var mergePointForFirstSystemDecision = novaProcess.Process.GetProcessShapesByShapeType(ProcessShapeType.UserTask).Find(
                     ut => !ut.Name.Equals(Process.DefaultUserTaskName));
 
             // Delete the first system decision that merges before the added user task
-            returnedProcess.DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(firstSystemDecisionToDelete, mergePointForFirstSystemDecision);
+            novaProcess.Process.DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(firstSystemDecisionToDelete, mergePointForFirstSystemDecision);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
         }
 
         [TestCase]
@@ -120,26 +120,26 @@ namespace StorytellerTests
                                   +----+--[ST3]--+            
             */
             // Create and get the default process with inner and outer system decisions
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithInnerAndOuterSystemDecisions(Helper.Storyteller,
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcessWithInnerAndOuterSystemDecisions(
                 _project, _user);
 
             // Find the default SystemTask
-            var defaultSystemTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
+            var defaultSystemTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
 
             // Find link between the inner system decision and the default system task
-            var targetLink = returnedProcess.GetIncomingLinkForShape(defaultSystemTask);
+            var targetLink = novaProcess.Process.GetIncomingLinkForShape(defaultSystemTask);
 
             // Find the inner system decision before the defaut system task
-            var innerSystemDecisionToDelete = returnedProcess.GetProcessShapeById(targetLink.SourceId);
+            var innerSystemDecisionToDelete = novaProcess.Process.GetProcessShapeById(targetLink.SourceId);
 
             // Find the branch end point for system decision points
-            var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
+            var endShape = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Delete the inner system decision that merges before the end point
-            returnedProcess.DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(innerSystemDecisionToDelete, endShape);
+            novaProcess.Process.DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(innerSystemDecisionToDelete, endShape);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
         }
 
         [TestCase]
@@ -163,23 +163,23 @@ namespace StorytellerTests
                                   +----+--[ST2]--+            
             */
             // Create and get the default process with inner and outer system decisions
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithInnerAndOuterSystemDecisions(Helper.Storyteller,
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcessWithInnerAndOuterSystemDecisions(
                 _project, _user);
 
             // Find the default UserTask
-            var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var defaultUserTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
             // Find the inner system decision before the defaut system task
-            var outerSystemDecisionToDelete = returnedProcess.GetNextShape(defaultUserTask);
+            var outerSystemDecisionToDelete = novaProcess.Process.GetNextShape(defaultUserTask);
 
             // Find the branch end point for system decision points
-            var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
+            var endShape = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Delete the outer system decision that merges before the end point
-            returnedProcess.DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(outerSystemDecisionToDelete, endShape);
+            novaProcess.Process.DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(outerSystemDecisionToDelete, endShape);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
         }
 
         [TestCase]
@@ -201,20 +201,20 @@ namespace StorytellerTests
             */
             // Create and get the default process
             var returnedProcess =
-                StorytellerTestHelper.CreateAndGetDefaultProcessWithOneSystemDecisionContainingMultipleConditions(
-                    Helper.Storyteller, _project, _user, additionalBranches: 1);
+                StorytellerTestHelper.CreateAndGetDefaultNovaProcessWithOneSystemDecisionContainingMultipleConditions(
+                    _project, _user, additionalBranches: 1);
 
             // Find the system decision to delete from the updated process
-            var systemDecisionToDelete = returnedProcess.GetProcessShapesByShapeType(ProcessShapeType.SystemDecision).First();
+            var systemDecisionToDelete = returnedProcess.Process.GetProcessShapesByShapeType(ProcessShapeType.SystemDecision).First();
 
             // Find the branch end point for system decision points
-            var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
+            var endShape = returnedProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Delete the specified system decision
-            returnedProcess.DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(systemDecisionToDelete, endShape);
+            returnedProcess.Process.DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(systemDecisionToDelete, endShape);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(returnedProcess.NovaProcess, _user);
         }
 
         [TestCase]
@@ -238,30 +238,30 @@ namespace StorytellerTests
                                   +----+--[ST2]--+
             */
             // Create and get the default process with System Decision which contains another System Decision on the second branch
-            var returnedProcess =
-                StorytellerTestHelper.CreateAndGetDefaultProcessWithSystemDecisionContainingSystemDecisionOnBranch(
-                    Helper.Storyteller, _project, _user);
+            var novaProcess =
+                StorytellerTestHelper.CreateAndGetDefaultNovaProcessWithSystemDecisionContainingSystemDecisionOnBranch(
+                    _project, _user);
 
             // Find the default UserTask
-            var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var defaultUserTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
             // Find the outgoing process link from the default user task
-            var defaultUserTaskOutgoingProcessLink = returnedProcess.GetOutgoingLinkForShape(defaultUserTask);
+            var defaultUserTaskOutgoingProcessLink = novaProcess.Process.GetOutgoingLinkForShape(defaultUserTask);
 
             // Find the link between the system decision point and the System task on the second branch
-            var branchingProcessLink = returnedProcess.Links.Find(l => l.Orderindex.Equals(defaultUserTaskOutgoingProcessLink.Orderindex + 1));
+            var branchingProcessLink = novaProcess.Process.Links.Find(l => l.Orderindex.Equals(defaultUserTaskOutgoingProcessLink.Orderindex + 1));
 
             // Find the system decision on the second branch for deletion
-            var nestedSystemDecisionToDelete = returnedProcess.GetProcessShapeById(branchingProcessLink.DestinationId);
+            var nestedSystemDecisionToDelete = novaProcess.Process.GetProcessShapeById(branchingProcessLink.DestinationId);
 
             // Find the branch end point for system decision points
-            var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
+            var endShape = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Delete the nested system decision that merges before the end point
-            returnedProcess.DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(nestedSystemDecisionToDelete, endShape);
+            novaProcess.Process.DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(nestedSystemDecisionToDelete, endShape);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
         }
 
         [TestCase]
@@ -283,24 +283,24 @@ namespace StorytellerTests
             [S]--[P]--+--[UT1]--+--[ST1]--[E]
             */
             // Create and get the default process with System Decision which contains another System Decision on the second branch
-            var returnedProcess =
-                StorytellerTestHelper.CreateAndGetDefaultProcessWithSystemDecisionContainingSystemDecisionOnBranch(
-                    Helper.Storyteller, _project, _user);
+            var novaProcess =
+                StorytellerTestHelper.CreateAndGetDefaultNovaProcessWithSystemDecisionContainingSystemDecisionOnBranch(
+                    _project, _user);
 
             // Find the default UserTask
-            var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var defaultUserTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
             // Find the system decision to delete from the updated process
-            var rootSystemDecisionToDelete = returnedProcess.GetNextShape(defaultUserTask);
+            var rootSystemDecisionToDelete = novaProcess.Process.GetNextShape(defaultUserTask);
 
             // Find the branch end point for system decision points
-            var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
+            var endShape = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Delete the root system decision that merges before the end point
-            returnedProcess.DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(rootSystemDecisionToDelete, endShape);
+            novaProcess.Process.DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(rootSystemDecisionToDelete, endShape);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
         }
     }
 }

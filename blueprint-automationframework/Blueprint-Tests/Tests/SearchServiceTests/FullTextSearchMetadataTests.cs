@@ -584,7 +584,7 @@ namespace SearchServiceTests
             SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 1);
 
             // update artifact with name that doesn't match old search criteria
-            var newSearchTerm = "NewName";
+            var newSearchTerm = "NewName" + RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
             artifact.Lock();
             SearchServiceTestHelper.UpdateArtifactProperty(Helper, _user, _projects.First(), artifact, baseArtifactType, "Name", newSearchTerm);

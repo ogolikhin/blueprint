@@ -583,16 +583,17 @@ namespace ArtifactStoreTests
         {
             // Setup:
             // Create & publish a Process artifact with 2 sequential User Tasks.
-            var processArtifact = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialUserTasks(Helper.Storyteller, _project, _user);  // TODO: Derive Process from ArtifactWrapper...
-            StorytellerTestHelper.UpdateVerifyAndPublishProcess(processArtifact, Helper.Storyteller, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcessWithTwoSequentialUserTasks(_project, _user);
+            StorytellerTestHelper.UpdateVerifyAndPublishNovaProcess(novaProcess.NovaProcess, _user);
 
-            var userTasks = processArtifact.GetProcessShapesByShapeType(ProcessShapeType.UserTask);
+            var userTasks = novaProcess.Process.GetProcessShapesByShapeType(ProcessShapeType.UserTask);
             Assert.That(userTasks.Count > 1, "There should be more than one User Task!");
 
             // Delete a user task & publish.
             var userTask = userTasks[0];
-            processArtifact.DeleteUserAndSystemTask(userTask);
-            StorytellerTestHelper.UpdateVerifyAndPublishProcess(processArtifact, Helper.Storyteller, _user);
+            novaProcess.Lock(_user);
+            novaProcess.Process.DeleteUserAndSystemTask(userTask);
+            StorytellerTestHelper.UpdateVerifyAndPublishNovaProcess(novaProcess.NovaProcess, _user);
 
             INovaVersionControlArtifactInfo basicArtifactInfo = null;
 
@@ -601,7 +602,7 @@ namespace ArtifactStoreTests
                 "'GET {0}' should return 200 OK when passed a valid sub-artifact ID!", SVC_PATH);
 
             // Verify
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, processArtifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, novaProcess.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo, compareVersions: false);
 
             VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId: userTask.Id,
@@ -616,16 +617,17 @@ namespace ArtifactStoreTests
         {
             // Setup:
             // Create & publish a Process artifact with 2 sequential User Tasks.
-            var processArtifact = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialUserTasks(Helper.Storyteller, _project, _user);  // TODO: Derive Process from ArtifactWrapper...
-            StorytellerTestHelper.UpdateVerifyAndPublishProcess(processArtifact, Helper.Storyteller, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcessWithTwoSequentialUserTasks(_project, _user);
+            StorytellerTestHelper.UpdateVerifyAndPublishNovaProcess(novaProcess.NovaProcess, _user);
 
-            var userTasks = processArtifact.GetProcessShapesByShapeType(ProcessShapeType.UserTask);
+            var userTasks = novaProcess.Process.GetProcessShapesByShapeType(ProcessShapeType.UserTask);
             Assert.That(userTasks.Count > 1, "There should be more than one User Task!");
 
             // Delete a user task & save.
             var userTask = userTasks[0];
-            processArtifact.DeleteUserAndSystemTask(userTask);
-            StorytellerTestHelper.UpdateAndVerifyProcess(processArtifact, Helper.Storyteller, _user);
+            novaProcess.Lock(_user);
+            novaProcess.Process.DeleteUserAndSystemTask(userTask);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
 
             INovaVersionControlArtifactInfo basicArtifactInfo = null;
 
@@ -634,7 +636,7 @@ namespace ArtifactStoreTests
                 "'GET {0}' should return 200 OK when passed a valid sub-artifact ID!", SVC_PATH);
 
             // Verify:
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, processArtifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, novaProcess.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo, compareVersions: false);
 
             VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: true, isDeleted: false, subArtifactId: userTask.Id,
@@ -649,16 +651,17 @@ namespace ArtifactStoreTests
         {
             // Setup:
             // Create & publish a Process artifact with 2 sequential User Tasks.
-            var processArtifact = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialUserTasks(Helper.Storyteller, _project, _user);  // TODO: Derive Process from ArtifactWrapper...
-            StorytellerTestHelper.UpdateVerifyAndPublishProcess(processArtifact, Helper.Storyteller, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcessWithTwoSequentialUserTasks(_project, _user);
+            StorytellerTestHelper.UpdateVerifyAndPublishNovaProcess(novaProcess.NovaProcess, _user);
 
-            var userTasks = processArtifact.GetProcessShapesByShapeType(ProcessShapeType.UserTask);
+            var userTasks = novaProcess.Process.GetProcessShapesByShapeType(ProcessShapeType.UserTask);
             Assert.That(userTasks.Count > 1, "There should be more than one User Task!");
 
             // Delete a user task & save.
             var userTask = userTasks[0];
-            processArtifact.DeleteUserAndSystemTask(userTask);
-            StorytellerTestHelper.UpdateAndVerifyProcess(processArtifact, Helper.Storyteller, _user);
+            novaProcess.Lock(_user);
+            novaProcess.Process.DeleteUserAndSystemTask(userTask);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
 
             INovaVersionControlArtifactInfo basicArtifactInfo = null;
 

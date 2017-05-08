@@ -27,5 +27,7 @@
         public static readonly string IncorrectUserId = "Incorrect userId.";
         public static readonly string InvalidDeleteUsersParameters = "Invalid parameters to delete users";
         public static readonly string CreationOnlyDatabaseUsers = "You can create only database users.";
+        public static readonly string PasswordSameAsLogin = "Password cannot be equal to login name.";
+        public static readonly string PasswordSameAsDisplayName = "Password cannot be equal to display name.";
     }
 }

@@ -306,8 +306,10 @@ namespace Helper
         /// <param name="expectedNovaArtifactBase">The INovaArtifactBase containing the expected properties.</param>
         /// <param name="actualArtifactBase">The IArtifactBase containing the actual properties to compare against.</param>
         /// <param name="skipIdAndVersion">(optional) Pass true to skip comparison of the Id and Version properties.</param>
+        /// <param name="skipCreatedOn">(optional) Pass true to skip comparison of the CreatedOn properties.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
-        public static void AssertArtifactsEqual(INovaArtifactBase expectedNovaArtifactBase, IArtifactBase actualArtifactBase, bool skipIdAndVersion = false)
+        public static void AssertArtifactsEqual(INovaArtifactBase expectedNovaArtifactBase, IArtifactBase actualArtifactBase, 
+            bool skipIdAndVersion = false)
         {
             ThrowIf.ArgumentNull(expectedNovaArtifactBase, nameof(expectedNovaArtifactBase));
             ThrowIf.ArgumentNull(actualArtifactBase, nameof(actualArtifactBase));
@@ -837,9 +839,9 @@ namespace Helper
         /// <summary>
         /// Creates a random image and adds it to a property of the specified artifact. Artifact should be locked. It will be saved.
         /// </summary>
-        /// <param name="artifact">The artifact where the image will be embedded.</param>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="artifactStore">An ArtifactStore instance.</param>
+        /// <param name="artifact">The artifact where the image will be embedded.</param>
         /// <param name="width">(optional) The image width.</param>
         /// <param name="height">(optional) The image height.</param>
         /// <param name="imageType">(optional) The image type.</param>
@@ -847,9 +849,9 @@ namespace Helper
         /// <param name="propertyName">(optional) The name of the artifact property where the image should be embedded.</param>
         /// <param name="numberOfImagesToAdd">(optional) The number of images to embed in the property.</param>
         /// <returns>The INovaArtifactDetails after saving the artifact.</returns>
-        public static INovaArtifactDetails AddRandomImageToArtifactProperty(IArtifactBase artifact,
-            IUser user,
+        public static INovaArtifactDetails AddRandomImageToArtifactProperty(IUser user,       
             IArtifactStore artifactStore,
+            int artifactId,
             int width = 100,
             int height = 100,
             ImageType imageType = ImageType.JPEG,
@@ -857,10 +859,9 @@ namespace Helper
             string propertyName = nameof(NovaArtifactDetails.Description),
             int numberOfImagesToAdd = 1)
         {
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
             ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
 
-            var artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
+            var artifactDetails = artifactStore.GetArtifactDetails(user, artifactId);
 
             return AddRandomImageToArtifactProperty(artifactDetails, user, artifactStore,
                 width, height, imageType, contentType, propertyName, numberOfImagesToAdd);
@@ -1358,32 +1359,33 @@ namespace Helper
         /// Update an artifact custom property and save.
         /// </summary>
         /// <typeparam name="T">The property value type</typeparam>
-        /// <param name="artifact">The artifact to update</param>
         /// <param name="user">The user updating the artifact</param>
+        /// <param name="Helper">An instance of TestHelper</param>
+        /// <param name="artifact">The artifact to update</param>
         /// <param name="project">The project where the artifact exists</param>
         /// <param name="propertyType">The primitive property type of the property</param>
         /// <param name="propertyName">The name of the artifact property to be updated</param>
         /// <param name="propertyValue">The new value for the subartifact property</param>
-        /// <param name="artifactStore">A reference to an instance of artifact store</param>
         /// <returns>The updated property</returns>
-        public static CustomProperty UpdateArtifactCustomProperty<T>(IArtifact artifact, IUser user, IProject project,
-            PropertyPrimitiveType propertyType, string propertyName, T propertyValue, IArtifactStore artifactStore)
+        public static CustomProperty UpdateArtifactCustomProperty<T>(IUser user, TestHelper Helper, int artifactId, IProject project,
+            PropertyPrimitiveType propertyType, string propertyName, T propertyValue)
         {
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            ThrowIf.ArgumentNull(Helper, nameof(Helper));
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(project, nameof(project));
-            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
 
-            var artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifactId);
+
+            Assert.IsNotNull(artifactDetails, I18NHelper.FormatInvariant("Artifact {0} had not been found!", artifactId));
 
             // Set custom property in artifact.
-            var property = SetArtifactCustomProperty(artifactDetails, project,
-                propertyType, propertyName, propertyValue);
+            var property = SetArtifactCustomProperty(artifactDetails, project, propertyType, propertyName, propertyValue);
 
             var artifactDetailsChangeset = TestHelper.CreateArtifactChangeSet(artifactDetails, customProperty: property);
 
+            var artifact = Helper.WrapArtifact(artifactDetails, project, user);
             artifact.Lock(user);
-            artifactStore.UpdateArtifact(user, (NovaArtifactDetails) artifactDetailsChangeset);
+            Helper.ArtifactStore.UpdateArtifact(user, (NovaArtifactDetails)artifactDetailsChangeset);
 
             return property;
         }
@@ -1807,7 +1809,7 @@ namespace Helper
         /// <param name="sourceArtifactTrace">The Nova trace obtained from the source artifact.</param>
         /// <param name="targetArtifact">The target artifact of the trace.</param>
         /// <exception cref="AssertionException">If any properties of the trace don't match the target artifact.</exception>
-        public static void ValidateTrace(INovaTrace sourceArtifactTrace, IArtifactBase targetArtifact)
+        public static void ValidateTrace(INovaTrace sourceArtifactTrace, ArtifactWrapper targetArtifact)
         {
             ThrowIf.ArgumentNull(sourceArtifactTrace, nameof(sourceArtifactTrace));
             ThrowIf.ArgumentNull(targetArtifact, nameof(targetArtifact));
@@ -1816,7 +1818,7 @@ namespace Helper
             Assert.AreEqual(sourceArtifactTrace.ArtifactName, targetArtifact.Name, "Name from trace and artifact should be equal to each other.");
             Assert.AreEqual(sourceArtifactTrace.ItemId, targetArtifact.Id, "itemId from trace and artifact should be equal to each other.");
             Assert.AreEqual(sourceArtifactTrace.ProjectId, targetArtifact.ProjectId, "ProjectId from trace and artifact should be equal to each other.");
-            Assert.AreEqual(sourceArtifactTrace.ProjectName, targetArtifact.Project.Name, "ProjectName from trace and artifact should be equal to each other.");
+//            Assert.AreEqual(sourceArtifactTrace.ProjectName, targetArtifact..Project.Name, "ProjectName from trace and artifact should be equal to each other.");
         }
 
         /// <summary>

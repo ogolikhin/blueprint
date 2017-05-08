@@ -174,11 +174,11 @@ namespace ArtifactStoreTests
             // Execute:
             if (propertyType == PropertyPrimitiveType.User)
             {
-                property = ArtifactStoreHelper.UpdateArtifactCustomProperty(artifact, author, project, propertyType, propertyName, author, Helper.ArtifactStore);
+                property = ArtifactStoreHelper.UpdateArtifactCustomProperty(author, Helper, artifact.Id, project, propertyType, propertyName, author);
             }
             else
             {
-                property = ArtifactStoreHelper.UpdateArtifactCustomProperty(artifact, author, project, propertyType, propertyName, newValue, Helper.ArtifactStore);
+                property = ArtifactStoreHelper.UpdateArtifactCustomProperty(author, Helper, artifact.Id, project, propertyType, propertyName, newValue);
             }
 
             // Verify:

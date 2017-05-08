@@ -242,7 +242,7 @@ namespace SearchServiceTests
             string searchTerm = "SearchText_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCase(25);
 
             // Update custom property in artifact.
-            ArtifactStoreHelper.UpdateArtifactCustomProperty(artifact, _user, project, PropertyPrimitiveType.Text, propertyName, searchTerm, Helper.ArtifactStore);
+            ArtifactStoreHelper.UpdateArtifactCustomProperty(_user, Helper, artifact.Id, project, PropertyPrimitiveType.Text, propertyName, searchTerm);
             Helper.ArtifactStore.PublishArtifact(artifact, _user);
 
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);

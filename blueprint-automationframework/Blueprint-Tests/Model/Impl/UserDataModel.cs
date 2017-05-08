@@ -30,14 +30,14 @@ namespace Model.Impl
         public string Title { get; set; }
         public string Department { get; set; }
         public string Password { get; set; }
-        public bool? ExpirePassword { get; set; }
+        public bool? ExpiredPassword { get; set; }
         public string InstanceAdminRole { get; set; }
         public bool? Enabled { get; set; }
         public bool? FallBack { set; get; }
         public string Email { get; set; }
 
         // Don't serialize Groups property if empty list.
-        public virtual bool ShouldSerializeGroups()
+        public bool ShouldSerializeGroups()
         {
             return Groups.Count > 0;
         }
@@ -76,7 +76,7 @@ namespace Model.Impl
             Title = userDataToCopy.Title;
             Department = userDataToCopy.Department;
             Password = userDataToCopy.Password;
-            ExpirePassword = userDataToCopy.ExpirePassword;
+            ExpiredPassword = userDataToCopy.ExpiredPassword;
             InstanceAdminRole = userDataToCopy.InstanceAdminRole;
             Enabled = userDataToCopy.Enabled;
             FallBack = userDataToCopy.FallBack;
@@ -111,7 +111,7 @@ namespace Model.Impl
             {
                 Assert.AreEqual(expectedUserData.Password, actualUserData.Password, "'{0}' has a different value than expected!", nameof(Password));
                 Assert.AreEqual(expectedUserData.InstanceAdminRole, actualUserData.InstanceAdminRole, "'{0}' has a different value than expected!", nameof(InstanceAdminRole));
-                Assert.AreEqual(expectedUserData.ExpirePassword, actualUserData.ExpirePassword, "'{0}' has a different value than expected!", nameof(ExpirePassword));
+                Assert.AreEqual(expectedUserData.ExpiredPassword, actualUserData.ExpiredPassword, "'{0}' has a different value than expected!", nameof(ExpiredPassword));
                 Assert.AreEqual(expectedUserData.Enabled, actualUserData.Enabled, "'{0}' has a different value than expected!", nameof(Enabled));
                 Assert.AreEqual(expectedUserData.FallBack, actualUserData.FallBack, "'{0}' has a different value than expected!", nameof(FallBack));
 

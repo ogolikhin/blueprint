@@ -44,29 +44,29 @@ namespace StorytellerTests
 
         #region Tests
 
+        // TODO: This test case is currently duplicate copy of [TestRail(164531)]
+        // Will remove this shortly since there is no value on this test case
         [TestCase]
         [Description("Clear the name of process and verify the returned process has a validation error" +
                      "indicating that the process name is required.")]
-        public void UpdateProcessWithoutProcessName_VerifyGetProcessReturnsValidationError()
+        public void UpdateNovaProcessWithoutProcessName_VerifyGetProcessReturnsValidationError()
         {
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Modify default process Name
-            process.Name = string.Empty;
+            novaProcess.NovaProcess.Name = string.Empty;
 
             var ex = Assert.Throws<Http400BadRequestException>(
                 () =>
                    // Get and deserialize response
-                   Helper.Storyteller.UpdateProcess(
+                   Helper.Storyteller.UpdateNovaProcess(
                         _user,
-                        process)
+                        novaProcess.NovaProcess)
                 );
 
-            var deserializedResponse = SerializationUtilities.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
-
             // Assert that the deserialized response indicates that the process name is required
-            AssertValidationResponse(deserializedResponse, ProcessValidationResponse.NameRequired);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NameCannotBeEmpty, "The Item name cannot be empty");
         }
 
         [TestCase]
@@ -76,23 +76,23 @@ namespace StorytellerTests
         public void UpdateProcessWithOrphanedTask_VerifyGetProcessReturnsValidationError()
         {
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find precondition task
-            var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition
-            var processLink = process.GetOutgoingLinkForShape(preconditionTask);
+            var processLink = novaProcess.Process.GetOutgoingLinkForShape(preconditionTask);
 
             // Remove the process link between the precondition and the default user task
-            process.Links.Remove(processLink);
+            novaProcess.Process.Links.Remove(processLink);
 
             var ex = Assert.Throws<Http400BadRequestException>(
                 () =>
                    // Get and deserialize response
                    Helper.Storyteller.UpdateProcess(
                         _user,
-                        process)
+                        novaProcess.Process)
                 );
 
             var deserializedResponse = SerializationUtilities.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
@@ -110,18 +110,18 @@ namespace StorytellerTests
         public void DeleteTheOnlyUserTaskInProcess_VerifyGetProcessReturnsValidationError()
         {
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
-            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var defaultUserTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
-            process.DeleteUserAndSystemTask(defaultUserTask);
+            novaProcess.Process.DeleteUserAndSystemTask(defaultUserTask);
 
             var ex = Assert.Throws<Http400BadRequestException>(
                 () =>
                    // Get and deserialize response
                    Helper.Storyteller.UpdateProcess(
                         _user,
-                        process)
+                        novaProcess.Process)
                 );
 
             var deserializedResponse = SerializationUtilities.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
@@ -140,26 +140,26 @@ namespace StorytellerTests
         public void DeleteTheOnlyUserTaskBetweenTwoUserDecisionsInProcess_VerifyGetProcessReturnsValidationError()
         {
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialUserDecisions(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcessWithTwoSequentialUserDecisions(_project, _user);
 
-            var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var precondition = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
-            var firstUserDecision = process.GetNextShape(precondition);
+            var firstUserDecision = novaProcess.Process.GetNextShape(precondition);
 
             // Find the outgoing link of the lowest order from the first user decision
-            var userDecisionOutgoingLinkOfLowestOrder = process.GetOutgoingLinkForShape(
+            var userDecisionOutgoingLinkOfLowestOrder = novaProcess.Process.GetOutgoingLinkForShape(
                 firstUserDecision,
                 Process.DefaultOrderIndex);
 
             // The user task to delete us the shape immediately after the first user decision on the lowest order branch
             var userTaskIdToDelete = userDecisionOutgoingLinkOfLowestOrder.DestinationId;
 
-            var userTaskToDelete = process.GetProcessShapeById(userTaskIdToDelete);
+            var userTaskToDelete = novaProcess.Process.GetProcessShapeById(userTaskIdToDelete);
 
-            process.DeleteUserAndSystemTask(userTaskToDelete);
+            novaProcess.Process.DeleteUserAndSystemTask(userTaskToDelete);
 
             // Find all the user decisions in the process
-            var userDecisions = process.GetProcessShapesByShapeType(ProcessShapeType.UserDecision);
+            var userDecisions = novaProcess.Process.GetProcessShapesByShapeType(ProcessShapeType.UserDecision);
 
             var secondUserDecision = userDecisions.Find(ud => ud.Id != firstUserDecision.Id);
 
@@ -168,7 +168,7 @@ namespace StorytellerTests
                    // Get and deserialize response
                    Helper.Storyteller.UpdateProcess(
                         _user,
-                        process)
+                        novaProcess.Process)
                 );
 
             var deserializedResponse = SerializationUtilities.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
@@ -188,14 +188,14 @@ namespace StorytellerTests
              "the update process does not succeed.")]
         public void UpdateProcessWithoutArtifactLock_VerifyUpdateDoesNotSucceed()
         {
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
-            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateVerifyAndPublishNovaProcess(novaProcess.NovaProcess, _user);
 
             // Create an artifact representing the process artifact that was created and add it to the 
             // list of artifacts to lock
 
-            var processArtifact = new Artifact { Id = process.Id, Address = Helper.ArtifactStore.Address };
+            var processArtifact = new Artifact { Id = novaProcess.Id, Address = Helper.ArtifactStore.Address };
 
             var artifactsToLock = new List<IArtifactBase> { processArtifact };
 
@@ -204,7 +204,7 @@ namespace StorytellerTests
 
             var ex = Assert.Throws<Http409ConflictException>(() =>
                 // First user attempts to update the process
-                Helper.Storyteller.UpdateProcess(_user, process, lockArtifactBeforeUpdate: false),
+                Helper.Storyteller.UpdateProcess(_user, novaProcess.Process, lockArtifactBeforeUpdate: false),
                 "The first user attempted to update the process locked by another user and either an unexpected exception was thrown or" +
                 "the first user's attempted publish was successful."
                 );
@@ -229,7 +229,7 @@ namespace StorytellerTests
             int pairs = (limit - Process.NumberOfShapesInDefaultProcess)/2;
 
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateProcessWithXAdditionalTaskPairs(Helper.Storyteller, _project, _user, pairs);
+            var process = StorytellerTestHelper.CreateProcessWithXAdditionalTaskPairs(_project, _user, pairs);
 
             // Get the end point
             var endShape = process.GetProcessShapeByShapeName(Process.EndName);

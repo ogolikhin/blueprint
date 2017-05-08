@@ -61,7 +61,7 @@ namespace StorytellerTests
         {
             // Setup:
             // Create and get the default Nova process
-            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
             var process = novaProcess.Process;
             var processType = process.ProcessType;
 
@@ -72,7 +72,7 @@ namespace StorytellerTests
 
             // Execute & Verify:
             // Update and Verify the modified process
-            var updatedNovaProcess = StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess, Helper.Storyteller, _user);
+            var updatedNovaProcess = StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
 
             Assert.IsTrue(updatedNovaProcess.Process.ProcessType == ProcessType.UserToSystemProcess,
                 "Process Type was not updated to UserToSystemProcess!");
@@ -86,7 +86,7 @@ namespace StorytellerTests
         {
             // Setup:
             // Create and get the default Nova process
-            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
             var process = novaProcess.Process;
 
             // Find precondition task
@@ -102,7 +102,7 @@ namespace StorytellerTests
 
             // Execute & Verify:
             // Update and Verify the modified Nova process
-            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
         }
 
         #endregion Tests
@@ -123,7 +123,7 @@ namespace StorytellerTests
         public void UpdateNovaProcess_SetRequiredShapePropertyToNull_VerifyReturnedError(string customPropertyName)
         {
             // Setup:
-            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
             var process = novaProcess.Process;
             int shapeIndex = 2;
 
@@ -135,8 +135,7 @@ namespace StorytellerTests
             novaProcess.SubArtifacts = new List<NovaSubArtifact> { userTaskSubArtifact };
 
             // Execute:
-            var ex = Assert.Throws<Http409ConflictException>(() => StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess,
-                Helper.Storyteller, _user), "Process Update should throw 409 exception when shapes have invalid Custom Property values.");
+            var ex = Assert.Throws<Http409ConflictException>(() => StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess, _user), "Process Update should throw 409 exception when shapes have invalid Custom Property values.");
 
             // Verify:
             TestHelper.ValidateProcessValidationError(ex.RestResponse, InternalApiErrorCodes.ProcessValidationFailed,
@@ -152,7 +151,7 @@ namespace StorytellerTests
         public void UpdateNovaProcess_SetValidatedRequiredShapePropertyToInvalidValue_VerifyReturnedError(string customPropertyName, int invalidValue)
         {
             // Setup:
-            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
             var process = novaProcess.Process;
 
             int shapeIndex = 2;
@@ -165,7 +164,7 @@ namespace StorytellerTests
             novaProcess.SubArtifacts = new List<NovaSubArtifact> { userTaskSubArtifact };
 
             // Execute:
-            var ex = Assert.Throws<Http409ConflictException>(() => StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess, Helper.Storyteller, _user),
+            var ex = Assert.Throws<Http409ConflictException>(() => StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess, _user),
                 "Process Update should throw 409 exception when shapes have invalid Custom Property values.");
 
             // Verify:
@@ -182,7 +181,7 @@ namespace StorytellerTests
         public void UpdateNovaProcess_SetSomeShapesPropertyToInvalidValueOtherToValidValues_VerifyReturnedError()
         {
             // Setup:
-            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
             var process = novaProcess.Process;
 
             string customPropertyName = "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault";
@@ -214,7 +213,7 @@ namespace StorytellerTests
                 shapeSubArtifacts[1], shapeSubArtifacts[2] };
 
             // Execute:
-            var ex = Assert.Throws<Http409ConflictException>(() => StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess, Helper.Storyteller, _user),
+            var ex = Assert.Throws<Http409ConflictException>(() => StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user),
                 "Process Update should throw 409 exception when shapes have invalid Custom Property values.");
 
             // Verify:

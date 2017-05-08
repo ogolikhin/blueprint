@@ -18,7 +18,7 @@ namespace Helper
 {
     public static class SearchServiceTestHelper
     {
-        private const int DEFAULT_TIMEOUT_FOR_SEARCH_INDEXER_UPDATE_IN_MS = 600000;
+        private const int DEFAULT_TIMEOUT_FOR_SEARCH_INDEXER_UPDATE_IN_MS = 300000;
 
         /// <summary>
         /// Sets up artifact data for Full Text Search Service tests
@@ -45,12 +45,12 @@ namespace Helper
             var projectsSubset = new List<IProject> { projects[0], projects[1] };
 
             // This keeps the artifact description constant for all created artifacts
-            var randomArtifactDescription = "Description " + RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces();
+            var randomArtifactDescription = "Description " + RandomGenerator.RandomAlphaNumericUpperAndLowerCase(15);
 
             if (selectedBaseArtifactTypes == null)
             {
-                var randomBaselineName = "Artifact_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces();
-                var randomCollectionName = "Artifact_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces();
+                var randomBaselineName = "Artifact_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCase(15);
+                var randomCollectionName = "Artifact_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCase(15);
                 foreach (var project in projectsSubset)
                     {
                         var artifactBaseline = testHelper.CreateBaseline(user, project, name: randomBaselineName);
@@ -77,7 +77,7 @@ namespace Helper
 
             foreach (var artifactType in baseArtifactTypes)
             {
-                var randomArtifactName = "Artifact_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces();
+                var randomArtifactName = "Artifact_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCase(15);
 
                 foreach (var project in projectsSubset)
                 {
@@ -163,7 +163,7 @@ namespace Helper
         /// Gets the list of all Item Type Ids for a list of projects and base artifact types.
         /// </summary>
         /// <param name="projects">List of projects</param>
-        /// <param name="baseArtifactTypes">List of Artifact Types</param>
+        /// <param name="artifactTypes">List of Artifact Types</param>
         /// <returns>List of ItemTypeId</returns>
         public static List<int> GetItemTypeIdsForBaseArtifactTypes(List<IProject> projects,
             List<ItemTypePredefined> artifactTypes)
@@ -191,7 +191,6 @@ namespace Helper
         /// </summary>
         /// <param name="artifactTypes"></param>
         /// <param name="baseArtifactType"></param>
-        /// <param name="artifactTypeName"></param>
         /// <returns>An ItemTypeId</returns>
         public static int GetItemTypeIdForBaseArtifactType(
             List<NovaArtifactType> artifactTypes,

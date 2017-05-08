@@ -7,6 +7,7 @@ using Model.ArtifactModel.Impl;
 using Model.Factories;
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.Linq;
 using TestCommon;
 using Utilities;
 
@@ -184,7 +185,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() => Helper.ArtifactStore.PublishArtifact(parentArtifactList[1], _adminUser),
                 "'POST {0}' should return 200 OK if a valid artifact ID is sent!", PUBLISH_PATH);
 
-            Assert.DoesNotThrow(() => Helper.ArtifactStore.DiscardArtifacts(artifacts: artifacts, user: _adminUser),
+            Assert.DoesNotThrow(() => Helper.ArtifactStore.DiscardArtifacts(_adminUser, artifacts.Select(a => a.Id)),
                 "'POST {0}' should return 200 OK if an artifact was deleted!", DISCARD_PATH);
 
             // Execute:

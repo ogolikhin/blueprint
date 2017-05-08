@@ -649,9 +649,8 @@ namespace Model.ArtifactModel.Impl
             // For each user that created saved artifacts, discard the list of artifacts they created.
             foreach (IUser user in savedArtifactsDictionary.Keys)
             {
-                var artifacts = savedArtifactsDictionary[user];
                 Logger.WriteDebug("*** Discarding all unpublished artifacts created by user: '{0}'.", user.Username);
-                artifactStore.DiscardArtifacts(artifacts, user, all: true);
+                artifactStore.DiscardAllArtifacts(user);
             }
 
             // Create & authenticate an admin user that has access to delete all artifacts.
@@ -669,7 +668,7 @@ namespace Model.ArtifactModel.Impl
                 {
                     // First discard all to release any locks by the original user.
                     Logger.WriteDebug("*** Discarding all artifacts created by user: '{0}'.", user.Username);
-                    artifactStore.DiscardArtifacts(publishedArtifactsDictionary[user], user, all: true);
+                    artifactStore.DiscardAllArtifacts(user);
 
                     // Now delete all artifacts using the Admin user.
                     var artifacts = publishedArtifactsDictionary[user];

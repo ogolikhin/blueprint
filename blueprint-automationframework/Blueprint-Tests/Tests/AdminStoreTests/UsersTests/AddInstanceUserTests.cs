@@ -76,19 +76,15 @@ namespace AdminStoreTests.UsersTests
             AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
-        [TestCase(null)]
-        [TestCase(UserSource.Invalid)]
-        [TestCase(UserSource.Unknown)]
-        [TestCase(UserSource.Windows)]
+        [TestCase]
         [Description("Create an instance user with a missing user source. Add the user. " +
-             "Verify that the user is created as a Database user.")]
+                     "Verify that the user is created as a Database user.")]
         [TestRail(303385)]
-        public void AddInstanceUser_MissingOrInvalidSource_DatabaseUserCreated(UserSource source)
+        public void AddInstanceUser_MissingSource_DatabaseUserCreated()
         {
             // Setup:
             var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
-            createdUser.Source = source;
+            createdUser.Source = null;
 
             // Execute:
             int createdUserId = 0;
@@ -205,7 +201,7 @@ namespace AdminStoreTests.UsersTests
         #region 400 Bad Request Tests
 
         [TestCase]
-        [Description("Create and add an instance user. Try to add the user a second time with the same login. " +
+        [Description("Create and add an instance user. Try to add a second user with the same login. " +
             "Verify that 400 Bad Request is returned.")]
         [TestRail(303375)]
         public void AddInstanceUser_UserAlreadyExists_400BadRequest()
@@ -215,36 +211,50 @@ namespace AdminStoreTests.UsersTests
 
             Helper.AdminStore.AddUser(_adminUser, createdUser);
 
+            var newUser = AdminStoreHelper.GenerateRandomInstanceUser();
+            newUser.Login = createdUser.Login;
+
             // Execute:
-            var ex = Assert.Throws<Http400BadRequestException>(() => { Helper.AdminStore.AddUser(_adminUser, createdUser); },
+            var ex = Assert.Throws<Http400BadRequestException>(() => { Helper.AdminStore.AddUser(_adminUser, newUser); },
                 "POST {0}' should return 400 Bad Request!", USER_PATH);
 
             // Verify:
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, InstanceAdminErrorMessages.LoginNameUnique);
         }
 
-        [TestCase("", Description = "Password is empty")]
-        [TestCase(null, Description = "Password is null")]
-        [Description("Create an instance user with a missing password. Try to add the user. " +
+        [TestCase(UserSource.Invalid, InstanceAdminErrorMessages.CreateOnlyDatabaseUsers)]
+        [TestCase(UserSource.Unknown, InstanceAdminErrorMessages.CreateOnlyDatabaseUsers)]
+        [TestCase(UserSource.Windows, InstanceAdminErrorMessages.CreateOnlyDatabaseUsers)]
+        [Description("Create an instance user with an invalid user source. Try to add the user. " +
                      "Verify that 400 Bad Request is returned.")]
-        [TestRail(303401)]
-        public void AddInstanceUser_MissingPassword_400BadRequest(string password)
+        [TestRail(303606)]
+        public void AddInstanceUser_InvalidSource_400BadRequest(UserSource? source, string errorMessage)
+        {
+            CreateDefaultInstanceUserWithInvalidPropertyVerify400BadRequest(
+                _adminUser,
+                "Source",
+                source,
+                errorMessage);
+        }
+
+        [TestCase("", InstanceAdminErrorMessages.PasswordMissing, Description = "Empty Password")]
+        [TestCase(null, InstanceAdminErrorMessages.PasswordMissing, Description = "Null Password")]
+        [TestCase("$Blue99", InstanceAdminErrorMessages.PasswordInvalidLength, Description = "Password less that 8 characters")]
+        [TestCase("$Blue9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999", 
+            InstanceAdminErrorMessages.PasswordInvalidLength, Description = "Password greater than 128 characters")]
+        [TestCase("Blueprint99", InstanceAdminErrorMessages.PasswordDoesNotHaveNonAlphanumeric, Description = "Password has no non-alphanumeric character")]
+        [TestCase("$Blueprint", InstanceAdminErrorMessages.PasswordDoesNotHaveNumber, Description = "Password has no numeric character")]
+        [TestCase("$blueprint99", InstanceAdminErrorMessages.PasswordDoesNotHaveUpperCase, Description = "Password has no uppercase character")]
+        [Description("Create an instance user with a missing or invalid password. Try to add the user. " +
+                     "Verify that 400 Bad Request is returned.")]
+        [TestRail(303400)]
+        public void AddInstanceUser_MissingOrInvalidPassword_400BadRequest(string password, string errorMessage)
         {
             CreateDefaultInstanceUserWithInvalidPropertyVerify400BadRequest(
                 _adminUser,
                 "Password",
                 password,
-                InstanceAdminErrorMessages.PasswordMissing);
-        }
-
-        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
-        [TestCase]
-        [Description("Create an instance user with an invalid password. Try to add the user. " +
-                     "Verify that 400 Bad Request is returned.")]
-        [TestRail(303400)]
-        public static void AddInstanceUser_InvalidPassword_400BadRequest()
-        {
-            throw new NotImplementedException();
+                errorMessage);
         }
 
         [TestCase ("", Description = "Login is empty")]

@@ -81,6 +81,8 @@ namespace AdminStoreTests.UsersTests
         {
             // Setup:
             var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
+
+            // Source defaults to Database, so we need to remove it here
             createdUser.Source = null;
 
             // Execute:
@@ -210,7 +212,7 @@ namespace AdminStoreTests.UsersTests
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, InstanceAdminErrorMessages.LoginNameUnique);
         }
 
-        [TestCase(UserSource.Invalid, InstanceAdminErrorMessages.CreateOnlyDatabaseUsers)]
+        [TestCase((UserSource)0xFF, InstanceAdminErrorMessages.CreateOnlyDatabaseUsers)]
         [TestCase(UserSource.Unknown, InstanceAdminErrorMessages.CreateOnlyDatabaseUsers)]
         [TestCase(UserSource.Windows, InstanceAdminErrorMessages.CreateOnlyDatabaseUsers)]
         [Description("Create an instance user with an invalid user source. Try to add the user. " +

@@ -415,17 +415,13 @@ namespace Helper
         /// </summary>
         /// <param name="expectedUser">The first instance user being compared.</param>
         /// <param name="actualUser">The second instanace user being compared.</param>
-        /// <param name="skipId">(optional) True to compare Ids, false otherwise (Default: true)</param>
-        public static void AssertAreEqual(InstanceUser expectedUser, InstanceUser actualUser, bool skipId = true)
+        public static void AssertAreEqual(InstanceUser expectedUser, InstanceUser actualUser)
         {
             ThrowIf.ArgumentNull(expectedUser, nameof(expectedUser));
             ThrowIf.ArgumentNull(actualUser, nameof(actualUser));
 
-            if (!skipId)
-            {
-                Assert.AreEqual(expectedUser.Id, actualUser.Id, "Id is different. Expected: {0} Actual: {1}", expectedUser.Id, actualUser.Id);
-            }
-
+            Assert.AreEqual(expectedUser.Id, actualUser.Id, "Id is different.");
+            Assert.AreEqual(expectedUser.CurrentVersion, actualUser.CurrentVersion, "CurrentVersion is different.");
             Assert.AreEqual(expectedUser.Login, actualUser.Login, "Login is different.");
             Assert.AreEqual(expectedUser.FirstName, actualUser.FirstName, "FirstName is different.");
             Assert.AreEqual(expectedUser.LastName, actualUser.LastName, "LastName is different.");

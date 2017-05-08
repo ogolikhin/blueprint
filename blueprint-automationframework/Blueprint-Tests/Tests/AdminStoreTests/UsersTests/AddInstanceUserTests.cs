@@ -66,29 +66,25 @@ namespace AdminStoreTests.UsersTests
             }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH);
 
             // Verify:
-
-            Assert.AreEqual(createdUserId, addedUser.Id, "The added InstanceUser id {0} does not match the expected id {1}!", 
-                addedUser.Id, createdUserId);
-
-            Assert.AreEqual(createdUser.CurrentVersion + 1, addedUser.CurrentVersion, "The added InstanceUser should have a " +
-                           "current version of {0} but the current version is {1}!", createdUser.CurrentVersion + 1, addedUser.CurrentVersion);
+            // Update Id and CurrentVersion in CreatedUser for comparison
+            createdUser.Id = createdUserId;
+            createdUser.CurrentVersion++;
 
             AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
         }
 
         [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
         [TestCase(null)]
-        [TestCase(UserSource.Invalid)]
+        [TestCase((UserSource)0xFF)]
         [TestCase(UserSource.Unknown)]
         [TestCase(UserSource.Windows)]
-        [Description("Create an instance user with a missing user source. Add the user. " +
+        [Description("Create an instance user with a missing or Invalid user source. Add the user. " +
              "Verify that the user is created as a Database user.")]
         [TestRail(303385)]
         public void AddInstanceUser_MissingOrInvalidSource_DatabaseUserCreated(UserSource source)
         {
             // Setup:
-            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
-            createdUser.Source = source;
+            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser(source: source);
 
             // Execute:
             int createdUserId = 0;
@@ -106,12 +102,9 @@ namespace AdminStoreTests.UsersTests
             }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH);
 
             // Verify:
-
-            Assert.AreEqual(createdUserId, addedUser.Id, "The added InstanceUser id {0} does not match the expected id {1}!",
-                addedUser.Id, createdUserId);
-
-            Assert.AreEqual(createdUser.CurrentVersion + 1, addedUser.CurrentVersion, "The added InstanceUser should have a " +
-                           "current version of {0} but the current version is {1}!", createdUser.CurrentVersion + 1, addedUser.CurrentVersion);
+            // Update Id and CurrentVersion in CreatedUser for comparison
+            createdUser.Id = createdUserId;
+            createdUser.CurrentVersion++;
 
             // Add Source to createdUser to verify that the addedUser returned as a Database user
             createdUser.Source = UserSource.Database;
@@ -124,7 +117,7 @@ namespace AdminStoreTests.UsersTests
         [TestCase(LicenseLevel.Author)]
         [TestCase(LicenseLevel.Collaborator)]
         [Description("Create an instance user with a missing or invalid license level. Add the user. " +
-             "Verify that the suer is created with Viewer license.")]
+             "Verify that the user is created with Viewer license.")]
         [TestRail(303386)]
         public void AddInstanceUser_MissingOrInvalidLicenseLevel_UserCreatedWithViewerLicense(LicenseLevel licenseLevel)
         {
@@ -148,12 +141,9 @@ namespace AdminStoreTests.UsersTests
             }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH);
 
             // Verify:
-
-            Assert.AreEqual(createdUserId, addedUser.Id, "The added InstanceUser id {0} does not match the expected id {1}!",
-                addedUser.Id, createdUserId);
-
-            Assert.AreEqual(createdUser.CurrentVersion + 1, addedUser.CurrentVersion, "The added InstanceUser should have a " +
-                           "current version of {0} but the current version is {1}!", createdUser.CurrentVersion + 1, addedUser.CurrentVersion);
+            // Update Id and CurrentVersion in CreatedUser for comparison
+            createdUser.Id = createdUserId;
+            createdUser.CurrentVersion++;
 
             // Add LicenseType of Viewer to createdUser to verify that the addedUser returned with Viewer license
             createdUser.LicenseType = LicenseLevel.Viewer;
@@ -190,12 +180,9 @@ namespace AdminStoreTests.UsersTests
             }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH);
 
             // Verify:
-
-            Assert.AreEqual(createdUserId, addedUser.Id, "The added InstanceUser id {0} does not match the expected id {1}!",
-                addedUser.Id, createdUserId);
-
-            Assert.AreEqual(createdUser.CurrentVersion + 1, addedUser.CurrentVersion, "The added InstanceUser should have a " +
-                           "current version of {0} but the current version is {1}!", createdUser.CurrentVersion + 1, addedUser.CurrentVersion);
+            // Update Id and CurrentVersion in CreatedUser for comparison
+            createdUser.Id = createdUserId;
+            createdUser.CurrentVersion++;
 
             AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
         }

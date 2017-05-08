@@ -32,7 +32,7 @@ namespace Model.Impl
         // All User table fields are as follows:
         // [AllowFallback],[CurrentVersion],[Department],[DisplayName],[Email],[Enabled],[EndTimestamp],[EULAccepted],[ExpirePassword],[FirstName],[Guest],[Image_ImageId],[InstanceAdminRoleId],
         // [InvalidLogonAttemptsNumber],[LastInvalidLogonTimeStamp],[LastName],[LastPasswordChangeTimestamp],[Login],[Password],[Source],[StartTimestamp],[Title],[UserId],[UserSALT]
-        public LicenseLevel License { get; set; }
+        public LicenseLevel? License { get; set; }
         public IEnumerable<byte> Picture { get; set; }
         public virtual UserSource Source { get { return UserSource.Unknown; } }
         public IBlueprintToken Token { get; set; } = new BlueprintToken();

@@ -757,7 +757,6 @@ namespace ArtifactStoreTests
             firstArtifact.Lock(_user);
             firstArtifact.MoveArtifact(_user, secondArtifact.Id);
 
-            secondArtifact.Lock(_user);
             secondArtifact.MoveArtifact(_user, oldParentOfFirstArtifact);
         }
 

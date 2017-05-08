@@ -884,19 +884,19 @@ namespace ArtifactStoreTests
             FileStoreTestHelper.AssertFilesAreIdentical(sourceArtifactImageFile, copiedArtifactImageFile, compareFileNames: false);
         }
 
-        [TestCase(ItemTypePredefined.Process)]
+        [TestCase(BaseArtifactType.Process)]
         [TestRail(227356)]
         [Description("Create and publish a source artifact. Add random inline image to source artifact description, delete inline image and save changes. " +
             "Copy the source artifact into the same parent.  Verify the source artifact is unchanged and the new artifact is identical to the source artifact.")]
-        public void CopyArtifact_PublishedArtifactWithDeletedInlineImageInDescription_ToProjectRoot_ReturnsNewArtifact(ItemTypePredefined sourceArtifactType)
+        public void CopyArtifact_PublishedArtifactWithDeletedInlineImageInDescription_ToProjectRoot_ReturnsNewArtifact(BaseArtifactType sourceArtifactType)
         {
             // Setup:
-            var sourceArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, sourceArtifactType);
+            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, sourceArtifactType);
             sourceArtifact.Lock(_user);
             var sourceArtifactDetails = ArtifactStoreHelper.AddRandomImageToArtifactProperty(_user, Helper.ArtifactStore, sourceArtifact.Id);
 
             CSharpUtilities.SetProperty("Description", string.Empty, sourceArtifactDetails);
-            Artifact.UpdateArtifact((IArtifactBase)sourceArtifact, _user, (NovaArtifactDetails)sourceArtifactDetails, address: Helper.BlueprintServer.Address);
+            Artifact.UpdateArtifact(sourceArtifact, _user, (NovaArtifactDetails)sourceArtifactDetails, address: Helper.BlueprintServer.Address);
             sourceArtifact.Publish(_user);
 
             sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
@@ -905,7 +905,7 @@ namespace ArtifactStoreTests
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
 
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, _project.Id, _project, _user),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, _project.Id, _user),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
             string copiedArtifactInlineImageId = ArtifactStoreHelper.GetInlineImageId(copyResult.Artifact.Description);
 
@@ -926,8 +926,7 @@ namespace ArtifactStoreTests
             const string artifactTypeName = "ST-User Story";
             const string propertyName = "ST-Acceptance Criteria";
 
-            var sourceArtifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _user, ItemTypePredefined.TextualRequirement,
-                artifactTypeName: artifactTypeName);
+            var sourceArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.TextualRequirement, artifactTypeName: artifactTypeName);
             sourceArtifact.Lock(_user);
 
             var sourceArtifactDetails = ArtifactStoreHelper.AddRandomImageToArtifactProperty(_user, Helper.ArtifactStore, sourceArtifact.Id,
@@ -944,7 +943,7 @@ namespace ArtifactStoreTests
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
 
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, _project.Id, _user),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, _project.Id, _project, _user),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
             string copiedArtifactInlineImageId = ArtifactStoreHelper.GetInlineImageId(GetCustomPropertyStringValueByName(copyResult.Artifact, propertyName));
 
@@ -966,7 +965,7 @@ namespace ArtifactStoreTests
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
             var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
-            var targetFolder = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+            var targetFolder = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.PrimitiveFolder);
 
             // Add the discussion to the artifact.
             string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
@@ -1023,8 +1022,10 @@ namespace ArtifactStoreTests
 
             // Execute: Copy the prepared actor that has child actor
             CopyNovaArtifactResultSet copyResult = null;
-            Assert.DoesNotThrow(() => copyResult = ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, sourceParentActor.Id, _project.Id, author),
-                "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
+            Assert.DoesNotThrow(() =>
+            {
+                copyResult = CopyArtifactAndWrap(sourceParentActor, _project.Id, _project, author);
+            }, "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify: the content of the new parent artifact, the content of the new child artifact, the inherit association from
             // new parent actor is idential to the inherit association from the source actor
@@ -1073,8 +1074,10 @@ namespace ArtifactStoreTests
 
             // Execute: Copy the prepared souce parent process that has an includes association to its child process
             CopyNovaArtifactResultSet copyResult = null;
-            Assert.DoesNotThrow(() => copyResult = ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, sourceParentProcess.Id, _project.Id, author),
-                "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
+            Assert.DoesNotThrow(() =>
+            {
+                copyResult = CopyArtifactAndWrap(sourceParentProcess, _project.Id, _project, author);
+            }, "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify: the content of the new parent artifact, the content of the new child artifact, the includes association from
             // new parent process is idential to the includes association from the source process

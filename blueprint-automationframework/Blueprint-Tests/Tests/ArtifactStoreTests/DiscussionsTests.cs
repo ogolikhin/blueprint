@@ -548,8 +548,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                updatedReply = Helper.SvcComponents.UpdateRapidReviewDiscussionReply(
-                    _authorUser, raptorReply.ItemId, raptorReply.DiscussionId, raptorReply.ReplyId, newReplyText);
+                updatedReply = UpdateRapidReviewDiscussionReply(_authorUser, raptorReply, newReplyText);
             }, "UpdateReply shouldn't throw any error, but it does.");
 
             // Verify:
@@ -997,6 +996,19 @@ namespace ArtifactStoreTests
             var updatedDiscussion = Helper.SvcComponents.UpdateRapidReviewDiscussion(user, discussionToUpdate.ItemId, discussionToUpdate.DiscussionId, comment);
 
             return updatedDiscussion;
+        }
+
+        /// <summary>
+        /// Updates the specified RaptorReply with a new reply comment.
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="raptorReply">The RaptorReply to update.</param>
+        /// <param name="replyComment">The new comment for the RaptorReply.</param>
+        /// <returns>The updated RaptorReply.</returns>
+        private IRaptorReply UpdateRapidReviewDiscussionReply(IUser user, IRaptorReply raptorReply, string replyComment)
+        {
+            return Helper.SvcComponents.UpdateRapidReviewDiscussionReply(
+                    user, raptorReply.ItemId, raptorReply.DiscussionId, raptorReply.ReplyId, replyComment);
         }
 
         #endregion Private functions

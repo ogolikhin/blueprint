@@ -142,6 +142,7 @@ namespace Model.Impl
         /// Gets Use Case content for RapidReview (Storyteller).
         /// (Runs:  'GET /svc/components/RapidReview/usecase/{artifactId}')
         /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
         /// <param name="user">The user to authenticate to Blueprint.</param>
         /// <param name="artifactId">The ID of the Use Case artifact whose contents you want to get.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
@@ -169,6 +170,7 @@ namespace Model.Impl
         /// Gets properties of specified artifacts for RapidReview (Storyteller).
         /// (Runs: 'GET svc/components/RapidReview/artifacts/properties')
         /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
         /// <param name="user">(optional) The user to authenticate to Blueprint.</param>
         /// <param name="artifactIds">The IDs of the artifacts whose properties you want to get.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only OK: '200' is expected.</param>

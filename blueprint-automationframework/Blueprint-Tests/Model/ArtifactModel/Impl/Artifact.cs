@@ -1,15 +1,14 @@
 ﻿using Common;
+using Model.ArtifactModel.Adapters;
 using Model.ArtifactModel.Enums;
 using Model.Factories;
 using Model.Impl;
+using Model.NovaModel.Components.RapidReview;
+using Model.OpenApiModel.Services;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using Model.ArtifactModel.Adapters;
-using Model.NovaModel.Components.RapidReview;
-using Model.OpenApiModel.Services;
 using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
@@ -192,8 +191,7 @@ namespace Model.ArtifactModel.Impl
                     throw new ArgumentException("Method works for graphical artifacts only.");
             }
 
-            var service = SvcComponentsFactory.CreateSvcComponents(Address);
-            return service.GetRapidReviewDiagramContent(user, Id, expectedStatusCodes);
+            return SvcComponents.GetRapidReviewDiagramContent(Address, user, Id, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifact.GetRapidReviewUseCaseContent(IUser, List{HttpStatusCode})"/>
@@ -209,8 +207,7 @@ namespace Model.ArtifactModel.Impl
 
             if (artifactInfo.BaseTypePredefined == ItemTypePredefined.UseCase)
             {
-                var service = SvcComponentsFactory.CreateSvcComponents(Address);
-                return service.GetRapidReviewUseCaseContent(user, Id, expectedStatusCodes);
+                return SvcComponents.GetRapidReviewUseCaseContent(Address, user, Id, expectedStatusCodes);
             }
 
             throw new ArgumentException("Method works for UseCase artifacts only.");
@@ -229,8 +226,7 @@ namespace Model.ArtifactModel.Impl
 
             if (artifactInfo.BaseTypePredefined == ItemTypePredefined.Glossary)
             {
-                var service = SvcComponentsFactory.CreateSvcComponents(Address);
-                return service.GetRapidReviewGlossaryContent(user, Id, expectedStatusCodes);
+                return SvcComponents.GetRapidReviewGlossaryContent(Address, user, Id, expectedStatusCodes);
             }
 
             throw new ArgumentException("Method works for Glossary artifacts only.");
@@ -245,8 +241,7 @@ namespace Model.ArtifactModel.Impl
 
             Assert.NotNull(CreatedBy, "No user is available to perform {0}.", nameof(GetRapidReviewArtifactProperties));
 
-            var service = SvcComponentsFactory.CreateSvcComponents(Address);
-            return service.GetRapidReviewArtifactsProperties(user, new List<int> { Id }, expectedStatusCodes);
+            return SvcComponents.GetRapidReviewArtifactsProperties(Address, user, new List<int> { Id }, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifact.StorytellerPublish(IUser, List{HttpStatusCode})"/>

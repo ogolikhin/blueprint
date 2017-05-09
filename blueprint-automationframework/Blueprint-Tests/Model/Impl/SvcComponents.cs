@@ -1,16 +1,15 @@
 ﻿using Common;
+using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Model.NovaModel.Components.RapidReview;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
-using Model.ArtifactModel;
-using Model.ArtifactModel.Adapters;
-using Newtonsoft.Json;
 using Utilities;
 using Utilities.Facades;
 
@@ -83,8 +82,17 @@ namespace Model.Impl
 
         #region RapidReview methods
 
-        /// <seealso cref="ISvcComponents.GetRapidReviewDiagramContent(IUser, int, List{HttpStatusCode})"/>
-        public RapidReviewDiagram GetRapidReviewDiagramContent(
+        /// <summary>
+        /// Gets Diagram content for RapidReview (Storyteller).
+        /// (Runs:  'GET /svc/components/RapidReview/diagram/{artifactId}')
+        /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="artifactId">The ID of the Diagram artifact whose contents you want to get.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
+        /// <returns>Properties and (for graphical artifacts) Diagram content.</returns>
+        public static RapidReviewDiagram GetRapidReviewDiagramContent(
+            string address,
             IUser user,
             int artifactId,
             List<HttpStatusCode> expectedStatusCodes = null)
@@ -92,7 +100,7 @@ namespace Model.Impl
             Logger.WriteTrace("{0}.{1}", nameof(SvcComponents), nameof(GetRapidReviewDiagramContent));
 
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.DIAGRAM_id_, artifactId);
-            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
 
             var diagramContent = restApi.SendRequestAndDeserializeObject<RapidReviewDiagram>(
                 path,
@@ -102,8 +110,17 @@ namespace Model.Impl
             return diagramContent;
         }
 
-        /// <seealso cref="ISvcComponents.GetRapidReviewGlossaryContent(IUser, int, List{HttpStatusCode})"/>
-        public RapidReviewGlossary GetRapidReviewGlossaryContent(
+        /// <summary>
+        /// Gets Glossary content for RapidReview (Storyteller).
+        /// (Runs:  'GET /svc/components/RapidReview/glossary/{artifactId}')
+        /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="artifactId">The ID of the Glossary artifact whose contents you want to get.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
+        /// <returns>Properties and Glossary content.</returns>
+        public static RapidReviewGlossary GetRapidReviewGlossaryContent(
+            string address,
             IUser user,
             int artifactId,
             List<HttpStatusCode> expectedStatusCodes = null)
@@ -111,7 +128,7 @@ namespace Model.Impl
             string tokenValue = user?.Token?.AccessControlToken;
 
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.GLOSSARY_id_, artifactId);
-            var restApi = new RestApiFacade(Address, tokenValue);
+            var restApi = new RestApiFacade(address, tokenValue);
 
             var returnedArtifactContent = restApi.SendRequestAndDeserializeObject<RapidReviewGlossary>(
                 path,
@@ -121,8 +138,16 @@ namespace Model.Impl
             return returnedArtifactContent;
         }
 
-        /// <seealso cref="ISvcComponents.GetRapidReviewUseCaseContent(IUser, int, List{HttpStatusCode})"/>
-        public UseCase GetRapidReviewUseCaseContent(
+        /// <summary>
+        /// Gets Use Case content for RapidReview (Storyteller).
+        /// (Runs:  'GET /svc/components/RapidReview/usecase/{artifactId}')
+        /// </summary>
+        /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="artifactId">The ID of the Use Case artifact whose contents you want to get.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
+        /// <returns>Properties and Use Case content.</returns>
+        public static UseCase GetRapidReviewUseCaseContent(
+            string address,
             IUser user,
             int artifactId,
             List<HttpStatusCode> expectedStatusCodes = null)
@@ -130,7 +155,7 @@ namespace Model.Impl
             string tokenValue = user?.Token?.AccessControlToken;
 
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.USECASE_id_, artifactId);
-            var restApi = new RestApiFacade(Address, tokenValue);
+            var restApi = new RestApiFacade(address, tokenValue);
 
             var returnedArtifactContent = restApi.SendRequestAndDeserializeObject<UseCase>(
                 path,
@@ -140,8 +165,16 @@ namespace Model.Impl
             return returnedArtifactContent;
         }
 
-        /// <seealso cref="ISvcComponents.GetRapidReviewArtifactsProperties(IUser, List{int}, List{HttpStatusCode})"/>
-        public RapidReviewProperties GetRapidReviewArtifactsProperties(
+        /// <summary>
+        /// Gets properties of specified artifacts for RapidReview (Storyteller).
+        /// (Runs: 'GET svc/components/RapidReview/artifacts/properties')
+        /// </summary>
+        /// <param name="user">(optional) The user to authenticate to Blueprint.</param>
+        /// <param name="artifactIds">The IDs of the artifacts whose properties you want to get.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only OK: '200' is expected.</param>
+        /// <returns>Properties of the specified artifacts.</returns>
+        public static RapidReviewProperties GetRapidReviewArtifactsProperties(
+            string address,
             IUser user,
             List<int> artifactIds,
             List<HttpStatusCode> expectedStatusCodes = null)
@@ -149,7 +182,7 @@ namespace Model.Impl
             string tokenValue = user?.Token?.AccessControlToken;
             string path = RestPaths.Svc.Components.RapidReview.Artifacts.PROPERTIES;
 
-            var restApi = new RestApiFacade(Address, tokenValue);
+            var restApi = new RestApiFacade(address, tokenValue);
 
             var returnedArtifactProperties = restApi.SendRequestAndDeserializeObject<List<RapidReviewProperties>, List<int>>(
                 path,

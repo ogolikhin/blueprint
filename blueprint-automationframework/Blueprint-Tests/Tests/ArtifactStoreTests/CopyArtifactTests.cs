@@ -409,11 +409,11 @@ namespace ArtifactStoreTests
 
             if (propertyType == PropertyPrimitiveType.User)
             {
-                property = ArtifactStoreHelper.UpdateArtifactCustomProperty(_user, Helper, sourceArtifact.Id, _project, propertyType, propertyName, _user);
+                property = ArtifactStoreHelper.UpdateArtifactCustomProperty(_user, sourceArtifact, _project, propertyType, propertyName, _user);
             }
             else
             {
-                property = ArtifactStoreHelper.UpdateArtifactCustomProperty(_user, Helper, sourceArtifact.Id, _project, propertyType, propertyName, newValue);
+                property = ArtifactStoreHelper.UpdateArtifactCustomProperty(_user, sourceArtifact, _project, propertyType, propertyName, newValue);
             }
 
             sourceArtifact.Publish(_user);
@@ -1118,7 +1118,7 @@ namespace ArtifactStoreTests
         public void CopyArtifact_SavedArtifact_NotPositiveOrderIndex_400BadRequest(double orderIndex)
         {
             // Setup:
-            var sourceArtifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
+            var sourceArtifact = Helper.CreateNovaArtifact(_user, _project, ItemTypePredefined.Process);
 
             // Execute:
             var ex = Assert.Throws<Http400BadRequestException>(() =>

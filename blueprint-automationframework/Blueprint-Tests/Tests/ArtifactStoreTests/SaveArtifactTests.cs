@@ -165,20 +165,21 @@ namespace ArtifactStoreTests
             // Setup:
             var project = Helper.GetProject(TestHelper.GoldenDataProject.CustomData, _user);
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, project);
-            var artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(project, author, itemType);
+            //            var artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(project, author, itemType);
+            var artifact = Helper.CreateAndPublishNovaArtifact(author, project, itemType);
 
-            // Update custom property in artifact.
+            // Update custom property in the artifact.
 
             CustomProperty property = null;
 
             // Execute:
             if (propertyType == PropertyPrimitiveType.User)
             {
-                property = ArtifactStoreHelper.UpdateArtifactCustomProperty(author, Helper, artifact.Id, project, propertyType, propertyName, author);
+                property = ArtifactStoreHelper.UpdateArtifactCustomProperty(author, artifact, project, propertyType, propertyName, author);
             }
             else
             {
-                property = ArtifactStoreHelper.UpdateArtifactCustomProperty(author, Helper, artifact.Id, project, propertyType, propertyName, newValue);
+                property = ArtifactStoreHelper.UpdateArtifactCustomProperty(author, artifact, project, propertyType, propertyName, newValue);
             }
 
             // Verify:

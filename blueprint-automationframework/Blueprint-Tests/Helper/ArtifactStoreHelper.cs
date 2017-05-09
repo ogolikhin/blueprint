@@ -306,7 +306,6 @@ namespace Helper
         /// <param name="expectedNovaArtifactBase">The INovaArtifactBase containing the expected properties.</param>
         /// <param name="actualArtifactBase">The IArtifactBase containing the actual properties to compare against.</param>
         /// <param name="skipIdAndVersion">(optional) Pass true to skip comparison of the Id and Version properties.</param>
-        /// <param name="skipCreatedOn">(optional) Pass true to skip comparison of the CreatedOn properties.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
         public static void AssertArtifactsEqual(INovaArtifactBase expectedNovaArtifactBase, IArtifactBase actualArtifactBase, 
             bool skipIdAndVersion = false)
@@ -1809,7 +1808,7 @@ namespace Helper
         /// <param name="sourceArtifactTrace">The Nova trace obtained from the source artifact.</param>
         /// <param name="targetArtifact">The target artifact of the trace.</param>
         /// <exception cref="AssertionException">If any properties of the trace don't match the target artifact.</exception>
-        public static void ValidateTrace(INovaTrace sourceArtifactTrace, ArtifactWrapper targetArtifact)
+        public static void ValidateTrace(INovaTrace sourceArtifactTrace, IArtifactBase targetArtifact)
         {
             ThrowIf.ArgumentNull(sourceArtifactTrace, nameof(sourceArtifactTrace));
             ThrowIf.ArgumentNull(targetArtifact, nameof(targetArtifact));
@@ -1818,7 +1817,6 @@ namespace Helper
             Assert.AreEqual(sourceArtifactTrace.ArtifactName, targetArtifact.Name, "Name from trace and artifact should be equal to each other.");
             Assert.AreEqual(sourceArtifactTrace.ItemId, targetArtifact.Id, "itemId from trace and artifact should be equal to each other.");
             Assert.AreEqual(sourceArtifactTrace.ProjectId, targetArtifact.ProjectId, "ProjectId from trace and artifact should be equal to each other.");
-//            Assert.AreEqual(sourceArtifactTrace.ProjectName, targetArtifact..Project.Name, "ProjectName from trace and artifact should be equal to each other.");
         }
 
         /// <summary>

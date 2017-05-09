@@ -82,7 +82,6 @@ namespace ArtifactStoreTests
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
-//            Assert.DoesNotThrow(() => copyResult = ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, sourceArtifact.Id, targetArtifact.Id, author),
             Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetArtifact.Id, _project, author),
             "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
@@ -229,24 +228,24 @@ namespace ArtifactStoreTests
             FileStoreTestHelper.AssertFilesAreIdentical(fileFromSource, fileFromCopy);
         }
 
-        [TestCase(ItemTypePredefined.Actor, TraceDirection.From, false, false)]
-        [TestCase(ItemTypePredefined.Glossary, TraceDirection.To, true, false)]
-        [TestCase(ItemTypePredefined.TextualRequirement, TraceDirection.TwoWay, true, true)]
+        [TestCase(BaseArtifactType.Actor, TraceDirection.From, false, false)]
+        [TestCase(BaseArtifactType.Glossary, TraceDirection.To, true, false)]
+        [TestCase(BaseArtifactType.TextualRequirement, TraceDirection.TwoWay, true, true)]
         [TestRail(191050)]
         [Description("Create & save an artifact then create & publish a folder.  Add a manual trace between the artifact & folder.  Copy the artifact into the folder.  " +
             "Verify the source artifact is unchanged and the new artifact (and trace) is identical to the source artifact.  New copied artifact should not be published.")]
         public void CopyArtifact_SingleSavedArtifactWithManualTrace_ToNewFolder_ReturnsNewArtifactWithManualTrace(
-            ItemTypePredefined artifactType, TraceDirection direction, bool isSuspect, bool shouldPublishTrace)
+            BaseArtifactType artifactType, TraceDirection direction, bool isSuspect, bool shouldPublishTrace)
         {
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            var sourceArtifact = Helper.CreateNovaArtifact(author, _project, artifactType);
-            var targetArtifact = Helper.CreateAndPublishNovaArtifact(author, _project, ItemTypePredefined.PrimitiveFolder);
+            var sourceArtifact = Helper.CreateAndSaveArtifact(_project, author, artifactType);
+            var targetArtifact = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.PrimitiveFolder);
 
             // Create & add manual trace to the source artifact:
             ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(author, sourceArtifact.Id, targetArtifact.Id,
-                (int)targetArtifact.ProjectId, ChangeType.Create, Helper.ArtifactStore, direction, isSuspect);
+                targetArtifact.ProjectId, ChangeType.Create, Helper.ArtifactStore, direction, isSuspect);
 
             int expectedVersionOfOriginalArtifact = -1;
 
@@ -260,7 +259,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetArtifact.Id, _project, author),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetArtifact.Id, author),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
@@ -280,16 +279,16 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, author, targetArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
         }
 
-        [TestCase(ItemTypePredefined.TextualRequirement, TraceDirection.TwoWay, true)]
+        [TestCase(BaseArtifactType.TextualRequirement, TraceDirection.TwoWay, true)]
         [TestRail(195487)]
         [Description("Create & save an artifact and create & publish a folder.   Publish a manual trace between the artifact & folder.  Create user that does not have " +
             "trace permissions and copy the artifact into the folder.  Verify the source artifact is unchanged and the new artifact is identical to the source" +
             "artifact, except no Manual Trace should exist.  New copied artifact should not be published.")]
         public void CopyArtifact_SinglePublishedArtifactWithManualTrace_ToNewFolder_NoTracePermissions_ReturnsNewArtifactWithoutManualTrace(
-            ItemTypePredefined artifactType, TraceDirection direction, bool isSuspect)
+            BaseArtifactType artifactType, TraceDirection direction, bool isSuspect)
         {
             // Setup:
-            var sourceArtifact = Helper.CreateNovaArtifact(_user, _project, artifactType);
+            var sourceArtifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
             var targetArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.PrimitiveFolder);
 
             // Create & add manual trace to the source artifact:
@@ -316,7 +315,7 @@ namespace ArtifactStoreTests
                         _project);
 
             CopyNovaArtifactResultSet copyResult = null;
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetArtifact.Id, _project, userNoTracePermission),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetArtifact.Id, userNoTracePermission),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
@@ -331,7 +330,7 @@ namespace ArtifactStoreTests
 
             // Verify that source and target artifacts still have the same traces they had before the copy.
             Assert.AreEqual(1, targetRelationships.ManualTraces.Count, "Target artifact should have 1 manual trace.");
-            ArtifactStoreHelper.ValidateTrace(targetRelationships.ManualTraces[0], (ArtifactWrapper)sourceArtifact);
+            ArtifactStoreHelper.ValidateTrace(targetRelationships.ManualTraces[0], sourceArtifact);
 
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, userNoTracePermission, copyResult.Artifact.Id, expectedIndicatorFlags: null);
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, userNoTracePermission, targetArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);

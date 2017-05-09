@@ -62,8 +62,8 @@ namespace ArtifactStoreTests
             var targetRelationships = Helper.ArtifactStore.GetRelationships(_authorUser, targetArtifact, addDrafts: true);
             Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
             Assert.AreEqual(1, targetRelationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
-            ArtifactStoreHelper.ValidateTrace(relationships.ManualTraces[0], (ArtifactWrapper)targetArtifact);
-            ArtifactStoreHelper.ValidateTrace(targetRelationships.ManualTraces[0], (ArtifactWrapper)sourceArtifact);
+            ArtifactStoreHelper.ValidateTrace(relationships.ManualTraces[0], targetArtifact);
+            ArtifactStoreHelper.ValidateTrace(targetRelationships.ManualTraces[0], sourceArtifact);
 
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _authorUser, sourceArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _authorUser, targetArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
@@ -97,7 +97,7 @@ namespace ArtifactStoreTests
             // Verify:
             var relationships = Helper.ArtifactStore.GetRelationships(_authorUser, sourceArtifact, subArtifacts[0].Id, addDrafts: true);
             Assert.AreEqual(1, relationships.ManualTraces.Count, "1 manual trace should be created.");
-            ArtifactStoreHelper.ValidateTrace(relationships.ManualTraces[0], (ArtifactWrapper)targetArtifact);
+            ArtifactStoreHelper.ValidateTrace(relationships.ManualTraces[0], targetArtifact);
 
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _authorUser, sourceArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces, (int)novaSubArtifacts[0].Id);
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _authorUser, targetArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
@@ -216,7 +216,7 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
             Assert.AreEqual(finalDirection, relationships.ManualTraces[0].Direction, "Relationships should have expected direction.");
-            ArtifactStoreHelper.ValidateTrace(relationships.ManualTraces[0], (ArtifactWrapper)targetArtifact);
+            ArtifactStoreHelper.ValidateTrace(relationships.ManualTraces[0], targetArtifact);
 
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _authorUser, sourceArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _authorUser, targetArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
@@ -286,12 +286,12 @@ namespace ArtifactStoreTests
             var subArtifact3Relationships = Helper.ArtifactStore.GetRelationships(_authorUser, sourceArtifact, subArtifacts[2].Id, addDrafts: true);
             var relationships = Helper.ArtifactStore.GetRelationships(_authorUser, sourceArtifact, addDrafts: true);
             Assert.AreEqual(1, subArtifact1Relationships.ManualTraces.Count, "1 manual trace should be created.");
-            ArtifactStoreHelper.ValidateTrace(subArtifact1Relationships.ManualTraces[0], (ArtifactWrapper)targetArtifact1);
+            ArtifactStoreHelper.ValidateTrace(subArtifact1Relationships.ManualTraces[0], targetArtifact1);
             Assert.AreEqual(1, subArtifact2Relationships.ManualTraces.Count, "1 manual trace should be created.");
-            ArtifactStoreHelper.ValidateTrace(subArtifact2Relationships.ManualTraces[0], (ArtifactWrapper)targetArtifact2);
+            ArtifactStoreHelper.ValidateTrace(subArtifact2Relationships.ManualTraces[0], targetArtifact2);
             Assert.AreEqual(0, subArtifact3Relationships.ManualTraces.Count, "No manual trace should be created for the 3rd subartifact.");
             Assert.AreEqual(1, relationships.ManualTraces.Count, "1 manual trace should be created.");
-            ArtifactStoreHelper.ValidateTrace(relationships.ManualTraces[0], (ArtifactWrapper)targetArtifact3);
+            ArtifactStoreHelper.ValidateTrace(relationships.ManualTraces[0], targetArtifact3);
 
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _authorUser, sourceArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _authorUser, targetArtifact1.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
@@ -333,7 +333,7 @@ namespace ArtifactStoreTests
             var subArtifact3Relationships = Helper.ArtifactStore.GetRelationships(_authorUser, sourceArtifact, subArtifacts[2].Id, addDrafts: true);
             var relationships = Helper.ArtifactStore.GetRelationships(_authorUser, sourceArtifact, addDrafts: true);
             Assert.AreEqual(1, subArtifact1Relationships.ManualTraces.Count, "1 manual trace should be created.");
-            var targetArtifactWrapper = (ArtifactWrapper)targetArtifact;
+            var targetArtifactWrapper = targetArtifact;
             ArtifactStoreHelper.ValidateTrace(subArtifact1Relationships.ManualTraces[0], targetArtifactWrapper);
             Assert.AreEqual(1, subArtifact2Relationships.ManualTraces.Count, "1 manual trace should be created.");
             ArtifactStoreHelper.ValidateTrace(subArtifact2Relationships.ManualTraces[0], targetArtifactWrapper);
@@ -373,7 +373,7 @@ namespace ArtifactStoreTests
             // Verify:
             var relationships = Helper.ArtifactStore.GetRelationships(_authorUser, sourceArtifact, subArtifacts[0].Id, addDrafts: true);
             Assert.AreEqual(1, relationships.ManualTraces.Count, "1 manual trace should be created.");
-            ArtifactStoreHelper.ValidateTrace(relationships.ManualTraces[0], (ArtifactWrapper)sourceArtifact);
+            ArtifactStoreHelper.ValidateTrace(relationships.ManualTraces[0], sourceArtifact);
 
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _authorUser, sourceArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _authorUser, sourceArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces, (int)novaSubArtifacts[0].Id);
@@ -401,8 +401,8 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual traces.");
             Assert.AreEqual(1, targetRelationships.ManualTraces.Count, "Relationships should have 1 manual traces.");
-            ArtifactStoreHelper.ValidateTrace(relationships.ManualTraces[0], (ArtifactWrapper)targetArtifact);
-            ArtifactStoreHelper.ValidateTrace(targetRelationships.ManualTraces[0], (ArtifactWrapper)sourceArtifact);
+            ArtifactStoreHelper.ValidateTrace(relationships.ManualTraces[0], targetArtifact);
+            ArtifactStoreHelper.ValidateTrace(targetRelationships.ManualTraces[0], sourceArtifact);
 
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _authorUser, sourceArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _authorUser, targetArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);

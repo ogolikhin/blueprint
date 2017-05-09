@@ -144,8 +144,7 @@ namespace Model.ModelHelpers
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            // TODO: Refactor ArtifactStore.DiscardArtifacts to not be static...
-            var response = Model.Impl.ArtifactStore.DiscardArtifacts(ArtifactStore.Address, new List<int> { Artifact.Id }, user);
+            var response = ArtifactStore.DiscardArtifact(user, Artifact.Id);
 
             UpdateArtifactState(ArtifactOperation.Discard);
 
@@ -198,11 +197,11 @@ namespace Model.ModelHelpers
         /// </summary>
         /// <param name="user">The user to perform the publish.</param>
         /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
-        public NovaArtifactsAndProjectsResponse Publish(IUser user)
+        public INovaArtifactsAndProjectsResponse Publish(IUser user)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            var response = ArtifactStore.PublishArtifacts(new List<int> { Artifact.Id }, user);
+            var response = ArtifactStore.PublishArtifact(Artifact.Id, user);
 
             Artifact.Version = response.Artifacts[0].Version;
 

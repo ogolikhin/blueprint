@@ -113,7 +113,7 @@ namespace OpenAPITests
             // Now update non-string properties.
             singleUserDataToUpdate.Groups.AddRange(groups);
             singleUserDataToUpdate.GroupIds.AddRange(groups.Select(g => g.GroupId));
-            singleUserDataToUpdate.ExpirePassword = true;
+            singleUserDataToUpdate.ExpiredPassword = true;
             singleUserDataToUpdate.Enabled = userEnabled;
             singleUserDataToUpdate.FallBack = false;
 

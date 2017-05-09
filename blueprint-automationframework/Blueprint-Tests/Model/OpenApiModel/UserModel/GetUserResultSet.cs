@@ -17,11 +17,6 @@ namespace Model.OpenApiModel.UserModel
 
         #region Serialized properties
 
-        public override bool ShouldSerializeGroups()
-        {
-            return Groups != null;
-        }
-
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public new string Password  // NOTE: Password should NEVER be returned by OpenAPI.
         {

@@ -1817,6 +1817,7 @@ namespace Helper
             Assert.AreEqual(sourceArtifactTrace.ArtifactName, targetArtifact.Name, "Name from trace and artifact should be equal to each other.");
             Assert.AreEqual(sourceArtifactTrace.ItemId, targetArtifact.Id, "itemId from trace and artifact should be equal to each other.");
             Assert.AreEqual(sourceArtifactTrace.ProjectId, targetArtifact.ProjectId, "ProjectId from trace and artifact should be equal to each other.");
+            Assert.AreEqual(sourceArtifactTrace.ProjectName, targetArtifact.Project.Name, "ProjectName from trace and artifact should be equal to each other.");
         }
 
         /// <summary>

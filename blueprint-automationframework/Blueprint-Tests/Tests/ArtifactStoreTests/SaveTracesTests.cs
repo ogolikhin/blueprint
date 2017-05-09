@@ -9,7 +9,6 @@ using NUnit.Framework;
 using TestCommon;
 using Utilities;
 using Model.ArtifactModel.Impl;
-using Model.ModelHelpers;
 
 namespace ArtifactStoreTests
 {

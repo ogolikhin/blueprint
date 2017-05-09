@@ -11,8 +11,6 @@ using Model.ModelHelpers;
 using Model.OpenApiModel.Services;
 using Model.SearchServiceModel;
 using Model.StorytellerModel;
-using Model.StorytellerModel.Enums;
-using Model.StorytellerModel.Impl;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
@@ -24,7 +22,6 @@ using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
 using static Model.Impl.ArtifactStore;
-using static Model.StorytellerModel.Impl.Process;
 
 namespace Helper
 {

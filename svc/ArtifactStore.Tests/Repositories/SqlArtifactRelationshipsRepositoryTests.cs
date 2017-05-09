@@ -229,6 +229,8 @@ namespace ArtifactStore.Repositories
             };
             _cxn.SetupQueryAsync("GetArtifactNavigationPath", new Dictionary<string, object> { { "artifactId", artifactId }, { "userId", userId }}, pathToRoot);
 
+            _itemInfoRepositoryMock.Setup(m => m.GetItemDescription(artifactId, userId, true, int.MaxValue)).ReturnsAsync(description);
+
             var descriptionResult = new List<string> { description };
             _cxn.SetupQueryAsync("GetItemDescription", new Dictionary<string, object> { { "itemId", artifactId }, { "userId", userId }}, descriptionResult);
             

@@ -333,7 +333,6 @@ namespace ArtifactStoreTests
             // Change custom property text value
             var subArtifactCustomPropertyValue = StringUtilities.WrapInHTML(WebUtility.HtmlEncode(
                 RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces()));
-            //            var subArtifactChangeSet = CreateSubArtifactChangeSet(author, projectCustomData, artifact, subArtifactDisplayName, subArtifactCustomPropertyName, subArtifactCustomPropertyValue);
             var subArtifactChangeSet = CreateSubArtifactChangeSet(author, projectCustomData, artifact, subArtifactDisplayName, subArtifactCustomPropertyName, subArtifactCustomPropertyValue);
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
             artifactDetails.SubArtifacts = new List<NovaSubArtifact>() { subArtifactChangeSet };
@@ -342,7 +341,6 @@ namespace ArtifactStoreTests
             // Execute:
             artifact.Lock(author);
             Helper.ArtifactStore.UpdateArtifact(author, artifactDetails);
-            //            Helper.ArtifactStore.PublishArtifact(artifact, author);
             artifact.Publish(author);
 
             // Verify:
@@ -384,7 +382,6 @@ namespace ArtifactStoreTests
             // Execute:
             artifact.Lock(author);
             Helper.ArtifactStore.UpdateArtifact(author, artifactDetails);
-            //            Helper.ArtifactStore.PublishArtifact(artifact, author);
             artifact.Publish(author);
 
             // Verify:
@@ -422,7 +419,6 @@ namespace ArtifactStoreTests
             // Execute:
             artifact.Lock(author);
             Helper.ArtifactStore.UpdateArtifact(author, artifactDetails);
-            //            Helper.ArtifactStore.PublishArtifact(artifact, author);
             artifact.Publish(author);
 
             // Verify:
@@ -464,7 +460,6 @@ namespace ArtifactStoreTests
             // Execute:
             artifact.Lock(author);
             Helper.ArtifactStore.UpdateArtifact(author, artifactDetails);
-            //            Helper.ArtifactStore.PublishArtifact(artifact, author);
             artifact.Publish(author);
 
             // Verify:
@@ -504,7 +499,6 @@ namespace ArtifactStoreTests
             // Execute:
             artifact.Lock(author);
             Helper.ArtifactStore.UpdateArtifact(author, artifactDetails);
-            //            Helper.ArtifactStore.PublishArtifact(artifact, author);
             artifact.Publish(author);
 
             // Verify:
@@ -542,7 +536,6 @@ namespace ArtifactStoreTests
             // Execute:
             artifact.Lock(author);
             Helper.ArtifactStore.UpdateArtifact(author, artifactDetails);
-            //            Helper.ArtifactStore.PublishArtifact(artifact, author);
             artifact.Publish(author);
 
             // Verify:

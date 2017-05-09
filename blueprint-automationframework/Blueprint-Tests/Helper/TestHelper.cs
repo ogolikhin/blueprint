@@ -545,7 +545,6 @@ namespace Helper
         {
             var artifactTypeName = ArtifactStoreHelper.GetStandardPackArtifactTypeName(itemType);
 
-//            return CreateWrapAndPublishNovaArtifact(project, user, itemType, artifactTypeName: artifactTypeName);
             return CreateAndPublishNovaArtifact(user, project, itemType, artifactTypeName: artifactTypeName);
         }
 

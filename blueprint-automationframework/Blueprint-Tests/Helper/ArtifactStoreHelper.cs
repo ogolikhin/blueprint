@@ -1353,42 +1353,7 @@ namespace Helper
 
             return property;
         }
-        /*
-                /// <summary>
-                /// Update an artifact custom property and save.
-                /// </summary>
-                /// <typeparam name="T">The property value type</typeparam>
-                /// <param name="user">The user updating the artifact</param>
-                /// <param name="Helper">An instance of TestHelper</param>
-                /// <param name="artifactId">The artifact to update</param>
-                /// <param name="project">The project where the artifact exists</param>
-                /// <param name="propertyType">The primitive property type of the property</param>
-                /// <param name="propertyName">The name of the artifact property to be updated</param>
-                /// <param name="propertyValue">The new value for the subartifact property</param>
-                /// <returns>The updated property</returns>
-                public static CustomProperty UpdateArtifactCustomProperty<T>(IUser user, TestHelper Helper, int artifactId, IProject project,
-                    PropertyPrimitiveType propertyType, string propertyName, T propertyValue)
-                {
-                    ThrowIf.ArgumentNull(Helper, nameof(Helper));
-                    ThrowIf.ArgumentNull(user, nameof(user));
-                    ThrowIf.ArgumentNull(project, nameof(project));
 
-                    var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifactId);
-
-                    Assert.IsNotNull(artifactDetails, I18NHelper.FormatInvariant("Artifact {0} had not been found!", artifactId));
-
-                    // Set custom property in artifact.
-                    var property = SetArtifactCustomProperty(artifactDetails, project, propertyType, propertyName, propertyValue);
-
-                    var artifactDetailsChangeset = TestHelper.CreateArtifactChangeSet(artifactDetails, customProperty: property);
-
-                    var artifact = Helper.WrapArtifact(artifactDetails, project, user);
-                    artifact.Lock(user);
-                    Helper.ArtifactStore.UpdateArtifact(user, (NovaArtifactDetails)artifactDetailsChangeset);
-
-                    return property;
-                }
-        */
         /// <summary>
         /// Update an artifact custom property and save.
         /// </summary>

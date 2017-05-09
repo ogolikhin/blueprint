@@ -77,12 +77,12 @@ namespace ArtifactStoreTests
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            var sourceArtifact = Helper.CreateNovaArtifact(author, _project, sourceArtifactType, _project.Id);
-            var targetArtifact = Helper.CreateNovaArtifact(author, _project, targetArtifactType, _project.Id);
+            var sourceArtifact = Helper.CreateNovaArtifact(author, _project, sourceArtifactType);
+            var targetArtifact = Helper.CreateNovaArtifact(author, _project, targetArtifactType);
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetArtifact.Id, _project, author),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact.Id, targetArtifact.Id, _project, author),
             "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
@@ -109,7 +109,7 @@ namespace ArtifactStoreTests
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
 
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, _project.Id, _project, author),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact.Id, _project.Id, _project, author),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
@@ -133,7 +133,7 @@ namespace ArtifactStoreTests
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
 
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, parentArtifact.Id, _project, _user),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact.Id, parentArtifact.Id, _project, _user),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
@@ -154,7 +154,7 @@ namespace ArtifactStoreTests
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
 
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, sourceArtifact.Id, _project, _user),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact.Id, sourceArtifact.Id, _project, _user),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
@@ -293,7 +293,7 @@ namespace ArtifactStoreTests
 
             // Create & add manual trace to the source artifact:
             ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_user, sourceArtifact.Id, targetArtifact.Id,
-                (int)targetArtifact.ProjectId, ChangeType.Create, Helper.ArtifactStore, direction, isSuspect);
+                targetArtifact.ProjectId.Value, ChangeType.Create, Helper.ArtifactStore, direction, isSuspect);
 
             sourceArtifact.Publish(_user);
 
@@ -423,7 +423,7 @@ namespace ArtifactStoreTests
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
 
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetArtifact.Id, _project, _user),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact.Id, targetArtifact.Id, _project, _user),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
@@ -454,7 +454,7 @@ namespace ArtifactStoreTests
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
 
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, parentFolder.Id, _project, _user, orderIndex),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact.Id, parentFolder.Id, _project, _user, orderIndex),
                 "'POST {0}?orderIndex={1}' should return 201 Created when valid parameters are passed.", SVC_PATH, orderIndex);
 
             // Verify:
@@ -556,7 +556,7 @@ namespace ArtifactStoreTests
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
 
-            Assert.DoesNotThrow(() => copyResult = ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, sourceArtifact.Id, targetFolder.Id, author),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact.Id, targetFolder.Id, customDataProject, author),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
@@ -836,7 +836,7 @@ namespace ArtifactStoreTests
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
 
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, _project.Id, _project, _user),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact.Id, _project.Id, _project, _user),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
             string copiedArtifactInlineImageId = ArtifactStoreHelper.GetInlineImageId(copyResult.Artifact.Description);
             var copiedArtifactImageFile = Helper.ArtifactStore.GetImage(_user, copiedArtifactInlineImageId);
@@ -870,7 +870,7 @@ namespace ArtifactStoreTests
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
 
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, _project.Id, _project, _user),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact.Id, _project.Id, _project, _user),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
             string copiedArtifactInlineImageId = ArtifactStoreHelper.GetInlineImageId(copyResult.Artifact.Description);
 
@@ -942,7 +942,7 @@ namespace ArtifactStoreTests
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
 
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, _project.Id, _project, _user),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact.Id, _project.Id, _project, _user),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
             string copiedArtifactInlineImageId = ArtifactStoreHelper.GetInlineImageId(GetCustomPropertyStringValueByName(copyResult.Artifact, propertyName));
 
@@ -1023,7 +1023,7 @@ namespace ArtifactStoreTests
             CopyNovaArtifactResultSet copyResult = null;
             Assert.DoesNotThrow(() =>
             {
-                copyResult = CopyArtifactAndWrap(sourceParentActor, _project.Id, _project, author);
+                copyResult = CopyArtifactAndWrap(sourceParentActor.Id, _project.Id, _project, author);
             }, "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify: the content of the new parent artifact, the content of the new child artifact, the inherit association from
@@ -1075,7 +1075,7 @@ namespace ArtifactStoreTests
             CopyNovaArtifactResultSet copyResult = null;
             Assert.DoesNotThrow(() =>
             {
-                copyResult = CopyArtifactAndWrap(sourceParentProcess, _project.Id, _project, author);
+                copyResult = CopyArtifactAndWrap(sourceParentProcess.Id, _project.Id, _project, author);
             }, "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify: the content of the new parent artifact, the content of the new child artifact, the includes association from
@@ -1692,7 +1692,7 @@ namespace ArtifactStoreTests
         /// Copies the specified artifact to the new parent, wraps it in an ArtifactWrapper that gets disposed automatically,
         /// and returns the result of the CopyArtifact call.
         /// </summary>
-        /// <param name="artifact">The artifact to copy.</param>
+        /// <param name="artifactId">The Id of artifact to copy.</param>
         /// <param name="newParentId">The Id of the new parent where this artifact will be copied to.</param>
         /// <param name="project">The project where this artifact exists.</param>
         /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
@@ -1701,14 +1701,14 @@ namespace ArtifactStoreTests
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 201 Created is expected.</param>
         /// <returns>The details of the artifact that we copied and the number of artifacts copied.</returns>
         private CopyNovaArtifactResultSet CopyArtifactAndWrap(
-            ArtifactWrapper artifact,
+            int artifactId,
             int newParentId,
             IProject project,
             IUser user = null,
             double? orderIndex = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            var copyResult = ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, artifact.Id, newParentId, user, orderIndex, expectedStatusCodes);
+            var copyResult = ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, artifactId, newParentId, user, orderIndex, expectedStatusCodes);
 
             if (copyResult?.Artifact != null)
             {

@@ -795,7 +795,7 @@ namespace ArtifactStoreTests
             // Execute:Attempt to update the target sub artifact with empty content
             artifact.Lock(author);
             Helper.ArtifactStore.UpdateArtifact(author, artifactDetailsChangeSet);
-            var ex = Assert.Throws<Http409ConflictException>(() => artifactDetailsChangeSet.Publish(author),//Helper.ArtifactStore.PublishArtifact(artifact, author),
+            var ex = Assert.Throws<Http409ConflictException>(() => artifact.Publish(author),
                 "'POST {0}' should return 409 Conflict if the artifact containing invalid change!", RestPaths.Svc.ArtifactStore.ARTIFACTS);
 
             // Verify: Check that returned custom property name equals to default custom property since the requsted updated is invalid

@@ -541,13 +541,12 @@ namespace Helper
         /// <param name="user">The user creating the artifact.</param>
         /// <param name="itemType">The Nova base ItemType to create.</param>
         /// <returns>The Nova artifact wrapped in an IArtifact.</returns>
-        public IArtifact CreateWrapAndPublishNovaArtifactForStandardArtifactType(IProject project, IUser user, ItemTypePredefined itemType)
+        public ArtifactWrapper CreateWrapAndPublishNovaArtifactForStandardArtifactType(IProject project, IUser user, ItemTypePredefined itemType)
         {
-
             var artifactTypeName = ArtifactStoreHelper.GetStandardPackArtifactTypeName(itemType);
 
-            return CreateWrapAndPublishNovaArtifact(project, user, itemType,
-                artifactTypeName: artifactTypeName);
+//            return CreateWrapAndPublishNovaArtifact(project, user, itemType, artifactTypeName: artifactTypeName);
+            return CreateAndPublishNovaArtifact(user, project, itemType, artifactTypeName: artifactTypeName);
         }
 
         /// <summary>

@@ -5,6 +5,7 @@ using System.Web.Http;
 using SearchService.Models;
 using SearchService.Repositories;
 using ServiceLibrary.Attributes;
+using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;

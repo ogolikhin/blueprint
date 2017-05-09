@@ -7,7 +7,7 @@ using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Repositories;
 using ServiceLibrary.Attributes;
-using ServiceLibrary.Helpers;
+using ServiceLibrary.Controllers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
@@ -61,8 +61,7 @@ namespace AdminStore.Controllers
         [ActionName("GetInstanceFolder")]
         public async Task<InstanceItem> GetInstanceFolderAsync(int id)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return await _instanceRepository.GetInstanceFolderAsync(id, session.UserId);
+            return await _instanceRepository.GetInstanceFolderAsync(id, Session.UserId);
         }
 
         /// <summary>
@@ -81,8 +80,7 @@ namespace AdminStore.Controllers
         [ActionName("GetInstanceFolderChildren")]
         public async Task<List<InstanceItem>> GetInstanceFolderChildrenAsync(int id)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return await _instanceRepository.GetInstanceFolderChildrenAsync(id, session.UserId);
+            return await _instanceRepository.GetInstanceFolderChildrenAsync(id, Session.UserId);
         }
 
         /// <summary>
@@ -102,8 +100,7 @@ namespace AdminStore.Controllers
         [ActionName("GetInstanceProject")]
         public async Task<InstanceItem> GetInstanceProjectAsync(int id)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return await _instanceRepository.GetInstanceProjectAsync(id, session.UserId);
+            return await _instanceRepository.GetInstanceProjectAsync(id, Session.UserId);
         }
 
         /// <summary>
@@ -122,12 +119,10 @@ namespace AdminStore.Controllers
         [ActionName("GetProjectNavigationPath")]
         public async Task<List<string>> GetProjectNavigationPathAsync(int projectId, bool includeProjectItself = true)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-
-            var result = await _instanceRepository.GetProjectNavigationPathAsync(projectId, session.UserId, includeProjectItself);
+            var result = await _instanceRepository.GetProjectNavigationPathAsync(projectId, Session.UserId, includeProjectItself);
 
             var artifactIds = new[] { projectId };
-            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, session.UserId);
+            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, Session.UserId);
 
             RolePermissions permission;
             if (!permissions.TryGetValue(projectId, out permission) || !permission.HasFlag(RolePermissions.Read))
@@ -153,7 +148,7 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(IEnumerable<AdminRole>))]
         public async Task<IHttpActionResult> GetInstanceRoles()
         {
-            await _privilegesManager.Demand(SessionUserId, InstanceAdminPrivileges.ViewUsers);
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewUsers);
 
             var result = await _instanceRepository.GetInstanceRolesAsync();
             return Ok(result);

@@ -23,8 +23,8 @@ namespace Model.Impl
         public string FirstName { get; set; }
         public string LastName { get; set; }
 
-        [JsonConverter(typeof(SerializationUtilities.ConcreteListConverter<IGroup, Group>))]
-        public List<IGroup> Groups { get; set; } = new List<IGroup>();
+        [JsonConverter(typeof (SerializationUtilities.ConcreteListConverter<IGroup, Group>))]
+        public List<IGroup> Groups { get; set; }
         public List<int> GroupIds { get; set; } = new List<int>();
 
         public string Title { get; set; }
@@ -37,9 +37,9 @@ namespace Model.Impl
         public string Email { get; set; }
 
         // Don't serialize Groups property if empty list.
-        public bool ShouldSerializeGroups()
+        public virtual bool ShouldSerializeGroups()
         {
-            return Groups.Count > 0;
+            return Groups?.Count > 0;
         }
 
         // Don't serialize GroupIds property if empty list.
@@ -71,7 +71,12 @@ namespace Model.Impl
             DisplayName = userDataToCopy.DisplayName;
             FirstName = userDataToCopy.FirstName;
             LastName = userDataToCopy.LastName;
-            Groups = new List<IGroup>(userDataToCopy.Groups);
+
+            if (userDataToCopy.Groups != null)
+            {
+                Groups = new List<IGroup>(userDataToCopy.Groups);
+            }
+
             GroupIds = new List<int>(userDataToCopy.GroupIds);
             Title = userDataToCopy.Title;
             Department = userDataToCopy.Department;
@@ -84,6 +89,16 @@ namespace Model.Impl
         }
 
         #endregion Constructors
+
+        /// <summary>
+        /// Adds the specified groups to the user.
+        /// </summary>
+        /// <param name="groups">The groups to add.</param>
+        public void AddGroups(List<IGroup> groups)
+        {
+            Groups = Groups ?? new List<IGroup>();
+            Groups.AddRange(groups);
+        }
 
         /// <summary>
         /// Asserts that the properties of 2 UserDataModel's are equal.
@@ -123,11 +138,14 @@ namespace Model.Impl
                 }
             }
 
-            Assert.AreEqual(expectedUserData.Groups.Count, actualUserData.Groups.Count, "'{0}' list has a different number of items than expected!", nameof(Groups));
+            Assert.AreEqual((expectedUserData.Groups?.Count ?? 0), (actualUserData.Groups?.Count ?? 0), "'{0}' list has a different number of items than expected!", nameof(Groups));
 
-            for (int i = 0; i < expectedUserData.Groups.Count; ++i)
+            if (expectedUserData.Groups != null)
             {
-                Group.AssertAreEqual(expectedUserData.Groups[i], actualUserData.Groups[i]);
+                for (int i = 0; i < expectedUserData.Groups.Count; ++i)
+                {
+                    Group.AssertAreEqual(expectedUserData.Groups[i], actualUserData.Groups?[i]);
+                }
             }
         }
     }

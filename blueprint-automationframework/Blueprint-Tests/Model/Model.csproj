@@ -72,6 +72,7 @@
     <Compile Include="ArtifactModel\INovaProcess.cs" />
     <Compile Include="Factories\ImpactAnalysisFactory.cs" />
     <Compile Include="Impl\AdminRole.cs" />
+    <Compile Include="ModelHelpers\DocumentArtifactWrapper.cs" />
     <Compile Include="ModelHelpers\ProcessArtifactWrapper.cs" />
     <Compile Include="NovaModel\Components\OperationsResults\ReviewContent.cs" />
     <Compile Include="ArtifactModel\Impl\RaptorComment.cs" />

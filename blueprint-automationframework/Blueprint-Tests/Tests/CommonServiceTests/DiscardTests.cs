@@ -3,12 +3,11 @@ using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using NUnit.Framework;
 using System.Collections.Generic;
-using Model.Impl;
-using Model.OpenApiModel.Services;
 using TestCommon;
 using Utilities;
 
@@ -43,7 +42,7 @@ namespace CommonServiceTests
         public void Discard_PublishedArtifact_VerifyNothingToDiscard()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Process);
 
             List<NovaDiscardArtifactResult> discardResultList = null;
             string expectedMessage = I18NHelper.FormatInvariant("Artifact {0} has nothing to discard", artifact.Id);
@@ -51,7 +50,7 @@ namespace CommonServiceTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                discardResultList = artifact.NovaDiscard(_user);
+                discardResultList = Helper.SvcShared.DiscardArtifacts(_user, new List<int>() { artifact.Id });
             }, "Discard must not throw errors.");
 
             // Verify:
@@ -63,14 +62,14 @@ namespace CommonServiceTests
                 expectedMessage, discardResultList[0].Message);
 
             // Make sure artifact still exists.
-            IOpenApiArtifact retrievedArtifact = null;
+            INovaArtifactDetails retrievedArtifact = null;
 
             Assert.DoesNotThrow(() =>
             {
-                retrievedArtifact = OpenApi.GetArtifact(artifact.Address, _project, artifact.Id, _user);
-            }, "GetArtifact() failed after discarding a published artifact!");
+                retrievedArtifact = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            }, "GetArtifactDetails() failed after discarding a published artifact!");
 
-            TestHelper.AssertArtifactsAreEqual(artifact, retrievedArtifact);
+            NovaArtifactBase.AssertAreEqual(artifact.Artifact, retrievedArtifact);
         }
 
         [TestCase]
@@ -79,8 +78,8 @@ namespace CommonServiceTests
         public void Discard_DraftUnpublishedArtifact_ArtifactIsDiscarded()
         {
             // Setup:
-            var artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
-            artifact.Save(_user);
+            var artifact = Helper.CreateNovaArtifact(_user, _project, ItemTypePredefined.Process);
+            artifact.Update(_user, artifact.Artifact);
 
             List<NovaDiscardArtifactResult> discardResultList = null;
             string expectedMessage = "Successfully discarded";
@@ -88,7 +87,7 @@ namespace CommonServiceTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                discardResultList = artifact.NovaDiscard(_user);
+                discardResultList = Helper.SvcShared.DiscardArtifacts(_user, new List<int>() { artifact.Id });
             }, "Discard must throw no errors.");
 
             // Verify:
@@ -102,7 +101,7 @@ namespace CommonServiceTests
             // Make sure the artifact really is discarded.
             Assert.Throws<Http404NotFoundException>(() =>
             {
-                OpenApi.GetArtifact(artifact.Address, _project, artifact.Id, _user);
+                Helper.OpenApi.GetArtifact(_project, artifact.Id, _user);
             }, "Artifact {0} still exists after it was discarded!", artifact.Id);
         }
 
@@ -112,7 +111,7 @@ namespace CommonServiceTests
         public void Discard_MarkedForDeleteArtifact_ArtifactIsNotMarkedForDeletion()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Process);
             artifact.Delete(_user);
 
             List<NovaDiscardArtifactResult> discardResultList = null;
@@ -120,7 +119,7 @@ namespace CommonServiceTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                discardResultList = artifact.NovaDiscard(_user);
+                discardResultList = Helper.SvcShared.DiscardArtifacts(_user, new List<int>() { artifact.Id });
             }, "Discard must throw no errors.");
 
             // Verify:
@@ -133,14 +132,14 @@ namespace CommonServiceTests
                 expectedMessage, discardResultList[0].Message);
 
             // Make sure artifact still exists.
-            IOpenApiArtifact retrievedArtifact = null;
+            INovaArtifactDetails retrievedArtifact = null;
 
             Assert.DoesNotThrow(() =>
             {
-                retrievedArtifact = OpenApi.GetArtifact(artifact.Address, _project, artifact.Id, _user);
-            }, "GetArtifact() failed after discarding a published artifact!");
+                retrievedArtifact = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            }, "GetArtifactDetails() failed after discarding a published artifact!");
 
-            TestHelper.AssertArtifactsAreEqual(artifact, retrievedArtifact);
+            NovaArtifactBase.AssertAreEqual(artifact.Artifact, retrievedArtifact);
         }
 
         [TestCase]
@@ -149,7 +148,7 @@ namespace CommonServiceTests
         public void Discard_DeletedArtifact_ArtifactNotFoundMessage()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Process);
             artifact.Delete(_user);
             artifact.Publish(_user);
 
@@ -160,7 +159,7 @@ namespace CommonServiceTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                discardResultList = artifact.NovaDiscard(_user);
+                discardResultList = Helper.SvcShared.DiscardArtifacts(_user, new List<int>() { artifact.Id });
             }, "Discard must throw no errors.");
 
             // Verify:
@@ -174,7 +173,7 @@ namespace CommonServiceTests
             // Make sure the artifact really is still deleted.
             Assert.Throws<Http404NotFoundException>(() =>
             {
-                OpenApi.GetArtifact(artifact.Address, _project, artifact.Id, _user);
+                Helper.OpenApi.GetArtifact(_project, artifact.Id, _user);
             }, "Deleted Artifact {0} exists after it was discarded!", artifact.Id);
         }
     }

@@ -112,9 +112,10 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact.Id, _project.Id, _project, author),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
+            sourceArtifact.RefreshArtifactFromServer(author);
+
             // Verify:
-            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifact, copyResult, author, expectedVersionOfOriginalArtifact: 2,
-                skipPublishedProperties: true, skipDescription: true);
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifact, copyResult, author, expectedVersionOfOriginalArtifact: 2);
         }
 
         [TestCase(ItemTypePredefined.Actor, ItemTypePredefined.Glossary)]
@@ -189,7 +190,6 @@ namespace ArtifactStoreTests
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
-
             Assert.DoesNotThrow(() =>
             {
                 var result = sourceArtifact.CopyTo(author, _project, targetArtifact.Id);
@@ -228,24 +228,24 @@ namespace ArtifactStoreTests
             FileStoreTestHelper.AssertFilesAreIdentical(fileFromSource, fileFromCopy);
         }
 
-        [TestCase(BaseArtifactType.Actor, TraceDirection.From, false, false)]
-        [TestCase(BaseArtifactType.Glossary, TraceDirection.To, true, false)]
-        [TestCase(BaseArtifactType.TextualRequirement, TraceDirection.TwoWay, true, true)]
+        [TestCase(ItemTypePredefined.Actor, TraceDirection.From, false, false)]
+        [TestCase(ItemTypePredefined.Glossary, TraceDirection.To, true, false)]
+        [TestCase(ItemTypePredefined.TextualRequirement, TraceDirection.TwoWay, true, true)]
         [TestRail(191050)]
         [Description("Create & save an artifact then create & publish a folder.  Add a manual trace between the artifact & folder.  Copy the artifact into the folder.  " +
             "Verify the source artifact is unchanged and the new artifact (and trace) is identical to the source artifact.  New copied artifact should not be published.")]
         public void CopyArtifact_SingleSavedArtifactWithManualTrace_ToNewFolder_ReturnsNewArtifactWithManualTrace(
-            BaseArtifactType artifactType, TraceDirection direction, bool isSuspect, bool shouldPublishTrace)
+            ItemTypePredefined artifactType, TraceDirection direction, bool isSuspect, bool shouldPublishTrace)
         {
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            var sourceArtifact = Helper.CreateAndSaveArtifact(_project, author, artifactType);
-            var targetArtifact = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.PrimitiveFolder);
+            var sourceArtifact = Helper.CreateNovaArtifact(author, _project, artifactType);
+            var targetArtifact = Helper.CreateAndPublishNovaArtifact(author, _project, ItemTypePredefined.PrimitiveFolder);
 
             // Create & add manual trace to the source artifact:
             ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(author, sourceArtifact.Id, targetArtifact.Id,
-                targetArtifact.ProjectId, ChangeType.Create, Helper.ArtifactStore, direction, isSuspect);
+                targetArtifact.ProjectId.Value, ChangeType.Create, Helper.ArtifactStore, direction, isSuspect);
 
             int expectedVersionOfOriginalArtifact = -1;
 
@@ -259,7 +259,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetArtifact.Id, author),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact.Id, targetArtifact.Id, _project, author),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
@@ -279,16 +279,16 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, author, targetArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
         }
 
-        [TestCase(BaseArtifactType.TextualRequirement, TraceDirection.TwoWay, true)]
+        [TestCase(ItemTypePredefined.TextualRequirement, TraceDirection.TwoWay, true)]
         [TestRail(195487)]
         [Description("Create & save an artifact and create & publish a folder.   Publish a manual trace between the artifact & folder.  Create user that does not have " +
             "trace permissions and copy the artifact into the folder.  Verify the source artifact is unchanged and the new artifact is identical to the source" +
             "artifact, except no Manual Trace should exist.  New copied artifact should not be published.")]
         public void CopyArtifact_SinglePublishedArtifactWithManualTrace_ToNewFolder_NoTracePermissions_ReturnsNewArtifactWithoutManualTrace(
-            BaseArtifactType artifactType, TraceDirection direction, bool isSuspect)
+            ItemTypePredefined artifactType, TraceDirection direction, bool isSuspect)
         {
             // Setup:
-            var sourceArtifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+            var sourceArtifact = Helper.CreateNovaArtifact(_user, _project, artifactType);
             var targetArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.PrimitiveFolder);
 
             // Create & add manual trace to the source artifact:
@@ -315,7 +315,7 @@ namespace ArtifactStoreTests
                         _project);
 
             CopyNovaArtifactResultSet copyResult = null;
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetArtifact.Id, userNoTracePermission),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact.Id, targetArtifact.Id, _project, userNoTracePermission),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
@@ -1577,7 +1577,6 @@ namespace ArtifactStoreTests
         /// <param name="skipPermissions">(optional) Pass true to skip comparison of the Permissions properties.</param>
         /// <param name="skipDescription">(optional) Pass true to skip comparison of the Description properties.</param>
         /// <param name="skipIndicatorFlags">(optional) Pass true to skip comparison of the IndicatorFlags properties.</param>
-        /// <param name="skipPublishedProperties">(optional) Pass true to skip comparison of the skipPublishedProperties properties.</param>
         /// <exception cref="AssertionException">If any expectations failed.</exception>
         private void AssertCopiedArtifactPropertiesAreIdenticalToOriginal(INovaArtifactDetails originalArtifact,
             CopyNovaArtifactResultSet copyResult,
@@ -1587,8 +1586,7 @@ namespace ArtifactStoreTests
             bool skipCreatedBy = false,
             bool skipPermissions = false,
             bool skipDescription = false,
-            bool skipIndicatorFlags = false,
-            bool skipPublishedProperties = false)
+            bool skipIndicatorFlags = false)
         {
             Assert.NotNull(copyResult, "The result returned from CopyArtifact() shouldn't be null!");
             Assert.NotNull(copyResult.Artifact, "The Artifact property returned by CopyArtifact() shouldn't be null!");
@@ -1609,8 +1607,8 @@ namespace ArtifactStoreTests
             // Make sure original artifact didn't change.
             var originalArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, originalArtifact.Id);
             // We need to skip Permissions comparison in cases where we use pre-created data that was created by a different user than used in the GET call.
-            ArtifactStoreHelper.AssertArtifactsEqual(originalArtifactDetails, originalArtifact, skipPublishedProperties: skipPublishedProperties,
-                skipPermissions: skipPermissions, skipDescription: skipDescription);
+            ArtifactStoreHelper.AssertArtifactsEqual(originalArtifactDetails, originalArtifact, skipPermissions: skipPermissions,
+                skipDescription: skipDescription);
             Assert.AreEqual(expectedVersionOfOriginalArtifact, originalArtifactDetails.Version,
                 "The Version of the original artifact shouldn't have changed after the copy!");
 

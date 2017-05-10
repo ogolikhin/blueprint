@@ -1379,7 +1379,10 @@ namespace Helper
 
             var artifactDetailsChangeset = TestHelper.CreateArtifactChangeSet(wrappedArtifact, customProperty: property);
 
-            wrappedArtifact.Lock(user);
+            if (!wrappedArtifact.ArtifactState.IsLocked)
+            {
+                wrappedArtifact.Lock(user);
+            }
             wrappedArtifact.Update(user, (NovaArtifactDetails)artifactDetailsChangeset);
 
             return property;
@@ -1797,6 +1800,7 @@ namespace Helper
             return inlineTraceLink.ToUpper(CultureInfo.InvariantCulture).Contains(validTag.ToUpper(CultureInfo.InvariantCulture));
         }
 
+        // TODO: Remove this function once SaveTracesTests converted to use ArtifactWrapper
         /// <summary>
         /// Validates that the NovaTrace from the source artifact has the correct properties to point to the target artifact.
         /// </summary>
@@ -1813,6 +1817,23 @@ namespace Helper
             Assert.AreEqual(sourceArtifactTrace.ItemId, targetArtifact.Id, "itemId from trace and artifact should be equal to each other.");
             Assert.AreEqual(sourceArtifactTrace.ProjectId, targetArtifact.ProjectId, "ProjectId from trace and artifact should be equal to each other.");
             Assert.AreEqual(sourceArtifactTrace.ProjectName, targetArtifact.Project.Name, "ProjectName from trace and artifact should be equal to each other.");
+        }
+
+        /// <summary>
+        /// Validates that the NovaTrace from the source artifact has the correct properties to point to the target artifact.
+        /// </summary>
+        /// <param name="sourceArtifactTrace">The Nova trace obtained from the source artifact.</param>
+        /// <param name="targetArtifact">The target artifact wrapper of the trace.</param>
+        /// <exception cref="AssertionException">If any properties of the trace don't match the target artifact.</exception>
+        public static void ValidateTrace(INovaTrace sourceArtifactTrace, ArtifactWrapper targetArtifact)
+        {
+            ThrowIf.ArgumentNull(sourceArtifactTrace, nameof(sourceArtifactTrace));
+            ThrowIf.ArgumentNull(targetArtifact, nameof(targetArtifact));
+
+            Assert.AreEqual(sourceArtifactTrace.ArtifactId, targetArtifact.Id, "Id from trace and artifact should be equal to each other.");
+            Assert.AreEqual(sourceArtifactTrace.ArtifactName, targetArtifact.Name, "Name from trace and artifact should be equal to each other.");
+            Assert.AreEqual(sourceArtifactTrace.ItemId, targetArtifact.Id, "itemId from trace and artifact should be equal to each other.");
+            Assert.AreEqual(sourceArtifactTrace.ProjectId, targetArtifact.ProjectId, "ProjectId from trace and artifact should be equal to each other.");
         }
 
         /// <summary>

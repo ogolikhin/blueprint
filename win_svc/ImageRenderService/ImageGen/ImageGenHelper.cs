@@ -102,12 +102,14 @@ namespace ImageRenderService.ImageGen
 
                 isProcessFile = string.IsNullOrWhiteSpace(address);
 
-                var effectiveAddress = isProcessFile ? Path.GetFullPath("process.html") : address;
+                var effectiveAddress = isProcessFile ? Path.GetFullPath("ProcessHtml/index.html") : address;
 
                 browser.LoadingStateChanged += BrowserLoadingStateChanged;
                 browser.Load(effectiveAddress);
-                
+
                 await task.Task;
+
+                browser.ExecuteScriptAsync("document.body.style.overflow = 'hidden'");
             }
             finally
             {
@@ -119,13 +121,22 @@ namespace ImageRenderService.ImageGen
             }
 
             //-------------------------------------------
+            // Get Process model
+            var json = File.ReadAllText("ProcessData_Temp.json");
+            browser.ExecuteScriptAsync($"window.renderGraph('{json}', 1.0);");
+
+            //So far we do not have a way to find out when rendering completed, we use a delay for now.
+            await Task.Delay(1000);
+
+            //-------------------------------------------
             // Set the browser size.
+            // The html package will provide the size. For now we use this approach.
             string width;
             string height;
             if (isProcessFile)
             {
-                width = "document.body.firstElementChild.firstElementChild.clientWidth";
-                height = "document.body.firstElementChild.firstElementChild.clientHeight";
+                width = "document.body.firstElementChild.firstElementChild.firstElementChild.style['min-width']";
+                height = "document.body.firstElementChild.firstElementChild.firstElementChild.style['min-height']";
             }
             else
             {
@@ -136,9 +147,8 @@ namespace ImageRenderService.ImageGen
             var w = await browser.EvaluateScriptAsync(width);
             var h = await browser.EvaluateScriptAsync(height);
 
-            var eW = ((int)w.Result) + 10;
-            var eH = (int)h.Result;
-
+            var eW = w.Result != null ? int.Parse(((string)w.Result).Replace("px", string.Empty)) + 20 : 2000;
+            var eH = h.Result != null ? int.Parse(((string)h.Result).Replace("px", string.Empty)) + 20 : 1000;
 
             if (w.Result != null && h.Result != null)
             {
@@ -156,7 +166,7 @@ namespace ImageRenderService.ImageGen
                 }
                 await Task.Delay(DelayIntervalMilliseconds);
             }
-           
+
             //-----------------------------------------------------------------------------------------
 
             return true;

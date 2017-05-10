@@ -27,5 +27,6 @@
         public static readonly string IncorrectUserId = "Incorrect userId.";
         public static readonly string InvalidDeleteUsersParameters = "Invalid parameters to delete users";
         public static readonly string CreationOnlyDatabaseUsers = "You can create only database users.";
+        public static readonly string EmailFormatIncorrect = "The email format is incorrect.";
     }
 }

@@ -1,4 +1,5 @@
-﻿using AdminStore.Models;
+﻿using System.Text.RegularExpressions;
+using AdminStore.Models;
 using AdminStore.Models.Enums;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
@@ -52,6 +53,12 @@ namespace AdminStore.Helpers
             if (!string.IsNullOrEmpty(user.Email) && (user.Email.Length < 4 || user.Email.Length > 255))
             {
                 throw new BadRequestException(ErrorMessages.EmailFieldLimitation, ErrorCodes.BadRequest);
+            }
+
+            var emailRegex = new Regex(@"^([\w-.\']+)@(([[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.)|(([\w-]+.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(]?)$");
+            if (!emailRegex.IsMatch(user.Email))
+            {
+                throw new BadRequestException(ErrorMessages.EmailFormatIncorrect, ErrorCodes.BadRequest);
             }
 
             if (!string.IsNullOrEmpty(user.Title) && (user.Title.Length < 2 || user.Title.Length > 255))

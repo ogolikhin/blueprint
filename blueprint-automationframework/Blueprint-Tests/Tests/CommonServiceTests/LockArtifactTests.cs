@@ -189,7 +189,6 @@ namespace CommonServiceTests
             string expectedExceptionMessage = I18NHelper.FormatInvariant("Artifact \"{0}: {1}\" is already locked by other user",
                 artifact.Prefix, artifact.Id);
 
-            //TestHelper.ValidateBodyContents(ex.RestResponse, expectedExceptionMessage);
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.LockedByOtherUser, expectedExceptionMessage);
 
         }

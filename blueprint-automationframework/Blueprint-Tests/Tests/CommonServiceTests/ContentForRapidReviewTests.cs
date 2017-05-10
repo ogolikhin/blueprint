@@ -1,7 +1,6 @@
 ﻿using CustomAttributes;
 using Helper;
 using Model;
-using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
@@ -89,13 +88,13 @@ namespace CommonServiceTests
         public void GetUseCaseContentForRapidReview_UseCaseArtifact_ReturnsDefaultArtifactContent()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.UseCase);
             UseCase artifactContent = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                artifactContent = artifact.GetRapidReviewUseCaseContent(_user);
+                artifactContent = Helper.SvcComponents.GetRapidReviewUseCaseContent(_user, artifact.Id);
             }, "'GET {0}' should return 200 OK when a valid token is passed.", USECASE_PATH);
 
             // Verify:

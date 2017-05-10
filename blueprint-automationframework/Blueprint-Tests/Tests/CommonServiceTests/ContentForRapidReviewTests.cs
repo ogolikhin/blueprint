@@ -5,7 +5,6 @@ using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
-using Model.Impl;
 using Model.NovaModel.Components.RapidReview;
 using NUnit.Framework;
 using System.Collections.Generic;
@@ -41,24 +40,24 @@ namespace CommonServiceTests
 
         #endregion
 
-        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllDiagramArtifactTypesForOpenApiRestMethods))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllDiagramArtifactTypesForNovaRestMethods))]
         [TestRail(107388)]
         [Description("Run:  'GET svc/components/RapidReview/diagram/{artifactId}'  with the ID of a diagram artifact.  Verify proper content for Diagram artifact is returned.")]
         public void GetDiagramContentForRapidReview_DiagramArtifacts_ReturnsDefaultDiagramContent(ItemTypePredefined artifactType)
         {
             // Setup:
-            var novaArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
             RapidReviewDiagram diagramContent = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                diagramContent = SvcComponents.GetRapidReviewDiagramContent(novaArtifact.ArtifactStore.Address, _user, novaArtifact.Id);
+                diagramContent = Helper.SvcComponents.GetRapidReviewDiagramContent(_user, artifact.Id);
             }, "'GET {0}' should return 200 OK when a valid token is passed.", DIAGRAM_PATH);
 
             // Verify:
             Assert.That(diagramContent.DiagramType, Is.EqualTo(artifactType.ToString()).IgnoreCase, "Returned diagram type must be {0}, but it is {1}", artifactType, diagramContent.DiagramType);
-            Assert.AreEqual(novaArtifact.Id, diagramContent.Id, "Returned properties must have artifact Id {0}, but it is {1}", novaArtifact.Id, diagramContent.Id);
+            Assert.AreEqual(artifact.Id, diagramContent.Id, "Returned properties must have artifact Id {0}, but it is {1}", artifact.Id, diagramContent.Id);
             Assert.IsEmpty(diagramContent.Shapes, "Newly created {0} shouldn't have any shapes, but it has {1} shapes.", artifactType, diagramContent.Shapes.Count);
             Assert.IsEmpty(diagramContent.Connections, "Newly created {0} shouldn't have any connections, but it has {1} connections.", artifactType, diagramContent.Connections.Count);
             // TODO: add assertions about diagram size
@@ -70,17 +69,17 @@ namespace CommonServiceTests
         public void GetGlossaryContentForRapidReview_GlossaryArtifact_ReturnsDefaultGlossaryContent()
         {
             // Setup:
-            var novaArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Glossary);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Glossary);
             RapidReviewGlossary glossaryContent = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                glossaryContent = SvcComponents.GetRapidReviewGlossaryContent(novaArtifact.ArtifactStore.Address, _user, novaArtifact.Id);
+                glossaryContent = Helper.SvcComponents.GetRapidReviewGlossaryContent(_user, artifact.Id);
             }, "'GET {0}' should return 200 OK when a valid token is passed.", GLOSSARY_PATH);
 
             // Verify:
-            Assert.AreEqual(novaArtifact.Id, glossaryContent.Id, "Returned properties must have artifact Id {0}, but it is {1}", novaArtifact.Id, glossaryContent.Id);
+            Assert.AreEqual(artifact.Id, glossaryContent.Id, "Returned properties must have artifact Id {0}, but it is {1}", artifact.Id, glossaryContent.Id);
             Assert.IsEmpty(glossaryContent.Terms, "Newly created Glossary shouldn't have any terms, but it has {0} terms.", glossaryContent.Terms.Count);
         }
 
@@ -104,24 +103,24 @@ namespace CommonServiceTests
             Assert.AreEqual(1, artifactContent.Steps.Count, "Newly created Use Case must have 1 step, but it has {0}", artifactContent.Steps.Count);
         }
 
-        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForNovaRestMethods))]
         [TestRail(107391)]
         [Description("Run:  svc/components/RapidReview/artifacts/properties  and pass the ID of an artifact in the request body.  Verify properties of the artifact are returned.")]
         public void GetPropertiesForRapidReview_SingleArtifact_ReturnsArtifactProperties(ItemTypePredefined artifactType)
         {
             // Setup:
-            var novaArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
             RapidReviewProperties propertiesContent = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                propertiesContent = SvcComponents.GetRapidReviewArtifactsProperties(novaArtifact.ArtifactStore.Address, _user,
-                    new List<int>() { novaArtifact.Id } );
+                propertiesContent = Helper.SvcComponents.GetRapidReviewArtifactsProperties(_user,
+                    new List<int>() { artifact.Id } );
             }, "'GET {0}' should return 200 OK when a valid token is passed.", ARTIFACTS_PROPERTIES_PATH);
 
             // Verify:
-            Assert.AreEqual(novaArtifact.Id, propertiesContent.ArtifactId, "Returned properties must have artifact Id {0}, but it is {1}", novaArtifact.Id, propertiesContent.ArtifactId);
+            Assert.AreEqual(artifact.Id, propertiesContent.ArtifactId, "Returned properties must have artifact Id {0}, but it is {1}", artifact.Id, propertiesContent.ArtifactId);
             Assert.AreEqual(_user.DisplayName, propertiesContent.AuthorHistory[0].Value, "Returned properties must have Author {0}, but it is {1}",
                 _user.DisplayName, propertiesContent.AuthorHistory[0].Value);
             Assert.IsNotEmpty(propertiesContent.Properties, "No properties were returned for the {0} artifact!", artifactType);

@@ -25,7 +25,7 @@ namespace Model.ArtifactModel.Impl
         public Artifact()
         {
         }
-        
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -83,9 +83,9 @@ namespace Model.ArtifactModel.Impl
             var artifactToDiscard = new List<IArtifactBase> { this };
 
             var discardArtifactResults = DiscardArtifacts(
-                artifactToDiscard, 
-                Address, 
-                user, 
+                artifactToDiscard,
+                Address,
+                user,
                 expectedStatusCodes);
 
             foreach (var discardArtifactResult in discardArtifactResults)
@@ -191,7 +191,8 @@ namespace Model.ArtifactModel.Impl
                     throw new ArgumentException("Method works for graphical artifacts only.");
             }
 
-            return SvcComponents.GetRapidReviewDiagramContent(Address, user, Id, expectedStatusCodes);
+            var service = SvcComponentsFactory.CreateSvcComponents(Address);
+            return service.GetRapidReviewDiagramContent(user, Id, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifact.GetRapidReviewUseCaseContent(IUser, List{HttpStatusCode})"/>
@@ -207,7 +208,8 @@ namespace Model.ArtifactModel.Impl
 
             if (artifactInfo.BaseTypePredefined == ItemTypePredefined.UseCase)
             {
-                return SvcComponents.GetRapidReviewUseCaseContent(Address, user, Id, expectedStatusCodes);
+                var service = SvcComponentsFactory.CreateSvcComponents(Address);
+                return service.GetRapidReviewUseCaseContent(user, Id, expectedStatusCodes);
             }
 
             throw new ArgumentException("Method works for UseCase artifacts only.");
@@ -226,7 +228,8 @@ namespace Model.ArtifactModel.Impl
 
             if (artifactInfo.BaseTypePredefined == ItemTypePredefined.Glossary)
             {
-                return SvcComponents.GetRapidReviewGlossaryContent(Address, user, Id, expectedStatusCodes);
+                var service = SvcComponentsFactory.CreateSvcComponents(Address);
+                return service.GetRapidReviewGlossaryContent(user, Id, expectedStatusCodes);
             }
 
             throw new ArgumentException("Method works for Glossary artifacts only.");
@@ -241,7 +244,8 @@ namespace Model.ArtifactModel.Impl
 
             Assert.NotNull(CreatedBy, "No user is available to perform {0}.", nameof(GetRapidReviewArtifactProperties));
 
-            return SvcComponents.GetRapidReviewArtifactsProperties(Address, user, new List<int> { Id }, expectedStatusCodes);
+            var service = SvcComponentsFactory.CreateSvcComponents(Address);
+            return service.GetRapidReviewArtifactsProperties(user, new List<int> { Id }, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifact.StorytellerPublish(IUser, List{HttpStatusCode})"/>
@@ -450,7 +454,7 @@ namespace Model.ArtifactModel.Impl
             // Set Name=null for all SubArtifacts to prevent a 500 error.
             if (artifactToUpdate.BaseArtifactType != BaseArtifactType.Process)
             {
-                artifactChanges.SubArtifacts?.ForEach(delegate(NovaSubArtifact subArtifact)
+                artifactChanges.SubArtifacts?.ForEach(delegate (NovaSubArtifact subArtifact)
                 {
                     subArtifact.Name = null;
                 });
@@ -682,7 +686,7 @@ namespace Model.ArtifactModel.Impl
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifactToPublish, nameof(artifactToPublish));
-            
+
             var publishResults = SvcShared.PublishArtifacts(artifactToPublish.Address,
                 user,
                 new List<int> { artifactToPublish.Id },
@@ -696,7 +700,7 @@ namespace Model.ArtifactModel.Impl
 
             return publishResults[0];
         }
-        
+
         #endregion Static Methods
     }
 

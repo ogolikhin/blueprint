@@ -320,14 +320,18 @@ namespace AdminStore.Repositories
         }
 
 
-        public async Task<QueryResult<GroupDto>> GetUserGroupsAsync(int userId, TabularData tabularData)
+        public async Task<QueryResult<GroupDto>> GetUserGroupsAsync(int userId, TabularData tabularData, Func<Sorting, string> sort = null)
         {
+            var orderField = string.Empty;
+            if (sort != null && tabularData.Sorting != null)
+            {
+                orderField = sort(tabularData.Sorting);
+            }
             var parameters = new DynamicParameters();
             parameters.Add("@UserId", userId);
             parameters.Add("@Offset", tabularData.Pagination.Offset);
             parameters.Add("@Limit", tabularData.Pagination.Limit);
-            parameters.Add("@Order", tabularData.Sorting.Order.ToString().ToLower());
-            parameters.Add("@OrderField", tabularData.Sorting.Sort?.ToLower() ?? String.Empty);
+            parameters.Add("@OrderField", orderField);
             parameters.Add("@Search", tabularData.Search);
             parameters.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);

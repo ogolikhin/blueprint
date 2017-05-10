@@ -44,6 +44,7 @@ namespace AdminStore.Repositories
         Task UpdateUserAsync(User loginUser);
         Task<int> DeleteUsers(OperationScope body, string search, int sessionUserId);
 
-        Task <QueryResult<GroupDto>> GetUserGroupsAsync(int userId, TabularData tabularData);
+        Task<QueryResult<GroupDto>> GetUserGroupsAsync(int userId, TabularData tabularData,
+            Func<Sorting, string> sort = null);
     }
 }

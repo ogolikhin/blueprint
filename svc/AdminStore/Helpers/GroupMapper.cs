@@ -18,7 +18,8 @@ namespace AdminStore.Helpers
                     Id = group.Id,
                     Name = group.Name,
                     Scope = group.Scope,
-                    LicenseType = ((LicenseType) group.LicenseId).ToString()
+                    LicenseType = ((LicenseType) group.LicenseId).ToString(),
+                    Source = ((UserGroupSource)group.Source).ToString()
                 };
             return result;
         }

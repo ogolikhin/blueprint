@@ -42,11 +42,11 @@ namespace ArtifactStore.Repositories
             //Arange
             int reviewId = 1;
             int userId = 2;
-            Reviewer[] result = { new Reviewer { UserId = userId, Role = ReviwerRole.Reviewer } };
+            ReviewParticipant[] result = { new ReviewParticipant { UserId = userId, Role = ReviwerRole.Reviewer } };
             _cxn.SetupQueryAsync("GetReviewer", new Dictionary<string, object> { { "reviewId", reviewId }, { "userId", userId } }, result);
 
             //Act
-            var reviewer = await _reviewsRepository.GetReviewer(reviewId, userId);
+            var reviewer = await _reviewsRepository.GetReviewParticipantAsync(reviewId, userId);
 
             //Assert
             _cxn.Verify();
@@ -61,6 +61,7 @@ namespace ArtifactStore.Repositories
             //Arange
             int reviewId = 1;
             string reviewName = "My Review";
+            string reviewDescription = "My Description";
             int userId = 2;
             int revisionId = int.MaxValue;
             int baselineId = 3;
@@ -71,12 +72,14 @@ namespace ArtifactStore.Repositories
                 Disapproved = 3
             };
 
+            _itemInfoRepositoryMock.Setup(i => i.GetItemDescription(reviewId, userId, true, int.MaxValue)).ReturnsAsync(reviewDescription);
+
             var result = Tuple.Create(Enumerable.Repeat((int?)baselineId, 1), Enumerable.Repeat(totalArtifacts, 1), Enumerable.Repeat(reviewStatus, 1), Enumerable.Repeat(artifactsStatus, 1));
             var param = new Dictionary<string, object> { { "reviewId", reviewId }, { "userId", userId }, { "revisionId", revisionId } };
             _cxn.SetupQueryMultipleAsync("GetReviewDetails", param, result);
 
             var param2 = new Dictionary<string, object> { { "reviewId", reviewId }, { "userId", userId } };
-            var reviewer = new Reviewer
+            var reviewer = new ReviewParticipant
             {
                 Role = ReviwerRole.Approver
             };
@@ -106,6 +109,7 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(baselineId, review.Source.Id);
             Assert.AreEqual(reviewStatus, review.Status);
             Assert.AreEqual(reviewName, review.Name);
+            Assert.AreEqual(reviewDescription, review.Description);
             Assert.AreEqual(ReviewSourceType.Baseline, review.SourceType);
             Assert.AreEqual(ReviewType.Formal, review.ReviewType);
             Assert.AreEqual(5, artifactsStatus.Approved);
@@ -160,7 +164,7 @@ namespace ArtifactStore.Repositories
 
             _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
             var param = new Dictionary<string, object> { { "reviewId", reviewId }, { "userId", userId } };
-            _cxn.SetupQueryAsync("GetReviewer", param, Enumerable.Repeat((Reviewer)null, 1));
+            _cxn.SetupQueryAsync("GetReviewer", param, Enumerable.Repeat((ReviewParticipant)null, 1));
 
             bool isExceptionThrown = false;
             //Act

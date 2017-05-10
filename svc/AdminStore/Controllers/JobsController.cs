@@ -9,6 +9,7 @@ using System.Web.Http.Description;
 using AdminStore.Helpers;
 using AdminStore.Repositories.Jobs;
 using ServiceLibrary.Attributes;
+using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Helpers.Files;

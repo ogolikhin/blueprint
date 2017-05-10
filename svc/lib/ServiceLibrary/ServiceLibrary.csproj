@@ -84,6 +84,8 @@
     <Compile Include="Attributes\PreRequiredPrivilegeAttribute.cs" />
     <Compile Include="Attributes\SessionAttribute.cs" />
     <Compile Include="Attributes\UnhandledExceptionFilterAttribute.cs" />
+    <Compile Include="Controllers\BaseApiController.cs" />
+    <Compile Include="Controllers\LoggableApiController.cs" />
     <Compile Include="EventSources\SQLTraceLogEventSource.cs" />
     <Compile Include="EventSources\PerformanceLogEventSource.cs" />
     <Compile Include="EventSources\StandardLogEventSource.cs" />
@@ -95,14 +97,12 @@
     <Compile Include="Exceptions\ConflictException.cs" />
     <Compile Include="Exceptions\ExceptionWithErrorCode.cs" />
     <Compile Include="Exceptions\ResourceNotFoundException.cs" />
-    <Compile Include="Helpers\BaseApiController.cs" />
     <Compile Include="Helpers\ErrorCodes.cs" />
     <Compile Include="Helpers\ErrorMessages.cs" />
     <Compile Include="Helpers\HttpWebClient.cs" />
     <Compile Include="Helpers\IHttpWebClient.cs" />
     <Compile Include="Helpers\ImageHelper.cs" />
     <Compile Include="Helpers\ItemTypePredefinedExtension.cs" />
-    <Compile Include="Helpers\LoggableApiController.cs" />
     <Compile Include="Helpers\RemoveSecurityRelatedHeadersHttpModule.cs" />
     <Compile Include="Helpers\SerializationHelper.cs" />
     <Compile Include="Helpers\ServerHelper.cs" />

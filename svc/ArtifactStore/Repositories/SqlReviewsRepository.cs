@@ -78,14 +78,13 @@ namespace ArtifactStore.Repositories
                 string errorMessage = I18NHelper.FormatInvariant("Review (Id:{0}) is not found.", containerId);
                 throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
             }
-            var reviewer = await GetReviewParticipantAsync(containerId, userId);
-            if (reviewer == null)
-            {
-                string errorMessage = I18NHelper.FormatInvariant("User does not have permissions to access the review (Id:{0}).", containerId);
-                throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
-            }
 
             var reviewContainer = await GetReviewAsync(containerId, userId, int.MaxValue);
+            if (reviewContainer.Status == ReviewStatus.NotStarted)
+            {
+                string errorMessage = I18NHelper.FormatInvariant("Review (Id:{0}) is not found.", containerId);
+                throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
+            }
             var description = await _itemInfoRepository.GetItemDescription(containerId, userId, true, int.MaxValue);
             reviewContainer.Name = artifactInfo.Name;
             reviewContainer.Description = description;

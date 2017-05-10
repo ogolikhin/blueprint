@@ -1210,6 +1210,23 @@ namespace AdminStore.Controllers
             // Assert
             // Exception
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task PostUser_IncorrectEmailFromat_ReturnBadRequestResult()
+        {
+            // Arrange
+            _user.Email = "testemail.com";
+            _privilegesRepository
+               .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+               .ReturnsAsync(FullPermissions);
+
+            // Act
+            await _controller.PostUser(_user);
+
+            // Assert
+            // Exception
+        }
         #endregion
 
         #region Update user

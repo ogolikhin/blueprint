@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using Model.ArtifactModel;
-using Model.ArtifactModel.Adapters;
+﻿using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Model.NovaModel.Components.RapidReview;
 using Model.StorytellerModel;
+using System;
+using System.Collections.Generic;
+using System.Net;
 
 namespace Model
 {
@@ -59,7 +58,7 @@ namespace Model
 
         /// <summary>
         /// Gets Use Case content for RapidReview (Storyteller).
-        /// (Runs:  'GET /svc/components/RapidReview/glossary/{artifactId}')
+        /// (Runs:  'GET /svc/components/RapidReview/usecase/{artifactId}')
         /// </summary>
         /// <param name="user">The user to authenticate to Blueprint.</param>
         /// <param name="artifactId">The ID of the Use Case artifact whose contents you want to get.</param>
@@ -293,7 +292,7 @@ namespace Model
         /// <returns>The returned process result</returns>
         ProcessUpdateResult UpdateProcess(
             IProcess process,
-            IUser user = null, 
+            IUser user = null,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         #endregion Storyteller methods

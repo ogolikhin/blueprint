@@ -543,7 +543,7 @@ namespace OpenAPITests
                 userToCreate.Groups = groupList;
                 userToCreate.GroupIds = groupIds;
                 userToCreate.InstanceAdminRole = "Default Instance Administrator";
-                userToCreate.ExpirePassword = true;
+                userToCreate.ExpiredPassword = true;
                 userToCreate.Enabled = true;
 
                 usersToCreate.Add(userToCreate);

@@ -111,9 +111,9 @@ namespace OpenAPITests
             var singleUserDataToUpdate = CreateUserDataModelForUpdate(userToUpdate.Username, propertiesToUpdate);
 
             // Now update non-string properties.
-            singleUserDataToUpdate.Groups.AddRange(groups);
+            singleUserDataToUpdate.AddGroups(groups);
             singleUserDataToUpdate.GroupIds.AddRange(groups.Select(g => g.GroupId));
-            singleUserDataToUpdate.ExpirePassword = true;
+            singleUserDataToUpdate.ExpiredPassword = true;
             singleUserDataToUpdate.Enabled = userEnabled;
             singleUserDataToUpdate.FallBack = false;
 

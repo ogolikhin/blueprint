@@ -22,9 +22,9 @@ namespace ArtifactStoreTests
         private const string UPDATED_TEXT = "Updated text";
         private const string ORIGINAL_COMMENT = "Original comment";
         private const string NO_PERMISSIONS_TO_COMPLETE_OPERATION = "You do not have permissions to complete this operation";
+        private const string NOT_FOUND_OR_NO_PERMISSION = "You have attempted to access an item that does not exist or you do not have permission to view.";
         private const string TOKEN_MISSING_OR_MALFORMED = "Token is missing or malformed.";
         private const string UNAUTHORIZED_CALL = "Unauthorized call";
-        private const string NOT_ACCESSIBLE_ITEM = "Item is no longer accessible";
 
         private IUser _authorUser = null;
         private IUser _adminUser = null;
@@ -55,9 +55,9 @@ namespace ArtifactStoreTests
         public void GetDiscussions_PublishedArtifact_ReturnsCorrectDiscussion()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.Actor);
 
-            var postedRaptorDiscussion = artifact.PostRapidReviewArtifactDiscussion("draft", _authorUser);
+            var postedRaptorDiscussion = PostRapidReviewDiscussion(_authorUser, artifact.Id, "draft");
             var viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             DiscussionResultSet discussions = null;
@@ -83,8 +83,8 @@ namespace ArtifactStoreTests
         public void GetDiscussions_MarkedForDeleteArtifact_ValidateReturnedDiscussion()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
-            var postedRaptorComment = artifact.PostRapidReviewArtifactDiscussion("draft", _adminUser);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.Actor);
+            var raptorDiscussion = PostRapidReviewDiscussion(_adminUser, artifact.Id, "draft");
             artifact.Delete(_adminUser);
             DiscussionResultSet discussions = null;
 
@@ -96,7 +96,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0}", discussions.Discussions.Count);
-            RaptorDiscussion.AssertAreEqual(postedRaptorComment, discussions.Discussions[0]);
+            RaptorDiscussion.AssertAreEqual(raptorDiscussion, discussions.Discussions[0]);
             Assert.IsFalse(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to false!");
 
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _authorUser, artifact.Id, ItemIndicatorFlags.HasComments);
@@ -108,8 +108,8 @@ namespace ArtifactStoreTests
         public void GetDiscussions_PublishedSubArtifact_ReturnsCorrectDiscussion()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Process);
-            var postedComment = AddDiscussionToSubArtifactOfStorytellerProcess(artifact);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.Process);
+            var postedComment = AddDiscussionToSubArtifactOfStorytellerProcess(artifact.Id);
 
             DiscussionResultSet discussions = null;
 
@@ -133,12 +133,12 @@ namespace ArtifactStoreTests
         public void GetReplies_PublishedSubArtifactWithDiscussionAndReply_ReturnsCorrectDiscussion()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Process);
-            var postedDiscussion = AddDiscussionToSubArtifactOfStorytellerProcess(artifact);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.Process);
+            var postedDiscussion = AddDiscussionToSubArtifactOfStorytellerProcess(artifact.Id);
 
             DiscussionResultSet discussions = Helper.ArtifactStore.GetArtifactDiscussions(postedDiscussion.ItemId, _adminUser);
-            var postedReply = Helper.SvcComponents.PostRapidReviewDiscussionReply(
-                _authorUser, postedDiscussion.ItemId, postedDiscussion.DiscussionId, "This is a reply to a comment.");
+
+            var postedReply = PostRapidReviewDiscussionReply(_authorUser, postedDiscussion, "This is a reply to a comment.");
 
             List<Reply> replies = null;
 
@@ -162,8 +162,8 @@ namespace ArtifactStoreTests
         public void GetDiscussions_MarkedForDeleteSubArtifact_ValidateReturnedDiscussion()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Process);
-            var postedComment = AddDiscussionToSubArtifactOfStorytellerProcess(artifact);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.Process);
+            var postedComment = AddDiscussionToSubArtifactOfStorytellerProcess(artifact.Id);
 
             artifact.Delete(_adminUser);
 
@@ -189,7 +189,7 @@ namespace ArtifactStoreTests
         public void GetDiscussions_NoDiscussionsInArtifact_ValidateDiscussionsNotReturned()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Glossary);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.Glossary);
 
             // Execute:
             DiscussionResultSet discussions = null;
@@ -210,13 +210,13 @@ namespace ArtifactStoreTests
         public void UpdateDiscussion_PublishedArtifact_ReturnsUpdatedDiscussion()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.UseCase);
 
-            var postedRaptorComment = artifact.PostRapidReviewArtifactDiscussion("original discussion text", _authorUser);
+            var raptorDiscussion = PostRapidReviewDiscussion(_authorUser, artifact.Id, "original discussion text");
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
 
             Assert.AreEqual(1, discussions.Discussions.Count, "There should be 1 comment returned!");
-            RaptorDiscussion.AssertAreEqual(postedRaptorComment, discussions.Discussions[0]);
+            RaptorDiscussion.AssertAreEqual(raptorDiscussion, discussions.Discussions[0]);
 
             var statusId = GetStatusId(discussions, ThreadStatus.CLOSED);
             var comment = new RaptorComment()
@@ -229,11 +229,12 @@ namespace ArtifactStoreTests
             IDiscussionAdapter updatedDiscussion = null;
             Assert.DoesNotThrow(() =>
             {
-                updatedDiscussion = artifact.UpdateRapidReviewDiscussion(postedRaptorComment, comment, _authorUser);
+                updatedDiscussion = UpdateRapidReviewDiscussion(_authorUser, raptorDiscussion, comment);
             }, "UpdateDiscussions shouldn't throw any error.");
 
             // Verify:
             discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
+
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0}", discussions.Discussions.Count);
             Assert.AreEqual(StringUtilities.WrapInDiv(comment.Comment), updatedDiscussion.Comment, "Updated comment must have proper text.");
             Assert.IsTrue(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to true!");
@@ -248,10 +249,10 @@ namespace ArtifactStoreTests
         public void UpdateDiscussion_PublishedSubArtifact_ReturnsUpdatedDiscussion()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Process);
-            var postedDiscussion = AddDiscussionToSubArtifactOfStorytellerProcess(artifact, _authorUser);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.Process);
+            var raptorDiscussion = AddDiscussionToSubArtifactOfStorytellerProcess(artifact.Id, _authorUser);
 
-            var discussions = Helper.ArtifactStore.GetArtifactDiscussions(postedDiscussion.ItemId, _authorUser);
+            var discussions = Helper.ArtifactStore.GetArtifactDiscussions(raptorDiscussion.ItemId, _authorUser);
             var statusId = GetStatusId(discussions, ThreadStatus.CLOSED);
 
             var comment = new RaptorComment
@@ -264,18 +265,18 @@ namespace ArtifactStoreTests
             IDiscussionAdapter updatedDiscussion = null;
             Assert.DoesNotThrow(() =>
             {
-                updatedDiscussion = Helper.SvcComponents.UpdateRapidReviewDiscussion(
-                    _authorUser, postedDiscussion.ItemId, postedDiscussion.DiscussionId, comment);
+                updatedDiscussion = UpdateRapidReviewDiscussion(_authorUser, raptorDiscussion, comment);
             }, "UpdateDiscussions shouldn't throw any error.");
 
             // Verify:
-            discussions = Helper.ArtifactStore.GetArtifactDiscussions(postedDiscussion.ItemId, _authorUser);
+            discussions = Helper.ArtifactStore.GetArtifactDiscussions(raptorDiscussion.ItemId, _authorUser);
+
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0}", discussions.Discussions.Count);
             Assert.AreEqual(StringUtilities.WrapInDiv(comment.Comment), updatedDiscussion.Comment, "Updated comment must have updated value, but it didn't.");
             Assert.IsTrue(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to true!");
             RaptorDiscussion.AssertAreEqual(updatedDiscussion, discussions.Discussions[0], skipCanEdit: true);
 
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, expectedIndicatorFlags: null, subArtifactId: postedDiscussion.ItemId);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, expectedIndicatorFlags: null, subArtifactId: raptorDiscussion.ItemId);
         }
 
         [TestCase]
@@ -285,11 +286,8 @@ namespace ArtifactStoreTests
         {
             // Setup:
             const string REPLY = "Reply";
-            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UIMockup);
-            var raptorComment = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, _adminUser);
-
-            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
-                "Original comment and comment returned after discussion created different!");
+            var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.UIMockup);
+            var raptorDiscussion = PostRapidReviewDiscussion(_adminUser, artifact.Id, ORIGINAL_COMMENT);
 
             string replyText = null;
             IRaptorReply raptorReply = null;
@@ -297,17 +295,20 @@ namespace ArtifactStoreTests
             for (int i = 0; i < 2; i++)
             {
                 replyText = REPLY + " " + (i + 1);
-                raptorReply = artifact.PostRapidReviewDiscussionReply(raptorComment, replyText, _authorUser);
+                raptorReply = PostRapidReviewDiscussionReply(_authorUser, raptorDiscussion, replyText);
             }
+
+            Assert.NotNull(raptorReply, "raptorReply should not be null!");
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                artifact.DeleteRapidReviewArtifactReply(raptorReply, _authorUser);
-            }, "{0} shouldn't throw any error, but it did.", nameof(artifact.DeleteRapidReviewArtifactReply));
+                DeleteRapidReviewDiscussionReply(_authorUser, raptorReply);
+            }, "{0} shouldn't throw any error, but it did.", nameof(Helper.SvcComponents.DeleteRapidReviewDiscussionReply));
 
             // Verify:
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
+
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0} comments", discussions.Discussions.Count);
             Assert.AreEqual(1, discussions.Discussions[0].RepliesCount, "Discussion should have 1 reply, but it has {0} replies",
                 discussions.Discussions[0].RepliesCount);
@@ -321,14 +322,12 @@ namespace ArtifactStoreTests
         public void UpdateOwnDiscussion_NonAdminUser_SuccessfullyUpdated()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
-            var raptorComment = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, _authorUser);
-            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
-                "Original comment and comment returned after discussion created different!");
+            var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.UseCase);
+            var raptorDiscussion = PostRapidReviewDiscussion(_authorUser, artifact.Id, ORIGINAL_COMMENT);
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
             var statusId = GetStatusId(discussions, ThreadStatus.CLOSED);
-            var comment = new RaptorComment()
+            var comment = new RaptorComment
             {
                 Comment = UPDATED_TEXT,
                 StatusId = statusId
@@ -338,11 +337,12 @@ namespace ArtifactStoreTests
             IDiscussionAdapter updatedDiscussion = null;
             Assert.DoesNotThrow(() =>
             {
-                updatedDiscussion = artifact.UpdateRapidReviewDiscussion(raptorComment, comment, _authorUser);
+                updatedDiscussion = UpdateRapidReviewDiscussion(_authorUser, raptorDiscussion, comment);
             }, "UpdateDiscussion shouldn't throw any error, but it did.");
 
             // Verify:
             discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
+
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0}", discussions.Discussions.Count);
             Assert.AreEqual(StringUtilities.WrapInDiv(comment.Comment), updatedDiscussion.Comment, "Updated comment must have proper text.");
             Assert.IsTrue(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to true!");
@@ -357,10 +357,8 @@ namespace ArtifactStoreTests
         public void UpdateDiscussion_CloseAndReopenDiscussion_SuccessfullyUpdated()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
-            var discussion = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, _authorUser);
-            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), discussion.Comment,
-                "Original comment and comment returned after discussion created different!");
+            var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.UseCase);
+            var raptorDiscussion = PostRapidReviewDiscussion(_authorUser, artifact.Id, ORIGINAL_COMMENT);
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
             var statusId = GetStatusId(discussions, ThreadStatus.CLOSED);
@@ -373,7 +371,7 @@ namespace ArtifactStoreTests
             IDiscussionAdapter updatedDiscussion = null;
             Assert.DoesNotThrow(() =>
             {
-                updatedDiscussion = artifact.UpdateRapidReviewDiscussion(discussion, comment, _authorUser);
+                updatedDiscussion = UpdateRapidReviewDiscussion(_authorUser, raptorDiscussion, comment);
             }, "UpdateDiscussion shouldn't throw any error, but it did.");
 
             Assert.IsTrue(updatedDiscussion.IsClosed, "The discussion should be closed at this point, but it is open!");
@@ -385,11 +383,12 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                updatedDiscussion = artifact.UpdateRapidReviewDiscussion(discussion, comment, _authorUser);
+                updatedDiscussion = UpdateRapidReviewDiscussion(_authorUser, raptorDiscussion, comment);
             }, "UpdateDiscussion shouldn't throw any error, but it did.");
 
             // Verify:
             discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
+
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0}", discussions.Discussions.Count);
             Assert.AreEqual(StringUtilities.WrapInDiv(comment.Comment), updatedDiscussion.Comment, "Updated comment must have proper text.");
             Assert.IsFalse(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to false!");
@@ -399,7 +398,6 @@ namespace ArtifactStoreTests
         }
 
         [Category(Categories.CustomData)]
-        [Category(Categories.GoldenData)]
         [TestCase("Custom Status Open", false)]
         [TestCase("Custom Status Close", true)]
         [TestRail(266915)]
@@ -410,15 +408,13 @@ namespace ArtifactStoreTests
             var customDataProject = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, customDataProject);
 
-            var artifact = Helper.CreateAndPublishArtifact(customDataProject, author, BaseArtifactType.UseCase);
-            var raptorComment = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, author);
-            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
-                "Original comment and comment returned after discussion created different!");
+            var artifact = Helper.CreateAndPublishNovaArtifact(author, customDataProject, ItemTypePredefined.UseCase);
+            var raptorDiscussion = PostRapidReviewDiscussion(author, artifact.Id, ORIGINAL_COMMENT);
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, author);
 
             var statusId = GetStatusId(discussions, customStatus);
-            var comment = new RaptorComment()
+            var comment = new RaptorComment
             {
                 Comment = "Custom status applied",
                 StatusId = statusId
@@ -428,11 +424,12 @@ namespace ArtifactStoreTests
             IDiscussionAdapter updatedDiscussion = null;
             Assert.DoesNotThrow(() =>
             {
-                updatedDiscussion = artifact.UpdateRapidReviewDiscussion(raptorComment, comment, author);
+                updatedDiscussion = UpdateRapidReviewDiscussion(author, raptorDiscussion, comment);
             }, "UpdateDiscussion shouldn't throw any error, but it did.");
 
             // Verify:
             discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, author);
+
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0}", discussions.Discussions.Count);
             Assert.AreEqual(StringUtilities.WrapInDiv(comment.Comment), updatedDiscussion.Comment, "Updated comment must have proper text.");
             Assert.AreEqual(isClosed, discussions.Discussions[0].IsClosed, "IsClosed flag should be set to {0}!", isClosed);
@@ -449,12 +446,10 @@ namespace ArtifactStoreTests
         public void UpdateDiscussion_NonExistingStatus_SuccessfullyUpdatedOnlyComment(int nonExistingStatusId)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
-            var raptorComment = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, _adminUser);
-            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
-                "Original comment and comment returned after discussion created different!");
+            var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.UseCase);
+            var raptorDiscussion = PostRapidReviewDiscussion(_adminUser, artifact.Id, ORIGINAL_COMMENT);
 
-            var comment = new RaptorComment()
+            var comment = new RaptorComment
             {
                 Comment = UPDATED_TEXT,
                 StatusId = nonExistingStatusId
@@ -464,11 +459,12 @@ namespace ArtifactStoreTests
             IDiscussionAdapter updatedDiscussion = null;
             Assert.DoesNotThrow(() =>
             {
-                updatedDiscussion = artifact.UpdateRapidReviewDiscussion(raptorComment, comment, _adminUser);
+                updatedDiscussion = UpdateRapidReviewDiscussion(_adminUser, raptorDiscussion, comment);
             }, "UpdateDiscussion shouldn't throw any error, but it did.");
 
             // Verify:
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
+
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0}", discussions.Discussions.Count);
             Assert.AreEqual(StringUtilities.WrapInDiv(comment.Comment), updatedDiscussion.Comment, "Updated comment must have proper text.");
             RaptorDiscussion.AssertAreEqual(updatedDiscussion, discussions.Discussions[0]);
@@ -482,22 +478,20 @@ namespace ArtifactStoreTests
         public void DeleteOwnDiscussion_UserHasRightsToDelete_SuccessfullyDeleted()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UIMockup);
-            IRaptorDiscussion raptorComment = null;
-
+            var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.UIMockup);
+            IRaptorDiscussion raptorDiscussion = null;
             string comment = string.Empty;
+
             for (int i = 0; i < 2; i++)
             {
                 comment = ORIGINAL_COMMENT + " " + (i + 1);
-                raptorComment = artifact.PostRapidReviewArtifactDiscussion(comment, _authorUser);
+                raptorDiscussion = PostRapidReviewDiscussion(_authorUser, artifact.Id, comment);
             }
-            Assert.AreEqual(StringUtilities.WrapInDiv(comment), raptorComment.Comment,
-                "Original comment and comment returned after discussion created different!");
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                artifact.DeleteRapidReviewArtifactDiscussion(_authorUser, raptorComment);
+                DeleteRapidReviewDiscussion(_authorUser, raptorDiscussion);
             }, "DeleteDiscussions shouldn't throw any error, but it does.");
 
             // Verify:
@@ -513,22 +507,20 @@ namespace ArtifactStoreTests
         public void DeleteOtherUserDiscussion_Admin_SuccessfullyDeleted()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UIMockup);
-            IRaptorDiscussion raptorComment = null;
-
+            var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.UIMockup);
+            IRaptorDiscussion raptorDiscussion = null;
             string comment = string.Empty;
+
             for (int i = 0; i < 2; i++)
             {
                 comment = ORIGINAL_COMMENT + " " + (i + 1);
-                raptorComment = artifact.PostRapidReviewArtifactDiscussion(comment, _authorUser);
+                raptorDiscussion = PostRapidReviewDiscussion(_authorUser, artifact.Id, comment);
             }
-            Assert.AreEqual(StringUtilities.WrapInDiv(comment), raptorComment.Comment,
-                "Original comment and comment returned after discussion created different!");
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                artifact.DeleteRapidReviewArtifactDiscussion(_adminUser, raptorComment);
+                DeleteRapidReviewDiscussion(_adminUser, raptorDiscussion);
             }, "DeleteDiscussions shouldn't throw any error, but it does.");
 
             // Verify:
@@ -546,16 +538,9 @@ namespace ArtifactStoreTests
             // Setup:
             const string REPLY = "Reply";
 
-            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Glossary);
-            var raptorDiscussion = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, _adminUser);
-
-            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorDiscussion.Comment,
-                "Original comment and comment returned after discussion created different!");
-
-            var raptorReply = artifact.PostRapidReviewDiscussionReply(raptorDiscussion, REPLY, _authorUser);
-
-            Assert.AreEqual(StringUtilities.WrapInDiv(REPLY), raptorReply.Comment,
-                "Original reply and reply returned after reply created different!");
+            var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.Glossary);
+            var raptorDiscussion = PostRapidReviewDiscussion(_adminUser, artifact.Id, ORIGINAL_COMMENT);
+            var raptorReply = PostRapidReviewDiscussionReply(_authorUser, raptorDiscussion, REPLY);
 
             string newReplyText = "New " + REPLY;
             IRaptorReply updatedReply = null;
@@ -563,11 +548,12 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                updatedReply = artifact.UpdateRapidReviewDiscussionReply(raptorReply, newReplyText, _authorUser);
+                updatedReply = UpdateRapidReviewDiscussionReply(_authorUser, raptorReply, newReplyText);
             }, "UpdateReply shouldn't throw any error, but it does.");
 
             // Verify:
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
+
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0} comments", discussions.Discussions.Count);
             Assert.AreEqual(1, discussions.Discussions[0].RepliesCount, "Discussion should have 1 reply, but it has {0} replies",
                 discussions.Discussions[0].RepliesCount);
@@ -584,7 +570,6 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_adminUser, _project, ItemTypePredefined.UseCase, numberOfVersions: 2); //artifact version is 2
-            artifact.Lock(_authorUser);
 
             IDiscussionAdapter postedRaptorComment = null;
             DiscussionResultSet discussions = null;
@@ -592,13 +577,15 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                postedRaptorComment = Helper.SvcComponents.PostRapidReviewDiscussion(_authorUser, artifact.Id, ORIGINAL_COMMENT);
-                artifact.SaveWithNewDescription(_authorUser);
-                artifact.Publish(_authorUser);  //artifact version is 3
-                discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
-            }, "UpdateDiscussions and GetDiscussion shouldn't throw any error.");
+                postedRaptorComment = PostRapidReviewDiscussion(_authorUser, artifact.Id, ORIGINAL_COMMENT);
+            }, "{0} shouldn't return an error.", nameof(Helper.SvcComponents.PostRapidReviewDiscussion));
 
             // Verify:
+            artifact.Lock(_authorUser);
+            artifact.SaveWithNewDescription(_authorUser);
+            artifact.Publish(_authorUser);  //artifact version is 3
+            discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
+
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0}", discussions.Discussions.Count);
             Assert.AreEqual(2, discussions.Discussions[0].Version, "Version should be 2, but it is {0}", discussions.Discussions[0].Version);
             Assert.AreEqual(2, postedRaptorComment.Version, "Version should be 2, but it is {0}", postedRaptorComment.Version);
@@ -616,9 +603,8 @@ namespace ArtifactStoreTests
         public void GetDiscussion_MissingSessionToken_401Unauthorized()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Glossary);
-            var raptorComment = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, _adminUser);
-            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.Glossary);
+            PostRapidReviewDiscussion(_adminUser, artifact.Id, ORIGINAL_COMMENT);
 
             // Execute:
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.DISCUSSIONS, artifact.Id);
@@ -636,14 +622,12 @@ namespace ArtifactStoreTests
         public void UpdateDiscussion_MissingSessionToken_401Unauthorized()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Glossary);
-            var raptorComment = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, _adminUser);
-            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
-                "Original comment and comment returned after discussion created different!");
+            var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.Glossary);
+            var raptorDiscussion = PostRapidReviewDiscussion(_adminUser, artifact.Id, ORIGINAL_COMMENT);
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
             var statusId = GetStatusId(discussions, ThreadStatus.CLOSED);
-            var comment = new RaptorComment()
+            var comment = new RaptorComment
             {
                 Comment = UPDATED_TEXT,
                 StatusId = statusId
@@ -651,10 +635,13 @@ namespace ArtifactStoreTests
 
             // Execute:
             string path = I18NHelper.FormatInvariant(
-                RestPaths.Svc.Components.RapidReview.Artifacts_id_.Discussions_id_.COMMENT, artifact.Id, raptorComment.DiscussionId);
+                RestPaths.Svc.Components.RapidReview.Artifacts_id_.Discussions_id_.COMMENT, artifact.Id, raptorDiscussion.DiscussionId);
 
-            var ex = Assert.Throws<Http401UnauthorizedException>(() => artifact.UpdateRapidReviewDiscussion(discussionToUpdate: raptorComment, comment: comment, user: null),
-                "'PATCH {0}' should return 401 Unauthorized when request is done without token!", path);
+            var ex = Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                UpdateRapidReviewDiscussion(user: null, discussionToUpdate: raptorDiscussion, comment: comment);
+            }, "'PATCH {0}' should return 401 Unauthorized when request is done without token!", path);
+
             // Verify:
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, UNAUTHORIZED_CALL);
         }
@@ -669,19 +656,18 @@ namespace ArtifactStoreTests
         public void DeleteComment_UserHasNoRightsToDelete_403Forbidden()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UIMockup);
-            var raptorComment = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, _adminUser);
-            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
-                "Original comment and comment returned after discussion created different!");
+            var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.UIMockup);
+            var raptorDiscussion = PostRapidReviewDiscussion(_adminUser, artifact.Id, ORIGINAL_COMMENT);
 
             // Execute:
             Assert.Throws<Http403ForbiddenException>(() =>
             {
-                artifact.DeleteRapidReviewArtifactDiscussion(_authorUser, raptorComment);
+                DeleteRapidReviewDiscussion(_authorUser, raptorDiscussion);
             }, "DeleteDiscussions should throw 403 error, but it doesn't.");
 
             // Verify:
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
+
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0} comments", discussions.Discussions.Count);
             Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), discussions.Discussions[0].Comment, "Comment shouldn't change, but it did.");
         }
@@ -694,22 +680,19 @@ namespace ArtifactStoreTests
             // Setup:
             const string REPLY = "Reply";
 
-            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UIMockup);
-            var raptorComment = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, _adminUser);
-
-            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
-                "Original comment and comment returned after discussion created different!");
-
-            var raptorReply = artifact.PostRapidReviewDiscussionReply(raptorComment, REPLY, _adminUser);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.UIMockup);
+            var raptorDiscussion = PostRapidReviewDiscussion(_adminUser,artifact.Id, ORIGINAL_COMMENT);
+            var raptorReply = PostRapidReviewDiscussionReply(_adminUser, raptorDiscussion, REPLY);
 
             // Execute:
             Assert.Throws<Http403ForbiddenException>(() =>
             {
-                artifact.DeleteRapidReviewArtifactReply(raptorReply, _authorUser);
-            }, "{0} should throw 403 error, but it doesn't.", nameof(artifact.DeleteRapidReviewArtifactReply));
+                DeleteRapidReviewDiscussionReply(_authorUser, raptorReply);
+            }, "{0} should throw 403 error, but it doesn't.", nameof(Helper.SvcComponents.DeleteRapidReviewDiscussionReply));
 
             // Verify:
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
+
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0} comments", discussions.Discussions.Count);
             Assert.AreEqual(1, discussions.Discussions[0].RepliesCount, "Discussion should have 1 reply, but it has {0} replies",
                 discussions.Discussions[0].RepliesCount);
@@ -718,47 +701,42 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(266958)]
         [Description("Get discussion with user that created discussion and lost permissions for the artifact. " + 
-            "Verify 403 Forbidden HTTP status was returned")]
+                     "Verify 403 Forbidden HTTP status was returned")]
         public void GetDiscussion_InsufficientPermissionsToArtifact_403Forbidden()
         {
             // Setup:
             var user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            var artifact = Helper.CreateAndPublishArtifact(_project, user, BaseArtifactType.Glossary);
-            var raptorComment = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, user);
-            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
-                "Original comment and comment returned after discussion created different!");
+            var artifact = Helper.CreateAndPublishNovaArtifact(user, _project, ItemTypePredefined.Glossary);
+            PostRapidReviewDiscussion(user, artifact.Id, ORIGINAL_COMMENT);
 
             Helper.AssignProjectRolePermissionsToUser(user, TestHelper.ProjectRole.None, _project, artifact);
 
             // Execute:
-            Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, user),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, user),
                 "'GET {0}' should return 403 Forbidden when user tries to get comment from artifact to which he/she does not have permissions!",
                 I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.DISCUSSIONS, artifact.Id));
 
-        // Verify:
-        // TODO: No internal error & message 
-        // Bug: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/Titan/_workItems?searchText=%5BTechDebt%5D&_a=edit&id=5699&triage=true
+            // Verify:
+            // Note: No internal error & message.  Bug #5699
+            TestHelper.AssertResponseBodyIsEmpty(ex.RestResponse);
         }
 
         [TestCase]
         [TestRail(266959)]
         [Description("Update discussion with user that created discussion and lost permissions for the artifact. " + 
-            "Verify 403 Forbidden HTTP status was returned")]
+                     "Verify 403 Forbidden HTTP status was returned")]
         public void UpdateDiscussion_InsufficientPermissionsToArtifact_403Forbidden()
         {
             // Setup:
             var user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            var artifact = Helper.CreateAndPublishArtifact(_project, user, BaseArtifactType.Glossary);
-
-            var raptorComment = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, user);
-            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
-                "Original comment and comment returned after discussion created different!");
+            var artifact = Helper.CreateAndPublishNovaArtifact(user, _project, ItemTypePredefined.Glossary);
+            var raptorDiscussion = PostRapidReviewDiscussion(user, artifact.Id, ORIGINAL_COMMENT);
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, user);
             var statusId = GetStatusId(discussions, ThreadStatus.CLOSED);
-            var comment = new RaptorComment()
+            var comment = new RaptorComment
             {
                 Comment = UPDATED_TEXT,
                 StatusId = statusId
@@ -768,9 +746,12 @@ namespace ArtifactStoreTests
 
             // Execute:
             var path = I18NHelper.FormatInvariant(
-                    RestPaths.Svc.Components.RapidReview.Artifacts_id_.Discussions_id_.COMMENT, artifact.Id, raptorComment.DiscussionId);
-            var ex = Assert.Throws<Http403ForbiddenException>(() => artifact.UpdateRapidReviewDiscussion(raptorComment, comment, user),
-                "'PATCH {0}' should return 403 Forbidden when user tries to update comment for artifact to which he/she does not have permissions!", path);
+                    RestPaths.Svc.Components.RapidReview.Artifacts_id_.Discussions_id_.COMMENT, artifact.Id, raptorDiscussion.DiscussionId);
+
+            var ex = Assert.Throws<Http403ForbiddenException>(() =>
+            {
+                UpdateRapidReviewDiscussion(user, raptorDiscussion, comment);
+            }, "'PATCH {0}' should return 403 Forbidden when user tries to update comment for artifact to which he/she does not have permissions!", path);
 
             // Verify
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, NO_PERMISSIONS_TO_COMPLETE_OPERATION);
@@ -782,12 +763,10 @@ namespace ArtifactStoreTests
         public void UpdateOtherUserDiscussion_AdminUser_403Forbidden()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
-            var raptorComment = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, _authorUser);
-            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
-                "Original comment and comment returned after discussion created different!");
+            var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.UseCase);
+            var raptorDiscussion = PostRapidReviewDiscussion(_authorUser, artifact.Id, ORIGINAL_COMMENT);
 
-            var comment = new RaptorComment()
+            var comment = new RaptorComment
             {
                 Comment = UPDATED_TEXT
             };
@@ -795,13 +774,14 @@ namespace ArtifactStoreTests
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
-                artifact.UpdateRapidReviewDiscussion(raptorComment, comment, _adminUser);
+                UpdateRapidReviewDiscussion(_adminUser, raptorDiscussion, comment);
             }, "UpdateDiscussion should throw 403 error, but it doesn't.");
 
             // Verify:
             var discussion = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
+
             Assert.AreEqual(1, discussion.Discussions.Count, "Discussions must have 1 comment, but it has {0}", discussion.Discussions.Count);
-            Assert.AreEqual(raptorComment.Comment, discussion.Discussions[0].Comment, "Comment must remain unmodified.");
+            Assert.AreEqual(raptorDiscussion.Comment, discussion.Discussions[0].Comment, "Comment must remain unmodified.");
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, NO_PERMISSIONS_TO_COMPLETE_OPERATION);
         }
 
@@ -811,28 +791,26 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(146054)]
-        [Description("Add comment to saved artifact, then get discussion for this artifact.  Verify it returns 404.")]
-        public void GetDiscussions_DraftArtifact_Returns404()
+        [Description("Add comment to unpublished artifact, then get discussion for this artifact.  Verify it returns 404.")]
+        public void GetDiscussions_UnpublishedArtifact_Returns404()
         {
             // Setup:
-            var artifact = Helper.CreateArtifact(_project, _adminUser, BaseArtifactType.Actor);
-            artifact.Save(_adminUser);
+            var artifact = Helper.CreateNovaArtifact(_adminUser, _project, ItemTypePredefined.Actor);
+            PostRapidReviewDiscussion(_adminUser, artifact.Id, "draft");
 
-            artifact.PostRapidReviewArtifactDiscussion("draft", _adminUser);
             DiscussionResultSet discussions = null;
 
+            // Execute:
             // In Nova UI doesn't allow to post discussion for never published artifact, it is possible to do by adding comment in SL and saving it
             // In this case it would be a conflict - in SL user will see comment and in Nova he will not.
             // For consistency server shouldn't allow to create comment for never published artifact.
-            // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() =>
+            var ex = Assert.Throws<Http404NotFoundException>(() =>
             {
                 discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
             }, "GetArtifactDiscussions should throw 404 error, but it doesn't.");
 
             // Verify:
-            // TODO: No internal error & message 
-            // Bug: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/Titan/_workItems?searchText=%5BTechDebt%5D&_a=edit&id=5699&triage=true
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ArtifactNotFound, NOT_FOUND_OR_NO_PERMISSION);
         }
 
         [TestCase]
@@ -841,19 +819,17 @@ namespace ArtifactStoreTests
         public void GetDiscussions_UnpublishedSubArtifact_Returns404()
         {
             // Setup:
-            var artifact = Helper.CreateArtifact(_project, _adminUser, BaseArtifactType.Process);
-            artifact.Save(_adminUser);
-            var postedRaptorComment = AddDiscussionToSubArtifactOfStorytellerProcess(artifact);
+            var artifact = Helper.CreateNovaArtifact(_adminUser, _project, ItemTypePredefined.Process);
+            var postedRaptorComment = AddDiscussionToSubArtifactOfStorytellerProcess(artifact.Id);
 
-            // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() =>
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() =>
             {
                 Helper.ArtifactStore.GetArtifactDiscussions(postedRaptorComment.ItemId, _adminUser);
             }, "GetArtifactDiscussions should throw 404 error, but it doesn't.");
 
             // Verify:
-            // TODO: No internal error & message 
-            // Bug: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/Titan/_workItems?searchText=%5BTechDebt%5D&_a=edit&id=5699&triage=true
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ArtifactNotFound, NOT_FOUND_OR_NO_PERMISSION);
         }
 
         [TestCase]
@@ -862,21 +838,19 @@ namespace ArtifactStoreTests
         public void GetDiscussions_UnpublishedSubArtifactOtherUser_404NotFound()
         {
             // Setup:
-            var artifact = Helper.CreateArtifact(_project, _adminUser, BaseArtifactType.Process);
-            artifact.Save(_adminUser);
-            var raptorComment = AddDiscussionToSubArtifactOfStorytellerProcess(artifact);
+            var artifact = Helper.CreateNovaArtifact(_adminUser, _project, ItemTypePredefined.Process);
+            var raptorDiscussion = AddDiscussionToSubArtifactOfStorytellerProcess(artifact.Id);
 
             var user2 = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
-            // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() =>
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() =>
             {
-                Helper.ArtifactStore.GetArtifactDiscussions(raptorComment.ItemId, user2);
+                Helper.ArtifactStore.GetArtifactDiscussions(raptorDiscussion.ItemId, user2);
             }, "GetArtifactDiscussions should return 404 error, but it doesn't.");
 
             // Verify:
-            // TODO: No internal error & message 
-            // Bug: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/Titan/_workItems?searchText=%5BTechDebt%5D&_a=edit&id=5699&triage=true
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ArtifactNotFound, NOT_FOUND_OR_NO_PERMISSION);
         }
 
         [TestCase]
@@ -885,9 +859,9 @@ namespace ArtifactStoreTests
         public void UpdateDiscussion_NonExistingDiscussion_404NotFound()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Glossary);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.Glossary);
             
-            var discussion = new RaptorDiscussion { DiscussionId = int.MaxValue, ItemId = artifact.Id };
+            var raptorDiscussion = new RaptorDiscussion { DiscussionId = int.MaxValue, ItemId = artifact.Id };
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
             var statusId = GetStatusId(discussions, ThreadStatus.CLOSED);
@@ -900,9 +874,12 @@ namespace ArtifactStoreTests
 
             // Execute:
             var path = I18NHelper.FormatInvariant(
-                    RestPaths.Svc.Components.RapidReview.Artifacts_id_.Discussions_id_.COMMENT, artifact.Id, discussion.DiscussionId);
-            var ex = Assert.Throws<Http404NotFoundException>(() => artifact.UpdateRapidReviewDiscussion(discussion, comment, _adminUser),
-                "'PATCH {0}' should return 404 Not Found when user tries to update comment for discussion that does not exist in artifact!", path);
+                    RestPaths.Svc.Components.RapidReview.Artifacts_id_.Discussions_id_.COMMENT, artifact.Id, raptorDiscussion.DiscussionId);
+
+            var ex = Assert.Throws<Http404NotFoundException>(() =>
+            {
+                UpdateRapidReviewDiscussion(_adminUser, raptorDiscussion, comment);
+            }, "'PATCH {0}' should return 404 Not Found when user tries to update comment for discussion that does not exist in artifact!", path);
 
             // Verify:
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "Item is no longer accessible");    // TFS bug: 5699  No Error Code returned.
@@ -915,19 +892,19 @@ namespace ArtifactStoreTests
         /// <summary>
         /// Adds a discussion comment to the specified Storyteller Process artifact.
         /// </summary>
-        /// <param name="artifact">The Process artifact to add a comment to.</param>
+        /// <param name="artifactId">The ID of a Process artifact to add a comment to.</param>
         /// <param name="user">The user credentials for the operation.</param>
         /// <returns>The IRaptorComment returned after posting the comment.</returns>
-        private IRaptorDiscussion AddDiscussionToSubArtifactOfStorytellerProcess(IArtifact artifact, IUser user = null)
+        private IRaptorDiscussion AddDiscussionToSubArtifactOfStorytellerProcess(int artifactId, IUser user = null)
         {
             if (user == null)
             {
                 user = _adminUser;
             }
 
-            var process = Helper.Storyteller.GetProcess(user, artifact.Id);
+            var process = Helper.Storyteller.GetProcess(user, artifactId);
             var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
-            var postedRaptorComment = Helper.SvcComponents.PostRapidReviewDiscussion(user, userTask.Id, "text for UT");
+            var postedRaptorComment = PostRapidReviewDiscussion(user, userTask.Id, "text for UT");
 
             return postedRaptorComment;
         }
@@ -949,7 +926,90 @@ namespace ArtifactStoreTests
             return threadStatus.StatusId;
         }
 
+        /// <summary>
+        /// Posts a new RapidReview Discussion to an artifact with the specified comment.
+        /// </summary>
+        /// <param name="user">The user to authenticate.</param>
+        /// <param name="artifactId">The ID of the artifact to add the discussion to.</param>
+        /// <param name="comment">The comment to add.</param>
+        /// <returns>The RaptorDiscussion returned by the POST call.</returns>
+        private IRaptorDiscussion PostRapidReviewDiscussion(IUser user, int artifactId, string comment)
+        {
+            var raptorDiscussion = Helper.SvcComponents.PostRapidReviewDiscussion(user, artifactId, comment);
 
+            Assert.NotNull(raptorDiscussion, "The posted discussion shouldn't be null!");
+            Assert.AreEqual(StringUtilities.WrapInDiv(comment), raptorDiscussion.Comment,
+                "The comment returned by {0} is different than what was posted!", nameof(Helper.SvcComponents.PostRapidReviewDiscussion));
+
+            return raptorDiscussion;
+        }
+
+        /// <summary>
+        /// Posts a new RapidReview Reply to a discussion with the specified comment.
+        /// </summary>
+        /// <param name="user">The user to authenticate.</param>
+        /// <param name="raptorDiscussion">The discussion to reply to.</param>
+        /// <param name="reply">The reply comment to add.</param>
+        /// <returns>The RaptorReply returned by the POST call.</returns>
+        private IRaptorReply PostRapidReviewDiscussionReply(IUser user, IRaptorDiscussion raptorDiscussion, string reply)
+        {
+            var raptorReply = Helper.SvcComponents.PostRapidReviewDiscussionReply(
+                user, raptorDiscussion.ItemId, raptorDiscussion.DiscussionId, reply);
+
+            Assert.AreEqual(StringUtilities.WrapInDiv(reply), raptorReply.Comment,
+                "The reply returned by {0} is different than what was posted!", nameof(Helper.SvcComponents.PostRapidReviewDiscussionReply));
+
+            return raptorReply;
+        }
+
+        /// <summary>
+        /// Deletes the specified RaptorDiscussion.
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="raptorDiscussion">The RaptorDiscussion to delete.</param>
+        /// <returns>A success or failure message.</returns>
+        private string DeleteRapidReviewDiscussion(IUser user, IRaptorDiscussion raptorDiscussion)
+        {
+            return Helper.SvcComponents.DeleteRapidReviewDiscussion(user, raptorDiscussion.ItemId, raptorDiscussion.DiscussionId);
+        }
+
+        /// <summary>
+        /// Deletes the specified RaptorReply.
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="raptorReply">The RaptorReply to delete.</param>
+        /// <returns>A success or failure message.</returns>
+        private string DeleteRapidReviewDiscussionReply(IUser user, IRaptorReply raptorReply)
+        {
+            return Helper.SvcComponents.DeleteRapidReviewDiscussionReply(user, raptorReply.ItemId, raptorReply.ReplyId);
+        }
+
+        /// <summary>
+        /// Updates the specified RaptorDiscussion with a new comment.
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="discussionToUpdate">The discussion to update.</param>
+        /// <param name="comment">The new comment for the discussion.</param>
+        /// <returns>The updated discussion.</returns>
+        private IRaptorDiscussion UpdateRapidReviewDiscussion(IUser user, IRaptorDiscussion discussionToUpdate, RaptorComment comment)
+        {
+            var updatedDiscussion = Helper.SvcComponents.UpdateRapidReviewDiscussion(user, discussionToUpdate.ItemId, discussionToUpdate.DiscussionId, comment);
+
+            return updatedDiscussion;
+        }
+
+        /// <summary>
+        /// Updates the specified RaptorReply with a new reply comment.
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="raptorReply">The RaptorReply to update.</param>
+        /// <param name="replyComment">The new comment for the RaptorReply.</param>
+        /// <returns>The updated RaptorReply.</returns>
+        private IRaptorReply UpdateRapidReviewDiscussionReply(IUser user, IRaptorReply raptorReply, string replyComment)
+        {
+            return Helper.SvcComponents.UpdateRapidReviewDiscussionReply(
+                    user, raptorReply.ItemId, raptorReply.DiscussionId, raptorReply.ReplyId, replyComment);
+        }
 
         #endregion Private functions
     }

@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 namespace ArtifactStore.Models.Review
 {
     [DataContract]
-    public class Reviewer
+    public class ReviewParticipant
     {
         [DataMember(Name = "Id")]
         public int UserId { get; set; }
@@ -36,7 +36,7 @@ namespace ArtifactStore.Models.Review
 
     public class ReviewParticipantsContent
     {
-        public IEnumerable<Reviewer> Items { get; set; }
+        public IEnumerable<ReviewParticipant> Items { get; set; }
         public int TotalArtifacts { get; set; }
 
         public int Total { get; set; }

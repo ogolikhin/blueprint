@@ -1,15 +1,14 @@
 ﻿using Common;
+using Model.ArtifactModel.Adapters;
 using Model.ArtifactModel.Enums;
 using Model.Factories;
 using Model.Impl;
+using Model.NovaModel.Components.RapidReview;
+using Model.OpenApiModel.Services;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using Model.ArtifactModel.Adapters;
-using Model.NovaModel.Components.RapidReview;
-using Model.OpenApiModel.Services;
 using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
@@ -26,7 +25,7 @@ namespace Model.ArtifactModel.Impl
         public Artifact()
         {
         }
-        
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -84,9 +83,9 @@ namespace Model.ArtifactModel.Impl
             var artifactToDiscard = new List<IArtifactBase> { this };
 
             var discardArtifactResults = DiscardArtifacts(
-                artifactToDiscard, 
-                Address, 
-                user, 
+                artifactToDiscard,
+                Address,
+                user,
                 expectedStatusCodes);
 
             foreach (var discardArtifactResult in discardArtifactResults)
@@ -455,7 +454,7 @@ namespace Model.ArtifactModel.Impl
             // Set Name=null for all SubArtifacts to prevent a 500 error.
             if (artifactToUpdate.BaseArtifactType != BaseArtifactType.Process)
             {
-                artifactChanges.SubArtifacts?.ForEach(delegate(NovaSubArtifact subArtifact)
+                artifactChanges.SubArtifacts?.ForEach(delegate (NovaSubArtifact subArtifact)
                 {
                     subArtifact.Name = null;
                 });
@@ -687,7 +686,7 @@ namespace Model.ArtifactModel.Impl
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifactToPublish, nameof(artifactToPublish));
-            
+
             var publishResults = SvcShared.PublishArtifacts(artifactToPublish.Address,
                 user,
                 new List<int> { artifactToPublish.Id },
@@ -701,7 +700,7 @@ namespace Model.ArtifactModel.Impl
 
             return publishResults[0];
         }
-        
+
         #endregion Static Methods
     }
 

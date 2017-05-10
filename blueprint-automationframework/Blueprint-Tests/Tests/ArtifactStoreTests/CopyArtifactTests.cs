@@ -54,7 +54,7 @@ namespace ArtifactStoreTests
         {
             if (_wrappedArtifacts.Any())
             {
-                Assert.DoesNotThrow(() => Helper.ArtifactStore.DiscardArtifacts(artifacts: null, user: WrappedArtifact.CreatedBy, all: true),
+                Assert.DoesNotThrow(() => Helper.ArtifactStore.DiscardArtifacts(artifactIds: null, user: WrappedArtifact.CreatedBy, all: true),
                     "Failed to discard the copied artifact(s)!");
                 _wrappedArtifacts.Clear();
             }

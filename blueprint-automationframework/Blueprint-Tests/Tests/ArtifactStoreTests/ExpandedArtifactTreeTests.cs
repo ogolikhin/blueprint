@@ -95,24 +95,24 @@ namespace ArtifactStoreTests
             VerifyOtherTopLevelArtifactsExist(otherTopLevelArtifacts, artifacts);
         }
 
-        [TestCase(BaseArtifactType.Actor, BaseArtifactType.Actor, BaseArtifactType.Actor)]
-        [TestCase(BaseArtifactType.PrimitiveFolder, // PrimitiveFolders can only have projects as parents.
-            BaseArtifactType.Actor,
-            BaseArtifactType.BusinessProcess,
-            BaseArtifactType.Document,
-            BaseArtifactType.DomainDiagram,
-            BaseArtifactType.GenericDiagram,
-            BaseArtifactType.Glossary,
-            BaseArtifactType.Process,
-            BaseArtifactType.Storyboard,
-            BaseArtifactType.TextualRequirement,
-            BaseArtifactType.UIMockup,
-            BaseArtifactType.UseCase,
-            BaseArtifactType.UseCaseDiagram)]
+        [TestCase(ItemTypePredefined.Actor, ItemTypePredefined.Actor, ItemTypePredefined.Actor)]
+        [TestCase(ItemTypePredefined.PrimitiveFolder, // PrimitiveFolders can only have projects as parents.
+                  ItemTypePredefined.Actor,
+                  ItemTypePredefined.BusinessProcess,
+                  ItemTypePredefined.Document,
+                  ItemTypePredefined.DomainDiagram,
+                  ItemTypePredefined.GenericDiagram,
+                  ItemTypePredefined.Glossary,
+                  ItemTypePredefined.Process,
+                  ItemTypePredefined.Storyboard,
+                  ItemTypePredefined.TextualRequirement,
+                  ItemTypePredefined.UIMockup,
+                  ItemTypePredefined.UseCase,
+                  ItemTypePredefined.UseCaseDiagram)]
         [TestRail(164526)]
         [Description("Create a chain of saved parent/child artifacts and other top level artifacts.  GetExpandedArtifactTree with the ID of the artifact at the bottom of the chain." +
             "Verify a list of top level artifacts is returned and only one has children.")]
-        public void GetExpandedArtifactTree_LastSavedArtifactInChain_ReturnsExpectedArtifactHierarchy(params BaseArtifactType[] artifactTypeChain)
+        public void GetExpandedArtifactTree_LastSavedArtifactInChain_ReturnsExpectedArtifactHierarchy(params ItemTypePredefined[] artifactTypeChain)
         {
             ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
 
@@ -120,9 +120,9 @@ namespace ArtifactStoreTests
             var artifactChain = Helper.CreateSavedArtifactChain(_project, _user, artifactTypeChain);
 
             // Create some other top-level artifacts not part of the chain.
-            var otherTopLevelArtifacts = new List<IArtifact>();
-            otherTopLevelArtifacts.Add(Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor));
-            otherTopLevelArtifacts.Add(Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process));
+            var otherTopLevelArtifacts = new List<ArtifactWrapper>();
+            otherTopLevelArtifacts.Add(Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Actor));
+            otherTopLevelArtifacts.Add(Helper.CreateNovaArtifact(_user, _project, ItemTypePredefined.Process));
 
             // Execute:
             List<INovaArtifact> artifacts = null;
@@ -135,24 +135,24 @@ namespace ArtifactStoreTests
             VerifyOtherTopLevelArtifactsExist(otherTopLevelArtifacts, artifacts);
         }
 
-        [TestCase(1, BaseArtifactType.Actor, BaseArtifactType.Actor, BaseArtifactType.Actor)]
-        [TestCase(5, BaseArtifactType.PrimitiveFolder, // PrimitiveFolders can only have projects as parents.
-            BaseArtifactType.Actor,
-            BaseArtifactType.BusinessProcess,
-            BaseArtifactType.Document,
-            BaseArtifactType.DomainDiagram,
-            BaseArtifactType.GenericDiagram,
-            BaseArtifactType.Glossary,
-            BaseArtifactType.Process,
-            BaseArtifactType.Storyboard,
-            BaseArtifactType.TextualRequirement,
-            BaseArtifactType.UIMockup,
-            BaseArtifactType.UseCase,
-            BaseArtifactType.UseCaseDiagram)]
+        [TestCase(1, ItemTypePredefined.Actor, ItemTypePredefined.Actor, ItemTypePredefined.Actor)]
+        [TestCase(5, ItemTypePredefined.PrimitiveFolder, // PrimitiveFolders can only have projects as parents.
+                  ItemTypePredefined.Actor,
+                  ItemTypePredefined.BusinessProcess,
+                  ItemTypePredefined.Document,
+                  ItemTypePredefined.DomainDiagram,
+                  ItemTypePredefined.GenericDiagram,
+                  ItemTypePredefined.Glossary,
+                  ItemTypePredefined.Process,
+                  ItemTypePredefined.Storyboard,
+                  ItemTypePredefined.TextualRequirement,
+                  ItemTypePredefined.UIMockup,
+                  ItemTypePredefined.UseCase,
+                  ItemTypePredefined.UseCaseDiagram)]
         [TestRail(164527)]
         [Description("Create a chain of saved parent/child artifacts and other top level artifacts.  GetExpandedArtifactTree with the ID of an artifact in the middle of the chain." +
             "Verify a list of top level artifacts is returned and only one has children.")]
-        public void GetExpandedArtifactTree_MiddleSavedArtifactInChain_ReturnsExpectedArtifactHierarchy(int artifactIndex, params BaseArtifactType[] artifactTypeChain)
+        public void GetExpandedArtifactTree_MiddleSavedArtifactInChain_ReturnsExpectedArtifactHierarchy(int artifactIndex, params ItemTypePredefined[] artifactTypeChain)
         {
             ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
 
@@ -160,9 +160,9 @@ namespace ArtifactStoreTests
             var artifactChain = Helper.CreateSavedArtifactChain(_project, _user, artifactTypeChain);
 
             // Create some other top-level artifacts not part of the chain.
-            var otherTopLevelArtifacts = new List<IArtifact>();
-            otherTopLevelArtifacts.Add(Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor));
-            otherTopLevelArtifacts.Add(Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process));
+            var otherTopLevelArtifacts = new List<ArtifactWrapper>();
+            otherTopLevelArtifacts.Add(Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Actor));
+            otherTopLevelArtifacts.Add(Helper.CreateNovaArtifact(_user, _project, ItemTypePredefined.Process));
 
             // Execute:
             List<INovaArtifact> artifacts = null;
@@ -175,8 +175,8 @@ namespace ArtifactStoreTests
             VerifyOtherTopLevelArtifactsExist(otherTopLevelArtifacts, artifacts);
         }
 
-        [TestCase(false, 2, BaseArtifactType.Actor, BaseArtifactType.BusinessProcess, BaseArtifactType.Document, BaseArtifactType.DomainDiagram, BaseArtifactType.GenericDiagram)]
-        [TestCase(true, 2, BaseArtifactType.Actor, BaseArtifactType.BusinessProcess, BaseArtifactType.Document, BaseArtifactType.DomainDiagram, BaseArtifactType.GenericDiagram)]
+        [TestCase(false, 2, ItemTypePredefined.Actor, ItemTypePredefined.BusinessProcess, ItemTypePredefined.Document, ItemTypePredefined.DomainDiagram, ItemTypePredefined.GenericDiagram)]
+        [TestCase(true, 2, ItemTypePredefined.Actor, ItemTypePredefined.BusinessProcess, ItemTypePredefined.Document, ItemTypePredefined.DomainDiagram, ItemTypePredefined.GenericDiagram)]
         [TestRail(164530)]
         [Description("Create a chain of saved parent/child artifacts and other top level artifacts." +
             "GetExpandedArtifactTree with the ID of an artifact in the middle of the chain with includeChildren=[true|false]." +
@@ -184,7 +184,7 @@ namespace ArtifactStoreTests
         public void GetExpandedArtifactTreeWithIncludeChildren_MiddleSavedArtifactInChain_ReturnsExpectedArtifactHierarchyAndChildren(
             bool includeChildren,
             int artifactIndex,
-            params BaseArtifactType[] artifactTypeChain)
+            params ItemTypePredefined[] artifactTypeChain)
         {
             ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
 
@@ -192,9 +192,9 @@ namespace ArtifactStoreTests
             var artifactChain = Helper.CreateSavedArtifactChain(_project, _user, artifactTypeChain);
 
             // Create some other top-level artifacts not part of the chain.
-            var otherTopLevelArtifacts = new List<IArtifact>();
-            otherTopLevelArtifacts.Add(Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor));
-            otherTopLevelArtifacts.Add(Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process));
+            var otherTopLevelArtifacts = new List<ArtifactWrapper>();
+            otherTopLevelArtifacts.Add(Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Actor));
+            otherTopLevelArtifacts.Add(Helper.CreateNovaArtifact(_user, _project, ItemTypePredefined.Process));
 
             // Execute:
             List<INovaArtifact> artifacts = null;
@@ -545,22 +545,6 @@ namespace ArtifactStoreTests
         /// </summary>
         /// <param name="otherTopLevelArtifacts">The list of other top level artifacts that aren't part of the artifact chain.</param>
         /// <param name="novaArtifacts">The list of NovaArtifacts returned by the GetExpandedArtifactTree call.</param>
-        private static void VerifyOtherTopLevelArtifactsExist(List<IArtifact> otherTopLevelArtifacts, List<INovaArtifact> novaArtifacts)
-        {
-            foreach (var artifact in otherTopLevelArtifacts)
-            {
-                var novaArtifact = novaArtifacts.Find(a => a.Id == artifact.Id);
-
-                Assert.NotNull(novaArtifact, "Couldn't find Artifact ID {0} in the list of Nova Artifacts!", artifact.Id);
-                novaArtifact.AssertEquals(artifact, shouldCompareVersions: false);
-            }
-        }
-
-        /// <summary>
-        /// Verify that all other top level artifacts exist in the list of Nova artifacts with the same properties.
-        /// </summary>
-        /// <param name="otherTopLevelArtifacts">The list of other top level artifacts that aren't part of the artifact chain.</param>
-        /// <param name="novaArtifacts">The list of NovaArtifacts returned by the GetExpandedArtifactTree call.</param>
         private static void VerifyOtherTopLevelArtifactsExist(List<ArtifactWrapper> otherTopLevelArtifacts, List<INovaArtifact> novaArtifacts)
         {
             foreach (var artifact in otherTopLevelArtifacts)
@@ -570,20 +554,6 @@ namespace ArtifactStoreTests
                 Assert.NotNull(novaArtifact, "Couldn't find Artifact ID {0} in the list of Nova Artifacts!", artifact.Id);
                 NovaArtifactBase.AssertAreEqual(artifact, novaArtifact, shouldCompareVersions: false);
             }
-        }
-
-        /// <summary>
-        /// Verifies that all top level Nova artifacts have the correct values for Children & ParentId, and verifies the children of the one
-        /// artifact chain that should exist.
-        /// </summary>
-        /// <param name="artifactChain">The list of parent/child artifacts we created.</param>
-        /// <param name="novaArtifacts">The list of NovaArtifacts returned by the GetExpandedArtifactTree call.</param>
-        /// <param name="artifactIndex">(optional) The index of the artifact chain containing the artifact whose tree we requested in the test.
-        /// By default the entire chain is assumed to be returned from GetExpandedArtifactTree.</param>
-        private void VerifyArtifactTree(List<IArtifact> artifactChain, List<INovaArtifact> novaArtifacts, int artifactIndex = int.MaxValue)
-        {
-            var topArtifact = VerifyAllTopLevelArtifacts(artifactChain.Select(a => a.Id), novaArtifacts);
-            VerifyChildArtifactsInChain(artifactChain, topArtifact, artifactIndex);
         }
 
         /// <summary>
@@ -633,34 +603,6 @@ namespace ArtifactStoreTests
             }
 
             return topNovaArtifact;
-        }
-
-        /// <summary>
-        /// Verifies that children of the Nova artifact equal it's corresponding artifact in the chain we created and that the bottom Nova artifact
-        /// doesn't have any children in the Children property.
-        /// </summary>
-        /// <param name="artifactChain">The list of parent/child artifacts we created.</param>
-        /// <param name="topNovaArtifact">The top level Nova artifact returned by the GetExpandedArtifactTree call that matches the top level artifact we created.</param>
-        /// <param name="artifactIndex">(optional) The index of the artifact chain containing the artifact whose tree we requested in the test.
-        /// By default the entire chain is assumed to be returned from GetExpandedArtifactTree.</param>
-        private static void VerifyChildArtifactsInChain(List<IArtifact> artifactChain, INovaArtifact topNovaArtifact, int artifactIndex = int.MaxValue)
-        {
-            // Verify all the children in the chain.
-            var currentChild = topNovaArtifact;
-
-            foreach (var artifact in artifactChain)
-            {
-                Assert.NotNull(currentChild, "No NovaArtifact was returned that matches with artifact '{0}' that we created!", artifact.Id);
-
-                currentChild.AssertEquals(artifact, shouldCompareVersions: false);
-                currentChild = currentChild.Children?[0];
-
-                if (--artifactIndex < 0)
-                {
-                    break;
-                }
-            }
-            Assert.IsNull(currentChild, "The Children property of the last artifact in the chain should be null!");
         }
 
         /// <summary>

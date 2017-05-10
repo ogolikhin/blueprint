@@ -227,12 +227,12 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialUserTasks(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcessWithTwoSequentialUserTasks(_project, _user);
 
-            var userTasks = process.GetProcessShapesByShapeType(ProcessShapeType.UserTask);
+            var userTasks = novaProcess.Process.GetProcessShapesByShapeType(ProcessShapeType.UserTask);
             Assert.That(userTasks.Count > 1, "There should be more than one User Task!");
 
-            var targetArtifact = new ArtifactBase {Id = process.Id, ProjectId = process.ProjectId};
+            var targetArtifact = new ArtifactBase {Id = novaProcess.Id, ProjectId = novaProcess.Process.ProjectId};
 
             int subArtifactId = userTasks[0].Id;
 
@@ -242,8 +242,8 @@ namespace ArtifactStoreTests
             sourceArtifact.Publish();
 
             // Delete the first User Task and publish.
-            process.DeleteUserAndSystemTask(userTasks[0]);
-            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, Helper.Storyteller, _user);
+            novaProcess.Process.DeleteUserAndSystemTask(userTasks[0]);
+            StorytellerTestHelper.UpdateVerifyAndPublishNovaProcess(novaProcess.NovaProcess, _user);
 
             Relationships relationships = null;
 

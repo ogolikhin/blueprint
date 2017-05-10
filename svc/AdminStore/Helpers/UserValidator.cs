@@ -20,6 +20,11 @@ namespace AdminStore.Helpers
                 throw new BadRequestException(ErrorMessages.LoginFieldLimitation, ErrorCodes.BadRequest);
             }
 
+            if (IsReservedUserName(user.Login))
+            {
+                throw new BadRequestException(ErrorMessages.LoginInvalid, ErrorCodes.BadRequest);
+            }
+
             if (string.IsNullOrEmpty(user.DisplayName))
             {
                 throw new BadRequestException(ErrorMessages.DisplayNameRequired, ErrorCodes.BadRequest);
@@ -75,6 +80,13 @@ namespace AdminStore.Helpers
             {
                 throw new BadRequestException(ErrorMessages.CreationOnlyDatabaseUsers, ErrorCodes.BadRequest);
             }
+        }
+
+        private static bool IsReservedUserName(string userName)
+        {
+            return userName == ServiceConstants.ExpiredUserKey ||
+                   userName == ServiceConstants.UserLogout ||
+                   userName == ServiceConstants.InvalidUserKey;
         }
     }
 }

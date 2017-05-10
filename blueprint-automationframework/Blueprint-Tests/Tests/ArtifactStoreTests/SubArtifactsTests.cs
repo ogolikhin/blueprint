@@ -54,24 +54,24 @@ namespace ArtifactStoreTests
         public void GetSubArtifacts_ProcessWithDeletedDefaultAndAddedNewUserTask_ReturnsCorrectSubArtifactsList()
         {
             // Setup:
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
-            var userTask = returnedProcess.GetProcessShapesByShapeType(ProcessShapeType.UserTask);
+            var userTask = novaProcess.Process.GetProcessShapesByShapeType(ProcessShapeType.UserTask);
 
-            var preconditionTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
-            var preconditionOutgoingLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask);
+            var preconditionOutgoingLink = novaProcess.Process.GetOutgoingLinkForShape(preconditionTask);
 
             Assert.IsNotNull(preconditionOutgoingLink, "Process link was not found.");
 
-            returnedProcess.AddUserAndSystemTask(preconditionOutgoingLink);
+            novaProcess.Process.AddUserAndSystemTask(preconditionOutgoingLink);
 
-            returnedProcess.DeleteUserAndSystemTask(userTask[0]);
+            novaProcess.Process.DeleteUserAndSystemTask(userTask[0]);
 
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
 
             // Execute & Verify:
-            CheckSubArtifacts(_user, returnedProcess.Id, expectedSubArtifactsNumber: 5, itemTypeVersionId: 2);
+            CheckSubArtifacts(_user, novaProcess.Id, expectedSubArtifactsNumber: 5, itemTypeVersionId: 2);
         }
 
         [TestCase]
@@ -80,24 +80,24 @@ namespace ArtifactStoreTests
         public void GetSubArtifacts_ProcessWithUserDecisionAfterPrecondition_ReturnsCorrectSubArtifactsList()
         {
             // Create and get the default process
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find precondition task
-            var preconditionTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition
-            var preconditionOutgoingLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask);
+            var preconditionOutgoingLink = novaProcess.Process.GetOutgoingLinkForShape(preconditionTask);
 
             // Get the branch end point
-            var branchEndPoint = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
+            var branchEndPoint = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
 
             // Add Decision point with branch to end
-            returnedProcess.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1, branchEndPoint.Id);
+            novaProcess.Process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1, branchEndPoint.Id);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
 
-            CheckSubArtifacts(_user, returnedProcess.Id, expectedSubArtifactsNumber: 8, itemTypeVersionId: 2);
+            CheckSubArtifacts(_user, novaProcess.Id, expectedSubArtifactsNumber: 8, itemTypeVersionId: 2);
         }
 
         [TestCase]
@@ -106,10 +106,10 @@ namespace ArtifactStoreTests
         public void GetSubArtifacts_Process_ReturnsCorrectSubArtifactsList()
         {
             // Setup:
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Execute & Verify:
-            CheckSubArtifacts(_user, returnedProcess.Id, expectedSubArtifactsNumber: 5, itemTypeVersionId: 2);
+            CheckSubArtifacts(_user, novaProcess.Id, expectedSubArtifactsNumber: 5, itemTypeVersionId: 2);
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -662,33 +662,34 @@ namespace ArtifactStoreTests
         public void GetSubArtifact_DeletedSubArtifact_404NotFound()
         {
             // Setup:
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _user);
 
             // Find precondition task
-            var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var preconditionTask = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition task
-            var preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
+            var preconditionOutgoingLink = novaProcess.Process.GetOutgoingLinkForShape(preconditionTask);
 
             Assert.IsNotNull(preconditionOutgoingLink, "Process link was not found.");
 
             // Add user/system Task immediately after the precondition
-            var userTask = process.AddUserAndSystemTask(preconditionOutgoingLink);
+            var userTask = novaProcess.Process.AddUserAndSystemTask(preconditionOutgoingLink);
 
             // Save the process
-            var returnedProcess = Helper.Storyteller.UpdateProcess(_user, process);
+            novaProcess.Update(_user, novaProcess);
+            novaProcess.RefreshArtifactFromServer(_user);
 
-            var userTaskToBeDeleted = returnedProcess.GetProcessShapeByShapeName(userTask.Name);
+            var userTaskToBeDeleted = novaProcess.Process.GetProcessShapeByShapeName(userTask.Name);
 
-            returnedProcess.DeleteUserAndSystemTask(userTaskToBeDeleted);
+            novaProcess.Process.DeleteUserAndSystemTask(userTaskToBeDeleted);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _user);
 
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() =>
             {
-                Helper.ArtifactStore.GetSubartifact(_user, process.Id, userTaskToBeDeleted.Id);
+                Helper.ArtifactStore.GetSubartifact(_user, novaProcess.Id, userTaskToBeDeleted.Id);
             }, "'GET {0}' should return 404 Not Found when passed a non-existing ID of sub-artifact!", RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_);
 
             // Verify:

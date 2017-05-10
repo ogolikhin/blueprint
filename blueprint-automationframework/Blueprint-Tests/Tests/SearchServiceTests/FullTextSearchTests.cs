@@ -30,7 +30,6 @@ namespace SearchServiceTests
         protected const string FULLTEXTSEARCH_PATH = RestPaths.Svc.SearchService.FULLTEXTSEARCH;
         protected const int DEFAULT_PAGE_VALUE = 1;
         protected const int DEFAULT_PAGESIZE_VALUE = 10;
-        protected const string DESCRIPTION = "Description";
 
         protected IUser _user { get; set; } = null;
         protected IUser _userSecond { get; set; } = null;
@@ -384,7 +383,7 @@ namespace SearchServiceTests
         }
 
         [TestCase]
-        [TestRail(182370)]
+        [TestRail(182370)]// TODO: delete or rewrite test and generate new TestRail ID
         [Ignore(IgnoreReasons.ProductBug)]  // TFS Bug: 4191  The GET svc/searchservice/itemsearch/fulltextmetadata call doesn't find saved (unpublished) changes
         [Description("Searching with the search criteria that matches with deleted but not published artifacts. Execute Search - Must return SearchResult with list of FullTextSearchItems.")]
         public void FullTextSearch_SearchDeletedNotPublishedArtifact_VerifyWithDifferentUserSearchResultIncludesItem()
@@ -560,7 +559,7 @@ namespace SearchServiceTests
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
 
             // Create search criteria with search term that matches with new version of artifact(s) description
-            var newSearchTerm = "NewDescription";
+            var newSearchTerm = "NewDescription" + RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
             var newSearchCriteria = new FullTextSearchCriteria(newSearchTerm, selectedProjectIds);
 
             // Update all published artifacts with the new description value that matches with the new search criteria
@@ -1021,7 +1020,7 @@ namespace SearchServiceTests
                 publishedArtifact.Delete(_user);
             }
 
-            var artifact = Helper.CreateAndPublishArtifact(_projects.First(), _user, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _projects[0], ItemTypePredefined.Actor);
 
             // Create search criteria with search term that matches with deleted but not published artifact(s) description.
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);

@@ -58,7 +58,7 @@ namespace Model
 
         /// <summary>
         /// Gets Use Case content for RapidReview (Storyteller).
-        /// (Runs:  'GET /svc/components/RapidReview/glossary/{artifactId}')
+        /// (Runs:  'GET /svc/components/RapidReview/usecase/{artifactId}')
         /// </summary>
         /// <param name="user">The user to authenticate to Blueprint.</param>
         /// <param name="artifactId">The ID of the Use Case artifact whose contents you want to get.</param>

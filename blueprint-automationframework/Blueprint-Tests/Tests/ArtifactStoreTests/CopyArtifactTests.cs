@@ -487,7 +487,6 @@ namespace ArtifactStoreTests
 
             // Execute:
             Tuple<CopyNovaArtifactResultSet, List<ArtifactWrapper>> copyResult = null;
-
             Assert.DoesNotThrow(() => copyResult = sourceArtifact.CopyTo(_user, parentFolder.ArtifactState.Project, parentFolder.Id, orderIndex),
                 "'POST {0}?orderIndex={1}' should return 201 Created when valid parameters are passed.", SVC_PATH, orderIndex);
 
@@ -516,7 +515,6 @@ namespace ArtifactStoreTests
 
             // Execute:
             Tuple<CopyNovaArtifactResultSet, List<ArtifactWrapper>> copyResult = null;
-
             Assert.DoesNotThrow(() => copyResult = sourceArtifact.CopyTo(_user, targetArtifact.ArtifactState.Project, targetArtifact.Id),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
@@ -785,7 +783,6 @@ namespace ArtifactStoreTests
 
             // Execute:
             Tuple<CopyNovaArtifactResultSet, List<ArtifactWrapper>> copyResult = null;
-
             Assert.DoesNotThrow(() => copyResult = novaProcess.CopyTo(_user, _project, targetFolder.Id),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
@@ -937,7 +934,6 @@ namespace ArtifactStoreTests
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
-
             Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact.Id, _project.Id, _project, _user),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
             string copiedArtifactInlineImageId = ArtifactStoreHelper.GetInlineImageId(GetCustomPropertyStringValueByName(copyResult.Artifact, propertyName));
@@ -959,44 +955,37 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.UseCase);
             var targetFolder = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.PrimitiveFolder);
 
             // Add the discussion to the artifact.
-            string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
-
-            artifact.PostRapidReviewArtifactDiscussion(commentText, author);
+            Helper.SvcComponents.PostRapidReviewDiscussion(author, artifact.Id, RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100));
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, author);
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 discussion!");
 
-            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
+            artifact.RefreshArtifactFromServer(author);
 
             // Execute:
-            CopyNovaArtifactResultSet copyResult = null;
-
-            Assert.DoesNotThrow(() =>
-            {
-                copyResult = CopyArtifactAndWrap(artifact, targetFolder.Id, author);
-            }, "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
+            Tuple<CopyNovaArtifactResultSet, List<ArtifactWrapper>> copyResult = null;
+            Assert.DoesNotThrow(() => copyResult = artifact.CopyTo(author, _project, targetFolder.Id),
+                "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
-            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, author,
-                skipCreatedBy: true, skipIndicatorFlags: true);
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(artifact, copyResult.Item1, author, skipCreatedBy: true, skipIndicatorFlags: true);
 
             // Verify the Discussions of source artifact didn't change.
             var sourceDiscussionsAfterCopy = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, author);
             Assert.AreEqual(1, sourceDiscussionsAfterCopy.Discussions.Count, "There should be 1 discussion in the source artifact!");
 
             // Publish the copied artifact so we can try to get discussions for it.
-            var copiedArtifact = Helper.Artifacts.Find(a => a.Id == copyResult.Artifact.Id);
-            copiedArtifact.Publish();
+            copyResult.Item2[0].Publish(author);
 
             // Verify the copied artifact has no Discussions.
-            var copiedArtifactDiscussions = Helper.ArtifactStore.GetArtifactDiscussions(copyResult.Artifact.Id, author);
+            var copiedArtifactDiscussions = Helper.ArtifactStore.GetArtifactDiscussions(copyResult.Item1.Artifact.Id, author);
             Assert.IsEmpty(copiedArtifactDiscussions.Discussions, "There should be no discussion in the copied artifact!");
 
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, author, copiedArtifact.Id, expectedIndicatorFlags: null);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, author, copyResult.Item2[0].Id, expectedIndicatorFlags: null);
         }
 
         [TestCase(ItemTypePredefined.Actor, ItemTypePredefined.Actor)]

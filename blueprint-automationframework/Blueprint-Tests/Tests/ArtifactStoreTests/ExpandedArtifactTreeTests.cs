@@ -232,9 +232,48 @@ namespace ArtifactStoreTests
             }
         }
 
+        [TestCase]
+        [TestRail(164600)]
+        [Description("Create & publish an artifact, then delete (but don't publish) it.  GetExpandedArtifactTree with the ID of the deleted artifact as a different user.  " +
+                     "Verify a list of top level artifacts is returned and only one has children.")]
+        public void GetExpandedArtifactTree_IdOfDeletedWithoutPublishArtifactOtherUser_ReturnsExpectedArtifactHierarchy()
+        {
+            // Setup:
+            var otherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+            var artifactTypeChain = new ItemTypePredefined[] { ItemTypePredefined.Actor, ItemTypePredefined.Glossary, ItemTypePredefined.Process };
+            var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypeChain);
+
+            var artifact = artifactChain.Last();
+            artifact.Delete(_user);
+
+            // Execute:
+            List<INovaArtifact> artifacts = null;
+
+            Assert.DoesNotThrow(() => artifacts = Helper.ArtifactStore.GetExpandedArtifactTree(otherUser, _project, artifact.Id),
+                "'GET {0}' should return 200 OK when passed valid parameters!", REST_PATH);
+
+            // Verify:
+            VerifyArtifactTree(artifactChain, artifacts);
+        }
+
         #endregion Positive tests
 
         #region 400 Bad Request tests
+
+        [TestCase(0)]
+        [TestCase(-1)]
+        [TestRail(164536)]
+        [Description("GetExpandedArtifactTree with an invalid artifact ID (<= 0).  Verify 400 Bad Request is returned with the correct error message.")]
+        public void GetExpandedArtifactTree_InvalidArtifactId_400BadRequest(int artifactId)
+        {
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(_user, _project, artifactId),
+                "'GET {0}' should return 400 Bad Request when an invalid Artifact ID is passed!", REST_PATH);
+
+            // Verify:
+            const string expectedMessage = "Parameter expandedToArtifactId must be greater than 0.";
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.OutOfRangeParameter, expectedMessage);
+        }
 
         #endregion 400 Bad Request tests
 
@@ -281,6 +320,54 @@ namespace ArtifactStoreTests
 
         #region 403 Forbidden tests
 
+        [TestCase]
+        [TestRail(164558)]
+        [Description("GetExpandedArtifactTree with a user that doesn't have access to the project.  Verify 403 Forbidden is returned with the correct error message.")]
+        public void GetExpandedArtifactTree_UserWithoutPermissionToProject_403Forbidden()
+        {
+            // Setup:
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Process);
+            var userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project);
+
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(userWithoutPermission, _project, artifact.Id),
+                "'GET {0}' should return 403 Forbidden when called by a user without permission to the project!", REST_PATH);
+
+            // Verify:
+            string expectedMessage = I18NHelper.FormatInvariant("User does not have permissions for Project (Id:{0}).", _project.Id);
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess, expectedMessage);
+        }
+
+        [TestCase(0, ItemTypePredefined.Actor, ItemTypePredefined.BusinessProcess, ItemTypePredefined.Document, ItemTypePredefined.DomainDiagram, ItemTypePredefined.GenericDiagram)]
+        [TestCase(2, ItemTypePredefined.Actor, ItemTypePredefined.BusinessProcess, ItemTypePredefined.Document, ItemTypePredefined.DomainDiagram, ItemTypePredefined.GenericDiagram)]
+        [TestCase(4, ItemTypePredefined.Actor, ItemTypePredefined.BusinessProcess, ItemTypePredefined.Document, ItemTypePredefined.DomainDiagram, ItemTypePredefined.GenericDiagram)]
+        [TestRail(164559)]
+        [Description("GetExpandedArtifactTree with a user that doesn't have access to the artifact.  Verify 403 Forbidden is returned with the correct error message.")]
+        public void GetExpandedArtifactTree_UserWithoutPermissionToPublishedArtifact_403Forbidden(int artifactIndex, params ItemTypePredefined[] artifactTypeChain)
+        {
+            ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
+
+            // Setup:
+            var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypeChain);
+
+            // Create some other top-level artifacts not part of the chain.
+            var otherTopLevelArtifacts = new List<ArtifactWrapper>();
+            otherTopLevelArtifacts.Add(Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Actor));
+            otherTopLevelArtifacts.Add(Helper.CreateNovaArtifact(_user, _project, ItemTypePredefined.Process));
+
+            // Create a user without permission to the artifact.
+            var userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+            Helper.AssignProjectRolePermissionsToUser(userWithoutPermission, TestHelper.ProjectRole.None, _project, artifactChain[artifactIndex]);
+
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(userWithoutPermission, _project, artifactChain.Last().Id),
+                "'GET {0}' should return 403 Forbidden when called by a user without permission to the artifact!", REST_PATH);
+
+            // Verify:
+            string expectedMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", artifactChain.Last().Id);
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess, expectedMessage);
+        }
+
         #endregion 403 Forbidden tests
 
         #region 404 Not Found tests
@@ -323,21 +410,6 @@ namespace ArtifactStoreTests
             // Verify:
             string expectedMessage = I18NHelper.FormatInvariant("Artifact (Id:{0}) in Project (Id:{1}) is not found.", artifactId, _project.Id);
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound, expectedMessage);
-        }
-
-        [TestCase(0)]
-        [TestCase(-1)]
-        [TestRail(164536)]
-        [Description("GetExpandedArtifactTree with an invalid artifact ID (<= 0).  Verify 400 Bad Request is returned with the correct error message.")]
-        public void GetExpandedArtifactTree_InvalidArtifactId_400BadRequest(int artifactId)
-        {
-            // Execute:
-            var ex = Assert.Throws<Http400BadRequestException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(_user, _project, artifactId),
-                "'GET {0}' should return 400 Bad Request when an invalid Artifact ID is passed!", REST_PATH);
-
-            // Verify:
-            const string expectedMessage = "Parameter expandedToArtifactId must be greater than 0.";
-            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.OutOfRangeParameter, expectedMessage);
         }
 
         [TestCase]
@@ -418,30 +490,6 @@ namespace ArtifactStoreTests
         }
 
         [TestCase]
-        [TestRail(164600)]
-        [Description("Create & publish an artifact, then delete (but don't publish) it.  GetExpandedArtifactTree with the ID of the deleted artifact as a different user.  " +
-                     "Verify a list of top level artifacts is returned and only one has children.")]
-        public void GetExpandedArtifactTree_IdOfDeletedWithoutPublishArtifactOtherUser_ReturnsExpectedArtifactHierarchy()
-        {
-            // Setup:
-            var otherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
-            var artifactTypeChain = new ItemTypePredefined[] { ItemTypePredefined.Actor, ItemTypePredefined.Glossary, ItemTypePredefined.Process };
-            var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypeChain);
-
-            var artifact = artifactChain.Last();
-            artifact.Delete(_user);
-
-            // Execute:
-            List<INovaArtifact> artifacts = null;
-
-            Assert.DoesNotThrow(() => artifacts = Helper.ArtifactStore.GetExpandedArtifactTree(otherUser, _project, artifact.Id),
-                "'GET {0}' should return 200 OK when passed valid parameters!", REST_PATH);
-
-            // Verify:
-            VerifyArtifactTree(artifactChain, artifacts);
-        }
-
-        [TestCase]
         [TestRail(164601)]
         [Description("Create & save an artifact.  GetExpandedArtifactTree with the ID of the unpublished artifact (as a different user).  " +
                      "Verify 404 Not Found is returned with the correct error message.")]
@@ -461,54 +509,6 @@ namespace ArtifactStoreTests
         }
 
         #endregion 404 Not Found tests
-
-        [TestCase]
-        [TestRail(164558)]
-        [Description("GetExpandedArtifactTree with a user that doesn't have access to the project.  Verify 403 Forbidden is returned with the correct error message.")]
-        public void GetExpandedArtifactTree_UserWithoutPermissionToProject_403Forbidden()
-        {
-            // Setup:
-            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Process);
-            var userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project);
-
-            // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(userWithoutPermission, _project, artifact.Id),
-                "'GET {0}' should return 403 Forbidden when called by a user without permission to the project!", REST_PATH);
-
-            // Verify:
-            string expectedMessage = I18NHelper.FormatInvariant("User does not have permissions for Project (Id:{0}).", _project.Id);
-            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess, expectedMessage);
-        }
-
-        [TestCase(0, ItemTypePredefined.Actor, ItemTypePredefined.BusinessProcess, ItemTypePredefined.Document, ItemTypePredefined.DomainDiagram, ItemTypePredefined.GenericDiagram)]
-        [TestCase(2, ItemTypePredefined.Actor, ItemTypePredefined.BusinessProcess, ItemTypePredefined.Document, ItemTypePredefined.DomainDiagram, ItemTypePredefined.GenericDiagram)]
-        [TestCase(4, ItemTypePredefined.Actor, ItemTypePredefined.BusinessProcess, ItemTypePredefined.Document, ItemTypePredefined.DomainDiagram, ItemTypePredefined.GenericDiagram)]
-        [TestRail(164559)]
-        [Description("GetExpandedArtifactTree with a user that doesn't have access to the artifact.  Verify 403 Forbidden is returned with the correct error message.")]
-        public void GetExpandedArtifactTree_UserWithoutPermissionToPublishedArtifact_403Forbidden(int artifactIndex, params ItemTypePredefined[] artifactTypeChain)
-        {
-            ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
-
-            // Setup:
-            var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypeChain);
-
-            // Create some other top-level artifacts not part of the chain.
-            var otherTopLevelArtifacts = new List<ArtifactWrapper>();
-            otherTopLevelArtifacts.Add(Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Actor));
-            otherTopLevelArtifacts.Add(Helper.CreateNovaArtifact(_user, _project, ItemTypePredefined.Process));
-
-            // Create a user without permission to the artifact.
-            var userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
-            Helper.AssignProjectRolePermissionsToUser(userWithoutPermission, TestHelper.ProjectRole.None, _project, artifactChain[artifactIndex]);
-
-            // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(userWithoutPermission, _project, artifactChain.Last().Id),
-                "'GET {0}' should return 403 Forbidden when called by a user without permission to the artifact!", REST_PATH);
-
-            // Verify:
-            string expectedMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", artifactChain.Last().Id);
-            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess, expectedMessage);
-        }
 
         #region Private functions
 

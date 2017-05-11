@@ -108,7 +108,6 @@ namespace ArtifactStoreTests
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
-
             Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact.Id, _project.Id, _project, author),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
@@ -133,7 +132,6 @@ namespace ArtifactStoreTests
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
-
             Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact.Id, parentArtifact.Id, _project, _user),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
@@ -154,7 +152,6 @@ namespace ArtifactStoreTests
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
-
             Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact.Id, sourceArtifact.Id, _project, _user),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
@@ -587,7 +584,6 @@ namespace ArtifactStoreTests
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
-
             Assert.DoesNotThrow(() => copyResult = ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, sourceArtifact.Id, targetFolder.Id, author),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
@@ -609,43 +605,41 @@ namespace ArtifactStoreTests
 
         [Category(Categories.CustomData)]
         [Category(Categories.GoldenData)]
-        [TestCase(BaseArtifactType.BusinessProcess, 271, "Business Process Diagram", 3)]
-        [TestCase(BaseArtifactType.DomainDiagram, 356, "Domain Diagram", 3)]
-        [TestCase(BaseArtifactType.GenericDiagram, 310, "Generic Diagram", 3)]
-        [TestCase(BaseArtifactType.Glossary, 80, "Glossary", 3)]
-        [TestCase(BaseArtifactType.Process, 89, "Process", 3)]
-        [TestCase(BaseArtifactType.Storyboard, 231, "Storyboard", 3)]
-        [TestCase(BaseArtifactType.UIMockup, 168, "UI Mockup", 3)]
-        [TestCase(BaseArtifactType.UseCase, 351, "MainUseCase", 3)]
-        [TestCase(BaseArtifactType.UseCaseDiagram, 245, "Use Case Diagram", 3)]
+        [TestCase(271, 3)]
+        [TestCase(356, 3)]
+        [TestCase(310, 3)]
+        [TestCase(80, 3)]
+        [TestCase(89, 3)]
+        [TestCase(231, 3)]
+        [TestCase(168, 3)]
+        [TestCase(351, 3)]
+        [TestCase(245, 3)]
         [TestRail(195646)]
         [Description("Create & publish a destination folder.  Copy the pre-created source artifact to the destination artifact.  Verify the source artifact is " +
             "unchanged and the new artifact is identical to the source artifact (including sub-artifact traces, attachments and document references.  " +
             "New copied artifact should not be published.")]
         public void CopyArtifact_SinglePublishedLegacyDiagramArtifactWithSubArtifactTracesAttachmentsAndDocumentReferences_ToNewFolder_NewArtifactIsIdenticalToOriginal(
-            BaseArtifactType artifactType, int artifactId, string artifactName, int expectedVersionOfOriginalArtifact)
+            int artifactId, int expectedVersionOfOriginalArtifact)
         {
             // Setup:
             var customDataProject = ArtifactStoreHelper.GetCustomDataProject(_user);
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, customDataProject);
 
             var targetFolder = Helper.CreateAndPublishNovaArtifact(author, customDataProject, ItemTypePredefined.PrimitiveFolder);
-            var preCreatedArtifact = ArtifactFactory.CreateArtifact(customDataProject, author, artifactType, artifactId, name: artifactName);
 
-            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, preCreatedArtifact.Id);
+            var sourceArtifact = Helper.ArtifactStore.GetArtifactDetails(author, artifactId);
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
-
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(preCreatedArtifact, targetFolder.Id, author),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact.Id, targetFolder.Id, customDataProject, author),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
-            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, author,
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifact, copyResult, author,
                 expectedVersionOfOriginalArtifact: expectedVersionOfOriginalArtifact, skipCreatedBy: true);
 
             // Publish the copied artifact so we can add a breakpoint and check it in the UI.
-            WrappedArtifact.Publish(author);
+            Helper.ArtifactStore.PublishArtifact(copyResult.Artifact.Id, author);
 
             // A new attachment reference is created in the copy which has different AttachmentId, UploadedDate & ReferenceDate,
             // so we need to exclude those when comparing.  Also, the copy was done by a different user than the original, so we can't compare Users.
@@ -657,7 +651,7 @@ namespace ArtifactStoreTests
                 CompareUsers = false
             };
 
-            AssertCopiedSubArtifactsAreEqualToOriginal(author, sourceArtifactDetails, copyResult.Artifact, attachmentCompareOptions: compareOptions);
+            AssertCopiedSubArtifactsAreEqualToOriginal(author, sourceArtifact, copyResult.Artifact, attachmentCompareOptions: compareOptions);
         }
 
         [TestCase]
@@ -728,7 +722,6 @@ namespace ArtifactStoreTests
 
             // Execute:
             Tuple<CopyNovaArtifactResultSet, List<ArtifactWrapper>> copyResult = null;
-
             Assert.DoesNotThrow(() => copyResult = sourceArtifact.CopyTo(author, _project, targetFolder.Id),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
@@ -835,13 +828,13 @@ namespace ArtifactStoreTests
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
-
             Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact.Id, _project.Id, _project, _user),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
+
+            // Verify:
             string copiedArtifactInlineImageId = ArtifactStoreHelper.GetInlineImageId(copyResult.Artifact.Description);
             var copiedArtifactImageFile = Helper.ArtifactStore.GetImage(_user, copiedArtifactInlineImageId);
 
-            // Verify:
             Assert.AreNotEqual(sourceArtifactInlineImageId, copiedArtifactInlineImageId, "ImageId's for source and copied artifacts should be different.");
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, _user,
                 expectedVersionOfOriginalArtifact: -1, skipDescription: true);
@@ -869,7 +862,6 @@ namespace ArtifactStoreTests
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
-
             Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact.Id, _project.Id, _project, _user),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
             string copiedArtifactInlineImageId = ArtifactStoreHelper.GetInlineImageId(copyResult.Artifact.Description);

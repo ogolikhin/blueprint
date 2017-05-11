@@ -393,7 +393,7 @@ namespace Helper
                 eulaAccepted: false,
                 license: licenseLevel ?? LicenseLevel.Viewer,
                 isSso: false,
-                allowFallback: null,
+                allowFallback: false,
                 instanceAdminRole: instanceAdminRole,
                 instanceAdminPrivileges: adminPrivileges,
                 guest: false,

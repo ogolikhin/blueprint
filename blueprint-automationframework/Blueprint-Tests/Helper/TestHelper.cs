@@ -752,6 +752,7 @@ namespace Helper
 
             // Update the artifact states manually because we didn't use ArtifactWrapper to Publish them.
             artifactList.ForEach(a => a.UpdateArtifactState(ArtifactWrapper.ArtifactOperation.Publish));
+            artifactList.ForEach(a => a.Version = 1);
 
             return artifactList;
         }
@@ -1389,23 +1390,24 @@ namespace Helper
         /// <param name="targets">The authentication targets.</param>
         /// <param name="instanceAdminRole">(optional) The Instance Admin Role to assign to the user.  Pass null if you don't want any role assigned.</param>
         /// <param name="source">(optional) Where the user exists.</param>
+        /// <param name="badToken">(optional) The invalid token to set.  Defaults to a token GUID that shouldn't exist.</param>
         /// <returns>A new user that has the requested access tokens.</returns>
         public IUser CreateUserWithInvalidToken(AuthenticationTokenTypes targets,
             InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
-            UserSource source = UserSource.Database)
+            UserSource source = UserSource.Database,
+            string badToken = CommonConstants.InvalidToken)
         {
             var user = CreateUserAndAddToDatabase(instanceAdminRole, source);
-            string fakeTokenValue = Guid.NewGuid().ToString("N");   // 'N' creates a 32-char string with no hyphens.
 
             if ((targets & AuthenticationTokenTypes.AccessControlToken) != 0)
             {
-                user.SetToken(fakeTokenValue);
+                user.SetToken(badToken);
             }
 
             if ((targets & AuthenticationTokenTypes.OpenApiToken) != 0)
             {
                 user.SetToken(I18NHelper.FormatInvariant("{0} {1}",
-                    BlueprintToken.OPENAPI_START_OF_TOKEN, fakeTokenValue));
+                    BlueprintToken.OPENAPI_START_OF_TOKEN, badToken));
             }
 
             return user;

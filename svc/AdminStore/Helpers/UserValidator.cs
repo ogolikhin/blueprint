@@ -60,7 +60,7 @@ namespace AdminStore.Helpers
                 throw new BadRequestException(ErrorMessages.EmailFieldLimitation, ErrorCodes.BadRequest);
             }
 
-            var emailRegex = new Regex(@"^([\w-.\']+)@(([[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.)|(([\w-]+.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(]?)$");
+            var emailRegex = new Regex(@"^([\w-\.\']+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$");
             if (!emailRegex.IsMatch(user.Email))
             {
                 throw new BadRequestException(ErrorMessages.EmailFormatIncorrect, ErrorCodes.BadRequest);

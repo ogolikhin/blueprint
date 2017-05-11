@@ -1221,7 +1221,7 @@ namespace AdminStore.Controllers
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
-        public async Task PostUser_IncorrectEmailFromat_ReturnBadRequestResult()
+        public async Task PostUser_EmailWithoutAtSymbol_ReturnBadRequestResult()
         {
             // Arrange
             _user.Email = "testemail.com";
@@ -1235,6 +1235,24 @@ namespace AdminStore.Controllers
             // Assert
             // Exception
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task PostUser_EmailWithMultipleAtSymbols_ReturnBadRequestResult()
+        {
+            // Arrange
+            _user.Email = "sp@rk@email.com";
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+
+            // Act
+            await _controller.PostUser(_user);
+
+            // Assert
+            // Exception
+        }
+
         #endregion
 
         #region Update user

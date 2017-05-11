@@ -134,7 +134,7 @@ namespace AdminStore.Repositories
             var prm = new DynamicParameters();
             prm.Add("@token", token);
             return await _adminStorageConnectionWrapper.QueryAsync<PasswordRecoveryToken>("GetUserPasswordRecoveryTokens", prm, commandType: CommandType.StoredProcedure);
-        }      
+        }
 
         public async Task<QueryResult<UserDto>> GetUsersAsync(Pagination pagination, Sorting sorting = null, string search = null, Func<Sorting, string> sort = null)
         {
@@ -273,12 +273,15 @@ namespace AdminStore.Repositories
             return result;
         }
 
-        public async Task UpdateUserPasswordAsync(string password, int sessionUserId)
+        public async Task UpdateUserPasswordAsync(string login, string password)
         {
+            var userSalt = Guid.NewGuid();
+            var newPassword = HashingUtilities.GenerateSaltedHash(password, userSalt);
+
             var parameters = new DynamicParameters();
-           // parameters.Add("@Login", user.Login);
-           // parameters.Add("@Password", user.Password);
-           // parameters.Add("@UserSALT", user.UserSalt);
+            parameters.Add("@Login", login);
+            parameters.Add("@UserSALT", userSalt);
+            parameters.Add("@Password", newPassword);
             await _connectionWrapper.ExecuteAsync("UpdateUserOnPasswordResetAsync", parameters, commandType: CommandType.StoredProcedure);
         }
 
@@ -346,15 +349,15 @@ namespace AdminStore.Repositories
             var userGroups = await _connectionWrapper.QueryAsync<Group>("GetUsersGroups", parameters, commandType: CommandType.StoredProcedure);
             var total = parameters.Get<int?>("Total");
             var errorCode = parameters.Get<int?>("ErrorCode");
-          
+
             if (errorCode.HasValue)
             {
                 switch (errorCode.Value)
                 {
-                    case (int) SqlErrorCodes.GeneralSqlError:
+                    case (int)SqlErrorCodes.GeneralSqlError:
                         throw new BadRequestException(ErrorMessages.GeneralErrorOfGettingUserGroups);
 
-                    case (int) SqlErrorCodes.UserLoginNotExist:
+                    case (int)SqlErrorCodes.UserLoginNotExist:
                         throw new ResourceNotFoundException(ErrorMessages.UserNotExist);
                 }
             }
@@ -365,8 +368,8 @@ namespace AdminStore.Repositories
             }
 
             var mappedGroups = GroupMapper.Map(userGroups);
-          
-            var queryDataResult = new QueryResult<GroupDto>() {Items = mappedGroups, Total =  total.Value};
+
+            var queryDataResult = new QueryResult<GroupDto>() { Items = mappedGroups, Total = total.Value };
             return queryDataResult;
         }
 

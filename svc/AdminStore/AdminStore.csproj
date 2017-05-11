@@ -129,6 +129,7 @@
     <Compile Include="Models\DeleteResult.cs" />
     <Compile Include="Models\Sorting.cs" />
     <Compile Include="Models\TabularData.cs" />
+    <Compile Include="Models\UpdateUserPassword.cs" />
     <Compile Include="Models\UserDto.cs" />
     <Compile Include="Helpers\EmailHelper.cs" />
     <Compile Include="Helpers\HashingUtilities.cs" />

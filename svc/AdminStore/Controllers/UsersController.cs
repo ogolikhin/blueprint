@@ -418,6 +418,19 @@ namespace AdminStore.Controllers
             return Ok();
         }
 
+        [HttpPost]
+        [SessionRequired]
+        [Route("changepassword")]
+        [ResponseType(typeof(int))]
+        public async Task<IHttpActionResult> ChangeInstanceAdminPassword([FromBody] string password)
+        {
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageUsers);
+
+
+            return Ok();
+        }
+
+
         /// <summary>
         /// Create new database user
         /// </summary>

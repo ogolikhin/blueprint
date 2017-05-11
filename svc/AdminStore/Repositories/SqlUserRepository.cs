@@ -273,6 +273,15 @@ namespace AdminStore.Repositories
             return result;
         }
 
+        public Task UpdateUserPasswordAsync(string password, int sessionUserId)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@Login", user.Login);
+            parameters.Add("@Password", user.Password);
+            parameters.Add("@UserSALT", user.UserSalt);
+            await _connectionWrapper.ExecuteAsync("UpdateUserOnPasswordResetAsync", prm, commandType: CommandType.StoredProcedure);
+        }
+
         public async Task UpdateUserAsync(User loginUser)
         {
             var parameters = new DynamicParameters();

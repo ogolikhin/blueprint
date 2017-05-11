@@ -363,7 +363,6 @@ namespace AdminStoreTests.UsersTests
         [TestCase("domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No @ character")]
         [TestCase("user@name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "Only one @ allowed")]
         [TestCase("user@domain..com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "Double dot after @")]
-        [TestCase("user..name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "Double dot before @")]
         [TestCase("user\"Name\"@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "Quotes must be dot separated")]
         [TestCase("user name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No spaces")]
         [TestCase("user\\name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No backslashes")]
@@ -488,7 +487,7 @@ namespace AdminStoreTests.UsersTests
         #region 401 Unauthorized Tests
 
         [TestCase("")]
-        [TestCase("invalidTokenString")]
+        [TestCase(CommonConstants.InvalidToken)]
         [Description("Create and add an instance user with an invalid token header. " +
                      "Verify that 401 Unauthorized is returned.")]
         [TestRail(303373)]

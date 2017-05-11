@@ -199,9 +199,8 @@ namespace Model
         /// </summary>
         /// <param name="adminUser">The admin user updating the user.</param>
         /// <param name="user">An InstanceUser object representing the user to update.</param>
-        /// <param name="removeBody">(optional) True if the user object is to be removed from the body, false otherwise.</param>
         /// <returns>The returned HTTP Status Code</returns>
-        HttpStatusCode UpdateUser(IUser adminUser, InstanceUser user, bool removeBody = false);
+        HttpStatusCode UpdateUser(IUser adminUser, InstanceUser user);
 
         /// <summary>
         /// Checks if the AdminStore service is ready for operation.

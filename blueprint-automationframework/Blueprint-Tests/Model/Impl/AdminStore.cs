@@ -235,7 +235,7 @@ namespace Model.Impl
             var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
             string path = RestPaths.Svc.AdminStore.Users.USERS;
 
-            if (user!= null && user.Password != null)
+            if (user != null && user.Password != null)
             {
                 user.Password = HashingUtilities.EncodeTo64UTF8(user.Password);
             }
@@ -434,8 +434,8 @@ namespace Model.Impl
             }
         }
 
-        /// <seealso cref="IAdminStore.UpdateUser(IUser, InstanceUser, bool)"/>
-        public HttpStatusCode UpdateUser(IUser adminUser, InstanceUser user, bool removeBody = false)
+        /// <seealso cref="IAdminStore.UpdateUser(IUser, InstanceUser)"/>
+        public HttpStatusCode UpdateUser(IUser adminUser, InstanceUser user)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
@@ -449,7 +449,7 @@ namespace Model.Impl
                 var response = restApi.SendRequestAndGetResponse(
                     path,
                     RestRequestMethod.PUT,
-                    bodyObject: removeBody ? null : user,
+                    bodyObject: user,
                     expectedStatusCodes: new List<HttpStatusCode> { HttpStatusCode.OK });
 
                 return response.StatusCode;

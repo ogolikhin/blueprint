@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Net;
+using Common;
 using CustomAttributes;
 using Helper;
 using Model;
@@ -7,6 +10,7 @@ using Model.Impl;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
+using Utilities.Facades;
 using Utilities.Factories;
 
 namespace AdminStoreTests.UsersTests
@@ -56,7 +60,6 @@ namespace AdminStoreTests.UsersTests
             // Setup:
             var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
 
-            // Execute:
             int createdUserId = 0;
 
             Assert.DoesNotThrow(() =>
@@ -87,6 +90,7 @@ namespace AdminStoreTests.UsersTests
 
             createdUser.Login += RandomGenerator.RandomAlphaNumeric(2);
 
+            // Execute:
             Assert.DoesNotThrow(() =>
             {
                 Helper.AdminStore.UpdateUser(_adminUser, createdUser);
@@ -129,7 +133,6 @@ namespace AdminStoreTests.UsersTests
             // Setup:
             var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
 
-            // Execute:
             int createdUserId = 0;
 
             Assert.DoesNotThrow(() =>
@@ -150,6 +153,7 @@ namespace AdminStoreTests.UsersTests
             // Modify the property
             CSharpUtilities.SetProperty(property, value, createdUser);
 
+            // Execute:
             Assert.DoesNotThrow(() =>
             {
                 Helper.AdminStore.UpdateUser(_adminUser, createdUser);
@@ -178,18 +182,17 @@ namespace AdminStoreTests.UsersTests
         [TestCase(InstanceAdminRole.AssignInstanceAdministrators)]
         [TestCase(InstanceAdminRole.DefaultInstanceAdministrator)]
         [TestCase(InstanceAdminRole.ProvisionUsers)]
-        [Description("Create and add an instance user. Modify the user with another user that has" +
+        [Description("Create and add an instance user. Modify the user with another user that has " +
                      "permission to manage users. Verify that the user was modified.")]
         [TestRail(303611)]
         public void UpdateInstanceUser_PermissionsToManageUsers_UserUpdatesCorrectly(InstanceAdminRole adminRole)
         {
             // Setup:
-            var userPermissionsToManageUsers = Helper.CreateUserAndAddToDatabase(adminRole);
-            Helper.AdminStore.AddSession(userPermissionsToManageUsers);
+            var userPermissionsToManageUsers = Helper.CreateUserAndAuthenticate(
+                TestHelper.AuthenticationTokenTypes.AccessControlToken, adminRole);
 
             var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
 
-            // Execute:
             int createdUserId = 0;
 
             Assert.DoesNotThrow(() =>
@@ -204,6 +207,7 @@ namespace AdminStoreTests.UsersTests
             // Modify any field
             createdUser.DisplayName = "Modified Display Name";
 
+            // Execute:
             Assert.DoesNotThrow(() =>
             {
                 Helper.AdminStore.UpdateUser(userPermissionsToManageUsers, createdUser);
@@ -232,7 +236,6 @@ namespace AdminStoreTests.UsersTests
             // Setup:
             var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
 
-            // Execute:
             int createdUserId = 0;
 
             Assert.DoesNotThrow(() =>
@@ -247,6 +250,7 @@ namespace AdminStoreTests.UsersTests
             // Source defaults to Database, so we need to remove it here
             createdUser.Source = null;
 
+            // Execute:
             Assert.DoesNotThrow(() =>
             {
                 Helper.AdminStore.UpdateUser(_adminUser, createdUser);
@@ -291,7 +295,8 @@ namespace AdminStoreTests.UsersTests
             createdUser.Id = createdUserId;
             createdUser.CurrentVersion++;
 
-            var ex = Assert.Throws<Http400BadRequestException>(() => { Helper.AdminStore.UpdateUser(_adminUser, createdUser, removeBody: true); },
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() => { UpdateUserWithNoBodyInRestCall(_adminUser, createdUser); },
                 "'PUT {0}' should return 400 Bad Request!", USER_PATH_ID);
 
             // Verify:
@@ -317,6 +322,7 @@ namespace AdminStoreTests.UsersTests
             createdUser.Id = invalidId;
             createdUser.CurrentVersion++;
 
+            //Execute:
             var ex = Assert.Throws<Http400BadRequestException>(() => { Helper.AdminStore.UpdateUser(_adminUser, createdUser); },
                 "'PUT {0}' should return 400 Bad Request!", USER_PATH_ID);
 
@@ -326,7 +332,7 @@ namespace AdminStoreTests.UsersTests
 
         [TestCase("", Description = "Login is empty")]
         [TestCase(null, Description = "Login is null")]
-        [Description("Create and add a default instance user. Remove the display name. Update the user. " +
+        [Description("Create and add a default instance user. Remove the login. Update the user. " +
                      "Verify that 400 Bad Request is returned.")]
         [TestRail(303409)]
         public void UpdateInstanceUser_MissingLogin_400BadRequest(string login)
@@ -374,22 +380,22 @@ namespace AdminStoreTests.UsersTests
         public void UpdateInstanceUser_ModifiedLoginAlreadyExists_400BadRequest()
         {
             // Setup:
-            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
+            var firstUser = AdminStoreHelper.GenerateRandomInstanceUser();
 
-            Helper.AdminStore.AddUser(_adminUser, createdUser);
+            Helper.AdminStore.AddUser(_adminUser, firstUser);
 
-            var newUser = AdminStoreHelper.GenerateRandomInstanceUser();
+            var secondUser = AdminStoreHelper.GenerateRandomInstanceUser();
 
-            var newUserId = Helper.AdminStore.AddUser(_adminUser, newUser);
+            var secondUserId = Helper.AdminStore.AddUser(_adminUser, secondUser);
 
             // Update user Id with returned value and incremented version
-            newUser.Id = newUserId;
-            newUser.CurrentVersion++;
+            secondUser.Id = secondUserId;
+            secondUser.CurrentVersion++;
 
-            newUser.Login = createdUser.Login;
+            secondUser.Login = firstUser.Login;
 
             // Execute:
-            var ex = Assert.Throws<Http400BadRequestException>(() => { Helper.AdminStore.UpdateUser(_adminUser, newUser); },
+            var ex = Assert.Throws<Http400BadRequestException>(() => { Helper.AdminStore.UpdateUser(_adminUser, secondUser); },
                 "'PUT {0}' should return 400 Bad Request!", USER_PATH_ID);
 
             // Verify:
@@ -412,7 +418,7 @@ namespace AdminStoreTests.UsersTests
 
         [TestCase((uint)1, Description = "Minimum 2 characters")]
         [TestCase((uint)256, Description = "Maximum 255 characters")]
-        [Description("Create and add a default instance user. Modify the login of the user to an invalid value. " +
+        [Description("Create and add a default instance user. Modify the display name of the user to an invalid value. " +
                      "Update the user. Verify 400 Bad Request is returned.")]
         [TestRail(303610)]
         public void UpdateInstanceUser_InvalidDisplayName_400BadRequest(uint numCharacters)
@@ -430,7 +436,6 @@ namespace AdminStoreTests.UsersTests
         [TestCase("domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No @ character")]
         [TestCase("user@name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "Only one @ allowed")]
         [TestCase("user@domain..com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "Double dot after @")]
-        [TestCase("user..name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "Double dot before @")]
         [TestCase("user\"Name\"@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "Quotes must be dot separated")]
         [TestCase("user name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No spaces")]
         [TestCase("user\\name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No backslashes")]
@@ -443,7 +448,7 @@ namespace AdminStoreTests.UsersTests
         [TestCase("user>name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No greater than")]
         [TestCase("user[name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No left bracket")]
         [TestCase("user]name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No right bracket")]
-        [Description("Create an instance user with an invalid email. Try to add the user. " +
+        [Description("Create and add an instance user with a valid email. Try to update with an invalid email. " +
                      "Verify that 400 Bad Request is returned.")]
         [TestRail(303412)]
         public void UpdateInstanceUser_InvalidEmail_400BadRequest(object value, string errorMessage)
@@ -570,7 +575,7 @@ namespace AdminStoreTests.UsersTests
         #region 401 Unauthorized Tests
 
         [TestCase("")]
-        [TestCase("invalidTokenString")]
+        [TestCase(CommonConstants.InvalidToken)]
         [Description("Create and add an instance user. Try to update the user using an invalid token header. " +
              "Verify that 401 Unauthorized is returned.")]
         [TestRail(303404)]
@@ -590,11 +595,12 @@ namespace AdminStoreTests.UsersTests
             createdUser.Id = createdUserId;
             createdUser.CurrentVersion++;
 
-            var userWithInvalidTokenHeader = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken,
-                InstanceAdminRole.DefaultInstanceAdministrator);
-            userWithInvalidTokenHeader.SetToken(tokenString);
+            var userWithInvalidTokenHeader = Helper.CreateUserWithInvalidToken(
+                TestHelper.AuthenticationTokenTypes.AccessControlToken, 
+                InstanceAdminRole.DefaultInstanceAdministrator, 
+                badToken: tokenString);
 
-            // Execute & Verify:
+            // Execute:
             var ex = Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 Helper.AdminStore.UpdateUser(userWithInvalidTokenHeader, createdUser);
@@ -619,7 +625,7 @@ namespace AdminStoreTests.UsersTests
         [Description("Create and add an instance user.  Try to update the user with another user that does not have" +
              "permission to manage users. Verify that 401 Unauthorized is returned.")]
         [TestRail(303449)]
-        public void AddInstanceUser_NoPermissionsToManageUsers_403Forbidden(InstanceAdminRole? adminRole)
+        public void UpdateInstanceUser_NoPermissionsToManageUsers_403Forbidden(InstanceAdminRole? adminRole)
         {
             // Setup:
             var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
@@ -635,8 +641,8 @@ namespace AdminStoreTests.UsersTests
             createdUser.Id = createdUserId;
             createdUser.CurrentVersion++;
 
-            var userWithNoPermissionsToManageUsers = Helper.CreateUserAndAddToDatabase(adminRole);
-            Helper.AdminStore.AddSession(userWithNoPermissionsToManageUsers);
+            var userWithNoPermissionsToManageUsers = Helper.CreateUserAndAuthenticate(
+                TestHelper.AuthenticationTokenTypes.AccessControlToken, adminRole);
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
@@ -654,7 +660,7 @@ namespace AdminStoreTests.UsersTests
         #region 404 Not Found Tests
 
         [TestCase]
-        [Description("Create an instance user. Try to update the user without adding it first. " +
+        [Description("Create an instance user. Try to update a non-existing user. " +
                      "Verify that 404 Not Found is returned.")]
         [TestRail(303422)]
         public void UpdateInstanceUser_UserDoesntExist_404NotFound()
@@ -674,6 +680,7 @@ namespace AdminStoreTests.UsersTests
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, InstanceAdminErrorMessages.UserNotExist);
         }
 
+        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
         [TestCase]
         [Description("Create and add an instance user. Delete the user.  Try to update the deleted user. " +
              "Verify that 404 Not Found is returned.")]
@@ -705,13 +712,14 @@ namespace AdminStoreTests.UsersTests
             // Update user Id with returned value and but don't update the current version
             createdUser.Id = createdUserId;
 
-            // Execute & Verify:
+            // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() =>
             {
                 Helper.AdminStore.UpdateUser(_adminUser, createdUser);
             },
             "'PUT {0}' should return 409 Conflict when ttrying to update a user with an incorrect Current Version!", USER_PATH_ID);
 
+            // Verify:
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, InstanceAdminErrorMessages.UserVersionsNotEqual);
         }
 
@@ -758,6 +766,36 @@ namespace AdminStoreTests.UsersTests
 
             // Verify:
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, expectedErrorMessage);
+        }
+
+        /// <summary>
+        /// Attempts to update a user with a null body in the PUT call
+        /// </summary>
+        /// <param name="adminUser">The user attempting to perform the update.</param>
+        /// <param name="user">The user to be updated.</param>
+        private void UpdateUserWithNoBodyInRestCall(IUser adminUser, InstanceUser user)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            var restApi = new RestApiFacade(Helper.ArtifactStore.Address, adminUser?.Token?.AccessControlToken);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Users.USERS_id_, user.Id);
+
+            try
+            {
+                Logger.WriteInfo("Updating user with Id: {0}", user.Id);
+
+                restApi.SendRequestAndGetResponse<InstanceUser>(
+                    path,
+                    RestRequestMethod.PUT,
+                    bodyObject: null,
+                    expectedStatusCodes: new List<HttpStatusCode> { HttpStatusCode.OK });
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while performing UpdateUser - {0}", ex.Message);
+                throw;
+            }
         }
 
         #endregion Private Methods

@@ -135,7 +135,7 @@ namespace Model.Impl
         /// <returns>List of LockResultInfo for the locked artifacts.</returns>
         public List<LockResultInfo> LockArtifacts(
             IUser user,
-            List<int> artifactIdsToLock,
+            IEnumerable<int> artifactIdsToLock,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -144,7 +144,7 @@ namespace Model.Impl
             var lockResults = restApi.SendRequestAndDeserializeObject<List<LockResultInfo>, List<int>>(
                 RestPaths.Svc.Shared.Artifacts.LOCK,
                 RestRequestMethod.POST,
-                jsonObject: artifactIdsToLock,
+                jsonObject: artifactIdsToLock.ToList(),
                 expectedStatusCodes: expectedStatusCodes,
                 shouldControlJsonChanges: false);
 

@@ -5,6 +5,7 @@ using Model;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
+using Model.ModelHelpers;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,13 +59,15 @@ namespace CommonServiceTests
                 lockResultInfo = Helper.SvcShared.LockArtifact(_user, artifact.Id);
             }, "Failed to lock an unlocked artifact published by the same user!");
 
+            artifact.UpdateArtifactState(ArtifactWrapper.ArtifactOperation.Lock, _user);
+
             // Verify:
             // Assert that the lock was successfully obtained
             Assert.AreEqual(lockResultInfo.First().Result, LockResult.Success, 
                 "The user was not able to obtain a lock on the {0} artifact when the artifact was not locked by any user.", baseArtifactType);
 
             // Assert that user can Publish the artifact to verify that the lock was actually obtained
-            Assert.DoesNotThrow(() => Helper.ArtifactStore.PublishArtifact(artifact.Id, _user),
+            Assert.DoesNotThrow(() => artifact.Publish(_user),
                 "The user was unable to Publish the artifact even though the lock appears to have been obtained successfully.");
         }
 
@@ -87,13 +90,15 @@ namespace CommonServiceTests
                 lockResultInfo = Helper.SvcShared.LockArtifact(_user2, artifact.Id);
             }, "Failed to lock an unlocked artifact published by another user!");
 
+            artifact.UpdateArtifactState(ArtifactWrapper.ArtifactOperation.Lock, _user2);
+
             // Verify:
             // Assert that the lock was successfully obtained
             Assert.AreEqual(lockResultInfo.First().Result, LockResult.Success,
                 "The second user was not able to obtain a lock on the artifact that was published by the first user.");
 
             // Assert that the second user can Publish the artifact to verify that the lock was actually obtained
-            Assert.DoesNotThrow(() => Helper.ArtifactStore.PublishArtifact(artifact.Id, _user2),
+            Assert.DoesNotThrow(() => artifact.Publish(_user2),
                 "The second user was unable to Publish the artifact even though the lock appears to have been obtained successfully.");
         }
 
@@ -113,11 +118,13 @@ namespace CommonServiceTests
                 Helper.SvcShared.LockArtifact(_user, artifact.Id);
             }, "Failed to lock an unlocked artifact published by the same user!");
 
+            artifact.UpdateArtifactState(ArtifactWrapper.ArtifactOperation.Lock, _user);
+
             // Verify:
             // Assert that the second user cannot save the artifact
             var ex = Assert.Throws<Http409ConflictException>(() =>
                 // Second user tries to save the artifact
-                Helper.ArtifactStore.UpdateArtifact(_user2, artifact.Artifact),
+                artifact.Update(_user2, artifact.Artifact),
                 "The second user attempted to save the artifact locked by another user and either an unexpected exception was thrown or " +
                 "the second user's attempted save was successful.");
 
@@ -144,11 +151,13 @@ namespace CommonServiceTests
                 Helper.SvcShared.LockArtifact(_user, artifact.Id);
             }, "Failed to lock an unlocked artifact published by the same user!");
 
+            artifact.UpdateArtifactState(ArtifactWrapper.ArtifactOperation.Lock, _user);
+
             // Verify:
             // Assert that the second user cannot publish the artifact
             var ex = Assert.Throws<Http409ConflictException>(() =>
                 // Second user tries to publish the artifact
-                Helper.ArtifactStore.PublishArtifact(artifact.Id, _user2),
+                artifact.Publish(_user2),
                 "The second user attempted to publish the artifact locked by another user and either an unexpected exception was thrown or " +
                 "the second user's attempted publish was successful.");
 
@@ -176,11 +185,13 @@ namespace CommonServiceTests
                 Helper.SvcShared.LockArtifact(_user, artifact.Id);
             }, "Failed to lock an unlocked artifact published by the same user!");
 
+            artifact.UpdateArtifactState(ArtifactWrapper.ArtifactOperation.Lock, _user);
+
             // Verify:
             // Assert that the second user cannot delete the locked artifact
             var ex = Assert.Throws<Http409ConflictException>(() =>
                 // Second user tries to save the artifact
-                Helper.ArtifactStore.DeleteArtifact(artifact.Id, _user2),
+                artifact.Delete(_user2),
                 "The second user attempted to delete the artifact locked by another user and either an unexpected " +
                 "exception was thrown or the second user's attempted delete was successful.");
 
@@ -208,11 +219,13 @@ namespace CommonServiceTests
                 Helper.SvcShared.LockArtifact(_user, artifact.Id);
             }, "Failed to lock an unlocked artifact published by the same user!");
 
+            artifact.UpdateArtifactState(ArtifactWrapper.ArtifactOperation.Lock, _user);
+
             // Verify:
             // Assert that the second user cannot discard the locked artifact
             var ex = Assert.Throws<Http409ConflictException>(() =>
                 // Second user tries to save the artifact
-                Helper.ArtifactStore.DiscardArtifact(_user2, artifact.Id),
+                artifact.Discard(_user2),
                 "The second user attempted to discard the artifact locked by another user and either an unexpected " +
                 "exception was thrown or the second user's attempted discard was successful.");
 
@@ -238,8 +251,10 @@ namespace CommonServiceTests
             Assert.DoesNotThrow(() =>
             {
                 // Obtain locks for artifact(s) with user.
-                lockResultInfoList = Helper.SvcShared.LockArtifacts(_user, artifactList.Select(a => a.Id).ToList());
+                lockResultInfoList = Helper.SvcShared.LockArtifacts(_user, artifactList.Select(a => a.Id));
             }, "Locking multiple artifacts failed!");
+
+            artifactList.ForEach(a => a.UpdateArtifactState(ArtifactWrapper.ArtifactOperation.Lock, _user));
 
             // Verify:
             Assert.That(lockResultInfoList.Count == artifactList.Count,
@@ -258,7 +273,7 @@ namespace CommonServiceTests
                 Assert.That(lockResultInfo.Info.LockOwnerLogin == null,
                     "Artifact ID {0} should be locked by 'null' (meaning current user '{1}') but the result from the get lock call informed that " +
                     "it's locked by '{2}'.",
-                    artifact.Id, artifact.Artifact.CreatedBy.DisplayName, lockResultInfo.Info.LockOwnerLogin);
+                    artifact.Id, artifact.Artifact.CreatedBy, lockResultInfo.Info.LockOwnerLogin);
             }
         }
 
@@ -273,6 +288,9 @@ namespace CommonServiceTests
             // Lock one artifact with user2.
             var firstArtifact = artifactList[0];
             var lockResult = Helper.SvcShared.LockArtifact(_user2, firstArtifact.Id);
+
+            firstArtifact.UpdateArtifactState(ArtifactWrapper.ArtifactOperation.Lock, _user2);
+
             Assert.That(lockResult.First().Result == LockResult.Success, "User2 failed to get lock for the first artifact!");
 
             List<LockResultInfo> lockResultInfoList = null;
@@ -281,8 +299,13 @@ namespace CommonServiceTests
             Assert.DoesNotThrow(() =>
             {
                 // Obtain locks for artifact(s) with the user1
-                lockResultInfoList = Helper.SvcShared.LockArtifacts(_user, artifactList.Select(a => a.Id).ToList());
+                lockResultInfoList = Helper.SvcShared.LockArtifacts(_user, artifactList.Select(a => a.Id));
             }, "LockArtifacts() should return 200 OK when passed multiple valid artifact IDs.");
+
+            for (int i = 1; i < artifactList.Count(); i++)
+            {
+                artifactList[i].UpdateArtifactState(ArtifactWrapper.ArtifactOperation.Lock, _user);
+            }
 
             // Verify:
             // Verify that lock obtained for all artifacts except the first one.
@@ -324,6 +347,8 @@ namespace CommonServiceTests
                 // Attempt to lock artifact that already has been locked due to the save
                 lockResultInfo = Helper.SvcShared.LockArtifact(_user, artifact.Id);
             }, "Failed to lock an already locked artifact!");
+
+            artifact.UpdateArtifactState(ArtifactWrapper.ArtifactOperation.Lock, _user);
 
             // Verify:
             // Assert that the lock was successfully obtained

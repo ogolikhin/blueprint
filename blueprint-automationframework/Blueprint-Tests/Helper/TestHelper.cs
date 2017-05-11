@@ -11,8 +11,6 @@ using Model.ModelHelpers;
 using Model.OpenApiModel.Services;
 using Model.SearchServiceModel;
 using Model.StorytellerModel;
-using Model.StorytellerModel.Enums;
-using Model.StorytellerModel.Impl;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
@@ -24,7 +22,6 @@ using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
 using static Model.Impl.ArtifactStore;
-using static Model.StorytellerModel.Impl.Process;
 
 namespace Helper
 {
@@ -445,8 +442,7 @@ namespace Helper
             int? parentId = null, double? orderIndex = null, string name = null, string artifactTypeName = null)
         {
             var wrappedArtifact = CreateNovaArtifact(user, project, itemType, parentId, orderIndex, name, artifactTypeName);
-            var response = wrappedArtifact.Publish(user);
-            wrappedArtifact.Artifact.Version = response.Artifacts[0].Version;   // Update Version from -1 to 1.
+            wrappedArtifact.Publish(user);
 
             return wrappedArtifact;
         }
@@ -545,13 +541,11 @@ namespace Helper
         /// <param name="user">The user creating the artifact.</param>
         /// <param name="itemType">The Nova base ItemType to create.</param>
         /// <returns>The Nova artifact wrapped in an IArtifact.</returns>
-        public IArtifact CreateWrapAndPublishNovaArtifactForStandardArtifactType(IProject project, IUser user, ItemTypePredefined itemType)
+        public ArtifactWrapper CreateWrapAndPublishNovaArtifactForStandardArtifactType(IProject project, IUser user, ItemTypePredefined itemType)
         {
-
             var artifactTypeName = ArtifactStoreHelper.GetStandardPackArtifactTypeName(itemType);
 
-            return CreateWrapAndPublishNovaArtifact(project, user, itemType,
-                artifactTypeName: artifactTypeName);
+            return CreateAndPublishNovaArtifact(user, project, itemType, artifactTypeName: artifactTypeName);
         }
 
         /// <summary>

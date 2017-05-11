@@ -53,7 +53,8 @@ namespace OpenAPITests
             artifact.Lock(_authorUser);
 
             const int numberOfImagesToAdd = 1;
-            var artifactDetails = ArtifactStoreHelper.AddRandomImageToArtifactProperty(artifact, _authorUser, Helper.ArtifactStore, numberOfImagesToAdd: numberOfImagesToAdd);
+            var artifactDetails = ArtifactStoreHelper.AddRandomImageToArtifactProperty(_authorUser, Helper.ArtifactStore, artifact.Id,
+                numberOfImagesToAdd: numberOfImagesToAdd);
 
             var openApiArtifact = OpenApi.GetArtifact(Helper.BlueprintServer.Address, _project, artifact.Id, _authorUser);
             var description = openApiArtifact.Properties.Find(p => p.Name == nameof(NovaArtifactDetails.Description));
@@ -97,7 +98,7 @@ namespace OpenAPITests
             artifact.Lock(_authorUser);
 
             const int numberOfImagesToAdd = 1;
-            var artifactDetails = ArtifactStoreHelper.AddRandomImageToArtifactProperty(artifact, _authorUser, Helper.ArtifactStore,
+            var artifactDetails = ArtifactStoreHelper.AddRandomImageToArtifactProperty(_authorUser, Helper.ArtifactStore, artifact.Id, 
                 propertyName: propertyName, numberOfImagesToAdd: numberOfImagesToAdd);
 
             var openApiArtifact = OpenApi.GetArtifact(Helper.BlueprintServer.Address, _project, artifact.Id, _authorUser);
@@ -147,7 +148,8 @@ namespace OpenAPITests
             artifact.Lock(_authorUser);
 
             const int numberOfImagesToAdd = 2;
-            var artifactDetails = ArtifactStoreHelper.AddRandomImageToArtifactProperty(artifact, _authorUser, Helper.ArtifactStore, numberOfImagesToAdd: numberOfImagesToAdd);
+            var artifactDetails = ArtifactStoreHelper.AddRandomImageToArtifactProperty(_authorUser, Helper.ArtifactStore, artifact.Id,
+                numberOfImagesToAdd: numberOfImagesToAdd);
 
             var openApiArtifact = OpenApi.GetArtifact(Helper.BlueprintServer.Address, _project, artifact.Id, _authorUser);
             var description = openApiArtifact.Properties.Find(p => p.Name == nameof(NovaArtifactDetails.Description));
@@ -194,8 +196,10 @@ namespace OpenAPITests
             artifact2.Lock(_authorUser);
 
             const int numberOfImagesToAdd = 1;
-            var artifact1Details = ArtifactStoreHelper.AddRandomImageToArtifactProperty(artifact1, _authorUser, Helper.ArtifactStore, numberOfImagesToAdd: numberOfImagesToAdd);
-            var artifact2Details = ArtifactStoreHelper.AddRandomImageToArtifactProperty(artifact2, _authorUser, Helper.ArtifactStore, numberOfImagesToAdd: numberOfImagesToAdd);
+            var artifact1Details = ArtifactStoreHelper.AddRandomImageToArtifactProperty(_authorUser, Helper.ArtifactStore, artifact1.Id,
+                numberOfImagesToAdd: numberOfImagesToAdd);
+            var artifact2Details = ArtifactStoreHelper.AddRandomImageToArtifactProperty(_authorUser, Helper.ArtifactStore, artifact2.Id,
+                numberOfImagesToAdd: numberOfImagesToAdd);
 
             var openApiArtifact1 = OpenApi.GetArtifact(Helper.BlueprintServer.Address, _project, artifact1.Id, _authorUser);
             var openApiArtifact2 = OpenApi.GetArtifact(Helper.BlueprintServer.Address, _project, artifact2.Id, _authorUser);
@@ -245,7 +249,8 @@ namespace OpenAPITests
             artifact.Lock(_authorUser);
 
             const int numberOfImagesToAdd = 1;
-            var artifactDetails = ArtifactStoreHelper.AddRandomImageToArtifactProperty(artifact, _authorUser, Helper.ArtifactStore, numberOfImagesToAdd: numberOfImagesToAdd);
+            var artifactDetails = ArtifactStoreHelper.AddRandomImageToArtifactProperty(_authorUser, Helper.ArtifactStore, artifact.Id,
+                numberOfImagesToAdd: numberOfImagesToAdd);
 
             // Add some text after the image.
             const string textToAppend = "<p>Appending some text here</p>";
@@ -296,7 +301,8 @@ namespace OpenAPITests
             artifact.Lock(_authorUser);
 
             const int numberOfImagesToAdd = 1;
-            var artifactDetails = ArtifactStoreHelper.AddRandomImageToArtifactProperty(artifact, _authorUser, Helper.ArtifactStore, numberOfImagesToAdd: numberOfImagesToAdd);
+            var artifactDetails = ArtifactStoreHelper.AddRandomImageToArtifactProperty(_authorUser, Helper.ArtifactStore, artifact.Id,
+                numberOfImagesToAdd: numberOfImagesToAdd);
 
             var openApiArtifact = OpenApi.GetArtifact(Helper.BlueprintServer.Address, _project, artifact.Id, _authorUser);
             var description = openApiArtifact.Properties.Find(p => p.Name == nameof(NovaArtifactDetails.Description));
@@ -372,7 +378,8 @@ namespace OpenAPITests
             artifact.Lock(_authorUser);
 
             const int numberOfImagesToAdd = 1;
-            var artifactDetails = ArtifactStoreHelper.AddRandomImageToArtifactProperty(artifact, _authorUser, Helper.ArtifactStore, numberOfImagesToAdd: numberOfImagesToAdd);
+            var artifactDetails = ArtifactStoreHelper.AddRandomImageToArtifactProperty(_authorUser, Helper.ArtifactStore, artifact.Id,
+                numberOfImagesToAdd: numberOfImagesToAdd);
 
             var openApiArtifact = OpenApi.GetArtifact(Helper.BlueprintServer.Address, _project, artifact.Id, _authorUser);
             var description = openApiArtifact.Properties.Find(p => p.Name == nameof(NovaArtifactDetails.Description));

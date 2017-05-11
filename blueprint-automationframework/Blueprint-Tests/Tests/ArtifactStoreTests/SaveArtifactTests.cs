@@ -20,6 +20,7 @@ using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
 using Model.Common.Enums;
+using Model.ModelHelpers;
 
 namespace ArtifactStoreTests
 {
@@ -167,18 +168,18 @@ namespace ArtifactStoreTests
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, project);
             var artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(project, author, itemType);
 
-            // Update custom property in artifact.
+            // Update custom property in the artifact.
 
             CustomProperty property = null;
 
             // Execute:
             if (propertyType == PropertyPrimitiveType.User)
             {
-                property = ArtifactStoreHelper.UpdateArtifactCustomProperty(artifact, author, project, propertyType, propertyName, author, Helper.ArtifactStore);
+                property = ArtifactStoreHelper.UpdateArtifactCustomProperty(author, artifact, project, propertyType, propertyName, author);
             }
             else
             {
-                property = ArtifactStoreHelper.UpdateArtifactCustomProperty(artifact, author, project, propertyType, propertyName, newValue, Helper.ArtifactStore);
+                property = ArtifactStoreHelper.UpdateArtifactCustomProperty(author, artifact, project, propertyType, propertyName, newValue);
             }
 
             // Verify:
@@ -339,8 +340,8 @@ namespace ArtifactStoreTests
 
             // Execute:
             artifact.Lock(author);
-            Helper.ArtifactStore.UpdateArtifact(author, artifactDetails);
-            Helper.ArtifactStore.PublishArtifact(artifact, author);
+            artifact.Update(author, artifactDetails);
+            artifact.Publish(author);
 
             // Verify:
             Assert.NotNull(subArtifactChangeSet.Id, "The SubArtifact ID shouldn't be null!");
@@ -380,8 +381,8 @@ namespace ArtifactStoreTests
 
             // Execute:
             artifact.Lock(author);
-            Helper.ArtifactStore.UpdateArtifact(author, artifactDetails);
-            Helper.ArtifactStore.PublishArtifact(artifact, author);
+            artifact.Update(author, artifactDetails);
+            artifact.Publish(author);
 
             // Verify:
             Assert.NotNull(subArtifactChangeSet.Id, "The SubArtifact ID shouldn't be null!");
@@ -417,8 +418,8 @@ namespace ArtifactStoreTests
 
             // Execute:
             artifact.Lock(author);
-            Helper.ArtifactStore.UpdateArtifact(author, artifactDetails);
-            Helper.ArtifactStore.PublishArtifact(artifact, author);
+            artifact.Update(author, artifactDetails);
+            artifact.Publish(author);
 
             // Verify:
             Assert.NotNull(subArtifactChangeSet.Id, "The SubArtifact ID shouldn't be null!");
@@ -458,8 +459,8 @@ namespace ArtifactStoreTests
 
             // Execute:
             artifact.Lock(author);
-            Helper.ArtifactStore.UpdateArtifact(author, artifactDetails);
-            Helper.ArtifactStore.PublishArtifact(artifact, author);
+            artifact.Update(author, artifactDetails);
+            artifact.Publish(author);
 
             // Verify:
             Assert.NotNull(subArtifactChangeSet.Id, "The SubArtifact ID shouldn't be null!");
@@ -497,8 +498,8 @@ namespace ArtifactStoreTests
 
             // Execute:
             artifact.Lock(author);
-            Helper.ArtifactStore.UpdateArtifact(author, artifactDetails);
-            Helper.ArtifactStore.PublishArtifact(artifact, author);
+            artifact.Update(author, artifactDetails);
+            artifact.Publish(author);
 
             // Verify:
             Assert.NotNull(subArtifactChangeSet.Id, "The SubArtifact ID shouldn't be null!");
@@ -534,8 +535,8 @@ namespace ArtifactStoreTests
 
             // Execute:
             artifact.Lock(author);
-            Helper.ArtifactStore.UpdateArtifact(author, artifactDetails);
-            Helper.ArtifactStore.PublishArtifact(artifact, author);
+            artifact.Update(author, artifactDetails);
+            artifact.Publish(author);
 
             // Verify:
             Assert.NotNull(subArtifactChangeSet.Id, "The SubArtifact ID shouldn't be null!");
@@ -787,7 +788,7 @@ namespace ArtifactStoreTests
             // Execute:Attempt to update the target sub artifact with empty content
             artifact.Lock(author);
             Helper.ArtifactStore.UpdateArtifact(author, artifactDetailsChangeSet);
-            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifact(artifact, author),
+            var ex = Assert.Throws<Http409ConflictException>(() => artifact.Publish(author),
                 "'POST {0}' should return 409 Conflict if the artifact containing invalid change!", RestPaths.Svc.ArtifactStore.ARTIFACTS);
 
             // Verify: Check that returned custom property name equals to default custom property since the requsted updated is invalid
@@ -829,7 +830,7 @@ namespace ArtifactStoreTests
             artifact.Lock(author);
             Helper.ArtifactStore.UpdateArtifact(author, artifactDetails);
 
-            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifact(artifact, author),
+            var ex = Assert.Throws<Http409ConflictException>(() => artifact.Publish(author),
                 "'POST {0}' should return 409 Conflict if the artifact containing invalid change!", RestPaths.Svc.ArtifactStore.ARTIFACTS);
 
             // Verify: Check that returned custom property name equals to default custom property since the requsted updated is invalid
@@ -1091,7 +1092,7 @@ namespace ArtifactStoreTests
         /// <param name="artifactCustomPropertyName">custom property name for the artifact to update</param>
         /// <param name="artifactCustomPropertyValue">custom property value for the artifact to update</param>
         /// <returns>INovaArtifactDetails that contains the change for the artifact</returns>
-        private NovaArtifactDetails CreateArtifactChangeSet(IUser user, IProject project, IArtifact artifact, string artifactCustomPropertyName, object artifactCustomPropertyValue)
+        private NovaArtifactDetails CreateArtifactChangeSet(IUser user, IProject project, ArtifactWrapper artifact, string artifactCustomPropertyName, object artifactCustomPropertyValue)
         {
             var artifactDetailsChangeSet = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
             var customPropertyValueToUpdate = artifactDetailsChangeSet.CustomPropertyValues.Find(p => p.Name.Equals(artifactCustomPropertyName));
@@ -1159,7 +1160,7 @@ namespace ArtifactStoreTests
         /// <returns>NovaSubArtifact that contains the change for the sub artifact</returns>
         private NovaSubArtifact CreateSubArtifactChangeSet(IUser user,
             IProject project,
-            IArtifact artifact,
+            ArtifactWrapper artifact,
             string subArtifactDisplayName,
             string subArtifactCustomPropertyName,
             object subArtifactCustomPropertyValue)

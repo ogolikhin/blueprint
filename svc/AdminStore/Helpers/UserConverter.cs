@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using AdminStore.Models;
 using AdminStore.Models.Enums;
 using ServiceLibrary.Exceptions;
@@ -37,13 +38,25 @@ namespace AdminStore.Helpers
                 if (!user.AllowFallback.HasValue || !user.AllowFallback.Value)
                 {
                     var decodedPasword = SystemEncryptions.Decode(user.Password);
+                    var passwordUppercase = decodedPasword.ToUpperInvariant();
+
+                    if (passwordUppercase == user.Login?.ToUpperInvariant())
+                    {
+                        throw new BadRequestException(ErrorMessages.PasswordSameAsLogin, ErrorCodes.PasswordSameAsLogin);
+                    }
+
+                    if (passwordUppercase == user.DisplayName?.ToUpperInvariant())
+                    {
+                        throw new BadRequestException(ErrorMessages.PasswordSameAsDisplayName, ErrorCodes.PasswordSameAsDisplayName);
+                    }
+
                     string errorMessage;
-                    var isValidPassword = PasswordValidationHelper.ValidatePassword(decodedPasword, true,
-                        out errorMessage);
+                    var isValidPassword = PasswordValidationHelper.ValidatePassword(decodedPasword, true, out errorMessage);
                     if (!isValidPassword)
                     {
                         throw new BadRequestException(errorMessage, ErrorCodes.BadRequest);
                     }
+
                     databaseUser.Password = HashingUtilities.GenerateSaltedHash(decodedPasword, databaseUser.UserSALT);
                 }
                 else
@@ -51,6 +64,7 @@ namespace AdminStore.Helpers
                     databaseUser.Password = null;
                 }
             }
+
             return databaseUser;
         }
     }

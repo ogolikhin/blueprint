@@ -8,7 +8,7 @@ using NUnit.Framework;
 using TestCommon;
 using Utilities;
 using Utilities.Factories;
-using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 
 namespace ArtifactStoreTests
@@ -338,16 +338,12 @@ namespace ArtifactStoreTests
         [TestCase(70, 50, ArtifactStoreHelper.ImageType.PNG, "image/png")]
         [TestRail(227091)]
         [Description("Create & publish artifact. Upload a random image file and then update artifact with this image.  " +
-            "Verify ExpiredTime field for this image is updated to null in EmbeddedImages and Files tables.")]
+                     "Verify ExpiredTime field for this image is updated to null in EmbeddedImages and Files tables.")]
         public void UpdateArtifact_AddImageToArtifact_ExpiredTimeFieldUpdatedToNull(int width, int height, ArtifactStoreHelper.ImageType imageType, string contentType)
         {
             // Setup:
-            var artifactType = BaseArtifactType.Process;
-
-            var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_authorUser, _project, ItemTypePredefined.Process);
             artifact.Lock(_authorUser);
-
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
 
             var imageFile = ArtifactStoreHelper.CreateRandomImageFile(width, height, imageType, contentType);
 
@@ -355,10 +351,10 @@ namespace ArtifactStoreTests
 
             string propertyContent = ArtifactStoreHelper.CreateEmbeddedImageHtml(addedFile.EmbeddedImageId);
 
-            CSharpUtilities.SetProperty(nameof(NovaArtifactDetails.Description), propertyContent, artifactDetails);
+            CSharpUtilities.SetProperty(nameof(NovaArtifactDetails.Description), propertyContent, artifact);
 
             // Execute:
-            Artifact.UpdateArtifact(artifact, _authorUser, artifactDetails, address: Helper.BlueprintServer.Address);
+            artifact.Update(_authorUser, artifact.Artifact);
 
             // Verify:
             string selectQuery = I18NHelper.FormatInvariant("SELECT ExpiredTime FROM [dbo].[EmbeddedImages] WHERE [FileId] ='{0}'", addedFile.Guid);
@@ -371,7 +367,7 @@ namespace ArtifactStoreTests
         [TestCase(70, 50, ArtifactStoreHelper.ImageType.PNG, "image/png")]
         [TestRail(227235)]
         [Description("Create & publish artifact.  Upload a random image file and then update artifact with this image in a Custom Rich Text Property.  " +
-            "Verify ExpiredTime field for this image is updated to null in EmbeddedImages and Files tables.")]
+                     "Verify ExpiredTime field for this image is updated to null in EmbeddedImages and Files tables.")]
         public void UpdateArtifact_AddImageToCustomProperty_ExpiredTimeFieldUpdatedToNull(int width, int height, ArtifactStoreHelper.ImageType imageType, string contentType)
         {
             // Setup:
@@ -381,24 +377,22 @@ namespace ArtifactStoreTests
             const string artifactTypeName = "ST-User Story";
             const string multiLineRTProperty = "ST-Acceptance Criteria";
 
-            var artifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _authorUser, Model.ArtifactModel.Enums.ItemTypePredefined.TextualRequirement,
+            var artifact = Helper.CreateAndPublishNovaArtifact(_authorUser, _project, ItemTypePredefined.TextualRequirement,
                 artifactTypeName: artifactTypeName);
             artifact.Lock(_authorUser);
-
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
 
             var imageFile = ArtifactStoreHelper.CreateRandomImageFile(width, height, imageType, contentType);
 
             var addedFile = Helper.ArtifactStore.AddImage(_authorUser, imageFile);
 
             string propertyContent = ArtifactStoreHelper.CreateEmbeddedImageHtml(addedFile.EmbeddedImageId);
-            var customProperty = artifactDetails.CustomPropertyValues.Find(p => p.Name == multiLineRTProperty);
+            var customProperty = artifact.CustomPropertyValues.Find(p => p.Name == multiLineRTProperty);
             Assert.NotNull(customProperty, "Couldn't find a Custom Property named: {0}!", multiLineRTProperty);
 
             customProperty.CustomPropertyValue = propertyContent;
 
             // Execute:
-            Artifact.UpdateArtifact(artifact, _authorUser, artifactDetails, address: Helper.BlueprintServer.Address);
+            artifact.Update(_authorUser, artifact.Artifact);
 
             // Verify:
             string selectQuery = I18NHelper.FormatInvariant("SELECT ExpiredTime FROM [dbo].[EmbeddedImages] WHERE [FileId] ='{0}'", addedFile.Guid);

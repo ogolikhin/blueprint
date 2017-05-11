@@ -30,6 +30,16 @@ namespace Helper
             ArtifactTypePredefined.UseCaseDiagram
         };
 
+        private static readonly List<ArtifactTypePredefined> _allDiagramArtifactTypesForNovaRestMethods = new List<ArtifactTypePredefined>
+        {
+            ArtifactTypePredefined.BusinessProcess,
+            ArtifactTypePredefined.DomainDiagram,
+            ArtifactTypePredefined.GenericDiagram,
+            ArtifactTypePredefined.Storyboard,
+            ArtifactTypePredefined.UIMockup,
+            ArtifactTypePredefined.UseCaseDiagram
+        };
+
         private static readonly List<BaseArtifactType> _allArtifactTypesForOpenApiRestMethods = new List<BaseArtifactType>
         {
             BaseArtifactType.Actor,
@@ -74,6 +84,9 @@ namespace Helper
 
         /// <summary>Returns a list of all possible regular artifact types that can be used by the Nova REST methods.</summary>
         public static IReadOnlyCollection<ArtifactTypePredefined> AllArtifactTypesForNovaRestMethods => _allArtifactTypesForNovaRestMethods.AsReadOnly();
+
+        /// <summary>Returns a list of all possible diagram artifact types that can be used by the Nova REST methods.</summary>
+        public static IReadOnlyCollection<ArtifactTypePredefined> AllDiagramArtifactTypesForNovaRestMethods => _allDiagramArtifactTypesForNovaRestMethods.AsReadOnly();
 
         /// <summary>Returns a list of all possible artifact types that can be used by the OpenAPI REST methods.</summary>
         public static IReadOnlyCollection<BaseArtifactType> AllArtifactTypesForOpenApiRestMethods => _allArtifactTypesForOpenApiRestMethods.AsReadOnly();

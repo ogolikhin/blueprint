@@ -167,37 +167,33 @@ namespace StorytellerTests
         {
             // Setup:
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _adminUser);
+            var novaProcess = Helper.CreateNovaProcessArtifact(_adminUser, _project);
 
             // Find the end shape
-            var endShape = process.GetProcessShapeByShapeName(Process.EndName);
+            var endShape = novaProcess.Process.GetProcessShapeByShapeName(Process.EndName);
             
             // Find the incoming link for the end shape
-            var endIncomingLink = process.GetIncomingLinkForShape(endShape);
+            var endIncomingLink = novaProcess.Process.GetIncomingLinkForShape(endShape);
 
             Assert.IsNotNull(endIncomingLink, "Process link was not found.");
 
             // Add a user/system task immediately before the end shape
-            process.AddUserAndSystemTask(endIncomingLink);
+            novaProcess.Process.AddUserAndSystemTask(endIncomingLink);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _adminUser);
-            var processArtifact = new Artifact { Id = process.Id , Address = Helper.ArtifactStore.Address };
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _adminUser);
 
             // Execute: 
-            List<NovaDiscardArtifactResult> discardResultList = null;
-            string expectedMessage = "Successfully discarded";
+            INovaArtifactsAndProjectsResponse discardArtifactResponse = null;
 
             Assert.DoesNotThrow(() =>
             {
-                discardResultList = processArtifact.NovaDiscard(_adminUser);
+                discardArtifactResponse = novaProcess.Discard(_adminUser);
             }, "Discard must return no errors.");
 
             // Verify: 
-            Assert.AreEqual(expectedMessage, discardResultList[0].Message, "Returned message must be {0}, but {1} was returned",
-                expectedMessage, discardResultList[0].Message);
-            Assert.AreEqual(NovaDiscardArtifactResult.ResultCode.Success, discardResultList[0].Result, "Returned code must be {0}, but {1} was returned",
-                NovaDiscardArtifactResult.ResultCode.Success, discardResultList[0].Result);
+            Assert.AreEqual(1, discardArtifactResponse.Artifacts.Count, "Only 1 artifact should be returned in discard results!");
+            Assert.AreEqual(1, discardArtifactResponse.Projects.Count, "Only 1 project should be returned in discard results!");
         }
 
         #endregion 200 OK Tests

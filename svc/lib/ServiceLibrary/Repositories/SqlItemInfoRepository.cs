@@ -43,6 +43,17 @@ namespace ServiceLibrary.Repositories
             return await _connectionWrapper.QueryAsync<ItemDetails>("GetItemsDetails", parameters, commandType: CommandType.StoredProcedure);
         }
 
+        public async Task<string> GetItemDescription(int itemId, int userId, bool? addDrafts = true, int? revisionId = int.MaxValue)
+        {
+            // SP [GetItemDescription] returns last published version for deleted items when revisionId is NULL.
+            var parameters = new DynamicParameters();
+            parameters.Add("@itemId", itemId);
+            parameters.Add("@userId", userId);
+            parameters.Add("@addDrafts", addDrafts);
+            parameters.Add("@revisionId", revisionId);
+            return (await _connectionWrapper.QueryAsync<string>("GetItemDescription", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+        }
+
         public async Task<IEnumerable<ItemRawDataCreatedDate>> GetItemsRawDataCreatedDate(int userId, IEnumerable<int> itemIds, bool addDrafts = true, int revisionId = int.MaxValue)
         {
             var parameters = new DynamicParameters();

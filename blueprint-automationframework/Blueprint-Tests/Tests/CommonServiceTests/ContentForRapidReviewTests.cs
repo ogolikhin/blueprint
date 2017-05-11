@@ -1,11 +1,12 @@
 ﻿using CustomAttributes;
 using Helper;
 using Model;
-using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.NovaModel.Components.RapidReview;
 using NUnit.Framework;
+using System.Collections.Generic;
 using TestCommon;
 
 namespace CommonServiceTests
@@ -38,19 +39,19 @@ namespace CommonServiceTests
 
         #endregion
 
-        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllDiagramArtifactTypesForOpenApiRestMethods))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllDiagramArtifactTypesForNovaRestMethods))]
         [TestRail(107388)]
         [Description("Run:  'GET svc/components/RapidReview/diagram/{artifactId}'  with the ID of a diagram artifact.  Verify proper content for Diagram artifact is returned.")]
-        public void GetDiagramContentForRapidReview_DiagramArtifacts_ReturnsDefaultDiagramContent(BaseArtifactType artifactType)
+        public void GetDiagramContentForRapidReview_DiagramArtifacts_ReturnsDefaultDiagramContent(ItemTypePredefined artifactType)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
             RapidReviewDiagram diagramContent = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                diagramContent = artifact.GetRapidReviewDiagramContent(_user);
+                diagramContent = Helper.SvcComponents.GetRapidReviewDiagramContent(_user, artifact.Id);
             }, "'GET {0}' should return 200 OK when a valid token is passed.", DIAGRAM_PATH);
 
             // Verify:
@@ -67,13 +68,13 @@ namespace CommonServiceTests
         public void GetGlossaryContentForRapidReview_GlossaryArtifact_ReturnsDefaultGlossaryContent()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Glossary);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Glossary);
             RapidReviewGlossary glossaryContent = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                glossaryContent = artifact.GetRapidReviewGlossaryContent(_user);
+                glossaryContent = Helper.SvcComponents.GetRapidReviewGlossaryContent(_user, artifact.Id);
             }, "'GET {0}' should return 200 OK when a valid token is passed.", GLOSSARY_PATH);
 
             // Verify:
@@ -87,13 +88,13 @@ namespace CommonServiceTests
         public void GetUseCaseContentForRapidReview_UseCaseArtifact_ReturnsDefaultArtifactContent()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.UseCase);
             UseCase artifactContent = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                artifactContent = artifact.GetRapidReviewUseCaseContent(_user);
+                artifactContent = Helper.SvcComponents.GetRapidReviewUseCaseContent(_user, artifact.Id);
             }, "'GET {0}' should return 200 OK when a valid token is passed.", USECASE_PATH);
 
             // Verify:
@@ -101,19 +102,20 @@ namespace CommonServiceTests
             Assert.AreEqual(1, artifactContent.Steps.Count, "Newly created Use Case must have 1 step, but it has {0}", artifactContent.Steps.Count);
         }
 
-        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForNovaRestMethods))]
         [TestRail(107391)]
         [Description("Run:  svc/components/RapidReview/artifacts/properties  and pass the ID of an artifact in the request body.  Verify properties of the artifact are returned.")]
-        public void GetPropertiesForRapidReview_SingleArtifact_ReturnsArtifactProperties(BaseArtifactType artifactType)
+        public void GetPropertiesForRapidReview_SingleArtifact_ReturnsArtifactProperties(ItemTypePredefined artifactType)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
             RapidReviewProperties propertiesContent = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                propertiesContent = artifact.GetRapidReviewArtifactProperties(_user);
+                propertiesContent = Helper.SvcComponents.GetRapidReviewArtifactsProperties(_user,
+                    new List<int>() { artifact.Id } );
             }, "'GET {0}' should return 200 OK when a valid token is passed.", ARTIFACTS_PROPERTIES_PATH);
 
             // Verify:

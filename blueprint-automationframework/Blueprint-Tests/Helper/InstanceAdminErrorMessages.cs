@@ -27,6 +27,13 @@
         public const string UserNotExist = "The user with the current userId doesn’t exist or removed from the system.";
         public const string UserVersionsNotEqual = "The current version from the request doesn’t match the current version in DB.";
         public const string IncorrectUserId = "Incorrect userId.";
+        public const string CreateOnlyDatabaseUsers = "You can create only database users.";
+
+        //Passwords
         public const string PasswordMissing = "Password is required";
+        public const string PasswordInvalidLength = "Password must be between 8 and 128 characters";
+        public const string PasswordDoesNotHaveNonAlphanumeric = "Password must contain a non-alphanumeric character";
+        public const string PasswordDoesNotHaveNumber = "Password must contain a number";
+        public const string PasswordDoesNotHaveUpperCase = "Password must contain an upper-case letter";
     }
 }

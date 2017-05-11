@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -12,6 +11,7 @@ using AdminStore.Models;
 using AdminStore.Models.Enums;
 using AdminStore.Repositories;
 using ServiceLibrary.Attributes;
+using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
@@ -24,6 +24,7 @@ namespace AdminStore.Controllers
     [BaseExceptionFilter]
     public class UsersController : BaseApiController
     {
+        private const string IsPasswordRecoveryEnabledKey = "IsPasswordRecoveryEnabled";
         private const string PasswordResetTokenExpirationInHoursKey = "PasswordResetTokenExpirationInHours";
         private const int DefaultPasswordResetTokenExpirationInHours = 24;
 
@@ -76,14 +77,15 @@ namespace AdminStore.Controllers
         {
             try
             {
-                var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-                var loginUser = await _userRepository.GetLoginUserByIdAsync(session.UserId);
+                var loginUser = await _userRepository.GetLoginUserByIdAsync(Session.UserId);
                 if (loginUser == null)
                 {
-                    throw new AuthenticationException(string.Format("User does not exist with Id: {0}", session.UserId));
+                    throw new AuthenticationException($"User does not exist with Id: {Session.UserId}");
                 }
-                loginUser.LicenseType = session.LicenseLevel;
-                loginUser.IsSso = session.IsSso;
+
+                loginUser.LicenseType = Session.LicenseLevel;
+                loginUser.IsSso = Session.IsSso;
+
                 return Ok(loginUser);
             }
             catch (AuthenticationException)
@@ -117,7 +119,7 @@ namespace AdminStore.Controllers
                 return BadRequest(ErrorMessages.InvalidPagination);
             }
 
-            await _privilegesManager.Demand(SessionUserId, InstanceAdminPrivileges.ViewUsers);
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewUsers);
 
             var result = await _userRepository.GetUsersAsync(pagination, sorting, search, UsersHelper.SortUsers);
 
@@ -147,9 +149,9 @@ namespace AdminStore.Controllers
                 return Ok(new DeleteResult() { TotalDeleted = 0 });
             }
 
-            await _privilegesManager.Demand(SessionUserId, InstanceAdminPrivileges.ManageUsers);
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageUsers);
 
-            var result = await _userRepository.DeleteUsers(body, search, SessionUserId);
+            var result = await _userRepository.DeleteUsers(body, search, Session.UserId);
 
             return Ok(new DeleteResult() { TotalDeleted = result });
         }
@@ -170,7 +172,7 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(UserDto))]
         public async Task<IHttpActionResult> GetUser(int userId)
         {
-            await _privilegesManager.Demand(SessionUserId, InstanceAdminPrivileges.ViewUsers);
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewUsers);
 
             var user = await _userRepository.GetUserDtoAsync(userId);
 
@@ -261,7 +263,7 @@ namespace AdminStore.Controllers
         {
             try
             {
-                const string IsPasswordRecoveryEnabledKey = "IsPasswordRecoveryEnabled";
+                
 
                 var matchingSetting = await _applicationSettingsRepository.GetValue(IsPasswordRecoveryEnabledKey, false);
                 if (!matchingSetting)
@@ -369,7 +371,7 @@ namespace AdminStore.Controllers
                 //provided token doesn't match last requested
                 throw new ConflictException("Password reset failed, a more recent recovery token exists.", ErrorCodes.PasswordResetTokenNotLatest);
             }
-            var tokenLifespan = await _applicationSettingsRepository.GetValue<int>(PasswordResetTokenExpirationInHoursKey, DefaultPasswordResetTokenExpirationInHours);
+            var tokenLifespan = await _applicationSettingsRepository.GetValue(PasswordResetTokenExpirationInHoursKey, DefaultPasswordResetTokenExpirationInHours);
             if (tokens.First().CreationTime.AddHours(tokenLifespan) < DateTime.Now)
             {
                 //token expired
@@ -438,12 +440,12 @@ namespace AdminStore.Controllers
             }
 
             var privileges = user.InstanceAdminRoleId.HasValue ? InstanceAdminPrivileges.AssignAdminRoles : InstanceAdminPrivileges.ManageUsers;
-            await _privilegesManager.Demand(SessionUserId, privileges);
+            await _privilegesManager.Demand(Session.UserId, privileges);
 
             var databaseUser = UsersHelper.CreateDbUserFromDto(user, UserOperationMode.Create);
 
             var userId = await _userRepository.AddUserAsync(databaseUser);
-            return Request.CreateResponse<int>(HttpStatusCode.Created, userId);
+            return Request.CreateResponse(HttpStatusCode.Created, userId);
         }
 
         /// <summary>
@@ -476,7 +478,7 @@ namespace AdminStore.Controllers
                 throw new BadRequestException(ErrorMessages.UserModelIsEmpty, ErrorCodes.BadRequest);
             }
 
-            await _privilegesManager.Demand(SessionUserId, InstanceAdminPrivileges.ManageUsers);
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageUsers);
 
             var existingUser = await _userRepository.GetUserAsync(userId);
             if (existingUser == null)
@@ -486,7 +488,7 @@ namespace AdminStore.Controllers
 
             if (existingUser.InstanceAdminRoleId != user.InstanceAdminRoleId)
             {
-                await _privilegesManager.Demand(SessionUserId, InstanceAdminPrivileges.AssignAdminRoles);
+                await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AssignAdminRoles);
             }
 
             var databaseUser = UsersHelper.CreateDbUserFromDto(user, UserOperationMode.Edit, userId);

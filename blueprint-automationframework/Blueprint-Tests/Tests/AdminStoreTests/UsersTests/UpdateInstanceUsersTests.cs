@@ -188,7 +188,7 @@ namespace AdminStoreTests.UsersTests
         public void UpdateInstanceUser_PermissionsToManageUsers_UserUpdatesCorrectly(InstanceAdminRole adminRole)
         {
             // Setup:
-            var userPermissionsToManageUsers = Helper.CreateUserAndAuthenticate(
+            var userWithPermissionsToManageUsers = Helper.CreateUserAndAuthenticate(
                 TestHelper.AuthenticationTokenTypes.AccessControlToken, adminRole);
 
             var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
@@ -210,14 +210,14 @@ namespace AdminStoreTests.UsersTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                Helper.AdminStore.UpdateUser(userPermissionsToManageUsers, createdUser);
+                Helper.AdminStore.UpdateUser(userWithPermissionsToManageUsers, createdUser);
             }, "'PUT {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
 
             InstanceUser addedUser = null;
 
             Assert.DoesNotThrow(() =>
             {
-                addedUser = Helper.AdminStore.GetUserById(userPermissionsToManageUsers, createdUserId);
+                addedUser = Helper.AdminStore.GetUserById(userWithPermissionsToManageUsers, createdUserId);
             }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
 
             // Verify:
@@ -227,8 +227,127 @@ namespace AdminStoreTests.UsersTests
             AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
         }
 
+        [TestCase(InstanceAdminRole.AssignInstanceAdministrators, LicenseLevel.Viewer)]
+        [TestCase(InstanceAdminRole.DefaultInstanceAdministrator, LicenseLevel.Author)]
+        [TestCase(InstanceAdminRole.ProvisionUsers, LicenseLevel.Viewer)]
+        [TestCase(InstanceAdminRole.AdministerALLProjects, LicenseLevel.Collaborator)]
+        [TestCase(InstanceAdminRole.BlueprintAnalytics, LicenseLevel.Viewer)]
+        [TestCase(InstanceAdminRole.Email_ActiveDirectory_SAMLSettings, LicenseLevel.Viewer)]
+        [TestCase(InstanceAdminRole.InstanceStandardsManager, LicenseLevel.Collaborator)]
+        [TestCase(InstanceAdminRole.LogGatheringAndLicenseReporting, LicenseLevel.Viewer)]
+        [TestCase(InstanceAdminRole.ManageAdministratorRoles, LicenseLevel.Viewer)]
+        [TestCase(InstanceAdminRole.ProvisionProjects, LicenseLevel.Collaborator)]
+        [Description("Create and add a default instance user.  Using another user that has permission to assign admin roles, " +
+                     "update the user to have an admin role. Verify that the user was created.")]
+        [TestRail(303699)]
+        public void UpdateInstanceUser_AssignInstanceAdminRole_UserUpdatesCorrectly(InstanceAdminRole adminRole, LicenseLevel expectedLicenseLevel)
+        {
+            // Setup:
+            var userWithPermissionsToAssignAdminRoles = Helper.CreateUserAndAuthenticate(
+                TestHelper.AuthenticationTokenTypes.AccessControlToken, InstanceAdminRole.AssignInstanceAdministrators);
+
+            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
+
+            int createdUserId = 0;
+
+            Assert.DoesNotThrow(() =>
+            {
+                createdUserId = Helper.AdminStore.AddUser(userWithPermissionsToAssignAdminRoles, createdUser);
+            }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
+
+            // Update user Id with returned value and incremented version
+            createdUser.Id = createdUserId;
+            createdUser.CurrentVersion++;
+
+            // Modify the admin role
+            createdUser.InstanceAdminRoleId = adminRole;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                Helper.AdminStore.UpdateUser(userWithPermissionsToAssignAdminRoles, createdUser);
+            }, "'PUT {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
+
+            InstanceUser addedUser = null;
+
+            Assert.DoesNotThrow(() =>
+            {
+                addedUser = Helper.AdminStore.GetUserById(userWithPermissionsToAssignAdminRoles, createdUserId);
+            }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
+
+            // Verify:
+            // Update Id and CurrentVersion, CreatedUser, InstanceAdminRoleId & LicenseType for comparison
+            createdUser.Id = createdUserId;
+            createdUser.CurrentVersion++;
+            createdUser.LicenseType = expectedLicenseLevel;
+
+            AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
+        }
+
+        [TestCase(InstanceAdminRole.AssignInstanceAdministrators, LicenseLevel.Viewer)]
+        [TestCase(InstanceAdminRole.DefaultInstanceAdministrator, LicenseLevel.Author)]
+        [TestCase(InstanceAdminRole.ProvisionUsers, LicenseLevel.Viewer)]
+        [TestCase(InstanceAdminRole.AdministerALLProjects, LicenseLevel.Collaborator)]
+        [TestCase(InstanceAdminRole.BlueprintAnalytics, LicenseLevel.Viewer)]
+        [TestCase(InstanceAdminRole.Email_ActiveDirectory_SAMLSettings, LicenseLevel.Viewer)]
+        [TestCase(InstanceAdminRole.InstanceStandardsManager, LicenseLevel.Collaborator)]
+        [TestCase(InstanceAdminRole.LogGatheringAndLicenseReporting, LicenseLevel.Viewer)]
+        [TestCase(InstanceAdminRole.ManageAdministratorRoles, LicenseLevel.Viewer)]
+        [TestCase(InstanceAdminRole.ProvisionProjects, LicenseLevel.Collaborator)]
+        [Description("Create and add an instance user with an admin role.  Using another user that has permission to " +
+                     "manage users but no permission to assign admin roles, update a field other than the admin role field. " +
+                     "Verify that the user is updated correctly.")]
+        [TestRail(303711)]
+        public void UpdateInstanceUser_UserWithManageUsersRoleButWithoutAssignInstanceAdminRoleCanUpdateUser_UserUpdatesCorrectly(InstanceAdminRole adminRole, LicenseLevel expectedLicenseLevel)
+        {
+            // Setup:
+            var userWithPermissionsToAssignAdminRoles = Helper.CreateUserAndAuthenticate(
+                TestHelper.AuthenticationTokenTypes.AccessControlToken, InstanceAdminRole.AssignInstanceAdministrators);
+
+            var userWithPermissionsToManageUsers = Helper.CreateUserAndAuthenticate(
+                TestHelper.AuthenticationTokenTypes.AccessControlToken, InstanceAdminRole.ProvisionUsers);
+
+            // Create user with admin role
+            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser(instanceAdminRole: adminRole);
+
+            int createdUserId = 0;
+
+            Assert.DoesNotThrow(() =>
+            {
+                createdUserId = Helper.AdminStore.AddUser(userWithPermissionsToAssignAdminRoles, createdUser);
+            }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
+
+            // Update user Id with returned value and incremented version
+            createdUser.Id = createdUserId;
+            createdUser.CurrentVersion++;
+
+            // Update another field
+            createdUser.DisplayName += RandomGenerator.RandomAlphaNumeric(2);
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                Helper.AdminStore.UpdateUser(userWithPermissionsToManageUsers, createdUser);
+            }, "'PUT {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
+
+            InstanceUser updatedUser = null;
+
+            Assert.DoesNotThrow(() =>
+            {
+                updatedUser = Helper.AdminStore.GetUserById(userWithPermissionsToAssignAdminRoles, createdUserId);
+            }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
+
+            // Verify:
+            // Update Id and CurrentVersion, CreatedUser, InstanceAdminRoleId & LicenseType for comparison
+            createdUser.Id = createdUserId;
+            createdUser.CurrentVersion++;
+            createdUser.LicenseType = expectedLicenseLevel;
+
+            AdminStoreHelper.AssertAreEqual(createdUser, updatedUser);
+        }
+
         [TestCase]
-        [Description("Create and add an instance user. Remove the source field. Add the user. " +
+        [Description("Create and add an instance user. Remove the source field. Update the user. " +
              "Verify that the user is updated.")]
         [TestRail(303413)]
         public void UpdateInstanceUser_MissingSource_UserUpdatesCorrectly()
@@ -267,6 +386,53 @@ namespace AdminStoreTests.UsersTests
             // Update CurrentVersion and Source in CreatedUser for comparison
             createdUser.CurrentVersion++;
             createdUser.Source = UserSource.Database;
+
+            AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
+        }
+
+        [TestCase(null)]
+        [TestCase(LicenseLevel.Unknown)]
+        [TestCase(LicenseLevel.Author)]
+        [TestCase(LicenseLevel.Collaborator)]
+        [Description("Create and add an instance user. Set an invalid license level. Update the user. " +
+                     "Verify that the license level is not updated.")]
+        [TestRail(303416)]
+        public void UpdateInstanceUser_MissingOrInvalidLicenseLevel_UserDoesNotUpdateLicenseLevel(LicenseLevel? licenseLevel)
+        {
+            // Setup:
+            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
+
+            int createdUserId = 0;
+
+            Assert.DoesNotThrow(() =>
+            {
+                createdUserId = Helper.AdminStore.AddUser(_adminUser, createdUser);
+            }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
+
+            // Update user Id with returned value and incremented version
+            createdUser.Id = createdUserId;
+            createdUser.CurrentVersion++;
+
+            // Modify the LicenseType
+            createdUser.LicenseType = licenseLevel;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                Helper.AdminStore.UpdateUser(_adminUser, createdUser);
+            }, "'PUT {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
+
+            InstanceUser addedUser = null;
+
+            Assert.DoesNotThrow(() =>
+            {
+                addedUser = Helper.AdminStore.GetUserById(_adminUser, createdUserId);
+            }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
+
+            // Verify:
+            // Update CurrentVersion and Source in CreatedUser for comparison
+            createdUser.CurrentVersion++;
+            createdUser.LicenseType = LicenseLevel.Viewer;
 
             AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
         }
@@ -519,7 +685,7 @@ namespace AdminStoreTests.UsersTests
         [TestCase((uint)256, Description = "Maximum 255 characters")]
         [Description("Create and add a default instance user.  Modify the last name to an invalid value. " +
                      "Update the user. Verify that 400 Bad Request is returned.")]
-        [TestRail(3034197)]
+        [TestRail(303419)]
         public void UpdateInstanceUser_InvalidLastName_400BadRequest(uint numCharacters)
         {
             UpdateDefaultInstanceUserWithInvalidPropertyVerify400BadRequest(
@@ -624,7 +790,7 @@ namespace AdminStoreTests.UsersTests
         [TestCase(InstanceAdminRole.ProvisionProjects)]
         [Description("Create and add an instance user.  Try to update the user with another user that does not have" +
              "permission to manage users. Verify that 401 Unauthorized is returned.")]
-        [TestRail(303449)]
+        [TestRail(303405)]
         public void UpdateInstanceUser_NoPermissionsToManageUsers_403Forbidden(InstanceAdminRole? adminRole)
         {
             // Setup:
@@ -650,6 +816,88 @@ namespace AdminStoreTests.UsersTests
                 Helper.AdminStore.UpdateUser(userWithNoPermissionsToManageUsers, createdUser);
             },
             "'PUT {0}' should return 403 Forbidden when the user updating the user has no permissions to manage users!", USER_PATH_ID);
+
+            // Verify:
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "The user does not have permissions.");
+        }
+
+        [TestCase(InstanceAdminRole.AssignInstanceAdministrators)]
+        [TestCase(InstanceAdminRole.DefaultInstanceAdministrator)]
+        [TestCase(InstanceAdminRole.ProvisionUsers)]
+        [TestCase(InstanceAdminRole.AdministerALLProjects)]
+        [TestCase(InstanceAdminRole.BlueprintAnalytics)]
+        [TestCase(InstanceAdminRole.Email_ActiveDirectory_SAMLSettings)]
+        [TestCase(InstanceAdminRole.InstanceStandardsManager)]
+        [TestCase(InstanceAdminRole.LogGatheringAndLicenseReporting)]
+        [TestCase(InstanceAdminRole.ManageAdministratorRoles)]
+        [TestCase(InstanceAdminRole.ProvisionProjects)]
+        [Description("Create and add a default instance user.  Using another user that has no admin privileges, " +
+             "update the user to have an admin role. Verify that 403 Forbidden is returned.")]
+        [TestRail(303424)]
+        public void UpdateInstanceUser_AssignInstanceAdminRoleWithNoInstanceAdminPrivileges_403Forbidden(InstanceAdminRole adminRole)
+        {
+            // Setup:
+            var userWithNoAdminPrivileges = Helper.CreateUserAndAuthenticate(
+                TestHelper.AuthenticationTokenTypes.AccessControlToken, instanceAdminRole: null);
+
+            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
+
+            int createdUserId = 0;
+
+            Assert.DoesNotThrow(() =>
+            {
+                createdUserId = Helper.AdminStore.AddUser(_adminUser, createdUser);
+            }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
+
+            // Update user Id with returned value and incremented version
+            createdUser.Id = createdUserId;
+            createdUser.CurrentVersion++;
+
+            // Modify the admin role
+            createdUser.InstanceAdminRoleId = adminRole;
+
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() =>
+            {
+                Helper.AdminStore.UpdateUser(userWithNoAdminPrivileges, createdUser);
+            }, "'PUT {0}' should return 403 Forbidden!", USER_PATH_ID);
+
+            // Verify:
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "The user does not have permissions.");
+        }
+
+        [TestCase(InstanceAdminRole.AssignInstanceAdministrators, InstanceAdminRole.DefaultInstanceAdministrator)]
+        [TestCase(InstanceAdminRole.DefaultInstanceAdministrator, InstanceAdminRole.ProvisionUsers)]
+        [Description("Create and add an instance user with an admin role.  Using another user that has no admin privileges, " +
+                     "try to change the admin role of the user. Verify that 403 Forbidden is returned.")]
+        [TestRail(303424)]
+        public void UpdateInstanceUser_ChangeInstanceAdminRoleWithNoInstanceAdminPrivileges_403Forbidden(InstanceAdminRole adminRole1, InstanceAdminRole adminRole2)
+        {
+            // Setup:
+            var userWithNoAdminPrivileges = Helper.CreateUserAndAuthenticate(
+                TestHelper.AuthenticationTokenTypes.AccessControlToken, instanceAdminRole: null);
+
+            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser(instanceAdminRole: adminRole1);
+
+            int createdUserId = 0;
+
+            Assert.DoesNotThrow(() =>
+            {
+                createdUserId = Helper.AdminStore.AddUser(_adminUser, createdUser);
+            }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
+
+            // Update user Id with returned value and incremented version
+            createdUser.Id = createdUserId;
+            createdUser.CurrentVersion++;
+
+            // Modify the admin role
+            createdUser.InstanceAdminRoleId = adminRole2;
+
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() =>
+            {
+                Helper.AdminStore.UpdateUser(userWithNoAdminPrivileges, createdUser);
+            }, "'PUT {0}' should return 403 Forbidden!", USER_PATH_ID);
 
             // Verify:
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "The user does not have permissions.");

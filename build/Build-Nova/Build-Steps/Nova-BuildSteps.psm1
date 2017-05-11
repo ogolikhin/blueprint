@@ -112,7 +112,7 @@ function Build-Nova-Html{
         pushd "$workspace\app\NovaWeb"
    
         Invoke-MyExpression "yarn" "install"
-        Invoke-MyExpression "yarn" "upgrade"
+        # Invoke-MyExpression "yarn" "upgrade"
 
         # Increment build version number
         $version = $blueprintVersion.split(".")

@@ -530,7 +530,7 @@ namespace AdminStore.Controllers
                 throw new BadRequestException(ErrorMessages.IncorrectOffsetParameter, ErrorCodes.BadRequest);
             }
 
-            await _privilegesManager.Demand(SessionUserId, InstanceAdminPrivileges.ViewUsers);
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewUsers);
             var tabularData = new TabularData {Pagination = pagination, Sorting = sorting, Search = search};
 
             var result = await _userRepository.GetUserGroupsAsync(userId, tabularData, GroupsHelper.SortGroups);

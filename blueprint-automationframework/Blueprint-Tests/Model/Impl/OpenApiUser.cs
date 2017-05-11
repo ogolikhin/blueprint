@@ -51,8 +51,8 @@ namespace Model.Impl
         }
         public bool? ExpirePassword
         {
-            get { return UserData.ExpirePassword; }
-            set { UserData.ExpirePassword = value; }
+            get { return UserData.ExpiredPassword; }
+            set { UserData.ExpiredPassword = value; }
         }
         public string Email
         {

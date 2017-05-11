@@ -1,16 +1,15 @@
 ﻿using Common;
+using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Model.NovaModel.Components.RapidReview;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
-using Model.ArtifactModel;
-using Model.ArtifactModel.Adapters;
-using Newtonsoft.Json;
 using Utilities;
 using Utilities.Facades;
 
@@ -347,7 +346,7 @@ namespace Model.Impl
 
             ThrowIf.ArgumentNull(process, nameof(process));
 
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.Projects_id_.Processes_id_.USERSTORIES, process.ProjectId, process.Id); 
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.Projects_id_.Processes_id_.USERSTORIES, process.ProjectId, process.Id);
 
             var additionalHeaders = new Dictionary<string, string>();
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
@@ -387,7 +386,7 @@ namespace Model.Impl
         public IProcess GetProcess(
             int artifactId,
             IUser user = null,
-            int? versionIndex = null, 
+            int? versionIndex = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(SvcComponents), nameof(GetProcess));
@@ -456,7 +455,7 @@ namespace Model.Impl
         /// <seealso cref="ISvcComponents.UpdateProcess(IProcess, IUser, List{HttpStatusCode})"/>
         public ProcessUpdateResult UpdateProcess(
             IProcess process,
-            IUser user = null, 
+            IUser user = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(SvcComponents), nameof(UpdateProcess));

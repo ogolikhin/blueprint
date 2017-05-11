@@ -39,7 +39,7 @@ namespace Model.Impl
         /// <summary>
         /// The authentication source of the user.
         /// </summary>
-        public UserSource Source { get; set; }
+        public UserSource? Source { get; set; }
 
         /// <summary>
         /// True if this user has accepted the EULA, false otherwise.
@@ -50,7 +50,7 @@ namespace Model.Impl
         /// <summary>
         /// The type of license of this user.
         /// </summary>
-        public LicenseLevel LicenseType { get; set; }
+        public LicenseLevel? LicenseType { get; set; }
 
         /// <summary>
         ///  True only for users who have logged in via SAML. False for other types of SSO
@@ -71,11 +71,11 @@ namespace Model.Impl
         /// <summary>
         /// The Instance Admin privileges of this user.
         /// </summary>
-        public InstanceAdminPrivileges InstanceAdminPrivileges { get; set; }
+        public InstanceAdminPrivileges? InstanceAdminPrivileges { get; set; }
 
         public LoginUser(string login, string firstName, string lastName, string displayName, string email,
-            UserSource source, bool eulaAccepted, LicenseLevel license, bool isSso, bool? allowFallback, 
-            InstanceAdminRole? instanceAdminRole, InstanceAdminPrivileges instanceAdminPrivileges)
+            UserSource? source, bool eulaAccepted, LicenseLevel? license, bool isSso, bool? allowFallback, 
+            InstanceAdminRole? instanceAdminRole, InstanceAdminPrivileges? instanceAdminPrivileges)
         {
             Login = login;
             FirstName = firstName;

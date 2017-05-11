@@ -1,4 +1,5 @@
-﻿using AdminStore.Models;
+﻿using System.Text.RegularExpressions;
+using AdminStore.Models;
 using AdminStore.Models.Enums;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
@@ -17,6 +18,11 @@ namespace AdminStore.Helpers
             if (user.Login.Length < 4 || user.Login.Length > 255)
             {
                 throw new BadRequestException(ErrorMessages.LoginFieldLimitation, ErrorCodes.BadRequest);
+            }
+
+            if (IsReservedUserName(user.Login))
+            {
+                throw new BadRequestException(ErrorMessages.LoginInvalid, ErrorCodes.BadRequest);
             }
 
             if (string.IsNullOrEmpty(user.DisplayName))
@@ -54,6 +60,12 @@ namespace AdminStore.Helpers
                 throw new BadRequestException(ErrorMessages.EmailFieldLimitation, ErrorCodes.BadRequest);
             }
 
+            var emailRegex = new Regex(@"^([\w-.\']+)@(([[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.)|(([\w-]+.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(]?)$");
+            if (!emailRegex.IsMatch(user.Email))
+            {
+                throw new BadRequestException(ErrorMessages.EmailFormatIncorrect, ErrorCodes.BadRequest);
+            }
+
             if (!string.IsNullOrEmpty(user.Title) && (user.Title.Length < 2 || user.Title.Length > 255))
             {
                 throw new BadRequestException(ErrorMessages.TitleFieldLimitation, ErrorCodes.BadRequest);
@@ -68,6 +80,13 @@ namespace AdminStore.Helpers
             {
                 throw new BadRequestException(ErrorMessages.CreationOnlyDatabaseUsers, ErrorCodes.BadRequest);
             }
+        }
+
+        private static bool IsReservedUserName(string userName)
+        {
+            return userName == ServiceConstants.ExpiredUserKey ||
+                   userName == ServiceConstants.UserLogout ||
+                   userName == ServiceConstants.InvalidUserKey;
         }
     }
 }

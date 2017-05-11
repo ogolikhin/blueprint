@@ -273,13 +273,13 @@ namespace AdminStore.Repositories
             return result;
         }
 
-        public Task UpdateUserPasswordAsync(string password, int sessionUserId)
+        public async Task UpdateUserPasswordAsync(string password, int sessionUserId)
         {
             var parameters = new DynamicParameters();
-            parameters.Add("@Login", user.Login);
-            parameters.Add("@Password", user.Password);
-            parameters.Add("@UserSALT", user.UserSalt);
-            await _connectionWrapper.ExecuteAsync("UpdateUserOnPasswordResetAsync", prm, commandType: CommandType.StoredProcedure);
+           // parameters.Add("@Login", user.Login);
+           // parameters.Add("@Password", user.Password);
+           // parameters.Add("@UserSALT", user.UserSalt);
+            await _connectionWrapper.ExecuteAsync("UpdateUserOnPasswordResetAsync", parameters, commandType: CommandType.StoredProcedure);
         }
 
         public async Task UpdateUserAsync(User loginUser)
@@ -325,6 +325,49 @@ namespace AdminStore.Repositories
                         throw new ConflictException(ErrorMessages.UserVersionsNotEqual);
                 }
             }
+        }
+
+
+        public async Task<QueryResult<GroupDto>> GetUserGroupsAsync(int userId, TabularData tabularData, Func<Sorting, string> sort = null)
+        {
+            var orderField = string.Empty;
+            if (sort != null && tabularData.Sorting != null)
+            {
+                orderField = sort(tabularData.Sorting);
+            }
+            var parameters = new DynamicParameters();
+            parameters.Add("@UserId", userId);
+            parameters.Add("@Offset", tabularData.Pagination.Offset);
+            parameters.Add("@Limit", tabularData.Pagination.Limit);
+            parameters.Add("@OrderField", orderField);
+            parameters.Add("@Search", tabularData.Search);
+            parameters.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            var userGroups = await _connectionWrapper.QueryAsync<Group>("GetUsersGroups", parameters, commandType: CommandType.StoredProcedure);
+            var total = parameters.Get<int?>("Total");
+            var errorCode = parameters.Get<int?>("ErrorCode");
+          
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int) SqlErrorCodes.GeneralSqlError:
+                        throw new BadRequestException(ErrorMessages.GeneralErrorOfGettingUserGroups);
+
+                    case (int) SqlErrorCodes.UserLoginNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.UserNotExist);
+                }
+            }
+
+            if (!total.HasValue)
+            {
+                throw new BadRequestException(ErrorMessages.TotalNull);
+            }
+
+            var mappedGroups = GroupMapper.Map(userGroups);
+          
+            var queryDataResult = new QueryResult<GroupDto>() {Items = mappedGroups, Total =  total.Value};
+            return queryDataResult;
         }
 
         internal class HashedPassword

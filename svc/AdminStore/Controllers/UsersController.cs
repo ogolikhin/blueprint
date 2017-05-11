@@ -418,17 +418,17 @@ namespace AdminStore.Controllers
             return Ok();
         }
 
-        [HttpPost]
-        [SessionRequired]
-        [Route("changepassword")]
-        [ResponseType(typeof(int))]
-        public async Task<IHttpActionResult> ChangeInstanceAdminPassword([FromBody] string password)
-        {
-            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageUsers);
+        //[HttpPost]
+        //[SessionRequired]
+        //[Route("changepassword")]
+        //[ResponseType(typeof(int))]
+        //public async Task<IHttpActionResult> ChangeInstanceAdminPassword([FromBody] string password)
+        //{
+        //    await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageUsers);
 
 
-            return Ok();
-        }
+        //    return Ok();
+        //}
 
 
         /// <summary>
@@ -508,6 +508,46 @@ namespace AdminStore.Controllers
             await _userRepository.UpdateUserAsync(databaseUser);
 
             return Ok();
+        }
+
+
+        /// <summary>
+        /// Get user's groups list according to the input parameters 
+        /// </summary>
+        /// <param name="userId">User's identity</param>
+        /// <param name="pagination">Pagination parameters</param>
+        /// <param name="sorting">Sorting parameters</param>
+        /// <param name="search">The parameter for searching by group name</param>
+        /// <response code="200">OK. The list of user groups.</response>
+        /// <response code="400">BadRequest. Some errors. </response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. if user doesn’t have permission to view group membership for the user with the specified userId.</response>
+        /// <response code="404">NotFound. if user with userId doesn’t exists or removed from the system.</response>
+        [SessionRequired]
+        [ResponseType(typeof(QueryResult<GroupDto>))]
+        [Route("{userId:int:min(1)}/groups")]
+        public async Task<IHttpActionResult> GetUserGroups(int userId, [FromUri]Pagination pagination, [FromUri]Sorting sorting, [FromUri] string search = null)
+        {
+            if (pagination == null)
+            {
+                throw new BadRequestException(ErrorMessages.InvalidPagination, ErrorCodes.BadRequest);
+            }
+
+            if (pagination.Limit < 1)
+            {
+                throw new BadRequestException(ErrorMessages.IncorrectLimitParameter, ErrorCodes.BadRequest);
+            }
+
+            if (pagination.Offset < 0)
+            {
+                throw new BadRequestException(ErrorMessages.IncorrectOffsetParameter, ErrorCodes.BadRequest);
+            }
+
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewUsers);
+            var tabularData = new TabularData {Pagination = pagination, Sorting = sorting, Search = search};
+
+            var result = await _userRepository.GetUserGroupsAsync(userId, tabularData, GroupsHelper.SortGroups);
+            return Ok(result);
         }
     }
 }

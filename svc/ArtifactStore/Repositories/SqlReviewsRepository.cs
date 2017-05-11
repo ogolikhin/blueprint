@@ -59,7 +59,6 @@ namespace ArtifactStore.Repositories
                 reviewSource.Name = artifactInfo.Name;
                 reviewSource.Prefix = artifactInfo.Prefix;
             }
-
             return new ReviewContainer
             {
                 Id = reviewId,
@@ -79,7 +78,7 @@ namespace ArtifactStore.Repositories
                 string errorMessage = I18NHelper.FormatInvariant("Review (Id:{0}) is not found.", containerId);
                 throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
             }
-            var reviewer = await GetReviewer(containerId, userId);
+            var reviewer = await GetReviewParticipantAsync(containerId, userId);
             if (reviewer == null)
             {
                 string errorMessage = I18NHelper.FormatInvariant("User does not have permissions to access the review (Id:{0}).", containerId);
@@ -87,8 +86,9 @@ namespace ArtifactStore.Repositories
             }
 
             var reviewContainer = await GetReviewAsync(containerId, userId, int.MaxValue);
+            var description = await _itemInfoRepository.GetItemDescription(containerId, userId, true, int.MaxValue);
             reviewContainer.Name = artifactInfo.Name;
-            //TODO Description
+            reviewContainer.Description = description;
             return reviewContainer;
         }
 
@@ -198,12 +198,12 @@ namespace ArtifactStore.Repositories
         /// <param name="reviewId"></param>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public async Task<Reviewer> GetReviewer(int reviewId, int userId)
+        public async Task<ReviewParticipant> GetReviewParticipantAsync(int reviewId, int userId)
         {
             var param = new DynamicParameters();
             param.Add("@reviewId", reviewId);
             param.Add("@userId", userId);
-            return (await ConnectionWrapper.QueryAsync<Reviewer>(
+            return (await ConnectionWrapper.QueryAsync<ReviewParticipant>(
                 "GetReviewer", param,
                 commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
@@ -222,7 +222,7 @@ namespace ArtifactStore.Repositories
             param.Add("@revisionId", revisionId);
             param.Add("@userId", userId);
             param.Add("@addDrafts", addDrafts);
-            var participants = await ConnectionWrapper.QueryMultipleAsync<Reviewer, int, int, int>("GetReviewParticipants", param, commandType: CommandType.StoredProcedure);
+            var participants = await ConnectionWrapper.QueryMultipleAsync<ReviewParticipant, int, int, int>("GetReviewParticipants", param, commandType: CommandType.StoredProcedure);
             var reviewersRoot = new ReviewParticipantsContent()
             {
                 Items = participants.Item1.ToList(),

@@ -424,18 +424,47 @@ namespace AdminStoreTests.UsersTests
                 InstanceAdminErrorMessages.DisplayNameFieldLimitation);
         }
 
-        [TestCase((uint)3, Description = "Minimum 4 characters")]
-        [TestCase((uint)256, Description = "Maximum 255 characters")]
-        [Description("Create and add a default instance user. Modify the email to an invalid value. " +
-                     "Update the user. Verify 400 Bad Request is returned.")]
+        [TestCase((uint)3, InstanceAdminErrorMessages.EmailFieldLimitation, Description = "Minimum 4 characters")]
+        [TestCase((uint)256, InstanceAdminErrorMessages.EmailFieldLimitation, Description = "Maximum 255 characters")]
+        [TestCase("@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No local part")]
+        [TestCase("domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No @ character")]
+        [TestCase("user@name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "Only one @ allowed")]
+        [TestCase("user@domain..com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "Double dot after @")]
+        [TestCase("user..name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "Double dot before @")]
+        [TestCase("user\"Name\"@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "Quotes must be dot separated")]
+        [TestCase("user name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No spaces")]
+        [TestCase("user\\name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No backslashes")]
+        [TestCase("user(name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No left parenthesis")]
+        [TestCase("user)name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No right parenthesis")]
+        [TestCase("user,name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No comma")]
+        [TestCase("user:name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No colon")]
+        [TestCase("user;name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No semi-colon")]
+        [TestCase("user<name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No less than")]
+        [TestCase("user>name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No greater than")]
+        [TestCase("user[name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No left bracket")]
+        [TestCase("user]name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No right bracket")]
+        [Description("Create an instance user with an invalid email. Try to add the user. " +
+                     "Verify that 400 Bad Request is returned.")]
         [TestRail(303412)]
-        public void UpdateInstanceUser_InvalidEmail_400BadRequest(uint numCharacters)
+        public void UpdateInstanceUser_InvalidEmail_400BadRequest(object value, string errorMessage)
         {
+            string emailAddress;
+
+            if (value is uint)
+            {
+                emailAddress = RandomGenerator.RandomAlphaNumericUpperAndLowerCase((uint)value);
+            }
+            else
+            {
+                emailAddress = (string)value;
+            }
+
             UpdateDefaultInstanceUserWithInvalidPropertyVerify400BadRequest(
                 _adminUser,
                 "Email",
-                RandomGenerator.RandomAlphaNumericUpperAndLowerCase(numCharacters),
-                InstanceAdminErrorMessages.EmailFieldLimitation);
+                emailAddress,
+                errorMessage
+                );
         }
 
         [TestCase((UserSource)0xFF, InstanceAdminErrorMessages.CreateOnlyDatabaseUsers)]

@@ -34,8 +34,6 @@ namespace CommonServiceTests
             _secondaryUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
             _project = ProjectFactory.GetProject(_primaryUser);
-
-            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _primaryUser);
         }
 
         [SetUp]

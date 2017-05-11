@@ -16,7 +16,7 @@ namespace Model
         /// (Runs:  'POST /svc/shared/artifacts/discard')
         /// </summary>
         /// <param name="user">The user to authenticate to Blueprint.</param>
-        /// <param name="artifactsIds">The artifact(s)' IDs whose are to be discarded.</param>
+        /// <param name="artifactsIds">The ID's of artifacts to be discarded.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
         /// <returns>The list of ArtifactResult objects created by the dicard artifacts request.</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>

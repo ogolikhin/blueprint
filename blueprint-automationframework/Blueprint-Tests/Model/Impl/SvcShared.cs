@@ -27,7 +27,7 @@ namespace Model.Impl
 
         #region Artifacts methods
 
-        /// <seealso cref="ISvcShared.DiscardArtifacts(IUser, List{IArtifactBase}, List{HttpStatusCode})"/>
+        /// <seealso cref="ISvcShared.DiscardArtifacts(IUser, List{int}, List{HttpStatusCode})"/>
         public List<NovaDiscardArtifactResult> DiscardArtifacts(IUser user,
             List<int> artifactsIds,
             List<HttpStatusCode> expectedStatusCodes = null)
@@ -42,7 +42,7 @@ namespace Model.Impl
         /// </summary>
         /// <param name="address">The base URL of the Blueprint server.</param>
         /// <param name="user">The user to authenticate to Blueprint.</param>
-        /// <param name="artifactsIds">The artifact(s)' IDs whose contain changes to be discarded.</param>
+        /// <param name="artifactsIds">The ID's of artifacts to be discarded.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
         /// <returns>The list of ArtifactResult objects created by the dicard artifacts request.</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>

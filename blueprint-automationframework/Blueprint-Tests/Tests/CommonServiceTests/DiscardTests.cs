@@ -79,7 +79,7 @@ namespace CommonServiceTests
         {
             // Setup:
             var artifact = Helper.CreateNovaArtifact(_user, _project, ItemTypePredefined.Process);
-            artifact.Update(_user, artifact.Artifact);
+            artifact.SaveWithNewDescription(_user);
 
             List<NovaDiscardArtifactResult> discardResultList = null;
             string expectedMessage = "Successfully discarded";
@@ -101,7 +101,7 @@ namespace CommonServiceTests
             // Make sure the artifact really is discarded.
             Assert.Throws<Http404NotFoundException>(() =>
             {
-                Helper.OpenApi.GetArtifact(_project, artifact.Id, _user);
+                Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
             }, "Artifact {0} still exists after it was discarded!", artifact.Id);
         }
 
@@ -173,7 +173,7 @@ namespace CommonServiceTests
             // Make sure the artifact really is still deleted.
             Assert.Throws<Http404NotFoundException>(() =>
             {
-                Helper.OpenApi.GetArtifact(_project, artifact.Id, _user);
+                Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
             }, "Deleted Artifact {0} exists after it was discarded!", artifact.Id);
         }
     }

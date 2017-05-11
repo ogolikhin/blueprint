@@ -228,7 +228,7 @@ namespace Model.ModelHelpers
         /// <param name="user">The user to perform the update.</param>
         /// <param name="description">(optional) The new description to save.  By default a random description is generated.</param>
         /// <returns>The result of the update artifact call.</returns>
-        public INovaArtifactDetails SaveWithNewDescription(IUser user, string description = null)
+        public virtual INovaArtifactDetails SaveWithNewDescription(IUser user, string description = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 

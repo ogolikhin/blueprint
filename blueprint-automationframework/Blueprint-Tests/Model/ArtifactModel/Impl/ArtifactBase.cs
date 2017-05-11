@@ -1,6 +1,7 @@
 using Common;
 using Model.Factories;
 using Model.Impl;
+using Model.OpenApiModel.Services;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
@@ -8,9 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
-using Model.OpenApiModel.Services;
 using Utilities;
-using Utilities.Facades;
 
 namespace Model.ArtifactModel.Impl
 {
@@ -267,7 +266,7 @@ namespace Model.ArtifactModel.Impl
             bool? readOnly = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return SvcShared.GetNavigation(address, user, artifacts,
+            return SvcShared.GetNavigation(address, user, artifacts.Select(a => a.Id),
                 versionId: versionId,
                 revisionId: revisionId,
                 baselineId: baselineId,

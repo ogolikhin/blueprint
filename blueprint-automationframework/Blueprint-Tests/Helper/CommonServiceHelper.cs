@@ -1,10 +1,11 @@
 ﻿using Common;
 using Model;
-using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
+using Model.Factories;
+using Model.ModelHelpers;
 using NUnit.Framework;
 using System.Collections.Generic;
-using Model.ArtifactModel.Enums;
 using Utilities;
 
 namespace Helper
@@ -17,6 +18,8 @@ namespace Helper
         // TODO This will need to be updated with the value that cannot does not exist in the system 
         //Non-existence artifact Id sample
         public const int NONEXISTENT_ARTIFACT_ID = 99999999;
+
+        public static IArtifactStore ArtifactStore { get; } = ArtifactStoreFactory.GetArtifactStoreFromTestConfig();
 
         /// <summary>
         /// Verifies that the JSON content returned by a 'GET /status' call has the expected fields.
@@ -49,37 +52,38 @@ namespace Helper
         /// </summary>
         /// <param name="project">The project where accessible artifacts resides for the user</param>
         /// <param name="user">The user who have access to the project</param>
-        /// <param name="resultArtifactReferenceList">The returned artifact reference list from GET navigation call</param>
-        /// <param name="artifactList">The list of artifacts for the navigation</param>
+        /// <param name="expectedArtifacts">The artifacts expected for the navigation</param>
+        /// <param name="returnedArtifactReferenceList">The returned artifact reference list from GET navigation call</param>
         /// <param name="readOnly">(optional) Indicator that returning artifact reference links are readOnly format</param>
         /// <exception cref="AssertionException">If any expected fields are not found.</exception>
         public static void VerifyNavigation(
             IProject project,
             IUser user,
-            List<ArtifactReference> resultArtifactReferenceList,
-            List<IArtifact> artifactList,
+            List<ArtifactWrapper> expectedArtifacts,
+            List<ArtifactReference> returnedArtifactReferenceList,
             bool readOnly = false
             )
         {
             ThrowIf.ArgumentNull(project, nameof(project));
             ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(resultArtifactReferenceList, nameof(resultArtifactReferenceList));
-            ThrowIf.ArgumentNull(artifactList, nameof(artifactList));
+            ThrowIf.ArgumentNull(expectedArtifacts, nameof(expectedArtifacts));
+            ThrowIf.ArgumentNull(returnedArtifactReferenceList, nameof(returnedArtifactReferenceList));
 
-            Assert.That(resultArtifactReferenceList.Count.Equals(artifactList.Count),
-                "The expected number of ArtifactRerences from GetNavigation is {0} but the call returned {1}.",
-                artifactList.Count, resultArtifactReferenceList.Count);
+            Assert.AreEqual(expectedArtifacts.Count, returnedArtifactReferenceList.Count,
+                "The expected number of ArtifactReferences from GetNavigation is {0} but {1} is returned.",
+                expectedArtifacts.Count, returnedArtifactReferenceList.Count);
 
             //Validations for accessible artifact references
 
             //accessibleSourceArtifactList is list of artifacts which are either created by the same user or doesn't contain NONEXISTETNT_ARTIFACT_ID
-            var accessibleSourceArtifactList = artifactList.FindAll(
-                artifact => artifact.CreatedBy.Token.Equals(user.Token) && !artifact.Id.Equals(NONEXISTENT_ARTIFACT_ID));
+
+            var accessibleSourceArtifactList = expectedArtifacts.FindAll(
+                artifact => artifact.ArtifactState.CreatedBy.Equals(user.Token) && !artifact.Id.Equals(NONEXISTENT_ARTIFACT_ID));
 
             var accessibleSourceArtifactdIdList = accessibleSourceArtifactList.ConvertAll(a => a.Id);
 
             //accessibleResultArtifactReferenceList is list of artifact references whose Ids exist in accessibleSourceArtifactdIdList
-            var accessibleResultArtifactReferenceList = resultArtifactReferenceList.FindAll(ar => accessibleSourceArtifactdIdList.Contains(ar.Id));
+            var accessibleResultArtifactReferenceList = returnedArtifactReferenceList.FindAll(ar => accessibleSourceArtifactdIdList.Contains(ar.Id));
 
             foreach (var accessibleResultArtifactReference in accessibleResultArtifactReferenceList)
             {
@@ -97,9 +101,9 @@ namespace Helper
                     "The ID for the accessible artifact (Id: {0}) on artifact reference should be {1} but returned ID is {2}.",
                     accessibleResultArtifactReference.Id, accessibleSourceArtifact.Id, accessibleResultArtifactReference.Id);
 
-                Assert.IsTrue(accessibleResultArtifactReference.BaseItemTypePredefined.ToString().Equals(accessibleSourceArtifact.BaseArtifactType.ToString()),
+                Assert.IsTrue(accessibleResultArtifactReference.BaseItemTypePredefined.ToString().Equals(accessibleSourceArtifact.Artifact.ItemTypeId.ToString()),
                     "The baseItemTypePredefined for the accessible artifact (Id: {0}) on artifact reference should be {1} but returned baseItemTypePredefined is {2}.",
-                    accessibleResultArtifactReference.Id, accessibleSourceArtifact.BaseArtifactType.ToString(),
+                    accessibleResultArtifactReference.Id, accessibleSourceArtifact.Artifact.ItemTypeId.ToString(),
                     accessibleResultArtifactReference.BaseItemTypePredefined.ToString());
 
                 Assert.IsTrue(accessibleResultArtifactReference.ProjectId.Equals(accessibleSourceArtifact.ProjectId),
@@ -114,13 +118,13 @@ namespace Helper
             //Validations for non-existance or inaccessible artifact references
 
             //nonExistentSourceArtifactList is list of artifacts which are either created by the different user or contain NONEXISTETNT_ARTIFACT_ID
-            var nonExistentSourceArtifactList = artifactList.FindAll(
-                artifact => !artifact.CreatedBy.Token.Equals(user.Token) || artifact.Id.Equals(NONEXISTENT_ARTIFACT_ID));
+            var nonExistentSourceArtifactList = expectedArtifacts.FindAll(
+                artifact => !artifact.ArtifactState.CreatedBy.Token.Equals(user.Token) || artifact.Id.Equals(NONEXISTENT_ARTIFACT_ID));
 
             var nonExistentSourceArtifactIdList = nonExistentSourceArtifactList.ConvertAll(a => a.Id);
 
             //nonExistentArtifactReferenceList is list of artifact references whose Ids exist in nonExistentSourceArtifactIdList
-            var nonExistentArtifactReferenceList = resultArtifactReferenceList.FindAll(ar => nonExistentSourceArtifactIdList.Contains(ar.Id));
+            var nonExistentArtifactReferenceList = returnedArtifactReferenceList.FindAll(ar => nonExistentSourceArtifactIdList.Contains(ar.Id));
 
             foreach (var nonExistentArtifactReference in nonExistentArtifactReferenceList)
             {
@@ -144,7 +148,7 @@ namespace Helper
 
             //Validation for links in resultArtifactReferenceList
             string linkPath = NAVIGATION_BASE_URL;
-            foreach (var artifactReference in resultArtifactReferenceList)
+            foreach (var artifactReference in returnedArtifactReferenceList)
             {
                 linkPath = readOnly ? I18NHelper.FormatInvariant("{0}{1}/?readOnly=1", linkPath, artifactReference.Id)
                     : I18NHelper.FormatInvariant("{0}{1}/", linkPath, artifactReference.Id);

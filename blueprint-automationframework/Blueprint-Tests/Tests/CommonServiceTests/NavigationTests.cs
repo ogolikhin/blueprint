@@ -1,8 +1,10 @@
 ﻿using CustomAttributes;
 using Helper;
 using Model;
-using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
+using Model.ArtifactModel.Impl;
 using Model.Factories;
+using Model.ModelHelpers;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +20,8 @@ namespace CommonServiceTests
         private IUser _primaryUser;
         private IUser _secondaryUser;
         private IProject _project;
-        private List<IArtifact> _artifacts;
+        private List<ArtifactWrapper> _artifacts;
+        private const string GET_SHARED_NAVIGATION_PATH = RestPaths.Svc.Shared.NAVIGATION_ids_;
 
         #region Setup and Cleanup
 
@@ -27,14 +30,18 @@ namespace CommonServiceTests
         {
             Helper = new TestHelper();
             _primaryUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+
             _secondaryUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+
             _project = ProjectFactory.GetProject(_primaryUser);
+
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _primaryUser);
         }
 
         [SetUp]
         public void SetUp()
         {
-            _artifacts = new List<IArtifact>();
+            _artifacts = new List<ArtifactWrapper>();
         }
 
         [TearDown]
@@ -62,7 +69,7 @@ namespace CommonServiceTests
         {
             // Setup:
             //Create artifacts with distinct available artifactTypes 
-            var baseArtifactTypes = _project.ArtifactTypes.ConvertAll(o => o.BaseArtifactType);
+            var baseArtifactTypes = TestCaseSources.AllArtifactTypesForNovaRestMethods;
 
             // Because of HTTP path size limits, we need to make sure we don't create more artifacts that can fit in the path.
             int artifactCounter = 0;
@@ -70,8 +77,8 @@ namespace CommonServiceTests
 
             foreach (var baseArtifactType in baseArtifactTypes)
             {
-                var artifact = Helper.CreateArtifact(_project, _primaryUser, baseArtifactType);
-                artifact.Save();
+                var artifact = Helper.CreateNovaArtifact(_primaryUser, _project, (ItemTypePredefined)baseArtifactType);
+                artifact.SaveWithNewDescription(_primaryUser);
 
                 //Add an artifact to artifact list for navigation call
                 _artifacts.Add(artifact);
@@ -84,11 +91,15 @@ namespace CommonServiceTests
 
             // Execute:
             //Get Navigation
-            var resultArtifactReferenceList = _artifacts.First().GetNavigation(_primaryUser, _artifacts);
+            List<ArtifactReference> resultArtifactReferenceList = null;
+            Assert.DoesNotThrow(
+                () => resultArtifactReferenceList = Helper.SvcShared.GetNavigation( _primaryUser, _artifacts.Select(a => a.Id)),
+                "The GET {0} endpoint should return 200 OK when we pass valid artifact IDs in the URL!",
+                GET_SHARED_NAVIGATION_PATH);
 
             // Verify:
             //Navigation Assertions
-            CommonServiceHelper.VerifyNavigation(_project, _primaryUser, resultArtifactReferenceList, _artifacts);
+            CommonServiceHelper.VerifyNavigation(_project, _primaryUser, _artifacts, resultArtifactReferenceList);
         }
 
         [TestRail(107168)]
@@ -100,8 +111,8 @@ namespace CommonServiceTests
         {
             // Setup:
             //Create an artifact with process artifact type
-            var artifact = Helper.CreateArtifact(_project, _primaryUser, BaseArtifactType.Process);
-            artifact.Save();
+            var artifact = Helper.CreateNovaArtifact(_primaryUser, _project, ItemTypePredefined.Actor);
+            artifact.SaveWithNewDescription(_primaryUser);
 
             const int MAXIUM_ALLOWABLE_NAVIGATION = 23;     // TODO: Development needs to define a limit for us...  This is just what currently works because of IIS URL size limit.
 
@@ -118,11 +129,15 @@ namespace CommonServiceTests
 
             // Execute:
             //Get Navigation
-            var resultArtifactReferenceList = artifact.GetNavigation(_primaryUser, _artifacts);
+            List<ArtifactReference> resultArtifactReferenceList = null;
+            Assert.DoesNotThrow(
+                () => resultArtifactReferenceList = Helper.SvcShared.GetNavigation(_primaryUser, _artifacts.Select(a => a.Id)),
+                "The GET {0} endpoint should return 200 OK when we pass valid artifact IDs in the URL!",
+                GET_SHARED_NAVIGATION_PATH);
 
             // Verify:
             //Navigation Assertions
-            CommonServiceHelper.VerifyNavigation(_project, _primaryUser, resultArtifactReferenceList, _artifacts);
+            CommonServiceHelper.VerifyNavigation(_project, _primaryUser, _artifacts, resultArtifactReferenceList);
         }
 
         [TestRail(107169)]
@@ -144,9 +159,9 @@ namespace CommonServiceTests
             //Get Navigation and check the Not Found exception
             Assert.Throws<Http404NotFoundException>(() =>
             {
-                invalidArtifact.GetNavigation(_primaryUser, _artifacts);
+                Helper.SvcShared.GetNavigation(_primaryUser, _artifacts.Select(a => a.Id));
             }, "The GET {0} endpoint should return 404 NotFound when we pass an invalid artifact ID in the URL!",
-                RestPaths.Svc.Shared.NAVIGATION_ids_);
+                GET_SHARED_NAVIGATION_PATH);
         }
 
         [TestRail(107170)]
@@ -160,18 +175,22 @@ namespace CommonServiceTests
             //Create artifact(s) with process artifact type and add to artifact list for navigation call
             for (int i = 0; i < numberOfArtifacts; i++)
             {
-                var artifact = Helper.CreateArtifact(_project, _primaryUser, BaseArtifactType.Process);
-                artifact.Save();
+                var artifact = Helper.CreateNovaProcessArtifact(_primaryUser, _project);
+                artifact.SaveWithNewDescription(_primaryUser);
                 _artifacts.Add(artifact);
             }
 
             // Execute:
             //Get Navigation
-            var resultArtifactReferenceList = _artifacts.First().GetNavigation(_primaryUser, _artifacts);
+            List<ArtifactReference> resultArtifactReferenceList = null;
+            Assert.DoesNotThrow(
+                () => resultArtifactReferenceList = Helper.SvcShared.GetNavigation(_primaryUser, _artifacts.Select(a => a.Id)),
+                "The GET {0} endpoint should return 200 OK when we pass valid artifact IDs in the URL!",
+                GET_SHARED_NAVIGATION_PATH);
 
             // Verify:
             //Navigation Assertions
-            CommonServiceHelper.VerifyNavigation(_project, _primaryUser, resultArtifactReferenceList, _artifacts);
+            CommonServiceHelper.VerifyNavigation(_project, _primaryUser, _artifacts, resultArtifactReferenceList);
         }
 
         [TestRail(107171)]
@@ -192,8 +211,8 @@ namespace CommonServiceTests
             //Create artifact(s) with process artifact type and add to artifact list for navigation call
             for (int i = 0; i < numberOfArtifacts; i++)
             {
-                var artifact = Helper.CreateArtifact(_project, _primaryUser, BaseArtifactType.Process);
-                artifact.Save();
+                var artifact = Helper.CreateNovaProcessArtifact(_primaryUser, _project);
+                artifact.SaveWithNewDescription(_primaryUser);
                 _artifacts.Add(artifact);
             }
 
@@ -206,11 +225,15 @@ namespace CommonServiceTests
 
             // Execute:
             //Get Navigation
-            var resultArtifactReferenceList = _artifacts.First().GetNavigation(_primaryUser, _artifacts);
+            List<ArtifactReference> resultArtifactReferenceList = null;
+            Assert.DoesNotThrow(
+                () => resultArtifactReferenceList = Helper.SvcShared.GetNavigation(_primaryUser, _artifacts.Select(a => a.Id)),
+                "The GET {0} endpoint should return 200 OK when we pass valid artifact IDs in the URL!",
+                GET_SHARED_NAVIGATION_PATH);
 
             // Verify:
             //Navigation Assertions
-            CommonServiceHelper.VerifyNavigation(_project, _primaryUser, resultArtifactReferenceList, _artifacts);
+            CommonServiceHelper.VerifyNavigation(_project, _primaryUser, _artifacts, resultArtifactReferenceList);
         }
 
         [TestRail(107172)]
@@ -232,26 +255,30 @@ namespace CommonServiceTests
             //Create artifact(s) with process artifact type and add to artifact list for navigation call
             for (int i = 0; i < numberOfArtifacts; i++)
             {
-                var artifact = Helper.CreateArtifact(_project, _primaryUser, BaseArtifactType.Process);
-                artifact.Save();
+                var artifact = Helper.CreateNovaProcessArtifact(_primaryUser, _project);
+                artifact.SaveWithNewDescription(_primaryUser);
                 _artifacts.Add(artifact);
             }
 
             //Create and inject artifacts created by another user, which are inaccessible by the main user
             foreach (var inaccessibleArtifactIndex in inaccessibleArtifactIndexes)
             {
-                var inaccessbileArtifact = Helper.CreateArtifact(_project, _secondaryUser, BaseArtifactType.Actor);
-                inaccessbileArtifact.Save();
+                var inaccessbileArtifact = Helper.CreateNovaArtifact(_secondaryUser, _project, ItemTypePredefined.Actor);
+                inaccessbileArtifact.SaveWithNewDescription(_secondaryUser);
                 _artifacts.Insert(inaccessibleArtifactIndex, inaccessbileArtifact);
             }
 
             // Execute:
             //Get Navigation
-            var resultArtifactReferenceList = _artifacts.First().GetNavigation(_primaryUser, _artifacts);
+            List<ArtifactReference> resultArtifactReferenceList = null;
+            Assert.DoesNotThrow(
+                () => resultArtifactReferenceList = Helper.SvcShared.GetNavigation(_primaryUser, _artifacts.Select(a => a.Id)),
+                "The GET {0} endpoint should return 200 OK when we pass valid artifact IDs in the URL!",
+                GET_SHARED_NAVIGATION_PATH);
 
             // Verify:
             //Navigation Assertions
-            CommonServiceHelper.VerifyNavigation(_project, _primaryUser, resultArtifactReferenceList, _artifacts);
+            CommonServiceHelper.VerifyNavigation(_project, _primaryUser, _artifacts, resultArtifactReferenceList);
         }
 
         #endregion Tests
@@ -261,9 +288,9 @@ namespace CommonServiceTests
         /// </summary>
         /// <param name="baseArtifactType">(optional) The artifact type.</param>
         /// <returns>The non-existent artifact.</returns>
-        private IArtifact CreateNonExistentArtifact(BaseArtifactType baseArtifactType = BaseArtifactType.Actor)
+        private ArtifactWrapper CreateNonExistentArtifact(ItemTypePredefined baseArtifactType = ItemTypePredefined.Actor)
         {
-            var nonExistingArtifact = ArtifactFactory.CreateArtifact(_project, _primaryUser, baseArtifactType);
+            var nonExistingArtifact = Helper.CreateNovaArtifact(_primaryUser, _project, baseArtifactType);
             nonExistingArtifact.Id = CommonServiceHelper.NONEXISTENT_ARTIFACT_ID;
             return nonExistingArtifact;
         }
@@ -274,9 +301,9 @@ namespace CommonServiceTests
         /// <param name="artifactId">The invalid artifact ID to give the artifact.</param>
         /// <param name="baseArtifactType">(optional) The artifact type.</param>
         /// <returns>The invalid artifact.</returns>
-        private IArtifact CreateInvalidArtifact(int artifactId, BaseArtifactType baseArtifactType = BaseArtifactType.Actor)
+        private ArtifactWrapper CreateInvalidArtifact(int artifactId, ItemTypePredefined baseArtifactType = ItemTypePredefined.Actor)
         {
-            var invalidArtifact = ArtifactFactory.CreateArtifact(_project, _primaryUser, baseArtifactType);
+            var invalidArtifact = Helper.CreateNovaArtifact(_primaryUser, _project, baseArtifactType);
             invalidArtifact.Id = artifactId;
             return invalidArtifact;
         }

@@ -26,6 +26,11 @@
         public static readonly string UserVersionsNotEqual = "The current version from the request doesn’t match the current version in DB.";
         public static readonly string IncorrectUserId = "Incorrect userId.";
         public static readonly string InvalidDeleteUsersParameters = "Invalid parameters to delete users";
+        public static readonly string IncorrectLimitParameter = "The \"limit\" parameter should be more than 0.";
+        public static readonly string IncorrectOffsetParameter = "The \"offset\" parameter should not be negative.";
+        public static readonly string TotalNull = "The \"total\" is null.";
+        public static readonly string GeneralErrorOfGettingUserGroups = "The general error of getting user's groups.";
+
         public static readonly string CreationOnlyDatabaseUsers = "You can create only database users.";
         public static readonly string EmailFormatIncorrect = "The email format is incorrect.";
         public static readonly string LoginInvalid = "The \"Login\" field is invalid.";

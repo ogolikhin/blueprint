@@ -1,5 +1,4 @@
-﻿using System;
-using CustomAttributes;
+﻿using CustomAttributes;
 using Helper;
 using Model;
 using Model.Common.Enums;
@@ -17,7 +16,8 @@ namespace AdminStoreTests.UsersTests
 
     public class AddInstanceUserTests : TestBase
     {
-        private const string USER_PATH = RestPaths.Svc.AdminStore.Users.USERS_id_;
+        private const string USER_PATH = RestPaths.Svc.AdminStore.Users.USERS;
+        private const string USER_PATH_ID = RestPaths.Svc.AdminStore.Users.USERS_id_;
 
         private IUser _adminUser = null;
 
@@ -38,6 +38,11 @@ namespace AdminStoreTests.UsersTests
 
         #endregion Setup and Cleanup
 
+        // TODO: Add test that adds a user with the login name of a deleted user
+        // TODO: Add edge case tests for field and password validation?
+        // TODO: Verify license type calculation is performed correctly
+        // TODO: Add test for creation of Guest user
+        // TODO: Add test for SSO
 
         #region 201 Created Tests
 
@@ -63,7 +68,7 @@ namespace AdminStoreTests.UsersTests
             Assert.DoesNotThrow(() =>
             {
                 addedUser = Helper.AdminStore.GetUserById(_adminUser, createdUserId);
-            }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH);
+            }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
 
             // Verify:
             // Update Id and CurrentVersion in CreatedUser for comparison
@@ -98,7 +103,7 @@ namespace AdminStoreTests.UsersTests
             Assert.DoesNotThrow(() =>
             {
                 addedUser = Helper.AdminStore.GetUserById(_adminUser, createdUserId);
-            }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH);
+            }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
 
             // Verify:
             // Update Id and CurrentVersion in CreatedUser for comparison
@@ -137,7 +142,7 @@ namespace AdminStoreTests.UsersTests
             Assert.DoesNotThrow(() =>
             {
                 addedUser = Helper.AdminStore.GetUserById(_adminUser, createdUserId);
-            }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH);
+            }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
 
             // Verify:
             // Update Id and CurrentVersion in CreatedUser for comparison
@@ -176,7 +181,7 @@ namespace AdminStoreTests.UsersTests
             Assert.DoesNotThrow(() =>
             {
                 addedUser = Helper.AdminStore.GetUserById(userPermissionsToManageUsers, createdUserId);
-            }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH);
+            }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
 
             // Verify:
             // Update Id and CurrentVersion in CreatedUser for comparison
@@ -189,6 +194,20 @@ namespace AdminStoreTests.UsersTests
         #endregion 201 Created Tests
 
         #region 400 Bad Request Tests
+
+        [TestCase]
+        [Description("Create an instance user. Try to add the user without sending the user object. " +
+                    "Verify that 400 Bad Request is returned.")]
+        [TestRail(303654)]
+        public void AddInstanceUser_UserMissing_400BadRequest()
+        {
+            // Setup & Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() => { Helper.AdminStore.AddUser(_adminUser, null); },
+                "'POST {0}' should return 400 Bad Request!", USER_PATH);
+
+            // Verify:
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, InstanceAdminErrorMessages.UserModelIsEmpty);
+        }
 
         [TestCase]
         [Description("Create and add an instance user. Try to add a second user with the same login. " +
@@ -206,7 +225,7 @@ namespace AdminStoreTests.UsersTests
 
             // Execute:
             var ex = Assert.Throws<Http400BadRequestException>(() => { Helper.AdminStore.AddUser(_adminUser, newUser); },
-                "POST {0}' should return 400 Bad Request!", USER_PATH);
+                "'POST {0}' should return 400 Bad Request!", USER_PATH);
 
             // Verify:
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, InstanceAdminErrorMessages.LoginNameUnique);
@@ -247,6 +266,26 @@ namespace AdminStoreTests.UsersTests
                 errorMessage);
         }
 
+        [TestCase("Login", InstanceAdminErrorMessages.PasswordSameAsLogin, Description = "Password the same as Login")]
+        [TestCase("DisplayName", InstanceAdminErrorMessages.PasswordSameAsDisplayName, Description = "Password the same as DisplayName")]
+        [Description("Create instance user with Password the same as Login or DisplayName. Try to add the user. " +
+                     "Verify that 400 Bad Request is returned.")]
+        [TestRail(303616)]
+        public void AddInstanceUser_PasswordSameAsLoginOrDisplayName_400BadRequest(string property, string errorMessage)
+        {
+            // Setup:
+            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
+
+            CSharpUtilities.SetProperty(property, createdUser.Password, createdUser);
+
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() => { Helper.AdminStore.AddUser(_adminUser, createdUser); },
+                "'POST {0}' should return 400 Bad Request!", USER_PATH);
+
+            // Verify:
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, errorMessage);
+        }
+
         [TestCase ("", Description = "Login is empty")]
         [TestCase (null, Description = "Login is null")]
         [Description("Create an instance user with a missing login name. Try to add the user. " +
@@ -273,6 +312,21 @@ namespace AdminStoreTests.UsersTests
                 "Login",
                 RandomGenerator.RandomAlphaNumericUpperAndLowerCase(numCharacters),
                 InstanceAdminErrorMessages.LoginFieldLimitation);
+        }
+
+        [TestCase("Raptor_RC_ExpiredUser", Description = "Raptor_RC_ExpiredUser")]
+        [TestCase("Raptor_RC_UserLogout", Description = "Raptor_RC_UserLogout")]
+        [TestCase("Raptor_RC_InvalidUser", Description = "Raptor_RC_InvalidUser")]
+        [Description("Create an instance user with an reserved login name. Try to add the user. " +
+                     "Verify that 400 Bad Request is returned.")]
+        [TestRail(303676)]
+        public void AddInstanceUser_ReservedLogin_400BadRequest(string reservedLogin)
+        {
+            CreateDefaultInstanceUserWithInvalidPropertyVerify400BadRequest(
+                _adminUser,
+                "Login",
+                reservedLogin,
+                InstanceAdminErrorMessages.LoginInvalid);
         }
 
         [TestCase("", Description = "DisplayName is empty")]
@@ -303,18 +357,47 @@ namespace AdminStoreTests.UsersTests
                 InstanceAdminErrorMessages.DisplayNameFieldLimitation);
         }
 
-        [TestCase((uint)3, Description = "Minimum 4 characters")]
-        [TestCase((uint)256, Description = "Maximum 255 characters")]
+        [TestCase((uint)3, InstanceAdminErrorMessages.EmailFieldLimitation, Description = "Minimum 4 characters")]
+        [TestCase((uint)256, InstanceAdminErrorMessages.EmailFieldLimitation, Description = "Maximum 255 characters")]
+        [TestCase("@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No local part")]
+        [TestCase("domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No @ character")]
+        [TestCase("user@name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "Only one @ allowed")]
+        [TestCase("user@domain..com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "Double dot after @")]
+        [TestCase("user..name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "Double dot before @")]
+        [TestCase("user\"Name\"@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "Quotes must be dot separated")]
+        [TestCase("user name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No spaces")]
+        [TestCase("user\\name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No backslashes")]
+        [TestCase("user(name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No left parenthesis")]
+        [TestCase("user)name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No right parenthesis")]
+        [TestCase("user,name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No comma")]
+        [TestCase("user:name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No colon")]
+        [TestCase("user;name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No semi-colon")]
+        [TestCase("user<name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No less than")]
+        [TestCase("user>name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No greater than")]
+        [TestCase("user[name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No left bracket")]
+        [TestCase("user]name@domain.com", InstanceAdminErrorMessages.EmailFormatIncorrect, Description = "No right bracket")]
         [Description("Create an instance user with an invalid email. Try to add the user. " +
                      "Verify that 400 Bad Request is returned.")]
         [TestRail(303382)]
-        public  void AddInstanceUser_InvalidEmail_400BadRequest(uint numCharacters)
+        public  void AddInstanceUser_InvalidEmail_400BadRequest(object value, string errorMessage)
         {
+            string emailAddress;
+
+            if (value is uint)
+            {
+                emailAddress = RandomGenerator.RandomAlphaNumericUpperAndLowerCase((uint) value);
+            }
+            else
+            {
+                emailAddress = (string) value;
+            }
+
             CreateDefaultInstanceUserWithInvalidPropertyVerify400BadRequest(
                 _adminUser,
                 "Email",
-                RandomGenerator.RandomAlphaNumericUpperAndLowerCase(numCharacters),
-                InstanceAdminErrorMessages.EmailFieldLimitation);
+                emailAddress,
+                errorMessage
+                );
         }
 
         [TestCase((uint)1, Description = "Minimum 2 characters")]
@@ -408,7 +491,7 @@ namespace AdminStoreTests.UsersTests
         [TestCase("invalidTokenString")]
         [Description("Create and add an instance user with an invalid token header. " +
                      "Verify that 401 Unauthorized is returned.")]
-        [TestRail(30373)]
+        [TestRail(303373)]
         public  void AddInstanceUser_InvalidTokenHeader_401Unauthorized(string tokenString)
         {
             // Setup:
@@ -418,10 +501,12 @@ namespace AdminStoreTests.UsersTests
             userWithInvalidTokenHeader.SetToken(tokenString);
 
             // Execute & Verify:
-            Assert.Throws<Http401UnauthorizedException>(() =>
+            var ex = Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 Helper.AdminStore.AddUser(userWithInvalidTokenHeader, createdUser);
             }, "'POST {0}' should return 401 Unauthorized with invalid token header!", USER_PATH);
+
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "Token is invalid.");
         }
 
         #endregion 401 Unauthorized Tests
@@ -447,12 +532,15 @@ namespace AdminStoreTests.UsersTests
 
             var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
 
-            // Execute & Verify:
-            Assert.Throws<Http403ForbiddenException>(() =>
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
                 Helper.AdminStore.AddUser(userWithNoPermissionsToManageUsers, createdUser);
             },
             "'POST {0}' should return 403 Forbidden when the user adding the created user has no permissions to manage users!", USER_PATH);
+
+            // Verify:
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "The user does not have permissions.");
         }
 
         #endregion 403 Forbidden Tests
@@ -482,7 +570,7 @@ namespace AdminStoreTests.UsersTests
 
             // Execute:
             var ex = Assert.Throws<Http400BadRequestException>(() => { Helper.AdminStore.AddUser(adminUser, createdUser); },
-                "POST {0}' should return 400 Bad Request!", USER_PATH);
+                "'POST {0}' should return 400 Bad Request!", USER_PATH);
 
             // Verify:
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, expectedErrorMessage);

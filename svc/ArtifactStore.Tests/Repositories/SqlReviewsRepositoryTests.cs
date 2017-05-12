@@ -37,25 +37,6 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        public async Task GetReviewerSuccess()
-        {
-            //Arange
-            int reviewId = 1;
-            int userId = 2;
-            ReviewParticipant[] result = { new ReviewParticipant { UserId = userId, Role = ReviwerRole.Reviewer } };
-            _cxn.SetupQueryAsync("GetReviewer", new Dictionary<string, object> { { "reviewId", reviewId }, { "userId", userId } }, result);
-
-            //Act
-            var reviewer = await _reviewsRepository.GetReviewParticipantAsync(reviewId, userId);
-
-            //Assert
-            _cxn.Verify();
-
-            Assert.AreEqual(userId, reviewer.UserId);
-            Assert.AreEqual(ReviwerRole.Reviewer, reviewer.Role);
-        }
-
-        [TestMethod]
         public async Task GetReviewContainerAsync_Formal_Success()
         {
             //Arange
@@ -67,23 +48,21 @@ namespace ArtifactStore.Repositories
             int baselineId = 3;
             int totalArtifacts = 8;
             var reviewStatus = ReviewStatus.Completed;
-            var artifactsStatus = new ReviewArtifactsStatus {
+
+            _itemInfoRepositoryMock.Setup(i => i.GetItemDescription(reviewId, userId, true, int.MaxValue)).ReturnsAsync(reviewDescription);
+            var reviewDetails = new ReviewDetails
+            {
+                BaselineId = baselineId,
+                ReviewPackageStatus = ReviewPackageStatus.Active,
+                ReviewParticipantRole = ReviewParticipantRole.Approver,
+                TotalArtifacts = totalArtifacts,
+                ReviewStatus = reviewStatus,
                 Approved = 5,
                 Disapproved = 3
             };
 
-            _itemInfoRepositoryMock.Setup(i => i.GetItemDescription(reviewId, userId, true, int.MaxValue)).ReturnsAsync(reviewDescription);
-
-            var result = Tuple.Create(Enumerable.Repeat((int?)baselineId, 1), Enumerable.Repeat(totalArtifacts, 1), Enumerable.Repeat(reviewStatus, 1), Enumerable.Repeat(artifactsStatus, 1));
             var param = new Dictionary<string, object> { { "reviewId", reviewId }, { "userId", userId }, { "revisionId", revisionId } };
-            _cxn.SetupQueryMultipleAsync("GetReviewDetails", param, result);
-
-            var param2 = new Dictionary<string, object> { { "reviewId", reviewId }, { "userId", userId } };
-            var reviewer = new ReviewParticipant
-            {
-                Role = ReviwerRole.Approver
-            };
-            _cxn.SetupQueryAsync("GetReviewer", param2, Enumerable.Repeat(reviewer, 1));
+            _cxn.SetupQueryAsync("GetReviewDetails", param, Enumerable.Repeat(reviewDetails, 1));
 
             var reviewInfo = new VersionControlArtifactInfo
             {
@@ -112,8 +91,8 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(reviewDescription, review.Description);
             Assert.AreEqual(ReviewSourceType.Baseline, review.SourceType);
             Assert.AreEqual(ReviewType.Formal, review.ReviewType);
-            Assert.AreEqual(5, artifactsStatus.Approved);
-            Assert.AreEqual(3, artifactsStatus.Disapproved);
+            Assert.AreEqual(5, review.ArtifactsStatus.Approved);
+            Assert.AreEqual(3, review.ArtifactsStatus.Disapproved);
         }
 
         [TestMethod]
@@ -157,14 +136,22 @@ namespace ArtifactStore.Repositories
             //Arange
             int reviewId = 1;
             int userId = 2;
+            int revisionId = int.MaxValue;
             var reviewInfo = new VersionControlArtifactInfo
             {
                 PredefinedType = ItemTypePredefined.ArtifactReviewPackage
             };
 
             _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
-            var param = new Dictionary<string, object> { { "reviewId", reviewId }, { "userId", userId } };
-            _cxn.SetupQueryAsync("GetReviewer", param, Enumerable.Repeat((ReviewParticipant)null, 1));
+            var reviewDetails = new ReviewDetails
+            {
+                ReviewPackageStatus = ReviewPackageStatus.Active,
+                ReviewParticipantRole = null, // User is not assigned to the review
+                TotalReviewers = 2
+            };
+
+            var param = new Dictionary<string, object> { { "reviewId", reviewId }, { "userId", userId }, { "revisionId", revisionId } };
+            _cxn.SetupQueryAsync("GetReviewDetails", param, Enumerable.Repeat(reviewDetails, 1));
 
             bool isExceptionThrown = false;
             //Act

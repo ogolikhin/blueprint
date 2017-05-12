@@ -64,32 +64,29 @@ namespace ArtifactStoreTests
 
         #region 201 Created tests
 
-        [TestCase(BaseArtifactType.Actor, BaseArtifactType.Glossary)]
-        [TestCase(BaseArtifactType.Document, BaseArtifactType.Actor)]
-        [TestCase(BaseArtifactType.Glossary, BaseArtifactType.TextualRequirement)]
-        [TestCase(BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder)]  // Folders can only be children of other folders.
-        [TestCase(BaseArtifactType.TextualRequirement, BaseArtifactType.Document)]
+        [TestCase(ItemTypePredefined.Actor, ItemTypePredefined.Glossary)]
+        [TestCase(ItemTypePredefined.Document, ItemTypePredefined.Actor)]
+        [TestCase(ItemTypePredefined.Glossary, ItemTypePredefined.TextualRequirement)]
+        [TestCase(ItemTypePredefined.PrimitiveFolder, ItemTypePredefined.PrimitiveFolder)]  // Folders can only be children of other folders.
+        [TestCase(ItemTypePredefined.TextualRequirement, ItemTypePredefined.Document)]
         [TestRail(191047)]
         [Description("Create and save a source & destination artifact.  Copy the source artifact under the destination artifact.  Verify the source artifact is unchanged " +
             "and the new artifact is identical to the source artifact.  New copied artifact should not be published.")]
-        public void CopyArtifact_SingleSavedArtifact_ToNewParent_ReturnsNewArtifact(BaseArtifactType sourceArtifactType, BaseArtifactType targetArtifactType)
+        public void CopyArtifact_SingleSavedArtifact_ToNewParent_ReturnsNewArtifact(ItemTypePredefined sourceArtifactType, ItemTypePredefined targetArtifactType)
         {
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            var sourceArtifact = Helper.CreateAndSaveArtifact(_project, author, sourceArtifactType);
-            var targetArtifact = Helper.CreateAndSaveArtifact(_project, author, targetArtifactType);
-
-            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, sourceArtifact.Id);
+            var sourceArtifact = Helper.CreateNovaArtifact(author, _project, sourceArtifactType);
+            var targetArtifact = Helper.CreateNovaArtifact(author, _project, targetArtifactType);
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
-
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetArtifact.Id, author),
-                "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact.Id, targetArtifact.Id, _project, author),
+            "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
-            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, author, expectedVersionOfOriginalArtifact: -1);
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifact, copyResult, author, expectedVersionOfOriginalArtifact: -1);
         }
         
         [TestCase(ItemTypePredefined.Actor, ItemTypePredefined.Glossary)]
@@ -109,16 +106,15 @@ namespace ArtifactStoreTests
             var sourceArtifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(author, _project, sourceArtifactType,
                 numberOfVersions: 2, parentId: parentArtifact.Id);
 
-            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, sourceArtifact.Id);
-
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
-
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, _project.Id, _project, author),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact.Id, _project.Id, _project, author),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
+            sourceArtifact.RefreshArtifactFromServer(author);
+
             // Verify:
-            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, author, expectedVersionOfOriginalArtifact: 2);
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifact, copyResult, author, expectedVersionOfOriginalArtifact: 2);
         }
 
         [TestCase(ItemTypePredefined.Actor, ItemTypePredefined.Glossary)]
@@ -136,29 +132,27 @@ namespace ArtifactStoreTests
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
-
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, parentArtifact.Id, _project, _user),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact.Id, parentArtifact.Id, _project, _user),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, _user, expectedVersionOfOriginalArtifact: 2);
         }
 
-        [TestCase(BaseArtifactType.Actor)]
+        [TestCase(ItemTypePredefined.Actor)]
         [TestRail(195426)]
         [Description("Create and publish a source artifact.  Copy the source artifact into itself (as a child of itself).  " +
             "Verify the source artifact is unchanged and the new artifact is identical to the source artifact.  New copied artifact should not be published.")]
-        public void CopyArtifact_SinglePublishedArtifact_ToItself_ReturnsNewArtifact(BaseArtifactType sourceArtifactType)
+        public void CopyArtifact_SinglePublishedArtifact_ToItself_ReturnsNewArtifact(ItemTypePredefined sourceArtifactType)
         {
             // Setup:
-            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, sourceArtifactType);
+            var sourceArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, sourceArtifactType);
 
             var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
-
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, sourceArtifact.Id, _user),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact.Id, sourceArtifact.Id, _project, _user),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
@@ -193,7 +187,6 @@ namespace ArtifactStoreTests
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
-
             Assert.DoesNotThrow(() =>
             {
                 var result = sourceArtifact.CopyTo(author, _project, targetArtifact.Id);
@@ -232,30 +225,30 @@ namespace ArtifactStoreTests
             FileStoreTestHelper.AssertFilesAreIdentical(fileFromSource, fileFromCopy);
         }
 
-        [TestCase(BaseArtifactType.Actor, TraceDirection.From, false, false)]
-        [TestCase(BaseArtifactType.Glossary, TraceDirection.To, true, false)]
-        [TestCase(BaseArtifactType.TextualRequirement, TraceDirection.TwoWay, true, true)]
+        [TestCase(ItemTypePredefined.Actor, TraceDirection.From, false, false)]
+        [TestCase(ItemTypePredefined.Glossary, TraceDirection.To, true, false)]
+        [TestCase(ItemTypePredefined.TextualRequirement, TraceDirection.TwoWay, true, true)]
         [TestRail(191050)]
         [Description("Create & save an artifact then create & publish a folder.  Add a manual trace between the artifact & folder.  Copy the artifact into the folder.  " +
             "Verify the source artifact is unchanged and the new artifact (and trace) is identical to the source artifact.  New copied artifact should not be published.")]
         public void CopyArtifact_SingleSavedArtifactWithManualTrace_ToNewFolder_ReturnsNewArtifactWithManualTrace(
-            BaseArtifactType artifactType, TraceDirection direction, bool isSuspect, bool shouldPublishTrace)
+            ItemTypePredefined artifactType, TraceDirection direction, bool isSuspect, bool shouldPublishTrace)
         {
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            var sourceArtifact = Helper.CreateAndSaveArtifact(_project, author, artifactType);
-            var targetArtifact = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.PrimitiveFolder);
+            var sourceArtifact = Helper.CreateNovaArtifact(author, _project, artifactType);
+            var targetArtifact = Helper.CreateAndPublishNovaArtifact(author, _project, ItemTypePredefined.PrimitiveFolder);
 
             // Create & add manual trace to the source artifact:
             ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(author, sourceArtifact.Id, targetArtifact.Id,
-                targetArtifact.ProjectId, ChangeType.Create, Helper.ArtifactStore, direction, isSuspect);
+                targetArtifact.ProjectId.Value, ChangeType.Create, Helper.ArtifactStore, direction, isSuspect);
 
             int expectedVersionOfOriginalArtifact = -1;
 
             if (shouldPublishTrace)
             {
-                sourceArtifact.Publish();
+                sourceArtifact.Publish(author);
                 expectedVersionOfOriginalArtifact = 1;
             }
 
@@ -263,7 +256,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetArtifact.Id, author),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact.Id, targetArtifact.Id, _project, author),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
@@ -271,7 +264,7 @@ namespace ArtifactStoreTests
 
             // Get traces & compare.
             var sourceRelationships = Helper.ArtifactStore.GetRelationships(author, copyResult.Artifact.Id, addDrafts: true);
-            var targetRelationships = Helper.ArtifactStore.GetRelationships(author, targetArtifact, addDrafts: true);
+            var targetRelationships = Helper.ArtifactStore.GetRelationships(author, targetArtifact.Id, addDrafts: true);
 
             Assert.AreEqual(1, sourceRelationships.ManualTraces.Count, "Copied artifact should have 1 manual trace.");
             Assert.AreEqual(2, targetRelationships.ManualTraces.Count, "Target artifact should have 2 manual traces.");
@@ -283,23 +276,23 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, author, targetArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
         }
 
-        [TestCase(BaseArtifactType.TextualRequirement, TraceDirection.TwoWay, true)]
+        [TestCase(ItemTypePredefined.TextualRequirement, TraceDirection.TwoWay, true)]
         [TestRail(195487)]
         [Description("Create & save an artifact and create & publish a folder.   Publish a manual trace between the artifact & folder.  Create user that does not have " +
             "trace permissions and copy the artifact into the folder.  Verify the source artifact is unchanged and the new artifact is identical to the source" +
             "artifact, except no Manual Trace should exist.  New copied artifact should not be published.")]
         public void CopyArtifact_SinglePublishedArtifactWithManualTrace_ToNewFolder_NoTracePermissions_ReturnsNewArtifactWithoutManualTrace(
-            BaseArtifactType artifactType, TraceDirection direction, bool isSuspect)
+            ItemTypePredefined artifactType, TraceDirection direction, bool isSuspect)
         {
             // Setup:
-            var sourceArtifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
-            var targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+            var sourceArtifact = Helper.CreateNovaArtifact(_user, _project, artifactType);
+            var targetArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.PrimitiveFolder);
 
             // Create & add manual trace to the source artifact:
             ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_user, sourceArtifact.Id, targetArtifact.Id,
-                targetArtifact.ProjectId, ChangeType.Create, Helper.ArtifactStore, direction, isSuspect);
+                targetArtifact.ProjectId.Value, ChangeType.Create, Helper.ArtifactStore, direction, isSuspect);
 
-            sourceArtifact.Publish();
+            sourceArtifact.Publish(_user);
 
             var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
 
@@ -319,7 +312,7 @@ namespace ArtifactStoreTests
                         _project);
 
             CopyNovaArtifactResultSet copyResult = null;
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetArtifact.Id, userNoTracePermission),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact.Id, targetArtifact.Id, _project, userNoTracePermission),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
@@ -328,7 +321,7 @@ namespace ArtifactStoreTests
 
             // Get traces & compare.
             var copyRelationships = Helper.ArtifactStore.GetRelationships(userNoTracePermission, copyResult.Artifact.Id, addDrafts: true);
-            var targetRelationships = Helper.ArtifactStore.GetRelationships(_user, targetArtifact, addDrafts: true);
+            var targetRelationships = Helper.ArtifactStore.GetRelationships(_user, targetArtifact.Id, addDrafts: true);
 
             Assert.AreEqual(0, copyRelationships.ManualTraces.Count, "Copied artifact should have no manual traces.");
 
@@ -354,7 +347,7 @@ namespace ArtifactStoreTests
             var customDataProject = ArtifactStoreHelper.GetCustomDataProject(_user);
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, customDataProject);
 
-            var targetFolder = Helper.CreateAndPublishArtifact(customDataProject, author, BaseArtifactType.PrimitiveFolder);
+            var targetFolder = Helper.CreateAndPublishNovaArtifact(author, customDataProject, ItemTypePredefined.PrimitiveFolder);
             var preCreatedArtifact = ArtifactFactory.CreateOpenApiArtifact(customDataProject, author, artifactType, artifactId, name: artifactName);
 
             // Verify preCreatedArtifact is Reused.
@@ -389,7 +382,6 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, author, copyResult.Artifact.Id, expectedIndicatorFlags: null);
         }
         
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // Ignore for now.
         [Category(Categories.CustomData)]
         [TestCase(ItemTypePredefined.Actor, PropertyPrimitiveType.Choice, "Std-Choice-Required-AllowMultiple-DefaultValue", "Blue")]
         [TestCase(ItemTypePredefined.Actor, PropertyPrimitiveType.Date,   "Std-Date-Required-Validated-Min-Max-HasDefault", "2016-12-24T00:00:00")]
@@ -406,29 +398,29 @@ namespace ArtifactStoreTests
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
             var artifactTypeName = ArtifactStoreHelper.GetStandardPackArtifactTypeName(itemType);
-            var sourceArtifact = Helper.CreateWrapAndSaveNovaArtifact(_project, _user, itemType, artifactTypeName: artifactTypeName);
-            var targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+            var sourceArtifact = Helper.CreateNovaArtifact(_user, _project,  itemType, artifactTypeName: artifactTypeName);
+            var targetArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.PrimitiveFolder);
 
             // Add custom properties to the source artifact.
             CustomProperty property = null;
 
             if (propertyType == PropertyPrimitiveType.User)
             {
-                property = ArtifactStoreHelper.UpdateArtifactCustomProperty(sourceArtifact, _user, _project, propertyType, propertyName, _user, Helper.ArtifactStore);
+                property = ArtifactStoreHelper.UpdateArtifactCustomProperty(_user, sourceArtifact, _project, propertyType, propertyName, _user);
             }
             else
             {
-                property = ArtifactStoreHelper.UpdateArtifactCustomProperty(sourceArtifact, _user, _project, propertyType, propertyName, newValue, Helper.ArtifactStore);
+                property = ArtifactStoreHelper.UpdateArtifactCustomProperty(_user, sourceArtifact, _project, propertyType, propertyName, newValue);
             }
 
-            Helper.ArtifactStore.PublishArtifact(sourceArtifact, _user);
+            sourceArtifact.Publish(_user);
 
             var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
 
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetArtifact.Id, _user),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact.Id, targetArtifact.Id, _project, _user),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
@@ -439,19 +431,19 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.AssertCustomPropertiesAreEqual(property, returnedProperty);
         }
 
-        [TestCase(BaseArtifactType.Document, 3, 1, 0.1)]
-        [TestCase(BaseArtifactType.Glossary, 3, 1, 2)]
-        [TestCase(BaseArtifactType.TextualRequirement, 3, 1, 999)]
+        [TestCase(ItemTypePredefined.Document, 3, 1, 0.1)]
+        [TestCase(ItemTypePredefined.Glossary, 3, 1, 2)]
+        [TestCase(ItemTypePredefined.TextualRequirement, 3, 1, 999)]
         [TestRail(195485)]
         [Description("Create and save several artifacts in a folder.  Copy one of the artifacts under the same folder and specify a positive OrderIndex.  " +
             "Verify the source artifact is unchanged and the new artifact is identical to the source artifact.  New copied artifact should not be published " +
             "and has the OrderIndex that was specified.")]
         public void CopyArtifactWithOrderIndex_SingleSavedArtifact_ToSameFolderWithArtifacts_ReturnsNewArtifactWithSpecifiedOrderIndex(
-            BaseArtifactType sourceArtifactType, int numberOfArtifacts, int sourceArtifactIndex, double orderIndex)
+            ItemTypePredefined sourceArtifactType, int numberOfArtifacts, int sourceArtifactIndex, double orderIndex)
         {
             // Setup:
-            var parentFolder = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
-            var artifacts = Helper.CreateAndSaveMultipleArtifacts(_project, _user, sourceArtifactType, numberOfArtifacts, parentFolder);
+            var parentFolder = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.PrimitiveFolder);
+            var artifacts = Helper.CreateAndSaveMultipleArtifacts(_project, _user, sourceArtifactType, numberOfArtifacts, parentFolder.Id);
             var sourceArtifact = artifacts[sourceArtifactIndex];
 
             var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
@@ -459,7 +451,7 @@ namespace ArtifactStoreTests
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
 
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, parentFolder.Id, _user, orderIndex),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact.Id, parentFolder.Id, _project, _user, orderIndex),
                 "'POST {0}?orderIndex={1}' should return 201 Created when valid parameters are passed.", SVC_PATH, orderIndex);
 
             // Verify:
@@ -538,76 +530,68 @@ namespace ArtifactStoreTests
 
         [Category(Categories.CustomData)]
         [Category(Categories.GoldenData)]
-        [TestCase(BaseArtifactType.BusinessProcess, 33, "Business Process Diagram", 2)]
-        [TestCase(BaseArtifactType.DomainDiagram, 31, "Domain Diagram", 2)]
-        [TestCase(BaseArtifactType.GenericDiagram, 49, "Generic Diagram", 2)]
-        [TestCase(BaseArtifactType.Storyboard, 32, "Storyboard", 2)]
-        [TestCase(BaseArtifactType.UIMockup, 22, "UI Mockup", 4)]
-        [TestCase(BaseArtifactType.UseCase, 17, "MainUseCase", 2)]
-        [TestCase(BaseArtifactType.UseCaseDiagram, 29, "Use Case Diagram", 3)]
+        [TestCase(33, "Business Process Diagram", 2)]
+        [TestCase(31, "Domain Diagram", 2)]
+        [TestCase(49, "Generic Diagram", 2)]
+        [TestCase(32, "Storyboard", 2)]
+        [TestCase(22, "UI Mockup", 4)]
+        [TestCase(17, "MainUseCase", 2)]
+        [TestCase(29, "Use Case Diagram", 3)]
         [TestRail(195562)]
         [Description("Create & publish a destination folder.  Copy the pre-created source artifact to the destination artifact.  Verify the source artifact is " +
             "unchanged and the new artifact is identical to the source artifact.  New copied artifact should not be published.")]
         public void CopyArtifact_SinglePublishedLegacyDiagramArtifact_ToNewFolder_NewArtifactIsIdenticalToOriginal(
-            BaseArtifactType artifactType, int artifactId, string artifactName, int expectedVersionOfOriginalArtifact)
+            int artifactId, string artifactName, int expectedVersionOfOriginalArtifact)
         {
             // Setup:
             var customDataProject = ArtifactStoreHelper.GetCustomDataProject(_user);
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, customDataProject);
 
-            var targetFolder = Helper.CreateAndPublishArtifact(customDataProject, author, BaseArtifactType.PrimitiveFolder);
-            var preCreatedArtifact = ArtifactFactory.CreateOpenApiArtifact(customDataProject, author, artifactType, artifactId, name: artifactName);
-
-            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, preCreatedArtifact.Id);
+            var targetFolder = Helper.CreateAndPublishNovaArtifact(author, customDataProject, ItemTypePredefined.PrimitiveFolder);     
+            var sourceArtifact = Helper.ArtifactStore.GetArtifactDetails(author, artifactId);
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
 
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(preCreatedArtifact, targetFolder.Id, author),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact.Id, targetFolder.Id, customDataProject, author),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
             ThrowIf.ArgumentNull(artifactName, nameof(artifactName));
             var skipIndicatorFlags = artifactName.Equals("UI Mockup") || artifactName.Equals("MainUseCase") ? true : false;
 
-            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, author,
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifact, copyResult, author,
                 expectedVersionOfOriginalArtifact: expectedVersionOfOriginalArtifact, skipCreatedBy: true, skipIndicatorFlags: skipIndicatorFlags);
 
-            // Publish the copied artifact so we can add a breakpoint and check it in the UI.
-            WrappedArtifact.Publish(author);
-
-            AssertCopiedSubArtifactsAreEqualToOriginal(author, sourceArtifactDetails, copyResult.Artifact);
+            AssertCopiedSubArtifactsAreEqualToOriginal(author, sourceArtifact, copyResult.Artifact);
         }
 
         [Category(Categories.CustomData)]
         [Category(Categories.GoldenData)]
-        [TestCase(BaseArtifactType.PrimitiveFolder, 7, "BaseArtifacts", 1)]
+        [TestCase(7, 1)]
         [TestRail(195567)]
         [Description("Create & publish a destination folder.  Copy a folder containing pre-created source artifacts to the destination folder.  " +
             "Verify the source artifacts are unchanged and the new artifacts are identical to the source artifacts.  New copied artifacts should not be published.")]
         public void CopyArtifact_MultiplePublishedLegacyDiagramArtifacts_ToNewFolder_NewArtifactsAreIdenticalToOriginal(
-            BaseArtifactType artifactType, int artifactId, string artifactName, int expectedVersionOfOriginalArtifact)
+            int artifactId, int expectedVersionOfOriginalArtifact)
         {
             // Setup:
             var customDataProject = ArtifactStoreHelper.GetCustomDataProject(_user);
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, customDataProject);
 
-            var targetFolder = Helper.CreateAndPublishArtifact(customDataProject, author, BaseArtifactType.PrimitiveFolder);
-            var preCreatedArtifact = ArtifactFactory.CreateOpenApiArtifact(customDataProject, author, artifactType, artifactId, name: artifactName);
-
-            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, preCreatedArtifact.Id);
+            var targetFolder = Helper.CreateAndPublishNovaArtifact(author, customDataProject, ItemTypePredefined.PrimitiveFolder);
+            var sourceArtifact = Helper.ArtifactStore.GetArtifactDetails(author, artifactId);
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
-
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(preCreatedArtifact, targetFolder.Id, author),
+            Assert.DoesNotThrow(() => copyResult = ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, sourceArtifact.Id, targetFolder.Id, author),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
-            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, author,
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifact, copyResult, author,
                 expectedNumberOfArtifactsCopied: 15, expectedVersionOfOriginalArtifact: expectedVersionOfOriginalArtifact, skipCreatedBy: true);
 
-            VerifyChildrenWereCopied(author, sourceArtifactDetails, copyResult.Artifact, skipSubArtifactTraces: true);
+            VerifyChildrenWereCopied(author, sourceArtifact, copyResult.Artifact, skipSubArtifactTraces: true);
 
             var compareOptions = new Attachments.CompareOptions
             {
@@ -616,48 +600,46 @@ namespace ArtifactStoreTests
                 CompareUsers = false
             };
 
-            AssertCopiedSubArtifactsAreEqualToOriginal(author, sourceArtifactDetails, copyResult.Artifact, attachmentCompareOptions: compareOptions);
+            AssertCopiedSubArtifactsAreEqualToOriginal(author, sourceArtifact, copyResult.Artifact, attachmentCompareOptions: compareOptions);
         }
 
         [Category(Categories.CustomData)]
         [Category(Categories.GoldenData)]
-        [TestCase(BaseArtifactType.BusinessProcess, 271, "Business Process Diagram", 3)]
-        [TestCase(BaseArtifactType.DomainDiagram, 356, "Domain Diagram", 3)]
-        [TestCase(BaseArtifactType.GenericDiagram, 310, "Generic Diagram", 3)]
-        [TestCase(BaseArtifactType.Glossary, 80, "Glossary", 3)]
-        [TestCase(BaseArtifactType.Process, 89, "Process", 3)]
-        [TestCase(BaseArtifactType.Storyboard, 231, "Storyboard", 3)]
-        [TestCase(BaseArtifactType.UIMockup, 168, "UI Mockup", 3)]
-        [TestCase(BaseArtifactType.UseCase, 351, "MainUseCase", 3)]
-        [TestCase(BaseArtifactType.UseCaseDiagram, 245, "Use Case Diagram", 3)]
+        [TestCase(271, 3)]
+        [TestCase(356, 3)]
+        [TestCase(310, 3)]
+        [TestCase(80, 3)]
+        [TestCase(89, 3)]
+        [TestCase(231, 3)]
+        [TestCase(168, 3)]
+        [TestCase(351, 3)]
+        [TestCase(245, 3)]
         [TestRail(195646)]
         [Description("Create & publish a destination folder.  Copy the pre-created source artifact to the destination artifact.  Verify the source artifact is " +
             "unchanged and the new artifact is identical to the source artifact (including sub-artifact traces, attachments and document references.  " +
             "New copied artifact should not be published.")]
         public void CopyArtifact_SinglePublishedLegacyDiagramArtifactWithSubArtifactTracesAttachmentsAndDocumentReferences_ToNewFolder_NewArtifactIsIdenticalToOriginal(
-            BaseArtifactType artifactType, int artifactId, string artifactName, int expectedVersionOfOriginalArtifact)
+            int artifactId, int expectedVersionOfOriginalArtifact)
         {
             // Setup:
             var customDataProject = ArtifactStoreHelper.GetCustomDataProject(_user);
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, customDataProject);
 
-            var targetFolder = Helper.CreateAndPublishArtifact(customDataProject, author, BaseArtifactType.PrimitiveFolder);
-            var preCreatedArtifact = ArtifactFactory.CreateArtifact(customDataProject, author, artifactType, artifactId, name: artifactName);
+            var targetFolder = Helper.CreateAndPublishNovaArtifact(author, customDataProject, ItemTypePredefined.PrimitiveFolder);
 
-            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, preCreatedArtifact.Id);
+            var sourceArtifact = Helper.ArtifactStore.GetArtifactDetails(author, artifactId);
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
-
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(preCreatedArtifact, targetFolder.Id, author),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact.Id, targetFolder.Id, customDataProject, author),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
-            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, author,
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifact, copyResult, author,
                 expectedVersionOfOriginalArtifact: expectedVersionOfOriginalArtifact, skipCreatedBy: true);
 
             // Publish the copied artifact so we can add a breakpoint and check it in the UI.
-            WrappedArtifact.Publish(author);
+            Helper.ArtifactStore.PublishArtifact(copyResult.Artifact.Id, author);
 
             // A new attachment reference is created in the copy which has different AttachmentId, UploadedDate & ReferenceDate,
             // so we need to exclude those when comparing.  Also, the copy was done by a different user than the original, so we can't compare Users.
@@ -669,7 +651,7 @@ namespace ArtifactStoreTests
                 CompareUsers = false
             };
 
-            AssertCopiedSubArtifactsAreEqualToOriginal(author, sourceArtifactDetails, copyResult.Artifact, attachmentCompareOptions: compareOptions);
+            AssertCopiedSubArtifactsAreEqualToOriginal(author, sourceArtifact, copyResult.Artifact, attachmentCompareOptions: compareOptions);
         }
 
         [TestCase]
@@ -736,11 +718,10 @@ namespace ArtifactStoreTests
             var sourceChildrenBefore = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, sourceArtifact.Id, author);
             Assert.AreEqual(sourceUserStories.Count, sourceChildrenBefore.Count,"Wrong number of children under the source Process artifact!");
 
-            var targetFolder = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.PrimitiveFolder);
+            var targetFolder = Helper.CreateAndPublishNovaArtifact(author, _project, ItemTypePredefined.PrimitiveFolder);
 
             // Execute:
             Tuple<CopyNovaArtifactResultSet, List<ArtifactWrapper>> copyResult = null;
-
             Assert.DoesNotThrow(() => copyResult = sourceArtifact.CopyTo(author, _project, targetFolder.Id),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
@@ -832,45 +813,45 @@ namespace ArtifactStoreTests
             }
         }
 
-        [TestCase(BaseArtifactType.Actor)]
+        [TestCase(ItemTypePredefined.Actor)]
         [TestRail(227354)]
         [Description("Create and save a source artifact. Add random inline image to source artifact description. Copy the source artifact into the same parent.  " +
             "Verify the source artifact is unchanged and the new artifact is identical to the source artifact, except inline image. Copying should create new entry for inline image.")]
-        public void CopyArtifact_SavedArtifactWithInlineImageInDescription_ToProjectRoot_ReturnsNewArtifact(BaseArtifactType sourceArtifactType)
+        public void CopyArtifact_SavedArtifactWithInlineImageInDescription_ToProjectRoot_ReturnsNewArtifact(ItemTypePredefined sourceArtifactType)
         {
             // Setup:
-            var sourceArtifact = Helper.CreateAndSaveArtifact(_project, _user, sourceArtifactType);
+            var sourceArtifact = Helper.CreateNovaArtifact(_user, _project, sourceArtifactType);
             
-            var sourceArtifactDetails = ArtifactStoreHelper.AddRandomImageToArtifactProperty(sourceArtifact, _user, Helper.ArtifactStore);
+            var sourceArtifactDetails = ArtifactStoreHelper.AddRandomImageToArtifactProperty(_user, Helper.ArtifactStore, sourceArtifact.Id);
             string sourceArtifactInlineImageId = ArtifactStoreHelper.GetInlineImageId(sourceArtifactDetails.Description);
             var sourceArtifactImageFile = Helper.ArtifactStore.GetImage(_user, sourceArtifactInlineImageId);
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
-
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, _project.Id, _user),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact.Id, _project.Id, _project, _user),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
+
+            // Verify:
             string copiedArtifactInlineImageId = ArtifactStoreHelper.GetInlineImageId(copyResult.Artifact.Description);
             var copiedArtifactImageFile = Helper.ArtifactStore.GetImage(_user, copiedArtifactInlineImageId);
 
-            // Verify:
             Assert.AreNotEqual(sourceArtifactInlineImageId, copiedArtifactInlineImageId, "ImageId's for source and copied artifacts should be different.");
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, _user,
                 expectedVersionOfOriginalArtifact: -1, skipDescription: true);
             FileStoreTestHelper.AssertFilesAreIdentical(sourceArtifactImageFile, copiedArtifactImageFile, compareFileNames: false);
         }
 
-        [TestCase(BaseArtifactType.Process)]
+        [TestCase(ItemTypePredefined.Process)]
         [TestRail(227355)]
         [Description("Create and publish a source artifact. Add random inline image to source artifact description. Copy the source artifact into the same parent.  " +
             "Verify the source artifact is unchanged and the new artifact is identical to the source artifact, except inline image. Copying should create new entry for inline image.")]
-        public void CopyArtifact_PublishedArtifactWithInlineImageInDescription_ToProjectRoot_ReturnsNewArtifact(BaseArtifactType sourceArtifactType)
+        public void CopyArtifact_PublishedArtifactWithInlineImageInDescription_ToProjectRoot_ReturnsNewArtifact(ItemTypePredefined sourceArtifactType)
         {
             // Setup:
-            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, sourceArtifactType);
+            var sourceArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, sourceArtifactType);
 
             sourceArtifact.Lock(_user);
-            var sourceArtifactDetails = ArtifactStoreHelper.AddRandomImageToArtifactProperty(sourceArtifact, _user, Helper.ArtifactStore);
+            var sourceArtifactDetails = ArtifactStoreHelper.AddRandomImageToArtifactProperty(_user, Helper.ArtifactStore, sourceArtifact.Id);
             sourceArtifact.Publish(_user);
 
             sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
@@ -881,8 +862,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
-
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, _project.Id, _user),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact.Id, _project.Id, _project, _user),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
             string copiedArtifactInlineImageId = ArtifactStoreHelper.GetInlineImageId(copyResult.Artifact.Description);
 
@@ -904,7 +884,7 @@ namespace ArtifactStoreTests
             // Setup:
             var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, sourceArtifactType);
             sourceArtifact.Lock(_user);
-            var sourceArtifactDetails = ArtifactStoreHelper.AddRandomImageToArtifactProperty(sourceArtifact, _user, Helper.ArtifactStore);
+            var sourceArtifactDetails = ArtifactStoreHelper.AddRandomImageToArtifactProperty(_user, Helper.ArtifactStore, sourceArtifact.Id);
 
             CSharpUtilities.SetProperty("Description", string.Empty, sourceArtifactDetails);
             Artifact.UpdateArtifact(sourceArtifact, _user, (NovaArtifactDetails)sourceArtifactDetails, address: Helper.BlueprintServer.Address);
@@ -937,12 +917,11 @@ namespace ArtifactStoreTests
             const string artifactTypeName = "ST-User Story";
             const string propertyName = "ST-Acceptance Criteria";
 
-            var sourceArtifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _user, ItemTypePredefined.TextualRequirement,
-                artifactTypeName: artifactTypeName);
+            var sourceArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.TextualRequirement, artifactTypeName: artifactTypeName);
             sourceArtifact.Lock(_user);
 
-            var sourceArtifactDetails = ArtifactStoreHelper.AddRandomImageToArtifactProperty(sourceArtifact, _user,
-                Helper.ArtifactStore, propertyName: propertyName);
+            var sourceArtifactDetails = ArtifactStoreHelper.AddRandomImageToArtifactProperty(_user, Helper.ArtifactStore, sourceArtifact.Id,
+                propertyName: propertyName);
 
             Func<INovaArtifactDetails, string, string> GetCustomPropertyStringValueByName = (details, customPropertyName) =>
             {
@@ -955,7 +934,7 @@ namespace ArtifactStoreTests
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
 
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, _project.Id, _user),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact.Id, _project.Id, _project, _user),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
             string copiedArtifactInlineImageId = ArtifactStoreHelper.GetInlineImageId(GetCustomPropertyStringValueByName(copyResult.Artifact, propertyName));
 
@@ -977,7 +956,7 @@ namespace ArtifactStoreTests
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
             var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
-            var targetFolder = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+            var targetFolder = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.PrimitiveFolder);
 
             // Add the discussion to the artifact.
             string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
@@ -1034,8 +1013,10 @@ namespace ArtifactStoreTests
 
             // Execute: Copy the prepared actor that has child actor
             CopyNovaArtifactResultSet copyResult = null;
-            Assert.DoesNotThrow(() => copyResult = ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, sourceParentActor.Id, _project.Id, author),
-                "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
+            Assert.DoesNotThrow(() =>
+            {
+                copyResult = CopyArtifactAndWrap(sourceParentActor.Id, _project.Id, _project, author);
+            }, "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify: the content of the new parent artifact, the content of the new child artifact, the inherit association from
             // new parent actor is idential to the inherit association from the source actor
@@ -1084,8 +1065,10 @@ namespace ArtifactStoreTests
 
             // Execute: Copy the prepared souce parent process that has an includes association to its child process
             CopyNovaArtifactResultSet copyResult = null;
-            Assert.DoesNotThrow(() => copyResult = ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, sourceParentProcess.Id, _project.Id, author),
-                "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
+            Assert.DoesNotThrow(() =>
+            {
+                copyResult = CopyArtifactAndWrap(sourceParentProcess.Id, _project.Id, _project, author);
+            }, "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify: the content of the new parent artifact, the content of the new child artifact, the includes association from
             // new parent process is idential to the includes association from the source process
@@ -1127,7 +1110,7 @@ namespace ArtifactStoreTests
         public void CopyArtifact_SavedArtifact_NotPositiveOrderIndex_400BadRequest(double orderIndex)
         {
             // Setup:
-            var sourceArtifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
+            var sourceArtifact = Helper.CreateNovaArtifact(_user, _project, ItemTypePredefined.Process);
 
             // Execute:
             var ex = Assert.Throws<Http400BadRequestException>(() =>
@@ -1699,7 +1682,7 @@ namespace ArtifactStoreTests
         /// Copies the specified artifact to the new parent, wraps it in an ArtifactWrapper that gets disposed automatically,
         /// and returns the result of the CopyArtifact call.
         /// </summary>
-        /// <param name="artifact">The artifact to copy.</param>
+        /// <param name="artifactId">The Id of artifact to copy.</param>
         /// <param name="newParentId">The Id of the new parent where this artifact will be copied to.</param>
         /// <param name="project">The project where this artifact exists.</param>
         /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
@@ -1708,14 +1691,14 @@ namespace ArtifactStoreTests
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 201 Created is expected.</param>
         /// <returns>The details of the artifact that we copied and the number of artifacts copied.</returns>
         private CopyNovaArtifactResultSet CopyArtifactAndWrap(
-            ArtifactWrapper artifact,
+            int artifactId,
             int newParentId,
             IProject project,
             IUser user = null,
             double? orderIndex = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            var copyResult = ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, artifact.Id, newParentId, user, orderIndex, expectedStatusCodes);
+            var copyResult = ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, artifactId, newParentId, user, orderIndex, expectedStatusCodes);
 
             if (copyResult?.Artifact != null)
             {

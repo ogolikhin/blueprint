@@ -432,7 +432,7 @@ namespace AdminStore.Controllers
         {
             if (updatePassword == null)
             {
-                return BadRequest(ErrorMessages.InvalidChangeInstanceAdminPasswordParameters);
+                throw new BadRequestException(ErrorMessages.InvalidChangeInstanceAdminPasswordParameters, ErrorCodes.BadRequest);
             }
             string errorMessage;
             var isValidPassword = PasswordValidationHelper.ValidatePassword(updatePassword.Password, true, out errorMessage);

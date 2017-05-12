@@ -54,7 +54,7 @@ namespace AdminStore
             config.AssertAction<UsersController>("UpdateUser", HttpMethod.Put, "users/1");
             config.AssertAction<UsersController>("PostReset", HttpMethod.Post, "users/reset?login=admin");
             config.AssertAction<UsersController>("DeleteUsers", HttpMethod.Post, "users/delete");
-            config.AssertAction<UsersController>("ChangeInstanceAdminPassword", HttpMethod.Post, "users/changepassword");
+            config.AssertAction<UsersController>("InstanceAdminChangePassword", HttpMethod.Post, "users/changepassword");
             config.AssertAction<UsersController>("GetUserGroups", HttpMethod.Get, "/users/1074/groups?offset=0&limit=1&sort=name&order=desc&search=test");
         }
 

@@ -101,7 +101,7 @@ namespace Helper
                     "The ID for the accessible artifact (Id: {0}) on artifact reference should be {1} but returned ID is {2}.",
                     accessibleResultArtifactReference.Id, accessibleSourceArtifact.Id, accessibleResultArtifactReference.Id);
 
-                Assert.IsTrue(accessibleResultArtifactReference.BaseItemTypePredefined.ToString().Equals(accessibleSourceArtifact.Artifact.ItemTypeId.ToString()),
+                Assert.IsTrue(accessibleResultArtifactReference.BaseItemTypePredefined.Equals(accessibleSourceArtifact.Artifact.ItemTypeId),
                     "The baseItemTypePredefined for the accessible artifact (Id: {0}) on artifact reference should be {1} but returned baseItemTypePredefined is {2}.",
                     accessibleResultArtifactReference.Id, accessibleSourceArtifact.Artifact.ItemTypeId.ToString(),
                     accessibleResultArtifactReference.BaseItemTypePredefined.ToString());

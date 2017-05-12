@@ -76,7 +76,6 @@ namespace CommonServiceTests
             foreach (var baseArtifactType in baseArtifactTypes)
             {
                 var artifact = Helper.CreateNovaArtifact(_primaryUser, _project, (ItemTypePredefined)baseArtifactType);
-                artifact.SaveWithNewDescription(_primaryUser);
 
                 //Add an artifact to artifact list for navigation call
                 _artifacts.Add(artifact);
@@ -110,7 +109,6 @@ namespace CommonServiceTests
             // Setup:
             //Create an artifact with process artifact type
             var artifact = Helper.CreateNovaArtifact(_primaryUser, _project, ItemTypePredefined.Actor);
-            artifact.SaveWithNewDescription(_primaryUser);
 
             const int MAXIUM_ALLOWABLE_NAVIGATION = 23;     // TODO: Development needs to define a limit for us...  This is just what currently works because of IIS URL size limit.
 
@@ -144,11 +142,11 @@ namespace CommonServiceTests
         [TestCase(int.MaxValue)]
         [Description("Get the navigation with invalid artifact ID data in the URL path. " +
             "Verify the Not Found exception.")]
-        public void GetNavigation_InvalidArtifactId_404NotFound(int artifactId)
+        public void GetNavigation_InvalidArtifactId_404NotFound(int invalidArtifactId)
         {
             // Setup:
             //Create invalid artifact
-            var invalidArtifact = CreateInvalidArtifact(artifactId);
+            var invalidArtifact = CreateInvalidArtifact(invalidArtifactId);
 
             //Add the artifact to artifact list for navigation call
             _artifacts.Add(invalidArtifact);
@@ -174,7 +172,6 @@ namespace CommonServiceTests
             for (int i = 0; i < numberOfArtifacts; i++)
             {
                 var artifact = Helper.CreateNovaProcessArtifact(_primaryUser, _project);
-                artifact.SaveWithNewDescription(_primaryUser);
                 _artifacts.Add(artifact);
             }
 
@@ -210,7 +207,6 @@ namespace CommonServiceTests
             for (int i = 0; i < numberOfArtifacts; i++)
             {
                 var artifact = Helper.CreateNovaProcessArtifact(_primaryUser, _project);
-                artifact.SaveWithNewDescription(_primaryUser);
                 _artifacts.Add(artifact);
             }
 
@@ -254,7 +250,6 @@ namespace CommonServiceTests
             for (int i = 0; i < numberOfArtifacts; i++)
             {
                 var artifact = Helper.CreateNovaProcessArtifact(_primaryUser, _project);
-                artifact.SaveWithNewDescription(_primaryUser);
                 _artifacts.Add(artifact);
             }
 
@@ -288,7 +283,8 @@ namespace CommonServiceTests
         /// <returns>The non-existent artifact.</returns>
         private ArtifactWrapper CreateNonExistentArtifact(ItemTypePredefined baseArtifactType = ItemTypePredefined.Actor)
         {
-            var nonExistingArtifact = Helper.CreateNovaArtifact(_primaryUser, _project, baseArtifactType);
+            var nonExistingNovaArtifact = new NovaArtifactDetails() { PredefinedType = (int)baseArtifactType };
+            var nonExistingArtifact = Helper.WrapArtifact(nonExistingNovaArtifact, _project, _primaryUser);
             nonExistingArtifact.Id = CommonServiceHelper.NONEXISTENT_ARTIFACT_ID;
             return nonExistingArtifact;
         }
@@ -296,13 +292,14 @@ namespace CommonServiceTests
         /// <summary>
         /// Creates an artifact with an invalid ID.
         /// </summary>
-        /// <param name="artifactId">The invalid artifact ID to give the artifact.</param>
+        /// <param name="invalidArtifactId">The invalid artifact ID to give the artifact.</param>
         /// <param name="baseArtifactType">(optional) The artifact type.</param>
         /// <returns>The invalid artifact.</returns>
-        private ArtifactWrapper CreateInvalidArtifact(int artifactId, ItemTypePredefined baseArtifactType = ItemTypePredefined.Actor)
+        private ArtifactWrapper CreateInvalidArtifact(int invalidArtifactId, ItemTypePredefined baseArtifactType = ItemTypePredefined.Actor)
         {
-            var invalidArtifact = Helper.CreateNovaArtifact(_primaryUser, _project, baseArtifactType);
-            invalidArtifact.Id = artifactId;
+            var nonExistingNovaArtifact = new NovaArtifactDetails() { PredefinedType = (int)baseArtifactType };
+            var invalidArtifact = Helper.WrapArtifact(nonExistingNovaArtifact, _project, _primaryUser);
+            invalidArtifact.Id = invalidArtifactId;
             return invalidArtifact;
         }
     }

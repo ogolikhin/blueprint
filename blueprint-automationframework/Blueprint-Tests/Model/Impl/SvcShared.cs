@@ -292,7 +292,7 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(artifactsIds, nameof(artifactsIds));
 
             //Get list of artifacts which were created.
-            var path = I18NHelper.FormatInvariant(RestPaths.Svc.Shared.NAVIGATION_ids_, string.Join("/", artifactsIds.ToList()));
+            var path = I18NHelper.FormatInvariant(RestPaths.Svc.Shared.NAVIGATION_ids_, string.Join("/", artifactsIds));
 
             var queryParameters = new Dictionary<string, string>();
 

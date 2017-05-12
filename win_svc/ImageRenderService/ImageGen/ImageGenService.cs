@@ -3,6 +3,7 @@ using System.IO;
 using System.Web.Http;
 using System.Web.Http.SelfHost;
 using CefSharp;
+using ImageRenderService.Transport;
 using Topshelf;
 
 namespace ImageRenderService.ImageGen
@@ -16,6 +17,8 @@ namespace ImageRenderService.ImageGen
         private static readonly BrowserPool BrowserPool = BrowserPool.Create();
 
         public ImageGenHelper ImageGenerator = new ImageGenHelper(BrowserPool);
+
+        private readonly NServiceBusServer _nServiceBusServer = new NServiceBusServer();
 
         private ImageGenService()
         {
@@ -45,6 +48,9 @@ namespace ImageRenderService.ImageGen
             _server = new HttpSelfHostServer(_config);
             _server.OpenAsync().Wait();
 
+            //_nServiceBusServer.Start("1", null);
+            _nServiceBusServer.Start("host=titan.blueprintsys.net;username=admin;password=$admin2011","1").Wait();
+
             return true;
         }
 
@@ -52,6 +58,8 @@ namespace ImageRenderService.ImageGen
         {
             try
             {
+                _nServiceBusServer.Stop().Wait();
+
                 _server.CloseAsync().Wait();
                 _server.Dispose();
                 BrowserPool.Dispose();

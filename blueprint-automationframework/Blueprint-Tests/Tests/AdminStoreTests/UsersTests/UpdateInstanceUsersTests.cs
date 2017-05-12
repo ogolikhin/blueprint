@@ -469,33 +469,6 @@ namespace AdminStoreTests.UsersTests
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, InstanceAdminErrorMessages.UserModelIsEmpty);
         }
 
-        [TestCase(0)]
-        [TestCase(-1)]
-        [Description("Create and add an instance user. Try to update the user with an incorrect Id. " +
-                     "Verify that 400 Bad Request is returned.")]
-        [TestRail(303656)]
-        public void UpdateInstanceUser_InvalidUserId_400BadRequest(int invalidId)
-        {
-            // Setup:
-            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
-
-            Assert.DoesNotThrow(() =>
-            {
-                Helper.AdminStore.AddUser(_adminUser, createdUser);
-            }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
-
-            // Update user Id with returned value and incremented version
-            createdUser.Id = invalidId;
-            createdUser.CurrentVersion++;
-
-            //Execute:
-            var ex = Assert.Throws<Http400BadRequestException>(() => { Helper.AdminStore.UpdateUser(_adminUser, createdUser); },
-                "'PUT {0}' should return 400 Bad Request!", USER_PATH_ID);
-
-            // Verify:
-            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, InstanceAdminErrorMessages.IncorrectUserId);
-        }
-
         [TestCase("", Description = "Login is empty")]
         [TestCase(null, Description = "Login is null")]
         [Description("Create and add a default instance user. Remove the login. Update the user. " +
@@ -906,6 +879,30 @@ namespace AdminStoreTests.UsersTests
         #endregion 403 Forbidden Tests
 
         #region 404 Not Found Tests
+
+        [TestCase(0)]
+        [TestCase(-1)]
+        [Description("Create and add an instance user. Try to update the user with an incorrect Id. " +
+             "Verify that 404 Not Found is returned.")]
+        [TestRail(303656)]
+        public void UpdateInstanceUser_InvalidUserId_404NotFound(int invalidId)
+        {
+            // Setup:
+            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
+
+            Assert.DoesNotThrow(() =>
+            {
+                Helper.AdminStore.AddUser(_adminUser, createdUser);
+            }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
+
+            // Update user Id with returned value and incremented version
+            createdUser.Id = invalidId;
+            createdUser.CurrentVersion++;
+
+            //Execute & Verify:
+            Assert.Throws<Http404NotFoundException>(() => { Helper.AdminStore.UpdateUser(_adminUser, createdUser); },
+                "'PUT {0}' should return 404 Not Found!", USER_PATH_ID);
+        }
 
         [TestCase]
         [Description("Create an instance user. Try to update a non-existing user. " +

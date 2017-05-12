@@ -283,7 +283,8 @@ namespace CommonServiceTests
         /// <returns>The non-existent artifact.</returns>
         private ArtifactWrapper CreateNonExistentArtifact(ItemTypePredefined baseArtifactType = ItemTypePredefined.Actor)
         {
-            var nonExistingNovaArtifact = new NovaArtifactDetails() { PredefinedType = (int)baseArtifactType };
+            var nonExistingNovaArtifact = new NovaArtifactDetails() {
+                PredefinedType = (int)baseArtifactType, ProjectId = _project.Id };
             var nonExistingArtifact = Helper.WrapArtifact(nonExistingNovaArtifact, _project, _primaryUser);
             nonExistingArtifact.Id = CommonServiceHelper.NONEXISTENT_ARTIFACT_ID;
             return nonExistingArtifact;
@@ -297,7 +298,8 @@ namespace CommonServiceTests
         /// <returns>The invalid artifact.</returns>
         private ArtifactWrapper CreateInvalidArtifact(int invalidArtifactId, ItemTypePredefined baseArtifactType = ItemTypePredefined.Actor)
         {
-            var nonExistingNovaArtifact = new NovaArtifactDetails() { PredefinedType = (int)baseArtifactType };
+            var nonExistingNovaArtifact = new NovaArtifactDetails() {
+                PredefinedType = (int)baseArtifactType, ProjectId = _project.Id };
             var invalidArtifact = Helper.WrapArtifact(nonExistingNovaArtifact, _project, _primaryUser);
             invalidArtifact.Id = invalidArtifactId;
             return invalidArtifact;

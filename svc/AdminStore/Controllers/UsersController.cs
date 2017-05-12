@@ -428,22 +428,24 @@ namespace AdminStore.Controllers
         [HttpPost]
         [SessionRequired]
         [Route("changepassword")]
-        public async Task<IHttpActionResult> ChangeInstanceAdminPassword([FromBody] UpdateUserPassword updatePassword)
+        public async Task<IHttpActionResult> InstanceAdminChangePassword([FromBody] UpdateUserPassword updatePassword)
         {
             if (updatePassword == null)
             {
                 return BadRequest(ErrorMessages.InvalidChangeInstanceAdminPasswordParameters);
             }
-            if (!updatePassword.IsPasswordIsValid())
+            string errorMessage;
+            var isValidPassword = PasswordValidationHelper.ValidatePassword(updatePassword.Password, true, out errorMessage);
+            if (!isValidPassword)
             {
-                return BadRequest(ErrorMessages.InvalidInstanceAdminUserPassword);
+                throw new BadRequestException(errorMessage, ErrorCodes.BadRequest);
             }
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageUsers);
 
             var user = await _userRepository.GetUserAsync(updatePassword.UserId);
             if (user == null)
             {
-                return BadRequest(ErrorMessages.UserWasNotFound);
+                throw new ResourceNotFoundException($"User does not exist with UserId: {updatePassword.UserId}", ErrorCodes.ResourceNotFound);
             }
             await _userRepository.UpdateUserPasswordAsync(user.Login, updatePassword.Password);
 

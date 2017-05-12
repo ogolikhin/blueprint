@@ -1,7 +1,6 @@
 using CustomAttributes;
 using Helper;
 using Model;
-using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
@@ -18,8 +17,6 @@ namespace ArtifactStoreTests
     {
         private IUser _user = null;
         private IProject _project = null;
-
-        private static int USECASEDIAGRAM_WITHACTOR_ID = 144;
 
         #region Setup and Cleanup
 
@@ -94,6 +91,8 @@ namespace ArtifactStoreTests
             "Verify that the indicator flags contains the values for traces, attachements and comments.")]
         public void GetUseCaseDiagramArtifact_WithActorThatContainsAttachmentsAndComments_VerifyIndicatorFlags()
         {
+            int USECASEDIAGRAM_WITHACTOR_ID = 144;
+
             // getting the latest version of the artifact using open API GetArtifact
             var retrievedArtifact = Helper.ArtifactStore.GetArtifactDetails(_user, USECASEDIAGRAM_WITHACTOR_ID);
 
@@ -114,14 +113,14 @@ namespace ArtifactStoreTests
 
         #region 401 Unauthorized Tests
 
-        [TestCase("", BaseArtifactType.DomainDiagram)]
-        [TestCase("invalidTokenString", BaseArtifactType.GenericDiagram)]
+        [TestCase("", ItemTypePredefined.DomainDiagram)]
+        [TestCase("invalidTokenString", ItemTypePredefined.GenericDiagram)]
         [TestRail(183033)]
         [Description("Create & publish a diagram artifact, Get DiagramArtifact with invalid token header. Verify 401 Unauthorized.")]
-        public void GetDiagramArtifact_PublishAndGetDiagamArtifactWithInvalidTokenHeader_401Unauthorized(string token, BaseArtifactType artifactType)
+        public void GetDiagramArtifact_PublishAndGetDiagamArtifactWithInvalidTokenHeader_401Unauthorized(string token, ItemTypePredefined artifactType)
         {
             // Setup: Create and publish a diagram artifact
-            var publishedDiagramArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType: artifactType);
+            var publishedDiagramArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
             var userWithBadOrMissingToken = UserFactory.CreateUserAndAddToDatabase();
             userWithBadOrMissingToken.Token.SetToken(token);
 
@@ -134,15 +133,15 @@ namespace ArtifactStoreTests
 
         #region 403 Forbidden Tests
 
-        [TestCase(BaseArtifactType.DomainDiagram)]
-        [TestCase(BaseArtifactType.GenericDiagram)]
-        [TestCase(BaseArtifactType.UseCaseDiagram)]
+        [TestCase(ItemTypePredefined.DomainDiagram)]
+        [TestCase(ItemTypePredefined.GenericDiagram)]
+        [TestCase(ItemTypePredefined.UseCaseDiagram)]
         [TestRail(195409)]
         [Description("Create & publish a diagram artifact, Get DiagramArtifact with the user with no permission to the artifact. Verify 403 Forbidden exception is returned.")]
-        public void GetDiagramArtifact_PublishAndGetDiagamArtifactWithNoPermissionForTheArtifact_403Forbidden(BaseArtifactType artifactType)
+        public void GetDiagramArtifact_PublishAndGetDiagamArtifactWithNoPermissionForTheArtifact_403Forbidden(ItemTypePredefined artifactType)
         {
             // Setup: Create and publish a diagram artifact
-            var publishedDiagramArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType: artifactType);
+            var publishedDiagramArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
             var userWithNonePermissionForArtifact = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
             Helper.AssignProjectRolePermissionsToUser(userWithNonePermissionForArtifact, TestHelper.ProjectRole.None, _project, publishedDiagramArtifact);
 
@@ -161,15 +160,15 @@ namespace ArtifactStoreTests
 
         #region 404 Not Found Tests
 
-        [TestCase(0, BaseArtifactType.DomainDiagram)]
-        [TestCase(-10, BaseArtifactType.GenericDiagram)]
-        [TestCase(999, BaseArtifactType.UseCaseDiagram)]
+        [TestCase(0, ItemTypePredefined.DomainDiagram)]
+        [TestCase(-10, ItemTypePredefined.GenericDiagram)]
+        [TestCase(999, ItemTypePredefined.UseCaseDiagram)]
         [TestRail(183027)]
         [Description("Create & publish a diagram artifact, Get DiagramArtifact with invalid versionId. Verify 404 NotFound.")]
-        public void GetDiagramArtifact_PublishAndGetDiagamArtifactWithInvalidVersionId_404NotFound(int versionId, BaseArtifactType artifactType)
+        public void GetDiagramArtifact_PublishAndGetDiagamArtifactWithInvalidVersionId_404NotFound(int versionId, ItemTypePredefined artifactType)
         {
             // Setup: Create and publish a diagram artifact
-            var publishedDiagramArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType: artifactType);
+            var publishedDiagramArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             // Execute: Get the diagram artifact with invalid versionId using GetDiagramArtifact

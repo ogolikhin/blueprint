@@ -512,7 +512,7 @@ namespace ArtifactStoreTests
         public void PublishArtifact_ArtifactsSavedInMultipleProjects_ArtifactsHaveVersion1(BaseArtifactType artifactType, int numberOfArtifacts)
         {
             // Setup:
-            var projects = ProjectFactory.GetAllProjects(_user, shouldRetrievePropertyTypes: true);
+            var projects = ProjectFactory.GetAllProjects(_user, shouldRetrieveArtifactTypes: true);
             Assert.GreaterOrEqual(projects.Count, 2, "This test requires at least 2 projects to exist!");
 
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projects);
@@ -550,7 +550,7 @@ namespace ArtifactStoreTests
         public void PublishArtifactWithAllTrue_ArtifactsSavedInMultipleProjects_SendEmptyListToPublish_ArtifactsHaveVersion1(BaseArtifactType artifactType, int numberOfArtifacts)
         {
             // Setup:
-            var projects = ProjectFactory.GetAllProjects(_user, shouldRetrievePropertyTypes: true);
+            var projects = ProjectFactory.GetAllProjects(_user, shouldRetrieveArtifactTypes: true);
             Assert.GreaterOrEqual(projects.Count, 2, "This test requires at least 2 projects to exist!");
 
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projects);
@@ -883,18 +883,18 @@ namespace ArtifactStoreTests
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotPublish, expectedExceptionMessage);
         }
 
-        [TestCase(BaseArtifactType.Process, 1)]
-        [TestCase(BaseArtifactType.Process, 2)]
+        [TestCase(ItemTypePredefined.Process, 1)]
+        [TestCase(ItemTypePredefined.Process, 2)]
         [TestRail(165974)]
         [Description("Create, save, parent artifact with two children, publish child artifact, checks returned result is 409 Conflict.")]
-        public void PublishArtifact_ParentAndChildArtifacts_OnlyPublishChild_Conflict(BaseArtifactType artifactType, int index)
+        public void PublishArtifact_ParentAndChildArtifacts_OnlyPublishChild_Conflict(ItemTypePredefined artifactType, int index)
         {
             // Setup:
             var artifactList = CreateParentAndTwoChildrenArtifactsAndGetAllArtifacts(artifactType);
             var childArtifact = artifactList[index];
 
             // Execute:
-            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifact(childArtifact, _user),
+            var ex = Assert.Throws<Http409ConflictException>(() => childArtifact.Publish(_user),
                 "'POST {0}' should return 409 Conflict if the Artifact has parent artifact which is not published!", PUBLISH_PATH);
 
             // Verify:
@@ -1139,9 +1139,9 @@ namespace ArtifactStoreTests
         /// </summary>
         /// <param name="artifactType">The type of created artifacts</param>
         /// <returns>List of created artifacts.</returns>
-        private List<IArtifact> CreateParentAndTwoChildrenArtifactsAndGetAllArtifacts(BaseArtifactType artifactType)
+        private List<ArtifactWrapper> CreateParentAndTwoChildrenArtifactsAndGetAllArtifacts(ItemTypePredefined artifactType)
         {
-            var artifactTypes = new BaseArtifactType[] { artifactType, artifactType, artifactType };
+            var artifactTypes = new ItemTypePredefined[] { artifactType, artifactType, artifactType };
             var artifactChain = Helper.CreateSavedArtifactChain(_project, _user, artifactTypes);
             return artifactChain;
         }

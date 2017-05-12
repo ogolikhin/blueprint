@@ -10,7 +10,6 @@ using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.ModelHelpers;
 using Model.StorytellerModel.Impl;
-using Newtonsoft.Json;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
@@ -21,15 +20,6 @@ namespace ArtifactStoreTests
     [Category(Categories.ArtifactStore)]
     public class ExpandedArtifactTreeTests : TestBase
     {
-        /// <summary>
-        /// This is the structure returned by the REST call to display error messages.
-        /// </summary>
-        public class MessageResult
-        {
-            public int ErrorCode { get; set; }
-            public string Message { get; set; }
-        }
-
         private const string REST_PATH = RestPaths.Svc.ArtifactStore.Projects_id_.ARTIFACTS_id_;
 
         private IUser _user = null;
@@ -53,6 +43,8 @@ namespace ArtifactStoreTests
 
         #endregion Setup and Teardown
 
+        #region Positive tests
+
         [TestCase(ItemTypePredefined.UseCase, ItemTypePredefined.UseCase, ItemTypePredefined.UseCase)]
         [TestCase(ItemTypePredefined.PrimitiveFolder, // PrimitiveFolders can only have projects as parents.
             ItemTypePredefined.Actor,
@@ -68,7 +60,7 @@ namespace ArtifactStoreTests
             ItemTypePredefined.UseCase,
             ItemTypePredefined.UseCaseDiagram)]
         [TestRail(164525)]
-        [Description("Create a chain of published parent/child artifacts and other top level artifacts.  GetExpandedArtifactTree with the ID of the artifact at the bottom of the chain." +
+        [Description("Create a chain of published parent/child artifacts and other top level artifacts.  GetExpandedArtifactTree with the ID of the artifact at the bottom of the chain.  " +
                      "Verify a list of top level artifacts is returned and only one has children.")]
         public void GetExpandedArtifactTree_LastPublishedArtifactInChain_ReturnsExpectedArtifactHierarchy(params ItemTypePredefined[] artifactTypeChain)
         {
@@ -95,24 +87,24 @@ namespace ArtifactStoreTests
             VerifyOtherTopLevelArtifactsExist(otherTopLevelArtifacts, artifacts);
         }
 
-        [TestCase(BaseArtifactType.Actor, BaseArtifactType.Actor, BaseArtifactType.Actor)]
-        [TestCase(BaseArtifactType.PrimitiveFolder, // PrimitiveFolders can only have projects as parents.
-            BaseArtifactType.Actor,
-            BaseArtifactType.BusinessProcess,
-            BaseArtifactType.Document,
-            BaseArtifactType.DomainDiagram,
-            BaseArtifactType.GenericDiagram,
-            BaseArtifactType.Glossary,
-            BaseArtifactType.Process,
-            BaseArtifactType.Storyboard,
-            BaseArtifactType.TextualRequirement,
-            BaseArtifactType.UIMockup,
-            BaseArtifactType.UseCase,
-            BaseArtifactType.UseCaseDiagram)]
+        [TestCase(ItemTypePredefined.Actor, ItemTypePredefined.Actor, ItemTypePredefined.Actor)]
+        [TestCase(ItemTypePredefined.PrimitiveFolder, // PrimitiveFolders can only have projects as parents.
+                  ItemTypePredefined.Actor,
+                  ItemTypePredefined.BusinessProcess,
+                  ItemTypePredefined.Document,
+                  ItemTypePredefined.DomainDiagram,
+                  ItemTypePredefined.GenericDiagram,
+                  ItemTypePredefined.Glossary,
+                  ItemTypePredefined.Process,
+                  ItemTypePredefined.Storyboard,
+                  ItemTypePredefined.TextualRequirement,
+                  ItemTypePredefined.UIMockup,
+                  ItemTypePredefined.UseCase,
+                  ItemTypePredefined.UseCaseDiagram)]
         [TestRail(164526)]
-        [Description("Create a chain of saved parent/child artifacts and other top level artifacts.  GetExpandedArtifactTree with the ID of the artifact at the bottom of the chain." +
-            "Verify a list of top level artifacts is returned and only one has children.")]
-        public void GetExpandedArtifactTree_LastSavedArtifactInChain_ReturnsExpectedArtifactHierarchy(params BaseArtifactType[] artifactTypeChain)
+        [Description("Create a chain of saved parent/child artifacts and other top level artifacts.  GetExpandedArtifactTree with the ID of the artifact at the bottom of the chain.  " +
+                     "Verify a list of top level artifacts is returned and only one has children.")]
+        public void GetExpandedArtifactTree_LastSavedArtifactInChain_ReturnsExpectedArtifactHierarchy(params ItemTypePredefined[] artifactTypeChain)
         {
             ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
 
@@ -120,9 +112,9 @@ namespace ArtifactStoreTests
             var artifactChain = Helper.CreateSavedArtifactChain(_project, _user, artifactTypeChain);
 
             // Create some other top-level artifacts not part of the chain.
-            var otherTopLevelArtifacts = new List<IArtifact>();
-            otherTopLevelArtifacts.Add(Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor));
-            otherTopLevelArtifacts.Add(Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process));
+            var otherTopLevelArtifacts = new List<ArtifactWrapper>();
+            otherTopLevelArtifacts.Add(Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Actor));
+            otherTopLevelArtifacts.Add(Helper.CreateNovaArtifact(_user, _project, ItemTypePredefined.Process));
 
             // Execute:
             List<INovaArtifact> artifacts = null;
@@ -135,24 +127,24 @@ namespace ArtifactStoreTests
             VerifyOtherTopLevelArtifactsExist(otherTopLevelArtifacts, artifacts);
         }
 
-        [TestCase(1, BaseArtifactType.Actor, BaseArtifactType.Actor, BaseArtifactType.Actor)]
-        [TestCase(5, BaseArtifactType.PrimitiveFolder, // PrimitiveFolders can only have projects as parents.
-            BaseArtifactType.Actor,
-            BaseArtifactType.BusinessProcess,
-            BaseArtifactType.Document,
-            BaseArtifactType.DomainDiagram,
-            BaseArtifactType.GenericDiagram,
-            BaseArtifactType.Glossary,
-            BaseArtifactType.Process,
-            BaseArtifactType.Storyboard,
-            BaseArtifactType.TextualRequirement,
-            BaseArtifactType.UIMockup,
-            BaseArtifactType.UseCase,
-            BaseArtifactType.UseCaseDiagram)]
+        [TestCase(1, ItemTypePredefined.Actor, ItemTypePredefined.Actor, ItemTypePredefined.Actor)]
+        [TestCase(5, ItemTypePredefined.PrimitiveFolder, // PrimitiveFolders can only have projects as parents.
+                  ItemTypePredefined.Actor,
+                  ItemTypePredefined.BusinessProcess,
+                  ItemTypePredefined.Document,
+                  ItemTypePredefined.DomainDiagram,
+                  ItemTypePredefined.GenericDiagram,
+                  ItemTypePredefined.Glossary,
+                  ItemTypePredefined.Process,
+                  ItemTypePredefined.Storyboard,
+                  ItemTypePredefined.TextualRequirement,
+                  ItemTypePredefined.UIMockup,
+                  ItemTypePredefined.UseCase,
+                  ItemTypePredefined.UseCaseDiagram)]
         [TestRail(164527)]
-        [Description("Create a chain of saved parent/child artifacts and other top level artifacts.  GetExpandedArtifactTree with the ID of an artifact in the middle of the chain." +
-            "Verify a list of top level artifacts is returned and only one has children.")]
-        public void GetExpandedArtifactTree_MiddleSavedArtifactInChain_ReturnsExpectedArtifactHierarchy(int artifactIndex, params BaseArtifactType[] artifactTypeChain)
+        [Description("Create a chain of saved parent/child artifacts and other top level artifacts.  GetExpandedArtifactTree with the ID of an artifact in the middle of the chain.  " +
+                     "Verify a list of top level artifacts is returned and only one has children.")]
+        public void GetExpandedArtifactTree_MiddleSavedArtifactInChain_ReturnsExpectedArtifactHierarchy(int artifactIndex, params ItemTypePredefined[] artifactTypeChain)
         {
             ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
 
@@ -160,9 +152,9 @@ namespace ArtifactStoreTests
             var artifactChain = Helper.CreateSavedArtifactChain(_project, _user, artifactTypeChain);
 
             // Create some other top-level artifacts not part of the chain.
-            var otherTopLevelArtifacts = new List<IArtifact>();
-            otherTopLevelArtifacts.Add(Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor));
-            otherTopLevelArtifacts.Add(Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process));
+            var otherTopLevelArtifacts = new List<ArtifactWrapper>();
+            otherTopLevelArtifacts.Add(Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Actor));
+            otherTopLevelArtifacts.Add(Helper.CreateNovaArtifact(_user, _project, ItemTypePredefined.Process));
 
             // Execute:
             List<INovaArtifact> artifacts = null;
@@ -175,16 +167,16 @@ namespace ArtifactStoreTests
             VerifyOtherTopLevelArtifactsExist(otherTopLevelArtifacts, artifacts);
         }
 
-        [TestCase(false, 2, BaseArtifactType.Actor, BaseArtifactType.BusinessProcess, BaseArtifactType.Document, BaseArtifactType.DomainDiagram, BaseArtifactType.GenericDiagram)]
-        [TestCase(true, 2, BaseArtifactType.Actor, BaseArtifactType.BusinessProcess, BaseArtifactType.Document, BaseArtifactType.DomainDiagram, BaseArtifactType.GenericDiagram)]
+        [TestCase(false, 2, ItemTypePredefined.Actor, ItemTypePredefined.BusinessProcess, ItemTypePredefined.Document, ItemTypePredefined.DomainDiagram, ItemTypePredefined.GenericDiagram)]
+        [TestCase(true, 2, ItemTypePredefined.Actor, ItemTypePredefined.BusinessProcess, ItemTypePredefined.Document, ItemTypePredefined.DomainDiagram, ItemTypePredefined.GenericDiagram)]
         [TestRail(164530)]
-        [Description("Create a chain of saved parent/child artifacts and other top level artifacts." +
-            "GetExpandedArtifactTree with the ID of an artifact in the middle of the chain with includeChildren=[true|false]." +
-            "Verify a list of top level artifacts is returned and only one has children.  If includeChildren=true, the children of the artifact whose ID you passed should also be returned.")]
+        [Description("Create a chain of saved parent/child artifacts and other top level artifacts.  GetExpandedArtifactTree with the ID of an artifact in the middle " +
+                     "of the chain with includeChildren=[true|false].  Verify a list of top level artifacts is returned and only one has children.  " +
+                     "If includeChildren=true, the children of the artifact whose ID you passed should also be returned.")]
         public void GetExpandedArtifactTreeWithIncludeChildren_MiddleSavedArtifactInChain_ReturnsExpectedArtifactHierarchyAndChildren(
             bool includeChildren,
             int artifactIndex,
-            params BaseArtifactType[] artifactTypeChain)
+            params ItemTypePredefined[] artifactTypeChain)
         {
             ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
 
@@ -192,9 +184,9 @@ namespace ArtifactStoreTests
             var artifactChain = Helper.CreateSavedArtifactChain(_project, _user, artifactTypeChain);
 
             // Create some other top-level artifacts not part of the chain.
-            var otherTopLevelArtifacts = new List<IArtifact>();
-            otherTopLevelArtifacts.Add(Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor));
-            otherTopLevelArtifacts.Add(Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process));
+            var otherTopLevelArtifacts = new List<ArtifactWrapper>();
+            otherTopLevelArtifacts.Add(Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Actor));
+            otherTopLevelArtifacts.Add(Helper.CreateNovaArtifact(_user, _project, ItemTypePredefined.Process));
 
             // Execute:
             List<INovaArtifact> artifacts = null;
@@ -213,12 +205,12 @@ namespace ArtifactStoreTests
             VerifyOtherTopLevelArtifactsExist(otherTopLevelArtifacts, artifacts);
         }
 
-        [TestCase(BaseArtifactType.Actor, true)]
-        [TestCase(BaseArtifactType.Actor, false)]
+        [TestCase(ItemTypePredefined.Actor, true)]
+        [TestCase(ItemTypePredefined.Actor, false)]
         [TestRail(182430)]
         [Description("Create & publish some artifacts.  GetExpandedArtifactTree with the ID of the project instead of an artifact.  " +
-            "Verify all the artifacts you created were returned.")]
-        public void GetExpandedArtifactTree_ArtifactIdIsAProjectId_ReturnsProjectTree(BaseArtifactType artifactType, bool includeChildren)
+                     "Verify all the artifacts you created were returned.")]
+        public void GetExpandedArtifactTree_ArtifactIdIsAProjectId_ReturnsProjectTree(ItemTypePredefined artifactType, bool includeChildren)
         {
             // Setup:
             var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _user, artifactType, numberOfArtifacts: 3);
@@ -236,95 +228,37 @@ namespace ArtifactStoreTests
                 var matchingNovaArtifact = returnedArtifacts.Find(a => a.Id == artifact.Id);
                 Assert.NotNull(matchingNovaArtifact, "Couldn't find artifact ID {0} in the list of returned artifacts!", artifact.Id);
 
-                matchingNovaArtifact.AssertEquals(artifact, shouldCompareVersions: false);
+                matchingNovaArtifact.AssertEquals(artifact.Artifact);
             }
-        }
-
-        [TestCase("")]
-        [TestCase(CommonConstants.InvalidToken)]
-        [TestRail(164532)]
-        [Description("Create an artifact.  GetExpandedArtifactTree with the ID of the artifact but pass an invalid token.  Verify 401 Unauthorized is returned with the correct error message.")]
-        public void GetExpandedArtifactTree_InvalidToken_401Unauthorized(string token)
-        {
-            // Setup:
-            var artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Actor);
-
-            var userWithBadOrMissingToken = UserFactory.CreateUserAndAddToDatabase();
-            userWithBadOrMissingToken.Token.SetToken(_user.Token.AccessControlToken);
-            userWithBadOrMissingToken.Token.AccessControlToken = token;
-
-            // Execute:
-            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(userWithBadOrMissingToken, _project, artifact.Id),
-                "'GET {0}' should return 401 Unauthorized when a bad or empty Session-Token is passed!", REST_PATH);
-
-            // Verify:
-            var messageResult = JsonConvert.DeserializeObject<MessageResult>(ex.RestResponse.Content);
-            const string expectedMessage = "Token is invalid.";
-
-            Assert.AreEqual(expectedMessage, messageResult.Message,
-                "If a bad or empty token is passed, we should get an error message of '{0}'!", expectedMessage);
         }
 
         [TestCase]
-        [TestRail(164533)]
-        [Description("Create an artifact.  GetExpandedArtifactTree with the ID of the artifact without a Session-Token header.  Verify 401 Unauthorized is returned with the correct error message.")]
-        public void GetExpandedArtifactTree_MissingTokenHeader_401Unauthorized()
+        [TestRail(164600)]
+        [Description("Create & publish an artifact, then delete (but don't publish) it.  GetExpandedArtifactTree with the ID of the deleted artifact as a different user.  " +
+                     "Verify a list of top level artifacts is returned and only one has children.")]
+        public void GetExpandedArtifactTree_IdOfDeletedWithoutPublishArtifactOtherUser_ReturnsExpectedArtifactHierarchy()
         {
             // Setup:
-            var artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Actor);
+            var otherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+            var artifactTypeChain = new ItemTypePredefined[] { ItemTypePredefined.Actor, ItemTypePredefined.Glossary, ItemTypePredefined.Process };
+            var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypeChain);
+
+            var artifact = artifactChain.Last();
+            artifact.Delete(_user);
 
             // Execute:
-            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(user: null, project: _project, artifactId: artifact.Id),
-                "'GET {0}' should return 401 Unauthorized when no Session-Token header is passed!", REST_PATH);
+            List<INovaArtifact> artifacts = null;
+
+            Assert.DoesNotThrow(() => artifacts = Helper.ArtifactStore.GetExpandedArtifactTree(otherUser, _project, artifact.Id),
+                "'GET {0}' should return 200 OK when passed valid parameters!", REST_PATH);
 
             // Verify:
-            var messageResult = JsonConvert.DeserializeObject<MessageResult>(ex.RestResponse.Content);
-            const string expectedMessage = "Token is missing or malformed.";
-
-            Assert.AreEqual(expectedMessage, messageResult.Message,
-                "If no Session-Token header is passed, we should get an error message of '{0}'!", expectedMessage);
+            VerifyArtifactTree(artifactChain, artifacts);
         }
 
-        [TestCase(0)]
-        [TestCase(int.MaxValue)]
-        [TestRail(164534)]
-        [Description("Create an artifact.  GetExpandedArtifactTree with the ID of the artifact but pass a project ID that doesn't exist.  Verify 404 Not Found is returned with the correct error message.")]
-        public void GetExpandedArtifactTree_NonExistingProjectId_404NotFound(int projectId)
-        {
-            // Setup:
-            var artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Actor);
-            var nonExistingProject = ProjectFactory.CreateProject();
-            nonExistingProject.Id = projectId;
+        #endregion Positive tests
 
-            // Execute:
-            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(_user, nonExistingProject, artifact.Id),
-                "'GET {0}' should return 404 Not Found when a non-existing Project ID is passed!", REST_PATH);
-
-            // Verify:
-            // We only send a custom error message if projectId > 0.
-            if (projectId > 0)
-            {
-                string expectedMessage = I18NHelper.FormatInvariant("Artifact (Id:{0}) in Project (Id:{1}) is not found.", artifact.Id, projectId);
-
-                AssertJsonResponseEquals(expectedMessage, ex.RestResponse.Content,
-                    "If a non-existing Project ID is passed, we should get an error message of '{0}'!", expectedMessage);
-            }
-        }
-
-        [TestCase(int.MaxValue)]
-        [TestRail(164535)]
-        [Description("GetExpandedArtifactTree with the ID of the artifact that doesn't exist.  Verify 404 Not Found is returned with the correct error message.")]
-        public void GetExpandedArtifactTree_NonExistingArtifactId_404NotFound(int artifactId)
-        {
-            // Execute:
-            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(_user, _project, artifactId),
-                "'GET {0}' should return 404 Not Found when a non-existing Project ID is passed!", REST_PATH);
-
-            // Verify:
-            string expectedMessage = I18NHelper.FormatInvariant("Artifact (Id:{0}) in Project (Id:{1}) is not found.", artifactId, _project.Id);
-            AssertJsonResponseEquals(expectedMessage, ex.RestResponse.Content,
-                "If a non-existing Artifact ID is passed, we should get an error message of '{0}'!", expectedMessage);
-        }
+        #region 400 Bad Request tests
 
         [TestCase(0)]
         [TestCase(-1)]
@@ -338,133 +272,53 @@ namespace ArtifactStoreTests
 
             // Verify:
             const string expectedMessage = "Parameter expandedToArtifactId must be greater than 0.";
-            AssertJsonResponseEquals(expectedMessage, ex.RestResponse.Content,
-                "If an invalid Artifact ID is passed, we should get an error message of '{0}'!", expectedMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.OutOfRangeParameter, expectedMessage);
+        }
+
+        #endregion 400 Bad Request tests
+
+        #region 401 Unauthorized tests
+
+        [TestCase("")]
+        [TestCase(CommonConstants.InvalidToken)]
+        [TestRail(164532)]
+        [Description("Create an artifact.  GetExpandedArtifactTree with the ID of the artifact but pass an invalid token.  " +
+                     "Verify 401 Unauthorized is returned with the correct error message.")]
+        public void GetExpandedArtifactTree_InvalidToken_401Unauthorized(string invalidToken)
+        {
+            // Setup:
+            var artifact = Helper.CreateNovaArtifact(_user, _project, ItemTypePredefined.Actor);
+
+            var userWithBadOrMissingToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken, badToken: invalidToken);
+
+            // Execute:
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(userWithBadOrMissingToken, _project, artifact.Id),
+                "'GET {0}' should return 401 Unauthorized when a bad or empty Session-Token is passed!", REST_PATH);
+
+            // Verify:
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "Token is invalid.");
         }
 
         [TestCase]
-        [TestRail(164538)]
-        [Description("GetExpandedArtifactTree with the ID of the artifact instead of a project.  Verify 404 Not Found is returned with the correct error message.")]
-        public void GetExpandedArtifactTree_ProjectIdIsAnArtifactId_404NotFound()
+        [TestRail(164533)]
+        [Description("Create an artifact.  GetExpandedArtifactTree with the ID of the artifact without a Session-Token header.  " +
+                     "Verify 401 Unauthorized is returned with the correct error message.")]
+        public void GetExpandedArtifactTree_MissingTokenHeader_401Unauthorized()
         {
             // Setup:
-            var artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Actor);
-            var notAProject = ProjectFactory.CreateProject();
-            notAProject.Id = artifact.Id;
+            var artifact = Helper.CreateNovaArtifact(_user, _project, ItemTypePredefined.Actor);
 
             // Execute:
-            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(_user, notAProject, artifact.Id),
-                "'GET {0}' should return 404 Not Found when an Artifact ID is passed in place of a Project ID!", REST_PATH);
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(user: null, project: _project, artifactId: artifact.Id),
+                "'GET {0}' should return 401 Unauthorized when no Session-Token header is passed!", REST_PATH);
 
             // Verify:
-            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound, I18NHelper.FormatInvariant(
-                "The project (Id:{0}) can no longer be accessed. It may have been deleted, or is no longer accessible by you.", notAProject.Id));
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "Token is missing or malformed.");
         }
 
-        [TestCase]
-        [TestRail(164557)]
-        [Description("GetExpandedArtifactTree with the ID of the sub-artifact instead of an artifact.  Verify 404 Not Found is returned with the correct error message.")]
-        public void GetExpandedArtifactTree_ArtifactIdIsASubArtifact_404NotFound()
-        {
-            // Setup:
-            var artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
-            var process = Helper.Storyteller.GetProcess(_user, artifact.Id);
-            var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+        #endregion 401 Unauthorized tests
 
-            // Execute:
-            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(_user, _project, userTask.Id),
-                "'GET {0}' should return 404 Not Found when a sub-artifact ID is passed in place of an Artifact ID!", REST_PATH);
-
-            // Verify:
-            string expectedMessage = I18NHelper.FormatInvariant("Artifact (Id:{0}) in Project (Id:{1}) is not found.", userTask.Id, _project.Id);
-            AssertJsonResponseEquals(expectedMessage, ex.RestResponse.Content,
-                "If a sub-artifact ID is passed in place of an Artifact ID, we should get an error message of '{0}'!", expectedMessage);
-        }
-
-        [TestCase]
-        [TestRail(164560)]
-        [Description("Create & publish an artifact, then delete & publish it.  GetExpandedArtifactTree with the ID of the deleted artifact.  Verify 404 Not Found is returned with the correct error message.")]
-        public void GetExpandedArtifactTree_IdOfDeletedAndPublishedArtifact_404NotFound()
-        {
-            // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            artifact.Delete();
-            artifact.Publish();
-
-            // Execute:
-            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(_user, _project, artifact.Id),
-                "'GET {0}' should return 404 Not Found when the ID of a deleted Artifact is passed!", REST_PATH);
-
-            // Verify:
-            string expectedMessage = I18NHelper.FormatInvariant("Artifact (Id:{0}) in Project (Id:{1}) is not found.", artifact.Id, _project.Id);
-            AssertJsonResponseEquals(expectedMessage, ex.RestResponse.Content,
-                "If the ID of a deleted Artifact is passed, we should get an error message of '{0}'!", expectedMessage);
-        }
-
-        [TestCase]
-        [TestRail(164599)]
-        [Description("Create & publish an artifact, then delete (but don't publish) it.  GetExpandedArtifactTree with the ID of the deleted artifact." +
-            "Verify 404 Not Found is returned with the correct error message.")]
-        public void GetExpandedArtifactTree_IdOfDeletedWithoutPublishArtifactSameUser_404NotFound()
-        {
-            // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            artifact.Delete();
-
-            // Execute:
-            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(_user, _project, artifact.Id),
-                "'GET {0}' should return 404 Not Found when the ID of a deleted Artifact is passed!", REST_PATH);
-
-            // Verify:
-            string expectedMessage = I18NHelper.FormatInvariant("Artifact (Id:{0}) in Project (Id:{1}) is not found.", artifact.Id, _project.Id);
-            AssertJsonResponseEquals(expectedMessage, ex.RestResponse.Content,
-                "If the ID of a deleted Artifact is passed, we should get an error message of '{0}'!", expectedMessage);
-        }
-
-        [TestCase]
-        [TestRail(164600)]
-        [Description("Create & publish an artifact, then delete (but don't publish) it.  GetExpandedArtifactTree with the ID of the deleted artifact as a different user." +
-            "Verify a list of top level artifacts is returned and only one has children.")]
-        public void GetExpandedArtifactTree_IdOfDeletedWithoutPublishArtifactOtherUser_ReturnsExpectedArtifactHierarchy()
-        {
-            // Setup:
-            var otherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
-            var artifactTypeChain = new ItemTypePredefined[] { ItemTypePredefined.Actor, ItemTypePredefined.Glossary, ItemTypePredefined.Process };
-            var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypeChain);
-
-            var artifact = artifactChain.Last();
-            artifact.Lock(_user);
-            artifact.Delete(_user);
-
-            // Execute:
-            List<INovaArtifact> artifacts = null;
-
-            Assert.DoesNotThrow(() => artifacts = Helper.ArtifactStore.GetExpandedArtifactTree(otherUser, _project, artifact.Id),
-                "'GET {0}' should return 200 OK when passed valid parameters!", REST_PATH);
-
-            // Verify:
-            VerifyArtifactTree(artifactChain, artifacts);
-        }
-
-        [TestCase]
-        [TestRail(164601)]
-        [Description("Create & save an artifact.  GetExpandedArtifactTree with the ID of the unpublished artifact (as a different user)." +
-            "Verify 404 Not Found is returned with the correct error message.")]
-        public void GetExpandedArtifactTree_IdOfUnpublishArtifactOtherUser_404NotFound()
-        {
-            // Setup:
-            var otherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
-            var artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Actor);
-
-            // Execute:
-            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(otherUser, _project, artifact.Id),
-                "'GET {0}' should return 404 Not Found when the ID of an unpublished Artifact (saved by another user) is passed!", REST_PATH);
-
-            // Verify:
-            string expectedMessage = I18NHelper.FormatInvariant("Artifact (Id:{0}) in Project (Id:{1}) is not found.", artifact.Id, _project.Id);
-            AssertJsonResponseEquals(expectedMessage, ex.RestResponse.Content,
-                "If the ID of a deleted Artifact is passed, we should get an error message of '{0}'!", expectedMessage);
-        }
+        #region 403 Forbidden tests
 
         [TestCase]
         [TestRail(164558)]
@@ -472,7 +326,7 @@ namespace ArtifactStoreTests
         public void GetExpandedArtifactTree_UserWithoutPermissionToProject_403Forbidden()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Process);
             var userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project);
 
             // Execute:
@@ -481,8 +335,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             string expectedMessage = I18NHelper.FormatInvariant("User does not have permissions for Project (Id:{0}).", _project.Id);
-            AssertJsonResponseEquals(expectedMessage, ex.RestResponse.Content,
-                "If called by a user without permission to the project, we should get an error message of '{0}'!", expectedMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess, expectedMessage);
         }
 
         [TestCase(0, ItemTypePredefined.Actor, ItemTypePredefined.BusinessProcess, ItemTypePredefined.Document, ItemTypePredefined.DomainDiagram, ItemTypePredefined.GenericDiagram)]
@@ -512,49 +365,152 @@ namespace ArtifactStoreTests
 
             // Verify:
             string expectedMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", artifactChain.Last().Id);
-            AssertJsonResponseEquals(expectedMessage, ex.RestResponse.Content,
-                "If called by a user without permission to the artifact, we should get an error message of '{0}'!", expectedMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess, expectedMessage);
         }
 
-        #region Private functions
+        #endregion 403 Forbidden tests
 
-        /// <summary>
-        /// Asserts that the returned JSON content has the specified error message.
-        /// </summary>
-        /// <param name="expectedMessage">The error message expected in the JSON content.</param>
-        /// <param name="jsonContent">The JSON content.</param>
-        /// <param name="assertMessage">The message to display if the expected message isn't found in the JSON content.</param>
-        /// <param name="assertMessageParams">(optional) Parameters to use if assertMessage is a format string.</param>
-        private static void AssertJsonResponseEquals(string expectedMessage, string jsonContent, string assertMessage, params object[] assertMessageParams)
+        #region 404 Not Found tests
+
+        [TestCase(0)]
+        [TestCase(int.MaxValue)]
+        [TestRail(164534)]
+        [Description("Create an artifact.  GetExpandedArtifactTree with the ID of the artifact but pass a project ID that doesn't exist.  " +
+                     "Verify 404 Not Found is returned with the correct error message.")]
+        public void GetExpandedArtifactTree_NonExistingProjectId_404NotFound(int projectId)
         {
-            ThrowIf.ArgumentNull(assertMessage, nameof(assertMessage));
+            // Setup:
+            var artifact = Helper.CreateNovaArtifact(_user, _project, ItemTypePredefined.Actor);
+            var nonExistingProject = ProjectFactory.CreateProject();
+            nonExistingProject.Id = projectId;
 
-            var jsonSettings = new JsonSerializerSettings()
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(_user, nonExistingProject, artifact.Id),
+                "'GET {0}' should return 404 Not Found when a non-existing Project ID is passed!", REST_PATH);
+
+            // Verify:
+            // We only send a custom error message if projectId > 0.
+            if (projectId > 0)
             {
-                // This will alert us if new properties are added to the return JSON format.
-                MissingMemberHandling = MissingMemberHandling.Error
-            };
+                string expectedMessage = I18NHelper.FormatInvariant("Artifact (Id:{0}) in Project (Id:{1}) is not found.", artifact.Id, projectId);
 
-            var messageResult = JsonConvert.DeserializeObject<MessageResult>(jsonContent, jsonSettings);
-
-            Assert.AreEqual(expectedMessage, messageResult.Message, assertMessage, assertMessageParams);
-        }
-
-        /// <summary>
-        /// Verify that all other top level artifacts exist in the list of Nova artifacts with the same properties.
-        /// </summary>
-        /// <param name="otherTopLevelArtifacts">The list of other top level artifacts that aren't part of the artifact chain.</param>
-        /// <param name="novaArtifacts">The list of NovaArtifacts returned by the GetExpandedArtifactTree call.</param>
-        private static void VerifyOtherTopLevelArtifactsExist(List<IArtifact> otherTopLevelArtifacts, List<INovaArtifact> novaArtifacts)
-        {
-            foreach (var artifact in otherTopLevelArtifacts)
-            {
-                var novaArtifact = novaArtifacts.Find(a => a.Id == artifact.Id);
-
-                Assert.NotNull(novaArtifact, "Couldn't find Artifact ID {0} in the list of Nova Artifacts!", artifact.Id);
-                novaArtifact.AssertEquals(artifact, shouldCompareVersions: false);
+                TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound, expectedMessage);
             }
         }
+
+        [TestCase(int.MaxValue)]
+        [TestRail(164535)]
+        [Description("GetExpandedArtifactTree with the ID of the artifact that doesn't exist.  Verify 404 Not Found is returned with the correct error message.")]
+        public void GetExpandedArtifactTree_NonExistingArtifactId_404NotFound(int artifactId)
+        {
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(_user, _project, artifactId),
+                "'GET {0}' should return 404 Not Found when a non-existing Project ID is passed!", REST_PATH);
+
+            // Verify:
+            string expectedMessage = I18NHelper.FormatInvariant("Artifact (Id:{0}) in Project (Id:{1}) is not found.", artifactId, _project.Id);
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound, expectedMessage);
+        }
+
+        [TestCase]
+        [TestRail(164538)]
+        [Description("GetExpandedArtifactTree with the ID of the artifact instead of a project.  Verify 404 Not Found is returned with the correct error message.")]
+        public void GetExpandedArtifactTree_ProjectIdIsAnArtifactId_404NotFound()
+        {
+            // Setup:
+            var artifact = Helper.CreateNovaArtifact(_user, _project, ItemTypePredefined.Actor);
+            var notAProject = ProjectFactory.CreateProject();
+            notAProject.Id = artifact.Id;
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(_user, notAProject, artifact.Id),
+                "'GET {0}' should return 404 Not Found when an Artifact ID is passed in place of a Project ID!", REST_PATH);
+
+            // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound, I18NHelper.FormatInvariant(
+                "The project (Id:{0}) can no longer be accessed. It may have been deleted, or is no longer accessible by you.", notAProject.Id));
+        }
+
+        [TestCase]
+        [TestRail(164557)]
+        [Description("GetExpandedArtifactTree with the ID of the sub-artifact instead of an artifact.  Verify 404 Not Found is returned with the correct error message.")]
+        public void GetExpandedArtifactTree_ArtifactIdIsASubArtifact_404NotFound()
+        {
+            // Setup:
+            var artifact = Helper.CreateNovaArtifact(_user, _project, ItemTypePredefined.Process);
+            var process = Helper.Storyteller.GetProcess(_user, artifact.Id);
+            var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(_user, _project, userTask.Id),
+                "'GET {0}' should return 404 Not Found when a sub-artifact ID is passed in place of an Artifact ID!", REST_PATH);
+
+            // Verify:
+            string expectedMessage = I18NHelper.FormatInvariant("Artifact (Id:{0}) in Project (Id:{1}) is not found.", userTask.Id, _project.Id);
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound, expectedMessage);
+        }
+
+        [TestCase]
+        [TestRail(164560)]
+        [Description("Create & publish an artifact, then delete & publish it.  GetExpandedArtifactTree with the ID of the deleted artifact.  " +
+                     "Verify 404 Not Found is returned with the correct error message.")]
+        public void GetExpandedArtifactTree_IdOfDeletedAndPublishedArtifact_404NotFound()
+        {
+            // Setup:
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Actor);
+            artifact.Delete(_user);
+            artifact.Publish(_user);
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(_user, _project, artifact.Id),
+                "'GET {0}' should return 404 Not Found when the ID of a deleted Artifact is passed!", REST_PATH);
+
+            // Verify:
+            string expectedMessage = I18NHelper.FormatInvariant("Artifact (Id:{0}) in Project (Id:{1}) is not found.", artifact.Id, _project.Id);
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound, expectedMessage);
+        }
+
+        [TestCase]
+        [TestRail(164599)]
+        [Description("Create & publish an artifact, then delete (but don't publish) it.  GetExpandedArtifactTree with the ID of the deleted artifact.  " +
+                     "Verify 404 Not Found is returned with the correct error message.")]
+        public void GetExpandedArtifactTree_IdOfDeletedWithoutPublishArtifactSameUser_404NotFound()
+        {
+            // Setup:
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Actor);
+            artifact.Delete(_user);
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(_user, _project, artifact.Id),
+                "'GET {0}' should return 404 Not Found when the ID of a deleted Artifact is passed!", REST_PATH);
+
+            // Verify:
+            string expectedMessage = I18NHelper.FormatInvariant("Artifact (Id:{0}) in Project (Id:{1}) is not found.", artifact.Id, _project.Id);
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound, expectedMessage);
+        }
+
+        [TestCase]
+        [TestRail(164601)]
+        [Description("Create & save an artifact.  GetExpandedArtifactTree with the ID of the unpublished artifact (as a different user).  " +
+                     "Verify 404 Not Found is returned with the correct error message.")]
+        public void GetExpandedArtifactTree_IdOfUnpublishArtifactOtherUser_404NotFound()
+        {
+            // Setup:
+            var otherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+            var artifact = Helper.CreateNovaArtifact(_user, _project, ItemTypePredefined.Actor);
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(otherUser, _project, artifact.Id),
+                "'GET {0}' should return 404 Not Found when the ID of an unpublished Artifact (saved by another user) is passed!", REST_PATH);
+
+            // Verify:
+            string expectedMessage = I18NHelper.FormatInvariant("Artifact (Id:{0}) in Project (Id:{1}) is not found.", artifact.Id, _project.Id);
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound, expectedMessage);
+        }
+
+        #endregion 404 Not Found tests
+
+        #region Private functions
 
         /// <summary>
         /// Verify that all other top level artifacts exist in the list of Nova artifacts with the same properties.
@@ -570,20 +526,6 @@ namespace ArtifactStoreTests
                 Assert.NotNull(novaArtifact, "Couldn't find Artifact ID {0} in the list of Nova Artifacts!", artifact.Id);
                 NovaArtifactBase.AssertAreEqual(artifact, novaArtifact, shouldCompareVersions: false);
             }
-        }
-
-        /// <summary>
-        /// Verifies that all top level Nova artifacts have the correct values for Children & ParentId, and verifies the children of the one
-        /// artifact chain that should exist.
-        /// </summary>
-        /// <param name="artifactChain">The list of parent/child artifacts we created.</param>
-        /// <param name="novaArtifacts">The list of NovaArtifacts returned by the GetExpandedArtifactTree call.</param>
-        /// <param name="artifactIndex">(optional) The index of the artifact chain containing the artifact whose tree we requested in the test.
-        /// By default the entire chain is assumed to be returned from GetExpandedArtifactTree.</param>
-        private void VerifyArtifactTree(List<IArtifact> artifactChain, List<INovaArtifact> novaArtifacts, int artifactIndex = int.MaxValue)
-        {
-            var topArtifact = VerifyAllTopLevelArtifacts(artifactChain.Select(a => a.Id), novaArtifacts);
-            VerifyChildArtifactsInChain(artifactChain, topArtifact, artifactIndex);
         }
 
         /// <summary>
@@ -633,34 +575,6 @@ namespace ArtifactStoreTests
             }
 
             return topNovaArtifact;
-        }
-
-        /// <summary>
-        /// Verifies that children of the Nova artifact equal it's corresponding artifact in the chain we created and that the bottom Nova artifact
-        /// doesn't have any children in the Children property.
-        /// </summary>
-        /// <param name="artifactChain">The list of parent/child artifacts we created.</param>
-        /// <param name="topNovaArtifact">The top level Nova artifact returned by the GetExpandedArtifactTree call that matches the top level artifact we created.</param>
-        /// <param name="artifactIndex">(optional) The index of the artifact chain containing the artifact whose tree we requested in the test.
-        /// By default the entire chain is assumed to be returned from GetExpandedArtifactTree.</param>
-        private static void VerifyChildArtifactsInChain(List<IArtifact> artifactChain, INovaArtifact topNovaArtifact, int artifactIndex = int.MaxValue)
-        {
-            // Verify all the children in the chain.
-            var currentChild = topNovaArtifact;
-
-            foreach (var artifact in artifactChain)
-            {
-                Assert.NotNull(currentChild, "No NovaArtifact was returned that matches with artifact '{0}' that we created!", artifact.Id);
-
-                currentChild.AssertEquals(artifact, shouldCompareVersions: false);
-                currentChild = currentChild.Children?[0];
-
-                if (--artifactIndex < 0)
-                {
-                    break;
-                }
-            }
-            Assert.IsNull(currentChild, "The Children property of the last artifact in the chain should be null!");
         }
 
         /// <summary>

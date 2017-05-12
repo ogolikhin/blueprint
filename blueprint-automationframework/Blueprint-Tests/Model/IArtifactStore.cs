@@ -1,13 +1,12 @@
+using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
+using Model.ArtifactModel.Impl;
+using Model.ArtifactModel.Impl.OperationsResults;
 using Model.Impl;
 using Model.NovaModel.Impl;
-using Model.ArtifactModel;
-using Model.ArtifactModel.Impl;
 using System;
 using System.Collections.Generic;
 using System.Net;
-using Model.ArtifactModel.Enums;
-using Model.ModelHelpers;
-using Model.ArtifactModel.Impl.OperationsResults;
 
 namespace Model
 {
@@ -152,30 +151,29 @@ namespace Model
         List<INovaArtifactResponse> DeleteArtifact(int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
+        /// Discard all artifacts locked by the specified user.
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <returns>An object containing a list of artifacts that were discarded and their projects.</returns>
+        INovaArtifactsAndProjectsResponse DiscardAllArtifacts(IUser user);
+
+        /// <summary>
         /// Discard a single artifact.
         /// </summary>
-        /// <param name="artifact">The artifact to discard.  This can be null if the 'all' parameter is true.</param>
-        /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
-        /// <param name="all">(optional) Pass true to discard all artifacts saved by the user that have changes.  In this case, you don't need to specify the artifact to discard.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactId">The ID of the artifact to discard.</param>
         /// <returns>An object containing a list of artifacts that were discarded and their projects.</returns>
-        INovaArtifactsAndProjectsResponse DiscardArtifact(IArtifactBase artifact,
-            IUser user = null,
-            bool? all = null,
-            List<HttpStatusCode> expectedStatusCodes = null);
+        INovaArtifactsAndProjectsResponse DiscardArtifact(IUser user, int artifactId);
 
         /// <summary>
         /// Discard a list of artifacts.
         /// </summary>
-        /// <param name="artifacts">The artifacts to discard.  This can be null if the 'all' parameter is true.</param>
-        /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
-        /// <param name="all">(optional) Pass true to discard all artifacts saved by the user that have changes.  In this case, you don't need to specify the artifacts to discard.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactIds">The IDs of the artifacts to discard.  This can be null if the 'all' parameter is true.</param>
+        /// <param name="all">(optional) Pass true to discard all artifacts saved by the user that have changes.
+        ///     In this case, you don't need to specify the artifacts to discard.</param>
         /// <returns>An object containing a list of artifacts that were discarded and their projects.</returns>
-        INovaArtifactsAndProjectsResponse DiscardArtifacts(List<IArtifactBase> artifacts,
-            IUser user = null,
-            bool? all = null,
-            List<HttpStatusCode> expectedStatusCodes = null);
+        INovaArtifactsAndProjectsResponse DiscardArtifacts(IUser user, IEnumerable<int> artifactIds, bool? all = null);
 
         /// <summary>
         /// Checks if the ArtifactStore service is ready for operation.
@@ -287,9 +285,11 @@ namespace Model
         /// <param name="artifactId">The ID of the artifact that has the attachment to get.</param>
         /// <param name="addDrafts">(optional) Should include attachments in draft state.  Without addDrafts it works as if addDrafts=true.</param>
         /// <param name="versionId">(optional) The version of the attachment to retrieve.</param>
+        /// <param name="baselineId">(optional) The id of baseline to get version of the attachment to retrieve.</param>
         /// <param name="subArtifactId">(optional) The ID of a sub-artifact of this artifact that has the attachment to get.</param>
         /// <returns>Attachment object for the specified artifact/subartifact.</returns>
-        Attachments GetAttachments(IUser user, int artifactId, bool? addDrafts = null, int? versionId = null, int? subArtifactId = null);
+        Attachments GetAttachments(IUser user, int artifactId, bool? addDrafts = null, int? versionId = null,
+            int? baselineId = null, int? subArtifactId = null);
 
         /// <summary>
         /// Gets attachments for the specified artifact/subartifact
@@ -299,12 +299,13 @@ namespace Model
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="addDrafts">(optional) Should include attachments in draft state.  Without addDrafts it works as if addDrafts=true.</param>
         /// <param name="versionId">(optional) The version of the attachment to retrieve.</param>
+        /// <param name="baselineId">(optional) The id of baseline to get version of the attachment to retrieve.</param>
         /// <param name="subArtifactId">(optional) The ID of a sub-artifact of this artifact that has the attachment to get.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <param name="expectedServiceErrorMessage">(optional) Expected error message for the request.</param>
         /// <returns>Attachment object for the specified artifact/subartifact.</returns>
-        Attachments GetAttachments(IArtifactBase artifact, IUser user, bool? addDrafts = null, int? versionId = null,
-            int? subArtifactId = null, List<HttpStatusCode> expectedStatusCodes = null, IServiceErrorMessage expectedServiceErrorMessage = null);
+        Attachments GetAttachments(IArtifactBase artifact, IUser user, bool? addDrafts = null,
+            int? versionId = null, int? baselineId = null, int? subArtifactId = null,
+            List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets relationships for the specified artifact/subartifact
@@ -515,10 +516,24 @@ namespace Model
         /// </summary>
         /// <param name="artifacts">The artifacts to publish.  This can be null if the 'publishAll' parameter is true.</param>
         /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
-        /// <param name="publishAll">(optional) Pass true to publish publishAll artifacts created by the user that have changes.  In this case, you don't need to specify the artifacts to publish.</param>
+        /// <param name="publishAll">(optional) Pass true to publish publishAll artifacts created by the user that have changes.
+        ///     In this case, you don't need to specify the artifacts to publish.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
-        INovaArtifactsAndProjectsResponse PublishArtifacts(List<IArtifactBase> artifacts, IUser user = null, bool? publishAll = null, List<HttpStatusCode> expectedStatusCodes = null);
+        INovaArtifactsAndProjectsResponse PublishArtifacts(List<IArtifactBase> artifacts, IUser user = null, bool? publishAll = null,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Publishes a list of artifacts.
+        /// </summary>
+        /// <param name="artifactsIds">The Ids of artifacts to publish.  This can be null if the 'all' parameter is true.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="publishAll">(optional) Pass true to publish all artifacts created by the user that have changes.
+        ///     In this case, you don't need to specify the artifacts to publish.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
+        NovaArtifactsAndProjectsResponse PublishArtifacts(IEnumerable<int> artifactsIds, IUser user, bool? publishAll = null,
+            List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets artifact path by using artifact id
@@ -565,7 +580,7 @@ namespace Model
 
         /// <summary>
         /// Gets image file for Actor's icon
-        /// Runs GET svc/bpartifactstore/diagram/actoricon/{0}?versionId={1}&addDraft=true
+        /// Runs GET svc/bpartifactstore/diagram/actoricon/{0}?versionId={1} with optional query parameter: addDraft=true
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="actorArtifactId">Id of artifact or sub-artifact.</param>
@@ -607,17 +622,6 @@ namespace Model
         List<AuthorHistoryItem> GetArtifactsAuthorHistory(List<int> artifactIds, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// Publishes a list of artifacts.
-        /// </summary>
-        /// <param name="artifactsIds">The Ids of artifacts to publish.  This can be null if the 'all' parameter is true.</param>
-        /// <param name="user">The user to authenticate with.</param>
-        /// <param name="publishAll">(optional) Pass true to publish all artifacts created by the user that have changes.  In this case, you don't need to specify the artifacts to publish.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
-        NovaArtifactsAndProjectsResponse PublishArtifacts(List<int> artifactsIds, IUser user, bool? publishAll = null,
-            List<HttpStatusCode> expectedStatusCodes = null);
-
-        /// <summary>
         /// Gets Reviews associated with the Baseline
         /// </summary>
         /// <param name="artifactId">Id of Baseline (it works for other types of artifacts also).</param>
@@ -640,22 +644,29 @@ namespace Model
         /// <param name="user">user to perform the operation. </param>
         /// <param name="reviewId">Id of Review.</param>
         /// <returns>Object containing list of artifacts and number of artifacts</returns>
-        GetReviewArtifactsResultSet GetReviewArtifacts(IUser user, int reviewId);
-
-        #region Process methods
+        ReviewContent GetReviewArtifacts(IUser user, int reviewId);
 
         /// <summary>
-        /// Delete a Nova process artifact
-        /// (Runs:  'DELETE 'svc/bpartifactstore/artifacts/{0}')
+        /// Gets review header information
         /// </summary>
-        /// <param name="user">The user credentials for the request to delete a Nova process.</param>
-        /// <param name="novaProcess">The Nova process artifact to delete.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>The list of Nova Artifacts that were deleted.</returns>
-        List<NovaArtifact> DeleteNovaProcessArtifact(
-            IUser user,
-            NovaProcess novaProcess,
-            List<HttpStatusCode> expectedStatusCodes = null);
+        /// <param name="user">user to perform the operation.</param>
+        /// <param name="reviewId">Id of Review.</param>
+        /// <returns>ReviewContainer</returns>
+        ReviewContainer GetReviewContainer(IUser user, int reviewId);
+
+        /// <summary>
+        /// Gets list of Reviewers and additional information.
+        /// </summary>
+        /// <param name="user">user to perform the operation.</param>
+        /// <param name="reviewId">Id of Review.</param>
+        /// <param name="offset">(optional) The offset for the pagination.</param>
+        /// <param name="limit">(optional) Maximum number of users to be returned.</param>
+        /// <param name="versionId">(optional)Id of version.</param>
+        /// <returns>ReviewParticipantsContent</returns>
+        ReviewParticipantsContent GetReviewParticipants(IUser user, int reviewId, int? offset = 0, int? limit = 50,
+            int? versionId = null);
+
+        #region Process methods
 
         /// <summary>
         /// Get a Nova Process (Storyteller 2.1+)
@@ -666,7 +677,7 @@ namespace Model
         /// <param name="versionIndex">(optional) The version of the process artifact.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The requested Nova process object.</returns>
-        NovaProcess GetNovaProcess(
+        INovaProcess GetNovaProcess(
             IUser user,
             int artifactId,
             int? versionIndex = null,
@@ -679,10 +690,10 @@ namespace Model
         /// <param name="user">The user credentials for the request to update a Nova process.</param>
         /// <param name="novaProcess">The Nova process to update</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>A NovaArtifactDetails object.</returns>
-        INovaArtifactDetails UpdateNovaProcess(
+        /// <returns>A NovaProcess object.</returns>
+        INovaProcess UpdateNovaProcess(
             IUser user,
-            NovaProcess novaProcess,
+            INovaProcess novaProcess,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         #endregion Process methods

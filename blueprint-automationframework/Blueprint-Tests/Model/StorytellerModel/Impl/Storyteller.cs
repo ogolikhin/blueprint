@@ -83,7 +83,7 @@ namespace Model.StorytellerModel.Impl
 
         public List<IArtifact> Artifacts { get; } = new List<IArtifact>();
 
-        public List<NovaProcess> NovaProcesses { get; } = new List<NovaProcess>();
+        public List<INovaProcess> NovaProcesses { get; } = new List<INovaProcess>();
 
         public IArtifact CreateAndSaveProcessArtifact(IProject project, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -149,7 +149,7 @@ namespace Model.StorytellerModel.Impl
             return artifacts;
         }
 
-        public NovaProcess CreateAndSaveNovaProcessArtifact(IProject project, IUser user, int? parentId = null,
+        public INovaProcess CreateAndSaveNovaProcessArtifact(IProject project, IUser user, int? parentId = null,
             double? orderIndex = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(CreateAndSaveNovaProcessArtifact));
@@ -168,12 +168,12 @@ namespace Model.StorytellerModel.Impl
             return novaProcess;
         }
 
-        public List<NovaProcess> CreateAndSaveNovaProcessArtifacts(IProject project, IUser user, int numberOfArtifacts, int? parentId = null,
+        public List<INovaProcess> CreateAndSaveNovaProcessArtifacts(IProject project, IUser user, int numberOfArtifacts, int? parentId = null,
             double? orderIndex = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(CreateAndSaveNovaProcessArtifacts));
 
-            var novaProcesses = new List<NovaProcess>();
+            var novaProcesses = new List<INovaProcess>();
 
             for (int i = 0; i < numberOfArtifacts; i++)
             {
@@ -183,7 +183,7 @@ namespace Model.StorytellerModel.Impl
             return novaProcesses;
         }
 
-        public NovaProcess CreateAndPublishNovaProcessArtifact(IProject project, IUser user)
+        public INovaProcess CreateAndPublishNovaProcessArtifact(IProject project, IUser user)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(CreateAndPublishNovaProcessArtifact));
 
@@ -194,14 +194,14 @@ namespace Model.StorytellerModel.Impl
             return publishedNovaProcessList[0];
         }
 
-        public List<NovaProcess> CreateAndPublishNovaProcessArtifacts(IProject project, IUser user, int numberOfArtifacts, int? parentId = null,
+        public List<INovaProcess> CreateAndPublishNovaProcessArtifacts(IProject project, IUser user, int numberOfArtifacts, int? parentId = null,
             double? orderIndex = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(CreateAndPublishNovaProcessArtifacts));
 
             ThrowIf.ArgumentNull(project, nameof(project));
 
-            var novaProcesses = new List<NovaProcess>();
+            var novaProcesses = new List<INovaProcess>();
             var artifacts = new List<IArtifactBase>();
 
             for (int i = 0; i < numberOfArtifacts; i++)
@@ -248,7 +248,7 @@ namespace Model.StorytellerModel.Impl
         }
 
         /// <seealso cref="IStoryteller.GetNovaProcess(IUser, int, int?, List{HttpStatusCode})"/>
-        public NovaProcess GetNovaProcess(IUser user, int artifactId, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null)
+        public INovaProcess GetNovaProcess(IUser user, int artifactId, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             return _artifactStore.GetNovaProcess(user, artifactId, versionIndex, expectedStatusCodes);
         }
@@ -297,8 +297,8 @@ namespace Model.StorytellerModel.Impl
             return updatedNovaProcess.Process;
         }
 
-        /// <seealso cref="IStoryteller.UpdateNovaProcess(IUser, NovaProcess, List{HttpStatusCode}, bool)"/>
-        public NovaProcess UpdateNovaProcess(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null, bool shouldLock = true)
+        /// <seealso cref="IStoryteller.UpdateNovaProcess(IUser, INovaProcess, List{HttpStatusCode}, bool)"/>
+        public INovaProcess UpdateNovaProcess(IUser user, INovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null, bool shouldLock = true)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(UpdateNovaProcess));
 
@@ -334,11 +334,11 @@ namespace Model.StorytellerModel.Impl
 
             Logger.WriteInfo("{0} Publishing Process ID: {1}, name: {2}", nameof(Storyteller), process.Id, process.Name);
 
-            return _artifactStore.PublishArtifacts(new List<int> { process.Id }, user, expectedStatusCodes: expectedStatusCodes);
+            return _artifactStore.PublishArtifact(process.Id, user);
         }
 
-        /// <seealso cref="IStoryteller.PublishNovaProcess(IUser, NovaProcess, List{HttpStatusCode})"/>
-        public INovaArtifactsAndProjectsResponse PublishNovaProcess(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IStoryteller.PublishNovaProcess(IUser, INovaProcess, List{HttpStatusCode})"/>
+        public INovaArtifactsAndProjectsResponse PublishNovaProcess(IUser user, INovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(PublishNovaProcess));
 
@@ -347,7 +347,7 @@ namespace Model.StorytellerModel.Impl
 
             Logger.WriteInfo("{0} Publishing Process ID: {1}, name: {2}", nameof(Storyteller), novaProcess.Id, novaProcess.Name);
 
-            return _artifactStore.PublishArtifacts(new List<int> { novaProcess.Id }, user, expectedStatusCodes: expectedStatusCodes);
+            return _artifactStore.PublishArtifact(novaProcess.Id, user, expectedStatusCodes);
         }
 
         /// <seealso cref="IStoryteller.DiscardProcessArtifact(IArtifact, List{HttpStatusCode})"/>
@@ -381,10 +381,13 @@ namespace Model.StorytellerModel.Impl
             return deletedArtifacts;
         }
 
-        /// <seealso cref="IStoryteller.DeleteNovaProcessArtifact(IUser, NovaProcess, List{HttpStatusCode})"/>
-        public List<NovaArtifact> DeleteNovaProcessArtifact(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IStoryteller.DeleteNovaProcessArtifact(IUser, INovaProcess, List{HttpStatusCode})"/>
+        public List<INovaArtifactResponse> DeleteNovaProcessArtifact(IUser user, INovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return _artifactStore.DeleteNovaProcessArtifact(user, novaProcess, expectedStatusCodes);
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
+
+            return _artifactStore.DeleteArtifact(novaProcess.Id, user, expectedStatusCodes);
         }
         
         public int GetStorytellerShapeLimitFromDb

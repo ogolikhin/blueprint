@@ -1,6 +1,7 @@
 using Common;
 using Model.Factories;
 using Model.Impl;
+using Model.OpenApiModel.Services;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
@@ -8,9 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
-using Model.OpenApiModel.Services;
 using Utilities;
-using Utilities.Facades;
 
 namespace Model.ArtifactModel.Impl
 {
@@ -649,9 +648,8 @@ namespace Model.ArtifactModel.Impl
             // For each user that created saved artifacts, discard the list of artifacts they created.
             foreach (IUser user in savedArtifactsDictionary.Keys)
             {
-                var artifacts = savedArtifactsDictionary[user];
                 Logger.WriteDebug("*** Discarding all unpublished artifacts created by user: '{0}'.", user.Username);
-                artifactStore.DiscardArtifacts(artifacts, user, all: true);
+                artifactStore.DiscardAllArtifacts(user);
             }
 
             // Create & authenticate an admin user that has access to delete all artifacts.
@@ -669,7 +667,7 @@ namespace Model.ArtifactModel.Impl
                 {
                     // First discard all to release any locks by the original user.
                     Logger.WriteDebug("*** Discarding all artifacts created by user: '{0}'.", user.Username);
-                    artifactStore.DiscardArtifacts(publishedArtifactsDictionary[user], user, all: true);
+                    artifactStore.DiscardAllArtifacts(user);
 
                     // Now delete all artifacts using the Admin user.
                     var artifacts = publishedArtifactsDictionary[user];
@@ -706,12 +704,5 @@ namespace Model.ArtifactModel.Impl
                 artifact.Delete(user, deleteChildren: true, expectedStatusCodes: expectedStatusCodes);
             }
         }
-    }
-
-    public static class ArtifactValidationMessage
-    {
-        public static readonly string ArtifactAlreadyLocked = "The artifact is locked by other user.";
-        public static readonly string ArtifactAlreadyPublished = "Artifact {0} is already published in the project";
-        public static readonly string ArtifactNothingToDiscard = "Artifact {0} has nothing to discard";
     }
 }

@@ -61,19 +61,6 @@ namespace ArtifactStore.Repositories
             return await _connectionWrapper.QueryAsync<ItemIdItemNameParentId>("GetArtifactNavigationPath", parameters, commandType: CommandType.StoredProcedure);
         }
 
-
-
-        private async Task<string> GetItemDescription (int itemId, int userId, bool? addDrafts = true, int? revisionId = int.MaxValue)
-        {
-            // SP [GetItemDescription] returns last published version for deleted items when revisionId is NULL.
-            var parameters = new DynamicParameters();
-            parameters.Add("@itemId", itemId);
-            parameters.Add("@userId", userId);
-            parameters.Add("@addDrafts", addDrafts);
-            parameters.Add("@revisionId", revisionId);
-            return (await _connectionWrapper.QueryAsync<string>("GetItemDescription", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
-        }
-
         private void PopulateRelationshipInfos(List<Relationship> relationships, IDictionary<int, ItemDetails> itemDetailsDictionary, IDictionary<int, ItemLabel> itemLabelsDictionary)
         {
             ItemDetails item, project, artifact;
@@ -256,7 +243,7 @@ namespace ArtifactStore.Repositories
             if (pathInfoDictionary.Keys.Count == 0)
                 throw new ResourceNotFoundException($"Artifact in revision {revisionId} does not exist.", ErrorCodes.ResourceNotFound);
             var pathToProject = GetPathToProject(artifactId, pathInfoDictionary);
-            var description = (await GetItemDescription(itemId, userId, addDrafts, revisionId));
+            var description = (await _itemInfoRepository.GetItemDescription(itemId, userId, addDrafts, revisionId));
             return new RelationshipExtendedInfo { ArtifactId = artifactId, PathToProject = pathToProject, Description = description };
         }
 
@@ -273,7 +260,7 @@ namespace ArtifactStore.Repositories
                 var reviewPermissions = await _artifactPermissionsRepository.GetArtifactPermissions(distinctReviewIds, userId);
                 foreach (var reviewId in distinctReviewIds)
                 {
-                    if (HasPermissions(reviewId, reviewPermissions, RolePermissions.Read))
+                    if (SqlArtifactPermissionsRepository.HasPermissions(reviewId, reviewPermissions, RolePermissions.Read))
                     {
                         reviewIdsWithAccess.Add(reviewId);
                     }
@@ -304,11 +291,6 @@ namespace ArtifactStore.Repositories
                 result.ReviewArtifacts = referencedReviewArtifacts;
             }
             return result;
-        }
-        private bool HasPermissions(int itemId, Dictionary<int, RolePermissions> permissions, RolePermissions permissionType)
-        {
-            RolePermissions permission;
-            return permissions.TryGetValue(itemId, out permission) && permission.HasFlag(permissionType);
         }
     }
 }

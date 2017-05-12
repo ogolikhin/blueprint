@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Drawing;
+<<<<<<< HEAD
 using System.Drawing.Drawing2D;
+=======
+>>>>>>> origin/develop
 using System.Drawing.Imaging;
 using System.IO;
 
@@ -19,7 +22,10 @@ namespace ImageRenderService.ImageGen
 
         public void Save(Stream stream, ImageFormat format)
         {
+<<<<<<< HEAD
             //Image = ResizeImage(Image, 214, 108);
+=======
+>>>>>>> origin/develop
             Image.Save(stream, format);
         }
         public Bitmap Image { get; set; }
@@ -29,6 +35,7 @@ namespace ImageRenderService.ImageGen
         {
             Image.Dispose();
         }
+<<<<<<< HEAD
 
         public static Bitmap ResizeImage(Image image, int width, int height)
         {
@@ -54,5 +61,7 @@ namespace ImageRenderService.ImageGen
 
             return destImage;
         }
+=======
+>>>>>>> origin/develop
     }
 }

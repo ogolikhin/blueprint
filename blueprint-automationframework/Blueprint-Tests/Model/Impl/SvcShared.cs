@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Common;
+using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using Common;
-using Model.ArtifactModel;
-using Model.ArtifactModel.Impl;
 using Utilities;
 using Utilities.Facades;
 
@@ -27,12 +27,12 @@ namespace Model.Impl
 
         #region Artifacts methods
 
-        /// <seealso cref="ISvcShared.DiscardArtifacts(IUser, List{IArtifactBase}, List{HttpStatusCode})"/>
+        /// <seealso cref="ISvcShared.DiscardArtifacts(IUser, List{int}, List{HttpStatusCode})"/>
         public List<NovaDiscardArtifactResult> DiscardArtifacts(IUser user,
-            List<IArtifactBase> artifactsToDiscard,
+            List<int> artifactsIds,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return DiscardArtifacts(Address, user, artifactsToDiscard, expectedStatusCodes);
+            return DiscardArtifacts(Address, user, artifactsIds, expectedStatusCodes);
         }
 
         /// <summary>
@@ -42,19 +42,17 @@ namespace Model.Impl
         /// </summary>
         /// <param name="address">The base URL of the Blueprint server.</param>
         /// <param name="user">The user to authenticate to Blueprint.</param>
-        /// <param name="artifactsToDiscard">The artifact(s) having changes to be discarded.</param>
+        /// <param name="artifactsIds">The ID's of artifacts to be discarded.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
         /// <returns>The list of ArtifactResult objects created by the dicard artifacts request.</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
         public static List<NovaDiscardArtifactResult> DiscardArtifacts(string address,
             IUser user,
-            List<IArtifactBase> artifactsToDiscard,
+            List<int> artifactsIds,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(artifactsToDiscard, nameof(artifactsToDiscard));
 
-            var artifactsIds = artifactsToDiscard.Select(artifact => artifact.Id).ToList();
             var restApi = new RestApiFacade(address, user.Token?.AccessControlToken);
 
             var artifactResults = restApi.SendRequestAndDeserializeObject<NovaDiscardArtifactResults, List<int>>(
@@ -135,7 +133,7 @@ namespace Model.Impl
         /// <returns>List of LockResultInfo for the locked artifacts.</returns>
         public List<LockResultInfo> LockArtifacts(
             IUser user,
-            List<int> artifactIdsToLock,
+            IEnumerable<int> artifactIdsToLock,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -144,7 +142,7 @@ namespace Model.Impl
             var lockResults = restApi.SendRequestAndDeserializeObject<List<LockResultInfo>, List<int>>(
                 RestPaths.Svc.Shared.Artifacts.LOCK,
                 RestRequestMethod.POST,
-                jsonObject: artifactIdsToLock,
+                jsonObject: artifactIdsToLock.ToList(),
                 expectedStatusCodes: expectedStatusCodes,
                 shouldControlJsonChanges: false);
 

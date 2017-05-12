@@ -6,7 +6,6 @@ using Model.ArtifactModel.Impl;
 using Model.Common.Enums;
 using Model.Factories;
 using Model.Impl;
-using static Model.Impl.ArtifactStore;
 using Model.JobModel;
 using Model.ModelHelpers;
 using Model.OpenApiModel.Services;
@@ -22,6 +21,7 @@ using System.Linq;
 using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
+using static Model.Impl.ArtifactStore;
 
 namespace Helper
 {
@@ -168,13 +168,15 @@ namespace Helper
         /// <param name="user">User for authentication.</param>
         /// <param name="artifactType">ArtifactType.</param>
         /// <param name="parentArtifact">(optional) The parent artifact.  By default artifact will be created in root of the project.</param>
+        /// <param name="name">(optional) The name of the artifact.  By default a random name is used.</param>
         /// <returns>The new artifact object.</returns>
         public IOpenApiArtifact CreateAndSaveOpenApiArtifact(IProject project,
             IUser user,
             BaseArtifactType artifactType,
-            IArtifactBase parentArtifact = null)
+            IArtifactBase parentArtifact = null,
+            string name = null)
         {
-            var artifact = ArtifactFactory.CreateOpenApiArtifact(project, user, artifactType, parent: parentArtifact);
+            var artifact = ArtifactFactory.CreateOpenApiArtifact(project, user, artifactType, parent: parentArtifact, name: name);
             Artifacts.Add(artifact);
             artifact.RegisterObserver(this);
             artifact.Save();
@@ -440,8 +442,7 @@ namespace Helper
             int? parentId = null, double? orderIndex = null, string name = null, string artifactTypeName = null)
         {
             var wrappedArtifact = CreateNovaArtifact(user, project, itemType, parentId, orderIndex, name, artifactTypeName);
-            var response = wrappedArtifact.Publish(user);
-            wrappedArtifact.Artifact.Version = response.Artifacts[0].Version;   // Update Version from -1 to 1.
+            wrappedArtifact.Publish(user);
 
             return wrappedArtifact;
         }
@@ -540,13 +541,11 @@ namespace Helper
         /// <param name="user">The user creating the artifact.</param>
         /// <param name="itemType">The Nova base ItemType to create.</param>
         /// <returns>The Nova artifact wrapped in an IArtifact.</returns>
-        public IArtifact CreateWrapAndPublishNovaArtifactForStandardArtifactType(IProject project, IUser user, ItemTypePredefined itemType)
+        public ArtifactWrapper CreateWrapAndPublishNovaArtifactForStandardArtifactType(IProject project, IUser user, ItemTypePredefined itemType)
         {
-
             var artifactTypeName = ArtifactStoreHelper.GetStandardPackArtifactTypeName(itemType);
 
-            return CreateWrapAndPublishNovaArtifact(project, user, itemType,
-                artifactTypeName: artifactTypeName);
+            return CreateAndPublishNovaArtifact(user, project, itemType, artifactTypeName: artifactTypeName);
         }
 
         /// <summary>
@@ -743,9 +742,11 @@ namespace Helper
         {
             var artifactList = CreateAndSaveMultipleArtifacts(project, user, artifactType, numberOfArtifacts, parentId);
 
-            // TODO: Make one Publish call with multiple artifact Ids and update each artifact in the list with the results...
-            //       That would require you to extract some of the Publish logic from ArtifactWrapper into another function like UpdateArtifactAndMarkAsPublished().
-            artifactList.ForEach(a => a.Publish(user));
+            ArtifactStore.PublishArtifacts(artifactList.Select(a => a.Id), user);
+
+            // Update the artifact states manually because we didn't use ArtifactWrapper to Publish them.
+            artifactList.ForEach(a => a.UpdateArtifactState(ArtifactWrapper.ArtifactOperation.Publish));
+            artifactList.ForEach(a => a.Version = 1);
 
             return artifactList;
         }
@@ -757,17 +758,17 @@ namespace Helper
         /// <param name="user">The user who will create the artifacts.</param>
         /// <param name="artifactTypeChain">The artifact types of each artifact in the chain starting at the top parent.</param>
         /// <returns>The list of artifacts in the chain starting at the top parent.</returns>
-        public List<IArtifact> CreateSavedArtifactChain(IProject project, IUser user, BaseArtifactType[] artifactTypeChain)
+        public List<ArtifactWrapper> CreateSavedArtifactChain(IProject project, IUser user, ItemTypePredefined[] artifactTypeChain)
         {
             ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
 
-            var artifactChain = new List<IArtifact>();
-            IArtifact bottomArtifact = null;
+            var artifactChain = new List<ArtifactWrapper>();
+            ArtifactWrapper bottomArtifact = null;
 
             // Create artifact chain.
             foreach (var artifactType in artifactTypeChain)
             {
-                bottomArtifact = CreateAndSaveArtifact(project, user, artifactType, parent: bottomArtifact);
+                bottomArtifact = CreateNovaArtifact(user, project, artifactType, parentId: bottomArtifact?.Id);
                 artifactChain.Add(bottomArtifact);
             }
 
@@ -850,32 +851,76 @@ namespace Helper
         }
 
         /// <summary>
-        /// Creates a new Baseline. Optionally adds artifact using AddToBaseline function (not artifact update)
+        /// Creates a new Baseline, Baseline Folder or Review.
         /// </summary>
         /// <param name="user">The user to perform the operation.</param>
-        /// <param name="project">The project in which Baseline will be created.</param>
-        /// <param name="name">(optional) The name of Baseline to create. By default random name will be used.</param>
-        /// <param name="parentId">(optional) The id of the parent artifact where Baseline should be created. By default it will be created in the Baselines and Reviews folder.</param>
-        /// <param name="artifactToAddId">(optional) Artifact ID to be added to baseline.  By default empty baseline will be created.</param>
-        /// <returns>The Baseline artifact.</returns>
-        public ArtifactWrapper CreateBaseline(IUser user, IProject project, string name = null, int? parentId = null,
-            int? artifactToAddId = null)
+        /// <param name="project">The project in which Baseline, Baseline Folder or Review artifact will be created.</param>
+        /// <param name="artifactType">The artifact type to create (pass either ArtifactBaseline, BaselineFolder or ArtifactReviewPackage).</param>
+        /// <param name="name">(optional) The name of artifact to create.  By default a random name will be used.</param>
+        /// <param name="parentId">(optional) The ID of the parent artifact where this Baseline, Baseline Folder or Review should be created.  
+        ///     By default it will be created in the default Baselines and Reviews folder for the project.</param>
+        /// <returns>The Baseline, Baseline Folder or Review artifact.</returns>
+        public ArtifactWrapper CreateBaselineOrBaselineFolderOrReview(
+            IUser user,
+            IProject project,
+            BaselineAndCollectionTypePredefined artifactType,
+            string name = null,
+            int? parentId = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(project, nameof(project));
 
-            parentId = parentId?? project.GetDefaultBaselineFolder(user).Id;
+            parentId = parentId ?? project.GetDefaultBaselineFolder(user).Id;
 
             name = name ?? RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
-            var baselineArtifact = CreateNovaArtifact(user, project, ItemTypePredefined.ArtifactBaseline, parentId.Value,
-                name: name);
+            return CreateNovaArtifact(user, project, (ItemTypePredefined)artifactType, parentId.Value, name: name);
+        }
+
+        /// <summary>
+        /// Creates a new Baseline. Optionally adds artifact using AddToBaseline function (not artifact update)
+        /// </summary>
+        /// <param name="user">The user to perform the operation.</param>
+        /// <param name="project">The project in which Baseline will be created.</param>
+        /// <param name="name">(optional) The name of Baseline to create.  By default a random name will be used.</param>
+        /// <param name="parentId">(optional) The ID of the parent artifact where Baseline should be created.  
+        ///     By default it will be created in the default Baselines and Reviews folder for the project.</param>
+        /// <param name="artifactToAddId">(optional) Artifact ID to be added to baseline.  By default empty baseline will be created.</param>
+        /// <returns>The Baseline artifact.</returns>
+        public ArtifactWrapper CreateBaseline(
+            IUser user,
+            IProject project,
+            string name = null,
+            int? parentId = null,
+            int? artifactToAddId = null)
+        {
+            var baselineArtifact = CreateBaselineOrBaselineFolderOrReview(user, project, BaselineAndCollectionTypePredefined.ArtifactBaseline, name, parentId);
+
             if (artifactToAddId != null)
             {
                 var result = ArtifactStore.AddArtifactToBaseline(user, artifactToAddId.Value, baselineArtifact.Id);
                 Assert.GreaterOrEqual(result.ArtifactCount, 1, "At least one artifact should be added to Baseline.");
             }
+
             return baselineArtifact;
+        }
+
+        /// <summary>
+        /// Creates a new Baseline Folder.
+        /// </summary>
+        /// <param name="user">The user to perform the operation.</param>
+        /// <param name="project">The project in which Baseline Folder will be created.</param>
+        /// <param name="name">(optional) The name of Baseline Folder to create.  By default a random name will be used.</param>
+        /// <param name="parentId">(optional) The ID of the parent Baseline Folder where the Baseline Folder should be created.  
+        ///     By default it will be created in the default Baselines and Reviews folder for the project.</param>
+        /// <returns>The Baseline Folder artifact.</returns>
+        public ArtifactWrapper CreateBaselineFolder(
+            IUser user,
+            IProject project,
+            string name = null,
+            int? parentId = null)
+        {
+            return CreateBaselineOrBaselineFolderOrReview(user, project, BaselineAndCollectionTypePredefined.BaselineFolder, name, parentId);
         }
 
         /// <summary>
@@ -1015,6 +1060,75 @@ namespace Helper
         }
 
         #endregion Artifact Management
+
+        #region Process Artifact Management
+
+        /// <summary>
+        /// Creates and saves a new Nova Process artifact (wrapped inside an ProcessArtifactWrapper that tracks the state of the process artifact.).
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="project">The project where the Nova artifact should be created.</param>
+        /// <param name="parentId">(optional) The parent ID of this Nova artifact.
+        ///     By default the parent should be the project.</param>
+        /// <param name="orderIndex">(optional) The order index of this Nova artifact.
+        ///     By default the order index should be after the last artifact.</param>
+        /// <param name="name">(optional) The artifact name.  By default a random name is created.</param>
+        /// <returns>The Nova artifact wrapped in an ProcessArtifactWrapper that tracks the state of the artifact.</returns>
+        public ProcessArtifactWrapper CreateNovaProcessArtifact(
+            IUser user, IProject project,
+            int? parentId = null, double? orderIndex = null, string name = null)
+        {
+            ThrowIf.ArgumentNull(project, nameof(project));
+
+            name = name ?? RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+
+            var artifact  = Model.Impl.ArtifactStore.CreateArtifact(ArtifactStore.Address, user,
+                ItemTypePredefined.Process, name, project, parentId, orderIndex);
+
+            var process = Storyteller.GetNovaProcess(user, artifact.Id);
+
+            return WrapProcessArtifact(process, project, user);
+        }
+
+        /// <summary>
+        /// Creates and publish a new Nova Process artifact (wrapped inside an ProcessArtifactWrapper that tracks the state of the artifact.).
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="project">The project where the Nova Process artifact should be created.</param>
+        /// <param name="parentId">(optional) The parent of this Nova Process artifact.
+        ///     By default the parent should be the project.</param>
+        /// <param name="orderIndex">(optional) The order index of this Nova Process artifact.
+        ///     By default the order index should be after the last artifact.</param>
+        /// <param name="name">(optional) The artifact name.  By default a random name is created.</param>
+        /// <returns>The Nova Process artifact wrapped in an ProcessArtifactWrapper that tracks the state of the artifact.</returns>
+        public ProcessArtifactWrapper CreateAndPublishNovaProcessArtifact(
+            IUser user, IProject project,
+            int? parentId = null, double? orderIndex = null, string name = null)
+        {
+            var wrappedProcessArtifact = CreateNovaProcessArtifact(user, project, parentId, orderIndex, name);
+            wrappedProcessArtifact.Publish(user);
+
+            return wrappedProcessArtifact;
+        }
+
+        /// <summary>
+        /// Wraps an INovaProcess in an ProcessArtifactWrapper and adds it the list of artifacts that get disposed.
+        /// </summary>
+        /// <param name="novaProcess">The INovaProcess that was created by ArtifactStore.</param>
+        /// <param name="project">The project where the artifact was created.</param>
+        /// <param name="createdBy">The user that created this artifact.</param>
+        /// <returns>The ProcessArtifactWrapper for the novaProcessArtifact.</returns>
+        public ProcessArtifactWrapper WrapProcessArtifact(INovaProcess novaProcess, IProject project, IUser createdBy)
+        {
+            ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
+
+            var wrappedProcessArtifact = new ProcessArtifactWrapper(novaProcess, ArtifactStore, SvcShared, project, createdBy);
+            WrappedArtifactsToDispose.Add(wrappedProcessArtifact);
+
+            return wrappedProcessArtifact;
+        }
+
+        #endregion Process Artifact Management
 
         #region Nova Artifact Management
         public enum TestArtifactState
@@ -1270,23 +1384,24 @@ namespace Helper
         /// <param name="targets">The authentication targets.</param>
         /// <param name="instanceAdminRole">(optional) The Instance Admin Role to assign to the user.  Pass null if you don't want any role assigned.</param>
         /// <param name="source">(optional) Where the user exists.</param>
+        /// <param name="badToken">(optional) The invalid token to set.  Defaults to a token GUID that shouldn't exist.</param>
         /// <returns>A new user that has the requested access tokens.</returns>
         public IUser CreateUserWithInvalidToken(AuthenticationTokenTypes targets,
             InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
-            UserSource source = UserSource.Database)
+            UserSource source = UserSource.Database,
+            string badToken = CommonConstants.InvalidToken)
         {
             var user = CreateUserAndAddToDatabase(instanceAdminRole, source);
-            string fakeTokenValue = Guid.NewGuid().ToString("N");   // 'N' creates a 32-char string with no hyphens.
 
             if ((targets & AuthenticationTokenTypes.AccessControlToken) != 0)
             {
-                user.SetToken(fakeTokenValue);
+                user.SetToken(badToken);
             }
 
             if ((targets & AuthenticationTokenTypes.OpenApiToken) != 0)
             {
                 user.SetToken(I18NHelper.FormatInvariant("{0} {1}",
-                    BlueprintToken.OPENAPI_START_OF_TOKEN, fakeTokenValue));
+                    BlueprintToken.OPENAPI_START_OF_TOKEN, badToken));
             }
 
             return user;
@@ -1483,7 +1598,7 @@ namespace Helper
         /// </summary>
         /// <param name="role">The Project Role whose permissions you want to get.</param>
         /// <returns>The permissions for the Project Role.</returns>
-        private static RolePermissions GetRolePermissionsForProjectRole(ProjectRole role)
+        public static RolePermissions GetRolePermissionsForProjectRole(ProjectRole role)
         {
             var rolePermissions = RolePermissions.None;
 
@@ -1995,7 +2110,7 @@ namespace Helper
         }
 
         /// <summary>
-        /// Verifies that the error message returned in the rest response contains the expected message.
+        /// Verifies that the error message returned in the REST response equals the expected message.
         /// Ex. 'message="Expected error message"'
         /// </summary>
         /// <param name="restResponse">The RestResponse that was returned.</param>
@@ -2014,6 +2129,28 @@ namespace Helper
             Assert.AreEqual(expectedErrorMessage, errorMessage.Message,
                 "The error message does not contain the expected error message!\nActual Error Message: {0}",
                 errorMessage.Message);
+        }
+
+        /// <summary>
+        /// Verifies that the body returned in the REST response equals the expected string.
+        /// Ex. '"Unauthorized call"'
+        /// </summary>
+        /// <param name="restResponse">The RestResponse that was returned.</param>
+        /// <param name="expectedBody">The expected body contents.</param>
+        public static void ValidateBodyContents(RestResponse restResponse, string expectedBody)
+        {
+            ValidateNoStackTraceInResponse(restResponse);
+
+            string actualBody = null;
+
+            Assert.DoesNotThrow(() =>
+            {
+                actualBody = JsonConvert.DeserializeObject<string>(restResponse.Content);
+            }, "Failed to deserialize the content of the REST response into a MessageResult object!");
+
+            Assert.AreEqual(expectedBody, actualBody,
+                "The error message does not contain the expected string!\nActual body: '{0}'",
+                actualBody);
         }
 
         #endregion Custom Asserts
@@ -2046,7 +2183,7 @@ namespace Helper
                 {
                     foreach (var user in Users)
                     {
-                        ArtifactStore.DiscardArtifacts(artifacts: null, user: user, all: true);
+                        ArtifactStore.DiscardAllArtifacts(user);
                     }
 
                     var deleteExpectedStatusCodes = new List<System.Net.HttpStatusCode> { System.Net.HttpStatusCode.OK,

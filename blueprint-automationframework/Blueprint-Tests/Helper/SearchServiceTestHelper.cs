@@ -40,8 +40,29 @@ namespace Helper
 
             Logger.WriteTrace("{0}.{1} called.", nameof(SearchServiceTestHelper), nameof(SetupFullTextSearchData));
 
+            var artifacts = new List<ArtifactWrapper>();
+
+            var projectsSubset = new List<IProject> { projects[0], projects[1] };
+
+            // This keeps the artifact description constant for all created artifacts
+            var randomArtifactDescription = "Description " + RandomGenerator.RandomAlphaNumericUpperAndLowerCase(15);
+
             if (selectedBaseArtifactTypes == null)
             {
+                var randomBaselineName = "Artifact_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCase(15);
+                var randomCollectionName = "Artifact_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCase(15);
+                foreach (var project in projectsSubset)
+                    {
+                        var artifactBaseline = testHelper.CreateBaseline(user, project, name: randomBaselineName);
+                        artifactBaseline.SaveWithNewDescription(user, randomArtifactDescription);
+
+                        var artifactCollection = testHelper.CreateUnpublishedCollection(project, user, name: randomCollectionName);
+                        artifactCollection.SaveWithNewDescription(user, randomArtifactDescription);
+
+                        artifacts.Add(artifactBaseline);
+                        artifacts.Add(artifactCollection);
+                    }
+
                 selectedBaseArtifactTypes = new List<ItemTypePredefined>();
                 foreach (var tp in TestCaseSources.AllArtifactTypesForNovaRestMethods)
                 {
@@ -49,33 +70,27 @@ namespace Helper
                     selectedBaseArtifactTypes.Add(itm);
                 }
             }
+
             var baseArtifactTypes = selectedBaseArtifactTypes ??
                 (TestCaseSources.AllArtifactTypesForNovaRestMethods).Select(artifactType =>
                 (ItemTypePredefined)artifactType);
 
-            var artifacts = new List<ArtifactWrapper>();
-
-            var projectsSubset = new List<IProject> {projects[0], projects[1]};
-
-            // This keeps the artifact description constant for all created artifacts
-            var randomArtifactDescription = "Description " + RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces();
-
             foreach (var artifactType in baseArtifactTypes)
             {
-                var randomArtifactName = "Artifact_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces();
+                var randomArtifactName = "Artifact_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCase(15);
 
                 foreach (var project in projectsSubset)
                 {
-                    // Create artifact in first project with random Name & Description
+                    // Create artifact in the project with random Name & Description
                     var artifact = testHelper.CreateNovaArtifact(user, project, artifactType, name: randomArtifactName);
                     artifact.SaveWithNewDescription(user, randomArtifactDescription);
-
-                    artifact.Publish(user);
-                    artifact.RefreshArtifactFromServer(user);
 
                     artifacts.Add(artifact);
                 }
             }
+
+            artifacts.ForEach(a => a.Publish(user));
+            artifacts.ForEach(a => a.RefreshArtifactFromServer(user));
 
             // Wait for all artifacts to be available to the search service
             var searchCriteria = new FullTextSearchCriteria(randomArtifactDescription, projectIds: projectsSubset.Select(p => p.Id));
@@ -133,7 +148,7 @@ namespace Helper
                     (waitForArtifactsToDisappear && fullTextSearchMetaDataResult.TotalCount > artifactCount)
                     ));
 
-            var secondsSpentWaiting = (DateTime.Now - startTime).Seconds;
+            var secondsSpentWaiting = (DateTime.Now - startTime).TotalSeconds;
 
             var errorMessage = I18NHelper.FormatInvariant(
                     "Created artifact count of {0} does not match expected artifact count of {1} after {2} seconds.",
@@ -147,22 +162,22 @@ namespace Helper
         /// <summary>
         /// Gets the list of all Item Type Ids for a list of projects and base artifact types.
         /// </summary>
-        /// <param name="projects"></param>
-        /// <param name="baseArtifactTypes"></param>
+        /// <param name="projects">List of projects</param>
+        /// <param name="artifactTypes">List of Artifact Types</param>
         /// <returns>List of ItemTypeId</returns>
         public static List<int> GetItemTypeIdsForBaseArtifactTypes(List<IProject> projects,
-            List<BaseArtifactType> baseArtifactTypes)
+            List<ItemTypePredefined> artifactTypes)
         {
             ThrowIf.ArgumentNull(projects, nameof(projects));
-            ThrowIf.ArgumentNull(baseArtifactTypes, nameof(baseArtifactTypes));
+            ThrowIf.ArgumentNull(artifactTypes, nameof(artifactTypes));
 
             var itemTypeIds = new List<int>();
 
-            foreach (var baseArtifactType in baseArtifactTypes)
+            foreach (var baseArtifactType in artifactTypes)
             {
                 foreach (var project in projects)
                 {
-                    var itemTypeId = GetItemTypeIdForBaseArtifactType(project.ArtifactTypes, baseArtifactType);
+                    var itemTypeId = GetItemTypeIdForBaseArtifactType(project.NovaArtifactTypes, baseArtifactType);
 
                     itemTypeIds.Add(itemTypeId);
                 }
@@ -176,25 +191,14 @@ namespace Helper
         /// </summary>
         /// <param name="artifactTypes"></param>
         /// <param name="baseArtifactType"></param>
-        /// <param name="artifactTypeName"></param>
         /// <returns>An ItemTypeId</returns>
         public static int GetItemTypeIdForBaseArtifactType(
-            List<OpenApiArtifactType> artifactTypes,
-            BaseArtifactType baseArtifactType,
-            string artifactTypeName = null)
+            List<NovaArtifactType> artifactTypes,
+            ItemTypePredefined baseArtifactType)
         {
             ThrowIf.ArgumentNull(artifactTypes, nameof(artifactTypes));
 
-            OpenApiArtifactType artifactType;
-
-            if (artifactTypeName == null)
-            {
-                artifactType = artifactTypes.Find(t => t.BaseArtifactType == baseArtifactType);
-            }
-            else
-            {
-                artifactType = artifactTypes.Find(t => t.BaseArtifactType == baseArtifactType && t.Name == artifactTypeName);
-            }
+            var artifactType = artifactTypes.Find(t => t.PredefinedType == baseArtifactType);
 
             return artifactType.Id;
         }

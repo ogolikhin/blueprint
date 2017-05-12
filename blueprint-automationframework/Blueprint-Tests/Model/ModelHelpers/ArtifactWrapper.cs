@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
 using Model.ArtifactModel;
-using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
 using Utilities;
 using Utilities.Factories;
 
@@ -131,19 +130,8 @@ namespace Model.ModelHelpers
 
             var response = ArtifactStore.DeleteArtifact(Artifact.Id, user);
 
-            ArtifactState.IsDraft = false;
-
-            // If the artifact was published, you need to publish after delete to permanently delete it.
-            if (ArtifactState.IsPublished)
-            {
-                ArtifactState.IsMarkedForDeletion = true;
-            }
-            else
-            {
-                ArtifactState.LockOwner = null;
-                ArtifactState.IsDeleted = true;
-            }
-
+            UpdateArtifactState(ArtifactOperation.Delete);
+            
             return response;
         }
 
@@ -156,15 +144,9 @@ namespace Model.ModelHelpers
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            // TODO: Refactor ArtifactStore.DiscardArtifacts to not be static...
-            var response = Model.Impl.ArtifactStore.DiscardArtifacts(ArtifactStore.Address, new List<int> { Artifact.Id }, user);
+            var response = ArtifactStore.DiscardArtifact(user, Artifact.Id);
 
-            ArtifactState.LockOwner = null;
-            ArtifactState.IsDraft = false;
-            ArtifactState.IsMarkedForDeletion = false;
-
-            // Create & Discard = Deleted.  Published & Discard = not Deleted.
-            ArtifactState.IsDeleted = !ArtifactState.IsPublished;
+            UpdateArtifactState(ArtifactOperation.Discard);
 
             return response;
         }
@@ -180,7 +162,7 @@ namespace Model.ModelHelpers
 
             var response = SvcShared.LockArtifacts(user, new List<int> { Artifact.Id });
 
-            ArtifactState.LockOwner = user;
+            UpdateArtifactState(ArtifactOperation.Lock, user);
 
             return response;
         }
@@ -201,7 +183,8 @@ namespace Model.ModelHelpers
             var movedArtifact = ArtifactStore.MoveArtifact(user, Id, newParent, orderIndex);
 
             Artifact = movedArtifact;
-            ArtifactState.IsDraft = true;
+
+            UpdateArtifactState(ArtifactOperation.Move);
 
             return this;
         }
@@ -214,24 +197,15 @@ namespace Model.ModelHelpers
         /// </summary>
         /// <param name="user">The user to perform the publish.</param>
         /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
-        public NovaArtifactsAndProjectsResponse Publish(IUser user)
+        public INovaArtifactsAndProjectsResponse Publish(IUser user)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            var response = ArtifactStore.PublishArtifacts(new List<int> { Artifact.Id }, user);
+            var response = ArtifactStore.PublishArtifact(Artifact.Id, user);
 
             Artifact.Version = response.Artifacts[0].Version;
 
-            // If it was marked for deletion, publishing it will make it permanently deleted.
-            if (ArtifactState.IsMarkedForDeletion)
-            {
-                ArtifactState.IsDeleted = true;
-            }
-
-            ArtifactState.LockOwner = null;
-            ArtifactState.IsDraft = false;
-            ArtifactState.IsPublished = true;
-            ArtifactState.IsMarkedForDeletion = false;
+            UpdateArtifactState(ArtifactOperation.Publish);
 
             return response;
         }
@@ -240,7 +214,7 @@ namespace Model.ModelHelpers
         /// Gets the artifact from ArtifactStore and replaces the current artifact with the properties returned from the server.
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>
-        public void RefreshArtifactFromServer(IUser user)
+        public virtual void RefreshArtifactFromServer(IUser user)
         {
             Artifact = ArtifactStore.GetArtifactDetails(user, Id);
         }
@@ -280,16 +254,88 @@ namespace Model.ModelHelpers
         /// <param name="user">The user to perform the update.</param>
         /// <param name="updateArtifact">The artifact whose non-null properties will be used to update this artifact.</param>
         /// <returns>The result of the update artifact call.</returns>
-        public INovaArtifactDetails Update(IUser user, INovaArtifactDetails updateArtifact)
+        public virtual INovaArtifactDetails Update(IUser user, INovaArtifactDetails updateArtifact)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(updateArtifact, nameof(updateArtifact));
 
             var updatedArtifact = ArtifactStore.UpdateArtifact(user, updateArtifact);
 
-            ArtifactState.IsDraft = true;
+            UpdateArtifactState(ArtifactOperation.Update);
 
             return updatedArtifact;
+        }
+
+        /// <summary>
+        /// Updates the internal artifact state based on the operation performed.
+        /// </summary>
+        /// <param name="operation">The operation that was performed on the artifact.</param>
+        /// <param name="lockOwner">(optional) The lock owner to set.  NOTE: This is only needed if operation = Lock.</param>
+        public void UpdateArtifactState(ArtifactOperation operation, IUser lockOwner = null)
+        {
+            switch (operation)
+            {
+                case ArtifactOperation.Delete:
+                    // If the artifact was published, you need to publish after delete to permanently delete it.
+                    if (ArtifactState.IsPublished)
+                    {
+                        ArtifactState.IsMarkedForDeletion = true;
+                    }
+                    else
+                    {
+                        ArtifactState.LockOwner = null;
+                        ArtifactState.IsDeleted = true;
+                    }
+
+                    ArtifactState.IsDraft = false;
+                    break;
+
+                case ArtifactOperation.Discard:
+                    ArtifactState.LockOwner = null;
+                    ArtifactState.IsDraft = false;
+                    ArtifactState.IsMarkedForDeletion = false;
+                    
+                    // Create & Discard = Deleted.  Published & Discard = not Deleted.
+                    ArtifactState.IsDeleted = !ArtifactState.IsPublished;
+                    break;
+
+                case ArtifactOperation.Lock:
+                    ThrowIf.ArgumentNull(lockOwner, nameof(lockOwner));
+                    ArtifactState.LockOwner = lockOwner;
+                    break;
+
+                case ArtifactOperation.Publish:
+                    // If it was marked for deletion, publishing it will make it permanently deleted.
+                    if (ArtifactState.IsMarkedForDeletion)
+                    {
+                        ArtifactState.IsDeleted = true;
+                    }
+
+                    ArtifactState.LockOwner = null;
+                    ArtifactState.IsDraft = false;
+                    ArtifactState.IsPublished = true;
+                    ArtifactState.IsMarkedForDeletion = false;
+                    break;
+
+                case ArtifactOperation.Move:
+                case ArtifactOperation.Update:
+                    ArtifactState.IsDraft = true;
+                    break;
+
+                default:
+                    throw new ArgumentException("An invalid ArtifactOperation was passed!", nameof(operation));
+            }
+        }
+
+        public enum ArtifactOperation
+        {
+            Copy,
+            Delete,
+            Discard,
+            Lock,
+            Move,
+            Publish,
+            Update
         }
 
         #region INovaArtifactObservable members

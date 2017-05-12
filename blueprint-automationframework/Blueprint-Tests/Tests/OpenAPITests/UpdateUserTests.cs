@@ -38,7 +38,9 @@ namespace OpenAPITests
         public void SetUp()
         {
             Helper = new TestHelper();
-            _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.OpenApiToken);
+            _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            // We need to have AccessControl token in order to pass it to svc/artifactstore/projects/1/meta/customtypes call in
+            // a test below. There might be more test cases added with similar functionality in the future.
         }
 
         [TearDown]
@@ -109,9 +111,9 @@ namespace OpenAPITests
             var singleUserDataToUpdate = CreateUserDataModelForUpdate(userToUpdate.Username, propertiesToUpdate);
 
             // Now update non-string properties.
-            singleUserDataToUpdate.Groups.AddRange(groups);
+            singleUserDataToUpdate.AddGroups(groups);
             singleUserDataToUpdate.GroupIds.AddRange(groups.Select(g => g.GroupId));
-            singleUserDataToUpdate.ExpirePassword = true;
+            singleUserDataToUpdate.ExpiredPassword = true;
             singleUserDataToUpdate.Enabled = userEnabled;
             singleUserDataToUpdate.FallBack = false;
 

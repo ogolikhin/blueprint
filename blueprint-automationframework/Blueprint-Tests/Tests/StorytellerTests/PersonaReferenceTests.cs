@@ -5,18 +5,17 @@ using Model;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
+using Model.Common.Enums;
 using Model.Factories;
 using Model.StorytellerModel;
+using Model.StorytellerModel.Enums;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
-using Model.StorytellerModel.Enums;
 using TestCommon;
 using Utilities;
 using Utilities.Factories;
-using Model.Common.Enums;
-using Model.ModelHelpers;
 
 namespace StorytellerTests
 {
@@ -58,8 +57,8 @@ namespace StorytellerTests
         public void PersonaReference_MoveReferenceInTask_VerifyNoChangeInPersonaReference(string taskName)
         {
             // Setup: Create a default process and update with the added persona reference
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _authorFullAccess);
-            var addedPersonaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _authorFullAccess);
+            var addedPersonaReference = AddPersonaReferenceToTask(taskName, novaProcess.Process, _authorFullAccess, _project);
             var personaReferenceArtifact = Helper.WrappedArtifactsToDispose.Find(a => a.Id == addedPersonaReference.Id);
 
             // Execution: Move the persona reference to a new folder and update the process
@@ -68,13 +67,13 @@ namespace StorytellerTests
             personaReferenceArtifact.MoveArtifact(_authorFullAccess, folderArtifact.Id);
 
             // Update and save the process; Get the persona reference from the saved process
-            var savedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _authorFullAccess);
-            var savedPersonaReference = GetPersonaReferenceFromTask(taskName, savedProcess);
+            var savedProcess = StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _authorFullAccess);
+            var savedPersonaReference = GetPersonaReferenceFromTask(taskName, savedProcess.Process);
 
             // Validation: Verify that there is no change in personaReference before and after the Move
             ArtifactReference.AssertAreEqual(addedPersonaReference, savedPersonaReference);
 
-            AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, savedProcess);
+            AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, savedProcess.Process);
         }
 
         [TestCase(Process.DefaultUserTaskName)]
@@ -85,17 +84,17 @@ namespace StorytellerTests
         {
             // Setup: Create a default process and update with the added persona reference from different project
             var projects = ProjectFactory.GetProjects(_adminUser, numberOfProjects: 2);
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, projects[0], _adminUser);
-            var addedPersonaReferenceFromDifferentProject = AddPersonaReferenceToTask(taskName, process, _adminUser, projects[1]);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(projects[0], _adminUser);
+            var addedPersonaReferenceFromDifferentProject = AddPersonaReferenceToTask(taskName, novaProcess.Process, _adminUser, projects[1]);
 
             // Execution: update the process with addedPersonaReference from different project
-            var savedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _adminUser);
-            var savedPersonaReference = GetPersonaReferenceFromTask(taskName, savedProcess);
+            var savedProcess = StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _adminUser);
+            var savedPersonaReference = GetPersonaReferenceFromTask(taskName, savedProcess.Process);
 
             // Validation: Verify that there is no change in personaReference before and after the process update
             ArtifactReference.AssertAreEqual(addedPersonaReferenceFromDifferentProject, savedPersonaReference);
 
-            AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, savedProcess);
+            AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, savedProcess.Process);
         }
 
         [TestCase(Process.DefaultUserTaskName)]
@@ -107,20 +106,22 @@ namespace StorytellerTests
             // Setup: Create a default process and add an inaccessible persona reference 
             var userWithoutPermissionToPersonaReference = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, userWithoutPermissionToPersonaReference);
-            var defaultPersonaReference = GetPersonaReferenceFromTask(taskName, process);
-            var addedPersonaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, userWithoutPermissionToPersonaReference);
+            var defaultPersonaReference = GetPersonaReferenceFromTask(taskName, novaProcess.Process);
+            var addedPersonaReference = AddPersonaReferenceToTask(taskName, novaProcess.Process, _authorFullAccess, _project);
             var personaReferenceArtifact = Helper.WrappedArtifactsToDispose.Find(a => a.Id == addedPersonaReference.Id);
 
             Helper.AssignProjectRolePermissionsToUser(userWithoutPermissionToPersonaReference, TestHelper.ProjectRole.None, _project, personaReferenceArtifact);
 
             // Execute: Update the process with inaccessible persona reference
-            IProcess savedProcess = null;
-            Assert.DoesNotThrow(() => savedProcess = Helper.Storyteller.UpdateProcess(userWithoutPermissionToPersonaReference, process),
-                "PATCH process call failed when using process whose Id is {0}!", process.Id);
+            INovaProcess savedNovaProcess = null;
+            Assert.DoesNotThrow(() => savedNovaProcess = Helper.ArtifactStore.UpdateNovaProcess(userWithoutPermissionToPersonaReference, novaProcess),
+                "PATCH process call failed when using process whose Id is {0}!", novaProcess.Id);
+
+            savedNovaProcess = Helper.Storyteller.GetNovaProcess(userWithoutPermissionToPersonaReference, savedNovaProcess.Id);
 
             // Validation: Verify that persona reference from updated process is default persona
-            var savedPersonaReference = GetPersonaReferenceFromTask(taskName, savedProcess);
+            var savedPersonaReference = GetPersonaReferenceFromTask(taskName, savedNovaProcess.Process);
             ArtifactReference.AssertAreEqual(defaultPersonaReference, savedPersonaReference);
 
             Assert.AreEqual(defaultPersonaReference.Name, savedPersonaReference.Name,
@@ -139,30 +140,30 @@ namespace StorytellerTests
             // Setup: Create and publish the process with a persona reference
             var userWithoutPermission= Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _authorFullAccess);
-            var addedPersonaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _authorFullAccess);
+            var addedPersonaReference = AddPersonaReferenceToTask(taskName, novaProcess.Process, _authorFullAccess, _project);
             var personaReferenceArtifact = Helper.WrappedArtifactsToDispose.Find(a => a.Id == addedPersonaReference.Id);
 
             Helper.AssignProjectRolePermissionsToUser(userWithoutPermission, TestHelper.ProjectRole.None, _project, personaReferenceArtifact);
 
-            var publishedProcess = StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, Helper.Storyteller, _authorFullAccess);
-            var personaReferencBeforeUpdate = GetPersonaReferenceFromTask(taskName, publishedProcess);
+            var publishedNovaProcess = StorytellerTestHelper.UpdateVerifyAndPublishNovaProcess(novaProcess.NovaProcess, _authorFullAccess);
+            var personaReferencBeforeUpdate = GetPersonaReferenceFromTask(taskName, publishedNovaProcess.Process);
 
-            var anotherPersonaReference = AddPersonaReferenceToTask(taskName, publishedProcess, _authorFullAccess, _project);
+            var anotherPersonaReference = AddPersonaReferenceToTask(taskName, publishedNovaProcess.Process, _authorFullAccess, _project);
             var anotherPersonaReferenceArtifact = Helper.WrappedArtifactsToDispose.Find(a => a.Id == anotherPersonaReference.Id);
 
             Helper.AssignProjectRolePermissionsToUser(userWithoutPermission, TestHelper.ProjectRole.None, _project, anotherPersonaReferenceArtifact);
 
             // Execute: update and publish process with user that doesn't have permission to the persona reference.
-            Helper.Storyteller.UpdateProcess(userWithoutPermission, publishedProcess);
+            Helper.Storyteller.UpdateProcess(userWithoutPermission, publishedNovaProcess.Process);
 
-            Assert.DoesNotThrow(() => Helper.Storyteller.PublishProcess(userWithoutPermission, publishedProcess),
-                "POST process call failed when using process whose Id is {0}!", publishedProcess.Id);
+            Assert.DoesNotThrow(() => Helper.Storyteller.PublishProcess(userWithoutPermission, publishedNovaProcess.Process),
+                "POST process call failed when using process whose Id is {0}!", publishedNovaProcess.Id);
 
             // Validation: Get persona references with users with and without permission to the persona reference
-            var novaProcessWithoutPermission = Helper.Storyteller.GetNovaProcess(userWithoutPermission, publishedProcess.Id);
+            var novaProcessWithoutPermission = Helper.Storyteller.GetNovaProcess(userWithoutPermission, publishedNovaProcess.Id);
             var personaReferenceWithoutPermission = GetPersonaReferenceFromTask(taskName, novaProcessWithoutPermission.Process);
-            var novaProcessWithPermission = Helper.Storyteller.GetNovaProcess(_authorFullAccess, publishedProcess.Id);
+            var novaProcessWithPermission = Helper.Storyteller.GetNovaProcess(_authorFullAccess, publishedNovaProcess.Id);
             var personaReferenceWithPermission = GetPersonaReferenceFromTask(taskName, novaProcessWithPermission.Process);
 
             var inaccessiblePersonaReference = CreateInaccessiblePersonaReference(personaReferenceArtifact);
@@ -185,12 +186,12 @@ namespace StorytellerTests
         public void PersonaReference_AddNonActorAsReferenceToTask_400BadRequest(string taskName)
         {
             // Setup: Create a process and add non-actor artifact as a persona reference to a process artifact task
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _authorFullAccess);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _authorFullAccess);
 
-            AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project, ItemTypePredefined.Document);
+            AddPersonaReferenceToTask(taskName, novaProcess.Process, _authorFullAccess, _project, ItemTypePredefined.Document);
 
             // Execute: Update the process with non-actor artifact as a persona reference
-            var ex = Assert.Throws<Http500InternalServerErrorException>(() => StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _authorFullAccess),
+            var ex = Assert.Throws<Http500InternalServerErrorException>(() => StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _authorFullAccess),
                 "Update process call should return 400 Bad Request when using with invalid non-actor persona reference!");
 
             // Validation: Verify that error code returned from the error response
@@ -211,18 +212,18 @@ namespace StorytellerTests
         {
             // Setup:
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _authorFullAccess);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _authorFullAccess);
 
-            var addedPersonaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
+            var addedPersonaReference = AddPersonaReferenceToTask(taskName, novaProcess.Process, _authorFullAccess, _project);
 
             // Execute & Verify:
-            var savedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _authorFullAccess);
+            var savedProcess = StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess.NovaProcess, _authorFullAccess);
 
-            var savedPersonaReference = GetPersonaReferenceFromTask(taskName, savedProcess);
+            var savedPersonaReference = GetPersonaReferenceFromTask(taskName, savedProcess.Process);
 
             ArtifactReference.AssertAreEqual(addedPersonaReference, savedPersonaReference);
 
-            AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, savedProcess);
+            AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, savedProcess.Process);
         }
 
         [TestCase(Process.DefaultUserTaskName)]
@@ -233,29 +234,30 @@ namespace StorytellerTests
         {
             // Setup:
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _authorFullAccess);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _authorFullAccess);
 
-            var addedPersonaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
+            var addedPersonaReference = AddPersonaReferenceToTask(taskName, novaProcess.Process, _authorFullAccess, _project);
 
             // Publish Process with added persona reference
-            var publishedProcess = StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, Helper.Storyteller, _authorFullAccess);
+            var publishedNovaProcess = StorytellerTestHelper.UpdateVerifyAndPublishNovaProcess(novaProcess.NovaProcess, _authorFullAccess);
 
-            var publishedPersonaReference = GetPersonaReferenceFromTask(taskName, publishedProcess);
+            var publishedPersonaReference = GetPersonaReferenceFromTask(taskName, publishedNovaProcess.Process);
 
             ArtifactReference.AssertAreEqual(addedPersonaReference, publishedPersonaReference);
 
-            AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, publishedProcess);
+            AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, publishedNovaProcess.Process);
 
-            var defaultPersonaReference = DeletePersonaReferenceFromTask(taskName, publishedProcess);
+            var defaultPersonaReference = DeletePersonaReferenceFromTask(taskName, publishedNovaProcess.Process);
 
             // Execute & Verify:
-            var savedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(publishedProcess, Helper.Storyteller, _authorFullAccess);
+            novaProcess.Lock(_authorFullAccess);
+            var savedNovaProcess = StorytellerTestHelper.UpdateAndVerifyNovaProcess(publishedNovaProcess, _authorFullAccess);
 
-            var savedPersonaReference = GetPersonaReferenceFromTask(taskName, savedProcess);
+            var savedPersonaReference = GetPersonaReferenceFromTask(taskName, savedNovaProcess.Process);
 
             ArtifactReference.AssertAreEqual(defaultPersonaReference, savedPersonaReference);
 
-            AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, savedProcess);
+            AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, savedNovaProcess.Process);
         }
 
         [TestCase(Process.DefaultUserTaskName)]
@@ -266,30 +268,31 @@ namespace StorytellerTests
         {
             // Setup:
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _authorFullAccess);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _authorFullAccess);
 
-            var addedPersonaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
+            var addedPersonaReference = AddPersonaReferenceToTask(taskName, novaProcess.Process, _authorFullAccess, _project);
 
             // Publish Process with added persona reference
-            var publishedProcess = StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, Helper.Storyteller, _authorFullAccess);
+            var publishedNovaProcess = StorytellerTestHelper.UpdateVerifyAndPublishNovaProcess(novaProcess.NovaProcess, _authorFullAccess);
 
-            var publishedPersonaReference = GetPersonaReferenceFromTask(taskName, publishedProcess);
+            var publishedPersonaReference = GetPersonaReferenceFromTask(taskName, publishedNovaProcess.Process);
 
             ArtifactReference.AssertAreEqual(addedPersonaReference, publishedPersonaReference);
 
-            AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, publishedProcess);
+            AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, publishedNovaProcess.Process);
 
             // Changes the persona reference to a new artifact reference
-            var changedPersonaReference = AddPersonaReferenceToTask(taskName, publishedProcess, _authorFullAccess, _project);
+            var changedPersonaReference = AddPersonaReferenceToTask(taskName, publishedNovaProcess.Process, _authorFullAccess, _project);
 
             // Execute & Verify:
-            var savedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(publishedProcess, Helper.Storyteller, _authorFullAccess);
+            novaProcess.Lock(_authorFullAccess);
+            var savedNovaProcess = StorytellerTestHelper.UpdateAndVerifyNovaProcess(publishedNovaProcess, _authorFullAccess);
 
-            var savedPersonaReference = GetPersonaReferenceFromTask(taskName, savedProcess);
+            var savedPersonaReference = GetPersonaReferenceFromTask(taskName, savedNovaProcess.Process);
 
             ArtifactReference.AssertAreEqual(changedPersonaReference, savedPersonaReference);
 
-            AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, savedProcess);
+            AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, savedNovaProcess.Process);
         }
 
         [TestCase(Process.DefaultUserTaskName)]
@@ -300,14 +303,14 @@ namespace StorytellerTests
         {
             // Setup:
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _authorFullAccess);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _authorFullAccess);
 
-            var personaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
+            var personaReference = AddPersonaReferenceToTask(taskName, novaProcess.Process, _authorFullAccess, _project);
 
             // Publish Process with added persona reference
-            var publishedProcess = StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, Helper.Storyteller, _authorFullAccess);
+            var publishedNovaProcess = StorytellerTestHelper.UpdateVerifyAndPublishNovaProcess(novaProcess.NovaProcess, _authorFullAccess);
 
-            AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, publishedProcess);
+            AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, publishedNovaProcess.Process);
 
             // Get the actor artifact from the persona reference
             var actorArtifact = Helper.WrappedArtifactsToDispose.Find(a => a.Id == personaReference.Id);
@@ -321,7 +324,7 @@ namespace StorytellerTests
             actorArtifact.Update(_authorFullAccess, actorArtifact.Artifact);
 
             // Verify:
-            var updatedNovaProcess = Helper.Storyteller.GetNovaProcess(_authorFullAccess, process.Id);
+            var updatedNovaProcess = Helper.Storyteller.GetNovaProcess(_authorFullAccess, novaProcess.Id);
             var updatedProcess = updatedNovaProcess.Process;
             var task = updatedProcess.GetProcessShapeByShapeName(taskName);
             var updatedPersonaReferenceName = task.PersonaReference.Name;
@@ -340,17 +343,17 @@ namespace StorytellerTests
         {
             // Setup:
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _authorFullAccess);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _authorFullAccess);
 
             // Get persona reference and persona actor artifact
-            var personaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
+            var personaReference = AddPersonaReferenceToTask(taskName, novaProcess.Process, _authorFullAccess, _project);
             var personaActorArtifact = Helper.WrappedArtifactsToDispose.Find(a => a.Id == personaReference.Id);
 
             //Execute:
             // Update process and publish
-            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, Helper.Storyteller, _authorFullAccess);
+            StorytellerTestHelper.UpdateVerifyAndPublishNovaProcess(novaProcess.NovaProcess, _authorFullAccess);
 
-            var personaRelationship = GetPersonaRelationship(taskName, process, personaReference);
+            var personaRelationship = GetPersonaRelationship(taskName, novaProcess.Process, personaReference);
 
             // Verify:
             StorytellerTestHelper.AssertPersonaReferenceRelationshipIsCorrect(personaRelationship, _project, personaActorArtifact);
@@ -364,25 +367,26 @@ namespace StorytellerTests
         {
             // Setup:
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _authorFullAccess);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _authorFullAccess);
 
             // Get persona reference and persona actor artifact
-            var personaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
+            var personaReference = AddPersonaReferenceToTask(taskName, novaProcess.Process, _authorFullAccess, _project);
             var personaActorArtifact = Helper.WrappedArtifactsToDispose.Find(a => a.Id == personaReference.Id);
 
             // Update process and publish
-            var updatedProcess = StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, Helper.Storyteller, _authorFullAccess);
+            var updatedNovaProcess = StorytellerTestHelper.UpdateVerifyAndPublishNovaProcess(novaProcess.NovaProcess, _authorFullAccess);
 
-            var personaRelationship = GetPersonaRelationship(taskName, process, personaReference);
+            var personaRelationship = GetPersonaRelationship(taskName, novaProcess.Process, personaReference);
 
             StorytellerTestHelper.AssertPersonaReferenceRelationshipIsCorrect(personaRelationship, _project, personaActorArtifact);
 
-            DeletePersonaReferenceFromTask(taskName, updatedProcess);
+            DeletePersonaReferenceFromTask(taskName, updatedNovaProcess.Process);
 
             // Execute & Verify:
-            StorytellerTestHelper.UpdateVerifyAndPublishProcess(updatedProcess, Helper.Storyteller, _authorFullAccess);
+            novaProcess.Lock(_authorFullAccess);
+            StorytellerTestHelper.UpdateVerifyAndPublishNovaProcess(updatedNovaProcess, _authorFullAccess);
 
-            var updatedPersonaRelationship = GetPersonaRelationship(taskName, process, personaReference);
+            var updatedPersonaRelationship = GetPersonaRelationship(taskName, novaProcess.Process, personaReference);
 
             Assert.IsNull(updatedPersonaRelationship, "There should no longer be a persona relationship, but one exists!");
         }
@@ -394,16 +398,16 @@ namespace StorytellerTests
         public void PersonaReference_UserStoryGenerated_VerifyPersonaNameInProperty(string taskName)
         {
             // Setup:
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _authorFullAccess);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _authorFullAccess);
 
-            var addedPersonaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
+            var addedPersonaReference = AddPersonaReferenceToTask(taskName, novaProcess.Process, _authorFullAccess, _project);
             Assert.IsNotNull(addedPersonaReference, "Persona was not added to task!");
 
-            var publishedProcess = StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, Helper.Storyteller, _authorFullAccess);
-            Assert.IsNotNull(publishedProcess, "There was a problem in process verification!");
+            var publishedNovaProcess = StorytellerTestHelper.UpdateVerifyAndPublishNovaProcess(novaProcess.NovaProcess, _authorFullAccess);
+            Assert.IsNotNull(publishedNovaProcess, "There was a problem in process verification!");
 
             // Execute:
-            var userStories = Helper.Storyteller.GenerateUserStories(_authorFullAccess, process);
+            var userStories = Helper.Storyteller.GenerateUserStories(_authorFullAccess, novaProcess.Process);
 
             // Verify:
             Assert.IsNotNull(userStories, "There is no user story generated!");
@@ -414,12 +418,12 @@ namespace StorytellerTests
 
             if (taskName == Process.DefaultUserTaskName)
             {
-                expectedPersonaName = I18NHelper.FormatInvariant("Given the System is Precondition When {0} attempts to {1} Then the System will be {2}", addedPersonaReference.Name,
+                expectedPersonaName = I18NHelper.FormatInvariant("Given the System is Precondition\r\nWhen {0} attempts to {1}\r\nThen the System will be {2}", addedPersonaReference.Name,
                     Process.DefaultUserTaskName, Process.DefaultSystemTaskName);
             }
             else
             {
-                expectedPersonaName = I18NHelper.FormatInvariant("Given the System is Precondition When User attempts to {0} Then the {1} will be {2}", Process.DefaultUserTaskName,
+                expectedPersonaName = I18NHelper.FormatInvariant("Given the System is Precondition\r\nWhen User attempts to {0}\r\nThen the {1} will be {2}", Process.DefaultUserTaskName,
                     addedPersonaReference.Name, Process.DefaultSystemTaskName);
             }
 
@@ -433,26 +437,26 @@ namespace StorytellerTests
         public void PersonaReference_ActorArtifactDeleted_UserStoryGenerated_VerifyDefaultNameInProperty(string taskName)
         {
             // Setup:
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _authorFullAccess);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _authorFullAccess);
 
-            var addedPersonaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
+            var addedPersonaReference = AddPersonaReferenceToTask(taskName, novaProcess.Process, _authorFullAccess, _project);
             Assert.IsNotNull(addedPersonaReference, "Persona was not added to task!");
 
-            var publishedProcess = StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, Helper.Storyteller, _authorFullAccess);
-            Assert.IsNotNull(publishedProcess, "There was a problem in process verification!");
+            var publishedNovaProcess = StorytellerTestHelper.UpdateVerifyAndPublishNovaProcess(novaProcess.NovaProcess, _authorFullAccess);
+            Assert.IsNotNull(publishedNovaProcess, "There was a problem in process verification!");
 
             // Delete Actor
             var actor = Helper.WrappedArtifactsToDispose.Find(a => a.Id == addedPersonaReference.Id);
             actor.Delete(_authorFullAccess);
 
             // Execute:
-            var userStories = Helper.Storyteller.GenerateUserStories(_authorFullAccess, process);
+            var userStories = Helper.Storyteller.GenerateUserStories(_authorFullAccess, novaProcess.Process);
 
             // Verify:
             Assert.IsNotNull(userStories, "There is no user story generated!");
 
             var returnedProperty = userStories.First().CustomProperties.Find(p => p.Name == "ST-Acceptance Criteria");
-            var expectedUserStoryText = I18NHelper.FormatInvariant("Given the System is Precondition When User attempts to {0} Then the System will be {1}",
+            var expectedUserStoryText = I18NHelper.FormatInvariant("Given the System is Precondition\r\nWhen User attempts to {0}\r\nThen the System will be {1}",
                 Process.DefaultUserTaskName, Process.DefaultSystemTaskName);
             Assert.AreEqual(expectedUserStoryText, ConvertHtmlToText(returnedProperty.Value), "Generated user story does not have default persona names!");
         }
@@ -466,13 +470,13 @@ namespace StorytellerTests
             // Setup:
             const string INACCESSIBLE_ACTOR = "Inaccessible Actor";
 
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _authorFullAccess);
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(_project, _authorFullAccess);
 
-            var addedPersonaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
+            var addedPersonaReference = AddPersonaReferenceToTask(taskName, novaProcess.Process, _authorFullAccess, _project);
             Assert.IsNotNull(addedPersonaReference, "Persona was not added to task!");
 
-            var publishedProcess = StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, Helper.Storyteller, _authorFullAccess);
-            Assert.IsNotNull(publishedProcess, "There was a problem in process verification!");
+            var publishedNovaProcess = StorytellerTestHelper.UpdateVerifyAndPublishNovaProcess(novaProcess.NovaProcess, _authorFullAccess);
+            Assert.IsNotNull(publishedNovaProcess, "There was a problem in process verification!");
 
             var actor = Helper.WrappedArtifactsToDispose.Find(a => a.Id == addedPersonaReference.Id);
 
@@ -480,7 +484,7 @@ namespace StorytellerTests
             Helper.AssignProjectRolePermissionsToUser(userWithoutPermissions, TestHelper.ProjectRole.None, _project, actor);
 
             // Execute:
-            var userStories = Helper.Storyteller.GenerateUserStories(userWithoutPermissions, process);
+            var userStories = Helper.Storyteller.GenerateUserStories(userWithoutPermissions, novaProcess.Process);
 
             // Verify:
             Assert.IsNotNull(userStories, "There is no user story generated!");
@@ -491,12 +495,12 @@ namespace StorytellerTests
 
             if (taskName == Process.DefaultUserTaskName)
             {
-                expectedPersonaName = I18NHelper.FormatInvariant("Given the System is Precondition When {0} attempts to {1} Then the System will be {2}",
+                expectedPersonaName = I18NHelper.FormatInvariant("Given the System is Precondition\r\nWhen {0} attempts to {1}\r\nThen the System will be {2}",
                     INACCESSIBLE_ACTOR, Process.DefaultUserTaskName, Process.DefaultSystemTaskName);
             }
             else
             {
-                expectedPersonaName = I18NHelper.FormatInvariant("Given the System is Precondition When User attempts to {0} Then the {1} will be {2}",
+                expectedPersonaName = I18NHelper.FormatInvariant("Given the System is Precondition\r\nWhen User attempts to {0}\r\nThen the {1} will be {2}",
                     Process.DefaultUserTaskName, INACCESSIBLE_ACTOR, Process.DefaultSystemTaskName);
             }
 
@@ -548,19 +552,13 @@ namespace StorytellerTests
         #region Private Methods
 
         /// <summary>
-        /// This function removes tags and other symbols
+        /// This function removes tags and other symbols.
         /// </summary>
-        /// <param name="htmlCode"></param>
-        /// <returns>Plain text</returns>
+        /// <param name="htmlCode">The HTML text.</param>
+        /// <returns>Plain text (with whitespace trimmed from start and end).</returns>
         public static string ConvertHtmlToText(string htmlCode)
         {
-            string str = System.Text.RegularExpressions.Regex.Replace(
-              htmlCode, "<[^>]*>|\n|\t|&nbsp;", "");
-
-            str = System.Text.RegularExpressions.Regex.Replace(
-              str, "\r", " ");
-
-            return str.Trim();
+            return StringUtilities.ConvertHtmlToText(htmlCode).Trim();
         }
 
         /// <summary>

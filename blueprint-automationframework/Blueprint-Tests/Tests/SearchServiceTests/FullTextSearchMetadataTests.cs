@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using CustomAttributes;
 using Helper;
 using Model;
 using Model.ModelHelpers;
 using NUnit.Framework;
 using System.Linq;
-using System.Net;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
@@ -39,7 +37,8 @@ namespace SearchServiceTests
             Helper = new TestHelper();
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _user2 = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            _projects = ProjectFactory.GetAllProjects(_user, true);
+            _projects = ProjectFactory.GetAllProjects(_user, shouldRetrieveArtifactTypes: true,
+                shouldRetriveNovaArtifactTypes: true);
             _artifacts = SearchServiceTestHelper.SetupFullTextSearchData(_projects, _user, Helper);
         }
 
@@ -183,34 +182,36 @@ namespace SearchServiceTests
             ValidateSearchMetadataTest(fullTextSearchMetaDataResult, searchCriteria, "Name");
         }
 
-        [TestCase(new[] { BaseArtifactType.Actor })]
-        [TestCase(new[] { BaseArtifactType.Actor, BaseArtifactType.Document, BaseArtifactType.Process })]
+        [TestCase(new[] { ItemTypePredefined.Actor })]
+        [TestCase(new[] { ItemTypePredefined.Document, ItemTypePredefined.ArtifactBaseline })]
+        [TestCase(new[] { ItemTypePredefined.TextualRequirement, ItemTypePredefined.ArtifactCollection })]
+        [TestCase(new[] { ItemTypePredefined.Actor, ItemTypePredefined.Document, ItemTypePredefined.Process })]
         [TestCase(new[] {
-            BaseArtifactType.Actor,
-            BaseArtifactType.Document,
-            BaseArtifactType.Process,
-            BaseArtifactType.DomainDiagram,
-            BaseArtifactType.BusinessProcess,
-            BaseArtifactType.GenericDiagram,
-            BaseArtifactType.Glossary,
-            BaseArtifactType.PrimitiveFolder,
-            BaseArtifactType.Storyboard,
-            BaseArtifactType.TextualRequirement,
-            BaseArtifactType.UIMockup,
-            BaseArtifactType.UseCase,
-            BaseArtifactType.UseCaseDiagram })]
+            ItemTypePredefined.Actor,
+            ItemTypePredefined.Document,
+            ItemTypePredefined.Process,
+            ItemTypePredefined.DomainDiagram,
+            ItemTypePredefined.BusinessProcess,
+            ItemTypePredefined.GenericDiagram,
+            ItemTypePredefined.Glossary,
+            ItemTypePredefined.PrimitiveFolder,
+            ItemTypePredefined.Storyboard,
+            ItemTypePredefined.TextualRequirement,
+            ItemTypePredefined.UIMockup,
+            ItemTypePredefined.UseCase,
+            ItemTypePredefined.UseCaseDiagram })]
         [TestRail(182253)]
         [Description("Search over specific artifact types. Executed search must return search metadata result that match only the artifact .")]
-        public void FullTextSearchMetadata_SearchMetadataForSpecificItemTypes_VerifySearchMetadataResultIncludesOnlyTypesSpecified(BaseArtifactType[] baseArtifactTypes)
+        public void FullTextSearchMetadata_SearchMetadataForSpecificItemTypes_VerifySearchMetadataResultIncludesOnlyTypesSpecified(ItemTypePredefined[] artifactTypes)
         {
-            ThrowIf.ArgumentNull(baseArtifactTypes, nameof(baseArtifactTypes));
+            ThrowIf.ArgumentNull(artifactTypes, nameof(artifactTypes));
 
             // Setup: 
             string description = _artifacts[0].Description;
 
             // Search for Description property value which is common to all artifacts
             var searchTerm = StringUtilities.ConvertHtmlToText(description);
-            var itemTypeIds = SearchServiceTestHelper.GetItemTypeIdsForBaseArtifactTypes(_projects, baseArtifactTypes.ToList());
+            var itemTypeIds = SearchServiceTestHelper.GetItemTypeIdsForBaseArtifactTypes(_projects, artifactTypes.ToList());
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id), itemTypeIds);
 
             // Execute: Execute FullTextSearch with search term
@@ -236,13 +237,13 @@ namespace SearchServiceTests
             // Setup: 
             var selectedProjectIds = _projects.ConvertAll(p => p.Id);
             var project = Helper.GetProject(TestHelper.GoldenDataProject.EmptyProjectWithSubArtifactRequiredProperties, _user);
-            var artifact = Helper.CreateWrapAndSaveNovaArtifact(project, _user, ItemTypePredefined.Process, artifactTypeName: "Process");
+            var artifact = Helper.CreateNovaArtifact(_user, project, ItemTypePredefined.Process, artifactTypeName: "Process");
 
             string searchTerm = "SearchText_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCase(25);
 
             // Update custom property in artifact.
-            ArtifactStoreHelper.UpdateArtifactCustomProperty(artifact, _user, project, PropertyPrimitiveType.Text, propertyName, searchTerm, Helper.ArtifactStore);
-            Helper.ArtifactStore.PublishArtifact(artifact, _user);
+            ArtifactStoreHelper.UpdateArtifactCustomProperty(_user, artifact, project, PropertyPrimitiveType.Text, propertyName, searchTerm);
+            artifact.Publish(_user);
 
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
             SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 1, timeoutInMilliseconds: 30000);
@@ -490,8 +491,8 @@ namespace SearchServiceTests
             ValidateSearchMetaDataPermissionsTest(fullTextSearchMetaDataResult, expectedHitCount, expectedTotalPageCount);
         }
 
-        [TestCase(13, 2, TestHelper.ProjectRole.AuthorFullAccess)]
-        [TestCase(13, 2, TestHelper.ProjectRole.Viewer)]
+        [TestCase(15, 2, TestHelper.ProjectRole.AuthorFullAccess)]
+        [TestCase(15, 2, TestHelper.ProjectRole.Viewer)]
         [TestCase(0, 0, TestHelper.ProjectRole.None)]
         [TestRail(182372)]
         [Description("Search for artifact in a single project with user with different permissions. Executed search must return search metadata result " +
@@ -528,8 +529,8 @@ namespace SearchServiceTests
             ValidateSearchMetaDataPermissionsTest(fullTextSearchMetaDataResult, expectedHitCount, expectedTotalPageCount);
         }
 
-        [TestCase(26, 3, TestHelper.ProjectRole.AuthorFullAccess)]
-        [TestCase(26, 3, TestHelper.ProjectRole.Viewer)]
+        [TestCase(30, 3, TestHelper.ProjectRole.AuthorFullAccess)]
+        [TestCase(30, 3, TestHelper.ProjectRole.Viewer)]
         [TestCase(0, 0, TestHelper.ProjectRole.None)]
         [TestRail(182376)]
         [Description("Search for artifact in multiple projects with user with varying permissions. Executed search must return search metadata result " +
@@ -583,7 +584,7 @@ namespace SearchServiceTests
             SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 1);
 
             // update artifact with name that doesn't match old search criteria
-            var newSearchTerm = "NewName";
+            var newSearchTerm = "NewName" + RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
             artifact.Lock();
             SearchServiceTestHelper.UpdateArtifactProperty(Helper, _user, _projects.First(), artifact, baseArtifactType, "Name", newSearchTerm);

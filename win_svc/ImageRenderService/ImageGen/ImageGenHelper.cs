@@ -1,21 +1,25 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using ImageRenderService.Helpers;
 
 namespace ImageRenderService.ImageGen
 {
     public class ImageGenHelper : IImageGenHelper
     {
         private readonly IBrowserPool _browserPool;
-        private readonly Dictionary<IVirtualBrowser, TaskCompletionSource<bool>> 
-            _tcs = new Dictionary<IVirtualBrowser, TaskCompletionSource<bool>>();
+        private readonly ConcurrentDictionary<IVirtualBrowser, TaskCompletionSource<bool>> 
+            _tcs = new ConcurrentDictionary<IVirtualBrowser, TaskCompletionSource<bool>>();
 
-        private const int MaxWaitTimeSeconds = 10;
-        private const int DelayIntervalMilliseconds = 10;
+        private static readonly int MaxWaitTimeSeconds = ServiceHelper.BrowserResizeEventMaxWaitTimeSeconds;
+        private static readonly int DelayIntervalMilliseconds = ServiceHelper.BrowserResizeEventDelayIntervalMilliseconds;
+        private static readonly int RenderDelayMilliseconds = ServiceHelper.BrowserRenderDelayMilliseconds;
 
         public ImageGenHelper(IBrowserPool browserPool)
         {
@@ -30,66 +34,110 @@ namespace ImageRenderService.ImageGen
                 return null;
             }
 
-            await LoadPageAsync(browser, url);
-
-            // Wait for the screen shot to be taken.
-            var task = browser.ScreenshotAsync();
-            MemoryStream imageStream = new MemoryStream();
-            await task.ContinueWith(x =>
+            var imageStream = new MemoryStream();
+            try
             {
-                if (format.Equals(ImageFormat.Jpeg))
-                {
-                    Bitmap tempImage = DrawImageOnWhiteBackground(task.Result, 1920, 1080);
-                    tempImage.Save(imageStream, ImageFormat.Jpeg);
-                    tempImage.Dispose();
-                }
-                else
-                {
-                    task.Result.Save(imageStream, ImageFormat.Png);
-                }
-                //We no longer need the Bitmap.
-                // Dispose it to avoid keeping the memory alive.  Especially important in 32 - bit applications.
-                task.Result.Dispose();
+                await LoadPageAsync(browser, url);
 
+                // Wait for the screen shot to be taken.
+                var task = browser.ScreenshotAsync();
+                await task.ContinueWith(x =>
+                {
+                    try
+                    {
+                        if (format.Equals(ImageFormat.Jpeg))
+                        {
+                            var tempImage = DrawImageOnWhiteBackground(task.Result, 1920, 1080);
+                            tempImage.Save(imageStream, ImageFormat.Jpeg);
+                            tempImage.Dispose();
+                        }
+                        else
+                        {
+                            task.Result.Save(imageStream, ImageFormat.Png);
+                        }
+                    //We no longer need the Bitmap.
+                    // Dispose it to avoid keeping the memory alive.  Especially important in 32 - bit applications.
+                    task.Result.Dispose();
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        throw;
+                    }
+                    finally
+                    {
+                        _browserPool.Return(browser);
+                    }
+
+                }, TaskScheduler.Default);
+            }
+            catch (Exception e2)
+            {
+                Console.WriteLine(e2);
                 _browserPool.Return(browser);
-                
-            }, TaskScheduler.Default);
+                throw;
+            }
             return imageStream;
         }
 
         //This is needed from rendering transparent background as black
-        private Bitmap DrawImageOnWhiteBackground(Bitmap image, int width, int height)
+        private Bitmap DrawImageOnWhiteBackground(IScreenshot screenshot, int width, int height)
         {
             Bitmap blank = new Bitmap(width, height);
             Graphics g = Graphics.FromImage(blank);
             g.Clear(Color.White);
-            g.DrawImage(image, 0, 0, width, height);
+            g.DrawImage(screenshot.Image, 0, 0, width, height);
             return new Bitmap(blank);
         }
 
         private async Task<bool> LoadPageAsync(IVirtualBrowser browser, string address)
         {
+            bool isProcessFile;
+            try
+            {
+                var task = new TaskCompletionSource<bool>();
+                if(!_tcs.TryAdd(browser, task))
+                {
+                    Debug.Assert(false, "Unexpected Error: The dictionary does not contain a key (browser) added previously.");
+                }
 
-            var task = new TaskCompletionSource<bool>();
-            _tcs.Add(browser, task);
+                isProcessFile = string.IsNullOrWhiteSpace(address);
 
-            var isProcessFile = string.IsNullOrWhiteSpace(address);
+                var effectiveAddress = isProcessFile ? Path.GetFullPath("ProcessHtml/index.html") : address;
 
-            var effectiveAddress = isProcessFile ? Path.GetFullPath("process.html") : address;
+                browser.LoadingStateChanged += BrowserLoadingStateChanged;
+                browser.Load(effectiveAddress);
 
-            browser.Load(effectiveAddress);
-            browser.LoadingStateChanged += BrowserLoadingStateChanged;
-            await task.Task;
-            _tcs.Remove(browser);
+                await task.Task;
+
+                browser.ExecuteScriptAsync("document.body.style.overflow = 'hidden'");
+            }
+            finally
+            {
+                TaskCompletionSource<bool> removedTask;
+                if (!_tcs.TryRemove(browser, out removedTask))
+                {
+                    Debug.Assert(false, "Unexpected Error: The dictionary already contains a key (browser).");
+                }
+            }
+
+            //-------------------------------------------
+            // Get Process model
+            var json = File.ReadAllText("ProcessData_Temp.json");
+            browser.ExecuteScriptAsync($"window.renderGraph('{json}', 1.0);");
+
+            //So far we do not have a way to find out when rendering completed, we use a delay for now.
+            await Task.Delay(1000);
 
             //-------------------------------------------
             // Set the browser size.
+            // The html package will provide the size. For now we use this approach.
             string width;
             string height;
             if (isProcessFile)
             {
-                width = "document.body.firstElementChild.firstElementChild.clientWidth";
-                height = "document.body.firstElementChild.firstElementChild.clientHeight";
+                width = "document.body.firstElementChild.firstElementChild.firstElementChild.style['min-width']";
+                height = "document.body.firstElementChild.firstElementChild.firstElementChild.style['min-height']";
             }
             else
             {
@@ -100,9 +148,8 @@ namespace ImageRenderService.ImageGen
             var w = await browser.EvaluateScriptAsync(width);
             var h = await browser.EvaluateScriptAsync(height);
 
-            var eW = ((int)w.Result) + 10;
-            var eH = (int)h.Result;
-
+            var eW = w.Result != null ? int.Parse(((string)w.Result).Replace("px", string.Empty)) + 20 : 2000;
+            var eH = h.Result != null ? int.Parse(((string)h.Result).Replace("px", string.Empty)) + 20 : 1000;
 
             if (w.Result != null && h.Result != null)
             {
@@ -113,13 +160,14 @@ namespace ImageRenderService.ImageGen
             // The way how to detect when the browser resizing is completed, with the timeout ~ 10 sec.
             for (var i = 0; i < MaxWaitTimeSeconds * 1000 / DelayIntervalMilliseconds; i++)
             {
-                if (browser.Bitmap.Width == eW && browser.Bitmap.Height == eH)
+
+                if (browser.Bitmap != null && browser.Bitmap.Width == eW && browser.Bitmap.Height == eH)
                 {
                     break;
                 }
                 await Task.Delay(DelayIntervalMilliseconds);
             }
-           
+
             //-----------------------------------------------------------------------------------------
 
             return true;
@@ -142,7 +190,7 @@ namespace ImageRenderService.ImageGen
                     browser.ExecuteScriptAsync("document.body.style.overflow = 'hidden'");
 
                     //Give the browser a little time to render
-                    Thread.Sleep(500);
+                    Thread.Sleep(RenderDelayMilliseconds);
                 });
 
                 _tcs[browser].SetResult(true);

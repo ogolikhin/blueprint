@@ -9,12 +9,12 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Model.Common.Enums;
 using Utilities;
 using Utilities.Factories;
 
 namespace Helper
 {
-
     public static class AdminStoreHelper
     {
         #region Project Management
@@ -248,6 +248,15 @@ namespace Helper
 
         public const uint MinPasswordLength = 8;
         public const uint MaxPasswordLength = 128;
+        public const InstanceAdminPrivileges AllPrivileges =
+                            InstanceAdminPrivileges.AccessAllProjectData |
+                            InstanceAdminPrivileges.ManageInstanceSettings |
+                            InstanceAdminPrivileges.ManageAdminRoles |
+                            InstanceAdminPrivileges.DeleteProjects |
+                            InstanceAdminPrivileges.AssignAdminRoles |
+                            InstanceAdminPrivileges.ManageStandardPropertiesAndArtifactTypes |
+                            InstanceAdminPrivileges.CanManageAllRunningJobs |
+                            InstanceAdminPrivileges.CanReportOnAllProjects;
 
         /// <summary>
         /// A class to represent a row in the PasswordRecoveryTokens database table.
@@ -337,6 +346,125 @@ namespace Helper
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Generates a random Instance User for user management
+        /// </summary>
+        /// <param name="login">(optional) The login name of the user. Randomly generated if not specified.</param>
+        /// <param name="firstName">(optional) The first name of the user. Randomly generated if not specified.</param>
+        /// <param name="lastName">(optional) The last name of the user. Randomly generated if not specified.</param>
+        /// <param name="email">(optional) The email of the user. Randomly generated if not specified.</param>
+        /// <param name="displayname">(optional) The user's display name. Randomly generated if not specified.</param>
+        /// <param name="source">(optional) The source of the user. Defaults to Database if not specified.</param>
+        /// <param name="licenseLevel">(optinal) The user's license level. Defaults to Viewer if not specified.</param>
+        /// <param name="instanceAdminRole">(optional) The user's instance admin role. Defaults to null (empty).</param>
+        /// <param name="adminPrivileges">(optional) The user's instance admin privileges.  Defaults to None.</param>
+        /// <param name="imageId">(optional) The user's image id. Defaults to null.</param>
+        /// <param name="password">(optional) The user's password. Randomly generated if not specified.</param>
+        /// <returns>An InstanceUser object.</returns>
+        public static InstanceUser GenerateRandomInstanceUser(
+            string login = null,
+            string firstName = null,
+            string lastName = null,
+            string email = null,
+            string displayname = null,
+            UserSource? source = null,
+            LicenseLevel? licenseLevel = null,
+            InstanceAdminRole? instanceAdminRole = null,
+            InstanceAdminPrivileges? adminPrivileges = null,
+            int? imageId = null,
+            string password = null)
+        {
+            login = login ?? RandomGenerator.RandomAlphaNumeric(MinPasswordLength);
+            firstName = firstName ?? RandomGenerator.RandomAlphaNumeric(10);
+            lastName = lastName ?? RandomGenerator.RandomAlphaNumeric(10);
+            email = email ?? I18NHelper.FormatInvariant("{0}@{1}.com", login, RandomGenerator.RandomAlphaNumeric(10));
+            displayname = displayname ?? I18NHelper.FormatInvariant("{0} {1}", firstName, lastName);
+                         
+            var instanceUser = new InstanceUser
+            (
+                login,
+                firstName,
+                lastName,
+                displayname,
+                email,
+                source ?? UserSource.Database,
+                eulaAccepted: false,
+                license: licenseLevel ?? LicenseLevel.Viewer,
+                isSso: false,
+                allowFallback: false,
+                instanceAdminRole: instanceAdminRole,
+                instanceAdminPrivileges: adminPrivileges,
+                guest: false,
+                currentVersion: -1,
+                enabled: true,
+                title: RandomGenerator.RandomAlphaNumeric(10),
+                department: RandomGenerator.RandomAlphaNumeric(10),
+                expirePassword: true,
+                imageId: imageId,
+                groupMembership: null,
+                password: password ?? GenerateValidPassword()
+            );
+
+            return instanceUser;
+        }
+
+        /// <summary>
+        /// Asserts that 2 Instance Users are equal
+        /// </summary>
+        /// <param name="expectedUser">The first instance user being compared.</param>
+        /// <param name="actualUser">The second instanace user being compared.</param>
+        public static void AssertAreEqual(InstanceUser expectedUser, InstanceUser actualUser)
+        {
+            ThrowIf.ArgumentNull(expectedUser, nameof(expectedUser));
+            ThrowIf.ArgumentNull(actualUser, nameof(actualUser));
+
+            Assert.AreEqual(expectedUser.Id, actualUser.Id, "Id is different.");
+            Assert.AreEqual(expectedUser.CurrentVersion, actualUser.CurrentVersion, "CurrentVersion is different.");
+            Assert.AreEqual(expectedUser.Login, actualUser.Login, "Login is different.");
+            Assert.AreEqual(expectedUser.FirstName, actualUser.FirstName, "FirstName is different.");
+            Assert.AreEqual(expectedUser.LastName, actualUser.LastName, "LastName is different.");
+            Assert.AreEqual(expectedUser.DisplayName, actualUser.DisplayName, "DisplayName is different.");
+            Assert.AreEqual(expectedUser.Email, actualUser.Email, "Email is different.");
+            Assert.AreEqual(expectedUser.Source, actualUser.Source, "Source is different.");
+            Assert.AreEqual(expectedUser.EULAAccepted, actualUser.EULAAccepted, "EULAAccepted is different.");
+            Assert.AreEqual(expectedUser.LicenseType, actualUser.LicenseType, "LicenseType is different.");
+            Assert.AreEqual(expectedUser.IsSso, actualUser.IsSso, "IsSso is different.");
+            Assert.AreEqual(expectedUser.AllowFallback, actualUser.AllowFallback, "AllowFallback is different.");
+            Assert.AreEqual(expectedUser.InstanceAdminRoleId, actualUser.InstanceAdminRoleId, "InstanceAdminRoleId is different.");
+            Assert.AreEqual(expectedUser.InstanceAdminPrivileges, actualUser.InstanceAdminPrivileges, "InstanceAdminPrivileges is different.");
+            Assert.AreEqual(expectedUser.Guest, actualUser.Guest, "Guest is different.");
+            Assert.AreEqual(expectedUser.Enabled, actualUser.Enabled, "Enabled is different.");
+            Assert.AreEqual(expectedUser.Title, actualUser.Title, "Title is different.");
+            Assert.AreEqual(expectedUser.Department, actualUser.Department, "Department is different.");
+            Assert.AreEqual(expectedUser.ExpirePassword, actualUser.ExpirePassword, "ExpirePassword is different.");
+            Assert.AreEqual(expectedUser.ImageId, actualUser.ImageId, "ImageId is different.");
+
+
+            Assert.AreEqual(expectedUser.GroupMembership, actualUser.GroupMembership, "GroupMembership is different.");
+
+            if (expectedUser.GroupMembership != null)
+            {
+                foreach (var group in expectedUser.GroupMembership)
+                {
+                    Assert.Contains(group, actualUser.GroupMembership, "Expected group {0} is not found in actual group membership.", group);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Assigns a user Id to a user and increments the current version
+        /// </summary>
+        /// <param name="user">The user being updated.</param>
+        /// <param name="userId">The user id to be assigned to the user.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
+        public static void UpdateUserIdAndIncrementCurrentVersion(InstanceUser user, int userId)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            user.Id = userId;
+            user.CurrentVersion++;
         }
 
         #endregion User Management

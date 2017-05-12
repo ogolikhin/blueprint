@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
+using System;
 using System.Collections.Generic;
 using System.Net;
-using Model.ArtifactModel;
-using Model.ArtifactModel.Impl;
 
 namespace Model
 {
@@ -16,13 +16,13 @@ namespace Model
         /// (Runs:  'POST /svc/shared/artifacts/discard')
         /// </summary>
         /// <param name="user">The user to authenticate to Blueprint.</param>
-        /// <param name="artifactsToDiscard">The artifact(s) having changes to be discarded.</param>
+        /// <param name="artifactsIds">The ID's of artifacts to be discarded.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
         /// <returns>The list of ArtifactResult objects created by the dicard artifacts request.</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
         List<NovaDiscardArtifactResult> DiscardArtifacts(
             IUser user,
-            List<IArtifactBase> artifactsToDiscard,
+            List<int> artifactsIds,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>

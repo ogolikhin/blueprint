@@ -237,13 +237,13 @@ namespace SearchServiceTests
             // Setup: 
             var selectedProjectIds = _projects.ConvertAll(p => p.Id);
             var project = Helper.GetProject(TestHelper.GoldenDataProject.EmptyProjectWithSubArtifactRequiredProperties, _user);
-            var artifact = Helper.CreateWrapAndSaveNovaArtifact(project, _user, ItemTypePredefined.Process, artifactTypeName: "Process");
+            var artifact = Helper.CreateNovaArtifact(_user, project, ItemTypePredefined.Process, artifactTypeName: "Process");
 
             string searchTerm = "SearchText_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCase(25);
 
             // Update custom property in artifact.
-            ArtifactStoreHelper.UpdateArtifactCustomProperty(artifact, _user, project, PropertyPrimitiveType.Text, propertyName, searchTerm, Helper.ArtifactStore);
-            Helper.ArtifactStore.PublishArtifact(artifact, _user);
+            ArtifactStoreHelper.UpdateArtifactCustomProperty(_user, artifact, project, PropertyPrimitiveType.Text, propertyName, searchTerm);
+            artifact.Publish(_user);
 
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
             SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 1, timeoutInMilliseconds: 30000);

@@ -15,7 +15,7 @@ namespace ArtifactStore.Models.Review
         public string DisplayName { get; set; }
 
         [DataMember]
-        public ReviwerRole Role { get; set; }
+        public ReviewParticipantRole Role { get; set; }
 
         [DataMember]
         public ReviewStatus Status { get; set; }

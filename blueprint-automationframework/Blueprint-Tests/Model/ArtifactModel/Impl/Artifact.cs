@@ -8,6 +8,7 @@ using Model.OpenApiModel.Services;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using Utilities;
 using Utilities.Facades;
@@ -530,7 +531,9 @@ namespace Model.ArtifactModel.Impl
 
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            var discardResults = SvcShared.DiscardArtifacts(address, user, artifactsToDiscard, expectedStatusCodes);
+            var artifactsIds = artifactsToDiscard.Select(a => a.Id).ToList();
+
+            var discardResults = SvcShared.DiscardArtifacts(address, user, artifactsIds, expectedStatusCodes);
 
             UpdateStatusOfArtifactsThatWereDiscarded(discardResults, artifactsToDiscard);
 

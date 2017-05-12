@@ -1667,9 +1667,18 @@ namespace AdminStore.Controllers
         public async Task InstanceAdminChangePassword_PasswordIsInvalid_BadRequestException()
         {
             //arrange
-            var updatePasswor = new UpdateUserPassword() { Password = "adf" };
+            var pass = "asdf1";
+            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(pass);
+            var encodedPassword = Convert.ToBase64String(plainTextBytes);
+            var updatePasswor = new UpdateUserPassword() { Password = encodedPassword };
+            var user = new User() { Id = 3 };
             IHttpActionResult result = null;
             BadRequestException exception = null;
+
+            _privilegesRepository
+               .Setup(repo => repo.GetInstanceAdminPrivilegesAsync(It.IsAny<int>()))
+               .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
+            _usersRepoMock.Setup(repo => repo.GetUserAsync(It.IsAny<int>())).ReturnsAsync(user);
 
             //act
             try
@@ -1687,7 +1696,7 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public async Task InstanceAdminChangePassword_PasswordIsInvalid_ResourceNotFoundException()
+        public async Task InstanceAdminChangePassword_UserNotFound_ResourceNotFoundException()
         {
             //arrange
             var updatePasswor = new UpdateUserPassword() { Password = "adf1T~asdfasdf" };
@@ -1718,7 +1727,10 @@ namespace AdminStore.Controllers
         public async Task InstanceAdminChangePassword_PasswordIsInvalid_OkResult()
         {
             //arrange
-            var updatePasswor = new UpdateUserPassword() { Password = "adf1T~asdfasdf" };
+            var pass = "adf1T~asdfasdf";
+            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(pass);
+            var encodedPassword = Convert.ToBase64String(plainTextBytes);
+            var updatePasswor = new UpdateUserPassword() { Password = encodedPassword };
             var user = new User() { Id = 3 };
             IHttpActionResult result = null;
 

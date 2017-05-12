@@ -434,12 +434,7 @@ namespace AdminStore.Controllers
             {
                 throw new BadRequestException(ErrorMessages.InvalidChangeInstanceAdminPasswordParameters, ErrorCodes.BadRequest);
             }
-            string errorMessage;
-            var isValidPassword = PasswordValidationHelper.ValidatePassword(updatePassword.Password, true, out errorMessage);
-            if (!isValidPassword)
-            {
-                throw new BadRequestException(errorMessage, ErrorCodes.BadRequest);
-            }
+
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageUsers);
 
             var user = await _userRepository.GetUserAsync(updatePassword.UserId);
@@ -447,6 +442,9 @@ namespace AdminStore.Controllers
             {
                 throw new ResourceNotFoundException($"User does not exist with UserId: {updatePassword.UserId}", ErrorCodes.ResourceNotFound);
             }
+
+            UserConverter.ValidatePassword(user, updatePassword.Password);
+
             await _userRepository.UpdateUserPasswordAsync(user.Login, updatePassword.Password);
 
             return Ok();

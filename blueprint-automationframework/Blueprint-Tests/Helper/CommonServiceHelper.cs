@@ -93,24 +93,24 @@ namespace Helper
                 var sourceArtifactType = project.ArtifactTypes.Find(artifactType => artifactType.BaseArtifactType.ToString().Equals(
                     accessibleResultArtifactReference.BaseItemTypePredefined.ToString()));
 
-                Assert.IsTrue(accessibleResultArtifactReference.Name.Equals(accessibleSourceArtifact.Name),
+                Assert.AreEqual(accessibleSourceArtifact.Name, accessibleResultArtifactReference.Name, 
                     "The name value for the accessible artifact (Id: {0}) on artifact reference should be {1} but returned name value is {2}.",
                     accessibleResultArtifactReference.Id, accessibleSourceArtifact.Name, accessibleResultArtifactReference.Name);
 
-                Assert.IsTrue(accessibleResultArtifactReference.Id.Equals(accessibleSourceArtifact.Id),
+                Assert.AreEqual(accessibleSourceArtifact.Id, accessibleResultArtifactReference.Id,
                     "The ID for the accessible artifact (Id: {0}) on artifact reference should be {1} but returned ID is {2}.",
                     accessibleResultArtifactReference.Id, accessibleSourceArtifact.Id, accessibleResultArtifactReference.Id);
 
-                Assert.IsTrue(accessibleResultArtifactReference.BaseItemTypePredefined.Equals(accessibleSourceArtifact.Artifact.ItemTypeId),
+                Assert.AreEqual(accessibleSourceArtifact.Artifact.ItemTypeId, accessibleResultArtifactReference.BaseItemTypePredefined,
                     "The baseItemTypePredefined for the accessible artifact (Id: {0}) on artifact reference should be {1} but returned baseItemTypePredefined is {2}.",
                     accessibleResultArtifactReference.Id, accessibleSourceArtifact.Artifact.ItemTypeId.ToString(),
                     accessibleResultArtifactReference.BaseItemTypePredefined.ToString());
 
-                Assert.IsTrue(accessibleResultArtifactReference.ProjectId.Equals(accessibleSourceArtifact.ProjectId),
+                Assert.AreEqual(accessibleSourceArtifact.ProjectId, accessibleResultArtifactReference.ProjectId,
                     "The projectId for the accessible artifact (Id: {0}) on artifact reference should be {1} but returned projectId is {2}.",
                     accessibleResultArtifactReference.Id, accessibleSourceArtifact.ProjectId, accessibleResultArtifactReference.ProjectId);
 
-                Assert.IsTrue(accessibleResultArtifactReference.TypePrefix.Equals(sourceArtifactType.Prefix),
+                Assert.AreEqual(sourceArtifactType.Prefix, accessibleResultArtifactReference.TypePrefix,
                     "The typePrefix for the accessible artifact (Id: {0}) on artifact reference should be {1} but returned typePrefix is {2}.",
                     accessibleResultArtifactReference.Id, sourceArtifactType.Prefix, accessibleResultArtifactReference.TypePrefix);
             }
@@ -128,20 +128,20 @@ namespace Helper
 
             foreach (var nonExistentArtifactReference in nonExistentArtifactReferenceList)
             {
-                Assert.IsTrue(nonExistentArtifactReference.Name.Equals(INACCESSIBLE_ARTIFACT_NAME),
+                Assert.AreEqual(INACCESSIBLE_ARTIFACT_NAME, nonExistentArtifactReference.Name,
                     "The name value for the non-existent/inaccessible artifact (Id: {0}) on artifact reference should be {1} but returned name value is {2}.",
                     nonExistentArtifactReference.Id, INACCESSIBLE_ARTIFACT_NAME, nonExistentArtifactReference.Name);
 
-                Assert.IsTrue(nonExistentArtifactReference.BaseItemTypePredefined.Equals(ItemTypePredefined.None),
+                Assert.AreEqual(ItemTypePredefined.None, nonExistentArtifactReference.BaseItemTypePredefined,
                     "The baseItemTypePredefined for the non-existent/inaccessible artifact (Id: {0}) on artifact reference should be {1} but returned ",
                     "baseItemTypePredefined is {2}.",
                     nonExistentArtifactReference.Id, ItemTypePredefined.None, nonExistentArtifactReference.BaseItemTypePredefined);
 
-                Assert.IsTrue(nonExistentArtifactReference.ProjectId.Equals(0),
+                Assert.AreEqual(0, nonExistentArtifactReference.ProjectId,
                     "The projectId for the non-existent/inaccessible artifact (Id: {0}) on artifact reference should be {1} but returned projectId is {2}.",
                     nonExistentArtifactReference.Id, 0, nonExistentArtifactReference.ProjectId);
 
-                Assert.IsTrue(nonExistentArtifactReference.TypePrefix == null,
+                Assert.IsNull(nonExistentArtifactReference.TypePrefix,
                     "The typePrefix for the non-existent/inaccessible artifact (Id: {0}) on artifact reference should be null but returned typePrefix is {1}.",
                     nonExistentArtifactReference.Id, nonExistentArtifactReference.TypePrefix);
             }

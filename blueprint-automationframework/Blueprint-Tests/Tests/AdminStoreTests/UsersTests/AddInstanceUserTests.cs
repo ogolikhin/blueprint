@@ -72,8 +72,7 @@ namespace AdminStoreTests.UsersTests
 
             // Verify:
             // Update Id and CurrentVersion in CreatedUser for comparison
-            createdUser.Id = createdUserId;
-            createdUser.CurrentVersion++;
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUserId);
 
             AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
         }
@@ -107,15 +106,13 @@ namespace AdminStoreTests.UsersTests
 
             // Verify:
             // Update Id and CurrentVersion in CreatedUser for comparison
-            createdUser.Id = createdUserId;
-            createdUser.CurrentVersion++;
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUserId);
 
             // Add Source to createdUser to verify that the addedUser returned as a Database user
             createdUser.Source = UserSource.Database;
             AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
         [TestCase(null)]
         [TestCase(LicenseLevel.Unknown)]
         [TestCase(LicenseLevel.Author)]
@@ -123,7 +120,7 @@ namespace AdminStoreTests.UsersTests
         [Description("Create an instance user with a missing or invalid license level. Add the user. " +
              "Verify that the user is created with Viewer license.")]
         [TestRail(303386)]
-        public void AddInstanceUser_MissingOrInvalidLicenseLevel_UserCreatedWithViewerLicense(LicenseLevel licenseLevel)
+        public void AddInstanceUser_MissingOrInvalidLicenseLevel_UserCreatedWithViewerLicense(LicenseLevel? licenseLevel)
         {
             // Setup:
             var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
@@ -146,8 +143,7 @@ namespace AdminStoreTests.UsersTests
 
             // Verify:
             // Update Id and CurrentVersion in CreatedUser for comparison
-            createdUser.Id = createdUserId;
-            createdUser.CurrentVersion++;
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUserId);
 
             // Add LicenseType of Viewer to createdUser to verify that the addedUser returned with Viewer license
             createdUser.LicenseType = LicenseLevel.Viewer;
@@ -157,7 +153,7 @@ namespace AdminStoreTests.UsersTests
         [TestCase(InstanceAdminRole.AssignInstanceAdministrators)]
         [TestCase(InstanceAdminRole.DefaultInstanceAdministrator)]
         [TestCase(InstanceAdminRole.ProvisionUsers)]
-        [Description("Create an instance user.  Add the user with another user that has" +
+        [Description("Create a default instance user.  Add the user with another user that has" +
              "permission to manage users. Verify that the user was created.")]
         [TestRail(303595)]
         public void AddInstanceUser_PermissionsToManageUsers_UserCreated(InstanceAdminRole adminRole)
@@ -185,8 +181,53 @@ namespace AdminStoreTests.UsersTests
 
             // Verify:
             // Update Id and CurrentVersion in CreatedUser for comparison
-            createdUser.Id = createdUserId;
-            createdUser.CurrentVersion++;
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUserId);
+
+            AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
+        }
+
+        [TestCase(InstanceAdminRole.AssignInstanceAdministrators, LicenseLevel.Viewer)]
+        [TestCase(InstanceAdminRole.DefaultInstanceAdministrator, LicenseLevel.Author)]
+        [TestCase(InstanceAdminRole.ProvisionUsers, LicenseLevel.Viewer)]
+        [TestCase(InstanceAdminRole.AdministerALLProjects, LicenseLevel.Collaborator)]
+        [TestCase(InstanceAdminRole.BlueprintAnalytics, LicenseLevel.Viewer)]
+        [TestCase(InstanceAdminRole.Email_ActiveDirectory_SAMLSettings, LicenseLevel.Viewer)]
+        [TestCase(InstanceAdminRole.InstanceStandardsManager, LicenseLevel.Collaborator)]
+        [TestCase(InstanceAdminRole.LogGatheringAndLicenseReporting, LicenseLevel.Viewer)]
+        [TestCase(InstanceAdminRole.ManageAdministratorRoles, LicenseLevel.Viewer)]
+        [TestCase(InstanceAdminRole.ProvisionProjects, LicenseLevel.Collaborator)]
+        [Description("Create an instance user with an admin role.  Add the user using another user that has " +
+                     "permission to assign admin roles. Verify that the user was created.")]
+        [TestRail(303705)]
+        public void AddInstanceUser_AssignInstanceAdminRole_UserCreated(InstanceAdminRole adminRole, LicenseLevel expectedLicenseLevel)
+        {
+            // Setup:
+            var userWithPermissionsToAssignAdminRoles = Helper.CreateUserAndAuthenticate(
+                TestHelper.AuthenticationTokenTypes.AccessControlToken, InstanceAdminRole.AssignInstanceAdministrators);
+
+            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser(instanceAdminRole: adminRole);
+
+            // Execute:
+            int createdUserId = 0;
+
+            Assert.DoesNotThrow(() =>
+            {
+                createdUserId = Helper.AdminStore.AddUser(userWithPermissionsToAssignAdminRoles, createdUser);
+            }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
+
+            InstanceUser addedUser = null;
+
+            Assert.DoesNotThrow(() =>
+            {
+                addedUser = Helper.AdminStore.GetUserById(userWithPermissionsToAssignAdminRoles, createdUserId);
+            }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
+
+            // Verify:
+            // Update Id and CurrentVersion in CreatedUser for comparison
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUserId);
+
+            // Update License Type
+            createdUser.LicenseType = expectedLicenseLevel;
 
             AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
         }
@@ -526,8 +567,8 @@ namespace AdminStoreTests.UsersTests
         public void AddInstanceUser_NoPermissionsToManageUsers_403Forbidden(InstanceAdminRole? adminRole)
         {
             // Setup:
-            var userWithNoPermissionsToManageUsers = Helper.CreateUserAndAddToDatabase(adminRole);
-            Helper.AdminStore.AddSession(userWithNoPermissionsToManageUsers);
+            var userWithNoPermissionsToManageUsers = Helper.CreateUserAndAuthenticate(
+                TestHelper.AuthenticationTokenTypes.AccessControlToken, adminRole);
 
             var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
 

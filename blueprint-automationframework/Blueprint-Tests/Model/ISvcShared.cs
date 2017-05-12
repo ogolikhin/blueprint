@@ -76,7 +76,7 @@ namespace Model
         /// <returns>List of LockResultInfo for the locked artifacts.</returns>
         List<LockResultInfo> LockArtifacts(
             IUser user,
-            List<int> artifactIdsToLock,
+            IEnumerable<int> artifactIdsToLock,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>

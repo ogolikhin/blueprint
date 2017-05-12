@@ -67,9 +67,8 @@ namespace AdminStoreTests.UsersTests
                 createdUserId = Helper.AdminStore.AddUser(_adminUser, createdUser);
             }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
 
-            // Update user Id with returned value and incremented version
-            createdUser.Id = createdUserId;
-            createdUser.CurrentVersion++;
+            // Update Id and CurrentVersion in CreatedUser for comparison
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUserId);
 
             // Modify all properties that can be updated via UpdateUser
             createdUser.Login += RandomGenerator.RandomAlphaNumeric(2);
@@ -140,9 +139,8 @@ namespace AdminStoreTests.UsersTests
                 createdUserId = Helper.AdminStore.AddUser(_adminUser, createdUser);
             }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
 
-            // Update user Id with returned value and incremented version
-            createdUser.Id = createdUserId;
-            createdUser.CurrentVersion++;
+            // Update Id and CurrentVersion in CreatedUser for comparison
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUserId);
 
             // Need this to ensure unique login
             if (property == "Login")
@@ -200,9 +198,8 @@ namespace AdminStoreTests.UsersTests
                 createdUserId = Helper.AdminStore.AddUser(_adminUser, createdUser);
             }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
 
-            // Update user Id with returned value and incremented version
-            createdUser.Id = createdUserId;
-            createdUser.CurrentVersion++;
+            // Update Id and CurrentVersion in CreatedUser for comparison
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUserId);
 
             // Modify any field
             createdUser.DisplayName = "Modified Display Name";
@@ -255,9 +252,8 @@ namespace AdminStoreTests.UsersTests
                 createdUserId = Helper.AdminStore.AddUser(userWithPermissionsToAssignAdminRoles, createdUser);
             }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
 
-            // Update user Id with returned value and incremented version
-            createdUser.Id = createdUserId;
-            createdUser.CurrentVersion++;
+            // Update Id and CurrentVersion in CreatedUser for comparison
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUserId);
 
             // Modify the admin role
             createdUser.InstanceAdminRoleId = adminRole;
@@ -317,9 +313,8 @@ namespace AdminStoreTests.UsersTests
                 createdUserId = Helper.AdminStore.AddUser(userWithPermissionsToAssignAdminRoles, createdUser);
             }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
 
-            // Update user Id with returned value and incremented version
-            createdUser.Id = createdUserId;
-            createdUser.CurrentVersion++;
+            // Update Id and CurrentVersion in CreatedUser for comparison
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUserId);
 
             // Update another field
             createdUser.DisplayName += RandomGenerator.RandomAlphaNumeric(2);
@@ -362,9 +357,8 @@ namespace AdminStoreTests.UsersTests
                 createdUserId = Helper.AdminStore.AddUser(_adminUser, createdUser);
             }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
 
-            // Update user Id with returned value and incremented version
-            createdUser.Id = createdUserId;
-            createdUser.CurrentVersion++;
+            // Update Id and CurrentVersion in CreatedUser for comparison
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUserId);
 
             // Source defaults to Database, so we need to remove it here
             createdUser.Source = null;
@@ -409,9 +403,8 @@ namespace AdminStoreTests.UsersTests
                 createdUserId = Helper.AdminStore.AddUser(_adminUser, createdUser);
             }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
 
-            // Update user Id with returned value and incremented version
-            createdUser.Id = createdUserId;
-            createdUser.CurrentVersion++;
+            // Update Id and CurrentVersion in CreatedUser for comparison
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUserId);
 
             // Modify the LicenseType
             createdUser.LicenseType = licenseLevel;
@@ -457,9 +450,8 @@ namespace AdminStoreTests.UsersTests
                 createdUserId = Helper.AdminStore.AddUser(_adminUser, createdUser);
             }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
 
-            // Update user Id with returned value and incremented version
-            createdUser.Id = createdUserId;
-            createdUser.CurrentVersion++;
+            // Update Id and CurrentVersion in CreatedUser for comparison
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUserId);
 
             // Execute:
             var ex = Assert.Throws<Http400BadRequestException>(() => { UpdateUserWithNoBodyInRestCall(_adminUser, createdUser); },
@@ -528,8 +520,7 @@ namespace AdminStoreTests.UsersTests
             var secondUserId = Helper.AdminStore.AddUser(_adminUser, secondUser);
 
             // Update user Id with returned value and incremented version
-            secondUser.Id = secondUserId;
-            secondUser.CurrentVersion++;
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(secondUser, secondUserId);
 
             secondUser.Login = firstUser.Login;
 
@@ -730,9 +721,8 @@ namespace AdminStoreTests.UsersTests
                 createdUserId = Helper.AdminStore.AddUser(_adminUser, createdUser);
             }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
 
-            // Update user Id with returned value and incremented version
-            createdUser.Id = createdUserId;
-            createdUser.CurrentVersion++;
+            // Update Id and CurrentVersion in CreatedUser for comparison
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUserId);
 
             var userWithInvalidTokenHeader = Helper.CreateUserWithInvalidToken(
                 TestHelper.AuthenticationTokenTypes.AccessControlToken, 
@@ -776,9 +766,8 @@ namespace AdminStoreTests.UsersTests
                 createdUserId = Helper.AdminStore.AddUser(_adminUser, createdUser);
             }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
 
-            // Update user Id with returned value and incremented version
-            createdUser.Id = createdUserId;
-            createdUser.CurrentVersion++;
+            // Update Id and CurrentVersion in CreatedUser for comparison
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUserId);
 
             var userWithNoPermissionsToManageUsers = Helper.CreateUserAndAuthenticate(
                 TestHelper.AuthenticationTokenTypes.AccessControlToken, adminRole);
@@ -822,9 +811,8 @@ namespace AdminStoreTests.UsersTests
                 createdUserId = Helper.AdminStore.AddUser(_adminUser, createdUser);
             }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
 
-            // Update user Id with returned value and incremented version
-            createdUser.Id = createdUserId;
-            createdUser.CurrentVersion++;
+            // Update Id and CurrentVersion in CreatedUser for comparison
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUserId);
 
             // Modify the admin role
             createdUser.InstanceAdminRoleId = adminRole;
@@ -859,9 +847,8 @@ namespace AdminStoreTests.UsersTests
                 createdUserId = Helper.AdminStore.AddUser(_adminUser, createdUser);
             }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
 
-            // Update user Id with returned value and incremented version
-            createdUser.Id = createdUserId;
-            createdUser.CurrentVersion++;
+            // Update Id and CurrentVersion in CreatedUser for comparison
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUserId);
 
             // Modify the admin role
             createdUser.InstanceAdminRoleId = adminRole2;
@@ -896,8 +883,7 @@ namespace AdminStoreTests.UsersTests
             }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
 
             // Update user Id with returned value and incremented version
-            createdUser.Id = invalidId;
-            createdUser.CurrentVersion++;
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, invalidId);
 
             //Execute & Verify:
             Assert.Throws<Http404NotFoundException>(() => { Helper.AdminStore.UpdateUser(_adminUser, createdUser); },
@@ -995,9 +981,8 @@ namespace AdminStoreTests.UsersTests
                 createdUserId = Helper.AdminStore.AddUser(_adminUser, createdUser);
             }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
 
-            // Update user Id with returned value and incremented version
-            createdUser.Id = createdUserId;
-            createdUser.CurrentVersion++;
+            // Update Id and CurrentVersion in CreatedUser for comparison
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUserId);
 
             // Update with invalid value
             if (property != null)

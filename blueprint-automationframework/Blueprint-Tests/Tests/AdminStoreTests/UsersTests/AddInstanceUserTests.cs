@@ -72,8 +72,7 @@ namespace AdminStoreTests.UsersTests
 
             // Verify:
             // Update Id and CurrentVersion in CreatedUser for comparison
-            createdUser.Id = createdUserId;
-            createdUser.CurrentVersion++;
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUserId);
 
             AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
         }
@@ -107,8 +106,7 @@ namespace AdminStoreTests.UsersTests
 
             // Verify:
             // Update Id and CurrentVersion in CreatedUser for comparison
-            createdUser.Id = createdUserId;
-            createdUser.CurrentVersion++;
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUserId);
 
             // Add Source to createdUser to verify that the addedUser returned as a Database user
             createdUser.Source = UserSource.Database;
@@ -145,8 +143,7 @@ namespace AdminStoreTests.UsersTests
 
             // Verify:
             // Update Id and CurrentVersion in CreatedUser for comparison
-            createdUser.Id = createdUserId;
-            createdUser.CurrentVersion++;
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUserId);
 
             // Add LicenseType of Viewer to createdUser to verify that the addedUser returned with Viewer license
             createdUser.LicenseType = LicenseLevel.Viewer;
@@ -184,8 +181,7 @@ namespace AdminStoreTests.UsersTests
 
             // Verify:
             // Update Id and CurrentVersion in CreatedUser for comparison
-            createdUser.Id = createdUserId;
-            createdUser.CurrentVersion++;
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUserId);
 
             AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
         }
@@ -200,7 +196,7 @@ namespace AdminStoreTests.UsersTests
         [TestCase(InstanceAdminRole.LogGatheringAndLicenseReporting, LicenseLevel.Viewer)]
         [TestCase(InstanceAdminRole.ManageAdministratorRoles, LicenseLevel.Viewer)]
         [TestCase(InstanceAdminRole.ProvisionProjects, LicenseLevel.Collaborator)]
-        [Description("Create an instance user with an admin role.  Add the user using another user that has" +
+        [Description("Create an instance user with an admin role.  Add the user using another user that has " +
                      "permission to assign admin roles. Verify that the user was created.")]
         [TestRail(303705)]
         public void AddInstanceUser_AssignInstanceAdminRole_UserCreated(InstanceAdminRole adminRole, LicenseLevel expectedLicenseLevel)
@@ -227,9 +223,10 @@ namespace AdminStoreTests.UsersTests
             }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
 
             // Verify:
-            // Update Id and CurrentVersion, CreatedUser, InstanceAdminRoleId & LicenseType for comparison
-            createdUser.Id = createdUserId;
-            createdUser.CurrentVersion++;
+            // Update Id and CurrentVersion in CreatedUser for comparison
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUserId);
+
+            // Update License Type
             createdUser.LicenseType = expectedLicenseLevel;
 
             AdminStoreHelper.AssertAreEqual(createdUser, addedUser);

@@ -19,6 +19,8 @@ namespace ArtifactStore.Models.Review
 
         public ReviewSource Source { get; set; }
 
+        public ReviewPackageStatus ReviewPackageStatus { get; set; }
+
         public ReviewStatus Status { get; set; }
 
         public ReviewArtifactsStatus ArtifactsStatus { get; set; }

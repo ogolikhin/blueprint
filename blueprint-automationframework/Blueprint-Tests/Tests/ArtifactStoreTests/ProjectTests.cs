@@ -41,6 +41,8 @@ namespace ArtifactStoreTests
 
         #region GetProjectChildrenByProjectId tests
 
+        #region Positive tests
+
         [TestCase(ItemTypePredefined.Actor)]
         [TestCase(ItemTypePredefined.Document)]
         [TestRail(125497)]
@@ -92,6 +94,48 @@ namespace ArtifactStoreTests
 
             Assert.IsNull(returnedNovaArtifactList.Find(a => a.Id.Equals(artifact.Id)), "Artifact should not be in the list of returned artifacts!");
         }
+
+        [TestCase]
+        [TestRail(134083)]
+        [Description("Executes Get project children for a project with an orphan artifact. Verifies the orphan artifact returned among other artifacts.")]
+        public void GetArtifactChildrenByProjectId_CreateOrphanArtifact_VerifyOrphanArtifactReturned()
+        {
+            // Setup:
+            var grandChildArtifacts = new List<ArtifactWrapper>();
+            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _adminUser, grandChildArtifacts);
+
+            // Make the grandchild artifact an orphan by moving it, delete its parent, then discard the move.
+            grandChildArtifacts[0].Lock(_adminUser);
+            grandChildArtifacts[0].MoveArtifact(_adminUser, parentArtifactList[0].Id);
+
+            parentArtifactList[1].Delete(_adminUser);
+
+            var artifacts = new List<ArtifactWrapper>();
+            artifacts.AddRange(grandChildArtifacts);
+
+            parentArtifactList[1].Publish(_adminUser);
+
+            var artifactIdsToDiscard = artifacts.Select(a => a.Id);
+            Helper.ArtifactStore.DiscardArtifacts(_adminUser, artifactIdsToDiscard);
+            artifacts.ForEach(a => a.UpdateArtifactState(ArtifactWrapper.ArtifactOperation.Discard));
+
+            // Execute:
+            List<INovaArtifact> returnedNovaArtifactList = null;
+
+            Assert.DoesNotThrow(() => returnedNovaArtifactList = Helper.ArtifactStore.GetProjectChildrenByProjectId(_project.Id, _adminUser),
+                "The 'GET {0}' should return 200 OK if valid parameters are passed!", PATH_PROJECT_CHILDREN);
+
+            // Verify:
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_adminUser, grandChildArtifacts[0].Id);
+            Assert.AreEqual(_project.Id, artifactDetails.ParentId, "Artifact parent Id should be the id of the project! (orphan artifact)");
+
+            ArtifactStoreHelper.ValidateNovaArtifacts(_project, returnedNovaArtifactList);
+
+            // Assert that grandchild artifact is returned from GetProjectChilden call
+            Assert.IsNotNull(FindArtifactFromNovaArtifacts(returnedNovaArtifactList, grandChildArtifacts[0]));
+        }
+
+        #endregion Positive tests
 
         [TestCase]
         [TestRail(125501)]
@@ -162,49 +206,11 @@ namespace ArtifactStoreTests
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound, expectedMessage);
         }
 
-        [TestCase]
-        [TestRail(134083)]
-        [Description("Executes Get project children for a project with an orphan artifact. Verifies the orphan artifact returned among other artifacts.")]
-        public void GetArtifactChildrenByProjectId_CreateOrphanArtifact_VerifyOrphanArtifactReturned()
-        {
-            // Setup:
-            var grandChildArtifacts = new List<ArtifactWrapper>();
-            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _adminUser, grandChildArtifacts);
-
-            // Make the grandchild artifact an orphan by moving it, delete its parent, then discard the move.
-            grandChildArtifacts[0].Lock(_adminUser);
-            grandChildArtifacts[0].MoveArtifact(_adminUser, parentArtifactList[0].Id);
-
-            parentArtifactList[1].Delete(_adminUser);
-
-            var artifacts = new List<ArtifactWrapper>();
-            artifacts.AddRange(grandChildArtifacts);
-
-            parentArtifactList[1].Publish(_adminUser);
-
-            var artifactIdsToDiscard = artifacts.Select(a => a.Id);
-            Helper.ArtifactStore.DiscardArtifacts(_adminUser, artifactIdsToDiscard);
-            artifacts.ForEach(a => a.UpdateArtifactState(ArtifactWrapper.ArtifactOperation.Discard));
-
-            // Execute:
-            List<INovaArtifact> returnedNovaArtifactList = null;
-
-            Assert.DoesNotThrow(() => returnedNovaArtifactList = Helper.ArtifactStore.GetProjectChildrenByProjectId(_project.Id, _adminUser),
-                "The 'GET {0}' should return 200 OK if valid parameters are passed!", PATH_PROJECT_CHILDREN);
-
-            // Verify:
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_adminUser, grandChildArtifacts[0].Id);
-            Assert.AreEqual(_project.Id, artifactDetails.ParentId, "Artifact parent Id should be the id of the project! (orphan artifact)");
-
-            ArtifactStoreHelper.ValidateNovaArtifacts(_project, returnedNovaArtifactList);
-
-            // Assert that grandchild artifact is returned from GetProjectChilden call
-            Assert.IsNotNull(FindArtifactFromNovaArtifacts(returnedNovaArtifactList, grandChildArtifacts[0]));
-        }
-
         #endregion GetProjectChildrenByProjectId tests
 
         #region GetArtifactChildrenByProjectAndArtifactId tests
+
+        #region Positive tests
 
         [TestCase]
         [TestRail(125511)]
@@ -366,6 +372,8 @@ namespace ArtifactStoreTests
 
             Assert.IsNull(returnedNovaArtifactList.Find(a => a.Id.Equals(invisibleArtifact.Id)), "Artifact should not be in the list of returned artifacts!");
         }
+
+        #endregion Positive tests
 
         [TestCase]
         [TestRail(134072)]

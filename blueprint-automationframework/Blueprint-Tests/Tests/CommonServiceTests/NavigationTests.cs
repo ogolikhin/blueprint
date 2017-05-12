@@ -257,7 +257,6 @@ namespace CommonServiceTests
             foreach (var inaccessibleArtifactIndex in inaccessibleArtifactIndexes)
             {
                 var inaccessbileArtifact = Helper.CreateNovaArtifact(_secondaryUser, _project, ItemTypePredefined.Actor);
-                inaccessbileArtifact.SaveWithNewDescription(_secondaryUser);
                 _artifacts.Insert(inaccessibleArtifactIndex, inaccessbileArtifact);
             }
 

@@ -500,14 +500,9 @@ namespace AdminStore.Controllers
         [HttpPut]
         [SessionRequired]
         [ResponseType(typeof(HttpResponseMessage))]
-        [Route("{userId:int}")]
+        [Route("{userId:int:min(1)}")]
         public async Task<IHttpActionResult> UpdateUser(int userId, [FromBody] UserDto user)
         {
-            if (userId == 0)
-            {
-                throw new BadRequestException(ErrorMessages.IncorrectUserId, ErrorCodes.BadRequest);
-            }
-
             if (user == null)
             {
                 throw new BadRequestException(ErrorMessages.UserModelIsEmpty, ErrorCodes.BadRequest);

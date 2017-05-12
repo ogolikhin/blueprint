@@ -39,6 +39,7 @@ namespace ArtifactStoreTests
             get { return _wrappedArtifacts.FirstOrDefault(); }
         }
         private List<IArtifact> _wrappedArtifacts = new List<IArtifact>();
+        private List<ArtifactWrapper> _wrappedNovaArtifacts = new List<ArtifactWrapper>();
 
         [SetUp]
         public void SetUp()
@@ -329,6 +330,7 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, userNoTracePermission, targetArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
         }
 
+        // TODO: Once Nova supports getting Reuse relationships, change this test to use Nova instead of OpenAPI calls.
         [Category(Categories.CustomData)]
         [Category(Categories.GoldenData)]
         [TestCase(BaseArtifactType.TextualRequirement, 166, "ST-User Story Reuse only - source", 4)]
@@ -864,8 +866,8 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(227356)]
-        [Description("Create and publish a source artifact. Add random inline image to source artifact description, delete inline image and save changes. " +
-            "Copy the source artifact into the same parent.  Verify the source artifact is unchanged and the new artifact is identical to the source artifact.")]
+        [Description("Create and publish a source artifact.  Add random inline image to source artifact description, delete inline image and save changes.  " +
+                     "Copy the source artifact into the same parent.  Verify the source artifact is unchanged and the new artifact is identical to the source artifact.")]
         public void CopyArtifact_PublishedArtifactWithDeletedInlineImageInDescription_ToProjectRoot_ReturnsNewArtifact(BaseArtifactType sourceArtifactType)
         {
             // Setup:
@@ -965,7 +967,8 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, sourceDiscussionsAfterCopy.Discussions.Count, "There should be 1 discussion in the source artifact!");
 
             // Publish the copied artifact so we can try to get discussions for it.
-            Helper.ArtifactStore.PublishArtifact(copyResult.Artifact.Id, author);
+            var copiedArtifact = _wrappedNovaArtifacts.Find(a => a.Id == copyResult.Artifact.Id);
+            copiedArtifact.Publish(author);
 
             // Verify the copied artifact has no Discussions.
             var copiedArtifactDiscussions = Helper.ArtifactStore.GetArtifactDiscussions(copyResult.Artifact.Id, author);
@@ -1668,7 +1671,7 @@ namespace ArtifactStoreTests
 
             if (copyResult?.Artifact != null)
             {
-                Helper.WrapArtifact(copyResult.Artifact, project, user);
+                _wrappedNovaArtifacts.Add(Helper.WrapArtifact(copyResult.Artifact, project, user));
             }
 
             return copyResult;

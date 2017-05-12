@@ -47,8 +47,8 @@ namespace AdminStoreTests.UsersTests
         #region 201 Created Tests
 
         [TestCase]
-        [Description("Create and add an instance user. Get the added user using the id of the user that was just created. " +
-             "Verify the same user that was created is returned.")]
+        [Description("Create and add an instance user. Get the added user using using an admin user. " +
+                     "Verify the same user that was created is returned.")]
         [TestRail(303340)]
         public void AddInstanceUser_ValidUser_UserCreated()
         {

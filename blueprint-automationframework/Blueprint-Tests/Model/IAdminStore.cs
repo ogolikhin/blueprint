@@ -161,15 +161,6 @@ namespace Model
         InstanceUser GetUserById(IUser adminUser, int userId);
 
         /// <summary>
-        /// Gets a user by user login.
-        /// (Runs: GET /users/search?login={login})
-        /// </summary>
-        /// <param name="adminUser">The admin user getting the user.</param>
-        /// <param name="login">The login of the user.</param>
-        /// <returns>An InstanceUser object</returns>
-        InstanceUser GetUserByLogin(IUser adminUser, string login);
-
-        /// <summary>
         /// Gets a list of non-deleted users matching a specified filter.
         /// (Runs: GET /users?  with the following parameters: offset={integer}, limit={integer}, sort={string}, order={asc|desc}
         /// property1={value}..., propertyN={value}, search={string}

@@ -200,7 +200,7 @@ namespace Model
         /// <param name="adminUser">The admin user updating the user.</param>
         /// <param name="user">An InstanceUser object representing the user to update.</param>
         /// <returns>The returned HTTP Status Code</returns>
-        HttpStatusCode UpdateUser(IUser adminUser, InstanceUser user = null);
+        HttpStatusCode UpdateUser(IUser adminUser, InstanceUser user);
 
         /// <summary>
         /// Checks if the AdminStore service is ready for operation.

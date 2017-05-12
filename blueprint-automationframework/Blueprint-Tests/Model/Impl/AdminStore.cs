@@ -232,12 +232,10 @@ namespace Model.Impl
         /// <seealso cref="IAdminStore.AddUser(IUser, InstanceUser)"/>
         public int AddUser(IUser adminUser, InstanceUser user)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
-
             var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
             string path = RestPaths.Svc.AdminStore.Users.USERS;
 
-            if (user.Password != null)
+            if (user != null && user.Password != null)
             {
                 user.Password = HashingUtilities.EncodeTo64UTF8(user.Password);
             }

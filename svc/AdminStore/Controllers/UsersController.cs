@@ -178,7 +178,7 @@ namespace AdminStore.Controllers
 
             if (user.Id == 0)
             {
-                return NotFound();
+                throw new ResourceNotFoundException(ErrorMessages.UserNotExist, ErrorCodes.ResourceNotFound);
             }
 
             return Ok(user);

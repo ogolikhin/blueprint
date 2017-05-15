@@ -913,6 +913,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
 
             //act
+
             try
             {
                 result =  await _controller.GetUser(1); 

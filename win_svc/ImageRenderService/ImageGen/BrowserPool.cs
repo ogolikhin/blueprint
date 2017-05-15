@@ -14,6 +14,8 @@ namespace ImageRenderService.ImageGen
 
         private ConcurrentBag<IVirtualBrowser> _freeBrowsers;
         private static readonly int MaxSize = ServiceHelper.BrowserPoolMaxSize;
+        // If the pool is not enabled, the pool acts just as a factory. 
+        private static readonly bool IsPoolEnabled = ServiceHelper.BrowserPoolEnabled;
         private SemaphoreSlim _browserPool;
 
         private BrowserPool()
@@ -25,7 +27,7 @@ namespace ImageRenderService.ImageGen
         {
             _instance = new BrowserPool
             {
-                _freeBrowsers = new ConcurrentBag<IVirtualBrowser>(),
+                _freeBrowsers = IsPoolEnabled ? new ConcurrentBag<IVirtualBrowser>() : null,
                 _browserPool = new SemaphoreSlim(MaxSize, MaxSize)
             };
             return _instance;
@@ -33,14 +35,14 @@ namespace ImageRenderService.ImageGen
 
         public async Task<IVirtualBrowser> Rent()
         {
-            if (!_browserPool.Wait(_maxWaitTimeSeconds*1000))
+            if (!_browserPool.Wait(_maxWaitTimeSeconds * 1000))
             {
                 return null;
             }
 
             IVirtualBrowser browser;
             //if there is a free browser - use it
-            if (_freeBrowsers.TryTake(out browser))
+            if (IsPoolEnabled && _freeBrowsers.TryTake(out browser))
             {
                 return browser;
             }
@@ -64,12 +66,26 @@ namespace ImageRenderService.ImageGen
 
         public void Return(IVirtualBrowser browser)
         {
-            _freeBrowsers.Add(browser);
+            if (IsPoolEnabled)
+            {
+                browser.Size = new Size(1920, 1080);
+                _freeBrowsers.Add(browser);
+            }
+            else
+            {
+                browser.Dispose();
+            }
+
             _browserPool.Release(1);
         }
 
         public void Dispose()
         {
+            if (!IsPoolEnabled)
+            {
+                return;
+            }
+
             foreach (var chromiumWebBrowser in _freeBrowsers)
             {
                 chromiumWebBrowser?.Dispose();

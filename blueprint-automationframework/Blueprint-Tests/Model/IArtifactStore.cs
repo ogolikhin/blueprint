@@ -208,9 +208,8 @@ namespace Model
         /// </summary>
         /// <param name="id">The id of specified project.</param>
         /// <param name="user">The user to authenticate with.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>A list of all artifacts in the specified project.</returns>
-        List<NovaArtifact> GetProjectChildrenByProjectId(int id, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+        List<INovaArtifact> GetProjectChildrenByProjectId(int id, IUser user);
 
         /// <summary>
         /// Gets all children artifacts by project and artifact id.
@@ -219,10 +218,8 @@ namespace Model
         /// <param name="projectId">The id of specific project.</param>
         /// <param name="artifactId">The id of specific artifact.</param>
         /// <param name="user">The user to authenticate with.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>A list of all sub-artifacts of the specified artifact.</returns>
-        List<NovaArtifact> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null);
+        List<INovaArtifact> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user);
 
         /// <summary>
         /// Gets the artifact tree expanded to the specified artifact.

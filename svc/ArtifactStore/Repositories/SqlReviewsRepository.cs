@@ -89,6 +89,8 @@ namespace ArtifactStore.Repositories
             {
                 Id = containerId,
                 Name = reviewInfo.Name,
+                Prefix = reviewDetails.Prefix,
+                ArtifactType = reviewDetails.ArtifactType,
                 Description = description,
                 Source = reviewSource,
                 TotalArtifacts = reviewDetails.TotalArtifacts,

@@ -8,6 +8,10 @@ namespace ArtifactStore.Models.Review
 
         public string Name { get; set; }
 
+        public string Prefix { get; set; }
+
+        public string ArtifactType { get; set; }
+
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Description { get; set; }
 

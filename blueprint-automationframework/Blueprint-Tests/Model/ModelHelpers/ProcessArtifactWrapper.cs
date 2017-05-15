@@ -1,8 +1,10 @@
 ﻿using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
 using Model.StorytellerModel.Impl;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using Utilities;
+using Utilities.Factories;
 
 namespace Model.ModelHelpers
 {
@@ -45,6 +47,33 @@ namespace Model.ModelHelpers
         }
 
         #endregion Constructors
+
+        /// <summary>
+        /// Updates this artifact with a new random Description.  You must lock the artifact before saving.
+        /// NOTE: This method only updates the Description of the wrapped artifact with the new random description.  All other properties
+        /// are the same as they were before this function was called.  If you need this object to have all of the properties the same as
+        /// they are on the server, call RefreshArtifactFromServer().
+        /// </summary>
+        /// <param name="user">The user to perform the update.</param>
+        /// <param name="description">(optional) The new description to save.  By default a random description is generated.</param>
+        /// <returns>The result of the update artifact call.</returns>
+        public override INovaArtifactDetails SaveWithNewDescription(IUser user, string description = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            var changes = new NovaProcess
+            {
+                Id = Artifact.Id,
+                ProjectId = Artifact.ProjectId,
+                Description = description ?? "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5)
+            };
+
+            var updatedArtifact = Update(user, changes);
+
+            Artifact.Description = changes.Description;
+
+            return updatedArtifact;
+        }
 
         /// <summary>
         /// Updates this process artifact with the properties specified in the updateProcessArtifact.  You must lock the artifact before updating.

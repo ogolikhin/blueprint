@@ -4,6 +4,8 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Model.Factories;
 using Utilities;
 using Utilities.Factories;
 
@@ -12,8 +14,9 @@ namespace Model.ModelHelpers
     public class ArtifactWrapper : INovaArtifactDetails, INovaArtifactObservable
     {
         public ArtifactState ArtifactState { get; } = new ArtifactState();
-        public IArtifactStore ArtifactStore { get; private set; }
-        public ISvcShared SvcShared { get; private set; }
+
+        public static IArtifactStore ArtifactStore { get; } = ArtifactStoreFactory.GetArtifactStoreFromTestConfig();
+        public static ISvcShared SvcShared { get; } = SvcSharedFactory.GetSvcSharedFromTestConfig();
 
         /// <summary>
         /// The artifact that is being wrapped.
@@ -27,15 +30,11 @@ namespace Model.ModelHelpers
         /// Constructor.
         /// </summary>
         /// <param name="artifact">The artifact to wrap.</param>
-        /// <param name="artifactStore">The ArtifactStore to use for REST calls.</param>
-        /// <param name="svcShared">The SvcShared to use for REST calls.</param>
         /// <param name="project">The project where the artifact was created.</param>
         /// <param name="createdBy">The user who created the artifact.</param>
         /// <exception cref="AssertionException">If the Project ID of the artifact is different than the ID of the IProject.</exception>
         public ArtifactWrapper(
             INovaArtifactDetails artifact,
-            IArtifactStore artifactStore,
-            ISvcShared svcShared,
             IProject project,
             IUser createdBy)
         {
@@ -43,8 +42,6 @@ namespace Model.ModelHelpers
             ThrowIf.ArgumentNull(project, nameof(project));
 
             Artifact = artifact;
-            ArtifactStore = artifactStore;
-            SvcShared = svcShared;
 
             ArtifactState.Project = project;
             ArtifactState.CreatedBy = createdBy;
@@ -80,7 +77,7 @@ namespace Model.ModelHelpers
 
             if (copyResult?.Artifact != null)
             {
-                var wrappedArtifact = new ArtifactWrapper(copyResult.Artifact, ArtifactStore, SvcShared, targetProject, user);
+                var wrappedArtifact = new ArtifactWrapper(copyResult.Artifact, targetProject, user);
                 response.Item2.Add(wrappedArtifact);
             }
 
@@ -110,7 +107,7 @@ namespace Model.ModelHelpers
 
                     // TODO: Also copy children of children...
 
-                    var wrappedArtifact = new ArtifactWrapper(novaArtifact, ArtifactStore, SvcShared, targetProject, user);
+                    var wrappedArtifact = new ArtifactWrapper(novaArtifact, targetProject, user);
                     response.Item2.Add(wrappedArtifact);
                 }
             }
@@ -152,6 +149,24 @@ namespace Model.ModelHelpers
         }
 
         /// <summary>
+        /// Discards all unpublished changes for multiple artifacts.  If an artifact was never published, the discard effectively deletes the artifact.
+        /// </summary>
+        /// <param name="user">The user to perform the discard.</param>
+        /// <param name="artifacts">The artifacts to discard.</param>
+        /// <returns>An object containing a list of artifacts that were discarded and their projects.</returns>
+        public static INovaArtifactsAndProjectsResponse DiscardArtifacts(IUser user, List<ArtifactWrapper> artifacts)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifacts, nameof(artifacts));
+
+            var response = ArtifactStore.DiscardArtifacts(user, artifacts.Select(a => a.Id));
+
+            artifacts.ForEach(a => a.UpdateArtifactState(ArtifactOperation.Discard));
+
+            return response;
+        }
+
+        /// <summary>
         /// Locks this artifact.
         /// </summary>
         /// <param name="user">The user to perform the delete.</param>
@@ -163,6 +178,24 @@ namespace Model.ModelHelpers
             var response = SvcShared.LockArtifacts(user, new List<int> { Artifact.Id });
 
             UpdateArtifactState(ArtifactOperation.Lock, user);
+
+            return response;
+        }
+
+        /// <summary>
+        /// Locks multiple artifacts.
+        /// </summary>
+        /// <param name="user">The user to perform the delete.</param>
+        /// <param name="artifacts">The artifacts to lock.</param>
+        /// <returns>List of LockResultInfo for the locked artifacts.</returns>
+        public static List<LockResultInfo> LockArtifacts(IUser user, List<ArtifactWrapper> artifacts)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifacts, nameof(artifacts));
+
+            var response = SvcShared.LockArtifacts(user, artifacts.Select(a => a.Id));
+
+            artifacts.ForEach(a => a.UpdateArtifactState(ArtifactOperation.Lock, user));
 
             return response;
         }
@@ -206,6 +239,36 @@ namespace Model.ModelHelpers
             Artifact.Version = response.Artifacts[0].Version;
 
             UpdateArtifactState(ArtifactOperation.Publish);
+
+            return response;
+        }
+
+        /// <summary>
+        /// Publishes multiple artifacts.  You must lock the artifacts before publishing.
+        /// NOTE: This method only updates the Version of the wrapped artifacts with the new versions returned by the Publish call.  All other
+        /// properties are the same as they were before this function was called.  If you need the artifacts to have all of the properties the
+        /// same as they are on the server, call RefreshArtifactFromServer().
+        /// </summary>
+        /// <param name="user">The user to perform the publish.</param>
+        /// <param name="artifacts">The artifacts to publish.</param>
+        /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
+        public static INovaArtifactsAndProjectsResponse PublishArtifacts(IUser user, List<ArtifactWrapper> artifacts)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifacts, nameof(artifacts));
+
+            var response = ArtifactStore.PublishArtifacts(artifacts.Select(a => a.Id), user);
+
+            foreach (var artifact in artifacts)
+            {
+                var publishedArtifact = response.Artifacts.Find(a => a.Id == artifact.Id);
+
+                if (publishedArtifact != null)
+                {
+                    artifact.Version = response.Artifacts[0].Version;
+                    artifact.UpdateArtifactState(ArtifactOperation.Publish);
+                }
+            }
 
             return response;
         }

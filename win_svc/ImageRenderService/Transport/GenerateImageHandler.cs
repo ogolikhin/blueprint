@@ -1,6 +1,6 @@
 ﻿using System.Drawing.Imaging;
 using System.Threading.Tasks;
-using CommonTransportModels;
+using BluePrintSys.Messaging.Models.ProcessImageGeneration;
 using ImageRenderService.ImageGen;
 using NServiceBus;
 
@@ -11,7 +11,7 @@ namespace ImageRenderService.Transport
         public async Task Handle(GenerateImageMessage message, IMessageHandlerContext context)
         {
             var tempFile = @"C:\image.html";
-            System.IO.File.WriteAllText(tempFile, message.SourceHtml);
+            System.IO.File.WriteAllText(tempFile, message.ProcessJsonModel);
             //generate image
             var image = await ImageGenService.Instance.ImageGenerator.GenerateImageAsync(tempFile, ImageFormat.Png);
             
@@ -24,7 +24,7 @@ namespace ImageRenderService.Transport
 
             var imageGenerated = new ImageResponseMessage
             {
-                Result = image.ToArray()
+                ProcessImage = image.ToArray()
             };
 
             var options = new ReplyOptions();

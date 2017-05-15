@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageRenderService", "Image
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageRenderService.Tests", "ImageRenderService.Tests\ImageRenderService.Tests.csproj", "{4E038D5E-8E8F-4158-A3ED-D06531BE135E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonTransportModels", "CommonTransportModels\CommonTransportModels.csproj", "{C6352FB5-BFA5-4D67-86F8-69C8B5F95495}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BluePrintSys.Messaging.Models", "BluePrintSys.Messaging.Models\BluePrintSys.Messaging.Models.csproj", "{C6352FB5-BFA5-4D67-86F8-69C8B5F95495}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

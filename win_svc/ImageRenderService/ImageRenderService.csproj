@@ -141,7 +141,6 @@
       <Link>Properties\SolutionAssemblyVersion.cs</Link>
     </Compile>
     <Compile Include="ApiServiceController.cs" />
-    <Compile Include="Helpers\ConfigureTransportExtensions.cs" />
     <Compile Include="Helpers\ServiceConfiguration.cs" />
     <Compile Include="ImageGen\AsyncBoundObject.cs" />
     <Compile Include="ImageGen\BrowserPool.cs" />
@@ -843,9 +842,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CommonTransportModels\CommonTransportModels.csproj">
+    <ProjectReference Include="..\BluePrintSys.Messaging.Models\BluePrintSys.Messaging.Models.csproj">
       <Project>{C6352FB5-BFA5-4D67-86F8-69C8B5F95495}</Project>
-      <Name>CommonTransportModels</Name>
+      <Name>BluePrintSys.Messaging.Models</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

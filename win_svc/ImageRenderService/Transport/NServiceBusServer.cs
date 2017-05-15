@@ -6,8 +6,8 @@ namespace ImageRenderService.Transport
 {
     public class NServiceBusServer
     {
-        public static string Client = "ImageGen.Client";
-        public static string Handler = "ImageGen.Handler";
+        public static string Client = "ImageGen.BlueprintServer";
+        public static string Handler = "ImageGen.ImageGenServer";
         private IEndpointInstance _endpointInstance;
 
         public async Task Stop()

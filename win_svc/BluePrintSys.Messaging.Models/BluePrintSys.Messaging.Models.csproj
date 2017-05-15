@@ -7,8 +7,8 @@
     <ProjectGuid>{C6352FB5-BFA5-4D67-86F8-69C8B5F95495}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CommonTransportModels</RootNamespace>
-    <AssemblyName>CommonTransportModels</AssemblyName>
+    <RootNamespace>BluePrintSys.Messaging.Models</RootNamespace>
+    <AssemblyName>BluePrintSys.Messaging.Models</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -44,7 +44,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GenerateImage.cs" />
+    <Compile Include="ProcessImageGeneration\GenerateImageMessage.cs" />
+    <Compile Include="ProcessImageGeneration\ImageResponseMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

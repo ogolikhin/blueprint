@@ -58,9 +58,12 @@ namespace SearchService.Models
         public List<IArtifact> Children { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public IEnumerable<string> Path { get; set; }
+        public IEnumerable<string> ArtifactPath { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public IEnumerable<int> IdPath { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public ItemTypePredefined? ParentPredefinedType { get; set; }
     }
 }

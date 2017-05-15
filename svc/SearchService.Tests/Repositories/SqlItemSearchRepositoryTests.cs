@@ -179,8 +179,8 @@ namespace SearchService.Repositories
             // Assert
             CollectionAssert.AreEqual(queryResult, result.Items.ToList());
             Assert.AreEqual(queryResult.Length, result.PageItemCount);
-            Assert.AreEqual(result.Items.First().Path.Count(), 1);
-            Assert.AreEqual(result.Items.First().Path.First(), "ArtifactPath");
+            Assert.AreEqual(result.Items.First().ArtifactPath.Count(), 1);
+            Assert.AreEqual(result.Items.First().ArtifactPath.First(), "ArtifactPath");
         }
 
         [TestMethod]

@@ -531,5 +531,38 @@ namespace AdminStore.Controllers
             var result = await _userRepository.GetUserGroupsAsync(userId, tabularData, GroupsHelper.SortGroups);
             return Ok(result);
         }
+
+        /// <summary>
+        /// Delete user from groups
+        /// </summary>
+        /// <param name="userId">User's identity</param>
+        /// <param name="removedGroups">List of groups ids</param>
+        /// <response code="200">OK. A user is deleted from groups.</response>
+        /// <response code="400">BadRequest. Some errors. </response>
+        /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
+        /// <response code="403">Forbidden if used doesn’t have permissions to delete user from groups</response>
+        /// <response code="404">NotFound. if user with userId doesn’t exists or removed from the system.</response>
+        [HttpPost]
+        [SessionRequired]
+        [Route("{userId:int:min(1)}/groups")]
+        [ResponseType(typeof(HttpResponseMessage))]
+        public async Task<IHttpActionResult> DeleteUserFromGroups(int userId, [FromBody]ChangeSet removedGroups)
+        {
+            if (removedGroups?.Removed == null)
+            {
+                throw new BadRequestException(ErrorMessages.InvalidDeleteUserFromGroupsParameters, ErrorCodes.BadRequest);
+            }
+
+            if (!removedGroups.Removed.Any())
+            {
+                return Ok();
+            }
+
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageUsers);
+
+            await _userRepository.DeleteUserFromGroupsAsync(userId, removedGroups.Removed);
+
+            return Ok();
+        }
     }
 }

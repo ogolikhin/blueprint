@@ -509,5 +509,26 @@ namespace AdminStore.Repositories
         }
 
         #endregion UpdateUsersync
+
+        #region DeleteUserFromGroups
+
+        [TestMethod]
+        public async Task DeleteUserFromGroupsAsync_SuccessfulDeletingUserFromGroups_ReturnOk()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
+            var errorId = 1;
+
+            cxn.SetupExecuteScalarAsync("DeleteUserFromGroups", It.IsAny<Dictionary<string, object>>(), 1, new Dictionary<string, object> { { "ErrorCode", errorId } });
+
+            // Act
+            await repository.DeleteUserFromGroupsAsync(1, new[] {1, 2});
+
+            // Assert
+            cxn.Verify();
+        }
+
+        #endregion DeleteUserFromGroups
     }
 }

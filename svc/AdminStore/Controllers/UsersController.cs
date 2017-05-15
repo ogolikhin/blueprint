@@ -178,7 +178,7 @@ namespace AdminStore.Controllers
 
             if (user.Id == 0)
             {
-                return NotFound();
+                throw new ResourceNotFoundException(ErrorMessages.UserNotExist, ErrorCodes.ResourceNotFound);
             }
 
             return Ok(user);
@@ -263,7 +263,7 @@ namespace AdminStore.Controllers
         {
             try
             {
-                
+
 
                 var matchingSetting = await _applicationSettingsRepository.GetValue(IsPasswordRecoveryEnabledKey, false);
                 if (!matchingSetting)
@@ -419,6 +419,39 @@ namespace AdminStore.Controllers
         }
 
         /// <summary>
+        /// Change instance admin password
+        /// </summary>
+        /// <param name="updatePassword">Login and userId</param>
+        /// <returns>
+        /// <response code="200">OK. The password was updated.</response>
+        /// </returns>
+        [HttpPost]
+        [SessionRequired]
+        [Route("changepassword")]
+        public async Task<IHttpActionResult> InstanceAdminChangePassword([FromBody] UpdateUserPassword updatePassword)
+        {
+            if (updatePassword == null)
+            {
+                throw new BadRequestException(ErrorMessages.InvalidChangeInstanceAdminPasswordParameters, ErrorCodes.BadRequest);
+            }
+
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageUsers);
+
+            var user = await _userRepository.GetUserAsync(updatePassword.UserId);
+            if (user == null)
+            {
+                throw new ResourceNotFoundException($"User does not exist with UserId: {updatePassword.UserId}", ErrorCodes.ResourceNotFound);
+            }
+
+            UserConverter.ValidatePassword(user, updatePassword.Password);
+
+            await _userRepository.UpdateUserPasswordAsync(user.Login, updatePassword.Password);
+
+            return Ok();
+        }
+
+
+        /// <summary>
         /// Create new database user
         /// </summary>
         /// <remarks>
@@ -526,7 +559,7 @@ namespace AdminStore.Controllers
             }
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewUsers);
-            var tabularData = new TabularData {Pagination = pagination, Sorting = sorting, Search = search};
+            var tabularData = new TabularData { Pagination = pagination, Sorting = sorting, Search = search };
 
             var result = await _userRepository.GetUserGroupsAsync(userId, tabularData, GroupsHelper.SortGroups);
             return Ok(result);

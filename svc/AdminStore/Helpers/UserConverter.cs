@@ -60,5 +60,26 @@ namespace AdminStore.Helpers
 
             return databaseUser;
         }
+
+        public static void ValidatePassword(User user, string encodedPassword)
+        {
+            var decodedPasword = SystemEncryptions.Decode(encodedPassword);
+            string errorMessage;
+            var isValidPassword = PasswordValidationHelper.ValidatePassword(decodedPasword, true, out errorMessage);
+            if (!isValidPassword)
+            {
+                throw new BadRequestException(errorMessage, ErrorCodes.BadRequest);
+            }
+            var passwordUppercase = decodedPasword.ToUpperInvariant();
+
+            if (passwordUppercase == user.Login?.ToUpperInvariant())
+            {
+                throw new BadRequestException(ErrorMessages.PasswordSameAsLogin, ErrorCodes.PasswordSameAsLogin);
+            }
+            if (passwordUppercase == user.DisplayName?.ToUpperInvariant())
+            {
+                throw new BadRequestException(ErrorMessages.PasswordSameAsDisplayName, ErrorCodes.PasswordSameAsDisplayName);
+            }
+        }
     }
 }

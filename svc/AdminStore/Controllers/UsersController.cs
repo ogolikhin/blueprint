@@ -515,20 +515,7 @@ namespace AdminStore.Controllers
         [Route("{userId:int:min(1)}/groups")]
         public async Task<IHttpActionResult> GetUserGroups(int userId, [FromUri]Pagination pagination, [FromUri]Sorting sorting, [FromUri] string search = null)
         {
-            if (pagination == null)
-            {
-                throw new BadRequestException(ErrorMessages.InvalidPagination, ErrorCodes.BadRequest);
-            }
-
-            if (pagination.Limit < 1)
-            {
-                throw new BadRequestException(ErrorMessages.IncorrectLimitParameter, ErrorCodes.BadRequest);
-            }
-
-            if (pagination.Offset < 0)
-            {
-                throw new BadRequestException(ErrorMessages.IncorrectOffsetParameter, ErrorCodes.BadRequest);
-            }
+            PaginationValidator.ValidatePaginationModel(pagination);
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewUsers);
             var tabularData = new TabularData {Pagination = pagination, Sorting = sorting, Search = search};

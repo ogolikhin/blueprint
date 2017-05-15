@@ -36,5 +36,7 @@
         public static readonly string LoginInvalid = "The \"Login\" field is invalid.";
         public static readonly string PasswordSameAsLogin = "Password cannot be equal to login name.";
         public static readonly string PasswordSameAsDisplayName = "Password cannot be equal to display name.";
+        public static readonly string InvalidChangeInstanceAdminPasswordParameters = "Parameters are invalid";
+        public static readonly string InvalidInstanceAdminUserPassword = "Password validation failed";
     }
 }

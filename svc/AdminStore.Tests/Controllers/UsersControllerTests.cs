@@ -1576,7 +1576,7 @@ namespace AdminStore.Controllers
             //arrange
 
             //act
-             await _controller.GetUserGroups(UserId, new Pagination(), new Sorting(), string.Empty);
+            await _controller.GetUserGroups(UserId, new Pagination(), new Sorting(), string.Empty);
 
             //assert
             // Exception
@@ -1601,7 +1601,7 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        [ExpectedException(typeof (ResourceNotFoundException))]
+        [ExpectedException(typeof(ResourceNotFoundException))]
         public async Task GetUserGroups_UserNotFound_ResourceNotFoundResult()
         {
             //arrange
@@ -1635,6 +1635,120 @@ namespace AdminStore.Controllers
             //assert
             Assert.IsInstanceOfType(result, typeof(BadRequestErrorMessageResult));
         }
+        #endregion
+
+        #region InstanceAdminChangePassword
+
+        [TestMethod]
+        public async Task InstanceAdminChangePassword_BodyIsNull_BadRequestResult()
+        {
+            //arrange
+            UpdateUserPassword updatePasswor = null;
+            IHttpActionResult result = null;
+            BadRequestException exception = null;
+
+            //act
+            try
+            {
+                result = await _controller.InstanceAdminChangePassword(updatePasswor);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNull(result);
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(ErrorMessages.InvalidChangeInstanceAdminPasswordParameters, exception.Message);
+        }
+
+        [TestMethod]
+        public async Task InstanceAdminChangePassword_PasswordIsInvalid_BadRequestException()
+        {
+            //arrange
+            var pass = "asdf1";
+            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(pass);
+            var encodedPassword = Convert.ToBase64String(plainTextBytes);
+            var updatePasswor = new UpdateUserPassword() { Password = encodedPassword };
+            var user = new User() { Id = 3 };
+            IHttpActionResult result = null;
+            BadRequestException exception = null;
+
+            _privilegesRepository
+               .Setup(repo => repo.GetInstanceAdminPrivilegesAsync(It.IsAny<int>()))
+               .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
+            _usersRepoMock.Setup(repo => repo.GetUserAsync(It.IsAny<int>())).ReturnsAsync(user);
+
+            //act
+            try
+            {
+                result = await _controller.InstanceAdminChangePassword(updatePasswor);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNull(result);
+            Assert.IsNotNull(exception);
+        }
+
+        [TestMethod]
+        public async Task InstanceAdminChangePassword_UserNotFound_ResourceNotFoundException()
+        {
+            //arrange
+            var updatePasswor = new UpdateUserPassword() { Password = "adf1T~asdfasdf" };
+            IHttpActionResult result = null;
+            ResourceNotFoundException exception = null;
+
+            _privilegesRepository
+               .Setup(repo => repo.GetInstanceAdminPrivilegesAsync(It.IsAny<int>()))
+               .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
+            _usersRepoMock.Setup(repo => repo.GetUserAsync(It.IsAny<int>())).ReturnsAsync(null);
+
+            //act
+            try
+            {
+                result = await _controller.InstanceAdminChangePassword(updatePasswor);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                exception = ex;
+            }
+
+            //assert
+            Assert.IsNull(result);
+            Assert.AreEqual(ErrorCodes.ResourceNotFound, exception.ErrorCode);
+        }
+
+        [TestMethod]
+        public async Task InstanceAdminChangePassword_PasswordIsInvalid_OkResult()
+        {
+            //arrange
+            var pass = "adf1T~asdfasdf";
+            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(pass);
+            var encodedPassword = Convert.ToBase64String(plainTextBytes);
+            var updatePasswor = new UpdateUserPassword() { Password = encodedPassword };
+            var user = new User() { Id = 3 };
+            IHttpActionResult result = null;
+
+            _privilegesRepository
+               .Setup(repo => repo.GetInstanceAdminPrivilegesAsync(It.IsAny<int>()))
+               .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
+            _usersRepoMock.Setup(repo => repo.GetUserAsync(It.IsAny<int>())).ReturnsAsync(user);
+
+            //act
+
+            result = await _controller.InstanceAdminChangePassword(updatePasswor) as OkResult;
+
+
+            //assert
+            Assert.IsNotNull(result);
+        }
+
+
         #endregion
     }
 }

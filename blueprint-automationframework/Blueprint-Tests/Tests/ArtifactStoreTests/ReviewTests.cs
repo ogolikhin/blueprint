@@ -62,7 +62,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
-            const int reviewId = 111;
+            const int reviewId = 112;
 
             var testConfig = TestConfiguration.GetInstance();
             string userName = testConfig.Username;
@@ -90,7 +90,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
-            const int reviewId = 111;
+            const int reviewId = 112;
 
             // Execute & Verify: 
             Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetReviewContainer(_adminUser, reviewId),

@@ -56,6 +56,8 @@ namespace CommonServiceTests
                     _user, new List<int> { artifact.Id });
             }, "POST {0} failed when publishing a saved artifact!", SVC_PATH);
 
+            artifact.UpdateArtifactState(ArtifactWrapper.ArtifactOperation.Publish);
+
             // Verify:
             const string expectedMessage = "Successfully published";
 
@@ -82,6 +84,8 @@ namespace CommonServiceTests
                     new List<int> { artifact.Id });
             }, "POST {0} with a published artifact should return 200 OK!", SVC_PATH);
 
+            artifact.UpdateArtifactState(ArtifactWrapper.ArtifactOperation.Publish);
+
             // Verify:
             string expectedMessage = I18NHelper.FormatInvariant("Artifact {0} is already published in the project", artifact.Id);
 
@@ -98,42 +102,43 @@ namespace CommonServiceTests
         /// <summary>
         /// Validates the returned PublishResult from POST /svc/shared/artifacts/publish
         /// </summary>
-        /// <param name="artifacts"> the list of artifacts that are published. </param>
-        /// <param name="expectedPublishStatus"> the expected publish status. </param>
-        /// <param name="expectedPublishMessage"> the expected publish message. </param>
-        /// <param name="actualPublishResult"> the returned publish result. </param>
+        /// <param name="artifacts"> The list of artifacts that are published. </param>
+        /// <param name="expectedPublishStatus"> The expected publish status. </param>
+        /// <param name="expectedPublishMessage"> The expected publish message. </param>
+        /// <param name="actualPublishResults"> The returned publish result. </param>
         private static void ValidateSvcSharedPublishResult (
             List<ArtifactWrapper> artifacts,
             NovaPublishArtifactResult.Result expectedPublishStatus,
             string expectedPublishMessage,
-            List<NovaPublishArtifactResult> actualPublishResult)
+            List<NovaPublishArtifactResult> actualPublishResults)
         {
             ThrowIf.ArgumentNull(artifacts, nameof(artifacts));
             ThrowIf.ArgumentNull(expectedPublishStatus, nameof(expectedPublishStatus));
             ThrowIf.ArgumentNull(expectedPublishMessage, nameof(expectedPublishMessage));
-            ThrowIf.ArgumentNull(actualPublishResult, nameof(actualPublishResult));
+            ThrowIf.ArgumentNull(actualPublishResults, nameof(actualPublishResults));
 
             //Verify that number of artifacts published is same as the number items returned from actual publishResult
-            Assert.AreEqual(artifacts.Count, actualPublishResult.Count,
-                "the expected number of artifacts published is {0} but the actual response contains {1}.",
-                artifacts.Count, actualPublishResult.Count);
+            Assert.AreEqual(artifacts.Count, actualPublishResults.Count,
+                "The expected number of artifacts published is {0} but the actual response contains {1}.",
+                artifacts.Count, actualPublishResults.Count);
 
-            for (int i = 0; i < artifacts.Count; i++)
+            foreach (var artifact in artifacts)
             {
-                //Update status with based on the response status from the publish call.
-                if (actualPublishResult[i].StatusCode == NovaPublishArtifactResult.Result.Success)
+                var actualPublishResult = actualPublishResults.Find(a => a.ArtifactId == artifact.Id);
+                Assert.NotNull(actualPublishResult, "Couldn't find artifact with Id: {0}", artifact.Id);
+                if (actualPublishResult.StatusCode == NovaPublishArtifactResult.Result.Success)
                 {
-                    artifacts[i].ArtifactState.IsPublished = true;
+                    artifact.UpdateArtifactState(ArtifactWrapper.ArtifactOperation.Publish);
                 }
 
                 // Verify:
-                Assert.AreEqual(expectedPublishStatus, actualPublishResult[i].StatusCode,
+                Assert.AreEqual(expectedPublishStatus, actualPublishResult.StatusCode,
                     "the expected result status is {0} but the returned result status is {1}.",
-                    expectedPublishStatus, actualPublishResult[i].StatusCode);
+                    expectedPublishStatus, actualPublishResult.StatusCode);
 
-                Assert.AreEqual(expectedPublishMessage, actualPublishResult[i].Message,
+                Assert.AreEqual(expectedPublishMessage, actualPublishResult.Message,
                     "the expected result message is {0} but the returned result message is {1}.",
-                    expectedPublishMessage, actualPublishResult[i].Message);
+                    expectedPublishMessage, actualPublishResult.Message);
             }
         }
 

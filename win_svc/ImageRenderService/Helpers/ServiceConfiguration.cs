@@ -5,6 +5,9 @@
         public const string ServiceNameKey = "Service.Name";
         public const string DefaultServiceName = "BlueprintImageGen";
 
+        public const string BrowserPoolEnabledKey = "BrowserPool.Enabled";
+        public const bool DefaultBrowserPoolEnabled = true;
+
         public const string BrowserPoolMaxSizeKey = "BrowserPool.MaxSize";
         public const int DefaultBrowserPoolMaxSize = 10;
 
@@ -19,5 +22,8 @@
 
         public const string BrowserRenderDelayMillisecondsKey = "BrowserRender.DelayMilliseconds";
         public const int DefaultBrowserRenderDelayMilliseconds = 500;
+
+        public const string BrowserRenderWaitTimeSecondsKey = "BrowserRender.WaitTimeSeconds";
+        public const int DefaultBrowserRenderWaitTimeSeconds = 10;
     }
 }

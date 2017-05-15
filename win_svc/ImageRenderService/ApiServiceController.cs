@@ -1,4 +1,5 @@
 ﻿using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -16,13 +17,13 @@ namespace ImageRenderService
         public async Task<HttpResponseMessage> Get()
         {
             //get parameters
-            var url = Request.GetQueryNameValuePairs().FirstOrDefault(p => p.Key.Equals("url")).Value;
             var formatStr = Request.GetQueryNameValuePairs().FirstOrDefault(p => p.Key.Equals("format")).Value;
             //set image format
             var format = formatStr == "jpeg" || formatStr == "jpg" ? ImageFormat.Jpeg : ImageFormat.Png;
 
             //generate image
-            var image = await ImageGenService.Instance.ImageGenerator.GenerateImageAsync(url, format);
+            var processJsonModel = File.ReadAllText("ProcessData_Temp_200.json");
+            var image = await ImageGenService.Instance.ImageGenerator.GenerateImageAsync(processJsonModel, 6000, 6000, format);
             if (image == null)
             {
                 return Request.CreateResponse(HttpStatusCode.Conflict, "No browser available.");

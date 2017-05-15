@@ -13,5 +13,6 @@ namespace AdminStore.Models
         public string Scope { get; set; }
         public string LicenseType { get; set; }
         public string Source { get; set; }
+        public string Email { get; set; }
     }
 }

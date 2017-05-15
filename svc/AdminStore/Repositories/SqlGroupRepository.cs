@@ -26,7 +26,7 @@ namespace AdminStore.Repositories
             _connectionWrapper = connectionWrapper;
         }
 
-        public async Task<QueryResult<GroupDto>> GetGroupsAsync(TabularData tabularData, Func<Sorting, string> sort = null)
+        public async Task<QueryResult<GroupDto>> GetGroupsAsync(int userId, TabularData tabularData, Func<Sorting, string> sort = null)
         {
             var orderField = string.Empty;
             if (sort != null && tabularData.Sorting != null)
@@ -34,6 +34,7 @@ namespace AdminStore.Repositories
                 orderField = sort(tabularData.Sorting);
             }
             var parameters = new DynamicParameters();
+            parameters.Add("@UserId", userId);
             parameters.Add("@Offset", tabularData.Pagination.Offset);
             parameters.Add("@Limit", tabularData.Pagination.Limit);
             parameters.Add("@OrderField", orderField);

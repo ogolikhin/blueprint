@@ -19,7 +19,8 @@ namespace AdminStore.Helpers
                     Name = group.Name,
                     Scope = group.Scope,
                     LicenseType = ((LicenseType) group.LicenseId).ToString(),
-                    Source = ((UserGroupSource)group.Source).ToString()
+                    Source = ((UserGroupSource)group.Source).ToString(),
+                    Email = group.Email
                 };
             return result;
         }

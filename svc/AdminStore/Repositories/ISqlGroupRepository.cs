@@ -9,6 +9,6 @@ namespace AdminStore.Repositories
 {
     public interface ISqlGroupRepository
     {
-        Task<QueryResult<GroupDto>> GetGroupsAsync(TabularData tabularData, Func<Sorting, string> sort = null);
+        Task<QueryResult<GroupDto>> GetGroupsAsync(int userId, TabularData tabularData, Func<Sorting, string> sort = null);
     }
 }

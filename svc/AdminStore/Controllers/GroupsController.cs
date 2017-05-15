@@ -36,6 +36,7 @@ namespace AdminStore.Controllers
         /// <summary>
         /// Get groups list according to the input parameters 
         /// </summary>
+        /// <param name="userId">User's identity</param>
         /// <param name="pagination">Pagination parameters</param>
         /// <param name="sorting">Sorting parameters</param>
         /// <param name="search">The parameter for searching by group name</param>
@@ -46,14 +47,14 @@ namespace AdminStore.Controllers
         [Route("")]
         [SessionRequired]
         [ResponseType(typeof(QueryResult<GroupDto>))]
-        public async Task<IHttpActionResult> GetGroups([FromUri]Pagination pagination, [FromUri]Sorting sorting, [FromUri] string search = null)
+        public async Task<IHttpActionResult> GetGroups(int userId, [FromUri]Pagination pagination, [FromUri]Sorting sorting, [FromUri] string search = null)
         {
             PaginationValidator.ValidatePaginationModel(pagination);
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewGroups);
             var tabularData = new TabularData { Pagination = pagination, Sorting = sorting, Search = search };
 
-            var result = await _sqlGroupRepository.GetGroupsAsync(tabularData, GroupsHelper.SortGroups);
+            var result = await _sqlGroupRepository.GetGroupsAsync(userId, tabularData, GroupsHelper.SortGroups);
             return Ok(result);
         }
     }

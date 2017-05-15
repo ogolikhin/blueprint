@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AdminStore.Helpers;
 using AdminStore.Models;
+using AdminStore.Models.Enums;
 using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Repositories;
@@ -145,6 +146,10 @@ namespace AdminStore.Repositories
             }
             var result = await GetUsersInternalAsync(pagination, orderField, search);
             await PopulateEffectiveLicenseTypes(result.Items);
+            if (sorting != null && sorting.Sort.ToLower() == "licensetype")
+            {
+                result.Items = sorting.Order == SortOrder.Asc ? result.Items.OrderBy(e => e.LicenseType) : result.Items.OrderByDescending(e => e.LicenseType);
+            }
             return new QueryResult<UserDto>()
             {
                 Items = UserMapper.Map(result.Items),

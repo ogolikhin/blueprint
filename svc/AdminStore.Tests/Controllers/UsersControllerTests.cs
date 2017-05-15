@@ -904,6 +904,8 @@ namespace AdminStore.Controllers
         public async Task GetUser_ThereIsNoSuchUser_NotFoundResult()
         {
             //arrange
+            IHttpActionResult result = null;
+            ResourceNotFoundException exception = null;
             var user = new UserDto();
             _usersRepoMock.Setup(repo => repo.GetUserDtoAsync(It.Is<int>(i => i > 0))).ReturnsAsync(user);
             _privilegesRepository
@@ -911,10 +913,17 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
 
             //act
-            var result = await _controller.GetUser(1) as NotFoundResult;
+            try
+            {
+                result =  await _controller.GetUser(1); 
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                exception = ex;
+            }
 
             //assert
-            Assert.IsInstanceOfType(result, typeof(NotFoundResult));
+            Assert.AreEqual(ErrorMessages.UserNotExist, exception.Message);
 
         }
         #endregion

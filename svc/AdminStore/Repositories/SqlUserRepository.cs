@@ -146,7 +146,7 @@ namespace AdminStore.Repositories
             }
             var result = await GetUsersInternalAsync(pagination, orderField, search);
             await PopulateEffectiveLicenseTypes(result.Items);
-            if (sorting != null && sorting.Sort.ToLower() == "licensetype")
+            if (sorting?.Sort != null && sorting.Sort.ToLower() == "licensetype")
             {
                 result.Items = sorting.Order == SortOrder.Asc ? result.Items.OrderBy(e => e.LicenseType) : result.Items.OrderByDescending(e => e.LicenseType);
             }

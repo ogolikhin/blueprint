@@ -17,7 +17,7 @@ namespace AdminStore.Repositories
 
         private readonly IApplicationSettingsRepository _applicationSettingsRepository;
 
-        private readonly IUserRepository _userRepository;
+        private readonly ISqlUserRepository _userRepository;
 
         private readonly ISqlSettingsRepository _settingsRepository;
 
@@ -31,7 +31,7 @@ namespace AdminStore.Repositories
         {
         }
 
-        public AuthenticationRepository(IUserRepository userRepository, ISqlSettingsRepository settingsRepository, ILdapRepository ldapRepository, ISamlRepository samlRepository, IServiceLogRepository logRepository, IApplicationSettingsRepository applicationSettingsRepository)
+        public AuthenticationRepository(ISqlUserRepository userRepository, ISqlSettingsRepository settingsRepository, ILdapRepository ldapRepository, ISamlRepository samlRepository, IServiceLogRepository logRepository, IApplicationSettingsRepository applicationSettingsRepository)
         {
             _userRepository = userRepository;
             _settingsRepository = settingsRepository;

@@ -5,7 +5,6 @@ using ServiceLibrary.Helpers;
 using ArtifactStore.Repositories;
 using ServiceLibrary.Models;
 using ArtifactStore.Models.Review;
-using ServiceLibrary.Controllers;
 
 namespace ArtifactStore.Controllers
 {

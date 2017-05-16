@@ -1,9 +1,9 @@
-﻿using ServiceLibrary.Helpers;
+﻿using System.Web.Http;
 using ServiceLibrary.Repositories.ConfigControl;
 
-namespace ServiceLibrary.Controllers
+namespace ServiceLibrary.Helpers
 {
-    public abstract class LoggableApiController : BaseApiController, ILoggable
+    public abstract class LoggableApiController : ApiController, ILoggable
     {
         protected LoggableApiController() : this(new ServiceLogRepository())
         {

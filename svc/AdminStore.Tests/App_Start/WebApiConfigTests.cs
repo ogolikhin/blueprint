@@ -23,41 +23,32 @@ namespace AdminStore
 
             // Assert
             config.AssertTotalRoutes(24, "Please update asserts in WebApiConfigTests when changing routes.");
-            config.AssertTotalRoutes(31, "Please update asserts in WebApiConfigTests when changing routes.");
             config.AssertAction<ConfigController>("GetConfigSettings", HttpMethod.Get, "config/settings");
             config.AssertAction<ConfigController>("GetConfig", HttpMethod.Get, "config/config.js");
             config.AssertAction<ConfigController>("GetApplicationSettings", HttpMethod.Get, "config");
             config.AssertAction<LicensesController>("GetLicenseTransactions", HttpMethod.Get, "licenses/transactions?days=1");
-            config.AssertAction<LogController>("Log", HttpMethod.Post, "log");
             config.AssertAction<SessionsController>("PostSession", HttpMethod.Post, "sessions?login=admin");
             config.AssertAction<SessionsController>("PostSession", HttpMethod.Post, "sessions?login=admin&force=true");
             config.AssertAction<SessionsController>("PostSessionSingleSignOn", HttpMethod.Post, "sessions/sso");
             config.AssertAction<SessionsController>("PostSessionSingleSignOn", HttpMethod.Post, "sessions/sso?force=true");
             config.AssertAction<SessionsController>("DeleteSession", HttpMethod.Delete, "sessions");
-            config.AssertAction<SessionsController>("IsSessionAlive", HttpMethod.Get, "sessions/alive");
             config.AssertAction<StatusController>("GetStatus", HttpMethod.Get, "status");
             config.AssertAction<StatusController>("GetStatusUpCheck", HttpMethod.Get, "status/upcheck");
+            config.AssertAction<UsersController>("GetLoginUser", HttpMethod.Get, "users/loginuser");
+            config.AssertAction<UsersController>("GetUserIcon", HttpMethod.Get, "users/1/icon");
             config.AssertAction<InstanceController>("GetInstanceFolder", HttpMethod.Get, "instance/folders/1");
             config.AssertAction<InstanceController>("GetInstanceFolderChildren", HttpMethod.Get, "instance/folders/1/children");
             config.AssertAction<InstanceController>("GetInstanceProject", HttpMethod.Get, "instance/projects/1");
+            config.AssertAction<UsersController>("PostReset", HttpMethod.Post, "users/reset?login=admin");
             config.AssertAction<InstanceController>("GetProjectNavigationPath", HttpMethod.Get, "instance/projects/1/navigationPath");
-            config.AssertAction<InstanceController>("GetInstanceRoles", HttpMethod.Get, "instance/roles");
             config.AssertAction<JobsController>("GetLatestJobs", HttpMethod.Get, "jobs/");
             config.AssertAction<JobsController>("GetJob", HttpMethod.Get, "jobs/1");
             config.AssertAction<JobsController>("GetJobResultFile", HttpMethod.Get, "jobs/1/result/file");
+            config.AssertAction<LogController>("Log", HttpMethod.Post, "log");
             config.AssertAction<JobsController>("QueueGenerateProcessTestsJob", HttpMethod.Post, "jobs/process/testgen");
-            config.AssertAction<UsersController>("GetLoginUser", HttpMethod.Get, "users/loginuser");
-            config.AssertAction<UsersController>("GetUserIcon", HttpMethod.Get, "users/1/icon");
+            config.AssertAction<SessionsController>("IsSessionAlive", HttpMethod.Get, "sessions/alive");
             config.AssertAction<UsersController>("PostRequestPasswordResetAsync", HttpMethod.Post, "users/passwordrecovery/request");
             config.AssertAction<UsersController>("PostPasswordResetAsync", HttpMethod.Post, "users/passwordrecovery/reset");
-            config.AssertAction<UsersController>("GetUser", HttpMethod.Get, "users/1");
-            config.AssertAction<UsersController>("GetUsers", HttpMethod.Get, "users?offset=0&limit=20&sort=login&order=asc");
-            config.AssertAction<UsersController>("PostUser", HttpMethod.Post, "users");
-            config.AssertAction<UsersController>("UpdateUser", HttpMethod.Put, "users/1");
-            config.AssertAction<UsersController>("PostReset", HttpMethod.Post, "users/reset?login=admin");
-            config.AssertAction<UsersController>("DeleteUsers", HttpMethod.Post, "users/delete");
-            config.AssertAction<UsersController>("InstanceAdminChangePassword", HttpMethod.Post, "users/changepassword");
-            config.AssertAction<UsersController>("GetUserGroups", HttpMethod.Get, "/users/1074/groups?offset=0&limit=1&sort=name&order=desc&search=test");
         }
 
         [TestMethod]

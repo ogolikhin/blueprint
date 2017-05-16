@@ -5,7 +5,7 @@ using AdminStore.Models;
 
 namespace AdminStore.Repositories
 {
-    public interface IUserRepository
+    public interface ISqlUserRepository
     {
         Task<AuthenticationUser> GetUserByLoginAsync(string login);
 
@@ -16,8 +16,6 @@ namespace AdminStore.Repositories
         Task<IEnumerable<LicenseTransactionUser>> GetLicenseTransactionUserInfoAsync(IEnumerable<int> userIds);
 
         Task<int> GetEffectiveUserLicenseAsync(int userId);
-
-        Task<IEnumerable<UserLicense>> GetEffectiveUserLicensesAsync(IEnumerable<int> userIds);
 
         Task UpdateUserOnInvalidLoginAsync(AuthenticationUser login);
 
@@ -32,20 +30,5 @@ namespace AdminStore.Repositories
         Task<bool> HasUserExceededPasswordRequestLimitAsync(string login);
 
         Task<IEnumerable<PasswordRecoveryToken>> GetPasswordRecoveryTokensAsync(Guid token);
-
-        Task<User> GetUserAsync(int userId);
-
-        Task<QueryResult<UserDto>> GetUsersAsync(Pagination pagination, Sorting sorting = null, string search = null,
-            Func<Sorting, string> sort = null);
-        Task<UserDto> GetUserDtoAsync(int userId);
-
-        Task<int> AddUserAsync(User loginUser);
-
-        Task UpdateUserAsync(User loginUser);
-        Task<int> DeleteUsers(OperationScope body, string search, int sessionUserId);
-        Task UpdateUserPasswordAsync(string login, string password);
-
-        Task<QueryResult<GroupDto>> GetUserGroupsAsync(int userId, TabularData tabularData,
-            Func<Sorting, string> sort = null);
     }
 }

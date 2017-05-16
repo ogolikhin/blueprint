@@ -9,6 +9,7 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using AdminStore.Repositories;
 using ServiceLibrary.Attributes;
+using ServiceLibrary.Controllers;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories.ConfigControl;
 

@@ -11,5 +11,7 @@ namespace AdminStore.Repositories
         Task<InstanceSettings> GetInstanceSettingsAsync();
 
         Task<IFederatedAuthenticationSettings> GetFederatedAuthenticationSettingsAsync();
+
+        Task<UserManagementSettings> GetUserManagementSettingsAsync();
     }
 }

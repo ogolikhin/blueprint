@@ -20,14 +20,14 @@ namespace AdminStore.Controllers
     public class LicensesController : ApiController
     {
         internal readonly IHttpClientProvider _httpClientProvider;
-        internal readonly ISqlUserRepository _userRepository;
+        internal readonly IUserRepository _userRepository;
         internal readonly IServiceLogRepository _log;
 
         public LicensesController(): this(new HttpClientProvider(), new SqlUserRepository(), new ServiceLogRepository())
         {
         }
 
-        internal LicensesController(IHttpClientProvider httpClientProvider, ISqlUserRepository userRepository, IServiceLogRepository log)
+        internal LicensesController(IHttpClientProvider httpClientProvider, IUserRepository userRepository, IServiceLogRepository log)
         {
             _httpClientProvider = httpClientProvider;
             _userRepository = userRepository;

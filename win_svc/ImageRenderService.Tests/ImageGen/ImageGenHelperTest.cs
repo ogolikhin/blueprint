@@ -10,7 +10,7 @@ namespace ImageRenderService.Tests.ImageGen
     [TestClass]
     public class ImageGenHelperTest
     {
-        private ImageGenHelper _imageGenHelper;
+        private Mock<ImageGenHelper> _imageGenHelperMock;
         private Mock<IVirtualBrowser> _browserMock;
 
         [TestInitialize]
@@ -20,60 +20,53 @@ namespace ImageRenderService.Tests.ImageGen
             var browserPoolMock = new Mock<IBrowserPool>();
             browserPoolMock.Setup(pool => pool.Rent())
                 .ReturnsAsync(_browserMock.Object);
-            _imageGenHelper = new ImageGenHelper(browserPoolMock.Object);
+            _imageGenHelperMock = new Mock<ImageGenHelper>(browserPoolMock.Object);
 
         }
 
-        // TODO:
-        [Ignore]
         [TestMethod]
         public async Task GenerateImageAsync_Success()
         {
-            //Arange
-            const int size = 20;
-            const string url = "testUrl";
+            //Arrange
+            const string jsonModel = "json";
+            const int maxWidth = 6000;
+            const int maxHeight = 5000;
 
-            _browserMock.Setup(b => b.Load(url))
+            _browserMock.Setup(b => b.Load(It.IsAny<string>()))
                .Raises(b => b.LoadingStateChanged += null,
                 _browserMock.Object, 
                 new VirtualBrowserLoadingStateChangedEventArgs
                 {
                     Browser = _browserMock.Object, IsLoading = false
                 });
-            _browserMock.Setup(b => b.EvaluateScriptAsync(It.IsAny<string>(), null))
-                .Returns(Task.FromResult(new VirtualBrowserJavascriptResponse
-                {
-                    Result = size
-                }));
-           
+
             var screenshotMock = new Mock<IScreenshot>();
-            screenshotMock.SetupGet(s => s.Width).Returns(size+10);
-            screenshotMock.SetupGet(s => s.Height).Returns(size);
             _browserMock.SetupGet(s => s.Bitmap).Returns(screenshotMock.Object);
             _browserMock.Setup(b => b.ScreenshotAsync(false))
                .Returns(Task.FromResult(screenshotMock.Object));
+            _imageGenHelperMock.Setup(s => s.LoadPageAsync(_browserMock.Object, jsonModel, maxWidth, maxHeight))
+                .ReturnsAsync(true);
 
             //Act
-            await _imageGenHelper.GenerateImageAsync("json", 5000, 5000, ImageFormat.Png);
+            await _imageGenHelperMock.Object.GenerateImageAsync(jsonModel, maxWidth, maxHeight, ImageFormat.Png);
 
             //Assert
             screenshotMock.Verify(b => b.Save(It.IsAny<Stream>(), It.IsAny<ImageFormat>()));
+
         }
 
         [TestMethod]
         public async Task GenerateImageAsync_NoBrowser_ReturnsNull()
         {
-            //Arange
-            const string url = "testUrl";
-
+            //Arrange
             var browserPoolMock = new Mock<IBrowserPool>();
             browserPoolMock.Setup(pool => pool.Rent())
                 .ReturnsAsync((IVirtualBrowser)null);
-            _imageGenHelper = new ImageGenHelper(browserPoolMock.Object);
+            var imageGenHelper = new ImageGenHelper(browserPoolMock.Object);
             
 
             //Act
-            var result = await _imageGenHelper.GenerateImageAsync("json", 5000, 5000, ImageFormat.Png);
+            var result = await imageGenHelper.GenerateImageAsync("json", 5000, 5000, ImageFormat.Png);
 
             //Assert
             Assert.IsNull(result);

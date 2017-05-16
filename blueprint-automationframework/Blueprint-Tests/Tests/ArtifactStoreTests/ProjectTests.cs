@@ -3,11 +3,12 @@ using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel;
-using Model.ArtifactModel.Impl;
 using Model.Factories;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
+using Model.ArtifactModel.Enums;
+using Model.ModelHelpers;
 using TestCommon;
 using Utilities;
 
@@ -30,7 +31,6 @@ namespace ArtifactStoreTests
             Helper = new TestHelper();
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_adminUser);
-            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _adminUser);
         }
 
         [TearDown]
@@ -41,20 +41,23 @@ namespace ArtifactStoreTests
 
         #region GetProjectChildrenByProjectId tests
 
-        [TestCase(BaseArtifactType.Actor)]
-        [TestCase(BaseArtifactType.Document)]
+        #region Positive tests
+
+        [TestCase(ItemTypePredefined.Actor)]
+        [TestCase(ItemTypePredefined.Document)]
         [TestRail(125497)]
-        [Description("Executes Get project children call after creating an artifact in the project and Verify that the returned result" +
-            "from the successful response contains the artifact.")]
-        public void GetProjectChildrenByProjectId_CreateArtifact_VerifyResultContainsTheArtifact(BaseArtifactType artifactType)
+        [Description("Executes Get project children call after creating an artifact in the project and Verify that the returned result " +
+                     "from the successful response contains the artifact.")]
+        public void GetProjectChildrenByProjectId_CreateArtifact_VerifyResultContainsTheArtifact(ItemTypePredefined artifactType)
         {
             // Setup:
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
-            var publishedArtifact = Helper.CreateAndPublishArtifact(_project, _adminUser, artifactType);
+            var publishedArtifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, artifactType);
 
             // Execute:
-            List<NovaArtifact> returnedNovaArtifactList = null;
+            List<INovaArtifact> returnedNovaArtifactList = null;
+
             Assert.DoesNotThrow(() => returnedNovaArtifactList = Helper.ArtifactStore.GetProjectChildrenByProjectId(_project.Id, viewer),
                 "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", PATH_PROJECT_CHILDREN);
 
@@ -63,24 +66,26 @@ namespace ArtifactStoreTests
 
             var returnedNovaArtifact = FindArtifactFromNovaArtifacts(returnedNovaArtifactList, publishedArtifact);
 
-            ArtifactStoreHelper.AssertArtifactsEqual(publishedArtifact, returnedNovaArtifact, skipIdAndVersion: true);
+            ArtifactStoreHelper.AssertArtifactsEqual(publishedArtifact, returnedNovaArtifact, skipPublishedProperties: true, skipPermissions: true);
+            Assert.AreEqual(RolePermissions.Read, returnedNovaArtifact.Permissions, "A Viewer user should only get Read permissions!");
         }
 
-        [TestCase(BaseArtifactType.Process)]
-        [TestCase(BaseArtifactType.PrimitiveFolder)]
+        [TestCase(ItemTypePredefined.Process)]
+        [TestCase(ItemTypePredefined.PrimitiveFolder)]
         [TestRail(267023)]
         [Description("Executes Get project children call after creating an artifact in the project to which user has no read permissions. " +
-            "Verify that the returned result does not include artifact to which user does not have permissions.")]
-        public void GetProjectChildrenByProjectId_UserHasNoPermissionsToGetArtifact_VerifyResultsHaveNoArtifact(BaseArtifactType artifactType)
+                     "Verify that the returned result does not include artifact to which user does not have permissions.")]
+        public void GetProjectChildrenByProjectId_UserHasNoPermissionsToGetArtifact_VerifyResultsHaveNoArtifact(ItemTypePredefined artifactType)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, artifactType);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, artifactType);
 
             var userWithNoPermissionsToArtifact = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
             Helper.AssignProjectRolePermissionsToUser(userWithNoPermissionsToArtifact, TestHelper.ProjectRole.None, _project, artifact);
 
             // Execute:
-            List<NovaArtifact> returnedNovaArtifactList = null;
+            List<INovaArtifact> returnedNovaArtifactList = null;
+
             Assert.DoesNotThrow(() => returnedNovaArtifactList = Helper.ArtifactStore.GetProjectChildrenByProjectId(_project.Id, userWithNoPermissionsToArtifact),
                 "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", PATH_PROJECT_CHILDREN);
 
@@ -89,6 +94,48 @@ namespace ArtifactStoreTests
 
             Assert.IsNull(returnedNovaArtifactList.Find(a => a.Id.Equals(artifact.Id)), "Artifact should not be in the list of returned artifacts!");
         }
+
+        [TestCase]
+        [TestRail(134083)]
+        [Description("Executes Get project children for a project with an orphan artifact. Verifies the orphan artifact returned among other artifacts.")]
+        public void GetArtifactChildrenByProjectId_CreateOrphanArtifact_VerifyOrphanArtifactReturned()
+        {
+            // Setup:
+            var grandChildArtifacts = new List<ArtifactWrapper>();
+            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _adminUser, grandChildArtifacts);
+
+            // Make the grandchild artifact an orphan by moving it, delete its parent, then discard the move.
+            grandChildArtifacts[0].Lock(_adminUser);
+            grandChildArtifacts[0].MoveArtifact(_adminUser, parentArtifactList[0].Id);
+
+            parentArtifactList[1].Delete(_adminUser);
+
+            var artifacts = new List<ArtifactWrapper>();
+            artifacts.AddRange(grandChildArtifacts);
+
+            parentArtifactList[1].Publish(_adminUser);
+
+            var artifactIdsToDiscard = artifacts.Select(a => a.Id);
+            Helper.ArtifactStore.DiscardArtifacts(_adminUser, artifactIdsToDiscard);
+            artifacts.ForEach(a => a.UpdateArtifactState(ArtifactWrapper.ArtifactOperation.Discard));
+
+            // Execute:
+            List<INovaArtifact> returnedNovaArtifactList = null;
+
+            Assert.DoesNotThrow(() => returnedNovaArtifactList = Helper.ArtifactStore.GetProjectChildrenByProjectId(_project.Id, _adminUser),
+                "The 'GET {0}' should return 200 OK if valid parameters are passed!", PATH_PROJECT_CHILDREN);
+
+            // Verify:
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_adminUser, grandChildArtifacts[0].Id);
+            Assert.AreEqual(_project.Id, artifactDetails.ParentId, "Artifact parent Id should be the id of the project! (orphan artifact)");
+
+            ArtifactStoreHelper.ValidateNovaArtifacts(_project, returnedNovaArtifactList);
+
+            // Assert that grandchild artifact is returned from GetProjectChilden call
+            Assert.IsNotNull(FindArtifactFromNovaArtifacts(returnedNovaArtifactList, grandChildArtifacts[0]));
+        }
+
+        #endregion Positive tests
 
         [TestCase]
         [TestRail(125501)]
@@ -159,53 +206,11 @@ namespace ArtifactStoreTests
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound, expectedMessage);
         }
 
-        [TestCase]
-        [TestRail(134083)]
-        [Description("Executes Get project children for for project with orphan artifact. Verifies orphan artifact returned among other artifacts")]
-        public void GetArtifactChildrenByProjectId_CreateOrphanArtifact_VerifyOrphanArtifactReturned()
-        {
-            // Setup:
-            const string DELETE_ARTIFACT_ID_PATH = RestPaths.Svc.ArtifactStore.ARTIFACTS_id_;
-            const string DISCARD_PATH = RestPaths.Svc.ArtifactStore.Artifacts.DISCARD;
-            const string PUBLISH_PATH = RestPaths.Svc.ArtifactStore.Artifacts.PUBLISH;
-
-            List<IArtifact> grandChildArtifacts = new List<IArtifact>();
-            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _adminUser, grandChildArtifacts);
-
-            // Move grandchild artifact to the first parent.
-            grandChildArtifacts[0].Lock();
-            Helper.ArtifactStore.MoveArtifact(grandChildArtifacts[0], parentArtifactList[0], _adminUser);
-
-            Assert.DoesNotThrow(() => Helper.ArtifactStore.DeleteArtifact(parentArtifactList[1], _adminUser),
-                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
-
-            var artifacts = new List<IArtifactBase>();
-            artifacts.AddRange(grandChildArtifacts);
-
-            Assert.DoesNotThrow(() => Helper.ArtifactStore.PublishArtifact(parentArtifactList[1], _adminUser),
-                "'POST {0}' should return 200 OK if a valid artifact ID is sent!", PUBLISH_PATH);
-
-            Assert.DoesNotThrow(() => Helper.ArtifactStore.DiscardArtifacts(_adminUser, artifacts.Select(a => a.Id)),
-                "'POST {0}' should return 200 OK if an artifact was deleted!", DISCARD_PATH);
-
-            // Execute:
-            List<NovaArtifact> returnedNovaArtifactList = null;
-            Assert.DoesNotThrow(() => returnedNovaArtifactList = Helper.ArtifactStore.GetProjectChildrenByProjectId(_project.Id, _adminUser),
-                "The 'GET {0}' should return 200 OK if valid parameters are passed!", PATH_PROJECT_CHILDREN);
-
-            // Verify:
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_adminUser, grandChildArtifacts[0].Id);
-            Assert.AreEqual(_project.Id, artifactDetails.ParentId, "Artifact parent Id should be the id of the project! (orphan artifact)");
-
-            ArtifactStoreHelper.ValidateNovaArtifacts(_project, returnedNovaArtifactList);
-
-            // Assert that grandchild artifact is returned from GetProjectChilden call
-            Assert.IsNotNull(FindArtifactFromNovaArtifacts(returnedNovaArtifactList, grandChildArtifacts[0]));
-        }
-
         #endregion GetProjectChildrenByProjectId tests
 
         #region GetArtifactChildrenByProjectAndArtifactId tests
+
+        #region Positive tests
 
         [TestCase]
         [TestRail(125511)]
@@ -213,12 +218,13 @@ namespace ArtifactStoreTests
         public void GetArtifactChildrenByProjectAndArtifactId_PublishedParentArtifact_OK()
         {
             // Setup:
-            List<IArtifact> childArtifacts = new List<IArtifact>(); 
+            var childArtifacts = new List<ArtifactWrapper>(); 
             var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(_project, _adminUser, childArtifacts);
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             // Execute:
-            List<NovaArtifact> returnedNovaArtifactList = null;
+            List<INovaArtifact> returnedNovaArtifactList = null;
+
             Assert.DoesNotThrow(() =>
             {
                 returnedNovaArtifactList = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifact.Id, viewer);
@@ -227,15 +233,18 @@ namespace ArtifactStoreTests
             // Verify: validate the list of artifacts returned by the REST call.
             ArtifactStoreHelper.ValidateNovaArtifacts(_project,
                 novaArtifacts: returnedNovaArtifactList,
-                parentArtifact: parentArtifact,
+                parentId: parentArtifact.Id,
                 expectedNumberOfArtifacts: 2);
 
             // Assert that two child artifacts under the parent artifact are returned from Get ArtifactChilden call
             var firstChildNovaArtifact = FindArtifactFromNovaArtifacts(returnedNovaArtifactList, childArtifacts[0]);
             var secondChildNovaArtifact = FindArtifactFromNovaArtifacts(returnedNovaArtifactList, childArtifacts[1]);
 
-            ArtifactStoreHelper.AssertArtifactsEqual(childArtifacts[0], firstChildNovaArtifact, skipIdAndVersion: true);
-            ArtifactStoreHelper.AssertArtifactsEqual(childArtifacts[1], secondChildNovaArtifact, skipIdAndVersion: true);
+            ArtifactStoreHelper.AssertArtifactsEqual(childArtifacts[0], firstChildNovaArtifact, skipIdAndVersion: true, skipPermissions: true);
+            ArtifactStoreHelper.AssertArtifactsEqual(childArtifacts[1], secondChildNovaArtifact, skipIdAndVersion: true, skipPermissions: true);
+
+            Assert.AreEqual(RolePermissions.Read, firstChildNovaArtifact.Permissions, "A Viewer user should only get Read permissions!");
+            Assert.AreEqual(RolePermissions.Read, secondChildNovaArtifact.Permissions, "A Viewer user should only get Read permissions!");
         }
 
         [TestCase]
@@ -244,14 +253,16 @@ namespace ArtifactStoreTests
         public void GetArtifactChildrenByProjectAndArtifactId_PublishedArtifactWithDraft_OK()
         {
             // Setup:
-            List<IArtifact> childArtifacts = new List<IArtifact>();
+            var childArtifacts = new List<ArtifactWrapper>();
             var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(_project, _adminUser, childArtifacts);
 
             // Save parent to create a draft.
-            parentArtifact.Save();
+            parentArtifact.Lock(_adminUser);
+            parentArtifact.SaveWithNewDescription(_adminUser);
 
             // Execute:
-            List<NovaArtifact> returnedNovaArtifactList = null;
+            List<INovaArtifact> returnedNovaArtifactList = null;
+
             Assert.DoesNotThrow(() =>
             {
                 returnedNovaArtifactList = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifact.Id, _adminUser);
@@ -260,7 +271,7 @@ namespace ArtifactStoreTests
             // Verify: validate the list of artifacts returned by the REST call.
             ArtifactStoreHelper.ValidateNovaArtifacts(_project,
                 novaArtifacts: returnedNovaArtifactList,
-                parentArtifact: parentArtifact,
+                parentId: parentArtifact.Id,
                 expectedNumberOfArtifacts: 2);
 
             // Assert that two child artifacts under the parent artifact are returned from Get ArtifactChilden call
@@ -277,11 +288,12 @@ namespace ArtifactStoreTests
         public void GetArtifactChildrenByProjectAndArtifactId_SecondLevelPublishedArtifactChild_OK()
         {
             // Setup:
-            List<IArtifact> grandChildArtifacts = new List<IArtifact>();
+            var grandChildArtifacts = new List<ArtifactWrapper>();
             var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _adminUser, grandChildArtifacts);
 
             // Execute:
-            List<NovaArtifact> returnedNovaArtifactList = null;
+            List<INovaArtifact> returnedNovaArtifactList = null;
+
             Assert.DoesNotThrow(() =>
             {
                 returnedNovaArtifactList = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifactList[1].Id, _adminUser);
@@ -290,7 +302,7 @@ namespace ArtifactStoreTests
             // Verify: validate the list of artifacts returned by the REST call.
             ArtifactStoreHelper.ValidateNovaArtifacts(_project,
                 novaArtifacts: returnedNovaArtifactList,
-                parentArtifact: parentArtifactList[1],
+                parentId: parentArtifactList[1].Id,
                 expectedNumberOfArtifacts: 1);
 
             // Assert that grandchild artifact under the second parent artifact is returned from Get ArtifactChilden call
@@ -305,14 +317,16 @@ namespace ArtifactStoreTests
         public void GetArtifactChildrenByProjectAndArtifactId_SecondLevelPublishedArtifactChildWithDraft_OK()
         {
             // Setup:
-            List<IArtifact> grandChildArtifacts = new List<IArtifact>();
+            var grandChildArtifacts = new List<ArtifactWrapper>();
             var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _adminUser, grandChildArtifacts);
 
             // Save second parent to create a draft.
-            parentArtifactList[1].Save();
+            parentArtifactList[1].Lock(_adminUser);
+            parentArtifactList[1].SaveWithNewDescription(_adminUser);
 
             // Execute:
-            List<NovaArtifact> returnedNovaArtifactList = null;
+            List<INovaArtifact> returnedNovaArtifactList = null;
+
             Assert.DoesNotThrow(() =>
             {
                 returnedNovaArtifactList = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifactList[1].Id, _adminUser);
@@ -321,7 +335,7 @@ namespace ArtifactStoreTests
             // Verify: validate the list of artifacts returned by the REST call.
             ArtifactStoreHelper.ValidateNovaArtifacts(_project,
                 novaArtifacts: returnedNovaArtifactList,
-                parentArtifact: parentArtifactList[1],
+                parentId: parentArtifactList[1].Id,
                 expectedNumberOfArtifacts: 1);
 
             // Assert that grandchild artifact under the second parent artifact is returned from Get ArtifactChilden call
@@ -329,33 +343,37 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.AssertArtifactsEqual(grandChildArtifacts[0], grandChildNovaArtifact, skipIdAndVersion: true);
         }
 
-        [TestCase(BaseArtifactType.Process)]
+        [TestCase(ItemTypePredefined.Process)]
         [TestRail(267024)]
         [Description("Executes Get artifact children call after creating an artifact in the project to which user has no read permissions. " +
-            "Verify that the returned result does not include artifact to which user does not have permissions.")]
-        public void GetArtifactChildrenByProjectAndArtifactId_UserHasNoPermissionsToGetArtifact_VerifyResultsHaveNoArtifact(BaseArtifactType artifactType)
+                     "Verify that the returned result does not include artifact to which user does not have permissions.")]
+        public void GetArtifactChildrenByProjectAndArtifactId_UserHasNoPermissionsToGetArtifact_VerifyResultsHaveNoArtifact(ItemTypePredefined artifactType)
         {
             // Setup:
-            var folder = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.PrimitiveFolder);
-            var visibleArtifact = Helper.CreateAndPublishArtifact(_project, _adminUser, artifactType, folder);
-            var invisibleArtifact = Helper.CreateAndPublishArtifact(_project, _adminUser, artifactType, folder);
+            var folder = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.PrimitiveFolder);
+            var visibleArtifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, artifactType, folder.Id);
+            var invisibleArtifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, artifactType, folder.Id);
 
             var userWithNoPermissionsToArtifact = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
             Helper.AssignProjectRolePermissionsToUser(userWithNoPermissionsToArtifact, TestHelper.ProjectRole.None, _project, invisibleArtifact);
 
             // Execute:
-            List<NovaArtifact> returnedNovaArtifactList = null;
+            List<INovaArtifact> returnedNovaArtifactList = null;
+
             Assert.DoesNotThrow(() => returnedNovaArtifactList = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(
                 _project.Id, folder.Id, userWithNoPermissionsToArtifact),
                 "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", PATH_PROJECT_CHILDREN);
 
             // Verify:
             var artifact = FindArtifactFromNovaArtifacts(returnedNovaArtifactList, visibleArtifact);
-            ArtifactStoreHelper.AssertArtifactsEqual(visibleArtifact, artifact, skipIdAndVersion: true);
+            ArtifactStoreHelper.AssertArtifactsEqual(visibleArtifact, artifact, skipIdAndVersion: true, skipPublishedProperties: true, skipPermissions: true);
+            Assert.AreEqual(RolePermissions.Read, artifact.Permissions, "A Viewer user should only get Read permissions!");
             Assert.AreEqual(artifact.ParentId, folder.Id, "Artifact parent id is not correct!");
 
             Assert.IsNull(returnedNovaArtifactList.Find(a => a.Id.Equals(invisibleArtifact.Id)), "Artifact should not be in the list of returned artifacts!");
         }
+
+        #endregion Positive tests
 
         [TestCase]
         [TestRail(134072)]
@@ -363,7 +381,7 @@ namespace ArtifactStoreTests
         public void GetArtifactChildrenByProjectAndArtifactId_InvalidToken_401Unauthorized()
         {
             // Setup:
-            List<IArtifact> childArtifacts = new List<IArtifact>();
+            var childArtifacts = new List<ArtifactWrapper>();
             var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(_project, _adminUser, childArtifacts);
             var unauthorizedUser = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
@@ -383,7 +401,7 @@ namespace ArtifactStoreTests
         public void GetArtifactChildrenByProjectAndArtifactId_MissingTokenHeader_401Unauthorized()
         {
             // Setup:
-            List<IArtifact> childArtifacts = new List<IArtifact>();
+            var childArtifacts = new List<ArtifactWrapper>();
             var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(_project, _adminUser, childArtifacts);
 
             // Execute:
@@ -401,7 +419,7 @@ namespace ArtifactStoreTests
         public void GetArtifactChildrenByProjectAndArtifactId_UserWithNoPermissionsToProject_403Forbidden()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.Actor);
             var userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project);
 
             // Execute:
@@ -421,7 +439,7 @@ namespace ArtifactStoreTests
         public void GetArtifactChildrenByProjectAndArtifactId_UserWithNoPermissionsToArtifact_403Forbidden()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.Actor);
             var userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
             Helper.AssignProjectRolePermissionsToUser(userWithoutPermission, TestHelper.ProjectRole.None, _project, artifact);
 
@@ -442,7 +460,7 @@ namespace ArtifactStoreTests
         public void GetArtifactChildrenByProjectAndArtifactId_NonExistentProjectId_404NotFound()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.Actor);
 
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() =>
@@ -480,18 +498,29 @@ namespace ArtifactStoreTests
         /// </summary>
         /// <param name="project">The project where the artifacts should be created.</param>
         /// <param name="user">The user to create the artifacts.</param>
-        /// <param name="childArtifacts">child artifacts that are created from this call.</param>
+        /// <param name="childArtifacts">The child artifacts that are created from this call.</param>
         /// <returns>The parent artifact.</returns>
-        private IArtifact CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(IProject project, IUser user, List<IArtifact> childArtifacts)
+        private ArtifactWrapper CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(
+            IProject project,
+            IUser user,
+            List<ArtifactWrapper> childArtifacts)
         {
+            /*
+                    [ParentArtifact]
+                        /      \
+                    [Child1]  [Child2]
+            */
+
             // Create parent artifact with ArtifactType and populate all required values without properties.
-            var parentArtifact = Helper.CreateAndPublishArtifact(project, user, BaseArtifactType.Document);
+            var parentArtifact = Helper.CreateAndPublishNovaArtifact(user, project, ItemTypePredefined.Document);
 
             // Create first child artifact with ArtifactType and populate all required values without properties.
-            childArtifacts.Add(Helper.CreateAndPublishArtifact(project, user, BaseArtifactType.Document, parentArtifact));
+            childArtifacts.Add(Helper.CreateAndPublishNovaArtifact(user, project, ItemTypePredefined.Document, parentArtifact.Id));
 
             // Create second child artifact with ArtifactType and populate all required values without properties.
-            childArtifacts.Add(Helper.CreateAndPublishArtifact(project, user, BaseArtifactType.Document, parentArtifact));
+            childArtifacts.Add(Helper.CreateAndPublishNovaArtifact(user, project, ItemTypePredefined.Document, parentArtifact.Id));
+
+            childArtifacts.ForEach(a => a.RefreshArtifactFromServer(user));
 
             return parentArtifact;
         }
@@ -504,36 +533,40 @@ namespace ArtifactStoreTests
         /// <param name="user">The user to create the artifacts.</param>
         /// <param name="grandChildArtifacts">The grandchild artifact created from this call.</param>
         /// <returns>The two parent artifacts.</returns>
-        private List<IArtifact> CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(IProject project, IUser user, List<IArtifact> grandChildArtifacts)
+        private List<ArtifactWrapper> CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(
+            IProject project,
+            IUser user,
+            List<ArtifactWrapper> grandChildArtifacts)
         {
-            var parentArtifactList = new List<IArtifact>();
+            /*
+                    [ParentArtifact]
+                        /      \
+                    [Child1]  [Child2]
+                                 |
+                            [GrandChild]
+            */
 
-            // Create grand parent artifact with ArtifactType and populate all required values without properties.
-            var grandParentArtifact = Helper.CreateAndPublishArtifact(project, user, BaseArtifactType.Document);
-
-            // Create first parent artifact with ArtifactType and populate all required values without properties.
-            var parentArtifact = Helper.CreateAndPublishArtifact(project, user, BaseArtifactType.Document, grandParentArtifact);
-            parentArtifactList.Add(parentArtifact);
-
-            // Create second parent artifact with ArtifactType and populate all required values without properties.
-            parentArtifact = Helper.CreateAndPublishArtifact(project, user, BaseArtifactType.Document, grandParentArtifact);
-            parentArtifactList.Add(parentArtifact);
+            var childArtifacts = new List<ArtifactWrapper>();
+            CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(project, user, childArtifacts);
 
             // Create child artifact of second parent with ArtifactType and populate all required values without properties.
-            grandChildArtifacts.Add(Helper.CreateAndPublishArtifact(project, user, BaseArtifactType.Document, parentArtifact));
+            var grandChildArtifact = Helper.CreateAndPublishNovaArtifact(user, project, ItemTypePredefined.Document, childArtifacts[1].Id);
+            grandChildArtifacts.Add(grandChildArtifact);
 
-            return parentArtifactList;
+            grandChildArtifacts.ForEach(a => a.RefreshArtifactFromServer(user));
+
+            return childArtifacts;
         }
 
         /// <summary>
-        /// Find artifact from nova aritfact list 
+        /// Finds an artifact from a Nova Aritfact list.
         /// </summary>
-        /// <param name="novaArtifacts">List of novaArtifacts</param>
-        /// <param name="artifactToFind">the artifact to find from the novaArtifacts</param>
-        /// <returns>the nova artifact found from novaArtifacts</returns>
-        private static NovaArtifact FindArtifactFromNovaArtifacts(
-            List<NovaArtifact> novaArtifacts,
-            IArtifactBase artifactToFind)
+        /// <param name="novaArtifacts">List of novaArtifacts.</param>
+        /// <param name="artifactToFind">The artifact to find from the novaArtifacts.</param>
+        /// <returns>The Nova Artifact found from novaArtifacts.</returns>
+        private static INovaArtifact FindArtifactFromNovaArtifacts(
+            List<INovaArtifact> novaArtifacts,
+            ArtifactWrapper artifactToFind)
         {
             ThrowIf.ArgumentNull(novaArtifacts, nameof(novaArtifacts));
             ThrowIf.ArgumentNull(artifactToFind, nameof(artifactToFind));

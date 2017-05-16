@@ -22,9 +22,11 @@ namespace AdminStore
             config.EnsureInitialized();
 
             // Assert
+            config.AssertTotalRoutes(24, "Please update asserts in WebApiConfigTests when changing routes.");
             config.AssertTotalRoutes(31, "Please update asserts in WebApiConfigTests when changing routes.");
             config.AssertAction<ConfigController>("GetConfigSettings", HttpMethod.Get, "config/settings");
             config.AssertAction<ConfigController>("GetConfig", HttpMethod.Get, "config/config.js");
+            config.AssertAction<ConfigController>("GetApplicationSettings", HttpMethod.Get, "config");
             config.AssertAction<LicensesController>("GetLicenseTransactions", HttpMethod.Get, "licenses/transactions?days=1");
             config.AssertAction<LogController>("Log", HttpMethod.Post, "log");
             config.AssertAction<SessionsController>("PostSession", HttpMethod.Post, "sessions?login=admin");

@@ -133,7 +133,7 @@ namespace Model.Impl
         /// <returns>List of LockResultInfo for the locked artifacts.</returns>
         public List<LockResultInfo> LockArtifacts(
             IUser user,
-            List<int> artifactIdsToLock,
+            IEnumerable<int> artifactIdsToLock,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -142,7 +142,7 @@ namespace Model.Impl
             var lockResults = restApi.SendRequestAndDeserializeObject<List<LockResultInfo>, List<int>>(
                 RestPaths.Svc.Shared.Artifacts.LOCK,
                 RestRequestMethod.POST,
-                jsonObject: artifactIdsToLock,
+                jsonObject: artifactIdsToLock.ToList(),
                 expectedStatusCodes: expectedStatusCodes,
                 shouldControlJsonChanges: false);
 
@@ -245,17 +245,17 @@ namespace Model.Impl
 
         #region Navigation methods
 
-        /// <seealso cref="ISvcShared.GetNavigation(IUser, List{IArtifact}, int?, int?, int?, bool?, List{HttpStatusCode})"/>
+        /// <seealso cref="ISvcShared.GetNavigation(IUser, IEnumerable{int}, int?, int?, int?, bool?, List{HttpStatusCode})"/>
         public List<ArtifactReference> GetNavigation(
             IUser user,
-            List<IArtifact> artifacts,
+            IEnumerable<int> artifactsIds,
             int? versionId = null,
             int? revisionId = null,
             int? baselineId = null,
             bool? readOnly = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return GetNavigation(Address, user, artifacts,
+            return GetNavigation(Address, user, artifactsIds,
                 versionId: versionId,
                 revisionId: revisionId,
                 baselineId: baselineId,
@@ -269,7 +269,7 @@ namespace Model.Impl
         /// </summary>
         /// <param name="address">The base URL of the Blueprint server.</param>
         /// <param name="user">The user credentials for breadcrumb navigation.</param>
-        /// <param name="artifacts">The list of artifacts used for breadcrumb navigation.</param>
+        /// <param name="artifactsIds">The list of artifacts used for breadcrumb navigation.</param>
         /// <param name="versionId">(optional) The Version ID??</param>
         /// <param name="revisionId">(optional) The Revision ID??</param>
         /// <param name="baselineId">(optional) The Baseline ID??</param>
@@ -281,7 +281,7 @@ namespace Model.Impl
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]
         public static List<ArtifactReference> GetNavigation(string address,
             IUser user,
-            List<IArtifact> artifacts,
+            IEnumerable<int> artifactsIds,
             int? versionId = null,
             int? revisionId = null,
             int? baselineId = null,
@@ -289,11 +289,10 @@ namespace Model.Impl
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(artifacts, nameof(artifacts));
+            ThrowIf.ArgumentNull(artifactsIds, nameof(artifactsIds));
 
             //Get list of artifacts which were created.
-            var artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
-            var path = I18NHelper.FormatInvariant(RestPaths.Svc.Shared.NAVIGATION_ids_, string.Join("/", artifactIds));
+            var path = I18NHelper.FormatInvariant(RestPaths.Svc.Shared.NAVIGATION_ids_, string.Join("/", artifactsIds));
 
             var queryParameters = new Dictionary<string, string>();
 

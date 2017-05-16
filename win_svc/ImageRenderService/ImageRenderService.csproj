@@ -137,8 +137,13 @@
     <Compile Include="Helpers\ServiceHelper.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-    <None Include="ProcessHtml\novaweb\app.bundle.6a8cb391a016546b7465.css.map">
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="ProcessData_Temp_200.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ProcessHtml\novaweb\app.bundle.be0102ca90d3b49fb774.css.map">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ProcessHtml\novaweb\fonts\bootstrap\glyphicons-halflings-regular.eot">
@@ -315,7 +320,7 @@
     <None Include="ProcessHtml\novaweb\libs\mxClient\js\mxClient.min.js.map">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ProcessHtml\novaweb\vendor.bundle.829af4306593044590ba.css.map">
+    <None Include="ProcessHtml\novaweb\vendor.bundle.8f33999861ded9db5277.css.map">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ProcessHtml\novaweb\web.config">
@@ -356,10 +361,10 @@
     <Content Include="ProcessHtml\index.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="ProcessHtml\novaweb\app.bundle.6a8cb391a016546b7465.css">
+    <Content Include="ProcessHtml\novaweb\app.bundle.be0102ca90d3b49fb774.css">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="ProcessHtml\novaweb\app.bundle.6a8cb391a016546b7465.js">
+    <Content Include="ProcessHtml\novaweb\app.bundle.be0102ca90d3b49fb774.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="ProcessHtml\novaweb\assets\button.00759bdc3ad218fa739f584369541809.gif">
@@ -812,10 +817,10 @@
     <Content Include="ProcessHtml\novaweb\static\tour\06.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="ProcessHtml\novaweb\vendor.bundle.829af4306593044590ba.css">
+    <Content Include="ProcessHtml\novaweb\vendor.bundle.8f33999861ded9db5277.css">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="ProcessHtml\novaweb\vendor.bundle.829af4306593044590ba.js">
+    <Content Include="ProcessHtml\novaweb\vendor.bundle.8f33999861ded9db5277.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

@@ -42,6 +42,7 @@ namespace AdminStore.Controllers
         private QueryResult<GroupDto> _userGoupsQueryDataResult;
         private Pagination _userGroupsTabularPagination;
         private Sorting _userGroupsSorting;
+        private OperationScope _operationScope;
 
         [TestInitialize]
         public void Initialize()
@@ -98,6 +99,8 @@ namespace AdminStore.Controllers
             _userGroupsTabularPagination = new Pagination() { Limit = 1, Offset = 0 };
             _userGroupsSorting = new Sorting() { Order = SortOrder.Asc, Sort = "Name" };
             _userGoupsQueryDataResult = new QueryResult<GroupDto>() { Total = 1, Items = new List<GroupDto>() };
+
+            _operationScope = new OperationScope() {Ids = new [] {3,4}, SelectAll = false};
         }
 
         #region Constuctor
@@ -1759,6 +1762,82 @@ namespace AdminStore.Controllers
         }
 
 
+        #endregion
+
+        #region Deletete user from groups
+
+        [TestMethod]
+        public async Task DeleteUserFromGroups_AllRequirementsSatisfied_SucсessResult()
+        {
+            //arrange
+            _privilegesRepository
+                .Setup(repo => repo.GetInstanceAdminPrivilegesAsync(It.IsAny<int>()))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
+            _usersRepoMock.Setup(r => r.DeleteUserFromGroupsAsync(It.IsAny<int>(), It.IsAny<OperationScope>())).ReturnsAsync(1);
+
+            //act
+            var result =
+                await _controller.DeleteUserFromGroups(UserId, _operationScope) as
+                    OkNegotiatedContentResult<DeleteResult>;
+
+            //assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result.Content, typeof(DeleteResult));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task DeleteUserFromGroups_OperationScopeModelIsNull_ReturnBadRequestErrorResult()
+        {
+            //arrange
+            _privilegesRepository
+                .Setup(repo => repo.GetInstanceAdminPrivilegesAsync(It.IsAny<int>()))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
+            _usersRepoMock.Setup(r => r.DeleteUserFromGroupsAsync(It.IsAny<int>(), It.IsAny<OperationScope>())).ReturnsAsync(1);
+
+            //act
+            await _controller.DeleteUserFromGroups(UserId, null);
+
+            //assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task DeleteUserFromGroups_InvalidUserPermissions_ReturnAuthenticationException()
+        {
+            //arrange
+            _privilegesRepository
+                .Setup(repo => repo.GetInstanceAdminPrivilegesAsync(It.IsAny<int>()))
+                .ReturnsAsync(InstanceAdminPrivileges.None);
+            _usersRepoMock.Setup(r => r.DeleteUserFromGroupsAsync(It.IsAny<int>(), It.IsAny<OperationScope>())).ReturnsAsync(1);
+
+            //act
+            await _controller.DeleteUserFromGroups(UserId, _operationScope);
+
+            //assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task DeleteUserFromGroups_UserNotFound_ReturnResourceNotFoundException()
+        {
+            // Arrange
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
+
+            var resourceNotFoundExeption = new ResourceNotFoundException(ErrorMessages.UserNotExist);
+            _usersRepoMock.Setup(r => r.DeleteUserFromGroupsAsync(It.IsAny<int>(), It.IsAny<OperationScope>()))
+                .Throws(resourceNotFoundExeption);
+
+            // Act
+            await _controller.DeleteUserFromGroups(UserId, _operationScope);
+
+            // Assert
+            // Exception
+        }
         #endregion
     }
 }

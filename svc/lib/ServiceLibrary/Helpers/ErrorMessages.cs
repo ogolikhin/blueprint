@@ -30,11 +30,12 @@
         public static readonly string IncorrectOffsetParameter = "The \"offset\" parameter should not be negative.";
         public static readonly string TotalNull = "The \"total\" is null.";
         public static readonly string GeneralErrorOfGettingUserGroups = "The general error of getting user's groups.";
-
         public static readonly string CreationOnlyDatabaseUsers = "You can create only database users.";
         public static readonly string EmailFormatIncorrect = "The email format is incorrect.";
         public static readonly string LoginInvalid = "The \"Login\" field is invalid.";
         public static readonly string PasswordSameAsLogin = "Password cannot be equal to login name.";
         public static readonly string PasswordSameAsDisplayName = "Password cannot be equal to display name.";
+        public static readonly string InvalidAddUserToGroupsParameters = "Invalid parameters to add user to groups.";
+        public static readonly string GeneralErrorOfAddingUserToGroups = "An error has occurred when the operation was being performed at the SQL level.";     
     }
 }

@@ -497,7 +497,6 @@ namespace AdminStore.Controllers
             return Ok();
         }
 
-
         /// <summary>
         /// Get user's groups list according to the input parameters 
         /// </summary>
@@ -522,6 +521,39 @@ namespace AdminStore.Controllers
 
             var result = await _userRepository.GetUserGroupsAsync(userId, tabularData, GroupsHelper.SortGroups);
             return Ok(result);
+        }
+
+        /// <summary>
+        /// Add user to groups
+        /// </summary>
+        /// <param name="userId">User's identity</param>
+        /// <param name="body">List of groups ids</param>
+        /// <response code="200">OK. A user is added to groups.</response>
+        /// <response code="400">BadRequest. Some errors. </response>
+        /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
+        /// <response code="403">Forbidden if used doesn’t have permissions to add user to groups</response>
+        /// <response code="404">NotFound. if user with userId doesn’t exists or removed from the system.</response>
+        [HttpPut]
+        [SessionRequired]
+        [Route("{userId:int:min(1)}/groups")]
+        [ResponseType(typeof(CreateResult))]
+        public async Task<IHttpActionResult> AddUserToGroups(int userId, [FromBody]OperationScope body)
+        {
+            if (body?.Ids == null)
+            {
+                throw new BadRequestException(ErrorMessages.InvalidAddUserToGroupsParameters, ErrorCodes.BadRequest);
+            }
+
+            if (!body.Ids.Any())
+            {
+                return Ok(new CreateResult() { TotalCreated = 0 });
+            }
+
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageUsers);
+
+            var result = await _userRepository.AddUserToGroupsAsync(userId, body);
+
+            return Ok(new CreateResult() { TotalCreated = result });
         }
     }
 }

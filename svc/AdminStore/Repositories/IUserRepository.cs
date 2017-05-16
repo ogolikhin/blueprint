@@ -46,5 +46,7 @@ namespace AdminStore.Repositories
 
         Task<QueryResult<GroupDto>> GetUserGroupsAsync(int userId, TabularData tabularData,
             Func<Sorting, string> sort = null);
+
+        Task<int> AddUserToGroupsAsync(int userId, OperationScope body);
     }
 }

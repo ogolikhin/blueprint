@@ -361,6 +361,30 @@ namespace AdminStore.Repositories
             return queryDataResult;
         }
 
+        public async Task<int> AddUserToGroupsAsync(int userId, OperationScope body)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@UserId", userId);
+            if (body.Ids != null)
+                parameters.Add("@GroupMembership", SqlConnectionWrapper.ToDataTable(body.Ids, "Int32Collection", "Int32Value"));
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var result = await _connectionWrapper.ExecuteScalarAsync<int>("AddUserToGroups", parameters, commandType: CommandType.StoredProcedure);
+            var errorCode = parameters.Get<int?>("ErrorCode");
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.UserLoginNotExist:
+                        throw new BadRequestException(ErrorMessages.UserNotExist);
+
+                    case (int)SqlErrorCodes.GeneralSqlError:
+                        throw new BadRequestException(ErrorMessages.GeneralErrorOfAddingUserToGroups);
+                }
+            }
+            return result;
+        }
+
         internal class HashedPassword
         {
             internal string Password { get; set; }

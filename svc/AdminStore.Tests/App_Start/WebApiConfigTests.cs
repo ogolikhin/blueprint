@@ -22,7 +22,7 @@ namespace AdminStore
             config.EnsureInitialized();
 
             // Assert
-            config.AssertTotalRoutes(31, "Please update asserts in WebApiConfigTests when changing routes.");
+            config.AssertTotalRoutes(32, "Please update asserts in WebApiConfigTests when changing routes.");
             config.AssertAction<ConfigController>("GetConfigSettings", HttpMethod.Get, "config/settings");
             config.AssertAction<ConfigController>("GetConfig", HttpMethod.Get, "config/config.js");
             config.AssertAction<LicensesController>("GetLicenseTransactions", HttpMethod.Get, "licenses/transactions?days=1");
@@ -54,8 +54,9 @@ namespace AdminStore
             config.AssertAction<UsersController>("UpdateUser", HttpMethod.Put, "users/1");
             config.AssertAction<UsersController>("PostReset", HttpMethod.Post, "users/reset?login=admin");
             config.AssertAction<UsersController>("DeleteUsers", HttpMethod.Post, "users/delete");
-            config.AssertAction<UsersController>("GetUserGroups", HttpMethod.Get, "/users/1074/groups?offset=0&limit=1&sort=name&order=desc&search=test");
-            config.AssertAction<GroupsController>("GetGroups", HttpMethod.Get, "groups?offset=0&limit=1&sort=name&order=desc&search=test");
+            config.AssertAction<UsersController>("GetUserGroups", HttpMethod.Get, "users/1074/groups?offset=0&limit=1&sort=name&order=desc&search=test");
+            config.AssertAction<UsersController>("AddUserToGroups", HttpMethod.Put, "users/10/groups");
+            config.AssertAction<GroupsController>("GetGroups", HttpMethod.Get, "groups?userid=10&offset=0&limit=1&sort=name&order=desc&search=test");
         }
 
         [TestMethod]

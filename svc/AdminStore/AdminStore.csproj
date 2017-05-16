@@ -122,6 +122,7 @@
     <Compile Include="Helpers\PrivilegesManager.cs" />
     <Compile Include="Helpers\UserValidator.cs" />
     <Compile Include="Models\AdminRole.cs" />
+    <Compile Include="Models\CreateResult.cs" />
     <Compile Include="Models\Enums\LicenseType.cs" />
     <Compile Include="Models\Enums\SortOrder.cs" />
     <Compile Include="Models\Enums\UserOperationMode.cs" />

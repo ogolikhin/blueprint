@@ -18,7 +18,7 @@ namespace ArtifactStore.Models.Review
         public string Approval { get; set; }
 
         [DataMember]
-        public Byte Viewed { get; set; }
+        public bool Viewed { get; set; }
 
         [DataMember]
         public DateTime eSignatureTimestamp { get; set; }

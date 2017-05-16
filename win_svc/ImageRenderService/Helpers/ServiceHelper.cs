@@ -31,6 +31,14 @@ namespace ImageRenderService.Helpers
             => GetConfigIntValue(ServiceConfiguration.BrowserRenderDelayMillisecondsKey,
                 ServiceConfiguration.DefaultBrowserRenderDelayMilliseconds);
 
+        public static string NServiceBusConnectionString
+            => GetConfigStringValue(ServiceConfiguration.NServiceBusConnectionStringKey,
+                ServiceConfiguration.DefaultNServiceBusConnectionString);
+
+        public static string NServiceBusInstanceId
+            => GetConfigStringValue(ServiceConfiguration.NServiceBusInstanceIdKey,
+                ServiceConfiguration.DefaultNServiceBusInstanceId);
+
         public static int BrowserRenderWaitTimeSeconds
             => GetConfigIntValue(ServiceConfiguration.BrowserRenderWaitTimeSecondsKey,
                 ServiceConfiguration.DefaultBrowserRenderWaitTimeSeconds);

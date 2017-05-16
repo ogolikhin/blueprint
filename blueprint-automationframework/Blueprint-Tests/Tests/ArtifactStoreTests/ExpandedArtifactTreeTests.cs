@@ -524,7 +524,7 @@ namespace ArtifactStoreTests
                 var novaArtifact = novaArtifacts.Find(a => a.Id == artifact.Id);
 
                 Assert.NotNull(novaArtifact, "Couldn't find Artifact ID {0} in the list of Nova Artifacts!", artifact.Id);
-                NovaArtifactBase.AssertAreEqual(artifact, novaArtifact, shouldCompareVersions: false);
+                NovaArtifactBase.AssertAreEqual(artifact, novaArtifact, skipIdAndVersion: true);
             }
         }
 
@@ -594,7 +594,7 @@ namespace ArtifactStoreTests
             {
                 Assert.NotNull(currentChild, "No NovaArtifact was returned that matches with artifact '{0}' that we created!", artifact.Id);
 
-                NovaArtifactBase.AssertAreEqual(artifact, currentChild, shouldCompareVersions: false);
+                NovaArtifactBase.AssertAreEqual(artifact, currentChild, skipIdAndVersion: true);
                 currentChild = currentChild.Children?[0];
 
                 if (--artifactIndex < 0)

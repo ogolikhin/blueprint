@@ -6,6 +6,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using ImageRenderService.Helpers;
 
 namespace ImageRenderService.ImageGen
@@ -19,13 +20,14 @@ namespace ImageRenderService.ImageGen
         private static readonly int MaxWaitTimeSeconds = ServiceHelper.BrowserResizeEventMaxWaitTimeSeconds;
         private static readonly int DelayIntervalMilliseconds = ServiceHelper.BrowserResizeEventDelayIntervalMilliseconds;
         private static readonly int RenderDelayMilliseconds = ServiceHelper.BrowserRenderDelayMilliseconds;
+        private static readonly int RenderWaitSeconds = ServiceHelper.BrowserRenderWaitTimeSeconds;
 
         public ImageGenHelper(IBrowserPool browserPool)
         {
             _browserPool = browserPool;
         }
 
-        public async Task<MemoryStream> GenerateImageAsync(string url, ImageFormat format)
+        public async Task<MemoryStream> GenerateImageAsync(string processJsonModel, int maxImageWidth, int maxImageHeight, ImageFormat format)
         {
             var browser = await _browserPool.Rent();
             if (browser == null)
@@ -36,7 +38,7 @@ namespace ImageRenderService.ImageGen
             var imageStream = new MemoryStream();
             try
             {
-                await LoadPageAsync(browser, url);
+                await LoadPageAsync(browser, processJsonModel, maxImageWidth, maxImageHeight);
 
                 // Wait for the screen shot to be taken.
                 var task = browser.ScreenshotAsync();
@@ -89,9 +91,8 @@ namespace ImageRenderService.ImageGen
             return new Bitmap(blank);
         }
 
-        private async Task<bool> LoadPageAsync(IVirtualBrowser browser, string address)
+        private async Task<bool> LoadPageAsync(IVirtualBrowser browser, string processJsonModel, int maxImageWidth, int maxImageHeight)
         {
-            bool isProcessFile;
             try
             {
                 var task = new TaskCompletionSource<bool>();
@@ -100,16 +101,14 @@ namespace ImageRenderService.ImageGen
                     Debug.Assert(false, "Unexpected Error: The dictionary does not contain a key (browser) added previously.");
                 }
 
-                isProcessFile = string.IsNullOrWhiteSpace(address);
+                var htmlPath = Path.GetFullPath("ProcessHtml/index.html");
 
-                var effectiveAddress = isProcessFile ? Path.GetFullPath("ProcessHtml/index.html") : address;
+                browser.AsyncBoundObject.Reset(RenderWaitSeconds * 1000);
 
                 browser.LoadingStateChanged += BrowserLoadingStateChanged;
-                browser.Load(effectiveAddress);
+                browser.Load(htmlPath);
 
                 await task.Task;
-
-                browser.ExecuteScriptAsync("document.body.style.overflow = 'hidden'");
             }
             finally
             {
@@ -122,51 +121,40 @@ namespace ImageRenderService.ImageGen
 
             //-------------------------------------------
             // Get Process model
-            var json = File.ReadAllText("ProcessData_Temp.json");
-            browser.ExecuteScriptAsync($"window.renderGraph('{json}', 1.0);");
+            browser.ExecuteScriptAsync($"window.renderGraph('{HttpUtility.JavaScriptStringEncode(processJsonModel)}', {maxImageWidth}, {maxImageWidth});");
 
-            //So far we do not have a way to find out when rendering completed, we use a delay for now.
-            await Task.Delay(1000);
-
-            //-------------------------------------------
-            // Set the browser size.
-            // The html package will provide the size. For now we use this approach.
-            string width;
-            string height;
-            if (isProcessFile)
+            bool renderResult;
+            try
             {
-                width = "document.body.firstElementChild.firstElementChild.firstElementChild.style['min-width']";
-                height = "document.body.firstElementChild.firstElementChild.firstElementChild.style['min-height']";
+                renderResult = await browser.AsyncBoundObject.RenderCompletionSource.Task;
             }
-            else
+            catch (TaskCanceledException)
             {
-                width = "document.body.clientWidth";
-                height = "document.body.clientHeight";
+                throw new ApplicationException(ServiceHelper.RenderTimeoutErrorMessage);
+            }
+            if (!renderResult)
+            {
+                throw new ApplicationException(browser.AsyncBoundObject.ErrorMessage);
             }
 
-            var w = await browser.EvaluateScriptAsync(width);
-            var h = await browser.EvaluateScriptAsync(height);
+            Console.WriteLine($"width = {browser.AsyncBoundObject.Width}, height = {browser.AsyncBoundObject.Height}, scale = {browser.AsyncBoundObject.Scale}");
 
-            var eW = w.Result != null ? int.Parse(((string)w.Result).Replace("px", string.Empty)) + 20 : 2000;
-            var eH = h.Result != null ? int.Parse(((string)h.Result).Replace("px", string.Empty)) + 20 : 1000;
+            var w = browser.AsyncBoundObject.Width + 20;
+            var h = browser.AsyncBoundObject.Height + 20;
 
-            if (w.Result != null && h.Result != null)
-            {
-                browser.Size = new Size(eW, eH);
-            }
+            browser.Size = new Size(w, h);
 
             //-----------------------------------------------------------------------------------------
-            // The way how to detect when the browser resizing is completed, with the timeout ~ 10 sec.
+            // The way how to detect when the browser resizing is completed, with the timeout.
             for (var i = 0; i < MaxWaitTimeSeconds * 1000 / DelayIntervalMilliseconds; i++)
             {
 
-                if (browser.Bitmap != null && browser.Bitmap.Width == eW && browser.Bitmap.Height == eH)
+                if (browser.Bitmap != null && browser.Bitmap.Width == w && browser.Bitmap.Height == h)
                 {
                     break;
                 }
                 await Task.Delay(DelayIntervalMilliseconds);
             }
-
             //-----------------------------------------------------------------------------------------
 
             return true;
@@ -186,7 +174,10 @@ namespace ImageRenderService.ImageGen
 
                 await scriptTask.ContinueWith(t =>
                 {
-                    browser.ExecuteScriptAsync("document.body.style.overflow = 'hidden'");
+                    // Disabling the scroll bars on 'body' element does not work.
+                    // The scroll bars should be disabled on the Process container.
+                    // But this causes shifting task headers and labels.
+                    //browser.ExecuteScriptAsync("document.body.style.overflow = 'hidden'");
 
                     //Give the browser a little time to render
                     Thread.Sleep(RenderDelayMilliseconds);

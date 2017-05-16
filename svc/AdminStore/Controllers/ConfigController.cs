@@ -9,28 +9,40 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using AdminStore.Repositories;
 using ServiceLibrary.Attributes;
+using ServiceLibrary.Controllers;
 using ServiceLibrary.Helpers;
-using sl = ServiceLibrary.Repositories.ConfigControl;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Controllers
 {
     [ApiControllerJsonConfig]
     [RoutePrefix("config")]
-    public class ConfigController : ApiController
+    public class ConfigController : LoggableApiController
     {
-        internal readonly IApplicationSettingsRepository _appSettingsRepo;
+        internal readonly IApplicationSettingsRepository _applicationSettingsRepository;
         internal readonly IHttpClientProvider _httpClientProvider;
-        internal readonly sl.IServiceLogRepository _log;
 
-        public ConfigController() : this(new ApplicationSettingsRepository(),  new HttpClientProvider(), new sl.ServiceLogRepository())
+        public override string LogSource => WebApiConfig.LogSourceConfig;
+
+        public ConfigController() 
+            : this
+            (
+                new ApplicationSettingsRepository(), 
+                new HttpClientProvider(), 
+                new ServiceLogRepository()
+            )
         {
         }
 
-        internal ConfigController(IApplicationSettingsRepository settingsRepo, IHttpClientProvider httpClientProvider, sl.IServiceLogRepository log)
+        internal ConfigController
+        (
+            IApplicationSettingsRepository applicationSettingsRepository, 
+            IHttpClientProvider httpClientProvider, 
+            IServiceLogRepository log
+        ) : base (log)
         {
-            _appSettingsRepo = settingsRepo;
+            _applicationSettingsRepository = applicationSettingsRepository;
             _httpClientProvider = httpClientProvider;
-            _log = log;
         }
 
         /// <summary>
@@ -49,23 +61,32 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(Dictionary<string, Dictionary<string, string>>))]
         public async Task<IHttpActionResult> GetConfigSettings()
         {
-            try
-            {
-                var uri = new Uri(WebApiConfig.ConfigControl);
-                var http = _httpClientProvider.Create(uri);
-                var request = new HttpRequestMessage { RequestUri = new Uri(uri, "settings/false"), Method = HttpMethod.Get };
-                request.Headers.Add("Session-Token", Request.Headers.GetValues("Session-Token").FirstOrDefault());
-                var result = await http.SendAsync(request);
-                result.EnsureSuccessStatusCode();
-                var response = Request.CreateResponse(HttpStatusCode.OK);
-                response.Content = result.Content;
-                return ResponseMessage(response);
-            }
-            catch (Exception ex)
-            {
-                await _log.LogError(WebApiConfig.LogSourceConfig, ex);
-                return InternalServerError();
-            }
+            var uri = new Uri(WebApiConfig.ConfigControl);
+            var http = _httpClientProvider.Create(uri);
+            var request = new HttpRequestMessage { RequestUri = new Uri(uri, "settings/false"), Method = HttpMethod.Get };
+            request.Headers.Add("Session-Token", Request.Headers.GetValues("Session-Token").FirstOrDefault());
+            var result = await http.SendAsync(request);
+            result.EnsureSuccessStatusCode();
+            var response = Request.CreateResponse(HttpStatusCode.OK);
+            response.Content = result.Content;
+            return ResponseMessage(response);
+        }
+
+        /// <summary>
+        /// GetApplicationSettings
+        /// </summary>
+        /// <remarks>
+        /// Returns application settings.
+        /// </remarks>
+        /// <response code="200">OK.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpGet, NoCache]
+        [Route(""), NoSessionRequired]
+        [ResponseType(typeof(Dictionary<string, string>))]
+        public async Task<IHttpActionResult> GetApplicationSettings()
+        {
+            var settings = (await _applicationSettingsRepository.GetSettingsAsync()).ToDictionary(it => it.Key, it => it.Value);
+            return Ok(settings);
         }
 
         /// <summary>
@@ -82,26 +103,18 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(string))]
         public async Task<IHttpActionResult> GetConfig()
         {
-            try
-            {
-                var settings = (await _appSettingsRepo.GetSettings()).ToDictionary(it => it.Key, it => it.Value);
+            var settings = (await _applicationSettingsRepository.GetSettingsAsync()).ToDictionary(it => it.Key, it => it.Value);
 
-                var script = "(function (window) {\n" +
-                    "    if (!window.config) {\n" +
-                    "        window.config = {};\n" +
-                    "    }\n" +
-                    $"    window.config.settings = {settings.ToJSON()}\n" +
-                    "}(window));";
+            var script = "(function (window) {\n" +
+                "    if (!window.config) {\n" +
+                "        window.config = {};\n" +
+                "    }\n" +
+                $"    window.config.settings = {settings.ToJSON()}\n" +
+                "}(window));";
 
-                var response = Request.CreateResponse(HttpStatusCode.OK);
-                response.Content = new StringContent(script, Encoding.UTF8, "application/javascript");
-                return ResponseMessage(response);
-            }
-            catch (Exception ex)
-            {
-                await _log.LogError(WebApiConfig.LogSourceConfig, ex);
-                return InternalServerError();
-            }
+            var response = Request.CreateResponse(HttpStatusCode.OK);
+            response.Content = new StringContent(script, Encoding.UTF8, "application/javascript");
+            return ResponseMessage(response);
         }
     }
 }

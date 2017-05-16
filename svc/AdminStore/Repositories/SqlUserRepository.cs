@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AdminStore.Helpers;
 using AdminStore.Models;
+using AdminStore.Models.Enums;
 using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Repositories;
@@ -134,7 +135,7 @@ namespace AdminStore.Repositories
             var prm = new DynamicParameters();
             prm.Add("@token", token);
             return await _adminStorageConnectionWrapper.QueryAsync<PasswordRecoveryToken>("GetUserPasswordRecoveryTokens", prm, commandType: CommandType.StoredProcedure);
-        }      
+        }
 
         public async Task<QueryResult<UserDto>> GetUsersAsync(Pagination pagination, Sorting sorting = null, string search = null, Func<Sorting, string> sort = null)
         {
@@ -145,6 +146,10 @@ namespace AdminStore.Repositories
             }
             var result = await GetUsersInternalAsync(pagination, orderField, search);
             await PopulateEffectiveLicenseTypes(result.Items);
+            if (sorting?.Sort != null && sorting.Sort.ToLower() == "licensetype")
+            {
+                result.Items = sorting.Order == SortOrder.Asc ? result.Items.OrderBy(e => e.LicenseType) : result.Items.OrderByDescending(e => e.LicenseType);
+            }
             return new QueryResult<UserDto>()
             {
                 Items = UserMapper.Map(result.Items),
@@ -273,6 +278,18 @@ namespace AdminStore.Repositories
             return result;
         }
 
+        public async Task UpdateUserPasswordAsync(string login, string password)
+        {
+            var userSalt = Guid.NewGuid();
+            var newPassword = HashingUtilities.GenerateSaltedHash(password, userSalt);
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@Login", login);
+            parameters.Add("@UserSALT", userSalt);
+            parameters.Add("@Password", newPassword);
+            await _connectionWrapper.ExecuteAsync("UpdateUserOnPasswordResetAsync", parameters, commandType: CommandType.StoredProcedure);
+        }
+
         public async Task UpdateUserAsync(User loginUser)
         {
             var parameters = new DynamicParameters();
@@ -337,15 +354,15 @@ namespace AdminStore.Repositories
             var userGroups = await _connectionWrapper.QueryAsync<Group>("GetUsersGroups", parameters, commandType: CommandType.StoredProcedure);
             var total = parameters.Get<int?>("Total");
             var errorCode = parameters.Get<int?>("ErrorCode");
-          
+
             if (errorCode.HasValue)
             {
                 switch (errorCode.Value)
                 {
-                    case (int) SqlErrorCodes.GeneralSqlError:
+                    case (int)SqlErrorCodes.GeneralSqlError:
                         throw new BadRequestException(ErrorMessages.GeneralErrorOfGettingUserGroups);
 
-                    case (int) SqlErrorCodes.UserLoginNotExist:
+                    case (int)SqlErrorCodes.UserLoginNotExist:
                         throw new ResourceNotFoundException(ErrorMessages.UserNotExist);
                 }
             }
@@ -356,8 +373,8 @@ namespace AdminStore.Repositories
             }
 
             var mappedGroups = GroupMapper.Map(userGroups);
-          
-            var queryDataResult = new QueryResult<GroupDto>() {Items = mappedGroups, Total =  total.Value};
+
+            var queryDataResult = new QueryResult<GroupDto>() { Items = mappedGroups, Total = total.Value };
             return queryDataResult;
         }
 

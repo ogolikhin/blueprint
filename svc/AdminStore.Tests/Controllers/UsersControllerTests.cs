@@ -427,7 +427,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(tokenList);
             IEnumerable<ApplicationSetting> applicationSettings = new List<ApplicationSetting> { new ApplicationSetting() { Key = "PasswordResetTokenExpirationInHours", Value = "40" } };
             _applicationSettingsRepository
-                .Setup(repo => repo.GetSettings())
+                .Setup(repo => repo.GetSettingsAsync())
                 .ReturnsAsync(applicationSettings);
 
 
@@ -907,6 +907,8 @@ namespace AdminStore.Controllers
         public async Task GetUser_ThereIsNoSuchUser_NotFoundResult()
         {
             //arrange
+            IHttpActionResult result = null;
+            ResourceNotFoundException exception = null;
             var user = new UserDto();
             _usersRepoMock.Setup(repo => repo.GetUserDtoAsync(It.Is<int>(i => i > 0))).ReturnsAsync(user);
             _privilegesRepository
@@ -914,10 +916,18 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
 
             //act
-            var result = await _controller.GetUser(1) as NotFoundResult;
+
+            try
+            {
+                result =  await _controller.GetUser(1); 
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                exception = ex;
+            }
 
             //assert
-            Assert.IsInstanceOfType(result, typeof(NotFoundResult));
+            Assert.AreEqual(ErrorMessages.UserNotExist, exception.Message);
 
         }
         #endregion
@@ -1579,7 +1589,7 @@ namespace AdminStore.Controllers
             //arrange
 
             //act
-             await _controller.GetUserGroups(UserId, new Pagination(), new Sorting(), string.Empty);
+            await _controller.GetUserGroups(UserId, new Pagination(), new Sorting(), string.Empty);
 
             //assert
             // Exception
@@ -1604,7 +1614,7 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        [ExpectedException(typeof (ResourceNotFoundException))]
+        [ExpectedException(typeof(ResourceNotFoundException))]
         public async Task GetUserGroups_UserNotFound_ResourceNotFoundResult()
         {
             //arrange
@@ -1638,6 +1648,120 @@ namespace AdminStore.Controllers
             //assert
             Assert.IsInstanceOfType(result, typeof(BadRequestErrorMessageResult));
         }
+        #endregion
+
+        #region InstanceAdminChangePassword
+
+        [TestMethod]
+        public async Task InstanceAdminChangePassword_BodyIsNull_BadRequestResult()
+        {
+            //arrange
+            UpdateUserPassword updatePasswor = null;
+            IHttpActionResult result = null;
+            BadRequestException exception = null;
+
+            //act
+            try
+            {
+                result = await _controller.InstanceAdminChangePassword(updatePasswor);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNull(result);
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(ErrorMessages.InvalidChangeInstanceAdminPasswordParameters, exception.Message);
+        }
+
+        [TestMethod]
+        public async Task InstanceAdminChangePassword_PasswordIsInvalid_BadRequestException()
+        {
+            //arrange
+            var pass = "asdf1";
+            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(pass);
+            var encodedPassword = Convert.ToBase64String(plainTextBytes);
+            var updatePasswor = new UpdateUserPassword() { Password = encodedPassword };
+            var user = new User() { Id = 3 };
+            IHttpActionResult result = null;
+            BadRequestException exception = null;
+
+            _privilegesRepository
+               .Setup(repo => repo.GetInstanceAdminPrivilegesAsync(It.IsAny<int>()))
+               .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
+            _usersRepoMock.Setup(repo => repo.GetUserAsync(It.IsAny<int>())).ReturnsAsync(user);
+
+            //act
+            try
+            {
+                result = await _controller.InstanceAdminChangePassword(updatePasswor);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNull(result);
+            Assert.IsNotNull(exception);
+        }
+
+        [TestMethod]
+        public async Task InstanceAdminChangePassword_UserNotFound_ResourceNotFoundException()
+        {
+            //arrange
+            var updatePasswor = new UpdateUserPassword() { Password = "adf1T~asdfasdf" };
+            IHttpActionResult result = null;
+            ResourceNotFoundException exception = null;
+
+            _privilegesRepository
+               .Setup(repo => repo.GetInstanceAdminPrivilegesAsync(It.IsAny<int>()))
+               .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
+            _usersRepoMock.Setup(repo => repo.GetUserAsync(It.IsAny<int>())).ReturnsAsync(null);
+
+            //act
+            try
+            {
+                result = await _controller.InstanceAdminChangePassword(updatePasswor);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                exception = ex;
+            }
+
+            //assert
+            Assert.IsNull(result);
+            Assert.AreEqual(ErrorCodes.ResourceNotFound, exception.ErrorCode);
+        }
+
+        [TestMethod]
+        public async Task InstanceAdminChangePassword_PasswordIsInvalid_OkResult()
+        {
+            //arrange
+            var pass = "adf1T~asdfasdf";
+            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(pass);
+            var encodedPassword = Convert.ToBase64String(plainTextBytes);
+            var updatePasswor = new UpdateUserPassword() { Password = encodedPassword };
+            var user = new User() { Id = 3 };
+            IHttpActionResult result = null;
+
+            _privilegesRepository
+               .Setup(repo => repo.GetInstanceAdminPrivilegesAsync(It.IsAny<int>()))
+               .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
+            _usersRepoMock.Setup(repo => repo.GetUserAsync(It.IsAny<int>())).ReturnsAsync(user);
+
+            //act
+
+            result = await _controller.InstanceAdminChangePassword(updatePasswor) as OkResult;
+
+
+            //assert
+            Assert.IsNotNull(result);
+        }
+
+
         #endregion
 
         #region Deletete user from groups

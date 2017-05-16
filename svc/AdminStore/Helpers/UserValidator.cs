@@ -76,9 +76,16 @@ namespace AdminStore.Helpers
                 throw new BadRequestException(ErrorMessages.DepartmentFieldLimitation, ErrorCodes.BadRequest);
             }
 
-            if (userOperationMode == UserOperationMode.Create && user.Source != UserGroupSource.Database)
+            if (user.Source != UserGroupSource.Database)
             {
-                throw new BadRequestException(ErrorMessages.CreationOnlyDatabaseUsers, ErrorCodes.BadRequest);
+                if (userOperationMode == UserOperationMode.Create)
+                {
+                    throw new BadRequestException(ErrorMessages.CreationOnlyDatabaseUsers, ErrorCodes.BadRequest);
+                }
+                else
+                {
+                    throw new BadRequestException(ErrorMessages.SourceFieldValueShouldBeOnlyDatabase, ErrorCodes.BadRequest);
+                }
             }
         }
 

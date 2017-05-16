@@ -87,7 +87,7 @@ namespace AdminStore.Repositories
 
             _applicationSettingsRepositoryMock = new Mock<IApplicationSettingsRepository>();
             _applicationSettingsRepositoryMock
-                .Setup(m => m.GetSettings())
+                .Setup(m => m.GetSettingsAsync())
                 .Returns(() => Task.Run(() => _applicationSettings));
 
             _authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
@@ -792,7 +792,7 @@ namespace AdminStore.Repositories
             _loginUser.LastPasswordChangeTimestamp = DateTime.UtcNow.AddHours(-24);
 
             _applicationSettingsRepositoryMock
-                .Setup(m => m.GetSettings())
+                .Setup(m => m.GetSettingsAsync())
                 .Returns(() => Task.Run(() => Enumerable.Empty<ApplicationSetting>()));
 
             // Act
@@ -818,7 +818,7 @@ namespace AdminStore.Repositories
             _loginUser.LastPasswordChangeTimestamp = DateTime.UtcNow.AddHours(-24);
 
             _applicationSettingsRepositoryMock
-                .Setup(m => m.GetSettings())
+                .Setup(m => m.GetSettingsAsync())
                 .Returns(() => Task.Run(() => new ApplicationSetting[] 
                 {
                     new ApplicationSetting

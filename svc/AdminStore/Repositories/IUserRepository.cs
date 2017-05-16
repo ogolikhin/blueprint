@@ -43,6 +43,7 @@ namespace AdminStore.Repositories
 
         Task UpdateUserAsync(User loginUser);
         Task<int> DeleteUsers(OperationScope body, string search, int sessionUserId);
+        Task UpdateUserPasswordAsync(string login, string password);
 
         Task<QueryResult<GroupDto>> GetUserGroupsAsync(int userId, TabularData tabularData,
             Func<Sorting, string> sort = null);

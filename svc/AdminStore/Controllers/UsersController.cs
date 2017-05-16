@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -7,41 +8,48 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using AdminStore.Helpers;
 using AdminStore.Models;
+using AdminStore.Models.Enums;
 using AdminStore.Repositories;
 using ServiceLibrary.Attributes;
+using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
-
 
 namespace AdminStore.Controllers
 {
     [ApiControllerJsonConfig]
     [RoutePrefix("users")]
     [BaseExceptionFilter]
-    public class UsersController : ApiController
+    public class UsersController : BaseApiController
     {
+        private const string IsPasswordRecoveryEnabledKey = "IsPasswordRecoveryEnabled";
+        private const string PasswordResetTokenExpirationInHoursKey = "PasswordResetTokenExpirationInHours";
+        private const int DefaultPasswordResetTokenExpirationInHours = 24;
+
         internal readonly IAuthenticationRepository _authenticationRepository;
-        internal readonly ISqlUserRepository _userRepository;
+        internal readonly IUserRepository _userRepository;
         internal readonly ISqlSettingsRepository _settingsRepository;
         internal readonly IEmailHelper _emailHelper;
         internal readonly IApplicationSettingsRepository _applicationSettingsRepository;
         internal readonly IServiceLogRepository _log;
         internal readonly IHttpClientProvider _httpClientProvider;
-        private const string PasswordResetTokenExpirationInHoursKey = "PasswordResetTokenExpirationInHours";
-        private const int DefaultPasswordResetTokenExpirationInHours = 24;
+        internal readonly PrivilegesManager _privilegesManager;
 
-        public UsersController() : this(new AuthenticationRepository(), new SqlUserRepository(), 
-            new SqlSettingsRepository(), new EmailHelper(), new ApplicationSettingsRepository(), 
-            new ServiceLogRepository(), new HttpClientProvider())
+        public UsersController() : this(new AuthenticationRepository(), new SqlUserRepository(),
+            new SqlSettingsRepository(), new EmailHelper(), new ApplicationSettingsRepository(),
+            new ServiceLogRepository(), new HttpClientProvider(), new SqlPrivilegesRepository())
         {
         }
 
-        internal UsersController(IAuthenticationRepository authenticationRepository, 
-            ISqlUserRepository userRepository, ISqlSettingsRepository settingsRepository, 
-            IEmailHelper emailHelper, IApplicationSettingsRepository applicationSettingsRepository, 
-            IServiceLogRepository log, IHttpClientProvider httpClientProvider)
+        internal UsersController
+        (
+            IAuthenticationRepository authenticationRepository, IUserRepository userRepository,
+            ISqlSettingsRepository settingsRepository, IEmailHelper emailHelper,
+            IApplicationSettingsRepository applicationSettingsRepository, IServiceLogRepository log,
+            IHttpClientProvider httpClientProvider, IPrivilegesRepository privilegesRepository
+        )
         {
             _authenticationRepository = authenticationRepository;
             _userRepository = userRepository;
@@ -50,6 +58,7 @@ namespace AdminStore.Controllers
             _applicationSettingsRepository = applicationSettingsRepository;
             _log = log;
             _httpClientProvider = httpClientProvider;
+            _privilegesManager = new PrivilegesManager(privilegesRepository);
         }
 
         /// <summary>
@@ -68,14 +77,15 @@ namespace AdminStore.Controllers
         {
             try
             {
-                var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-                var loginUser = await _userRepository.GetLoginUserByIdAsync(session.UserId);
+                var loginUser = await _userRepository.GetLoginUserByIdAsync(Session.UserId);
                 if (loginUser == null)
                 {
-                    throw new AuthenticationException(string.Format("User does not exist with UserId: {0}", session.UserId));
+                    throw new AuthenticationException($"User does not exist with Id: {Session.UserId}");
                 }
-                loginUser.LicenseType = session.LicenseLevel;
-                loginUser.IsSso = session.IsSso;
+
+                loginUser.LicenseType = Session.LicenseLevel;
+                loginUser.IsSso = Session.IsSso;
+
                 return Ok(loginUser);
             }
             catch (AuthenticationException)
@@ -87,6 +97,91 @@ namespace AdminStore.Controllers
                 await _log.LogError(WebApiConfig.LogSourceUsers, ex);
                 return InternalServerError();
             }
+        }
+
+        /// <summary>
+        /// Get users list according to the input parameters 
+        /// </summary>
+        /// <param name="pagination">Limit and offset values to query users</param>
+        /// <param name="sorting">Sort and its order</param>
+        /// <param name="search">Search query parameter</param>
+        /// <response code="200">OK if admin user session exists and user is permitted to list users</response>
+        /// <response code="400">BadRequest if pagination object didn't provide</response>
+        /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
+        /// <response code="403">Forbidden if used doesn’t have permissions to get users list</response>
+        [SessionRequired]
+        [Route("")]
+        [ResponseType(typeof(QueryResult<UserDto>))]
+        public async Task<IHttpActionResult> GetUsers([FromUri]Pagination pagination, [FromUri]Sorting sorting, string search = null)
+        {
+            if (pagination == null)
+            {
+                return BadRequest(ErrorMessages.InvalidPagination);
+            }
+
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewUsers);
+
+            var result = await _userRepository.GetUsersAsync(pagination, sorting, search, UsersHelper.SortUsers);
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Delete user/users from the system
+        /// </summary>
+        /// <param name="body">list of user ids and selectAll flag</param>
+        /// <param name="search">search filter</param>
+        /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
+        /// <response code="403">Forbidden if used doesn’t have permissions to get users list</response>
+        [HttpPost]
+        [SessionRequired]
+        [Route("delete")]
+        [ResponseType(typeof(IEnumerable<int>))]
+        public async Task<IHttpActionResult> DeleteUsers([FromBody]OperationScope body, string search = null)
+        {
+            if (body == null)
+            {
+                return BadRequest(ErrorMessages.InvalidDeleteUsersParameters);
+            }
+            //No scope for deletion is provided
+            if (body.IsSelectionEmpty())
+            {
+                return Ok(new DeleteResult() { TotalDeleted = 0 });
+            }
+
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageUsers);
+
+            var result = await _userRepository.DeleteUsers(body, search, Session.UserId);
+
+            return Ok(new DeleteResult() { TotalDeleted = result });
+        }
+
+
+        /// <summary>
+        /// Get user by Identifier
+        /// </summary>
+        /// <param name="userId">User's identity</param>
+        /// <returns>
+        /// <response code="200">OK. Returns the specified user's icon.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="404">Not Found. The user with the provided ID was not found.</response>
+        /// <response code="403">User doesn’t have permission to view users.</response>
+        /// </returns>
+        [SessionRequired]
+        [Route("{userId:int:min(1)}")]
+        [ResponseType(typeof(UserDto))]
+        public async Task<IHttpActionResult> GetUser(int userId)
+        {
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewUsers);
+
+            var user = await _userRepository.GetUserDtoAsync(userId);
+
+            if (user.Id == 0)
+            {
+                throw new ResourceNotFoundException(ErrorMessages.UserNotExist, ErrorCodes.ResourceNotFound);
+            }
+
+            return Ok(user);
         }
 
         /// <summary>
@@ -168,7 +263,7 @@ namespace AdminStore.Controllers
         {
             try
             {
-                const string IsPasswordRecoveryEnabledKey = "IsPasswordRecoveryEnabled";
+
 
                 var matchingSetting = await _applicationSettingsRepository.GetValue(IsPasswordRecoveryEnabledKey, false);
                 if (!matchingSetting)
@@ -276,7 +371,7 @@ namespace AdminStore.Controllers
                 //provided token doesn't match last requested
                 throw new ConflictException("Password reset failed, a more recent recovery token exists.", ErrorCodes.PasswordResetTokenNotLatest);
             }
-            var tokenLifespan = await _applicationSettingsRepository.GetValue<int>(PasswordResetTokenExpirationInHoursKey, DefaultPasswordResetTokenExpirationInHours);
+            var tokenLifespan = await _applicationSettingsRepository.GetValue(PasswordResetTokenExpirationInHoursKey, DefaultPasswordResetTokenExpirationInHours);
             if (tokens.First().CreationTime.AddHours(tokenLifespan) < DateTime.Now)
             {
                 //token expired
@@ -310,7 +405,7 @@ namespace AdminStore.Controllers
             {
                 throw new BadRequestException("Password reset failed, new password cannot be equal to the old one", ErrorCodes.SamePassword);
             }
-                
+
             //reset password
             await _authenticationRepository.ResetPassword(user, null, decodedNewPassword);
 
@@ -321,6 +416,153 @@ namespace AdminStore.Controllers
             await http.SendAsync(request);
 
             return Ok();
+        }
+
+        /// <summary>
+        /// Change instance admin password
+        /// </summary>
+        /// <param name="updatePassword">Login and userId</param>
+        /// <returns>
+        /// <response code="200">OK. The password was updated.</response>
+        /// </returns>
+        [HttpPost]
+        [SessionRequired]
+        [Route("changepassword")]
+        public async Task<IHttpActionResult> InstanceAdminChangePassword([FromBody] UpdateUserPassword updatePassword)
+        {
+            if (updatePassword == null)
+            {
+                throw new BadRequestException(ErrorMessages.InvalidChangeInstanceAdminPasswordParameters, ErrorCodes.BadRequest);
+            }
+
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageUsers);
+
+            var user = await _userRepository.GetUserAsync(updatePassword.UserId);
+            if (user == null)
+            {
+                throw new ResourceNotFoundException($"User does not exist with UserId: {updatePassword.UserId}", ErrorCodes.ResourceNotFound);
+            }
+
+            UserConverter.ValidatePassword(user, updatePassword.Password);
+
+            await _userRepository.UpdateUserPasswordAsync(user.Login, updatePassword.Password);
+
+            return Ok();
+        }
+
+
+        /// <summary>
+        /// Create new database user
+        /// </summary>
+        /// <remarks>
+        /// Returns id of the created user.
+        /// </remarks>
+        /// <response code="201">OK. The user is created.</response>
+        /// <response code="400">BadRequest. Some errors. </response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for creating the user.</response>
+        [HttpPost]
+        [SessionRequired]
+        [ResponseType(typeof(int))]
+        [Route("")]
+        public async Task<HttpResponseMessage> PostUser([FromBody] UserDto user)
+        {
+            if (user == null)
+            {
+                throw new BadRequestException(ErrorMessages.UserModelIsEmpty, ErrorCodes.BadRequest);
+            }
+
+            var privileges = user.InstanceAdminRoleId.HasValue ? InstanceAdminPrivileges.AssignAdminRoles : InstanceAdminPrivileges.ManageUsers;
+            await _privilegesManager.Demand(Session.UserId, privileges);
+
+            var databaseUser = UsersHelper.CreateDbUserFromDto(user, UserOperationMode.Create);
+
+            var userId = await _userRepository.AddUserAsync(databaseUser);
+            return Request.CreateResponse(HttpStatusCode.Created, userId);
+        }
+
+        /// <summary>
+        /// Update database user
+        /// </summary>
+        /// <param name="userId">User's identity</param>
+        /// <param name="user">User's model</param>
+        /// <remarks>
+        /// Returns Ok result.
+        /// </remarks>
+        /// <response code="200">OK. The database user is updated.</response>
+        /// <response code="400">BadRequest. Some errors. </response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for updating the user.</response>
+        /// <response code="404">NotFound. The user with the current userId doesn’t exist or removed from the system.</response>
+        /// <response code="409">Conflict. The current version from the request doesn’t match the current version in DB.</response>
+        [HttpPut]
+        [SessionRequired]
+        [ResponseType(typeof(HttpResponseMessage))]
+        [Route("{userId:int:min(1)}")]
+        public async Task<IHttpActionResult> UpdateUser(int userId, [FromBody] UserDto user)
+        {
+            if (user == null)
+            {
+                throw new BadRequestException(ErrorMessages.UserModelIsEmpty, ErrorCodes.BadRequest);
+            }
+
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageUsers);
+
+            var existingUser = await _userRepository.GetUserAsync(userId);
+            if (existingUser == null)
+            {
+                throw new BadRequestException(ErrorMessages.UserNotExist, ErrorCodes.ResourceNotFound);
+            }
+
+            if (existingUser.InstanceAdminRoleId != user.InstanceAdminRoleId)
+            {
+                await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AssignAdminRoles);
+            }
+
+            var databaseUser = UsersHelper.CreateDbUserFromDto(user, UserOperationMode.Edit, userId);
+            await _userRepository.UpdateUserAsync(databaseUser);
+
+            return Ok();
+        }
+
+
+        /// <summary>
+        /// Get user's groups list according to the input parameters 
+        /// </summary>
+        /// <param name="userId">User's identity</param>
+        /// <param name="pagination">Pagination parameters</param>
+        /// <param name="sorting">Sorting parameters</param>
+        /// <param name="search">The parameter for searching by group name</param>
+        /// <response code="200">OK. The list of user groups.</response>
+        /// <response code="400">BadRequest. Some errors. </response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. if user doesn’t have permission to view group membership for the user with the specified userId.</response>
+        /// <response code="404">NotFound. if user with userId doesn’t exists or removed from the system.</response>
+        [SessionRequired]
+        [ResponseType(typeof(QueryResult<GroupDto>))]
+        [Route("{userId:int:min(1)}/groups")]
+        public async Task<IHttpActionResult> GetUserGroups(int userId, [FromUri]Pagination pagination, [FromUri]Sorting sorting, [FromUri] string search = null)
+        {
+            if (pagination == null)
+            {
+                throw new BadRequestException(ErrorMessages.InvalidPagination, ErrorCodes.BadRequest);
+            }
+
+            if (pagination.Limit < 1)
+            {
+                throw new BadRequestException(ErrorMessages.IncorrectLimitParameter, ErrorCodes.BadRequest);
+            }
+
+            if (pagination.Offset < 0)
+            {
+                throw new BadRequestException(ErrorMessages.IncorrectOffsetParameter, ErrorCodes.BadRequest);
+            }
+
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewUsers);
+            var tabularData = new TabularData { Pagination = pagination, Sorting = sorting, Search = search };
+
+            var result = await _userRepository.GetUserGroupsAsync(userId, tabularData, GroupsHelper.SortGroups);
+            return Ok(result);
         }
     }
 }

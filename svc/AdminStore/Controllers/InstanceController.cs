@@ -3,10 +3,11 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Repositories;
 using ServiceLibrary.Attributes;
-using ServiceLibrary.Helpers;
+using ServiceLibrary.Controllers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
@@ -18,22 +19,30 @@ namespace AdminStore.Controllers
     [BaseExceptionFilter]
     public class InstanceController : LoggableApiController
     {
-        internal readonly ISqlInstanceRepository _instanceRepository;
+        internal readonly IInstanceRepository _instanceRepository;
         internal readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
+        internal readonly PrivilegesManager _privilegesManager;
 
         public override string LogSource { get; } = "AdminStore.Instance";
 
-        public InstanceController() : this(new SqlInstanceRepository(), new ServiceLogRepository(), new SqlArtifactPermissionsRepository())
+        public InstanceController() : this(
+            new SqlInstanceRepository(), new ServiceLogRepository(), 
+            new SqlArtifactPermissionsRepository(), new SqlPrivilegesRepository()
+        )
         {
         }
 
-        public InstanceController(
-            ISqlInstanceRepository instanceRepository,
+        public InstanceController
+        (
+            IInstanceRepository instanceRepository,
             IServiceLogRepository log,
-            IArtifactPermissionsRepository artifactPermissionsRepository) : base(log)
+            IArtifactPermissionsRepository artifactPermissionsRepository,
+            IPrivilegesRepository privilegesRepository
+        ) : base(log)
         {
             _instanceRepository = instanceRepository;
             _artifactPermissionsRepository = artifactPermissionsRepository;
+            _privilegesManager = new PrivilegesManager(privilegesRepository);
         }
 
         /// <summary>
@@ -52,8 +61,7 @@ namespace AdminStore.Controllers
         [ActionName("GetInstanceFolder")]
         public async Task<InstanceItem> GetInstanceFolderAsync(int id)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return await _instanceRepository.GetInstanceFolderAsync(id, session.UserId);
+            return await _instanceRepository.GetInstanceFolderAsync(id, Session.UserId);
         }
 
         /// <summary>
@@ -72,8 +80,7 @@ namespace AdminStore.Controllers
         [ActionName("GetInstanceFolderChildren")]
         public async Task<List<InstanceItem>> GetInstanceFolderChildrenAsync(int id)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return await _instanceRepository.GetInstanceFolderChildrenAsync(id, session.UserId);
+            return await _instanceRepository.GetInstanceFolderChildrenAsync(id, Session.UserId);
         }
 
         /// <summary>
@@ -93,8 +100,7 @@ namespace AdminStore.Controllers
         [ActionName("GetInstanceProject")]
         public async Task<InstanceItem> GetInstanceProjectAsync(int id)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return await _instanceRepository.GetInstanceProjectAsync(id, session.UserId);
+            return await _instanceRepository.GetInstanceProjectAsync(id, Session.UserId);
         }
 
         /// <summary>
@@ -113,12 +119,10 @@ namespace AdminStore.Controllers
         [ActionName("GetProjectNavigationPath")]
         public async Task<List<string>> GetProjectNavigationPathAsync(int projectId, bool includeProjectItself = true)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-
-            var result = await _instanceRepository.GetProjectNavigationPathAsync(projectId, session.UserId, includeProjectItself);
+            var result = await _instanceRepository.GetProjectNavigationPathAsync(projectId, Session.UserId, includeProjectItself);
 
             var artifactIds = new[] { projectId };
-            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, session.UserId);
+            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, Session.UserId);
 
             RolePermissions permission;
             if (!permissions.TryGetValue(projectId, out permission) || !permission.HasFlag(RolePermissions.Read))
@@ -127,6 +131,27 @@ namespace AdminStore.Controllers
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Get the list of instance administrators roles in the instance  
+        /// </summary>
+        /// <remarks>
+        /// Returns the list of instance administrators roles.
+        /// </remarks>
+        /// <returns code="200">OK list of AdminRole models</returns>
+        /// <returns code="400">BadRequest if errors occurred</returns>
+        /// <returns code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</returns>
+        /// <returns code="403">Forbidden if used doesn’t have permissions to get the list of instance administrators roles</returns>
+        [SessionRequired]
+        [Route("roles")]
+        [ResponseType(typeof(IEnumerable<AdminRole>))]
+        public async Task<IHttpActionResult> GetInstanceRoles()
+        {
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewUsers);
+
+            var result = await _instanceRepository.GetInstanceRolesAsync();
+            return Ok(result);
         }
     }
 }

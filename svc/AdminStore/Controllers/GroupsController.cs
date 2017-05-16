@@ -49,6 +49,11 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(QueryResult<GroupDto>))]
         public async Task<IHttpActionResult> GetGroups(int userId, [FromUri]Pagination pagination, [FromUri]Sorting sorting, [FromUri] string search = null)
         {
+            if (userId < 1)
+            {
+                throw new BadRequestException(ErrorMessages.IncorrectUserId, ErrorCodes.BadRequest);
+            }
+
             PaginationValidator.ValidatePaginationModel(pagination);
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewGroups);

@@ -28,6 +28,7 @@ namespace AdminStore.Controllers
         private const int SessionUserId = 1;
         private Pagination _groupsTabularPagination;
         private Sorting _groupsSorting;
+        private const int UserId = 10;
 
         [TestInitialize]
         public void Initialize()
@@ -76,11 +77,11 @@ namespace AdminStore.Controllers
             //arrange         
             _privilegesRepository
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
-                .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
-            _sqlGroupRepositoryMock.Setup(repo => repo.GetGroupsAsync( It.IsAny<TabularData>(), It.IsAny<Func<Sorting, string>>())).ReturnsAsync(_groupsQueryDataResult);
+                .ReturnsAsync(InstanceAdminPrivileges.ViewGroups);
+            _sqlGroupRepositoryMock.Setup(repo => repo.GetGroupsAsync(It.IsAny<int>(), It.IsAny<TabularData>(), It.IsAny<Func<Sorting, string>>())).ReturnsAsync(_groupsQueryDataResult);
 
             //act
-            var result = await _controller.GetUserGroups(_groupsTabularPagination, _groupsSorting, string.Empty) as OkNegotiatedContentResult<QueryResult<GroupDto>>;
+            var result = await _controller.GetGroups(UserId, _groupsTabularPagination, _groupsSorting, string.Empty) as OkNegotiatedContentResult<QueryResult<GroupDto>>;
 
             //assert
             Assert.IsNotNull(result);
@@ -89,12 +90,30 @@ namespace AdminStore.Controllers
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
-        public async Task GetGroups_ParamsAreNotCorrect_BadRequestResult()
+        public async Task GetGroups_PaginationParamsAreNotCorrect_BadRequestResult()
         {
             //arrange
 
             //act
-            await _controller.GetUserGroups(new Pagination(), new Sorting(), string.Empty);
+            await _controller.GetGroups(UserId, new Pagination(), new Sorting(), string.Empty);
+
+            //assert
+            // Exception
+
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task GetGroups_UserIdIsNotCorrect_BadRequestResult()
+        {
+            //arrange
+            _privilegesRepository
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewGroups);
+            _sqlGroupRepositoryMock.Setup(repo => repo.GetGroupsAsync(It.IsAny<int>(), It.IsAny<TabularData>(), It.IsAny<Func<Sorting, string>>())).ReturnsAsync(_groupsQueryDataResult);
+
+            //act
+            var result = await _controller.GetGroups(0, _groupsTabularPagination, _groupsSorting, string.Empty) as OkNegotiatedContentResult<QueryResult<GroupDto>>;
 
             //assert
             // Exception
@@ -109,10 +128,10 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.None);
-            _sqlGroupRepositoryMock.Setup(repo => repo.GetGroupsAsync(It.IsAny<TabularData>(), It.IsAny<Func<Sorting, string>>())).ReturnsAsync(_groupsQueryDataResult);
+            _sqlGroupRepositoryMock.Setup(repo => repo.GetGroupsAsync(It.IsAny<int>(), It.IsAny<TabularData>(), It.IsAny<Func<Sorting, string>>())).ReturnsAsync(_groupsQueryDataResult);
 
             //act
-            var result = await _controller.GetUserGroups( _groupsTabularPagination, _groupsSorting, string.Empty) as OkNegotiatedContentResult<QueryResult<GroupDto>>;
+            var result = await _controller.GetGroups(UserId, _groupsTabularPagination, _groupsSorting, string.Empty) as OkNegotiatedContentResult<QueryResult<GroupDto>>;
 
             //assert
             // Exception

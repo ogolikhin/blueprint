@@ -133,11 +133,11 @@ namespace CommonServiceTests
 
                 // Verify:
                 Assert.AreEqual(expectedPublishStatus, actualPublishResult.StatusCode,
-                    "the expected result status is {0} but the returned result status is {1}.",
+                    "The expected result status is {0} but the returned result status is {1}.",
                     expectedPublishStatus, actualPublishResult.StatusCode);
 
                 Assert.AreEqual(expectedPublishMessage, actualPublishResult.Message,
-                    "the expected result message is {0} but the returned result message is {1}.",
+                    "The expected result message is {0} but the returned result message is {1}.",
                     expectedPublishMessage, actualPublishResult.Message);
             }
         }

@@ -10,11 +10,8 @@ namespace ImageRenderService.Transport
     {
         public async Task Handle(GenerateImageMessage message, IMessageHandlerContext context)
         {
-            var tempFile = @"C:\image.html";
-            System.IO.File.WriteAllText(tempFile, message.ProcessJsonModel);
             //generate image
-            var image = await ImageGenService.Instance.ImageGenerator.GenerateImageAsync(tempFile, ImageFormat.Png);
-            
+            var image = await ImageGenService.Instance.ImageGenerator.GenerateImageAsync(message.ProcessJsonModel, message.MaxWidth, message.MaxHeight, ImageFormat.Png);
 
             /*if (image == null)
             {

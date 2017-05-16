@@ -102,7 +102,7 @@ namespace ArtifactStore.Controllers
         /// <response code="403">Forbidden. The user does not have permissions new the review</response>		
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
-        [Route("containers/{containerId:int:min(1)}/artifactreviewers"), SessionRequired]
+        [Route("containers/{containerId:int:min(1)}/artifactreviewers/{artifactId=artifactId}"), SessionRequired]
         public Task<ArtifactReviewContent> GetArtifactStatusesByParticipantAsync(int artifactId, int containerId, int? offset = 0, int? limit = 50, int? versionId = null)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;

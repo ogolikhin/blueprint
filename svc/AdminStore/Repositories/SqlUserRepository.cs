@@ -361,12 +361,13 @@ namespace AdminStore.Repositories
             return queryDataResult;
         }
 
-        public async Task<int> DeleteUserFromGroupsAsync(int userId, IEnumerable<int> removedGroups)
+        public async Task<int> DeleteUserFromGroupsAsync(int userId, OperationScope body)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@UserId", userId);
-            if (removedGroups != null)
-                parameters.Add("@GroupMembership", SqlConnectionWrapper.ToDataTable(removedGroups, "Int32Collection", "Int32Value"));
+            parameters.Add("@SelectAll", body.SelectAll);
+            if (body.Ids != null)
+                parameters.Add("@GroupMembership", SqlConnectionWrapper.ToDataTable(body.Ids, "Int32Collection", "Int32Value"));
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
             var result = await _connectionWrapper.ExecuteScalarAsync<int>("DeleteUserFromGroups", parameters, commandType: CommandType.StoredProcedure);

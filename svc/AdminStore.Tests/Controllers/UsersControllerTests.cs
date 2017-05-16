@@ -42,7 +42,7 @@ namespace AdminStore.Controllers
         private QueryResult<GroupDto> _userGoupsQueryDataResult;
         private Pagination _userGroupsTabularPagination;
         private Sorting _userGroupsSorting;
-        private ChangeSet _changeSet;
+        private OperationScope _operationScope;
 
         [TestInitialize]
         public void Initialize()
@@ -100,7 +100,7 @@ namespace AdminStore.Controllers
             _userGroupsSorting = new Sorting() { Order = SortOrder.Asc, Sort = "Name" };
             _userGoupsQueryDataResult = new QueryResult<GroupDto>() { Total = 1, Items = new List<GroupDto>() };
 
-            _changeSet = new ChangeSet() {Removed = new[] {1, 2}};
+            _operationScope = new OperationScope() {Ids = new [] {3,4}, SelectAll = false};
         }
 
         #region Constuctor
@@ -1649,28 +1649,30 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(repo => repo.GetInstanceAdminPrivilegesAsync(It.IsAny<int>()))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
-            _usersRepoMock.Setup(r => r.DeleteUserFromGroupsAsync(It.IsAny<int>(), It.IsAny<IEnumerable<int>>())).ReturnsAsync(1);
+            _usersRepoMock.Setup(r => r.DeleteUserFromGroupsAsync(It.IsAny<int>(), It.IsAny<OperationScope>())).ReturnsAsync(1);
 
             //act
-            var result = await _controller.DeleteUserFromGroups(UserId, _changeSet);
+            var result =
+                await _controller.DeleteUserFromGroups(UserId, _operationScope) as
+                    OkNegotiatedContentResult<DeleteResult>;
 
             //assert
             Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result, typeof(OkResult));
+            Assert.IsInstanceOfType(result.Content, typeof(DeleteResult));
         }
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
-        public async Task DeleteUserFromGroups_RemovedGroupsModelIsEmpty_ReturnBadRequestErrorResult()
+        public async Task DeleteUserFromGroups_OperationScopeModelIsNull_ReturnBadRequestErrorResult()
         {
             //arrange
             _privilegesRepository
                 .Setup(repo => repo.GetInstanceAdminPrivilegesAsync(It.IsAny<int>()))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
-            _usersRepoMock.Setup(r => r.DeleteUserFromGroupsAsync(It.IsAny<int>(), It.IsAny<IEnumerable<int>>())).ReturnsAsync(1);
+            _usersRepoMock.Setup(r => r.DeleteUserFromGroupsAsync(It.IsAny<int>(), It.IsAny<OperationScope>())).ReturnsAsync(1);
 
             //act
-            await _controller.DeleteUserFromGroups(UserId, new ChangeSet() { Removed = null });
+            await _controller.DeleteUserFromGroups(UserId, null);
 
             //assert
             // Exception
@@ -1684,10 +1686,10 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(repo => repo.GetInstanceAdminPrivilegesAsync(It.IsAny<int>()))
                 .ReturnsAsync(InstanceAdminPrivileges.None);
-            _usersRepoMock.Setup(r => r.DeleteUserFromGroupsAsync(It.IsAny<int>(), It.IsAny<IEnumerable<int>>())).ReturnsAsync(1);
+            _usersRepoMock.Setup(r => r.DeleteUserFromGroupsAsync(It.IsAny<int>(), It.IsAny<OperationScope>())).ReturnsAsync(1);
 
             //act
-            await _controller.DeleteUserFromGroups(UserId, _changeSet);
+            await _controller.DeleteUserFromGroups(UserId, _operationScope);
 
             //assert
             // Exception
@@ -1703,11 +1705,11 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
 
             var resourceNotFoundExeption = new ResourceNotFoundException(ErrorMessages.UserNotExist);
-            _usersRepoMock.Setup(r => r.DeleteUserFromGroupsAsync(It.IsAny<int>(), It.IsAny<IEnumerable<int>>()))
+            _usersRepoMock.Setup(r => r.DeleteUserFromGroupsAsync(It.IsAny<int>(), It.IsAny<OperationScope>()))
                 .Throws(resourceNotFoundExeption);
 
             // Act
-            await _controller.DeleteUserFromGroups(UserId, _changeSet);
+            await _controller.DeleteUserFromGroups(UserId, _operationScope);
 
             // Assert
             // Exception

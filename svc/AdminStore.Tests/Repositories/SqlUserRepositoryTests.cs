@@ -523,7 +523,7 @@ namespace AdminStore.Repositories
             cxn.SetupExecuteScalarAsync("DeleteUserFromGroups", It.IsAny<Dictionary<string, object>>(), 1, new Dictionary<string, object> { { "ErrorCode", errorId } });
 
             // Act
-            await repository.DeleteUserFromGroupsAsync(1, new[] {1, 2});
+            await repository.DeleteUserFromGroupsAsync(1, new OperationScope() {Ids = new [] {3, 4}, SelectAll = false});
 
             // Assert
             cxn.Verify();

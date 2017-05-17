@@ -80,6 +80,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() => diagramArtifact = Helper.ArtifactStore.GetDiagramArtifact(viewer, publishedDiagramArtifact.Id, versionId: 1),
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.DIAGRAM_id_);
 
+            // Verify:
             // We expect Version = 1.
             publishedDiagramArtifact.Version = 1;
 
@@ -95,9 +96,9 @@ namespace ArtifactStoreTests
                      "Verify that the indicator flags contains the values for traces, attachements and comments.")]
         public void GetUseCaseDiagramArtifact_WithActorThatContainsAttachmentsAndComments_VerifyIndicatorFlags()
         {
+            // Setup:
             int USECASEDIAGRAM_WITHACTOR_ID = 144;
 
-            // getting the latest version of the artifact using open API GetArtifact
             var retrievedArtifact = Helper.ArtifactStore.GetArtifactDetails(_user, USECASEDIAGRAM_WITHACTOR_ID);
 
             // Execution: Get the use case diagram artifact an actor association

@@ -19,7 +19,6 @@ namespace ArtifactStoreTests
         private IUser _viewerUser = null;
         private IProject _project = null;
 
-        private static int USECASE_ID_WITHUIMOCKUP = 147;
         private const string REST_PATH = RestPaths.Svc.ArtifactStore.USECASE_id_;
 
         #region Setup and Cleanup
@@ -92,7 +91,9 @@ namespace ArtifactStoreTests
                      "the value representing the UIMockup association.")]
         public void GetUseCaseArtifact_GetUseCaseArtifactWithUIMockupAssociation_VerifyIndicatorFlags()
         {
-            // getting the latest version of the artifact using open API GetArtifact
+            // Setup:
+            const int USECASE_ID_WITHUIMOCKUP = 147;
+
             var retrievedArtifact = Helper.ArtifactStore.GetArtifactDetails(_adminUser, USECASE_ID_WITHUIMOCKUP);
 
             var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
@@ -155,7 +156,7 @@ namespace ArtifactStoreTests
                 "Calling GET {0} with the user with the user which has no permission to the artifact should return 403 Forbidden!",
                 REST_PATH);
 
-            // Vaidation: Exception should contain proper errorCode in the response content
+            // Validation: Exception should contain proper errorCode in the response content
             string expectedErrorMessage = I18NHelper.FormatInvariant(
                 "You do not have permission to access the artifact (ID: {0})",
                 publishedUseCaseArtifact.Id);

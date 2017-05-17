@@ -46,36 +46,6 @@ namespace ArtifactStoreTests
 
         #endregion Setup and Cleanup
 
-        #region Private Functions
-
-        /// <summary>
-        /// Validates traces with traces from relationship to verify their properties are equal.
-        /// </summary>
-        /// <param name="relationship">relationship to validate</param>
-        /// <param name="traces">traces to compare with</param>
-        /// <param name="artifacts">artifacts to compare with</param>
-        private static void TraceValidation(Relationships relationship, List<OpenApiTrace> traces, List<IArtifact> artifacts)
-        {
-            var totalTraceCountFromTraces = traces.Count;
-            var totalTraceCountFromRelationship = relationship.ManualTraces.Count + relationship.OtherTraces.Count;
-
-            Assert.AreEqual(0, relationship.OtherTraces.Count, "Relationships shouldn't have other traces.");
-            Assert.That(artifacts.Count.Equals(totalTraceCountFromRelationship), "Total number of target artifacts should equal to total number of relationships");
-            Assert.That(totalTraceCountFromTraces.Equals(totalTraceCountFromRelationship), "Total number of traces to compare is {0} but relationship contains {1} traces", totalTraceCountFromTraces, totalTraceCountFromRelationship);
-
-            for (int i = 0; i < totalTraceCountFromTraces; i++)
-            {
-                var manualTraceId = relationship.ManualTraces[i].ArtifactId;
-                IArtifact foundArtifact = null;
-                Assert.NotNull(foundArtifact = artifacts.Find(a => a.Id.Equals(manualTraceId)),"Could not find matching arifact from artifacts {0}", artifacts);
-                var foundArtifactName = foundArtifact.Name;
-                ArtifactStoreHelper.AssertTracesAreEqual(traces[i], relationship.ManualTraces[i]);
-                Assert.That(relationship.ManualTraces[i].ArtifactName.Equals(foundArtifactName), "Name '{0}' from target artifact does not match with Name '{1}' from manual trace of relationships.", foundArtifactName, relationship.ManualTraces[i].ArtifactName);
-            }
-        }
-
-        #endregion Private Functions
-
         #region 200 OK Tests
 
         [TestCase(TraceDirection.To)]
@@ -83,7 +53,7 @@ namespace ArtifactStoreTests
         [TestCase(TraceDirection.TwoWay)]
         [TestRail(183545)]
         [Description("Create and publish artifact with a trace to target. Update and publish the artifact with the updated trace pointing to another target.  " +
-            "Verify that GetRelationship call returns correct trace for each version of artifact.")]
+                     "Verify that GetRelationship call returns correct trace for each version of artifact.")]
         public void GetRelationships_ChangeTraceWhenPublishingArtifacts_ReturnsCorrectRelationshipPerVersion(TraceDirection direction)
         {
             // Setup: Create and Publish Two target artifacts: target artifact 1 and target artifact 2
@@ -264,7 +234,7 @@ namespace ArtifactStoreTests
         [TestCase(null)]
         [TestRail(153703)]
         [Description("Create manual trace between 2 Saved (but unpublished) artifacts, get relationships (with and without the 'addDrafts=true' query parameter).  " +
-            "Verify manual trace is returned.")]
+                     "Verify manual trace is returned.")]
         public void GetRelationships_SavedNeverPublishedArtifactWithAddDraftsTrue_ReturnsCorrectTraces(bool? addDrafts)
         {
             // Setup:
@@ -298,7 +268,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(153700)]
         [Description("Create manual trace between an artifact and a sub-artifact from a different artifact.  Get relationships. " +  
-            "Verify that returned trace has expected value.")]
+                     "Verify that returned trace has expected value.")]
         public void GetRelationships_ManualTraceArtifactToSubartifactInDifferentArtifact_ReturnsCorrectTraces()
         {
             // Setup:
@@ -339,7 +309,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(153741)]
         [Description("Create manual trace between two sub-artifacts from different artifacts.  Get relationships. " +
-            "Verify that returned trace has expected value.")]
+                     "Verify that returned trace has expected value.")]
         public void GetRelationships_ManualTraceBetweenTwoSubArtifactsInDifferentArtifacts_ReturnsCorrectTraces()
         {
             // Setup:
@@ -484,7 +454,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(154699)]
         [Description("Try to get relationships using credentials of user which has no access to the target artifact.  " +
-            "Verify that relationships returns empty artifact name and HasAccess false.")]
+                     "Verify that relationships returns empty artifact name and HasAccess false.")]
         public void GetRelationships_NoAccessToTargetArtifact_ReturnsRelationshipsWithHasAccessFalseAndNullName()
         {
             // Setup:
@@ -579,9 +549,9 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(267470)]
-        [Description("Create and publish two artifacts, create trace between artifacts and save changes, add saved artifact" +
-            " to newly created baseline, publish this artifact, get relationships for this artifact providing BaselineId" +
-            " as param, check that returned traces have expected values.")]
+        [Description("Create and publish two artifacts, create trace between artifacts and save changes, add saved artifact " +
+                     "to newly created baseline, publish this artifact, get relationships for this artifact providing BaselineId " +
+                     "as param, check that returned traces have expected values.")]
         public void GetRelationshipsDetails_ArtifactAddedToBaselineProvideBaselineId_ValidateTraces()
         {
             // Setup:
@@ -647,7 +617,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(153691)]
         [Description("Create manual trace between 2 artifacts, get relationships with a user that doesn't have permission to source artifacts.  " +
-            "Verify returns 403 Forbidden.")]
+                     "Verify returns 403 Forbidden.")]
         public void GetRelationships_ManualTraceUserHasNoAccessToSourceArtifact_403Forbidden()
         {
             // Setup:
@@ -676,7 +646,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(234312)]
         [Description("Create manual trace between 2 artifacts, get relationship details with a user that doesn't have permission to target artifacts.  " +
-            "Verify returns 403 Forbidden.")]
+                     "Verify returns 403 Forbidden.")]
         public void GetRelationshipsDetails_ManualTraceUserHasNoAccessToTargetArtifact_403Forbidden()
         {
             // Setup:
@@ -755,7 +725,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(153904)]
         [Description("Create manual trace between 2 Saved (but unpublished) artifacts, get relationships (with the 'addDrafts=false' query parameter).  " +
-            "Verify it returns 404 Not Found.")]
+                     "Verify it returns 404 Not Found.")]
         public void GetRelationships_SavedNeverPublishedArtifactWithAddDraftsFalse_404NotFound()
         {
             // Setup:
@@ -843,5 +813,40 @@ namespace ArtifactStoreTests
         #endregion 404 Not Found Tests
 
         // TODO: Test with "Other" traces.
+
+        #region Private Functions
+
+        /// <summary>
+        /// Validates traces with traces from relationship to verify their properties are equal.
+        /// </summary>
+        /// <param name="relationship">relationship to validate</param>
+        /// <param name="traces">traces to compare with</param>
+        /// <param name="artifacts">artifacts to compare with</param>
+        private static void TraceValidation(Relationships relationship, List<OpenApiTrace> traces, List<IArtifact> artifacts)
+        {
+            var totalTraceCountFromTraces = traces.Count;
+            var totalTraceCountFromRelationship = relationship.ManualTraces.Count + relationship.OtherTraces.Count;
+
+            Assert.AreEqual(0, relationship.OtherTraces.Count, "Relationships shouldn't have other traces.");
+            Assert.That(artifacts.Count.Equals(totalTraceCountFromRelationship), "Total number of target artifacts should equal to total number of relationships");
+            Assert.That(totalTraceCountFromTraces.Equals(totalTraceCountFromRelationship),
+                "Total number of traces to compare is {0} but relationship contains {1} traces", totalTraceCountFromTraces, totalTraceCountFromRelationship);
+
+            for (int i = 0; i < totalTraceCountFromTraces; i++)
+            {
+                var manualTraceId = relationship.ManualTraces[i].ArtifactId;
+                IArtifact foundArtifact = null;
+                Assert.NotNull(foundArtifact = artifacts.Find(a => a.Id.Equals(manualTraceId)),
+                    "Could not find matching arifact from artifacts {0}", artifacts);
+
+                var foundArtifactName = foundArtifact.Name;
+                ArtifactStoreHelper.AssertTracesAreEqual(traces[i], relationship.ManualTraces[i]);
+                Assert.That(relationship.ManualTraces[i].ArtifactName.Equals(foundArtifactName),
+                    "Name '{0}' from target artifact does not match with Name '{1}' from manual trace of relationships.",
+                    foundArtifactName, relationship.ManualTraces[i].ArtifactName);
+            }
+        }
+
+        #endregion Private Functions
     }
 }

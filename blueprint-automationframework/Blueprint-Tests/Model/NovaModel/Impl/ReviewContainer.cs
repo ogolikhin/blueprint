@@ -27,6 +27,8 @@ namespace Model.NovaModel.Impl
         public ReviewStatus Status { get; set; }
 
         public ReviewArtifactsStatus ArtifactsStatus { get; set; }
+
+        public int RevisionId { get; set; }
     }
 
     public class ReviewSource

@@ -1,5 +1,4 @@
-﻿using ArtifactStore.Models;
-using ArtifactStore.Models.Review;
+﻿using ArtifactStore.Models.Review;
 using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
@@ -75,6 +74,7 @@ namespace ArtifactStore.Repositories
                 throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
             }
 
+            int revisionId;
             var reviewSource = new ReviewSource();
             if (reviewDetails.BaselineId.HasValue)
             {
@@ -82,6 +82,11 @@ namespace ArtifactStore.Repositories
                 reviewSource.Id = baselineInfo.Id;
                 reviewSource.Name = baselineInfo.Name;
                 reviewSource.Prefix = baselineInfo.Prefix;
+                revisionId = await _itemInfoRepository.GetRevisionIdFromBaselineId(reviewDetails.BaselineId.Value, userId, false);
+            }
+            else
+            {
+                revisionId = await _itemInfoRepository.GetTopRevisionId(userId);
             }
 
             var description = await _itemInfoRepository.GetItemDescription(containerId, userId, true, int.MaxValue);
@@ -103,7 +108,7 @@ namespace ArtifactStore.Repositories
                     Viewed = reviewDetails.Viewed
                 },
                 ReviewType = reviewDetails.BaselineId.HasValue ? ReviewType.Formal : ReviewType.Informal,
-                
+                RevisionId = revisionId
             };
             return reviewContainer;
         }

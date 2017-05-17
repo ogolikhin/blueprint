@@ -6,12 +6,16 @@ using Dapper;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Exceptions;
+using BluePrintSys.RC.Service.Business.Baselines.Impl;
+using System;
+using System.Data.SqlTypes;
 
 namespace ServiceLibrary.Repositories
 {
     public class SqlItemInfoRepository : ISqlItemInfoRepository
     {
         private readonly ISqlConnectionWrapper _connectionWrapper;
+
         private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
 
         public SqlItemInfoRepository()
@@ -81,7 +85,7 @@ namespace ServiceLibrary.Repositories
             }
             else if (baselineId != null)
             {
-                revisionId = await _artifactPermissionsRepository.GetRevisionIdFromBaselineId(baselineId.Value, userId);
+                revisionId = await GetRevisionIdFromBaselineId(baselineId.Value, userId);
             }
             if (revisionId <= 0)
             {
@@ -90,5 +94,64 @@ namespace ServiceLibrary.Repositories
             return revisionId;
         }
 
+        public async Task<int> GetRevisionIdFromBaselineId(int baselineId, int userId, bool addDrafts = true, int revisionId = int.MaxValue)
+        {
+            var itemRawData = (await GetItemsRawData(new List<int> { baselineId }, userId, addDrafts, revisionId)).SingleOrDefault();
+            if (itemRawData != null)
+            {
+                var rawData = itemRawData.RawData;
+                var snapTime = BaselineRawDataHelper.ExtractTimestamp(rawData);
+                if (snapTime != null)
+                {
+                    return await GetRevisionIdByTime(snapTime.Value);
+                }
+                return int.MaxValue;
+            }
+            return -1;
+        }
+
+        private async Task<int> GetRevisionIdByTime(DateTime time)
+        {
+            var utcTime = time.ToUniversalTime();
+            var minDateTime = (DateTime)SqlDateTime.MinValue;
+            var maxDateTime = (DateTime)SqlDateTime.MaxValue;
+            if (utcTime < minDateTime || utcTime > maxDateTime)
+            {
+                return -1;
+            }
+            var prm = new DynamicParameters();
+            prm.Add("@time", utcTime);
+            var queryText = "SELECT MAX([RevisionId]) FROM [dbo].[Revisions] WHERE ([Timestamp] <= @time) AND ([RevisionId] > 1);";
+            return (await _connectionWrapper.QueryAsync<int>(queryText, prm)).SingleOrDefault();
+        }
+
+        public async Task<ISet<int>> GetBaselineArtifacts(int baselineId, int userId, bool addDrafts = true, int revisionId = int.MaxValue)
+        {
+            var itemRawData = (await GetItemsRawData(new List<int> { baselineId }, userId, addDrafts, revisionId)).SingleOrDefault();
+            if (itemRawData != null)
+            {
+                var rawData = itemRawData.RawData;
+                return BaselineRawDataHelper.ExtractBaselineArtifacts(rawData);
+            }
+
+            string errorMessage = I18NHelper.FormatInvariant("Baseline (Id:{0}) is not found.", baselineId);
+            throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
+        }
+
+        private async Task<IEnumerable<ItemRawData>> GetItemsRawData(IEnumerable<int> itemIds, int userId, bool addDrafts = true, int revisionId = int.MaxValue)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@itemIds", SqlConnectionWrapper.ToDataTable(itemIds));
+            prm.Add("@userId", userId);
+            prm.Add("@addDrafts", addDrafts);
+            prm.Add("@revisionId", revisionId);
+            return (await _connectionWrapper.QueryAsync<ItemRawData>("GetItemsRawDataCreatedDate", prm, commandType: CommandType.StoredProcedure));
+        }
+
+        public async Task<int> GetTopRevisionId(int userId)
+        {
+            var queryText = "SELECT MAX([RevisionId]) FROM [dbo].[Revisions];";
+            return (await _connectionWrapper.QueryAsync<int>(queryText)).SingleOrDefault();
+        }
     }
 }

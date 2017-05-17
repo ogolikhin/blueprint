@@ -4,6 +4,7 @@
     {
         public int Level { get; set; }
         public int ArtifactId { get; set; }
+        public ItemTypePredefined PrimitiveItemTypePredefined { get; set; }
         public int? ParentId { get; set; }
         public string Name { get; set; }
         public int? ItemTypeId { get; set; }

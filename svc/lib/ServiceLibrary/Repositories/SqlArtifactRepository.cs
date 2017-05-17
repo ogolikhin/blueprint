@@ -596,6 +596,7 @@ namespace ServiceLibrary.Repositories
                         AddArtifactShortInfo(
                             artifactsNavigationPath.ParentId.Value,
                             null,
+                            null,
                             artifactsNavigationPath.Level + 1,
                             addedRecord);
                     }
@@ -605,6 +606,7 @@ namespace ServiceLibrary.Repositories
                         AddArtifactShortInfo(
                             artifactsNavigationPath.ArtifactId,
                             artifactsNavigationPath.Name,
+                            artifactsNavigationPath.PrimitiveItemTypePredefined,
                             artifactsNavigationPath.Level,
                             addedRecord);
                     }
@@ -615,6 +617,7 @@ namespace ServiceLibrary.Repositories
                     if (pathArray.TryGetValue(artifactsNavigationPath.Level, out artifactShortInfoForCurrentLevel))
                     {
                         artifactShortInfoForCurrentLevel.Name = artifactsNavigationPath.Name;
+                        artifactShortInfoForCurrentLevel.PredefinedType = artifactsNavigationPath.PrimitiveItemTypePredefined;
                     }
                     else
                     {
@@ -625,8 +628,8 @@ namespace ServiceLibrary.Repositories
                             {
                                 id = artifactsNavigationPath.ArtifactId;
                             }
-                            AddArtifactShortInfo(id, artifactsNavigationPath.Name, artifactsNavigationPath.Level,
-                                pathArray);
+                            AddArtifactShortInfo(id, artifactsNavigationPath.Name, artifactsNavigationPath.PrimitiveItemTypePredefined,
+                                artifactsNavigationPath.Level, pathArray);
                         }
                     }
 
@@ -639,8 +642,12 @@ namespace ServiceLibrary.Repositories
                         }
                         else
                         {
-                            AddArtifactShortInfo(artifactsNavigationPath.ParentId.Value, null,
-                                artifactsNavigationPath.Level + 1, pathArray);
+                            AddArtifactShortInfo(
+                                artifactsNavigationPath.ParentId.Value,
+                                null,
+                                null,
+                                artifactsNavigationPath.Level + 1,
+                                pathArray);
                         }
                     }
                 }
@@ -656,12 +663,13 @@ namespace ServiceLibrary.Repositories
             return result;
         }
 
-        private static void AddArtifactShortInfo(int id, string name, int level, IDictionary<int, Artifact> pathArray)
+        private static void AddArtifactShortInfo(int id, string name, ItemTypePredefined? predefinedType, int level, IDictionary<int, Artifact> pathArray)
         {
             var artifactInfo = new Artifact
             {
                 Id = id,
-                Name = name
+                Name = name,
+                PredefinedType = predefinedType
             };
             pathArray.Add(level, artifactInfo);
         }

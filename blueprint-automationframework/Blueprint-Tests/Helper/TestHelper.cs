@@ -505,7 +505,7 @@ namespace Helper
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            var wrappedArtifact = new ArtifactWrapper(artifact, ArtifactStore, SvcShared, project, createdBy);
+            var wrappedArtifact = new ArtifactWrapper(artifact, project, createdBy);
             WrappedArtifactsToDispose.Add(wrappedArtifact);
 
             return wrappedArtifact;
@@ -1073,17 +1073,18 @@ namespace Helper
         /// <param name="orderIndex">(optional) The order index of this Nova artifact.
         ///     By default the order index should be after the last artifact.</param>
         /// <param name="name">(optional) The artifact name.  By default a random name is created.</param>
+        /// <param name="artifactTypeName">(optional) Name of the artifact type to be used to create the artifact</param>
         /// <returns>The Nova artifact wrapped in an ProcessArtifactWrapper that tracks the state of the artifact.</returns>
         public ProcessArtifactWrapper CreateNovaProcessArtifact(
             IUser user, IProject project,
-            int? parentId = null, double? orderIndex = null, string name = null)
+            int? parentId = null, double? orderIndex = null, string name = null, string artifactTypeName = null)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
 
             name = name ?? RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
-            var artifact  = Model.Impl.ArtifactStore.CreateArtifact(ArtifactStore.Address, user,
-                ItemTypePredefined.Process, name, project, parentId, orderIndex);
+            var artifact = Model.Impl.ArtifactStore.CreateArtifact(ArtifactStore.Address, user,
+                ItemTypePredefined.Process, name, project, artifactTypeName, parentId, orderIndex);
 
             var process = Storyteller.GetNovaProcess(user, artifact.Id);
 
@@ -1122,7 +1123,7 @@ namespace Helper
         {
             ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
 
-            var wrappedProcessArtifact = new ProcessArtifactWrapper(novaProcess, ArtifactStore, SvcShared, project, createdBy);
+            var wrappedProcessArtifact = new ProcessArtifactWrapper(novaProcess, project, createdBy);
             WrappedArtifactsToDispose.Add(wrappedProcessArtifact);
 
             return wrappedProcessArtifact;

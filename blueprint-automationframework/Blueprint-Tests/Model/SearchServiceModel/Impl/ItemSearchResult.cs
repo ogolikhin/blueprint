@@ -58,19 +58,20 @@ namespace Model.SearchServiceModel.Impl
             return Children.Count > 0;
         }
 
-        public List<string> Path { get; } = new List<string>();
-
-        public bool ShouldSerializePath()
+        public List<string> ArtifactPath { get; } = new List<string>();
+        public bool ShouldSerializeArtifactPath()
         {
-            return Path.Count > 0;
+            return ArtifactPath.Count > 0;
         }
 
         public List<int> IdPath { get; } = new List<int>();
 
         public bool ShouldSerializeIdPath()
         {
-            return Path.Count > 0;
+            return IdPath.Count > 0;
         }
+
+        public int? ParentPredefinedType { get; set; } 
     }
 
     // see blueprint/svc/SearchService/Models/ProjectSearchResultSet.cs and blueprint/svc/SearchService/Models/ItemNameSearchResult.cs 

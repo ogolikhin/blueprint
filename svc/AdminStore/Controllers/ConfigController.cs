@@ -10,6 +10,7 @@ using System.Web.Http.Description;
 using AdminStore.Models;
 using AdminStore.Repositories;
 using ServiceLibrary.Attributes;
+using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories.ConfigControl;

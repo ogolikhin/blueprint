@@ -1,11 +1,10 @@
-﻿using CustomAttributes;
+﻿using Common;
+using CustomAttributes;
 using Helper;
 using Model;
-using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
-using Model.Impl;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
@@ -38,8 +37,6 @@ namespace ArtifactStoreTests
             _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
             _projectCustomData.GetAllNovaArtifactTypes(Helper.ArtifactStore, _adminUser);
             _authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _projectCustomData);
-
-
         }
 
         [TestFixtureTearDown]
@@ -54,22 +51,21 @@ namespace ArtifactStoreTests
 
         [TestCase(4)]
         [TestRail(183354)]
-        [Description("Create & publish a use case artifact multiple times to have multiple version of it, Get use case artifact without passing version.  +" +
+        [Description("Create & publish a use case artifact multiple times to have multiple version of it, Get use case artifact without passing version.  " +
                      "Verify that latest version of artifact is returned.")]
         public void GetUseCaseArtifact_PublishAndGetUseCaseArtifactWithoutSpecificVersion_ReturnsLatestVersionOfUseCaseArtifact(int numberOfVersions)
         {
             // Setup: Create and publish a use case artifact multiple times to have multiple versions of it
             var publishedUseCaseArtifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_adminUser, _project, ItemTypePredefined.UseCase, numberOfVersions);
-            // getting the latest version of the artifact using open API GetArtifact
-            var retrievedArtifact = Helper.ArtifactStore.GetArtifactDetails(_adminUser, publishedUseCaseArtifact.Id);
 
             // Execute: Get the use case artifact using GetUseCaseArtifact without passing versionId parameter
             NovaUseCaseArtifact usecaseArtifact = null;
-            Assert.DoesNotThrow(() => { usecaseArtifact = Helper.ArtifactStore.GetUseCaseArtifact(_viewerUser, publishedUseCaseArtifact.Id); },
+
+            Assert.DoesNotThrow(() => usecaseArtifact = Helper.ArtifactStore.GetUseCaseArtifact(_viewerUser, publishedUseCaseArtifact.Id),
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", REST_PATH);
 
             // Validation: Verify that the returned from GetUseCaseArtifact in valid format
-            NovaArtifactDetails.AssertArtifactsEqual(usecaseArtifact, retrievedArtifact);
+            NovaArtifactDetails.AssertArtifactsEqual(publishedUseCaseArtifact, usecaseArtifact);
         }
 
         [TestCase]
@@ -80,21 +76,26 @@ namespace ArtifactStoreTests
         {
             // Setup: Create and publish a use case artifact two times to have two versions of it			
             var publishedUseCaseArtifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_adminUser, _project, ItemTypePredefined.UseCase, numberOfVersions: 2);
-            var retrievedArtifactVersion1 = Helper.ArtifactStore.GetArtifactDetails(_adminUser, publishedUseCaseArtifact.Id, versionId: 1);
 
             // Execute: Get the use case artifact using GetUseCaseArtifact with first versionId		
             NovaUseCaseArtifact usecaseArtifact = null;
-            Assert.DoesNotThrow(() => { usecaseArtifact = Helper.ArtifactStore.GetUseCaseArtifact(_viewerUser, publishedUseCaseArtifact.Id, versionId: 1); },
+
+            Assert.DoesNotThrow(() => usecaseArtifact = Helper.ArtifactStore.GetUseCaseArtifact(_viewerUser, publishedUseCaseArtifact.Id, versionId: 1),
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", REST_PATH);
 
-            NovaArtifactDetails.AssertArtifactsEqual(usecaseArtifact, retrievedArtifactVersion1);
+            // Verify:
+            // We expect Version = 1.
+            publishedUseCaseArtifact.Version = 1;
+
+            NovaArtifactDetails.AssertArtifactsEqual(publishedUseCaseArtifact, usecaseArtifact);
         }
 
         [Category(Categories.CustomData)]
         [Category(Categories.GoldenData)]
         [TestCase]
         [TestRail(267348)]
-        [Description("Get the use case artifact which contains a UIMockup association on its postcondition subartifact. Verify that the indicator contains the value representing the UIMockup association.")]
+        [Description("Get the use case artifact which contains a UIMockup association on its postcondition subartifact. Verify that the indicator contains " +
+                     "the value representing the UIMockup association.")]
         public void GetUseCaseArtifact_GetUseCaseArtifactWithUIMockupAssociation_VerifyIndicatorFlags()
         {
             // getting the latest version of the artifact using open API GetArtifact
@@ -102,11 +103,12 @@ namespace ArtifactStoreTests
 
             // Execution: Get the use case artifact with the UIMockup association on its postcondition subartifact
             NovaUseCaseArtifact usecaseArtifact = null;
-            Assert.DoesNotThrow(() => { usecaseArtifact = Helper.ArtifactStore.GetUseCaseArtifact(_authorUser, USECASE_ID_WITHUIMOCKUP); },
+
+            Assert.DoesNotThrow(() => usecaseArtifact = Helper.ArtifactStore.GetUseCaseArtifact(_authorUser, USECASE_ID_WITHUIMOCKUP),
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", REST_PATH);
 
             // Verify: Verify that the postcondition subartifact's indicatorflag contains value that represents UIMockup association.
-            NovaArtifactDetails.AssertArtifactsEqual(usecaseArtifact, retrievedArtifact);
+            NovaArtifactDetails.AssertArtifactsEqual(retrievedArtifact, usecaseArtifact);
 
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _authorUser, USECASE_ID_WITHUIMOCKUP, ItemIndicatorFlags.HasUIMockup, usecaseArtifact.PostCondition.Id);
         }
@@ -115,20 +117,25 @@ namespace ArtifactStoreTests
 
         #region 401 Unauthorized Tests
 
+        [TestCase(null)]
         [TestCase("")]
-        [TestCase("invalidTokenString")]
+        [TestCase(CommonConstants.InvalidToken)]
         [TestRail(183035)]
         [Description("Create & publish a use case artifact, Get UseCaseArtifact with invalid token header. Verify 401 Unauthorized.")]
         public void GetUseCaseArtifact_PublishAndGetUseCaseArtifactWithInvalidTokenHeader_401Unauthorized(string token)
         {
             // Setup: Create and publish a use case artifact
-            var publishedUseCaseArtifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
-            var userWithBadOrMissingToken = UserFactory.CreateUserAndAddToDatabase();
-            userWithBadOrMissingToken.Token.SetToken(token);
+            var publishedUseCaseArtifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.UseCase);
+
+            var userWithBadOrMissingToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken,
+                badToken: token);
 
             // Execute: Get the use case artifact with invalid token header using GetUseCaseArtifact
-            Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.GetUseCaseArtifact(userWithBadOrMissingToken, publishedUseCaseArtifact.Id, versionId: 1),
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.GetUseCaseArtifact(userWithBadOrMissingToken, publishedUseCaseArtifact.Id, versionId: 1),
                 "Calling GET {0} with invalid token should return 401 Unauthorized!", REST_PATH);
+
+            // Verify:
+            TestHelper.ValidateBodyContents(ex.RestResponse, "Unauthorized call");
         }
 
         #endregion 401 Unauthorized Tests
@@ -141,7 +148,8 @@ namespace ArtifactStoreTests
         public void GetUseCaseArtifact_PublishAndGetUseCaseArtifactWithNoPermissionForTheArtifact_403Forbidden()
         {
             // Setup: Create and publish a use case artifact
-            var publishedUseCaseArtifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
+            var publishedUseCaseArtifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.UseCase);
+
             var userWithNonePermissionForArtifact = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
             Helper.AssignProjectRolePermissionsToUser(userWithNonePermissionForArtifact, TestHelper.ProjectRole.None, _project, publishedUseCaseArtifact);
 
@@ -151,10 +159,11 @@ namespace ArtifactStoreTests
                 REST_PATH);
 
             // Vaidation: Exception should contain proper errorCode in the response content
-            var serviceErrorMessage = SerializationUtilities.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
-            Assert.AreEqual(InternalApiErrorCodes.Forbidden, serviceErrorMessage.ErrorCode,
-                "Error code for GetUseCaseArtifact with the user which has no permission to the artifact should be {0}",
-                InternalApiErrorCodes.Forbidden);
+            string expectedErrorMessage = I18NHelper.FormatInvariant(
+                "You do not have permission to access the artifact (ID: {0})",
+                publishedUseCaseArtifact.Id);
+
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, expectedErrorMessage);
         }
 
         #endregion 403 Forbidden Tests
@@ -169,14 +178,16 @@ namespace ArtifactStoreTests
         public void GetUseCaseArtifact_PublishAndGetUseCaseArtifactWithInvalidVersionId_404NotFound(int versionId)
         {
             // Setup: Create and publish a use case artifact
-            var publishedUseCaseArtifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
+            var publishedUseCaseArtifact = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.UseCase);
 
             // Execute: Get the use case artifact with invalid versionId using GetUseCaseArtifact
-            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetUseCaseArtifact(_viewerUser, publishedUseCaseArtifact.Id, versionId: versionId), "GetUseCaseArtifact call with invalid versionId does not exit with 404 NotFoundException!");
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetUseCaseArtifact(_viewerUser, publishedUseCaseArtifact.Id, versionId: versionId),
+                "GetUseCaseArtifact call with invalid versionId does not exit with 404 NotFoundException!");
 
             // Validation: Exception should contain proper errorCode in the response content
-            var serviceErrorMessage = SerializationUtilities.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
-            Assert.AreEqual(InternalApiErrorCodes.ItemNotFound, serviceErrorMessage.ErrorCode, "Error code for GetUseCaseArtifact with invalid versionId should be {0}", InternalApiErrorCodes.ItemNotFound);
+            const string expectedErrorMessage = "You have attempted to access an item that does not exist or you do not have permission to view.";
+
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, expectedErrorMessage);
         }
 
         #endregion 404 Not Found Tests

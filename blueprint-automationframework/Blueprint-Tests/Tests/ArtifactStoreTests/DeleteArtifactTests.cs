@@ -336,7 +336,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() => deletedArtifacts = grandParentArtifact.Delete(_user),
                 "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
 
-            Helper.ArtifactStore.PublishArtifacts(artifactsIds: null, user: _user, publishAll: true);
+            Helper.ArtifactStore.PublishArtifacts(artifactIds: null, user: _user, publishAll: true);
 
             // Update the internal artifact states since we didn't use ArtifactWrapper to publish them.
             artifactChain.ForEach(a => a.UpdateArtifactState(ArtifactWrapper.ArtifactOperation.Publish));

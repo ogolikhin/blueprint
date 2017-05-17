@@ -47,9 +47,11 @@ namespace ArtifactStore.Repositories
             int revisionId = int.MaxValue;
             int baselineId = 3;
             int totalArtifacts = 8;
+            int reviewRevisionId = 999;
             var reviewStatus = ReviewStatus.Completed;
 
             _itemInfoRepositoryMock.Setup(i => i.GetItemDescription(reviewId, userId, true, int.MaxValue)).ReturnsAsync(reviewDescription);
+            _itemInfoRepositoryMock.Setup(i => i.GetRevisionIdFromBaselineId(baselineId, userId, false, int.MaxValue)).ReturnsAsync(reviewRevisionId);
             var reviewDetails = new ReviewDetails
             {
                 BaselineId = baselineId,
@@ -89,6 +91,7 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(reviewStatus, review.Status);
             Assert.AreEqual(reviewName, review.Name);
             Assert.AreEqual(reviewDescription, review.Description);
+            Assert.AreEqual(reviewRevisionId, review.RevisionId);
             Assert.AreEqual(ReviewSourceType.Baseline, review.SourceType);
             Assert.AreEqual(ReviewType.Formal, review.ReviewType);
             Assert.AreEqual(5, review.ArtifactsStatus.Approved);

@@ -29,7 +29,7 @@ namespace ServiceLibrary.Helpers
             throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
         }
 
-        internal static void ThrowArtifactForbiddenException(int artifactId)
+        public static void ThrowArtifactForbiddenException(int artifactId)
         {
             var errorMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).",
                                    artifactId);

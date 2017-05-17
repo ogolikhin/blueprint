@@ -8,6 +8,10 @@ namespace Model.NovaModel.Impl
 
         public string Name { get; set; }
 
+        public string Prefix { get; set; }
+
+        public string ArtifactType { get; set; }
+
         public string Description { get; set; }
 
         public int TotalArtifacts { get; set; }
@@ -17,6 +21,8 @@ namespace Model.NovaModel.Impl
         public ReviewSourceType SourceType { get; set; }
 
         public ReviewSource Source { get; set; }
+
+        public ReviewPackageStatus ReviewPackageStatus { get; set; }
 
         public ReviewStatus Status { get; set; }
 
@@ -59,5 +65,12 @@ namespace Model.NovaModel.Impl
         NotStarted = 0,
         InProgress = 1,
         Completed = 2
+    }
+
+    public enum ReviewPackageStatus
+    {
+        Draft = 0,
+        Active = 1,
+        Closed = 2
     }
 }

@@ -244,8 +244,9 @@ namespace SearchService.Repositories
                 result.item.Permissions = result.permission.Value;
                 if (searchCriteria.IncludeArtifactPath)
                 {
-                    result.item.Path = result.lpath.Value.Select(a => a.Name).ToList();
+                    result.item.ArtifactPath = result.lpath.Value.Select(a => a.Name).ToList();
                     result.item.IdPath = result.lpath.Value.Select(a => a.Id).ToList();
+                    result.item.ParentPredefinedType = result.lpath.Value.Select(a => a.PredefinedType).FirstOrDefault();
                 }
             }
 

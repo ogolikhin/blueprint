@@ -1,12 +1,15 @@
 ﻿using Common;
 using CustomAttributes;
+using Helper;
 using Model;
-using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
+using Model.ModelHelpers;
 using NUnit.Framework;
+using System.Collections.Generic;
 using TestCommon;
-using Helper;
+using Utilities;
 
 namespace CommonServiceTests
 {
@@ -14,6 +17,7 @@ namespace CommonServiceTests
     {
         private IUser _user;
         private IProject _project;
+        private const string SVC_PATH = RestPaths.Svc.Shared.Artifacts.PUBLISH;
 
         #region Setup and Cleanup
 
@@ -31,53 +35,114 @@ namespace CommonServiceTests
             Helper?.Dispose();
         }
 
-        #endregion
-                
-        [TestCase(BaseArtifactType.Process)]
+        #endregion Setup and Cleanup
+
+        #region Tests
+
+        [TestCase(ItemTypePredefined.Actor)]
         [TestRail(125503)]
-        [Description("Create, save, publish Process artifact, check returned results.")]
-        public void Publish_SavedArtifact_PublishWasSuccessful(BaseArtifactType artifactType)
+        [Description("Create, save, publish artifact, check returned results.")]
+        public void Publish_SavedArtifact_PublishWasSuccessful(ItemTypePredefined artifactType)
         {
             // Setup:
-            var artifact = Helper.CreateArtifact(_project, _user, artifactType);
-            artifact.Save(_user);
+            var artifact = Helper.CreateNovaArtifact(_user, _project, artifactType);
             
-            NovaPublishArtifactResult publishResult = null;
+            List<NovaPublishArtifactResult> publishResult = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                publishResult = artifact.StorytellerPublish(_user);
-            }, "Publish failed when publishing a saved artifact!");
+                publishResult = Helper.SvcShared.PublishArtifacts(
+                    _user, new List<int> { artifact.Id });
+            }, "POST {0} failed when publishing a saved artifact!", SVC_PATH);
+
+            artifact.UpdateArtifactState(ArtifactWrapper.ArtifactOperation.Publish);
 
             // Verify:
-            Assert.AreEqual(publishResult.StatusCode, NovaPublishArtifactResult.Result.Success);
-
             const string expectedMessage = "Successfully published";
-            Assert.AreEqual(expectedMessage, publishResult.Message);
+
+            ValidateSvcSharedPublishResult(new List<ArtifactWrapper> { artifact },
+                NovaPublishArtifactResult.Result.Success,
+                expectedMessage,
+                publishResult);
         }
 
         [TestCase]
         [TestRail(125504)]
-        [Description("Create, save, publish Process artifact, publish again, check returned results.")]
+        [Description("Create, save, publish artifact, publish again, check returned results.")]
         public void Publish_PublishedArtifactWithNoDraftChanges_ArtifactAlreadyPublishedMessage()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Actor);
 
-            NovaPublishArtifactResult publishResult = null;
+            List<NovaPublishArtifactResult> publishResult = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                publishResult = artifact.StorytellerPublish(_user);
-            }, "Running Publish with a published artifact should return 200 OK!");
+                publishResult = Helper.SvcShared.PublishArtifacts(_user,
+                    new List<int> { artifact.Id });
+            }, "POST {0} with a published artifact should return 200 OK!", SVC_PATH);
+
+            artifact.UpdateArtifactState(ArtifactWrapper.ArtifactOperation.Publish);
 
             // Verify:
-            Assert.AreEqual(NovaPublishArtifactResult.Result.ArtifactAlreadyPublished, publishResult.StatusCode);
-
             string expectedMessage = I18NHelper.FormatInvariant("Artifact {0} is already published in the project", artifact.Id);
-            Assert.AreEqual(expectedMessage, publishResult.Message);
+
+            ValidateSvcSharedPublishResult(new List<ArtifactWrapper> { artifact },
+                NovaPublishArtifactResult.Result.ArtifactAlreadyPublished,
+                expectedMessage,
+                publishResult);
         }
+
+        #endregion Tests
+
+        #region private functions
+
+        /// <summary>
+        /// Validates the returned PublishResult from POST /svc/shared/artifacts/publish
+        /// </summary>
+        /// <param name="artifacts"> The list of artifacts that are published. </param>
+        /// <param name="expectedPublishStatus"> The expected publish status. </param>
+        /// <param name="expectedPublishMessage"> The expected publish message. </param>
+        /// <param name="actualPublishResults"> The returned publish result. </param>
+        private static void ValidateSvcSharedPublishResult (
+            List<ArtifactWrapper> artifacts,
+            NovaPublishArtifactResult.Result expectedPublishStatus,
+            string expectedPublishMessage,
+            List<NovaPublishArtifactResult> actualPublishResults)
+        {
+            ThrowIf.ArgumentNull(artifacts, nameof(artifacts));
+            ThrowIf.ArgumentNull(expectedPublishStatus, nameof(expectedPublishStatus));
+            ThrowIf.ArgumentNull(expectedPublishMessage, nameof(expectedPublishMessage));
+            ThrowIf.ArgumentNull(actualPublishResults, nameof(actualPublishResults));
+
+            //Verify that number of artifacts published is same as the number items returned from actual publishResult
+            Assert.AreEqual(artifacts.Count, actualPublishResults.Count,
+                "The expected number of artifacts published is {0} but the actual response contains {1}.",
+                artifacts.Count, actualPublishResults.Count);
+
+            foreach (var artifact in artifacts)
+            {
+                var actualPublishResult = actualPublishResults.Find(a => a.ArtifactId == artifact.Id);
+                Assert.NotNull(actualPublishResult, "Couldn't find artifact with Id: {0}", artifact.Id);
+                if (actualPublishResult.StatusCode == NovaPublishArtifactResult.Result.Success)
+                {
+                    artifact.UpdateArtifactState(ArtifactWrapper.ArtifactOperation.Publish);
+                }
+
+                // Verify:
+                Assert.AreEqual(expectedPublishStatus, actualPublishResult.StatusCode,
+                    "The expected result status is {0} but the returned result status is {1}.",
+                    expectedPublishStatus, actualPublishResult.StatusCode);
+
+                Assert.AreEqual(expectedPublishMessage, actualPublishResult.Message,
+                    "The expected result message is {0} but the returned result message is {1}.",
+                    expectedPublishMessage, actualPublishResult.Message);
+            }
+        }
+
+        #endregion private functions
+
     }
 }

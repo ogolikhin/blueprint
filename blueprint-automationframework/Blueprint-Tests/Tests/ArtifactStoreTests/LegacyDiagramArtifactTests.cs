@@ -1,10 +1,10 @@
+using Common;
 using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
-using Model.Impl;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
@@ -48,17 +48,17 @@ namespace ArtifactStoreTests
         {
             // Setup: Create and publish a diagram artifact multiple times to have multiple versions of it
             var publishedDiagramArtifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_user, _project, artifactType, numberOfVersions: numberOfVersions);
-            // getting the latest version of the artifact using open API GetArtifact
-            var retrievedArtifact = Helper.ArtifactStore.GetArtifactDetails(_user, publishedDiagramArtifact.Id);
+
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             // Execute: Get the diagram artifact using GetDiagramArtifact without versionId parameter
             NovaDiagramArtifact diagramArtifact = null;
-            Assert.DoesNotThrow(() => {diagramArtifact = Helper.ArtifactStore.GetDiagramArtifact(viewer, publishedDiagramArtifact.Id);},
+
+            Assert.DoesNotThrow(() => diagramArtifact = Helper.ArtifactStore.GetDiagramArtifact(viewer, publishedDiagramArtifact.Id),
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.DIAGRAM_id_);
 
             // Validation: Verify that the returned from GetDiagramArtifact in valid format
-            NovaArtifactDetails.AssertArtifactsEqual(diagramArtifact, retrievedArtifact);
+            NovaArtifactDetails.AssertArtifactsEqual(publishedDiagramArtifact, diagramArtifact);
         }
 
         [TestCase(ItemTypePredefined.DomainDiagram)]
@@ -71,15 +71,19 @@ namespace ArtifactStoreTests
         {
             // Setup: Create and publish a diagram artifact two times to have two versions of it			
             var publishedDiagramArtifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_user, _project, artifactType, numberOfVersions: 2);
-            var retrievedArtifactVersion1 = Helper.ArtifactStore.GetArtifactDetails(_user, publishedDiagramArtifact.Id, versionId: 1);
+
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             // Execute: Get the diagram artifact using GetDiagramArtifact with first versionId			
             NovaDiagramArtifact diagramArtifact = null;
-            Assert.DoesNotThrow(() => {diagramArtifact = Helper.ArtifactStore.GetDiagramArtifact(viewer, publishedDiagramArtifact.Id, versionId: 1);},
+
+            Assert.DoesNotThrow(() => diagramArtifact = Helper.ArtifactStore.GetDiagramArtifact(viewer, publishedDiagramArtifact.Id, versionId: 1),
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.DIAGRAM_id_);
 
-            NovaArtifactDetails.AssertArtifactsEqual(diagramArtifact, retrievedArtifactVersion1);
+            // We expect Version = 1.
+            publishedDiagramArtifact.Version = 1;
+
+            NovaArtifactDetails.AssertArtifactsEqual(publishedDiagramArtifact, diagramArtifact);
         }
 
         [Explicit(IgnoreReasons.ProductBug)] // TFS issue: 6439
@@ -88,7 +92,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(290207)]
         [Description("Get the use case diagram artifact which contains an Actor association with attachment & comment. " +
-            "Verify that the indicator flags contains the values for traces, attachements and comments.")]
+                     "Verify that the indicator flags contains the values for traces, attachements and comments.")]
         public void GetUseCaseDiagramArtifact_WithActorThatContainsAttachmentsAndComments_VerifyIndicatorFlags()
         {
             int USECASEDIAGRAM_WITHACTOR_ID = 144;
@@ -98,7 +102,8 @@ namespace ArtifactStoreTests
 
             // Execution: Get the use case diagram artifact an actor association
             NovaDiagramArtifact usecaseDiagramArtifact = null;
-            Assert.DoesNotThrow(() => { usecaseDiagramArtifact = Helper.ArtifactStore.GetDiagramArtifact(_user, USECASEDIAGRAM_WITHACTOR_ID); },
+
+            Assert.DoesNotThrow(() => usecaseDiagramArtifact = Helper.ArtifactStore.GetDiagramArtifact(_user, USECASEDIAGRAM_WITHACTOR_ID),
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.DIAGRAM_id_);
 
             // Verify: Verify that the shape indicatorflags contains traces, attachments and comments values.
@@ -113,20 +118,25 @@ namespace ArtifactStoreTests
 
         #region 401 Unauthorized Tests
 
+        [TestCase(null, ItemTypePredefined.DomainDiagram)]
         [TestCase("", ItemTypePredefined.DomainDiagram)]
-        [TestCase("invalidTokenString", ItemTypePredefined.GenericDiagram)]
+        [TestCase(CommonConstants.InvalidToken, ItemTypePredefined.GenericDiagram)]
         [TestRail(183033)]
         [Description("Create & publish a diagram artifact, Get DiagramArtifact with invalid token header. Verify 401 Unauthorized.")]
         public void GetDiagramArtifact_PublishAndGetDiagamArtifactWithInvalidTokenHeader_401Unauthorized(string token, ItemTypePredefined artifactType)
         {
             // Setup: Create and publish a diagram artifact
             var publishedDiagramArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
-            var userWithBadOrMissingToken = UserFactory.CreateUserAndAddToDatabase();
-            userWithBadOrMissingToken.Token.SetToken(token);
+
+            var userWithBadOrMissingToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken,
+                badToken: token);
 
             // Execute: Get the diagram artifact with invalid token header using GetDiagramArtifact
-            Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.GetDiagramArtifact(userWithBadOrMissingToken, publishedDiagramArtifact.Id, versionId: 1),
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.GetDiagramArtifact(userWithBadOrMissingToken, publishedDiagramArtifact.Id, versionId: 1),
                 "Calling GET {0} with invalid token should return 401 Unauthorized!", RestPaths.Svc.ArtifactStore.DIAGRAM_id_);
+
+            // Verify:
+            TestHelper.ValidateBodyContents(ex.RestResponse, "Unauthorized call");
         }
 
         #endregion 401 Unauthorized Tests
@@ -142,6 +152,7 @@ namespace ArtifactStoreTests
         {
             // Setup: Create and publish a diagram artifact
             var publishedDiagramArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
+
             var userWithNonePermissionForArtifact = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
             Helper.AssignProjectRolePermissionsToUser(userWithNonePermissionForArtifact, TestHelper.ProjectRole.None, _project, publishedDiagramArtifact);
 
@@ -150,10 +161,11 @@ namespace ArtifactStoreTests
                 "Calling GET {0} with the user with the user which has no permission to the artifact should return 403 Forbidden!", RestPaths.Svc.ArtifactStore.DIAGRAM_id_);
 
             // Validation: Verify that the returned from GetDiagramArtifact is in valid format
-            var serviceErrorMessage = SerializationUtilities.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
-            Assert.AreEqual(InternalApiErrorCodes.Forbidden, serviceErrorMessage.ErrorCode,
-                "Error code for GetDiagramArtifact with the user which has no permission to the artifact should be {0}",
-                InternalApiErrorCodes.Forbidden);
+            string expectedErrorMessage = I18NHelper.FormatInvariant(
+                "You do not have permission to access the artifact (ID: {0})",
+                publishedDiagramArtifact.Id);
+
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, expectedErrorMessage);
         }
 
         #endregion 403 Forbidden Tests
@@ -172,12 +184,13 @@ namespace ArtifactStoreTests
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             // Execute: Get the diagram artifact with invalid versionId using GetDiagramArtifact
-            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetDiagramArtifact(viewer, publishedDiagramArtifact.Id, versionId: versionId), "GetDiagramArtifact call with invalid versionId does not exit with 404 NotFoundException!");
-
-            var serviceErrorMessage = SerializationUtilities.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetDiagramArtifact(viewer, publishedDiagramArtifact.Id, versionId: versionId),
+                "GetDiagramArtifact call with invalid versionId does not exit with 404 NotFoundException!");
 
             // Validation: Exception should contain proper errorCode in the response content.
-            Assert.AreEqual(InternalApiErrorCodes.ItemNotFound, serviceErrorMessage.ErrorCode, "Error code for GetDiagramArtifact with invalid versionId should be {0}", InternalApiErrorCodes.ItemNotFound);
+            const string expectedErrorMessage = "You have attempted to access an item that does not exist or you do not have permission to view.";
+
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, expectedErrorMessage);
         }
 
         #endregion 404 Not Found Tests

@@ -602,9 +602,9 @@ namespace AdminStoreTests.UsersTests
                 );
         }
 
-        [TestCase((UserSource)0xFF, InstanceAdminErrorMessages.CreateOnlyDatabaseUsers)]
-        [TestCase(UserSource.Unknown, InstanceAdminErrorMessages.CreateOnlyDatabaseUsers)]
-        [TestCase(UserSource.Windows, InstanceAdminErrorMessages.CreateOnlyDatabaseUsers)]
+        [TestCase((UserSource)0xFF, InstanceAdminErrorMessages.ModifyOnlyDatabaseUsers)]
+        [TestCase(UserSource.Unknown, InstanceAdminErrorMessages.ModifyOnlyDatabaseUsers)]
+        [TestCase(UserSource.Windows, InstanceAdminErrorMessages.ModifyOnlyDatabaseUsers)]
         [Description("Create and add a default instance user.  Modify the source to an invalid value. " +
                      "Update the user. Verify that 400 Bad Request is returned.")]
         [TestRail(303414)]

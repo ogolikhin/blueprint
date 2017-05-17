@@ -335,7 +335,6 @@ namespace AdminStore.Repositories
             }
         }
 
-
         public async Task<QueryResult<GroupDto>> GetUserGroupsAsync(int userId, TabularData tabularData, Func<Sorting, string> sort = null)
         {
             var orderField = string.Empty;
@@ -402,7 +401,6 @@ namespace AdminStore.Repositories
             }
             return result;
         }
-
 
         internal class HashedPassword
         {

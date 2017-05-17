@@ -80,7 +80,7 @@ namespace AdminStore.Repositories
             var repository = new SqlUserRepository(cxn.Object, cxn.Object);
             var userId = 1;
             var userIds = new[] { userId };
-            var userIdTable = SqlConnectionWrapper.ToDataTable(userIds, "Int32Collection", "Int32Value");
+            var userIdTable = SqlConnectionWrapper.ToDataTable(userIds);
             var result = new List<UserLicense> { new UserLicense { UserId = userId, LicenseType = 3 } };
             cxn.SetupQueryAsync("GetEffectiveUserLicense", new Dictionary<string, object> { { "UserIds", userIdTable } }, result);
 
@@ -100,7 +100,7 @@ namespace AdminStore.Repositories
             var repository = new SqlUserRepository(cxn.Object, cxn.Object);
             var userId = 1;
             var userIds = new[] { userId };
-            var userIdTable = SqlConnectionWrapper.ToDataTable(userIds, "Int32Collection", "Int32Value");
+            var userIdTable = SqlConnectionWrapper.ToDataTable(userIds);
             var result = Enumerable.Empty<UserLicense>();
             cxn.SetupQueryAsync("GetEffectiveUserLicense", new Dictionary<string, object> { { "UserIds", userIdTable } }, result);
 
@@ -163,7 +163,7 @@ namespace AdminStore.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlUserRepository(cxn.Object, cxn.Object);
             int[] userIds = { 1, 2, 3 };
-            var userIdTable = SqlConnectionWrapper.ToDataTable(userIds, "Int32Collection", "Int32Value");
+            var userIdTable = SqlConnectionWrapper.ToDataTable(userIds);
             LicenseTransactionUser[] result =
             {
                 new LicenseTransactionUser { Id = 1, Login = "Login", Department = "Dept" },
@@ -195,7 +195,7 @@ namespace AdminStore.Repositories
                 Login = "User",
                 IsEnabled = true,
                 InvalidLogonAttemptsNumber = 1,
-                LastInvalidLogonTimeStamp = new System.DateTime(0L)
+                LastInvalidLogonTimeStamp = new DateTime(0L)
             };
             cxn.SetupExecuteAsync(
                 "UpdateUserOnInvalidLogin",
@@ -329,8 +329,8 @@ namespace AdminStore.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlUserRepository(cxn.Object, cxn.Object);
             var userId = 10;
-            User[] returnResult = { new User() { Id = 5 } };
-            cxn.SetupQueryAsync("GetUserDetails", new Dictionary<string, object>() { { "UserId", userId } }, returnResult);
+            User[] returnResult = { new User { Id = 5 } };
+            cxn.SetupQueryAsync("GetUserDetails", new Dictionary<string, object> { { "UserId", userId } }, returnResult);
 
             //act
             var result = await repository.GetUserAsync(userId);
@@ -347,7 +347,7 @@ namespace AdminStore.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlUserRepository(cxn.Object, cxn.Object);
             User[] returnResult = { new User() };
-            cxn.SetupQueryAsync("GetUserDetails", new Dictionary<string, object>() { { "UserId", 0 } }, returnResult);
+            cxn.SetupQueryAsync("GetUserDetails", new Dictionary<string, object> { { "UserId", 0 } }, returnResult);
 
             //act
             var result = await repository.GetUserAsync(0);
@@ -368,7 +368,7 @@ namespace AdminStore.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlUserRepository(cxn.Object, cxn.Object);
             int[] userIds = { 1, 2, 3 };
-            var operationScope = new OperationScope()
+            var operationScope = new OperationScope
             {
                 Ids = userIds,
                 SelectAll = false
@@ -402,7 +402,7 @@ namespace AdminStore.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlUserRepository(cxn.Object, cxn.Object);
             int[] userIds = { };
-            var operationScope = new OperationScope()
+            var operationScope = new OperationScope
             {
                 Ids = userIds,
                 SelectAll = false
@@ -437,7 +437,7 @@ namespace AdminStore.Repositories
         public async Task AddUserAsync_SuccessfulCreationOfUser_ReturnCreatedUserId()
         {
             // Arrange
-            var user = new User()
+            var user = new User
             {
                 Login = "LoginUser",
                 FirstName = "FirstNameValue",
@@ -458,7 +458,7 @@ namespace AdminStore.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlUserRepository(cxn.Object, cxn.Object);
             var userId = 100;
-            cxn.SetupExecuteScalarAsync<int>("AddUser", It.IsAny<Dictionary<string, object>>(), userId);
+            cxn.SetupExecuteScalarAsync("AddUser", It.IsAny<Dictionary<string, object>>(), userId);
 
             // Act
             var result = await repository.AddUserAsync(user);
@@ -476,7 +476,7 @@ namespace AdminStore.Repositories
         public async Task UpdateUserAsync_SuccessfulUpdateOfUser_ReturnOk()
         {
             // Arrange
-            var user = new User()
+            var user = new User
             {
                 Login = "LoginUserUpdate",
                 FirstName = "FirstNameValueUpdate",
@@ -523,7 +523,7 @@ namespace AdminStore.Repositories
             cxn.SetupExecuteScalarAsync("DeleteUserFromGroups", It.IsAny<Dictionary<string, object>>(), 1, new Dictionary<string, object> { { "ErrorCode", errorId } });
 
             // Act
-            await repository.DeleteUserFromGroupsAsync(1, new OperationScope() {Ids = new [] {3, 4}, SelectAll = false});
+            await repository.DeleteUserFromGroupsAsync(1, new OperationScope {Ids = new [] {3, 4}, SelectAll = false});
 
             // Assert
             cxn.Verify();

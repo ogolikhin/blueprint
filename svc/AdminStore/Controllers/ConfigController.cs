@@ -7,9 +7,11 @@ using System.Threading.Tasks;
 using System.Text;
 using System.Web.Http;
 using System.Web.Http.Description;
+using AdminStore.Models;
 using AdminStore.Repositories;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories.ConfigControl;
 
@@ -17,17 +19,21 @@ namespace AdminStore.Controllers
 {
     [ApiControllerJsonConfig]
     [RoutePrefix("config")]
+    [BaseExceptionFilter]
     public class ConfigController : LoggableApiController
     {
         internal readonly IApplicationSettingsRepository _applicationSettingsRepository;
+        internal readonly ISqlSettingsRepository _settingsRepository;
+        internal readonly IUserRepository _userRepository;
         internal readonly IHttpClientProvider _httpClientProvider;
 
         public override string LogSource => WebApiConfig.LogSourceConfig;
 
-        public ConfigController() 
-            : this
+        public ConfigController() : this
             (
                 new ApplicationSettingsRepository(), 
+                new SqlSettingsRepository(), 
+                new SqlUserRepository(), 
                 new HttpClientProvider(), 
                 new ServiceLogRepository()
             )
@@ -37,11 +43,15 @@ namespace AdminStore.Controllers
         internal ConfigController
         (
             IApplicationSettingsRepository applicationSettingsRepository, 
+            ISqlSettingsRepository settingsRepository, 
+            IUserRepository userRepository,
             IHttpClientProvider httpClientProvider, 
             IServiceLogRepository log
         ) : base (log)
         {
             _applicationSettingsRepository = applicationSettingsRepository;
+            _settingsRepository = settingsRepository;
+            _userRepository = userRepository;
             _httpClientProvider = httpClientProvider;
         }
 
@@ -86,6 +96,36 @@ namespace AdminStore.Controllers
         public async Task<IHttpActionResult> GetApplicationSettings()
         {
             var settings = (await _applicationSettingsRepository.GetSettingsAsync()).ToDictionary(it => it.Key, it => it.Value);
+            return Ok(settings);
+        }
+
+        /// <summary>
+        /// GetUserManagementSettings
+        /// </summary>
+        /// <remarks>
+        /// Returns settings necessary for user management.
+        /// </remarks>
+        /// <response code="200">OK.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed, or session user does not exist.</response>
+        /// <response code="403">Forbidden. The session user is not an administrator.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpGet, NoCache]
+        [Route("users"), SessionRequired]
+        [ResponseType(typeof(UserManagementSettings))]
+        public async Task<IHttpActionResult> GetUserManagementSettings()
+        {
+            var user = await _userRepository.GetLoginUserByIdAsync(Session.UserId);
+            if (user == null)
+            {
+                throw new AuthenticationException($"User does not exist with UserId: {Session.UserId}");
+            }
+
+            if (!user.InstanceAdminRoleId.HasValue)
+            {
+                throw new AuthorizationException();
+            }
+
+            var settings = await _settingsRepository.GetUserManagementSettingsAsync();
             return Ok(settings);
         }
 

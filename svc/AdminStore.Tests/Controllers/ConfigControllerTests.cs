@@ -11,7 +11,9 @@ using AdminStore.Models;
 using AdminStore.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Controllers
@@ -84,6 +86,90 @@ namespace AdminStore.Controllers
         }
 
         #endregion
+
+        #region GetUserManagementSettings
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task GetUserManagementSettings_NonInstanceAdmin_ThrowsAuthorizationException()
+        {
+            // Arrange
+            const int userId = 1;
+            var user = new LoginUser {InstanceAdminRoleId = null};
+            var settings = new UserManagementSettings
+            {
+                IsPasswordExpirationEnabled = false,
+                IsFederatedAuthenticationEnabled = true
+            };
+
+            var settingsRepositoryMock = new Mock<ISqlSettingsRepository>();
+            settingsRepositoryMock
+                .Setup(m => m.GetUserManagementSettingsAsync())
+                .ReturnsAsync(settings);
+            var userRepositoryMock = new Mock<IUserRepository>();
+            userRepositoryMock
+                .Setup(m => m.GetLoginUserByIdAsync(userId))
+                .ReturnsAsync(user);
+            var controller = new ConfigController
+            (
+                null, 
+                settingsRepositoryMock.Object, 
+                userRepositoryMock.Object,
+                null,
+                null
+            )
+            {
+                Request = new HttpRequestMessage()
+            };
+            controller.Request.Properties[ServiceConstants.SessionProperty] = new Session { UserId = userId };
+
+            // Act
+            await controller.GetUserManagementSettings();
+        }
+
+        [TestMethod]
+        public async Task GetUserManagementSettings_InstanceAdmin_ReturnsUserManagementSettings()
+        {
+            // Arrange
+            const int userId = 1;
+            var user = new LoginUser { InstanceAdminRoleId = 1 };
+            var settings = new UserManagementSettings
+            {
+                IsPasswordExpirationEnabled = false,
+                IsFederatedAuthenticationEnabled = true
+            };
+
+            var settingsRepositoryMock = new Mock<ISqlSettingsRepository>();
+            settingsRepositoryMock
+                .Setup(m => m.GetUserManagementSettingsAsync())
+                .ReturnsAsync(settings);
+            var userRepositoryMock = new Mock<IUserRepository>();
+            userRepositoryMock
+                .Setup(m => m.GetLoginUserByIdAsync(userId))
+                .ReturnsAsync(user);
+
+            var controller = new ConfigController
+            (
+                null, 
+                settingsRepositoryMock.Object, 
+                userRepositoryMock.Object, 
+                null, 
+                null
+            )
+            {
+                Request = new HttpRequestMessage()
+            };
+            controller.Request.Properties[ServiceConstants.SessionProperty] = new Session { UserId = userId };
+
+            // Act
+            var result = await controller.GetUserManagementSettings() as OkNegotiatedContentResult<UserManagementSettings>;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(result.Content, settings);
+        }
+
+        #endregion GetUserManagementSettings
 
         #region GetConfig
 
@@ -163,7 +249,7 @@ namespace AdminStore.Controllers
             }
 
             var logMock = new Mock<IServiceLogRepository>();
-            var controller = new ConfigController(appSettingsRepo.Object, httpClientProvider, logMock.Object) { Request = new HttpRequestMessage() };
+            var controller = new ConfigController(appSettingsRepo.Object, null, null, httpClientProvider, logMock.Object) { Request = new HttpRequestMessage() };
             controller.Request.Headers.Add("Session-Token", "");
             controller.Request.SetConfiguration(new HttpConfiguration());
 

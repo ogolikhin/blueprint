@@ -61,7 +61,7 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("containers/{containerId:int:min(1)}/content"), SessionRequired]
-        public Task<ReviewContent> GetContentAsync(int containerId, int? offset = 0, int? limit = 50, int? versionId = null)
+        public Task<ReviewArtifactsContent> GetContentAsync(int containerId, int? offset = 0, int? limit = 50, int? versionId = null)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             return _sqlReviewsRepository.GetContentAsync(containerId, session.UserId, offset, limit, versionId);
@@ -109,12 +109,5 @@ namespace ArtifactStore.Controllers
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             return _sqlReviewsRepository.GetArtifactStatusesByParticipant(artifactId, containerId, offset, limit, session.UserId, versionId);
         }
-    }
-
-    class ReviewArtifactStatus
-    {
-        public int ArtifactId { get; set; }
-
-        public string Status { get; set; }
     }
 }

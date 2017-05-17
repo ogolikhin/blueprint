@@ -14,6 +14,13 @@ namespace ServiceLibrary.Repositories
 
         Task<int> GetRevisionId(int artifactId, int userId, int? versionId = null, int? baselineId = null);
 
+        Task<int> GetRevisionIdFromBaselineId(int baselineId, int userId, bool addDrafts = true, int revisionId = int.MaxValue);
+
+        Task<int> GetTopRevisionId(int userId);
+
         Task<string> GetItemDescription(int itemId, int userId, bool? addDrafts = true, int? revisionId = int.MaxValue);
+
+        Task<ISet<int>> GetBaselineArtifacts(int baselineId, int userId, bool addDrafts = true,
+            int revisionId = int.MaxValue);
     }
 }

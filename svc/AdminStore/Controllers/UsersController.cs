@@ -263,8 +263,6 @@ namespace AdminStore.Controllers
         {
             try
             {
-
-
                 var matchingSetting = await _applicationSettingsRepository.GetValue(IsPasswordRecoveryEnabledKey, false);
                 if (!matchingSetting)
                 {

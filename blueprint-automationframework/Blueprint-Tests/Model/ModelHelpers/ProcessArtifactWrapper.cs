@@ -36,13 +36,11 @@ namespace Model.ModelHelpers
         /// Constructor.
         /// </summary>
         /// <param name="artifact">The nova process artifact to wrap.</param>
-        /// <param name="artifactStore">The ArtifactStore to use for REST calls.</param>
-        /// <param name="svcShared">The SvcShared to use for REST calls.</param>
         /// <param name="project">The project where the artifact was created.</param>
         /// <param name="createdBy">The user who created the artifact.</param>
         /// <exception cref="AssertionException">If the Project ID of the artifact is different than the ID of the IProject.</exception>
-        public ProcessArtifactWrapper(INovaProcess artifact, IArtifactStore artifactStore, ISvcShared svcShared, IProject project, IUser createdBy)
-            : base(artifact, artifactStore, svcShared, project, createdBy)
+        public ProcessArtifactWrapper(INovaProcess artifact, IProject project, IUser createdBy)
+            : base(artifact, project, createdBy)
         {
         }
 

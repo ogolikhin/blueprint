@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Threading;
@@ -91,7 +92,7 @@ namespace ImageRenderService.ImageGen
             return new Bitmap(blank);
         }
 
-        private async Task<bool> LoadPageAsync(IVirtualBrowser browser, string processJsonModel, int maxImageWidth, int maxImageHeight)
+        public virtual async Task<bool> LoadPageAsync(IVirtualBrowser browser, string processJsonModel, int maxImageWidth, int maxImageHeight)
         {
             try
             {
@@ -121,7 +122,7 @@ namespace ImageRenderService.ImageGen
 
             //-------------------------------------------
             // Get Process model
-            browser.ExecuteScriptAsync($"window.renderGraph('{HttpUtility.JavaScriptStringEncode(processJsonModel)}', {maxImageWidth}, {maxImageWidth});");
+            browser.ExecuteScriptAsync($"window.renderGraph('{HttpUtility.JavaScriptStringEncode(processJsonModel)}', {maxImageWidth}, {maxImageHeight});");
 
             bool renderResult;
             try

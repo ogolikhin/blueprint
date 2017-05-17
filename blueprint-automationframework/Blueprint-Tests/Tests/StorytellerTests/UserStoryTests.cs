@@ -361,7 +361,7 @@ namespace StorytellerTests
                 "href=\"{0}?ArtifactId={1}\" target=\"\" artifactid=\"{1}\"" +
                 " linkassemblyqualifiedname=\"BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, BluePrintSys.RC.Client.SL.RichText, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\"" +
                 " text=\"{1}: {2}\" canclick=\"True\" canedit=\"False\" isvalid=\"True\"><span style=\"text-decoration: underline;\">{1}: {2}</span></a>&nbsp;",
-                artifact.ArtifactStore.Address, artifact.Id, artifact.Name);
+                ArtifactWrapper.ArtifactStore.Address, artifact.Id, artifact.Name);
             }
 
             return "<p>"+text+"</p>";
@@ -371,7 +371,7 @@ namespace StorytellerTests
         /// Validate number of user task shapes for the process
         /// </summary>
         /// <param name="novaProcess">the nova process artifact to validate</param>
-        /// <param name="expectedProcessShapeCount">expected user task process shape count</param>
+        /// <param name="expectedProcessUserTaskShapeCount">expected user task process shape count</param>
         /// <param name="actualProcessUserTaskShapeCount">actual user task process shape count</param>
         private static void ValidateProcessUserTaskCount(INovaProcess novaProcess, int expectedProcessUserTaskShapeCount, int actualProcessUserTaskShapeCount)
         {

@@ -140,7 +140,6 @@
     <Compile Include="Helpers\UserMapper.cs" />
     <Compile Include="Helpers\UsersHelper.cs" />
     <Compile Include="Models\ApplicationSettings.cs" />
-    <Compile Include="Models\Data.cs" />
     <Compile Include="Models\EmailConfigInstanceSettings.cs" />
     <Compile Include="Models\InstanceItem.cs" />
     <Compile Include="Models\Pagination.cs" />
@@ -152,6 +151,7 @@
     <Compile Include="Models\User.cs" />
     <Compile Include="Models\UserIcon.cs" />
     <Compile Include="Models\UserLicense.cs" />
+    <Compile Include="Models\UserManagementSettings.cs" />
     <Compile Include="Repositories\ApplicationSettingsRepository.cs" />
     <Compile Include="Repositories\ISettingsRepository.cs" />
     <Compile Include="Controllers\LicensesController.cs" />

@@ -4,8 +4,20 @@ using ServiceLibrary.Models;
 
 namespace ServiceLibrary.Controllers
 {
-    public class BaseApiController : ApiController
+    public abstract class BaseApiController : ApiController
     {
-        protected Session Session => Request.Properties[ServiceConstants.SessionProperty] as Session;
+        public Session Session
+        {
+            get
+            {
+                object value;
+                if (!Request.Properties.TryGetValue(ServiceConstants.SessionProperty, out value))
+                {
+                    return null;
+                }
+
+                return value as Session;
+            }
+        }
     }
 }

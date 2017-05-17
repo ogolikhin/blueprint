@@ -230,5 +230,27 @@ namespace ArtifactStore.Repositories
             };
             return reviewersRoot;
         }
+        public async Task<ArtifactReviewContent> GetArtifactStatusesByParticipant(int artifactId, int reviewId, int? offset, int? limit, int userId, int? versionId = null, bool? addDrafts = true)
+        {
+            int? revisionId = await _itemInfoRepository.GetRevisionId(reviewId, userId, versionId);
+            if (revisionId < int.MaxValue)
+            {
+                addDrafts = false;
+            }
+            var param = new DynamicParameters();
+            param.Add("@artifactId", artifactId);
+            param.Add("@reviewId", reviewId);
+            param.Add("@offset", offset);
+            param.Add("@limit", limit);
+            param.Add("@revisionId", revisionId);
+            param.Add("@userId", userId);
+            param.Add("@addDrafts", addDrafts);
+            var participants = await ConnectionWrapper.QueryAsync<ArtifactReviewDetails>("GetArtifactStatusesByParticipant", param, commandType: CommandType.StoredProcedure);
+            var reviewersRoot = new ArtifactReviewContent()
+            {
+                Items = participants.ToList(),
+            };
+            return reviewersRoot;
+        }
     }    
 }

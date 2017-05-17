@@ -7,6 +7,6 @@ namespace ArtifactStore.Repositories
     {
         Task<ReviewContainer> GetReviewContainerAsync(int containerId, int userId);
 
-        Task<ReviewContent> GetContentAsync(int reviewId, int userId, int? offset, int? limit, int? versionId = null, bool? addDrafts = true);
+        Task<ReviewArtifactsContent> GetContentAsync(int reviewId, int userId, int? offset, int? limit, int? versionId = null, bool? addDrafts = true);
     }
 }

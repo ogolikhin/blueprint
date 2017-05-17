@@ -14,13 +14,13 @@ namespace ArtifactStore.Controllers
     {
         public override string LogSource { get; } = "ArtifactStore.Reviews";
 
-        private SqlReviewsRepository _sqlReviewsRepository;
+        private IReviewsRepository _sqlReviewsRepository;
 
         public ReviewContainersController(): this(new SqlReviewsRepository())
         {
         }
 
-        public ReviewContainersController(SqlReviewsRepository sqlReviewsRepository)
+        public ReviewContainersController(IReviewsRepository sqlReviewsRepository)
         {
             _sqlReviewsRepository = sqlReviewsRepository;
         }

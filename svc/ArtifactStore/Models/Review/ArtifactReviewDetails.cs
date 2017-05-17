@@ -20,7 +20,7 @@ namespace ArtifactStore.Models.Review
         [DataMember]
         public bool Viewed { get; set; }
 
-        [DataMember]
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public DateTime eSignatureTimestamp { get; set; }
     }
 

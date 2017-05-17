@@ -11,11 +11,12 @@ namespace Model.NovaModel.Impl
         
         public string DisplayName { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]
         public string Approval { get; set; }
 
         public bool Viewed { get; set; }
 
-        public DateTime eSignatureTimestamp { get; set; }
+        public DateTime? eSignatureTimestamp { get; set; }
     }
 
     public class ArtifactReviewContent

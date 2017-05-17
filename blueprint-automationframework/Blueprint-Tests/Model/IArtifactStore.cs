@@ -523,14 +523,21 @@ namespace Model
         /// <summary>
         /// Publishes a list of artifacts.
         /// </summary>
-        /// <param name="artifactsIds">The Ids of artifacts to publish.  This can be null if the 'all' parameter is true.</param>
+        /// <param name="artifactIds">The Ids of artifacts to publish.  This can be null if the 'all' parameter is true.</param>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="publishAll">(optional) Pass true to publish all artifacts created by the user that have changes.
         ///     In this case, you don't need to specify the artifacts to publish.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
-        NovaArtifactsAndProjectsResponse PublishArtifacts(IEnumerable<int> artifactsIds, IUser user, bool? publishAll = null,
+        NovaArtifactsAndProjectsResponse PublishArtifacts(IEnumerable<int> artifactIds, IUser user, bool? publishAll = null,
             List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Publishes all unpublished artifacts for the specified user.
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
+        NovaArtifactsAndProjectsResponse PublishAllArtifacts(IUser user);
 
         /// <summary>
         /// Gets artifact path by using artifact id

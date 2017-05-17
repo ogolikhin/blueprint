@@ -822,7 +822,7 @@ namespace Model.Impl
 
         /// <seealso cref="IArtifactStore.PublishArtifacts(IEnumerable{int}, IUser, bool?, List{HttpStatusCode})"/>
         public NovaArtifactsAndProjectsResponse PublishArtifacts(
-            IEnumerable<int> artifactsIds,
+            IEnumerable<int> artifactIds,
             IUser user,
             bool? publishAll = null,
             List<HttpStatusCode> expectedStatusCodes = null)
@@ -839,14 +839,20 @@ namespace Model.Impl
             var publishedArtifacts = restApi.SendRequestAndDeserializeObject<NovaArtifactsAndProjectsResponse, IEnumerable<int>>(
                 path,
                 RestRequestMethod.POST,
-                artifactsIds,
+                artifactIds,
                 queryParameters: queryParams,
                 expectedStatusCodes: expectedStatusCodes,
                 shouldControlJsonChanges: true);
 
             return publishedArtifacts;
         }
-        
+
+        /// <seealso cref="IArtifactStore.PublishAllArtifacts(IUser))"/>
+        public NovaArtifactsAndProjectsResponse PublishAllArtifacts(IUser user)
+        {
+            return PublishArtifacts(artifactIds: null, user: user, publishAll: true);
+        }
+
         /// <seealso cref="IArtifactStore.PublishArtifacts(List{IArtifactBase}, IUser, bool?, List{HttpStatusCode})"/>
         public INovaArtifactsAndProjectsResponse PublishArtifacts(List<IArtifactBase> artifacts, IUser user = null,
             bool? publishAll = null,

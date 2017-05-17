@@ -8,13 +8,11 @@ namespace ServiceLibrary.Repositories
     {
         Task<Dictionary<int, RolePermissions>> GetArtifactPermissions(IEnumerable<int> itemIds, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue, bool addDrafts = true);
 
+        Task<bool> HasReadPermissions(int artifactId, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue, bool addDrafts = true);
+
         Task<ProjectPermissions> GetProjectPermissions(int projectId);
 
         Task<ItemInfo> GetItemInfo(int itemId, int userId, bool addDrafts = true, int revisionId = int.MaxValue);
 
-        Task<int> GetRevisionIdFromBaselineId(int baselineId, int userId, bool addDrafts = true, int revisionId = int.MaxValue);
-
-        Task<ISet<int>> GetBaselineArtifacts(int baselineId, int userId, bool addDrafts = true,
-            int revisionId = int.MaxValue);
     }
 }

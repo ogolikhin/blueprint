@@ -143,6 +143,9 @@ namespace Model.ModelHelpers
 
             var response = ArtifactStore.DiscardArtifact(user, Artifact.Id);
 
+            Artifact.LockedByUser = null;
+            Artifact.LockedDateTime = null;
+
             UpdateArtifactState(ArtifactOperation.Discard);
 
             return response;
@@ -161,6 +164,7 @@ namespace Model.ModelHelpers
 
             var response = ArtifactStore.DiscardArtifacts(user, artifacts.Select(a => a.Id));
 
+            artifacts.ForEach(a => a.LockedDateTime = null);
             artifacts.ForEach(a => a.UpdateArtifactState(ArtifactOperation.Discard));
 
             return response;
@@ -176,6 +180,8 @@ namespace Model.ModelHelpers
             ThrowIf.ArgumentNull(user, nameof(user));
 
             var response = SvcShared.LockArtifacts(user, new List<int> { Artifact.Id });
+
+            Artifact.LockedDateTime = response[0].Info.UtcLockedDateTime;
 
             UpdateArtifactState(ArtifactOperation.Lock, user);
 
@@ -195,7 +201,16 @@ namespace Model.ModelHelpers
 
             var response = SvcShared.LockArtifacts(user, artifacts.Select(a => a.Id));
 
-            artifacts.ForEach(a => a.UpdateArtifactState(ArtifactOperation.Lock, user));
+            foreach (var artifact in artifacts)
+            {
+                var lockedArtifact = response.Find(a => (a.Result == LockResult.Success) && (a.Info.ArtifactId.Value == artifact.Id));
+
+                if (lockedArtifact != null)
+                {
+                    artifact.LockedDateTime = lockedArtifact.Info.UtcLockedDateTime;
+                    artifact.UpdateArtifactState(ArtifactOperation.Lock, user);
+                }
+            }
 
             return response;
         }

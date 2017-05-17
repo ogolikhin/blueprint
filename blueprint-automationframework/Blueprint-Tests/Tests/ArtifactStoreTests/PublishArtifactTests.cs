@@ -568,7 +568,7 @@ namespace ArtifactStoreTests
                 publishResponse, artifactsInFirstProject, expectedVersion: 1);
         }
 
-        [TestCase(ItemTypePredefined.Process)]
+        [TestCase(ItemTypePredefined.Actor)]
         [TestRail(191079)]
         [Description("Create, publish & save artifacts in a couple of projects.  Publish all the artifacts.  User has permissions only for one artifact in 2nd project.  " +
                      "Verify publish is successful.")]

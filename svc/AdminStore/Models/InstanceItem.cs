@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json;
-using System.Runtime.Serialization;
-using Newtonsoft.Json.Converters;
+﻿using Newtonsoft.Json;
 using ServiceLibrary.Models;
 
 namespace AdminStore.Models

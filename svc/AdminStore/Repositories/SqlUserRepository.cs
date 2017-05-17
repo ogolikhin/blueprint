@@ -376,10 +376,7 @@ namespace AdminStore.Repositories
                 switch (errorCode.Value)
                 {
                     case (int)SqlErrorCodes.UserLoginNotExist:
-                        throw new BadRequestException(ErrorMessages.UserNotExist);
-
-                    case (int)SqlErrorCodes.GeneralSqlError:
-                        throw new BadRequestException(ErrorMessages.GeneralErrorOfAddingUserToGroups);
+                        throw new ResourceNotFoundException(ErrorMessages.UserNotExist);
                 }
             }
             return result;

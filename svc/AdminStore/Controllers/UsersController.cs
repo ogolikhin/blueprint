@@ -505,7 +505,7 @@ namespace AdminStore.Controllers
         /// <param name="sorting">Sorting parameters</param>
         /// <param name="search">The parameter for searching by group name</param>
         /// <response code="200">OK. The list of user groups.</response>
-        /// <response code="400">BadRequest. Some errors. </response>
+        /// <response code="400">BadRequest. Parameters are invalid, SQL errors. </response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. if user doesn’t have permission to view group membership for the user with the specified userId.</response>
         /// <response code="404">NotFound. if user with userId doesn’t exists or removed from the system.</response>
@@ -529,7 +529,7 @@ namespace AdminStore.Controllers
         /// <param name="userId">User's identity</param>
         /// <param name="body">List of groups ids</param>
         /// <response code="200">OK. A user is added to groups.</response>
-        /// <response code="400">BadRequest. Some errors. </response>
+        /// <response code="400">BadRequest. Parameters are invalid. </response>
         /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
         /// <response code="403">Forbidden if used doesn’t have permissions to add user to groups</response>
         /// <response code="404">NotFound. if user with userId doesn’t exists or removed from the system.</response>
@@ -546,14 +546,14 @@ namespace AdminStore.Controllers
 
             if (!body.Ids.Any())
             {
-                return Ok(new CreateResult() { TotalCreated = 0 });
+                return Ok(new CreateResult { TotalCreated = 0 });
             }
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageUsers);
 
             var result = await _userRepository.AddUserToGroupsAsync(userId, body);
 
-            return Ok(new CreateResult() { TotalCreated = result });
+            return Ok(new CreateResult { TotalCreated = result });
         }
     }
 }

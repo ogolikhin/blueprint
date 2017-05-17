@@ -7,7 +7,7 @@ using AdminStore.Models;
 
 namespace AdminStore.Repositories
 {
-    public interface ISqlGroupRepository
+    public interface IGroupRepository
     {
         Task<QueryResult<GroupDto>> GetGroupsAsync(int userId, TabularData tabularData, Func<Sorting, string> sort = null);
     }

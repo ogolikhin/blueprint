@@ -99,7 +99,7 @@ namespace AdminStore.Controllers
             _userGroupsTabularPagination = new Pagination() { Limit = 1, Offset = 0 };
             _userGroupsSorting = new Sorting() { Order = SortOrder.Asc, Sort = "Name" };
             _userGoupsQueryDataResult = new QueryResult<GroupDto>() { Total = 1, Items = new List<GroupDto>() };
-            _operationScope = new OperationScope() { Ids = new[] { 3, 4 } };
+            _operationScope = new OperationScope { Ids = new[] { 3, 4 } };
         }
 
         #region Constuctor

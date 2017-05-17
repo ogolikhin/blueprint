@@ -13,7 +13,7 @@ using ServiceLibrary.Repositories;
 
 namespace AdminStore.Repositories
 {
-    public class SqlGroupRepository : ISqlGroupRepository
+    public class SqlGroupRepository : IGroupRepository
     {
         internal readonly ISqlConnectionWrapper _connectionWrapper;
 
@@ -34,26 +34,17 @@ namespace AdminStore.Repositories
                 orderField = sort(tabularData.Sorting);
             }
             var parameters = new DynamicParameters();
-            parameters.Add("@UserId", userId);
+            if (userId > 0)
+            {
+                parameters.Add("@UserId", userId);
+            }
             parameters.Add("@Offset", tabularData.Pagination.Offset);
             parameters.Add("@Limit", tabularData.Pagination.Limit);
             parameters.Add("@OrderField", orderField);
             parameters.Add("@Search", tabularData.Search);
             parameters.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
             var userGroups = await _connectionWrapper.QueryAsync<Group>("GetGroups", parameters, commandType: CommandType.StoredProcedure);
             var total = parameters.Get<int?>("Total");
-            var errorCode = parameters.Get<int?>("ErrorCode");
-
-            if (errorCode.HasValue && errorCode.Value == (int)SqlErrorCodes.GeneralSqlError)
-            {
-                throw new BadRequestException(ErrorMessages.GeneralErrorOfGettingUserGroups);
-            }
-
-            if (!total.HasValue)
-            {
-                throw new BadRequestException(ErrorMessages.TotalNull);
-            }
 
             var mappedGroups = GroupMapper.Map(userGroups);
 

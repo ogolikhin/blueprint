@@ -14,5 +14,6 @@ namespace AdminStore.Models
         public int LicenseId { get; set; }
         public byte Source { get; set; }
         public string Email { get; set; }
+        public string GroupType { get; set; }
     }
 }

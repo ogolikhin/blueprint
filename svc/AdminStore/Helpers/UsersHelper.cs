@@ -8,7 +8,7 @@ namespace AdminStore.Helpers
     {
         public static string SortUsers(Sorting sorting)
         {
-            var defaultSortColumn = "displayName";
+            var defaultSortColumn = "login";
             var sortableColumns = new HashSet<string>
             {
                 "login",

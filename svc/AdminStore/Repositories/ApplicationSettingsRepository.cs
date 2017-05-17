@@ -23,30 +23,25 @@ namespace AdminStore.Repositories
             _connectionWrapper = connectionWrapper;
         }
 
-        public virtual async Task<IEnumerable<ApplicationSetting>> GetSettings()
+        public virtual async Task<IEnumerable<ApplicationSetting>> GetSettingsAsync()
         {
-            try
-            {
-                var forgetPassword = new ApplicationSetting
+            var settings = (await _connectionWrapper.QueryAsync<ApplicationSetting>("GetApplicationSettings", null, commandType: CommandType.StoredProcedure)).ToList();
+
+            settings.Add
+            (
+                new ApplicationSetting
                 {
                     Key = ServiceConstants.ForgotPasswordUrlConfigKey,
                     Value = ServiceConstants.ForgotPasswordUrl
-                };
-                var settings = await _connectionWrapper.QueryAsync<ApplicationSetting>("GetApplicationSettings", null, commandType: CommandType.StoredProcedure);
-               
-                return settings.Concat(new[] { forgetPassword });
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-                
-                
-            }
+                }
+            );
+
+            return settings;
         }
 
         public async Task<T> GetValue<T>(string key, T defaultValue)
         {
-            var applicationSettings = await GetSettings();
+            var applicationSettings = await GetSettingsAsync();
 
             var matchingSetting = applicationSettings.FirstOrDefault(s => s.Key == key);
             if (matchingSetting == null)

@@ -44,5 +44,17 @@ namespace AdminStore.Repositories
             var result = (await _connectionWrapper.QueryAsync<dynamic>("GetFederatedAuthentications", commandType: CommandType.StoredProcedure)).FirstOrDefault();
             return result == null ? null : new FederatedAuthenticationSettings(result.Settings, result.Certificate);
         }
+
+        public async Task<UserManagementSettings> GetUserManagementSettingsAsync()
+        {
+            var instanceSettings = await GetInstanceSettingsAsync();
+            return new UserManagementSettings
+            {
+                // Assumes no difference between disabled Federated Authentication (FA) and no FA
+                IsFederatedAuthenticationEnabled = instanceSettings.IsSamlEnabled.HasValue &&
+                                                   instanceSettings.IsSamlEnabled.Value,
+                IsPasswordExpirationEnabled = instanceSettings.PasswordExpirationInDays > 0
+            };
+        }
     }
 }

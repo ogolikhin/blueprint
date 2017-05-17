@@ -9,6 +9,9 @@ namespace ImageRenderService.Helpers
         public static string ServiceName
             => GetConfigStringValue(ServiceConfiguration.ServiceNameKey, ServiceConfiguration.DefaultServiceName);
 
+        public static bool BrowserPoolEnabled => GetConfigBoolValue(ServiceConfiguration.BrowserPoolEnabledKey,
+            ServiceConfiguration.DefaultBrowserPoolEnabled);
+
         public static int BrowserPoolMaxSize => GetConfigIntValue(ServiceConfiguration.BrowserPoolMaxSizeKey,
             ServiceConfiguration.DefaultBrowserPoolMaxSize);
 
@@ -27,6 +30,20 @@ namespace ImageRenderService.Helpers
         public static int BrowserRenderDelayMilliseconds
             => GetConfigIntValue(ServiceConfiguration.BrowserRenderDelayMillisecondsKey,
                 ServiceConfiguration.DefaultBrowserRenderDelayMilliseconds);
+
+        public static string NServiceBusConnectionString
+            => GetConfigStringValue(ServiceConfiguration.NServiceBusConnectionStringKey,
+                ServiceConfiguration.DefaultNServiceBusConnectionString);
+
+        public static string NServiceBusInstanceId
+            => GetConfigStringValue(ServiceConfiguration.NServiceBusInstanceIdKey,
+                ServiceConfiguration.DefaultNServiceBusInstanceId);
+
+        public static int BrowserRenderWaitTimeSeconds
+            => GetConfigIntValue(ServiceConfiguration.BrowserRenderWaitTimeSecondsKey,
+                ServiceConfiguration.DefaultBrowserRenderWaitTimeSeconds);
+
+        public static string RenderTimeoutErrorMessage => "The Process rendering did not complete withing the timeout period.";
 
         #endregion
 
@@ -47,6 +64,17 @@ namespace ImageRenderService.Helpers
                 intValue = defaultValue;
             }
             return intValue;
+        }
+
+        private static bool GetConfigBoolValue(string key, bool defaultValue)
+        {
+            var strValue = ConfigurationManager.AppSettings[key];
+            bool boolValue;
+            if (string.IsNullOrWhiteSpace(strValue) || !bool.TryParse(strValue, out boolValue))
+            {
+                boolValue = defaultValue;
+            }
+            return boolValue;
         }
 
         #endregion

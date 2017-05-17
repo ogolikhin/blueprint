@@ -6,6 +6,7 @@ using System.Web.Http;
 using ArtifactStore.Models;
 using ArtifactStore.Repositories;
 using ServiceLibrary.Attributes;
+using ServiceLibrary.Controllers;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;

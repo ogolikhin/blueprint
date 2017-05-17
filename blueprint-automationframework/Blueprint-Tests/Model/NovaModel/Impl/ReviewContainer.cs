@@ -8,6 +8,10 @@ namespace Model.NovaModel.Impl
 
         public string Name { get; set; }
 
+        public string Prefix { get; set; }
+
+        public string ArtifactType { get; set; }
+
         public string Description { get; set; }
 
         public int TotalArtifacts { get; set; }

@@ -17,9 +17,7 @@ namespace ArtifactStoreTests
     {
         private IUser _adminUser = null;
         private IUser _viewerUser = null;
-        private IUser _authorUser = null;
         private IProject _project = null;
-        private IProject _projectCustomData = null;
 
         private static int USECASE_ID_WITHUIMOCKUP = 147;
         private const string REST_PATH = RestPaths.Svc.ArtifactStore.USECASE_id_;
@@ -33,10 +31,6 @@ namespace ArtifactStoreTests
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_adminUser);
             _viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
-
-            _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
-            _projectCustomData.GetAllNovaArtifactTypes(Helper.ArtifactStore, _adminUser);
-            _authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _projectCustomData);
         }
 
         [TestFixtureTearDown]
@@ -101,16 +95,19 @@ namespace ArtifactStoreTests
             // getting the latest version of the artifact using open API GetArtifact
             var retrievedArtifact = Helper.ArtifactStore.GetArtifactDetails(_adminUser, USECASE_ID_WITHUIMOCKUP);
 
+            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
+            var authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projectCustomData);
+
             // Execution: Get the use case artifact with the UIMockup association on its postcondition subartifact
             NovaUseCaseArtifact usecaseArtifact = null;
 
-            Assert.DoesNotThrow(() => usecaseArtifact = Helper.ArtifactStore.GetUseCaseArtifact(_authorUser, USECASE_ID_WITHUIMOCKUP),
+            Assert.DoesNotThrow(() => usecaseArtifact = Helper.ArtifactStore.GetUseCaseArtifact(authorUser, USECASE_ID_WITHUIMOCKUP),
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", REST_PATH);
 
             // Verify: Verify that the postcondition subartifact's indicatorflag contains value that represents UIMockup association.
             NovaArtifactDetails.AssertArtifactsEqual(retrievedArtifact, usecaseArtifact);
 
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _authorUser, USECASE_ID_WITHUIMOCKUP, ItemIndicatorFlags.HasUIMockup, usecaseArtifact.PostCondition.Id);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, authorUser, USECASE_ID_WITHUIMOCKUP, ItemIndicatorFlags.HasUIMockup, usecaseArtifact.PostCondition.Id);
         }
 
         #endregion 200 OK Tests

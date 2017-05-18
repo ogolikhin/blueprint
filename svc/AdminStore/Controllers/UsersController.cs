@@ -528,6 +528,7 @@ namespace AdminStore.Controllers
         /// </summary>
         /// <param name="userId">User's identity</param>
         /// <param name="body">List of groups ids</param>
+        /// <param name="search">The parameter for searching by group name and scope.</param>
         /// <response code="200">OK. A user is added to groups.</response>
         /// <response code="400">BadRequest. Parameters are invalid. </response>
         /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
@@ -537,21 +538,21 @@ namespace AdminStore.Controllers
         [SessionRequired]
         [Route("{userId:int:min(1)}/groups")]
         [ResponseType(typeof(CreateResult))]
-        public async Task<IHttpActionResult> AddUserToGroups(int userId, [FromBody]OperationScope body)
+        public async Task<IHttpActionResult> AddUserToGroups(int userId, [FromBody]OperationScope body, string search = null)
         {
-            if (body?.Ids == null)
+            if (body == null)
             {
                 throw new BadRequestException(ErrorMessages.InvalidAddUserToGroupsParameters, ErrorCodes.BadRequest);
             }
 
-            if (!body.Ids.Any())
+            if (body.IsSelectionEmpty())
             {
                 return Ok(new CreateResult { TotalCreated = 0 });
             }
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageUsers);
 
-            var result = await _userRepository.AddUserToGroupsAsync(userId, body);
+            var result = await _userRepository.AddUserToGroupsAsync(userId, body, search);
 
             return Ok(new CreateResult { TotalCreated = result });
         }

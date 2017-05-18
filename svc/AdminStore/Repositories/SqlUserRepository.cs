@@ -361,12 +361,13 @@ namespace AdminStore.Repositories
             return queryDataResult;
         }
 
-        public async Task<int> AddUserToGroupsAsync(int userId, OperationScope body)
+        public async Task<int> AddUserToGroupsAsync(int userId, OperationScope body, string search)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@UserId", userId);
-            if (body.Ids != null)
-                parameters.Add("@GroupMembership", SqlConnectionWrapper.ToDataTable(body.Ids, "Int32Collection", "Int32Value"));
+            parameters.Add("@GroupMembership", SqlConnectionWrapper.ToDataTable(body.Ids, "Int32Collection", "Int32Value"));
+            parameters.Add("@SelectAll", body.SelectAll);
+            parameters.Add("@Search", search);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
             var result = await _connectionWrapper.ExecuteScalarAsync<int>("AddUserToGroups", parameters, commandType: CommandType.StoredProcedure);

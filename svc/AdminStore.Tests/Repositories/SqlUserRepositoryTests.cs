@@ -523,7 +523,7 @@ namespace AdminStore.Repositories
             cxn.SetupExecuteScalarAsync("AddUserToGroups", It.IsAny<Dictionary<string, object>>(), 1, new Dictionary<string, object> { { "ErrorCode", errorId } });
 
             // Act
-            await repository.AddUserToGroupsAsync(1, new OperationScope() { Ids = new[] { 3, 4 }});
+            await repository.AddUserToGroupsAsync(1, new OperationScope { Ids = new[] { 3, 4 }}, string.Empty);
 
             // Assert
             cxn.Verify();

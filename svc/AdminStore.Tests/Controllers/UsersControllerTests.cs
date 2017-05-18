@@ -1503,7 +1503,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(repo => repo.GetInstanceAdminPrivilegesAsync(It.IsAny<int>()))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
-            _usersRepoMock.Setup(r => r.AddUserToGroupsAsync(It.IsAny<int>(), It.IsAny<OperationScope>())).ReturnsAsync(1);
+            _usersRepoMock.Setup(r => r.AddUserToGroupsAsync(It.IsAny<int>(), It.IsAny<OperationScope>(), It.IsAny<string>())).ReturnsAsync(1);
 
             //act
             var result =
@@ -1523,7 +1523,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(repo => repo.GetInstanceAdminPrivilegesAsync(It.IsAny<int>()))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
-            _usersRepoMock.Setup(r => r.AddUserToGroupsAsync(It.IsAny<int>(), It.IsAny<OperationScope>())).ReturnsAsync(1);
+            _usersRepoMock.Setup(r => r.AddUserToGroupsAsync(It.IsAny<int>(), It.IsAny<OperationScope>(), It.IsAny<string>())).ReturnsAsync(1);
 
             //act
             var result = await _controller.AddUserToGroups(UserId, null);
@@ -1540,7 +1540,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(repo => repo.GetInstanceAdminPrivilegesAsync(It.IsAny<int>()))
                 .ReturnsAsync(InstanceAdminPrivileges.None);
-            _usersRepoMock.Setup(r => r.AddUserToGroupsAsync(It.IsAny<int>(), It.IsAny<OperationScope>())).ReturnsAsync(1);
+            _usersRepoMock.Setup(r => r.AddUserToGroupsAsync(It.IsAny<int>(), It.IsAny<OperationScope>(), It.IsAny<string>())).ReturnsAsync(1);
 
             //act
             await _controller.AddUserToGroups(UserId, _operationScope);
@@ -1559,7 +1559,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
 
             var resourceNotFoundExeption = new ResourceNotFoundException(ErrorMessages.UserNotExist);
-            _usersRepoMock.Setup(r => r.AddUserToGroupsAsync(It.IsAny<int>(), It.IsAny<OperationScope>())).Throws(resourceNotFoundExeption);
+            _usersRepoMock.Setup(r => r.AddUserToGroupsAsync(It.IsAny<int>(), It.IsAny<OperationScope>(), It.IsAny<string>())).Throws(resourceNotFoundExeption);
 
             // Act
             await _controller.AddUserToGroups(UserId, _operationScope);

@@ -43,7 +43,7 @@ namespace ArtifactStore
             config.AssertAction<ReviewContainersController>("GetReviewContainerAsync", HttpMethod.Get, "containers/1");
             config.AssertAction<ReviewContainersController>("GetContentAsync", HttpMethod.Get, "containers/1/content");
             config.AssertAction<ReviewContainersController>("GetParticipantsAsync", HttpMethod.Get, "containers/1/participants");
-            config.AssertAction<ReviewContainersController>("GetArtifactStatusesByParticipantAsync", HttpMethod.Get, "containers/1/artifactreviewers/artifactId=1");
+            config.AssertAction<ReviewContainersController>("GetReviewArtifactStatusesByParticipantAsync", HttpMethod.Get, "containers/1/artifactreviewers/artifactId=1");
         }
 
         [TestMethod]

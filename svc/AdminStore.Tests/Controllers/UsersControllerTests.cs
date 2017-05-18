@@ -83,7 +83,7 @@ namespace AdminStore.Controllers
                 Password = "MTIzNFJFV1EhQCMk",
                 Title = "TitleValue",
                 Department = "Departmentvalue",
-                GroupMembership = new int[] { 1 },
+                GroupMembership = new[] { 1 },
                 Guest = false
             };
 
@@ -146,7 +146,7 @@ namespace AdminStore.Controllers
         public async Task GetUserIcon_RepositoryReturnsNull_NotFoundResult()
         {
             // Arrange
-            var userId = 1;
+            const int userId = 1;
             _usersRepoMock
                 .Setup(repo => repo.GetUserIconByUserIdAsync(It.IsAny<int>()))
                 .ReturnsAsync(null);
@@ -154,7 +154,7 @@ namespace AdminStore.Controllers
             // Act
             try
             {
-                var result = await _controller.GetUserIcon(userId);
+                await _controller.GetUserIcon(userId);
             }
             catch (Exception ex)
             {
@@ -324,21 +324,21 @@ namespace AdminStore.Controllers
 
             // Act
             IHttpActionResult result = null;
-            Exception exception = null;
+            BadRequestException exception = null;
             var resetContent = new ResetPasswordContent { Password = "MTIzNFJFV1EhQCMk", Token = emptyInputToken };
             try
             {
                 result = await _controller.PostPasswordResetAsync(resetContent);
             }
-            catch (Exception ex)
+            catch (BadRequestException ex)
             {
                 exception = ex;
             }
 
             // Assert
             Assert.IsNull(result);
-            Assert.IsInstanceOfType(exception, typeof(BadRequestException));
-            Assert.AreEqual(ErrorCodes.PasswordResetEmptyToken, ((BadRequestException)exception).ErrorCode);
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(ErrorCodes.PasswordResetEmptyToken, exception.ErrorCode);
         }
 
         [TestMethod]
@@ -346,28 +346,27 @@ namespace AdminStore.Controllers
         {
             // Arrange
             var inputToken = new Guid("e6b99f56-f2ff-49e8-85e1-4349a56271b9");
-            var tokenList = new List<PasswordRecoveryToken>();
             _usersRepoMock
                 .Setup(repo => repo.GetPasswordRecoveryTokensAsync(It.IsAny<Guid>()))
-                .ReturnsAsync(tokenList);
+                .ReturnsAsync(new List<PasswordRecoveryToken>());
 
             // Act
             IHttpActionResult result = null;
-            Exception exception = null;
+            ConflictException exception = null;
             var resetContent = new ResetPasswordContent { Password = "MTIzNFJFV1EhQCMk", Token = inputToken };
             try
             {
                 result = await _controller.PostPasswordResetAsync(resetContent);
             }
-            catch (Exception ex)
+            catch (ConflictException ex)
             {
                 exception = ex;
             }
 
             // Assert
             Assert.IsNull(result);
-            Assert.IsInstanceOfType(exception, typeof(ConflictException));
-            Assert.AreEqual(ErrorCodes.PasswordResetTokenNotFound, ((ConflictException)exception).ErrorCode);
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(ErrorCodes.PasswordResetTokenNotFound, exception.ErrorCode);
         }
 
         [TestMethod]
@@ -391,21 +390,21 @@ namespace AdminStore.Controllers
 
             // Act
             IHttpActionResult result = null;
-            Exception exception = null;
+            ConflictException exception = null;
             var resetContent = new ResetPasswordContent { Password = "MTIzNFJFV1EhQCMk", Token = inputToken };
             try
             {
                 result = await _controller.PostPasswordResetAsync(resetContent);
             }
-            catch (Exception ex)
+            catch (ConflictException ex)
             {
                 exception = ex;
             }
 
             // Assert
             Assert.IsNull(result);
-            Assert.IsInstanceOfType(exception, typeof(ConflictException));
-            Assert.AreEqual(ErrorCodes.PasswordResetTokenNotLatest, ((ConflictException)exception).ErrorCode);
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(ErrorCodes.PasswordResetTokenNotLatest, exception.ErrorCode);
         }
 
         [TestMethod]
@@ -427,27 +426,27 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(tokenList);
             IEnumerable<ApplicationSetting> applicationSettings = new List<ApplicationSetting> { new ApplicationSetting() { Key = "PasswordResetTokenExpirationInHours", Value = "40" } };
             _applicationSettingsRepository
-                .Setup(repo => repo.GetSettings())
+                .Setup(repo => repo.GetSettingsAsync())
                 .ReturnsAsync(applicationSettings);
 
 
             // Act
             IHttpActionResult result = null;
-            Exception exception = null;
+            ConflictException exception = null;
             var resetContent = new ResetPasswordContent { Password = "MTIzNFJFV1EhQCMk", Token = inputToken };
             try
             {
                 result = await _controller.PostPasswordResetAsync(resetContent);
             }
-            catch (Exception ex)
+            catch (ConflictException ex)
             {
                 exception = ex;
             }
 
             // Assert
             Assert.IsNull(result);
-            Assert.IsInstanceOfType(exception, typeof(ConflictException));
-            Assert.AreEqual(ErrorCodes.PasswordResetTokenExpired, ((ConflictException)exception).ErrorCode);
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(ErrorCodes.PasswordResetTokenExpired, exception.ErrorCode);
         }
 
         [TestMethod]
@@ -477,21 +476,21 @@ namespace AdminStore.Controllers
 
             // Act
             IHttpActionResult result = null;
-            Exception exception = null;
+            ConflictException exception = null;
             var resetContent = new ResetPasswordContent { Password = "MTIzNFJFV1EhQCMk", Token = inputToken };
             try
             {
                 result = await _controller.PostPasswordResetAsync(resetContent);
             }
-            catch (Exception ex)
+            catch (ConflictException ex)
             {
                 exception = ex;
             }
 
             // Assert
             Assert.IsNull(result);
-            Assert.IsInstanceOfType(exception, typeof(ConflictException));
-            Assert.AreEqual(ErrorCodes.PasswordResetUserNotFound, ((ConflictException)exception).ErrorCode);
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(ErrorCodes.PasswordResetUserNotFound, exception.ErrorCode);
         }
 
         [TestMethod]
@@ -521,21 +520,21 @@ namespace AdminStore.Controllers
 
             // Act
             IHttpActionResult result = null;
-            Exception exception = null;
+            ConflictException exception = null;
             var resetContent = new ResetPasswordContent { Password = "MTIzNFJFV1EhQCMk", Token = inputToken };
             try
             {
                 result = await _controller.PostPasswordResetAsync(resetContent);
             }
-            catch (Exception ex)
+            catch (ConflictException ex)
             {
                 exception = ex;
             }
 
             // Assert
             Assert.IsNull(result);
-            Assert.IsInstanceOfType(exception, typeof(ConflictException));
-            Assert.AreEqual(ErrorCodes.PasswordResetUserDisabled, ((ConflictException)exception).ErrorCode);
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(ErrorCodes.PasswordResetUserDisabled, exception.ErrorCode);
         }
 
         [TestMethod]
@@ -570,21 +569,21 @@ namespace AdminStore.Controllers
 
             // Act
             IHttpActionResult result = null;
-            Exception exception = null;
+            BadRequestException exception = null;
             var resetContent = new ResetPasswordContent { Password = "MTIzNFJFV1EhQCMk", Token = inputToken };
             try
             {
                 result = await _controller.PostPasswordResetAsync(resetContent);
             }
-            catch (Exception ex)
+            catch (BadRequestException ex)
             {
                 exception = ex;
             }
 
             // Assert
             Assert.IsNull(result);
-            Assert.IsInstanceOfType(exception, typeof(BadRequestException));
-            Assert.AreEqual(ErrorCodes.SamePassword, ((BadRequestException)exception).ErrorCode);
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(ErrorCodes.SamePassword, exception.ErrorCode);
         }
 
         [TestMethod]
@@ -625,9 +624,8 @@ namespace AdminStore.Controllers
             };
 
             // Act
-            IHttpActionResult result = null;
             var resetContent = new ResetPasswordContent { Password = "MTIzNFJFV1EhQCMk", Token = inputToken };
-            result = await _controller.PostPasswordResetAsync(resetContent);
+            var result = await _controller.PostPasswordResetAsync(resetContent);
 
             // Assert
             Assert.IsNotNull(result);
@@ -641,8 +639,7 @@ namespace AdminStore.Controllers
             SetupMocksForRequestPasswordReset();
 
             // Act
-            IHttpActionResult result = null;
-            result = await _controller.PostRequestPasswordResetAsync("login");
+            var result = await _controller.PostRequestPasswordResetAsync("login");
 
             // Assert
             Assert.IsNotNull(result);
@@ -660,8 +657,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(false);
 
             // Act
-            IHttpActionResult result = null;
-            result = await _controller.PostRequestPasswordResetAsync("login");
+            var result = await _controller.PostRequestPasswordResetAsync("login");
 
             // Assert
             Assert.IsNotNull(result);
@@ -679,8 +675,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(true);
 
             // Act
-            IHttpActionResult result = null;
-            result = await _controller.PostRequestPasswordResetAsync("login");
+            var result = await _controller.PostRequestPasswordResetAsync("login");
 
             // Assert
             Assert.IsNotNull(result);
@@ -698,8 +693,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(true);
 
             // Act
-            IHttpActionResult result = null;
-            result = await _controller.PostRequestPasswordResetAsync("login");
+            var result = await _controller.PostRequestPasswordResetAsync("login");
 
             // Assert
             Assert.IsNotNull(result);
@@ -719,8 +713,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(instanceSettings);
 
             // Act
-            IHttpActionResult result = null;
-            result = await _controller.PostRequestPasswordResetAsync("login");
+            var result = await _controller.PostRequestPasswordResetAsync("login");
 
             // Assert
             Assert.IsNotNull(result);
@@ -738,8 +731,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(false);
 
             // Act
-            IHttpActionResult result = null;
-            result = await _controller.PostRequestPasswordResetAsync("login");
+            var result = await _controller.PostRequestPasswordResetAsync("login");
 
             // Assert
             Assert.IsNotNull(result);
@@ -757,8 +749,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(false);
 
             // Act
-            IHttpActionResult result = null;
-            result = await _controller.PostRequestPasswordResetAsync("login");
+            var result = await _controller.PostRequestPasswordResetAsync("login");
 
             // Assert
             Assert.IsNotNull(result);
@@ -777,8 +768,7 @@ namespace AdminStore.Controllers
 
 
             // Act
-            IHttpActionResult result = null;
-            result = await _controller.PostRequestPasswordResetAsync("login");
+            var result = await _controller.PostRequestPasswordResetAsync("login");
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(InternalServerErrorResult));
@@ -857,7 +847,7 @@ namespace AdminStore.Controllers
             //act
             try
             {
-                var result = await _controller.GetUsers(new Pagination(), new Sorting());
+                await _controller.GetUsers(new Pagination(), new Sorting());
             }
             catch (Exception ex)
             {
@@ -885,6 +875,7 @@ namespace AdminStore.Controllers
             var result = await _controller.GetUser(5) as OkNegotiatedContentResult<UserDto>;
 
             //assert
+            Assert.IsNotNull(result);
             Assert.AreEqual(user, result.Content);
         }
 
@@ -900,7 +891,7 @@ namespace AdminStore.Controllers
             //act
             try
             {
-                var result = await _controller.GetUser(0);
+                await _controller.GetUser(0);
             }
             catch (Exception ex)
             {
@@ -915,6 +906,8 @@ namespace AdminStore.Controllers
         public async Task GetUser_ThereIsNoSuchUser_NotFoundResult()
         {
             //arrange
+            IHttpActionResult result = null;
+            ResourceNotFoundException exception = null;
             var user = new UserDto();
             _usersRepoMock.Setup(repo => repo.GetUserDtoAsync(It.Is<int>(i => i > 0))).ReturnsAsync(user);
             _privilegesRepository
@@ -922,10 +915,18 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
 
             //act
-            var result = await _controller.GetUser(1) as NotFoundResult;
+
+            try
+            {
+                result =  await _controller.GetUser(1); 
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                exception = ex;
+            }
 
             //assert
-            Assert.IsInstanceOfType(result, typeof(NotFoundResult));
+            Assert.AreEqual(ErrorMessages.UserNotExist, exception.Message);
 
         }
         #endregion
@@ -1029,6 +1030,84 @@ namespace AdminStore.Controllers
 
             // Assert
             // Exception
+        }
+
+        [TestMethod]
+        public async Task PostUser_UserWithExpiredUserKeyLogin_ReturnBadRequestResult()
+        {
+            // Arrange
+            _user.Login = ServiceConstants.ExpiredUserKey;
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+            BadRequestException exception = null;
+
+            // Act
+            try
+            {
+                await _controller.PostUser(_user);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(exception.Message, ErrorMessages.LoginInvalid);
+            Assert.AreEqual(exception.ErrorCode, ErrorCodes.BadRequest);
+        }
+
+        [TestMethod]
+        public async Task PostUser_UserWithUserLogoutLogin_ReturnBadRequestResult()
+        {
+            // Arrange
+            _user.Login = ServiceConstants.UserLogout;
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+            BadRequestException exception = null;
+
+            // Act
+            try
+            {
+                await _controller.PostUser(_user);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(exception.Message, ErrorMessages.LoginInvalid);
+            Assert.AreEqual(exception.ErrorCode, ErrorCodes.BadRequest);
+        }
+
+        [TestMethod]
+        public async Task PostUser_UserWithInvalidUserKeyLogin_ReturnBadRequestResult()
+        {
+            // Arrange
+            _user.Login = ServiceConstants.InvalidUserKey;
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+            BadRequestException exception = null;
+
+            // Act
+            try
+            {
+                await _controller.PostUser(_user);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(exception.Message, ErrorMessages.LoginInvalid);
+            Assert.AreEqual(exception.ErrorCode, ErrorCodes.BadRequest);
         }
 
         [TestMethod]
@@ -1188,7 +1267,6 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
         public async Task PostUser_PasswordEmpty_ReturnBadRequestResult()
         {
             // Arrange
@@ -1196,12 +1274,73 @@ namespace AdminStore.Controllers
             _privilegesRepository
                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(FullPermissions);
+            BadRequestException exception = null;
 
             // Act
-            await _controller.PostUser(_user);
+            try
+            {
+                await _controller.PostUser(_user);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
 
             // Assert
-            // Exception
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(exception.ErrorCode, ErrorCodes.BadRequest);
+        }
+
+        [TestMethod]
+        public async Task PostUser_PasswordSameAsLogin_ReturnBadRequestResult()
+        {
+            // Arrange
+            _user.Login = "RobertJordan_1!";
+            _user.Password = SystemEncryptions.EncodeTo64UTF8(_user.Login);
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+            BadRequestException exception = null;
+
+            // Act
+            try
+            {
+                await _controller.PostUser(_user);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(exception.ErrorCode, ErrorCodes.PasswordSameAsLogin);
+        }
+
+        [TestMethod]
+        public async Task PostUser_PasswordSameAsDisplayName_ReturnBadRequestResult()
+        {
+            // Arrange
+            _user.DisplayName = "RobertJordan_1!";
+            _user.Password = SystemEncryptions.EncodeTo64UTF8(_user.DisplayName);
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+            BadRequestException exception = null;
+
+            // Act
+            try
+            {
+                await _controller.PostUser(_user);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(exception.ErrorCode, ErrorCodes.PasswordSameAsDisplayName);
         }
 
         [TestMethod]
@@ -1223,7 +1362,7 @@ namespace AdminStore.Controllers
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
-        public async Task PostUser_IncorrectEmailFromat_ReturnBadRequestResult()
+        public async Task PostUser_EmailWithoutAtSymbol_ReturnBadRequestResult()
         {
             // Arrange
             _user.Email = "testemail.com";
@@ -1237,6 +1376,24 @@ namespace AdminStore.Controllers
             // Assert
             // Exception
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task PostUser_EmailWithMultipleAtSymbols_ReturnBadRequestResult()
+        {
+            // Arrange
+            _user.Email = "sp@rk@email.com";
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+
+            // Act
+            await _controller.PostUser(_user);
+
+            // Assert
+            // Exception
+        }
+
         #endregion
 
         #region Update user
@@ -1431,7 +1588,7 @@ namespace AdminStore.Controllers
             //arrange
 
             //act
-             await _controller.GetUserGroups(UserId, new Pagination(), new Sorting(), string.Empty);
+            await _controller.GetUserGroups(UserId, new Pagination(), new Sorting(), string.Empty);
 
             //assert
             // Exception
@@ -1449,14 +1606,14 @@ namespace AdminStore.Controllers
             _usersRepoMock.Setup(repo => repo.GetUserGroupsAsync(It.IsAny<int>(), It.IsAny<TabularData>(), It.IsAny<Func<Sorting, string>>())).ReturnsAsync(_userGoupsQueryDataResult);
 
             //act
-            var result = await _controller.GetUserGroups(UserId, _userGroupsTabularPagination, _userGroupsSorting, string.Empty) as OkNegotiatedContentResult<QueryResult<GroupDto>>;
+            await _controller.GetUserGroups(UserId, _userGroupsTabularPagination, _userGroupsSorting, string.Empty);
 
             //assert
             // Exception
         }
 
         [TestMethod]
-        [ExpectedException(typeof (ResourceNotFoundException))]
+        [ExpectedException(typeof(ResourceNotFoundException))]
         public async Task GetUserGroups_UserNotFound_ResourceNotFoundResult()
         {
             //arrange
@@ -1467,9 +1624,7 @@ namespace AdminStore.Controllers
                 .ThrowsAsync(new ResourceNotFoundException(ErrorMessages.UserNotExist));
 
             //act
-            var result =
-                await _controller.GetUserGroups(UserId, _userGroupsTabularPagination, _userGroupsSorting, string.Empty)
-                    as OkNegotiatedContentResult<QueryResult<GroupDto>>;
+            await _controller.GetUserGroups(UserId, _userGroupsTabularPagination, _userGroupsSorting, string.Empty);
 
             //assert
             // Exception
@@ -1491,6 +1646,196 @@ namespace AdminStore.Controllers
 
             //assert
             Assert.IsInstanceOfType(result, typeof(BadRequestErrorMessageResult));
+        }
+        #endregion
+
+        #region InstanceAdminChangePassword
+
+        [TestMethod]
+        public async Task InstanceAdminChangePassword_BodyIsNull_BadRequestResult()
+        {
+            //arrange
+            UpdateUserPassword updatePasswor = null;
+            IHttpActionResult result = null;
+            BadRequestException exception = null;
+
+            //act
+            try
+            {
+                result = await _controller.InstanceAdminChangePassword(updatePasswor);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNull(result);
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(ErrorMessages.InvalidChangeInstanceAdminPasswordParameters, exception.Message);
+        }
+
+        [TestMethod]
+        public async Task InstanceAdminChangePassword_PasswordIsInvalid_BadRequestException()
+        {
+            //arrange
+            var pass = "asdf1";
+            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(pass);
+            var encodedPassword = Convert.ToBase64String(plainTextBytes);
+            var updatePasswor = new UpdateUserPassword() { Password = encodedPassword };
+            var user = new User() { Id = 3 };
+            IHttpActionResult result = null;
+            BadRequestException exception = null;
+
+            _privilegesRepository
+               .Setup(repo => repo.GetInstanceAdminPrivilegesAsync(It.IsAny<int>()))
+               .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
+            _usersRepoMock.Setup(repo => repo.GetUserAsync(It.IsAny<int>())).ReturnsAsync(user);
+
+            //act
+            try
+            {
+                result = await _controller.InstanceAdminChangePassword(updatePasswor);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNull(result);
+            Assert.IsNotNull(exception);
+        }
+
+        [TestMethod]
+        public async Task InstanceAdminChangePassword_UserNotFound_ResourceNotFoundException()
+        {
+            //arrange
+            var updatePasswor = new UpdateUserPassword() { Password = "adf1T~asdfasdf" };
+            IHttpActionResult result = null;
+            ResourceNotFoundException exception = null;
+
+            _privilegesRepository
+               .Setup(repo => repo.GetInstanceAdminPrivilegesAsync(It.IsAny<int>()))
+               .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
+            _usersRepoMock.Setup(repo => repo.GetUserAsync(It.IsAny<int>())).ReturnsAsync(null);
+
+            //act
+            try
+            {
+                result = await _controller.InstanceAdminChangePassword(updatePasswor);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                exception = ex;
+            }
+
+            //assert
+            Assert.IsNull(result);
+            Assert.AreEqual(ErrorCodes.ResourceNotFound, exception.ErrorCode);
+        }
+
+        [TestMethod]
+        public async Task InstanceAdminChangePassword_PasswordIsInvalid_OkResult()
+        {
+            //arrange
+            var pass = "adf1T~asdfasdf";
+            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(pass);
+            var encodedPassword = Convert.ToBase64String(plainTextBytes);
+            var updatePasswor = new UpdateUserPassword() { Password = encodedPassword };
+            var user = new User() { Id = 3 };
+            IHttpActionResult result = null;
+
+            _privilegesRepository
+               .Setup(repo => repo.GetInstanceAdminPrivilegesAsync(It.IsAny<int>()))
+               .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
+            _usersRepoMock.Setup(repo => repo.GetUserAsync(It.IsAny<int>())).ReturnsAsync(user);
+
+            //act
+
+            result = await _controller.InstanceAdminChangePassword(updatePasswor) as OkResult;
+
+
+            //assert
+            Assert.IsNotNull(result);
+        }
+
+
+        #endregion
+
+        #region Deletete user from groups
+
+        [TestMethod]
+        public async Task DeleteUserFromGroups_AllRequirementsSatisfied_SucсessResult()
+        {
+            //arrange
+            _privilegesRepository
+                .Setup(repo => repo.GetInstanceAdminPrivilegesAsync(It.IsAny<int>()))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
+            _usersRepoMock.Setup(r => r.DeleteUserFromGroupsAsync(It.IsAny<int>(), It.IsAny<OperationScope>())).ReturnsAsync(1);
+
+            //act
+            var result =
+                await _controller.DeleteUserFromGroups(UserId, _operationScope) as
+                    OkNegotiatedContentResult<DeleteResult>;
+
+            //assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result.Content, typeof(DeleteResult));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task DeleteUserFromGroups_OperationScopeModelIsNull_ReturnBadRequestErrorResult()
+        {
+            //arrange
+            _privilegesRepository
+                .Setup(repo => repo.GetInstanceAdminPrivilegesAsync(It.IsAny<int>()))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
+            _usersRepoMock.Setup(r => r.DeleteUserFromGroupsAsync(It.IsAny<int>(), It.IsAny<OperationScope>())).ReturnsAsync(1);
+
+            //act
+            await _controller.DeleteUserFromGroups(UserId, null);
+
+            //assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task DeleteUserFromGroups_InvalidUserPermissions_ReturnAuthenticationException()
+        {
+            //arrange
+            _privilegesRepository
+                .Setup(repo => repo.GetInstanceAdminPrivilegesAsync(It.IsAny<int>()))
+                .ReturnsAsync(InstanceAdminPrivileges.None);
+            _usersRepoMock.Setup(r => r.DeleteUserFromGroupsAsync(It.IsAny<int>(), It.IsAny<OperationScope>())).ReturnsAsync(1);
+
+            //act
+            await _controller.DeleteUserFromGroups(UserId, _operationScope);
+
+            //assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task DeleteUserFromGroups_UserNotFound_ReturnResourceNotFoundException()
+        {
+            // Arrange
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
+
+            var resourceNotFoundExeption = new ResourceNotFoundException(ErrorMessages.UserNotExist);
+            _usersRepoMock.Setup(r => r.DeleteUserFromGroupsAsync(It.IsAny<int>(), It.IsAny<OperationScope>()))
+                .Throws(resourceNotFoundExeption);
+
+            // Act
+            await _controller.DeleteUserFromGroups(UserId, _operationScope);
+
+            // Assert
+            // Exception
         }
         #endregion
 

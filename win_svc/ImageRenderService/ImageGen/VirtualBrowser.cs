@@ -9,11 +9,15 @@ namespace ImageRenderService.ImageGen
 {
     public class VirtualBrowser : IVirtualBrowser
     {
-        private ChromiumWebBrowser _browser;
+        private readonly ChromiumWebBrowser _browser;
+        private readonly AsyncBoundObject _asyncBoundObject;
 
         public VirtualBrowser()
         {
             _browser = new ChromiumWebBrowser();
+            _asyncBoundObject = new AsyncBoundObject();
+
+            _browser.RegisterAsyncJsObject("cefSharp", AsyncBoundObject);
         }
 
         public bool IsBrowserInitialized => _browser.IsBrowserInitialized;
@@ -23,6 +27,8 @@ namespace ImageRenderService.ImageGen
             get { return _browser.Size; }
             set { _browser.Size = value; }
         }
+
+        public AsyncBoundObject AsyncBoundObject => _asyncBoundObject;
 
         public IScreenshot Bitmap => new Screenshot(_browser.Bitmap);
 
@@ -114,5 +120,4 @@ namespace ImageRenderService.ImageGen
             _browser.Dispose();
         }
     }
-
 }

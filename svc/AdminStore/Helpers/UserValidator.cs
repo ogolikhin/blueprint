@@ -60,7 +60,7 @@ namespace AdminStore.Helpers
                 throw new BadRequestException(ErrorMessages.EmailFieldLimitation, ErrorCodes.BadRequest);
             }
 
-            var emailRegex = new Regex(@"^([\w-.\']+)@(([[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.)|(([\w-]+.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(]?)$");
+            var emailRegex = new Regex(@"^([\w-\.\']+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$");
             if (!emailRegex.IsMatch(user.Email))
             {
                 throw new BadRequestException(ErrorMessages.EmailFormatIncorrect, ErrorCodes.BadRequest);
@@ -76,9 +76,16 @@ namespace AdminStore.Helpers
                 throw new BadRequestException(ErrorMessages.DepartmentFieldLimitation, ErrorCodes.BadRequest);
             }
 
-            if (userOperationMode == UserOperationMode.Create && user.Source != UserGroupSource.Database)
+            if (user.Source != UserGroupSource.Database)
             {
-                throw new BadRequestException(ErrorMessages.CreationOnlyDatabaseUsers, ErrorCodes.BadRequest);
+                if (userOperationMode == UserOperationMode.Create)
+                {
+                    throw new BadRequestException(ErrorMessages.CreationOnlyDatabaseUsers, ErrorCodes.BadRequest);
+                }
+                else
+                {
+                    throw new BadRequestException(ErrorMessages.SourceFieldValueShouldBeOnlyDatabase, ErrorCodes.BadRequest);
+                }
             }
         }
 

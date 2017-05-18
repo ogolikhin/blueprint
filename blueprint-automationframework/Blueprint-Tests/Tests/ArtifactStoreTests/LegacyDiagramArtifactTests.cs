@@ -85,7 +85,7 @@ namespace ArtifactStoreTests
             NovaArtifactDetails.AssertArtifactsEqual(diagramArtifact, retrievedArtifactVersion1);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)] // Trello bug: https://trello.com/c/hy2AlWHo
+        [Explicit(IgnoreReasons.ProductBug)] // TFS issue: 6439
         [Category(Categories.CustomData)]
         [Category(Categories.GoldenData)]
         [TestCase]

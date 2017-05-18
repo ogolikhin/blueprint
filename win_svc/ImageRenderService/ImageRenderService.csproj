@@ -92,8 +92,24 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.10.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NServiceBus.Callbacks, Version=1.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\NServiceBus.Callbacks.1.1.1\lib\net452\NServiceBus.Callbacks.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NServiceBus.Core, Version=6.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\NServiceBus.6.2.0\lib\net452\NServiceBus.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NServiceBus.Transports.RabbitMQ, Version=4.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\NServiceBus.RabbitMQ.4.3.1\lib\net452\NServiceBus.Transports.RabbitMQ.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="RabbitMQ.Client, Version=4.0.0.0, Culture=neutral, PublicKeyToken=89e7d7c5feba84ce, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\RabbitMQ.Client.4.1.0\lib\net451\RabbitMQ.Client.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -122,6 +138,7 @@
     </Compile>
     <Compile Include="ApiServiceController.cs" />
     <Compile Include="Helpers\ServiceConfiguration.cs" />
+    <Compile Include="ImageGen\AsyncBoundObject.cs" />
     <Compile Include="ImageGen\BrowserPool.cs" />
     <Compile Include="ImageGen\IBrowserPool.cs" />
     <Compile Include="ImageGen\IImageGenHelper.cs" />
@@ -134,9 +151,19 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Helpers\ServiceHelper.cs" />
+    <Compile Include="Transport\GenerateImageHandler.cs" />
+    <Compile Include="Transport\NServiceBusServer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="ProcessData_Temp_200.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ProcessHtml\novaweb\app.bundle.be0102ca90d3b49fb774.css.map">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="ProcessHtml\novaweb\fonts\bootstrap\glyphicons-halflings-regular.eot">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -311,7 +338,7 @@
     <None Include="ProcessHtml\novaweb\libs\mxClient\js\mxClient.min.js.map">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ProcessHtml\novaweb\vendor.bundle.85551c95da0331418469.css.map">
+    <None Include="ProcessHtml\novaweb\vendor.bundle.8f33999861ded9db5277.css.map">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ProcessHtml\novaweb\web.config">
@@ -352,10 +379,10 @@
     <Content Include="ProcessHtml\index.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="ProcessHtml\novaweb\app.bundle.9209069df4c181d4503a.css">
+    <Content Include="ProcessHtml\novaweb\app.bundle.be0102ca90d3b49fb774.css">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="ProcessHtml\novaweb\app.bundle.9209069df4c181d4503a.js">
+    <Content Include="ProcessHtml\novaweb\app.bundle.be0102ca90d3b49fb774.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="ProcessHtml\novaweb\assets\button.00759bdc3ad218fa739f584369541809.gif">
@@ -808,16 +835,20 @@
     <Content Include="ProcessHtml\novaweb\static\tour\06.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="ProcessHtml\novaweb\vendor.bundle.85551c95da0331418469.css">
+    <Content Include="ProcessHtml\novaweb\vendor.bundle.8f33999861ded9db5277.css">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="ProcessHtml\novaweb\vendor.bundle.85551c95da0331418469.js">
+    <Content Include="ProcessHtml\novaweb\vendor.bundle.8f33999861ded9db5277.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BluePrintSys.Messaging.Models\BluePrintSys.Messaging.Models.csproj">
+      <Project>{c6352fb5-bfa5-4d67-86f8-69c8b5f95495}</Project>
+      <Name>BluePrintSys.Messaging.Models</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-  </Target>
   <Import Project="..\..\packages\cef.redist.x64.3.2987.1601\build\cef.redist.x64.targets" Condition="Exists('..\..\packages\cef.redist.x64.3.2987.1601\build\cef.redist.x64.targets')" />
   <Import Project="..\..\packages\CefSharp.Common.57.0.0\build\CefSharp.Common.targets" Condition="Exists('..\..\packages\CefSharp.Common.57.0.0\build\CefSharp.Common.targets')" />
   <Import Project="..\..\packages\CefSharp.OffScreen.57.0.0\build\CefSharp.OffScreen.targets" Condition="Exists('..\..\packages\CefSharp.OffScreen.57.0.0\build\CefSharp.OffScreen.targets')" />

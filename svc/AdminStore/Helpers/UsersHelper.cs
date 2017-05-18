@@ -8,7 +8,7 @@ namespace AdminStore.Helpers
     {
         public static string SortUsers(Sorting sorting)
         {
-            var defaultSortColumn = "displayName";
+            var defaultSortColumn = "login";
             var sortableColumns = new HashSet<string>
             {
                 "login",
@@ -16,7 +16,9 @@ namespace AdminStore.Helpers
                 "license",
                 "role",
                 "department",
-                "title"
+                "title",
+                "source",
+                "enabled"
             };
             var column = sorting.Sort;
             var sortColumn = !string.IsNullOrWhiteSpace(column) && sortableColumns.Contains(column)

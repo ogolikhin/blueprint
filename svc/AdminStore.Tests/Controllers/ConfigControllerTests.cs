@@ -11,21 +11,16 @@ using AdminStore.Models;
 using AdminStore.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
-using sl = ServiceLibrary.Repositories.ConfigControl;
+using ServiceLibrary.Models;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Controllers
 {
     [TestClass]
     public class ConfigControllerTests
     {
-        [TestInitialize]
-        public void Initialize()
-        {
-
-        }
-
-
         #region Constuctor
 
         [TestMethod]
@@ -37,10 +32,20 @@ namespace AdminStore.Controllers
             var controller = new ConfigController();
 
             // Assert
-            Assert.IsInstanceOfType(controller._appSettingsRepo, typeof(ApplicationSettingsRepository));
+            Assert.IsInstanceOfType(controller._applicationSettingsRepository, typeof(ApplicationSettingsRepository));
             Assert.IsInstanceOfType(controller._httpClientProvider, typeof(HttpClientProvider));
-            Assert.IsInstanceOfType(controller._log, typeof(sl.ServiceLogRepository));
         }
+
+        [TestMethod]
+        public void Constructor_CorrectlyInitializesLogSource()
+        {
+            // Arrange, Act
+            var controller = new ConfigController();
+
+            // Assert
+            Assert.AreEqual(controller.LogSource, WebApiConfig.LogSourceConfig);
+        }
+
 
         #endregion
 
@@ -61,21 +66,111 @@ namespace AdminStore.Controllers
             Assert.AreEqual(settings, await result.Response.Content.ReadAsAsync<Dictionary<string, Dictionary<string, string>>>());
         }
 
+        #endregion GetConfigSettings
+
+        #region GetApplicationSettings
+
         [TestMethod]
-        public async Task GetConfigSettings_HttpClientThrowsException_ReturnsInternalServerError()
+        public async Task GetApplicationSettings_HasAccess_ReturnsApplicationSettings()
         {
             // Arrange
-            var controller = CreateController();
+            var settings = new Dictionary<string, string> { { "Key", "Value" } };
+            var controller = CreateController(appSettings: settings);
 
             // Act
-            IHttpActionResult result = await controller.GetConfigSettings();
+            var result = await controller.GetApplicationSettings() as OkNegotiatedContentResult<Dictionary<string, string>>;
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(InternalServerErrorResult));
+            Assert.IsNotNull(result);
+            CollectionAssert.AreEquivalent(settings, result.Content);
         }
 
-        #endregion GetConfigSettings
- 
+        #endregion
+
+        #region GetUserManagementSettings
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task GetUserManagementSettings_NonInstanceAdmin_ThrowsAuthorizationException()
+        {
+            // Arrange
+            const int userId = 1;
+            var user = new LoginUser {InstanceAdminRoleId = null};
+            var settings = new UserManagementSettings
+            {
+                IsPasswordExpirationEnabled = false,
+                IsFederatedAuthenticationEnabled = true
+            };
+
+            var settingsRepositoryMock = new Mock<ISqlSettingsRepository>();
+            settingsRepositoryMock
+                .Setup(m => m.GetUserManagementSettingsAsync())
+                .ReturnsAsync(settings);
+            var userRepositoryMock = new Mock<IUserRepository>();
+            userRepositoryMock
+                .Setup(m => m.GetLoginUserByIdAsync(userId))
+                .ReturnsAsync(user);
+            var controller = new ConfigController
+            (
+                null, 
+                settingsRepositoryMock.Object, 
+                userRepositoryMock.Object,
+                null,
+                null
+            )
+            {
+                Request = new HttpRequestMessage()
+            };
+            controller.Request.Properties[ServiceConstants.SessionProperty] = new Session { UserId = userId };
+
+            // Act
+            await controller.GetUserManagementSettings();
+        }
+
+        [TestMethod]
+        public async Task GetUserManagementSettings_InstanceAdmin_ReturnsUserManagementSettings()
+        {
+            // Arrange
+            const int userId = 1;
+            var user = new LoginUser { InstanceAdminRoleId = 1 };
+            var settings = new UserManagementSettings
+            {
+                IsPasswordExpirationEnabled = false,
+                IsFederatedAuthenticationEnabled = true
+            };
+
+            var settingsRepositoryMock = new Mock<ISqlSettingsRepository>();
+            settingsRepositoryMock
+                .Setup(m => m.GetUserManagementSettingsAsync())
+                .ReturnsAsync(settings);
+            var userRepositoryMock = new Mock<IUserRepository>();
+            userRepositoryMock
+                .Setup(m => m.GetLoginUserByIdAsync(userId))
+                .ReturnsAsync(user);
+
+            var controller = new ConfigController
+            (
+                null, 
+                settingsRepositoryMock.Object, 
+                userRepositoryMock.Object, 
+                null, 
+                null
+            )
+            {
+                Request = new HttpRequestMessage()
+            };
+            controller.Request.Properties[ServiceConstants.SessionProperty] = new Session { UserId = userId };
+
+            // Act
+            var result = await controller.GetUserManagementSettings() as OkNegotiatedContentResult<UserManagementSettings>;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(result.Content, settings);
+        }
+
+        #endregion GetUserManagementSettings
+
         #region GetConfig
 
         [TestMethod]
@@ -99,19 +194,6 @@ namespace AdminStore.Controllers
                 "    }\n" +
                 "    window.config.settings = {'Key':'Value'}\n" +
                 "}(window));");
-        }
-
-        [TestMethod]
-        public async Task GetConfig_HttpClientThrowsException_ReturnsInternalServerError()
-        {
-            // Arrange
-            var controller = CreateController();
-
-            // Act
-            IHttpActionResult result = await controller.GetConfig();
-
-            // Assert
-            Assert.IsInstanceOfType(result, typeof(InternalServerErrorResult));
         }
 
         [TestMethod]
@@ -141,6 +223,7 @@ namespace AdminStore.Controllers
         {
             var appSettingsRepo = new Mock<IApplicationSettingsRepository>();
             IHttpClientProvider httpClientProvider;
+
             if (globalSettings == null)
             {
                 httpClientProvider = new TestHttpClientProvider(request => { throw new Exception(); });
@@ -151,20 +234,25 @@ namespace AdminStore.Controllers
                 httpClientProvider = new TestHttpClientProvider(request => request.RequestUri.AbsolutePath.EndsWithOrdinal("settings/false") ?
                      new HttpResponseMessage(HttpStatusCode.OK) { Content = content } : null);
             }
+
             if (appSettings == null)
             {
-                appSettingsRepo.Setup(it => it.GetSettings()).Throws(new ApplicationException());
+                appSettingsRepo
+                    .Setup(it => it.GetSettingsAsync())
+                    .Throws(new ApplicationException());
             }
             else
             {
-                appSettingsRepo.Setup(it => it.GetSettings())
+                appSettingsRepo
+                    .Setup(it => it.GetSettingsAsync())
                     .ReturnsAsync(appSettings.Select(i => new ApplicationSetting {Key = i.Key, Value = i.Value}));
             }
 
-            var logMock = new Mock<sl.IServiceLogRepository>();
-            var controller = new ConfigController(appSettingsRepo.Object, httpClientProvider, logMock.Object) { Request = new HttpRequestMessage() };
+            var logMock = new Mock<IServiceLogRepository>();
+            var controller = new ConfigController(appSettingsRepo.Object, null, null, httpClientProvider, logMock.Object) { Request = new HttpRequestMessage() };
             controller.Request.Headers.Add("Session-Token", "");
             controller.Request.SetConfiguration(new HttpConfiguration());
+
             return controller;
         }
     }

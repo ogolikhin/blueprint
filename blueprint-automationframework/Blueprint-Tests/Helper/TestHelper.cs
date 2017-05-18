@@ -11,8 +11,6 @@ using Model.ModelHelpers;
 using Model.OpenApiModel.Services;
 using Model.SearchServiceModel;
 using Model.StorytellerModel;
-using Model.StorytellerModel.Enums;
-using Model.StorytellerModel.Impl;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
@@ -24,7 +22,6 @@ using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
 using static Model.Impl.ArtifactStore;
-using static Model.StorytellerModel.Impl.Process;
 
 namespace Helper
 {
@@ -445,8 +442,7 @@ namespace Helper
             int? parentId = null, double? orderIndex = null, string name = null, string artifactTypeName = null)
         {
             var wrappedArtifact = CreateNovaArtifact(user, project, itemType, parentId, orderIndex, name, artifactTypeName);
-            var response = wrappedArtifact.Publish(user);
-            wrappedArtifact.Artifact.Version = response.Artifacts[0].Version;   // Update Version from -1 to 1.
+            wrappedArtifact.Publish(user);
 
             return wrappedArtifact;
         }
@@ -509,7 +505,7 @@ namespace Helper
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            var wrappedArtifact = new ArtifactWrapper(artifact, ArtifactStore, SvcShared, project, createdBy);
+            var wrappedArtifact = new ArtifactWrapper(artifact, project, createdBy);
             WrappedArtifactsToDispose.Add(wrappedArtifact);
 
             return wrappedArtifact;
@@ -545,13 +541,11 @@ namespace Helper
         /// <param name="user">The user creating the artifact.</param>
         /// <param name="itemType">The Nova base ItemType to create.</param>
         /// <returns>The Nova artifact wrapped in an IArtifact.</returns>
-        public IArtifact CreateWrapAndPublishNovaArtifactForStandardArtifactType(IProject project, IUser user, ItemTypePredefined itemType)
+        public ArtifactWrapper CreateWrapAndPublishNovaArtifactForStandardArtifactType(IProject project, IUser user, ItemTypePredefined itemType)
         {
-
             var artifactTypeName = ArtifactStoreHelper.GetStandardPackArtifactTypeName(itemType);
 
-            return CreateWrapAndPublishNovaArtifact(project, user, itemType,
-                artifactTypeName: artifactTypeName);
+            return CreateAndPublishNovaArtifact(user, project, itemType, artifactTypeName: artifactTypeName);
         }
 
         /// <summary>
@@ -752,6 +746,7 @@ namespace Helper
 
             // Update the artifact states manually because we didn't use ArtifactWrapper to Publish them.
             artifactList.ForEach(a => a.UpdateArtifactState(ArtifactWrapper.ArtifactOperation.Publish));
+            artifactList.ForEach(a => a.Version = 1);
 
             return artifactList;
         }
@@ -1078,17 +1073,18 @@ namespace Helper
         /// <param name="orderIndex">(optional) The order index of this Nova artifact.
         ///     By default the order index should be after the last artifact.</param>
         /// <param name="name">(optional) The artifact name.  By default a random name is created.</param>
+        /// <param name="artifactTypeName">(optional) Name of the artifact type to be used to create the artifact</param>
         /// <returns>The Nova artifact wrapped in an ProcessArtifactWrapper that tracks the state of the artifact.</returns>
         public ProcessArtifactWrapper CreateNovaProcessArtifact(
             IUser user, IProject project,
-            int? parentId = null, double? orderIndex = null, string name = null)
+            int? parentId = null, double? orderIndex = null, string name = null, string artifactTypeName = null)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
 
             name = name ?? RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
-            var artifact  = Model.Impl.ArtifactStore.CreateArtifact(ArtifactStore.Address, user,
-                ItemTypePredefined.Process, name, project, parentId, orderIndex);
+            var artifact = Model.Impl.ArtifactStore.CreateArtifact(ArtifactStore.Address, user,
+                ItemTypePredefined.Process, name, project, artifactTypeName, parentId, orderIndex);
 
             var process = Storyteller.GetNovaProcess(user, artifact.Id);
 
@@ -1127,7 +1123,7 @@ namespace Helper
         {
             ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
 
-            var wrappedProcessArtifact = new ProcessArtifactWrapper(novaProcess, ArtifactStore, SvcShared, project, createdBy);
+            var wrappedProcessArtifact = new ProcessArtifactWrapper(novaProcess, project, createdBy);
             WrappedArtifactsToDispose.Add(wrappedProcessArtifact);
 
             return wrappedProcessArtifact;
@@ -1389,23 +1385,24 @@ namespace Helper
         /// <param name="targets">The authentication targets.</param>
         /// <param name="instanceAdminRole">(optional) The Instance Admin Role to assign to the user.  Pass null if you don't want any role assigned.</param>
         /// <param name="source">(optional) Where the user exists.</param>
+        /// <param name="badToken">(optional) The invalid token to set.  Defaults to a token GUID that shouldn't exist.</param>
         /// <returns>A new user that has the requested access tokens.</returns>
         public IUser CreateUserWithInvalidToken(AuthenticationTokenTypes targets,
             InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
-            UserSource source = UserSource.Database)
+            UserSource source = UserSource.Database,
+            string badToken = CommonConstants.InvalidToken)
         {
             var user = CreateUserAndAddToDatabase(instanceAdminRole, source);
-            string fakeTokenValue = Guid.NewGuid().ToString("N");   // 'N' creates a 32-char string with no hyphens.
 
             if ((targets & AuthenticationTokenTypes.AccessControlToken) != 0)
             {
-                user.SetToken(fakeTokenValue);
+                user.SetToken(badToken);
             }
 
             if ((targets & AuthenticationTokenTypes.OpenApiToken) != 0)
             {
                 user.SetToken(I18NHelper.FormatInvariant("{0} {1}",
-                    BlueprintToken.OPENAPI_START_OF_TOKEN, fakeTokenValue));
+                    BlueprintToken.OPENAPI_START_OF_TOKEN, badToken));
             }
 
             return user;

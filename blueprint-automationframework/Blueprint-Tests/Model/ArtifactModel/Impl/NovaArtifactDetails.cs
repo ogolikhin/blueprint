@@ -85,20 +85,26 @@ namespace Model.ArtifactModel.Impl
         /// </summary>
         /// <param name="expected">The expected INovaArtifactBase.</param>
         /// <param name="actual">The actual INovaArtifactBase.</param>
-        /// <param name="shouldCompareVersions">(optional) Pass false to skip comparison of the version parameters.</param>
-        public static void AssertAreEqual(INovaArtifactBase expected, INovaArtifactBase actual, bool shouldCompareVersions = true)
+        /// <param name="skipIdAndVersion">(optional) Pass true to skip comparison of the Id and Version parameters.</param>
+        /// <param name="skipParentId">(optional) Pass true to skip comparison of the ParentId properties.</param>
+        public static void AssertAreEqual(INovaArtifactBase expected, INovaArtifactBase actual,
+            bool skipIdAndVersion = false, bool skipParentId = false)
         {
             ThrowIf.ArgumentNull(expected, nameof(expected));
             ThrowIf.ArgumentNull(actual, nameof(actual));
 
-            Assert.AreEqual(expected.Id, actual.Id, "The '{0}' parameters are different!", nameof(Id));
             Assert.AreEqual(expected.ItemTypeId, actual.ItemTypeId, "The '{0}' parameters are different!", nameof(ItemTypeId));
             Assert.AreEqual(expected.Name, actual.Name, "The '{0}' parameters are different!", nameof(Name));
-            Assert.AreEqual(expected.ParentId, actual.ParentId, "The '{0}' parameters are different!", nameof(ParentId));
             Assert.AreEqual(expected.ProjectId, actual.ProjectId, "The '{0}' parameters are different!", nameof(ProjectId));
 
-            if (shouldCompareVersions)
+            if (!skipParentId)
             {
+                Assert.AreEqual(expected.ParentId, actual.ParentId, "The '{0}' parameters are different!", nameof(ParentId));
+            }
+
+            if (!skipIdAndVersion)
+            {
+                Assert.AreEqual(expected.Id, actual.Id, "The '{0}' parameters are different!", nameof(Id));
                 Assert.AreEqual(expected.Version, actual.Version, "The '{0}' parameters are different!", nameof(Version));
             }
         }

@@ -393,7 +393,7 @@ namespace Helper
                 eulaAccepted: false,
                 license: licenseLevel ?? LicenseLevel.Viewer,
                 isSso: false,
-                allowFallback: null,
+                allowFallback: false,
                 instanceAdminRole: instanceAdminRole,
                 instanceAdminPrivileges: adminPrivileges,
                 guest: false,
@@ -451,6 +451,20 @@ namespace Helper
                     Assert.Contains(group, actualUser.GroupMembership, "Expected group {0} is not found in actual group membership.", group);
                 }
             }
+        }
+
+        /// <summary>
+        /// Assigns a user Id to a user and increments the current version
+        /// </summary>
+        /// <param name="user">The user being updated.</param>
+        /// <param name="userId">The user id to be assigned to the user.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
+        public static void UpdateUserIdAndIncrementCurrentVersion(InstanceUser user, int userId)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            user.Id = userId;
+            user.CurrentVersion++;
         }
 
         #endregion User Management

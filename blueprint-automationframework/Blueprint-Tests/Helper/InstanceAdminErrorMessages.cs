@@ -28,6 +28,8 @@
         public const string UserVersionsNotEqual = "The current version from the request doesn’t match the current version in DB.";
         public const string IncorrectUserId = "Incorrect userId.";
         public const string CreateOnlyDatabaseUsers = "You can create only database users.";
+        public const string EmailFormatIncorrect = "The email format is incorrect.";
+        public const string LoginInvalid = "The \"Login\" field is invalid.";
 
         //Passwords
         public const string PasswordMissing = "Password is required";
@@ -35,5 +37,7 @@
         public const string PasswordDoesNotHaveNonAlphanumeric = "Password must contain a non-alphanumeric character";
         public const string PasswordDoesNotHaveNumber = "Password must contain a number";
         public const string PasswordDoesNotHaveUpperCase = "Password must contain an upper-case letter";
+        public const string PasswordSameAsLogin = "Password cannot be equal to login name.";
+        public const string PasswordSameAsDisplayName = "Password cannot be equal to display name.";
     }
 }

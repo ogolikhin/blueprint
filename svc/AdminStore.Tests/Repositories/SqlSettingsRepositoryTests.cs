@@ -1,13 +1,12 @@
-﻿using AdminStore.Models;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ServiceLibrary.Repositories;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 using System.Threading.Tasks;
-using AdminStore.Helpers;
+using AdminStore.Models;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Repositories;
 
 namespace AdminStore.Repositories
 {
@@ -91,6 +90,15 @@ namespace AdminStore.Repositories
 
         #region GetFederatedAuthenticationSettingsAsync
 
+        private static bool Equals(IFederatedAuthenticationSettings x, IFederatedAuthenticationSettings y)
+        {
+            return Equals(x.Certificate, y.Certificate) &&
+                   Equals(x.ErrorUrl, y.ErrorUrl) &&
+                   Equals(x.LoginUrl, y.LoginUrl) &&
+                   Equals(x.LogoutUrl, y.LogoutUrl) &&
+                   Equals(x.NameClaimType, y.NameClaimType);
+        }
+
         [TestMethod]
         public async Task GetFederatedAuthentication_QueryReturnsSettings_ReturnsFirst()
         {
@@ -132,13 +140,110 @@ namespace AdminStore.Repositories
 
         #endregion GetFederatedAuthenticationSettingsAsync
 
-        private bool Equals(IFederatedAuthenticationSettings x, IFederatedAuthenticationSettings y)
+        #region GetUserManagementSettings
+
+        [TestMethod]
+        public async Task GetUserManagementSettingsAsync_FederatedAuthNotDefined_IsFederatedAuthenticationEnabledIsFalse()
         {
-            return Equals(x.Certificate, y.Certificate) &&
-                Equals(x.ErrorUrl, y.ErrorUrl) &&
-                Equals(x.LoginUrl, y.LoginUrl) &&
-                Equals(x.LogoutUrl, y.LogoutUrl) &&
-                Equals(x.NameClaimType, y.NameClaimType);
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlSettingsRepository(cxn.Object);
+            var result = new[] { new InstanceSettings { IsSamlEnabled = null } };
+            cxn.SetupQueryAsync("GetInstanceSettings", null, result);
+
+            // Act
+            var settings = await repository.GetUserManagementSettingsAsync();
+
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(settings.IsFederatedAuthenticationEnabled, false);
         }
+
+        [TestMethod]
+        public async Task GetUserManagementSettingsAsync_FederatedAuthDisabled_IsFederatedAuthenticationEnabledIsFalse()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlSettingsRepository(cxn.Object);
+            var result = new[] { new InstanceSettings { IsSamlEnabled = false } };
+            cxn.SetupQueryAsync("GetInstanceSettings", null, result);
+
+            // Act
+            var settings = await repository.GetUserManagementSettingsAsync();
+
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(settings.IsFederatedAuthenticationEnabled, false);
+        }
+
+        [TestMethod]
+        public async Task GetUserManagementSettingsAsync_FederatedAuthEnabled_IsFederatedAuthenticationEnabledIsTrue()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlSettingsRepository(cxn.Object);
+            var result = new[] { new InstanceSettings { IsSamlEnabled = true } };
+            cxn.SetupQueryAsync("GetInstanceSettings", null, result);
+
+            // Act
+            var settings = await repository.GetUserManagementSettingsAsync();
+
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(settings.IsFederatedAuthenticationEnabled, true);
+        }
+
+        [TestMethod]
+        public async Task GetUserManagementSettingsAsync_PasswordExpirationInDaysIsLessThanZero_IsPasswordExpirationEnabledIsFalse()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlSettingsRepository(cxn.Object);
+            var result = new[] { new InstanceSettings { PasswordExpirationInDays = -1 } };
+            cxn.SetupQueryAsync("GetInstanceSettings", null, result);
+
+            // Act
+            var settings = await repository.GetUserManagementSettingsAsync();
+
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(settings.IsPasswordExpirationEnabled, false);
+        }
+
+        [TestMethod]
+        public async Task GetUserManagementSettingsAsync_PasswordExpirationInDaysIsZero_IsPasswordExpirationEnabledIsFalse()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlSettingsRepository(cxn.Object);
+            var result = new[] { new InstanceSettings { PasswordExpirationInDays = 0 } };
+            cxn.SetupQueryAsync("GetInstanceSettings", null, result);
+
+            // Act
+            var settings = await repository.GetUserManagementSettingsAsync();
+
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(settings.IsPasswordExpirationEnabled, false);
+        }
+
+        [TestMethod]
+        public async Task GetUserManagementSettingsAsync_PasswordExpirationInDaysIsGreaterThanZero_IsPasswordExpirationEnabledIsTrue()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlSettingsRepository(cxn.Object);
+            var result = new[] { new InstanceSettings { PasswordExpirationInDays = 90 } };
+            cxn.SetupQueryAsync("GetInstanceSettings", null, result);
+
+            // Act
+            var settings = await repository.GetUserManagementSettingsAsync();
+
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(settings.IsPasswordExpirationEnabled, true);
+        }
+
+        #endregion GetUserManagementSettings
     }
 }

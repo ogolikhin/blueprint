@@ -22,6 +22,7 @@ namespace ImageRenderService.ImageGen
     {
         bool IsBrowserInitialized { get; }
         Size Size { get; set; }
+        AsyncBoundObject AsyncBoundObject { get; }
         IScreenshot Bitmap { get; }
 
         event EventHandler BrowserInitialized;

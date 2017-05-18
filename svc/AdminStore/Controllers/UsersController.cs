@@ -178,7 +178,7 @@ namespace AdminStore.Controllers
 
             if (user.Id == 0)
             {
-                return NotFound();
+                throw new ResourceNotFoundException(ErrorMessages.UserNotExist, ErrorCodes.ResourceNotFound);
             }
 
             return Ok(user);
@@ -263,8 +263,6 @@ namespace AdminStore.Controllers
         {
             try
             {
-                
-
                 var matchingSetting = await _applicationSettingsRepository.GetValue(IsPasswordRecoveryEnabledKey, false);
                 if (!matchingSetting)
                 {
@@ -419,6 +417,39 @@ namespace AdminStore.Controllers
         }
 
         /// <summary>
+        /// Change instance admin password
+        /// </summary>
+        /// <param name="updatePassword">Login and userId</param>
+        /// <returns>
+        /// <response code="200">OK. The password was updated.</response>
+        /// </returns>
+        [HttpPost]
+        [SessionRequired]
+        [Route("changepassword")]
+        public async Task<IHttpActionResult> InstanceAdminChangePassword([FromBody] UpdateUserPassword updatePassword)
+        {
+            if (updatePassword == null)
+            {
+                throw new BadRequestException(ErrorMessages.InvalidChangeInstanceAdminPasswordParameters, ErrorCodes.BadRequest);
+            }
+
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageUsers);
+
+            var user = await _userRepository.GetUserAsync(updatePassword.UserId);
+            if (user == null)
+            {
+                throw new ResourceNotFoundException($"User does not exist with UserId: {updatePassword.UserId}", ErrorCodes.ResourceNotFound);
+            }
+
+            UserConverter.ValidatePassword(user, updatePassword.Password);
+
+            await _userRepository.UpdateUserPasswordAsync(user.Login, updatePassword.Password);
+
+            return Ok();
+        }
+
+
+        /// <summary>
         /// Create new database user
         /// </summary>
         /// <remarks>
@@ -465,14 +496,9 @@ namespace AdminStore.Controllers
         [HttpPut]
         [SessionRequired]
         [ResponseType(typeof(HttpResponseMessage))]
-        [Route("{userId:int}")]
+        [Route("{userId:int:min(1)}")]
         public async Task<IHttpActionResult> UpdateUser(int userId, [FromBody] UserDto user)
         {
-            if (userId == 0)
-            {
-                throw new BadRequestException(ErrorMessages.IncorrectUserId, ErrorCodes.BadRequest);
-            }
-
             if (user == null)
             {
                 throw new BadRequestException(ErrorMessages.UserModelIsEmpty, ErrorCodes.BadRequest);
@@ -555,6 +581,39 @@ namespace AdminStore.Controllers
             var result = await _userRepository.AddUserToGroupsAsync(userId, body, search);
 
             return Ok(new CreateResult { TotalCreated = result });
+        }
+
+        /// <summary>
+        /// Delete user from groups
+        /// </summary>
+        /// <param name="userId">User's identity</param>
+        /// <param name="body">List of groups ids and selectAll flag</param>
+        /// <response code="200">OK. A user is deleted from groups.</response>
+        /// <response code="400">BadRequest. Some errors. </response>
+        /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
+        /// <response code="403">Forbidden if used doesn’t have permissions to delete user from groups</response>
+        /// <response code="404">NotFound. if user with userId doesn’t exists or removed from the system.</response>
+        [HttpPost]
+        [SessionRequired]
+        [Route("{userId:int:min(1)}/groups")]
+        [ResponseType(typeof(DeleteResult))]
+        public async Task<IHttpActionResult> DeleteUserFromGroups(int userId, [FromBody]OperationScope body)
+        {
+            if (body == null)
+            {
+                throw new BadRequestException(ErrorMessages.InvalidDeleteUserFromGroupsParameters, ErrorCodes.BadRequest);
+            }
+
+            if (body.IsSelectionEmpty())
+            {
+                return Ok(new DeleteResult() { TotalDeleted = 0 });
+            }
+
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageUsers);
+
+            var result = await _userRepository.DeleteUserFromGroupsAsync(userId, body);
+
+            return Ok(new DeleteResult() { TotalDeleted = result });
         }
     }
 }

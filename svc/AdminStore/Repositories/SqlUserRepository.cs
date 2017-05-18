@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using AdminStore.Helpers;
 using AdminStore.Models;
-using AdminStore.Models.Enums;
 using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Repositories;
@@ -39,16 +38,16 @@ namespace AdminStore.Repositories
         public async Task<int> GetEffectiveUserLicenseAsync(int userId)
         {
             var prm = new DynamicParameters();
-            prm.Add("@UserIds", SqlConnectionWrapper.ToDataTable(new[] { userId }, "Int32Collection", "Int32Value"));
+            prm.Add("@UserIds", SqlConnectionWrapper.ToDataTable(new[] { userId }));
             var result = (await _connectionWrapper.QueryAsync<UserLicense>("GetEffectiveUserLicense", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
 
-            return result != null ? result.LicenseType : 0;
+            return result?.LicenseType ?? 0;
         }
 
         public async Task<IEnumerable<UserLicense>> GetEffectiveUserLicensesAsync(IEnumerable<int> userIds)
         {
             var prm = new DynamicParameters();
-            prm.Add("@UserIds", SqlConnectionWrapper.ToDataTable(userIds, "Int32Collection", "Int32Value"));
+            prm.Add("@UserIds", SqlConnectionWrapper.ToDataTable(userIds));
             return (await _connectionWrapper.QueryAsync<UserLicense>("GetEffectiveUserLicense", prm, commandType: CommandType.StoredProcedure)).ToList();
         }
 
@@ -69,7 +68,7 @@ namespace AdminStore.Repositories
         public async Task<IEnumerable<LicenseTransactionUser>> GetLicenseTransactionUserInfoAsync(IEnumerable<int> userIds)
         {
             var prm = new DynamicParameters();
-            prm.Add("@UserIds", SqlConnectionWrapper.ToDataTable(userIds, "Int32Collection", "Int32Value"));
+            prm.Add("@UserIds", SqlConnectionWrapper.ToDataTable(userIds));
             return await _connectionWrapper.QueryAsync<LicenseTransactionUser>("GetLicenseTransactionUser", prm, commandType: CommandType.StoredProcedure);
         }
 
@@ -144,28 +143,14 @@ namespace AdminStore.Repositories
             {
                 orderField = sort(sorting);
             }
+
             var result = await GetUsersInternalAsync(pagination, orderField, search);
-            await PopulateEffectiveLicenseTypes(result.Items);
-            if (sorting?.Sort != null && sorting.Sort.ToLower() == "licensetype")
-            {
-                result.Items = sorting.Order == SortOrder.Asc ? result.Items.OrderBy(e => e.LicenseType) : result.Items.OrderByDescending(e => e.LicenseType);
-            }
+
             return new QueryResult<UserDto>()
             {
                 Items = UserMapper.Map(result.Items),
                 Total = result.Total
             };
-        }
-
-        private async Task PopulateEffectiveLicenseTypes(IEnumerable<User> users)
-        {
-            var licenseTypes = (await GetEffectiveUserLicensesAsync(users.Select(u => u.Id)))
-                .ToDictionary(l => l.UserId);
-
-            foreach (var user in users)
-            {
-                user.LicenseType = licenseTypes[user.Id].LicenseType;
-            }
         }
 
         private async Task<QueryResult<User>> GetUsersInternalAsync(Pagination pagination, string orderField, string search)
@@ -197,9 +182,6 @@ namespace AdminStore.Repositories
         public async Task<UserDto> GetUserDtoAsync(int userId)
         {
             var user = await GetUserAsync(userId);
-
-            user.LicenseType = await GetEffectiveUserLicenseAsync(userId);
-
             return UserMapper.Map(user);
         }
 
@@ -233,7 +215,7 @@ namespace AdminStore.Repositories
             parameters.Add("@Title", loginUser.Title);
             parameters.Add("@Department", loginUser.Department);
             if (loginUser.GroupMembership != null)
-                parameters.Add("@GroupMembership", SqlConnectionWrapper.ToDataTable(loginUser.GroupMembership, "Int32Collection", "Int32Value"));
+                parameters.Add("@GroupMembership", SqlConnectionWrapper.ToDataTable(loginUser.GroupMembership));
             parameters.Add("@Guest", loginUser.Guest);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
@@ -307,7 +289,7 @@ namespace AdminStore.Repositories
             parameters.Add("@Title", loginUser.Title);
             parameters.Add("@Department", loginUser.Department);
             if (loginUser.GroupMembership != null)
-                parameters.Add("@GroupMembership", SqlConnectionWrapper.ToDataTable(loginUser.GroupMembership, "Int32Collection", "Int32Value"));
+                parameters.Add("@GroupMembership", SqlConnectionWrapper.ToDataTable(loginUser.GroupMembership));
             parameters.Add("@Guest", loginUser.Guest);
             parameters.Add("@UserId", loginUser.Id);
             parameters.Add("@CurrentVersion", loginUser.CurrentVersion);
@@ -405,7 +387,7 @@ namespace AdminStore.Repositories
             parameters.Add("@UserId", userId);
             parameters.Add("@SelectAll", body.SelectAll);
             if (body.Ids != null)
-                parameters.Add("@GroupMembership", SqlConnectionWrapper.ToDataTable(body.Ids, "Int32Collection", "Int32Value"));
+                parameters.Add("@GroupMembership", SqlConnectionWrapper.ToDataTable(body.Ids));
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
             var result = await _connectionWrapper.ExecuteScalarAsync<int>("DeleteUserFromGroups", parameters, commandType: CommandType.StoredProcedure);

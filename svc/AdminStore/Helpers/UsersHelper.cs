@@ -18,7 +18,8 @@ namespace AdminStore.Helpers
                 "department",
                 "title",
                 "source",
-                "enabled"
+                "enabled",
+                "licenseType"
             };
             var column = sorting.Sort;
             var sortColumn = !string.IsNullOrWhiteSpace(column) && sortableColumns.Contains(column)

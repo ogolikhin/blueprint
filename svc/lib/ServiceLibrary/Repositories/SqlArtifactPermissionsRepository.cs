@@ -141,6 +141,17 @@ namespace ServiceLibrary.Repositories
             return dictionary;
         }
 
+        public async Task<bool> HasReadPermissions(int artifactId, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue, bool addDrafts = true)
+        {
+            var result = await GetArtifactPermissions(new[] { artifactId }, sessionUserId, contextUser, revisionId, addDrafts);
+            RolePermissions permission = RolePermissions.None;
+            if (result.TryGetValue(artifactId, out permission) && permission.HasFlag(RolePermissions.Read))
+            {
+                return true;
+            }
+            return false;
+        }
+
         private async Task<Dictionary<int, RolePermissions>> GetArtifactPermissionsInternal(IEnumerable<int> itemIds, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue, bool addDrafts = true)
         {
             if (itemIds.Count() > 50)

@@ -35,7 +35,7 @@ namespace ArtifactStore.Models.Review
         internal int NumUsers { get; set; }
     }
 
-    public class ReviewContent
+    public class ReviewArtifactsContent
     {
         public IEnumerable<ReviewArtifact> Items { get; set; }
         public int Total { get; set; }

@@ -83,6 +83,7 @@
       <Link>Properties\SolutionAssemblyVersion.cs</Link>
     </Compile>
     <Compile Include="App_Start\WebApiConfigTests.cs" />
+    <Compile Include="Controllers\GroupsControllerTests.cs" />
     <Compile Include="Controllers\JobsController.ProcessTestGenerationTests.cs" />
     <Compile Include="Controllers\JobsControllerTests.cs" />
     <Compile Include="Controllers\LicensesControllerTests.cs" />

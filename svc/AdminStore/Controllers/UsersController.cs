@@ -578,7 +578,6 @@ namespace AdminStore.Controllers
             return Ok();
         }
 
-
         /// <summary>
         /// Get user's groups list according to the input parameters 
         /// </summary>
@@ -587,7 +586,7 @@ namespace AdminStore.Controllers
         /// <param name="sorting">Sorting parameters</param>
         /// <param name="search">The parameter for searching by group name</param>
         /// <response code="200">OK. The list of user groups.</response>
-        /// <response code="400">BadRequest. Some errors. </response>
+        /// <response code="400">BadRequest. Parameters are invalid, SQL errors. </response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. if user doesn’t have permission to view group membership for the user with the specified userId.</response>
         /// <response code="404">NotFound. if user with userId doesn’t exists or removed from the system.</response>
@@ -596,26 +595,47 @@ namespace AdminStore.Controllers
         [Route("{userId:int:min(1)}/groups")]
         public async Task<IHttpActionResult> GetUserGroups(int userId, [FromUri]Pagination pagination, [FromUri]Sorting sorting, [FromUri] string search = null)
         {
-            if (pagination == null)
-            {
-                throw new BadRequestException(ErrorMessages.InvalidPagination, ErrorCodes.BadRequest);
-            }
-
-            if (pagination.Limit < 1)
-            {
-                throw new BadRequestException(ErrorMessages.IncorrectLimitParameter, ErrorCodes.BadRequest);
-            }
-
-            if (pagination.Offset < 0)
-            {
-                throw new BadRequestException(ErrorMessages.IncorrectOffsetParameter, ErrorCodes.BadRequest);
-            }
+            PaginationValidator.ValidatePaginationModel(pagination);
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewUsers);
-            var tabularData = new TabularData { Pagination = pagination, Sorting = sorting, Search = search };
+            var tabularData = new TabularData {Pagination = pagination, Sorting = sorting, Search = search};
 
             var result = await _userRepository.GetUserGroupsAsync(userId, tabularData, GroupsHelper.SortGroups);
             return Ok(result);
+        }
+
+        /// <summary>
+        /// Add user to groups
+        /// </summary>
+        /// <param name="userId">User's identity</param>
+        /// <param name="body">List of groups ids</param>
+        /// <param name="search">The parameter for searching by group name and scope.</param>
+        /// <response code="200">OK. A user is added to groups.</response>
+        /// <response code="400">BadRequest. Parameters are invalid. </response>
+        /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
+        /// <response code="403">Forbidden if used doesn’t have permissions to add user to groups</response>
+        /// <response code="404">NotFound. if user with userId doesn’t exists or removed from the system.</response>
+        [HttpPut]
+        [SessionRequired]
+        [Route("{userId:int:min(1)}/groups")]
+        [ResponseType(typeof(CreateResult))]
+        public async Task<IHttpActionResult> AddUserToGroups(int userId, [FromBody]OperationScope body, string search = null)
+        {
+            if (body == null)
+            {
+                throw new BadRequestException(ErrorMessages.InvalidAddUserToGroupsParameters, ErrorCodes.BadRequest);
+            }
+
+            if (body.IsSelectionEmpty())
+            {
+                return Ok(new CreateResult { TotalCreated = 0 });
+            }
+
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageUsers);
+
+            var result = await _userRepository.AddUserToGroupsAsync(userId, body, search);
+
+            return Ok(new CreateResult { TotalCreated = result });
         }
 
         /// <summary>

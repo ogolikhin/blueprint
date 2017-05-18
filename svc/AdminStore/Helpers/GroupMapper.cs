@@ -13,13 +13,15 @@ namespace AdminStore.Helpers
         public static GroupDto Map(Group group)
         {
             var result =
-                new GroupDto()
+                new GroupDto
                 {
                     Id = group.Id,
                     Name = group.Name,
                     Scope = group.Scope,
                     LicenseType = ((LicenseType) group.LicenseId).ToString(),
-                    Source = ((UserGroupSource)group.Source).ToString()
+                    Source = ((UserGroupSource)group.Source).ToString(),
+                    Email = group.Email,
+                    GroupType = group.GroupType
                 };
             return result;
         }

@@ -11,5 +11,7 @@
         public string LicenseType { get; set; }
 
         public string Source { get; set; }
+        public string Email { get; set; }
+        public string GroupType { get; set; }
     }
 }

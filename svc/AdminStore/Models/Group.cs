@@ -12,6 +12,8 @@ namespace AdminStore.Models
         public string Name { get; set; }
         public string Scope { get; set; }
         public int LicenseId { get; set; }
-        public byte Source { get; set; }    
+        public byte Source { get; set; }
+        public string Email { get; set; }
+        public string GroupType { get; set; }
     }
 }

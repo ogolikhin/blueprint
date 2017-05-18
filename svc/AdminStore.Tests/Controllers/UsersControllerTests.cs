@@ -99,8 +99,7 @@ namespace AdminStore.Controllers
             _userGroupsTabularPagination = new Pagination() { Limit = 1, Offset = 0 };
             _userGroupsSorting = new Sorting() { Order = SortOrder.Asc, Sort = "Name" };
             _userGoupsQueryDataResult = new QueryResult<GroupDto>() { Total = 1, Items = new List<GroupDto>() };
-
-            _operationScope = new OperationScope() {Ids = new [] {3,4}, SelectAll = false};
+            _operationScope = new OperationScope { Ids = new[] { 3, 4 } };
         }
 
         #region Constuctor
@@ -1834,6 +1833,81 @@ namespace AdminStore.Controllers
 
             // Act
             await _controller.DeleteUserFromGroups(UserId, _operationScope);
+
+            // Assert
+            // Exception
+        }
+        #endregion
+
+        #region Add user to groups
+
+        [TestMethod]
+        public async Task AddUserToGroups_AllRequirementsSatisfied_SucсessResult()
+        {
+            //arrange
+            _privilegesRepository
+                .Setup(repo => repo.GetInstanceAdminPrivilegesAsync(It.IsAny<int>()))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
+            _usersRepoMock.Setup(r => r.AddUserToGroupsAsync(It.IsAny<int>(), It.IsAny<OperationScope>(), It.IsAny<string>())).ReturnsAsync(1);
+
+            //act
+            var result =
+                await _controller.AddUserToGroups(UserId, _operationScope) as
+                    OkNegotiatedContentResult<CreateResult>;
+
+            //assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result.Content, typeof(CreateResult));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task AddUserToGroups_OperationScopeModelIsNull_ReturnBadRequestErrorResult()
+        {
+            //arrange
+            _privilegesRepository
+                .Setup(repo => repo.GetInstanceAdminPrivilegesAsync(It.IsAny<int>()))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
+            _usersRepoMock.Setup(r => r.AddUserToGroupsAsync(It.IsAny<int>(), It.IsAny<OperationScope>(), It.IsAny<string>())).ReturnsAsync(1);
+
+            //act
+            var result = await _controller.AddUserToGroups(UserId, null);
+
+            //assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task AddUserToGroups_InvalidUserPermissions_ReturnAuthenticationException()
+        {
+            //arrange
+            _privilegesRepository
+                .Setup(repo => repo.GetInstanceAdminPrivilegesAsync(It.IsAny<int>()))
+                .ReturnsAsync(InstanceAdminPrivileges.None);
+            _usersRepoMock.Setup(r => r.AddUserToGroupsAsync(It.IsAny<int>(), It.IsAny<OperationScope>(), It.IsAny<string>())).ReturnsAsync(1);
+
+            //act
+            await _controller.AddUserToGroups(UserId, _operationScope);
+
+            //assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task AddUserToGroups_UserNotFound_ReturnResourceNotFoundException()
+        {
+            // Arrange
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
+
+            var resourceNotFoundExeption = new ResourceNotFoundException(ErrorMessages.UserNotExist);
+            _usersRepoMock.Setup(r => r.AddUserToGroupsAsync(It.IsAny<int>(), It.IsAny<OperationScope>(), It.IsAny<string>())).Throws(resourceNotFoundExeption);
+
+            // Act
+            await _controller.AddUserToGroups(UserId, _operationScope);
 
             // Assert
             // Exception

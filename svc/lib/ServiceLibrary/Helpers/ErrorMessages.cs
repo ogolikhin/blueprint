@@ -40,5 +40,7 @@
         public static readonly string SourceFieldValueShouldBeOnlyDatabase = "You can modify only database users.";      
         public static readonly string InvalidDeleteUserFromGroupsParameters = "Invalid parameters to delete user from groups.";
         public static readonly string GeneralErrorOfDeletingUserFromGroups = "An error has occurred when the operation was being performed at SQL level.";
+        public static readonly string InvalidAddUserToGroupsParameters = "Invalid parameters to add user to groups.";
+        public static readonly string GeneralErrorOfAddingUserToGroups = "An error has occurred when the operation was being performed at the SQL level.";     
     }
 }

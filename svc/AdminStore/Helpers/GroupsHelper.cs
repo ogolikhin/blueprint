@@ -18,6 +18,8 @@ namespace AdminStore.Helpers
                 defaultSortColumn,
                 "scope",
                 "license",
+                "email",
+                "grouptype"
             };
             
             var column = sorting.Sort;

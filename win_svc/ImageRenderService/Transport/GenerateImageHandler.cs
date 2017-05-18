@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Threading.Tasks;
 using BluePrintSys.Messaging.Models.ProcessImageGeneration;
 using ImageRenderService.ImageGen;
@@ -9,32 +10,47 @@ namespace ImageRenderService.Transport
 {
     public class GenerateImageHandler : IHandleMessages<GenerateImageMessage>
     {
+        /*private ImageGenService _imageGenService;
+        public GenerateImageHandler(ImageGenService imageGenService)
+        {
+            _imageGenService = imageGenService;
+        }*/
+
         public async Task Handle(GenerateImageMessage message, IMessageHandlerContext context)
         {
 
-            ImageResponseMessage imageGenerated = null;
+            ImageResponseMessage imageGenerated;
+            MemoryStream image = null;
             try
             {
                 //generate image
-                var image = await ImageGenService.Instance.ImageGenerator.GenerateImageAsync(message.ProcessJsonModel, message.MaxWidth, message.MaxHeight, ImageFormat.Png);
+                image = await ImageGenService.Instance.ImageGenerator.GenerateImageAsync(message.ProcessJsonModel, message.MaxWidth, message.MaxHeight, ImageFormat.Png);
                 imageGenerated = new ImageResponseMessage
                 {
-                    ProcessImage = image.ToArray()
+                    ProcessImage = image.ToArray(),
+                    ErrorMessage = null,
+                    StackTrace = null
                 };
+
+                if (image.Capacity == 0)
+                {
+                    imageGenerated = new ImageResponseMessage
+                    {
+                        ProcessImage = null,
+                        ErrorMessage = "Image generation failed",
+                        StackTrace = null
+                    };
+                }
             }
             catch (Exception ex)
             {
                 imageGenerated = new ImageResponseMessage
                 {
-                    ProcessImage = null
+                    ProcessImage = null,
+                    ErrorMessage = ex.Message,
+                    StackTrace = ex.StackTrace
                 };
             }
-           
-            /*if (image == null)
-            {
-                await context.Reply(imageGenerated, options);
-                //return Request.CreateResponse(HttpStatusCode.Conflict, "No browser available.");
-            }*/
 
             var options = new ReplyOptions();
             await context.Reply(imageGenerated, options);

@@ -9,7 +9,7 @@ using Topshelf;
 
 namespace ImageRenderService.ImageGen
 {
-    class ImageGenService : ServiceControl
+    public class ImageGenService : ServiceControl
     {
         private HttpSelfHostServer _server;
         private readonly HttpSelfHostConfiguration _config;
@@ -19,7 +19,7 @@ namespace ImageRenderService.ImageGen
 
         private static readonly BrowserPool BrowserPool = BrowserPool.Create();
 
-        public readonly ImageGenHelper ImageGenerator = new ImageGenHelper(BrowserPool);
+        public IImageGenHelper ImageGenerator = new ImageGenHelper(BrowserPool);
 
         private readonly NServiceBusServer _nServiceBusServer = new NServiceBusServer();
 

@@ -132,7 +132,7 @@ namespace AdminStore.Controllers
         /// <param name="body">list of user ids and selectAll flag</param>
         /// <param name="search">search filter</param>
         /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
-        /// <response code="403">Forbidden if used doesn’t have permissions to get users list</response>
+        /// <response code="403">Forbidden if used doesn’t have permissions to delete users</response>
         [HttpPost]
         [SessionRequired]
         [Route("delete")]
@@ -155,6 +155,8 @@ namespace AdminStore.Controllers
 
             return Ok(new DeleteResult() { TotalDeleted = result });
         }
+
+
 
 
         /// <summary>

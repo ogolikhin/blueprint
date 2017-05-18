@@ -406,6 +406,7 @@ namespace AdminStore.Repositories
             return result;
         }
 
+
         internal class HashedPassword
         {
             internal string Password { get; set; }

@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
 using AdminStore.Helpers;
 using AdminStore.Models;
 using Dapper;
-using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
 
@@ -50,6 +46,16 @@ namespace AdminStore.Repositories
 
             var queryDataResult = new QueryResult<GroupDto>() { Items = mappedGroups, Total = total.Value };
             return queryDataResult;
+        }
+
+        public async Task<int> DeleteGroupsAsync(OperationScope body, string search)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@GroupsIds", SqlConnectionWrapper.ToDataTable(body.Ids));
+            parameters.Add("@Search", search);
+            parameters.Add("@SelectAll", body.SelectAll);
+            var result = await _connectionWrapper.ExecuteScalarAsync<int>("DeleteGroups", parameters, commandType: CommandType.StoredProcedure);
+            return result;
         }
     }
 }

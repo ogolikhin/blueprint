@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Web;
+﻿using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 using AdminStore.Helpers;
@@ -10,7 +6,6 @@ using AdminStore.Models;
 using AdminStore.Repositories;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
-using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 
@@ -56,6 +51,34 @@ namespace AdminStore.Controllers
 
             var result = await _groupRepository.GetGroupsAsync(userId, tabularData, GroupsHelper.SortGroups);
             return Ok(result);
+        }
+
+        /// <summary>
+        /// Delete group/groups from the system
+        /// </summary>
+        /// <param name="body">list of group ids and selectAll flag</param>
+        /// <param name="search">search filter</param>
+        /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
+        /// <response code="403">Forbidden if used doesn’t have permissions to delete groups</response>
+        [HttpPost]
+        [SessionRequired]
+        [Route("delete")]
+        [ResponseType(typeof(int))]
+        public async Task<IHttpActionResult> DeleteGroups([FromBody] OperationScope body, string search = null)
+        {
+            if (body == null)
+            {
+                return BadRequest(ErrorMessages.InvalidDeleteGroupsParameters);
+            }
+            //No scope for deletion is provided
+            if (body.IsSelectionEmpty())
+            {
+                return Ok(new DeleteResult() { TotalDeleted = 0 });
+            }
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageGroups);
+
+            var result = await _groupRepository.DeleteGroupsAsync(body, search);
+            return Ok(new DeleteResult() { TotalDeleted = result });
         }
     }
 }

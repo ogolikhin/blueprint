@@ -134,13 +134,14 @@ namespace Model
         int AddUser(IUser adminUser, InstanceUser user);
 
         /// <summary>
-        /// Deletes a user.
-        /// (Runs: DELETE /users/{userId})
+        /// Deletes users.
+        /// (Runs: POST /users/delete)
         /// </summary>
-        /// <param name="adminUser">The admin user deleting the user.</param>
-        /// <param name="userId">The id of the user to be deleted.</param>
+        /// <param name="adminUser">The admin user deleting users.</param>
+        /// <param name="ids">The ids to include or exclude, depending on selectAll value.</param>
+        /// <param name="selectAll">The selection scope indicator. Default is false (ids are inclusions).</param>
         /// <returns>The returned HTTP Status Code</returns>
-        HttpStatusCode DeleteUser(IUser adminUser, int userId);
+        HttpStatusCode DeleteUsers(IUser adminUser, List<int> ids, bool selectAll = false);
 
         /// <summary>
         /// Gets login user for specified token.

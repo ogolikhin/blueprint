@@ -69,6 +69,8 @@ namespace ArtifactStoreTests
                      "Verify that first version of diagram artifact is returned.")]
         public void GetDiagramArtifact_PublishAndGetDiagramArtifactWithVersion1_ReturnsFirstVersionOfDiagramArtifact(ItemTypePredefined artifactType)
         {
+            // TODO: Change this test to use Golden Data that has different shapes in version 1 & 2 of each artifact and compare the shapes also.
+
             // Setup: Create and publish a diagram artifact two times to have two versions of it			
             var publishedDiagramArtifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_user, _project, artifactType, numberOfVersions: 2);
 

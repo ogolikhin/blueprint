@@ -13,7 +13,6 @@ using Moq;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
-using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Controllers
 {
@@ -118,6 +117,72 @@ namespace AdminStore.Controllers
             //assert
             // Exception
         }
+        #endregion
+
+        #region DeleteGroups
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task DeleteGroups_UserdDoesNotHaveRequiredPermissions_ForbiddenResult()
+        {
+            //arrange
+            var scope = new OperationScope() { Ids = new List<int>() { 1, 2 } };
+            _privilegesRepository
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.None);
+
+            //act
+            var result = await _controller.DeleteGroups(scope);
+
+            //assert
+            //Exception
+        }
+
+        [TestMethod]
+        public async Task DeleteGroups_ScopeDoesNotProvided_TotalDeletedIsZero()
+        {
+            //arrange
+            //act
+            var result = await _controller.DeleteGroups(new OperationScope()) as OkNegotiatedContentResult<DeleteResult>;
+
+            //assert
+            Assert.AreEqual(0, result.Content.TotalDeleted);
+        }
+
+        [TestMethod]
+        public async Task DeleteGroups_InvalidParameteres_BadRequest()
+        {
+            //arrange
+
+            //act
+            var result = await _controller.DeleteGroups(null) as BadRequestErrorMessageResult;
+
+            //assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(result.Message, ErrorMessages.InvalidDeleteGroupsParameters);
+        }
+
+        [TestMethod]
+        public async Task DeleteGroups_ValidRequest_ReturnDeletedGroupsCount()
+        {
+            //arrange
+            _privilegesRepository
+               .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+               .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+            var scope = new OperationScope() { SelectAll = false, Ids = new List<int>() { 2, 3 } };
+            var returnResult = 3;
+            _sqlGroupRepositoryMock.Setup(repo => repo.DeleteGroupsAsync(It.Is<OperationScope>(a => a.Ids != null), It.IsAny<string>())).ReturnsAsync(returnResult);
+
+            //act
+            var result = await _controller.DeleteGroups(scope, string.Empty) as OkNegotiatedContentResult<DeleteResult>;
+
+
+            //assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(3, result.Content.TotalDeleted);
+        }
+
+
         #endregion
     }
 }

@@ -156,60 +156,7 @@ namespace AdminStore.Controllers
             return Ok(new DeleteResult() { TotalDeleted = result });
         }
 
-        /// <summary>
-        /// Delete group/groups from the system
-        /// </summary>
-        /// <param name="body">list of group ids and selectAll flag</param>
-        /// <param name="search">search filter</param>
-        /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
-        /// <response code="403">Forbidden if used doesn’t have permissions to delete groups</response>
-        [HttpPost]
-        [SessionRequired]
-        [Route("groups/delete")]
-        public async Task<IHttpActionResult> DeleteGroups([FromBody] OperationScope body, string search = null)
-        {
-            if (body == null)
-            {
-                return BadRequest(ErrorMessages.InvalidDeleteGroupsParameters);
-            }
-            //No scope for deletion is provided
-            if (body.IsSelectionEmpty())
-            {
-                return Ok(new DeleteResult() { TotalDeleted = 0 });
-            }
-            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageGroups);
 
-            var result = await _userRepository.DeleteGroupsAsync(body, search);
-            return Ok(new DeleteResult() { TotalDeleted = result });
-        }
-
-        /// <summary>
-        /// Get number of users to be deleted from the group(s)
-        /// </summary>
-        /// <param name="body">list of group ids and selectAll flag</param>
-        /// <param name="search">search filter</param>
-        /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
-        /// <response code="403">Forbidden if used doesn’t have permissions to manage groups</response>
-        [HttpGet]
-        [SessionRequired]
-        [NoCacheAttribute]
-        [Route("groups/delete/userscount")]
-        public async Task<IHttpActionResult> GetUsersToBeDeletedFromGroup([FromUri] OperationScope body, string search = null)
-        {
-            if (body == null)
-            {
-                return BadRequest(ErrorMessages.InvalidDeleteGroupsParameters);
-            }
-            //No scope for deletion is provided
-            if (body.IsSelectionEmpty())
-            {
-                return Ok(new DeleteGroupResult() { UsersToBeDeleted = 0 });
-            }
-            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageGroups);
-            var result = await _userRepository.GetToBeDeletedUsersCountAsync(body, search);
-
-            return Ok(new DeleteGroupResult() { UsersToBeDeleted = result });
-        }
 
 
         /// <summary>

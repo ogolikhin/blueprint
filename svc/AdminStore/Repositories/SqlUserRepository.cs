@@ -406,45 +406,6 @@ namespace AdminStore.Repositories
             return result;
         }
 
-        public async Task<int> DeleteGroupsAsync(OperationScope body, string search)
-        {
-            var parameters = new DynamicParameters();
-            parameters.Add("@GroupsIds", SqlConnectionWrapper.ToDataTable(body.Ids));
-            parameters.Add("@Search", search);
-            parameters.Add("@SelectAll", body.SelectAll);
-            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            var result = await _connectionWrapper.ExecuteScalarAsync<int>("DeleteGroups", parameters, commandType: CommandType.StoredProcedure);
-            var errorCode = parameters.Get<int?>("ErrorCode");
-            if (errorCode.HasValue)
-            {
-                switch (errorCode.Value)
-                {
-                    case (int)SqlErrorCodes.GeneralSqlError:
-                        throw new BadRequestException(ErrorMessages.GeneralErrorOfDeletingGroups);
-                }
-            }
-            return result;
-        }
-
-        public async Task<int> GetToBeDeletedUsersCountAsync(OperationScope body, string search)
-        {
-            var parameters = new DynamicParameters();
-            parameters.Add("@GroupsIds", SqlConnectionWrapper.ToDataTable(body.Ids));
-            parameters.Add("@Search", search);
-            parameters.Add("@SelectAll", body.SelectAll);
-            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            var result = await _connectionWrapper.ExecuteScalarAsync<int>("GetToBeDeletedUsersCount", parameters, commandType: CommandType.StoredProcedure);
-            var errorCode = parameters.Get<int?>("ErrorCode");
-            if (errorCode.HasValue)
-            {
-                switch (errorCode.Value)
-                {
-                    case (int)SqlErrorCodes.GeneralSqlError:
-                        throw new BadRequestException(ErrorMessages.CantGetUsersToBeDeleted);
-                }
-            }
-            return result;
-        }
 
         internal class HashedPassword
         {

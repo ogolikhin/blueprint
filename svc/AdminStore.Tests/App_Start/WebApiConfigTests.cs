@@ -22,7 +22,7 @@ namespace AdminStore
             config.EnsureInitialized();
 
             // Assert
-            config.AssertTotalRoutes(36, "Please update asserts in WebApiConfigTests when changing routes.");
+            config.AssertTotalRoutes(37, "Please update asserts in WebApiConfigTests when changing routes.");
             config.AssertAction<ConfigController>("GetConfigSettings", HttpMethod.Get, "config/settings");
             config.AssertAction<ConfigController>("GetConfig", HttpMethod.Get, "config/config.js");
             config.AssertAction<ConfigController>("GetApplicationSettings", HttpMethod.Get, "config");
@@ -62,8 +62,7 @@ namespace AdminStore
             config.AssertAction<UsersController>("GetUserGroups", HttpMethod.Get, "users/1074/groups?offset=0&limit=1&sort=name&order=desc&search=test");
             config.AssertAction<UsersController>("AddUserToGroups", HttpMethod.Put, "users/10/groups");
             config.AssertAction<GroupsController>("GetGroups", HttpMethod.Get, "groups?userid=10&offset=0&limit=1&sort=name&order=desc&search=test");
-            config.AssertAction<UsersController>("GetUsersToBeDeletedFromGroup", HttpMethod.Get, "/users/groups/delete/userscount?selectAll=false&ids=2&ids=3");
-            config.AssertAction<UsersController>("DeleteGroups", HttpMethod.Post, "/users/groups/delete");
+            config.AssertAction<GroupsController>("DeleteGroups", HttpMethod.Post, "/groups/delete");
 
         }
 

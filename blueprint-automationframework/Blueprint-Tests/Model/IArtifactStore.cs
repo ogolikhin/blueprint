@@ -648,7 +648,8 @@ namespace Model
         /// <param name="user">user to perform the operation. </param>
         /// <param name="reviewId">Id of Review.</param>
         /// <returns>Object containing list of artifacts and number of artifacts</returns>
-        ReviewContent GetReviewArtifacts(IUser user, int reviewId);
+        ReviewContent GetReviewArtifacts(IUser user, int reviewId, int? offset = 0, int? limit = 50,
+            int? versionId = null);
 
         /// <summary>
         /// Gets review header information

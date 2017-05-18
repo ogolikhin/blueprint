@@ -1,4 +1,6 @@
 ﻿
+using Newtonsoft.Json;
+
 namespace Model.NovaModel.Impl
 {
     // see blueprint/svc/ArtifactStore/Models/Review/ReviewContainer.cs
@@ -35,8 +37,10 @@ namespace Model.NovaModel.Impl
     {
         public int Id { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]
         public string Prefix { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]
         public string Name { get; set; }
     }
 

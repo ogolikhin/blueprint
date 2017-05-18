@@ -192,6 +192,7 @@ namespace AdminStore.Controllers
         /// <response code="403">Forbidden if used doesn’t have permissions to manage groups</response>
         [HttpGet]
         [SessionRequired]
+        [NoCacheAttribute]
         [Route("groups/delete/userscount")]
         public async Task<IHttpActionResult> GetUsersToBeDeletedFromGroup([FromUri] OperationScope body, string search = null)
         {

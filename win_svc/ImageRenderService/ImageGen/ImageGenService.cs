@@ -16,7 +16,6 @@ namespace ImageRenderService.ImageGen
         public readonly Uri ServiceAddress = new Uri(@"http://localhost:5557");
 
         private static readonly string NServiceBusConnectionString = ServiceHelper.NServiceBusConnectionString;
-        private static readonly string NServiceBusInstanceId = ServiceHelper.NServiceBusInstanceId;
 
         private static readonly BrowserPool BrowserPool = BrowserPool.Create();
 
@@ -53,7 +52,7 @@ namespace ImageRenderService.ImageGen
             _server.OpenAsync().Wait();
 
             //_nServiceBusServer.Start("1", null);
-            _nServiceBusServer.Start(NServiceBusConnectionString, NServiceBusInstanceId).Wait();
+            _nServiceBusServer.Start(NServiceBusConnectionString).Wait();
 
             return true;
         }

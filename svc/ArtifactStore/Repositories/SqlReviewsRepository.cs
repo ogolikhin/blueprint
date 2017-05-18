@@ -292,7 +292,6 @@ namespace ArtifactStore.Repositories
             param.Add("@limit", limit);
             param.Add("@revisionId", revisionId);
             param.Add("@userId", userId);
-            //            param.Add("@addDrafts", addDrafts);
 
             var result = await ConnectionWrapper.QueryMultipleAsync<ReviewTableOfContentItem, int>("GetReviewTableOfContent", param, commandType: CommandType.StoredProcedure);
 
@@ -304,22 +303,22 @@ namespace ArtifactStore.Repositories
         }
 
     
-
         public async Task<ReviewTableOfContent> GetReviewTableOfContent(int reviewId, int? revisionId, int userId, int? offset, int? limit)
         {
             // get revision if isn't specified
             if (!revisionId.HasValue)
             {
-                revisionId = await _itemInfoRepository.GetRevisionId(reviewId, userId);
+                string errorMessage = I18NHelper.FormatInvariant("The revision must be specified for review (Id:{0}).", reviewId);
+                throw new AuthorizationException(errorMessage, ErrorCodes.ArtifactNotFound);
             }
 
             //get all review content item in a hierachy list
             var toc = await GetTableOfContentAsync(reviewId, revisionId, userId, offset, limit);
 
-            var tocArtifactIds = toc.Items.Select(a => a.Id).ToList();
+            var artifactIds = new List<int>{reviewId}.Concat(toc.Items.Select(a => a.Id).ToList());
 
             //gets artifact permissions
-            var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(new List<int> { reviewId }.Concat(tocArtifactIds), userId);
+            var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, userId);
 
             if (!SqlArtifactPermissionsRepository.HasPermissions(reviewId, artifactPermissionsDictionary, RolePermissions.Read))
             {

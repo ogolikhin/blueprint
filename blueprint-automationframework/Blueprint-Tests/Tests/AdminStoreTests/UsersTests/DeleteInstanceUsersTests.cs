@@ -1,4 +1,5 @@
-﻿using CustomAttributes;
+﻿using System.Collections.Generic;
+using CustomAttributes;
 using Helper;
 using Model;
 using NUnit.Framework;
@@ -15,7 +16,7 @@ namespace AdminStoreTests.UsersTests
     {
         private const string USER_PATH = RestPaths.Svc.AdminStore.Users.USERS_id_;
 
-        private IUser _adminUser = null;
+        private IUser _adminUser;
 
         #region Setup and Cleanup
 
@@ -44,7 +45,7 @@ namespace AdminStoreTests.UsersTests
             // Setup:
             var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
 
-            int createdUserId = 0;
+            var createdUserId = 0;
 
             Assert.DoesNotThrow(() =>
             {
@@ -54,7 +55,7 @@ namespace AdminStoreTests.UsersTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                Helper.AdminStore.DeleteUser(_adminUser, createdUserId);
+                Helper.AdminStore.DeleteUsers(_adminUser, new List<int> { createdUserId });
             }, "'DELETE {0}' should return 204 No Content for a valid session token!", USER_PATH);
 
             // Verify:

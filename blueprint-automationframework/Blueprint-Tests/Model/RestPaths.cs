@@ -186,7 +186,7 @@ namespace Model
                     public const string SEARCH                      = "svc/adminstore/users/search";
                     public const string USERS                       = "svc/adminstore/users";
                     public const string USERS_id_                   = "svc/adminstore/users/{0}";
-
+                    public const string USERS_DELETE                = "svc/adminstore/users/delete";
 
                     public static class PasswordRecovery
                     {

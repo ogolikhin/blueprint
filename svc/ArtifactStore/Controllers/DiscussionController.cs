@@ -134,7 +134,7 @@ namespace ArtifactStore.Controllers
             var isDeleted = await _artifactVersionsRepository.IsItemDeleted(itemId);
             var itemInfo = isDeleted ?
                 await _artifactVersionsRepository.GetDeletedItemInfo(itemId):
-                await _artifactPermissionsRepository.GetItemInfo(itemId, session.UserId);
+                await _artifactPermissionsRepository.GetItemInfo(itemId, session.UserId, false);
 
             if (isDeleted)
             {

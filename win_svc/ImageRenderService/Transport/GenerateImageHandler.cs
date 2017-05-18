@@ -10,12 +10,6 @@ namespace ImageRenderService.Transport
 {
     public class GenerateImageHandler : IHandleMessages<GenerateImageMessage>
     {
-        /*private ImageGenService _imageGenService;
-        public GenerateImageHandler(ImageGenService imageGenService)
-        {
-            _imageGenService = imageGenService;
-        }*/
-
         public async Task Handle(GenerateImageMessage message, IMessageHandlerContext context)
         {
 
@@ -55,8 +49,5 @@ namespace ImageRenderService.Transport
             var options = new ReplyOptions();
             await context.Reply(imageGenerated, options);
         }
-
-
-       
     }
 }

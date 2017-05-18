@@ -51,7 +51,6 @@ namespace ImageRenderService.ImageGen
             _server = new HttpSelfHostServer(_config);
             _server.OpenAsync().Wait();
 
-            //_nServiceBusServer.Start("1", null);
             _nServiceBusServer.Start(NServiceBusConnectionString).Wait();
 
             return true;

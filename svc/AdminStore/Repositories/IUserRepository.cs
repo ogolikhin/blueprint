@@ -49,5 +49,7 @@ namespace AdminStore.Repositories
             Func<Sorting, string> sort = null);
 
         Task<int> DeleteUserFromGroupsAsync(int userId, OperationScope body);
+        Task<int> DeleteGroupsAsync(OperationScope body, string search);
+        Task<int> GetToBeDeletedUsersCountAsync(OperationScope body, string search);
     }
 }

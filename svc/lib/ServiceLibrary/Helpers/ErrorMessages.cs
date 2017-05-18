@@ -21,11 +21,13 @@
         public static readonly string UserModelIsEmpty = "The user model is empty.";
         public static readonly string GeneralErrorOfCreatingUser = "The user was not created.";
         public static readonly string GeneralErrorOfUpdatingUser = "The user was not updated.";
-        public static readonly string GeneralErrorOfDeletingUsers = "An error has occurred when performed the operation";
+        public static readonly string GeneralErrorOfDeletingUsers = "An error has occurred when performed users (s) deletion operation";
+        public static readonly string GeneralErrorOfDeletingGroups = "An error has occurred when performed group(s) deletion operation";
         public static readonly string UserNotExist = "The user with the current userId doesn’t exist or removed from the system.";
         public static readonly string UserVersionsNotEqual = "The current version from the request doesn’t match the current version in DB.";
         public static readonly string IncorrectUserId = "Incorrect userId.";
         public static readonly string InvalidDeleteUsersParameters = "Invalid parameters to delete users";
+        public static readonly string InvalidDeleteGroupsParameters = "Invalid parameters to delete group(s)";
         public static readonly string IncorrectLimitParameter = "The \"limit\" parameter should be more than 0.";
         public static readonly string IncorrectOffsetParameter = "The \"offset\" parameter should not be negative.";
         public static readonly string TotalNull = "The \"total\" is null.";
@@ -40,5 +42,6 @@
         public static readonly string SourceFieldValueShouldBeOnlyDatabase = "You can modify only database users.";      
         public static readonly string InvalidDeleteUserFromGroupsParameters = "Invalid parameters to delete user from groups.";
         public static readonly string GeneralErrorOfDeletingUserFromGroups = "An error has occurred when the operation was being performed at SQL level.";
+        public static readonly string CantGetUsersToBeDeleted = "Can't get users to be deleted";
     }
 }

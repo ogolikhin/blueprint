@@ -28,6 +28,7 @@ namespace ArtifactStore.Models.Review
     public class ArtifactReviewContent
     {
         public IEnumerable<ArtifactReviewDetails> Items { get; set; }
-       
+        public int Total { get; set; }
+
     }
 }

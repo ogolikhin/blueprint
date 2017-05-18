@@ -118,5 +118,27 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, reviewParticipants.Total, "ReviewParticipantsContent should have expected number of Reviewers.");
             Assert.AreEqual(1, reviewParticipants.Items?.Count, "List of Reviewers should have expected number of items.");
         }
+
+        [Category(Categories.GoldenData)]
+        [TestCase]
+        [TestRail(303891)]
+        [Description("Get Artifact approval statuses by Artifact Id and Review id from Custom Data project should return expected number of reviewers.")]
+        public void GetReviewArtifactParticipants_ExistingReview_CheckReviewersCount()
+        {
+            // Setup:
+            _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
+            const int reviewId = 113;
+            const int artifactId = 22;
+
+            ArtifactReviewContent reviewParticipants = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            reviewParticipants = Helper.ArtifactStore.GetArtifactStatusesByParticipant(_adminUser, artifactId, reviewId,
+            versionId: 1), "GetArtifactStatusesByParticipant should return 200 success.");
+
+            // Verify:
+            Assert.AreEqual(1, reviewParticipants.Items.Count, "Specified artifact should have one reviewer.");
+        }
     }
 }

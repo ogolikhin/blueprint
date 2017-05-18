@@ -128,7 +128,7 @@ namespace ArtifactStoreTests
             // Setup:
             _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
             const int reviewId = 113;
-            const int artifactId = 22; //15
+            const int artifactId = 22;
 
             ArtifactReviewContent reviewParticipants = null;
 

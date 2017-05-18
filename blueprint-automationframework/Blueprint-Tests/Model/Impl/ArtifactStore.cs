@@ -984,10 +984,11 @@ namespace Model.Impl
                 queryParameters: queryParams, shouldControlJsonChanges: true);
         }
 
+        /// <seealso cref="IArtifactStore.GetArtifactStatusesByParticipant(IUser, int, int, int?, int?, int?)"/>
         public ArtifactReviewContent GetArtifactStatusesByParticipant(IUser user, int artifactId, int reviewId,
             int? offset = 0, int? limit = 50, int? versionId = null)
         {
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Containers_id_.ARTIFACTSTATUSESBYPARTICIPANT, reviewId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Containers_id_.ARTIFACT_REVIEWERS, reviewId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
             var queryParams = new Dictionary<string, string> {{"artifactId", artifactId.ToStringInvariant()}};
 

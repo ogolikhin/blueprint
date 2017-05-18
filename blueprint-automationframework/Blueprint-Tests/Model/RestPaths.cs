@@ -265,7 +265,7 @@ namespace Model
                 public static class Containers_id_
                 {
                     public const string PARTICIPANTS                = "svc/artifactstore/containers/{0}/participants";
-                    public const string ARTIFACTSTATUSESBYPARTICIPANT = "svc/artifactstore/containers/{0}/artifactreviewers";
+                    public const string ARTIFACT_REVIEWERS          = "svc/artifactstore/containers/{0}/artifactreviewers";
                 }
 
                 [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.

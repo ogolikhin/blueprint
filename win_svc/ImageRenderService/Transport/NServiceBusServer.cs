@@ -33,7 +33,7 @@ namespace ImageRenderService.Transport
             var instanceId = NServiceBusInstanceId;
             if (string.IsNullOrEmpty(instanceId))
             {
-                instanceId = $"{Dns.GetHostName()} - {ServiceHelper.ServiceName}";
+                instanceId = $"{Dns.GetHostName()}-{ServiceHelper.ServiceName}";
             }
             var endpointConfiguration = new EndpointConfiguration(name);
             endpointConfiguration.MakeInstanceUniquelyAddressable(instanceId);

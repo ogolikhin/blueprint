@@ -105,6 +105,7 @@ namespace Model
             public static class AdminStore
             {
                 public const string LOG                             = "svc/adminstore/log";
+                public const string CONFIG                          = "svc/adminstore/config";
                 public const string SESSIONS                        = "svc/adminstore/sessions";
                 public const string STATUS                          = "svc/adminstore/status";
                 public const string JOBS                            = "svc/adminstore/jobs";
@@ -112,7 +113,6 @@ namespace Model
 
                 public static class Config
                 {
-                    public const string APPLICATION_SETTINGS        = "svc/adminstore/config";
                     public const string SETTINGS                    = "svc/adminstore/config/settings";
                     public const string CONFIG_JS                   = "svc/adminstore/config/config.js";
                 }

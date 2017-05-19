@@ -19,7 +19,7 @@ namespace ArtifactStore.Models.Review
 
         public ReviewType ReviewType { get; set; }
 
-        public ReviewSourceType SourceType { get; set; }
+        public ReviewParticipantRole? ReviewParticipantRole { get; set; }
 
         public ReviewSource Source { get; set; }
 

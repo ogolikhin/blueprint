@@ -92,7 +92,6 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(reviewName, review.Name);
             Assert.AreEqual(reviewDescription, review.Description);
             Assert.AreEqual(reviewRevisionId, review.RevisionId);
-            Assert.AreEqual(ReviewSourceType.Baseline, review.SourceType);
             Assert.AreEqual(ReviewType.Formal, review.ReviewType);
             Assert.AreEqual(5, review.ArtifactsStatus.Approved);
             Assert.AreEqual(3, review.ArtifactsStatus.Disapproved);

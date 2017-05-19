@@ -87,6 +87,7 @@ namespace ArtifactStore.Repositories
             else
             {
                 revisionId = await _itemInfoRepository.GetTopRevisionId(userId);
+
             }
 
             var description = await _itemInfoRepository.GetItemDescription(containerId, userId, true, int.MaxValue);
@@ -98,6 +99,7 @@ namespace ArtifactStore.Repositories
                 ArtifactType = reviewDetails.ArtifactType,
                 Description = description,
                 Source = reviewSource,
+                ReviewParticipantRole = reviewDetails.ReviewParticipantRole,
                 TotalArtifacts = reviewDetails.TotalArtifacts,
                 Status = reviewDetails.ReviewStatus,
                 ReviewPackageStatus = reviewDetails.ReviewPackageStatus,

@@ -21,12 +21,14 @@ namespace ArtifactStore.Models.Review
         public bool Viewed { get; set; }
 
         [DataMember]
-        public DateTime eSignatureTimestamp { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public DateTime? eSignatureTimestamp { get; set; }
     }
 
     public class ArtifactReviewContent
     {
         public IEnumerable<ArtifactReviewDetails> Items { get; set; }
-       
+        public int Total { get; set; }
+
     }
 }

@@ -1,11 +1,10 @@
-﻿using CustomAttributes;
+﻿using Common;
+using CustomAttributes;
 using Helper;
 using Model;
-using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
-using Model.Impl;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
@@ -42,22 +41,22 @@ namespace ArtifactStoreTests
         [TestCase(4)]
         [TestRail(183353)]
         [Description("Create & publish a glossary artifact multiple times to have multiple version of it, Get glossary artifact without version.  " +
-            "Verify that latest version of artifact is returned.")]
+                     "Verify that latest version of artifact is returned.")]
         public void GetGlossaryArtifact_PublishAndGetGlossaryArtifactWithoutSpecificVersion_ReturnsLatestVersionOfGlossaryArtifact(int numberOfVersions)
         {
             // Setup: Create and publish a glossary artifact multiple times to have multiple versions of it
             var publishedGlossaryArtifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_user, _project, ItemTypePredefined.Glossary, numberOfVersions);
-            // getting the latest version of the artifact using open API GetArtifact
-            var retrievedArtifact = Helper.ArtifactStore.GetArtifactDetails(_user, publishedGlossaryArtifact.Id);
+
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             // Execute: Get the glossary artifact using GetGlossaryArtifact without versionId parameter
             NovaGlossaryArtifact glossaryArtifact = null;
-            Assert.DoesNotThrow(() => { glossaryArtifact = Helper.ArtifactStore.GetGlossaryArtifact(viewer, publishedGlossaryArtifact.Id); }, 
+
+            Assert.DoesNotThrow(() => glossaryArtifact = Helper.ArtifactStore.GetGlossaryArtifact(viewer, publishedGlossaryArtifact.Id), 
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.GLOSSARY_id_);
 
             // Validation: Verify that the returned from GetGlossaryArtifact in valid format
-            NovaArtifactDetails.AssertArtifactsEqual(glossaryArtifact, retrievedArtifact);
+            NovaArtifactDetails.AssertArtifactsEqual(publishedGlossaryArtifact, glossaryArtifact);
         }
 
         [TestCase]
@@ -68,35 +67,45 @@ namespace ArtifactStoreTests
         {
             // Setup: Create and publish a glossary artifact two times to have two versions of it			
             var publishedGlossaryArtifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_user, _project, ItemTypePredefined.Glossary, numberOfVersions: 2);
-            var retrievedArtifactVersion1 = Helper.ArtifactStore.GetArtifactDetails(_user, publishedGlossaryArtifact.Id, versionId: 1);
+
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             // Execute: Get the glossary artifact using GetGlossaryArtifact with first versionId			
             NovaGlossaryArtifact glossaryArtifact = null;
-            Assert.DoesNotThrow(() => { glossaryArtifact = Helper.ArtifactStore.GetGlossaryArtifact(viewer, publishedGlossaryArtifact.Id, versionId: 1); },
+
+            Assert.DoesNotThrow(() => glossaryArtifact = Helper.ArtifactStore.GetGlossaryArtifact(viewer, publishedGlossaryArtifact.Id, versionId: 1),
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.GLOSSARY_id_);
 
-            NovaArtifactDetails.AssertArtifactsEqual(glossaryArtifact, retrievedArtifactVersion1);
+            // Verify:
+            // We expect Version = 1.
+            publishedGlossaryArtifact.Version = 1;
+
+            NovaArtifactDetails.AssertArtifactsEqual(publishedGlossaryArtifact, glossaryArtifact);
         }
 
         #endregion 200 OK Tests
 
         #region 401 Unauthorized Tests
 
+        [TestCase(null)]
         [TestCase("")]
-        [TestCase("invalidTokenString")]
+        [TestCase(CommonConstants.InvalidToken)]
         [TestRail(183034)]
         [Description("Create & publish a glossary artifact, Get GlossaryArtifact with invalid token header. Verify 401 Unauthorized.")]
         public void GetGlossaryArtifact_PublishAndGetGlossaryArtifactWithInvalidTokenHeader_401Unauthorized(string token)
         {
             // Setup: Create and publish a glossary artifact
-            var publishedGlossaryArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Glossary);
-            var userWithBadOrMissingToken = UserFactory.CreateUserAndAddToDatabase();
-            userWithBadOrMissingToken.Token.SetToken(token);
+            var publishedGlossaryArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Glossary);
+
+            var userWithBadOrMissingToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken,
+                badToken: token);
 
             // Execute: Get the glossary artifact with invalid token header using GetGlossaryArtifact
-            Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.GetGlossaryArtifact(userWithBadOrMissingToken, publishedGlossaryArtifact.Id, versionId: 1),
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.GetGlossaryArtifact(userWithBadOrMissingToken, publishedGlossaryArtifact.Id, versionId: 1),
                 "Calling GET {0} with invalid token should return 401 Unauthorized!", RestPaths.Svc.ArtifactStore.GLOSSARY_id_);
+
+            // Verify:
+            TestHelper.ValidateBodyContents(ex.RestResponse, "Unauthorized call");
         }
 
         #endregion 401 Unauthorized Tests
@@ -109,7 +118,8 @@ namespace ArtifactStoreTests
         public void GetGlossaryArtifact_PublishAndGetGlossaryArtifactWithNoPermissionForTheArtifact_403Forbidden()
         {
             // Setup: Create and publish a glossary artifact
-            var publishedGlossaryArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Glossary);
+            var publishedGlossaryArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Glossary);
+
             var userWithNonePermissionForArtifact = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
             Helper.AssignProjectRolePermissionsToUser(userWithNonePermissionForArtifact, TestHelper.ProjectRole.None, _project, publishedGlossaryArtifact);
 
@@ -119,9 +129,11 @@ namespace ArtifactStoreTests
                 RestPaths.Svc.ArtifactStore.GLOSSARY_id_);
 
             // Validation: Exception should contain proper errorCode in the response content
-            var serviceErrorMessage = SerializationUtilities.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
-            Assert.AreEqual(InternalApiErrorCodes.Forbidden, serviceErrorMessage.ErrorCode,
-                "Error code for GetUseCaseArtifact with the user which has no permission to the artifact should be {0}", InternalApiErrorCodes.Forbidden);
+            string expectedErrorMessage = I18NHelper.FormatInvariant(
+                "You do not have permission to access the artifact (ID: {0})",
+                publishedGlossaryArtifact.Id);
+
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, expectedErrorMessage);
         }
 
         #endregion 403 Forbidden Tests
@@ -136,16 +148,18 @@ namespace ArtifactStoreTests
         public void GetGlossaryArtifact_PublishAndGetGlossaryArtifactWithInvalidVersionId_404NotFound(int versionId)
         {
             // Setup: Create and publish a glossary artifact
-            var publishedGlossaryArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Glossary);
+            var publishedGlossaryArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Glossary);
+
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             // Execute: Get the glossary artifact with invalid versionId using GetGlossaryArtifact
-            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetGlossaryArtifact(viewer, publishedGlossaryArtifact.Id, versionId: versionId), "GetGlossaryArtifact call with invalid versionId does not exit with 404 NotFoundException!");
-
-            var serviceErrorMessage = SerializationUtilities.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetGlossaryArtifact(viewer, publishedGlossaryArtifact.Id, versionId: versionId),
+                "GetGlossaryArtifact call with invalid versionId does not exit with 404 NotFoundException!");
 
             // Validation: Exception should contain proper errorCode in the response content
-            Assert.AreEqual(InternalApiErrorCodes.ItemNotFound, serviceErrorMessage.ErrorCode, "Error code for GetGlossaryArtifact with invalid versionId should be {0}", InternalApiErrorCodes.ItemNotFound);
+            const string expectedErrorMessage = "You have attempted to access an item that does not exist or you do not have permission to view.";
+
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, expectedErrorMessage);
         }
 
         #endregion 404 Not Found Tests

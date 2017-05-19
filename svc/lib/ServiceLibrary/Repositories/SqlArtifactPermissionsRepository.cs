@@ -96,31 +96,6 @@ namespace ServiceLibrary.Repositories
            return (await ConnectionWrapper.QueryMultipleAsync<ProjectsArtifactsItem, VersionProjectInfo>("GetArtifactsProjects", prm, commandType: CommandType.StoredProcedure));
         }
 
-        private async Task<IEnumerable<ItemRawData>> GetItemsRawData(IEnumerable<int> itemIds, int userId, bool addDrafts = true, int revisionId = int.MaxValue)
-        {
-            var prm = new DynamicParameters();
-            prm.Add("@itemIds", SqlConnectionWrapper.ToDataTable(itemIds));
-            prm.Add("@userId", userId);
-            prm.Add("@addDrafts", addDrafts);
-            prm.Add("@revisionId", revisionId);
-            return (await ConnectionWrapper.QueryAsync<ItemRawData>("GetItemsRawDataCreatedDate", prm, commandType: CommandType.StoredProcedure));
-        }
-
-        private async Task<int> GetRevisionIdByTime(DateTime time)
-        {
-            var utcTime = time.ToUniversalTime();
-            var minDateTime = (DateTime)SqlDateTime.MinValue;
-            var maxDateTime = (DateTime)SqlDateTime.MaxValue;
-            if (utcTime < minDateTime || utcTime > maxDateTime)
-            {
-                return -1;
-            }
-            var prm = new DynamicParameters();
-            prm.Add("@time", utcTime);
-            var queryText = "SELECT MAX([RevisionId]) FROM [dbo].[Revisions] WHERE ([Timestamp] <= @time) AND ([RevisionId] > 1);";
-            return (await ConnectionWrapper.QueryAsync<int>(queryText, prm)).SingleOrDefault();
-        }
-
         public async Task<Dictionary<int, RolePermissions>> GetArtifactPermissions(IEnumerable<int> itemIds, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue, bool addDrafts = true)
         {
             var itemIdsList = itemIds is List<int> ? (List<int>)itemIds : itemIds.ToList();
@@ -244,35 +219,6 @@ namespace ServiceLibrary.Repositories
             itemsPrm.Add("@addDrafts", addDrafts);
             itemsPrm.Add("@revisionId", revisionId);
             return (await ConnectionWrapper.QueryAsync<ItemInfo>("GetItemInfo", itemsPrm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
-        }
-
-        public async Task<int> GetRevisionIdFromBaselineId(int baselineId, int userId, bool addDrafts = true, int revisionId = int.MaxValue)
-        {
-            var itemRawData = (await GetItemsRawData(new List<int> { baselineId }, userId, addDrafts, revisionId)).SingleOrDefault();
-            if (itemRawData != null)
-            {
-                var rawData = itemRawData.RawData;
-                var snapTime = BaselineRawDataHelper.ExtractTimestamp(rawData);
-                if (snapTime != null)
-                {
-                    return await GetRevisionIdByTime(snapTime.Value);
-                }
-                return int.MaxValue;
-            }
-            return -1;
-        }
-
-        public async Task<ISet<int>> GetBaselineArtifacts(int baselineId, int userId, bool addDrafts = true, int revisionId = int.MaxValue)
-        {
-            var itemRawData = (await GetItemsRawData(new List<int> { baselineId }, userId, addDrafts, revisionId)).SingleOrDefault();
-            if (itemRawData != null)
-            {
-                var rawData = itemRawData.RawData;
-                return BaselineRawDataHelper.ExtractBaselineArtifacts(rawData);                
-            }
-
-            string errorMessage = I18NHelper.FormatInvariant("Baseline (Id:{0}) is not found.", baselineId);
-            throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);            
         }
 
         public static bool HasPermissions(int itemId, Dictionary<int, RolePermissions> permissions, RolePermissions permissionType)

@@ -105,6 +105,7 @@
     <Compile Include="NovaModel\Components\ImpactAnalysisService\ImpactAnalysisNode.cs" />
     <Compile Include="NovaModel\Components\ImpactAnalysisService\ImpactAnalysisResult.cs" />
     <Compile Include="NovaModel\Components\ImpactAnalysisService\ImpactAnalysisTree.cs" />
+    <Compile Include="NovaModel\Impl\ArtifactReviewDetails.cs" />
     <Compile Include="NovaModel\Impl\ReviewContainer.cs" />
     <Compile Include="NovaModel\Impl\ReviewParticipantsContent.cs" />
     <Compile Include="NovaModel\Metadata\ItemTypeInformation.cs" />

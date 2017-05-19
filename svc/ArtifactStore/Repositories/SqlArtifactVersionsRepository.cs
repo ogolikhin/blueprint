@@ -182,7 +182,7 @@ namespace ArtifactStore.Repositories
 
         private async Task<bool> IsArtifactInBaseline(int artifactId, int baselineId, int userId)
         {
-            var baselinArtifacts = await _artifactPermissionsRepository.GetBaselineArtifacts(baselineId, userId);
+            var baselinArtifacts = await _itemInfoRepository.GetBaselineArtifacts(baselineId, userId);
             if (baselinArtifacts != null)
             {
                 return baselinArtifacts.Contains(artifactId);

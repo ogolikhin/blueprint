@@ -937,14 +937,32 @@ namespace Model.Impl
                 baselineIds, shouldControlJsonChanges: true);
         }
 
-        /// <seealso cref="IArtifactStore.GetReviewArtifacts(IUser, int)"/>
-        public ReviewContent GetReviewArtifacts(IUser user, int reviewId)
+        /// <seealso cref="IArtifactStore.GetReviewArtifacts(IUser, int, int?, int?, int?)"/>
+        public ReviewContent GetReviewArtifacts(IUser user, int reviewId, int? offset = 0, int? limit = 50,
+            int? versionId = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Reviews_id_.CONTENT, reviewId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
-            return restApi.SendRequestAndDeserializeObject<ReviewContent>(path,
-                RestRequestMethod.GET, shouldControlJsonChanges: true);
+            var queryParams = new Dictionary<string, string>();
+
+            if (offset != null)
+            {
+                queryParams.Add("offset", offset.ToString());
+            }
+
+            if (limit != null)
+            {
+                queryParams.Add("limit", limit.ToString());
+            }
+
+            if (versionId != null)
+            {
+                queryParams.Add("versionId", versionId.ToString());
+            }
+
+            return restApi.SendRequestAndDeserializeObject<ReviewContent>(path, RestRequestMethod.GET,
+                queryParameters: queryParams, shouldControlJsonChanges: true);
         }
 
         /// <seealso cref="IArtifactStore.GetReviewContainer(IUser, int)"/>
@@ -980,8 +998,35 @@ namespace Model.Impl
                 queryParams.Add("versionId", versionId.ToString());
             }
 
-            return restApi.SendRequestAndDeserializeObject<ReviewParticipantsContent>(path,
-                RestRequestMethod.GET, shouldControlJsonChanges: true);
+            return restApi.SendRequestAndDeserializeObject<ReviewParticipantsContent>(path, RestRequestMethod.GET,
+                queryParameters: queryParams, shouldControlJsonChanges: true);
+        }
+
+        /// <seealso cref="IArtifactStore.GetArtifactStatusesByParticipant(IUser, int, int, int?, int?, int?)"/>
+        public ArtifactReviewContent GetArtifactStatusesByParticipant(IUser user, int artifactId, int reviewId,
+            int? offset = 0, int? limit = 50, int? versionId = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Containers_id_.ARTIFACT_REVIEWERS, reviewId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+            var queryParams = new Dictionary<string, string> {{"artifactId", artifactId.ToStringInvariant()}};
+
+            if (offset != null)
+            {
+                queryParams.Add("offset", offset.ToString());
+            }
+
+            if (limit != null)
+            {
+                queryParams.Add("limit", limit.ToString());
+            }
+
+            if (versionId != null)
+            {
+                queryParams.Add("versionId", versionId.ToString());
+            }
+
+            return restApi.SendRequestAndDeserializeObject<ArtifactReviewContent>(path, RestRequestMethod.GET,
+                queryParameters: queryParams, shouldControlJsonChanges: true);
         }
 
         #region Process methods

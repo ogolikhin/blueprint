@@ -141,7 +141,6 @@
     <Compile Include="Models\Review\ReviewContainer.cs" />
     <Compile Include="Models\Review\ReviewContent.cs" />
     <Compile Include="Models\Review\ReviewSource.cs" />
-    <Compile Include="Models\Review\ReviewSourceType.cs" />
     <Compile Include="Models\Review\ReviewStatus.cs" />
     <Compile Include="Models\Review\ReviewType.cs" />
     <Compile Include="Models\Review\ViewStateType.cs" />

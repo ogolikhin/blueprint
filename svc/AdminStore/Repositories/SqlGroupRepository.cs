@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using AdminStore.Helpers;
 using AdminStore.Models;
@@ -57,5 +59,26 @@ namespace AdminStore.Repositories
             var result = await _connectionWrapper.ExecuteScalarAsync<int>("DeleteGroups", parameters, commandType: CommandType.StoredProcedure);
             return result;
         }
+
+        public async Task<GroupDto> GetGroupDetailsAsync(int groupId)
+        {
+            var group = await GetInternalGroupDetails(groupId);
+            return GroupMapper.Map(group);
+        }
+
+        private async Task<Group> GetInternalGroupDetails(int groupId)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@GroupId", groupId);
+
+            var result =
+                await
+                    _connectionWrapper.QueryAsync<Group>("GetGroupDetails", parameters,
+                        commandType: CommandType.StoredProcedure);
+            var enumerable = result as IList<Group> ?? result.ToList();
+            return enumerable.Any() ? enumerable.First() : new Group();
+        }
+
+
     }
 }

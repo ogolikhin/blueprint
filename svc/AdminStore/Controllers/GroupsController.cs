@@ -6,6 +6,7 @@ using AdminStore.Models;
 using AdminStore.Repositories;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 
@@ -79,6 +80,30 @@ namespace AdminStore.Controllers
 
             var result = await _groupRepository.DeleteGroupsAsync(body, search);
             return Ok(new DeleteResult() { TotalDeleted = result });
+        }
+
+        /// <summary>
+        /// Get group details by group identifier
+        /// </summary>
+        /// <param name="groupId">Group's identity</param>
+        /// <returns>
+        /// <response code="200">OK. Returns the specified group.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="404">Not Found. The group with the provided Id was not found.</response>
+        /// <response code="403">User doesn’t have permission to view groups.</response>
+        /// </returns>
+        [SessionRequired]
+        [Route("{groupId:int:min(1)}")]
+        [ResponseType(typeof(GroupDto))]
+        public async Task<IHttpActionResult> GetGroup(int groupId)
+        {
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewGroups);
+            var groupDetails = await _groupRepository.GetGroupDetailsAsync(groupId);
+            if (groupDetails.Id == 0)
+            {
+                throw new ResourceNotFoundException(ErrorMessages.GroupDoesNotExist, ErrorCodes.ResourceNotFound);
+            }
+            return Ok(groupDetails);
         }
     }
 }

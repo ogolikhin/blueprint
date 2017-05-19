@@ -37,6 +37,8 @@ namespace Helper
         private const int DEFAULT_BASELINES_AND_REVIEWS_ROOT_PREDEFINEDTYPE = (int)ItemTypePredefined.BaselineFolder;
         private const string DEFAULT_BASELINES_AND_REVIEWS_ROOT_PREFIX = "_BFL";
 
+        private static IArtifactStore ArtifactStore { get; } = ArtifactStoreFactory.GetArtifactStoreFromTestConfig();
+
         #region Custom Asserts
 
         /// <summary>
@@ -588,8 +590,8 @@ namespace Helper
             Assert.AreEqual(expectedSubArtifact?.Traces.Count, actualSubArtifact?.Traces.Count, "The number of Sub-Artifact Traces don't match!");
 
             // Get and compare sub-artifact Attachments & DocumentReferences.
-            var expectedAttachments = ArtifactStore.GetAttachments(artifactStore.Address, expectedSubArtifact.ParentId.Value, user, subArtifactId: expectedSubArtifact.Id);
-            var actualAttachments = ArtifactStore.GetAttachments(artifactStore.Address, actualSubArtifact.ParentId.Value, user, subArtifactId: actualSubArtifact.Id);
+            var expectedAttachments = Model.Impl.ArtifactStore.GetAttachments(artifactStore.Address, expectedSubArtifact.ParentId.Value, user, subArtifactId: expectedSubArtifact.Id);
+            var actualAttachments = Model.Impl.ArtifactStore.GetAttachments(artifactStore.Address, actualSubArtifact.ParentId.Value, user, subArtifactId: actualSubArtifact.Id);
 
             Attachments.AssertAreEqual(expectedAttachments, actualAttachments, attachmentCompareOptions);
 
@@ -1203,6 +1205,20 @@ namespace Helper
         }
 
         /// <summary>
+        /// Gets all details for all the sub-artifacts passed in.
+        /// </summary>
+        /// <param name="artifactId">The ID of the artifact to which the sub-artifacts belong.</param>
+        /// <param name="subArtifacts">The list of sub-artifacts to get more details for.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <returns>A list of NovaSubArtifacts.</returns>
+        public static List<NovaSubArtifact> GetDetailsForAllSubArtifacts(int artifactId, List<SubArtifact> subArtifacts, IUser user)
+        {
+            ThrowIf.ArgumentNull(subArtifacts, nameof(subArtifacts));
+
+            return subArtifacts.Select(subArtifact => ArtifactStore.GetSubartifact(user, artifactId, subArtifact.Id)).ToList();
+        }
+
+        /// <summary>
         /// Sets the specified custom property of the artifact to the new value.  NOTE: This function doesn't update the artifact on the server, only in memory.
         /// The caller is responsible for locking, saving & publishing the artifact.
         /// </summary>
@@ -1416,7 +1432,8 @@ namespace Helper
             {
                 wrappedArtifact.Lock(user);
             }
-            wrappedArtifact.Update(user, (NovaArtifactDetails)artifactDetailsChangeset);
+
+            wrappedArtifact.Update(user, artifactDetailsChangeset);
 
             return property;
         }
@@ -1745,15 +1762,14 @@ namespace Helper
         /// </summary>
         /// <param name="artifact">The artifact which contains properties that NovaArtiactDetails refers to.</param>
         /// <returns>The INovaArtifactDetails with the minimal required properties for update.</returns>
-        public static INovaArtifactDetails CreateNovaArtifactDetailsForUpdate(INovaArtifactBase artifact)
+        public static INovaArtifactDetails CreateNovaArtifactDetailsForUpdate(INovaArtifactDetails artifact)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            var novaArtifactDetails = new NovaArtifactDetails
-            {
-                Id = artifact.Id,
-                ProjectId = artifact.ProjectId
-            };
+            var novaArtifactDetails = ArtifactFactory.CreateArtifact((ItemTypePredefined) artifact.PredefinedType.Value);
+            novaArtifactDetails.Id = artifact.Id;
+            novaArtifactDetails.ProjectId = artifact.ProjectId;
+
             return novaArtifactDetails;
         }
 
@@ -1995,12 +2011,12 @@ namespace Helper
         /// Adds a trace between two artifacts (and saves changes).  The source artifact should be locked by user.
         /// </summary>
         /// <param name="user">User to perform an operation.</param>
-        /// <param name="sourceArtifactId">If of source Artifact to add trace.</param>
+        /// <param name="sourceArtifactId">Id of source Artifact to add trace.</param>
         /// <param name="traceTargetArtifactId">Id of Trace's target artifact.</param>
         /// <param name="traceTargetArtifactProjectId">Id of Trace's target artifact project.</param>
-        /// <param name="traceDirection">(optional)Trace direction. 'From' by default.</param>
-        /// <param name="isSuspect">(optional)isSuspect, true for suspect trace, false otherwise.</param>
-        /// <param name="targetSubArtifact">(optional)subArtifact for trace target(creates trace with subartifact).</param>
+        /// <param name="traceDirection">(optional) Trace direction. 'From' by default.</param>
+        /// <param name="isSuspect">(optional) isSuspect, true for suspect trace, false otherwise.</param>
+        /// <param name="targetSubArtifactId">(optional) The ID of the sub-artifact for trace target (creates trace with subartifact).</param>
         /// <returns>NovaTrace object.</returns>
         public static NovaTrace AddManualArtifactTraceAndSave(
             IUser user,
@@ -2009,7 +2025,7 @@ namespace Helper
             int traceTargetArtifactProjectId,
             TraceDirection traceDirection = TraceDirection.From,
             bool? isSuspect = null,
-            NovaItem targetSubArtifact = null)
+            int? targetSubArtifactId = null)
         {
             var artifactStore = ArtifactStoreFactory.GetArtifactStoreFromTestConfig();
 
@@ -2021,21 +2037,48 @@ namespace Helper
                 artifactStore: artifactStore,
                 traceDirection: traceDirection,
                 isSuspect: isSuspect,
-                targetSubArtifact: targetSubArtifact);
+                targetSubArtifactId: targetSubArtifactId);
+        }
+
+        /// <summary>
+        /// Deletes a trace between two artifacts (and saves changes).  The source artifact should be locked by user.
+        /// </summary>
+        /// <param name="user">User to perform an operation.</param>
+        /// <param name="sourceArtifactId">Id of source Artifact to delete trace.</param>
+        /// <param name="traceTargetArtifactId">Id of Trace's target artifact.</param>
+        /// <param name="traceTargetArtifactProjectId">Id of Trace's target artifact project.</param>
+        /// <param name="targetSubArtifactId">(optional) The ID of the sub-artifact for trace target (deletes trace with subartifact).</param>
+        /// <returns>NovaTrace object.</returns>
+        public static NovaTrace DeleteManualArtifactTraceAndSave(
+            IUser user,
+            int sourceArtifactId,
+            int traceTargetArtifactId,
+            int traceTargetArtifactProjectId,
+            int? targetSubArtifactId = null)
+        {
+            var artifactStore = ArtifactStoreFactory.GetArtifactStoreFromTestConfig();
+
+            return UpdateManualArtifactTraceAndSave(user,
+                artifactId: sourceArtifactId,
+                traceTargetArtifactId: traceTargetArtifactId,
+                traceTargetArtifactProjectId: traceTargetArtifactProjectId,
+                changeType: ChangeType.Delete,
+                artifactStore: artifactStore,
+                targetSubArtifactId: targetSubArtifactId);
         }
 
         /// <summary>
         /// Adds (or updates or deletes) a trace between two artifacts (and saves changes).  The source artifact should be locked by user.
         /// </summary>
         /// <param name="user">User to perform an operation.</param>
-        /// <param name="artifactId">If of Artifact to add trace.</param>
+        /// <param name="artifactId">Id of Artifact to add trace.</param>
         /// <param name="traceTargetArtifactId">Id of Trace's target artifact.</param>
         /// <param name="traceTargetArtifactProjectId">Id of Trace's target artifact project.</param>
         /// <param name="changeType">ChangeType enum - Add, Update or Delete trace</param>
         /// <param name="artifactStore">IArtifactStore.</param>
-        /// <param name="traceDirection">(optional)Trace direction. 'From' by default.</param>
-        /// <param name="isSuspect">(optional)isSuspect, true for suspect trace, false otherwise.</param>
-        /// <param name="targetSubArtifact">(optional)subArtifact for trace target(creates trace with subartifact).</param>
+        /// <param name="traceDirection">(optional) Trace direction. 'From' by default.</param>
+        /// <param name="isSuspect">(optional) isSuspect, true for suspect trace, false otherwise.</param>
+        /// <param name="targetSubArtifactId">(optional) The ID of the sub-artifact for trace target (creates/updates/deletes trace with subartifact).</param>
         /// <returns>NovaTrace object.</returns>
         public static NovaTrace UpdateManualArtifactTraceAndSave(
             IUser user,
@@ -2046,7 +2089,7 @@ namespace Helper
             IArtifactStore artifactStore,
             TraceDirection traceDirection = TraceDirection.From,
             bool? isSuspect = null,
-            NovaItem targetSubArtifact = null)
+            int? targetSubArtifactId = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(traceDirection, nameof(traceDirection));
@@ -2059,7 +2102,7 @@ namespace Helper
             traceToCreate.ProjectId = traceTargetArtifactProjectId;
             traceToCreate.Direction = traceDirection;
             traceToCreate.TraceType = TraceType.Manual;
-            traceToCreate.ItemId = targetSubArtifact?.Id ?? traceTargetArtifactId;
+            traceToCreate.ItemId = targetSubArtifactId ?? traceTargetArtifactId;
             traceToCreate.ChangeType = changeType;
             traceToCreate.IsSuspect = isSuspect ?? false;
 
@@ -2067,7 +2110,7 @@ namespace Helper
 
             artifactDetails.Traces = updatedTraces;
 
-            ArtifactStore.UpdateArtifact(artifactStore.Address, user, artifactDetails);
+            Model.Impl.ArtifactStore.UpdateArtifact(artifactStore.Address, user, artifactDetails);
             // TODO: add assertions about changed traces
 
             return traceToCreate;

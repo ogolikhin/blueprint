@@ -324,7 +324,7 @@ namespace ArtifactStoreTests
             var subArtifactCustomPropertyValue = StringUtilities.WrapInHTML(WebUtility.HtmlEncode(
                 RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces()));
             var subArtifactChangeSet = CreateSubArtifactChangeSet(author, projectCustomData, artifact, subArtifactDisplayName, subArtifactCustomPropertyName, subArtifactCustomPropertyValue);
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetNovaProcess(author, artifact.Id);
             artifactDetails.SubArtifacts = new List<NovaSubArtifact> { subArtifactChangeSet };
             var requestedCustomProperty = subArtifactChangeSet.CustomPropertyValues.Find(p => p.Name.Equals(subArtifactCustomPropertyName));
 
@@ -363,7 +363,7 @@ namespace ArtifactStoreTests
             // Change custom property number value
             var subArtifactCustomPropertyValue = newNumber;
             var subArtifactChangeSet = CreateSubArtifactChangeSet(author, projectCustomData, artifact, subArtifactDisplayName, subArtifactCustomPropertyName, subArtifactCustomPropertyValue);
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetNovaProcess(author, artifact.Id);
             artifactDetails.SubArtifacts = new List<NovaSubArtifact> { subArtifactChangeSet };
             var requestedCustomProperty = subArtifactChangeSet.CustomPropertyValues.Find(p => p.Name.Equals(subArtifactCustomPropertyName));
 
@@ -398,7 +398,7 @@ namespace ArtifactStoreTests
             // Change custom property date value
             var subArtifactCustomPropertyValue = DateTimeUtilities.ConvertDateTimeToSortableDateTime(DateTime.Now);
             var subArtifactChangeSet = CreateSubArtifactChangeSet(author, projectCustomData, artifact, subArtifactDisplayName, subArtifactCustomPropertyName, subArtifactCustomPropertyValue);
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
+            var artifactDetails = TestHelper.CreateArtifactChangeSet(artifact.Artifact);
             artifactDetails.SubArtifacts = new List<NovaSubArtifact> { subArtifactChangeSet };
             var requestedCustomProperty = subArtifactChangeSet.CustomPropertyValues.Find(p => p.Name.Equals(subArtifactCustomPropertyName));
 
@@ -437,7 +437,7 @@ namespace ArtifactStoreTests
             // Change custom property choice value
             var subArtifactCustomPropertyValue = new List<string> { newChoiceValue };
             var subArtifactChangeSet = CreateSubArtifactChangeSet(author, projectCustomData, artifact, subArtifactDisplayName, subArtifactCustomPropertyName, subArtifactCustomPropertyValue);
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetNovaProcess(author, artifact.Id);
             artifactDetails.SubArtifacts = new List<NovaSubArtifact> { subArtifactChangeSet };
             var requestedCustomProperty = subArtifactChangeSet.CustomPropertyValues.Find(p => p.Name.Equals(subArtifactCustomPropertyName));
 
@@ -475,7 +475,7 @@ namespace ArtifactStoreTests
             var subArtifactCustomPropertyValue = new List<string>();
             subArtifactCustomPropertyValue.AddRange(newChoiceValues);
             var subArtifactChangeSet = CreateSubArtifactChangeSet(author, projectCustomData, artifact, subArtifactDisplayName, subArtifactCustomPropertyName, subArtifactCustomPropertyValue);
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetNovaProcess(author, artifact.Id);
             artifactDetails.SubArtifacts = new List<NovaSubArtifact> { subArtifactChangeSet };
             var requestedCustomProperty = subArtifactChangeSet.CustomPropertyValues.Find(p => p.Name.Equals(subArtifactCustomPropertyName));
 
@@ -511,7 +511,7 @@ namespace ArtifactStoreTests
             // Change custom property user value
             var subArtifactCustomPropertyValue = author;
             var subArtifactChangeSet = CreateSubArtifactChangeSet(author, projectCustomData, artifact, subArtifactDisplayName, subArtifactCustomPropertyName, subArtifactCustomPropertyValue);
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetNovaProcess(author, artifact.Id);
             artifactDetails.SubArtifacts = new List<NovaSubArtifact>() { subArtifactChangeSet };
             var requestedCustomProperty = subArtifactChangeSet.CustomPropertyValues.Find(p => p.Name.Equals(subArtifactCustomPropertyName));
 

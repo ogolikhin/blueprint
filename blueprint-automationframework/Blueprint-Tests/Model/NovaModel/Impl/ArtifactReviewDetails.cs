@@ -22,5 +22,6 @@ namespace Model.NovaModel.Impl
     public class ArtifactReviewContent
     {
         public List<ArtifactReviewDetails> Items { get; } = new List<ArtifactReviewDetails>();
+        public int Total { get; set; }
     }
 }

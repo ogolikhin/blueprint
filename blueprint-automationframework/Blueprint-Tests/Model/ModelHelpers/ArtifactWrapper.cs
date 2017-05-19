@@ -78,7 +78,7 @@ namespace Model.ModelHelpers
 
             if (copyResult?.Artifact != null)
             {
-                var wrappedArtifact = new ArtifactWrapper(copyResult.Artifact, targetProject, user);
+                var wrappedArtifact = ArtifactWrapperFactory.CreateArtifactWrapper(copyResult.Artifact, targetProject, user);
                 response.Item2.Add(wrappedArtifact);
             }
 
@@ -91,24 +91,23 @@ namespace Model.ModelHelpers
 
                 foreach (var child in children)
                 {
-                    var novaArtifact = new NovaArtifactDetails
-                    {
-                        Id = child.Id,
-                        ItemTypeId = child.ItemTypeId,
-                        LockedByUser = child.LockedByUser,
-                        Name = child.Name,
-                        OrderIndex = child.OrderIndex,
-                        ParentId = child.ParentId,
-                        Permissions = child.Permissions,
-                        PredefinedType = child.PredefinedType,
-                        Prefix = child.Prefix,
-                        ProjectId = child.ProjectId,
-                        Version = child.Version
-                    };
+                    var novaArtifact = ArtifactFactory.CreateArtifact((ItemTypePredefined) child.PredefinedType.Value);
+
+                    novaArtifact.Id = child.Id;
+                    novaArtifact.ItemTypeId = child.ItemTypeId;
+                    novaArtifact.LockedByUser = child.LockedByUser;
+                    novaArtifact.Name = child.Name;
+                    novaArtifact.OrderIndex = child.OrderIndex;
+                    novaArtifact.ParentId = child.ParentId;
+                    novaArtifact.Permissions = child.Permissions;
+                    novaArtifact.PredefinedType = child.PredefinedType;
+                    novaArtifact.Prefix = child.Prefix;
+                    novaArtifact.ProjectId = child.ProjectId;
+                    novaArtifact.Version = child.Version;
 
                     // TODO: Also copy children of children...
 
-                    var wrappedArtifact = new ArtifactWrapper(novaArtifact, targetProject, user);
+                    var wrappedArtifact = ArtifactWrapperFactory.CreateArtifactWrapper(novaArtifact, targetProject, user);
                     response.Item2.Add(wrappedArtifact);
                 }
             }
@@ -311,12 +310,10 @@ namespace Model.ModelHelpers
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            var changes = new NovaArtifactDetails
-            {
-                Id = Artifact.Id,
-                ProjectId = Artifact.ProjectId,
-                Description = description ?? "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5)
-            };
+            var changes = ArtifactFactory.CreateArtifact((ItemTypePredefined) Artifact.PredefinedType.Value);
+            changes.Id = Artifact.Id;
+            changes.ProjectId = Artifact.ProjectId;
+            changes.Description = description ?? "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5);
 
             var updatedArtifact = Update(user, changes);
 

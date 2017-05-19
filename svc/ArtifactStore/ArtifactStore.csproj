@@ -136,6 +136,7 @@
     <Compile Include="Models\Review\ReviewedArtifactDetails.cs" />
     <Compile Include="Models\Review\ReviewPackageStatus.cs" />
     <Compile Include="Models\Review\ReviewParticipant.cs" />
+    <Compile Include="Models\Review\ReviewTableOfContent.cs" />
     <Compile Include="Models\Review\ReviwerRole.cs" />
     <Compile Include="Models\Review\ReviewContainer.cs" />
     <Compile Include="Models\Review\ReviewContent.cs" />

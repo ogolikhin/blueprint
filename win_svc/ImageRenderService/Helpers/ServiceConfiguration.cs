@@ -27,7 +27,7 @@
         public const string DefaultNServiceBusConnectionString = "host=titan.blueprintsys.net;username=admin;password=$admin2011";
 
         public const string NServiceBusInstanceIdKey = "NServiceBus.InstanceId";
-        public const string DefaultNServiceBusInstanceId = "1";
+        public const string DefaultNServiceBusInstanceId = "";
 
         public const string BrowserRenderWaitTimeSecondsKey = "BrowserRender.WaitTimeSeconds";
         public const int DefaultBrowserRenderWaitTimeSeconds = 10;

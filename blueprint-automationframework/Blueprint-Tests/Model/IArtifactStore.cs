@@ -647,8 +647,12 @@ namespace Model
         /// </summary>
         /// <param name="user">user to perform the operation. </param>
         /// <param name="reviewId">Id of Review.</param>
+        /// <param name="offset">(optional) The offset for the pagination.</param>
+        /// <param name="limit">(optional) Maximum number of users to be returned.</param>
+        /// <param name="versionId">(optional)Id of version.</param>
         /// <returns>Object containing list of artifacts and number of artifacts</returns>
-        ReviewContent GetReviewArtifacts(IUser user, int reviewId);
+        ReviewContent GetReviewArtifacts(IUser user, int reviewId, int? offset = 0, int? limit = 50,
+            int? versionId = null);
 
         /// <summary>
         /// Gets review header information

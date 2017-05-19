@@ -16,7 +16,7 @@ namespace AdminStoreTests
     [Category(Categories.AdminStore)]
     public class ConfigTests : TestBase
     {
-        private IUser _user = null;
+        private IUser _user;
 
         [SetUp]
         public void SetUp()
@@ -114,6 +114,25 @@ namespace AdminStoreTests
 
             // Verify:
             VerifyConfigJs(configJs);
+        }
+
+        [TestCase]
+        [TestRail(303899)]
+        [Description("Run: GET /config. Verify it returns the application settings dictionary.")]
+        public void GetApplicationSettings_NoToken_ReturnsApplicationSettingsDictionary()
+        {
+            // Setup:
+            Dictionary<string, string> settings = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                settings = Helper.AdminStore.GetApplicationSettings();
+            });
+
+            // Verify:
+            Assert.IsNotNull(settings);
+            Assert.IsTrue(settings.Keys.Count > 0);
         }
 
         /// <summary>

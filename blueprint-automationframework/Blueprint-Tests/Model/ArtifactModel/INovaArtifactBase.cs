@@ -60,8 +60,8 @@ namespace Model.ArtifactModel
         Identification LockedByUser { get; set; } // this is an optional properties depending on state status of the target artifact
         DateTime? LockedDateTime { get; set; } // its existance depends on presense of LockedByUser property
         string Prefix { get; set; }
-        List<CustomProperty> CustomPropertyValues { get; }
-        List<CustomProperty> SpecificPropertyValues { get; }
+        List<CustomProperty> CustomPropertyValues { get; set; }
+        List<CustomProperty> SpecificPropertyValues { get; set; }
         int? PredefinedType { get; set; }
         List<NovaTrace> Traces { get; set; }
         List<NovaSubArtifact> SubArtifacts { get; set; }

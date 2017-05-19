@@ -1432,7 +1432,8 @@ namespace Helper
             {
                 wrappedArtifact.Lock(user);
             }
-            wrappedArtifact.Update(user, (NovaArtifactDetails)artifactDetailsChangeset);
+
+            wrappedArtifact.Update(user, artifactDetailsChangeset);
 
             return property;
         }

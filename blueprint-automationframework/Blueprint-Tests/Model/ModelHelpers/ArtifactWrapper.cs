@@ -437,13 +437,15 @@ namespace Model.ModelHelpers
         /// </summary>
         /// <param name="updateArtifact">The artifact to be updated.</param>
         /// <returns>A dictionary of sub-artifact IDs and Names for any names that were removed.</returns>
-        private static Dictionary<int, string> RemoveSubArtifactNamesForBug3739(INovaArtifactDetails updateArtifact)
+        protected static Dictionary<int, string> RemoveSubArtifactNamesForBug3739(INovaArtifactDetails updateArtifact)
         {
+            ThrowIf.ArgumentNull(updateArtifact, nameof(updateArtifact));
+
             // Hack for TFS bug 3739:  If you send a non-null/empty Name of a UseCase SubArtifact to the Update REST call, it returns 500 Internal Server Error
             // Set Name=null for all SubArtifacts to prevent a 500 error.
             var savedSubArtifactNames = new Dictionary<int, string>();
 
-            if (updateArtifact.PredefinedType.Value == (int)ItemTypePredefined.UseCase)
+            if ((updateArtifact.PredefinedType.HasValue) && (updateArtifact.PredefinedType.Value == (int)ItemTypePredefined.UseCase))
             {
                 updateArtifact.SubArtifacts?.ForEach(delegate (NovaSubArtifact subArtifact)
                 {
@@ -461,8 +463,11 @@ namespace Model.ModelHelpers
         /// </summary>
         /// <param name="updateArtifact">The artifact that was updated and which will have its sub-artifact Names restored.</param>
         /// <param name="savedSubArtifactNames">A dictionary of sub-artifact IDs and Names for any names that were removed.</param>
-        private static void RestoreSubArtifactNamesForBug3739(INovaArtifactDetails updateArtifact, Dictionary<int, string> savedSubArtifactNames)
+        protected static void RestoreSubArtifactNamesForBug3739(INovaArtifactDetails updateArtifact, Dictionary<int, string> savedSubArtifactNames)
         {
+            ThrowIf.ArgumentNull(updateArtifact, nameof(updateArtifact));
+            ThrowIf.ArgumentNull(savedSubArtifactNames, nameof(savedSubArtifactNames));
+
             // Hack for TFS bug 3739: Restore sub-artifact names after the update call.
             if (savedSubArtifactNames.Any())
             {
@@ -641,11 +646,13 @@ namespace Model.ModelHelpers
         public List<CustomProperty> CustomPropertyValues
         {
             get { return Artifact.CustomPropertyValues; }
+            set { Artifact.CustomPropertyValues = value; }
         }
 
         public List<CustomProperty> SpecificPropertyValues
         {
             get { return Artifact.SpecificPropertyValues; }
+            set { Artifact.CustomPropertyValues = value; }
         }
 
         public int? PredefinedType

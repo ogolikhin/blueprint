@@ -31,17 +31,17 @@ namespace ArtifactStore.Repositories.Workflow
         #region artifact workflow
         public async Task<WorkflowTransitionResult> GetTransitions(int artifactId, int userId)
         {
-            CheckForArtifactPermissions(userId, artifactId);
+            await CheckForArtifactPermissions(userId, artifactId);
             
             return await GetTransitionsInternal(artifactId, userId);
         }
 
-        public Task<WorkflowState> GetCurrentState(int userId, int itemId, int revisionId = int.MaxValue, bool addDrafts = true)
+        public async Task<WorkflowState> GetCurrentState(int userId, int itemId, int revisionId = int.MaxValue, bool addDrafts = true)
         {
             //Need to access code for artifact permissions for revision
-            CheckForArtifactPermissions(userId, itemId, revisionId);
+            await CheckForArtifactPermissions(userId, itemId, revisionId);
             
-            return GetCurrentStateInternal(userId, itemId, revisionId, addDrafts);
+            return await GetCurrentStateInternal(userId, itemId, revisionId, addDrafts);
         }
 
         public async Task<WorkflowTransitionResult> GetAvailableTransitions(int userId, int workflowId, int stateId)
@@ -49,7 +49,7 @@ namespace ArtifactStore.Repositories.Workflow
             return await GetAvailableTransitionsInternal(userId, workflowId, stateId);
         }
 
-        private async void CheckForArtifactPermissions(int userId, int artifactId, int revisionId = int.MaxValue)
+        private async Task CheckForArtifactPermissions(int userId, int artifactId, int revisionId = int.MaxValue)
         {
             var artifactBasicDetails = await GetArtifactBasicDetails(ConnectionWrapper, artifactId, userId);
             if (artifactBasicDetails == null || artifactBasicDetails.RevisionId > revisionId)

@@ -1762,15 +1762,14 @@ namespace Helper
         /// </summary>
         /// <param name="artifact">The artifact which contains properties that NovaArtiactDetails refers to.</param>
         /// <returns>The INovaArtifactDetails with the minimal required properties for update.</returns>
-        public static INovaArtifactDetails CreateNovaArtifactDetailsForUpdate(INovaArtifactBase artifact)
+        public static INovaArtifactDetails CreateNovaArtifactDetailsForUpdate(INovaArtifactDetails artifact)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            var novaArtifactDetails = new NovaArtifactDetails
-            {
-                Id = artifact.Id,
-                ProjectId = artifact.ProjectId
-            };
+            var novaArtifactDetails = ArtifactFactory.CreateArtifact((ItemTypePredefined) artifact.PredefinedType.Value);
+            novaArtifactDetails.Id = artifact.Id;
+            novaArtifactDetails.ProjectId = artifact.ProjectId;
+
             return novaArtifactDetails;
         }
 

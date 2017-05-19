@@ -19,7 +19,9 @@ namespace AdminStore.Helpers
                 "title",
                 "source",
                 "enabled",
-                "licenseType"
+                "licenseType",
+                "displayName",
+                "instanceAdminRoleName"
             };
             var column = sorting.Sort;
             var sortColumn = !string.IsNullOrWhiteSpace(column) && sortableColumns.Contains(column)

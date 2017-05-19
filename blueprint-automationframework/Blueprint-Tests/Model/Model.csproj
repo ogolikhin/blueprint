@@ -70,6 +70,7 @@
     <Compile Include="ArtifactModel\Impl\Baseline.cs" />
     <Compile Include="ArtifactModel\Impl\Collection.cs" />
     <Compile Include="ArtifactModel\INovaProcess.cs" />
+    <Compile Include="Factories\ArtifactWrapperFactory.cs" />
     <Compile Include="Factories\ImpactAnalysisFactory.cs" />
     <Compile Include="Impl\AdminRole.cs" />
     <Compile Include="ModelHelpers\DocumentArtifactWrapper.cs" />

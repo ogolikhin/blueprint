@@ -421,19 +421,7 @@ namespace Helper
             var artifact = Model.Impl.ArtifactStore.CreateArtifact(ArtifactStore.Address, user,
                 itemType, name, project, artifactTypeName, parentId, orderIndex);
 
-            // Wrap the artifact in the proper type of ArtifactWrapper.
-            switch (itemType)
-            {
-                case ItemTypePredefined.Document:
-                    return WrapDocumentArtifact(artifact, project, user);
-
-                case ItemTypePredefined.Process:
-                    var process = Storyteller.GetNovaProcess(user, artifact.Id);
-                    return WrapProcessArtifact(process, project, user);
-
-                default:
-                    return WrapArtifact(artifact, project, user);
-            }
+            return WrapArtifact(artifact, project, user);
         }
 
         /// <summary>
@@ -517,7 +505,7 @@ namespace Helper
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            var wrappedArtifact = new ArtifactWrapper(artifact, project, createdBy);
+            var wrappedArtifact = ArtifactWrapperFactory.CreateArtifactWrapper(artifact, project, createdBy);
             WrappedArtifactsToDispose.Add(wrappedArtifact);
 
             return wrappedArtifact;
@@ -534,10 +522,10 @@ namespace Helper
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            var wrappedProcessArtifact = new DocumentArtifactWrapper(artifact, project, createdBy);
-            WrappedArtifactsToDispose.Add(wrappedProcessArtifact);
+            var wrappedArtifact = (DocumentArtifactWrapper) ArtifactWrapperFactory.CreateArtifactWrapper(artifact, project, createdBy);
+            WrappedArtifactsToDispose.Add(wrappedArtifact);
 
-            return wrappedProcessArtifact;
+            return wrappedArtifact;
         }
 
         /// <summary>
@@ -1148,11 +1136,12 @@ namespace Helper
         /// <param name="project">The project where the artifact was created.</param>
         /// <param name="createdBy">The user that created this artifact.</param>
         /// <returns>The ProcessArtifactWrapper for the novaProcessArtifact.</returns>
+        [SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]    // No, it MUST be an INovaProcess!
         public ProcessArtifactWrapper WrapProcessArtifact(INovaProcess novaProcess, IProject project, IUser createdBy)
         {
             ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
 
-            var wrappedProcessArtifact = new ProcessArtifactWrapper(novaProcess, project, createdBy);
+            var wrappedProcessArtifact = (ProcessArtifactWrapper) ArtifactWrapperFactory.CreateArtifactWrapper(novaProcess, project, createdBy);
             WrappedArtifactsToDispose.Add(wrappedProcessArtifact);
 
             return wrappedProcessArtifact;

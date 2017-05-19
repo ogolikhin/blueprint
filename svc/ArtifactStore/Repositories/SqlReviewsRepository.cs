@@ -274,12 +274,80 @@ namespace ArtifactStore.Repositories
             param.Add("@revisionId", revisionId);
             param.Add("@userId", userId);
             param.Add("@addDrafts", addDrafts);
-            var participants = await ConnectionWrapper.QueryAsync<ArtifactReviewDetails>("GetArtifactStatusesByParticipant", param, commandType: CommandType.StoredProcedure);
+            var participants = await ConnectionWrapper.QueryMultipleAsync<ArtifactReviewDetails, int>("GetArtifactStatusesByParticipant", param, commandType: CommandType.StoredProcedure);
             var reviewersRoot = new ArtifactReviewContent()
             {
-                Items = participants.ToList(),
+                Items = participants.Item1.ToList(),
+                Total = participants.Item2.SingleOrDefault()
             };
             return reviewersRoot;
         }
-    }    
+
+
+        private async Task<ReviewTableOfContent> GetTableOfContentAsync(int reviewId, int? revisionId, int userId, int? offset, int? limit)
+        {
+            
+            var param = new DynamicParameters();
+            param.Add("@reviewId", reviewId);
+            param.Add("@offset", offset);
+            param.Add("@limit", limit);
+            param.Add("@revisionId", revisionId);
+            param.Add("@userId", userId);
+
+            var result = await ConnectionWrapper.QueryMultipleAsync<ReviewTableOfContentItem, int>("GetReviewTableOfContent", param, commandType: CommandType.StoredProcedure);
+
+            return new ReviewTableOfContent
+            {
+                Items = result.Item1.ToList(),
+                Total = result.Item2.SingleOrDefault()
+            };
+        }
+
+    
+        public async Task<ReviewTableOfContent> GetReviewTableOfContent(int reviewId, int? revisionId, int userId, int? offset, int? limit)
+        {
+            // get revision if isn't specified
+            if (!revisionId.HasValue)
+            {
+                string errorMessage = I18NHelper.FormatInvariant("The revision must be specified for review (Id:{0}).", reviewId);
+                throw new AuthorizationException(errorMessage, ErrorCodes.ArtifactNotFound);
+            }
+
+            //get all review content item in a hierachy list
+            var toc = await GetTableOfContentAsync(reviewId, revisionId, userId, offset, limit);
+
+            var artifactIds = new List<int>{reviewId}.Concat(toc.Items.Select(a => a.Id).ToList());
+
+            //gets artifact permissions
+            var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, userId);
+
+            if (!SqlArtifactPermissionsRepository.HasPermissions(reviewId, artifactPermissionsDictionary, RolePermissions.Read))
+            {
+                string errorMessage = I18NHelper.FormatInvariant("User does not have permissions to access the review (Id:{0}).", reviewId);
+                throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
+            }
+
+
+            //TODO: Update artifact statuses and permissions
+            //
+            foreach (var tocItem in toc.Items)
+            {
+                if (SqlArtifactPermissionsRepository.HasPermissions(tocItem.Id, artifactPermissionsDictionary, RolePermissions.Read))
+                {
+                    //TODO update item status
+                }
+                else
+                {
+                    //not granted SES
+                    //TODO: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=6593&fullScreen=false
+                    tocItem.InReview = false;
+
+                }
+            }
+
+            return toc;
+        }
+
+
+    }
 }

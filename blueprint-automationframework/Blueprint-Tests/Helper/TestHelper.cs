@@ -1394,15 +1394,18 @@ namespace Helper
         {
             var user = CreateUserAndAddToDatabase(instanceAdminRole, source);
 
-            if ((targets & AuthenticationTokenTypes.AccessControlToken) != 0)
+            if (badToken != null)
             {
-                user.SetToken(badToken);
-            }
+                if ((targets & AuthenticationTokenTypes.AccessControlToken) != 0)
+                {
+                    user.SetToken(badToken);
+                }
 
-            if ((targets & AuthenticationTokenTypes.OpenApiToken) != 0)
-            {
-                user.SetToken(I18NHelper.FormatInvariant("{0} {1}",
-                    BlueprintToken.OPENAPI_START_OF_TOKEN, badToken));
+                if ((targets & AuthenticationTokenTypes.OpenApiToken) != 0)
+                {
+                    user.SetToken(I18NHelper.FormatInvariant("{0} {1}",
+                        BlueprintToken.OPENAPI_START_OF_TOKEN, badToken));
+                }
             }
 
             return user;

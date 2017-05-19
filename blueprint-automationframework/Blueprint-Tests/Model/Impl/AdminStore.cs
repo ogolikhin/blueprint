@@ -487,6 +487,27 @@ namespace Model.Impl
             return GetStatusUpcheck(RestPaths.Svc.AdminStore.Status.UPCHECK, expectedStatusCodes);
         }
 
+        /// <seealso cref="IAdminStore.GetApplicationSettings(IUser, List{HttpStatusCode})"/>
+        public Dictionary<string, string> GetApplicationSettings(IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            var restApi = new RestApiFacade(Address);
+            const string path = RestPaths.Svc.AdminStore.Config.APPLICATION_SETTINGS;
+
+            var session = SessionFactory.CreateSessionWithToken(user);
+            var additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, session.SessionId } };
+
+            Logger.WriteInfo("Getting application settings...");
+
+            var response = restApi.SendRequestAndGetResponse(
+                path,
+                RestRequestMethod.GET,
+                additionalHeaders: additionalHeaders,
+                expectedStatusCodes: expectedStatusCodes);
+
+            var settings = JsonConvert.DeserializeObject<Dictionary<string, string>>(response.Content);
+            return settings;
+        }
+
         /// <seealso cref="IAdminStore.GetSettings(IUser, List{HttpStatusCode})"/>
         public ConfigSettings GetSettings(IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {

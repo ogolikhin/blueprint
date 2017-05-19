@@ -16,7 +16,7 @@ namespace AdminStoreTests
     [Category(Categories.AdminStore)]
     public class ConfigTests : TestBase
     {
-        private IUser _user = null;
+        private IUser _user;
 
         [SetUp]
         public void SetUp()
@@ -114,6 +114,66 @@ namespace AdminStoreTests
 
             // Verify:
             VerifyConfigJs(configJs);
+        }
+
+        [TestCase]
+        [TestRail(303898)]
+        [Description("Run: GET /config but don't pass a Session-Token header. Verify it returns the application settings dictionary.")]
+        public void GetApplicationSettings_MissingTokenHeader_ReturnsApplicationSettingsDictionary()
+        {
+            // Setup:
+            Dictionary<string, string> settings = null;
+            var user = UserFactory.CreateUserOnly();
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                settings = Helper.AdminStore.GetApplicationSettings(user);
+            });
+
+            // Verify:
+            Assert.IsNotNull(settings);
+            Assert.IsTrue(settings.Keys.Count > 0);
+        }
+
+        [TestCase]
+        [TestRail(303916)]
+        [Description("Run: GET /config and pass an invalid token. Verify it returns the application settings dictionary.")]
+        public void GetApplicationSettings_InvalidToken_ReturnsApplicationSettingsDictionary()
+        {
+            // Setup:
+            Dictionary<string, string> settings = null;
+            var user = UserFactory.CreateUserOnly();
+            user.Token.AccessControlToken = new Guid().ToString();
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                settings = Helper.AdminStore.GetApplicationSettings(user);
+            });
+
+            // Verify:
+            Assert.IsNotNull(settings);
+            Assert.IsTrue(settings.Keys.Count > 0);
+        }
+
+        [TestCase]
+        [TestRail(303899)]
+        [Description("Run: GET /config and pass a valid token. Verify it returns the application settings dictionary.")]
+        public void GetApplicationSettings_ValidToken_ReturnsApplicationSettingsDictionary()
+        {
+            // Setup:
+            Dictionary<string, string> settings = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                settings = Helper.AdminStore.GetApplicationSettings(_user);
+            });
+
+            // Verify:
+            Assert.IsNotNull(settings);
+            Assert.IsTrue(settings.Keys.Count > 0);
         }
 
         /// <summary>

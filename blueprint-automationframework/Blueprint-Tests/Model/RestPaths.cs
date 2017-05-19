@@ -112,6 +112,7 @@ namespace Model
 
                 public static class Config
                 {
+                    public const string APPLICATION_SETTINGS        = "svc/adminstore/config";
                     public const string SETTINGS                    = "svc/adminstore/config/settings";
                     public const string CONFIG_JS                   = "svc/adminstore/config/config.js";
                 }

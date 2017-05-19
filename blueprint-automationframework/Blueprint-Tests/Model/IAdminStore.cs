@@ -221,6 +221,15 @@ namespace Model
         HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
+        /// Gets application settings from ConfigControl.
+        /// (Runs: GET /config)
+        /// </summary>
+        /// <param name="user">The user containing the token to authenticate with.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>A dictionary of application settings.</returns>
+        Dictionary<string, string> GetApplicationSettings(IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
         /// Gets setting from ConfigControl.
         /// (Runs: GET /config/settings)
         /// </summary>

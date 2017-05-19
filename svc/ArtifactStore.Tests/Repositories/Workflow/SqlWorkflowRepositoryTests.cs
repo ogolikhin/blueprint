@@ -6,8 +6,9 @@ using Moq;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Workflow;
+using ServiceLibrary.Repositories;
 
-namespace ServiceLibrary.Repositories.Workflow
+namespace ArtifactStore.Repositories.Workflow
 {
     [TestClass]
     public class SqlWorkflowRepositoryTests
@@ -70,12 +71,18 @@ namespace ServiceLibrary.Repositories.Workflow
                     {"artifactId", 1},
                     {"userId", 1}
              },
-             new List<Transitions>() { new Transitions() { TransitionId = transitionId } });
+             new List<WorkflowTransition>
+             {
+                 new WorkflowTransition
+                 {
+                     Id = transitionId
+                 }
+             });
             // Act
-            var result = (await repository.GetTransitions(1, 1)).ToList();
+            var result = (await repository.GetTransitions(1, 1));
 
             Assert.IsTrue(result.Count > 0);
-            Assert.IsTrue(result[0].TransitionId == transitionId);
+            Assert.IsTrue(result.Items.First().Id == transitionId);
         }
         #endregion
 

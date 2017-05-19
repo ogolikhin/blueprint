@@ -4,7 +4,7 @@ namespace ServiceLibrary.Helpers
 {
     public class ExceptionHelper
     {
-        internal static void ThrowNotFoundException(int projectId, int? artifactId)
+        public static void ThrowNotFoundException(int projectId, int? artifactId)
         {
             var errorMessage = artifactId == null
                 ? I18NHelper.FormatInvariant("The project (Id:{0}) can no longer be accessed. It may have been deleted, or is no longer accessible by you.", projectId)
@@ -12,7 +12,7 @@ namespace ServiceLibrary.Helpers
             throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
         }
 
-        internal static void ThrowForbiddenException(int projectId, int? artifactId)
+        public static void ThrowForbiddenException(int projectId, int? artifactId)
         {
             if (artifactId.HasValue)
             {
@@ -23,7 +23,7 @@ namespace ServiceLibrary.Helpers
             throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
         }
 
-        internal static void ThrowArtifactNotFoundException(int artifactId)
+        public static void ThrowArtifactNotFoundException(int artifactId)
         {
             var errorMessage = I18NHelper.FormatInvariant("Artifact (Id:{0}) is not found.", artifactId);
             throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);

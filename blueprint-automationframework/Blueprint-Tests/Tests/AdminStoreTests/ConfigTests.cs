@@ -119,7 +119,7 @@ namespace AdminStoreTests
         [TestCase]
         [TestRail(303899)]
         [Description("Run: GET /config. Verify it returns the application settings dictionary.")]
-        public void GetApplicationSettings_ValidToken_ReturnsApplicationSettingsDictionary()
+        public void GetApplicationSettings_NoToken_ReturnsApplicationSettingsDictionary()
         {
             // Setup:
             Dictionary<string, string> settings = null;

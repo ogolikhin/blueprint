@@ -52,7 +52,7 @@ namespace ArtifactStore.Repositories
 
             _itemInfoRepositoryMock.Setup(i => i.GetItemDescription(reviewId, userId, true, int.MaxValue)).ReturnsAsync(reviewDescription);
             _itemInfoRepositoryMock.Setup(i => i.GetRevisionIdFromBaselineId(baselineId, userId, false, int.MaxValue)).ReturnsAsync(reviewRevisionId);
-            var reviewDetails = new ReviewDetails
+            var reviewDetails = new ReviewSummaryDetails
             {
                 BaselineId = baselineId,
                 ReviewPackageStatus = ReviewPackageStatus.Active,
@@ -145,7 +145,7 @@ namespace ArtifactStore.Repositories
             };
 
             _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
-            var reviewDetails = new ReviewDetails
+            var reviewDetails = new ReviewSummaryDetails
             {
                 ReviewPackageStatus = ReviewPackageStatus.Active,
                 ReviewParticipantRole = null, // User is not assigned to the review

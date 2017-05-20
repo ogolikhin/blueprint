@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace ArtifactStore.Models.Review
 {
-    public class ArtifactReviewDetails
+    public class ReviewArtifactDetails
     {
         [DataMember(Name = "Id")]
         public int UserId { get; set; }
@@ -27,7 +27,7 @@ namespace ArtifactStore.Models.Review
 
     public class ArtifactReviewContent
     {
-        public IEnumerable<ArtifactReviewDetails> Items { get; set; }
+        public IEnumerable<ReviewArtifactDetails> Items { get; set; }
         public int Total { get; set; }
 
     }

@@ -2,7 +2,7 @@
 
 namespace ArtifactStore.Models.Review
 {
-    public class ReviewContainer
+    public class ReviewSummary
     {
         public int Id { get; set; }
 
@@ -30,5 +30,31 @@ namespace ArtifactStore.Models.Review
         public ReviewArtifactsStatus ArtifactsStatus { get; set; }
 
         public int RevisionId { get; set; }
+    }
+
+    internal class ReviewSummaryDetails
+    {
+        public int? BaselineId { get; set; }
+
+        public string Prefix { get; set; }
+
+        public string ArtifactType { get; set; }
+
+        public ReviewParticipantRole? ReviewParticipantRole { get; set; }
+
+        public ReviewPackageStatus ReviewPackageStatus { get; set; }
+
+        public ReviewStatus ReviewStatus { get; set; }
+
+        public int TotalReviewers { get; set; }
+
+        public int TotalArtifacts { get; set; }
+
+        public int Approved { get; set; }
+
+        public int Disapproved { get; set; }
+
+        public int Viewed { get; set; }
+
     }
 }

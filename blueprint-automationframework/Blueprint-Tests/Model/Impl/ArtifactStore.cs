@@ -13,6 +13,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Mime;
 using System.Web;
+using Model.NovaModel.Reviews;
 using Utilities;
 using Utilities.Facades;
 
@@ -972,12 +973,12 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.GetReviewContainer(IUser, int)"/>
-        public ReviewContainer GetReviewContainer(IUser user, int reviewId)
+        public ReviewSummary GetReviewContainer(IUser user, int reviewId)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.CONTAINERS_id_, reviewId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
-            return restApi.SendRequestAndDeserializeObject<ReviewContainer>(path,
+            return restApi.SendRequestAndDeserializeObject<ReviewSummary>(path,
                 RestRequestMethod.GET, shouldControlJsonChanges: true);
         }
 

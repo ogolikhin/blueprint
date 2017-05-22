@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using Model.NovaModel.Reviews.Enums;
 using Newtonsoft.Json;
 
-namespace Model.NovaModel.Impl
+namespace Model.NovaModel.Reviews
 {
-    // see blueprint/svc/ArtifactStore/Models/Review/Reviewer.cs
-    public class Reviewer
+    // see blueprint/svc/ArtifactStore/Models/Review/ReviewParticipant.cs
+    public class ReviewParticipant
     {
         [JsonProperty("Id")]
         public int UserId { get; set; }
@@ -25,15 +26,9 @@ namespace Model.NovaModel.Impl
         public int Viewed { get; set; }
     }
 
-    public enum ReviewerRole
-    {
-        Reviewer = 0,
-        Approver = 1
-    }
-
     public class ReviewParticipantsContent
     {
-        public List<Reviewer> Items { get; set; }
+        public List<ReviewParticipant> Items { get; set; }
 
         public int TotalArtifacts { get; set; }
 

@@ -7,6 +7,7 @@ using Model.NovaModel.Impl;
 using System;
 using System.Collections.Generic;
 using System.Net;
+using Model.NovaModel.Reviews;
 
 namespace Model
 {
@@ -659,7 +660,7 @@ namespace Model
         /// <param name="user">user to perform the operation.</param>
         /// <param name="reviewId">Id of Review.</param>
         /// <returns>ReviewContainer</returns>
-        ReviewContainer GetReviewContainer(IUser user, int reviewId);
+        ReviewSummary GetReviewContainer(IUser user, int reviewId);
 
         /// <summary>
         /// Gets list of Reviewers and additional information.

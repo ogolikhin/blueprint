@@ -60,13 +60,8 @@ namespace AdminStore.Repositories
             return result;
         }
 
-        public async Task<GroupDto> GetGroupDetailsAsync(int groupId)
-        {
-            var group = await GetInternalGroupDetails(groupId);
-            return GroupMapper.Map(group);
-        }
 
-        private async Task<Group> GetInternalGroupDetails(int groupId)
+        public async Task<Group> GetGroupDetailsAsync(int groupId)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@GroupId", groupId);

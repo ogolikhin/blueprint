@@ -1,8 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using Model.NovaModel.Reviews.Enums;
 
-namespace ArtifactStore.Models.Review
+namespace Model.NovaModel.Reviews
 {
-    public class ReviewContainer
+    // see blueprint/svc/ArtifactStore/Models/Review/ReviewSummary.cs
+    public class ReviewSummary
     {
         public int Id { get; set; }
 
@@ -12,14 +13,13 @@ namespace ArtifactStore.Models.Review
 
         public string ArtifactType { get; set; }
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Description { get; set; }
 
         public int TotalArtifacts { get; set; }
 
         public ReviewType ReviewType { get; set; }
 
-        public ReviewSourceType SourceType { get; set; }
+        public ReviewParticipantRole? ReviewParticipantRole { get; set; }
 
         public ReviewSource Source { get; set; }
 

@@ -4,6 +4,7 @@ using Model;
 using Model.ArtifactModel.Impl.OperationsResults;
 using Model.NovaModel.Impl;
 using Model.Factories;
+using Model.NovaModel.Reviews;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
@@ -72,7 +73,7 @@ namespace ArtifactStoreTests
             var admin = UserFactory.CreateUserOnly(userName, password);
             admin.SetToken(sessionToken.SessionId);
 
-            ReviewContainer reviewContainer = null;
+            ReviewSummary reviewContainer = null;
 
             // Execute: 
             Assert.DoesNotThrow(() => reviewContainer = Helper.ArtifactStore.GetReviewContainer(admin, reviewId),

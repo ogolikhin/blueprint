@@ -13,6 +13,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Mime;
 using System.Web;
+using Model.NovaModel.Reviews;
 using Utilities;
 using Utilities.Facades;
 
@@ -550,14 +551,20 @@ namespace Model.Impl
             return relationships;
         }
 
-        /// <seealso cref="IArtifactStore.GetRelationshipsDetails(IUser, IArtifactBase, List{HttpStatusCode})"/>
-        public TraceDetails GetRelationshipsDetails(IUser user,
-            IArtifactBase artifact,
-            List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IArtifactStore.GetRelationshipsDetails(IUser, int})"/>
+        public TraceDetails GetRelationshipsDetails(
+            IUser user,
+            int artifactId)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
-            return GetRelationshipsDetails(Address, user, artifact.Id, expectedStatusCodes);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIP_DETAILS, artifactId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            var traceDetails = restApi.SendRequestAndDeserializeObject<TraceDetails>(
+                path,
+                RestRequestMethod.GET,
+                shouldControlJsonChanges: true);
+
+            return traceDetails;
         }
 
         /// <seealso cref="IArtifactStore.GetSubartifacts(IUser, int, List{HttpStatusCode})"/>
@@ -966,12 +973,12 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.GetReviewContainer(IUser, int)"/>
-        public ReviewContainer GetReviewContainer(IUser user, int reviewId)
+        public ReviewSummary GetReviewContainer(IUser user, int reviewId)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.CONTAINERS_id_, reviewId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
-            return restApi.SendRequestAndDeserializeObject<ReviewContainer>(path,
+            return restApi.SendRequestAndDeserializeObject<ReviewSummary>(path,
                 RestRequestMethod.GET, shouldControlJsonChanges: true);
         }
 
@@ -1588,35 +1595,6 @@ namespace Model.Impl
                 shouldControlJsonChanges: true);
 
             return unpublishedChanges;
-        }
-
-        /// <summary>
-        /// Gets traceDetails for the specified artifact/subartifact
-        /// (Runs: GET svc/artifactstore/artifacts/{artifactId}/relationshipdetails)
-        /// </summary>
-        /// <param name="address">The base address of the ArtifactStore.</param>
-        /// <param name="user">The user to authenticate with.</param>
-        /// <param name="artifactId">The artifact ID containing the relationship to get.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>RelationshipsDetails object for the specified artifact/subartifact.</returns>
-        public static TraceDetails GetRelationshipsDetails(string address,
-            IUser user,
-            int artifactId,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            ThrowIf.ArgumentNull(address, nameof(address));
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIP_DETAILS, artifactId);
-            var restApi = new RestApiFacade(address, user.Token?.AccessControlToken);
-
-            var traceDetails = restApi.SendRequestAndDeserializeObject<TraceDetails>(
-                path,
-                RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: true);
-
-            return traceDetails;
         }
 
         #endregion Static members

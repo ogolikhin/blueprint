@@ -5,6 +5,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Model.ArtifactModel.Enums;
 using Model.Factories;
 using Utilities;
 using Utilities.Factories;
@@ -77,7 +78,7 @@ namespace Model.ModelHelpers
 
             if (copyResult?.Artifact != null)
             {
-                var wrappedArtifact = new ArtifactWrapper(copyResult.Artifact, targetProject, user);
+                var wrappedArtifact = ArtifactWrapperFactory.CreateArtifactWrapper(copyResult.Artifact, targetProject, user);
                 response.Item2.Add(wrappedArtifact);
             }
 
@@ -90,24 +91,23 @@ namespace Model.ModelHelpers
 
                 foreach (var child in children)
                 {
-                    var novaArtifact = new NovaArtifactDetails
-                    {
-                        Id = child.Id,
-                        ItemTypeId = child.ItemTypeId,
-                        LockedByUser = child.LockedByUser,
-                        Name = child.Name,
-                        OrderIndex = child.OrderIndex,
-                        ParentId = child.ParentId,
-                        Permissions = child.Permissions,
-                        PredefinedType = child.PredefinedType,
-                        Prefix = child.Prefix,
-                        ProjectId = child.ProjectId,
-                        Version = child.Version
-                    };
+                    var novaArtifact = ArtifactFactory.CreateArtifact((ItemTypePredefined) child.PredefinedType.Value);
+
+                    novaArtifact.Id = child.Id;
+                    novaArtifact.ItemTypeId = child.ItemTypeId;
+                    novaArtifact.LockedByUser = child.LockedByUser;
+                    novaArtifact.Name = child.Name;
+                    novaArtifact.OrderIndex = child.OrderIndex;
+                    novaArtifact.ParentId = child.ParentId;
+                    novaArtifact.Permissions = child.Permissions;
+                    novaArtifact.PredefinedType = child.PredefinedType;
+                    novaArtifact.Prefix = child.Prefix;
+                    novaArtifact.ProjectId = child.ProjectId;
+                    novaArtifact.Version = child.Version;
 
                     // TODO: Also copy children of children...
 
-                    var wrappedArtifact = new ArtifactWrapper(novaArtifact, targetProject, user);
+                    var wrappedArtifact = ArtifactWrapperFactory.CreateArtifactWrapper(novaArtifact, targetProject, user);
                     response.Item2.Add(wrappedArtifact);
                 }
             }
@@ -310,12 +310,10 @@ namespace Model.ModelHelpers
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            var changes = new NovaArtifactDetails
-            {
-                Id = Artifact.Id,
-                ProjectId = Artifact.ProjectId,
-                Description = description ?? "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5)
-            };
+            var changes = ArtifactFactory.CreateArtifact((ItemTypePredefined) Artifact.PredefinedType.Value);
+            changes.Id = Artifact.Id;
+            changes.ProjectId = Artifact.ProjectId;
+            changes.Description = description ?? "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5);
 
             var updatedArtifact = Update(user, changes);
 
@@ -337,11 +335,23 @@ namespace Model.ModelHelpers
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(updateArtifact, nameof(updateArtifact));
 
-            var updatedArtifact = ArtifactStore.UpdateArtifact(user, updateArtifact);
+            // Hack for TFS bug 3739:  If you send a non-null/empty Name of a UseCase SubArtifact to the Update REST call, it returns 500 Internal Server Error
+            // Set Name=null for all SubArtifacts to prevent a 500 error.
+            var savedSubArtifactNames = RemoveSubArtifactNamesForBug3739(updateArtifact);   // TODO: Remove this when Bug 3739 is fixed.
 
-            UpdateArtifactState(ArtifactOperation.Update);
+            try
+            {
+                var updatedArtifact = ArtifactStore.UpdateArtifact(user, updateArtifact);
 
-            return updatedArtifact;
+                UpdateArtifactState(ArtifactOperation.Update);
+
+                return updatedArtifact;
+            }
+            finally
+            {
+                // Hack for TFS bug 3739: Restore sub-artifact names after the update call.
+                RestoreSubArtifactNamesForBug3739(updateArtifact, savedSubArtifactNames);   // TODO: Remove this when Bug 3739 is fixed.
+            }
         }
 
         /// <summary>
@@ -415,6 +425,59 @@ namespace Model.ModelHelpers
             Publish,
             Update
         }
+
+        #region Private methods
+
+        /// <summary>
+        /// This is a hack to avoid a 500 error because of TFS bug: 3739.
+        /// If you send a non-null/empty Name of a UseCase SubArtifact to the Update REST call, it returns 500 Internal Server Error.
+        /// </summary>
+        /// <param name="updateArtifact">The artifact to be updated.</param>
+        /// <returns>A dictionary of sub-artifact IDs and Names for any names that were removed.</returns>
+        protected static Dictionary<int, string> RemoveSubArtifactNamesForBug3739(INovaArtifactDetails updateArtifact)
+        {
+            ThrowIf.ArgumentNull(updateArtifact, nameof(updateArtifact));
+
+            // Hack for TFS bug 3739:  If you send a non-null/empty Name of a UseCase SubArtifact to the Update REST call, it returns 500 Internal Server Error
+            // Set Name=null for all SubArtifacts to prevent a 500 error.
+            var savedSubArtifactNames = new Dictionary<int, string>();
+
+            if ((updateArtifact.PredefinedType.HasValue) && (updateArtifact.PredefinedType.Value == (int)ItemTypePredefined.UseCase))
+            {
+                updateArtifact.SubArtifacts?.ForEach(delegate (NovaSubArtifact subArtifact)
+                {
+                    savedSubArtifactNames.Add(subArtifact.Id.Value, subArtifact.Name);
+                    subArtifact.Name = null;
+                });
+            }
+
+            return savedSubArtifactNames;
+        }
+
+        /// <summary>
+        /// This is a hack to avoid a 500 error because of TFS bug: 3739.
+        /// If you send a non-null/empty Name of a UseCase SubArtifact to the Update REST call, it returns 500 Internal Server Error.
+        /// </summary>
+        /// <param name="updateArtifact">The artifact that was updated and which will have its sub-artifact Names restored.</param>
+        /// <param name="savedSubArtifactNames">A dictionary of sub-artifact IDs and Names for any names that were removed.</param>
+        protected static void RestoreSubArtifactNamesForBug3739(INovaArtifactDetails updateArtifact, Dictionary<int, string> savedSubArtifactNames)
+        {
+            ThrowIf.ArgumentNull(updateArtifact, nameof(updateArtifact));
+            ThrowIf.ArgumentNull(savedSubArtifactNames, nameof(savedSubArtifactNames));
+
+            // Hack for TFS bug 3739: Restore sub-artifact names after the update call.
+            if (savedSubArtifactNames.Any())
+            {
+                foreach (var idAndName in savedSubArtifactNames)
+                {
+                    var subArtifact = updateArtifact.SubArtifacts?.Find(a => a.Id == idAndName.Key);
+
+                    subArtifact.Name = idAndName.Value;
+                }
+            }
+        }
+
+        #endregion Private methods
 
         #region INovaArtifactObservable members
 
@@ -580,11 +643,13 @@ namespace Model.ModelHelpers
         public List<CustomProperty> CustomPropertyValues
         {
             get { return Artifact.CustomPropertyValues; }
+            set { Artifact.CustomPropertyValues = value; }
         }
 
         public List<CustomProperty> SpecificPropertyValues
         {
             get { return Artifact.SpecificPropertyValues; }
+            set { Artifact.CustomPropertyValues = value; }
         }
 
         public int? PredefinedType

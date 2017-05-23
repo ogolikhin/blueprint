@@ -165,6 +165,18 @@ namespace ArtifactStore.Repositories
             return reviewArtifacts;
         }
 
+        public Task<AddArtifactsResult> AddArtifactsToReview(int reviewId, int userId, AddArtifactsParameter content)
+        {
+            //TODO
+            return Task.FromResult(new AddArtifactsResult
+            {
+                ArtifactCount = 1,
+                AlreadyIncludedArtifactCount = 1,
+                NonexistentArtifactCount = 1,
+                UnpublishedArtifactCount = 1
+            });
+        }
+
         public async Task<ReviewArtifactsDataSet> GetReviewedArtifacts(int reviewId, int userId, int? offset, int? limit, int? revisionId = int.MaxValue, bool? addDrafts = true)
         {
             var hasReadPermissions = await _artifactPermissionsRepository.HasReadPermissions(reviewId, userId);
@@ -337,7 +349,5 @@ namespace ArtifactStore.Repositories
 
             return toc;
         }
-
-
     }
 }

@@ -49,18 +49,7 @@ namespace AdminStoreTests.UsersTests
         public void GetInstanceUser_PermissionsToGetUser_ReturnsCorrectUser(InstanceAdminRole adminRole)
         {
             // Setup:
-            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
-
-            int createdUserId = 0;
-
-            Assert.DoesNotThrow(() =>
-            {
-                createdUserId = Helper.AdminStore.AddUser(_adminUser, createdUser);
-            }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
-
-            // Update user Id with returned value and incremented version
-            createdUser.Id = createdUserId;
-            createdUser.CurrentVersion++;
+            var createdUser = Helper.CreateAndAddInstanceUser(_adminUser);
 
             var userWithPermissionsToGetUsers = Helper.CreateUserAndAuthenticate(
                 TestHelper.AuthenticationTokenTypes.AccessControlToken, adminRole);
@@ -70,7 +59,7 @@ namespace AdminStoreTests.UsersTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                returnedUser = Helper.AdminStore.GetUserById(userWithPermissionsToGetUsers, createdUserId);
+                returnedUser = Helper.AdminStore.GetUserById(userWithPermissionsToGetUsers, createdUser.Id);
             }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
 
             //Verify:
@@ -81,26 +70,16 @@ namespace AdminStoreTests.UsersTests
 
         #region 401 Unauthorized Tests
 
-        [TestCase("")]
-        [TestCase(CommonConstants.InvalidToken)]
+        [TestCase(null, "Token is missing or malformed.")]
+        [TestCase("", "Token is invalid.")]
+        [TestCase(CommonConstants.InvalidToken, "Token is invalid.")]
         [Description("Create and add an instance user. Try to get the user using an invalid token header. " +
                      "Verify that 401 Unauthorized is returned.")]
         [TestRail(303451)]
-        public void GetInstanceUser_InvalidTokenHeader_401Unauthorized(string tokenString)
+        public void GetInstanceUser_InvalidTokenHeader_401Unauthorized(string tokenString, string errorMessage)
         {
             // Setup:
-            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
-
-            int createdUserId = 0;
-
-            Assert.DoesNotThrow(() =>
-            {
-                createdUserId = Helper.AdminStore.AddUser(_adminUser, createdUser);
-            }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
-
-            // Update user Id with returned value and incremented version
-            createdUser.Id = createdUserId;
-            createdUser.CurrentVersion++;
+            var createdUser = Helper.CreateAndAddInstanceUser(_adminUser);
 
             var userWithInvalidTokenHeader = Helper.CreateUserWithInvalidToken(
                 TestHelper.AuthenticationTokenTypes.AccessControlToken,
@@ -110,11 +89,11 @@ namespace AdminStoreTests.UsersTests
             // Execute:
             var ex = Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                Helper.AdminStore.GetUserById(userWithInvalidTokenHeader, createdUserId);
+                Helper.AdminStore.GetUserById(userWithInvalidTokenHeader, createdUser.Id);
             }, "'PUT {0}' should return 401 Unauthorized with invalid token header!", USER_PATH_ID);
 
             // Verify:
-            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "Token is invalid.");
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, errorMessage);
         }
 
         #endregion 401 Unauthorized Tests
@@ -129,24 +108,13 @@ namespace AdminStoreTests.UsersTests
         [TestCase(InstanceAdminRole.LogGatheringAndLicenseReporting)]
         [TestCase(InstanceAdminRole.ManageAdministratorRoles)]
         [TestCase(InstanceAdminRole.ProvisionProjects)]
-        [Description("Create and add an instance user.  Try to get the user with another user that does not have" +
+        [Description("Create and add an instance user.  Try to get the user with another user that does not have " +
                      "permission to view users. Verify that 401 Unauthorized is returned.")]
         [TestRail(303452)]
         public void GetInstanceUser_NoPermissionsToGetUsers_403Forbidden(InstanceAdminRole? adminRole)
         {
             // Setup:
-            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
-
-            int createdUserId = 0;
-
-            Assert.DoesNotThrow(() =>
-            {
-                createdUserId = Helper.AdminStore.AddUser(_adminUser, createdUser);
-            }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
-
-            // Update user Id with returned value and incremented version
-            createdUser.Id = createdUserId;
-            createdUser.CurrentVersion++;
+            var createdUser = Helper.CreateAndAddInstanceUser(_adminUser);
 
             var userWithNoPermissionsToGetUsers = Helper.CreateUserAndAuthenticate(
                 TestHelper.AuthenticationTokenTypes.AccessControlToken, adminRole);
@@ -154,7 +122,7 @@ namespace AdminStoreTests.UsersTests
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
-                Helper.AdminStore.GetUserById(userWithNoPermissionsToGetUsers, createdUserId);
+                Helper.AdminStore.GetUserById(userWithNoPermissionsToGetUsers, createdUser.Id);
             },
             "'PUT {0}' should return 403 Forbidden when the user updating the user has no permissions to get users!", USER_PATH_ID);
 

@@ -134,13 +134,14 @@ namespace Model
         int AddUser(IUser adminUser, InstanceUser user);
 
         /// <summary>
-        /// Deletes a user.
-        /// (Runs: DELETE /users/{userId})
+        /// Deletes users.
+        /// (Runs: POST /users/delete)
         /// </summary>
-        /// <param name="adminUser">The admin user deleting the user.</param>
-        /// <param name="userId">The id of the user to be deleted.</param>
+        /// <param name="adminUser">The admin user deleting users.</param>
+        /// <param name="ids">The ids to include or exclude, depending on selectAll value.</param>
+        /// <param name="selectAll">(optional) The selection scope indicator. Default is false (ids are inclusions).</param>
         /// <returns>The returned HTTP Status Code</returns>
-        HttpStatusCode DeleteUser(IUser adminUser, int userId);
+        HttpStatusCode DeleteUsers(IUser adminUser, List<int> ids, bool selectAll = false);
 
         /// <summary>
         /// Gets login user for specified token.
@@ -209,6 +210,14 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The status code returned by AdminStore.</returns>
         HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets application settings from ConfigControl.
+        /// (Runs: GET /config)
+        /// </summary>
+        /// <remarks>No authentication is required for this call.</remarks>
+        /// <returns>A dictionary of application settings.</returns>
+        Dictionary<string, string> GetApplicationSettings();
 
         /// <summary>
         /// Gets setting from ConfigControl.

@@ -674,7 +674,7 @@ namespace ArtifactStore.Repositories
                 artifactId, userId, false, revisionId))
                 .ReturnsAsync(itemInfo);
 
-            artifactPermissionsRepositoryMock.Setup(apr => apr.GetBaselineArtifacts(
+            _itemInfoRepositoryMock.Setup(apr => apr.GetBaselineArtifacts(
                 baselineId, userId, true, int.MaxValue))
                 .ReturnsAsync(baselineArtifacts);
 

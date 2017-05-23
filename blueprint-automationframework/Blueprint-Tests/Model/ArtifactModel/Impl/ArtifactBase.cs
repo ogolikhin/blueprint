@@ -266,7 +266,7 @@ namespace Model.ArtifactModel.Impl
             bool? readOnly = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return SvcShared.GetNavigation(address, user, artifacts,
+            return SvcShared.GetNavigation(address, user, artifacts.Select(a => a.Id),
                 versionId: versionId,
                 revisionId: revisionId,
                 baselineId: baselineId,

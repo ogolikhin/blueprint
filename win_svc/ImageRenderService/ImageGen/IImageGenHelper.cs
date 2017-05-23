@@ -6,6 +6,6 @@ namespace ImageRenderService.ImageGen
 {
     public interface IImageGenHelper
     {
-        Task<MemoryStream> GenerateImageAsync(string url, ImageFormat format);
+        Task<MemoryStream> GenerateImageAsync(string processJsonModel, int maxImageWidth, int maxImageHeight, ImageFormat format);
     }
 }

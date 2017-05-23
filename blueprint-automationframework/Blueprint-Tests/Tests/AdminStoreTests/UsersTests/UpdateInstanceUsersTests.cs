@@ -24,7 +24,7 @@ namespace AdminStoreTests.UsersTests
         private const string USER_PATH = RestPaths.Svc.AdminStore.Users.USERS;
         private const string USER_PATH_ID = RestPaths.Svc.AdminStore.Users.USERS_id_;
 
-        private IUser _adminUser = null;
+        private IUser _adminUser;
 
         #region Setup and Cleanup
 
@@ -43,7 +43,6 @@ namespace AdminStoreTests.UsersTests
 
         #endregion Setup and Cleanup
 
-        // TODO: Add test that edits a user with the login name of a deleted user
         // TODO: Add edge case tests for field and password validation?
         // TODO: Verify license type calculation is performed correctly
         // TODO: Add test for editing a Guest user
@@ -602,9 +601,9 @@ namespace AdminStoreTests.UsersTests
                 );
         }
 
-        [TestCase((UserSource)0xFF, InstanceAdminErrorMessages.CreateOnlyDatabaseUsers)]
-        [TestCase(UserSource.Unknown, InstanceAdminErrorMessages.CreateOnlyDatabaseUsers)]
-        [TestCase(UserSource.Windows, InstanceAdminErrorMessages.CreateOnlyDatabaseUsers)]
+        [TestCase((UserSource)0xFF, InstanceAdminErrorMessages.ModifyOnlyDatabaseUsers)]
+        [TestCase(UserSource.Unknown, InstanceAdminErrorMessages.ModifyOnlyDatabaseUsers)]
+        [TestCase(UserSource.Windows, InstanceAdminErrorMessages.ModifyOnlyDatabaseUsers)]
         [Description("Create and add a default instance user.  Modify the source to an invalid value. " +
                      "Update the user. Verify that 400 Bad Request is returned.")]
         [TestRail(303414)]
@@ -911,14 +910,28 @@ namespace AdminStoreTests.UsersTests
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, InstanceAdminErrorMessages.UserNotExist);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
         [TestCase]
-        [Description("Create and add an instance user. Delete the user.  Try to update the deleted user. " +
+        [Description("Create and add an instance user. Delete the user. Try to update the deleted user. " +
              "Verify that 404 Not Found is returned.")]
         [TestRail(303454)]
-        public static void UpdateInstanceUser_UserDeleted_404NotFound()
+        public void UpdateInstanceUser_UserDeleted_404NotFound()
         {
-            throw new NotImplementedException();
+            // Setup:
+            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
+
+            createdUser.Id = Helper.AdminStore.AddUser(_adminUser, createdUser);
+            Helper.AdminStore.DeleteUsers(_adminUser, new List<int> { createdUser.Id.Value });
+
+            createdUser.Login = RandomGenerator.RandomAlphaNumeric(AdminStoreHelper.MinPasswordLength);
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() =>
+            {
+                Helper.AdminStore.UpdateUser(_adminUser, createdUser);
+            }, "'PUT {0}' should return 404 Not Found for deleted user!", USER_PATH_ID);
+
+            // Verify:
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, InstanceAdminErrorMessages.UserNotExist);
         }
 
         #endregion 404 Not Found Tests
@@ -974,7 +987,7 @@ namespace AdminStoreTests.UsersTests
             // Setup:
             var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
 
-            int createdUserId = 0;
+            var createdUserId = 0;
 
             Assert.DoesNotThrow(() =>
             {
@@ -1008,17 +1021,19 @@ namespace AdminStoreTests.UsersTests
             ThrowIf.ArgumentNull(user, nameof(user));
 
             var restApi = new RestApiFacade(Helper.ArtifactStore.Address, adminUser?.Token?.AccessControlToken);
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Users.USERS_id_, user.Id);
+            var path = I18NHelper.FormatInvariant(USER_PATH_ID, user.Id);
 
             try
             {
                 Logger.WriteInfo("Updating user with Id: {0}", user.Id);
 
-                restApi.SendRequestAndGetResponse<InstanceUser>(
+                restApi.SendRequestAndGetResponse<InstanceUser>
+                (
                     path,
                     RestRequestMethod.PUT,
                     bodyObject: null,
-                    expectedStatusCodes: new List<HttpStatusCode> { HttpStatusCode.OK });
+                    expectedStatusCodes: new List<HttpStatusCode> { HttpStatusCode.OK }
+                );
             }
             catch (WebException ex)
             {

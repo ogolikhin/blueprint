@@ -47,10 +47,12 @@ namespace ArtifactStore.Repositories
             int revisionId = int.MaxValue;
             int baselineId = 3;
             int totalArtifacts = 8;
+            int reviewRevisionId = 999;
             var reviewStatus = ReviewStatus.Completed;
 
             _itemInfoRepositoryMock.Setup(i => i.GetItemDescription(reviewId, userId, true, int.MaxValue)).ReturnsAsync(reviewDescription);
-            var reviewDetails = new ReviewDetails
+            _itemInfoRepositoryMock.Setup(i => i.GetRevisionIdFromBaselineId(baselineId, userId, false, int.MaxValue)).ReturnsAsync(reviewRevisionId);
+            var reviewDetails = new ReviewSummaryDetails
             {
                 BaselineId = baselineId,
                 ReviewPackageStatus = ReviewPackageStatus.Active,
@@ -89,7 +91,7 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(reviewStatus, review.Status);
             Assert.AreEqual(reviewName, review.Name);
             Assert.AreEqual(reviewDescription, review.Description);
-            Assert.AreEqual(ReviewSourceType.Baseline, review.SourceType);
+            Assert.AreEqual(reviewRevisionId, review.RevisionId);
             Assert.AreEqual(ReviewType.Formal, review.ReviewType);
             Assert.AreEqual(5, review.ArtifactsStatus.Approved);
             Assert.AreEqual(3, review.ArtifactsStatus.Disapproved);
@@ -143,7 +145,7 @@ namespace ArtifactStore.Repositories
             };
 
             _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
-            var reviewDetails = new ReviewDetails
+            var reviewDetails = new ReviewSummaryDetails
             {
                 ReviewPackageStatus = ReviewPackageStatus.Active,
                 ReviewParticipantRole = null, // User is not assigned to the review

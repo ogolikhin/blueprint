@@ -70,6 +70,7 @@
     <Compile Include="ArtifactModel\Impl\Baseline.cs" />
     <Compile Include="ArtifactModel\Impl\Collection.cs" />
     <Compile Include="ArtifactModel\INovaProcess.cs" />
+    <Compile Include="Factories\ArtifactWrapperFactory.cs" />
     <Compile Include="Factories\ImpactAnalysisFactory.cs" />
     <Compile Include="Impl\AdminRole.cs" />
     <Compile Include="ModelHelpers\DocumentArtifactWrapper.cs" />
@@ -105,8 +106,15 @@
     <Compile Include="NovaModel\Components\ImpactAnalysisService\ImpactAnalysisNode.cs" />
     <Compile Include="NovaModel\Components\ImpactAnalysisService\ImpactAnalysisResult.cs" />
     <Compile Include="NovaModel\Components\ImpactAnalysisService\ImpactAnalysisTree.cs" />
-    <Compile Include="NovaModel\Impl\ReviewContainer.cs" />
-    <Compile Include="NovaModel\Impl\ReviewParticipantsContent.cs" />
+    <Compile Include="NovaModel\Reviews\ReviewArtifactDetails.cs" />
+    <Compile Include="NovaModel\Reviews\Enums\ReviewerRole.cs" />
+    <Compile Include="NovaModel\Reviews\Enums\ReviewPackageStatus.cs" />
+    <Compile Include="NovaModel\Reviews\Enums\ReviewStatus.cs" />
+    <Compile Include="NovaModel\Reviews\Enums\ReviewType.cs" />
+    <Compile Include="NovaModel\Reviews\ReviewArtifactsStatus.cs" />
+    <Compile Include="NovaModel\Reviews\ReviewSource.cs" />
+    <Compile Include="NovaModel\Reviews\ReviewSummary.cs" />
+    <Compile Include="NovaModel\Reviews\ReviewParticipant.cs" />
     <Compile Include="NovaModel\Metadata\ItemTypeInformation.cs" />
     <Compile Include="NovaModel\Components\RapidReview\IDiagramElement.cs" />
     <Compile Include="NovaModel\Components\RapidReview\LabelStyle.cs" />
@@ -141,6 +149,7 @@
     <Compile Include="Impl\DatabaseHelper.cs" />
     <Compile Include="NovaModel\Components\RapidReview\ArtifactWithProperties.cs" />
     <Compile Include="NovaModel\Components\RapidReview\UseCase.cs" />
+    <Compile Include="NovaModel\Reviews\Enums\ReviewParticipantRole.cs" />
     <Compile Include="OpenApiModel\UserModel\Results\UserCallResultCollection.cs" />
     <Compile Include="Impl\LicenseUsage.cs" />
     <Compile Include="OpenApiModel\Services\OpenApi.cs" />

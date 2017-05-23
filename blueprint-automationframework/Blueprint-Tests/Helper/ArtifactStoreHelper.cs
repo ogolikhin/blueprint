@@ -37,6 +37,8 @@ namespace Helper
         private const int DEFAULT_BASELINES_AND_REVIEWS_ROOT_PREDEFINEDTYPE = (int)ItemTypePredefined.BaselineFolder;
         private const string DEFAULT_BASELINES_AND_REVIEWS_ROOT_PREFIX = "_BFL";
 
+        private static IArtifactStore ArtifactStore { get; } = ArtifactStoreFactory.GetArtifactStoreFromTestConfig();
+
         #region Custom Asserts
 
         /// <summary>
@@ -357,7 +359,50 @@ namespace Helper
             Assert.AreEqual(expectedArtifactBase.ProjectId, actualNovaArtifactBase.ProjectId, "The ProjectId  parameters don't match!");
         }
 
-        
+        /// <summary>
+        /// Asserts that the INovaArtifactDetails and INovaArtifact objects are equal.
+        /// </summary>
+        /// <param name="artifact1">The INovaArtifactDetails to compare against.</param>
+        /// <param name="artifact2">The INovaArtifact to compare against.</param>
+        /// <param name="skipIdAndVersion">(optional) Pass true to skip comparison of the Id and Version properties.</param>
+        /// <param name="skipParentId">(optional) Pass true to skip comparison of the ParentId properties.</param>
+        /// <param name="skipOrderIndex">(optional) Pass true to skip comparison of the OrderIndex properties.</param>
+        /// <param name="skipPublishedProperties">(optional) Pass true to skip comparison of properties that only published artifacts have.</param>
+        /// <param name="skipPermissions">(optional) Pass true to skip comparison of the Permissions properties.</param>
+        /// <exception cref="AssertionException">If any of the properties are different.</exception>
+        public static void AssertArtifactsEqual(INovaArtifactDetails artifact1, INovaArtifact artifact2,
+            bool skipIdAndVersion = false, bool skipParentId = false, bool skipOrderIndex = false,
+            bool skipPublishedProperties = false, bool skipPermissions = false)
+        {
+            ThrowIf.ArgumentNull(artifact1, nameof(artifact1));
+            ThrowIf.ArgumentNull(artifact2, nameof(artifact2));
+
+            NovaArtifactBase.AssertAreEqual(artifact1, artifact2, skipIdAndVersion: skipIdAndVersion, skipParentId: skipParentId);
+
+            if (!skipOrderIndex)
+            {
+                Assert.AreEqual(artifact1.OrderIndex, artifact2.OrderIndex, "The OrderIndex parameters don't match!");
+            }
+
+            if (!skipPermissions)
+            {
+                Assert.AreEqual(artifact1.Permissions, artifact2.Permissions, "The Permissions parameters don't match!");
+            }
+
+            if (!skipPublishedProperties)
+            {
+                Assert.AreEqual(artifact1.LockedDateTime, artifact2.LockedDateTime, "The LockedDateTime parameters don't match!");
+                Identification.AssertEquals(artifact1.LockedByUser, artifact2.LockedByUser);
+            }
+
+            // TODO: Add ItemTypeIconId property to INovaArtifact and uncomment the line below.
+            //Assert.AreEqual(artifact1.ItemTypeIconId, artifact2.ItemTypeIconId, "The ItemTypeIconId parameters don't match!");
+            Assert.AreEqual(artifact1.PredefinedType, artifact2.PredefinedType, "The PredefinedType parameters don't match!");
+            Assert.AreEqual(artifact1.Prefix, artifact2.Prefix, "The Prefix parameters don't match!");
+
+            // INovaArtifactDetails doesn't have these properties:  Children, HasChildren
+        }
+
         /// <summary>
         /// Asserts that both INovaArtifactDetails objects are equal.
         /// </summary>
@@ -378,16 +423,7 @@ namespace Helper
             ThrowIf.ArgumentNull(artifact1, nameof(artifact1));
             ThrowIf.ArgumentNull(artifact2, nameof(artifact2));
 
-            if (!skipIdAndVersion)
-            {
-                Assert.AreEqual(artifact1.Id, artifact2.Id, "The Id parameters don't match!");
-                Assert.AreEqual(artifact1.Version, artifact2.Version, "The Version parameters don't match!");
-            }
-
-            if (!skipParentId)
-            {
-                Assert.AreEqual(artifact1.ParentId, artifact2.ParentId, "The ParentId parameters don't match!");
-            }
+            NovaArtifactBase.AssertAreEqual(artifact1, artifact2, skipIdAndVersion: skipIdAndVersion, skipParentId: skipParentId);
 
             if (!skipOrderIndex)
             {
@@ -421,6 +457,8 @@ namespace Helper
             Assert.AreEqual(artifact1.Name, artifact2.Name, "The Name parameters don't match!");
             Assert.AreEqual(artifact1.ItemTypeId, artifact2.ItemTypeId, "The ItemTypeId parameters don't match!");
             Assert.AreEqual(artifact1.ItemTypeVersionId, artifact2.ItemTypeVersionId, "The ItemTypeVersionId parameters don't match!");
+            Assert.AreEqual(artifact1.PredefinedType, artifact2.PredefinedType, "The PredefinedType parameters don't match!");
+            Assert.AreEqual(artifact1.Prefix, artifact2.Prefix, "The Prefix parameters don't match!");
             Assert.AreEqual(artifact1.ProjectId, artifact2.ProjectId, "The ProjectId parameters don't match!");
             Assert.AreEqual(artifact1.LastSaveInvalid, artifact2.LastSaveInvalid, "The LastSaveInvalid parameters don't match!");
 
@@ -552,8 +590,8 @@ namespace Helper
             Assert.AreEqual(expectedSubArtifact?.Traces.Count, actualSubArtifact?.Traces.Count, "The number of Sub-Artifact Traces don't match!");
 
             // Get and compare sub-artifact Attachments & DocumentReferences.
-            var expectedAttachments = ArtifactStore.GetAttachments(artifactStore.Address, expectedSubArtifact.ParentId.Value, user, subArtifactId: expectedSubArtifact.Id);
-            var actualAttachments = ArtifactStore.GetAttachments(artifactStore.Address, actualSubArtifact.ParentId.Value, user, subArtifactId: actualSubArtifact.Id);
+            var expectedAttachments = Model.Impl.ArtifactStore.GetAttachments(artifactStore.Address, expectedSubArtifact.ParentId.Value, user, subArtifactId: expectedSubArtifact.Id);
+            var actualAttachments = Model.Impl.ArtifactStore.GetAttachments(artifactStore.Address, actualSubArtifact.ParentId.Value, user, subArtifactId: actualSubArtifact.Id);
 
             Attachments.AssertAreEqual(expectedAttachments, actualAttachments, attachmentCompareOptions);
 
@@ -978,7 +1016,7 @@ namespace Helper
         /// </summary>
         /// <param name="novaArtifacts">The list of artifacts returned.</param>
         /// <param name="expectedNumberOfArtifacts">expected number of artifacts.</param>
-        public static void ValidateNovaArtifactsCount(List<NovaArtifact> novaArtifacts, int expectedNumberOfArtifacts)
+        public static void ValidateNovaArtifactsCount(List<INovaArtifact> novaArtifacts, int expectedNumberOfArtifacts)
         {
             ThrowIf.ArgumentNull(novaArtifacts, nameof(novaArtifacts));
 
@@ -993,17 +1031,16 @@ namespace Helper
         /// <param name="project">The project where artifact resides.</param>
         /// <param name="artifact">The nova artifact returned from get project/artifact childen.</param>
         /// <param name="parentArtifactId">parent artifact Id for get project/artifact children.</param>
-        public static void ValidateNovaArtifact(IProject project, NovaArtifact artifact, int parentArtifactId)
+        public static void ValidateNovaArtifact(IProject project, INovaArtifact artifact, int parentArtifactId)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            var novaArtifactTypeForArtifact = project.NovaArtifactTypes.Find(nat => ((int)nat.PredefinedType).Equals((int)artifact.PredefinedType));
+            var novaArtifactTypeForArtifact = project.NovaArtifactTypes.Find(a => a.Id == artifact.ItemTypeId.Value);
+            Assert.IsNotNull(novaArtifactTypeForArtifact, "Couldn't find artifact type with Prefix: '{0}'!", artifact.Prefix);
 
             Assert.IsNotNull(artifact.HasChildren, "{0} should not be null!", nameof(artifact.HasChildren));
-
             Assert.IsNotNull(artifact.Id, "{0} should not be null!", nameof(artifact.Id));
-
             Assert.IsFalse(string.IsNullOrEmpty(artifact.Name), "name should not be empty but it's {0}", artifact.Name);
 
             switch (artifact.PredefinedType)
@@ -1020,13 +1057,13 @@ namespace Helper
                     break;
 
                 case DEFAULT_BASELINES_AND_REVIEWS_ROOT_PREDEFINEDTYPE:
-                    Assert.AreEqual(DEFAULT_BASELINES_AND_REVIEWS_ROOT_NAME, artifact.Name, "name should be {0} for the Baselinens default folder.",
+                    Assert.AreEqual(DEFAULT_BASELINES_AND_REVIEWS_ROOT_NAME, artifact.Name, "name should be {0} for the Baselines default folder.",
                     DEFAULT_BASELINES_AND_REVIEWS_ROOT_NAME);
 
-                    Assert.AreEqual(DEFAULT_BASELINES_AND_REVIEWS_ROOT_ORDERINDEX, artifact.OrderIndex, "orderIndex should be {0} for the Baselinens default folder.",
+                    Assert.AreEqual(DEFAULT_BASELINES_AND_REVIEWS_ROOT_ORDERINDEX, artifact.OrderIndex, "orderIndex should be {0} for the Baselines default folder.",
                         DEFAULT_BASELINES_AND_REVIEWS_ROOT_ORDERINDEX);
 
-                    Assert.AreEqual(DEFAULT_BASELINES_AND_REVIEWS_ROOT_PREFIX, artifact.Prefix, "prefix should be {0} for the Baselinens default folder.",
+                    Assert.AreEqual(DEFAULT_BASELINES_AND_REVIEWS_ROOT_PREFIX, artifact.Prefix, "prefix should be {0} for the Baselines default folder.",
                         DEFAULT_BASELINES_AND_REVIEWS_ROOT_PREFIX);
                     break;
 
@@ -1050,7 +1087,7 @@ namespace Helper
 
             Assert.IsNotNull(artifact.Permissions, "{0} should not be null!", nameof(artifact.Permissions));
 
-            Assert.AreEqual((int)novaArtifactTypeForArtifact.PredefinedType, (int)artifact.PredefinedType,
+            Assert.AreEqual((int)novaArtifactTypeForArtifact.PredefinedType, artifact.PredefinedType.Value,
                 "predefinedType {0} for the artifact {1} doesn't exist on the project {2}",
                 artifact.PredefinedType.ToString(), artifact.Name, project.Name);
 
@@ -1062,22 +1099,24 @@ namespace Helper
 
         // TODO: Update content validation portion when more information is available
         /// <summary>
-        /// Validate list of nova artifacts' contents
+        /// Validate list of nova artifacts' contents.
         /// </summary>
         /// <param name="project">The project where artifacts reside.</param>
         /// <param name="novaArtifacts">list of nova artifacts, currently used from get project/artifact childen.</param>
-        /// <param name="parentArtifact">(optional) parent artifact.
-        /// If null, validation work for the nova artifact list.</param>
-        public static void ValidateNovaArtifactsContents(IProject project, List<NovaArtifact> novaArtifacts, IArtifactBase parentArtifact = null)
+        /// <param name="parentId">(optional) The ID of the parent artifact.  If null, validation work for the nova artifact list.</param>
+        public static void ValidateNovaArtifactsContents(IProject project, List<INovaArtifact> novaArtifacts, int? parentId = null)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
             ThrowIf.ArgumentNull(novaArtifacts, nameof(novaArtifacts));
 
-            var parentArtifactId = (parentArtifact == null) ? project.Id : parentArtifact.Id;
+            var parentArtifactId = parentId ?? project.Id;
 
             foreach (var artifact in novaArtifacts)
             {
-                ValidateNovaArtifact(project, artifact, parentArtifactId);
+                if (artifact.OrderIndex > 0)    // Skip special Baselines & Collections folders.
+                {
+                    ValidateNovaArtifact(project, artifact, parentArtifactId);
+                }
             }
         }
 
@@ -1086,26 +1125,22 @@ namespace Helper
         /// </summary>
         /// <param name="project">The project where artifacts reside.</param>
         /// <param name="novaArtifacts">list of nova artifacts returned.</param>
-        /// <param name="parentArtifact">(optional) parent artifact.
-        /// If null, validation work with project Id used as parent Id.</param>
-        /// <param name="expectedNumberOfArtifacts">
-        /// (optional) expected number of artifacts.
-        /// If null, only validate returned artifacts contents</param>
+        /// <param name="parentId">(optional) The ID of the parent artifact.  If null, validation work with project Id used as parent Id.</param>
+        /// <param name="expectedNumberOfArtifacts">(optional) The expected number of artifacts.  If null, only validate returned artifacts contents</param>
         public static void ValidateNovaArtifacts(
             IProject project,
-            List<NovaArtifact> novaArtifacts,
-            IArtifactBase parentArtifact = null,
-            int expectedNumberOfArtifacts = 0
-            )
+            List<INovaArtifact> novaArtifacts,
+            int? parentId = null,
+            int? expectedNumberOfArtifacts = null)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
 
-            if (expectedNumberOfArtifacts != 0)
+            if (expectedNumberOfArtifacts != null)
             {
-                ValidateNovaArtifactsCount(novaArtifacts, expectedNumberOfArtifacts);
+                ValidateNovaArtifactsCount(novaArtifacts, expectedNumberOfArtifacts.Value);
             }
 
-            ValidateNovaArtifactsContents(project, novaArtifacts, parentArtifact);
+            ValidateNovaArtifactsContents(project, novaArtifacts, parentId);
         }
 
         #endregion NovaArtifact Validations
@@ -1167,6 +1202,20 @@ namespace Helper
             }
 
             return subArtifactDetailsList;
+        }
+
+        /// <summary>
+        /// Gets all details for all the sub-artifacts passed in.
+        /// </summary>
+        /// <param name="artifactId">The ID of the artifact to which the sub-artifacts belong.</param>
+        /// <param name="subArtifacts">The list of sub-artifacts to get more details for.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <returns>A list of NovaSubArtifacts.</returns>
+        public static List<NovaSubArtifact> GetDetailsForAllSubArtifacts(int artifactId, List<SubArtifact> subArtifacts, IUser user)
+        {
+            ThrowIf.ArgumentNull(subArtifacts, nameof(subArtifacts));
+
+            return subArtifacts.Select(subArtifact => ArtifactStore.GetSubartifact(user, artifactId, subArtifact.Id)).ToList();
         }
 
         /// <summary>
@@ -1383,7 +1432,8 @@ namespace Helper
             {
                 wrappedArtifact.Lock(user);
             }
-            wrappedArtifact.Update(user, (NovaArtifactDetails)artifactDetailsChangeset);
+
+            wrappedArtifact.Update(user, artifactDetailsChangeset);
 
             return property;
         }
@@ -1712,15 +1762,14 @@ namespace Helper
         /// </summary>
         /// <param name="artifact">The artifact which contains properties that NovaArtiactDetails refers to.</param>
         /// <returns>The INovaArtifactDetails with the minimal required properties for update.</returns>
-        public static INovaArtifactDetails CreateNovaArtifactDetailsForUpdate(INovaArtifactBase artifact)
+        public static INovaArtifactDetails CreateNovaArtifactDetailsForUpdate(INovaArtifactDetails artifact)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            var novaArtifactDetails = new NovaArtifactDetails
-            {
-                Id = artifact.Id,
-                ProjectId = artifact.ProjectId
-            };
+            var novaArtifactDetails = ArtifactFactory.CreateArtifact((ItemTypePredefined) artifact.PredefinedType.Value);
+            novaArtifactDetails.Id = artifact.Id;
+            novaArtifactDetails.ProjectId = artifact.ProjectId;
+
             return novaArtifactDetails;
         }
 
@@ -1962,12 +2011,12 @@ namespace Helper
         /// Adds a trace between two artifacts (and saves changes).  The source artifact should be locked by user.
         /// </summary>
         /// <param name="user">User to perform an operation.</param>
-        /// <param name="sourceArtifactId">If of source Artifact to add trace.</param>
+        /// <param name="sourceArtifactId">Id of source Artifact to add trace.</param>
         /// <param name="traceTargetArtifactId">Id of Trace's target artifact.</param>
         /// <param name="traceTargetArtifactProjectId">Id of Trace's target artifact project.</param>
-        /// <param name="traceDirection">(optional)Trace direction. 'From' by default.</param>
-        /// <param name="isSuspect">(optional)isSuspect, true for suspect trace, false otherwise.</param>
-        /// <param name="targetSubArtifact">(optional)subArtifact for trace target(creates trace with subartifact).</param>
+        /// <param name="traceDirection">(optional) Trace direction. 'From' by default.</param>
+        /// <param name="isSuspect">(optional) isSuspect, true for suspect trace, false otherwise.</param>
+        /// <param name="targetSubArtifactId">(optional) The ID of the sub-artifact for trace target (creates trace with subartifact).</param>
         /// <returns>NovaTrace object.</returns>
         public static NovaTrace AddManualArtifactTraceAndSave(
             IUser user,
@@ -1976,7 +2025,7 @@ namespace Helper
             int traceTargetArtifactProjectId,
             TraceDirection traceDirection = TraceDirection.From,
             bool? isSuspect = null,
-            NovaItem targetSubArtifact = null)
+            int? targetSubArtifactId = null)
         {
             var artifactStore = ArtifactStoreFactory.GetArtifactStoreFromTestConfig();
 
@@ -1988,21 +2037,48 @@ namespace Helper
                 artifactStore: artifactStore,
                 traceDirection: traceDirection,
                 isSuspect: isSuspect,
-                targetSubArtifact: targetSubArtifact);
+                targetSubArtifactId: targetSubArtifactId);
+        }
+
+        /// <summary>
+        /// Deletes a trace between two artifacts (and saves changes).  The source artifact should be locked by user.
+        /// </summary>
+        /// <param name="user">User to perform an operation.</param>
+        /// <param name="sourceArtifactId">Id of source Artifact to delete trace.</param>
+        /// <param name="traceTargetArtifactId">Id of Trace's target artifact.</param>
+        /// <param name="traceTargetArtifactProjectId">Id of Trace's target artifact project.</param>
+        /// <param name="targetSubArtifactId">(optional) The ID of the sub-artifact for trace target (deletes trace with subartifact).</param>
+        /// <returns>NovaTrace object.</returns>
+        public static NovaTrace DeleteManualArtifactTraceAndSave(
+            IUser user,
+            int sourceArtifactId,
+            int traceTargetArtifactId,
+            int traceTargetArtifactProjectId,
+            int? targetSubArtifactId = null)
+        {
+            var artifactStore = ArtifactStoreFactory.GetArtifactStoreFromTestConfig();
+
+            return UpdateManualArtifactTraceAndSave(user,
+                artifactId: sourceArtifactId,
+                traceTargetArtifactId: traceTargetArtifactId,
+                traceTargetArtifactProjectId: traceTargetArtifactProjectId,
+                changeType: ChangeType.Delete,
+                artifactStore: artifactStore,
+                targetSubArtifactId: targetSubArtifactId);
         }
 
         /// <summary>
         /// Adds (or updates or deletes) a trace between two artifacts (and saves changes).  The source artifact should be locked by user.
         /// </summary>
         /// <param name="user">User to perform an operation.</param>
-        /// <param name="artifactId">If of Artifact to add trace.</param>
+        /// <param name="artifactId">Id of Artifact to add trace.</param>
         /// <param name="traceTargetArtifactId">Id of Trace's target artifact.</param>
         /// <param name="traceTargetArtifactProjectId">Id of Trace's target artifact project.</param>
         /// <param name="changeType">ChangeType enum - Add, Update or Delete trace</param>
         /// <param name="artifactStore">IArtifactStore.</param>
-        /// <param name="traceDirection">(optional)Trace direction. 'From' by default.</param>
-        /// <param name="isSuspect">(optional)isSuspect, true for suspect trace, false otherwise.</param>
-        /// <param name="targetSubArtifact">(optional)subArtifact for trace target(creates trace with subartifact).</param>
+        /// <param name="traceDirection">(optional) Trace direction. 'From' by default.</param>
+        /// <param name="isSuspect">(optional) isSuspect, true for suspect trace, false otherwise.</param>
+        /// <param name="targetSubArtifactId">(optional) The ID of the sub-artifact for trace target (creates/updates/deletes trace with subartifact).</param>
         /// <returns>NovaTrace object.</returns>
         public static NovaTrace UpdateManualArtifactTraceAndSave(
             IUser user,
@@ -2013,7 +2089,7 @@ namespace Helper
             IArtifactStore artifactStore,
             TraceDirection traceDirection = TraceDirection.From,
             bool? isSuspect = null,
-            NovaItem targetSubArtifact = null)
+            int? targetSubArtifactId = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(traceDirection, nameof(traceDirection));
@@ -2026,7 +2102,7 @@ namespace Helper
             traceToCreate.ProjectId = traceTargetArtifactProjectId;
             traceToCreate.Direction = traceDirection;
             traceToCreate.TraceType = TraceType.Manual;
-            traceToCreate.ItemId = targetSubArtifact?.Id ?? traceTargetArtifactId;
+            traceToCreate.ItemId = targetSubArtifactId ?? traceTargetArtifactId;
             traceToCreate.ChangeType = changeType;
             traceToCreate.IsSuspect = isSuspect ?? false;
 
@@ -2034,7 +2110,7 @@ namespace Helper
 
             artifactDetails.Traces = updatedTraces;
 
-            ArtifactStore.UpdateArtifact(artifactStore.Address, user, artifactDetails);
+            Model.Impl.ArtifactStore.UpdateArtifact(artifactStore.Address, user, artifactDetails);
             // TODO: add assertions about changed traces
 
             return traceToCreate;

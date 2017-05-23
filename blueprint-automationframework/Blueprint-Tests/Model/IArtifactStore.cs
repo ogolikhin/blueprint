@@ -7,6 +7,7 @@ using Model.NovaModel.Impl;
 using System;
 using System.Collections.Generic;
 using System.Net;
+using Model.NovaModel.Reviews;
 
 namespace Model
 {
@@ -208,9 +209,8 @@ namespace Model
         /// </summary>
         /// <param name="id">The id of specified project.</param>
         /// <param name="user">The user to authenticate with.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>A list of all artifacts in the specified project.</returns>
-        List<NovaArtifact> GetProjectChildrenByProjectId(int id, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+        List<INovaArtifact> GetProjectChildrenByProjectId(int id, IUser user);
 
         /// <summary>
         /// Gets all children artifacts by project and artifact id.
@@ -219,10 +219,8 @@ namespace Model
         /// <param name="projectId">The id of specific project.</param>
         /// <param name="artifactId">The id of specific artifact.</param>
         /// <param name="user">The user to authenticate with.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>A list of all sub-artifacts of the specified artifact.</returns>
-        List<NovaArtifact> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null);
+        List<INovaArtifact> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user);
 
         /// <summary>
         /// Gets the artifact tree expanded to the specified artifact.
@@ -394,14 +392,13 @@ namespace Model
         NovaUseCaseArtifact GetUseCaseArtifact(IUser user, int artifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// Gets tracedetails for the specified artifact/subartifact
+        /// Gets trace details for the specified artifact/subartifact.
         /// (Runs: GET svc/artifactstore/artifacts/{itemId}/relationshipdetails)
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>
-        /// <param name="artifact">The artifact containing the relationship to get.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
+        /// <param name="artifactId">The ID of the artifact containing the relationship to get.</param>
         /// <returns>RelationshipsDetails object for the specified artifact/subartifact.</returns>
-        TraceDetails GetRelationshipsDetails(IUser user, IArtifactBase artifact, List<HttpStatusCode> expectedStatusCodes = null);
+        TraceDetails GetRelationshipsDetails(IUser user, int artifactId);
 
         /// <summary>
         /// Gets list of subartifacts for the artifact with the specified ID.
@@ -526,14 +523,21 @@ namespace Model
         /// <summary>
         /// Publishes a list of artifacts.
         /// </summary>
-        /// <param name="artifactsIds">The Ids of artifacts to publish.  This can be null if the 'all' parameter is true.</param>
+        /// <param name="artifactIds">The Ids of artifacts to publish.  This can be null if the 'all' parameter is true.</param>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="publishAll">(optional) Pass true to publish all artifacts created by the user that have changes.
         ///     In this case, you don't need to specify the artifacts to publish.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
-        NovaArtifactsAndProjectsResponse PublishArtifacts(IEnumerable<int> artifactsIds, IUser user, bool? publishAll = null,
+        NovaArtifactsAndProjectsResponse PublishArtifacts(IEnumerable<int> artifactIds, IUser user, bool? publishAll = null,
             List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Publishes all unpublished artifacts for the specified user.
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
+        NovaArtifactsAndProjectsResponse PublishAllArtifacts(IUser user);
 
         /// <summary>
         /// Gets artifact path by using artifact id
@@ -643,8 +647,12 @@ namespace Model
         /// </summary>
         /// <param name="user">user to perform the operation. </param>
         /// <param name="reviewId">Id of Review.</param>
+        /// <param name="offset">(optional) The offset for the pagination.</param>
+        /// <param name="limit">(optional) Maximum number of users to be returned.</param>
+        /// <param name="versionId">(optional)Id of version.</param>
         /// <returns>Object containing list of artifacts and number of artifacts</returns>
-        ReviewContent GetReviewArtifacts(IUser user, int reviewId);
+        ReviewContent GetReviewArtifacts(IUser user, int reviewId, int? offset = 0, int? limit = 50,
+            int? versionId = null);
 
         /// <summary>
         /// Gets review header information
@@ -652,7 +660,7 @@ namespace Model
         /// <param name="user">user to perform the operation.</param>
         /// <param name="reviewId">Id of Review.</param>
         /// <returns>ReviewContainer</returns>
-        ReviewContainer GetReviewContainer(IUser user, int reviewId);
+        ReviewSummary GetReviewContainer(IUser user, int reviewId);
 
         /// <summary>
         /// Gets list of Reviewers and additional information.
@@ -665,6 +673,19 @@ namespace Model
         /// <returns>ReviewParticipantsContent</returns>
         ReviewParticipantsContent GetReviewParticipants(IUser user, int reviewId, int? offset = 0, int? limit = 50,
             int? versionId = null);
+
+        /// <summary>
+        /// Gets list of review statuses for the specified artifact of the review.
+        /// </summary>
+        /// <param name="user">user to perform the operation.</param>
+        /// <param name="artifactId">Id of Artifact.</param>
+        /// <param name="reviewId">Id of Review.</param>
+        /// <param name="offset">(optional) The offset for the pagination.</param>
+        /// <param name="limit">(optional) Maximum number of users to be returned.</param>
+        /// <param name="versionId">(optional)Id of version.</param>
+        /// <returns>ArtifactReviewContent</returns>
+        ArtifactReviewContent GetArtifactStatusesByParticipant(IUser user, int artifactId, int reviewId,
+            int? offset = 0, int? limit = 50, int? versionId = null);
 
         #region Process methods
 

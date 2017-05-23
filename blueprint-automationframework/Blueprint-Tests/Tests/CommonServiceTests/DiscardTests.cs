@@ -40,7 +40,7 @@ namespace CommonServiceTests
 
         [TestCase]
         [TestRail(107373)]
-        [Description("Create process artifact, save, publish, discard - must return nothing to discard.")]
+        [Description("Create artifact, save, publish, discard - must return nothing to discard.")]
         public void Discard_PublishedArtifact_VerifyNothingToDiscard()
         {
             // Setup:
@@ -73,7 +73,7 @@ namespace CommonServiceTests
 
         [TestCase]
         [TestRail(107374)]
-        [Description("Create process artifact, save, don't publish, discard - must return successfully discarded.")]
+        [Description("Create artifact, save, don't publish, discard - must return successfully discarded.")]
         public void Discard_DraftUnpublishedArtifact_ArtifactIsDiscarded()
         {
             // Setup:

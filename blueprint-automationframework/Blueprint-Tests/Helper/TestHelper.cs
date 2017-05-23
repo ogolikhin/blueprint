@@ -500,12 +500,29 @@ namespace Helper
         /// <param name="artifact">The INovaArtifactDetails that was created by ArtifactStore.</param>
         /// <param name="project">The project where the artifact was created.</param>
         /// <param name="createdBy">The user that created this artifact.</param>
-        /// <returns>The ArtifactWrapper for the novaArtifact.</returns>
+        /// <returns>The ArtifactWrapper for the artifact.</returns>
         public ArtifactWrapper WrapArtifact(INovaArtifactDetails artifact, IProject project, IUser createdBy)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            var wrappedArtifact = new ArtifactWrapper(artifact, ArtifactStore, SvcShared, project, createdBy);
+            var wrappedArtifact = ArtifactWrapperFactory.CreateArtifactWrapper(artifact, project, createdBy);
+            WrappedArtifactsToDispose.Add(wrappedArtifact);
+
+            return wrappedArtifact;
+        }
+
+        /// <summary>
+        /// Wraps an INovaProcess in a DocumentArtifactWrapper and adds it the list of artifacts that get disposed.
+        /// </summary>
+        /// <param name="artifact">The INovaArtifactDetails that was created by ArtifactStore.</param>
+        /// <param name="project">The project where the artifact was created.</param>
+        /// <param name="createdBy">The user that created this artifact.</param>
+        /// <returns>The DocumentArtifactWrapper for the artifact.</returns>
+        public DocumentArtifactWrapper WrapDocumentArtifact(INovaArtifactDetails artifact, IProject project, IUser createdBy)
+        {
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+
+            var wrappedArtifact = (DocumentArtifactWrapper) ArtifactWrapperFactory.CreateArtifactWrapper(artifact, project, createdBy);
             WrappedArtifactsToDispose.Add(wrappedArtifact);
 
             return wrappedArtifact;
@@ -927,22 +944,21 @@ namespace Helper
         /// Create the property changeset for the target artifact
         /// </summary>
         /// <param name="artifactDetails">The nova artifact details</param>
-        /// <param name="customProperties">(optional) The custom properties to add to the changeset</param>
-        /// <param name="specificProperties">(optional) The specific properties to add to the changeset</param>
-        /// <param name="subArtifacts">(optional) The subartifacts to add to the changeset</param>
+        /// <param name="customProperties">The custom properties to add to the changeset</param>
+        /// <param name="specificProperties">The specific properties to add to the changeset</param>
+        /// <param name="subArtifacts">The subartifacts to add to the changeset</param>
         /// <returns>The artifact details changeset</returns>
-        public static INovaArtifactDetails CreateArtifactChangeSet(INovaArtifactBase artifactDetails,
-            List<CustomProperty> customProperties = null,
-            List<CustomProperty> specificProperties = null,
-            List<NovaSubArtifact> subArtifacts = null)
+        public static INovaArtifactDetails CreateArtifactChangeSet(
+            INovaArtifactDetails artifactDetails,
+            List<CustomProperty> customProperties,
+            List<CustomProperty> specificProperties,
+            List<NovaSubArtifact> subArtifacts)
         {
             ThrowIf.ArgumentNull(artifactDetails, nameof(artifactDetails));
 
-            var changesetDetails = new NovaArtifactDetails
-            {
-                Id = artifactDetails.Id,
-                ProjectId = artifactDetails.ProjectId
-            };
+            var changesetDetails = ArtifactFactory.CreateArtifact((ItemTypePredefined) artifactDetails.PredefinedType.Value);
+            changesetDetails.Id = artifactDetails.Id;
+            changesetDetails.ProjectId = artifactDetails.ProjectId;
 
             if (customProperties != null)
             {
@@ -973,7 +989,7 @@ namespace Helper
         /// <param name="specificProperty">(optional) The specific property to add to the changeset</param>
         /// <param name="subArtifact">(optional) The subartifact to add to the changeset</param>
         /// <returns>The artifact details changeset</returns>
-        public static INovaArtifactDetails CreateArtifactChangeSet(INovaArtifactBase artifactDetails,
+        public static INovaArtifactDetails CreateArtifactChangeSet(INovaArtifactDetails artifactDetails,
             CustomProperty customProperty = null, CustomProperty specificProperty = null, NovaSubArtifact subArtifact = null)
         {
             ThrowIf.ArgumentNull(artifactDetails, nameof(artifactDetails));
@@ -1073,17 +1089,18 @@ namespace Helper
         /// <param name="orderIndex">(optional) The order index of this Nova artifact.
         ///     By default the order index should be after the last artifact.</param>
         /// <param name="name">(optional) The artifact name.  By default a random name is created.</param>
+        /// <param name="artifactTypeName">(optional) Name of the artifact type to be used to create the artifact</param>
         /// <returns>The Nova artifact wrapped in an ProcessArtifactWrapper that tracks the state of the artifact.</returns>
         public ProcessArtifactWrapper CreateNovaProcessArtifact(
             IUser user, IProject project,
-            int? parentId = null, double? orderIndex = null, string name = null)
+            int? parentId = null, double? orderIndex = null, string name = null, string artifactTypeName = null)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
 
             name = name ?? RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
-            var artifact  = Model.Impl.ArtifactStore.CreateArtifact(ArtifactStore.Address, user,
-                ItemTypePredefined.Process, name, project, parentId, orderIndex);
+            var artifact = Model.Impl.ArtifactStore.CreateArtifact(ArtifactStore.Address, user,
+                ItemTypePredefined.Process, name, project, artifactTypeName, parentId, orderIndex);
 
             var process = Storyteller.GetNovaProcess(user, artifact.Id);
 
@@ -1118,11 +1135,12 @@ namespace Helper
         /// <param name="project">The project where the artifact was created.</param>
         /// <param name="createdBy">The user that created this artifact.</param>
         /// <returns>The ProcessArtifactWrapper for the novaProcessArtifact.</returns>
+        [SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]    // No, it MUST be an INovaProcess!
         public ProcessArtifactWrapper WrapProcessArtifact(INovaProcess novaProcess, IProject project, IUser createdBy)
         {
             ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
 
-            var wrappedProcessArtifact = new ProcessArtifactWrapper(novaProcess, ArtifactStore, SvcShared, project, createdBy);
+            var wrappedProcessArtifact = (ProcessArtifactWrapper) ArtifactWrapperFactory.CreateArtifactWrapper(novaProcess, project, createdBy);
             WrappedArtifactsToDispose.Add(wrappedProcessArtifact);
 
             return wrappedProcessArtifact;
@@ -1393,15 +1411,18 @@ namespace Helper
         {
             var user = CreateUserAndAddToDatabase(instanceAdminRole, source);
 
-            if ((targets & AuthenticationTokenTypes.AccessControlToken) != 0)
+            if (badToken != null)
             {
-                user.SetToken(badToken);
-            }
+                if ((targets & AuthenticationTokenTypes.AccessControlToken) != 0)
+                {
+                    user.SetToken(badToken);
+                }
 
-            if ((targets & AuthenticationTokenTypes.OpenApiToken) != 0)
-            {
-                user.SetToken(I18NHelper.FormatInvariant("{0} {1}",
-                    BlueprintToken.OPENAPI_START_OF_TOKEN, badToken));
+                if ((targets & AuthenticationTokenTypes.OpenApiToken) != 0)
+                {
+                    user.SetToken(I18NHelper.FormatInvariant("{0} {1}",
+                        BlueprintToken.OPENAPI_START_OF_TOKEN, badToken));
+                }
             }
 
             return user;

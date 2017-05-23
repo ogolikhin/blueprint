@@ -17,13 +17,11 @@ namespace Model.ModelHelpers
         /// Constructor.
         /// </summary>
         /// <param name="artifact">The artifact to wrap.</param>
-        /// <param name="artifactStore">The ArtifactStore to use for REST calls.</param>
-        /// <param name="svcShared">The SvcShared to use for REST calls.</param>
         /// <param name="project">The project where the artifact was created.</param>
         /// <param name="createdBy">The user who created the artifact.</param>
         /// <exception cref="AssertionException">If the Project ID of the artifact is different than the ID of the IProject, or if the artifact isn't a Document.</exception>
-        public DocumentArtifactWrapper(INovaArtifactDetails artifact, IArtifactStore artifactStore, ISvcShared svcShared, IProject project, IUser createdBy)
-            : base(artifact, artifactStore, svcShared, project, createdBy)
+        public DocumentArtifactWrapper(INovaArtifactDetails artifact, IProject project, IUser createdBy)
+            : base(artifact, project, createdBy)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
             ThrowIf.ArgumentNull(project, nameof(project));

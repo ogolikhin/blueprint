@@ -28,6 +28,7 @@
         public const string UserVersionsNotEqual = "The current version from the request doesn’t match the current version in DB.";
         public const string IncorrectUserId = "Incorrect userId.";
         public const string CreateOnlyDatabaseUsers = "You can create only database users.";
+        public const string ModifyOnlyDatabaseUsers = "You can modify only database users.";
         public const string EmailFormatIncorrect = "The email format is incorrect.";
         public const string LoginInvalid = "The \"Login\" field is invalid.";
 

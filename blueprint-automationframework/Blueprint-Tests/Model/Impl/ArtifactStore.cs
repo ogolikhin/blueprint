@@ -13,6 +13,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Mime;
 using System.Web;
+using Model.NovaModel.Reviews;
 using Utilities;
 using Utilities.Facades;
 
@@ -253,24 +254,32 @@ namespace Model.Impl
             return artifactTypes;
         }
 
-        /// <seealso cref="IArtifactStore.GetArtifactChildrenByProjectAndArtifactId(int, int, IUser, List{HttpStatusCode})"/>
-        public List<NovaArtifact> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IArtifactStore.GetArtifactChildrenByProjectAndArtifactId(int, int, IUser)"/>
+        public List<INovaArtifact> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Projects_id_.Artifacts_id_.CHILDREN, projectId, artifactId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
-            return restApi.SendRequestAndDeserializeObject<List<NovaArtifact>>(
+            var children = restApi.SendRequestAndDeserializeObject<List<NovaArtifact>>(
                 path,
                 RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes,
                 shouldControlJsonChanges: false);
+
+            return children.ConvertAll(a => (INovaArtifact) a);
         }
 
-        /// <seealso cref="IArtifactStore.GetProjectChildrenByProjectId(int, IUser, List{HttpStatusCode})"/>
-        public List<NovaArtifact> GetProjectChildrenByProjectId(int id, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IArtifactStore.GetProjectChildrenByProjectId(int, IUser)"/>
+        public List<INovaArtifact> GetProjectChildrenByProjectId(int id, IUser user)
         {
-            return GetProjectChildrenByProjectId(Address, id, user, expectedStatusCodes);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Projects_id_.CHILDREN, id);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            var artifacts = restApi.SendRequestAndDeserializeObject<List<NovaArtifact>>(
+                path,
+                RestRequestMethod.GET,
+                shouldControlJsonChanges: false);
+
+            return artifacts.ConvertAll(a => (INovaArtifact) a);
         }
 
         /// <seealso cref="IArtifactStore.GetExpandedArtifactTree(IUser, IProject, int, bool?, List{HttpStatusCode})"/>
@@ -542,14 +551,20 @@ namespace Model.Impl
             return relationships;
         }
 
-        /// <seealso cref="IArtifactStore.GetRelationshipsDetails(IUser, IArtifactBase, List{HttpStatusCode})"/>
-        public TraceDetails GetRelationshipsDetails(IUser user,
-            IArtifactBase artifact,
-            List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IArtifactStore.GetRelationshipsDetails(IUser, int})"/>
+        public TraceDetails GetRelationshipsDetails(
+            IUser user,
+            int artifactId)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
-            return GetRelationshipsDetails(Address, user, artifact.Id, expectedStatusCodes);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIP_DETAILS, artifactId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            var traceDetails = restApi.SendRequestAndDeserializeObject<TraceDetails>(
+                path,
+                RestRequestMethod.GET,
+                shouldControlJsonChanges: true);
+
+            return traceDetails;
         }
 
         /// <seealso cref="IArtifactStore.GetSubartifacts(IUser, int, List{HttpStatusCode})"/>
@@ -814,7 +829,7 @@ namespace Model.Impl
 
         /// <seealso cref="IArtifactStore.PublishArtifacts(IEnumerable{int}, IUser, bool?, List{HttpStatusCode})"/>
         public NovaArtifactsAndProjectsResponse PublishArtifacts(
-            IEnumerable<int> artifactsIds,
+            IEnumerable<int> artifactIds,
             IUser user,
             bool? publishAll = null,
             List<HttpStatusCode> expectedStatusCodes = null)
@@ -831,14 +846,20 @@ namespace Model.Impl
             var publishedArtifacts = restApi.SendRequestAndDeserializeObject<NovaArtifactsAndProjectsResponse, IEnumerable<int>>(
                 path,
                 RestRequestMethod.POST,
-                artifactsIds,
+                artifactIds,
                 queryParameters: queryParams,
                 expectedStatusCodes: expectedStatusCodes,
                 shouldControlJsonChanges: true);
 
             return publishedArtifacts;
         }
-        
+
+        /// <seealso cref="IArtifactStore.PublishAllArtifacts(IUser))"/>
+        public NovaArtifactsAndProjectsResponse PublishAllArtifacts(IUser user)
+        {
+            return PublishArtifacts(artifactIds: null, user: user, publishAll: true);
+        }
+
         /// <seealso cref="IArtifactStore.PublishArtifacts(List{IArtifactBase}, IUser, bool?, List{HttpStatusCode})"/>
         public INovaArtifactsAndProjectsResponse PublishArtifacts(List<IArtifactBase> artifacts, IUser user = null,
             bool? publishAll = null,
@@ -923,23 +944,41 @@ namespace Model.Impl
                 baselineIds, shouldControlJsonChanges: true);
         }
 
-        /// <seealso cref="IArtifactStore.GetReviewArtifacts(IUser, int)"/>
-        public ReviewContent GetReviewArtifacts(IUser user, int reviewId)
+        /// <seealso cref="IArtifactStore.GetReviewArtifacts(IUser, int, int?, int?, int?)"/>
+        public ReviewContent GetReviewArtifacts(IUser user, int reviewId, int? offset = 0, int? limit = 50,
+            int? versionId = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Reviews_id_.CONTENT, reviewId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
-            return restApi.SendRequestAndDeserializeObject<ReviewContent>(path,
-                RestRequestMethod.GET, shouldControlJsonChanges: true);
+            var queryParams = new Dictionary<string, string>();
+
+            if (offset != null)
+            {
+                queryParams.Add("offset", offset.ToString());
+            }
+
+            if (limit != null)
+            {
+                queryParams.Add("limit", limit.ToString());
+            }
+
+            if (versionId != null)
+            {
+                queryParams.Add("versionId", versionId.ToString());
+            }
+
+            return restApi.SendRequestAndDeserializeObject<ReviewContent>(path, RestRequestMethod.GET,
+                queryParameters: queryParams, shouldControlJsonChanges: true);
         }
 
         /// <seealso cref="IArtifactStore.GetReviewContainer(IUser, int)"/>
-        public ReviewContainer GetReviewContainer(IUser user, int reviewId)
+        public ReviewSummary GetReviewContainer(IUser user, int reviewId)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.CONTAINERS_id_, reviewId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
-            return restApi.SendRequestAndDeserializeObject<ReviewContainer>(path,
+            return restApi.SendRequestAndDeserializeObject<ReviewSummary>(path,
                 RestRequestMethod.GET, shouldControlJsonChanges: true);
         }
 
@@ -966,8 +1005,35 @@ namespace Model.Impl
                 queryParams.Add("versionId", versionId.ToString());
             }
 
-            return restApi.SendRequestAndDeserializeObject<ReviewParticipantsContent>(path,
-                RestRequestMethod.GET, shouldControlJsonChanges: true);
+            return restApi.SendRequestAndDeserializeObject<ReviewParticipantsContent>(path, RestRequestMethod.GET,
+                queryParameters: queryParams, shouldControlJsonChanges: true);
+        }
+
+        /// <seealso cref="IArtifactStore.GetArtifactStatusesByParticipant(IUser, int, int, int?, int?, int?)"/>
+        public ArtifactReviewContent GetArtifactStatusesByParticipant(IUser user, int artifactId, int reviewId,
+            int? offset = 0, int? limit = 50, int? versionId = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Containers_id_.ARTIFACT_REVIEWERS, reviewId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+            var queryParams = new Dictionary<string, string> {{"artifactId", artifactId.ToStringInvariant()}};
+
+            if (offset != null)
+            {
+                queryParams.Add("offset", offset.ToString());
+            }
+
+            if (limit != null)
+            {
+                queryParams.Add("limit", limit.ToString());
+            }
+
+            if (versionId != null)
+            {
+                queryParams.Add("versionId", versionId.ToString());
+            }
+
+            return restApi.SendRequestAndDeserializeObject<ArtifactReviewContent>(path, RestRequestMethod.GET,
+                queryParameters: queryParams, shouldControlJsonChanges: true);
         }
 
         #region Process methods
@@ -1465,30 +1531,6 @@ namespace Model.Impl
         }
 
         /// <summary>
-        /// Gets all children artifacts for specified by id project.
-        /// (Runs: GET /projects/{projectId}/children)
-        /// </summary>
-        /// <param name="address">The base address of the ArtifactStore.</param>
-        /// <param name="id">The id of specified project.</param>
-        /// <param name="user">The user to authenticate with.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>A list of all artifacts in the specified project.</returns>
-        public static List<NovaArtifact> GetProjectChildrenByProjectId(string address,
-            int id,
-            IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Projects_id_.CHILDREN, id);
-            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
-
-            return restApi.SendRequestAndDeserializeObject<List<NovaArtifact>>(
-                path,
-                RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: false);
-        }
-
-        /// <summary>
         /// Gets list of subartifacts for the artifact with the specified ID.
         /// (Runs: GET svc/artifactstore/artifacts/{artifactId}/subartifacts)
         /// </summary>
@@ -1553,35 +1595,6 @@ namespace Model.Impl
                 shouldControlJsonChanges: true);
 
             return unpublishedChanges;
-        }
-
-        /// <summary>
-        /// Gets traceDetails for the specified artifact/subartifact
-        /// (Runs: GET svc/artifactstore/artifacts/{artifactId}/relationshipdetails)
-        /// </summary>
-        /// <param name="address">The base address of the ArtifactStore.</param>
-        /// <param name="user">The user to authenticate with.</param>
-        /// <param name="artifactId">The artifact ID containing the relationship to get.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>RelationshipsDetails object for the specified artifact/subartifact.</returns>
-        public static TraceDetails GetRelationshipsDetails(string address,
-            IUser user,
-            int artifactId,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            ThrowIf.ArgumentNull(address, nameof(address));
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIP_DETAILS, artifactId);
-            var restApi = new RestApiFacade(address, user.Token?.AccessControlToken);
-
-            var traceDetails = restApi.SendRequestAndDeserializeObject<TraceDetails>(
-                path,
-                RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: true);
-
-            return traceDetails;
         }
 
         #endregion Static members

@@ -9,7 +9,6 @@ using NUnit.Framework;
 using RestSharp.Extensions.MonoHttp;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Mime;
@@ -260,27 +259,29 @@ namespace Model.Impl
             }
         }
 
-        /// <seealso cref="IAdminStore.DeleteUser(IUser, int)"/>
-        public HttpStatusCode DeleteUser(IUser adminUser, int userId)
+        /// <seealso cref="IAdminStore.DeleteUsers(IUser, List{int}, bool)"/>
+        public HttpStatusCode DeleteUsers(IUser adminUser, List<int> ids,  bool selectAll = false)
         {
             var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Users.USERS_id_, userId);
+            const string path = RestPaths.Svc.AdminStore.Users.USERS_DELETE;
 
             try
             {
-                Logger.WriteInfo("Deleting user with Id: {0}", userId);
+                Logger.WriteInfo("Deleting users with selectAll: {0} and ids: ({1})", selectAll, string.Join(", ", ids));
 
-                var response = restApi.SendRequestAndGetResponse(
+                var response = restApi.SendRequestAndGetResponse
+                (
                     path,
-                    RestRequestMethod.DELETE,
-                    expectedStatusCodes: new List<HttpStatusCode> { HttpStatusCode.NoContent });
+                    RestRequestMethod.POST,
+                    bodyObject: new { SelectAll = selectAll, Ids = ids }
+                );
 
                 return response.StatusCode;
             }
             catch (WebException ex)
             {
                 Logger.WriteError("Content = '{0}'", restApi.Content);
-                Logger.WriteError("Error while performing DeleteUser - {0}", ex.Message);
+                Logger.WriteError("Error while performing DeleteUsers - {0}", ex.Message);
                 throw;
             }
         }
@@ -460,6 +461,22 @@ namespace Model.Impl
         public HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null)
         {
             return GetStatusUpcheck(RestPaths.Svc.AdminStore.Status.UPCHECK, expectedStatusCodes);
+        }
+
+        /// <seealso cref="IAdminStore.GetApplicationSettings()"/>
+        public Dictionary<string, string> GetApplicationSettings()
+        {
+            var restApi = new RestApiFacade(Address);
+            const string path = RestPaths.Svc.AdminStore.CONFIG;
+
+            Logger.WriteInfo("Getting application settings...");
+
+            var response = restApi.SendRequestAndGetResponse(
+                path,
+                RestRequestMethod.GET);
+
+            var settings = JsonConvert.DeserializeObject<Dictionary<string, string>>(response.Content);
+            return settings;
         }
 
         /// <seealso cref="IAdminStore.GetSettings(IUser, List{HttpStatusCode})"/>

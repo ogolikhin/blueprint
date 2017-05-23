@@ -3,19 +3,25 @@ using System.IO;
 using System.Web.Http;
 using System.Web.Http.SelfHost;
 using CefSharp;
+using ImageRenderService.Helpers;
+using ImageRenderService.Transport;
 using Topshelf;
 
 namespace ImageRenderService.ImageGen
 {
-    class ImageGenService : ServiceControl
+    public class ImageGenService : ServiceControl
     {
         private HttpSelfHostServer _server;
         private readonly HttpSelfHostConfiguration _config;
         public readonly Uri ServiceAddress = new Uri(@"http://localhost:5557");
 
+        private static readonly string NServiceBusConnectionString = ServiceHelper.NServiceBusConnectionString;
+
         private static readonly BrowserPool BrowserPool = BrowserPool.Create();
 
-        public readonly ImageGenHelper ImageGenerator = new ImageGenHelper(BrowserPool);
+        public IImageGenHelper ImageGenerator = new ImageGenHelper(BrowserPool);
+
+        private readonly NServiceBusServer _nServiceBusServer = new NServiceBusServer();
 
         private ImageGenService()
         {
@@ -45,6 +51,8 @@ namespace ImageRenderService.ImageGen
             _server = new HttpSelfHostServer(_config);
             _server.OpenAsync().Wait();
 
+            _nServiceBusServer.Start(NServiceBusConnectionString).Wait();
+
             return true;
         }
 
@@ -52,6 +60,8 @@ namespace ImageRenderService.ImageGen
         {
             try
             {
+                _nServiceBusServer.Stop().Wait();
+
                 _server.CloseAsync().Wait();
                 _server.Dispose();
                 BrowserPool.Dispose();

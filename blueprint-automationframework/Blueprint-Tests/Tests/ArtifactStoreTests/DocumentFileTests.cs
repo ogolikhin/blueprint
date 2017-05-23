@@ -328,7 +328,7 @@ namespace ArtifactStoreTests
         {
             var artifact = Helper.CreateNovaArtifact(user, project, ItemTypePredefined.Document);
 
-            return new DocumentArtifactWrapper(artifact.Artifact, Helper.ArtifactStore, Helper.SvcShared, project, user);
+            return new DocumentArtifactWrapper(artifact.Artifact, project, user);
         }
 
         /// <summary>

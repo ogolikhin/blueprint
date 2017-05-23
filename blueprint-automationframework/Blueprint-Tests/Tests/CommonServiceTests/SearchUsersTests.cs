@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using Common;
+﻿using Common;
 using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.Impl;
-using Newtonsoft.Json;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
 using TestCommon;
 using Utilities;
 using Utilities.Factories;

@@ -1,22 +1,15 @@
 ﻿using System.Collections.Generic;
+
 namespace ArtifactStore.Models.Review
 {
-    public class ReviewArtifact
+    public class ReviewArtifact : BaseReviewArtifact
     {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string Prefix { get; set; }
-        public int ItemTypeId { get; set; }
-        public int ItemTypePredefined { get; set; }
-        public int? IconImageId { get; set; }
-        public bool HasComments { get; set; }
         public bool IsApprovalRequired { get; set; }
         public int Pending { get; set; }
-        public int Approved {get; set; }
+        public int Approved { get; set; }
         public int Disapproved { get; set; }
         public int Viewed { get; set; }
         public int Unviewed { get; set; }
-        public bool HasAccess { get; set; }
     }
 
     internal class ReviewArtifactStatus

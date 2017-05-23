@@ -104,11 +104,12 @@ namespace Model
             [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
             public static class AdminStore
             {
+                public const string CONFIG                          = "svc/adminstore/config";
+                public const string JOBS                            = "svc/adminstore/jobs";
+                public const string JOBS_id_                        = "svc/adminstore/jobs/{0}";
                 public const string LOG                             = "svc/adminstore/log";
                 public const string SESSIONS                        = "svc/adminstore/sessions";
                 public const string STATUS                          = "svc/adminstore/status";
-                public const string JOBS                            = "svc/adminstore/jobs";
-                public const string JOBS_id_                        = "svc/adminstore/jobs/{0}";
 
                 public static class Config
                 {

@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Mime;
+using Model.Common.Enums;
 using Utilities;
 using Utilities.Facades;
 
@@ -321,8 +322,8 @@ namespace Model.Impl
             }
         }
 
-        /// <seealso cref="IAdminStore.GetUserById(IUser, int)"/>
-        public InstanceUser GetUserById(IUser adminUser, int userId)
+        /// <seealso cref="IAdminStore.GetUserById(IUser, int?)"/>
+        public InstanceUser GetUserById(IUser adminUser, int? userId)
         {
             var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Users.USERS_id_, userId);
@@ -345,37 +346,12 @@ namespace Model.Impl
             }
         }
 
-        /// <seealso cref="IAdminStore.GetUserByLogin(IUser, string)"/>
-        public InstanceUser GetUserByLogin(IUser adminUser, string login)
-        {
-            var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Users.SEARCH, login);
-
-            try
-            {
-                Logger.WriteInfo("Getting user by user login...");
-
-                return restApi.SendRequestAndDeserializeObject<InstanceUser>(
-                    path,
-                    RestRequestMethod.GET,
-                    expectedStatusCodes: new List<HttpStatusCode> { HttpStatusCode.OK },
-                    shouldControlJsonChanges: false);
-            }
-            catch (WebException ex)
-            {
-                Logger.WriteError("Content = '{0}'", restApi.Content);
-                Logger.WriteError("Error while performing GetUserByLogin - {0}", ex.Message);
-                throw;
-            }
-        }
-
-        /// <seealso cref="IAdminStore.GetUsers(IUser, int?, int?, string, string, string[], string)"/>
+        /// <seealso cref="IAdminStore.GetUsers(IUser, int?, int?, string, SortOrder?, string)"/>
         public List<InstanceUser> GetUsers(IUser adminUser, 
             int? offset = null, 
             int? limit = null, 
             string sort = null, 
-            string order = null,
-            string[] propertyFilters = null,
+            SortOrder? order = null,
             string search = null)
         {
             var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
@@ -397,18 +373,10 @@ namespace Model.Impl
             {
                 queryParameters.Add("sort", sort);
             }
-
-            if (!string.IsNullOrEmpty(order))
+            
+            if (order != null)
             {
-                queryParameters.Add("order", order);
-            }
-
-            if (propertyFilters != null)
-            {
-                for (int i=0; i < propertyFilters.Length; i++)
-                {
-                    queryParameters.Add(I18NHelper.FormatInvariant("property{0}", i), propertyFilters[i]);
-                }
+                queryParameters.Add("order", order.ToString());
             }
 
             if (!string.IsNullOrEmpty(search))
@@ -420,12 +388,16 @@ namespace Model.Impl
             {
                 Logger.WriteInfo("Getting users...");
 
-                return restApi.SendRequestAndDeserializeObject< List<InstanceUser>>(
+                var queryResult =  restApi.SendRequestAndDeserializeObject<QueryResult<InstanceUser>>(
                     path,
                     RestRequestMethod.GET,
                     queryParameters: queryParameters,
                     expectedStatusCodes: new List<HttpStatusCode> { HttpStatusCode.OK },
                     shouldControlJsonChanges: false);
+
+                Assert.AreEqual(queryResult.Total, queryResult.Items.Count(), "The expected user count does not match the number of users returned!");
+
+                return (List<InstanceUser>)queryResult.Items;
             }
             catch (WebException ex)
             {

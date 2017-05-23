@@ -70,9 +70,11 @@
     <Compile Include="ArtifactModel\Impl\Baseline.cs" />
     <Compile Include="ArtifactModel\Impl\Collection.cs" />
     <Compile Include="ArtifactModel\INovaProcess.cs" />
+    <Compile Include="Common\Enums\SortOrder.cs" />
     <Compile Include="Factories\ArtifactWrapperFactory.cs" />
     <Compile Include="Factories\ImpactAnalysisFactory.cs" />
     <Compile Include="Impl\AdminRole.cs" />
+    <Compile Include="Impl\QueryResult.cs" />
     <Compile Include="ModelHelpers\DocumentArtifactWrapper.cs" />
     <Compile Include="ModelHelpers\ProcessArtifactWrapper.cs" />
     <Compile Include="NovaModel\Components\OperationsResults\ReviewContent.cs" />

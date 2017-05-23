@@ -542,7 +542,6 @@ namespace ArtifactStoreTests
             // Change custom property user value
             var subArtifactCustomPropertyValue = author;
             var subArtifactChangeSet = CreateSubArtifactChangeSet(author, projectCustomData, artifact, subArtifactDisplayName, subArtifactCustomPropertyName, subArtifactCustomPropertyValue);
-            //var artifactDetails = Helper.ArtifactStore.GetNovaProcess(author, artifact.Id);
             artifact.SubArtifacts = new List<NovaSubArtifact> { subArtifactChangeSet };
 
             var requestedCustomProperty = subArtifactChangeSet.CustomPropertyValues.Find(p => p.Name.Equals(subArtifactCustomPropertyName));

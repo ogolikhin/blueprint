@@ -50,9 +50,9 @@ namespace AdminStore.Helpers
                 throw new BadRequestException(ErrorMessages.CreationGroupWithScopeAndLicenseIdSimultaneously, ErrorCodes.BadRequest);
             }
 
-            if (group.ProjectId == null && (group.License != LicenseType.Collaborator && group.License != LicenseType.Author))
+            if (group.ProjectId == null && (group.License != LicenseType.Collaborator && group.License != LicenseType.Author && group.License != LicenseType.None))
             {
-                throw new BadRequestException(ErrorMessages.CreationGroupsOnlyWithCollaboratorAndAuthorLicenses, ErrorCodes.BadRequest);
+                throw new BadRequestException(ErrorMessages.CreationGroupsOnlyWithCollaboratorOrAuthorOrNoneLicenses, ErrorCodes.BadRequest);
             }
         }
     }

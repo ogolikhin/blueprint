@@ -43,7 +43,7 @@ namespace ArtifactStore.Controllers
         public Task<ReviewSummary> GetReviewContainerAsync(int containerId)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return _sqlReviewsRepository.GetReviewContainerAsync(containerId, session.UserId);
+            return _sqlReviewsRepository.GetReviewSummaryAsync(containerId, session.UserId);
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace ArtifactStore.Controllers
         public Task<ReviewArtifactsContent> GetContentAsync(int containerId, int? offset = 0, int? limit = 50, int? versionId = null)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return _sqlReviewsRepository.GetContentAsync(containerId, session.UserId, offset, limit, versionId);
+            return _sqlReviewsRepository.GetReviewArtifactsContentAsync(containerId, session.UserId, offset, limit, versionId);
         }
 
         /// <summary>

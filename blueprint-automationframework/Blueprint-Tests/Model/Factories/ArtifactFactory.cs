@@ -139,6 +139,35 @@ namespace Model.Factories
         }
 
         /// <summary>
+        /// Creates a new empty sub-class of INovaArtifactDetails that matches the specified Item Type.
+        /// </summary>
+        /// <param name="itemType">The base artifact type to create.</param>
+        /// <returns>The appropriate INovaArtifactDetails sub-class for the specified Item Type.</returns>
+        public static INovaArtifactDetails CreateArtifact(ItemTypePredefined itemType)
+        {
+            switch (itemType)
+            {
+                case ItemTypePredefined.Actor:
+                    return new Actor();
+
+                case ItemTypePredefined.Baseline:
+                    return new Baseline();
+
+                case ItemTypePredefined.ArtifactCollection:
+                    return new Collection();
+
+                case ItemTypePredefined.Process:
+                    return new NovaProcess();
+
+                case ItemTypePredefined.ArtifactReviewPackage:
+                    return new Review();
+
+                default:
+                    return new NovaArtifactDetails();
+            }
+        }
+
+        /// <summary>
         /// Tries to convert NovaArtifactDetails to specific artifact type (now it works for Actor).
         /// </summary>
         /// <param name="artifactDetails">artifactDetails object.</param>

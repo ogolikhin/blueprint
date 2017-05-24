@@ -221,6 +221,14 @@ namespace Model
         HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
+        /// Gets application settings from ConfigControl.
+        /// (Runs: GET /config)
+        /// </summary>
+        /// <remarks>No authentication is required for this call.</remarks>
+        /// <returns>A dictionary of application settings.</returns>
+        Dictionary<string, string> GetApplicationSettings();
+
+        /// <summary>
         /// Gets setting from ConfigControl.
         /// (Runs: GET /config/settings)
         /// </summary>

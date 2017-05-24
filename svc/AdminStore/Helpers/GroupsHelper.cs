@@ -28,6 +28,6 @@ namespace AdminStore.Helpers
                 : defaultSortColumn;
 
             return sorting.Order == SortOrder.Desc ? "-" + sortColumn : sortColumn;
-        }
+        }      
     }
 }

@@ -45,6 +45,17 @@
         public static readonly string InvalidAddUserToGroupsParameters = "Invalid parameters to add user to groups.";
         public static readonly string GeneralErrorOfAddingUserToGroups = "An error has occurred when the operation was being performed at the SQL level.";
         public static readonly string CantGetUsersToBeDeleted = "Can't get users to be deleted";
+        //Groups
+        public static readonly string GroupModelIsEmpty = "The group model is empty.";
+        public static readonly string GroupName = "Please ensure the Group Name is not empty.";
+        public static readonly string GroupNameFieldLimitation = "The length of the \"Group Name\" field must be between 4 and 255 characters.";
+        public static readonly string GroupEmailFieldLimitation = "The length of the \"Group Email\" field must be between 4 and 255 characters.";
+        public static readonly string GroupEmailFormatIncorrect = "Please ensure the email address is correct.";
+        public static readonly string GeneralErrorOfCreatingGroup = "An error has occurred when the operation was being performed at SQL level.";
+        public static readonly string CreationOnlyDatabaseGroup = "You can create only database group.";
+        public static readonly string CreationGroupsOnlyWithCollaboratorAndAuthorLicenses = "You can create groups only with \"collaborator\" and \"author\" licenses.";
+        public static readonly string CreationGroupWithScopeAndLicenseIdSimultaneously = "You can not create the \"Access Group\" and \"License Group\" simultaneously.";
+        public static readonly string GroupAlreadyExist = "The same group already exists. You cannot add duplicate groups.";
         public static readonly string GroupDoesNotExist = "The group with this Id does not exist or removed from the system.";
 
     }

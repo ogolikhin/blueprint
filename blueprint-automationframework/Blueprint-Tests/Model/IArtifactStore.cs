@@ -7,6 +7,7 @@ using Model.NovaModel.Impl;
 using System;
 using System.Collections.Generic;
 using System.Net;
+using Model.NovaModel.Reviews;
 
 namespace Model
 {
@@ -391,14 +392,13 @@ namespace Model
         NovaUseCaseArtifact GetUseCaseArtifact(IUser user, int artifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// Gets tracedetails for the specified artifact/subartifact
+        /// Gets trace details for the specified artifact/subartifact.
         /// (Runs: GET svc/artifactstore/artifacts/{itemId}/relationshipdetails)
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>
-        /// <param name="artifact">The artifact containing the relationship to get.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
+        /// <param name="artifactId">The ID of the artifact containing the relationship to get.</param>
         /// <returns>RelationshipsDetails object for the specified artifact/subartifact.</returns>
-        TraceDetails GetRelationshipsDetails(IUser user, IArtifactBase artifact, List<HttpStatusCode> expectedStatusCodes = null);
+        TraceDetails GetRelationshipsDetails(IUser user, int artifactId);
 
         /// <summary>
         /// Gets list of subartifacts for the artifact with the specified ID.
@@ -660,7 +660,7 @@ namespace Model
         /// <param name="user">user to perform the operation.</param>
         /// <param name="reviewId">Id of Review.</param>
         /// <returns>ReviewContainer</returns>
-        ReviewContainer GetReviewContainer(IUser user, int reviewId);
+        ReviewSummary GetReviewContainer(IUser user, int reviewId);
 
         /// <summary>
         /// Gets list of Reviewers and additional information.

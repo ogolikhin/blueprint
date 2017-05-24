@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using AdminStore.Helpers;
 using AdminStore.Models;
 using Dapper;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
 
@@ -56,6 +57,41 @@ namespace AdminStore.Repositories
             parameters.Add("@SelectAll", body.SelectAll);
             var result = await _connectionWrapper.ExecuteScalarAsync<int>("DeleteGroups", parameters, commandType: CommandType.StoredProcedure);
             return result;
+        }
+
+
+        public async Task<int> AddGroupAsync(GroupDto group)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@Name", group.Name);
+            parameters.Add("@Email", group.Email);
+            parameters.Add("@Source", group.GroupSource);
+            parameters.Add("@LicenseId", (int)group.License);
+            parameters.Add("@ProjectId", group.ProjectId);
+
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var groupId = await _connectionWrapper.ExecuteScalarAsync<int>("AddGroup", parameters, commandType: CommandType.StoredProcedure);
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.GeneralSqlError:
+                        throw new Exception(ErrorMessages.GeneralErrorOfCreatingGroup);
+
+                    case (int)SqlErrorCodes.GroupWithNameAndLicenseIdExist:
+                        throw new BadRequestException(ErrorMessages.GroupAlreadyExist);
+
+                    case (int)SqlErrorCodes.GroupWithNameAndScopeExist:
+                        throw new BadRequestException(ErrorMessages.GroupAlreadyExist);
+
+                    default:
+                        return groupId;
+                }
+            }
+            return groupId;
         }
     }
 }

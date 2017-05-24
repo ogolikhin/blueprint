@@ -102,6 +102,7 @@
     <Compile Include="Repositories\AuthenticationRepositoryTests.cs" />
     <Compile Include="Repositories\Jobs\JobsRepositoryTests.cs" />
     <Compile Include="Repositories\SamlRepositoryTests.cs" />
+    <Compile Include="Repositories\SqlGroupRepositoryTests.cs" />
     <Compile Include="Repositories\SqlInstanceRepositoryTests.cs" />
     <Compile Include="Repositories\SqlPrivilegesRepositoryTest.cs" />
     <Compile Include="Repositories\SqlSettingsRepositoryTests.cs" />

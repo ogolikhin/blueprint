@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Net;
 using Common;
 using CustomAttributes;
@@ -38,7 +36,7 @@ namespace AdminStoreTests.UsersTests
         [TestFixtureTearDown]
         public void TearDown()
         {
-            Helper.AdminStore.DeleteUsers(_adminUser, Helper.InstanceUsers.Select(user => user.Id).ToList());
+            Helper.DeleteInstanceUsers(_adminUser);
 
             Helper?.Dispose();
         }
@@ -787,7 +785,7 @@ namespace AdminStoreTests.UsersTests
             // Setup:
             var createdUser = Helper.CreateAndAddInstanceUser(_adminUser);
 
-            Helper.AdminStore.DeleteUsers(_adminUser, new List<int?> { createdUser.Id.Value });
+            if (createdUser.Id != null) Helper.AdminStore.DeleteUsers(_adminUser, new List<int> { createdUser.Id.Value });
 
             createdUser.Login = RandomGenerator.RandomAlphaNumeric(AdminStoreHelper.MinPasswordLength);
 

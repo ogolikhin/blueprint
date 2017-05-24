@@ -260,8 +260,8 @@ namespace Model.Impl
             }
         }
 
-        /// <seealso cref="IAdminStore.DeleteUsers(IUser, List{int?}, bool)"/>
-        public HttpStatusCode DeleteUsers(IUser adminUser, List<int?> ids,  bool selectAll = false)
+        /// <seealso cref="IAdminStore.DeleteUsers(IUser, List{int}, bool)"/>
+        public HttpStatusCode DeleteUsers(IUser adminUser, List<int> ids,  bool selectAll = false)
         {
             var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
             const string path = RestPaths.Svc.AdminStore.Users.USERS_DELETE;

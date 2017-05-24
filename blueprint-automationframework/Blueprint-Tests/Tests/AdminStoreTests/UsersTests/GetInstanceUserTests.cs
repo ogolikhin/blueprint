@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using CustomAttributes;
 using Helper;
 using Model;
@@ -33,7 +32,7 @@ namespace AdminStoreTests.UsersTests
         [TestFixtureTearDown]
         public void TearDown()
         {
-            Helper.AdminStore.DeleteUsers(_adminUser, Helper.InstanceUsers.Select(user => user.Id).ToList());
+            Helper.DeleteInstanceUsers(_adminUser);
 
             Helper?.Dispose();
         }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using CustomAttributes;
 using Helper;
 using Model;
@@ -34,7 +32,7 @@ namespace AdminStoreTests.UsersTests
         [TestFixtureTearDown]
         public void TearDown()
         {
-            Helper.AdminStore.DeleteUsers(_adminUser, Helper.InstanceUsers.Select(user => user.Id).ToList());
+            Helper.DeleteInstanceUsers(_adminUser);
 
             Helper?.Dispose();
         }

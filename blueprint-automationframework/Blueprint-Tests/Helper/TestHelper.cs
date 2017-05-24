@@ -1866,6 +1866,17 @@ namespace Helper
             return createdUsers;
         }
 
+        /// <summary>
+        /// Deletes all Instance Users in instance users list
+        /// </summary>
+        /// <param name="adminUser">The admin user deleting the instance users.</param>
+        public void DeleteInstanceUsers(IUser adminUser)
+        {
+            var ids = InstanceUsers.Where(u => u.Id != null).Select(u => u.Id.Value).ToList();
+
+            AdminStore.DeleteUsers(adminUser, ids);
+        }
+
         #endregion User management
 
         #region Group management

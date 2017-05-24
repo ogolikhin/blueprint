@@ -142,7 +142,7 @@ namespace Model
         /// <param name="ids">The ids to include or exclude, depending on selectAll value.</param>
         /// <param name="selectAll">(optional) The selection scope indicator. Default is false (ids are inclusions).</param>
         /// <returns>The returned HTTP Status Code</returns>
-        HttpStatusCode DeleteUsers(IUser adminUser, List<int> ids, bool selectAll = false);
+        HttpStatusCode DeleteUsers(IUser adminUser, List<int?> ids, bool selectAll = false);
 
         /// <summary>
         /// Gets login user for specified token.

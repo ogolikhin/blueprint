@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using Common;
 using CustomAttributes;
@@ -21,23 +22,24 @@ namespace AdminStoreTests.UsersTests
 
     public class UpdateInstanceUserTests : TestBase
     {
-        private const string USER_PATH = RestPaths.Svc.AdminStore.Users.USERS;
         private const string USER_PATH_ID = RestPaths.Svc.AdminStore.Users.USERS_id_;
 
         private IUser _adminUser;
 
         #region Setup and Cleanup
 
-        [SetUp]
+        [TestFixtureSetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
         }
 
-        [TearDown]
+        [TestFixtureTearDown]
         public void TearDown()
         {
+            Helper.AdminStore.DeleteUsers(_adminUser, Helper.InstanceUsers.Select(user => user.Id).ToList());
+
             Helper?.Dispose();
         }
 
@@ -785,7 +787,7 @@ namespace AdminStoreTests.UsersTests
             // Setup:
             var createdUser = Helper.CreateAndAddInstanceUser(_adminUser);
 
-            Helper.AdminStore.DeleteUsers(_adminUser, new List<int> { createdUser.Id.Value });
+            Helper.AdminStore.DeleteUsers(_adminUser, new List<int?> { createdUser.Id.Value });
 
             createdUser.Login = RandomGenerator.RandomAlphaNumeric(AdminStoreHelper.MinPasswordLength);
 

@@ -1,4 +1,5 @@
-﻿using CustomAttributes;
+﻿using System.Linq;
+using CustomAttributes;
 using Helper;
 using Model;
 using Model.Common.Enums;
@@ -23,16 +24,18 @@ namespace AdminStoreTests.UsersTests
 
         #region Setup and Cleanup
 
-        [SetUp]
+        [TestFixtureSetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
         }
 
-        [TearDown]
+        [TestFixtureTearDown]
         public void TearDown()
         {
+            Helper.AdminStore.DeleteUsers(_adminUser, Helper.InstanceUsers.Select(user => user.Id).ToList());
+
             Helper?.Dispose();
         }
 

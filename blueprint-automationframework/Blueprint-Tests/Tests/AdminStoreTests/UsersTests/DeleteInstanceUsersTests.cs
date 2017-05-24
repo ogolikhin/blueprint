@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using CustomAttributes;
 using Helper;
 using Model;
@@ -20,16 +21,18 @@ namespace AdminStoreTests.UsersTests
 
         #region Setup and Cleanup
 
-        [SetUp]
+        [TestFixtureSetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
         }
 
-        [TearDown]
+        [TestFixtureTearDown]
         public void TearDown()
         {
+            Helper.AdminStore.DeleteUsers(_adminUser, Helper.InstanceUsers.Select(user => user.Id).ToList());
+
             Helper?.Dispose();
         }
 
@@ -55,7 +58,7 @@ namespace AdminStoreTests.UsersTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                Helper.AdminStore.DeleteUsers(_adminUser, new List<int> { createdUserId });
+                Helper.AdminStore.DeleteUsers(_adminUser, new List<int?> { createdUserId });
             }, "'DELETE {0}' should return 204 No Content for a valid session token!", USER_PATH);
 
             // Verify:

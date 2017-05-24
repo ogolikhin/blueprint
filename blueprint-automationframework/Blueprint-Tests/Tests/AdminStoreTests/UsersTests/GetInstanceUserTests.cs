@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using CustomAttributes;
 using Helper;
 using Model;
@@ -16,23 +17,24 @@ namespace AdminStoreTests.UsersTests
 
     public class GetInstanceUserTests : TestBase
     {
-        private const string USER_PATH = RestPaths.Svc.AdminStore.Users.USERS;
         private const string USER_PATH_ID = RestPaths.Svc.AdminStore.Users.USERS_id_;
 
         private IUser _adminUser = null;
 
         #region Setup and Cleanup
 
-        [SetUp]
+        [TestFixtureSetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
         }
 
-        [TearDown]
+        [TestFixtureTearDown]
         public void TearDown()
         {
+            Helper.AdminStore.DeleteUsers(_adminUser, Helper.InstanceUsers.Select(user => user.Id).ToList());
+
             Helper?.Dispose();
         }
 
@@ -90,7 +92,7 @@ namespace AdminStoreTests.UsersTests
             var ex = Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 Helper.AdminStore.GetUserById(userWithInvalidTokenHeader, createdUser.Id);
-            }, "'PUT {0}' should return 401 Unauthorized with invalid token header!", USER_PATH_ID);
+            }, "'GET {0}' should return 401 Unauthorized with invalid token header!", USER_PATH_ID);
 
             // Verify:
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, errorMessage);
@@ -124,7 +126,7 @@ namespace AdminStoreTests.UsersTests
             {
                 Helper.AdminStore.GetUserById(userWithNoPermissionsToGetUsers, createdUser.Id);
             },
-            "'PUT {0}' should return 403 Forbidden when the user updating the user has no permissions to get users!", USER_PATH_ID);
+            "'GET {0}' should return 403 Forbidden when the user updating the user has no permissions to get users!", USER_PATH_ID);
 
             // Verify:
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "The user does not have permissions.");
@@ -145,7 +147,7 @@ namespace AdminStoreTests.UsersTests
             Assert.Throws<Http404NotFoundException>(() =>
             {
                 Helper.AdminStore.GetUserById(_adminUser, userId);
-            }, "'PUT {0}' should return 404 Not Found for nonexistent user!", USER_PATH_ID);
+            }, "'GET {0}' should return 404 Not Found for nonexistent user!", USER_PATH_ID);
         }
 
         [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]

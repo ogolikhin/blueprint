@@ -347,7 +347,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IAdminStore.GetUsers(IUser, int?, int?, string, SortOrder?, string)"/>
-        public List<InstanceUser> GetUsers(IUser adminUser, 
+        public QueryResult<InstanceUser> GetUsers(IUser adminUser, 
             int? offset = null, 
             int? limit = null, 
             string sort = null, 
@@ -388,16 +388,12 @@ namespace Model.Impl
             {
                 Logger.WriteInfo("Getting users...");
 
-                var queryResult =  restApi.SendRequestAndDeserializeObject<QueryResult<InstanceUser>>(
+                return restApi.SendRequestAndDeserializeObject<QueryResult<InstanceUser>>(
                     path,
                     RestRequestMethod.GET,
                     queryParameters: queryParameters,
                     expectedStatusCodes: new List<HttpStatusCode> { HttpStatusCode.OK },
                     shouldControlJsonChanges: false);
-
-                Assert.AreEqual(queryResult.Total, queryResult.Items.Count(), "The expected user count does not match the number of users returned!");
-
-                return (List<InstanceUser>)queryResult.Items;
             }
             catch (WebException ex)
             {

@@ -5,6 +5,7 @@ using Model.JobModel.Impl;
 using System;
 using System.Collections.Generic;
 using System.Net;
+using Model.Common.Enums;
 using Utilities.Facades;
 
 namespace Model
@@ -159,16 +160,7 @@ namespace Model
         /// <param name="adminUser">The admin user getting the user.</param>
         /// <param name="userId">The user id of the user.</param>
         /// <returns>An InstanceUser object</returns>
-        InstanceUser GetUserById(IUser adminUser, int userId);
-
-        /// <summary>
-        /// Gets a user by user login.
-        /// (Runs: GET /users/search?login={login})
-        /// </summary>
-        /// <param name="adminUser">The admin user getting the user.</param>
-        /// <param name="login">The login of the user.</param>
-        /// <returns>An InstanceUser object</returns>
-        InstanceUser GetUserByLogin(IUser adminUser, string login);
+        InstanceUser GetUserById(IUser adminUser, int? userId);
 
         /// <summary>
         /// Gets a list of non-deleted users matching a specified filter.
@@ -182,16 +174,13 @@ namespace Model
         /// <param name="sort">(optional) Property name by which to sort results.</param>
         /// <param name="order">(optional) "asc" sorts in ascending order; "desc" sorts in descending order. 
         /// The default order depends on the particular property.</param>
-        /// <param name="propertyFilters">(optional) An array of filter items by property value. 
-        /// The filter logic depends on the particular property.</param>
         /// <param name="search">(optional) Search query that would be applied on predefined properties specific to data.</param>
         /// <returns>A list of InstanceUser objects</returns>
         List<InstanceUser> GetUsers(IUser adminUser,
             int? offset = null,
             int? limit = null,
             string sort = null,
-            string order = null,
-            string[] propertyFilters = null,
+            SortOrder? order = null,
             string search = null);
 
         /// <summary>

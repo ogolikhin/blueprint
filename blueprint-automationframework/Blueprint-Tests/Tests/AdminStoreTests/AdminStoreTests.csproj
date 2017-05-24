@@ -69,7 +69,7 @@
     <Compile Include="UsersTests\GetInstanceRolesTests.cs" />
     <Compile Include="UsersTests\UpdateInstanceUsersTests.cs" />
     <Compile Include="UsersTests\DeleteInstanceUsersTests.cs" />
-    <Compile Include="UsersTests\GetInstanceUsersTests.cs" />
+    <Compile Include="UsersTests\GetInstanceUserTests.cs" />
     <Compile Include="UsersTests\AddInstanceUserTests.cs" />
     <Compile Include="UsersTests\LoginUserTests.cs" />
     <Compile Include="UsersTests\PasswordRecoveryRequestTests.cs" />

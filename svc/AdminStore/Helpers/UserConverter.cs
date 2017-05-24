@@ -8,7 +8,7 @@ namespace AdminStore.Helpers
 {
     public class UserConverter
     {
-        public static User ConvertToDbUser(UserDto user, UserOperationMode userOperationMode, int userId = 0)
+        public static User ConvertToDbUser(UserDto user, OperationMode operationMode, int userId = 0)
         {
             var databaseUser = new User
             {
@@ -32,7 +32,7 @@ namespace AdminStore.Helpers
                 CurrentVersion = user.CurrentVersion
             };
 
-            if (userOperationMode == UserOperationMode.Create)
+            if (operationMode == OperationMode.Create)
             {
                 var decodedPasword = SystemEncryptions.Decode(user.Password);
 

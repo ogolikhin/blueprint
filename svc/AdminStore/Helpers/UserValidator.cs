@@ -8,7 +8,7 @@ namespace AdminStore.Helpers
 {
     public class UserValidator
     {
-        public static void ValidateModel(UserDto user, UserOperationMode userOperationMode)
+        public static void ValidateModel(UserDto user, OperationMode operationMode)
         {
             if (string.IsNullOrEmpty(user.Login))
             {
@@ -78,7 +78,7 @@ namespace AdminStore.Helpers
 
             if (user.Source != UserGroupSource.Database)
             {
-                if (userOperationMode == UserOperationMode.Create)
+                if (operationMode == OperationMode.Create)
                 {
                     throw new BadRequestException(ErrorMessages.CreationOnlyDatabaseUsers, ErrorCodes.BadRequest);
                 }

@@ -449,5 +449,208 @@ namespace AdminStore.Controllers
         }
 
         #endregion
+
+        #region Update group
+        [TestMethod]
+        public async Task UpdateGroup_SuccessfulUpdateOfGroup_ReturnSuccessResult()
+        {
+            // Arrange
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+
+            // Act
+            var result = await _controller.UpdateGroup(_groupId, _group);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
+        }
+
+        //[TestMethod]
+        //[ExpectedException(typeof(AuthorizationException))]
+        //public async Task CreateGroup_NoManageGroupsPermissions_ReturnForbiddenErrorResult()
+        //{
+        //    // Arrange
+        //    _privilegesRepository
+        //        .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+        //        .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
+        //    _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>())).ReturnsAsync(_groupId);
+
+        //    // Act
+        //    await _controller.CreateGroup(_group);
+
+        //    // Assert
+        //    // Exception
+        //}
+
+        //[TestMethod]
+        //[ExpectedException(typeof(BadRequestException))]
+        //public async Task CreateGroup_GroupNameEmpty_ReturnBadRequestResult()
+        //{
+        //    // Arrange
+        //    _group.Name = string.Empty;
+        //    _privilegesRepository
+        //        .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+        //        .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+        //    _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>())).ReturnsAsync(_groupId);
+
+        //    // Act
+        //    await _controller.CreateGroup(_group);
+
+        //    // Assert
+        //    // Exception
+        //}
+
+        //[TestMethod]
+        //[ExpectedException(typeof(BadRequestException))]
+        //public async Task CreateGroup_GroupNameOutOfRangeStringLength_ReturnBadRequestResult()
+        //{
+        //    // Arrange
+        //    _group.Name = "123";
+        //    _privilegesRepository
+        //       .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+        //       .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+        //    _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>())).ReturnsAsync(_groupId);
+
+        //    // Act
+        //    await _controller.CreateGroup(_group);
+
+        //    // Assert
+        //    // Exception
+        //}
+
+        //[TestMethod]
+        //[ExpectedException(typeof(BadRequestException))]
+        //public async Task CreateGroup_EmailOutOfRangeStringLength_ReturnBadRequestResult()
+        //{
+        //    // Arrange
+        //    _group.Email = "1@1";
+        //    _privilegesRepository
+        //     .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+        //     .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+        //    _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>())).ReturnsAsync(_groupId);
+
+        //    // Act
+        //    await _controller.CreateGroup(_group);
+
+        //    // Assert
+        //    // Exception
+        //}
+
+        //[TestMethod]
+        //[ExpectedException(typeof(BadRequestException))]
+        //public async Task CreateGroup_EmailWithoutAtSymbol_ReturnBadRequestResult()
+        //{
+        //    // Arrange
+        //    _group.Email = "testemail.com";
+        //    _privilegesRepository
+        //       .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+        //       .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+        //    _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>())).ReturnsAsync(_groupId);
+
+        //    // Act
+        //    await _controller.CreateGroup(_group);
+
+        //    // Assert
+        //    // Exception
+        //}
+
+        //[TestMethod]
+        //[ExpectedException(typeof(BadRequestException))]
+        //public async Task CreateGroup_EmailWithMultipleAtSymbols_ReturnBadRequestResult()
+        //{
+        //    // Arrange
+        //    _group.Email = "sp@rk@email.com";
+        //    _privilegesRepository
+        //        .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+        //        .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+        //    _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>())).ReturnsAsync(_groupId);
+
+        //    // Act
+        //    await _controller.CreateGroup(_group);
+
+        //    // Assert
+        //    // Exception
+        //}
+
+        //[TestMethod]
+        //[ExpectedException(typeof(BadRequestException))]
+        //public async Task CreateGroup_CreateWindowsGroup_ReturnBadRequestResult()
+        //{
+        //    // Arrange
+        //    _group.GroupSource = UserGroupSource.Windows;
+        //    _privilegesRepository
+        //        .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+        //        .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+        //    _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>())).ReturnsAsync(_groupId);
+
+        //    // Act
+        //    await _controller.CreateGroup(_group);
+
+        //    // Assert
+        //    // Exception
+        //}
+
+
+        //[TestMethod]
+        //[ExpectedException(typeof(BadRequestException))]
+        //public async Task CreateGroup_WithViewerLicense_ReturnBadRequestResult()
+        //{
+        //    // Arrange
+        //    _group.License = LicenseType.Viewer;
+        //    _privilegesRepository
+        //        .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+        //        .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+        //    _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>())).ReturnsAsync(_groupId);
+
+        //    // Act
+        //    await _controller.CreateGroup(_group);
+
+        //    // Assert
+        //    // Exception
+        //}
+
+        //[TestMethod]
+        //[ExpectedException(typeof(BadRequestException))]
+        //public async Task CreateGroup_CreationGroupWithScopeAndLicenseIdSimultaneously_ReturnBadRequestResult()
+        //{
+        //    // Arrange
+        //    _group.License = LicenseType.Collaborator;
+        //    _group.ProjectId = 1;
+        //    _privilegesRepository
+        //        .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+        //        .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+        //    _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>())).ReturnsAsync(_groupId);
+
+        //    // Act
+        //    await _controller.CreateGroup(_group);
+
+        //    // Assert
+        //    // Exception
+        //}
+
+
+        //[TestMethod]
+        //[ExpectedException(typeof(BadRequestException))]
+        //public async Task CreateGroup_GroupAlreadyExist_ReturnBadRequestResult()
+        //{
+        //    // Arrange
+        //    _group.License = LicenseType.Collaborator;
+        //    _group.ProjectId = 1;
+        //    _privilegesRepository
+        //        .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+        //        .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+        //    _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>()))
+        //        .ThrowsAsync(new BadRequestException(ErrorMessages.GroupAlreadyExist));
+
+        //    // Act
+        //    await _controller.CreateGroup(_group);
+
+        //    // Assert
+        //    // Exception
+        //}
+
+        #endregion
     }
 }

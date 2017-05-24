@@ -96,6 +96,41 @@ namespace AdminStore.Repositories
             return groupId;
         }
 
+        public async Task UpdateGroupAsync(GroupDto group)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@GroupId", group.Id);
+            parameters.Add("@Name", group.Name);
+            parameters.Add("@Email", group.Email);
+            parameters.Add("@LicenseId", (int)group.License);
+            parameters.Add("@CurrentVersion", group.CurrentVersion);
+
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            await _connectionWrapper.ExecuteScalarAsync<int>("UpdateGroup", parameters, commandType: CommandType.StoredProcedure);
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.GeneralSqlError:
+                        throw new Exception(ErrorMessages.GeneralErrorOfUpdatingGroup);
+
+                    case (int)SqlErrorCodes.GroupWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.GroupNotExist);
+
+                    case (int)SqlErrorCodes.GroupVersionsNotEqual:
+                        throw new ConflictException(ErrorMessages.UserVersionsNotEqual);
+
+                    case (int)SqlErrorCodes.GroupCanNotBeUpdatedWithExistingScope:
+                        throw new ConflictException(ErrorMessages.ImpossibleChangeLicenseInGroupWithScope);
+
+                    case (int)SqlErrorCodes.GroupWithNameAndLicenseIdExist:
+                        throw new BadRequestException(ErrorMessages.GroupAlreadyExist);
+                }
+            }
+        }
 
         public async Task<Group> GetGroupDetailsAsync(int groupId)
         {

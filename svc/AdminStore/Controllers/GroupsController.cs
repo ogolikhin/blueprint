@@ -108,7 +108,7 @@ namespace AdminStore.Controllers
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageGroups);
 
-            GroupValidator.ValidateModel(group);
+            GroupValidator.ValidateModel(group, OperationMode.Create);
 
             var groupId = await _groupRepository.AddGroupAsync(group);
             return Request.CreateResponse(HttpStatusCode.Created, groupId);
@@ -136,6 +136,40 @@ namespace AdminStore.Controllers
                 throw new ResourceNotFoundException(ErrorMessages.GroupDoesNotExist, ErrorCodes.ResourceNotFound);
             }
             return Ok(groupDetails);
+        }
+
+        /// <summary>
+        /// Update group
+        /// </summary>
+        /// <param name="groupId">Group's identity</param>
+        /// <param name="group">Group's model</param>
+        /// <remarks>
+        /// Returns Ok result.
+        /// </remarks>
+        /// <response code="200">OK. The group is updated.</response>
+        /// <response code="400">BadRequest. Parameters are invalid. </response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for updating the group.</response>
+        /// <response code="404">NotFound. The group with the current groupId doesn’t exist or removed from the system.</response>
+        /// <response code="409">Conflict. The current version from the request doesn’t match the current version in DB.</response>
+        [HttpPut]
+        [SessionRequired]
+        [ResponseType(typeof(HttpResponseMessage))]
+        [Route("{groupId:int:min(1)}")]
+        public async Task<IHttpActionResult> UpdateGroup(int groupId, [FromBody] GroupDto group)
+        {
+            if (group == null)
+            {
+                throw new BadRequestException(ErrorMessages.GroupModelIsEmpty, ErrorCodes.BadRequest);
+            }
+
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageGroups);
+
+            GroupValidator.ValidateModel(group, OperationMode.Edit);
+
+            await _groupRepository.UpdateGroupAsync(group);
+
+            return Ok();
         }
     }
 }

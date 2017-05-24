@@ -220,8 +220,8 @@ namespace ArtifactStore.Repositories
             param.Add("@reviewId", reviewId);
             param.Add("@offset", offset);
             param.Add("@limit", limit);
-            param.Add("@revisionId", revisionId < int.MaxValue? false: addDrafts);
-            param.Add("@addDrafts", addDrafts);
+            param.Add("@revisionId", revisionId);
+            param.Add("@addDrafts", revisionId < int.MaxValue ? false : addDrafts);
             param.Add("@userId", userId);
 
             var result = await ConnectionWrapper.QueryMultipleAsync<T1, int>("GetReviewArtifacts", param, commandType: CommandType.StoredProcedure);

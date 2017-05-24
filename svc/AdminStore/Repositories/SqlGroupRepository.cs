@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using AdminStore.Helpers;
 using AdminStore.Models;
@@ -93,5 +95,21 @@ namespace AdminStore.Repositories
             }
             return groupId;
         }
+
+
+        public async Task<Group> GetGroupDetailsAsync(int groupId)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@GroupId", groupId);
+
+            var result =
+                await
+                    _connectionWrapper.QueryAsync<Group>("GetGroupDetails", parameters,
+                        commandType: CommandType.StoredProcedure);
+            var enumerable = result as IList<Group> ?? result.ToList();
+            return enumerable.Any() ? enumerable.First() : new Group();
+        }
+
+
     }
 }

@@ -169,18 +169,18 @@ namespace Model
         /// </summary>
         /// <param name="adminUser">The admin user getting the users.</param>
         /// <param name="offset">(optional) 0-based index of the first item to return (Default: null).</param>
-        /// <param name="limit">(optional) Maximum number of items to return (if any). 
-        /// The server may return fewer items than requested.  (Default: null)</param>
-        /// <param name="sort">(optional) Property name by which to sort results.</param>
-        /// <param name="order">(optional) "asc" sorts in ascending order; "desc" sorts in descending order (Default: Desc). 
+        /// <param name="limit">(optional) Maximum number of items to return (if any) (Default: null). 
+        /// The server may return fewer items than requested (Default: null).</param>
+        /// <param name="sort">(optional) Property name by which to sort results (Default: null).</param>
+        /// <param name="order">(optional) "asc" sorts in ascending order; "desc" sorts in descending order (Default: null). 
         /// The default order depends on the particular property.</param>
-        /// <param name="search">(optional) Search query that would be applied on predefined properties specific to data.</param>
+        /// <param name="search">(optional) Search query that would be applied on predefined properties specific to data (Default: null).</param>
         /// <returns>A QueryResult object of InstanceUser objects</returns>
         QueryResult<InstanceUser> GetUsers(IUser adminUser,
             int? offset = null,
             int? limit = null,
             string sort = null,
-            SortOrder? order = SortOrder.Desc,
+            SortOrder? order = null,
             string search = null);
 
         /// <summary>

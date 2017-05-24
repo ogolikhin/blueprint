@@ -5,7 +5,7 @@
 [assembly: AssemblyCopyright("©2017 Blueprint Software Systems Inc. All rights reserved")]
 
 // The assembly version is used by the runtime for binding, specifically when using strong names and the global assembly cache
-[assembly: AssemblyVersion("8.1.0.0")]
+[assembly: AssemblyVersion("8.1.1.0")]
 // The assembly informational version is the marketing version that we talk to customers about (i.e. "2011 Feature Pack 1")
 [assembly: AssemblyInformationalVersion("A0")]
 

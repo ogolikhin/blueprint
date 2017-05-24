@@ -45,7 +45,12 @@ namespace AdminStore.Helpers
                 throw new BadRequestException(ErrorMessages.CreationOnlyDatabaseGroup, ErrorCodes.BadRequest);
             }
 
-            if ((group.License != LicenseType.Collaborator && group.License != LicenseType.Author))
+            if (group.ProjectId != null && (group.License != LicenseType.None))
+            {
+                throw new BadRequestException(ErrorMessages.CreationGroupWithScopeAndLicenseIdSimultaneously, ErrorCodes.BadRequest);
+            }
+
+            if (group.ProjectId == null && (group.License != LicenseType.Collaborator && group.License != LicenseType.Author))
             {
                 throw new BadRequestException(ErrorMessages.CreationGroupsOnlyWithCollaboratorAndAuthorLicenses, ErrorCodes.BadRequest);
             }

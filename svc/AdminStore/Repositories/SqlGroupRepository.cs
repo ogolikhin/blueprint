@@ -68,8 +68,6 @@ namespace AdminStore.Repositories
             parameters.Add("@Source", group.GroupSource);
             parameters.Add("@LicenseId", (int)group.License);
             parameters.Add("@ProjectId", group.ProjectId);
-            if (group.Users != null)
-                parameters.Add("@UserIds", SqlConnectionWrapper.ToDataTable(group.Users));
 
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
@@ -82,6 +80,12 @@ namespace AdminStore.Repositories
                 {
                     case (int)SqlErrorCodes.GeneralSqlError:
                         throw new Exception(ErrorMessages.GeneralErrorOfCreatingGroup);
+
+                    case (int)SqlErrorCodes.GroupWithNameAndLicenseIdExist:
+                        throw new BadRequestException(ErrorMessages.GroupAlreadyExist);
+
+                    case (int)SqlErrorCodes.GroupWithNameAndScopeExist:
+                        throw new BadRequestException(ErrorMessages.GroupAlreadyExist);
 
                     default:
                         return groupId;

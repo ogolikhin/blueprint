@@ -30,6 +30,7 @@ namespace AdminStore.Controllers
         private Sorting _groupsSorting;
         private const int UserId = 10;
         private GroupDto _group;
+        private int _groupId = 10;
 
         [TestInitialize]
         public void Initialize()
@@ -51,7 +52,7 @@ namespace AdminStore.Controllers
             _groupsQueryDataResult = new QueryResult<GroupDto>() { Total = 1, Items = new List<GroupDto>() };
             _groupsTabularPagination = new Pagination() { Limit = 1, Offset = 0 };
             _groupsSorting = new Sorting() { Order = SortOrder.Asc, Sort = "Name" };
-            _group = new GroupDto {Name = "Group1", Email = "TestEmail@test.com", GroupSource = UserGroupSource.Database, License = LicenseType.Collaborator};
+            _group = new GroupDto {Name = "Group1", Email = "TestEmail@test.com", GroupSource = UserGroupSource.Database, License = LicenseType.Collaborator};            
         }
 
         #region Constuctor
@@ -196,6 +197,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+            _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>())).ReturnsAsync(_groupId);
 
             // Act
             var result = await _controller.CreateGroup(_group);
@@ -213,6 +215,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
+            _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>())).ReturnsAsync(_groupId);
 
             // Act
             await _controller.CreateGroup(_group);
@@ -230,6 +233,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+            _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>())).ReturnsAsync(_groupId);
 
             // Act
             await _controller.CreateGroup(_group);
@@ -247,6 +251,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+            _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>())).ReturnsAsync(_groupId);
 
             // Act
             await _controller.CreateGroup(_group);
@@ -264,6 +269,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
              .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
              .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+            _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>())).ReturnsAsync(_groupId);
 
             // Act
             await _controller.CreateGroup(_group);
@@ -281,6 +287,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+            _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>())).ReturnsAsync(_groupId);
 
             // Act
             await _controller.CreateGroup(_group);
@@ -298,6 +305,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+            _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>())).ReturnsAsync(_groupId);
 
             // Act
             await _controller.CreateGroup(_group);
@@ -315,6 +323,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+            _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>())).ReturnsAsync(_groupId);
 
             // Act
             await _controller.CreateGroup(_group);
@@ -333,6 +342,47 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+            _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>())).ReturnsAsync(_groupId);
+
+            // Act
+            await _controller.CreateGroup(_group);
+
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task CreateGroup_CreationGroupWithScopeAndLicenseIdSimultaneously_ReturnBadRequestResult()
+        {
+            // Arrange
+            _group.License = LicenseType.Collaborator;
+            _group.ProjectId = 1;
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+            _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>())).ReturnsAsync(_groupId);
+
+            // Act
+            await _controller.CreateGroup(_group);
+
+            // Assert
+            // Exception
+        }
+
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task CreateGroup_GroupAlreadyExist_ReturnBadRequestResult()
+        {
+            // Arrange
+            _group.License = LicenseType.Collaborator;
+            _group.ProjectId = 1;
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+            _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>()))
+                .ThrowsAsync(new BadRequestException(ErrorMessages.GroupAlreadyExist));
 
             // Act
             await _controller.CreateGroup(_group);

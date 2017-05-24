@@ -186,6 +186,63 @@ namespace AdminStore.Controllers
             Assert.AreEqual(3, result.Content.TotalDeleted);
         }
 
+        #endregion
+
+        #region GetGroupDetails
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task GetGroup_UserdDoesNotHaveRequiredPermissions_ForbiddenResult()
+        {
+            //arrange
+            _privilegesRepository
+              .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+              .ReturnsAsync(InstanceAdminPrivileges.None);
+
+            //act
+            var result = await _controller.GetGroup(3);
+
+            //assert
+            //Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task GetGroup_TheIsNoGroupForSuchAndId_ResourceNotFoundException()
+        {
+            //arrange
+            _privilegesRepository
+            .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+            .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+            var group = new Group();
+
+            _sqlGroupRepositoryMock.Setup(repo => repo.GetGroupDetailsAsync(It.IsAny<int>())).ReturnsAsync(group);
+
+            //act
+            var result = await _controller.GetGroup(3);
+
+            //assert
+            //Exception
+        }
+
+        [TestMethod]
+        public async Task GetGroup_ValidRequest_ReturnGroup()
+        {
+            //arrange
+            _privilegesRepository
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+            var group = new Group() { Id = 3 };
+
+            _sqlGroupRepositoryMock.Setup(repo => repo.GetGroupDetailsAsync(It.IsAny<int>())).ReturnsAsync(group);
+
+            //act
+            var result = await _controller.GetGroup(3) as OkNegotiatedContentResult<Group>; 
+
+            //assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(3, result.Content.Id);
+        }
 
         #endregion
 

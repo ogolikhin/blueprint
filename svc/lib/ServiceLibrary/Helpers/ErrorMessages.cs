@@ -39,11 +39,11 @@
         public static readonly string PasswordSameAsDisplayName = "Password cannot be equal to display name.";
         public static readonly string InvalidChangeInstanceAdminPasswordParameters = "Parameters are invalid";
         public static readonly string InvalidInstanceAdminUserPassword = "Password validation failed";
-        public static readonly string SourceFieldValueShouldBeOnlyDatabase = "You can modify only database users.";      
+        public static readonly string SourceFieldValueShouldBeOnlyDatabase = "You can modify only database users.";
         public static readonly string InvalidDeleteUserFromGroupsParameters = "Invalid parameters to delete user from groups.";
         public static readonly string GeneralErrorOfDeletingUserFromGroups = "An error has occurred when the operation was being performed at SQL level.";
         public static readonly string InvalidAddUserToGroupsParameters = "Invalid parameters to add user to groups.";
-        public static readonly string GeneralErrorOfAddingUserToGroups = "An error has occurred when the operation was being performed at the SQL level.";     
+        public static readonly string GeneralErrorOfAddingUserToGroups = "An error has occurred when the operation was being performed at the SQL level.";
         public static readonly string CantGetUsersToBeDeleted = "Can't get users to be deleted";
         //Groups
         public static readonly string GroupModelIsEmpty = "The group model is empty.";
@@ -56,5 +56,7 @@
         public static readonly string CreationGroupsOnlyWithCollaboratorAndAuthorLicenses = "You can create groups only with \"collaborator\" and \"author\" licenses.";
         public static readonly string CreationGroupWithScopeAndLicenseIdSimultaneously = "You can not create the \"Access Group\" and \"License Group\" simultaneously.";
         public static readonly string GroupAlreadyExist = "The same group already exists. You cannot add duplicate groups.";
+        public static readonly string GroupDoesNotExist = "The group with this Id does not exist or removed from the system.";
+
     }
 }

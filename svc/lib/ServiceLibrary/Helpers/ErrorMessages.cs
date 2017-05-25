@@ -3,7 +3,7 @@
     public class ErrorMessages
     {
         //Users
-        public const string InvalidPagination = "Pagination object is invalid.";
+        public const string InvalidPagination = "The \"offset\" and/or \"limit\" parameters are required.";
         public static readonly string LoginRequired = "The \"Login\" field is required.";
         public static readonly string DisplayNameRequired = "The \"Display name\" field is required.";
         public static readonly string FirstNameRequired = "The \"First name\" field is required.";
@@ -28,8 +28,8 @@
         public static readonly string IncorrectUserId = "Incorrect userId.";
         public static readonly string InvalidDeleteUsersParameters = "Invalid parameters to delete users";
         public static readonly string InvalidDeleteGroupsParameters = "Invalid parameters to delete group(s)";
-        public static readonly string IncorrectLimitParameter = "The \"limit\" parameter should be more than 0.";
-        public static readonly string IncorrectOffsetParameter = "The \"offset\" parameter should not be negative.";
+        public static readonly string IncorrectLimitParameter = "The \"limit\" parameter is required and should not be negative.";
+        public static readonly string IncorrectOffsetParameter = "The \"offset\" parameter is required and should not be negative.";
         public static readonly string TotalNull = "The \"total\" is null.";
         public static readonly string GeneralErrorOfGettingUserGroups = "The general error of getting user's groups.";
         public static readonly string CreationOnlyDatabaseUsers = "You can create only database users.";

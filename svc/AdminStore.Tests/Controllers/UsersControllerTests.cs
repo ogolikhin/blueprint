@@ -8,7 +8,6 @@ using System.Web.Http;
 using System.Web.Http.Results;
 using AdminStore.Helpers;
 using AdminStore.Models;
-using AdminStore.Models.Enums;
 using AdminStore.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -828,12 +827,20 @@ namespace AdminStore.Controllers
         public async Task GetAllUsers_ParamsAreNotCorrect_BadRequestResult()
         {
             //arrange
+            BadRequestException exception = null;
 
             //act
-            var result = await _controller.GetUsers(null, null);
+            try
+            {
+                var result = await _controller.GetUsers(null, null);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
 
             //assert
-            Assert.IsInstanceOfType(result, typeof(BadRequestErrorMessageResult));
+            Assert.IsInstanceOfType(exception, typeof(BadRequestException));
         }
 
         [TestMethod]
@@ -848,7 +855,7 @@ namespace AdminStore.Controllers
             //act
             try
             {
-                await _controller.GetUsers(new Pagination(), new Sorting());
+                await _controller.GetUsers(new Pagination { Offset = 0, Limit = 20 }, new Sorting());
             }
             catch (Exception ex)
             {

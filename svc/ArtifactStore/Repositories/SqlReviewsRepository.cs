@@ -199,7 +199,7 @@ namespace ArtifactStore.Repositories
                     artifact.PublishedOnTimestamp = reviewedArtifact.PublishedOnTimestamp;
                     artifact.UserDisplayName = reviewedArtifact.UserDisplayName;
                     artifact.ViewedArtifactVersion = reviewedArtifact.ViewedArtifactVersion;
-                    artifact.ESignedOn = reviewedArtifact.ESignedOn;
+                    artifact.SignedOnTimestamp = reviewedArtifact.SignedOnTimestamp;
                     artifact.HasAttachments = reviewedArtifact.HasAttachments;
                     artifact.HasRelationships = reviewedArtifact.HasRelationships;
                     artifact.HasAttachments = reviewedArtifact.HasAttachments;

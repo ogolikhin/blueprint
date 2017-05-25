@@ -23,16 +23,18 @@ namespace AdminStoreTests.UsersTests
 
         #region Setup and Cleanup
 
-        [SetUp]
+        [TestFixtureSetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
         }
 
-        [TearDown]
+        [TestFixtureTearDown]
         public void TearDown()
         {
+            Helper.DeleteInstanceUsers(_adminUser);
+
             Helper?.Dispose();
         }
 
@@ -47,32 +49,22 @@ namespace AdminStoreTests.UsersTests
         #region 201 Created Tests
 
         [TestCase]
-        [Description("Create and add an instance user. Get the added user using the id of the user that was just created. " +
-             "Verify the same user that was created is returned.")]
+        [Description("Create and add an instance user. Get the added user using using an admin user. " +
+                     "Verify the same user that was created is returned.")]
         [TestRail(303340)]
         public void AddInstanceUser_ValidUser_UserCreated()
         {
-            // Setup:
-            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
-
-            // Execute:
-            int createdUserId = 0;
-
-            Assert.DoesNotThrow(() =>
-            {
-                createdUserId = Helper.AdminStore.AddUser(_adminUser, createdUser);
-            }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
+            // Setup & Execute:
+            var createdUser = Helper.CreateAndAddInstanceUser(_adminUser);
 
             InstanceUser addedUser = null;
-            
+
             Assert.DoesNotThrow(() =>
             {
-                addedUser = Helper.AdminStore.GetUserById(_adminUser, createdUserId);
+                addedUser = Helper.AdminStore.GetUserById(_adminUser, createdUser.Id);
             }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
 
             // Verify:
-            // Update Id and CurrentVersion in CreatedUser for comparison
-            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUserId);
 
             AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
         }
@@ -124,6 +116,8 @@ namespace AdminStoreTests.UsersTests
         {
             // Setup:
             var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
+
+            // Source defaults to Database, so we need to remove it here
             createdUser.LicenseType = licenseLevel;
 
             // Execute:
@@ -162,27 +156,17 @@ namespace AdminStoreTests.UsersTests
             var userPermissionsToManageUsers = Helper.CreateUserAndAddToDatabase(adminRole);
             Helper.AdminStore.AddSession(userPermissionsToManageUsers);
 
-            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
-
-            // Execute:
-            int createdUserId = 0;
-
-            Assert.DoesNotThrow(() =>
-            {
-                createdUserId = Helper.AdminStore.AddUser(userPermissionsToManageUsers, createdUser);
-            }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
+            //Execute:
+            var createdUser = Helper.CreateAndAddInstanceUser(userPermissionsToManageUsers);
 
             InstanceUser addedUser = null;
 
             Assert.DoesNotThrow(() =>
             {
-                addedUser = Helper.AdminStore.GetUserById(userPermissionsToManageUsers, createdUserId);
+                addedUser = Helper.AdminStore.GetUserById(_adminUser, createdUser.Id);
             }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
 
             // Verify:
-            // Update Id and CurrentVersion in CreatedUser for comparison
-            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUserId);
-
             AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
         }
 
@@ -205,28 +189,18 @@ namespace AdminStoreTests.UsersTests
             var userWithPermissionsToAssignAdminRoles = Helper.CreateUserAndAuthenticate(
                 TestHelper.AuthenticationTokenTypes.AccessControlToken, InstanceAdminRole.AssignInstanceAdministrators);
 
-            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser(instanceAdminRole: adminRole);
-
             // Execute:
-            int createdUserId = 0;
-
-            Assert.DoesNotThrow(() =>
-            {
-                createdUserId = Helper.AdminStore.AddUser(userWithPermissionsToAssignAdminRoles, createdUser);
-            }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
+            var createdUser = Helper.CreateAndAddInstanceUser(userWithPermissionsToAssignAdminRoles, instanceAdminRole: adminRole);
 
             InstanceUser addedUser = null;
 
             Assert.DoesNotThrow(() =>
             {
-                addedUser = Helper.AdminStore.GetUserById(userWithPermissionsToAssignAdminRoles, createdUserId);
+                addedUser = Helper.AdminStore.GetUserById(_adminUser, createdUser.Id);
             }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
 
             // Verify:
-            // Update Id and CurrentVersion in CreatedUser for comparison
-            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUserId);
-
-            // Update License Type
+            // Update License Type for comparison
             createdUser.LicenseType = expectedLicenseLevel;
 
             AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
@@ -257,9 +231,7 @@ namespace AdminStoreTests.UsersTests
         public void AddInstanceUser_UserAlreadyExists_400BadRequest()
         {
             // Setup:
-            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
-
-            Helper.AdminStore.AddUser(_adminUser, createdUser);
+            var createdUser = Helper.CreateAndAddInstanceUser(_adminUser);
 
             var newUser = AdminStoreHelper.GenerateRandomInstanceUser();
             newUser.Login = createdUser.Login;
@@ -527,18 +499,20 @@ namespace AdminStoreTests.UsersTests
 
         #region 401 Unauthorized Tests
 
-        [TestCase("")]
-        [TestCase(CommonConstants.InvalidToken)]
+        [TestCase(null, "Token is missing or malformed.")]
+        [TestCase("", "Token is invalid.")]
+        [TestCase(CommonConstants.InvalidToken, "Token is invalid.")]
         [Description("Create and add an instance user with an invalid token header. " +
                      "Verify that 401 Unauthorized is returned.")]
         [TestRail(303373)]
-        public  void AddInstanceUser_InvalidTokenHeader_401Unauthorized(string tokenString)
+        public  void AddInstanceUser_InvalidTokenHeader_401Unauthorized(string tokenString, string errorMessage)
         {
             // Setup:
             var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
-            var userWithInvalidTokenHeader = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken, 
-                InstanceAdminRole.DefaultInstanceAdministrator);
-            userWithInvalidTokenHeader.SetToken(tokenString);
+            var userWithInvalidTokenHeader = Helper.CreateUserWithInvalidToken(
+                TestHelper.AuthenticationTokenTypes.AccessControlToken,
+                InstanceAdminRole.DefaultInstanceAdministrator,
+                badToken: tokenString);
 
             // Execute & Verify:
             var ex = Assert.Throws<Http401UnauthorizedException>(() =>
@@ -546,7 +520,7 @@ namespace AdminStoreTests.UsersTests
                 Helper.AdminStore.AddUser(userWithInvalidTokenHeader, createdUser);
             }, "'POST {0}' should return 401 Unauthorized with invalid token header!", USER_PATH);
 
-            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "Token is invalid.");
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, errorMessage);
         }
 
         #endregion 401 Unauthorized Tests

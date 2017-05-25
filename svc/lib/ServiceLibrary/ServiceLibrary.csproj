@@ -129,6 +129,7 @@
     <Compile Include="Models\InstanceAdminPrivileges.cs" />
     <Compile Include="Models\Enums\ItemTypePredefined.cs" />
     <Compile Include="Models\Enums\ProjectSection.cs" />
+    <Compile Include="Models\Enums\SortOrder.cs" />
     <Compile Include="Models\Files\File.cs" />
     <Compile Include="Models\Files\FileInfo.cs" />
     <Compile Include="Models\InstanceSettings\EmailSettings.cs" />
@@ -146,10 +147,14 @@
     <Compile Include="Models\LicenseUsage.cs" />
     <Compile Include="Models\Messaging\SystemJobCommand.cs" />
     <Compile Include="Models\Messaging\SystemMessage.cs" />
+    <Compile Include="Models\OperationScope.cs" />
+    <Compile Include="Models\Pagination.cs" />
     <Compile Include="Models\PermissionsItem.cs" />
     <Compile Include="Models\ProjectNameIdPair.cs" />
     <Compile Include="Models\ProjectPermissions.cs" />
+    <Compile Include="Models\QueryResult.cs" />
     <Compile Include="Models\RolePermissions.cs" />
+    <Compile Include="Models\Sorting.cs" />
     <Compile Include="Models\SQLTraceLogModel.cs" />
     <Compile Include="Models\PerformanceLogModel.cs" />
     <Compile Include="Models\StandardLogModel.cs" />

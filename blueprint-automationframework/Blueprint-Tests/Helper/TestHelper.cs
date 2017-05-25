@@ -77,6 +77,7 @@ namespace Helper
         public List<IArtifactBase> Artifacts { get; } = new List<IArtifactBase>();
         public List<IProject> Projects { get; } = new List<IProject>();
         public List<IUser> Users { get; } = new List<IUser>();
+        public List<InstanceUser> InstanceUsers { get; } = new List<InstanceUser>();
         public List<IGroup> Groups { get; } = new List<IGroup>();
         public List<IProjectRole> ProjectRoles { get; } = new List<IProjectRole>();
 
@@ -1797,6 +1798,85 @@ namespace Helper
             Logger.WriteInfo("User {0} created.", user.Username);
 
             Logger.WriteTrace("{0}.{1} finished.", nameof(TestHelper), nameof(AssignProjectRolePermissionsToUser));
+        }
+
+        /// <summary>
+        /// Creates and Adds an Instance User
+        /// </summary>
+        /// <param name="adminUser">The admin user creating the instance user.</param>
+        /// <param name="login">(optional) The login name of the user. Randomly generated if not specified.</param>
+        /// <param name="firstName">(optional) The first name of the user. Randomly generated if not specified.</param>
+        /// <param name="lastName">(optional) The last name of the user. Randomly generated if not specified.</param>
+        /// <param name="email">(optional) The email of the user. Randomly generated if not specified.</param>
+        /// <param name="displayname">(optional) The user's display name. Randomly generated if not specified.</param>
+        /// <param name="source">(optional) The source of the user. Defaults to Database if not specified.</param>
+        /// <param name="licenseLevel">(optinal) The user's license level. Defaults to Viewer if not specified.</param>
+        /// <param name="instanceAdminRole">(optional) The user's instance admin role. Defaults to null (empty).</param>
+        /// <param name="adminPrivileges">(optional) The user's instance admin privileges.  Defaults to None.</param>
+        /// <param name="imageId">(optional) The user's image id. Defaults to null.</param>
+        /// <param name="password">(optional) The user's password. Randomly generated if not specified.</param>
+        /// <returns>The created instance user.</returns>
+        public InstanceUser CreateAndAddInstanceUser(IUser adminUser, 
+            string login = null,
+            string firstName = null,
+            string lastName = null,
+            string email = null,
+            string displayname = null,
+            UserSource? source = null,
+            LicenseLevel? licenseLevel = null,
+            InstanceAdminRole? instanceAdminRole = null,
+            InstanceAdminPrivileges? adminPrivileges = null,
+            int? imageId = null,
+            string password = null)
+        {
+            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser(login, firstName, lastName, email, displayname, source, licenseLevel,
+                instanceAdminRole, adminPrivileges, imageId, password);
+
+            int createdUserId = 0;
+
+            Assert.DoesNotThrow(() =>
+            {
+                createdUserId = AdminStore.AddUser(adminUser, createdUser);
+            }, "'POST {0}' should return 201 OK for a valid session token!", RestPaths.Svc.AdminStore.Users.USERS);
+
+            Assert.IsNotNull(createdUserId, "The returned user id is null!");
+
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUserId);
+
+            InstanceUsers.Add(createdUser);
+
+            return createdUser;
+        }
+
+        /// <summary>
+        /// Creates and Adds a number of Instance Users
+        /// </summary>
+        /// <param name="adminUser">The admin user creating the instance user.</param>
+        /// <param name="numberOfUsers">The number of users to create.</param>
+        /// <returns>A list of created instance users.</returns>
+        public List<InstanceUser> CreateAndAddInstanceUsers(IUser adminUser, int numberOfUsers)
+        {
+            List<InstanceUser> createdUsers = new List<InstanceUser>();
+
+            for (int i = 0; i < numberOfUsers; i++)
+            {
+                createdUsers.Add(CreateAndAddInstanceUser(adminUser));
+            }
+
+            return createdUsers;
+        }
+
+        /// <summary>
+        /// Deletes all Instance Users in instance users list
+        /// </summary>
+        /// <param name="adminUser">The admin user deleting the instance users.</param>
+        public void DeleteInstanceUsers(IUser adminUser)
+        {
+            var ids = InstanceUsers.Where(u => u.Id != null).Select(u => u.Id.Value).ToList();
+
+            AdminStore.DeleteUsers(adminUser, ids);
+
+            InstanceUsers.RemoveAll(user => user.Id != null && ids.Contains(user.Id.Value));
         }
 
         #endregion User management

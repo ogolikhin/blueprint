@@ -1628,7 +1628,7 @@ namespace Helper
         }
 
         /// <summary>
-        /// Attaches file to the sub-artifact.
+        /// Attaches file to the sub-artifact.  Any files that haven't been uploaded to FileStore will be uploaded to FileStore.
         /// </summary>
         /// <param name="user">User to perform an operation.</param>
         /// <param name="artifact">The artifact containing the sub-artifact to attach a file to.</param>
@@ -1653,9 +1653,17 @@ namespace Helper
 
             foreach (var file in files)
             {
-                var defaultExpireTime = DateTime.Now.AddDays(2);   // Currently Nova set ExpireTime 2 days from today for newly uploaded file.
-                var novaFile = FileStoreTestHelper.UploadNovaFileToFileStore(user, file.FileName, file.FileType,
-                    defaultExpireTime, fileStore);
+                INovaFile novaFile = file;
+
+                // If the file hasn't been added to FileStore yet, add it to FileStore.
+                if (file.UriToFile == null)
+                {
+                    var defaultExpireTime = DateTime.Now.AddDays(2);
+                        // Currently Nova set ExpireTime 2 days from today for newly uploaded file.
+                    novaFile = FileStoreTestHelper.UploadNovaFileToFileStore(user, file.FileName, file.FileType,
+                        defaultExpireTime, fileStore);
+                }
+
                 subArtifactToAdd.AttachmentValues.Add(new AttachmentValue(user, novaFile));
             }
 

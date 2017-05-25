@@ -1147,44 +1147,10 @@ namespace AdminStore.Controllers
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
-        public async Task PostUser_FirstNameEmpty_ReturnBadRequestResult()
-        {
-            // Arrange
-            _user.FirstName = string.Empty;
-            _privilegesRepository
-              .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
-              .ReturnsAsync(FullPermissions);
-
-            // Act
-            await _controller.PostUser(_user);
-
-            // Assert
-            // Exception
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
         public async Task PostUser_FirstNameOutOfRangeStringLength_ReturnBadRequestResult()
         {
             // Arrange
             _user.FirstName = "1";
-            _privilegesRepository
-              .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
-              .ReturnsAsync(FullPermissions);
-
-            // Act
-            await _controller.PostUser(_user);
-
-            // Assert
-            // Exception
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
-        public async Task PostUser_LastNameEmpty_ReturnBadRequestResult()
-        {
-            // Arrange
-            _user.LastName = string.Empty;
             _privilegesRepository
               .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
               .ReturnsAsync(FullPermissions);

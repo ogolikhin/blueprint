@@ -8,7 +8,7 @@
         public static readonly string DisplayNameRequired = "The \"Display name\" field is required.";
         public static readonly string FirstNameRequired = "The \"First name\" field is required.";
         public static readonly string LastNameRequired = "The \"Last name\" field is required.";
-        public static readonly string LoginNameUnique = "The login name must be unique in the instance.";
+        public static readonly string LoginNameUnique = "Please enter a unique username.";
         public static readonly string SessionIsEmpty = "The session is empty.";
         public static readonly string UserDoesNotHavePermissions = "The user does not have permissions.";
         public static readonly string LoginFieldLimitation = "The length of the \"Login\" field must be between 4 and 256 characters.";
@@ -33,7 +33,7 @@
         public static readonly string TotalNull = "The \"total\" is null.";
         public static readonly string GeneralErrorOfGettingUserGroups = "The general error of getting user's groups.";
         public static readonly string CreationOnlyDatabaseUsers = "You can create only database users.";
-        public static readonly string EmailFormatIncorrect = "The email format is incorrect.";
+        public static readonly string EmailFormatIncorrect = "Please ensure the email address is correct.";
         public static readonly string LoginInvalid = "The \"Login\" field is invalid.";
         public static readonly string PasswordSameAsLogin = "Password cannot be equal to login name.";
         public static readonly string PasswordSameAsDisplayName = "Password cannot be equal to display name.";

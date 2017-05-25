@@ -96,10 +96,10 @@ namespace AdminStore.Repositories
             return groupId;
         }
 
-        public async Task UpdateGroupAsync(GroupDto group)
+        public async Task UpdateGroupAsync(int groupId, GroupDto group)
         {
             var parameters = new DynamicParameters();
-            parameters.Add("@GroupId", group.Id);
+            parameters.Add("@GroupId", groupId);
             parameters.Add("@Name", group.Name);
             parameters.Add("@Email", group.Email);
             parameters.Add("@LicenseId", (int)group.License);
@@ -127,6 +127,9 @@ namespace AdminStore.Repositories
                         throw new ConflictException(ErrorMessages.ImpossibleChangeLicenseInGroupWithScope);
 
                     case (int)SqlErrorCodes.GroupWithNameAndLicenseIdExist:
+                        throw new BadRequestException(ErrorMessages.GroupAlreadyExist);
+
+                    case (int)SqlErrorCodes.GroupWithNameAndScopeExist:
                         throw new BadRequestException(ErrorMessages.GroupAlreadyExist);
                 }
             }

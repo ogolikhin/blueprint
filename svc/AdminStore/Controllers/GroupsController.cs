@@ -167,7 +167,7 @@ namespace AdminStore.Controllers
 
             GroupValidator.ValidateModel(group, OperationMode.Edit);
 
-            await _groupRepository.UpdateGroupAsync(group);
+            await _groupRepository.UpdateGroupAsync(groupId, group);
 
             return Ok();
         }

@@ -14,7 +14,7 @@ namespace AdminStore.Helpers
     {
         public static void ValidateModel(GroupDto group, OperationMode operationMode)
         {
-            if (string.IsNullOrEmpty(group.Name))
+            if (string.IsNullOrWhiteSpace(group.Name))
             {
                 throw new BadRequestException(ErrorMessages.GroupName, ErrorCodes.BadRequest);
             }
@@ -24,7 +24,7 @@ namespace AdminStore.Helpers
                 throw new BadRequestException(ErrorMessages.GroupNameFieldLimitation, ErrorCodes.BadRequest);
             }
 
-            if (!string.IsNullOrEmpty(group.Email))
+            if (!string.IsNullOrWhiteSpace(group.Email))
             {
                 if (group.Email.Length < 4 || group.Email.Length > 255)
                 {

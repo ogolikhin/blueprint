@@ -586,31 +586,6 @@ namespace Model.ArtifactModel.Impl
             return OpenApi.GetArtifactVersion(artifact.Address, artifact, user, expectedStatusCodes);
         }
 
-        // TODO Move this to a common area, not in artifact/openapiartifact class
-        
-        /// <summary>
-        /// Lock Artifact(s).
-        /// (Runs:  'POST /svc/shared/artifacts/lock'  with artifact IDs in the request body)
-        /// </summary>
-        /// <param name="user">The user locking the artifact.</param>
-        /// <param name="artifactsToLock">The list of artifacts to lock.</param>
-        /// <param name="expectedLockResults">(optional) A list of expected LockResults returned in the JSON body.  This is only checked if StatusCode = 200.
-        ///     If null, only Success is expected.</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
-        /// <returns>List of LockResultInfo for the locked artifacts.</returns>
-        public static List<LockResultInfo> LockArtifacts(List<IArtifactBase> artifactsToLock,
-            IUser user,
-            List<LockResult> expectedLockResults = null,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            var service = SvcSharedFactory.GetSvcSharedFromTestConfig();
-            var lockResults = service.LockArtifacts(user, artifactsToLock, expectedStatusCodes);
-
-            UpdateStatusOfArtifactsThatWereLocked(lockResults, user, artifactsToLock, expectedLockResults);
-
-            return lockResults;
-        }
-
         /// <summary>
         /// Updates the IsLocked and LockOwner flags to false for all artifacts that were successfully locked.
         /// </summary>
@@ -681,23 +656,5 @@ namespace Model.ArtifactModel.Impl
         }
 
         #endregion Static Methods
-    }
-
-    public class ArtifactForUpdate
-    {
-        public int Id { get; set; }
-        public int ProjectId { get; set; }
-        public int Version { get; set; }
-
-        public List<PropertyForUpdate> CustomPropertyValues { get; set; }
-        public List<PropertyForUpdate> SpecificPropertyValues { get; set; }
-    }
-
-    public class PropertyForUpdate
-    {
-        public int PropertyTypeId { get; set; }
-        public int PropertyTypeVersionId { get; set; }
-        public int PropertyTypePredefined { get; set; }
-        public object Value { get; set; }
     }
 }

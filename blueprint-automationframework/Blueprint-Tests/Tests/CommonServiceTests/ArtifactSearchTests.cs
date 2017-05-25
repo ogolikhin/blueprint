@@ -49,7 +49,8 @@ namespace CommonServiceTests
             Assert.DoesNotThrow(() =>
             {
                 artifactsList = Helper.SvcShared.SearchArtifactsByName(user: _adminUser, searchSubstring: artifact.Name);
-            }, "{0}.{1}() shouldn't throw an exception when passed valid parameters!", nameof(Artifact), nameof(Helper.SvcShared.SearchArtifactsByName));
+            }, "{0}.{1}() shouldn't throw an exception when passed valid parameters!", nameof(Helper.SvcShared),
+            nameof(Helper.SvcShared.SearchArtifactsByName));
 
             // Verify:
             Assert.IsTrue(artifactsList.Count > 0, "No artifacts were found after adding an artifact!");
@@ -76,7 +77,8 @@ namespace CommonServiceTests
             Assert.DoesNotThrow(() =>
             {
                 searchResultList = Helper.SvcShared.SearchArtifactsByName(user: _adminUser, searchSubstring: searchString);
-            }, "{0}.{1}() shouldn't throw an exception when passed valid parameters!", nameof(Artifact), nameof(Helper.SvcShared.SearchArtifactsByName));
+            }, "{0}.{1}() shouldn't throw an exception when passed valid parameters!", nameof(Helper.SvcShared),
+            nameof(Helper.SvcShared.SearchArtifactsByName));
 
             // Verify: 
             Assert.IsTrue(searchResultList.Count == 10, "Search results must have 10 artifacts, but they have '{0}'.", searchResultList.Count);
@@ -97,7 +99,8 @@ namespace CommonServiceTests
             {
                 searchResultList = Helper.SvcShared.SearchArtifactsByName(user: _adminUser, searchSubstring: artifact.Name,
                     project: _project);
-            }, "{0}.{1}() shouldn't throw an exception when passed valid parameters!", nameof(Artifact), nameof(Helper.SvcShared.SearchArtifactsByName));
+            }, "{0}.{1}() shouldn't throw an exception when passed valid parameters!", nameof(Helper.SvcShared),
+            nameof(Helper.SvcShared.SearchArtifactsByName));
 
             // Verify:
             Assert.IsTrue(searchResultList.Count > 0, "No artifacts were found after adding an artifact!");

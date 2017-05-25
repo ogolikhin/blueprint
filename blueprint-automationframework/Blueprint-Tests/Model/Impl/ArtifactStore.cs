@@ -972,11 +972,25 @@ namespace Model.Impl
                 queryParameters: queryParams, shouldControlJsonChanges: true);
         }
 
-        /// <seealso cref="IArtifactStore.GetReviewContainer(IUser, int)"/>
-        public ReviewSummary GetReviewContainer(IUser user, int reviewId)
+        /// <seealso cref="IArtifactStore.GetReviewContainer(IUser, int, int, int?, int?)"/>
+        public ReviewSummary GetReviewContainer(IUser user, int reviewId, int revisionId, int? page = null, int? recordsOnPage = null)
         {
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.CONTAINERS_id_, reviewId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Containers_id_.TOC, reviewId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            var queryParams = new Dictionary<string, string>();
+
+            queryParams.Add("revisionId", page.ToString());
+
+            if (page != null)
+            {
+                queryParams.Add("offset", page.ToString());
+            }
+
+            if (recordsOnPage != null)
+            {
+                queryParams.Add("limit", recordsOnPage.ToString());
+            }
 
             return restApi.SendRequestAndDeserializeObject<ReviewSummary>(path,
                 RestRequestMethod.GET, shouldControlJsonChanges: true);

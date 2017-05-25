@@ -8,6 +8,7 @@ using AdminStore.Models;
 using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 
 namespace AdminStore.Repositories

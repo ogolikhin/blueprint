@@ -125,13 +125,10 @@
     <Compile Include="Models\AdminRole.cs" />
     <Compile Include="Models\CreateResult.cs" />
     <Compile Include="Models\Enums\LicenseType.cs" />
-    <Compile Include="Models\Enums\SortOrder.cs" />
     <Compile Include="Models\Enums\UserOperationMode.cs" />
     <Compile Include="Models\Group.cs" />
     <Compile Include="Models\GroupDto.cs" />
-    <Compile Include="Models\OperationScope.cs" />
     <Compile Include="Models\DeleteResult.cs" />
-    <Compile Include="Models\Sorting.cs" />
     <Compile Include="Models\TabularData.cs" />
     <Compile Include="Models\UpdateUserPassword.cs" />
     <Compile Include="Models\UserDto.cs" />
@@ -146,9 +143,7 @@
     <Compile Include="Models\ApplicationSettings.cs" />
     <Compile Include="Models\EmailConfigInstanceSettings.cs" />
     <Compile Include="Models\InstanceItem.cs" />
-    <Compile Include="Models\Pagination.cs" />
     <Compile Include="Models\PasswordRecoveryToken.cs" />
-    <Compile Include="Models\QueryResult.cs" />
     <Compile Include="Models\ResetPasswordContent.cs" />
     <Compile Include="Models\ResetPostContent.cs" />
     <Compile Include="Models\User.cs" />

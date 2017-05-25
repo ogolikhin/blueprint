@@ -40,18 +40,39 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("containers/{containerId:int:min(1)}"), SessionRequired]
-        public Task<ReviewSummary> GetReviewContainerAsync(int containerId)
+        public Task<ReviewSummary> GetReviewSummary(int containerId)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return _sqlReviewsRepository.GetReviewSummaryAsync(containerId, session.UserId);
+            return _sqlReviewsRepository.GetReviewSummary(containerId, session.UserId);
+        }
+
+        /// <summary>
+        /// Gets the artifacts for review experience
+        /// </summary>
+        /// <remarks>
+        /// Returns child artifacts of the artifact with the specified project and artifact ids.
+        /// </remarks>
+        /// <param name="containerId">Id of the review container</param>
+        /// <param name="pagination"></param>
+        /// <param name="revisionId"></param>
+        /// <response code="200">OK.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for the artifact.</response>
+        /// <response code="404">Not found. An artifact for the specified id is not found, does not exist or is deleted.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpGet, NoCache]
+        [Route("containers/{containerId:int:min(1)}/artifacts"), SessionRequired]
+        public Task<QueryResult<ReviewedArtifact>> GetReviewedArtifacts(int containerId, [FromUri] Pagination pagination, int? revisionId = int.MaxValue)
+        {
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            return _sqlReviewsRepository.GetReviewedArtifacts(containerId, session.UserId, pagination, revisionId.Value);
         }
 
         /// <summary>
         /// Gets review artifacts for a review given offset and limit, also returns total count.
         /// </summary>
         /// <param name="containerId"></param>
-        /// <param name="limit"></param>
-        /// <param name="offset"></param>
+        /// <param name="pagination"></param>
         /// <param name="versionId"></param>
         /// <returns></returns>
         /// <response code="200">OK.</response>
@@ -61,10 +82,10 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("containers/{containerId:int:min(1)}/content"), SessionRequired]
-        public Task<ReviewArtifactsContent> GetContentAsync(int containerId, int? offset = 0, int? limit = 50, int? versionId = null)
+        public Task<QueryResult<ReviewArtifact>> GetContentAsync(int containerId, [FromUri] Pagination pagination, int? versionId = null)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return _sqlReviewsRepository.GetReviewArtifactsContentAsync(containerId, session.UserId, offset, limit, versionId);
+            return _sqlReviewsRepository.GetReviewArtifactsContentAsync(containerId, session.UserId, pagination, versionId);
         }
 
         /// <summary>

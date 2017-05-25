@@ -23,10 +23,6 @@ namespace ArtifactStore.Models.Review
         /// <summary>
         /// e-signed by UserId on that UTC date time
         /// </summary>
-        public DateTime? ESignedOn { get; set; }
-    }
-
-    public class ReviewArtifactsDataSet : BaseReviewArtifactsContent<ReviewedArtifact>
-    {
+        public DateTime? SignedOnTimestamp { get; set; }
     }
 }

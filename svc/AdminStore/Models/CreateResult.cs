@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace AdminStore.Models
+﻿namespace AdminStore.Models
 {
     public class CreateResult
     {
+        public static CreateResult Empty => new CreateResult { TotalCreated = 0 };
+
         public int TotalCreated { get; set; }
     }
 }

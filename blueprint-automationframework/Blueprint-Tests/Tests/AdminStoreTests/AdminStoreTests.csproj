@@ -67,6 +67,7 @@
     <Compile Include="JobsTests.cs" />
     <Compile Include="LicensesTests.cs" />
     <Compile Include="UsersTests\GetInstanceRolesTests.cs" />
+    <Compile Include="UsersTests\GetInstanceUsersTests.cs" />
     <Compile Include="UsersTests\UpdateInstanceUsersTests.cs" />
     <Compile Include="UsersTests\DeleteInstanceUsersTests.cs" />
     <Compile Include="UsersTests\GetInstanceUserTests.cs" />

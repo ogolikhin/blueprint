@@ -111,6 +111,29 @@ namespace AdminStore.Repositories
             return enumerable.Any() ? enumerable.First() : new Group();
         }
 
+        public async Task<QueryResult<GroupUser>> GetGroupUsersAsync(int groupId, TabularData tabularData, Func<Sorting, string> sort = null)
+        {
+            var orderField = string.Empty;
+            if (sort != null && tabularData.Sorting != null)
+            {
+                orderField = sort(tabularData.Sorting);
+            }
+            var parameters = new DynamicParameters();
+            if (groupId > 0)
+            {
+                parameters.Add("@GroupId", groupId);
+            }
+            parameters.Add("@Offset", tabularData.Pagination.Offset);
+            parameters.Add("@Limit", tabularData.Pagination.Limit);
+            parameters.Add("@OrderField", orderField);
+            parameters.Add("@Search", tabularData.Search);
+            parameters.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            var userGroups = await _connectionWrapper.QueryAsync<GroupUser>("GetUsersAndGroups", parameters, commandType: CommandType.StoredProcedure);
+            var total = parameters.Get<int?>("Total");
 
+
+            var queryDataResult = new QueryResult<GroupUser>() { Items = userGroups, Total = total.Value };
+            return queryDataResult;
+        }
     }
 }

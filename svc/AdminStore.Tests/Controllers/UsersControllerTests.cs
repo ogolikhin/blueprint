@@ -15,6 +15,7 @@ using Moq;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Controllers

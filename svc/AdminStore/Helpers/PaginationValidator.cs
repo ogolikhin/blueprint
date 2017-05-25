@@ -5,6 +5,7 @@ using System.Web;
 using AdminStore.Models;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
 
 namespace AdminStore.Helpers
 {

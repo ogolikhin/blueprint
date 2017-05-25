@@ -14,6 +14,7 @@ using Moq;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
 
 namespace AdminStore.Controllers
 {

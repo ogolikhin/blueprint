@@ -4,6 +4,8 @@ using System.Linq;
 using System.Web;
 using AdminStore.Models;
 using AdminStore.Models.Enums;
+using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
 
 namespace AdminStore.Helpers
 {

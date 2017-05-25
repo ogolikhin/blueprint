@@ -42,6 +42,7 @@ namespace AdminStoreTests.UsersTests
 
         #region 200 OK Tests
 
+        [Category(Categories.CannotRunInParallel)]
         [TestCase(InstanceAdminRole.AssignInstanceAdministrators)]
         [TestCase(InstanceAdminRole.DefaultInstanceAdministrator)]
         [TestCase(InstanceAdminRole.ProvisionUsers)]
@@ -82,6 +83,7 @@ namespace AdminStoreTests.UsersTests
             }
         }
 
+        [Category(Categories.CannotRunInParallel)]
         [TestCase(10, -5, Description = "Offset of 0 and Limit 5 less that total user count")]
         [TestCase(10, 0, Description = "Offset of 0 and Limit equals total user count")]
         [TestCase(10, 5, Description = "Offset of 0 and Limit 5 more that total user count")]
@@ -112,11 +114,12 @@ namespace AdminStoreTests.UsersTests
             }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH);
 
             //Verify:
-            var returnedUsers = (List<InstanceUser>)queryResult.Items;
+            var returnedUsers = queryResult.Items;
 
-            Assert.AreEqual(expectedNumberOfReturnedUsers, returnedUsers.Count, "The number of users returned was not expected!");
+            Assert.AreEqual(expectedNumberOfReturnedUsers, returnedUsers.Count(), "The number of users returned was not expected!");
         }
 
+        [Category(Categories.CannotRunInParallel)]
         [TestCase(10, -10, 1, Description = "Offset of total user count minus 10 and Limit of 1")]
         [TestCase(10, -10, 5, Description = "Offset of total user count minus 10 and Limit of 5")]
         [TestCase(10, -10, 10, Description = "Offset of total user count minus 10 and Limit of 10")]
@@ -151,11 +154,12 @@ namespace AdminStoreTests.UsersTests
             }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH);
 
             //Verify:
-            var returnedUsers = (List<InstanceUser>)queryResult.Items;
+            var returnedUsers = queryResult.Items;
 
-            Assert.AreEqual(expectedNumberOfReturnedUsers, returnedUsers.Count, "The number of users returned was not expected!");
+            Assert.AreEqual(expectedNumberOfReturnedUsers, returnedUsers.Count(), "The number of users returned was not expected!");
         }
 
+        [Category(Categories.CannotRunInParallel)]
         [TestCase]
         [Description("Create and add a default instance users. Get all users. Verify the user that was created contained in the " +
                      "returned user list. Delete the user. Get all users again. Verify the user is not in the returned user list.")]
@@ -172,12 +176,11 @@ namespace AdminStoreTests.UsersTests
             QueryResult<InstanceUser> queryResult = null;
 
             // Execute:
-            var userToDelete = addedUser.Id == null ? null : new List<int> {addedUser.Id.Value};
-            Helper.AdminStore.DeleteUsers(_adminUser, userToDelete);
+            Helper.AdminStore.DeleteUser(_adminUser, (int)addedUser.Id);
 
             Assert.DoesNotThrow(() =>
             {
-                queryResult = Helper.AdminStore.GetUsers(_adminUser, offset: 0, limit: 999);
+                queryResult = Helper.AdminStore.GetUsers(_adminUser, offset: 0, limit: int.MaxValue);
             }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH);
 
             //Verify:

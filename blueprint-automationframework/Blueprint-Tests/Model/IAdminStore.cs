@@ -140,9 +140,23 @@ namespace Model
         /// </summary>
         /// <param name="adminUser">The admin user deleting users.</param>
         /// <param name="ids">The ids to include or exclude, depending on selectAll value.</param>
-        /// <param name="selectAll">(optional) The selection scope indicator. Default is false (ids are inclusions).</param>
+        /// <param name="selectAll">(optional) The selection scope indicator. If false, 
+        /// the users are included in the deletion. If true, the users are excluded from the deletion. 
+        /// Default is false.</param>
         /// <returns>The returned HTTP Status Code</returns>
         HttpStatusCode DeleteUsers(IUser adminUser, List<int> ids, bool selectAll = false);
+
+        /// <summary>
+        /// Delete a single user.
+        /// (Runs: POST /users/delete)
+        /// </summary>
+        /// <param name="adminUser">The admin user deleting the user.</param>
+        /// <param name="id">The id to include or exclude, depending on selectAll value.</param>
+        /// <param name="selectAll">(optional) The selection scope indicator. If false, 
+        /// the user is included in the deletion. If true, the user is excluded from the deletion. 
+        /// Default is false.</param>
+        /// <returns>The returned HTTP Status Code</returns>
+        HttpStatusCode DeleteUser(IUser adminUser, int id, bool selectAll = false);
 
         /// <summary>
         /// Gets login user for specified token.

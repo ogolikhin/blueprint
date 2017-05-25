@@ -80,7 +80,7 @@ namespace ArtifactStore.Repositories
             _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(baselineId, null, userId)).ReturnsAsync(baselineInfo);
 
             //Act
-            var review = await _reviewsRepository.GetReviewSummaryAsync(reviewId, userId);
+            var review = await _reviewsRepository.GetReviewSummary(reviewId, userId);
 
             //Assert
             _cxn.Verify();
@@ -113,7 +113,7 @@ namespace ArtifactStore.Repositories
             //Act
             try
             {
-                var review = await _reviewsRepository.GetReviewSummaryAsync(reviewId, userId);
+                var review = await _reviewsRepository.GetReviewSummary(reviewId, userId);
             }
             catch (ResourceNotFoundException ex)
             {
@@ -157,7 +157,7 @@ namespace ArtifactStore.Repositories
             //Act
             try
             {
-                var review = await _reviewsRepository.GetReviewSummaryAsync(reviewId, userId);
+                var review = await _reviewsRepository.GetReviewSummary(reviewId, userId);
             }
             catch (AuthorizationException ex)
             {

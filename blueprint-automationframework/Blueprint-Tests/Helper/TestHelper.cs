@@ -1879,6 +1879,18 @@ namespace Helper
             InstanceUsers.RemoveAll(user => user.Id != null && ids.Contains(user.Id.Value));
         }
 
+        /// <summary>
+        /// Gets all non-deleted Instance Users in the users table
+        /// </summary>
+        /// <param name="adminUser">The admin user getting the instance users.</param>
+        /// <returns>A list of all current users</returns>
+        public List<InstanceUser> GetCurrentUsers(IUser adminUser)
+        {
+            var queryResult = AdminStore.GetUsers(adminUser, offset: 0, limit: int.MaxValue);
+
+            return queryResult.Items.ToList();
+        }
+
         #endregion User management
 
         #region Group management

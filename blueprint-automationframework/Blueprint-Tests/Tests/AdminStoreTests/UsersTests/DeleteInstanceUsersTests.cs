@@ -30,6 +30,8 @@ namespace AdminStoreTests.UsersTests
         [TearDown]
         public void TearDown()
         {
+            Helper.DeleteInstanceUsers(_adminUser);
+
             Helper?.Dispose();
         }
 

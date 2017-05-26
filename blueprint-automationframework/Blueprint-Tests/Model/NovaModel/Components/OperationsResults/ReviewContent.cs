@@ -8,6 +8,7 @@ namespace Model.ArtifactModel.Impl.OperationsResults
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]
         public string Prefix { get; set; }
         public int ItemTypeId { get; set; }
         public int ItemTypePredefined { get; set; }

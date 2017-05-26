@@ -32,6 +32,8 @@ namespace AdminStoreTests.UsersTests
         [TearDown]
         public void TearDown()
         {
+            Helper.DeleteInstanceUsers(_adminUser);
+
             Helper?.Dispose();
         }
 
@@ -89,7 +91,7 @@ namespace AdminStoreTests.UsersTests
             var ex = Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 Helper.AdminStore.GetUserById(userWithInvalidTokenHeader, createdUser.Id);
-            }, "'PUT {0}' should return 401 Unauthorized with invalid token header!", USER_PATH_ID);
+            }, "'GET {0}' should return 401 Unauthorized with invalid token header!", USER_PATH_ID);
 
             // Verify:
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, errorMessage);
@@ -123,7 +125,7 @@ namespace AdminStoreTests.UsersTests
             {
                 Helper.AdminStore.GetUserById(userWithNoPermissionsToGetUsers, createdUser.Id);
             },
-            "'PUT {0}' should return 403 Forbidden when the user updating the user has no permissions to get users!", USER_PATH_ID);
+            "'GET {0}' should return 403 Forbidden when the user updating the user has no permissions to get users!", USER_PATH_ID);
 
             // Verify:
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "The user does not have permissions.");
@@ -135,16 +137,32 @@ namespace AdminStoreTests.UsersTests
 
         [TestCase(0)]
         [TestCase(-1)]
-        [TestCase(int.MaxValue)]
-        [Description("Try to get the non-existing user. Verify that 404 Not Found is returned.")]
-        [TestRail(303453)]
-        public void GetInstanceUser_UserDoesntExist_404NotFound(int userId)
+        [Description("Try to get a user with an invalid Id. " +
+                     "Verify that 404 Not Found is returned.")]
+        [TestRail(303988)]
+        public void GetInstanceUser_InvalidUserId_404NotFound(int userId)
         {
             // Setup, Execute & Verify:
             Assert.Throws<Http404NotFoundException>(() =>
             {
                 Helper.AdminStore.GetUserById(_adminUser, userId);
+            }, "'GET {0}' should return 404 Not Found for nonexistent user!", USER_PATH_ID);
+        }
+
+        [TestCase]
+        [Description("Create and add an instance user. Try to update the user with a valid but non-existing user id. " +
+                     "Verify that 404 Not Found is returned.")]
+        [TestRail(303453)]
+        public void GetInstanceUser_UserDoesNotExist_404NotFound()
+        {
+            // Setup & Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() =>
+            {
+                Helper.AdminStore.GetUserById(_adminUser, int.MaxValue);
             }, "'PUT {0}' should return 404 Not Found for nonexistent user!", USER_PATH_ID);
+
+            // Verify:
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, InstanceAdminErrorMessages.UserNotExist);
         }
 
         [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]

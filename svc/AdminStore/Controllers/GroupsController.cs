@@ -5,6 +5,7 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using AdminStore.Helpers;
 using AdminStore.Models;
+using AdminStore.Models.Enums;
 using AdminStore.Repositories;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;

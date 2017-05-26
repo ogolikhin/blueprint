@@ -125,7 +125,6 @@
     <Compile Include="Models\AdminRole.cs" />
     <Compile Include="Models\CreateResult.cs" />
     <Compile Include="Models\Enums\LicenseType.cs" />
-    <Compile Include="Models\Enums\SortOrder.cs" />
     <Compile Include="Models\Enums\OperationMode.cs" />
     <Compile Include="Models\Group.cs" />
     <Compile Include="Models\GroupDto.cs" />

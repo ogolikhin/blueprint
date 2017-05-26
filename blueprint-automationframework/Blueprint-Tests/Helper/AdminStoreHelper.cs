@@ -305,7 +305,7 @@ namespace Helper
         }
 
         /// <summary>
-        /// Creates and adds a new Instance Admin Role into the database.
+        /// Deletes a custom Instance Admin Role from the database.
         /// </summary>
         /// <param name="adminRole">The Instance Admin Role to delete from the database.</param>
         /// <returns>The number of rows deleted.</returns>

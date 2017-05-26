@@ -16,7 +16,7 @@ using Utilities.Factories;
 
 namespace Helper
 {
-    public class AdminStoreHelper
+    public class AdminStoreHelper : IDisposable
     {
         #region Project Management
 
@@ -247,6 +247,8 @@ namespace Helper
 
         #region User Management
 
+        private const string INSTANCE_ADMIN_ROLES_TABLE = "[dbo].[InstanceAdminRoles]";
+
         public const uint MinPasswordLength = 8;
         public const uint MaxPasswordLength = 128;
         public const InstanceAdminPrivileges AllPrivileges =
@@ -292,15 +294,35 @@ namespace Helper
                 IsReadOnly = isReadOnly
             };
 
-            const string tableName = "[dbo].[InstanceAdminRoles]";
             string[] columnNames = { "Name", "Description", "Permissions", "IsReadOnly" };
-            object[] values = { role.Name, role.Description, role.Permissions, role.IsReadOnly };
+            object[] values = { role.Name, role.Description, (int)role.Permissions, role.IsReadOnly };
 
-            role.Id = DatabaseHelper.ExecuteInsertSqlQueryAndGetId(tableName, columnNames, values);
+            role.Id = DatabaseHelper.ExecuteInsertSqlQueryAndGetId(INSTANCE_ADMIN_ROLES_TABLE, columnNames, values);
 
             CustomInstanceAdminRoles.Add(role);
 
             return role;
+        }
+
+        /// <summary>
+        /// Creates and adds a new Instance Admin Role into the database.
+        /// </summary>
+        /// <param name="adminRole">The Instance Admin Role to delete from the database.</param>
+        /// <returns>The number of rows deleted.</returns>
+        public int DeleteInstanceAdminRoleFromDatabase(CustomInstanceAdminRole adminRole)
+        {
+            ThrowIf.ArgumentNull(adminRole, nameof(adminRole));
+
+            int rowsDeleted = DatabaseHelper.ExecuteDeleteSqlQuery(INSTANCE_ADMIN_ROLES_TABLE,
+                whereColumnName: "Id",
+                whereValue: adminRole.Id.ToStringInvariant());
+
+            if (rowsDeleted > 0)
+            {
+                CustomInstanceAdminRoles.RemoveAll(r => r.Id == adminRole.Id);
+            }
+
+            return rowsDeleted;
         }
 
         /// <summary>
@@ -503,5 +525,51 @@ namespace Helper
         }
 
         #endregion User Management
+
+        #region Members inherited from IDisposable
+
+        private bool _isDisposed = false;
+
+        /// <summary>
+        /// Disposes this object and all disposable objects owned by this object.
+        /// </summary>
+        /// <param name="disposing">Pass true if explicitly called, or false if called from the destructor.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            Logger.WriteTrace("{0}.{1} called.", nameof(AdminStoreHelper), nameof(AdminStoreHelper.Dispose));
+
+            if (_isDisposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                if (CustomInstanceAdminRoles != null)
+                {
+                    Logger.WriteDebug("Deleting all custom Admin Roles created by this AdminStoreHelper instance...");
+
+                    foreach (var role in CustomInstanceAdminRoles.ToArray())
+                    {
+                        DeleteInstanceAdminRoleFromDatabase(role);
+                    }
+                }
+            }
+
+            _isDisposed = true;
+
+            Logger.WriteTrace("{0}.{1} finished.", nameof(AdminStoreHelper), nameof(AdminStoreHelper.Dispose));
+        }
+
+        /// <summary>
+        /// Disposes this object and all disposable objects owned by this object.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion Members inherited from IDisposable
     }
 }

@@ -31,6 +31,8 @@ namespace Model.Common.Enums
 
         ViewUsers = 0x400,
 
+        ManageUsersOnly = 0x800,
+
         ManageUsers = 0x800 | ViewUsers,
 
         ViewGroups = 0x1000,

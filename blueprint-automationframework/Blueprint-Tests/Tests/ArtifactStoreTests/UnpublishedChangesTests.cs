@@ -70,7 +70,7 @@ namespace ArtifactStoreTests
 
             var artifact = Helper.CreateAndPublishNovaArtifact(author, _project, artifactType);
             artifact.Lock(author);
-            artifact.Update(author, artifact);
+            artifact.SaveWithNewDescription(author);
             INovaArtifactsAndProjectsResponse unpublishedChanges = null;
 
             // Execute:

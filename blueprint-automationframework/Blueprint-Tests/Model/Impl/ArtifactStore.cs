@@ -975,12 +975,10 @@ namespace Model.Impl
         /// <seealso cref="IArtifactStore.GetReviewContainer(IUser, int, int, int?, int?)"/>
         public ReviewSummary GetReviewContainer(IUser user, int reviewId, int revisionId, int? page = null, int? recordsOnPage = null)
         {
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Containers_id_.TOC, reviewId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Containers_id_.TOC, reviewId, revisionId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
             var queryParams = new Dictionary<string, string>();
-
-            queryParams.Add("revisionId", page.ToString());
 
             if (page != null)
             {

@@ -63,7 +63,8 @@ namespace ArtifactStoreTests
         {
             // Setup:
             _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
-            const int reviewId = 112;
+            const int REVIEW_ID = 112;
+            const int REVISION_ID = 239;
 
             var testConfig = TestConfiguration.GetInstance();
             string userName = testConfig.Username;
@@ -76,7 +77,7 @@ namespace ArtifactStoreTests
             ReviewSummary reviewContainer = null;
 
             // Execute: 
-            Assert.DoesNotThrow(() => reviewContainer = Helper.ArtifactStore.GetReviewContainer(admin, reviewId),
+            Assert.DoesNotThrow(() => reviewContainer = Helper.ArtifactStore.GetReviewContainer(admin, REVIEW_ID, REVISION_ID),
                 "{0} should throw no error.", nameof(Helper.ArtifactStore.GetReviewContainer));
 
             // Verify:
@@ -92,9 +93,10 @@ namespace ArtifactStoreTests
             // Setup:
             _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
             const int reviewId = 112;
+            const int REVISION_ID = 239;
 
             // Execute & Verify: 
-            Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetReviewContainer(_adminUser, reviewId),
+            Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetReviewContainer(_adminUser, reviewId, REVISION_ID),
                 "{0} should return 403 for non-reviewer user.", nameof(Helper.ArtifactStore.GetReviewContainer));
         }
 
@@ -106,13 +108,13 @@ namespace ArtifactStoreTests
         {
             // Setup:
             _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
-            const int reviewId = 111;
+            const int REVIEW_ID = 111;
 
             ReviewParticipantsContent reviewParticipants = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
-            reviewParticipants = Helper.ArtifactStore.GetReviewParticipants(_adminUser, reviewId), "GetReviewParticipants " +
+            reviewParticipants = Helper.ArtifactStore.GetReviewParticipants(_adminUser, REVIEW_ID), "GetReviewParticipants " +
             "should return 200 success.");
 
             // Verify:

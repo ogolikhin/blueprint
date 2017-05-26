@@ -46,7 +46,7 @@ namespace ArtifactStore.Models.Review
 
         public ReviewStatus ReviewStatus { get; set; }
 
-        public int ContentRevisionId { get; set; }
+        public int RevisionId { get; set; }
 
         public int TotalReviewers { get; set; }
 

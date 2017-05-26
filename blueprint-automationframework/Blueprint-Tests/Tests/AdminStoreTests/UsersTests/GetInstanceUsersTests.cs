@@ -160,23 +160,13 @@ namespace AdminStoreTests.UsersTests
             Assert.AreEqual(expectedNumberOfReturnedUsers, returnedUsers.Count(), "The number of users returned was not expected!");
         }
 
-        [Category(Categories.CannotRunInParallel)]
         [Description("Create and add several default instance users. Get users with an offset of 0 and a limit of zero. " +
                      "Verify that no users are returned.")]
         [TestRail(303982)]
         public void GetInstanceUsers_OffsetAndLimitEqualsZero_ReturnsCorrectNumberOfUsers()
         {
             // Setup:
-            var currentUsers = Helper.GetCurrentUsers(_adminUser);
-            var addedUsers = Helper.CreateAndAddInstanceUsers(_adminUser, 5);
-
-            // Expected users is all current users plus the newly created users
-            var expectedTotalUsers = currentUsers.Concat(addedUsers).ToList();
-
-            var expectedNumberOfReturnedUsers = CalculateExpectedNumberOfReturnedUsers(
-                totalUsers: expectedTotalUsers.Count,
-                offset: 0,
-                limit: 0);
+            Helper.CreateAndAddInstanceUsers(_adminUser, 5);
 
             QueryResult<InstanceUser> queryResult = null;
 
@@ -189,7 +179,7 @@ namespace AdminStoreTests.UsersTests
             //Verify:
             var returnedUsers = queryResult.Items;
 
-            Assert.AreEqual(expectedNumberOfReturnedUsers, returnedUsers.Count(), "Users were returned but non were expected!");
+            Assert.AreEqual(0, returnedUsers.Count(), "Users were returned but non were expected!");
         }
 
         [Category(Categories.CannotRunInParallel)]

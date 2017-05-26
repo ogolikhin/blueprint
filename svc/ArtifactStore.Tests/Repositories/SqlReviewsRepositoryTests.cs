@@ -46,7 +46,7 @@ namespace ArtifactStore.Repositories
             int userId = 2;
             int baselineId = 3;
             int totalArtifacts = 8;
-            int contentRevisionId = 999;
+            int revisionId = 999;
             var reviewStatus = ReviewStatus.Completed;
 
             _itemInfoRepositoryMock.Setup(i => i.GetItemDescription(reviewId, userId, true, int.MaxValue)).ReturnsAsync(reviewDescription);
@@ -59,7 +59,7 @@ namespace ArtifactStore.Repositories
                 ReviewStatus = reviewStatus,
                 Approved = 5,
                 Disapproved = 3,
-                ContentRevisionId = contentRevisionId
+                RevisionId = revisionId
             };
 
             var param = new Dictionary<string, object> { { "reviewId", reviewId }, { "userId", userId } };
@@ -90,7 +90,7 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(reviewStatus, review.Status);
             Assert.AreEqual(reviewName, review.Name);
             Assert.AreEqual(reviewDescription, review.Description);
-            Assert.AreEqual(contentRevisionId, review.RevisionId);
+            Assert.AreEqual(revisionId, review.RevisionId);
             Assert.AreEqual(ReviewType.Formal, review.ReviewType);
             Assert.AreEqual(5, review.ArtifactsStatus.Approved);
             Assert.AreEqual(3, review.ArtifactsStatus.Disapproved);

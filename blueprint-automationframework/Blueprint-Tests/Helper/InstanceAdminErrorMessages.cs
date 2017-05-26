@@ -11,7 +11,7 @@
         public const string DisplayNameRequired = "The \"Display name\" field is required.";
         public const string FirstNameRequired = "The \"First name\" field is required.";
         public const string LastNameRequired = "The \"Last name\" field is required.";
-        public const string LoginNameUnique = "The login name must be unique in the instance.";
+        public const string LoginNameUnique = "Please enter a unique username.";
         public const string SessionIsEmpty = "The session is empty.";
         public const string UserDoesNotHavePermissions = "The user does not have permissions.";
         public const string LoginFieldLimitation = "The length of the \"Login\" field must be between 4 and 256 characters.";
@@ -29,7 +29,7 @@
         public const string IncorrectUserId = "Incorrect userId.";
         public const string CreateOnlyDatabaseUsers = "You can create only database users.";
         public const string ModifyOnlyDatabaseUsers = "You can modify only database users.";
-        public const string EmailFormatIncorrect = "The email format is incorrect.";
+        public const string EmailFormatIncorrect = "Please ensure the email address is correct.";
         public const string LoginInvalid = "The \"Login\" field is invalid.";
         public const string IncorrectLimitParameter = "The \"limit\" parameter is required and should not be negative.";
         public const string IncorrectOffsetParameter = "The \"offset\" parameter is required and should not be negative.";

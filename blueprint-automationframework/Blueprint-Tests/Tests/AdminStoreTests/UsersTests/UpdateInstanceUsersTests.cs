@@ -159,7 +159,7 @@ namespace AdminStoreTests.UsersTests
         [TestCase("FirstName", "", Description = "FirstName is empty")]
         [TestCase("FirstName", null, Description = "FirstName is null")]
         [TestCase("LastName", "", Description = "LastName is empty")]
-        [TestCase("LastName", null, Description = "FirstName is null")]
+        [TestCase("LastName", null, Description = "LastName is null")]
         [Description("Create and add a default instance user. Remove the first or last name. Update the user. " +
              "Verify that the user is updated.")]
         [TestRail(303990)]

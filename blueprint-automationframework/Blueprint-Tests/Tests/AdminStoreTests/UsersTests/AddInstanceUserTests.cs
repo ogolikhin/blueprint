@@ -147,7 +147,7 @@ namespace AdminStoreTests.UsersTests
         [TestCase("FirstName", "", Description = "FirstName is empty")]
         [TestCase("FirstName", null, Description = "FirstName is null")]
         [TestCase("LastName", "", Description = "LastName is empty")]
-        [TestCase("LastName", null, Description = "FirstName is null")]
+        [TestCase("LastName", null, Description = "LastName is null")]
         [Description("Create an instance user with a missing first or last name. Add the user. " +
                      "Verify that the user is created.")]
         [TestRail(303989)]
@@ -156,10 +156,7 @@ namespace AdminStoreTests.UsersTests
             // Setup:
             var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
 
-            if (property != null)
-            {
-                CSharpUtilities.SetProperty(property, propertyValue, createdUser);
-            }
+            CSharpUtilities.SetProperty(property, propertyValue, createdUser);
 
             // Execute:
             int createdUserId = 0;

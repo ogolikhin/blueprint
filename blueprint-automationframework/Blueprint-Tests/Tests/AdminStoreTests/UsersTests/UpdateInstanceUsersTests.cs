@@ -26,14 +26,14 @@ namespace AdminStoreTests.UsersTests
 
         #region Setup and Cleanup
 
-        [TestFixtureSetUp]
+        [SetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
         }
 
-        [TestFixtureTearDown]
+        [TearDown]
         public void TearDown()
         {
             Helper.DeleteInstanceUsers(_adminUser);
@@ -740,7 +740,7 @@ namespace AdminStoreTests.UsersTests
 
         [TestCase(0)]
         [TestCase(-1)]
-        [Description("Create and add an instance user. Try to update the user with an incorrect Id. " +
+        [Description("Create and add an instance user. Try to update the user with an invalid Id. " +
              "Verify that 404 Not Found is returned.")]
         [TestRail(303656)]
         public void UpdateInstanceUser_InvalidUserId_404NotFound(int invalidId)
@@ -778,7 +778,7 @@ namespace AdminStoreTests.UsersTests
 
         [TestCase]
         [Description("Create and add an instance user. Delete the user. Try to update the deleted user. " +
-             "Verify that 404 Not Found is returned.")]
+                     "Verify that 404 Not Found is returned.")]
         [TestRail(303454)]
         public void UpdateInstanceUser_UserDeleted_404NotFound()
         {

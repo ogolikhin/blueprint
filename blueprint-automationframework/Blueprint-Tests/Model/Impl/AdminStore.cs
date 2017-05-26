@@ -287,6 +287,12 @@ namespace Model.Impl
             }
         }
 
+        /// <seealso cref="IAdminStore.DeleteUser(IUser, int, bool)"/>
+        public HttpStatusCode DeleteUser(IUser adminUser, int id, bool selectAll = false)
+        {
+            return DeleteUsers(adminUser, new List<int> { id }, selectAll);
+        }
+
         /// <seealso cref="IAdminStore.GetLoginUser(string, List{HttpStatusCode})"/>
         public IUser GetLoginUser(string token, List<HttpStatusCode> expectedStatusCodes = null)
         {

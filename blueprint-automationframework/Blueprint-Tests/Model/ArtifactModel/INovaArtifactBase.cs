@@ -52,6 +52,7 @@ namespace Model.ArtifactModel
         string ItemTypeName { get; set; }
         int? ItemTypeIconId { get; set; }
         int? ItemTypeVersionId { get; set; }
+        DateTime? LastSavedOn { get; set; }
         bool? LastSaveInvalid { get; set; }
         RolePermissions? Permissions { get; set; }
         double? OrderIndex { get; set; }

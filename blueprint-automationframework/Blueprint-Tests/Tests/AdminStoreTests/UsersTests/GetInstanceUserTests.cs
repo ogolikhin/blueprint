@@ -22,14 +22,14 @@ namespace AdminStoreTests.UsersTests
 
         #region Setup and Cleanup
 
-        [TestFixtureSetUp]
+        [SetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
         }
 
-        [TestFixtureTearDown]
+        [TearDown]
         public void TearDown()
         {
             Helper.DeleteInstanceUsers(_adminUser);
@@ -137,16 +137,37 @@ namespace AdminStoreTests.UsersTests
 
         [TestCase(0)]
         [TestCase(-1)]
-        [TestCase(int.MaxValue)]
-        [Description("Try to get the non-existing user. Verify that 404 Not Found is returned.")]
-        [TestRail(303453)]
-        public void GetInstanceUser_UserDoesntExist_404NotFound(int userId)
+        [Description("Try to get a user with an invalid Id. " +
+                     "Verify that 404 Not Found is returned.")]
+        [TestRail(303988)]
+        public void GetInstanceUser_InvalidUserId_404NotFound(int userId)
         {
             // Setup, Execute & Verify:
             Assert.Throws<Http404NotFoundException>(() =>
             {
                 Helper.AdminStore.GetUserById(_adminUser, userId);
             }, "'GET {0}' should return 404 Not Found for nonexistent user!", USER_PATH_ID);
+        }
+
+        [TestCase]
+        [Description("Create and add an instance user. Try to update the user with a valid but non-existing user id. " +
+                     "Verify that 404 Not Found is returned.")]
+        [TestRail(303422)]
+        public void UpdateInstanceUser_UserDoesntExist_404NotFound()
+        {
+            // Setup:
+            var createdUser = Helper.CreateAndAddInstanceUser(_adminUser);
+
+            createdUser.Id = int.MaxValue;
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() =>
+            {
+                Helper.AdminStore.UpdateUser(_adminUser, createdUser);
+            }, "'PUT {0}' should return 404 Not Found for nonexistent user!", USER_PATH_ID);
+
+            // Verify:
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, InstanceAdminErrorMessages.UserNotExist);
         }
 
         [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]

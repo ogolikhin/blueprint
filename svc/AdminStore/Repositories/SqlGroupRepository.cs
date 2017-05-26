@@ -33,6 +33,11 @@ namespace AdminStore.Repositories
             {
                 orderField = sort(tabularData.Sorting);
             }
+            if (tabularData.Search != null)
+            {
+                tabularData.Search = UsersHelper.ReplaceWildcardCharacters(tabularData.Search);
+            }
+           
             var parameters = new DynamicParameters();
             if (userId > 0)
             {
@@ -54,6 +59,10 @@ namespace AdminStore.Repositories
 
         public async Task<int> DeleteGroupsAsync(OperationScope body, string search)
         {
+            if (search != null)
+            {
+                search = UsersHelper.ReplaceWildcardCharacters(search);
+            }
             var parameters = new DynamicParameters();
             parameters.Add("@GroupsIds", SqlConnectionWrapper.ToDataTable(body.Ids));
             parameters.Add("@Search", search);
@@ -149,6 +158,29 @@ namespace AdminStore.Repositories
             return enumerable.Any() ? enumerable.First() : new Group();
         }
 
+        public async Task<QueryResult<GroupUser>> GetGroupUsersAsync(int groupId, TabularData tabularData, Func<Sorting, string> sort = null)
+        {
+            var orderField = string.Empty;
+            if (sort != null && tabularData.Sorting != null)
+            {
+                orderField = sort(tabularData.Sorting);
+            }
+            var parameters = new DynamicParameters();
+            if (groupId > 0)
+            {
+                parameters.Add("@GroupId", groupId);
+            }
+            parameters.Add("@Offset", tabularData.Pagination.Offset);
+            parameters.Add("@Limit", tabularData.Pagination.Limit);
+            parameters.Add("@OrderField", orderField);
+            parameters.Add("@Search", tabularData.Search);
+            parameters.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            var userGroups = await _connectionWrapper.QueryAsync<GroupUser>("GetUsersAndGroups", parameters, commandType: CommandType.StoredProcedure);
+            var total = parameters.Get<int?>("Total");
 
+
+            var queryDataResult = new QueryResult<GroupUser>() { Items = userGroups, Total = total.Value };
+            return queryDataResult;
+        }
     }
 }

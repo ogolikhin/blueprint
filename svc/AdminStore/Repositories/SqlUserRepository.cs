@@ -144,7 +144,10 @@ namespace AdminStore.Repositories
             {
                 orderField = sort(sorting);
             }
-
+            if (search != null)
+            {
+                search = UsersHelper.ReplaceWildcardCharacters(search);
+            }
             var result = await GetUsersInternalAsync(pagination, orderField, search);
 
             return new QueryResult<UserDto>
@@ -242,6 +245,10 @@ namespace AdminStore.Repositories
 
         public async Task<int> DeleteUsers(OperationScope scope, string search, int sessionUserId)
         {
+            if (search != null)
+            {
+                search = UsersHelper.ReplaceWildcardCharacters(search);
+            }
             var parameters = new DynamicParameters();
             parameters.Add("@UserIds", SqlConnectionWrapper.ToDataTable(scope.Ids));
             parameters.Add("@Search", search);

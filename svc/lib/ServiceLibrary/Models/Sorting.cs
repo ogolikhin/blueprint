@@ -1,10 +1,11 @@
-﻿using AdminStore.Models.Enums;
+﻿using ServiceLibrary.Models.Enums;
 
-namespace AdminStore.Models
+namespace ServiceLibrary.Models
 {
     public class Sorting
     {
         public string Sort { get; set; }
+
         public SortOrder Order { get; set; }
     }
 }

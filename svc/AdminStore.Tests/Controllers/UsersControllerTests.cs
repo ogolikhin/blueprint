@@ -8,13 +8,13 @@ using System.Web.Http;
 using System.Web.Http.Results;
 using AdminStore.Helpers;
 using AdminStore.Models;
-using AdminStore.Models.Enums;
 using AdminStore.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Controllers
@@ -827,12 +827,20 @@ namespace AdminStore.Controllers
         public async Task GetAllUsers_ParamsAreNotCorrect_BadRequestResult()
         {
             //arrange
+            BadRequestException exception = null;
 
             //act
-            var result = await _controller.GetUsers(null, null);
+            try
+            {
+                var result = await _controller.GetUsers(null, null);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
 
             //assert
-            Assert.IsInstanceOfType(result, typeof(BadRequestErrorMessageResult));
+            Assert.IsInstanceOfType(exception, typeof(BadRequestException));
         }
 
         [TestMethod]
@@ -847,7 +855,7 @@ namespace AdminStore.Controllers
             //act
             try
             {
-                await _controller.GetUsers(new Pagination(), new Sorting());
+                await _controller.GetUsers(new Pagination { Offset = 0, Limit = 20 }, new Sorting());
             }
             catch (Exception ex)
             {
@@ -1146,44 +1154,10 @@ namespace AdminStore.Controllers
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
-        public async Task PostUser_FirstNameEmpty_ReturnBadRequestResult()
-        {
-            // Arrange
-            _user.FirstName = string.Empty;
-            _privilegesRepository
-              .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
-              .ReturnsAsync(FullPermissions);
-
-            // Act
-            await _controller.PostUser(_user);
-
-            // Assert
-            // Exception
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
         public async Task PostUser_FirstNameOutOfRangeStringLength_ReturnBadRequestResult()
         {
             // Arrange
             _user.FirstName = "1";
-            _privilegesRepository
-              .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
-              .ReturnsAsync(FullPermissions);
-
-            // Act
-            await _controller.PostUser(_user);
-
-            // Assert
-            // Exception
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
-        public async Task PostUser_LastNameEmpty_ReturnBadRequestResult()
-        {
-            // Arrange
-            _user.LastName = string.Empty;
             _privilegesRepository
               .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
               .ReturnsAsync(FullPermissions);

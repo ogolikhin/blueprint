@@ -1,4 +1,6 @@
-﻿namespace AdminStore.Models
+﻿using ServiceLibrary.Models;
+
+namespace AdminStore.Models
 {
     public class TabularData
     {

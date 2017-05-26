@@ -9,6 +9,7 @@ using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
 
 namespace AdminStore.Repositories
 {
@@ -146,7 +147,7 @@ namespace AdminStore.Repositories
 
             var result = await GetUsersInternalAsync(pagination, orderField, search);
 
-            return new QueryResult<UserDto>()
+            return new QueryResult<UserDto>
             {
                 Items = UserMapper.Map(result.Items),
                 Total = result.Total
@@ -206,14 +207,14 @@ namespace AdminStore.Repositories
             parameters.Add("@Enabled", loginUser.Enabled);
             parameters.Add("@ExpirePassword", loginUser.ExpirePassword);
             parameters.Add("@DisplayName", loginUser.DisplayName);
-            parameters.Add("@FirstName", loginUser.FirstName);
-            parameters.Add("@LastName", loginUser.LastName);
+            parameters.Add("@FirstName", string.IsNullOrWhiteSpace(loginUser.FirstName) ? string.Empty : loginUser.FirstName);
+            parameters.Add("@LastName", string.IsNullOrWhiteSpace(loginUser.LastName) ? string.Empty : loginUser.LastName);
             parameters.Add("@ImageId", loginUser.Image_ImageId);
             parameters.Add("@Password", loginUser.Password);
             parameters.Add("@UserSALT", loginUser.UserSALT);
-            parameters.Add("@Email", loginUser.Email);
-            parameters.Add("@Title", loginUser.Title);
-            parameters.Add("@Department", loginUser.Department);
+            parameters.Add("@Email", string.IsNullOrWhiteSpace(loginUser.Email) ? string.Empty : loginUser.Email);
+            parameters.Add("@Title", string.IsNullOrWhiteSpace(loginUser.Title) ? string.Empty : loginUser.Title);
+            parameters.Add("@Department", string.IsNullOrWhiteSpace(loginUser.Department) ? string.Empty : loginUser.Department);
             if (loginUser.GroupMembership != null)
                 parameters.Add("@GroupMembership", SqlConnectionWrapper.ToDataTable(loginUser.GroupMembership));
             parameters.Add("@Guest", loginUser.Guest);
@@ -239,12 +240,12 @@ namespace AdminStore.Repositories
             return userId;
         }
 
-        public async Task<int> DeleteUsers(OperationScope body, string search, int sessionUserId)
+        public async Task<int> DeleteUsers(OperationScope scope, string search, int sessionUserId)
         {
             var parameters = new DynamicParameters();
-            parameters.Add("@UserIds", SqlConnectionWrapper.ToDataTable(body.Ids));
+            parameters.Add("@UserIds", SqlConnectionWrapper.ToDataTable(scope.Ids));
             parameters.Add("@Search", search);
-            parameters.Add("@SelectAll", body.SelectAll);
+            parameters.Add("@SelectAll", scope.SelectAll);
             parameters.Add("@SessionUserId", sessionUserId);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
             var result = await _connectionWrapper.ExecuteScalarAsync<int>("DeleteUsers", parameters, commandType: CommandType.StoredProcedure);
@@ -281,13 +282,13 @@ namespace AdminStore.Repositories
             parameters.Add("@Enabled", loginUser.Enabled);
             parameters.Add("@ExpirePassword", loginUser.ExpirePassword);
             parameters.Add("@DisplayName", loginUser.DisplayName);
-            parameters.Add("@FirstName", loginUser.FirstName);
-            parameters.Add("@LastName", loginUser.LastName);
+            parameters.Add("@FirstName", string.IsNullOrWhiteSpace(loginUser.FirstName) ? string.Empty : loginUser.FirstName);
+            parameters.Add("@LastName", string.IsNullOrWhiteSpace(loginUser.LastName) ? string.Empty : loginUser.LastName);
             parameters.Add("@ImageId", loginUser.Image_ImageId);
             parameters.Add("@UserSALT", loginUser.UserSALT);
-            parameters.Add("@Email", loginUser.Email);
-            parameters.Add("@Title", loginUser.Title);
-            parameters.Add("@Department", loginUser.Department);
+            parameters.Add("@Email", string.IsNullOrWhiteSpace(loginUser.Email) ? string.Empty : loginUser.Email);
+            parameters.Add("@Title", string.IsNullOrWhiteSpace(loginUser.Title) ? string.Empty : loginUser.Title);
+            parameters.Add("@Department", string.IsNullOrWhiteSpace(loginUser.Department) ? string.Empty : loginUser.Department);
             if (loginUser.GroupMembership != null)
                 parameters.Add("@GroupMembership", SqlConnectionWrapper.ToDataTable(loginUser.GroupMembership));
             parameters.Add("@Guest", loginUser.Guest);

@@ -5,7 +5,6 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using AdminStore.Helpers;
 using AdminStore.Models;
-using AdminStore.Models.Enums;
 using AdminStore.Repositories;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
@@ -22,6 +21,7 @@ namespace AdminStore.Controllers
     {
         internal readonly IGroupRepository _groupRepository;
         internal readonly PrivilegesManager _privilegesManager;
+
         public GroupsController() : this(new SqlGroupRepository(), new SqlPrivilegesRepository())
         {
         }
@@ -50,17 +50,23 @@ namespace AdminStore.Controllers
         {
             PaginationValidator.ValidatePaginationModel(pagination);
 
-            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewGroups);
-            var tabularData = new TabularData { Pagination = pagination, Sorting = sorting, Search = search };
+            if (pagination.IsEmpty())
+            {
+                return Ok(QueryResult<GroupDto>.Empty);
+            }
 
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewGroups);
+
+            var tabularData = new TabularData { Pagination = pagination, Sorting = sorting, Search = search };
             var result = await _groupRepository.GetGroupsAsync(userId, tabularData, GroupsHelper.SortGroups);
+
             return Ok(result);
         }
 
         /// <summary>
         /// Delete group/groups from the system
         /// </summary>
-        /// <param name="body">list of group ids and selectAll flag</param>
+        /// <param name="scope">list of group ids and selectAll flag</param>
         /// <param name="search">search filter</param>
         /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
         /// <response code="403">Forbidden if used doesn’t have permissions to delete groups</response>
@@ -68,21 +74,23 @@ namespace AdminStore.Controllers
         [SessionRequired]
         [Route("delete")]
         [ResponseType(typeof(int))]
-        public async Task<IHttpActionResult> DeleteGroups([FromBody] OperationScope body, string search = null)
+        public async Task<IHttpActionResult> DeleteGroups([FromBody] OperationScope scope, string search = null)
         {
-            if (body == null)
+            if (scope == null)
             {
                 return BadRequest(ErrorMessages.InvalidDeleteGroupsParameters);
             }
-            //No scope for deletion is provided
-            if (body.IsSelectionEmpty())
+
+            if (scope.IsEmpty())
             {
-                return Ok(new DeleteResult() { TotalDeleted = 0 });
+                return Ok(DeleteResult.Empty);
             }
+
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageGroups);
 
-            var result = await _groupRepository.DeleteGroupsAsync(body, search);
-            return Ok(new DeleteResult() { TotalDeleted = result });
+            var result = await _groupRepository.DeleteGroupsAsync(scope, search);
+
+            return Ok(new DeleteResult { TotalDeleted = result });
         }
 
         /// <summary>
@@ -130,11 +138,13 @@ namespace AdminStore.Controllers
         public async Task<IHttpActionResult> GetGroup(int groupId)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewGroups);
+
             var groupDetails = await _groupRepository.GetGroupDetailsAsync(groupId);
             if (groupDetails.Id == 0)
             {
                 throw new ResourceNotFoundException(ErrorMessages.GroupDoesNotExist, ErrorCodes.ResourceNotFound);
             }
+
             return Ok(groupDetails);
         }
 

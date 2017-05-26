@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AdminStore.Models;
+using ServiceLibrary.Models;
 
 namespace AdminStore.Repositories
 {
@@ -35,22 +36,22 @@ namespace AdminStore.Repositories
 
         Task<User> GetUserAsync(int userId);
 
-        Task<QueryResult<UserDto>> GetUsersAsync(Pagination pagination, Sorting sorting = null, string search = null,
-            Func<Sorting, string> sort = null);
+        Task<QueryResult<UserDto>> GetUsersAsync(Pagination pagination, Sorting sorting = null, string search = null, Func<Sorting, string> sort = null);
+
         Task<UserDto> GetUserDtoAsync(int userId);
 
         Task<int> AddUserAsync(User loginUser);
 
         Task UpdateUserAsync(User loginUser);
-        Task<int> DeleteUsers(OperationScope body, string search, int sessionUserId);
+
+        Task<int> DeleteUsers(OperationScope scope, string search, int sessionUserId);
+
         Task UpdateUserPasswordAsync(string login, string password);
 
-        Task<QueryResult<GroupDto>> GetUserGroupsAsync(int userId, TabularData tabularData,
-            Func<Sorting, string> sort = null);
+        Task<QueryResult<GroupDto>> GetUserGroupsAsync(int userId, TabularData tabularData, Func<Sorting, string> sort = null);
 
         Task<int> AddUserToGroupsAsync(int userId, OperationScope body, string search);
 
         Task<int> DeleteUserFromGroupsAsync(int userId, OperationScope body);
-       
     }
 }

@@ -5,6 +5,7 @@ using Model.JobModel.Impl;
 using System;
 using System.Collections.Generic;
 using System.Net;
+using Model.Common.Enums;
 using Utilities.Facades;
 
 namespace Model
@@ -139,9 +140,23 @@ namespace Model
         /// </summary>
         /// <param name="adminUser">The admin user deleting users.</param>
         /// <param name="ids">The ids to include or exclude, depending on selectAll value.</param>
-        /// <param name="selectAll">(optional) The selection scope indicator. Default is false (ids are inclusions).</param>
+        /// <param name="selectAll">(optional) The selection scope indicator. If false, 
+        /// the users are included in the deletion. If true, the users are excluded from the deletion. 
+        /// Default is false.</param>
         /// <returns>The returned HTTP Status Code</returns>
         HttpStatusCode DeleteUsers(IUser adminUser, List<int> ids, bool selectAll = false);
+
+        /// <summary>
+        /// Delete a single user.
+        /// (Runs: POST /users/delete)
+        /// </summary>
+        /// <param name="adminUser">The admin user deleting the user.</param>
+        /// <param name="id">The id to include or exclude, depending on selectAll value.</param>
+        /// <param name="selectAll">(optional) The selection scope indicator. If false, 
+        /// the user is included in the deletion. If true, the user is excluded from the deletion. 
+        /// Default is false.</param>
+        /// <returns>The returned HTTP Status Code</returns>
+        HttpStatusCode DeleteUser(IUser adminUser, int id, bool selectAll = false);
 
         /// <summary>
         /// Gets login user for specified token.
@@ -159,16 +174,7 @@ namespace Model
         /// <param name="adminUser">The admin user getting the user.</param>
         /// <param name="userId">The user id of the user.</param>
         /// <returns>An InstanceUser object</returns>
-        InstanceUser GetUserById(IUser adminUser, int userId);
-
-        /// <summary>
-        /// Gets a user by user login.
-        /// (Runs: GET /users/search?login={login})
-        /// </summary>
-        /// <param name="adminUser">The admin user getting the user.</param>
-        /// <param name="login">The login of the user.</param>
-        /// <returns>An InstanceUser object</returns>
-        InstanceUser GetUserByLogin(IUser adminUser, string login);
+        InstanceUser GetUserById(IUser adminUser, int? userId);
 
         /// <summary>
         /// Gets a list of non-deleted users matching a specified filter.
@@ -176,22 +182,19 @@ namespace Model
         /// property1={value}..., propertyN={value}, search={string}
         /// </summary>
         /// <param name="adminUser">The admin user getting the users.</param>
-        /// <param name="offset">(optional) 0-based index of the first item to return. The default is 0.</param>
-        /// <param name="limit">(optional) Maximum number of items to return (if any). 
-        /// The server may return fewer items than requested.</param>
-        /// <param name="sort">(optional) Property name by which to sort results.</param>
-        /// <param name="order">(optional) "asc" sorts in ascending order; "desc" sorts in descending order. 
+        /// <param name="offset">(optional) 0-based index of the first item to return (Default: null).</param>
+        /// <param name="limit">(optional) Maximum number of items to return (if any) (Default: null). 
+        /// The server may return fewer items than requested (Default: null).</param>
+        /// <param name="sort">(optional) Property name by which to sort results (Default: null).</param>
+        /// <param name="order">(optional) "asc" sorts in ascending order; "desc" sorts in descending order (Default: null). 
         /// The default order depends on the particular property.</param>
-        /// <param name="propertyFilters">(optional) An array of filter items by property value. 
-        /// The filter logic depends on the particular property.</param>
-        /// <param name="search">(optional) Search query that would be applied on predefined properties specific to data.</param>
-        /// <returns>A list of InstanceUser objects</returns>
-        List<InstanceUser> GetUsers(IUser adminUser,
+        /// <param name="search">(optional) Search query that would be applied on predefined properties specific to data (Default: null).</param>
+        /// <returns>A QueryResult object of InstanceUser objects</returns>
+        QueryResult<InstanceUser> GetUsers(IUser adminUser,
             int? offset = null,
             int? limit = null,
             string sort = null,
-            string order = null,
-            string[] propertyFilters = null,
+            SortOrder? order = null,
             string search = null);
 
         /// <summary>

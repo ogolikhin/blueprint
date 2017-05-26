@@ -2,6 +2,8 @@
 {
     public class DeleteResult
     {
-       public int TotalDeleted { get; set; }
+        public static DeleteResult Empty => new DeleteResult { TotalDeleted = 0 };
+
+        public int TotalDeleted { get; set; }
     }
 }

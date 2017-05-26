@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
 using Moq;
+using ServiceLibrary.Models;
 
 namespace AdminStore.Repositories
 {

@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using CustomAttributes;
 using Helper;
 using Model;
@@ -16,7 +16,6 @@ namespace AdminStoreTests.UsersTests
 
     public class GetInstanceUserTests : TestBase
     {
-        private const string USER_PATH = RestPaths.Svc.AdminStore.Users.USERS;
         private const string USER_PATH_ID = RestPaths.Svc.AdminStore.Users.USERS_id_;
 
         private IUser _adminUser = null;
@@ -153,9 +152,21 @@ namespace AdminStoreTests.UsersTests
         [Description("Create and add an instance user. Delete the user.  Try to get the deleted user. " +
                      "Verify that 404 Not Found is returned.")]
         [TestRail(303456)]
-        public static void GetInstanceUser_UserDeleted_404NotFound()
+        public void GetInstanceUser_UserDeleted_404NotFound()
         {
-            throw new NotImplementedException();
+            // Setup:
+            var createdUser = Helper.CreateAndAddInstanceUser(_adminUser);
+
+            Helper.AdminStore.DeleteUsers(_adminUser, new List<int> { createdUser.Id.Value });
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() =>
+            {
+                Helper.AdminStore.GetUserById(_adminUser, createdUser.Id);
+            }, "'GET {0}' should return 404 Not Found for deleted user!", USER_PATH_ID);
+
+            // Verify:
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, InstanceAdminErrorMessages.UserNotExist);
         }
 
         #endregion 404 Not Found Tests

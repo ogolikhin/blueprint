@@ -81,41 +81,16 @@ namespace Model.Impl
         /// <seealso cref="IGroup.AddGroupToDatabase()"/>
         public void AddGroupToDatabase()
         {
-            using (var database = DatabaseFactory.CreateDatabase())
+            string[] columnNames = { "[CurrentVersion]", "[Name]", "[Description]", "[Email]", "[Source]", "[LicenseId]",
+                "[StartTimestamp]", "[EndTimestamp]", "[ProjectId]", "[Parent_GroupId]" };
+
+            object[] valueArray =
             {
-                database.Open();
+                CurrentVersion, Name, Description, Email, (int)Source, (int?)LicenseType, DateTime.Now, EndTimestamp,
+                Scope?.Id, Parent?.GroupId
+            };
 
-                var fields = "[CurrentVersion],[Name],[Description],[Email],[Source],[LicenseId]," +
-                    "[StartTimestamp],[EndTimestamp],[ProjectId],[Parent_GroupId]";// [GroupId] is the Primary Key, so it gets created by SQL Server.
-
-                object[] valueArray =
-                {
-                    CurrentVersion, Name, Description, Email, (int)Source, (int?)LicenseType, DateTime.Now, EndTimestamp,
-                    Scope?.Id, Parent?.GroupId
-                };
-
-                string values = string.Join(",", objArraytoStringList(valueArray));
-                string query = I18NHelper.FormatInvariant("INSERT INTO {0} ({1}) Output Inserted.GroupId VALUES ({2})", GROUPS_TABLE, fields, values);
-
-                Logger.WriteDebug("Running: {0}", query);
-
-                using (var cmd = database.CreateSqlCommand(query))
-                using (var sqlDataReader = cmd.ExecuteReader())
-                {
-                    if (sqlDataReader.HasRows)
-                    {
-                        while (sqlDataReader.Read())
-                        {
-                            int userIdOrdinal = sqlDataReader.GetOrdinal("GroupId");
-                            GroupId = (int)(sqlDataReader.GetSqlInt32(userIdOrdinal));
-                        }
-                    }
-                    else
-                    {
-                        throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", query));
-                    }
-                }
-            }
+            GroupId = DatabaseHelper.ExecuteInsertSqlQueryAndGetId(GROUPS_TABLE, columnNames, valueArray, "GroupId");
         }
 
         /// <seealso cref="IGroup.DeleteGroup()"/>
@@ -149,7 +124,7 @@ namespace Model.Impl
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            var fields = "[GroupUser_User_GroupId],[Users_UserId]";
+            string fields = "[GroupUser_User_GroupId],[Users_UserId]";
             object[] valueArray = {GroupId, user.Id};
             string values = string.Join(",", objArraytoStringList(valueArray));
 

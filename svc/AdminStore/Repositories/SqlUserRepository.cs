@@ -144,7 +144,10 @@ namespace AdminStore.Repositories
             {
                 orderField = sort(sorting);
             }
-
+            if (search != null)
+            {
+                search = UsersHelper.ReplaceWildcardCharacters(search);
+            }
             var result = await GetUsersInternalAsync(pagination, orderField, search);
 
             return new QueryResult<UserDto>()

@@ -12,6 +12,9 @@ namespace ArtifactStore.Models.Review
         public int UserId { get; set; }
 
         [DataMember]
+        public ReviewParticipantRole Role { get; set; }
+
+        [DataMember]
         public string DisplayName { get; set; }
 
         [DataMember]

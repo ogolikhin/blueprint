@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArtifactSearchTests.cs" />
     <Compile Include="ConcurrentRestCallTests.cs" />
     <Compile Include="ContentForRapidReviewTests.cs" />
     <Compile Include="DiscardTests.cs" />

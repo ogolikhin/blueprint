@@ -6,7 +6,7 @@
     public static class InstanceAdminErrorMessages
     {
         //Users
-        public const string InvalidPageOrPageNumber = "Page, PageSize are missing or invalid.";
+        public const string InvalidPagination = "The \"offset\" and/or \"limit\" parameters are required.";
         public const string LoginRequired = "The \"Login\" field is required.";
         public const string DisplayNameRequired = "The \"Display name\" field is required.";
         public const string FirstNameRequired = "The \"First name\" field is required.";
@@ -31,6 +31,8 @@
         public const string ModifyOnlyDatabaseUsers = "You can modify only database users.";
         public const string EmailFormatIncorrect = "The email format is incorrect.";
         public const string LoginInvalid = "The \"Login\" field is invalid.";
+        public const string IncorrectLimitParameter = "The \"limit\" parameter is required and should not be negative.";
+        public const string IncorrectOffsetParameter = "The \"offset\" parameter is required and should not be negative.";
 
         //Passwords
         public const string PasswordMissing = "Password is required";

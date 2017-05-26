@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Common;
 using Model.Factories;
 using Utilities;
@@ -84,6 +85,74 @@ namespace Model.Impl
         }
 
         /// <summary>
+        /// Executes a SQL INSERT command and returns the Id of the inserted row.
+        /// </summary>
+        /// <param name="tableName">The name of the table to insert into.</param>
+        /// <param name="columnNames">The column names that match with the values being inserted.</param>
+        /// <param name="valueArray">The list of values to insert.</param>
+        /// <param name="idColumnName">(optional) The name of the column where the Id will exist.</param>
+        /// <param name="databaseName">(optional) The database to run the insert against.</param>
+        /// <returns>The ID of the inserted row.</returns>
+        public static int ExecuteInsertSqlQueryAndGetId(
+            string tableName,
+            string[] columnNames,
+            object[] valueArray,
+            string idColumnName = "Id",
+            string databaseName = "Blueprint")
+        {
+            string fields = string.Join(",", columnNames);
+
+            return ExecuteInsertSqlQueryAndGetId(tableName, fields, valueArray, idColumnName, databaseName);
+        }
+
+        /// <summary>
+        /// Executes a SQL INSERT command and returns the Id of the inserted row.
+        /// </summary>
+        /// <param name="tableName">The name of the table to insert into.</param>
+        /// <param name="columnNames">The (comma delimited) column names that match with the values being inserted.</param>
+        /// <param name="valueArray">The list of values to insert.</param>
+        /// <param name="idColumnName">(optional) The name of the column where the Id will exist.</param>
+        /// <param name="databaseName">(optional) The database to run the insert against.</param>
+        /// <returns>The ID of the inserted row.</returns>
+        public static int ExecuteInsertSqlQueryAndGetId(
+            string tableName,
+            string columnNames,
+            object[] valueArray,
+            string idColumnName = "Id",
+            string databaseName = "Blueprint")
+        {
+            using (var database = DatabaseFactory.CreateDatabase(databaseName))
+            {
+                database.Open();
+                
+                string values = string.Join(",", ObjArraytoStringList(valueArray));
+                string query = I18NHelper.FormatInvariant("INSERT INTO {0} ({1}) Output Inserted.{2} VALUES ({3})",
+                    tableName, columnNames, idColumnName, values);
+
+                Logger.WriteDebug("Running: {0}", query);
+
+                using (var cmd = database.CreateSqlCommand(query))
+                using (var sqlDataReader = cmd.ExecuteReader())
+                {
+                    if (sqlDataReader.HasRows)
+                    {
+                        while (sqlDataReader.Read())
+                        {
+                            int idOrdinal = sqlDataReader.GetOrdinal(idColumnName);
+                            return (int)sqlDataReader.GetSqlInt32(idOrdinal);
+                        }
+                    }
+                    else
+                    {
+                        throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", query));
+                    }
+                }
+
+                throw new SqlQueryFailedException(I18NHelper.FormatInvariant("An error occurred when running: {0}", query));
+            }
+        }
+
+        /// <summary>
         /// Executes a SQL update query and returns number of rows affected.
         /// Example: "UPDATE [dbo].[Users] SET [Enabled] = '1' WHERE [UserId] = '1234'"
         /// </summary>
@@ -125,6 +194,43 @@ namespace Model.Impl
             string selectQuery = I18NHelper.FormatInvariant("SELECT FileId FROM [dbo].[EmbeddedImages] WHERE [EmbeddedImageId] ='{0}'", embeddedImageid);
 
             return ExecuteSingleValueSqlQuery<string>(selectQuery, "FileId");
+        }
+
+        /// <summary>
+        /// Converts the array of objects into a list of strings that are properly formatted and quoted for MS SQL to use.
+        /// </summary>
+        /// <param name="objArray">The array of objects to convert.</param>
+        /// <returns>A list of strings that MS SQL can use.</returns>
+        private static List<string> ObjArraytoStringList(object[] objArray)
+        {
+            var strList = new List<string>();
+
+            foreach (var obj in objArray)
+            {
+                if (obj is bool)
+                { strList.Add((bool)obj ? "1" : "0"); }
+                else if (obj is int)
+                { strList.Add(obj.ToString()); }
+                else if (obj is DateTime)
+                { strList.Add("'" + DateTimeToString((DateTime)obj) + "'"); }
+                else if (obj == null)
+                { strList.Add("NULL"); }
+                else
+                { strList.Add("'" + obj + "'"); }
+            }
+
+            return strList;
+        }
+
+        /// <summary>
+        /// Gets the date in a string format that MS SQL can use.
+        /// </summary>
+        /// <param name="date">The date to convert to a string.</param>
+        /// <returns>A string version of the date.</returns>
+        private static string DateTimeToString(DateTime date)
+        {
+            string dateString = date.ToStringInvariant("yyyy-MM-dd HH:mm:ss");
+            return dateString;
         }
     }
 }

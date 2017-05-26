@@ -143,8 +143,8 @@ namespace Helper
         /// <param name="artifact">The artifact to compare against.</param>
         /// <param name="expectedVersion">The version expected in the NovaArtifactResponse.</param>
         public static void AssertNovaArtifactResponsePropertiesMatchWithArtifact(
-            INovaArtifactResponse novaArtifactResponse,
-            IArtifactBase artifact,
+            INovaArtifactDetails novaArtifactResponse,
+            ArtifactWrapper artifact,
             int expectedVersion)
         {
             ThrowIf.ArgumentNull(novaArtifactResponse, nameof(novaArtifactResponse));
@@ -161,14 +161,14 @@ namespace Helper
         /// <param name="artifact">The artifact to compare against.</param>
         [SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
         public static void AssertNovaArtifactResponsePropertiesMatchWithArtifactSkipVersion(
-            INovaArtifactResponse novaArtifactResponse,
-            IArtifactBase artifact)
+            INovaArtifactDetails novaArtifactResponse,
+            ArtifactWrapper artifact)
         {
             ThrowIf.ArgumentNull(novaArtifactResponse, nameof(novaArtifactResponse));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
             Assert.AreEqual(artifact.Id, novaArtifactResponse.Id, "The Id properties of the artifacts don't match!");
-            Assert.AreEqual(artifact.ArtifactTypeId, novaArtifactResponse.ItemTypeId, "The ItemTypeId properties of the artifacts don't match!");
+            Assert.AreEqual(artifact.ItemTypeId, novaArtifactResponse.ItemTypeId, "The ItemTypeId properties of the artifacts don't match!");
             Assert.AreEqual(artifact.Name, novaArtifactResponse.Name, "The Name properties of the artifacts don't match!");
             Assert.AreEqual(artifact.ParentId, novaArtifactResponse.ParentId, "The ParentId properties of the artifacts don't match!");
             Assert.AreEqual(artifact.ProjectId, novaArtifactResponse.ProjectId, "The ProjectId properties of the artifacts don't match!");
@@ -193,7 +193,7 @@ namespace Helper
         ///     By default it compares the version of the NovaArtifactResponse with the artifact.</param>
         [SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
         public static void AssertNovaArtifactResponsePropertiesMatchWithArtifact(
-            INovaArtifactResponse novaArtifactResponse,
+            INovaArtifactDetails novaArtifactResponse,
             INovaArtifactDetails artifact,
             int? expectedVersion = null)
         {
@@ -227,7 +227,7 @@ namespace Helper
         /// <param name="expectedVersion">The version expected in the artifacts.</param>
         public static void AssertArtifactsAndProjectsResponseContainsAllArtifactsInListAndHasExpectedVersion(
             INovaArtifactsAndProjectsResponse artifactAndProjectResponse,
-            List<IArtifactBase> artifacts,
+            List<ArtifactWrapper> artifacts,
             int expectedVersion)
         {
             ThrowIf.ArgumentNull(artifactAndProjectResponse, nameof(artifactAndProjectResponse));
@@ -239,7 +239,7 @@ namespace Helper
                 Assert.NotNull(novaArtifactResponse, "Couldn't find artifact ID {0} in the list of artifacts!");
 
                 // The artifact doesn't have a version before it's published at least once, so we can't compare version of unpublished artifacts.
-                if (artifact.IsPublished)
+                if (artifact.Version > 0)
                 {
                     AssertNovaArtifactResponsePropertiesMatchWithArtifact(novaArtifactResponse, artifact, expectedVersion);
                 }
@@ -249,7 +249,7 @@ namespace Helper
                 }
             }
         }
-
+/*
         /// <summary>
         /// Asserts that the response from the Nova call contains all the specified artifacts and that they now have the correct version.
         /// </summary>
@@ -280,7 +280,7 @@ namespace Helper
                 }
             }
         }
-
+*/
         /// <summary>
         /// Asserts that the response from the Nova call contains all the specified artifacts.
         /// </summary>

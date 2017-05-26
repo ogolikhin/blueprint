@@ -139,7 +139,7 @@ namespace Model
         /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>A list of artifacts that were deleted.</returns>
-        List<INovaArtifactResponse> DeleteArtifact(IArtifactBase artifact, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
+        List<INovaArtifactDetails> DeleteArtifact(IArtifactBase artifact, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Deletes the specified artifact and any children/traces/links/attachments belonging to the artifact.
@@ -149,7 +149,7 @@ namespace Model
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>A list of artifacts that were deleted.</returns>
-        List<INovaArtifactResponse> DeleteArtifact(int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+        List<INovaArtifactDetails> DeleteArtifact(int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Discard all artifacts locked by the specified user.

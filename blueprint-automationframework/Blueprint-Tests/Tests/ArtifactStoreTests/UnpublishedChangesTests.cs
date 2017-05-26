@@ -39,22 +39,20 @@ namespace ArtifactStoreTests
 
         #region 200 OK tests
 
-        [TestCase(BaseArtifactType.Process)]
+        [TestCase(ItemTypePredefined.Process)]
         [TestRail(182259)]
         [Description("Create & save an artifact.  GetUnpublishedChanges.  Verify the saved artifact is returned.")]
-        public void GetUnpublishedChanges_SavedArtifact_ReturnsArtifactDetails(BaseArtifactType artifactType)
+        public void GetUnpublishedChanges_SavedArtifact_ReturnsArtifactDetails(ItemTypePredefined artifactType)
         {
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            var artifact = Helper.CreateAndSaveArtifact(_project, author, artifactType);
+            var artifact = Helper.CreateNovaArtifact(author, _project, artifactType);
             INovaArtifactsAndProjectsResponse unpublishedChanges = null;
 
             // Execute:
-            Assert.DoesNotThrow(() =>
-            {
-                unpublishedChanges = Helper.ArtifactStore.GetUnpublishedChanges(author);
-            }, "'GET {0}' should return 200 OK when called with a valid token!", SVC_PATH);
+            Assert.DoesNotThrow(() => unpublishedChanges = Helper.ArtifactStore.GetUnpublishedChanges(author),
+                "'GET {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
             // Verify:
             ArtifactStoreHelper.AssertOnlyExpectedProjectWasReturned(unpublishedChanges.Projects, _project);
@@ -62,16 +60,17 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.AssertNovaArtifactResponsePropertiesMatchWithArtifactSkipVersion(unpublishedChanges.Artifacts.First(), artifact);
         }
 
-        [TestCase(BaseArtifactType.Process)]
+        [TestCase(ItemTypePredefined.Process)]
         [TestRail(182260)]
         [Description("Create & publish an artifact, then change & save it.  GetUnpublishedChanges.  Verify the draft artifact is returned.")]
-        public void GetUnpublishedChanges_PublishedArtifactWithDraft_ReturnsArtifactDetails(BaseArtifactType artifactType)
+        public void GetUnpublishedChanges_PublishedArtifactWithDraft_ReturnsArtifactDetails(ItemTypePredefined artifactType)
         {
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            var artifact = Helper.CreateAndPublishArtifact(_project, author, artifactType);
-            artifact.Save(author);
+            var artifact = Helper.CreateAndPublishNovaArtifact(author, _project, artifactType);
+            artifact.Lock(author);
+            artifact.Update(author, artifact);
             INovaArtifactsAndProjectsResponse unpublishedChanges = null;
 
             // Execute:
@@ -106,15 +105,15 @@ namespace ArtifactStoreTests
             Assert.AreEqual(0, unpublishedChanges.Projects.Count, "There should be no projects in the list of unpublished changes!");
         }
 
-        [TestCase(BaseArtifactType.Process)]
+        [TestCase(ItemTypePredefined.Process)]
         [TestRail(182337)]
         [Description("Create & publish an artifact, then delete it.  GetUnpublishedChanges.  Verify the delete artifact change is returned.")]
-        public void GetUnpublishedChanges_PublishedArtifactThenDeleted_ReturnsArtifactDetails(BaseArtifactType artifactType)
+        public void GetUnpublishedChanges_PublishedArtifactThenDeleted_ReturnsArtifactDetails(ItemTypePredefined artifactType)
         {
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            var artifact = Helper.CreateAndPublishArtifact(_project, author, artifactType);
+            var artifact = Helper.CreateAndPublishNovaArtifact(author, _project, artifactType);
             artifact.Delete(author);
             INovaArtifactsAndProjectsResponse unpublishedChanges = null;
 
@@ -269,7 +268,7 @@ namespace ArtifactStoreTests
             // Setup:
             var user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            var artifacts = Helper.CreateAndSaveMultipleArtifacts(_project, user, BaseArtifactType.Process, numberOfArtifacts);
+            var artifacts = Helper.CreateAndSaveMultipleArtifacts(_project, user, ItemTypePredefined.Process, numberOfArtifacts);
 
             Helper.AssignProjectRolePermissionsToUser(user, TestHelper.ProjectRole.None, _project, artifacts.Last());
 

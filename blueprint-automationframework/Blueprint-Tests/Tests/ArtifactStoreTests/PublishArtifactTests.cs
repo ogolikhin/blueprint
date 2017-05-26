@@ -140,7 +140,7 @@ namespace ArtifactStoreTests
             publishedArtifacts.ForEach(artifact => Helper.ArtifactStore.AddArtifactToCollection(_authorUser, artifact.Id, collectionArtifact.Id));
 
             // Execution: Publish the collection with deleted artifacts
-            var deletedArtifacts = new List<INovaArtifactResponse>();
+            var deletedArtifacts = new List<INovaArtifactDetails>();
 
             publishedArtifacts.ForEach(artifact => deletedArtifacts.AddRange(artifact.Delete(_authorUser)));
 

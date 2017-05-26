@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using Model.NovaModel.Reviews.Enums;
 
 namespace Model.NovaModel.Reviews
 {
@@ -8,7 +9,9 @@ namespace Model.NovaModel.Reviews
     public class ReviewArtifactDetails
     {
         public int UserId { get; set; }
-        
+
+        public ReviewParticipantRole Role { get; set; }
+
         public string DisplayName { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Include)]

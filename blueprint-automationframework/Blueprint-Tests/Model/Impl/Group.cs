@@ -100,9 +100,9 @@ namespace Model.Impl
             string query = I18NHelper.FormatInvariant("UPDATE {0} SET Deleted='{1}' WHERE GroupId='{2}'", ROLEASSIGNMENTS_TABLE, 1, GroupId);
             RunSQLQuery(query);
 
-            query = I18NHelper.FormatInvariant("DELETE FROM {0} WHERE GroupUser_User_GroupId='{1}'",
-                    GROUPUSER_TABLE, GroupId);
-            RunSQLQuery(query);
+            DatabaseHelper.ExecuteDeleteSqlQuery(GROUPUSER_TABLE,
+                whereColumnName: "GroupUser_User_GroupId",
+                whereValue: GroupId.ToStringInvariant());
 
             DateTime? oldEndTimestamp = EndTimestamp;
             EndTimestamp = DateTime.Now;

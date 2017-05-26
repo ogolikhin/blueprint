@@ -26,14 +26,14 @@ namespace AdminStoreTests.UsersTests
 
         #region Setup and Cleanup
 
-        [TestFixtureSetUp]
+        [SetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
         }
 
-        [TestFixtureTearDown]
+        [TearDown]
         public void TearDown()
         {
             Helper.DeleteInstanceUsers(_adminUser);

@@ -450,5 +450,92 @@ namespace AdminStore.Controllers
         }
 
         #endregion
+
+        #region Update group
+        [TestMethod]
+        public async Task UpdateGroup_SuccessfulUpdateOfGroup_ReturnSuccessResult()
+        {
+            // Arrange
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+
+            // Act
+            var result = await _controller.UpdateGroup(_groupId, _group);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(OkResult));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task UpdateGroup_NoManageGroupsPermissions_ReturnForbiddenErrorResult()
+        {
+            // Arrange
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);            
+
+            // Act
+             await _controller.UpdateGroup(_groupId, _group);
+
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task UpdateGroup_UpdateWindowsGroup_ReturnBadRequestResult()
+        {
+            // Arrange
+            _group.GroupSource = UserGroupSource.Windows;
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+
+            // Act
+            await _controller.UpdateGroup(_groupId, _group);
+
+            // Assert
+            // Exception
+        }
+
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task UpdateGroup_ProjectIdIsNotNull_ReturnBadRequestResult()
+        {
+            // Arrange
+            _group.ProjectId = 1;
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+
+            // Act
+            await _controller.UpdateGroup(_groupId, _group);
+
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task UpdateGroup_LicenseIsViewer_ReturnBadRequestResult()
+        {
+            // Arrange
+            _group.License = LicenseType.Viewer;
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+
+            // Act
+            await _controller.UpdateGroup(_groupId, _group);
+
+            // Assert
+            // Exception
+        }
+
+        #endregion
     }
 }

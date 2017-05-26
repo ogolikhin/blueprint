@@ -3,7 +3,7 @@
     public class ErrorMessages
     {
         //Users
-        public const string InvalidPagination = "Pagination object is invalid.";
+        public const string InvalidPagination = "The \"offset\" and/or \"limit\" parameters are required.";
         public static readonly string LoginRequired = "The \"Login\" field is required.";
         public static readonly string DisplayNameRequired = "The \"Display name\" field is required.";
         public static readonly string FirstNameRequired = "The \"First name\" field is required.";
@@ -28,8 +28,8 @@
         public static readonly string IncorrectUserId = "Incorrect userId.";
         public static readonly string InvalidDeleteUsersParameters = "Invalid parameters to delete users";
         public static readonly string InvalidDeleteGroupsParameters = "Invalid parameters to delete group(s)";
-        public static readonly string IncorrectLimitParameter = "The \"limit\" parameter should be more than 0.";
-        public static readonly string IncorrectOffsetParameter = "The \"offset\" parameter should not be negative.";
+        public static readonly string IncorrectLimitParameter = "The \"limit\" parameter is required and should not be negative.";
+        public static readonly string IncorrectOffsetParameter = "The \"offset\" parameter is required and should not be negative.";
         public static readonly string TotalNull = "The \"total\" is null.";
         public static readonly string GeneralErrorOfGettingUserGroups = "The general error of getting user's groups.";
         public static readonly string CreationOnlyDatabaseUsers = "You can create only database users.";
@@ -53,10 +53,15 @@
         public static readonly string GroupEmailFormatIncorrect = "Please ensure the email address is correct.";
         public static readonly string GeneralErrorOfCreatingGroup = "An error has occurred when the operation was being performed at SQL level.";
         public static readonly string CreationOnlyDatabaseGroup = "You can create only database group.";
-        public static readonly string CreationGroupsOnlyWithCollaboratorAndAuthorLicenses = "You can create groups only with \"collaborator\" and \"author\" licenses.";
+        public static readonly string CreationGroupsOnlyWithCollaboratorOrAuthorOrNoneLicenses = "You can create groups only with the \"collaborator\", the \"author\" or empty license.";
         public static readonly string CreationGroupWithScopeAndLicenseIdSimultaneously = "You can not create the \"Access Group\" and \"License Group\" simultaneously.";
         public static readonly string GroupAlreadyExist = "The same group already exists. You cannot add duplicate groups.";
         public static readonly string GroupDoesNotExist = "The group with this Id does not exist or removed from the system.";
-
+        public static readonly string SourceFieldValueForGroupsShouldBeOnlyDatabase = "You can modify only database groups.";
+        public static readonly string TheScopeCannotBeChanged = "The scope cannot be changed.";
+        public static readonly string UpdateGroupsOnlyWithCollaboratorOrAuthorOrNoneLicenses = "You can modify groups only with the \"collaborator\", the \"author\" or empty license values.";
+        public static readonly string GeneralErrorOfUpdatingGroup = "An error has occurred when the operation was being performed at SQL level.";
+        public static readonly string GroupNotExist = "The group with the current groupId doesn’t exist or removed from the system.";
+        public static readonly string ImpossibleChangeLicenseInGroupWithScope = "It is impossible to change the license type value in the group which has the scope value.";
     }
 }

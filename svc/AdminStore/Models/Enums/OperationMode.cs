@@ -1,6 +1,6 @@
 ﻿namespace AdminStore.Models.Enums
 {
-    public enum UserOperationMode
+    public enum OperationMode
     {
         Create,
         Edit

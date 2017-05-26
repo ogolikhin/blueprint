@@ -37,9 +37,13 @@ namespace AdminStore.Controllers
         internal readonly IHttpClientProvider _httpClientProvider;
         internal readonly PrivilegesManager _privilegesManager;
 
-        public UsersController() : this(new AuthenticationRepository(), new SqlUserRepository(),
-            new SqlSettingsRepository(), new EmailHelper(), new ApplicationSettingsRepository(),
-            new ServiceLogRepository(), new HttpClientProvider(), new SqlPrivilegesRepository())
+        public UsersController()
+            : this
+            (
+                new AuthenticationRepository(), new SqlUserRepository(), new SqlSettingsRepository(),
+                new EmailHelper(), new ApplicationSettingsRepository(), new ServiceLogRepository(),
+                new HttpClientProvider(), new SqlPrivilegesRepository()
+            )
         {
         }
 
@@ -103,8 +107,8 @@ namespace AdminStore.Controllers
         /// Get users list according to the input parameters 
         /// </summary>
         /// <param name="pagination">Limit and offset values to query users</param>
-        /// <param name="sorting">Sort and its order</param>
-        /// <param name="search">Search query parameter</param>
+        /// <param name="sorting">(optional) Sort and its order</param>
+        /// <param name="search">(optional) Search query parameter</param>
         /// <response code="200">OK if admin user session exists and user is permitted to list users</response>
         /// <response code="400">BadRequest if pagination object didn't provide</response>
         /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
@@ -114,9 +118,11 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(QueryResult<UserDto>))]
         public async Task<IHttpActionResult> GetUsers([FromUri]Pagination pagination, [FromUri]Sorting sorting, string search = null)
         {
-            if (pagination == null)
+            PaginationValidator.ValidatePaginationModel(pagination);
+
+            if (pagination.IsEmpty())
             {
-                return BadRequest(ErrorMessages.InvalidPagination);
+                return Ok(QueryResult<UserDto>.Empty);
             }
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewUsers);
@@ -129,7 +135,7 @@ namespace AdminStore.Controllers
         /// <summary>
         /// Delete user/users from the system
         /// </summary>
-        /// <param name="body">list of user ids and selectAll flag</param>
+        /// <param name="scope">list of user ids and selectAll flag</param>
         /// <param name="search">search filter</param>
         /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
         /// <response code="403">Forbidden if used doesn’t have permissions to delete users</response>
@@ -137,27 +143,24 @@ namespace AdminStore.Controllers
         [SessionRequired]
         [Route("delete")]
         [ResponseType(typeof(IEnumerable<int>))]
-        public async Task<IHttpActionResult> DeleteUsers([FromBody]OperationScope body, string search = null)
+        public async Task<IHttpActionResult> DeleteUsers([FromBody]OperationScope scope, string search = null)
         {
-            if (body == null)
+            if (scope == null)
             {
                 return BadRequest(ErrorMessages.InvalidDeleteUsersParameters);
             }
-            //No scope for deletion is provided
-            if (body.IsSelectionEmpty())
+
+            if (scope.IsEmpty())
             {
-                return Ok(new DeleteResult() { TotalDeleted = 0 });
+                return Ok(DeleteResult.Empty);
             }
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageUsers);
 
-            var result = await _userRepository.DeleteUsers(body, search, Session.UserId);
+            var result = await _userRepository.DeleteUsers(scope, search, Session.UserId);
 
-            return Ok(new DeleteResult() { TotalDeleted = result });
+            return Ok(new DeleteResult { TotalDeleted = result });
         }
-
-
-
 
         /// <summary>
         /// Get user by Identifier
@@ -450,7 +453,6 @@ namespace AdminStore.Controllers
             return Ok();
         }
 
-
         /// <summary>
         /// Create new database user
         /// </summary>
@@ -475,7 +477,7 @@ namespace AdminStore.Controllers
             var privileges = user.InstanceAdminRoleId.HasValue ? InstanceAdminPrivileges.AssignAdminRoles : InstanceAdminPrivileges.ManageUsers;
             await _privilegesManager.Demand(Session.UserId, privileges);
 
-            var databaseUser = UsersHelper.CreateDbUserFromDto(user, UserOperationMode.Create);
+            var databaseUser = UsersHelper.CreateDbUserFromDto(user, OperationMode.Create);
 
             var userId = await _userRepository.AddUserAsync(databaseUser);
             return Request.CreateResponse(HttpStatusCode.Created, userId);
@@ -519,7 +521,7 @@ namespace AdminStore.Controllers
                 await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AssignAdminRoles);
             }
 
-            var databaseUser = UsersHelper.CreateDbUserFromDto(user, UserOperationMode.Edit, userId);
+            var databaseUser = UsersHelper.CreateDbUserFromDto(user, OperationMode.Edit, userId);
             await _userRepository.UpdateUserAsync(databaseUser);
 
             return Ok();
@@ -544,10 +546,16 @@ namespace AdminStore.Controllers
         {
             PaginationValidator.ValidatePaginationModel(pagination);
 
-            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewUsers);
-            var tabularData = new TabularData {Pagination = pagination, Sorting = sorting, Search = search};
+            if (pagination.IsEmpty())
+            {
+                return Ok(QueryResult<GroupDto>.Empty);
+            }
 
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewUsers);
+
+            var tabularData = new TabularData { Pagination = pagination, Sorting = sorting, Search = search };
             var result = await _userRepository.GetUserGroupsAsync(userId, tabularData, GroupsHelper.SortGroups);
+
             return Ok(result);
         }
 
@@ -555,7 +563,7 @@ namespace AdminStore.Controllers
         /// Add user to groups
         /// </summary>
         /// <param name="userId">User's identity</param>
-        /// <param name="body">List of groups ids</param>
+        /// <param name="scope">List of groups ids</param>
         /// <param name="search">The parameter for searching by group name and scope.</param>
         /// <response code="200">OK. A user is added to groups.</response>
         /// <response code="400">BadRequest. Parameters are invalid. </response>
@@ -566,21 +574,21 @@ namespace AdminStore.Controllers
         [SessionRequired]
         [Route("{userId:int:min(1)}/groups")]
         [ResponseType(typeof(CreateResult))]
-        public async Task<IHttpActionResult> AddUserToGroups(int userId, [FromBody]OperationScope body, string search = null)
+        public async Task<IHttpActionResult> AddUserToGroups(int userId, [FromBody]OperationScope scope, string search = null)
         {
-            if (body == null)
+            if (scope == null)
             {
                 throw new BadRequestException(ErrorMessages.InvalidAddUserToGroupsParameters, ErrorCodes.BadRequest);
             }
 
-            if (body.IsSelectionEmpty())
+            if (scope.IsEmpty())
             {
-                return Ok(new CreateResult { TotalCreated = 0 });
+                return Ok(CreateResult.Empty);
             }
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageUsers);
 
-            var result = await _userRepository.AddUserToGroupsAsync(userId, body, search);
+            var result = await _userRepository.AddUserToGroupsAsync(userId, scope, search);
 
             return Ok(new CreateResult { TotalCreated = result });
         }
@@ -606,16 +614,16 @@ namespace AdminStore.Controllers
                 throw new BadRequestException(ErrorMessages.InvalidDeleteUserFromGroupsParameters, ErrorCodes.BadRequest);
             }
 
-            if (body.IsSelectionEmpty())
+            if (body.IsEmpty())
             {
-                return Ok(new DeleteResult() { TotalDeleted = 0 });
+                return Ok(DeleteResult.Empty);
             }
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageUsers);
 
             var result = await _userRepository.DeleteUserFromGroupsAsync(userId, body);
 
-            return Ok(new DeleteResult() { TotalDeleted = result });
+            return Ok(new DeleteResult { TotalDeleted = result });
         }
     }
 }

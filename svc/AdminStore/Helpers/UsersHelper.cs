@@ -34,10 +34,10 @@ namespace AdminStore.Helpers
             return sorting.Order == SortOrder.Desc ? "-" + sortColumn : sortColumn;
         }
 
-        public static User CreateDbUserFromDto(UserDto user, UserOperationMode userOperationMode, int userId = 0)
+        public static User CreateDbUserFromDto(UserDto user, OperationMode operationMode, int userId = 0)
         {
-            UserValidator.ValidateModel(user, userOperationMode);
-            var dbUserModel = UserConverter.ConvertToDbUser(user, userOperationMode, userId);
+            UserValidator.ValidateModel(user, operationMode);
+            var dbUserModel = UserConverter.ConvertToDbUser(user, operationMode, userId);
             return dbUserModel;
         }
 

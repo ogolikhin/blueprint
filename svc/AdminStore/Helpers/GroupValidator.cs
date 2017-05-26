@@ -12,9 +12,9 @@ namespace AdminStore.Helpers
 {
     public class GroupValidator
     {
-        public static void ValidateModel(GroupDto group)
+        public static void ValidateModel(GroupDto group, OperationMode operationMode)
         {
-            if (string.IsNullOrEmpty(group.Name))
+            if (string.IsNullOrWhiteSpace(group.Name))
             {
                 throw new BadRequestException(ErrorMessages.GroupName, ErrorCodes.BadRequest);
             }
@@ -24,7 +24,7 @@ namespace AdminStore.Helpers
                 throw new BadRequestException(ErrorMessages.GroupNameFieldLimitation, ErrorCodes.BadRequest);
             }
 
-            if (!string.IsNullOrEmpty(group.Email))
+            if (!string.IsNullOrWhiteSpace(group.Email))
             {
                 if (group.Email.Length < 4 || group.Email.Length > 255)
                 {
@@ -42,17 +42,39 @@ namespace AdminStore.Helpers
 
             if (group.GroupSource != UserGroupSource.Database)
             {
-                throw new BadRequestException(ErrorMessages.CreationOnlyDatabaseGroup, ErrorCodes.BadRequest);
+                if (operationMode == OperationMode.Create)
+                {
+                    throw new BadRequestException(ErrorMessages.CreationOnlyDatabaseGroup, ErrorCodes.BadRequest);
+                }
+                else
+                {
+                    throw new BadRequestException(ErrorMessages.SourceFieldValueForGroupsShouldBeOnlyDatabase, ErrorCodes.BadRequest);
+                }
             }
 
-            if (group.ProjectId != null && (group.License != LicenseType.None))
+            if (operationMode == OperationMode.Create)
             {
-                throw new BadRequestException(ErrorMessages.CreationGroupWithScopeAndLicenseIdSimultaneously, ErrorCodes.BadRequest);
-            }
+                if (group.ProjectId != null && (group.License != LicenseType.None))
+                {
+                    throw new BadRequestException(ErrorMessages.CreationGroupWithScopeAndLicenseIdSimultaneously, ErrorCodes.BadRequest);
+                }
 
-            if (group.ProjectId == null && (group.License != LicenseType.Collaborator && group.License != LicenseType.Author))
+                if (group.ProjectId == null && (group.License != LicenseType.Collaborator && group.License != LicenseType.Author && group.License != LicenseType.None))
+                {
+                    throw new BadRequestException(ErrorMessages.CreationGroupsOnlyWithCollaboratorOrAuthorOrNoneLicenses, ErrorCodes.BadRequest);
+                }
+            }
+            else
             {
-                throw new BadRequestException(ErrorMessages.CreationGroupsOnlyWithCollaboratorAndAuthorLicenses, ErrorCodes.BadRequest);
+                if (group.ProjectId != null)
+                {
+                    throw new BadRequestException(ErrorMessages.TheScopeCannotBeChanged, ErrorCodes.BadRequest);
+                }
+
+                if (group.License != LicenseType.Collaborator && group.License != LicenseType.Author && group.License != LicenseType.None)
+                {
+                    throw new BadRequestException(ErrorMessages.UpdateGroupsOnlyWithCollaboratorOrAuthorOrNoneLicenses, ErrorCodes.BadRequest);
+                }
             }
         }
     }

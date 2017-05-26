@@ -26,5 +26,7 @@ namespace AdminStore.Models
         public UserGroupSource GroupSource { get; set; }
 
         public IEnumerable<int> Users { get; set; }
+
+        public int CurrentVersion { get; set; }
     }
 }

@@ -150,7 +150,7 @@ namespace AdminStore.Repositories
             }
             var result = await GetUsersInternalAsync(pagination, orderField, search);
 
-            return new QueryResult<UserDto>()
+            return new QueryResult<UserDto>
             {
                 Items = UserMapper.Map(result.Items),
                 Total = result.Total
@@ -243,12 +243,12 @@ namespace AdminStore.Repositories
             return userId;
         }
 
-        public async Task<int> DeleteUsers(OperationScope body, string search, int sessionUserId)
+        public async Task<int> DeleteUsers(OperationScope scope, string search, int sessionUserId)
         {
             var parameters = new DynamicParameters();
-            parameters.Add("@UserIds", SqlConnectionWrapper.ToDataTable(body.Ids));
+            parameters.Add("@UserIds", SqlConnectionWrapper.ToDataTable(scope.Ids));
             parameters.Add("@Search", search);
-            parameters.Add("@SelectAll", body.SelectAll);
+            parameters.Add("@SelectAll", scope.SelectAll);
             parameters.Add("@SessionUserId", sessionUserId);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
             var result = await _connectionWrapper.ExecuteScalarAsync<int>("DeleteUsers", parameters, commandType: CommandType.StoredProcedure);

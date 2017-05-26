@@ -169,7 +169,7 @@ namespace AdminStoreTests.UsersTests
         [Description("Create and add a default instance user. Remove a property value by making it empty or null. Update the user. " +
              "Verify that the user is updated.")]
         [TestRail(303990)]
-        public void UpdateInstanceUser_RemovePropertyThatCanBeEmptyOrNull_UserUpdatesCorrectly(string property, string propertyValue)
+        public void UpdateInstanceUser_RemoveTextPropertyThatCanBeEmptyOrNull_UserUpdatesCorrectly(string property, string propertyValue)
         {
             // Setup:
             var createdUser = Helper.CreateAndAddInstanceUser(_adminUser);

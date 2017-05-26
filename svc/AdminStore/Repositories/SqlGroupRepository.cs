@@ -59,6 +59,10 @@ namespace AdminStore.Repositories
 
         public async Task<int> DeleteGroupsAsync(OperationScope body, string search)
         {
+            if (search != null)
+            {
+                search = UsersHelper.ReplaceWildcardCharacters(search);
+            }
             var parameters = new DynamicParameters();
             parameters.Add("@GroupsIds", SqlConnectionWrapper.ToDataTable(body.Ids));
             parameters.Add("@Search", search);

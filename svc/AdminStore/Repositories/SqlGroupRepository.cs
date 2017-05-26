@@ -124,7 +124,7 @@ namespace AdminStore.Repositories
                         throw new ConflictException(ErrorMessages.UserVersionsNotEqual);
 
                     case (int)SqlErrorCodes.GroupCanNotBeUpdatedWithExistingScope:
-                        throw new ConflictException(ErrorMessages.ImpossibleChangeLicenseInGroupWithScope);
+                        throw new BadRequestException(ErrorMessages.ImpossibleChangeLicenseInGroupWithScope);
 
                     case (int)SqlErrorCodes.GroupWithNameAndLicenseIdExist:
                         throw new BadRequestException(ErrorMessages.GroupAlreadyExist);

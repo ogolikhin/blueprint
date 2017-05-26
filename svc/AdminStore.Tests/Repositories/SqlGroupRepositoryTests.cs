@@ -167,8 +167,8 @@ namespace AdminStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ConflictException))]
-        public async Task UpdateGroupAsync_UpdateGroupWithExistingScope_ReturnConflictException()
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task UpdateGroupAsync_UpdateGroupWithExistingScope_ReturnBadRequestException()
         {
             // Arrange
             var group = new GroupDto

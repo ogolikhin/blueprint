@@ -503,7 +503,7 @@ namespace AdminStore.Controllers
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
-        public async Task UpdateGroup_ProjectIdIsNull_ReturnBadRequestResult()
+        public async Task UpdateGroup_ProjectIdIsNotNull_ReturnBadRequestResult()
         {
             // Arrange
             _group.ProjectId = 1;

@@ -1036,6 +1036,15 @@ namespace Model.Impl
                 queryParameters: queryParams, shouldControlJsonChanges: true);
         }
 
+        /// <seealso cref="IArtifactStore.AddArtifactsToReview(IUser, int, AddArtifactsParameter)"/>
+        public AddArtifactsResult AddArtifactsToReview(IUser user, int reviewId, AddArtifactsParameter content)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Reviews_id_.CONTENT, reviewId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+            return restApi.SendRequestAndDeserializeObject<AddArtifactsResult, AddArtifactsParameter>(path,
+                RestRequestMethod.PUT, content, shouldControlJsonChanges: true);
+        }
+
         #region Process methods
 
         /// <seealso cref="IArtifactStore.GetNovaProcess(IUser, int, int?, List{HttpStatusCode})"/>

@@ -120,6 +120,7 @@ namespace AdminStoreTests.UsersTests
         }
 
         [Category(Categories.CannotRunInParallel)]
+        [TestCase(10, -10, 0, Description = "Offset of total user count minus 10 and Limit of 0")]
         [TestCase(10, -10, 1, Description = "Offset of total user count minus 10 and Limit of 1")]
         [TestCase(10, -10, 5, Description = "Offset of total user count minus 10 and Limit of 5")]
         [TestCase(10, -10, 10, Description = "Offset of total user count minus 10 and Limit of 10")]
@@ -160,6 +161,38 @@ namespace AdminStoreTests.UsersTests
         }
 
         [Category(Categories.CannotRunInParallel)]
+        [Description("Create and add several default instance users. Get users with an offset of 0 and a limit of zero. " +
+                     "Verify that no users are returned.")]
+        [TestRail(303982)]
+        public void GetInstanceUsers_OffsetAndLimitEqualsZero_ReturnsCorrectNumberOfUsers()
+        {
+            // Setup:
+            var currentUsers = Helper.GetCurrentUsers(_adminUser);
+            var addedUsers = Helper.CreateAndAddInstanceUsers(_adminUser, 5);
+
+            // Expected users is all current users plus the newly created users
+            var expectedTotalUsers = currentUsers.Concat(addedUsers).ToList();
+
+            var expectedNumberOfReturnedUsers = CalculateExpectedNumberOfReturnedUsers(
+                totalUsers: expectedTotalUsers.Count,
+                offset: 0,
+                limit: 0);
+
+            QueryResult<InstanceUser> queryResult = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                queryResult = Helper.AdminStore.GetUsers(_adminUser, offset: 0, limit: 0);
+            }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH);
+
+            //Verify:
+            var returnedUsers = queryResult.Items;
+
+            Assert.AreEqual(expectedNumberOfReturnedUsers, returnedUsers.Count(), "Users were returned but non were expected!");
+        }
+
+        [Category(Categories.CannotRunInParallel)]
         [TestCase]
         [Description("Create and add a default instance users. Get all users. Verify the user that was created contained in the " +
                      "returned user list. Delete the user. Get all users again. Verify the user is not in the returned user list.")]
@@ -190,6 +223,36 @@ namespace AdminStoreTests.UsersTests
         }
 
         #endregion 200 OK Tests
+
+        #region 400 BadRequest
+
+        [TestCase(null, null, InstanceAdminErrorMessages.InvalidPagination)]
+        [TestCase(-1, null, InstanceAdminErrorMessages.IncorrectOffsetParameter)]
+        [TestCase(0, null, InstanceAdminErrorMessages.IncorrectLimitParameter)]
+        [TestCase(null, -1, InstanceAdminErrorMessages.IncorrectOffsetParameter)]
+        [TestCase(-1, -1, InstanceAdminErrorMessages.IncorrectOffsetParameter)]
+        [TestCase(0, -1, InstanceAdminErrorMessages.IncorrectLimitParameter)]
+        [TestCase(null, 0, InstanceAdminErrorMessages.IncorrectOffsetParameter)]
+        [TestCase(-1, 0, InstanceAdminErrorMessages.IncorrectOffsetParameter)]
+        [TestCase(null, int.MaxValue, InstanceAdminErrorMessages.IncorrectOffsetParameter)]
+        [TestCase(-1, int.MaxValue, InstanceAdminErrorMessages.IncorrectOffsetParameter)]
+        [TestCase(int.MaxValue, null, InstanceAdminErrorMessages.IncorrectLimitParameter)]
+        [TestCase(int.MaxValue, -1, InstanceAdminErrorMessages.IncorrectLimitParameter)]
+        [Description("Get users using an invalid offset value and/or invalid limit value. Verify that 400 Bad Request is returned.")]
+        [TestRail(303745)]
+        public void GetInstanceUsers_InvalidOffsetAndOrLimit_400BadRequest(int? offset, int? limit, string errorMessage)
+        {
+            // Setup & Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() =>
+            {
+                Helper.AdminStore.GetUsers(_adminUser, offset: offset, limit: limit);
+            }, "'GET {0}' should return 400 Bad Request with invalid token header!", USER_PATH);
+
+            // Verify:
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, errorMessage);
+        }
+
+        #endregion 400 Bad Request
 
         #region 401 Unauthorized Tests
 

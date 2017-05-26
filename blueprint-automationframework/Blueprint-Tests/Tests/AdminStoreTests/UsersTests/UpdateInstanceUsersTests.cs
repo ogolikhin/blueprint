@@ -160,10 +160,16 @@ namespace AdminStoreTests.UsersTests
         [TestCase("FirstName", null, Description = "FirstName is null")]
         [TestCase("LastName", "", Description = "LastName is empty")]
         [TestCase("LastName", null, Description = "LastName is null")]
-        [Description("Create and add a default instance user. Remove the first or last name. Update the user. " +
+        [TestCase("Title", "", Description = "Title is empty")]
+        [TestCase("Title", null, Description = "Title is null")]
+        [TestCase("Department", "", Description = "Department is empty")]
+        [TestCase("Department", null, Description = "Department is null")]
+        [TestCase("Email", "", Description = "Email is empty")]
+        [TestCase("Email", null, Description = "Email is null")]
+        [Description("Create and add a default instance user. Remove a property value by making it empty or null. Update the user. " +
              "Verify that the user is updated.")]
         [TestRail(303990)]
-        public void UpdateInstanceUser_RemoveFirstOrLastName_UserUpdated(string property, string propertyValue)
+        public void UpdateInstanceUser_RemovePropertyThatCanBeEmptyOrNull_UserUpdatesCorrectly(string property, string propertyValue)
         {
             // Setup:
             var createdUser = Helper.CreateAndAddInstanceUser(_adminUser);

@@ -778,7 +778,7 @@ namespace AdminStoreTests.UsersTests
 
         [TestCase]
         [Description("Create and add an instance user. Delete the user. Try to update the deleted user. " +
-             "Verify that 404 Not Found is returned.")]
+                     "Verify that 404 Not Found is returned.")]
         [TestRail(303454)]
         public void UpdateInstanceUser_UserDeleted_404NotFound()
         {

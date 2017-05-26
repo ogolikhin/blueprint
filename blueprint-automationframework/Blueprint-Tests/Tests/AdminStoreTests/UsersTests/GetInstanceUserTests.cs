@@ -138,7 +138,7 @@ namespace AdminStoreTests.UsersTests
         [TestCase(0)]
         [TestCase(-1)]
         [Description("Try to get a user with an invalid Id. " +
-             "Verify that 404 Not Found is returned.")]
+                     "Verify that 404 Not Found is returned.")]
         [TestRail(303988)]
         public void GetInstanceUser_InvalidUserId_404NotFound(int userId)
         {

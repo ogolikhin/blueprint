@@ -238,7 +238,7 @@ namespace AdminStoreTests.UsersTests
         [TestCase(-1, int.MaxValue, InstanceAdminErrorMessages.IncorrectOffsetParameter)]
         [TestCase(int.MaxValue, null, InstanceAdminErrorMessages.IncorrectLimitParameter)]
         [TestCase(int.MaxValue, -1, InstanceAdminErrorMessages.IncorrectLimitParameter)]
-        [Description("Get users using an invalid offset value and/or invalid limit value. Verify that 401 Unauthorized is returned.")]
+        [Description("Get users using an invalid offset value and/or invalid limit value. Verify that 400 Bad Request is returned.")]
         [TestRail(303745)]
         public void GetInstanceUsers_InvalidOffsetAndOrLimit_400BadRequest(int? offset, int? limit, string errorMessage)
         {

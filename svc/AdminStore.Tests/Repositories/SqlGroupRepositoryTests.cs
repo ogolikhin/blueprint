@@ -40,7 +40,7 @@ namespace AdminStore.Repositories
             // Arrange
             var group = new GroupDto
             {
-                Name = "GroupName", Email = "GroupEmail", GroupSource = UserGroupSource.Database, License = LicenseType.Author
+                Name = "GroupName", Email = "GroupEmail", Source = UserGroupSource.Database, LicenseType = LicenseType.Author
             };
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlGroupRepository(cxn.Object);
@@ -67,8 +67,8 @@ namespace AdminStore.Repositories
             {
                 Name = "GroupName",
                 Email = "GroupEmail",
-                GroupSource = UserGroupSource.Database,
-                License = LicenseType.Author,
+                Source = UserGroupSource.Database,
+                LicenseType = LicenseType.Author,
                 CurrentVersion = 0
             };
             var cxn = new SqlConnectionWrapperMock();
@@ -94,8 +94,8 @@ namespace AdminStore.Repositories
             {
                 Name = "GroupName",
                 Email = "GroupEmail",
-                GroupSource = UserGroupSource.Database,
-                License = LicenseType.Author,
+                Source = UserGroupSource.Database,
+                LicenseType = LicenseType.Author,
                 CurrentVersion = 0
             };
             var cxn = new SqlConnectionWrapperMock();
@@ -121,8 +121,8 @@ namespace AdminStore.Repositories
             {
                 Name = "GroupName",
                 Email = "GroupEmail",
-                GroupSource = UserGroupSource.Database,
-                License = LicenseType.Author,
+                Source = UserGroupSource.Database,
+                LicenseType = LicenseType.Author,
                 CurrentVersion = 0
             };
             var cxn = new SqlConnectionWrapperMock();
@@ -148,8 +148,8 @@ namespace AdminStore.Repositories
             {
                 Name = "GroupName",
                 Email = "GroupEmail",
-                GroupSource = UserGroupSource.Database,
-                License = LicenseType.Author,
+                Source = UserGroupSource.Database,
+                LicenseType = LicenseType.Author,
                 CurrentVersion = 0
             };
             var cxn = new SqlConnectionWrapperMock();
@@ -175,8 +175,8 @@ namespace AdminStore.Repositories
             {
                 Name = "GroupName",
                 Email = "GroupEmail",
-                GroupSource = UserGroupSource.Database,
-                License = LicenseType.Author,
+                Source = UserGroupSource.Database,
+                LicenseType = LicenseType.Author,
                 CurrentVersion = 0
             };
             var cxn = new SqlConnectionWrapperMock();
@@ -202,8 +202,8 @@ namespace AdminStore.Repositories
             {
                 Name = "GroupName",
                 Email = "GroupEmail",
-                GroupSource = UserGroupSource.Database,
-                License = LicenseType.Author,
+                Source = UserGroupSource.Database,
+                LicenseType = LicenseType.Author,
                 CurrentVersion = 0
             };
             var cxn = new SqlConnectionWrapperMock();
@@ -229,8 +229,8 @@ namespace AdminStore.Repositories
             {
                 Name = "GroupName",
                 Email = "GroupEmail",
-                GroupSource = UserGroupSource.Database,
-                License = LicenseType.Author,
+                Source = UserGroupSource.Database,
+                LicenseType = LicenseType.Author,
                 CurrentVersion = 0
             };
             var cxn = new SqlConnectionWrapperMock();

@@ -156,6 +156,49 @@ namespace AdminStoreTests.UsersTests
             AdminStoreHelper.AssertAreEqual(createdUser, updatedUser);
         }
 
+        [TestCase("FirstName", "", Description = "FirstName is empty")]
+        [TestCase("FirstName", null, Description = "FirstName is null")]
+        [TestCase("LastName", "", Description = "LastName is empty")]
+        [TestCase("LastName", null, Description = "FirstName is null")]
+        [Description("Create and add a default instance user. Remove the first or last name. Update the user. " +
+             "Verify that the user is updated.")]
+        [TestRail(303990)]
+        public void UpdateInstanceUser_RemoveFirstOrLastName_UserUpdated(string property, string propertyValue)
+        {
+            // Setup:
+            var createdUser = Helper.CreateAndAddInstanceUser(_adminUser);
+
+            if (property != null)
+            {
+                CSharpUtilities.SetProperty(property, propertyValue, createdUser);
+            }
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                Helper.AdminStore.UpdateUser(_adminUser, createdUser);
+            }, "'PUT {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
+
+            InstanceUser updatedUser = null;
+
+            Assert.DoesNotThrow(() =>
+            {
+                updatedUser = Helper.AdminStore.GetUserById(_adminUser, createdUser.Id);
+            }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
+
+            // Verify:
+            // Update Id and CurrentVersion in CreatedUser for comparison
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUser.Id);
+
+            // Missing or null user will always return an empty string for the property, so update here for comparison
+            CSharpUtilities.SetProperty(property, "", createdUser);
+
+            // Add LicenseType of Viewer to createdUser to verify that the addedUser returned with Viewer license
+            createdUser.LicenseType = LicenseLevel.Viewer;
+
+            AdminStoreHelper.AssertAreEqual(createdUser, updatedUser);
+        }
+
         [TestCase(InstanceAdminRole.AssignInstanceAdministrators)]
         [TestCase(InstanceAdminRole.DefaultInstanceAdministrator)]
         [TestCase(InstanceAdminRole.ProvisionUsers)]
@@ -541,20 +584,6 @@ namespace AdminStoreTests.UsersTests
                 InstanceAdminErrorMessages.FirstNameFieldLimitation);
         }
 
-        [TestCase("", Description = "FirstName is empty")]
-        [TestCase(null, Description = "FirstName is null")]
-        [Description("Create and add a default instance user.  Remove the first name. " +
-                     "Update the user. Verify that 400 Bad Request is returned.")]
-        [TestRail(303612)]
-        public void UpdateInstanceUser_MissingFirstName_400BadRequest(string firstName)
-        {
-            UpdateDefaultInstanceUserWithInvalidPropertyVerify400BadRequest(
-                _adminUser,
-                "FirstName",
-                firstName,
-                InstanceAdminErrorMessages.FirstNameRequired);
-        }
-
         [TestCase((uint)1, Description = "Minimum 2 characters")]
         [TestCase((uint)256, Description = "Maximum 255 characters")]
         [Description("Create and add a default instance user.  Modify the last name to an invalid value. " +
@@ -567,20 +596,6 @@ namespace AdminStoreTests.UsersTests
                 "LastName",
                 RandomGenerator.RandomAlphaNumericUpperAndLowerCase(numCharacters),
                 InstanceAdminErrorMessages.LastNameFieldLimitation);
-        }
-
-        [TestCase("", Description = "LastName is empty")]
-        [TestCase(null, Description = "LastName is null")]
-        [Description("Create and add a default instance user.  Remove the last name. " +
-                     "Update the user. Verify that 400 Bad Request is returned.")]
-        [TestRail(303613)]
-        public void UpdateInstanceUser_MissingLastName_400BadRequest(string lastName)
-        {
-            UpdateDefaultInstanceUserWithInvalidPropertyVerify400BadRequest(
-                _adminUser,
-                "LastName",
-                lastName,
-                InstanceAdminErrorMessages.LastNameRequired);
         }
 
         [TestCase((uint)256, Description = "Maximum 255 characters")]

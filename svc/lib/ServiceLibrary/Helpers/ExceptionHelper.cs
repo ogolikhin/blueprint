@@ -29,11 +29,24 @@ namespace ServiceLibrary.Helpers
             throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
         }
 
+        public static void ThrowStateNotFoundException(int artifactId)
+        {
+            var errorMessage = I18NHelper.FormatInvariant("No state association could be found for Artifact (Id:{0}).", artifactId);
+            throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
+        }
+
         public static void ThrowArtifactForbiddenException(int artifactId)
         {
             var errorMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).",
                                    artifactId);
             throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
+        }
+
+        public static void ThrowArtifactDoesNotSupportOperation(int artifactId)
+        {
+            var errorMessage = I18NHelper.FormatInvariant("Operation cannot be invoked on Artifact with (Id:{0}).",
+                                   artifactId);
+            throw new BadRequestException(errorMessage, ErrorCodes.BadRequest);
         }
     }
 }

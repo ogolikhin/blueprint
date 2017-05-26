@@ -1,13 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using ServiceLibrary.Models.Enums;
 
 namespace ServiceLibrary.Models.Workflow
 {
-    public class WorkflowTransitionResult : IPaginatedResult<WorkflowTransition>
+    public class WorkflowTransitionResult : QueryResult<WorkflowTransition>
     {
-        public int Total { get; set; }
+        public QueryResultCode ResultCode { get; set; }
 
         public int Count { get; set; }
-
-        public IEnumerable<WorkflowTransition> Items { get; set; } 
     }
 }

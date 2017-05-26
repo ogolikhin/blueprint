@@ -1,18 +1,17 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Description;
 using ArtifactStore.Repositories.Workflow;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Models;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models.Workflow;
 
 namespace ArtifactStore.Controllers
 {
     [ApiControllerJsonConfig]
     [BaseExceptionFilter]
-    public class WorkflowController : LoggableApiController, IWorkflowController
+    public class WorkflowController : SessionRequiredLoggableApiController
     {
         internal readonly ISqlWorkflowRepository WorkflowRepository;
 
@@ -28,7 +27,8 @@ namespace ArtifactStore.Controllers
         }
 
         /// <summary>
-        /// Get workflow transitions for current artifact
+        /// Gets the next available transitions which are available to the user for the workflow and state.
+        /// User id is retrieved from the request header.
         /// </summary>
         /// <remarks>
         /// Returns list of all possible workflow transitions based of of the current artifact and the state its in.
@@ -41,43 +41,31 @@ namespace ArtifactStore.Controllers
         [HttpGet, NoCache]
         [Route("artifacts/{artifactId:int:min(1)}/transitions"), SessionRequired]
         [ActionName("GetTransitions")]
-        public async Task<WorkflowTransitionResult> GetTransitions(int artifactId)
+        [ResponseType(typeof(WorkflowTransitionResult))]
+        public async Task<IHttpActionResult> GetTransitionsAsync(int artifactId, int workflowId = 0, int stateId = 0)
         {
-            return await WorkflowRepository.GetTransitions(artifactId, CurrentSession.UserId);
+            if (workflowId <= 0 || stateId <= 0)
+            {
+                throw new BadRequestException("Please provide valid workflow id and state id");
+            }
+            return Ok(await WorkflowRepository.GetTransitions(CurrentSession.UserId, artifactId, workflowId, stateId));
         }
 
-        public async Task<WorkflowState> GetCurrentState(int itemId, int? revisionId = null, bool addDrafts = true)
-        {
-            int userId = CurrentSession.UserId;
-            return await WorkflowRepository.GetCurrentState(userId, itemId, revisionId ?? int.MaxValue, addDrafts);
-        }
-
-        public async Task<WorkflowTransitionResult> GetTransitions(int workflowId, int stateId)
-        {
-            int userId = CurrentSession.UserId;
-            return await WorkflowRepository.GetAvailableTransitions(userId, workflowId, stateId);
-        }
-    }
-
-    public interface IWorkflowController
-    {
         /// <summary>
         /// Gets the current state for the artifact. 
         /// Permission for the artifact is based on user id which is retrieved from the request.
         /// </summary>
-        /// <param name="itemId"></param>
+        /// <param name="artifactId"></param>
         /// <param name="revisionId"></param>
         /// <param name="addDrafts"></param>
         /// <returns></returns>
-        Task<WorkflowState> GetCurrentState(int itemId, int? revisionId = null, bool addDrafts = true);
-
-        /// <summary>
-        /// Gets the next available transitions which are available to the user for the workflow and state.
-        /// User id is retrieved from the request header.
-        /// </summary>
-        /// <param name="workflowId">Workflow Id for which we need transitions</param>
-        /// <param name="stateId">State Id for which next transitions are required</param>
-        /// <returns></returns>
-        Task<WorkflowTransitionResult> GetTransitions(int workflowId, int stateId);
+        [HttpGet, NoCache]
+        [Route("artifacts/{artifactId:int:min(1)}/state"), SessionRequired]
+        [ActionName("GetCurrentState")]
+        [ResponseType(typeof(WorkflowState))]
+        public async Task<IHttpActionResult> GetCurrentStateAsync(int artifactId, int? revisionId = null, bool addDrafts = true)
+        {
+            return Ok(await WorkflowRepository.GetCurrentState(CurrentSession.UserId, artifactId, revisionId ?? int.MaxValue, addDrafts));
+        }
     }
 }

@@ -125,12 +125,12 @@
     <Compile Include="Models\ClientLogModel.cs" />
     <Compile Include="Models\Enums\ItemTypePredefined.cs" />
     <Compile Include="Models\Enums\ProjectSection.cs" />
+    <Compile Include="Models\Enums\QueryResultCode.cs" />
     <Compile Include="Models\Enums\SortOrder.cs" />
     <Compile Include="Models\Files\File.cs" />
     <Compile Include="Models\Files\FileInfo.cs" />
     <Compile Include="Models\InstanceSettings\EmailSettings.cs" />
     <Compile Include="Models\Interfaces\IArtifact.cs" />
-    <Compile Include="Models\IPaginatedResult.cs" />
     <Compile Include="Models\ItemDetails.cs" />
     <Compile Include="Models\ItemInfo.cs" />
     <Compile Include="Models\Jobs\AddJobResult.cs" />
@@ -149,6 +149,7 @@
     <Compile Include="Models\ProjectNameIdPair.cs" />
     <Compile Include="Models\ProjectPermissions.cs" />
     <Compile Include="Models\QueryResult.cs" />
+    <Compile Include="Models\QuerySingleResult.cs" />
     <Compile Include="Models\RolePermissions.cs" />
     <Compile Include="Models\Sorting.cs" />
     <Compile Include="Models\SQLTraceLogModel.cs" />
@@ -164,8 +165,8 @@
     <Compile Include="Models\SubArtifact.cs" />
     <Compile Include="Models\UserGroup.cs" />
     <Compile Include="Models\UserInfo.cs" />
-    <Compile Include="Models\Workflow\BaseInformation.cs" />
     <Compile Include="Models\Workflow\Workflow.cs" />
+    <Compile Include="Models\Workflow\WorkflowConstants.cs" />
     <Compile Include="Models\Workflow\WorkflowState.cs" />
     <Compile Include="Models\Workflow\WorkflowTransition.cs" />
     <Compile Include="Models\Workflow\WorkflowTransitionResult.cs" />

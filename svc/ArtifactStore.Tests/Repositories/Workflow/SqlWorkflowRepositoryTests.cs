@@ -30,7 +30,7 @@ namespace ArtifactStore.Repositories.Workflow
               new List<ArtifactBasicDetails>());
 
             // Act
-            await repository.GetTransitions(1, 1);
+            await repository.GetTransitions(1, 1, 1, 1);
         }
         [TestMethod]
         [ExpectedException(typeof(AuthorizationException))]
@@ -48,7 +48,7 @@ namespace ArtifactStore.Repositories.Workflow
               },
               new List<ArtifactBasicDetails> { new ArtifactBasicDetails() });
             // Act
-            await repository.GetTransitions(1, 1);
+            await repository.GetTransitions(1, 1, 1, 1);
         }
         [TestMethod]
         public async Task GetTransitions_WithReadPermissions_SuccessfullyReads()
@@ -75,14 +75,14 @@ namespace ArtifactStore.Repositories.Workflow
              {
                  new WorkflowTransition
                  {
-                     Id = transitionId
+                     TransitionId = transitionId
                  }
              });
             // Act
-            var result = (await repository.GetTransitions(1, 1));
+            var result = (await repository.GetTransitions(1, 1, 1, 1));
 
-            Assert.IsTrue(result.Count > 0);
-            Assert.IsTrue(result.Items.First().Id == transitionId);
+            Assert.IsTrue(result.Total > 0);
+            Assert.IsTrue(result.Items.First().TransitionId == transitionId);
         }
         #endregion
 

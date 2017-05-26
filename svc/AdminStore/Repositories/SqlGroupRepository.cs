@@ -77,8 +77,8 @@ namespace AdminStore.Repositories
             var parameters = new DynamicParameters();
             parameters.Add("@Name", group.Name);
             parameters.Add("@Email", group.Email);
-            parameters.Add("@Source", group.GroupSource);
-            parameters.Add("@LicenseId", (int)group.License);
+            parameters.Add("@Source", group.Source);
+            parameters.Add("@LicenseId", (int)group.LicenseType);
             parameters.Add("@ProjectId", group.ProjectId);
 
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
@@ -112,7 +112,7 @@ namespace AdminStore.Repositories
             parameters.Add("@GroupId", groupId);
             parameters.Add("@Name", group.Name);
             parameters.Add("@Email", group.Email);
-            parameters.Add("@LicenseId", (int)group.License);
+            parameters.Add("@LicenseId", (int)group.LicenseType);
             parameters.Add("@CurrentVersion", group.CurrentVersion);
 
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);

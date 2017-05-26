@@ -53,7 +53,7 @@ namespace AdminStore.Controllers
             _groupsQueryDataResult = new QueryResult<GroupDto>() { Total = 1, Items = new List<GroupDto>() };
             _groupsTabularPagination = new Pagination() { Limit = 1, Offset = 0 };
             _groupsSorting = new Sorting() { Order = SortOrder.Asc, Sort = "Name" };
-            _group = new GroupDto {Name = "Group1", Email = "TestEmail@test.com", GroupSource = UserGroupSource.Database, License = LicenseType.Collaborator};            
+            _group = new GroupDto {Name = "Group1", Email = "TestEmail@test.com", Source = UserGroupSource.Database, LicenseType = LicenseType.Collaborator};            
         }
 
         #region Constuctor
@@ -377,7 +377,7 @@ namespace AdminStore.Controllers
         public async Task CreateGroup_CreateWindowsGroup_ReturnBadRequestResult()
         {
             // Arrange
-            _group.GroupSource = UserGroupSource.Windows;
+            _group.Source = UserGroupSource.Windows;
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
@@ -396,7 +396,7 @@ namespace AdminStore.Controllers
         public async Task CreateGroup_WithViewerLicense_ReturnBadRequestResult()
         {
             // Arrange
-            _group.License = LicenseType.Viewer;
+            _group.LicenseType = LicenseType.Viewer;
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
@@ -414,7 +414,7 @@ namespace AdminStore.Controllers
         public async Task CreateGroup_CreationGroupWithScopeAndLicenseIdSimultaneously_ReturnBadRequestResult()
         {
             // Arrange
-            _group.License = LicenseType.Collaborator;
+            _group.LicenseType = LicenseType.Collaborator;
             _group.ProjectId = 1;
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
@@ -434,7 +434,7 @@ namespace AdminStore.Controllers
         public async Task CreateGroup_GroupAlreadyExist_ReturnBadRequestResult()
         {
             // Arrange
-            _group.License = LicenseType.Collaborator;
+            _group.LicenseType = LicenseType.Collaborator;
             _group.ProjectId = 1;
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
@@ -489,7 +489,7 @@ namespace AdminStore.Controllers
         public async Task UpdateGroup_UpdateWindowsGroup_ReturnBadRequestResult()
         {
             // Arrange
-            _group.GroupSource = UserGroupSource.Windows;
+            _group.Source = UserGroupSource.Windows;
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
@@ -524,7 +524,7 @@ namespace AdminStore.Controllers
         public async Task UpdateGroup_LicenseIsViewer_ReturnBadRequestResult()
         {
             // Arrange
-            _group.License = LicenseType.Viewer;
+            _group.LicenseType = LicenseType.Viewer;
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);

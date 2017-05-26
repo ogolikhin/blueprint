@@ -11,19 +11,15 @@ namespace AdminStore.Models
 
         public string Scope { get; set; }
 
-        public string LicenseType { get; set; }
+        public LicenseType LicenseType { get; set; }
 
-        public LicenseType License { get; set; }
-
-        public string Source { get; set; }
+        public UserGroupSource Source { get; set; }
 
         public string Email { get; set; }
 
         public string GroupType { get; set; }
 
         public int? ProjectId { get; set; }
-
-        public UserGroupSource GroupSource { get; set; }
 
         public IEnumerable<int> Users { get; set; }
 

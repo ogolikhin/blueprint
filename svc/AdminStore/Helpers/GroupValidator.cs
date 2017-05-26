@@ -40,7 +40,7 @@ namespace AdminStore.Helpers
                 }
             }
 
-            if (group.GroupSource != UserGroupSource.Database)
+            if (group.Source != UserGroupSource.Database)
             {
                 if (operationMode == OperationMode.Create)
                 {
@@ -54,12 +54,12 @@ namespace AdminStore.Helpers
 
             if (operationMode == OperationMode.Create)
             {
-                if (group.ProjectId != null && (group.License != LicenseType.None))
+                if (group.ProjectId != null && (group.LicenseType != LicenseType.None))
                 {
                     throw new BadRequestException(ErrorMessages.CreationGroupWithScopeAndLicenseIdSimultaneously, ErrorCodes.BadRequest);
                 }
 
-                if (group.ProjectId == null && (group.License != LicenseType.Collaborator && group.License != LicenseType.Author && group.License != LicenseType.None))
+                if (group.ProjectId == null && (group.LicenseType != LicenseType.Collaborator && group.LicenseType != LicenseType.Author && group.LicenseType != LicenseType.None))
                 {
                     throw new BadRequestException(ErrorMessages.CreationGroupsOnlyWithCollaboratorOrAuthorOrNoneLicenses, ErrorCodes.BadRequest);
                 }
@@ -71,7 +71,7 @@ namespace AdminStore.Helpers
                     throw new BadRequestException(ErrorMessages.TheScopeCannotBeChanged, ErrorCodes.BadRequest);
                 }
 
-                if (group.License != LicenseType.Collaborator && group.License != LicenseType.Author && group.License != LicenseType.None)
+                if (group.LicenseType != LicenseType.Collaborator && group.LicenseType != LicenseType.Author && group.LicenseType != LicenseType.None)
                 {
                     throw new BadRequestException(ErrorMessages.UpdateGroupsOnlyWithCollaboratorOrAuthorOrNoneLicenses, ErrorCodes.BadRequest);
                 }

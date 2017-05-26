@@ -148,10 +148,16 @@ namespace AdminStoreTests.UsersTests
         [TestCase("FirstName", null, Description = "FirstName is null")]
         [TestCase("LastName", "", Description = "LastName is empty")]
         [TestCase("LastName", null, Description = "LastName is null")]
-        [Description("Create an instance user with a missing first or last name. Add the user. " +
+        [TestCase("Title", "", Description = "Title is empty")]
+        [TestCase("Title", null, Description = "Title is null")]
+        [TestCase("Department", "", Description = "Department is empty")]
+        [TestCase("Department", null, Description = "Department is null")]
+        [TestCase("Email", "", Description = "Email is empty")]
+        [TestCase("Email", null, Description = "Email is null")]
+        [Description("Create an instance user with a property that can be missing or null. Add the user. " +
                      "Verify that the user is created.")]
         [TestRail(303989)]
-        public void AddInstanceUser_MissingFirstOrLastName_UserCreated(string property, string propertyValue)
+        public void AddInstanceUser_TextPropertyThatCanBeEmptyOrNull_UserCreated(string property, string propertyValue)
         {
             // Setup:
             var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();

@@ -10,12 +10,13 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Model.Common.Enums;
+using Model.InstanceAdminModel;
 using Utilities;
 using Utilities.Factories;
 
 namespace Helper
 {
-    public static class AdminStoreHelper
+    public class AdminStoreHelper
     {
         #region Project Management
 
@@ -258,6 +259,8 @@ namespace Helper
                             InstanceAdminPrivileges.CanManageAllRunningJobs |
                             InstanceAdminPrivileges.CanReportOnAllProjects;
 
+        public List<CustomInstanceAdminRole> CustomInstanceAdminRoles { get; } = new List<CustomInstanceAdminRole>();
+
         /// <summary>
         /// A class to represent a row in the PasswordRecoveryTokens database table.
         /// </summary>
@@ -266,6 +269,38 @@ namespace Helper
             public string Login { get; set; }
             public DateTime CreationTime { get; set; }
             public string RecoveryToken { get; set; }
+        }
+
+        /// <summary>
+        /// Creates and adds a new Instance Admin Role into the database.
+        /// </summary>
+        /// <param name="permissions">The permissions to assign to the role.</param>
+        /// <param name="isReadOnly">(optional) Pass true to make this role read-only.</param>
+        /// <param name="name">(optional) The name of the role.  By default a random name is created.</param>
+        /// <param name="description">(optional) The description of the role.  By default a random description is created.</param>
+        /// <returns>The new custom Instance Admin Role that was added to the database.</returns>
+        public CustomInstanceAdminRole AddInstanceAdminRoleToDatabase(InstanceAdminPrivileges permissions,
+            bool isReadOnly = false,
+            string name = null,
+            string description = null)
+        {
+            var role = new CustomInstanceAdminRole
+            {
+                Name = name ?? RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10),
+                Description = description ?? RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10),
+                Permissions = permissions,
+                IsReadOnly = isReadOnly
+            };
+
+            const string tableName = "[dbo].[InstanceAdminRoles]";
+            string[] columnNames = { "Name", "Description", "Permissions", "IsReadOnly" };
+            object[] values = { role.Name, role.Description, role.Permissions, role.IsReadOnly };
+
+            role.Id = DatabaseHelper.ExecuteInsertSqlQueryAndGetId(tableName, columnNames, values);
+
+            CustomInstanceAdminRoles.Add(role);
+
+            return role;
         }
 
         /// <summary>

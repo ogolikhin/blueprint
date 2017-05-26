@@ -774,7 +774,7 @@ namespace AdminStoreTests.UsersTests
         [Description("Create an instance user. Try to update a non-existing user. " +
                      "Verify that 404 Not Found is returned.")]
         [TestRail(303422)]
-        public void UpdateInstanceUser_UserDoesntExist_404NotFound()
+        public void UpdateInstanceUser_UserDoesNotExist_404NotFound()
         {
             // Setup:
             var createdUser = Helper.CreateAndAddInstanceUser(_adminUser);

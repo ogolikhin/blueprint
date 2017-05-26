@@ -152,18 +152,13 @@ namespace AdminStoreTests.UsersTests
         [TestCase]
         [Description("Create and add an instance user. Try to update the user with a valid but non-existing user id. " +
                      "Verify that 404 Not Found is returned.")]
-        [TestRail(303422)]
-        public void UpdateInstanceUser_UserDoesntExist_404NotFound()
+        [TestRail(303453)]
+        public void GetInstanceUser_UserDoesNotExist_404NotFound()
         {
-            // Setup:
-            var createdUser = Helper.CreateAndAddInstanceUser(_adminUser);
-
-            createdUser.Id = int.MaxValue;
-
-            // Execute:
+            // Setup & Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() =>
             {
-                Helper.AdminStore.UpdateUser(_adminUser, createdUser);
+                Helper.AdminStore.GetUserById(_adminUser, int.MaxValue);
             }, "'PUT {0}' should return 404 Not Found for nonexistent user!", USER_PATH_ID);
 
             // Verify:

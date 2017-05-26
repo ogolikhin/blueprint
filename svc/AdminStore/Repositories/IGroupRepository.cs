@@ -11,5 +11,6 @@ namespace AdminStore.Repositories
         Task<int> DeleteGroupsAsync(OperationScope body, string search);
         Task<int> AddGroupAsync(GroupDto group);
         Task<Group> GetGroupDetailsAsync(int groupId);
+        Task UpdateGroupAsync(int groupId, GroupDto group);
     }
 }

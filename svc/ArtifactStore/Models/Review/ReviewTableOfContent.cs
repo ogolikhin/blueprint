@@ -6,7 +6,7 @@ namespace ArtifactStore.Models.Review
     {
         public ApprovalType ApprovalStatus { get; set; }
         public int Level { get; set; }
-        public bool InReview { get; set; }
+        public bool Included { get; set; }
 
     }
 

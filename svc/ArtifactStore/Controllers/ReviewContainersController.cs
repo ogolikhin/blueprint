@@ -122,8 +122,8 @@ namespace ArtifactStore.Controllers
         /// <response code="403">Forbidden. The user does not have permissions new the review</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
-        [Route("containers/{containerId:int:min(1)}/toc"), SessionRequired]
-        public Task<ReviewTableOfContent> GetTableOfContentAsync(int containerId, int? revisionId = null, int? offset = 0, int? limit = 50)
+        [Route("containers/{containerId:int:min(1)}/toc/{revisionId:int:min(1)}"), SessionRequired]
+        public Task<ReviewTableOfContent> GetTableOfContentAsync(int containerId, int revisionId, int? offset = 0, int? limit = 50)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             return _sqlReviewsRepository.GetReviewTableOfContent(containerId, revisionId, session.UserId, offset, limit);

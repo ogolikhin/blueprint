@@ -38,6 +38,10 @@ namespace ImageRenderService.ImageGen
 
         public bool Start(HostControl hostControl)
         {
+            // Add a Standard Log Listener to the Logger
+            LogManager.Manager.AddListener(Log4NetStandardLogListener.Instance);
+            Log.Info("ImageGen Service started.");
+
             var settings = new CefSettings
             {
                 //By default CefSharp will use an in-memory cache, you need to specify a Cache Folder to persist data
@@ -48,10 +52,6 @@ namespace ImageRenderService.ImageGen
 
             //Perform dependency check to make sure all relevant resources are in our output directory.
             Cef.Initialize(settings, performDependencyCheck: true, browserProcessHandler: null);
-
-            // Add a Standard Log Listener to the Logger
-            LogManager.Manager.AddListener(Log4NetStandardLogListener.Instance);
-            Log.Info("ImageGen Service started.");
 
             _server = new HttpSelfHostServer(_config);
             _server.OpenAsync().Wait();
@@ -67,15 +67,15 @@ namespace ImageRenderService.ImageGen
             {
                 Log.Info("ImageGen Service stopped.");
 
-                // Remove Log Listener
-                Log4NetStandardLogListener.Clear();
-                LogManager.Manager.ClearListeners();
-
                 _nServiceBusServer.Stop().Wait();
 
                 _server.CloseAsync().Wait();
                 _server.Dispose();
                 BrowserPool.Dispose();
+
+                // Remove Log Listener
+                Log4NetStandardLogListener.Clear();
+                LogManager.Manager.ClearListeners();
             }
             catch (Exception e)
             {

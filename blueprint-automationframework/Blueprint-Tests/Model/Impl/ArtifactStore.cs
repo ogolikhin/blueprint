@@ -2,7 +2,6 @@ using Common;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
-using Model.ArtifactModel.Impl.OperationsResults;
 using Model.Factories;
 using Model.NovaModel.Impl;
 using Newtonsoft.Json;

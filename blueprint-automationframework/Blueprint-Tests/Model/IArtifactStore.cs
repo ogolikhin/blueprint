@@ -1,7 +1,6 @@
 using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
-using Model.ArtifactModel.Impl.OperationsResults;
 using Model.Impl;
 using Model.NovaModel.Impl;
 using System;

@@ -1,7 +1,6 @@
 ﻿using CustomAttributes;
 using Helper;
 using Model;
-using Model.ArtifactModel.Impl.OperationsResults;
 using Model.Factories;
 using Model.NovaModel.Reviews;
 using NUnit.Framework;

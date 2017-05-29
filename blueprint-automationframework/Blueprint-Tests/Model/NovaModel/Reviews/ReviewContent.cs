@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace Model.ArtifactModel.Impl.OperationsResults
+namespace Model.NovaModel.Reviews
 {
     // see blueprint/svc/ArtifactStore/Models/Review/ReviewContent.cs
     public class ReviewArtifact

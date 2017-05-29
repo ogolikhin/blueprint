@@ -334,14 +334,8 @@ namespace ArtifactStore.Repositories
         }
 
     
-        public async Task<ReviewTableOfContent> GetReviewTableOfContent(int reviewId, int? revisionId, int userId, int? offset, int? limit)
+        public async Task<ReviewTableOfContent> GetReviewTableOfContent(int reviewId, int revisionId, int userId, int? offset, int? limit)
         {
-            // get revision if isn't specified
-            if (!revisionId.HasValue)
-            {
-                string errorMessage = I18NHelper.FormatInvariant("The revision must be specified for review (Id:{0}).", reviewId);
-                throw new AuthorizationException(errorMessage, ErrorCodes.ArtifactNotFound);
-            }
 
             //get all review content item in a hierachy list
             var toc = await GetTableOfContentAsync(reviewId, revisionId, userId, offset, limit);
@@ -365,13 +359,14 @@ namespace ArtifactStore.Repositories
                 if (SqlArtifactPermissionsRepository.HasPermissions(tocItem.Id, artifactPermissionsDictionary, RolePermissions.Read))
                 {
                     //TODO update item status
+                    
                 }
                 else
                 {
                     //not granted SES
                     //TODO: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=6593&fullScreen=false
-                    tocItem.InReview = false;
-
+                    tocItem.Included = false;
+                    tocItem.Viewed = false;
                 }
             }
 

@@ -215,7 +215,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
             .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
             .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
-            var group = new Group();
+            var group = new GroupDto();
 
             _sqlGroupRepositoryMock.Setup(repo => repo.GetGroupDetailsAsync(It.IsAny<int>())).ReturnsAsync(group);
 
@@ -233,12 +233,12 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
-            var group = new Group() { Id = 3 };
+            var group = new GroupDto() { Id = 3 };
 
             _sqlGroupRepositoryMock.Setup(repo => repo.GetGroupDetailsAsync(It.IsAny<int>())).ReturnsAsync(group);
 
             //act
-            var result = await _controller.GetGroup(3) as OkNegotiatedContentResult<Group>; 
+            var result = await _controller.GetGroup(3) as OkNegotiatedContentResult<GroupDto>; 
 
             //assert
             Assert.IsNotNull(result);

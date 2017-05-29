@@ -6,6 +6,7 @@ using CefSharp;
 using ImageRenderService.Helpers;
 using ImageRenderService.Transport;
 using Topshelf;
+using ImageRenderService.Logging;
 
 namespace ImageRenderService.ImageGen
 {
@@ -48,6 +49,10 @@ namespace ImageRenderService.ImageGen
             //Perform dependency check to make sure all relevant resources are in our output directory.
             Cef.Initialize(settings, performDependencyCheck: true, browserProcessHandler: null);
 
+            // Add a Standard Log Listener to the Logger
+            LogManager.Manager.AddListener(Log4NetStandardLogListener.Instance);
+            Log.Info("ImageGen Service started.");
+
             _server = new HttpSelfHostServer(_config);
             _server.OpenAsync().Wait();
 
@@ -60,6 +65,12 @@ namespace ImageRenderService.ImageGen
         {
             try
             {
+                Log.Info("ImageGen Service stopped.");
+
+                // Remove Log Listener
+                Log4NetStandardLogListener.Clear();
+                LogManager.Manager.ClearListeners();
+
                 _nServiceBusServer.Stop().Wait();
 
                 _server.CloseAsync().Wait();

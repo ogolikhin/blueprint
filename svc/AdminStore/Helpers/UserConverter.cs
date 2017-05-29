@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Threading.Tasks;
 using AdminStore.Models;
 using AdminStore.Models.Enums;
+using AdminStore.Repositories;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 
@@ -8,7 +10,7 @@ namespace AdminStore.Helpers
 {
     public class UserConverter
     {
-        public static User ConvertToDbUser(UserDto user, OperationMode operationMode, int userId = 0)
+        public static async Task<User> ConvertToDbUser(UserDto user, OperationMode operationMode, ISqlSettingsRepository settingsRepository, int userId = 0)
         {
             var databaseUser = new User
             {
@@ -34,30 +36,44 @@ namespace AdminStore.Helpers
 
             if (operationMode == OperationMode.Create)
             {
+                var isPasswordRequired = false;
+                var settings = await settingsRepository.GetUserManagementSettingsAsync();
+                if (settings.IsFederatedAuthenticationEnabled && user.AllowFallback.HasValue && user.AllowFallback.Value)
+                {
+                    isPasswordRequired = true;
+                }
+
                 var decodedPasword = SystemEncryptions.Decode(user.Password);
 
                 string errorMessage;
-                var isValidPassword = PasswordValidationHelper.ValidatePassword(decodedPasword, true, out errorMessage);
+                var isValidPassword = PasswordValidationHelper.ValidatePassword(decodedPasword, isPasswordRequired, out errorMessage);
                 if (!isValidPassword)
                 {
                     throw new BadRequestException(errorMessage, ErrorCodes.BadRequest);
                 }
 
-                var passwordUppercase = decodedPasword.ToUpperInvariant();
-
-                if (passwordUppercase == user.Login?.ToUpperInvariant())
+                if (!string.IsNullOrWhiteSpace(decodedPasword))
                 {
-                    throw new BadRequestException(ErrorMessages.PasswordSameAsLogin, ErrorCodes.PasswordSameAsLogin);
-                }
+                    var passwordUppercase = decodedPasword.ToUpperInvariant();
 
-                if (passwordUppercase == user.DisplayName?.ToUpperInvariant())
+                    if (passwordUppercase == user.Login?.ToUpperInvariant())
+                    {
+                        throw new BadRequestException(ErrorMessages.PasswordSameAsLogin, ErrorCodes.PasswordSameAsLogin);
+                    }
+
+                    if (passwordUppercase == user.DisplayName?.ToUpperInvariant())
+                    {
+                        throw new BadRequestException(ErrorMessages.PasswordSameAsDisplayName,
+                            ErrorCodes.PasswordSameAsDisplayName);
+                    }
+
+                    databaseUser.Password = HashingUtilities.GenerateSaltedHash(decodedPasword, databaseUser.UserSALT);
+                }
+                else
                 {
-                    throw new BadRequestException(ErrorMessages.PasswordSameAsDisplayName, ErrorCodes.PasswordSameAsDisplayName);
+                    databaseUser.Password = Guid.NewGuid() + "ABC!@#$";
                 }
-
-                databaseUser.Password = HashingUtilities.GenerateSaltedHash(decodedPasword, databaseUser.UserSALT);
             }
-
             return databaseUser;
         }
 

@@ -21,10 +21,4 @@ namespace Model.NovaModel.Reviews
 
         public DateTime? eSignatureTimestamp { get; set; }
     }
-
-    public class ArtifactReviewContent
-    {
-        public List<ReviewArtifactDetails> Items { get; } = new List<ReviewArtifactDetails>();
-        public int Total { get; set; }
-    }
 }

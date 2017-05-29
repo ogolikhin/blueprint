@@ -650,7 +650,7 @@ namespace Model
         /// <param name="limit">(optional) Maximum number of users to be returned.</param>
         /// <param name="versionId">(optional)Id of version.</param>
         /// <returns>Object containing list of artifacts and number of artifacts</returns>
-        ReviewContent GetReviewArtifacts(IUser user, int reviewId, int? offset = 0, int? limit = 50,
+        QueryResult<ReviewArtifact> GetReviewArtifacts(IUser user, int reviewId, int? offset = 0, int? limit = 50,
             int? versionId = null);
 
         /// <summary>
@@ -683,7 +683,7 @@ namespace Model
         /// <param name="limit">(optional) Maximum number of users to be returned.</param>
         /// <param name="versionId">(optional)Id of version.</param>
         /// <returns>ArtifactReviewContent</returns>
-        ArtifactReviewContent GetArtifactStatusesByParticipant(IUser user, int artifactId, int reviewId,
+        QueryResult<ReviewArtifactDetails> GetArtifactStatusesByParticipant(IUser user, int artifactId, int reviewId,
             int? offset = 0, int? limit = 50, int? versionId = null);
 
         /// <summary>

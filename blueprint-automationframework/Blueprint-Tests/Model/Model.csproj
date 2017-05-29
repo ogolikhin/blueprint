@@ -78,6 +78,7 @@
     <Compile Include="InstanceAdminModel\CustomInstanceAdminRole.cs" />
     <Compile Include="ModelHelpers\DocumentArtifactWrapper.cs" />
     <Compile Include="ModelHelpers\ProcessArtifactWrapper.cs" />
+    <Compile Include="NovaModel\Reviews\BaseReviewArtifact.cs" />
     <Compile Include="NovaModel\Reviews\ReviewContent.cs" />
     <Compile Include="ArtifactModel\Impl\RaptorComment.cs" />
     <Compile Include="ArtifactModel\Impl\NovaCollectionBase.cs" />

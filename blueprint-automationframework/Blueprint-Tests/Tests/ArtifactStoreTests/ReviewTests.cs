@@ -9,6 +9,8 @@ using Utilities;
 using TestConfig;
 using System.Collections.Generic;
 using Model.ArtifactModel.Enums;
+using Model.Impl;
+using System.Linq;
 
 namespace ArtifactStoreTests
 {
@@ -48,13 +50,13 @@ namespace ArtifactStoreTests
             const int numberOfArtifacts = 15;
 
             // Execute: 
-            ReviewContent reviewArtifacts = null;
+            QueryResult<ReviewArtifact> reviewArtifacts = null;
             Assert.DoesNotThrow(() => reviewArtifacts = Helper.ArtifactStore.GetReviewArtifacts(_user, reviewId),
                 "{0} should be successful.", nameof(Helper.ArtifactStore.GetReviewArtifacts));
 
             // Verify:
             Assert.AreEqual(numberOfArtifacts, reviewArtifacts.Total, "GetReviewArtifacts should return expected number of artifacts.");
-            Assert.AreEqual(numberOfArtifacts, reviewArtifacts.Items.Count, "GetReviewArtifacts should return expected number of artifacts.");
+            Assert.AreEqual(numberOfArtifacts, reviewArtifacts.Items.ToList().Count, "GetReviewArtifacts should return expected number of artifacts.");
         }
 
         [Category(Categories.GoldenData)]
@@ -133,7 +135,7 @@ namespace ArtifactStoreTests
             const int reviewId = 113;
             const int artifactId = 22;
 
-            ArtifactReviewContent reviewParticipants = null;
+            QueryResult<ReviewArtifactDetails> reviewParticipants = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
@@ -141,7 +143,7 @@ namespace ArtifactStoreTests
             versionId: 1), "GetArtifactStatusesByParticipant should return 200 success.");
 
             // Verify:
-            Assert.AreEqual(1, reviewParticipants.Items.Count, "Specified artifact should have one reviewer.");
+            Assert.AreEqual(1, reviewParticipants.Items.ToList().Count, "Specified artifact should have one reviewer.");
         }
 
         [Category(Categories.GoldenData)]

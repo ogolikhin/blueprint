@@ -944,7 +944,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.GetReviewArtifacts(IUser, int, int?, int?, int?)"/>
-        public ReviewContent GetReviewArtifacts(IUser user, int reviewId, int? offset = 0, int? limit = 50,
+        public QueryResult<ReviewArtifact> GetReviewArtifacts(IUser user, int reviewId, int? offset = 0, int? limit = 50,
             int? versionId = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Reviews_id_.CONTENT, reviewId);
@@ -967,7 +967,7 @@ namespace Model.Impl
                 queryParams.Add("versionId", versionId.ToString());
             }
 
-            return restApi.SendRequestAndDeserializeObject<ReviewContent>(path, RestRequestMethod.GET,
+            return restApi.SendRequestAndDeserializeObject<QueryResult<ReviewArtifact>>(path, RestRequestMethod.GET,
                 queryParameters: queryParams, shouldControlJsonChanges: true);
         }
 
@@ -1009,7 +1009,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.GetArtifactStatusesByParticipant(IUser, int, int, int?, int?, int?)"/>
-        public ArtifactReviewContent GetArtifactStatusesByParticipant(IUser user, int artifactId, int reviewId,
+        public QueryResult<ReviewArtifactDetails> GetArtifactStatusesByParticipant(IUser user, int artifactId, int reviewId,
             int? offset = 0, int? limit = 50, int? versionId = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Containers_id_.ARTIFACT_REVIEWERS, reviewId);
@@ -1031,7 +1031,7 @@ namespace Model.Impl
                 queryParams.Add("versionId", versionId.ToString());
             }
 
-            return restApi.SendRequestAndDeserializeObject<ArtifactReviewContent>(path, RestRequestMethod.GET,
+            return restApi.SendRequestAndDeserializeObject<QueryResult<ReviewArtifactDetails>>(path, RestRequestMethod.GET,
                 queryParameters: queryParams, shouldControlJsonChanges: true);
         }
 

@@ -145,7 +145,7 @@ namespace AdminStore.Repositories
             }
         }
 
-        public async Task<Group> GetGroupDetailsAsync(int groupId)
+        public async Task<GroupDto> GetGroupDetailsAsync(int groupId)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@GroupId", groupId);
@@ -155,7 +155,8 @@ namespace AdminStore.Repositories
                     _connectionWrapper.QueryAsync<Group>("GetGroupDetails", parameters,
                         commandType: CommandType.StoredProcedure);
             var enumerable = result as IList<Group> ?? result.ToList();
-            return enumerable.Any() ? enumerable.First() : new Group();
+            var group = enumerable.Any() ? enumerable.First() : new Group();
+            return GroupMapper.Map(group);
         }
 
         public async Task<QueryResult<GroupUser>> GetGroupUsersAsync(int groupId, TabularData tabularData, Func<Sorting, string> sort = null)

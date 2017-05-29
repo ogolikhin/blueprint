@@ -359,13 +359,14 @@ namespace ArtifactStore.Repositories
                 if (SqlArtifactPermissionsRepository.HasPermissions(tocItem.Id, artifactPermissionsDictionary, RolePermissions.Read))
                 {
                     //TODO update item status
+                    
                 }
                 else
                 {
                     //not granted SES
                     //TODO: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=6593&fullScreen=false
                     tocItem.Included = false;
-
+                    tocItem.Viewed = false;
                 }
             }
 

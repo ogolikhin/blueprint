@@ -2,6 +2,7 @@
 using Helper;
 using Model;
 using Model.ArtifactModel.Impl.OperationsResults;
+using Model.Common.Enums;
 using Model.NovaModel.Impl;
 using Model.Factories;
 using Model.NovaModel.Reviews;
@@ -70,7 +71,7 @@ namespace ArtifactStoreTests
             string password = testConfig.Password;
 
             var sessionToken = Helper.AdminStore.AddSession(userName, password);
-            var admin = UserFactory.CreateUserOnly(userName, password);
+            var admin = UserFactory.CreateUserOnly(userName, password, InstanceAdminRole.DefaultInstanceAdministrator);
             admin.SetToken(sessionToken.SessionId);
 
             ReviewSummary reviewContainer = null;

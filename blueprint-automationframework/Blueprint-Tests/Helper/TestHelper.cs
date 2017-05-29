@@ -573,13 +573,11 @@ namespace Helper
         /// <param name="user">The user creating the artifact.</param>
         /// <param name="itemType">The Nova base ItemType to create.</param>
         /// <returns>The Nova artifact wrapped in an IArtifact.</returns>
-        public IArtifact CreateWrapAndPublishNovaArtifactForCustomArtifactType(IProject project, IUser user, ItemTypePredefined itemType)
+        public ArtifactWrapper CreateWrapAndPublishNovaArtifactForCustomArtifactType(IProject project, IUser user, ItemTypePredefined itemType)
         {
-
             var artifactTypeName = ArtifactStoreHelper.GetCustomArtifactTypeName(itemType);
 
-            return CreateWrapAndPublishNovaArtifact(project, user, itemType,
-                artifactTypeName: artifactTypeName);
+            return CreateAndPublishNovaArtifact(user, project, itemType, artifactTypeName: artifactTypeName);
         }
 
         /// <summary>
@@ -1874,9 +1872,24 @@ namespace Helper
         {
             var ids = InstanceUsers.Where(u => u.Id != null).Select(u => u.Id.Value).ToList();
 
-            AdminStore.DeleteUsers(adminUser, ids);
+            if (ids.Any())
+            {
+                AdminStore.DeleteUsers(adminUser, ids);
 
-            InstanceUsers.RemoveAll(user => user.Id != null && ids.Contains(user.Id.Value));
+                InstanceUsers.RemoveAll(user => user.Id != null && ids.Contains(user.Id.Value));
+            }
+        }
+
+        /// <summary>
+        /// Gets all non-deleted Instance Users in the users table
+        /// </summary>
+        /// <param name="adminUser">The admin user getting the instance users.</param>
+        /// <returns>A list of all current users</returns>
+        public List<InstanceUser> GetCurrentUsers(IUser adminUser)
+        {
+            var queryResult = AdminStore.GetUsers(adminUser, offset: 0, limit: int.MaxValue);
+
+            return queryResult.Items.ToList();
         }
 
         #endregion User management

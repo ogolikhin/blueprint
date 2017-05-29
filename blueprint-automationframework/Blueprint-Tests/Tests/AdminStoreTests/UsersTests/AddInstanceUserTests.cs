@@ -23,14 +23,14 @@ namespace AdminStoreTests.UsersTests
 
         #region Setup and Cleanup
 
-        [TestFixtureSetUp]
+        [SetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
         }
 
-        [TestFixtureTearDown]
+        [TearDown]
         public void TearDown()
         {
             Helper.DeleteInstanceUsers(_adminUser);
@@ -141,6 +141,54 @@ namespace AdminStoreTests.UsersTests
 
             // Add LicenseType of Viewer to createdUser to verify that the addedUser returned with Viewer license
             createdUser.LicenseType = LicenseLevel.Viewer;
+            AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
+        }
+
+        [TestCase("FirstName", "", Description = "FirstName is empty")]
+        [TestCase("FirstName", null, Description = "FirstName is null")]
+        [TestCase("LastName", "", Description = "LastName is empty")]
+        [TestCase("LastName", null, Description = "LastName is null")]
+        [TestCase("Title", "", Description = "Title is empty")]
+        [TestCase("Title", null, Description = "Title is null")]
+        [TestCase("Department", "", Description = "Department is empty")]
+        [TestCase("Department", null, Description = "Department is null")]
+        [TestCase("Email", "", Description = "Email is empty")]
+        [TestCase("Email", null, Description = "Email is null")]
+        [Description("Create an instance user with a property that can be missing or null. Add the user. " +
+                     "Verify that the user is created.")]
+        [TestRail(303989)]
+        public void AddInstanceUser_TextPropertyThatCanBeEmptyOrNull_UserCreated(string property, string propertyValue)
+        {
+            // Setup:
+            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
+
+            CSharpUtilities.SetProperty(property, propertyValue, createdUser);
+
+            // Execute:
+            int createdUserId = 0;
+
+            Assert.DoesNotThrow(() =>
+            {
+                createdUserId = Helper.AdminStore.AddUser(_adminUser, createdUser);
+            }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
+
+            InstanceUser addedUser = null;
+
+            Assert.DoesNotThrow(() =>
+            {
+                addedUser = Helper.AdminStore.GetUserById(_adminUser, createdUserId);
+            }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
+
+            // Verify:
+            // Update Id and CurrentVersion in CreatedUser for comparison
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUserId);
+
+            // Missing or null user will always return an empty string for the property, so update here for comparison
+            CSharpUtilities.SetProperty(property, "", createdUser);
+
+            // Add LicenseType of Viewer to createdUser to verify that the addedUser returned with Viewer license
+            createdUser.LicenseType = LicenseLevel.Viewer;
+
             AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
         }
 
@@ -426,20 +474,6 @@ namespace AdminStoreTests.UsersTests
                 InstanceAdminErrorMessages.FirstNameFieldLimitation);
         }
 
-        [TestCase("", Description = "FirstName is empty")]
-        [TestCase(null, Description = "FirstName is null")]
-        [Description("Create an instance user with a missing first name. Try to add the user. " +
-                     "Verify that 400 Bad Request is returned.")]
-        [TestRail(303580)]
-        public void AddInstanceUser_MissingFirstName_400BadRequest(string firstName)
-        {
-            CreateDefaultInstanceUserWithInvalidPropertyVerify400BadRequest(
-                _adminUser,
-                "FirstName",
-                firstName,
-                InstanceAdminErrorMessages.FirstNameRequired);
-        }
-
         [TestCase((uint)1, Description = "Minimum 2 characters")]
         [TestCase((uint)256, Description = "Maximum 255 characters")]
         [Description("Create an instance user with an invalid last name. Try to add the user. " +
@@ -452,20 +486,6 @@ namespace AdminStoreTests.UsersTests
                 "LastName",
                 RandomGenerator.RandomAlphaNumericUpperAndLowerCase(numCharacters),
                 InstanceAdminErrorMessages.LastNameFieldLimitation);
-        }
-
-        [TestCase("", Description = "LastName is empty")]
-        [TestCase(null, Description = "LastName is null")]
-        [Description("Create an instance user with a missing last name. Try to add the user. " +
-                     "Verify that 400 Bad Request is returned.")]
-        [TestRail(303581)]
-        public void AddInstanceUser_MissingLastName_400BadRequest(string lastName)
-        {
-            CreateDefaultInstanceUserWithInvalidPropertyVerify400BadRequest(
-                _adminUser,
-                "LastName",
-                lastName,
-                InstanceAdminErrorMessages.LastNameRequired);
         }
 
         [TestCase((uint)256, Description = "Maximum 255 characters")]

@@ -592,6 +592,12 @@ namespace Model.ModelHelpers
             set { Artifact.ItemTypeVersionId = value; }
         }
 
+        public DateTime? LastSavedOn
+        {
+            get { return Artifact.LastSavedOn; }
+            set { Artifact.LastSavedOn = value; }
+        }
+
         public bool? LastSaveInvalid
         {
             get { return Artifact.LastSaveInvalid; }

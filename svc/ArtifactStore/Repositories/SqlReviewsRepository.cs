@@ -91,7 +91,7 @@ namespace ArtifactStore.Repositories
                     Viewed = reviewDetails.Viewed
                 },
                 ReviewType = reviewDetails.BaselineId.HasValue ? ReviewType.Formal : ReviewType.Informal,
-                RevisionId = reviewDetails.ContentRevisionId
+                RevisionId = reviewDetails.RevisionId
             };
             return reviewContainer;
         }

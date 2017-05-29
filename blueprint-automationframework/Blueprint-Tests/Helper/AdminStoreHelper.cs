@@ -10,12 +10,13 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Model.Common.Enums;
+using Model.InstanceAdminModel;
 using Utilities;
 using Utilities.Factories;
 
 namespace Helper
 {
-    public static class AdminStoreHelper
+    public class AdminStoreHelper : IDisposable
     {
         #region Project Management
 
@@ -246,6 +247,8 @@ namespace Helper
 
         #region User Management
 
+        private const string INSTANCE_ADMIN_ROLES_TABLE = "[dbo].[InstanceAdminRoles]";
+
         public const uint MinPasswordLength = 8;
         public const uint MaxPasswordLength = 128;
         public const InstanceAdminPrivileges AllPrivileges =
@@ -258,6 +261,8 @@ namespace Helper
                             InstanceAdminPrivileges.CanManageAllRunningJobs |
                             InstanceAdminPrivileges.CanReportOnAllProjects;
 
+        public List<CustomInstanceAdminRole> CustomInstanceAdminRoles { get; } = new List<CustomInstanceAdminRole>();
+
         /// <summary>
         /// A class to represent a row in the PasswordRecoveryTokens database table.
         /// </summary>
@@ -266,6 +271,58 @@ namespace Helper
             public string Login { get; set; }
             public DateTime CreationTime { get; set; }
             public string RecoveryToken { get; set; }
+        }
+
+        /// <summary>
+        /// Creates and adds a new Instance Admin Role into the database.
+        /// </summary>
+        /// <param name="permissions">The permissions to assign to the role.</param>
+        /// <param name="isReadOnly">(optional) Pass true to make this role read-only.</param>
+        /// <param name="name">(optional) The name of the role.  By default a random name is created.</param>
+        /// <param name="description">(optional) The description of the role.  By default a random description is created.</param>
+        /// <returns>The new custom Instance Admin Role that was added to the database.</returns>
+        public CustomInstanceAdminRole AddInstanceAdminRoleToDatabase(InstanceAdminPrivileges permissions,
+            bool isReadOnly = false,
+            string name = null,
+            string description = null)
+        {
+            var role = new CustomInstanceAdminRole
+            {
+                Name = name ?? RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10),
+                Description = description ?? RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10),
+                Permissions = permissions,
+                IsReadOnly = isReadOnly
+            };
+
+            string[] columnNames = { "Name", "Description", "Permissions", "IsReadOnly" };
+            object[] values = { role.Name, role.Description, (int)role.Permissions, role.IsReadOnly };
+
+            role.Id = DatabaseHelper.ExecuteInsertSqlQueryAndGetId(INSTANCE_ADMIN_ROLES_TABLE, columnNames, values);
+
+            CustomInstanceAdminRoles.Add(role);
+
+            return role;
+        }
+
+        /// <summary>
+        /// Deletes a custom Instance Admin Role from the database.
+        /// </summary>
+        /// <param name="adminRole">The Instance Admin Role to delete from the database.</param>
+        /// <returns>The number of rows deleted.</returns>
+        public int DeleteInstanceAdminRoleFromDatabase(CustomInstanceAdminRole adminRole)
+        {
+            ThrowIf.ArgumentNull(adminRole, nameof(adminRole));
+
+            int rowsDeleted = DatabaseHelper.ExecuteDeleteSqlQuery(INSTANCE_ADMIN_ROLES_TABLE,
+                whereColumnName: "Id",
+                whereValue: adminRole.Id.ToStringInvariant());
+
+            if (rowsDeleted > 0)
+            {
+                CustomInstanceAdminRoles.RemoveAll(r => r.Id == adminRole.Id);
+            }
+
+            return rowsDeleted;
         }
 
         /// <summary>
@@ -468,5 +525,51 @@ namespace Helper
         }
 
         #endregion User Management
+
+        #region Members inherited from IDisposable
+
+        private bool _isDisposed = false;
+
+        /// <summary>
+        /// Disposes this object and all disposable objects owned by this object.
+        /// </summary>
+        /// <param name="disposing">Pass true if explicitly called, or false if called from the destructor.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            Logger.WriteTrace("{0}.{1} called.", nameof(AdminStoreHelper), nameof(AdminStoreHelper.Dispose));
+
+            if (_isDisposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                if (CustomInstanceAdminRoles != null)
+                {
+                    Logger.WriteDebug("Deleting all custom Admin Roles created by this AdminStoreHelper instance...");
+
+                    foreach (var role in CustomInstanceAdminRoles.ToArray())
+                    {
+                        DeleteInstanceAdminRoleFromDatabase(role);
+                    }
+                }
+            }
+
+            _isDisposed = true;
+
+            Logger.WriteTrace("{0}.{1} finished.", nameof(AdminStoreHelper), nameof(AdminStoreHelper.Dispose));
+        }
+
+        /// <summary>
+        /// Disposes this object and all disposable objects owned by this object.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion Members inherited from IDisposable
     }
 }

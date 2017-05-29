@@ -95,7 +95,7 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(Dictionary<string, string>))]
         public async Task<IHttpActionResult> GetApplicationSettings()
         {
-            var settings = (await _applicationSettingsRepository.GetSettingsAsync()).Where(it => !it.Restricted).ToDictionary(it => it.Key, it => it.Value);
+            var settings = (await _applicationSettingsRepository.GetSettingsAsync(true)).ToDictionary(it => it.Key, it => it.Value);
             return Ok(settings);
         }
 
@@ -139,7 +139,7 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(string))]
         public async Task<IHttpActionResult> GetConfig()
         {
-            var settings = (await _applicationSettingsRepository.GetSettingsAsync()).Where(it => !it.Restricted).ToDictionary(it => it.Key, it => it.Value);
+            var settings = (await _applicationSettingsRepository.GetSettingsAsync(true)).ToDictionary(it => it.Key, it => it.Value);
 
             var script = "(function (window) {\n" +
                 "    if (!window.config) {\n" +

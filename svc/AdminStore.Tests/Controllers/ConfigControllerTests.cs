@@ -238,13 +238,13 @@ namespace AdminStore.Controllers
             if (appSettings == null)
             {
                 appSettingsRepo
-                    .Setup(it => it.GetSettingsAsync())
+                    .Setup(it => it.GetSettingsAsync(false))
                     .Throws(new ApplicationException());
             }
             else
             {
                 appSettingsRepo
-                    .Setup(it => it.GetSettingsAsync())
+                    .Setup(it => it.GetSettingsAsync(false))
                     .ReturnsAsync(appSettings.Select(i => new ApplicationSetting {Key = i.Key, Value = i.Value}));
             }
 

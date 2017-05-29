@@ -46,15 +46,17 @@ namespace ArtifactStore.Repositories.Workflow
                     {"userId", 1},
                     {"itemId", 1}
               },
-              new List<ArtifactBasicDetails> { new ArtifactBasicDetails() });
+              new List<ArtifactBasicDetails> { new ArtifactBasicDetails() { PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor} });
             // Act
             await repository.GetTransitions(1, 1, 1, 1);
         }
+
         [TestMethod]
-        public async Task GetTransitions_WithReadPermissions_SuccessfullyReads()
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task GetTransitions_IncorrectArtifactType_ThrowsException()
         {
             // Arrange
-            var permissionsRepository = CreatePermissionsRepositoryMock(new[] { 1 }, 1, RolePermissions.Read);
+            var permissionsRepository = CreatePermissionsRepositoryMock(new[] { 1 }, 1, RolePermissions.None);
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object);
             cxn.SetupQueryAsync("GetArtifactBasicDetails",
@@ -63,26 +65,63 @@ namespace ArtifactStore.Repositories.Workflow
                     {"userId", 1},
                     {"itemId", 1}
               },
-              new List<ArtifactBasicDetails>() { new ArtifactBasicDetails() });
-            const int transitionId = 5;
+              new List<ArtifactBasicDetails> { new ArtifactBasicDetails() { PrimitiveItemTypePredefined = (int)ItemTypePredefined.Project } });
+            // Act
+            await repository.GetTransitions(1, 1, 1, 1);
+        }
+
+        [TestMethod]
+        public async Task GetTransitions_WithEditPermissions_SuccessfullyReads()
+        {
+            // Arrange
+            var permissionsRepository = CreatePermissionsRepositoryMock(new[] { 1 }, 1, RolePermissions.Edit);
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object);
+            cxn.SetupQueryAsync("GetArtifactBasicDetails",
+              new Dictionary<string, object>
+              {
+                    {"userId", 1},
+                    {"itemId", 1}
+              },
+              new List<ArtifactBasicDetails> { new ArtifactBasicDetails { PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor } });
             cxn.SetupQueryAsync("GetAvailableTransitions",
              new Dictionary<string, object>
              {
-                    {"artifactId", 1},
-                    {"userId", 1}
+                 {"workflowId", 1},
+                 { "stateId", 1 },
+                 {"userId", 1}
              },
-             new List<WorkflowTransition>
+             new List<Transition>
              {
-                 new WorkflowTransition
+                 new Transition
                  {
-                     TransitionId = transitionId
+                    TriggerId = 1,
+                    StateId = 2,
+                    StateName = "A",
+                    CurrentStateId = 1,
+                    TriggerName = "TA"
+                 },
+                 new Transition
+                 {
+                    TriggerId = 2,
+                    StateId = 3,
+                    StateName = "B",
+                    CurrentStateId = 1,
+                    TriggerName = "TB"
+                 },
+                 new Transition
+                 {
+                    TriggerId = 3,
+                    StateId = 4,
+                    StateName = "C",
+                    CurrentStateId = 1,
+                    TriggerName = "TC"
                  }
              });
             // Act
             var result = (await repository.GetTransitions(1, 1, 1, 1));
 
-            Assert.IsTrue(result.Total > 0);
-            Assert.IsTrue(result.Items.First().TransitionId == transitionId);
+            Assert.IsTrue(result.Total == 3, "Transitions could not be retrieved");
         }
         #endregion
 

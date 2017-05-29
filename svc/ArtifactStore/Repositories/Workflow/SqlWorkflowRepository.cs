@@ -127,13 +127,21 @@ namespace ArtifactStore.Repositories.Workflow
             param.Add("@stateId", stateId);
             param.Add("@userId", userId);
 
-            var workflowTransitions = (await ConnectionWrapper.QueryAsync<dynamic>("GetAvailableTransitions", param, commandType: CommandType.StoredProcedure)).Select(workflowTransition => new WorkflowTransition
+            var workflowTransitions = (await ConnectionWrapper.QueryAsync<Transition>("GetAvailableTransitions", param, commandType: CommandType.StoredProcedure)).Select(wt => new WorkflowTransition
             {
-                TransitionId = workflowTransition.TriggerId,
-                WorkflowToStateId = workflowTransition.StateId,
-                WorkflowToStateName = workflowTransition.StateName,
-                WorkflowFromStateId = workflowTransition.CurrentStateId,
-                TransitionName = workflowTransition.TriggerName,
+                TransitionId = wt.TriggerId,
+                ToState = new WorkflowState
+                {
+                    WorkflowId = workflowId,
+                    StateId = wt.StateId,
+                    StateName = wt.StateName
+                },
+                FromState = new WorkflowState
+                {
+                    WorkflowId = workflowId,
+                    StateId = wt.CurrentStateId
+                },
+                TransitionName = wt.TriggerName,
                 WorkflowId = workflowId
             }).ToList();
             

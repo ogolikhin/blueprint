@@ -11,7 +11,7 @@ namespace ArtifactStore.Controllers
 {
     [ApiControllerJsonConfig]
     [BaseExceptionFilter]
-    public class WorkflowController : SessionRequiredLoggableApiController
+    public class WorkflowController : LoggableApiController
     {
         internal readonly ISqlWorkflowRepository WorkflowRepository;
 
@@ -48,7 +48,8 @@ namespace ArtifactStore.Controllers
             {
                 throw new BadRequestException("Please provide valid workflow id and state id");
             }
-            return Ok(await WorkflowRepository.GetTransitions(CurrentSession.UserId, artifactId, workflowId, stateId));
+            //We assume that Session always exist as we have SessionRequired attribute
+            return Ok(await WorkflowRepository.GetTransitions(Session.UserId, artifactId, workflowId, stateId));
         }
 
         /// <summary>
@@ -65,7 +66,8 @@ namespace ArtifactStore.Controllers
         [ResponseType(typeof(WorkflowState))]
         public async Task<IHttpActionResult> GetCurrentStateAsync(int artifactId, int? revisionId = null, bool addDrafts = true)
         {
-            return Ok(await WorkflowRepository.GetCurrentState(CurrentSession.UserId, artifactId, revisionId ?? int.MaxValue, addDrafts));
+            //We assume that Session always exist as we have SessionRequired attribute
+            return Ok(await WorkflowRepository.GetCurrentState(Session.UserId, artifactId, revisionId ?? int.MaxValue, addDrafts));
         }
     }
 }

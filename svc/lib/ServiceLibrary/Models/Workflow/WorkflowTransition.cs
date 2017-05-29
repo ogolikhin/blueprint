@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace ServiceLibrary.Models.Workflow
 {
@@ -7,27 +6,23 @@ namespace ServiceLibrary.Models.Workflow
     {
         public int WorkflowId { get; set; }
 
-        [Required]
         public int TransitionId { get; set; }
 
-        [Required]
         public string TransitionName { get; set; }
 
-        [Required]
-        public int WorkflowFromStateId { get; set; }
-
-        [Required]
-        public int WorkflowToStateId { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public WorkflowState FromState { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        [MinLength(WorkflowConstants.MinNameLength)]
-        [MaxLength(WorkflowConstants.MaxNameLength)]
-        public string WorkflowFromStateName { get; set; }
+        public WorkflowState ToState { get; set; }
+    }
 
-        [Required]
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        [MinLength(WorkflowConstants.MinNameLength)]
-        [MaxLength(WorkflowConstants.MaxNameLength)]
-        public string WorkflowToStateName { get; set; }
+    public class Transition
+    {
+        public int TriggerId { get; set; }
+        public int StateId { get; set; }
+        public string StateName { get; set; }
+        public int CurrentStateId { get; set; }
+        public string TriggerName { get; set; }
     }
 }

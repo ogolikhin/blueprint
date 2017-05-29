@@ -1,5 +1,4 @@
 ﻿using ServiceLibrary.Helpers;
-using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
 
 namespace ServiceLibrary.Controllers
@@ -18,10 +17,5 @@ namespace ServiceLibrary.Controllers
         public IServiceLogRepository Log { get; }
 
         public abstract string LogSource { get; }
-    }
-
-    public abstract class SessionRequiredLoggableApiController : LoggableApiController
-    {
-        public Session CurrentSession => Request.Properties[ServiceConstants.SessionProperty] as Session;
     }
 }

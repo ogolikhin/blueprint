@@ -69,13 +69,7 @@ namespace Model.ArtifactModel
 
         #endregion Serialized JSON Properties
     }
-    
-    public interface INovaArtifactResponse : INovaArtifactDetails
-    {
-        // TODO: Remove this interface and use INovaArtifactDetails instead.
-        // I'm just doing this for now because it's referenced in over 160 places!
-    }
-    
+   
     public interface INovaProject
     {
         #region Serialized JSON Properties
@@ -94,7 +88,7 @@ namespace Model.ArtifactModel
     {
         #region Serialized JSON Properties
 
-        List<INovaArtifactResponse> Artifacts { get; }
+        List<INovaArtifactDetails> Artifacts { get; }
         List<INovaProject> Projects { get; }
 
         #endregion Serialized JSON Properties

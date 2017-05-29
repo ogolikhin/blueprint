@@ -111,10 +111,10 @@ namespace ArtifactStore.Controllers
         /// <summary>
         /// Gets review artifacts in a hierachy list for given review, offset and limit, also returns total count.
         /// </summary>
-        /// <param name="containerId"></param>
-        /// <param name="revisionId"></param>
-        /// <param name="offset"></param>
-        /// <param name="limit"></param>
+        /// <param name="containerId">Review artifact Id</param>
+        /// <param name="revisionId">Revision Id</param>
+        /// <param name="offset">Offset</param>
+        /// <param name="limit">Page size</param>
         /// <returns></returns>
         /// <response code="200">OK.</response>
         /// <response code="400">Bad Request.</response>

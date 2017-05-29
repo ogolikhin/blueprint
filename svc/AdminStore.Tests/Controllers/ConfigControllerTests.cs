@@ -238,14 +238,14 @@ namespace AdminStore.Controllers
             if (appSettings == null)
             {
                 appSettingsRepo
-                    .Setup(it => it.GetSettingsAsync(false))
+                    .Setup(it => it.GetSettingsAsync(true))
                     .Throws(new ApplicationException());
             }
             else
             {
                 appSettingsRepo
-                    .Setup(it => it.GetSettingsAsync(false))
-                    .ReturnsAsync(appSettings.Select(i => new ApplicationSetting {Key = i.Key, Value = i.Value}));
+                    .Setup(it => it.GetSettingsAsync(true))
+                    .ReturnsAsync(appSettings.Select(i => new ApplicationSetting {Key = i.Key, Value = i.Value, Restricted = true}));
             }
 
             var logMock = new Mock<IServiceLogRepository>();

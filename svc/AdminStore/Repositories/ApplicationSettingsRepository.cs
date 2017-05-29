@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AdminStore.Models;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Helpers;
+using Dapper;
 
 namespace AdminStore.Repositories
 {
@@ -23,9 +24,11 @@ namespace AdminStore.Repositories
             _connectionWrapper = connectionWrapper;
         }
 
-        public virtual async Task<IEnumerable<ApplicationSetting>> GetSettingsAsync()
+        public virtual async Task<IEnumerable<ApplicationSetting>> GetSettingsAsync(bool returnNonRestrictedOnly)
         {
-            var settings = (await _connectionWrapper.QueryAsync<ApplicationSetting>("GetApplicationSettings", null, commandType: CommandType.StoredProcedure)).ToList();
+            var prm = new DynamicParameters();
+            prm.Add("@returnNonRestrictedOnly", returnNonRestrictedOnly);
+            var settings = (await _connectionWrapper.QueryAsync<ApplicationSetting>("GetApplicationSettings", prm, commandType: CommandType.StoredProcedure)).ToList();
 
             settings.Add
             (
@@ -41,7 +44,7 @@ namespace AdminStore.Repositories
 
         public async Task<T> GetValue<T>(string key, T defaultValue)
         {
-            var applicationSettings = await GetSettingsAsync();
+            var applicationSettings = await GetSettingsAsync(false);
 
             var matchingSetting = applicationSettings.FirstOrDefault(s => s.Key == key);
             if (matchingSetting == null)

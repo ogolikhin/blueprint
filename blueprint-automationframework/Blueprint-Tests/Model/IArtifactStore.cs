@@ -687,6 +687,16 @@ namespace Model
         ArtifactReviewContent GetArtifactStatusesByParticipant(IUser user, int artifactId, int reviewId,
             int? offset = 0, int? limit = 50, int? versionId = null);
 
+        /// <summary>
+        /// Adds artifacts and/or collections to the Review. Runs POST containers/{reviewId}/content"
+        /// </summary>
+        /// <param name="user">user to perform the operation.</param>
+        /// <param name="reviewId">Id of Review</param>
+        /// <param name="content">Object containing List of id of artifacts to add and boolean parameter -
+        /// should add children.</param>
+        /// <returns>Result of adding.</returns>
+        AddArtifactsResult AddArtifactsToReview(IUser user, int reviewId, AddArtifactsParameter content);
+
         #region Process methods
 
         /// <summary>

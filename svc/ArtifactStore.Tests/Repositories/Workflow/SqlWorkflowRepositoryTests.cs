@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
 
@@ -122,6 +124,79 @@ namespace ArtifactStore.Repositories.Workflow
             var result = (await repository.GetTransitions(1, 1, 1, 1));
 
             Assert.IsTrue(result.Total == 3, "Transitions could not be retrieved");
+        }
+        #endregion
+
+        #region GetCurrentState
+
+        [TestMethod]
+        public async Task GetCurrentState_WithEditPermissions_SuccessfullyReads()
+        {
+            // Arrange
+            var permissionsRepository = CreatePermissionsRepositoryMock(new[] { 1 }, 1, RolePermissions.Edit | RolePermissions.Read);
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object);
+            cxn.SetupQueryAsync("GetArtifactBasicDetails",
+              new Dictionary<string, object>
+              {
+                    {"userId", 1},
+                    {"itemId", 1}
+              },
+              new List<ArtifactBasicDetails> { new ArtifactBasicDetails { PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor } });
+            cxn.SetupQueryAsync("GetCurrentWorkflowState",
+             new Dictionary<string, object>
+             {
+                 {"userId", 1},
+                 {"artifactId", 1 },
+                 {"revisionId", 2147483647},
+                 {"addDrafts", true}
+            },
+             new List<WorkFlowStateDb>
+             {
+                 new WorkFlowStateDb
+                 {
+                    WorkflowStateId = 1,
+                    WorkflowStateName = "A",
+                    WorkflowId = 1
+                 }
+             });
+            
+            // Act
+            var result = (await repository.GetCurrentState(1, 1));
+            
+            Assert.IsTrue(result.ResultCode == QueryResultCode.Success, "Result is not success");
+            Assert.IsTrue(result.Item != null, "Workflow State is null");
+        }
+        [TestMethod]
+        public async Task GetCurrentState_StoredProcedureReturnsNull_ReturnsFailureResult()
+        {
+            // Arrange
+            var permissionsRepository = CreatePermissionsRepositoryMock(new[] { 1 }, 1, RolePermissions.Edit | RolePermissions.Read);
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object);
+            cxn.SetupQueryAsync("GetArtifactBasicDetails",
+              new Dictionary<string, object>
+              {
+                    {"userId", 1},
+                    {"itemId", 1}
+              },
+              new List<ArtifactBasicDetails> { new ArtifactBasicDetails { PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor } });
+            cxn.SetupQueryAsync("GetCurrentWorkflowState",
+             new Dictionary<string, object>
+             {
+                 {"userId", 1},
+                 {"artifactId", 1 },
+                 {"revisionId", 2147483647},
+                 {"addDrafts", true}
+            },
+             new List<WorkFlowStateDb>());
+
+            // Act
+            var result = (await repository.GetCurrentState(1, 1));
+            
+            Assert.IsTrue(result.ResultCode == QueryResultCode.Failure, "Result is success");
+            Assert.IsFalse(String.IsNullOrEmpty(result.Message), "Error message is null");
+            Assert.IsTrue(result.Item == null, "Workflow State is not null");
         }
         #endregion
 

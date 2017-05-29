@@ -17,4 +17,11 @@ namespace ServiceLibrary.Models.Workflow
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public bool? IsDefault { get; set; }
     }
+
+    public class WorkFlowStateDb
+    {
+        public int WorkflowId { get; set; }
+        public string WorkflowStateName { get; set; }
+        public int WorkflowStateId { get; set; }
+    }
 }

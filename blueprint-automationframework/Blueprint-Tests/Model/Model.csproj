@@ -109,6 +109,8 @@
     <Compile Include="NovaModel\Components\ImpactAnalysisService\ImpactAnalysisNode.cs" />
     <Compile Include="NovaModel\Components\ImpactAnalysisService\ImpactAnalysisResult.cs" />
     <Compile Include="NovaModel\Components\ImpactAnalysisService\ImpactAnalysisTree.cs" />
+    <Compile Include="NovaModel\Reviews\AddArtifactsParameter.cs" />
+    <Compile Include="NovaModel\Reviews\AddArtifactsResult.cs" />
     <Compile Include="NovaModel\Reviews\ReviewArtifactDetails.cs" />
     <Compile Include="NovaModel\Reviews\Enums\ReviewerRole.cs" />
     <Compile Include="NovaModel\Reviews\Enums\ReviewPackageStatus.cs" />

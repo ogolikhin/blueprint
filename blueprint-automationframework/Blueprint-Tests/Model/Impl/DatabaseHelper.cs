@@ -85,6 +85,44 @@ namespace Model.Impl
         }
 
         /// <summary>
+        /// Executes a SQL DELETE command and returns the number of rows deleted.
+        /// </summary>
+        /// <param name="tableName">The name of the table to delete from.</param>
+        /// <param name="whereColumnName">The name of the column to use to filter which rows to delete (used in the WHERE clause).</param>
+        /// <param name="whereValue">The value to use to filter which rows to delete (used in the WHERE clause).</param>
+        /// <param name="databaseName">(optional) The database to run the delete against.</param>
+        /// <returns>The number of rows deleted.</returns>
+        public static int ExecuteDeleteSqlQuery(
+            string tableName,
+            string whereColumnName,
+            string whereValue,
+            string databaseName = "Blueprint")
+        {
+            var query = I18NHelper.FormatInvariant("DELETE FROM {0} WHERE {1}='{2}'",
+                    tableName, whereColumnName, whereValue);
+
+            using (var database = DatabaseFactory.CreateDatabase(databaseName))
+            {
+                database.Open();
+
+                Logger.WriteDebug("Running: {0}", query);
+
+                using (var cmd = database.CreateSqlCommand(query))
+                {
+                    int rowsAffected = cmd.ExecuteNonQuery();
+
+                    if (rowsAffected <= 0)
+                    {
+                        string msg = I18NHelper.FormatInvariant("No rows were affected when running: {0}", query);
+                        Logger.WriteError(msg);
+                    }
+
+                    return rowsAffected;
+                }
+            }
+        }
+
+        /// <summary>
         /// Executes a SQL INSERT command and returns the Id of the inserted row.
         /// </summary>
         /// <param name="tableName">The name of the table to insert into.</param>

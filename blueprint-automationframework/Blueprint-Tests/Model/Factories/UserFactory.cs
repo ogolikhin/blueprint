@@ -116,7 +116,7 @@ namespace Model.Factories
         /// <param name="password">The password.</param>
         /// <param name="source">(optional) Where the user exists.</param>
         /// <param name="displayname">(optional) The displayname. FirstName and LastName are used by default.</param>
-        /// <param name="licenseType">(optional) The license type of the user (Author, Collaborator, Viewer).</param>
+        /// <param name="licenseLevel">(optional) The license level of the user (Author, Collaborator, Viewer).</param>
         /// <returns>A new user object.</returns>
         public static IUser CreateUserOnly(
             string username, 

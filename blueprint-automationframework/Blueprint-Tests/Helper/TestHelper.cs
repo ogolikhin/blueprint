@@ -1872,9 +1872,12 @@ namespace Helper
         {
             var ids = InstanceUsers.Where(u => u.Id != null).Select(u => u.Id.Value).ToList();
 
-            AdminStore.DeleteUsers(adminUser, ids);
+            if (ids.Any())
+            {
+                AdminStore.DeleteUsers(adminUser, ids);
 
-            InstanceUsers.RemoveAll(user => user.Id != null && ids.Contains(user.Id.Value));
+                InstanceUsers.RemoveAll(user => user.Id != null && ids.Contains(user.Id.Value));
+            }
         }
 
         /// <summary>

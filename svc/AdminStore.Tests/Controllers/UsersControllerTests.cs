@@ -426,7 +426,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(tokenList);
             IEnumerable<ApplicationSetting> applicationSettings = new List<ApplicationSetting> { new ApplicationSetting() { Key = "PasswordResetTokenExpirationInHours", Value = "40" } };
             _applicationSettingsRepository
-                .Setup(repo => repo.GetSettingsAsync())
+                .Setup(repo => repo.GetSettingsAsync(false))
                 .ReturnsAsync(applicationSettings);
 
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace ArtifactStore.Models.Review
 {
@@ -6,7 +7,12 @@ namespace ArtifactStore.Models.Review
     {
         public ApprovalType ApprovalStatus { get; set; }
         public int Level { get; set; }
-        public bool InReview { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public bool Included { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public bool Viewed { get; set; }
 
     }
 

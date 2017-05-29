@@ -2,13 +2,15 @@
 using Helper;
 using Model;
 using Model.ArtifactModel.Impl.OperationsResults;
-using Model.NovaModel.Impl;
+using Model.Common.Enums;
 using Model.Factories;
 using Model.NovaModel.Reviews;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
 using TestConfig;
+using System.Collections.Generic;
+using Model.ArtifactModel.Enums;
 
 namespace ArtifactStoreTests
 {
@@ -19,12 +21,14 @@ namespace ArtifactStoreTests
         private IUser _adminUser = null;
         private IUser _user = null;
         private IProject _projectCustomData = null;
+        private IProject _project = null;
 
         [SetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            _project = ProjectFactory.GetProject(_adminUser);
         }
 
         [TearDown]
@@ -70,7 +74,7 @@ namespace ArtifactStoreTests
             string password = testConfig.Password;
 
             var sessionToken = Helper.AdminStore.AddSession(userName, password);
-            var admin = UserFactory.CreateUserOnly(userName, password);
+            var admin = UserFactory.CreateUserOnly(userName, password, InstanceAdminRole.DefaultInstanceAdministrator);
             admin.SetToken(sessionToken.SessionId);
 
             ReviewSummary reviewContainer = null;
@@ -140,6 +144,31 @@ namespace ArtifactStoreTests
 
             // Verify:
             Assert.AreEqual(1, reviewParticipants.Items.Count, "Specified artifact should have one reviewer.");
+        }
+
+        [Category(Categories.GoldenData)]
+        [TestCase]
+        [TestRail(304008)]
+        [Description("Adding Artifact to the Review by Artifact Id and Review Id from Custom Data project. Call should return expected number of added artifacts.")]
+        public void AddArtifactToReview_PublishedArtifact_CheckReturnedObject()
+        {
+            // Setup:
+            var artifactToAdd = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.Actor, _project.Id);
+            const int reviewId = 113; // TODO: when real server-side call will be implemented review should be replaced
+            // either with newly created one or with the copy of existing review
+
+            AddArtifactsParameter content = new AddArtifactsParameter();
+            content.ArtifactIds = new List<int> { artifactToAdd.Id };
+            content.AddChildren = false;
+
+            AddArtifactsResult addArtifactResult = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => addArtifactResult = Helper.ArtifactStore.AddArtifactsToReview(_adminUser, reviewId,
+                content), "AddArtifactsToReview should return 200 success.");
+
+            // Verify:
+            Assert.AreEqual(1, addArtifactResult.ArtifactCount, "Number of added artifacts should have expected value.");
         }
     }
 }

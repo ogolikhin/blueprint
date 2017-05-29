@@ -313,7 +313,7 @@ namespace Helper
         /// <param name="skipPublishedProperties">(optional) Pass true to skip comparison of properties that only published artifacts have.</param>
         /// <param name="skipPermissions">(optional) Pass true to skip comparison of the Permissions properties.</param>
         /// <param name="skipDescription">(optional) Pass true to skip comparison of the Description properties.</param>
-        /// <param name="skipForPublishResponse">(optional) Pass true to skip comparison with publish response.</param>
+        /// <param name="skipForPublishResponse">(optional) Pass true to skip comparison with artifact in response after publishing.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
         public static void AssertArtifactsEqual(INovaArtifactDetails artifact1, INovaArtifactDetails artifact2,
             bool skipIdAndVersion = false, bool skipParentId = false, bool skipOrderIndex = false, bool skipCreatedBy = false,

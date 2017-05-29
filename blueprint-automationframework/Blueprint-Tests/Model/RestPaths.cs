@@ -184,7 +184,6 @@ namespace Model
                     public const string INSTANCE_ROLES              = "svc/adminstore/users/instanceroles";
                     public const string LOGINUSER                   = "svc/adminstore/users/loginuser";
                     public const string RESET                       = "svc/adminstore/users/reset";
-                    public const string SEARCH                      = "svc/adminstore/users/search";
                     public const string USERS                       = "svc/adminstore/users";
                     public const string USERS_id_                   = "svc/adminstore/users/{0}";
                     public const string USERS_DELETE                = "svc/adminstore/users/delete";

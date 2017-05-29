@@ -1,14 +1,17 @@
 ﻿using System;
-using Newtonsoft.Json;
 using System.Collections.Generic;
+using Newtonsoft.Json;
+using Model.NovaModel.Reviews.Enums;
 
-namespace Model.NovaModel.Impl
+namespace Model.NovaModel.Reviews
 {
-    // see blueprint/svc/ArtifactStore/Models/Review/ArtifactReviewDetails.cs
-    public class ArtifactReviewDetails
+    // see blueprint/svc/ArtifactStore/Models/Review/ReviewArtifactDetails.cs
+    public class ReviewArtifactDetails
     {
         public int UserId { get; set; }
-        
+
+        public ReviewParticipantRole Role { get; set; }
+
         public string DisplayName { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Include)]
@@ -21,7 +24,7 @@ namespace Model.NovaModel.Impl
 
     public class ArtifactReviewContent
     {
-        public List<ArtifactReviewDetails> Items { get; } = new List<ArtifactReviewDetails>();
+        public List<ReviewArtifactDetails> Items { get; } = new List<ReviewArtifactDetails>();
         public int Total { get; set; }
     }
 }

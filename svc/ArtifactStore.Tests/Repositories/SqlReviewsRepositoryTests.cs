@@ -44,14 +44,12 @@ namespace ArtifactStore.Repositories
             string reviewName = "My Review";
             string reviewDescription = "My Description";
             int userId = 2;
-            int revisionId = int.MaxValue;
             int baselineId = 3;
             int totalArtifacts = 8;
-            int reviewRevisionId = 999;
+            int revisionId = 999;
             var reviewStatus = ReviewStatus.Completed;
 
             _itemInfoRepositoryMock.Setup(i => i.GetItemDescription(reviewId, userId, true, int.MaxValue)).ReturnsAsync(reviewDescription);
-            _itemInfoRepositoryMock.Setup(i => i.GetRevisionIdFromBaselineId(baselineId, userId, false, int.MaxValue)).ReturnsAsync(reviewRevisionId);
             var reviewDetails = new ReviewSummaryDetails
             {
                 BaselineId = baselineId,
@@ -60,10 +58,11 @@ namespace ArtifactStore.Repositories
                 TotalArtifacts = totalArtifacts,
                 ReviewStatus = reviewStatus,
                 Approved = 5,
-                Disapproved = 3
+                Disapproved = 3,
+                RevisionId = revisionId
             };
 
-            var param = new Dictionary<string, object> { { "reviewId", reviewId }, { "userId", userId }, { "revisionId", revisionId } };
+            var param = new Dictionary<string, object> { { "reviewId", reviewId }, { "userId", userId } };
             _cxn.SetupQueryAsync("GetReviewDetails", param, Enumerable.Repeat(reviewDetails, 1));
 
             var reviewInfo = new VersionControlArtifactInfo
@@ -81,7 +80,7 @@ namespace ArtifactStore.Repositories
             _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(baselineId, null, userId)).ReturnsAsync(baselineInfo);
 
             //Act
-            var review = await _reviewsRepository.GetReviewContainerAsync(reviewId, userId);
+            var review = await _reviewsRepository.GetReviewSummary(reviewId, userId);
 
             //Assert
             _cxn.Verify();
@@ -91,7 +90,7 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(reviewStatus, review.Status);
             Assert.AreEqual(reviewName, review.Name);
             Assert.AreEqual(reviewDescription, review.Description);
-            Assert.AreEqual(reviewRevisionId, review.RevisionId);
+            Assert.AreEqual(revisionId, review.RevisionId);
             Assert.AreEqual(ReviewType.Formal, review.ReviewType);
             Assert.AreEqual(5, review.ArtifactsStatus.Approved);
             Assert.AreEqual(3, review.ArtifactsStatus.Disapproved);
@@ -114,7 +113,7 @@ namespace ArtifactStore.Repositories
             //Act
             try
             {
-                var review = await _reviewsRepository.GetReviewContainerAsync(reviewId, userId);
+                var review = await _reviewsRepository.GetReviewSummary(reviewId, userId);
             }
             catch (ResourceNotFoundException ex)
             {
@@ -138,7 +137,6 @@ namespace ArtifactStore.Repositories
             //Arange
             int reviewId = 1;
             int userId = 2;
-            int revisionId = int.MaxValue;
             var reviewInfo = new VersionControlArtifactInfo
             {
                 PredefinedType = ItemTypePredefined.ArtifactReviewPackage
@@ -152,14 +150,14 @@ namespace ArtifactStore.Repositories
                 TotalReviewers = 2
             };
 
-            var param = new Dictionary<string, object> { { "reviewId", reviewId }, { "userId", userId }, { "revisionId", revisionId } };
+            var param = new Dictionary<string, object> { { "reviewId", reviewId }, { "userId", userId } };
             _cxn.SetupQueryAsync("GetReviewDetails", param, Enumerable.Repeat(reviewDetails, 1));
 
             bool isExceptionThrown = false;
             //Act
             try
             {
-                var review = await _reviewsRepository.GetReviewContainerAsync(reviewId, userId);
+                var review = await _reviewsRepository.GetReviewSummary(reviewId, userId);
             }
             catch (AuthorizationException ex)
             {

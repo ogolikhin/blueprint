@@ -27,10 +27,4 @@ namespace ArtifactStore.Models.Review
         internal IEnumerable<ReviewArtifactStatus> ItemStatuses { get; set; }
         internal int NumUsers { get; set; }
     }
-
-    public class ReviewArtifactsContent
-    {
-        public IEnumerable<ReviewArtifact> Items { get; set; }
-        public int Total { get; set; }
-    }
 }

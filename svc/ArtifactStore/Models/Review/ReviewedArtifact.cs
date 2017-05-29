@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace ArtifactStore.Models.Review
 {
@@ -11,21 +10,19 @@ namespace ArtifactStore.Models.Review
 
         public ApprovalType ApprovalFlag { get; set; }
 
+        public int ArtifactVersion { get; set; }
+
+        public DateTime PublishedOnTimestamp { get; set; }
+
+        public string UserDisplayName { get; set; }
         /// <summary>
         /// Viewed artifact version
         /// </summary>
-        public int? ArtifactVersion { get; set; }
+        public int? ViewedArtifactVersion { get; set; }
 
         /// <summary>
         /// e-signed by UserId on that UTC date time
         /// </summary>
-        public DateTime? ESignedOn { get; set; }
-    }
-
-    public class ReviewArtifactsDataSet
-    {
-        public IEnumerable<ReviewedArtifact> Items { get; set; }
-
-        public int Total { get; set; }
+        public DateTime? SignedOnTimestamp { get; set; }
     }
 }

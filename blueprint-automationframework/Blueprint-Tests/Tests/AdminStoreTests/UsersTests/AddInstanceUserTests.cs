@@ -203,8 +203,8 @@ namespace AdminStoreTests.UsersTests
                 // Setup:
                 var adminRole = adminStoreHelper.AddInstanceAdminRoleToDatabase(InstanceAdminPrivileges.ManageUsers);
 
-                var userPermissionsToManageUsers = Helper.CreateUserAndAddToDatabase(adminRole);
-                Helper.AdminStore.AddSession(userPermissionsToManageUsers);
+                var userPermissionsToManageUsers = Helper.CreateUserAndAuthenticate(
+                    TestHelper.AuthenticationTokenTypes.AccessControlToken, adminRole);
 
                 // Execute:
                 var createdUser = Helper.CreateAndAddInstanceUser(userPermissionsToManageUsers);

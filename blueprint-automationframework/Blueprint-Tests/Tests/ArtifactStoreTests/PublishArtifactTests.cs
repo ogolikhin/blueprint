@@ -186,7 +186,10 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.AssertOnlyExpectedProjectWasReturned(publishResponse.Projects, _project);
             Assert.AreEqual(1, publishResponse.Artifacts.Count, "There should only be 1 published artifact returned!");
 
-            ArtifactStoreHelper.AssertNovaArtifactResponsePropertiesMatchWithArtifact(publishResponse.Artifacts.First(), artifact, expectedVersion: 1);
+            var returnedArtifact = publishResponse.Artifacts.First();
+            ArtifactStoreHelper.AssertNovaArtifactResponsePropertiesMatchWithArtifact(returnedArtifact, artifact, expectedVersion: 1);
+            ArtifactStoreHelper.AssertArtifactPropertiesEqualsNull(returnedArtifact,
+                new string[] { "CreatedBy", "CreatedOn", "Description", "LastEditedBy", "LastEditedOn" });
 
             var artifactHistoryAfter = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, author);
             Assert.AreEqual(1, artifactHistoryAfter[0].VersionId, "Version ID after publish should be 1!");
@@ -226,7 +229,11 @@ namespace ArtifactStoreTests
 
             ArtifactStoreHelper.AssertOnlyExpectedProjectWasReturned(publishResponse.Projects, _project);
             Assert.AreEqual(1, publishResponse.Artifacts.Count, "There should only be 1 published artifact returned!");
-            ArtifactStoreHelper.AssertNovaArtifactResponsePropertiesMatchWithArtifact(publishResponse.Artifacts.First(), artifactWithMultipleVersions.Artifact, expectedVersion);
+            var returnedArtifact = publishResponse.Artifacts.First();
+            ArtifactStoreHelper.AssertNovaArtifactResponsePropertiesMatchWithArtifact(publishResponse.Artifacts.First(), artifactWithMultipleVersions.Artifact,
+                expectedVersion);
+            ArtifactStoreHelper.AssertArtifactPropertiesEqualsNull(returnedArtifact,
+                new string[] { "CreatedBy",  "CreatedOn", "Description", "LastEditedBy", "LastEditedOn"});
 
             var artifactHistoryAfter = Helper.ArtifactStore.GetArtifactHistory(artifactWithMultipleVersions.Id, _user);
 

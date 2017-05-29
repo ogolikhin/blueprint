@@ -421,6 +421,23 @@ namespace Helper
         }
 
         /// <summary>
+        /// Asserts artifact properties equals to null
+        /// </summary>
+        /// <param name="artifact">The actual artifact which properties needed to be verified</param>
+        /// <param name="propertyNames">Array of property names to verify</param>
+        public static void AssertArtifactPropertiesEqualsNull(INovaArtifactDetails artifact, string[] propertyNames)
+        {
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            ThrowIf.ArgumentNull(propertyNames, nameof(propertyNames));
+
+            foreach (string propertyName in propertyNames)
+            {
+                Assert.IsNull(artifact.GetType().GetProperty(propertyName).GetValue(artifact), 
+                    I18NHelper.FormatInvariant("Property {0} should be null!", propertyName));
+            }
+        }
+
+        /// <summary>
         /// Asserts that both NovaSubArtifact objects are equal.
         /// </summary>
         /// <param name="expectedSubArtifact">The expected NovaSubArtifact.</param>

@@ -57,7 +57,10 @@ namespace ArtifactStoreTests
             // Verify:
             ArtifactStoreHelper.AssertOnlyExpectedProjectWasReturned(unpublishedChanges.Projects, _project);
             Assert.AreEqual(1, unpublishedChanges.Artifacts.Count, "There should be 1 artifact in the list of unpublished changes!");
-            ArtifactStoreHelper.AssertNovaArtifactResponsePropertiesMatchWithArtifact(unpublishedChanges.Artifacts.First(), artifact, expectedVersion: -1);
+
+            var returnedArtifact = unpublishedChanges.Artifacts.First();
+            ArtifactStoreHelper.AssertNovaArtifactResponsePropertiesMatchWithArtifact(returnedArtifact, artifact, expectedVersion: -1);
+            ArtifactStoreHelper.AssertArtifactPropertiesEqualsNull(returnedArtifact, new string[] { "CreatedOn", "Description", "LastEditedBy", "LastEditedOn" });
         }
 
         [TestCase(ItemTypePredefined.Process)]
@@ -74,15 +77,15 @@ namespace ArtifactStoreTests
             INovaArtifactsAndProjectsResponse unpublishedChanges = null;
 
             // Execute:
-            Assert.DoesNotThrow(() =>
-            {
-                unpublishedChanges = Helper.ArtifactStore.GetUnpublishedChanges(author);
-            }, "'GET {0}' should return 200 OK when called with a valid token!", SVC_PATH);
+            Assert.DoesNotThrow(() => unpublishedChanges = Helper.ArtifactStore.GetUnpublishedChanges(author),
+                "'GET {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
             // Verify:
             ArtifactStoreHelper.AssertOnlyExpectedProjectWasReturned(unpublishedChanges.Projects, _project);
             Assert.AreEqual(1, unpublishedChanges.Artifacts.Count, "There should be 1 artifact in the list of unpublished changes!");
-            ArtifactStoreHelper.AssertNovaArtifactResponsePropertiesMatchWithArtifact(unpublishedChanges.Artifacts.First(), artifact, expectedVersion: 1);
+            var returnedArtifact = unpublishedChanges.Artifacts.First();
+            ArtifactStoreHelper.AssertNovaArtifactResponsePropertiesMatchWithArtifact(returnedArtifact, artifact, expectedVersion: 1);
+            ArtifactStoreHelper.AssertArtifactPropertiesEqualsNull(returnedArtifact, new string[] { "CreatedOn", "Description", "LastEditedBy", "LastEditedOn" });
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -126,7 +129,9 @@ namespace ArtifactStoreTests
             // Verify:
             ArtifactStoreHelper.AssertOnlyExpectedProjectWasReturned(unpublishedChanges.Projects, _project);
             Assert.AreEqual(1, unpublishedChanges.Artifacts.Count, "There should be 1 artifact in the list of unpublished changes!");
-            ArtifactStoreHelper.AssertNovaArtifactResponsePropertiesMatchWithArtifact(unpublishedChanges.Artifacts.First(), artifact, expectedVersion: 1);
+            var returnedArtifact = unpublishedChanges.Artifacts.First();
+            ArtifactStoreHelper.AssertNovaArtifactResponsePropertiesMatchWithArtifact(returnedArtifact, artifact, expectedVersion: 1);
+            ArtifactStoreHelper.AssertArtifactPropertiesEqualsNull(returnedArtifact, new string[] { "CreatedOn", "Description", "LastEditedBy", "LastEditedOn" });
         }
 
         [TestCase(BaseArtifactType.Process)]

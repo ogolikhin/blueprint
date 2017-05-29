@@ -110,7 +110,7 @@ namespace AdminStoreTests.UsersTests
         [TestCase(LicenseLevel.Author)]
         [TestCase(LicenseLevel.Collaborator)]
         [Description("Create an instance user with a missing or invalid license level. Add the user. " +
-             "Verify that the user is created with Viewer license.")]
+                     "Verify that the user is created with Viewer license.")]
         [TestRail(303386)]
         public void AddInstanceUser_MissingOrInvalidLicenseLevel_UserCreatedWithViewerLicense(LicenseLevel? licenseLevel)
         {
@@ -263,7 +263,7 @@ namespace AdminStoreTests.UsersTests
 
         [TestCase]
         [Description("Create an instance user. Try to add the user without sending the user object. " +
-                    "Verify that 400 Bad Request is returned.")]
+                     "Verify that 400 Bad Request is returned.")]
         [TestRail(303654)]
         public void AddInstanceUser_UserMissing_400BadRequest()
         {
@@ -277,7 +277,7 @@ namespace AdminStoreTests.UsersTests
 
         [TestCase]
         [Description("Create and add an instance user. Try to add a second user with the same login. " +
-            "Verify that 400 Bad Request is returned.")]
+                     "Verify that 400 Bad Request is returned.")]
         [TestRail(303375)]
         public void AddInstanceUser_UserAlreadyExists_400BadRequest()
         {
@@ -410,7 +410,7 @@ namespace AdminStoreTests.UsersTests
         [TestCase((uint)1, Description = "Minimum 2 characters")]
         [TestCase((uint)256, Description = "Maximum 255 characters")]
         [Description("Create an instance user with an invalid display name. Try to add the user. " +
-             "Verify that 400 Bad Request is returned.")]
+                     "Verify that 400 Bad Request is returned.")]
         [TestRail(303564)]
         public void AddInstanceUser_InvalidDisplayName_400BadRequest(uint numCharacters)
         {
@@ -553,7 +553,7 @@ namespace AdminStoreTests.UsersTests
         [TestCase(InstanceAdminPrivileges.ManageUsersOnly)]
         [TestCase(InstanceAdminPrivileges.ViewUsers)]
         [Description("Create an instance user.  Try to add the user with another user that does not have " +
-                     "permission to view or manage users. Verify that 401 Unauthorized is returned.")]
+                     "permission to view or manage users. Verify that 403 Forbidden is returned.")]
         [TestRail(303374)]
         public void AddInstanceUser_NoPermissionsToManageUsers_403Forbidden(InstanceAdminPrivileges privilegeToRemove)
         {

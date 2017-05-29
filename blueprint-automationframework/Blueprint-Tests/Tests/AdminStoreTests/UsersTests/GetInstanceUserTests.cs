@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using CustomAttributes;
+﻿using CustomAttributes;
 using Helper;
 using Model;
 using Model.Common.Enums;
@@ -103,7 +102,7 @@ namespace AdminStoreTests.UsersTests
 
         [TestCase]
         [Description("Create and add an instance user.  Try to get the user with another user that has all permissions except " +
-                     "permission to view users. Verify that 401 Unauthorized is returned.")]
+                     "permission to view users. Verify that 403 Forbidden is returned.")]
         [TestRail(303452)]
         public void GetInstanceUser_NoPermissionsToGetUsers_403Forbidden()
         {

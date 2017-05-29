@@ -279,7 +279,7 @@ namespace AdminStoreTests.UsersTests
 
         [TestCase]
         [Description("Create and add several instance users.  Try to get the users with another user that has all permissions except " +
-                     "permission to view users. Verify that 401 Unauthorized is returned.")]
+                     "permission to view users. Verify that 403 Forbidden is returned.")]
         [TestRail(303746)]
         public void GetInstanceUsers_NoPermissionsToGetUsers_403Forbidden()
         {

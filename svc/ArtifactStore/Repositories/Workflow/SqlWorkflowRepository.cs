@@ -97,7 +97,7 @@ namespace ArtifactStore.Repositories.Workflow
             param.Add("@revisionId", revisionId);
             param.Add("@addDrafts", addDrafts);
             
-            var result = (await ConnectionWrapper.QueryAsync<dynamic>("GetCurrentWorkflowState", param, commandType: CommandType.StoredProcedure))
+            var result = (await ConnectionWrapper.QueryAsync<WorkFlowStateDb>("GetCurrentWorkflowState", param, commandType: CommandType.StoredProcedure))
                 .Select(workflowState => new WorkflowState
                 {
                     StateId = workflowState.WorkflowStateId,

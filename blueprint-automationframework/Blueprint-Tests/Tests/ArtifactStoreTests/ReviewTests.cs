@@ -153,7 +153,8 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifactToAdd = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.Actor, _project.Id);
-            const int reviewId = 113;
+            const int reviewId = 113; // TODO: when real server-side call will be implemented review should be replaced
+            // either with newly created one or with the copy of existing review
 
             AddArtifactsParameter content = new AddArtifactsParameter();
             content.ArtifactIds = new List<int> { artifactToAdd.Id };

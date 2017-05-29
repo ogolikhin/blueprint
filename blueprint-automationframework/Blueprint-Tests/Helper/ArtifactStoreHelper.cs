@@ -143,78 +143,17 @@ namespace Helper
         /// <param name="artifact">The artifact to compare against.</param>
         /// <param name="expectedVersion">The version expected in the NovaArtifactResponse.</param>
         public static void AssertNovaArtifactResponsePropertiesMatchWithArtifact(
-            INovaArtifactDetails novaArtifactResponse,
-            ArtifactWrapper artifact,
+            INovaArtifactDetails returnedArtifact,
+            INovaArtifactDetails artifact,
             int expectedVersion)
         {
-            ThrowIf.ArgumentNull(novaArtifactResponse, nameof(novaArtifactResponse));
-
-            AssertNovaArtifactResponsePropertiesMatchWithArtifactSkipVersion(novaArtifactResponse, artifact);
-            Assert.AreEqual(expectedVersion, novaArtifactResponse.Version, "The Version properties of the artifacts don't match!");
-        }
-
-        /// <summary>
-        /// Asserts that the properties of the Nova artifact response match with the specified artifact (but don't check the versions).
-        /// Some properties are expected to be null.
-        /// </summary>
-        /// <param name="returnedNovaArtifact">The artifact returned by the Nova call.</param>
-        /// <param name="artifact">The artifact to compare against.</param>
-        public static void AssertNovaArtifactResponsePropertiesMatchWithArtifactSkipVersion(
-            INovaArtifactDetails returnedNovaArtifact,
-            ArtifactWrapper artifact)
-        {
-            ThrowIf.ArgumentNull(returnedNovaArtifact, nameof(returnedNovaArtifact));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            ThrowIf.ArgumentNull(returnedArtifact, nameof(returnedArtifact));
 
-            Assert.AreEqual(artifact.Id, returnedNovaArtifact.Id, "The Id properties of the artifacts don't match!");
-            Assert.AreEqual(artifact.ItemTypeId, returnedNovaArtifact.ItemTypeId, "The ItemTypeId properties of the artifacts don't match!");
-            Assert.AreEqual(artifact.Name, returnedNovaArtifact.Name, "The Name properties of the artifacts don't match!");
-            Assert.AreEqual(artifact.ParentId, returnedNovaArtifact.ParentId, "The ParentId properties of the artifacts don't match!");
-            Assert.AreEqual(artifact.ProjectId, returnedNovaArtifact.ProjectId, "The ProjectId properties of the artifacts don't match!");
-
-            // These properties should always be null:
-            Assert.IsNull(returnedNovaArtifact.CreatedBy, "The CreatedBy property of the Nova artifact response should always be null!");
-            Assert.IsNull(returnedNovaArtifact.CreatedOn, "The CreatedOn property of the Nova artifact response should always be null!");
-            Assert.IsNull(returnedNovaArtifact.Description, "The Description property of the Nova artifact response should always be null!");
-            Assert.IsNull(returnedNovaArtifact.LastEditedBy, "The LastEditedBy property of the Nova artifact response should always be null!");
-            Assert.IsNull(returnedNovaArtifact.LastEditedOn, "The LastEditedOn property of the Nova artifact response should always be null!");
-
-            // OpenAPI doesn't have these properties, so they can't be compared:  OrderIndex, PredefinedType, Prefix
-        }
-
-        /// <summary>
-        /// Asserts that the properties of the Nova artifact response match with the specified artifact.
-        /// Some properties are expected to be null.
-        /// </summary>
-        /// <param name="returnedNovaArtifact">The artifact returned by the Nova call.</param>
-        /// <param name="artifact">The artifact to compare against.</param>
-        /// <param name="expectedVersion">(optional) The version expected in the NovaArtifactResponse.
-        ///     By default it compares the version of the NovaArtifactResponse with the artifact.</param>
-        public static void AssertNovaArtifactResponsePropertiesMatchWithArtifact(
-            INovaArtifactDetails returnedNovaArtifact,
-            INovaArtifactDetails artifact,
-            int? expectedVersion = null)
-        {
-            ThrowIf.ArgumentNull(returnedNovaArtifact, nameof(returnedNovaArtifact));
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
-
-            Assert.AreEqual(artifact.Id, returnedNovaArtifact.Id, "The {0} properties of the artifacts don't match!", nameof(artifact.Id));
-            Assert.AreEqual(artifact.ItemTypeIconId, returnedNovaArtifact.ItemTypeIconId, "The {0} properties of the artifacts don't match!", nameof(artifact.ItemTypeIconId));
-            Assert.AreEqual(artifact.ItemTypeId, returnedNovaArtifact.ItemTypeId, "The {0} properties of the artifacts don't match!", nameof(artifact.ItemTypeId));
-            Assert.AreEqual(artifact.Name, returnedNovaArtifact.Name, "The {0} properties of the artifacts don't match!", nameof(artifact.Name));
-            Assert.AreEqual(artifact.ParentId, returnedNovaArtifact.ParentId, "The {0} properties of the artifacts don't match!", nameof(artifact.ParentId));
-            Assert.AreEqual(artifact.OrderIndex, returnedNovaArtifact.OrderIndex, "The {0} properties of the artifacts don't match!", nameof(artifact.OrderIndex));
-            Assert.AreEqual(artifact.PredefinedType, returnedNovaArtifact.PredefinedType, "The {0} properties of the artifacts don't match!", nameof(artifact.PredefinedType));
-            Assert.AreEqual(artifact.Prefix, returnedNovaArtifact.Prefix, "The {0} properties of the artifacts don't match!", nameof(artifact.Prefix));
-            Assert.AreEqual(artifact.ProjectId, returnedNovaArtifact.ProjectId, "The {0} properties of the artifacts don't match!", nameof(artifact.ProjectId));
-            Assert.AreEqual(expectedVersion ?? artifact.Version, returnedNovaArtifact.Version, "The {0} properties of the artifacts don't match!", nameof(artifact.Version));
-
-            // These properties should always be null:
-            Assert.IsNull(returnedNovaArtifact.CreatedBy, "The {0} property of the Nova artifact response should always be null!", nameof(artifact.CreatedBy));
-            Assert.IsNull(returnedNovaArtifact.CreatedOn, "The {0} property of the Nova artifact response should always be null!", nameof(artifact.CreatedOn));
-            Assert.IsNull(returnedNovaArtifact.Description, "The {0} property of the Nova artifact response should always be null!", nameof(artifact.Description));
-            Assert.IsNull(returnedNovaArtifact.LastEditedBy, "The {0} property of the Nova artifact response should always be null!", nameof(artifact.LastEditedBy));
-            Assert.IsNull(returnedNovaArtifact.LastEditedOn, "The {0} property of the Nova artifact response should always be null!", nameof(artifact.LastEditedOn));
+            Assert.AreEqual(artifact.Id, returnedArtifact.Id, "The Id properties of the artifacts don't match!");
+            AssertArtifactsEqual(returnedArtifact, artifact, skipIdAndVersion: true, skipCreatedBy: true, skipPermissions: true, skipPublishedProperties: true,
+                skipForPublishResponse: true, skipDescription: true);
+            Assert.AreEqual(expectedVersion, returnedArtifact.Version, "The Version properties of the artifacts don't match!");
         }
 
         /// <summary>
@@ -236,15 +175,7 @@ namespace Helper
                 var novaArtifactResponse = artifactAndProjectResponse.Artifacts.Find(a => a.Id == artifact.Id);
                 Assert.NotNull(novaArtifactResponse, "Couldn't find artifact ID {0} in the list of artifacts!");
 
-                // The artifact doesn't have a version before it's published at least once, so we can't compare version of unpublished artifacts.
-                if (artifact.Version > 0)
-                {
-                    AssertNovaArtifactResponsePropertiesMatchWithArtifact(novaArtifactResponse, artifact, expectedVersion);
-                }
-                else
-                {
-                    AssertNovaArtifactResponsePropertiesMatchWithArtifactSkipVersion(novaArtifactResponse, artifact);
-                }
+                AssertNovaArtifactResponsePropertiesMatchWithArtifact(novaArtifactResponse, artifact, expectedVersion);
             }
         }
 
@@ -382,10 +313,11 @@ namespace Helper
         /// <param name="skipPublishedProperties">(optional) Pass true to skip comparison of properties that only published artifacts have.</param>
         /// <param name="skipPermissions">(optional) Pass true to skip comparison of the Permissions properties.</param>
         /// <param name="skipDescription">(optional) Pass true to skip comparison of the Description properties.</param>
+        /// <param name="skipForPublishResponse">(optional) Pass true to skip comparison with publish response.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
         public static void AssertArtifactsEqual(INovaArtifactDetails artifact1, INovaArtifactDetails artifact2,
             bool skipIdAndVersion = false, bool skipParentId = false, bool skipOrderIndex = false, bool skipCreatedBy = false,
-            bool skipPublishedProperties = false, bool skipPermissions = false, bool skipDescription = false)
+            bool skipPublishedProperties = false, bool skipPermissions = false, bool skipDescription = false, bool skipForPublishResponse = false)
         {
             ThrowIf.ArgumentNull(artifact1, nameof(artifact1));
             ThrowIf.ArgumentNull(artifact2, nameof(artifact2));
@@ -423,14 +355,17 @@ namespace Helper
 
             Assert.AreEqual(artifact1.Name, artifact2.Name, "The Name parameters don't match!");
             Assert.AreEqual(artifact1.ItemTypeId, artifact2.ItemTypeId, "The ItemTypeId parameters don't match!");
-            Assert.AreEqual(artifact1.ItemTypeVersionId, artifact2.ItemTypeVersionId, "The ItemTypeVersionId parameters don't match!");
             Assert.AreEqual(artifact1.PredefinedType, artifact2.PredefinedType, "The PredefinedType parameters don't match!");
             Assert.AreEqual(artifact1.Prefix, artifact2.Prefix, "The Prefix parameters don't match!");
             Assert.AreEqual(artifact1.ProjectId, artifact2.ProjectId, "The ProjectId parameters don't match!");
-            Assert.AreEqual(artifact1.LastSaveInvalid, artifact2.LastSaveInvalid, "The LastSaveInvalid parameters don't match!");
-
-            Assert.AreEqual(artifact1.CustomPropertyValues.Count, artifact2.CustomPropertyValues.Count, "The number of Custom Properties is different!");
-            Assert.AreEqual(artifact1.SpecificPropertyValues.Count, artifact2.SpecificPropertyValues.Count, "The number of Specific Property Values is different!");
+           
+            if (!skipForPublishResponse)
+            {
+                Assert.AreEqual(artifact1.ItemTypeVersionId, artifact2.ItemTypeVersionId, "The ItemTypeVersionId parameters don't match!");
+                Assert.AreEqual(artifact1.LastSaveInvalid, artifact2.LastSaveInvalid, "The LastSaveInvalid parameters don't match!");
+                Assert.AreEqual(artifact1.CustomPropertyValues.Count, artifact2.CustomPropertyValues.Count, "The number of Custom Properties is different!");
+                Assert.AreEqual(artifact1.SpecificPropertyValues.Count, artifact2.SpecificPropertyValues.Count, "The number of Specific Property Values is different!");
+            }
 
             // Now compare each property in CustomProperties & SpecificPropertyValues.
             foreach (var property in artifact1.CustomPropertyValues)

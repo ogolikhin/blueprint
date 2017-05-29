@@ -185,6 +185,7 @@ namespace ArtifactStoreTests
             // Verify:
             ArtifactStoreHelper.AssertOnlyExpectedProjectWasReturned(publishResponse.Projects, _project);
             Assert.AreEqual(1, publishResponse.Artifacts.Count, "There should only be 1 published artifact returned!");
+
             ArtifactStoreHelper.AssertNovaArtifactResponsePropertiesMatchWithArtifact(publishResponse.Artifacts.First(), artifact, expectedVersion: 1);
 
             var artifactHistoryAfter = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, author);

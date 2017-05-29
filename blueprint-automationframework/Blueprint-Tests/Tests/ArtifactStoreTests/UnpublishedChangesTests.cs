@@ -57,7 +57,7 @@ namespace ArtifactStoreTests
             // Verify:
             ArtifactStoreHelper.AssertOnlyExpectedProjectWasReturned(unpublishedChanges.Projects, _project);
             Assert.AreEqual(1, unpublishedChanges.Artifacts.Count, "There should be 1 artifact in the list of unpublished changes!");
-            ArtifactStoreHelper.AssertNovaArtifactResponsePropertiesMatchWithArtifactSkipVersion(unpublishedChanges.Artifacts.First(), artifact);
+            ArtifactStoreHelper.AssertNovaArtifactResponsePropertiesMatchWithArtifact(unpublishedChanges.Artifacts.First(), artifact, expectedVersion: -1);
         }
 
         [TestCase(ItemTypePredefined.Process)]
@@ -283,7 +283,7 @@ namespace ArtifactStoreTests
             // Verify:
             ArtifactStoreHelper.AssertOnlyExpectedProjectWasReturned(unpublishedChanges.Projects, _project);
             Assert.AreEqual(3, unpublishedChanges.Artifacts.Count, I18NHelper.FormatInvariant("There should be {0} artifacts in the list of unpublished changes!", numberOfArtifacts));
-            ArtifactStoreHelper.AssertArtifactsAndProjectsResponseContainsAllArtifactsInListAndHasExpectedVersion(unpublishedChanges, artifacts, expectedVersion: 1);
+            ArtifactStoreHelper.AssertArtifactsAndProjectsResponseContainsAllArtifactsInListAndHasExpectedVersion(unpublishedChanges, artifacts, expectedVersion: -1);
         }
 
         #endregion 200 OK tests

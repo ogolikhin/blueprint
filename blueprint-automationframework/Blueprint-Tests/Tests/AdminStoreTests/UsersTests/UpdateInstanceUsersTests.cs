@@ -156,6 +156,55 @@ namespace AdminStoreTests.UsersTests
             AdminStoreHelper.AssertAreEqual(createdUser, updatedUser);
         }
 
+        [TestCase("FirstName", "", Description = "FirstName is empty")]
+        [TestCase("FirstName", null, Description = "FirstName is null")]
+        [TestCase("LastName", "", Description = "LastName is empty")]
+        [TestCase("LastName", null, Description = "LastName is null")]
+        [TestCase("Title", "", Description = "Title is empty")]
+        [TestCase("Title", null, Description = "Title is null")]
+        [TestCase("Department", "", Description = "Department is empty")]
+        [TestCase("Department", null, Description = "Department is null")]
+        [TestCase("Email", "", Description = "Email is empty")]
+        [TestCase("Email", null, Description = "Email is null")]
+        [Description("Create and add a default instance user. Remove a property value by making it empty or null. Update the user. " +
+             "Verify that the user is updated.")]
+        [TestRail(303990)]
+        public void UpdateInstanceUser_RemoveTextPropertyThatCanBeEmptyOrNull_UserUpdatesCorrectly(string property, string propertyValue)
+        {
+            // Setup:
+            var createdUser = Helper.CreateAndAddInstanceUser(_adminUser);
+
+            if (property != null)
+            {
+                CSharpUtilities.SetProperty(property, propertyValue, createdUser);
+            }
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                Helper.AdminStore.UpdateUser(_adminUser, createdUser);
+            }, "'PUT {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
+
+            InstanceUser updatedUser = null;
+
+            Assert.DoesNotThrow(() =>
+            {
+                updatedUser = Helper.AdminStore.GetUserById(_adminUser, createdUser.Id);
+            }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
+
+            // Verify:
+            // Update Id and CurrentVersion in CreatedUser for comparison
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUser.Id);
+
+            // Missing or null user will always return an empty string for the property, so update here for comparison
+            CSharpUtilities.SetProperty(property, "", createdUser);
+
+            // Add LicenseType of Viewer to createdUser to verify that the addedUser returned with Viewer license
+            createdUser.LicenseType = LicenseLevel.Viewer;
+
+            AdminStoreHelper.AssertAreEqual(createdUser, updatedUser);
+        }
+
         [TestCase(InstanceAdminRole.AssignInstanceAdministrators)]
         [TestCase(InstanceAdminRole.DefaultInstanceAdministrator)]
         [TestCase(InstanceAdminRole.ProvisionUsers)]
@@ -541,20 +590,6 @@ namespace AdminStoreTests.UsersTests
                 InstanceAdminErrorMessages.FirstNameFieldLimitation);
         }
 
-        [TestCase("", Description = "FirstName is empty")]
-        [TestCase(null, Description = "FirstName is null")]
-        [Description("Create and add a default instance user.  Remove the first name. " +
-                     "Update the user. Verify that 400 Bad Request is returned.")]
-        [TestRail(303612)]
-        public void UpdateInstanceUser_MissingFirstName_400BadRequest(string firstName)
-        {
-            UpdateDefaultInstanceUserWithInvalidPropertyVerify400BadRequest(
-                _adminUser,
-                "FirstName",
-                firstName,
-                InstanceAdminErrorMessages.FirstNameRequired);
-        }
-
         [TestCase((uint)1, Description = "Minimum 2 characters")]
         [TestCase((uint)256, Description = "Maximum 255 characters")]
         [Description("Create and add a default instance user.  Modify the last name to an invalid value. " +
@@ -567,20 +602,6 @@ namespace AdminStoreTests.UsersTests
                 "LastName",
                 RandomGenerator.RandomAlphaNumericUpperAndLowerCase(numCharacters),
                 InstanceAdminErrorMessages.LastNameFieldLimitation);
-        }
-
-        [TestCase("", Description = "LastName is empty")]
-        [TestCase(null, Description = "LastName is null")]
-        [Description("Create and add a default instance user.  Remove the last name. " +
-                     "Update the user. Verify that 400 Bad Request is returned.")]
-        [TestRail(303613)]
-        public void UpdateInstanceUser_MissingLastName_400BadRequest(string lastName)
-        {
-            UpdateDefaultInstanceUserWithInvalidPropertyVerify400BadRequest(
-                _adminUser,
-                "LastName",
-                lastName,
-                InstanceAdminErrorMessages.LastNameRequired);
         }
 
         [TestCase((uint)256, Description = "Maximum 255 characters")]
@@ -740,7 +761,7 @@ namespace AdminStoreTests.UsersTests
 
         [TestCase(0)]
         [TestCase(-1)]
-        [Description("Create and add an instance user. Try to update the user with an incorrect Id. " +
+        [Description("Create and add an instance user. Try to update the user with an invalid Id. " +
              "Verify that 404 Not Found is returned.")]
         [TestRail(303656)]
         public void UpdateInstanceUser_InvalidUserId_404NotFound(int invalidId)
@@ -759,7 +780,7 @@ namespace AdminStoreTests.UsersTests
         [Description("Create an instance user. Try to update a non-existing user. " +
                      "Verify that 404 Not Found is returned.")]
         [TestRail(303422)]
-        public void UpdateInstanceUser_UserDoesntExist_404NotFound()
+        public void UpdateInstanceUser_UserDoesNotExist_404NotFound()
         {
             // Setup:
             var createdUser = Helper.CreateAndAddInstanceUser(_adminUser);
@@ -778,7 +799,7 @@ namespace AdminStoreTests.UsersTests
 
         [TestCase]
         [Description("Create and add an instance user. Delete the user. Try to update the deleted user. " +
-             "Verify that 404 Not Found is returned.")]
+                     "Verify that 404 Not Found is returned.")]
         [TestRail(303454)]
         public void UpdateInstanceUser_UserDeleted_404NotFound()
         {

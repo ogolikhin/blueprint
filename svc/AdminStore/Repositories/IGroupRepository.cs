@@ -10,7 +10,8 @@ namespace AdminStore.Repositories
         Task<QueryResult<GroupDto>> GetGroupsAsync(int userId, TabularData tabularData, Func<Sorting, string> sort = null);
         Task<int> DeleteGroupsAsync(OperationScope body, string search);
         Task<int> AddGroupAsync(GroupDto group);
-        Task<Group> GetGroupDetailsAsync(int groupId);
+        Task<GroupDto> GetGroupDetailsAsync(int groupId);
         Task UpdateGroupAsync(int groupId, GroupDto group);
+        Task<QueryResult<GroupUser>> GetGroupUsersAsync(int groupId, TabularData tabularData, Func<Sorting, string> sort = null);
     }
 }

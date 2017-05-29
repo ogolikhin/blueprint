@@ -2,6 +2,7 @@
 
 namespace Model.NovaModel.Reviews
 {
+    // see blueprint/svc/ArtifactStore/Models/Review/AddArtifactsResult.cs
     public class AddArtifactsResult
     {
         public int ArtifactCount { get; set; }

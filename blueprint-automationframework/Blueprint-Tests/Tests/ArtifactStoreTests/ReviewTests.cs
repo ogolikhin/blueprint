@@ -28,7 +28,6 @@ namespace ArtifactStoreTests
             Helper = new TestHelper();
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_adminUser);
-            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _adminUser);
         }
 
         [TearDown]
@@ -149,7 +148,7 @@ namespace ArtifactStoreTests
         [Category(Categories.GoldenData)]
         [TestCase]
         [TestRail(304008)]
-        [Description("Add Artifact approval statuses by Artifact Id and Review id from Custom Data project should return expected number of reviewers.")]
+        [Description("Adding Artifact to the Review by Artifact Id and Review Id from Custom Data project. Call should return expected number of added artifacts.")]
         public void AddArtifactToReview_PublishedArtifact_CheckReturnedObject()
         {
             // Setup:

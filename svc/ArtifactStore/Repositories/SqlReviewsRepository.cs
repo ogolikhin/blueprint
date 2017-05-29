@@ -1,13 +1,13 @@
-﻿using ArtifactStore.Models.Review;
+﻿using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Threading.Tasks;
+using ArtifactStore.Models.Review;
 using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ArtifactStore.Repositories
 {
@@ -145,18 +145,25 @@ namespace ArtifactStore.Repositories
                         reviewArtifact.Unviewed = numUsers;
                     }
                     reviewArtifact.HasAccess = true;
-                } else {
-                    reviewArtifact.Name = string.Empty;
-                    reviewArtifact.ItemTypeId = 0;
-                    reviewArtifact.Prefix = null;
+                }
+                else
+                {
+                    ClearReviewArtifactProperties(reviewArtifact);
                     reviewArtifact.IsApprovalRequired = false;
-                    reviewArtifact.HasComments = false;
-                    reviewArtifact.ItemTypePredefined = 0;
-                    reviewArtifact.IconImageId = null;
-                    reviewArtifact.HasAccess = false;
                 }
             }
             return reviewArtifacts;
+        }
+
+        private void ClearReviewArtifactProperties(BaseReviewArtifact reviewArtifact)
+        {
+            reviewArtifact.Name = string.Empty;
+            reviewArtifact.ItemTypeId = 0;
+            reviewArtifact.Prefix = null;
+            reviewArtifact.HasComments = false;
+            reviewArtifact.ItemTypePredefined = 0;
+            reviewArtifact.IconImageId = null;
+            reviewArtifact.HasAccess = false;
         }
 
         public Task<AddArtifactsResult> AddArtifactsToReview(int reviewId, int userId, AddArtifactsParameter content)
@@ -186,7 +193,7 @@ namespace ArtifactStore.Repositories
                 throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
             }
 
-            var reviewedArtifacts = (await GetReviewedArtifactsAsync(reviewArtifactIds, userId, reviewId, revisionId)).ToDictionary(k => k.Id);
+            var reviewedArtifacts = (await GetReviewArtifactsByParticipant(reviewArtifactIds, userId, reviewId, revisionId)).ToDictionary(k => k.Id);
             foreach (var artifact in reviewArtifacts.Items)
             {
                 ReviewedArtifact reviewedArtifact;
@@ -203,13 +210,18 @@ namespace ArtifactStore.Repositories
                     artifact.HasAttachments = reviewedArtifact.HasAttachments;
                     artifact.HasRelationships = reviewedArtifact.HasRelationships;
                     artifact.HasAttachments = reviewedArtifact.HasAttachments;
+                    artifact.HasAccess = true;
+                }
+                else
+                {
+                    ClearReviewArtifactProperties(artifact);
                 }
             }
 
             return reviewArtifacts;
         }
 
-        private Task<IEnumerable<ReviewedArtifact>> GetReviewedArtifactsAsync(IEnumerable<int> artifactIds, int userId, int reviewId, int revisionId)
+        private Task<IEnumerable<ReviewedArtifact>> GetReviewArtifactsByParticipant(IEnumerable<int> artifactIds, int userId, int reviewId, int revisionId)
         {
             var param = new DynamicParameters();
             param.Add("@itemIds", SqlConnectionWrapper.ToDataTable(artifactIds));

@@ -167,7 +167,7 @@ namespace AdminStoreTests
 
             using (var database = DatabaseFactory.CreateDatabase())
             {
-                string query = I18NHelper.FormatInvariant("SELECT TOP {0} * FROM [dbo].[ApplicationSettings]",
+                string query = I18NHelper.FormatInvariant("SELECT TOP {0} * FROM [dbo].[ApplicationSettings] WHERE Restricted=0",
                     numberOfRecords, LOCALE);
                 Logger.WriteDebug("Running: {0}", query);
 

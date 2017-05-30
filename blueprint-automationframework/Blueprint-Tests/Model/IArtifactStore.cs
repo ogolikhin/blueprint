@@ -702,7 +702,7 @@ namespace Model
         /// <param name="user">user to perform the operation.</param>
         /// <param name="reviewId">Id of Review.</param>
         /// <param name="offset">(optional) The offset for the pagination.</param>
-        /// <param name="limit">(optional) Maximum number of users to be returned.</param>
+        /// <param name="limit">(optional) Maximum number of artifacts to be returned.</param>
         /// <param name="revisionId">(optional)Id of revision.</param>
         /// <returns>Artifacts (Review experience) for the Review.</returns>
         QueryResult<ReviewedArtifact> GetReviewedArtifacts(IUser user, int reviewId, int? offset = 0,

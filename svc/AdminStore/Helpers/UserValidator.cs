@@ -30,19 +30,34 @@ namespace AdminStore.Helpers
                 throw new BadRequestException(ErrorMessages.DisplayNameRequired, ErrorCodes.BadRequest);
             }
 
-            if (user.DisplayName.Length < 2 || user.DisplayName.Length > 255)
+            if (user.DisplayName.Length < 1 || user.DisplayName.Length > 255)
             {
                 throw new BadRequestException(ErrorMessages.DisplayNameFieldLimitation, ErrorCodes.BadRequest);
             }
 
-            if ((!string.IsNullOrWhiteSpace(user.FirstName)) && (user.FirstName.Length < 2 || user.FirstName.Length > 255))
+            if (!string.IsNullOrEmpty(user.FirstName) && user.FirstName.Length > 0 && user.FirstName.Trim().Length == 0)
+            {
+                throw new BadRequestException(ErrorMessages.FirstNameWithoutWhiteSpace, ErrorCodes.BadRequest);
+            }
+
+            if ((!string.IsNullOrWhiteSpace(user.FirstName)) && (user.FirstName.Length < 1 || user.FirstName.Length > 255))
             {
                 throw new BadRequestException(ErrorMessages.FirstNameFieldLimitation, ErrorCodes.BadRequest);
             }
 
-            if (!string.IsNullOrWhiteSpace(user.LastName) && (user.LastName.Length < 2 || user.LastName.Length > 255))
+            if (!string.IsNullOrEmpty(user.LastName) && user.LastName.Length > 0 && user.LastName.Trim().Length == 0)
+            {
+                throw new BadRequestException(ErrorMessages.LastNameWithoutWhiteSpace, ErrorCodes.BadRequest);
+            }
+
+            if (!string.IsNullOrWhiteSpace(user.LastName) && (user.LastName.Length < 1 || user.LastName.Length > 255))
             {
                 throw new BadRequestException(ErrorMessages.LastNameFieldLimitation, ErrorCodes.BadRequest);
+            }
+
+            if (!string.IsNullOrEmpty(user.Email) && user.Email.Length > 0 && user.Email.Trim().Length == 0)
+            {
+                throw new BadRequestException(ErrorMessages.EmailWithoutWhiteSpace, ErrorCodes.BadRequest);
             }
 
             if (!string.IsNullOrWhiteSpace(user.Email))
@@ -59,9 +74,19 @@ namespace AdminStore.Helpers
                 }
             }
 
-            if (!string.IsNullOrWhiteSpace(user.Title) && (user.Title.Length < 2 || user.Title.Length > 255))
+            if (!string.IsNullOrEmpty(user.Title) && user.Title.Length > 0 && user.Title.Trim().Length == 0)
+            {
+                throw new BadRequestException(ErrorMessages.TitleWithoutWhiteSpace, ErrorCodes.BadRequest);
+            }
+
+            if (!string.IsNullOrWhiteSpace(user.Title) && (user.Title.Length < 1 || user.Title.Length > 255))
             {
                 throw new BadRequestException(ErrorMessages.TitleFieldLimitation, ErrorCodes.BadRequest);
+            }
+
+            if (!string.IsNullOrEmpty(user.Department) && user.Department.Length > 0 && user.Department.Trim().Length == 0)
+            {
+                throw new BadRequestException(ErrorMessages.DepartmentWithoutWhiteSpace, ErrorCodes.BadRequest);
             }
 
             if (!string.IsNullOrWhiteSpace(user.Department) && (user.Department.Length < 1 || user.Department.Length > 255))

@@ -4,7 +4,7 @@ namespace ServiceLibrary.Helpers
 {
     public class ExceptionHelper
     {
-        internal static void ThrowNotFoundException(int projectId, int? artifactId)
+        public static void ThrowNotFoundException(int projectId, int? artifactId)
         {
             var errorMessage = artifactId == null
                 ? I18NHelper.FormatInvariant("The project (Id:{0}) can no longer be accessed. It may have been deleted, or is no longer accessible by you.", projectId)
@@ -12,7 +12,7 @@ namespace ServiceLibrary.Helpers
             throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
         }
 
-        internal static void ThrowForbiddenException(int projectId, int? artifactId)
+        public static void ThrowForbiddenException(int projectId, int? artifactId)
         {
             if (artifactId.HasValue)
             {
@@ -23,9 +23,15 @@ namespace ServiceLibrary.Helpers
             throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
         }
 
-        internal static void ThrowArtifactNotFoundException(int artifactId)
+        public static void ThrowArtifactNotFoundException(int artifactId)
         {
             var errorMessage = I18NHelper.FormatInvariant("Artifact (Id:{0}) is not found.", artifactId);
+            throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
+        }
+
+        public static void ThrowStateNotFoundException(int artifactId)
+        {
+            var errorMessage = I18NHelper.FormatInvariant("No state association could be found for Artifact (Id:{0}).", artifactId);
             throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
         }
 
@@ -34,6 +40,13 @@ namespace ServiceLibrary.Helpers
             var errorMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).",
                                    artifactId);
             throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
+        }
+
+        public static void ThrowArtifactDoesNotSupportOperation(int artifactId)
+        {
+            var errorMessage = I18NHelper.FormatInvariant("Operation cannot be invoked on Artifact with (Id:{0}).",
+                                   artifactId);
+            throw new BadRequestException(errorMessage, ErrorCodes.BadRequest);
         }
     }
 }

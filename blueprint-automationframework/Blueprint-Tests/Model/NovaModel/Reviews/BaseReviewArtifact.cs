@@ -2,6 +2,7 @@
 
 namespace Model.NovaModel.Reviews
 {
+    // see blueprint/svc/ArtifactStore/Models/Review/BaseReviewArtifact.cs
     public class BaseReviewArtifact
     {
         public int Id { get; set; }

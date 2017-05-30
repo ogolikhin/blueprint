@@ -170,5 +170,32 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(1, addArtifactResult.ArtifactCount, "Number of added artifacts should have expected value.");
         }
+
+        [Category(Categories.GoldenData)]
+        [TestCase]
+        [TestRail(305010)]
+        [Description("Get Review Artifacts (Review Experience) by id from Custom Data project, check that number of artifacts has expected value.")]
+        public void GetReviewArtifacts_ExistingReview_Reviewer_CheckArtifactsCount()
+        {
+            // Setup:
+            const int reviewId = 112;
+
+            var testConfig = TestConfiguration.GetInstance();
+            string userName = testConfig.Username;
+            string password = testConfig.Password;
+
+            var sessionToken = Helper.AdminStore.AddSession(userName, password);
+            var admin = UserFactory.CreateUserOnly(userName, password);
+            admin.SetToken(sessionToken.SessionId);
+
+            QueryResult<ReviewedArtifact> reviewedArtifacts = null;
+
+            // Execute: 
+            Assert.DoesNotThrow(() => reviewedArtifacts = Helper.ArtifactStore.GetReviewedArtifacts(_adminUser, reviewId),
+                "{0} should throw no error.", nameof(Helper.ArtifactStore.GetReviewedArtifacts));
+
+            // Verify:
+            Assert.AreEqual(15, reviewedArtifacts.Items.ToList().Count, "TotalArtifacts should be equal to the expected number of artifacts in Review.");
+        }
     }
 }

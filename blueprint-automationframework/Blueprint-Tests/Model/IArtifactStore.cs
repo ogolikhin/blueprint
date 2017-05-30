@@ -642,7 +642,7 @@ namespace Model
         List<BaselineInfo> GetBaselineInfo(List<int> baselineIds, IUser user);
 
         /// <summary>
-        /// Gets Review Artifacts
+        /// Gets Review Artifacts. Runs GET containers/{0}/content .
         /// </summary>
         /// <param name="user">user to perform the operation. </param>
         /// <param name="reviewId">Id of Review.</param>
@@ -654,7 +654,7 @@ namespace Model
             int? versionId = null);
 
         /// <summary>
-        /// Gets review header information
+        /// Gets review header information. Runs GET containers/{0} .
         /// </summary>
         /// <param name="user">user to perform the operation.</param>
         /// <param name="reviewId">Id of Review.</param>
@@ -662,7 +662,7 @@ namespace Model
         ReviewSummary GetReviewContainer(IUser user, int reviewId);
 
         /// <summary>
-        /// Gets list of Reviewers and additional information.
+        /// Gets list of Reviewers and additional information. Runs GET containers/{0}/participants .
         /// </summary>
         /// <param name="user">user to perform the operation.</param>
         /// <param name="reviewId">Id of Review.</param>
@@ -674,7 +674,7 @@ namespace Model
             int? versionId = null);
 
         /// <summary>
-        /// Gets list of review statuses for the specified artifact of the review.
+        /// Gets list of review statuses for the specified artifact of the review. Runs GET containers/{0}/artifactreviewers .
         /// </summary>
         /// <param name="user">user to perform the operation.</param>
         /// <param name="artifactId">Id of Artifact.</param>
@@ -687,14 +687,26 @@ namespace Model
             int? offset = 0, int? limit = 50, int? versionId = null);
 
         /// <summary>
-        /// Adds artifacts and/or collections to the Review. Runs POST containers/{reviewId}/content"
+        /// Adds artifacts and/or collections to the Review. Runs POST containers/{reviewId}/content .
         /// </summary>
         /// <param name="user">user to perform the operation.</param>
-        /// <param name="reviewId">Id of Review</param>
+        /// <param name="reviewId">Id of Review.</param>
         /// <param name="content">Object containing List of id of artifacts to add and boolean parameter -
         /// should add children.</param>
         /// <returns>Result of adding.</returns>
         AddArtifactsResult AddArtifactsToReview(IUser user, int reviewId, AddArtifactsParameter content);
+
+        /// <summary>
+        /// Gets artifacts (Review experience) for the specified Review. Runs GET containers/{0}/artifacts .
+        /// </summary>
+        /// <param name="user">user to perform the operation.</param>
+        /// <param name="reviewId">Id of Review.</param>
+        /// <param name="offset">(optional) The offset for the pagination.</param>
+        /// <param name="limit">(optional) Maximum number of users to be returned.</param>
+        /// <param name="revisionId">(optional)Id of revision.</param>
+        /// <returns>Artifacts (Review experience) for the Review.</returns>
+        QueryResult<ReviewedArtifact> GetReviewedArtifacts(IUser user, int reviewId, int? offset = 0,
+            int? limit = 50, int? revisionId = int.MaxValue);
 
         #region Process methods
 

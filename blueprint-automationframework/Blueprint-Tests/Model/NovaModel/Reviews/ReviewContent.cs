@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json;
-
+﻿
 namespace Model.NovaModel.Reviews
 {
-    // see blueprint/svc/ArtifactStore/Models/Review/ReviewContent.cs
+    // see blueprint/svc/ArtifactStore/Models/Review/ReviewArtifactsResult.cs
+    /// <summary>
+    /// Artifact representation for Review Editor experience
+    /// </summary>
     public class ReviewArtifact : BaseReviewArtifact
     {
         public bool IsApprovalRequired { get; set; }

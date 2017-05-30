@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Mime;
+using System.Web;
 using Common;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
@@ -366,6 +369,34 @@ namespace Model.OpenApiModel.Services
             returnedArtifact.Address = baseAddress;
 
             return returnedArtifact;
+        }
+
+        /// <seealso cref="IOpenApi.GetArtifactImage(IUser, int, int)"/>
+        public IFile GetArtifactImage(IUser user, int projectId, int artifactId)
+        {
+            var restApi = new RestApiFacade(Address, user?.Token?.OpenApiToken);
+            var path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.Artifacts_id_.IMAGE, projectId, artifactId);
+            IFile file = null;
+
+            var response = restApi.SendRequestAndGetResponse(
+                path,
+                RestRequestMethod.GET);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                string filename = HttpUtility.UrlDecode(new ContentDisposition(
+                            response.Headers.First(h => h.Key == "Content-Disposition").Value.ToString()).FileName);
+
+                file = new File
+                {
+                    Content = response.RawBytes.ToArray(),
+                    LastModifiedDate = DateTime.Parse(response.Headers.First(h => h.Key == "Date").Value.ToString(), null),
+                    FileType = response.ContentType,
+                    FileName = filename
+                };
+            }
+
+            return file;
         }
 
         /// <summary>

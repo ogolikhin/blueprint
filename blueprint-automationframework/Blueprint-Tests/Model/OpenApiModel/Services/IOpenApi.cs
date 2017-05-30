@@ -74,6 +74,17 @@ namespace Model.OpenApiModel.Services
             bool? getContent = null,
             List<HttpStatusCode> expectedStatusCodes = null);
 
+        /// <summary>
+        /// Retrieves the main image from the specified graphical artifact in PNG format. Graphical artifacts include use case diagrams,
+        /// generic diagrams, business diagrams, domain diagrams, UI mockups, storyboards and use cases.
+        /// (Runs:  'GET /api/v1/projects/{projectId}/artifacts/{artifactId}/image')
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="projectId">The ID of the project where the artifact exists.</param>
+        /// <param name="artifactId">The ID of the artifact whose image you are retrieving.</param>
+        /// <returns>The artifact's diagram image in PNG format.</returns>
+        IFile GetArtifactImage(IUser user, int projectId, int artifactId);
+
         #endregion Artifact methods
 
         #region Attachment methods

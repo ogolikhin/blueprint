@@ -75,6 +75,9 @@ namespace AdminStore.Controllers
         /// <response code="400">BadRequest. Parameters are invalid. </response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. if used doesn’t have permissions to get groups\users list.</response>
+        [Route("usersgroups")]
+        [SessionRequired]
+        [ResponseType(typeof(QueryResult<GroupUser>))]
         public async Task<IHttpActionResult> GetGroupsAndUsers([FromUri]Pagination pagination, [FromUri]Sorting sorting, string search = null, int groupdId = 0)
         {
             PaginationValidator.ValidatePaginationModel(pagination);

@@ -9,6 +9,6 @@ namespace AdminStore.Models
         public UserType Type { get; set; }
         public string Scope { get; set; }
         public LicenseType LicenseType { get; set; }
-        public UserGroupSource UserGroupSource { get; set; }
+        public UserGroupSource Source { get; set; }
     }
 }

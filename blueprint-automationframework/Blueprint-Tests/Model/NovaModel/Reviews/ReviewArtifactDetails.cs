@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Newtonsoft.Json;
 using Model.NovaModel.Reviews.Enums;
 
@@ -20,11 +19,5 @@ namespace Model.NovaModel.Reviews
         public bool Viewed { get; set; }
 
         public DateTime? eSignatureTimestamp { get; set; }
-    }
-
-    public class ArtifactReviewContent
-    {
-        public List<ReviewArtifactDetails> Items { get; } = new List<ReviewArtifactDetails>();
-        public int Total { get; set; }
     }
 }

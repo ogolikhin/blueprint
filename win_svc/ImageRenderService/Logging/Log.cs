@@ -277,10 +277,10 @@ namespace ImageRenderService.Logging
 #if DEBUG
             System.Diagnostics.Debug.Assert(condition);
 #else
-            if (!condition)
-            {
-                WarnFormat("Assertion: Call stack: {0}.", GetStackTrace(2));
-            }
+            //if (!condition)
+            //{
+            //    WarnFormat("Assertion: Call stack: {0}.", GetStackTrace(2));
+            //}
 #endif
         }
 
@@ -298,10 +298,10 @@ namespace ImageRenderService.Logging
 #if DEBUG
             System.Diagnostics.Debug.Assert(condition, message);
 #else
-            if (!condition)
-            {
-                WarnFormat("Assertion: Message {0}; Call stack: {1}.", message, GetStackTrace(2));
-            }
+            //if (!condition)
+            //{
+            //    WarnFormat("Assertion: Message {0}; Call stack: {1}.", message, GetStackTrace(2));
+            //}
 #endif
         }
 
@@ -322,10 +322,10 @@ namespace ImageRenderService.Logging
             System.Diagnostics.Debug.Assert(condition, message, detailMessage);
 #pragma warning restore 618
 #else
-            if (!condition)
-            {
-                WarnFormat("Assertion: Message {0}; Detailed Message {1}; Call stack: {2}.", message, detailMessage, GetStackTrace(2));
-            }
+            //if (!condition)
+            //{
+            //    WarnFormat("Assertion: Message {0}; Detailed Message {1}; Call stack: {2}.", message, detailMessage, GetStackTrace(2));
+            //}
 #endif
         }
 
@@ -345,26 +345,26 @@ namespace ImageRenderService.Logging
             Assert(condition, message, string.Format(detailMessageFormat, args));
         }
 
-#if !DEBUG
-        /// <summary>
-        /// Get trace stack.
-        /// </summary>
-        /// <param name="skipFrames">Number of stack frames to skip.</param>
-        /// <returns>String representation of the stack trace.</returns>
-        private static string GetStackTrace(int skipFrames)
-        {
-            try
-            {
-                IStackTraceProvider stackTraceProvider = StackTraceProvider.Current;
-                if (stackTraceProvider != null)
-                {
-                    return StackTraceProvider.Current.GetStackTrace(skipFrames);
-                }
-            }
-            catch { }
-            return string.Empty;
-        }
-#endif
+//#if !DEBUG
+//        /// <summary>
+//        /// Get trace stack.
+//        /// </summary>
+//        /// <param name="skipFrames">Number of stack frames to skip.</param>
+//        /// <returns>String representation of the stack trace.</returns>
+//        private static string GetStackTrace(int skipFrames)
+//        {
+//            try
+//            {
+//                IStackTraceProvider stackTraceProvider = StackTraceProvider.Current;
+//                if (stackTraceProvider != null)
+//                {
+//                    return StackTraceProvider.Current.GetStackTrace(skipFrames);
+//                }
+//            }
+//            catch { }
+//            return string.Empty;
+//        }
+//#endif
 
         #endregion
 

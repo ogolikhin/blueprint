@@ -44,7 +44,7 @@ namespace ArtifactStore
             config.AssertAction<ReviewContainersController>("GetContentAsync", HttpMethod.Get, "containers/1/content");
             config.AssertAction<ReviewContainersController>("GetParticipantsAsync", HttpMethod.Get, "containers/1/participants");
             config.AssertAction<ReviewContainersController>("GetReviewArtifactStatusesByParticipantAsync", HttpMethod.Get, "containers/1/artifactreviewers/artifactId=1");
-            config.AssertAction<ReviewContainersController>("GetTableOfContentAsync", HttpMethod.Get, "containers/1/toc");
+            config.AssertAction<ReviewContainersController>("GetTableOfContentAsync", HttpMethod.Get, "containers/1/toc/1");
             config.AssertAction<ReviewContainersController>("AddArtifactsToReview", HttpMethod.Put, "containers/1/content");
             config.AssertAction<ReviewContainersController>("GetReviewedArtifacts", HttpMethod.Get, "containers/1/artifacts");
         }

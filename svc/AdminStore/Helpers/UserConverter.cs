@@ -10,7 +10,7 @@ namespace AdminStore.Helpers
 {
     public class UserConverter
     {
-        public static async Task<User> ConvertToDbUser(UserDto user, OperationMode operationMode, ISqlSettingsRepository settingsRepository, int userId = 0)
+        public static async Task<User> ConvertToDbUser(UserDto user, OperationMode operationMode, ISqlSettingsRepository settingsRepository , int userId = 0)
         {
             var databaseUser = new User
             {
@@ -43,58 +43,45 @@ namespace AdminStore.Helpers
                     isPasswordRequired = true;
                 }
 
-                var decodedPasword = SystemEncryptions.Decode(user.Password);
+                var decodedPassword = SystemEncryptions.Decode(user.Password);
 
-                string errorMessage;
-                var isValidPassword = PasswordValidationHelper.ValidatePassword(decodedPasword, isPasswordRequired, out errorMessage);
-                if (!isValidPassword)
+                ValidatePassword(databaseUser, decodedPassword, isPasswordRequired);
+
+                if (!string.IsNullOrWhiteSpace(decodedPassword))
                 {
-                    throw new BadRequestException(errorMessage, ErrorCodes.BadRequest);
-                }
-
-                if (!string.IsNullOrWhiteSpace(decodedPasword))
-                {
-                    var passwordUppercase = decodedPasword.ToUpperInvariant();
-
-                    if (passwordUppercase == user.Login?.ToUpperInvariant())
-                    {
-                        throw new BadRequestException(ErrorMessages.PasswordSameAsLogin, ErrorCodes.PasswordSameAsLogin);
-                    }
-
-                    if (passwordUppercase == user.DisplayName?.ToUpperInvariant())
-                    {
-                        throw new BadRequestException(ErrorMessages.PasswordSameAsDisplayName,
-                            ErrorCodes.PasswordSameAsDisplayName);
-                    }
-
-                    databaseUser.Password = HashingUtilities.GenerateSaltedHash(decodedPasword, databaseUser.UserSALT);
+                    databaseUser.Password = HashingUtilities.GenerateSaltedHash(decodedPassword, databaseUser.UserSALT);
                 }
                 else
                 {
                     databaseUser.Password = Guid.NewGuid() + "ABC!@#$";
                 }
             }
+
             return databaseUser;
         }
 
-        public static void ValidatePassword(User user, string encodedPassword)
+        public static void ValidatePassword(User user, string decodedPassword, bool isPasswordRequired)
         {
-            var decodedPasword = SystemEncryptions.Decode(encodedPassword);
             string errorMessage;
-            var isValidPassword = PasswordValidationHelper.ValidatePassword(decodedPasword, true, out errorMessage);
-            if (!isValidPassword)
+            if (!PasswordValidationHelper.ValidatePassword(decodedPassword, isPasswordRequired, out errorMessage))
             {
                 throw new BadRequestException(errorMessage, ErrorCodes.BadRequest);
             }
-            var passwordUppercase = decodedPasword.ToUpperInvariant();
 
-            if (passwordUppercase == user.Login?.ToUpperInvariant())
+            if (!string.IsNullOrWhiteSpace(decodedPassword))
             {
-                throw new BadRequestException(ErrorMessages.PasswordSameAsLogin, ErrorCodes.PasswordSameAsLogin);
-            }
-            if (passwordUppercase == user.DisplayName?.ToUpperInvariant())
-            {
-                throw new BadRequestException(ErrorMessages.PasswordSameAsDisplayName, ErrorCodes.PasswordSameAsDisplayName);
+                var passwordUppercase = decodedPassword.ToUpperInvariant();
+
+                if (passwordUppercase == user.Login?.ToUpperInvariant())
+                {
+                    throw new BadRequestException(ErrorMessages.PasswordSameAsLogin, ErrorCodes.PasswordSameAsLogin);
+                }
+
+                if (passwordUppercase == user.DisplayName?.ToUpperInvariant())
+                {
+                    throw new BadRequestException(ErrorMessages.PasswordSameAsDisplayName,
+                        ErrorCodes.PasswordSameAsDisplayName);
+                }
             }
         }
     }

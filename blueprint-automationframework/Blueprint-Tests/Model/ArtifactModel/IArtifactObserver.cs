@@ -50,7 +50,7 @@ namespace Model.ArtifactModel
         /// Notifies all registered observers about artifacts that were published.
         /// </summary>
         /// <param name="publishedArtifactsList">The list of artifacts that were published.</param>
-        void NotifyArtifactPublished(List<INovaArtifactResponse> publishedArtifactsList);
+        void NotifyArtifactPublished(List<INovaArtifactDetails> publishedArtifactsList);
     }
 
     public interface INovaArtifactObserver

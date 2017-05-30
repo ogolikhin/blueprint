@@ -426,7 +426,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(tokenList);
             IEnumerable<ApplicationSetting> applicationSettings = new List<ApplicationSetting> { new ApplicationSetting() { Key = "PasswordResetTokenExpirationInHours", Value = "40" } };
             _applicationSettingsRepository
-                .Setup(repo => repo.GetSettingsAsync())
+                .Setup(repo => repo.GetSettingsAsync(false))
                 .ReturnsAsync(applicationSettings);
 
 
@@ -1147,7 +1147,7 @@ namespace AdminStore.Controllers
         public async Task PostUser_DisplayNameOutOfRangeStringLength_ReturnBadRequestResult()
         {
             // Arrange
-            _user.DisplayName = "1";
+            _user.DisplayName = new string('1', 256);
             _privilegesRepository
               .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
               .ReturnsAsync(FullPermissions);
@@ -1164,7 +1164,7 @@ namespace AdminStore.Controllers
         public async Task PostUser_FirstNameOutOfRangeStringLength_ReturnBadRequestResult()
         {
             // Arrange
-            _user.FirstName = "1";
+            _user.FirstName = new string('1', 256); ;
             _privilegesRepository
               .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
               .ReturnsAsync(FullPermissions);
@@ -1181,7 +1181,7 @@ namespace AdminStore.Controllers
         public async Task PostUser_LastNameOutOfRangeStringLength_ReturnBadRequestResult()
         {
             // Arrange
-            _user.LastName = "1";
+            _user.LastName = new string('1', 256); 
             _privilegesRepository
               .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
               .ReturnsAsync(FullPermissions);
@@ -1215,7 +1215,7 @@ namespace AdminStore.Controllers
         public async Task PostUser_TitleOutOfRangeStringLength_ReturnBadRequestResult()
         {
             // Arrange
-            _user.Title = "1";
+            _user.Title = new string('1', 256); ;
             _privilegesRepository
              .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
              .ReturnsAsync(FullPermissions);

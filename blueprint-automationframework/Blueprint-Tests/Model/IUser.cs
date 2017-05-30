@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Model.Impl;
 using Model.Common.Enums;
+using Model.InstanceAdminModel;
 
 namespace Model
 {
@@ -11,6 +12,7 @@ namespace Model
 
         UserDataModel UserData { get; }
 
+        CustomInstanceAdminRole CustomInstanceAdminRole { get; set; }
         string Department { get; set; }                     // (NULLABLE)
         string Email { get; set; }                          // (NULLABLE)
         bool? Enabled { get; set; }

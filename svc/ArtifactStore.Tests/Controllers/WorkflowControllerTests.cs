@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ArtifactStore.Controllers;
+﻿using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ArtifactStore.Repositories.Workflow;
 using ServiceLibrary.Exceptions;
 
-namespace AdminStore.Controllers
+namespace ArtifactStore.Controllers
 {
     [TestClass]
     public class WorkflowControllerTests

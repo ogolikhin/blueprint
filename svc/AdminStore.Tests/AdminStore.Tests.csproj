@@ -92,7 +92,6 @@
     <Compile Include="Controllers\ConfigControllerTests.cs" />
     <Compile Include="Controllers\InstanceControllerTests.cs" />
     <Compile Include="Controllers\UsersControllerTests.cs" />
-    <Compile Include="Controllers\WorkflowControllerTests.cs" />
     <Compile Include="Helpers\EmailHelperTests.cs" />
     <Compile Include="Helpers\HashingUtilitiesTests.cs" />
     <Compile Include="Helpers\SystemEncryptionsTests.cs" />
@@ -113,10 +112,6 @@
     <ProjectReference Include="..\AdminStore\AdminStore.csproj">
       <Project>{AA349995-9A2A-45C5-9EC1-19908667BD4E}</Project>
       <Name>AdminStore</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ArtifactStore\ArtifactStore.csproj">
-      <Project>{30144C60-F58C-4B49-BE52-60C7884B2FB7}</Project>
-      <Name>ArtifactStore</Name>
     </ProjectReference>
     <ProjectReference Include="..\lib\ServiceLibrary.Tests\ServiceLibrary.Tests.csproj">
       <Project>{610A5EBA-78F0-4FC9-A08E-9916A2BBA6F5}</Project>

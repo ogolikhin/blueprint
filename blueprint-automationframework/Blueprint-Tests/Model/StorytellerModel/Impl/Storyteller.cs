@@ -382,7 +382,7 @@ namespace Model.StorytellerModel.Impl
         }
 
         /// <seealso cref="IStoryteller.DeleteNovaProcessArtifact(IUser, INovaProcess, List{HttpStatusCode})"/>
-        public List<INovaArtifactResponse> DeleteNovaProcessArtifact(IUser user, INovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null)
+        public List<INovaArtifactDetails> DeleteNovaProcessArtifact(IUser user, INovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));

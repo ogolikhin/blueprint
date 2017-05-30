@@ -6,7 +6,7 @@ namespace AdminStore.Repositories
 {
     public interface IApplicationSettingsRepository
     {
-        Task<IEnumerable<ApplicationSetting>> GetSettingsAsync();
+        Task<IEnumerable<ApplicationSetting>> GetSettingsAsync(bool returnNonRestrictedOnly);
 
         Task<T> GetValue<T>(string key, T defaultValue);
     }

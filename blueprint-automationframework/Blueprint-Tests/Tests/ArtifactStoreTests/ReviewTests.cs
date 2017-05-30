@@ -74,7 +74,7 @@ namespace ArtifactStoreTests
             string password = testConfig.Password;
 
             var sessionToken = Helper.AdminStore.AddSession(userName, password);
-            var admin = UserFactory.CreateUserOnly(userName, password);
+            var admin = UserFactory.CreateUserOnly(userName, password, InstanceAdminRole.DefaultInstanceAdministrator);
             admin.SetToken(sessionToken.SessionId);
 
             ReviewSummary reviewContainer = null;

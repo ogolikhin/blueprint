@@ -7,6 +7,7 @@ using Utilities;
 using NUnit.Framework;
 using System.Data;
 using Model.Common.Enums;
+using Model.InstanceAdminModel;
 
 namespace Model.Impl
 {
@@ -39,6 +40,7 @@ namespace Model.Impl
 
         // These are fields not included by IUser:
         public bool? AllowFallback { get; set; }
+        public CustomInstanceAdminRole CustomInstanceAdminRole { get; set; }
         public int CurrentVersion { get; set; }
         public string EncryptedPassword { get; set; }
         public DateTime? EndTimestamp { get; set; }
@@ -106,8 +108,14 @@ namespace Model.Impl
         }
         public InstanceAdminRole? InstanceAdminRole
         {
-            get { return UserData.InstanceAdminRole?.ToInstanceAdminRoleValue(); }
-            set { UserData.InstanceAdminRole = (value != null) ? value.ToInstanceAdminRoleString() : null; }
+            get
+            {
+                return (InstanceAdminRole?)CustomInstanceAdminRole?.Id ?? UserData.InstanceAdminRole?.ToInstanceAdminRoleValue();
+            }
+            set
+            {
+                UserData.InstanceAdminRole = value?.ToInstanceAdminRoleString();
+            }
         }
         public bool? ExpirePassword
         {

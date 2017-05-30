@@ -120,7 +120,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.DeleteArtifact(IArtifactBase, IUser, List{HttpStatusCode})"/>
-        public List<INovaArtifactResponse> DeleteArtifact(IArtifactBase artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        public List<INovaArtifactDetails> DeleteArtifact(IArtifactBase artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
@@ -161,7 +161,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.DeleteArtifact(int, IUser, List{HttpStatusCode})"/>
-        public List<INovaArtifactResponse> DeleteArtifact(int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        public List<INovaArtifactDetails> DeleteArtifact(int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
@@ -171,7 +171,7 @@ namespace Model.Impl
                 RestRequestMethod.DELETE,
                 expectedStatusCodes: expectedStatusCodes);
 
-            return response?.ConvertAll(o => (INovaArtifactResponse)o);
+            return response?.ConvertAll(o => (INovaArtifactDetails)o);
         }
 
         /// <seealso cref="IArtifactStore.DiscardAllArtifacts(IUser)"/>
@@ -871,7 +871,7 @@ namespace Model.Impl
             if ((expectedStatusCodes == null) || expectedStatusCodes.Contains(HttpStatusCode.OK))
             {
                 var deletedArtifactsList = new List<IArtifactBase>();
-                var otherPublishedArtifactsList = new List<INovaArtifactResponse>();
+                var otherPublishedArtifactsList = new List<INovaArtifactDetails>();
 
                 // Set the IsPublished... flags for the artifact that we deleted so the Dispose() works properly.
                 foreach (var publishedArtifactDetails in publishedArtifacts.Artifacts)

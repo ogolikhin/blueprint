@@ -5,8 +5,8 @@ using System.Web.Http.SelfHost;
 using CefSharp;
 using ImageRenderService.Helpers;
 using ImageRenderService.Transport;
-using Topshelf;
 using ImageRenderService.Logging;
+using Topshelf;
 
 namespace ImageRenderService.ImageGen
 {

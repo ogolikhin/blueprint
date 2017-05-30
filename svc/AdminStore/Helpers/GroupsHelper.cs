@@ -19,9 +19,9 @@ namespace AdminStore.Helpers
             {
                 defaultSortColumn,
                 "scope",
-                "license",
+                "licenseType",
                 "email",
-                "grouptype"
+                "groupType"
             };
             
             var column = sorting.Sort;

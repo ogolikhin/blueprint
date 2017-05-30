@@ -18,7 +18,9 @@ namespace AdminStore.Helpers
                     LicenseType = (LicenseType) group.LicenseId,
                     Source = ((UserGroupSource)group.Source),
                     Email = group.Email,
-                    GroupType = group.GroupType
+                    GroupType = group.GroupType,
+                    CurrentVersion = group.CurrentVersion,
+                    ProjectId = group.ProjectId
                 };
             return result;
         }

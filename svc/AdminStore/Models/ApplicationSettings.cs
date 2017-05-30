@@ -11,5 +11,8 @@ namespace AdminStore.Models
         [JsonProperty]
         public string Value { get; set; }
 
+        [JsonProperty]
+        public bool Restricted { get; set; }
+
     }
 }

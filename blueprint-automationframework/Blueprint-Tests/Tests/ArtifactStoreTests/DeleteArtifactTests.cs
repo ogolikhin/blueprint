@@ -54,7 +54,7 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishNovaArtifact(authorUser, _project, artifactType);
 
             // Execute:
-            List<INovaArtifactResponse> deletedArtifacts = null;
+            List<INovaArtifactDetails> deletedArtifacts = null;
 
             Assert.DoesNotThrow(() => deletedArtifacts = artifact.Delete(authorUser),
                 "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
@@ -80,7 +80,7 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishNovaArtifact(authorUser, _project, artifactType, collectionFolder.Id);
 
             // Execute:
-            List<INovaArtifactResponse> deletedArtifacts = null;
+            List<INovaArtifactDetails> deletedArtifacts = null;
 
             Assert.DoesNotThrow(() => deletedArtifacts = artifact.Delete(authorUser),
                 "'DELETE {0}' should return 200 OK if a valid {1} ID is sent!", DELETE_ARTIFACT_ID_PATH, artifactType);
@@ -103,7 +103,7 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateNovaArtifact(authorUser, _project, artifactType);
 
             // Execute:
-            List<INovaArtifactResponse> deletedArtifacts = null;
+            List<INovaArtifactDetails> deletedArtifacts = null;
 
             Assert.DoesNotThrow(() => deletedArtifacts = artifact.Delete(authorUser),
                 "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
@@ -127,7 +127,7 @@ namespace ArtifactStoreTests
             artifact.SaveWithNewDescription(_user);
 
             // Execute:
-            List<INovaArtifactResponse> deletedArtifacts = null;
+            List<INovaArtifactDetails> deletedArtifacts = null;
 
             Assert.DoesNotThrow(() => deletedArtifacts = artifact.Delete(_user),
                 "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
@@ -153,7 +153,7 @@ namespace ArtifactStoreTests
             var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypeChain);
 
             // Execute:
-            List<INovaArtifactResponse> deletedArtifacts = null;
+            List<INovaArtifactDetails> deletedArtifacts = null;
 
             Assert.DoesNotThrow(() => deletedArtifacts = artifactChain[indexToDelete].Delete(_user),
                 "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
@@ -180,7 +180,7 @@ namespace ArtifactStoreTests
             var artifactChain = Helper.CreateSavedArtifactChain(_project, _user, artifactTypeChain);
 
             // Execute:
-            List<INovaArtifactResponse> deletedArtifacts = null;
+            List<INovaArtifactDetails> deletedArtifacts = null;
 
             Assert.DoesNotThrow(() => deletedArtifacts = artifactChain[indexToDelete].Delete(_user),
                 "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
@@ -206,7 +206,7 @@ namespace ArtifactStoreTests
             artifactChain.Add(Helper.CreateNovaArtifact(_user, _project, childArtifactType, artifactChain[0].Id));
             
             // Execute:
-            List<INovaArtifactResponse> deletedArtifacts = null;
+            List<INovaArtifactDetails> deletedArtifacts = null;
             
             Assert.DoesNotThrow(() => deletedArtifacts = artifactChain[0].Delete(_user),
                 "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
@@ -235,7 +235,7 @@ namespace ArtifactStoreTests
             artifactChain.Add(savedArtifact);
 
             // Execute:
-            List<INovaArtifactResponse> deletedArtifacts = null;
+            List<INovaArtifactDetails> deletedArtifacts = null;
 
             Assert.DoesNotThrow(() => deletedArtifacts = artifactChain[0].Delete(_user),
                 "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
@@ -266,7 +266,7 @@ namespace ArtifactStoreTests
             VerifyArtifactHasExpectedNumberOfTraces(sourceArtifact.Id, expectedManualTraces: 1, expectedOtherTraces: 0);
 
             // Execute:
-            List<INovaArtifactResponse> deletedArtifacts = null;
+            List<INovaArtifactDetails> deletedArtifacts = null;
 
             Assert.DoesNotThrow(() => deletedArtifacts = targetArtifact.Delete(_user),
                 "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
@@ -296,7 +296,7 @@ namespace ArtifactStoreTests
             VerifyArtifactHasExpectedNumberOfTraces(sourceArtifact.Id, expectedManualTraces: 1, expectedOtherTraces: 0);
 
             // Execute:
-            List<INovaArtifactResponse> deletedArtifacts = null;
+            List<INovaArtifactDetails> deletedArtifacts = null;
 
             Assert.DoesNotThrow(() => deletedArtifacts = targetArtifact.Delete(_user),
                 "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
@@ -331,7 +331,7 @@ namespace ArtifactStoreTests
             parentArtifact.MoveArtifact(_user, _project.Id);
 
             // Execute:
-            List<INovaArtifactResponse> deletedArtifacts = null;
+            List<INovaArtifactDetails> deletedArtifacts = null;
 
             Assert.DoesNotThrow(() => deletedArtifacts = grandParentArtifact.Delete(_user),
                 "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
@@ -363,7 +363,7 @@ namespace ArtifactStoreTests
             var baselineArtifact = Helper.CreateBaseline(_user, _project, artifactToAddId: artifactToAdd.Id);
             baselineArtifact.Publish(_user);
 
-            List<INovaArtifactResponse> deletedArtifacts = null;
+            List<INovaArtifactDetails> deletedArtifacts = null;
 
             // Execute:
             Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(baselineArtifact.Id, _user),
@@ -396,7 +396,7 @@ namespace ArtifactStoreTests
             baselineFolder.UpdateArtifactState(ArtifactWrapper.ArtifactOperation.Publish);
             baselineArtifact.UpdateArtifactState(ArtifactWrapper.ArtifactOperation.Publish);
 
-            List<INovaArtifactResponse> deletedArtifacts = null;
+            List<INovaArtifactDetails> deletedArtifacts = null;
 
             // Execute:
             Assert.DoesNotThrow(() => deletedArtifacts = baselineFolder.Delete(_user),
@@ -909,7 +909,7 @@ namespace ArtifactStoreTests
         /// <param name="startIndex">(optional) To skip artifacts at the beginning of the list, enter the index of the first artifact to check.</param>
         private static void VerifyDeletedArtifactAndChildrenWereReturned(
             List<ArtifactWrapper> artifactChain,
-            List<INovaArtifactResponse> deletedArtifacts,
+            List<INovaArtifactDetails> deletedArtifacts,
             int startIndex = 0)
         {
             ThrowIf.ArgumentNull(artifactChain, nameof(artifactChain));

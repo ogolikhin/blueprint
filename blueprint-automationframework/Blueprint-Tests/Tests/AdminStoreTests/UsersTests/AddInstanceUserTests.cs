@@ -144,30 +144,81 @@ namespace AdminStoreTests.UsersTests
             AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
         }
 
-        [TestCase(InstanceAdminRole.AssignInstanceAdministrators)]
-        [TestCase(InstanceAdminRole.DefaultInstanceAdministrator)]
-        [TestCase(InstanceAdminRole.ProvisionUsers)]
-        [Description("Create a default instance user.  Add the user with another user that has" +
-             "permission to manage users. Verify that the user was created.")]
-        [TestRail(303595)]
-        public void AddInstanceUser_PermissionsToManageUsers_UserCreated(InstanceAdminRole adminRole)
+        [TestCase("FirstName", "", Description = "FirstName is empty")]
+        [TestCase("FirstName", null, Description = "FirstName is null")]
+        [TestCase("LastName", "", Description = "LastName is empty")]
+        [TestCase("LastName", null, Description = "LastName is null")]
+        [TestCase("Title", "", Description = "Title is empty")]
+        [TestCase("Title", null, Description = "Title is null")]
+        [TestCase("Department", "", Description = "Department is empty")]
+        [TestCase("Department", null, Description = "Department is null")]
+        [TestCase("Email", "", Description = "Email is empty")]
+        [TestCase("Email", null, Description = "Email is null")]
+        [Description("Create an instance user with a property that can be missing or null. Add the user. " +
+                     "Verify that the user is created.")]
+        [TestRail(303989)]
+        public void AddInstanceUser_TextPropertyThatCanBeEmptyOrNull_UserCreated(string property, string propertyValue)
         {
             // Setup:
-            var userPermissionsToManageUsers = Helper.CreateUserAndAddToDatabase(adminRole);
-            Helper.AdminStore.AddSession(userPermissionsToManageUsers);
+            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
 
-            //Execute:
-            var createdUser = Helper.CreateAndAddInstanceUser(userPermissionsToManageUsers);
+            CSharpUtilities.SetProperty(property, propertyValue, createdUser);
+
+            // Execute:
+            int createdUserId = 0;
+
+            Assert.DoesNotThrow(() =>
+            {
+                createdUserId = Helper.AdminStore.AddUser(_adminUser, createdUser);
+            }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
 
             InstanceUser addedUser = null;
 
             Assert.DoesNotThrow(() =>
             {
-                addedUser = Helper.AdminStore.GetUserById(_adminUser, createdUser.Id);
+                addedUser = Helper.AdminStore.GetUserById(_adminUser, createdUserId);
             }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
 
             // Verify:
+            // Update Id and CurrentVersion in CreatedUser for comparison
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUserId);
+
+            // Missing or null user will always return an empty string for the property, so update here for comparison
+            CSharpUtilities.SetProperty(property, "", createdUser);
+
+            // Add LicenseType of Viewer to createdUser to verify that the addedUser returned with Viewer license
+            createdUser.LicenseType = LicenseLevel.Viewer;
+
             AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
+        }
+
+        [TestCase]
+        [Description("Create a default instance user.  Add the user with another user that only has " +
+                     "permission to manage users.  Verify that the user was created.")]
+        [TestRail(303595)]
+        public void AddInstanceUser_PermissionsToManageUsers_UserCreated()
+        {
+            using (var adminStoreHelper = new AdminStoreHelper())
+            {
+                // Setup:
+                var adminRole = adminStoreHelper.AddInstanceAdminRoleToDatabase(InstanceAdminPrivileges.ManageUsers);
+
+                var userPermissionsToManageUsers = Helper.CreateUserAndAddToDatabase(adminRole);
+                Helper.AdminStore.AddSession(userPermissionsToManageUsers);
+
+                // Execute:
+                var createdUser = Helper.CreateAndAddInstanceUser(userPermissionsToManageUsers);
+
+                InstanceUser addedUser = null;
+
+                Assert.DoesNotThrow(() =>
+                {
+                    addedUser = Helper.AdminStore.GetUserById(_adminUser, createdUser.Id);
+                }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
+
+                // Verify:
+                AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
+            }
         }
 
         [TestCase(InstanceAdminRole.AssignInstanceAdministrators, LicenseLevel.Viewer)]
@@ -426,20 +477,6 @@ namespace AdminStoreTests.UsersTests
                 InstanceAdminErrorMessages.FirstNameFieldLimitation);
         }
 
-        [TestCase("", Description = "FirstName is empty")]
-        [TestCase(null, Description = "FirstName is null")]
-        [Description("Create an instance user with a missing first name. Try to add the user. " +
-                     "Verify that 400 Bad Request is returned.")]
-        [TestRail(303580)]
-        public void AddInstanceUser_MissingFirstName_400BadRequest(string firstName)
-        {
-            CreateDefaultInstanceUserWithInvalidPropertyVerify400BadRequest(
-                _adminUser,
-                "FirstName",
-                firstName,
-                InstanceAdminErrorMessages.FirstNameRequired);
-        }
-
         [TestCase((uint)1, Description = "Minimum 2 characters")]
         [TestCase((uint)256, Description = "Maximum 255 characters")]
         [Description("Create an instance user with an invalid last name. Try to add the user. " +
@@ -452,20 +489,6 @@ namespace AdminStoreTests.UsersTests
                 "LastName",
                 RandomGenerator.RandomAlphaNumericUpperAndLowerCase(numCharacters),
                 InstanceAdminErrorMessages.LastNameFieldLimitation);
-        }
-
-        [TestCase("", Description = "LastName is empty")]
-        [TestCase(null, Description = "LastName is null")]
-        [Description("Create an instance user with a missing last name. Try to add the user. " +
-                     "Verify that 400 Bad Request is returned.")]
-        [TestRail(303581)]
-        public void AddInstanceUser_MissingLastName_400BadRequest(string lastName)
-        {
-            CreateDefaultInstanceUserWithInvalidPropertyVerify400BadRequest(
-                _adminUser,
-                "LastName",
-                lastName,
-                InstanceAdminErrorMessages.LastNameRequired);
         }
 
         [TestCase((uint)256, Description = "Maximum 255 characters")]
@@ -527,34 +550,35 @@ namespace AdminStoreTests.UsersTests
 
         #region 403 Forbidden Tests
 
-        [TestCase(null)]
-        [TestCase(InstanceAdminRole.AdministerALLProjects)]
-        [TestCase(InstanceAdminRole.BlueprintAnalytics)]
-        [TestCase(InstanceAdminRole.Email_ActiveDirectory_SAMLSettings)]
-        [TestCase(InstanceAdminRole.InstanceStandardsManager)]
-        [TestCase(InstanceAdminRole.LogGatheringAndLicenseReporting)]
-        [TestCase(InstanceAdminRole.ManageAdministratorRoles)]
-        [TestCase(InstanceAdminRole.ProvisionProjects)]
-        [Description("Create an instance user.  Try to add the user with another user that does not have" +
-                     "permission to manage users. Verify that 401 Unauthorized is returned.")]
+        [TestCase(InstanceAdminPrivileges.ManageUsersOnly)]
+        [TestCase(InstanceAdminPrivileges.ViewUsers)]
+        [Description("Create an instance user.  Try to add the user with another user that does not have " +
+                     "permission to view or manage users. Verify that 401 Unauthorized is returned.")]
         [TestRail(303374)]
-        public void AddInstanceUser_NoPermissionsToManageUsers_403Forbidden(InstanceAdminRole? adminRole)
+        public void AddInstanceUser_NoPermissionsToManageUsers_403Forbidden(InstanceAdminPrivileges privilegeToRemove)
         {
-            // Setup:
-            var userWithNoPermissionsToManageUsers = Helper.CreateUserAndAuthenticate(
-                TestHelper.AuthenticationTokenTypes.AccessControlToken, adminRole);
-
-            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
-
-            // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() =>
+            using (var adminStoreHelper = new AdminStoreHelper())
             {
-                Helper.AdminStore.AddUser(userWithNoPermissionsToManageUsers, createdUser);
-            },
-            "'POST {0}' should return 403 Forbidden when the user adding the created user has no permissions to manage users!", USER_PATH);
+                // Setup:
+                var allPrivilegesExceptManageUsers = (InstanceAdminPrivileges) int.MaxValue & ~privilegeToRemove;
+                var adminRole = adminStoreHelper.AddInstanceAdminRoleToDatabase(allPrivilegesExceptManageUsers);
 
-            // Verify:
-            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "The user does not have permissions.");
+                var userWithNoPermissionsToManageUsers = Helper.CreateUserAndAuthenticate(
+                    TestHelper.AuthenticationTokenTypes.AccessControlToken, adminRole);
+
+                var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
+
+                // Execute:
+                var ex = Assert.Throws<Http403ForbiddenException>(() =>
+                {
+                    Helper.AdminStore.AddUser(userWithNoPermissionsToManageUsers, createdUser);
+                },
+                    "'POST {0}' should return 403 Forbidden when the user adding the created user has no permissions to manage users!",
+                    USER_PATH);
+
+                // Verify:
+                TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "The user does not have permissions.");
+            }
         }
 
         #endregion 403 Forbidden Tests

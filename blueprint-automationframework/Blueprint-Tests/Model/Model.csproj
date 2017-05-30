@@ -75,6 +75,7 @@
     <Compile Include="Factories\ImpactAnalysisFactory.cs" />
     <Compile Include="Impl\AdminRole.cs" />
     <Compile Include="Impl\QueryResult.cs" />
+    <Compile Include="InstanceAdminModel\CustomInstanceAdminRole.cs" />
     <Compile Include="ModelHelpers\DocumentArtifactWrapper.cs" />
     <Compile Include="ModelHelpers\ProcessArtifactWrapper.cs" />
     <Compile Include="NovaModel\Components\OperationsResults\ReviewContent.cs" />
@@ -108,6 +109,8 @@
     <Compile Include="NovaModel\Components\ImpactAnalysisService\ImpactAnalysisNode.cs" />
     <Compile Include="NovaModel\Components\ImpactAnalysisService\ImpactAnalysisResult.cs" />
     <Compile Include="NovaModel\Components\ImpactAnalysisService\ImpactAnalysisTree.cs" />
+    <Compile Include="NovaModel\Reviews\AddArtifactsParameter.cs" />
+    <Compile Include="NovaModel\Reviews\AddArtifactsResult.cs" />
     <Compile Include="NovaModel\Reviews\ReviewArtifactDetails.cs" />
     <Compile Include="NovaModel\Reviews\Enums\ReviewerRole.cs" />
     <Compile Include="NovaModel\Reviews\Enums\ReviewPackageStatus.cs" />

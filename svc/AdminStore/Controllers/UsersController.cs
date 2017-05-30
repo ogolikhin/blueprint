@@ -446,9 +446,10 @@ namespace AdminStore.Controllers
                 throw new ResourceNotFoundException($"User does not exist with UserId: {updatePassword.UserId}", ErrorCodes.ResourceNotFound);
             }
 
-            UserConverter.ValidatePassword(user, updatePassword.Password);
+            var decodedPasword = SystemEncryptions.Decode(updatePassword.Password);
+            UserConverter.ValidatePassword(user, decodedPasword);
 
-            await _userRepository.UpdateUserPasswordAsync(user.Login, updatePassword.Password);
+            await _userRepository.UpdateUserPasswordAsync(user.Login, decodedPasword);
 
             return Ok();
         }

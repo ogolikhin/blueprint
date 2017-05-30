@@ -2,6 +2,7 @@
 
 namespace BluePrintSys.Messaging.Models.ProcessImageGeneration
 {
+    [Express]
     public class ImageResponseMessage : IMessage
     {
         public byte[] ProcessImage { get; set; }

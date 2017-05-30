@@ -397,8 +397,8 @@ namespace Model.ArtifactModel.Impl
             }
         }
 
-        /// <seealso cref="NotifyArtifactPublished(List{INovaArtifactResponse})"/>
-        public void NotifyArtifactPublished(List<INovaArtifactResponse> publishedArtifactsList)
+        /// <seealso cref="NotifyArtifactPublished(List{INovaArtifactDetails})"/>
+        public void NotifyArtifactPublished(List<INovaArtifactDetails> publishedArtifactsList)
         {
             ThrowIf.ArgumentNull(publishedArtifactsList, nameof(publishedArtifactsList));
 

@@ -31,7 +31,10 @@ namespace Model.Common.Enums
         {
             if (instanceAdminRole != null)
             {
-                return InstanceAdminRoleStringMap[instanceAdminRole];
+                if (InstanceAdminRoleStringMap.ContainsKey(instanceAdminRole.Value))
+                {
+                    return InstanceAdminRoleStringMap[instanceAdminRole];
+                }
             }
 
             return null;
@@ -44,7 +47,12 @@ namespace Model.Common.Enums
         /// <returns>The string version of this InstanceAdminRole.</returns>
         public static string ToInstanceAdminRoleString(this InstanceAdminRole instanceAdminRole)
         {
-            return InstanceAdminRoleStringMap[instanceAdminRole];
+            if (InstanceAdminRoleStringMap.ContainsKey(instanceAdminRole))
+            {
+                return InstanceAdminRoleStringMap[instanceAdminRole];
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -72,7 +80,12 @@ namespace Model.Common.Enums
         /// <returns>The InstanceAdminRole version of this string.</returns>
         public static InstanceAdminRole? ToInstanceAdminRoleValue(this string instanceAdminRole)
         {
-            return StringInstanceAdminRoleMap[instanceAdminRole];
+            if (StringInstanceAdminRoleMap.ContainsKey(instanceAdminRole))
+            {
+                return StringInstanceAdminRoleMap[instanceAdminRole];
+            }
+
+            return null;
         }
     }
 }

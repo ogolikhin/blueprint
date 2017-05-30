@@ -1,4 +1,5 @@
 using System;
+using ImageRenderService.Annotations;
 
 namespace ImageRenderService.Logging
 {
@@ -269,18 +270,18 @@ namespace ImageRenderService.Logging
         /// In Debug mode delegates the call to Log.Assert, in Release mode logs the assertion as a debug entry.
         /// </summary>
         /// <param name="condition">Condition.</param>
-//#if DEBUG
-//        [ContractAnnotation("condition:false => halt")]
-//#endif
+#if DEBUG
+        [ContractAnnotation("condition:false => halt")]
+#endif
         public static void Assert(bool condition)
         {
 #if DEBUG
             System.Diagnostics.Debug.Assert(condition);
 #else
-            //if (!condition)
-            //{
-            //    WarnFormat("Assertion: Call stack: {0}.", GetStackTrace(2));
-            //}
+            if (!condition)
+            {
+                WarnFormat("Assertion: Call stack: {0}.", GetStackTrace(2));
+            }
 #endif
         }
 
@@ -290,18 +291,18 @@ namespace ImageRenderService.Logging
         /// </summary>
         /// <param name="condition">The condition to assert.</param>
         /// <param name="message">The message to display when the assertion of the condition fails.</param>
-//#if DEBUG
-//        [ContractAnnotation("condition:false => halt")]
-//#endif
+#if DEBUG
+        [ContractAnnotation("condition:false => halt")]
+#endif
         public static void Assert(bool condition, string message)
         {
 #if DEBUG
             System.Diagnostics.Debug.Assert(condition, message);
 #else
-            //if (!condition)
-            //{
-            //    WarnFormat("Assertion: Message {0}; Call stack: {1}.", message, GetStackTrace(2));
-            //}
+            if (!condition)
+            {
+                WarnFormat("Assertion: Message {0}; Call stack: {1}.", message, GetStackTrace(2));
+            }
 #endif
         }
 
@@ -312,9 +313,9 @@ namespace ImageRenderService.Logging
         /// <param name="condition">Condition to assert.</param>
         /// <param name="message">Message to display when the assertion of the condition fails.</param>
         /// <param name="detailMessage">Detailed message supplementing the primary message.</param>
-//#if DEBUG
-//        [ContractAnnotation("condition:false => halt")]
-//#endif
+#if DEBUG
+        [ContractAnnotation("condition:false => halt")]
+#endif
         public static void Assert(bool condition, string message, string detailMessage)
         {
 #if DEBUG
@@ -322,10 +323,10 @@ namespace ImageRenderService.Logging
             System.Diagnostics.Debug.Assert(condition, message, detailMessage);
 #pragma warning restore 618
 #else
-            //if (!condition)
-            //{
-            //    WarnFormat("Assertion: Message {0}; Detailed Message {1}; Call stack: {2}.", message, detailMessage, GetStackTrace(2));
-            //}
+            if (!condition)
+            {
+                WarnFormat("Assertion: Message {0}; Detailed Message {1}; Call stack: {2}.", message, detailMessage, GetStackTrace(2));
+            }
 #endif
         }
 
@@ -337,34 +338,34 @@ namespace ImageRenderService.Logging
         /// <param name="message">Message to display when the assertion of the condition fails.</param>
         /// <param name="detailMessageFormat">Detailed message supplementing the primary message as a formatted string.</param>
         /// <param name="args">Variable number of parameters to be used with the formatted string.</param>
-//#if DEBUG
-//        [ContractAnnotation("condition:false => halt")]
-//#endif
+#if DEBUG
+        [ContractAnnotation("condition:false => halt")]
+#endif
         public static void Assert(bool condition, string message, string detailMessageFormat, params object[] args)
         {
             Assert(condition, message, string.Format(detailMessageFormat, args));
         }
 
-//#if !DEBUG
-//        /// <summary>
-//        /// Get trace stack.
-//        /// </summary>
-//        /// <param name="skipFrames">Number of stack frames to skip.</param>
-//        /// <returns>String representation of the stack trace.</returns>
-//        private static string GetStackTrace(int skipFrames)
-//        {
-//            try
-//            {
-//                IStackTraceProvider stackTraceProvider = StackTraceProvider.Current;
-//                if (stackTraceProvider != null)
-//                {
-//                    return StackTraceProvider.Current.GetStackTrace(skipFrames);
-//                }
-//            }
-//            catch { }
-//            return string.Empty;
-//        }
-//#endif
+#if !DEBUG
+        /// <summary>
+        /// Get trace stack.
+        /// </summary>
+        /// <param name="skipFrames">Number of stack frames to skip.</param>
+        /// <returns>String representation of the stack trace.</returns>
+        private static string GetStackTrace(int skipFrames)
+        {
+            try
+            {
+                IStackTraceProvider stackTraceProvider = StackTraceProvider.Current;
+                if (stackTraceProvider != null)
+                {
+                    return StackTraceProvider.Current.GetStackTrace(skipFrames);
+                }
+            }
+            catch { }
+            return string.Empty;
+        }
+#endif
 
         #endregion
 

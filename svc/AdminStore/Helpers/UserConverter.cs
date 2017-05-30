@@ -34,11 +34,11 @@ namespace AdminStore.Helpers
 
             if (operationMode == OperationMode.Create)
             {
-                var decodedPasword = SystemEncryptions.Decode(user.Password);
+                var decodedPassword = SystemEncryptions.Decode(user.Password);
 
-                ValidatePassword(databaseUser, decodedPasword);
+                ValidatePassword(databaseUser, decodedPassword);
 
-                databaseUser.Password = HashingUtilities.GenerateSaltedHash(decodedPasword, databaseUser.UserSALT);
+                databaseUser.Password = HashingUtilities.GenerateSaltedHash(decodedPassword, databaseUser.UserSALT);
             }
 
             return databaseUser;

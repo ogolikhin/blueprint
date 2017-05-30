@@ -56,7 +56,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             Assert.AreEqual(numberOfArtifacts, reviewArtifacts.Total, "GetReviewArtifacts should return expected number of artifacts.");
-            Assert.AreEqual(numberOfArtifacts, reviewArtifacts.Items.ToList().Count, "GetReviewArtifacts should return expected number of artifacts.");
+            Assert.AreEqual(numberOfArtifacts, reviewArtifacts.Items.Count, "GetReviewArtifacts should return expected number of artifacts.");
         }
 
         [Category(Categories.GoldenData)]
@@ -143,7 +143,7 @@ namespace ArtifactStoreTests
             versionId: 1), "GetArtifactStatusesByParticipant should return 200 success.");
 
             // Verify:
-            Assert.AreEqual(1, reviewParticipants.Items.ToList().Count, "Specified artifact should have one reviewer.");
+            Assert.AreEqual(1, reviewParticipants.Items.Count, "Specified artifact should have one reviewer.");
         }
 
         [Category(Categories.GoldenData)]
@@ -195,7 +195,7 @@ namespace ArtifactStoreTests
                 "{0} should throw no error.", nameof(Helper.ArtifactStore.GetReviewedArtifacts));
 
             // Verify:
-            Assert.AreEqual(15, reviewedArtifacts.Items.ToList().Count, "TotalArtifacts should be equal to the expected number of artifacts in Review.");
+            Assert.AreEqual(15, reviewedArtifacts.Items.Count, "TotalArtifacts should be equal to the expected number of artifacts in Review.");
         }
     }
 }

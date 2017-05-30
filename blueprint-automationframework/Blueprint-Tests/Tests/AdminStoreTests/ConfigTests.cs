@@ -152,12 +152,12 @@ namespace AdminStoreTests
                 if (!setting.Item3)
                 {
                     Assert.That(configJs.Contains(searchTerm),
-                    "The expected string {0} wasn't found in the returned Config JS text!", searchTerm);
+                        "The expected string {0} wasn't found in the returned Config JS text!", searchTerm);
                 }
                 else
                 {
                     Assert.That(!configJs.Contains(searchTerm),
-                    "The restricted setting {0} was found in the returned Config JS text!", searchTerm);
+                        "The restricted setting {0} was found in the returned Config JS text!", searchTerm);
                 }
             }
         }
@@ -167,7 +167,7 @@ namespace AdminStoreTests
         /// Used to compare against what was returned by GetConfigJS().
         /// </summary>
         /// <param name="numberOfRecords">(optional) The max number of records to return.</param>
-        /// <returns>A dictionary of key/value strings contained in the [dbo].[ApplicationSettings] table.</returns>
+        /// <returns>A List of tuples with key/value/restricted records contained in the [dbo].[ApplicationSettings] table.</returns>
         private static List<Tuple<string, string, bool>> ReadApplicationSettingsFromDatabase(int numberOfRecords = 200)
         {
             const string LOCALE = "en-US";

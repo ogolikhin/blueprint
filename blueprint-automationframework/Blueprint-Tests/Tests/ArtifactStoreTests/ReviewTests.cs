@@ -8,9 +8,7 @@ using TestCommon;
 using Utilities;
 using TestConfig;
 using System.Collections.Generic;
-using Model.ArtifactModel.Enums;
 using Model.Impl;
-using System.Linq;
 
 namespace ArtifactStoreTests
 {
@@ -21,14 +19,12 @@ namespace ArtifactStoreTests
         private IUser _adminUser = null;
         private IUser _user = null;
         private IProject _projectCustomData = null;
-        private IProject _project = null;
 
         [SetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            _project = ProjectFactory.GetProject(_adminUser);
         }
 
         [TearDown]
@@ -153,12 +149,12 @@ namespace ArtifactStoreTests
         public void AddArtifactToReview_PublishedArtifact_CheckReturnedObject()
         {
             // Setup:
-            var artifactToAdd = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.Actor, _project.Id);
+            const int artifactToAddId = 22;
             const int reviewId = 113; // TODO: when real server-side call will be implemented review should be replaced
             // either with newly created one or with the copy of existing review
 
             AddArtifactsParameter content = new AddArtifactsParameter();
-            content.ArtifactIds = new List<int> { artifactToAdd.Id };
+            content.ArtifactIds = new List<int> { artifactToAddId };
             content.AddChildren = false;
 
             AddArtifactsResult addArtifactResult = null;

@@ -155,7 +155,11 @@
     <Compile Include="..\..\svc\SolutionAssemblyVersion.cs">
       <Link>Properties\SolutionAssemblyVersion.cs</Link>
     </Compile>
+    <Compile Include="Annotations\Annotations.cs" />
     <Compile Include="ApiServiceController.cs" />
+    <Compile Include="Logging\LoggerDefinition.cs" />
+    <Compile Include="Logging\ServiceLocator.cs" />
+    <Compile Include="Logging\IStackTraceProvider.cs" />
     <Compile Include="Logging\Log4NetStandardLogEntryFormatter.cs" />
     <Compile Include="Logging\Log4NetStandardLogListener.cs" />
     <Compile Include="Collections\ConcurrentPriorityQueue.cs" />
@@ -187,6 +191,7 @@
     <Compile Include="Logging\LogEntryLevelFilter.cs" />
     <Compile Include="Logging\LogListener.cs" />
     <Compile Include="Logging\LogManager.cs" />
+    <Compile Include="Logging\StackTraceProvider.cs" />
     <Compile Include="Logging\StandardLogEntry.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

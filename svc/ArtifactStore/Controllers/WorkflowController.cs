@@ -1,12 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Description;
+using ArtifactStore.Repositories.Workflow;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Models;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models.Workflow;
-using ServiceLibrary.Repositories.Workflow;
 
 namespace ArtifactStore.Controllers
 {
@@ -14,7 +13,7 @@ namespace ArtifactStore.Controllers
     [BaseExceptionFilter]
     public class WorkflowController : LoggableApiController
     {
-        internal readonly ISqlWorkflowRepository WorkflowRepository;
+        private readonly IWorkflowRepository _workflowRepository;
 
         public override string LogSource { get; } = "ArtifactStore.Workflow";
 
@@ -22,13 +21,14 @@ namespace ArtifactStore.Controllers
         {
         }
 
-        public WorkflowController(ISqlWorkflowRepository workflowRepository) 
+        public WorkflowController(IWorkflowRepository workflowRepository) 
         {
-            WorkflowRepository = workflowRepository;
+            _workflowRepository = workflowRepository;
         }
 
         /// <summary>
-        /// Get workflow transitions for current artifact
+        /// Gets the next available transitions which are available to the user for the workflow and state.
+        /// User id is retrieved from the request header.
         /// </summary>
         /// <remarks>
         /// Returns list of all possible workflow transitions based of of the current artifact and the state its in.
@@ -41,12 +41,33 @@ namespace ArtifactStore.Controllers
         [HttpGet, NoCache]
         [Route("artifacts/{artifactId:int:min(1)}/transitions"), SessionRequired]
         [ActionName("GetTransitions")]
-        public async Task<IEnumerable<Transitions>> GetTransitions(int artifactId)
+        [ResponseType(typeof(WorkflowTransitionResult))]
+        public async Task<IHttpActionResult> GetTransitionsAsync(int artifactId, int workflowId = 0, int stateId = 0)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return await WorkflowRepository.GetTransitions(artifactId, session.UserId);
+            if (workflowId <= 0 || stateId <= 0)
+            {
+                throw new BadRequestException("Please provide valid workflow id and state id");
+            }
+            //We assume that Session always exist as we have SessionRequired attribute
+            return Ok(await _workflowRepository.GetTransitions(Session.UserId, artifactId, workflowId, stateId));
+        }
+
+        /// <summary>
+        /// Gets the current state for the artifact. 
+        /// Permission for the artifact is based on user id which is retrieved from the request.
+        /// </summary>
+        /// <param name="artifactId"></param>
+        /// <param name="revisionId"></param>
+        /// <param name="addDrafts"></param>
+        /// <returns></returns>
+        [HttpGet, NoCache]
+        [Route("artifacts/{artifactId:int:min(1)}/state"), SessionRequired]
+        [ActionName("GetCurrentState")]
+        [ResponseType(typeof(WorkflowState))]
+        public async Task<IHttpActionResult> GetCurrentStateAsync(int artifactId, int? revisionId = null, bool addDrafts = true)
+        {
+            //We assume that Session always exist as we have SessionRequired attribute
+            return Ok(await _workflowRepository.GetCurrentState(Session.UserId, artifactId, revisionId ?? int.MaxValue, addDrafts));
         }
     }
-
-
 }

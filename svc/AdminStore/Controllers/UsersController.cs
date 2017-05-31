@@ -447,7 +447,7 @@ namespace AdminStore.Controllers
             }
 
             var decodedPasword = SystemEncryptions.Decode(updatePassword.Password);
-            UserConverter.ValidatePassword(user, decodedPasword, true);
+            UserConverter.ValidatePassword(user, decodedPasword);
 
             await _userRepository.UpdateUserPasswordAsync(user.Login, decodedPasword);
 
@@ -478,7 +478,7 @@ namespace AdminStore.Controllers
             var privileges = user.InstanceAdminRoleId.HasValue ? InstanceAdminPrivileges.AssignAdminRoles : InstanceAdminPrivileges.ManageUsers;
             await _privilegesManager.Demand(Session.UserId, privileges);
 
-            var databaseUser = await UsersHelper.CreateDbUserFromDto(user, OperationMode.Create, _settingsRepository);
+            var databaseUser = await UsersHelper.CreateDbUserFromDtoAsync(user, OperationMode.Create, _settingsRepository);
 
             var userId = await _userRepository.AddUserAsync(databaseUser);
             return Request.CreateResponse(HttpStatusCode.Created, userId);
@@ -522,7 +522,7 @@ namespace AdminStore.Controllers
                 await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AssignAdminRoles);
             }
 
-            var databaseUser = await UsersHelper.CreateDbUserFromDto(user, OperationMode.Edit, _settingsRepository, userId);
+            var databaseUser = await UsersHelper.CreateDbUserFromDtoAsync(user, OperationMode.Edit, _settingsRepository, userId);
             await _userRepository.UpdateUserAsync(databaseUser);
 
             return Ok();

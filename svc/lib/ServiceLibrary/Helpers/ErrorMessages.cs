@@ -45,11 +45,6 @@
         public static readonly string InvalidAddUserToGroupsParameters = "Invalid parameters to add user to groups.";
         public static readonly string GeneralErrorOfAddingUserToGroups = "An error has occurred when the operation was being performed at the SQL level.";
         public static readonly string CantGetUsersToBeDeleted = "Can't get users to be deleted";
-        public static readonly string EmailWithoutWhiteSpace = "The email value provided cannot consist of all whitespace characters.";
-        public static readonly string FirstNameWithoutWhiteSpace = "The first name value provided cannot consist of all whitespace characters.";
-        public static readonly string LastNameWithoutWhiteSpace = "The last name value provided cannot consist of all whitespace characters.";
-        public static readonly string TitleWithoutWhiteSpace = "The title value provided cannot consist of all whitespace characters.";
-        public static readonly string DepartmentWithoutWhiteSpace = "The department value provided cannot consist of all whitespace characters.";
         //Groups
         public static readonly string GroupModelIsEmpty = "The group model is empty.";
         public static readonly string GroupName = "Please ensure the Group Name is not empty.";

@@ -36,7 +36,7 @@ namespace AdminStore.Helpers
             return sorting.Order == SortOrder.Desc ? "-" + sortColumn : sortColumn;
         }
 
-        public static async Task<User> CreateDbUserFromDto(UserDto user, OperationMode operationMode, ISqlSettingsRepository settingsRepository, int userId = 0)
+        public static async Task<User> CreateDbUserFromDtoAsync(UserDto user, OperationMode operationMode, ISqlSettingsRepository settingsRepository, int userId = 0)
         {
             UserValidator.ValidateModel(user, operationMode);
             var dbUserModel = await UserConverter.ConvertToDbUser(user, operationMode, settingsRepository, userId);

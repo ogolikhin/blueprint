@@ -10,7 +10,8 @@ namespace AdminStore.Helpers
 {
     public class UserConverter
     {
-        public static async Task<User> ConvertToDbUser(UserDto user, OperationMode operationMode, ISqlSettingsRepository settingsRepository , int userId = 0)
+        public static async Task<User> ConvertToDbUser(UserDto user, OperationMode operationMode,
+            ISqlSettingsRepository settingsRepository, int userId = 0)
         {
             var databaseUser = new User
             {
@@ -36,53 +37,49 @@ namespace AdminStore.Helpers
 
             if (operationMode == OperationMode.Create)
             {
-                var isPasswordRequired = false;
                 var settings = await settingsRepository.GetUserManagementSettingsAsync();
-                if (settings.IsFederatedAuthenticationEnabled && user.AllowFallback.HasValue && user.AllowFallback.Value)
-                {
-                    isPasswordRequired = true;
-                }
 
                 var decodedPassword = SystemEncryptions.Decode(user.Password);
 
-                ValidatePassword(databaseUser, decodedPassword, isPasswordRequired);
-
-                if (!string.IsNullOrWhiteSpace(decodedPassword))
+                if ((settings.IsFederatedAuthenticationEnabled && user.AllowFallback.HasValue && user.AllowFallback.Value) || !string.IsNullOrWhiteSpace(decodedPassword))
                 {
+                    ValidatePassword(databaseUser, decodedPassword);
                     databaseUser.Password = HashingUtilities.GenerateSaltedHash(decodedPassword, databaseUser.UserSALT);
                 }
                 else
                 {
-                    databaseUser.Password = Guid.NewGuid() + "ABC!@#$";
-                }
+                    GeneratePassword(databaseUser);
+                } 
             }
 
             return databaseUser;
         }
 
-        public static void ValidatePassword(User user, string decodedPassword, bool isPasswordRequired)
+        public static void ValidatePassword(User user, string decodedPassword)
         {
             string errorMessage;
-            if (!PasswordValidationHelper.ValidatePassword(decodedPassword, isPasswordRequired, out errorMessage))
+            if (!PasswordValidationHelper.ValidatePassword(decodedPassword, true, out errorMessage))
             {
                 throw new BadRequestException(errorMessage, ErrorCodes.BadRequest);
             }
 
-            if (!string.IsNullOrWhiteSpace(decodedPassword))
+            var passwordUppercase = decodedPassword.ToUpperInvariant();
+
+            if (passwordUppercase == user.Login?.ToUpperInvariant())
             {
-                var passwordUppercase = decodedPassword.ToUpperInvariant();
-
-                if (passwordUppercase == user.Login?.ToUpperInvariant())
-                {
-                    throw new BadRequestException(ErrorMessages.PasswordSameAsLogin, ErrorCodes.PasswordSameAsLogin);
-                }
-
-                if (passwordUppercase == user.DisplayName?.ToUpperInvariant())
-                {
-                    throw new BadRequestException(ErrorMessages.PasswordSameAsDisplayName,
-                        ErrorCodes.PasswordSameAsDisplayName);
-                }
+                throw new BadRequestException(ErrorMessages.PasswordSameAsLogin, ErrorCodes.PasswordSameAsLogin);
             }
+
+            if (passwordUppercase == user.DisplayName?.ToUpperInvariant())
+            {
+                throw new BadRequestException(ErrorMessages.PasswordSameAsDisplayName,
+                    ErrorCodes.PasswordSameAsDisplayName);
+            }
+        }
+
+        private static void GeneratePassword(User user)
+        {
+            user.Password = Guid.NewGuid() + "ABC!@#$";
         }
     }
 }

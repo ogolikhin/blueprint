@@ -35,32 +35,32 @@ namespace AdminStore.Helpers
                 throw new BadRequestException(ErrorMessages.DisplayNameFieldLimitation, ErrorCodes.BadRequest);
             }
 
-            if (!string.IsNullOrEmpty(user.FirstName) && user.FirstName.Length > 0 && user.FirstName.Trim().Length == 0)
+            if (!string.IsNullOrEmpty(user.FirstName))
             {
-                throw new BadRequestException(ErrorMessages.FirstNameWithoutWhiteSpace, ErrorCodes.BadRequest);
+                user.FirstName = user.FirstName.Trim();
             }
 
-            if ((!string.IsNullOrWhiteSpace(user.FirstName)) && (user.FirstName.Length < 1 || user.FirstName.Length > 255))
+            if ((!string.IsNullOrEmpty(user.FirstName)) && (user.FirstName.Length < 1 || user.FirstName.Length > 255))
             {
                 throw new BadRequestException(ErrorMessages.FirstNameFieldLimitation, ErrorCodes.BadRequest);
             }
 
-            if (!string.IsNullOrEmpty(user.LastName) && user.LastName.Length > 0 && user.LastName.Trim().Length == 0)
+            if (!string.IsNullOrEmpty(user.LastName))
             {
-                throw new BadRequestException(ErrorMessages.LastNameWithoutWhiteSpace, ErrorCodes.BadRequest);
+                user.LastName = user.LastName.Trim();
             }
 
-            if (!string.IsNullOrWhiteSpace(user.LastName) && (user.LastName.Length < 1 || user.LastName.Length > 255))
+            if (!string.IsNullOrEmpty(user.LastName) && (user.LastName.Length < 1 || user.LastName.Length > 255))
             {
                 throw new BadRequestException(ErrorMessages.LastNameFieldLimitation, ErrorCodes.BadRequest);
             }
 
-            if (!string.IsNullOrEmpty(user.Email) && user.Email.Length > 0 && user.Email.Trim().Length == 0)
+            if (!string.IsNullOrEmpty(user.Email))
             {
-                throw new BadRequestException(ErrorMessages.EmailWithoutWhiteSpace, ErrorCodes.BadRequest);
+                user.Email= user.Email.Trim();
             }
 
-            if (!string.IsNullOrWhiteSpace(user.Email))
+            if (!string.IsNullOrEmpty(user.Email))
             {
                 if ((user.Email.Length < 4 || user.Email.Length > 255))
                 {
@@ -74,22 +74,22 @@ namespace AdminStore.Helpers
                 }
             }
 
-            if (!string.IsNullOrEmpty(user.Title) && user.Title.Length > 0 && user.Title.Trim().Length == 0)
+            if (!string.IsNullOrEmpty(user.Title))
             {
-                throw new BadRequestException(ErrorMessages.TitleWithoutWhiteSpace, ErrorCodes.BadRequest);
+                user.Title = user.Title.Trim();
             }
 
-            if (!string.IsNullOrWhiteSpace(user.Title) && (user.Title.Length < 1 || user.Title.Length > 255))
+            if (!string.IsNullOrEmpty(user.Title) && (user.Title.Length < 1 || user.Title.Length > 255))
             {
                 throw new BadRequestException(ErrorMessages.TitleFieldLimitation, ErrorCodes.BadRequest);
             }
 
-            if (!string.IsNullOrEmpty(user.Department) && user.Department.Length > 0 && user.Department.Trim().Length == 0)
+            if (!string.IsNullOrEmpty(user.Department))
             {
-                throw new BadRequestException(ErrorMessages.DepartmentWithoutWhiteSpace, ErrorCodes.BadRequest);
+                user.Department = user.Department.Trim();
             }
 
-            if (!string.IsNullOrWhiteSpace(user.Department) && (user.Department.Length < 1 || user.Department.Length > 255))
+            if (!string.IsNullOrEmpty(user.Department) && (user.Department.Length < 1 || user.Department.Length > 255))
             {
                 throw new BadRequestException(ErrorMessages.DepartmentFieldLimitation, ErrorCodes.BadRequest);
             }

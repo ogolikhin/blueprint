@@ -9,12 +9,12 @@ namespace ArtifactStore.Controllers
     [TestClass]
     public class WorkflowControllerTests
     {
-        private Mock<ISqlWorkflowRepository> _sqlWorkFlowRepositoryMock;
+        private Mock<IWorkflowRepository> _sqlWorkFlowRepositoryMock;
 
         [TestInitialize]
         public void Setup()
         {
-            _sqlWorkFlowRepositoryMock = new Mock<ISqlWorkflowRepository>();
+            _sqlWorkFlowRepositoryMock = new Mock<IWorkflowRepository>();
         }
 
         [TestMethod]

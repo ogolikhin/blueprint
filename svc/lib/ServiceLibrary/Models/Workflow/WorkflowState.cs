@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System.ComponentModel.DataAnnotations;
 
 namespace ServiceLibrary.Models.Workflow
 {
@@ -7,18 +6,18 @@ namespace ServiceLibrary.Models.Workflow
     {
         public int WorkflowId { get; set; }
 
-        public int StateId { get; set; }
+        public int Id { get; set; }
 
-        public string StateName { get; set; }
+        public string Name { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string StateDescription { get; set; }
+        public string Description { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public bool? IsDefault { get; set; }
     }
 
-    public class WorkFlowStateDb
+    public class SqlWorkFlowState
     {
         public int WorkflowId { get; set; }
         public string WorkflowStateName { get; set; }

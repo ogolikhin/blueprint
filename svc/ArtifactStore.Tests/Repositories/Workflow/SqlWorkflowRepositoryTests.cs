@@ -93,9 +93,9 @@ namespace ArtifactStore.Repositories.Workflow
                  { "stateId", 1 },
                  {"userId", 1}
              },
-             new List<Transition>
+             new List<SqlWorkflowTransition>
              {
-                 new Transition
+                 new SqlWorkflowTransition
                  {
                     TriggerId = 1,
                     StateId = 2,
@@ -103,7 +103,7 @@ namespace ArtifactStore.Repositories.Workflow
                     CurrentStateId = 1,
                     TriggerName = "TA"
                  },
-                 new Transition
+                 new SqlWorkflowTransition
                  {
                     TriggerId = 2,
                     StateId = 3,
@@ -111,7 +111,7 @@ namespace ArtifactStore.Repositories.Workflow
                     CurrentStateId = 1,
                     TriggerName = "TB"
                  },
-                 new Transition
+                 new SqlWorkflowTransition
                  {
                     TriggerId = 3,
                     StateId = 4,
@@ -151,9 +151,9 @@ namespace ArtifactStore.Repositories.Workflow
                  {"revisionId", 2147483647},
                  {"addDrafts", true}
             },
-             new List<WorkFlowStateDb>
+             new List<SqlWorkFlowState>
              {
-                 new WorkFlowStateDb
+                 new SqlWorkFlowState
                  {
                     WorkflowStateId = 1,
                     WorkflowStateName = "A",
@@ -189,7 +189,7 @@ namespace ArtifactStore.Repositories.Workflow
                  {"revisionId", 2147483647},
                  {"addDrafts", true}
             },
-             new List<WorkFlowStateDb>());
+             new List<SqlWorkFlowState>());
 
             // Act
             var result = (await repository.GetCurrentState(1, 1));

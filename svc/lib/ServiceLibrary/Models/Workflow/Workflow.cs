@@ -5,9 +5,12 @@ namespace ServiceLibrary.Models.Workflow
 {
     public class Workflow
     {
-        public int WorkflowId { get; set; }
+        public int Id { get; set; }
 
-        public string WorkflowName { get; set; }
+        public string Name { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string Description { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public IEnumerable<WorkflowState> States { get; set; }

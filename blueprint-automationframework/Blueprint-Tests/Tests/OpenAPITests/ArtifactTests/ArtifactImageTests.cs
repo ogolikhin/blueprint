@@ -73,7 +73,7 @@ namespace OpenAPITests.ArtifactTests
         [TestCase(BaseArtifactType.BusinessProcess)]
         [TestCase(BaseArtifactType.DomainDiagram)]
         [TestCase(BaseArtifactType.GenericDiagram)]
-        [TestCase(BaseArtifactType.Process, Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)]  // Trello: https://trello.com/c/pwbzGpKe  500 error for unpublished Process.
+        [TestCase(BaseArtifactType.Process)]
         [TestCase(BaseArtifactType.Storyboard)]
         [TestCase(BaseArtifactType.UIMockup)]
         [TestCase(BaseArtifactType.UseCase)]

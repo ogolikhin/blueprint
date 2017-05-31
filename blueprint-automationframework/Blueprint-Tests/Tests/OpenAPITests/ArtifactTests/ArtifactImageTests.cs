@@ -248,7 +248,7 @@ namespace OpenAPITests.ArtifactTests
 
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() => Helper.OpenApi.GetArtifactImage(userWithNoPermission, _project.Id, artifact.Id),
-                "'GET {0}' should return 404 Not Found when a the user has no permission to the project!", REST_PATH);
+                "'GET {0}' should return 404 Not Found when the user has no permission to the project!", REST_PATH);
 
             // Verify:
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, ARTIFACT_NOT_FOUND);
@@ -267,7 +267,7 @@ namespace OpenAPITests.ArtifactTests
 
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() => Helper.OpenApi.GetArtifactImage(userWithNoPermission, _project.Id, artifact.Id),
-                "'GET {0}' should return 404 Not Found when a the user has no permission to the artifact!", REST_PATH);
+                "'GET {0}' should return 404 Not Found when the user has no permission to the artifact!", REST_PATH);
 
             // Verify:
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, ARTIFACT_NOT_FOUND);

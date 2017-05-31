@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Threading.Tasks;
 using AdminStore.Models;
 using AdminStore.Models.Enums;
+using AdminStore.Repositories;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 
@@ -8,7 +10,8 @@ namespace AdminStore.Helpers
 {
     public class UserConverter
     {
-        public static User ConvertToDbUser(UserDto user, OperationMode operationMode, int userId = 0)
+        public static async Task<User> ConvertToDbUser(UserDto user, OperationMode operationMode,
+            ISqlSettingsRepository settingsRepository, int userId = 0)
         {
             var databaseUser = new User
             {
@@ -34,11 +37,19 @@ namespace AdminStore.Helpers
 
             if (operationMode == OperationMode.Create)
             {
+                var settings = await settingsRepository.GetUserManagementSettingsAsync();
+
                 var decodedPassword = SystemEncryptions.Decode(user.Password);
 
-                ValidatePassword(databaseUser, decodedPassword);
-
-                databaseUser.Password = HashingUtilities.GenerateSaltedHash(decodedPassword, databaseUser.UserSALT);
+                if ((settings.IsFederatedAuthenticationEnabled && user.AllowFallback.HasValue && user.AllowFallback.Value) || !string.IsNullOrWhiteSpace(decodedPassword))
+                {
+                    ValidatePassword(databaseUser, decodedPassword);
+                    databaseUser.Password = HashingUtilities.GenerateSaltedHash(decodedPassword, databaseUser.UserSALT);
+                }
+                else
+                {
+                    GeneratePassword(databaseUser);
+                } 
             }
 
             return databaseUser;
@@ -61,8 +72,14 @@ namespace AdminStore.Helpers
 
             if (passwordUppercase == user.DisplayName?.ToUpperInvariant())
             {
-                throw new BadRequestException(ErrorMessages.PasswordSameAsDisplayName, ErrorCodes.PasswordSameAsDisplayName);
+                throw new BadRequestException(ErrorMessages.PasswordSameAsDisplayName,
+                    ErrorCodes.PasswordSameAsDisplayName);
             }
+        }
+
+        private static void GeneratePassword(User user)
+        {
+            user.Password = Guid.NewGuid() + "ABC!@#$";
         }
     }
 }

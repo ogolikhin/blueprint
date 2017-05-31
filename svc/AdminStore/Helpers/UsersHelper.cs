@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Linq;
 using AdminStore.Models;
 using AdminStore.Models.Enums;
+using AdminStore.Repositories;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
 
@@ -34,10 +36,10 @@ namespace AdminStore.Helpers
             return sorting.Order == SortOrder.Desc ? "-" + sortColumn : sortColumn;
         }
 
-        public static User CreateDbUserFromDto(UserDto user, OperationMode operationMode, int userId = 0)
+        public static async Task<User> CreateDbUserFromDtoAsync(UserDto user, OperationMode operationMode, ISqlSettingsRepository settingsRepository, int userId = 0)
         {
             UserValidator.ValidateModel(user, operationMode);
-            var dbUserModel = UserConverter.ConvertToDbUser(user, operationMode, userId);
+            var dbUserModel = await UserConverter.ConvertToDbUser(user, operationMode, settingsRepository, userId);
             return dbUserModel;
         }
 

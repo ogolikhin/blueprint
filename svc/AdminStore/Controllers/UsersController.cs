@@ -478,7 +478,7 @@ namespace AdminStore.Controllers
             var privileges = user.InstanceAdminRoleId.HasValue ? InstanceAdminPrivileges.AssignAdminRoles : InstanceAdminPrivileges.ManageUsers;
             await _privilegesManager.Demand(Session.UserId, privileges);
 
-            var databaseUser = UsersHelper.CreateDbUserFromDto(user, OperationMode.Create);
+            var databaseUser = await UsersHelper.CreateDbUserFromDtoAsync(user, OperationMode.Create, _settingsRepository);
 
             var userId = await _userRepository.AddUserAsync(databaseUser);
             return Request.CreateResponse(HttpStatusCode.Created, userId);
@@ -522,7 +522,7 @@ namespace AdminStore.Controllers
                 await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AssignAdminRoles);
             }
 
-            var databaseUser = UsersHelper.CreateDbUserFromDto(user, OperationMode.Edit, userId);
+            var databaseUser = await UsersHelper.CreateDbUserFromDtoAsync(user, OperationMode.Edit, _settingsRepository, userId);
             await _userRepository.UpdateUserAsync(databaseUser);
 
             return Ok();

@@ -4,20 +4,20 @@
     {
         //Users
         public const string InvalidPagination = "The \"offset\" and/or \"limit\" parameters are required.";
-        public static readonly string LoginRequired = "The \"Login\" field is required.";
-        public static readonly string DisplayNameRequired = "The \"Display name\" field is required.";
+        public static readonly string LoginRequired = "The user name field is required.";
+        public static readonly string DisplayNameRequired = "The display name field is required.";
         public static readonly string FirstNameRequired = "The \"First name\" field is required.";
         public static readonly string LastNameRequired = "The \"Last name\" field is required.";
         public static readonly string LoginNameUnique = "Please enter a unique username.";
         public static readonly string SessionIsEmpty = "The session is empty.";
         public static readonly string UserDoesNotHavePermissions = "The user does not have permissions.";
-        public static readonly string LoginFieldLimitation = "The length of the \"Login\" field must be between 4 and 256 characters.";
-        public static readonly string DisplayNameFieldLimitation = "The length of the \"Display name\" field must be between 2 and 255 characters.";
-        public static readonly string FirstNameFieldLimitation = "The length of the \"First name\" field must be between 2 and 255 characters.";
-        public static readonly string LastNameFieldLimitation = "The length of the \"Last name\" field must be between 2 and 255 characters.";
-        public static readonly string EmailFieldLimitation = "The length of the \"Email\" field must be between 4 and 255 characters.";
-        public static readonly string TitleFieldLimitation = "The length of the \"Title\" field must be between 2 and 255 characters.";
-        public static readonly string DepartmentFieldLimitation = "The length of the \"Department\" field must be between 1 and 255 characters.";
+        public static readonly string LoginFieldLimitation = "Please use a user name between 4 and 255 alphanumeric characters.";
+        public static readonly string DisplayNameFieldLimitation = "Please enter a display name between 1 and 255 characters.";
+        public static readonly string FirstNameFieldLimitation = "Please enter a first name between 1 and 255 characters.";
+        public static readonly string LastNameFieldLimitation = "Please enter a last name between 1 and 255 characters.";
+        public static readonly string EmailFieldLimitation = "Please enter an email between 4 and 255 characters.";
+        public static readonly string TitleFieldLimitation = "Please enter a title between 1 and 255 characters.";
+        public static readonly string DepartmentFieldLimitation = "Please enter a department between 1 and 255 characters.";
         public static readonly string UserModelIsEmpty = "The user model is empty.";
         public static readonly string GeneralErrorOfCreatingUser = "The user was not created.";
         public static readonly string GeneralErrorOfUpdatingUser = "The user was not updated.";
@@ -33,7 +33,7 @@
         public static readonly string TotalNull = "The \"total\" is null.";
         public static readonly string GeneralErrorOfGettingUserGroups = "The general error of getting user's groups.";
         public static readonly string CreationOnlyDatabaseUsers = "You can create only database users.";
-        public static readonly string EmailFormatIncorrect = "Please ensure the email address is correct.";
+        public static readonly string EmailFormatIncorrect = "Please ensure the email address is in the following format: user@company.com.";
         public static readonly string LoginInvalid = "The \"Login\" field is invalid.";
         public static readonly string PasswordSameAsLogin = "Password cannot be equal to login name.";
         public static readonly string PasswordSameAsDisplayName = "Password cannot be equal to display name.";

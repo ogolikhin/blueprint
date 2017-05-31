@@ -948,6 +948,9 @@ namespace AdminStore.Controllers
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
 
+            _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
+                .ReturnsAsync(new UserManagementSettings ());
+
             // Act
             var result = await _controller.PostUser(_user);
 
@@ -1032,6 +1035,8 @@ namespace AdminStore.Controllers
             _privilegesRepository
                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(FullPermissions);
+            _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
+                .ReturnsAsync(new UserManagementSettings());
 
             // Act
             await _controller.PostUser(_user);
@@ -1048,6 +1053,8 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
+            _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
+                .ReturnsAsync(new UserManagementSettings());
             BadRequestException exception = null;
 
             // Act
@@ -1140,7 +1147,7 @@ namespace AdminStore.Controllers
         public async Task PostUser_DisplayNameOutOfRangeStringLength_ReturnBadRequestResult()
         {
             // Arrange
-            _user.DisplayName = "1";
+            _user.DisplayName = new string('1', 256);
             _privilegesRepository
               .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
               .ReturnsAsync(FullPermissions);
@@ -1157,7 +1164,7 @@ namespace AdminStore.Controllers
         public async Task PostUser_FirstNameOutOfRangeStringLength_ReturnBadRequestResult()
         {
             // Arrange
-            _user.FirstName = "1";
+            _user.FirstName = new string('1', 256); ;
             _privilegesRepository
               .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
               .ReturnsAsync(FullPermissions);
@@ -1174,7 +1181,7 @@ namespace AdminStore.Controllers
         public async Task PostUser_LastNameOutOfRangeStringLength_ReturnBadRequestResult()
         {
             // Arrange
-            _user.LastName = "1";
+            _user.LastName = new string('1', 256); 
             _privilegesRepository
               .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
               .ReturnsAsync(FullPermissions);
@@ -1208,7 +1215,7 @@ namespace AdminStore.Controllers
         public async Task PostUser_TitleOutOfRangeStringLength_ReturnBadRequestResult()
         {
             // Arrange
-            _user.Title = "1";
+            _user.Title = new string('1', 256); ;
             _privilegesRepository
              .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
              .ReturnsAsync(FullPermissions);
@@ -1245,9 +1252,12 @@ namespace AdminStore.Controllers
         {
             // Arrange
             _user.Password = string.Empty;
+            _user.AllowFallback = true;
             _privilegesRepository
                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(FullPermissions);
+            _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
+                .ReturnsAsync(new UserManagementSettings {IsFederatedAuthenticationEnabled = true});
             BadRequestException exception = null;
 
             // Act
@@ -1274,6 +1284,8 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
+            _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
+                .ReturnsAsync(new UserManagementSettings ());
             BadRequestException exception = null;
 
             // Act
@@ -1300,6 +1312,8 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
+            _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
+                .ReturnsAsync(new UserManagementSettings());
             BadRequestException exception = null;
 
             // Act
@@ -1326,6 +1340,8 @@ namespace AdminStore.Controllers
             _privilegesRepository
                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(FullPermissions);
+            _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
+                .ReturnsAsync(new UserManagementSettings());
 
             // Act
             await _controller.PostUser(_user);

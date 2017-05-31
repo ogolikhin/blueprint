@@ -6,9 +6,12 @@ namespace ServiceLibrary.Models.Workflow
     {
         public int WorkflowId { get; set; }
 
-        public int TransitionId { get; set; }
+        public int Id { get; set; }
 
-        public string TransitionName { get; set; }
+        public string Name { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string Description { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public WorkflowState FromState { get; set; }
@@ -17,7 +20,7 @@ namespace ServiceLibrary.Models.Workflow
         public WorkflowState ToState { get; set; }
     }
 
-    public class Transition
+    public class SqlWorkflowTransition
     {
         public int TriggerId { get; set; }
         public int StateId { get; set; }

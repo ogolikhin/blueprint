@@ -97,11 +97,11 @@ namespace ArtifactStore.Repositories.Workflow
             param.Add("@revisionId", revisionId);
             param.Add("@addDrafts", addDrafts);
             
-            var result = (await ConnectionWrapper.QueryAsync<WorkFlowStateDb>("GetCurrentWorkflowState", param, commandType: CommandType.StoredProcedure))
+            var result = (await ConnectionWrapper.QueryAsync<SqlWorkFlowState>("GetCurrentWorkflowState", param, commandType: CommandType.StoredProcedure))
                 .Select(workflowState => new WorkflowState
                 {
-                    StateId = workflowState.WorkflowStateId,
-                    StateName = workflowState.WorkflowStateName,
+                    Id = workflowState.WorkflowStateId,
+                    Name = workflowState.WorkflowStateName,
                     WorkflowId = workflowState.WorkflowId
                 }).FirstOrDefault();
 
@@ -127,21 +127,21 @@ namespace ArtifactStore.Repositories.Workflow
             param.Add("@stateId", stateId);
             param.Add("@userId", userId);
 
-            var workflowTransitions = (await ConnectionWrapper.QueryAsync<Transition>("GetAvailableTransitions", param, commandType: CommandType.StoredProcedure)).Select(wt => new WorkflowTransition
+            var workflowTransitions = (await ConnectionWrapper.QueryAsync<SqlWorkflowTransition>("GetAvailableTransitions", param, commandType: CommandType.StoredProcedure)).Select(wt => new WorkflowTransition
             {
-                TransitionId = wt.TriggerId,
+                Id = wt.TriggerId,
                 ToState = new WorkflowState
                 {
                     WorkflowId = workflowId,
-                    StateId = wt.StateId,
-                    StateName = wt.StateName
+                    Id = wt.StateId,
+                    Name = wt.StateName
                 },
                 FromState = new WorkflowState
                 {
                     WorkflowId = workflowId,
-                    StateId = wt.CurrentStateId
+                    Id = wt.CurrentStateId
                 },
-                TransitionName = wt.TriggerName,
+                Name = wt.TriggerName,
                 WorkflowId = workflowId
             }).ToList();
             

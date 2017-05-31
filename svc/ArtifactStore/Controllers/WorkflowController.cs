@@ -13,7 +13,7 @@ namespace ArtifactStore.Controllers
     [BaseExceptionFilter]
     public class WorkflowController : LoggableApiController
     {
-        internal readonly ISqlWorkflowRepository WorkflowRepository;
+        private readonly IWorkflowRepository _workflowRepository;
 
         public override string LogSource { get; } = "ArtifactStore.Workflow";
 
@@ -21,9 +21,9 @@ namespace ArtifactStore.Controllers
         {
         }
 
-        public WorkflowController(ISqlWorkflowRepository workflowRepository) 
+        public WorkflowController(IWorkflowRepository workflowRepository) 
         {
-            WorkflowRepository = workflowRepository;
+            _workflowRepository = workflowRepository;
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace ArtifactStore.Controllers
                 throw new BadRequestException("Please provide valid workflow id and state id");
             }
             //We assume that Session always exist as we have SessionRequired attribute
-            return Ok(await WorkflowRepository.GetTransitions(Session.UserId, artifactId, workflowId, stateId));
+            return Ok(await _workflowRepository.GetTransitions(Session.UserId, artifactId, workflowId, stateId));
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace ArtifactStore.Controllers
         public async Task<IHttpActionResult> GetCurrentStateAsync(int artifactId, int? revisionId = null, bool addDrafts = true)
         {
             //We assume that Session always exist as we have SessionRequired attribute
-            return Ok(await WorkflowRepository.GetCurrentState(Session.UserId, artifactId, revisionId ?? int.MaxValue, addDrafts));
+            return Ok(await _workflowRepository.GetCurrentState(Session.UserId, artifactId, revisionId ?? int.MaxValue, addDrafts));
         }
     }
 }

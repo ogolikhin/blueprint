@@ -4,7 +4,7 @@ using ServiceLibrary.Models.Workflow;
 
 namespace ArtifactStore.Repositories.Workflow
 {
-    public interface ISqlWorkflowRepository
+    public interface IWorkflowRepository
     {
         Task<WorkflowTransitionResult> GetTransitions(int userId, int artifactId, int workflowId, int stateId);
 

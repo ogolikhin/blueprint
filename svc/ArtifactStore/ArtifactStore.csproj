@@ -164,7 +164,7 @@
     <Compile Include="Repositories\SqlProjectMetaRepository.cs" />
     <Compile Include="Repositories\SqlRelationshipsRepository.cs" />
     <Compile Include="Repositories\SqlReviewsRepository.cs" />
-    <Compile Include="Repositories\Workflow\ISqlWorkflowRepository.cs" />
+    <Compile Include="Repositories\Workflow\IWorkflowRepository.cs" />
     <Compile Include="Repositories\Workflow\SqlWorkflowRepository.cs" />
   </ItemGroup>
   <ItemGroup>

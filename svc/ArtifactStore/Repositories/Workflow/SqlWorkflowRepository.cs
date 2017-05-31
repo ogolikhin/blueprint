@@ -11,7 +11,7 @@ using ServiceLibrary.Repositories;
 
 namespace ArtifactStore.Repositories.Workflow
 {
-    public class SqlWorkflowRepository : SqlBaseArtifactRepository, ISqlWorkflowRepository
+    public class SqlWorkflowRepository : SqlBaseArtifactRepository, IWorkflowRepository
     {
         public SqlWorkflowRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))

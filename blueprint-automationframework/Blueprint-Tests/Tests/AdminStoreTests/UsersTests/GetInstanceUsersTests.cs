@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using CustomAttributes;
 using Helper;
@@ -73,7 +72,7 @@ namespace AdminStoreTests.UsersTests
                 }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH);
 
                 //Verify:
-                var returnedUsers = (List<InstanceUser>) queryResult.Items;
+                var returnedUsers = queryResult.Items;
 
                 foreach (var user in expectedTotalUsers)
                 {
@@ -210,7 +209,7 @@ namespace AdminStoreTests.UsersTests
             }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH);
 
             //Verify:
-            var returnedUsers = (List<InstanceUser>)queryResult.Items;
+            var returnedUsers = queryResult.Items;
 
             Assert.IsNull(returnedUsers.Find(user => user.Id == addedUser.Id), "The deleted user was returned!");
         }

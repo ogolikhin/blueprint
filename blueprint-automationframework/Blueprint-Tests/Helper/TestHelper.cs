@@ -1955,7 +1955,7 @@ namespace Helper
         {
             var queryResult = AdminStore.GetUsers(adminUser, offset: 0, limit: int.MaxValue);
 
-            return queryResult.Items.ToList();
+            return queryResult.Items;
         }
 
         #endregion User management

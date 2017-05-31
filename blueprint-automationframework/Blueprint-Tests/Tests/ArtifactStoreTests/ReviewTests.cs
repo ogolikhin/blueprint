@@ -1,8 +1,6 @@
 ﻿using CustomAttributes;
 using Helper;
 using Model;
-using Model.ArtifactModel.Impl.OperationsResults;
-using Model.Common.Enums;
 using Model.Factories;
 using Model.NovaModel.Reviews;
 using NUnit.Framework;
@@ -10,7 +8,7 @@ using TestCommon;
 using Utilities;
 using TestConfig;
 using System.Collections.Generic;
-using Model.ArtifactModel.Enums;
+using Model.Impl;
 
 namespace ArtifactStoreTests
 {
@@ -21,14 +19,12 @@ namespace ArtifactStoreTests
         private IUser _adminUser = null;
         private IUser _user = null;
         private IProject _projectCustomData = null;
-        private IProject _project = null;
 
         [SetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            _project = ProjectFactory.GetProject(_adminUser);
         }
 
         [TearDown]
@@ -50,7 +46,7 @@ namespace ArtifactStoreTests
             const int numberOfArtifacts = 15;
 
             // Execute: 
-            ReviewContent reviewArtifacts = null;
+            QueryResult<ReviewArtifact> reviewArtifacts = null;
             Assert.DoesNotThrow(() => reviewArtifacts = Helper.ArtifactStore.GetReviewArtifacts(_user, reviewId),
                 "{0} should be successful.", nameof(Helper.ArtifactStore.GetReviewArtifacts));
 
@@ -74,7 +70,7 @@ namespace ArtifactStoreTests
             string password = testConfig.Password;
 
             var sessionToken = Helper.AdminStore.AddSession(userName, password);
-            var admin = UserFactory.CreateUserOnly(userName, password, InstanceAdminRole.DefaultInstanceAdministrator);
+            var admin = UserFactory.CreateUserOnly(userName, password);
             admin.SetToken(sessionToken.SessionId);
 
             ReviewSummary reviewContainer = null;
@@ -135,7 +131,7 @@ namespace ArtifactStoreTests
             const int reviewId = 113;
             const int artifactId = 22;
 
-            ArtifactReviewContent reviewParticipants = null;
+            QueryResult<ReviewArtifactDetails> reviewParticipants = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
@@ -153,12 +149,12 @@ namespace ArtifactStoreTests
         public void AddArtifactToReview_PublishedArtifact_CheckReturnedObject()
         {
             // Setup:
-            var artifactToAdd = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.Actor, _project.Id);
+            const int artifactToAddId = 22;
             const int reviewId = 113; // TODO: when real server-side call will be implemented review should be replaced
             // either with newly created one or with the copy of existing review
 
             AddArtifactsParameter content = new AddArtifactsParameter();
-            content.ArtifactIds = new List<int> { artifactToAdd.Id };
+            content.ArtifactIds = new List<int> { artifactToAddId };
             content.AddChildren = false;
 
             AddArtifactsResult addArtifactResult = null;
@@ -169,6 +165,33 @@ namespace ArtifactStoreTests
 
             // Verify:
             Assert.AreEqual(1, addArtifactResult.ArtifactCount, "Number of added artifacts should have expected value.");
+        }
+
+        [Category(Categories.GoldenData)]
+        [TestCase]
+        [TestRail(305010)]
+        [Description("Get Review Artifacts (Review Experience) by id from Custom Data project, check that number of artifacts has expected value.")]
+        public void GetReviewArtifacts_ExistingReview_Reviewer_CheckArtifactsCount()
+        {
+            // Setup:
+            const int reviewId = 112;
+
+            var testConfig = TestConfiguration.GetInstance();
+            string userName = testConfig.Username;
+            string password = testConfig.Password;
+
+            var sessionToken = Helper.AdminStore.AddSession(userName, password);
+            var admin = UserFactory.CreateUserOnly(userName, password);
+            admin.SetToken(sessionToken.SessionId);
+
+            QueryResult<ReviewedArtifact> reviewedArtifacts = null;
+
+            // Execute: 
+            Assert.DoesNotThrow(() => reviewedArtifacts = Helper.ArtifactStore.GetReviewedArtifacts(_adminUser, reviewId),
+                "{0} should throw no error.", nameof(Helper.ArtifactStore.GetReviewedArtifacts));
+
+            // Verify:
+            Assert.AreEqual(15, reviewedArtifacts.Items.Count, "TotalArtifacts should be equal to the expected number of artifacts in Review.");
         }
     }
 }

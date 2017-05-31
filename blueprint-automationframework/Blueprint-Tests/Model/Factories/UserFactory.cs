@@ -3,6 +3,7 @@ using Model.Common.Enums;
 using Model.Impl;
 using System;
 using System.Collections.Generic;
+using Model.InstanceAdminModel;
 using TestConfig;
 using Utilities;
 using Utilities.Factories;
@@ -55,6 +56,22 @@ namespace Model.Factories
         }
 
         /// <summary>
+        /// Creates a new user object with random values and adds it to the Blueprint database.
+        /// </summary>
+        /// <param name="customInstanceAdminRole">The custom Instance Admin Role to assign to the user.</param>
+        /// <param name="source">(optional) Where the user exists.</param>
+        /// <param name="licenseLevel">(optional) The license type of the user (Author, Collaborator, Viewer).</param>
+        /// <returns>A new unique user object that was added to the database.</returns>
+        public static IUser CreateUserAndAddToDatabase(CustomInstanceAdminRole customInstanceAdminRole,
+            UserSource source = UserSource.Database, LicenseLevel licenseLevel = LicenseLevel.Author)
+        {
+            var user = CreateUserOnly(source, licenseLevel, adminRole: null);
+            user.CustomInstanceAdminRole = customInstanceAdminRole;
+            user.CreateUser();
+            return user;
+        }
+
+        /// <summary>
         /// Creates a new user object with random values, but with the username & password specified
         /// and adds it to the Blueprint database.
         /// </summary>
@@ -67,8 +84,26 @@ namespace Model.Factories
             InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
             UserSource source = UserSource.Database)
         {
-            var user = CreateUserOnly(username, password, source);
-            user.InstanceAdminRole = instanceAdminRole;
+            var user = CreateUserOnly(username, password, instanceAdminRole, source);
+            user.CreateUser();
+            return user;
+        }
+
+        /// <summary>
+        /// Creates a new user object with random values, but with the username & password specified
+        /// and adds it to the Blueprint database.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
+        /// <param name="customInstanceAdminRole">The custom Instance Admin Role to assign to the user.</param>
+        /// <param name="source">(optional) Where the user exists.</param>
+        /// <returns>A new user object.</returns>
+        public static IUser CreateUserAndAddToDatabase(string username, string password,
+            CustomInstanceAdminRole customInstanceAdminRole,
+            UserSource source = UserSource.Database)
+        {
+            var user = CreateUserOnly(username, password, adminRole: null, source: source);
+            user.CustomInstanceAdminRole = customInstanceAdminRole;
             user.CreateUser();
             return user;
         }
@@ -87,8 +122,7 @@ namespace Model.Factories
             InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
             UserSource source = UserSource.Database)
         {
-            var user = CreateUserOnly(username, password, source, displayname);
-            user.InstanceAdminRole = instanceAdminRole;
+            var user = CreateUserOnly(username, password, instanceAdminRole, source, displayname);
             user.CreateUser();
             return user;
         }
@@ -98,15 +132,17 @@ namespace Model.Factories
         /// </summary>
         /// <param name="source">(optional) Where the user exists.</param>
         /// <param name="licenseLevel">The license type of the user (Author, Collaborator, Viewer).</param>
+        /// <param name="adminRole">(optional) The Instance Admin Role to assign to the user.</param>
         /// <returns>A new unique user object.</returns>
         public static IUser CreateUserOnly(
             UserSource source = UserSource.Database,
-            LicenseLevel licenseLevel = LicenseLevel.Author)
+            LicenseLevel licenseLevel = LicenseLevel.Author,
+            InstanceAdminRole? adminRole = InstanceAdminRole.DefaultInstanceAdministrator)
         {
             string username = RandomGenerator.RandomAlphaNumeric(10);
             string password = RandomGenerator.RandomAlphaNumeric(10) + "A1$";
 
-            return CreateUserOnly(username, password, source, licenseLevel: licenseLevel);
+            return CreateUserOnly(username, password, adminRole, source, licenseLevel: licenseLevel);
         }
 
         /// <summary>
@@ -114,14 +150,16 @@ namespace Model.Factories
         /// </summary>
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
+        /// <param name="adminRole">(optional) The Instance Admin Role to assign to the user.</param>
         /// <param name="source">(optional) Where the user exists.</param>
         /// <param name="displayname">(optional) The displayname. FirstName and LastName are used by default.</param>
-        /// <param name="licenseType">(optional) The license type of the user (Author, Collaborator, Viewer).</param>
+        /// <param name="licenseLevel">(optional) The license level of the user (Author, Collaborator, Viewer).</param>
         /// <returns>A new user object.</returns>
         public static IUser CreateUserOnly(
-            string username, 
-            string password, 
-            UserSource source = UserSource.Database, 
+            string username,
+            string password,
+            InstanceAdminRole? adminRole = null,
+            UserSource source = UserSource.Database,
             string displayname = null,
             LicenseLevel licenseLevel = LicenseLevel.Author)
         {
@@ -145,7 +183,7 @@ namespace Model.Factories
             user.Email = I18NHelper.FormatInvariant("{0}@{1}.com", user.Username, RandomGenerator.RandomAlphaNumeric(10));
             user.Enabled = true;
             user.FirstName = RandomGenerator.RandomAlphaNumeric(10);
-            user.InstanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator;
+            user.InstanceAdminRole = adminRole;
             user.LastName = RandomGenerator.RandomAlphaNumeric(10);
             user.DisplayName = displayname ?? I18NHelper.FormatInvariant("{0} {1}", user.FirstName, user.LastName);
             user.License = licenseLevel;
@@ -168,7 +206,7 @@ namespace Model.Factories
             string username = testConfig.Username;
             string password = testConfig.Password;
 
-            return CreateUserOnly(username, password);
+            return CreateUserOnly(username, password, adminRole: InstanceAdminRole.DefaultInstanceAdministrator);
         }
 
         /// <summary>

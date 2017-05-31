@@ -18,3 +18,5 @@ using System.Runtime.InteropServices;
     "183c202d2e06c1678790162bf255c8e60cd2a27d2a0b16adb1cb133cf22903d5d638471728e311" +
     "18cd31fdc51c767bde0dfb75a457ce718bc60acd8ccc2472836c1d2046e0787a8f7162eb6221b6" +
     "2b982c9c")]
+
+[assembly: log4net.Config.XmlConfigurator(Watch = true)]

@@ -287,7 +287,7 @@ namespace Model.ArtifactModel.Impl
     /// <summary>
     /// This is the class returned by some ArtifactStore REST calls.
     /// </summary>
-    public class NovaArtifactResponse : NovaArtifactDetails, INovaArtifactResponse
+    public class NovaArtifactResponse : NovaArtifactDetails
     {
         // TODO: Remove this class and use NovaArtifactDetails directly instead (make CustomPropertyValues & SpecificPropertyValues null in constructor).
 
@@ -330,8 +330,8 @@ namespace Model.ArtifactModel.Impl
         /// <summary>
         /// The artifacts that were published.
         /// </summary>
-        [JsonConverter(typeof(SerializationUtilities.ConcreteListConverter<INovaArtifactResponse, NovaArtifactResponse>))]
-        public List<INovaArtifactResponse> Artifacts { get; set; } = new List<INovaArtifactResponse>();
+        [JsonConverter(typeof(SerializationUtilities.ConcreteListConverter<INovaArtifactDetails, NovaArtifactResponse>))]
+        public List<INovaArtifactDetails> Artifacts { get; set; } = new List<INovaArtifactDetails>();
 
         /// <summary>
         /// The projects where the published artifacts exist.

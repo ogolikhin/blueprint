@@ -6,6 +6,7 @@ using CefSharp;
 using ImageRenderService.Helpers;
 using ImageRenderService.Transport;
 using Topshelf;
+using ImageRenderService.Logging;
 
 namespace ImageRenderService.ImageGen
 {
@@ -37,6 +38,10 @@ namespace ImageRenderService.ImageGen
 
         public bool Start(HostControl hostControl)
         {
+            // Add a Standard Log Listener to the Logger
+            LogManager.Manager.AddListener(Log4NetStandardLogListener.Instance);
+            Log.Info("ImageGen Service started.");
+
             var settings = new CefSettings
             {
                 //By default CefSharp will use an in-memory cache, you need to specify a Cache Folder to persist data
@@ -60,11 +65,17 @@ namespace ImageRenderService.ImageGen
         {
             try
             {
+                Log.Info("ImageGen Service stopped.");
+
                 _nServiceBusServer.Stop().Wait();
 
                 _server.CloseAsync().Wait();
                 _server.Dispose();
                 BrowserPool.Dispose();
+
+                // Remove Log Listener
+                Log4NetStandardLogListener.Clear();
+                LogManager.Manager.ClearListeners();
             }
             catch (Exception e)
             {

@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
+using Model.InstanceAdminModel;
 using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
@@ -573,13 +574,11 @@ namespace Helper
         /// <param name="user">The user creating the artifact.</param>
         /// <param name="itemType">The Nova base ItemType to create.</param>
         /// <returns>The Nova artifact wrapped in an IArtifact.</returns>
-        public IArtifact CreateWrapAndPublishNovaArtifactForCustomArtifactType(IProject project, IUser user, ItemTypePredefined itemType)
+        public ArtifactWrapper CreateWrapAndPublishNovaArtifactForCustomArtifactType(IProject project, IUser user, ItemTypePredefined itemType)
         {
-
             var artifactTypeName = ArtifactStoreHelper.GetCustomArtifactTypeName(itemType);
 
-            return CreateWrapAndPublishNovaArtifact(project, user, itemType,
-                artifactTypeName: artifactTypeName);
+            return CreateAndPublishNovaArtifact(user, project, itemType, artifactTypeName: artifactTypeName);
         }
 
         /// <summary>
@@ -1319,6 +1318,23 @@ namespace Helper
         }
 
         /// <summary>
+        /// Creates a new user object with random values and adds it to the Blueprint database.
+        /// </summary>
+        /// <param name="customInstanceAdminRole">The custom Instance Admin Role to assign to the user.</param>
+        /// <param name="source">(optional) Where the user exists.</param>
+        /// <param name="licenseLevel">(optional) The license level of the user (Author, Collaborator, Viewer).</param>
+        /// <returns>A new unique user object that was added to the database.</returns>
+        public IUser CreateUserAndAddToDatabase(
+            CustomInstanceAdminRole customInstanceAdminRole,
+            UserSource source = UserSource.Database,
+            LicenseLevel licenseLevel = LicenseLevel.Author)
+        {
+            var user = UserFactory.CreateUserAndAddToDatabase(customInstanceAdminRole, source, licenseLevel);
+            Users.Add(user);
+            return user;
+        }
+
+        /// <summary>
         /// Creates a new user object with random values, but with the username & password specified
         /// and adds it to the Blueprint database.
         /// </summary>
@@ -1332,6 +1348,24 @@ namespace Helper
             UserSource source = UserSource.Database)
         {
             var user = UserFactory.CreateUserAndAddToDatabase(username, password, instanceAdminRole, source);
+            Users.Add(user);
+            return user;
+        }
+
+        /// <summary>
+        /// Creates a new user object with random values, but with the username & password specified
+        /// and adds it to the Blueprint database.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
+        /// <param name="customInstanceAdminRole">The custom Instance Admin Role to assign to the user.</param>
+        /// <param name="source">(optional) Where the user exists.</param>
+        /// <returns>A new user object.</returns>
+        public IUser CreateUserAndAddToDatabase(string username, string password,
+            CustomInstanceAdminRole customInstanceAdminRole,
+            UserSource source = UserSource.Database)
+        {
+            var user = UserFactory.CreateUserAndAddToDatabase(username, password, customInstanceAdminRole, source);
             Users.Add(user);
             return user;
         }
@@ -1380,6 +1414,36 @@ namespace Helper
             UserSource source = UserSource.Database)
         {
             var user = CreateUserAndAddToDatabase(instanceAdminRole, source);
+
+            return AuthenticateUser(user, targets);
+        }
+
+        /// <summary>
+        /// Creates a new user object with random values and adds it to the Blueprint database,
+        /// then authenticates to AdminStore and/or OpenApi to get session tokens.
+        /// </summary>
+        /// <param name="targets">The authentication targets (AccessControl and/or OpenAPI).</param>
+        /// <param name="customInstanceAdminRole">The Instance Admin Role to assign to the user.</param>
+        /// <param name="source">(optional) Where the user exists.</param>
+        /// <returns>A new user that has the requested access tokens.</returns>
+        public IUser CreateUserAndAuthenticate(AuthenticationTokenTypes targets,
+            CustomInstanceAdminRole customInstanceAdminRole,
+            UserSource source = UserSource.Database)
+        {
+            var user = CreateUserAndAddToDatabase(customInstanceAdminRole, source);
+
+            return AuthenticateUser(user, targets);
+        }
+
+        /// <summary>
+        /// Authenticates the user to get AdminStore and/or OpenApi session tokens.
+        /// </summary>
+        /// <param name="user">The user to authenticate.</param>
+        /// <param name="targets">The authentication targets (AccessControl and/or OpenAPI).</param>
+        /// <returns>The user with the authenticated token(s).</returns>
+        public IUser AuthenticateUser(IUser user, AuthenticationTokenTypes targets)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
 
             if ((targets & AuthenticationTokenTypes.AccessControlToken) != 0)
             {
@@ -1874,9 +1938,24 @@ namespace Helper
         {
             var ids = InstanceUsers.Where(u => u.Id != null).Select(u => u.Id.Value).ToList();
 
-            AdminStore.DeleteUsers(adminUser, ids);
+            if (ids.Any())
+            {
+                AdminStore.DeleteUsers(adminUser, ids);
 
-            InstanceUsers.RemoveAll(user => user.Id != null && ids.Contains(user.Id.Value));
+                InstanceUsers.RemoveAll(user => user.Id != null && ids.Contains(user.Id.Value));
+            }
+        }
+
+        /// <summary>
+        /// Gets all non-deleted Instance Users in the users table
+        /// </summary>
+        /// <param name="adminUser">The admin user getting the instance users.</param>
+        /// <returns>A list of all current users</returns>
+        public List<InstanceUser> GetCurrentUsers(IUser adminUser)
+        {
+            var queryResult = AdminStore.GetUsers(adminUser, offset: 0, limit: int.MaxValue);
+
+            return queryResult.Items.ToList();
         }
 
         #endregion User management

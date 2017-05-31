@@ -121,7 +121,7 @@ namespace Model.ModelHelpers
         /// </summary>
         /// <param name="user">The user to perform the delete.</param>
         /// <returns>A list of artifacts that were deleted.</returns>
-        public List<INovaArtifactResponse> Delete(IUser user)
+        public List<INovaArtifactDetails> Delete(IUser user)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
@@ -590,6 +590,12 @@ namespace Model.ModelHelpers
         {
             get { return Artifact.ItemTypeVersionId; }
             set { Artifact.ItemTypeVersionId = value; }
+        }
+
+        public DateTime? LastSavedOn
+        {
+            get { return Artifact.LastSavedOn; }
+            set { Artifact.LastSavedOn = value; }
         }
 
         public bool? LastSaveInvalid

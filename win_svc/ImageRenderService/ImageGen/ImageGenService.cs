@@ -74,9 +74,7 @@ namespace ImageRenderService.ImageGen
                 _server.Dispose();
                 BrowserPool.Dispose();
 
-                Log.Info("ImageGen Service is stopped.");
-
-                
+                Log.Info("ImageGen Service is stopped.");                
             }
             catch (Exception e)
             {

@@ -2,13 +2,13 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using ImageRenderService.Helpers;
+using ImageRenderService.Logging;
 
 namespace ImageRenderService.ImageGen
 {
@@ -30,6 +30,7 @@ namespace ImageRenderService.ImageGen
 
         public async Task<MemoryStream> GenerateImageAsync(string processJsonModel, int maxImageWidth, int maxImageHeight, ImageFormat format)
         {
+            Log.Info($"Started the image generation: maxImageWidth={maxImageWidth}, maxImageHeight={maxImageHeight}, format={format}");
             var browser = await _browserPool.Rent();
             if (browser == null)
             {
@@ -61,11 +62,6 @@ namespace ImageRenderService.ImageGen
                     // Dispose it to avoid keeping the memory alive.  Especially important in 32 - bit applications.
                     task.Result.Dispose();
                     }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                        throw;
-                    }
                     finally
                     {
                         _browserPool.Return(browser);
@@ -73,12 +69,14 @@ namespace ImageRenderService.ImageGen
 
                 }, TaskScheduler.Default);
             }
-            catch (Exception e2)
+            catch (Exception ex)
             {
-                Console.WriteLine(e2);
+                Log.Error($"The image generation failed - {ex.Message}");
                 _browserPool.Return(browser);
                 throw;
             }
+
+            Log.Info($"Finished the image generation: length={imageStream.Length} bytes.");
             return imageStream;
         }
 
@@ -138,7 +136,7 @@ namespace ImageRenderService.ImageGen
                 throw new ApplicationException(browser.AsyncBoundObject.ErrorMessage);
             }
 
-            Console.WriteLine($"width = {browser.AsyncBoundObject.Width}, height = {browser.AsyncBoundObject.Height}, scale = {browser.AsyncBoundObject.Scale}");
+            Log.Info($"Cef Image: width = {browser.AsyncBoundObject.Width}, height = {browser.AsyncBoundObject.Height}, scale = {browser.AsyncBoundObject.Scale}");
 
             var w = browser.AsyncBoundObject.Width + 20;
             var h = browser.AsyncBoundObject.Height + 20;

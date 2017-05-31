@@ -326,26 +326,28 @@ namespace ArtifactStore.Repositories
         }
 
 
-        private async Task<ReviewTableOfContent> GetTableOfContentAsync(int reviewId, int? revisionId, int userId, int? offset, int? limit)
+        private async Task<ReviewTableOfContent> GetTableOfContentAsync(int reviewId, int revisionId, int userId, int? offset, int? limit)
         {
-            
+
             var param = new DynamicParameters();
             param.Add("@reviewId", reviewId);
-            param.Add("@offset", offset);
-            param.Add("@limit", limit);
             param.Add("@revisionId", revisionId);
             param.Add("@userId", userId);
+            param.Add("@offset", offset);
+            param.Add("@limit", limit);
+            param.Add("@total", dbType:DbType.Int32, direction: ParameterDirection.Output);
 
-            var result = await ConnectionWrapper.QueryMultipleAsync<ReviewTableOfContentItem, int>("GetReviewTableOfContent", param, commandType: CommandType.StoredProcedure);
+            var result = await ConnectionWrapper.QueryAsync<ReviewTableOfContentItem>("GetReviewTableOfContent", param, commandType: CommandType.StoredProcedure);
 
             return new ReviewTableOfContent
             {
-                Items = result.Item1.ToList(),
-                Total = result.Item2.SingleOrDefault()
+                Items = result.ToList(),
+                Total = param.Get<int>("@total")
             };
         }
 
-    
+
+        
         public async Task<ReviewTableOfContent> GetReviewTableOfContent(int reviewId, int revisionId, int userId, int? offset, int? limit)
         {
 
@@ -363,6 +365,7 @@ namespace ArtifactStore.Repositories
                 throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
             }
 
+            var reviewedArtifacts = await GetReviewArtifactsByParticipant(toc.Items.Select(a => a.Id), userId, reviewId, revisionId);
 
             //TODO: Update artifact statuses and permissions
             //
@@ -371,18 +374,28 @@ namespace ArtifactStore.Repositories
                 if (SqlArtifactPermissionsRepository.HasPermissions(tocItem.Id, artifactPermissionsDictionary, RolePermissions.Read))
                 {
                     //TODO update item status
-                    
+                    tocItem.HasAccess = true;
+                    var artifact = reviewedArtifacts.First(it => it.Id == tocItem.Id);
+                    tocItem.Viewed = artifact?.ViewState == ViewStateType.Viewed;
                 }
                 else
                 {
                     //not granted SES
                     //TODO: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=6593&fullScreen=false
-                    tocItem.Included = false;
-                    tocItem.Viewed = false;
+                    UnauthorizedItem(tocItem);
                 }
             }
 
             return toc;
+        }
+
+        private void UnauthorizedItem(ReviewTableOfContentItem item)
+        {
+            item.Name = null; // unauthorize
+            item.Prefix = null;
+            item.Included = false;
+            item.Viewed = false;
+            item.HasAccess = false;
         }
     }
 }

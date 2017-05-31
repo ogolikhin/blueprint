@@ -129,6 +129,7 @@
     <Compile Include="Models\InstanceAdminPrivileges.cs" />
     <Compile Include="Models\Enums\ItemTypePredefined.cs" />
     <Compile Include="Models\Enums\ProjectSection.cs" />
+    <Compile Include="Models\Enums\QueryResultCode.cs" />
     <Compile Include="Models\Enums\SortOrder.cs" />
     <Compile Include="Models\Files\File.cs" />
     <Compile Include="Models\Files\FileInfo.cs" />
@@ -153,6 +154,7 @@
     <Compile Include="Models\ProjectNameIdPair.cs" />
     <Compile Include="Models\ProjectPermissions.cs" />
     <Compile Include="Models\QueryResult.cs" />
+    <Compile Include="Models\QuerySingleResult.cs" />
     <Compile Include="Models\RolePermissions.cs" />
     <Compile Include="Models\Sorting.cs" />
     <Compile Include="Models\SQLTraceLogModel.cs" />
@@ -168,7 +170,11 @@
     <Compile Include="Models\SubArtifact.cs" />
     <Compile Include="Models\UserGroup.cs" />
     <Compile Include="Models\UserInfo.cs" />
-    <Compile Include="Models\Workflow\Transitions.cs" />
+    <Compile Include="Models\Workflow\Workflow.cs" />
+    <Compile Include="Models\Workflow\WorkflowConstants.cs" />
+    <Compile Include="Models\Workflow\WorkflowState.cs" />
+    <Compile Include="Models\Workflow\WorkflowTransition.cs" />
+    <Compile Include="Models\Workflow\WorkflowTransitionResult.cs" />
     <Compile Include="Repositories\ConfigControl\IServiceLogRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IConfigRepository.cs" />
     <Compile Include="Repositories\ConfigControl\ServiceLogRepository.cs" />
@@ -196,8 +202,6 @@
     <Compile Include="Repositories\SqlUsersRepository.cs" />
     <Compile Include="Exceptions\SqlTimeoutException.cs" />
     <Compile Include="Repositories\BaselineRawDataHelper.cs" />
-    <Compile Include="Repositories\Workflow\SqlWorkflowRepository.cs" />
-    <Compile Include="Repositories\Workflow\ISqlWorkflowRepository.cs" />
     <Compile Include="Swagger\SwaggerConfig.cs" />
     <Compile Include="Models\Files\NetworkContentStream.cs" />
     <Compile Include="Helpers\WebHeaderCollectionExtensions.cs" />

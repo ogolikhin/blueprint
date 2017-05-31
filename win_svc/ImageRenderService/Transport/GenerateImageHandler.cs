@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Drawing.Imaging;
-using System.IO;
 using System.Threading.Tasks;
 using BluePrintSys.Messaging.Models.ProcessImageGeneration;
 using ImageRenderService.ImageGen;
+using ImageRenderService.Logging;
 using NServiceBus;
 
 namespace ImageRenderService.Transport
@@ -12,13 +12,12 @@ namespace ImageRenderService.Transport
     {
         public async Task Handle(GenerateImageMessage message, IMessageHandlerContext context)
         {
-
+            Log.Info("Received Generate Image Message.");
             ImageResponseMessage imageGenerated;
-            MemoryStream image = null;
             try
             {
                 //generate image
-                image = await ImageGenService.Instance.ImageGenerator.GenerateImageAsync(message.ProcessJsonModel, message.MaxWidth, message.MaxHeight, ImageFormat.Png);
+                var image = await ImageGenService.Instance.ImageGenerator.GenerateImageAsync(message.ProcessJsonModel, message.MaxWidth, message.MaxHeight, ImageFormat.Png);
                 imageGenerated = new ImageResponseMessage
                 {
                     ProcessImage = image.ToArray(),
@@ -31,13 +30,14 @@ namespace ImageRenderService.Transport
                     imageGenerated = new ImageResponseMessage
                     {
                         ProcessImage = null,
-                        ErrorMessage = "Image generation failed",
+                        ErrorMessage = "Image generation failed.",
                         StackTrace = null
                     };
                 }
             }
             catch (Exception ex)
             {
+                Log.Error(ex);
                 imageGenerated = new ImageResponseMessage
                 {
                     ProcessImage = null,

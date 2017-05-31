@@ -40,7 +40,7 @@ namespace ImageRenderService.ImageGen
         {
             // Add a Standard Log Listener to the Logger
             LogManager.Manager.AddListener(Log4NetStandardLogListener.Instance);
-            Log.Info("ImageGen Service started.");
+            Log.Info("ImageGen Service is starting...");
 
             var settings = new CefSettings
             {
@@ -58,6 +58,7 @@ namespace ImageRenderService.ImageGen
 
             _nServiceBusServer.Start(NServiceBusConnectionString).Wait();
 
+            Log.Info("ImageGen Service is started.");
             return true;
         }
 
@@ -65,7 +66,7 @@ namespace ImageRenderService.ImageGen
         {
             try
             {
-                Log.Info("ImageGen Service stopped.");
+                Log.Info("ImageGen Service is stopping...");
 
                 _nServiceBusServer.Stop().Wait();
 
@@ -73,13 +74,15 @@ namespace ImageRenderService.ImageGen
                 _server.Dispose();
                 BrowserPool.Dispose();
 
+                Log.Info("ImageGen Service is stopped.");
+
                 // Remove Log Listener
                 Log4NetStandardLogListener.Clear();
                 LogManager.Manager.ClearListeners();
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Log.Error(e);
             }
 
             return true;

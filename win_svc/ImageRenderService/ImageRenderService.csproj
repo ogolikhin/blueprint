@@ -204,7 +204,6 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Log\BlueprintImageGenService.log" />
     <None Include="ProcessData_Temp_200.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

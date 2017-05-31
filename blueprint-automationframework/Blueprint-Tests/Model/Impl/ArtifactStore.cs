@@ -2,7 +2,6 @@ using Common;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
-using Model.ArtifactModel.Impl.OperationsResults;
 using Model.Factories;
 using Model.NovaModel.Impl;
 using Newtonsoft.Json;
@@ -945,7 +944,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.GetReviewArtifacts(IUser, int, int?, int?, int?)"/>
-        public ReviewContent GetReviewArtifacts(IUser user, int reviewId, int? offset = 0, int? limit = 50,
+        public QueryResult<ReviewArtifact> GetReviewArtifacts(IUser user, int reviewId, int? offset = 0, int? limit = 50,
             int? versionId = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Reviews_id_.CONTENT, reviewId);
@@ -968,7 +967,7 @@ namespace Model.Impl
                 queryParams.Add("versionId", versionId.ToString());
             }
 
-            return restApi.SendRequestAndDeserializeObject<ReviewContent>(path, RestRequestMethod.GET,
+            return restApi.SendRequestAndDeserializeObject<QueryResult<ReviewArtifact>>(path, RestRequestMethod.GET,
                 queryParameters: queryParams, shouldControlJsonChanges: true);
         }
 
@@ -1010,7 +1009,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.GetArtifactStatusesByParticipant(IUser, int, int, int?, int?, int?)"/>
-        public ArtifactReviewContent GetArtifactStatusesByParticipant(IUser user, int artifactId, int reviewId,
+        public QueryResult<ReviewArtifactDetails> GetArtifactStatusesByParticipant(IUser user, int artifactId, int reviewId,
             int? offset = 0, int? limit = 50, int? versionId = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Containers_id_.ARTIFACT_REVIEWERS, reviewId);
@@ -1032,7 +1031,7 @@ namespace Model.Impl
                 queryParams.Add("versionId", versionId.ToString());
             }
 
-            return restApi.SendRequestAndDeserializeObject<ArtifactReviewContent>(path, RestRequestMethod.GET,
+            return restApi.SendRequestAndDeserializeObject<QueryResult<ReviewArtifactDetails>>(path, RestRequestMethod.GET,
                 queryParameters: queryParams, shouldControlJsonChanges: true);
         }
 
@@ -1043,6 +1042,33 @@ namespace Model.Impl
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
             return restApi.SendRequestAndDeserializeObject<AddArtifactsResult, AddArtifactsParameter>(path,
                 RestRequestMethod.PUT, content, shouldControlJsonChanges: true);
+        }
+
+        /// <seealso cref="IArtifactStore.GetReviewedArtifacts(IUser, int, int?, int?, int?)"/>
+        public QueryResult<ReviewedArtifact> GetReviewedArtifacts(IUser user, int reviewId, int? offset = 0,
+            int? limit = 50, int? revisionId = int.MaxValue)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Containers_id_.ARTIFACTS, reviewId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+            var queryParams = new Dictionary<string, string>();
+
+            if (offset != null)
+            {
+                queryParams.Add("offset", offset.ToString());
+            }
+
+            if (limit != null)
+            {
+                queryParams.Add("limit", limit.ToString());
+            }
+
+            if (revisionId != null)
+            {
+                queryParams.Add("revisionId", revisionId.ToString());
+            }
+
+            return restApi.SendRequestAndDeserializeObject<QueryResult<ReviewedArtifact>>(path, RestRequestMethod.GET,
+                queryParameters: queryParams, shouldControlJsonChanges: true);
         }
 
         #region Process methods

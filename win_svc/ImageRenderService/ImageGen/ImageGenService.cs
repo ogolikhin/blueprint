@@ -74,15 +74,17 @@ namespace ImageRenderService.ImageGen
                 _server.Dispose();
                 BrowserPool.Dispose();
 
-                Log.Info("ImageGen Service is stopped.");
-
-                // Remove Log Listener
-                Log4NetStandardLogListener.Clear();
-                LogManager.Manager.ClearListeners();
+                Log.Info("ImageGen Service is stopped.");                
             }
             catch (Exception e)
             {
                 Log.Error(e);
+            }
+            finally
+            {
+                // Remove Log Listener
+                Log4NetStandardLogListener.Clear();
+                LogManager.Manager.ClearListeners();
             }
 
             return true;

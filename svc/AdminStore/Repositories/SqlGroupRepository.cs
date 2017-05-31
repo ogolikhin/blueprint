@@ -167,10 +167,7 @@ namespace AdminStore.Repositories
                 orderField = sort(tabularData.Sorting);
             }
             var parameters = new DynamicParameters();
-            if (groupId > 0)
-            {
-                parameters.Add("@GroupId", groupId);
-            }
+            parameters.Add("@GroupId", groupId);
             parameters.Add("@Offset", tabularData.Pagination.Offset);
             parameters.Add("@Limit", tabularData.Pagination.Limit);
             parameters.Add("@OrderField", orderField);

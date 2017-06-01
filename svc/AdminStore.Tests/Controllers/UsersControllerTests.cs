@@ -1248,17 +1248,19 @@ namespace AdminStore.Controllers
             // Exception
         }
 
+        #region Password
+
         [TestMethod]
-        public async Task CreateUser_PasswordEmpty_ReturnBadRequestResult()
+        public async Task CreateUser_PasswordIsNull_AllowFallbackIsNull_FederatedAuthenticationIsDisabled_ReturnBadRequestResult()
         {
             // Arrange
-            _user.Password = string.Empty;
-            _user.AllowFallback = true;
+            _user.Password = null;
+            _user.AllowFallback = null;
             _privilegesRepository
-               .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
-               .ReturnsAsync(FullPermissions);
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
             _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
-                .ReturnsAsync(new UserManagementSettings {IsFederatedAuthenticationEnabled = true});
+                .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = false });
             BadRequestException exception = null;
 
             // Act
@@ -1274,6 +1276,236 @@ namespace AdminStore.Controllers
             // Assert
             Assert.IsNotNull(exception);
             Assert.AreEqual(exception.ErrorCode, ErrorCodes.BadRequest);
+        }
+
+        [TestMethod]
+        public async Task CreateUser_PasswordIsProvided_AllowFallbackIsNull_FederatedAuthenticationIsDisabled_ReturnCreatedResult()
+        {
+            // Arrange
+            _user.AllowFallback = null;
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+            _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
+                .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = false });
+
+            // Act
+            var result = await _controller.CreateUser(_user);
+
+            // Assert
+            Assert.IsNotNull(result.Content);
+        }
+
+        [TestMethod]
+        public async Task CreateUser_PasswordIsNull_AllowFallbackIsFalse_FederatedAuthenticationIsDisabled_ReturnBadRequestResult()
+        {
+            // Arrange
+            _user.Password = null;
+            _user.AllowFallback = false;
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+            _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
+                .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = false });
+            BadRequestException exception = null;
+
+            // Act
+            try
+            {
+                await _controller.CreateUser(_user);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(exception.ErrorCode, ErrorCodes.BadRequest);
+        }
+
+        [TestMethod]
+        public async Task CreateUser_PasswordIsProvided_AllowFallbackIsFalse_FederatedAuthenticationIsDisabled_ReturnCreatedResult()
+        {
+            // Arrange
+            _user.AllowFallback = false;
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+            _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
+                .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = false });
+
+            // Act
+            var result = await _controller.CreateUser(_user);
+
+            // Assert
+            Assert.IsNotNull(result.Content);
+        }
+
+        [TestMethod]
+        public async Task CreateUser_PasswordIsNull_AllowFallbackIsTrue_FederatedAuthenticationIsDisabled_ReturnBadRequestResult()
+        {
+            // Arrange
+            _user.Password = null;
+            _user.AllowFallback = true;
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+            _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
+                .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = false });
+            BadRequestException exception = null;
+
+            // Act
+            try
+            {
+                await _controller.CreateUser(_user);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(exception.ErrorCode, ErrorCodes.BadRequest);
+        }
+
+        [TestMethod]
+        public async Task CreateUser_PasswordIsProvided_AllowFallbackIsTrue_FederatedAuthenticationIsDisabled_ReturnCreatedResult()
+        {
+            // Arrange
+            _user.AllowFallback = true;
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+            _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
+                .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = false });
+
+            // Act
+            var result = await _controller.CreateUser(_user);
+
+            // Assert
+            Assert.IsNotNull(result.Content);
+        }
+
+        [TestMethod]
+        public async Task CreateUser_PasswordIsNull_AllowFallbackIsNull_FederatedAuthenticationIsEnabled_ReturnCreatedResult()
+        {
+            // Arrange
+            _user.Password = null;
+            _user.AllowFallback = null;
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+            _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
+                .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = true });
+
+            // Act
+            var result = await _controller.CreateUser(_user);
+
+            // Assert
+            Assert.IsNotNull(result.Content);
+        }
+
+        [TestMethod]
+        public async Task CreateUser_PasswordIsProvided_AllowFallbackIsNull_FederatedAuthenticationIsEnabled_ReturnCreatedResult()
+        {
+            // Arrange
+            _user.AllowFallback = null;
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+            _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
+                .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = true });
+
+            // Act
+            var result = await _controller.CreateUser(_user);
+
+            // Assert
+            Assert.IsNotNull(result.Content);
+        }
+
+        [TestMethod]
+        public async Task CreateUser_PasswordIsNull_AllowFallbackIsFalse_FederatedAuthenticationIsEnabled_ReturnCreatedResult()
+        {
+            // Arrange
+            _user.Password = null;
+            _user.AllowFallback = false;
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+            _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
+                .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = true });
+
+            // Act
+            var result = await _controller.CreateUser(_user);
+
+            // Assert
+            Assert.IsNotNull(result.Content);
+        }
+
+        [TestMethod]
+        public async Task CreateUser_PasswordIsProvided_AllowFallbackIsFalse_FederatedAuthenticationIsEnabled_ReturnCreatedResult()
+        {
+            // Arrange
+            _user.AllowFallback = false;
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+            _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
+                .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = true });
+
+            // Act
+            var result = await _controller.CreateUser(_user);
+
+            // Assert
+            Assert.IsNotNull(result.Content);
+        }
+
+        [TestMethod]
+        public async Task CreateUser_PasswordIsNull_AllowFallbackIsTrue_FederatedAuthenticationIsEnabled_ReturnBadRequestResult()
+        {
+            // Arrange
+            _user.Password = null;
+            _user.AllowFallback = true;
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+            _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
+                .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = true });
+            BadRequestException exception = null;
+
+            // Act
+            try
+            {
+                await _controller.CreateUser(_user);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(exception.ErrorCode, ErrorCodes.BadRequest);
+        }
+
+        [TestMethod]
+        public async Task CreateUser_PasswordIsProvided_AllowFallbackIsTrue_FederatedAuthenticationIsEnabled_ReturnCreatedResult()
+        {
+            // Arrange
+            _user.AllowFallback = true;
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+            _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
+                .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = false });
+
+            // Act
+            var result = await _controller.CreateUser(_user);
+
+            // Assert
+            Assert.IsNotNull(result.Content);
         }
 
         [TestMethod]
@@ -1350,6 +1582,8 @@ namespace AdminStore.Controllers
             // Assert
             // Exception
         }
+
+        #endregion Password
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]

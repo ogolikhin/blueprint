@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using Model.Common.Enums;
+using Model.NovaModel.AdminStoreModel;
 using Utilities.Facades;
 
 namespace Model
@@ -135,7 +136,7 @@ namespace Model
         int AddUser(IUser adminUser, InstanceUser user);
 
         /// <summary>
-        /// Deletes users.
+        /// Deletes users.  To delete all users except those in the list, pass selectAll = true.
         /// (Runs: POST /users/delete)
         /// </summary>
         /// <param name="adminUser">The admin user deleting users.</param>
@@ -143,8 +144,8 @@ namespace Model
         /// <param name="selectAll">(optional) The selection scope indicator. If false, 
         /// the users are included in the deletion. If true, the users are excluded from the deletion. 
         /// Default is false.</param>
-        /// <returns>The returned HTTP Status Code</returns>
-        HttpStatusCode DeleteUsers(IUser adminUser, List<int> ids, bool selectAll = false);
+        /// <returns>The DeleteResult object.</returns>
+        DeleteResult DeleteUsers(IUser adminUser, List<int> ids, bool selectAll = false);
 
         /// <summary>
         /// Delete a single user.
@@ -155,8 +156,8 @@ namespace Model
         /// <param name="selectAll">(optional) The selection scope indicator. If false, 
         /// the user is included in the deletion. If true, the user is excluded from the deletion. 
         /// Default is false.</param>
-        /// <returns>The returned HTTP Status Code</returns>
-        HttpStatusCode DeleteUser(IUser adminUser, int id, bool selectAll = false);
+        /// <returns>The DeleteResult object.</returns>
+        DeleteResult DeleteUser(IUser adminUser, int id, bool selectAll = false);
 
         /// <summary>
         /// Gets login user for specified token.

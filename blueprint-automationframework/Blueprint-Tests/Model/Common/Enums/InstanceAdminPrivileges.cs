@@ -37,7 +37,11 @@ namespace Model.Common.Enums
 
         ViewGroups = 0x1000,
 
+        ManageGroupsOnly = 0x2000,
+
         ManageGroups = 0x2000 | ViewGroups,
+
+        AssignAdminRolesOnly = 0x4000,
 
         AssignAdminRoles = 0x4000 | ManageUsers | ManageGroups,
 

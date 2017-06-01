@@ -142,15 +142,23 @@ namespace AdminStoreTests
         private static void VerifyConfigJs(string configJs)
         {
             Logger.WriteDebug("GetConfigJS returned: {0}", configJs);
-            var keysAndValues = ReadApplicationSettingsFromDatabase();
+            var applicationSettings = ReadApplicationSettingsFromDatabase();
 
-            foreach (var keyValue in keysAndValues)
+            foreach (var setting in applicationSettings)
             {
-                string searchTerm = I18NHelper.FormatInvariant("'{0}':'{1}'", keyValue.Key, keyValue.Value);
+                string searchTerm = I18NHelper.FormatInvariant("'{0}':'{1}'", setting.Item1, setting.Item2);
                 Logger.WriteDebug("Checking if Config JS contains {0} ...", searchTerm);
 
-                Assert.That(configJs.Contains(searchTerm),
-                    "The expected string {0} wasn't found in the returned Config JS text!", searchTerm);
+                if (!setting.Item3)
+                {
+                    Assert.That(configJs.Contains(searchTerm),
+                        "The expected string {0} wasn't found in the returned Config JS text!", searchTerm);
+                }
+                else
+                {
+                    Assert.That(!configJs.Contains(searchTerm),
+                        "The restricted setting {0} was found in the returned Config JS text!", searchTerm);
+                }
             }
         }
 
@@ -159,11 +167,11 @@ namespace AdminStoreTests
         /// Used to compare against what was returned by GetConfigJS().
         /// </summary>
         /// <param name="numberOfRecords">(optional) The max number of records to return.</param>
-        /// <returns>A dictionary of key/value strings contained in the [dbo].[ApplicationSettings] table.</returns>
-        private static Dictionary<string, string> ReadApplicationSettingsFromDatabase(int numberOfRecords = 200)
+        /// <returns>A List of tuples with key/value/restricted records contained in the [dbo].[ApplicationSettings] table.</returns>
+        private static List<Tuple<string, string, bool>> ReadApplicationSettingsFromDatabase(int numberOfRecords = 200)
         {
             const string LOCALE = "en-US";
-            var keysAndValues = new Dictionary<string, string>();
+            List<Tuple<string, string, bool>> keysAndValues = new List<Tuple<string, string, bool>>();
 
             using (var database = DatabaseFactory.CreateDatabase())
             {
@@ -189,7 +197,10 @@ namespace AdminStoreTests
                                     int valueIdOrdinal = reader.GetOrdinal("Value");
                                     string value = (string)reader.GetSqlString(valueIdOrdinal);
 
-                                    keysAndValues.Add(key.Replace("\\'", "'"), value.Replace("\\'", "'"));
+                                    int restrictedIdOrdinal = reader.GetOrdinal("Restricted");
+                                    bool restricted = (bool)reader.GetSqlBoolean(restrictedIdOrdinal);
+
+                                    keysAndValues.Add(new Tuple<string, string, bool>(key.Replace("\\'", "'"), value.Replace("\\'", "'"), restricted));
                                 }
                             }
                         }

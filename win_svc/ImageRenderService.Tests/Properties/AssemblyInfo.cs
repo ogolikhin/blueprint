@@ -11,3 +11,5 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("4e038d5e-8e8f-4158-a3ed-d06531be135e")]
+
+[assembly: log4net.Config.XmlConfigurator(Watch = true)]

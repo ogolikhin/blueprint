@@ -69,8 +69,8 @@ namespace ArtifactStoreTests
         {
             // Setup:
             _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
-            const int REVIEW_ID = 112;
-            const int REVISION_ID = 239;
+            const int REVIEW_ID = 112;//1183;// 112;
+            const int REVISION_ID = 239;//2566;//239;
 
             var testConfig = TestConfiguration.GetInstance();
             string userName = testConfig.Username;
@@ -89,8 +89,6 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(15, reviewContainer.TotalArtifacts, "TotalArtifacts should be equal to the expected number of artifacts in Review.");
         }
-
-
 
         [Category(Categories.GoldenData)]
         [TestCase]
@@ -144,7 +142,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifactToAdd = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.Actor, _project.Id);
-            const int reviewId = 113; // TODO: when real server-side call will be implemented review should be replaced
+            const int reviewId = 1183; // TODO: when real server-side call will be implemented review should be replaced
             // either with newly created one or with the copy of existing review
 
             AddArtifactsParameter content = new AddArtifactsParameter();

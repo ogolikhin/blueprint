@@ -1879,6 +1879,7 @@ namespace Helper
         /// <param name="adminPrivileges">(optional) The user's instance admin privileges.  Defaults to None.</param>
         /// <param name="imageId">(optional) The user's image id. Defaults to null.</param>
         /// <param name="password">(optional) The user's password. Randomly generated if not specified.</param>
+        /// <param name="expirePassword">(optional) Pass false if you don't want the user's password to expire.</param>
         /// <returns>The created instance user.</returns>
         public InstanceUser CreateAndAddInstanceUser(IUser adminUser, 
             string login = null,
@@ -1891,10 +1892,11 @@ namespace Helper
             InstanceAdminRole? instanceAdminRole = null,
             InstanceAdminPrivileges? adminPrivileges = null,
             int? imageId = null,
-            string password = null)
+            string password = null,
+            bool expirePassword = true)
         {
             var createdUser = AdminStoreHelper.GenerateRandomInstanceUser(login, firstName, lastName, email, displayname, source, licenseLevel,
-                instanceAdminRole, adminPrivileges, imageId, password);
+                instanceAdminRole, adminPrivileges, imageId, password, expirePassword);
 
             int createdUserId = 0;
 

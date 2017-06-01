@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using AdminStore.Models;
-using ServiceLibrary.Repositories;
 using ServiceLibrary.Helpers;
 using Dapper;
+using ServiceLibrary.Models;
 
-namespace AdminStore.Repositories
+namespace ServiceLibrary.Repositories
 {
     public class ApplicationSettingsRepository : IApplicationSettingsRepository
     {

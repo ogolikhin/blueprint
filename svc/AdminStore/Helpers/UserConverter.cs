@@ -41,15 +41,17 @@ namespace AdminStore.Helpers
 
                 var decodedPassword = SystemEncryptions.Decode(user.Password);
 
-                if ((settings.IsFederatedAuthenticationEnabled && user.AllowFallback.HasValue && user.AllowFallback.Value) || !string.IsNullOrWhiteSpace(decodedPassword))
+                if (string.IsNullOrWhiteSpace(decodedPassword) &&
+                    (!user.AllowFallback.HasValue || !user.AllowFallback.Value) &&
+                    settings.IsFederatedAuthenticationEnabled)
+                {
+                    databaseUser.Password = GeneratePassword();
+                }
+                else
                 {
                     ValidatePassword(databaseUser, decodedPassword);
                     databaseUser.Password = HashingUtilities.GenerateSaltedHash(decodedPassword, databaseUser.UserSALT);
                 }
-                else
-                {
-                    GeneratePassword(databaseUser);
-                } 
             }
 
             return databaseUser;
@@ -72,14 +74,13 @@ namespace AdminStore.Helpers
 
             if (passwordUppercase == user.DisplayName?.ToUpperInvariant())
             {
-                throw new BadRequestException(ErrorMessages.PasswordSameAsDisplayName,
-                    ErrorCodes.PasswordSameAsDisplayName);
+                throw new BadRequestException(ErrorMessages.PasswordSameAsDisplayName, ErrorCodes.PasswordSameAsDisplayName);
             }
         }
 
-        private static void GeneratePassword(User user)
+        private static string GeneratePassword()
         {
-            user.Password = Guid.NewGuid() + "ABC!@#$";
+            return Guid.NewGuid() + "ABC!@#$";
         }
     }
 }

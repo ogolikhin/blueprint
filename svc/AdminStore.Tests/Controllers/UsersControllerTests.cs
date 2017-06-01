@@ -1499,7 +1499,7 @@ namespace AdminStore.Controllers
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
             _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
-                .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = false });
+                .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = true });
 
             // Act
             var result = await _controller.CreateUser(_user);

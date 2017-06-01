@@ -21,22 +21,30 @@ namespace ArtifactStore.Repositories
 
         private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
 
+        internal readonly IApplicationSettingsRepository _applicationSettingsRepository;
+
+        private const string ReviewArtifactHierarchyRebuildIntervalInMinutesKey = "ReviewArtifactHierarchyRebuildIntervalInMinutes";
+        private const int DefaultReviewArtifactHierarchyRebuildIntervalInMinutes = 20;
+
         public SqlReviewsRepository(): this(new SqlConnectionWrapper(ServiceConstants.RaptorMain), 
                                             new SqlArtifactVersionsRepository(), 
                                             new SqlItemInfoRepository(),
-                                            new SqlArtifactPermissionsRepository())
+                                            new SqlArtifactPermissionsRepository(),
+                                            new ApplicationSettingsRepository())
         {
         }
 
         public SqlReviewsRepository(ISqlConnectionWrapper connectionWrapper, 
                                     IArtifactVersionsRepository artifactVersionsRepository, 
                                     ISqlItemInfoRepository itemInfoRepository,
-                                    IArtifactPermissionsRepository artifactPermissionsRepository)
+                                    IArtifactPermissionsRepository artifactPermissionsRepository,
+                                    IApplicationSettingsRepository applicationSettingsRepository)
         {
             ConnectionWrapper = connectionWrapper;
             _artifactVersionsRepository = artifactVersionsRepository;
             _itemInfoRepository = itemInfoRepository;
             _artifactPermissionsRepository = artifactPermissionsRepository;
+            _applicationSettingsRepository = applicationSettingsRepository;
         }
 
         public async Task<ReviewSummary> GetReviewSummary(int containerId, int userId)
@@ -235,6 +243,7 @@ namespace ArtifactStore.Repositories
         private async Task<QueryResult<T>> GetReviewArtifactsAsync<T>(int reviewId, int userId, Pagination pagination, int? revisionId = null, bool? addDrafts = true)
             where T : BaseReviewArtifact
         {
+            var refreshInterval = await _applicationSettingsRepository.GetValue<int>(ReviewArtifactHierarchyRebuildIntervalInMinutesKey, DefaultReviewArtifactHierarchyRebuildIntervalInMinutes);
             var param = new DynamicParameters();
             param.Add("@reviewId", reviewId);
             param.Add("@offset", pagination.Offset);
@@ -242,6 +251,7 @@ namespace ArtifactStore.Repositories
             param.Add("@revisionId", revisionId);
             param.Add("@addDrafts", revisionId < int.MaxValue ? false : addDrafts);
             param.Add("@userId", userId);
+            param.Add("@refreshInterval", refreshInterval);
 
             var result = await ConnectionWrapper.QueryMultipleAsync<T, int>("GetReviewArtifacts", param, commandType: CommandType.StoredProcedure);
             return new QueryResult<T>()
@@ -328,13 +338,14 @@ namespace ArtifactStore.Repositories
 
         private async Task<ReviewTableOfContent> GetTableOfContentAsync(int reviewId, int revisionId, int userId, int? offset, int? limit)
         {
-
+            var refreshInterval = await _applicationSettingsRepository.GetValue<int>(ReviewArtifactHierarchyRebuildIntervalInMinutesKey, DefaultReviewArtifactHierarchyRebuildIntervalInMinutes);
             var param = new DynamicParameters();
             param.Add("@reviewId", reviewId);
             param.Add("@revisionId", revisionId);
             param.Add("@userId", userId);
             param.Add("@offset", offset);
             param.Add("@limit", limit);
+            param.Add("@refreshInterval", refreshInterval);
             param.Add("@total", dbType:DbType.Int32, direction: ParameterDirection.Output);
 
             var result = await ConnectionWrapper.QueryAsync<ReviewTableOfContentItem>("GetReviewTableOfContent", param, commandType: CommandType.StoredProcedure);

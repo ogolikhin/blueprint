@@ -898,7 +898,7 @@ namespace AdminStoreTests.UsersTests
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            var restApi = new RestApiFacade(Helper.ArtifactStore.Address, adminUser?.Token?.AccessControlToken);
+            var restApi = new RestApiFacade(Helper.AdminStore.Address, adminUser?.Token?.AccessControlToken);
             var path = I18NHelper.FormatInvariant(USER_PATH_ID, user.Id);
 
             try

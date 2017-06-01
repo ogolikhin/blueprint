@@ -53,8 +53,17 @@ namespace ImageRenderService.ImageGen
             //Perform dependency check to make sure all relevant resources are in our output directory.
             Cef.Initialize(settings, performDependencyCheck: true, browserProcessHandler: null);
 
-            _server = new HttpSelfHostServer(_config);
-            _server.OpenAsync().Wait();
+            // Keep it for testing purposes but make it safe.
+            try
+            {
+                _server = new HttpSelfHostServer(_config);
+                _server.OpenAsync().Wait();
+            }
+            catch (Exception e)
+            {
+                // Debug in order that customers do not see it in the production
+                Log.DebugFormat("Failed to start self host web server.", e);
+            }
 
             _nServiceBusServer.Start(NServiceBusConnectionString).Wait();
 
@@ -70,8 +79,18 @@ namespace ImageRenderService.ImageGen
 
                 _nServiceBusServer.Stop().Wait();
 
-                _server.CloseAsync().Wait();
-                _server.Dispose();
+                // Keep it for testing purposes but make it safe.
+                try
+                {
+                    _server.CloseAsync().Wait();
+                    _server.Dispose();
+                }
+                catch (Exception e)
+                {
+                    // Debug in order that customers do not see it in the production
+                    Log.DebugFormat("Failed to stop self host web server.", e);
+                }
+
                 BrowserPool.Dispose();
 
                 Log.Info("ImageGen Service is stopped.");                

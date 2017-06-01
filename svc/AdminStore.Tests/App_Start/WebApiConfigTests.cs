@@ -52,7 +52,7 @@ namespace AdminStore
             config.AssertAction<UsersController>("PostPasswordResetAsync", HttpMethod.Post, "users/passwordrecovery/reset");
             config.AssertAction<UsersController>("GetUser", HttpMethod.Get, "users/1");
             config.AssertAction<UsersController>("GetUsers", HttpMethod.Get, "users?offset=0&limit=20&sort=login&order=asc");
-            config.AssertAction<UsersController>("PostUser", HttpMethod.Post, "users");
+            config.AssertAction<UsersController>("CreateUser", HttpMethod.Post, "users");
             config.AssertAction<UsersController>("UpdateUser", HttpMethod.Put, "users/1");
             config.AssertAction<UsersController>("PostReset", HttpMethod.Post, "users/reset?login=admin");
             config.AssertAction<UsersController>("DeleteUsers", HttpMethod.Post, "users/delete");

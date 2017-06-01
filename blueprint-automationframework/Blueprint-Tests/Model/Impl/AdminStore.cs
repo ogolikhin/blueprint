@@ -234,29 +234,40 @@ namespace Model.Impl
         {
             var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
             string path = RestPaths.Svc.AdminStore.Users.USERS;
-
-            if (user != null && user.Password != null)
-            {
-                user.Password = HashingUtilities.EncodeTo64UTF8(user.Password);
-            }
+            string savedPassword = user?.Password;
 
             try
             {
-                Logger.WriteInfo("Creating user...");
+                if ((user != null) && (user.Password != null))
+                {
+                    user.Password = HashingUtilities.EncodeTo64UTF8(user.Password);
+                }
 
-                var response = restApi.SendRequestAndGetResponse(
-                    path,
-                    RestRequestMethod.POST,
-                    bodyObject: user,
-                    expectedStatusCodes: new List<HttpStatusCode> { HttpStatusCode.Created });
+                try
+                {
+                    Logger.WriteInfo("Creating user...");
 
-                return I18NHelper.Int32ParseInvariant(response.Content);
+                    var response = restApi.SendRequestAndGetResponse(
+                        path,
+                        RestRequestMethod.POST,
+                        bodyObject: user,
+                        expectedStatusCodes: new List<HttpStatusCode> {HttpStatusCode.Created});
+
+                    return I18NHelper.Int32ParseInvariant(response.Content);
+                }
+                catch (WebException ex)
+                {
+                    Logger.WriteError("Content = '{0}'", restApi.Content);
+                    Logger.WriteError("Error while performing AddUser - {0}", ex.Message);
+                    throw;
+                }
             }
-            catch (WebException ex)
+            finally
             {
-                Logger.WriteError("Content = '{0}'", restApi.Content);
-                Logger.WriteError("Error while performing AddUser - {0}", ex.Message);
-                throw;
+                if (user != null)
+                {
+                    user.Password = savedPassword;
+                }
             }
         }
 

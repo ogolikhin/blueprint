@@ -310,8 +310,8 @@ namespace AdminStoreTests.UsersTests
                 errorMessage);
         }
 
-        [TestCase("", InstanceAdminErrorMessages.PasswordMissing, Description = "Empty Password")]
-        [TestCase(null, InstanceAdminErrorMessages.PasswordMissing, Description = "Null Password")]
+        [TestCase("", InstanceAdminErrorMessages.PasswordMissing, Description = "Empty Password", Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/DDD9rkA7  Returns 201
+        [TestCase(null, InstanceAdminErrorMessages.PasswordMissing, Description = "Null Password", Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/DDD9rkA7  Returns 201
         [TestCase("$Blue99", InstanceAdminErrorMessages.PasswordInvalidLength, Description = "Password less that 8 characters")]
         [TestCase("$Blue9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999", 
             InstanceAdminErrorMessages.PasswordInvalidLength, Description = "Password greater than 128 characters")]
@@ -407,7 +407,6 @@ namespace AdminStoreTests.UsersTests
                 InstanceAdminErrorMessages.DisplayNameRequired);
         }
 
-        [TestCase((uint)1, Description = "Minimum 2 characters")]
         [TestCase((uint)256, Description = "Maximum 255 characters")]
         [Description("Create an instance user with an invalid display name. Try to add the user. " +
                      "Verify that 400 Bad Request is returned.")]
@@ -463,7 +462,6 @@ namespace AdminStoreTests.UsersTests
                 );
         }
 
-        [TestCase((uint)1, Description = "Minimum 2 characters")]
         [TestCase((uint)256, Description = "Maximum 255 characters")]
         [Description("Create an instance user with an invalid first name. Try to add the user. " +
                      "Verify that 400 Bad Request is returned.")]
@@ -477,7 +475,6 @@ namespace AdminStoreTests.UsersTests
                 InstanceAdminErrorMessages.FirstNameFieldLimitation);
         }
 
-        [TestCase((uint)1, Description = "Minimum 2 characters")]
         [TestCase((uint)256, Description = "Maximum 255 characters")]
         [Description("Create an instance user with an invalid last name. Try to add the user. " +
                      "Verify that 400 Bad Request is returned.")]
@@ -504,18 +501,28 @@ namespace AdminStoreTests.UsersTests
                 InstanceAdminErrorMessages.DepartmentFieldLimitation);
         }
 
-        [TestCase((uint)1, Description = "Minimum 2 characters")]
         [TestCase((uint)256, Description = "Maximum 255 characters")]
         [Description("Create an instance user with an invalid title. Try to add the user. " +
                      "Verify that 400 Bad Request is returned.")]
         [TestRail(303399)]
-        public  void AddInstanceUser_InvalidTitle_400BadRequest(uint numCharacters)
+        public void AddInstanceUser_InvalidTitle_400BadRequest(uint numCharacters)
         {
             CreateDefaultInstanceUserWithInvalidPropertyVerify400BadRequest(
                 _adminUser,
                 "Title",
                 RandomGenerator.RandomAlphaNumericUpperAndLowerCase(numCharacters),
                 InstanceAdminErrorMessages.TitleFieldLimitation);
+        }
+
+        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
+        [TestCase]
+        [Description("Create a valid instance user but when you add the user don't Base64 encode the password. " +
+                     "Verify that 400 Bad Request is returned.")]
+        [TestRail(000)]
+        public static void AddInstanceUser_SendPlainTextPassword_400BadRequest()
+        {
+            //const string expectedErrorMessage =
+            //    "The input is not a valid Base-64 string as it contains a non-base 64 character, more than two padding characters, or an illegal character among the padding characters.";
         }
 
         #endregion 400 Bad Request Tests

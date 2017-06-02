@@ -22,7 +22,7 @@ namespace AdminStore
             config.EnsureInitialized();
 
             // Assert
-            config.AssertTotalRoutes(41, "Please update asserts in WebApiConfigTests when changing routes.");
+            config.AssertTotalRoutes(42, "Please update asserts in WebApiConfigTests when changing routes.");
             config.AssertAction<ConfigController>("GetConfigSettings", HttpMethod.Get, "config/settings");
             config.AssertAction<ConfigController>("GetConfig", HttpMethod.Get, "config/config.js");
             config.AssertAction<ConfigController>("GetApplicationSettings", HttpMethod.Get, "config");
@@ -59,7 +59,6 @@ namespace AdminStore
             config.AssertAction<UsersController>("InstanceAdminChangePassword", HttpMethod.Post, "users/changepassword");
             config.AssertAction<UsersController>("GetUserGroups", HttpMethod.Get, "/users/1074/groups?offset=0&limit=1&sort=name&order=desc&search=test");
             config.AssertAction<UsersController>("DeleteUserFromGroups", HttpMethod.Post, "/users/1074/groups");
-            config.AssertAction<UsersController>("GetUserGroups", HttpMethod.Get, "users/1074/groups?offset=0&limit=1&sort=name&order=desc&search=test");
             config.AssertAction<UsersController>("AddUserToGroups", HttpMethod.Put, "users/10/groups");
             config.AssertAction<GroupsController>("GetGroups", HttpMethod.Get, "groups?userid=10&offset=0&limit=1&sort=name&order=desc&search=test");
             config.AssertAction<GroupsController>("DeleteGroups", HttpMethod.Post, "/groups/delete");
@@ -67,7 +66,7 @@ namespace AdminStore
             config.AssertAction<GroupsController>("GetGroup", HttpMethod.Get, "/groups/1");
             config.AssertAction<GroupsController>("UpdateGroup", HttpMethod.Put, "/groups/1");
             config.AssertAction<GroupsController>("GetGroupsAndUsers", HttpMethod.Get, "/groups/usersgroups?offset=0&limit=20&sort=email&order=asc");
-
+            config.AssertAction<GroupsController>("GetGroupMembers", HttpMethod.Get, "/groups/10/members?offset=0&limit=20&sort=email&order=asc");
         }
 
         [TestMethod]

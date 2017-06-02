@@ -592,5 +592,60 @@ namespace AdminStore.Controllers
         }
 
         #endregion
+
+        #region GetGroupMembers
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task GetGroupMembers_PaginationParamsAreNotCorrect_BadRequestResult()
+        {
+            //arrange
+
+            //act
+            await _controller.GetGroupMembers(_groupId, new Pagination(), new Sorting());
+
+            //assert
+            // Exception
+
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task GetGroupMembers_UserDoesNotHaveRequiredPermissions_ForbiddenResult()
+        {
+            //arrange
+            var resultQuery = new QueryResult<GroupUser>();
+            _privilegesRepository
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.None);
+            _sqlGroupRepositoryMock.Setup(repo => repo.GetGroupMembersAsync(It.IsAny<int>(), It.IsAny<TabularData>(), It.IsAny<Func<Sorting, string>>()));
+
+            //act
+            var result = await _controller.GetGroupMembers(_groupId, _groupsTabularPagination, _groupsSorting) as OkNegotiatedContentResult<QueryResult<GroupUser>>;
+
+            //assert
+            // Exception
+        }
+
+        [TestMethod]
+        public async Task GetGroupMembers_AllParametersAreCorrect_ReturnMembersList()
+        {
+            //arrange
+            var queryResult = new QueryResult<GroupUser>();
+
+            _privilegesRepository
+               .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+               .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+            _sqlGroupRepositoryMock.Setup(repo => repo.GetGroupMembersAsync(It.IsAny<int>(), It.IsAny<TabularData>(), It.IsAny<Func<Sorting, string>>())).ReturnsAsync(queryResult);
+
+            //act
+            var result = await _controller.GetGroupMembers(_groupId, _groupsTabularPagination, _groupsSorting) as OkNegotiatedContentResult<QueryResult<GroupUser>>;
+
+            //assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result.Content, typeof(QueryResult<GroupUser>));
+        }
+
+        #endregion
     }
 }

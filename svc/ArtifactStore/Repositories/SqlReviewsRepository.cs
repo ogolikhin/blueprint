@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,7 +25,12 @@ namespace ArtifactStore.Repositories
         internal readonly IApplicationSettingsRepository _applicationSettingsRepository;
 
         private const string ReviewArtifactHierarchyRebuildIntervalInMinutesKey = "ReviewArtifactHierarchyRebuildIntervalInMinutes";
+
         private const int DefaultReviewArtifactHierarchyRebuildIntervalInMinutes = 20;
+
+        private const string NOT_SPECIFIED = "Not Specified";
+
+        private const string PENDING = "Pending";
 
         public SqlReviewsRepository(): this(new SqlConnectionWrapper(ServiceConstants.RaptorMain), 
                                             new SqlArtifactVersionsRepository(), 
@@ -207,8 +213,7 @@ namespace ArtifactStore.Repositories
                 ReviewedArtifact reviewedArtifact;
                 if (reviewedArtifacts.TryGetValue(artifact.Id, out reviewedArtifact))
                 {
-                    artifact.ViewState = reviewedArtifact.ViewState;
-                    artifact.Approval = reviewedArtifact.Approval;
+                    artifact.Approval = GetApprovalStatus(reviewedArtifact, artifact.IsApprovalRequired);
                     artifact.ApprovalFlag = reviewedArtifact.ApprovalFlag;
                     artifact.ArtifactVersion = reviewedArtifact.ArtifactVersion;
                     artifact.PublishedOnTimestamp = reviewedArtifact.PublishedOnTimestamp;
@@ -227,6 +232,23 @@ namespace ArtifactStore.Repositories
             }
 
             return reviewArtifacts;
+        }
+
+        /// <summary>
+        /// To replicate Silverlight behaviour, all 'Not Specified' labels will be converted to 'Pending'
+        /// </summary>
+        /// <param name="reviewedArtifact"></param>
+        /// <param name="isApprovalRequired"></param>
+        /// <returns></returns>
+        private static string GetApprovalStatus(ReviewedArtifact reviewedArtifact, bool isApprovalRequired)
+        {
+            if (reviewedArtifact.ApprovalFlag == ApprovalType.NotSpecified
+                && string.Compare(reviewedArtifact.Approval, NOT_SPECIFIED, StringComparison.OrdinalIgnoreCase) == 0
+                || isApprovalRequired && string.IsNullOrEmpty(reviewedArtifact.Approval))
+            {
+                return PENDING;
+            }
+            return reviewedArtifact.Approval;
         }
 
         private Task<IEnumerable<ReviewedArtifact>> GetReviewArtifactsByParticipant(IEnumerable<int> artifactIds, int userId, int reviewId, int revisionId)
@@ -387,7 +409,7 @@ namespace ArtifactStore.Repositories
                     //TODO update item status
                     tocItem.HasAccess = true;
                     var artifact = reviewedArtifacts.First(it => it.Id == tocItem.Id);
-                    tocItem.Viewed = artifact?.ViewState == ViewStateType.Viewed;
+                    tocItem.Viewed = artifact?.ViewedArtifactVersion != null;
                 }
                 else
                 {

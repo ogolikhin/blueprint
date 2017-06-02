@@ -58,8 +58,14 @@ namespace AdminStoreTests.UsersTests
         [TestRail(303340)]
         public void AddInstanceUser_ValidUser_UserCreated()
         {
-            // Setup & Execute:
-            var createdUser = Helper.CreateAndAddInstanceUser(_adminUser);
+            // Setup:
+            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                createdUser.Id = Helper.AdminStore.AddUser(_adminUser, createdUser);
+            }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
 
             InstanceUser addedUser = null;
 
@@ -69,6 +75,8 @@ namespace AdminStoreTests.UsersTests
             }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
 
             // Verify:
+            // Update Id and CurrentVersion in CreatedUser for comparison
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUser.Id);
 
             AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
         }
@@ -210,8 +218,13 @@ namespace AdminStoreTests.UsersTests
                 var userPermissionsToManageUsers = Helper.CreateUserAndAuthenticate(
                     TestHelper.AuthenticationTokenTypes.AccessControlToken, adminRole);
 
+                var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
+
                 // Execute:
-                var createdUser = Helper.CreateAndAddInstanceUser(userPermissionsToManageUsers);
+                Assert.DoesNotThrow(() =>
+                {
+                    createdUser.Id = Helper.AdminStore.AddUser(userPermissionsToManageUsers, createdUser);
+                }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
 
                 InstanceUser addedUser = null;
 
@@ -221,6 +234,9 @@ namespace AdminStoreTests.UsersTests
                 }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
 
                 // Verify:
+                // Update Id and CurrentVersion in CreatedUser for comparison
+                AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUser.Id);
+
                 AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
             }
         }
@@ -244,8 +260,13 @@ namespace AdminStoreTests.UsersTests
             var userWithPermissionsToAssignAdminRoles = Helper.CreateUserAndAuthenticate(
                 TestHelper.AuthenticationTokenTypes.AccessControlToken, InstanceAdminRole.AssignInstanceAdministrators);
 
+            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser(instanceAdminRole: adminRole);
+
             // Execute:
-            var createdUser = Helper.CreateAndAddInstanceUser(userWithPermissionsToAssignAdminRoles, instanceAdminRole: adminRole);
+            Assert.DoesNotThrow(() =>
+            {
+                createdUser.Id = Helper.AdminStore.AddUser(userWithPermissionsToAssignAdminRoles, createdUser);
+            }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
 
             InstanceUser addedUser = null;
 
@@ -257,6 +278,9 @@ namespace AdminStoreTests.UsersTests
             // Verify:
             // Update License Type for comparison
             createdUser.LicenseType = expectedLicenseLevel;
+
+            // Update Id and CurrentVersion in CreatedUser for comparison
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUser.Id);
 
             AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
         }
@@ -314,8 +338,8 @@ namespace AdminStoreTests.UsersTests
                 errorMessage);
         }
 
-        [TestCase("", InstanceAdminErrorMessages.PasswordMissing, Description = "Empty Password", Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/DDD9rkA7  Returns 201
-        [TestCase(null, InstanceAdminErrorMessages.PasswordMissing, Description = "Null Password", Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/DDD9rkA7  Returns 201
+        [TestCase("", InstanceAdminErrorMessages.PasswordMissing, Description = "Empty Password")]
+        [TestCase(null, InstanceAdminErrorMessages.PasswordMissing, Description = "Null Password")]
         [TestCase("$Blue99", InstanceAdminErrorMessages.PasswordInvalidLength, Description = "Password less that 8 characters")]
         [TestCase("$Blue9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999", 
             InstanceAdminErrorMessages.PasswordInvalidLength, Description = "Password greater than 128 characters")]
@@ -518,7 +542,6 @@ namespace AdminStoreTests.UsersTests
                 InstanceAdminErrorMessages.TitleFieldLimitation);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/wiwUFifW  Returns 500 error.
         [TestCase]
         [Description("Create a valid instance user but when you add the user don't Base64 encode the password. " +
                      "Verify that 400 Bad Request is returned.")]
@@ -533,19 +556,16 @@ namespace AdminStoreTests.UsersTests
                 "'POST '{0}' should return 400 Bad Request if the Password isn't Base64 encoded.");
 
             // Verify:
-            const string expectedErrorMessage =
-                "The input is not a valid Base-64 string as it contains a non-base 64 character, more than two padding characters, or an illegal character among the padding characters. ";
-
-            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, expectedErrorMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.BadRequest, InstanceAdminErrorMessages.PasswordIsNotBase64);
         }
 
         #endregion 400 Bad Request Tests
 
         #region 401 Unauthorized Tests
 
-        [TestCase(null, "Token is missing or malformed.")]
-        [TestCase("", "Token is invalid.")]
-        [TestCase(CommonConstants.InvalidToken, "Token is invalid.")]
+        [TestCase(null, InstanceAdminErrorMessages.TokenMissingOrMalformed)]
+        [TestCase("", InstanceAdminErrorMessages.TokenInvalid)]
+        [TestCase(CommonConstants.InvalidToken, InstanceAdminErrorMessages.TokenInvalid)]
         [Description("Create and add an instance user with an invalid token header. " +
                      "Verify that 401 Unauthorized is returned.")]
         [TestRail(303373)]
@@ -593,12 +613,11 @@ namespace AdminStoreTests.UsersTests
                 var ex = Assert.Throws<Http403ForbiddenException>(() =>
                 {
                     Helper.AdminStore.AddUser(userWithNoPermissionsToManageUsers, createdUser);
-                },
-                    "'POST {0}' should return 403 Forbidden when the user adding the created user has no permissions to manage users!",
+                }, "'POST {0}' should return 403 Forbidden when the user adding the created user has no permissions to manage users!",
                     USER_PATH);
 
                 // Verify:
-                TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "The user does not have permissions.");
+                TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.Forbidden, InstanceAdminErrorMessages.UserDoesNotHavePermissions);
             }
         }
 

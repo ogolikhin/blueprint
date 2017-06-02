@@ -422,5 +422,15 @@ namespace Model
         /// <param name="adminUser">The admin user getting the instance roles list.</param>
         /// <returns>The retrieved list of Instance Admin Roles</returns>
         List<AdminRole> GetInstanceRoles(IUser adminUser);
+
+        /// <summary>
+        /// Changes the user's password when called by an instance admin
+        /// (Runs: POST /svc/adminstore/users/changepassword)
+        /// </summary>
+        /// <param name="adminUser">THe admin user changing the password.</param>
+        /// <param name="user">The user that will have the password changed.</param>
+        /// <param name="newPassword">The new password</param>
+        /// <returns>The returned HTTP Status Code.</returns>
+        HttpStatusCode InstanceAdminChangePassword(IUser adminUser, InstanceUser user, string newPassword);
     }
 }

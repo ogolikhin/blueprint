@@ -248,9 +248,9 @@ namespace AdminStoreTests.UsersTests
 
         #region 401 Unauthorized Tests
 
-        [TestCase(null, "Token is missing or malformed.")]
-        [TestCase("", "Token is invalid.")]
-        [TestCase(CommonConstants.InvalidToken, "Token is invalid.")]
+        [TestCase(null, InstanceAdminErrorMessages.TokenMissingOrMalformed)]
+        [TestCase("", InstanceAdminErrorMessages.TokenInvalid)]
+        [TestCase(CommonConstants.InvalidToken, InstanceAdminErrorMessages.TokenInvalid)]
         [Description("Create and add several default instance users. Try to get the users using an invalid token header. " +
                      "Verify that 401 Unauthorized is returned.")]
         [TestRail(303745)]
@@ -296,10 +296,10 @@ namespace AdminStoreTests.UsersTests
                 {
                     Helper.AdminStore.GetUsers(userWithNoPermissionsToGetUsers, offset: 0, limit: 999);
                 },
-                    "'PUT {0}' should return 403 Forbidden when the user updating the user has no permissions to get users!", USER_PATH);
+                    "'GET {0}' should return 403 Forbidden when the user updating the user has no permissions to get users!", USER_PATH);
 
                 // Verify:
-                TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "The user does not have permissions.");
+                TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.Forbidden, InstanceAdminErrorMessages.UserDoesNotHavePermissions);
             }
         }
 

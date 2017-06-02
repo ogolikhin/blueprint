@@ -90,7 +90,7 @@ namespace AdminStoreTests.UsersTests
             var ex = Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 Helper.AdminStore.GetUserById(userWithInvalidTokenHeader, createdUser.Id);
-            }, "'PUT {0}' should return 401 Unauthorized with invalid token header!", USER_PATH_ID);
+            }, "'GET {0}' should return 401 Unauthorized with invalid token header!", USER_PATH_ID);
 
             // Verify:
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, errorMessage);
@@ -120,8 +120,7 @@ namespace AdminStoreTests.UsersTests
                 var ex = Assert.Throws<Http403ForbiddenException>(() =>
                 {
                     Helper.AdminStore.GetUserById(userWithNoPermissionsToGetUsers, createdUser.Id);
-                },
-                    "'PUT {0}' should return 403 Forbidden when the user updating the user has no permissions to get users!", USER_PATH_ID);
+                }, "'GET {0}' should return 403 Forbidden when the user updating the user has no permissions to get users!", USER_PATH_ID);
 
                 // Verify:
                 TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.Forbidden, InstanceAdminErrorMessages.UserDoesNotHavePermissions);
@@ -143,7 +142,7 @@ namespace AdminStoreTests.UsersTests
             var ex = Assert.Throws<Http404NotFoundException>(() =>
             {
                 Helper.AdminStore.GetUserById(_adminUser, userId);
-            }, "'PUT {0}' should return 404 Not Found for a non-existent user ID!", USER_PATH_ID);
+            }, "'GET {0}' should return 404 Not Found for a non-existent user ID!", USER_PATH_ID);
 
             // Verify:
             if (userId > 0)

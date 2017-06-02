@@ -511,7 +511,6 @@ namespace AdminStoreTests.UsersTests
                 InstanceAdminErrorMessages.DisplayNameRequired);
         }
 
-        [TestCase((uint)1, Description = "Minimum 2 characters")]
         [TestCase((uint)256, Description = "Maximum 255 characters")]
         [Description("Create and add a default instance user. Modify the display name of the user to an invalid value. " +
                      "Update the user. Verify 400 Bad Request is returned.")]
@@ -582,7 +581,6 @@ namespace AdminStoreTests.UsersTests
                 errorMessage);
         }
 
-        [TestCase((uint)1, Description = "Minimum 2 characters")]
         [TestCase((uint)256, Description = "Maximum 255 characters")]
         [Description("Create and add a default instance user.  Modify the first name to an invalid value. " +
                      "Update the user. Verify that 400 Bad Request is returned.")]
@@ -596,7 +594,6 @@ namespace AdminStoreTests.UsersTests
                 InstanceAdminErrorMessages.FirstNameFieldLimitation);
         }
 
-        [TestCase((uint)1, Description = "Minimum 2 characters")]
         [TestCase((uint)256, Description = "Maximum 255 characters")]
         [Description("Create and add a default instance user.  Modify the last name to an invalid value. " +
                      "Update the user. Verify that 400 Bad Request is returned.")]
@@ -623,7 +620,6 @@ namespace AdminStoreTests.UsersTests
                 InstanceAdminErrorMessages.DepartmentFieldLimitation);
         }
 
-        [TestCase((uint)1, Description = "Minimum 2 characters")]
         [TestCase((uint)256, Description = "Maximum 255 characters")]
         [Description("Create and add a default instance user.  Modify the title to an invalid value. " +
                      "Update the user. Verify that 400 Bad Request is returned.")]
@@ -902,7 +898,7 @@ namespace AdminStoreTests.UsersTests
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            var restApi = new RestApiFacade(Helper.ArtifactStore.Address, adminUser?.Token?.AccessControlToken);
+            var restApi = new RestApiFacade(Helper.AdminStore.Address, adminUser?.Token?.AccessControlToken);
             var path = I18NHelper.FormatInvariant(USER_PATH_ID, user.Id);
 
             try

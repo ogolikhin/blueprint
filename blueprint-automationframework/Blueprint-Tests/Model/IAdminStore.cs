@@ -13,6 +13,11 @@ namespace Model
 {
     public interface IAdminStore : IDisposable
     {
+        /// <summary>
+        /// Gets the URL address of the server.
+        /// </summary>
+        string Address { get; }
+
         List<ISession> Sessions { get; }
 
         /// <summary>

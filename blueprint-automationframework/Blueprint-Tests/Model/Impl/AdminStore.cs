@@ -973,10 +973,7 @@ namespace Model.Impl
             var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
             string path = RestPaths.Svc.AdminStore.Users.CHANGE_PASSWORD;
 
-            if (newPassword != null)
-            {
-                newPassword = HashingUtilities.EncodeTo64UTF8(newPassword);
-            }
+            string encodedPassword = (newPassword != null) ? HashingUtilities.EncodeTo64UTF8(newPassword) : null;
 
             try
             {
@@ -984,9 +981,9 @@ namespace Model.Impl
 
                 var bodyObject = new Dictionary<string, string>();
 
-                if (newPassword != null)
+                if (encodedPassword != null)
                 {
-                    bodyObject.Add("Password", newPassword);
+                    bodyObject.Add("Password", encodedPassword);
                 }
 
                 if (user != null)
@@ -997,8 +994,7 @@ namespace Model.Impl
                 var response = restApi.SendRequestAndGetResponse(
                     path,
                     RestRequestMethod.POST,
-                    bodyObject: bodyObject,
-                    expectedStatusCodes: new List<HttpStatusCode> {HttpStatusCode.OK});
+                    bodyObject: bodyObject);
 
                 if (user != null)
                 {

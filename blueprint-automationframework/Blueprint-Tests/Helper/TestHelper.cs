@@ -1309,7 +1309,7 @@ namespace Helper
         /// <returns>A new unique user object that was added to the database.</returns>
         public IUser CreateUserAndAddToDatabase(
             InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
-            UserSource source = UserSource.Database,
+            UserGroupSource source = UserGroupSource.Database,
             LicenseLevel licenseLevel = LicenseLevel.Author)
         {
             var user = UserFactory.CreateUserAndAddToDatabase(instanceAdminRole, source, licenseLevel);
@@ -1326,7 +1326,7 @@ namespace Helper
         /// <returns>A new unique user object that was added to the database.</returns>
         public IUser CreateUserAndAddToDatabase(
             CustomInstanceAdminRole customInstanceAdminRole,
-            UserSource source = UserSource.Database,
+            UserGroupSource source = UserGroupSource.Database,
             LicenseLevel licenseLevel = LicenseLevel.Author)
         {
             var user = UserFactory.CreateUserAndAddToDatabase(customInstanceAdminRole, source, licenseLevel);
@@ -1345,7 +1345,7 @@ namespace Helper
         /// <returns>A new user object.</returns>
         public IUser CreateUserAndAddToDatabase(string username, string password,
             InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
-            UserSource source = UserSource.Database)
+            UserGroupSource source = UserGroupSource.Database)
         {
             var user = UserFactory.CreateUserAndAddToDatabase(username, password, instanceAdminRole, source);
             Users.Add(user);
@@ -1363,7 +1363,7 @@ namespace Helper
         /// <returns>A new user object.</returns>
         public IUser CreateUserAndAddToDatabase(string username, string password,
             CustomInstanceAdminRole customInstanceAdminRole,
-            UserSource source = UserSource.Database)
+            UserGroupSource source = UserGroupSource.Database)
         {
             var user = UserFactory.CreateUserAndAddToDatabase(username, password, customInstanceAdminRole, source);
             Users.Add(user);
@@ -1382,7 +1382,7 @@ namespace Helper
         /// <returns>A new user object.</returns>
         public IUser CreateUserAndAddToDatabase(string username, string password, string displayname,
             InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
-            UserSource source = UserSource.Database)
+            UserGroupSource source = UserGroupSource.Database)
         {
             var user = UserFactory.CreateUserAndAddToDatabase(username, password, displayname, instanceAdminRole, source);
             Users.Add(user);
@@ -1411,7 +1411,7 @@ namespace Helper
         /// <returns>A new user that has the requested access tokens.</returns>
         public IUser CreateUserAndAuthenticate(AuthenticationTokenTypes targets,
             InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
-            UserSource source = UserSource.Database)
+            UserGroupSource source = UserGroupSource.Database)
         {
             var user = CreateUserAndAddToDatabase(instanceAdminRole, source);
 
@@ -1428,7 +1428,7 @@ namespace Helper
         /// <returns>A new user that has the requested access tokens.</returns>
         public IUser CreateUserAndAuthenticate(AuthenticationTokenTypes targets,
             CustomInstanceAdminRole customInstanceAdminRole,
-            UserSource source = UserSource.Database)
+            UserGroupSource source = UserGroupSource.Database)
         {
             var user = CreateUserAndAddToDatabase(customInstanceAdminRole, source);
 
@@ -1471,7 +1471,7 @@ namespace Helper
         /// <returns>A new user that has the requested access tokens.</returns>
         public IUser CreateUserWithInvalidToken(AuthenticationTokenTypes targets,
             InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
-            UserSource source = UserSource.Database,
+            UserGroupSource source = UserGroupSource.Database,
             string badToken = CommonConstants.InvalidToken)
         {
             var user = CreateUserAndAddToDatabase(instanceAdminRole, source);
@@ -1887,7 +1887,7 @@ namespace Helper
             string lastName = null,
             string email = null,
             string displayname = null,
-            UserSource? source = null,
+            UserGroupSource? source = null,
             LicenseLevel? licenseLevel = null,
             InstanceAdminRole? instanceAdminRole = null,
             InstanceAdminPrivileges? adminPrivileges = null,

@@ -74,11 +74,14 @@
     <Compile Include="Factories\ArtifactWrapperFactory.cs" />
     <Compile Include="Factories\ImpactAnalysisFactory.cs" />
     <Compile Include="Impl\AdminRole.cs" />
+    <Compile Include="Impl\InstanceGroup.cs" />
+    <Compile Include="Impl\InstanceGroupUser.cs" />
     <Compile Include="Impl\QueryResult.cs" />
     <Compile Include="InstanceAdminModel\CustomInstanceAdminRole.cs" />
     <Compile Include="ModelHelpers\DocumentArtifactWrapper.cs" />
     <Compile Include="ModelHelpers\ProcessArtifactWrapper.cs" />
     <Compile Include="ModelHelpers\UserAdapter.cs" />
+    <Compile Include="NovaModel\AdminStoreModel\CreateResult.cs" />
     <Compile Include="NovaModel\AdminStoreModel\DeleteResult.cs" />
     <Compile Include="NovaModel\AdminStoreModel\OperationScope.cs" />
     <Compile Include="NovaModel\Reviews\ApprovalType.cs" />

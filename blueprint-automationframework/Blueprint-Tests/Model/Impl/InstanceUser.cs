@@ -56,7 +56,7 @@ namespace Model.Impl
         public string Password { get; set; }
 
         public InstanceUser(string login, string firstName, string lastName, string displayName, string email,
-            UserSource? source, bool eulaAccepted, LicenseLevel? license, bool isSso, bool? allowFallback, 
+            UserGroupSource? source, bool eulaAccepted, LicenseLevel? license, bool isSso, bool? allowFallback, 
             InstanceAdminRole? instanceAdminRole, InstanceAdminPrivileges? instanceAdminPrivileges,
             bool guest, int currentVersion, bool enabled, string title, string department, bool? expirePassword, 
             int? imageId, int[] groupMembership, string password = null)

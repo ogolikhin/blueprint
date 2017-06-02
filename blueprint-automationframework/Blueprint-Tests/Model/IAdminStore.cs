@@ -427,10 +427,174 @@ namespace Model
         /// Changes the user's password when called by an instance admin
         /// (Runs: POST /svc/adminstore/users/changepassword)
         /// </summary>
-        /// <param name="adminUser">THe admin user changing the password.</param>
+        /// <param name="adminUser">The admin user changing the password.</param>
         /// <param name="user">The user that will have the password changed.</param>
         /// <param name="newPassword">The new password</param>
         /// <returns>The returned HTTP Status Code.</returns>
         HttpStatusCode InstanceAdminChangePassword(IUser adminUser, InstanceUser user, string newPassword);
+
+        /// <summary>
+        /// Gets all the groups currently assigned to the user.
+        /// (Runs: GET /svc/adminstore/users/{userId}/groups)
+        /// </summary>
+        /// <param name="adminUser">The admin user getting the groups.</param>
+        /// <param name="userId">The user id of the user.</param>
+        /// <param name="offset">(optional) 0-based index of the first item to return (Default: null).</param>
+        /// <param name="limit">(optional) Maximum number of items to return (if any) (Default: null). 
+        /// The server may return fewer items than requested (Default: null).</param>
+        /// <param name="sort">(optional) Property name by which to sort results (Default: null).</param>
+        /// <param name="order">(optional) "asc" sorts in ascending order; "desc" sorts in descending order (Default: null). 
+        /// The default order depends on the particular property.</param>
+        /// <param name="search">(optional) Search query that would be applied on predefined properties specific to data (Default: null).</param>
+        /// <returns>The QueryResult object of InstanceGroup.</returns>
+        QueryResult<InstanceGroup> GetUserGroups(IUser adminUser,
+            int? userId = null,
+            int? offset = null,
+            int? limit = null,
+            string sort = null,
+            SortOrder? order = null,
+            string search = null);
+
+        /// <summary>
+        /// Adds a user to groups.
+        /// (Runs: PUT /svc/adminstore/users/{userId}/groups)
+        /// </summary>
+        /// <param name="adminUser">The admin user adding the user to the groups.</param>
+        /// <param name="userId">The user id of the user.</param>
+        /// <param name="groupIds">The group ids of the groups that will contain the user.</param>
+        /// <param name="selectAll">(optional) The selection scope indicator. If false, 
+        /// the user is included in the addition. If true, the user is excluded from the addition. 
+        /// Default is false.</param>
+        /// <param name="search"></param>
+        /// <returns>The CreateResult object.</returns>
+        CreateResult AddUserToGroups(IUser adminUser,
+            int? userId = null,
+            List<int> groupIds = null,
+            bool selectAll = false,
+            string search = null);
+
+        /// <summary>
+        /// Deletes a user from groups.
+        /// (Runs: POST /svc/adminstore/users/{userId}/groups)
+        /// </summary>
+        /// <param name="adminUser">The admin user deleting the user from the groups.</param>
+        /// <param name="userId">The user id of the user.</param>
+        /// <param name="groupIds">The group ids of the groups being deleted.</param>
+        /// <param name="selectAll">(optional) The selection scope indicator. If false, 
+        /// the user is included in the deletion. If true, the user is excluded from the deletion. 
+        /// Default is false.</param>
+        /// <returns>The DeleteResult object.</returns>
+        DeleteResult DeleteUserFromGroups(IUser adminUser,
+            int? userId = null,
+            List<int> groupIds = null,
+            bool selectAll = false);
+
+        /// <summary>
+        /// Gets all the groups if no user id is specified. If the user id is specified, gets all groups except those that are already assigned to the user.
+        /// (Runs: GET /svc/adminstore/groups)
+        /// </summary>
+        /// <param name="adminUser">The admin user getting the groups.</param>
+        /// <param name="userId">The user id of the user.</param>
+        /// <param name="offset">(optional) 0-based index of the first item to return (Default: null).</param>
+        /// <param name="limit">(optional) Maximum number of items to return (if any) (Default: null). 
+        /// The server may return fewer items than requested (Default: null).</param>
+        /// <param name="sort">(optional) Property name by which to sort results (Default: null).</param>
+        /// <param name="order">(optional) "asc" sorts in ascending order; "desc" sorts in descending order (Default: null). 
+        /// The default order depends on the particular property.</param>
+        /// <param name="search">(optional) Search query that would be applied on predefined properties specific to data (Default: null).</param>
+        /// <returns>The QueryResult object of InstanceGroup.</returns>
+        QueryResult<InstanceGroup> GetGroups(IUser adminUser,
+            int? userId = null,
+            int? offset = null,
+            int? limit = null,
+            string sort = null,
+            SortOrder? order = null,
+            string search = null);
+
+        /// <summary>
+        ///  Gets all the groups and users not currently assigned to the group specified.
+        /// (Runs: GET /svc/adminstore/groups/usersgroups)
+        /// </summary>
+        /// <param name="adminUser">The admin user getting the groups and users.</param>
+        /// <param name="groupId">The group id of the group.</param>
+        /// <param name="offset">(optional) 0-based index of the first item to return (Default: null).</param>
+        /// <param name="limit">(optional) Maximum number of items to return (if any) (Default: null). 
+        /// The server may return fewer items than requested (Default: null).</param>
+        /// <param name="sort">(optional) Property name by which to sort results (Default: null).</param>
+        /// <param name="order">(optional) "asc" sorts in ascending order; "desc" sorts in descending order (Default: null). 
+        /// The default order depends on the particular property.</param>
+        /// <param name="search">(optional) Search query that would be applied on predefined properties specific to data (Default: null).</param>
+        /// <returns>The QueryResult object of InstanceGroupUser.</returns>
+        QueryResult<InstanceGroupUser> GetGroupsAndUsers(IUser adminUser,
+            int? groupId = null,
+            int? offset = null,
+            int? limit = null,
+            string sort = null,
+            SortOrder? order = null,
+            string search = null);
+
+        /// <summary>
+        /// Deletes groups from the system.
+        /// (Runs: POST /svc/adminstore/groups/delete)
+        /// </summary>
+        /// <param name="adminUser">The admin user deleting the groups.</param>
+        /// <param name="groupIds">The group ids of the groups.</param>
+        /// <param name="selectAll">(optional) The selection scope indicator. If false, 
+        /// the user is included in the deletion. If true, the user is excluded from the deletion. 
+        /// Default is false.</param>
+        /// <param name="search">(optional) Search query that would be applied on predefined properties specific to data (Default: null).</param>
+        /// <returns>The DeleteResult object.</returns>
+        DeleteResult DeleteGroups(IUser adminUser,
+            List<int> groupIds = null,
+            bool selectAll = false,
+            string search = null);
+
+        /// <summary>
+        /// Creates a new group.
+        /// (Runs: POST /svc/adminstore/groups)
+        /// </summary>
+        /// <param name="adminUser">The admin user adding the group.</param>
+        /// <param name="group">The group to add.</param>
+        /// <returns>The group id of the group that was created.</returns>
+        int CreateGroup(IUser adminUser, InstanceGroup group = null);
+
+        /// <summary>
+        /// Gets group details.
+        /// (Runs: GET /svc/adminstore/groups/{groupId})
+        /// </summary>
+        /// <param name="adminUser">The admin user getting the group details.</param>
+        /// <param name="groupId">The group id of the group.</param>
+        /// <returns>The group that was created.</returns>
+        InstanceGroup GetGroup(IUser adminUser, int? groupId);
+
+        /// <summary>
+        /// Updates a group.
+        /// (Runs: PUT /svc/adminstore/groups/{groupId})
+        /// </summary>
+        /// <param name="adminUser">The admin user updating the group.</param>
+        /// <param name="groupId">The group id of the group.</param>
+        /// <param name="group">The updated group content.</param>
+        /// <returns>The HttpStatusCode of the group update.</returns>
+        HttpStatusCode UpdateGroup(IUser adminUser, int? groupId, InstanceGroup group = null);
+
+        /// <summary>
+        /// Gets a groups members(users and groups).
+        /// (Runs: GET /svc/adminstore/groups/{groupId}/members)
+        /// </summary>
+        /// <param name="adminUser">The admin user getting the group members.</param>
+        /// <param name="groupId">The group id of the group.</param>
+        /// <param name="offset">(optional) 0-based index of the first item to return (Default: null).</param>
+        /// <param name="limit">(optional) Maximum number of items to return (if any) (Default: null). 
+        /// The server may return fewer items than requested (Default: null).</param>
+        /// <param name="sort">(optional) Property name by which to sort results (Default: null).</param>
+        /// <param name="order">(optional) "asc" sorts in ascending order; "desc" sorts in descending order (Default: null). 
+        /// The default order depends on the particular property.</param>
+        /// <returns>The QueryResult of InstanceGroupUser.</returns>
+        QueryResult<InstanceGroupUser> GetGroupMembers(IUser adminUser,
+            int? groupId = null,
+            int? offset = null,
+            int? limit = null,
+            string sort = null,
+            SortOrder? order = null);
     }
 }

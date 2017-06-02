@@ -105,7 +105,7 @@ namespace AdminStoreTests.UsersTests
             AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUserId);
 
             // Add Source to createdUser to verify that the addedUser returned as a Database user
-            createdUser.Source = UserSource.Database;
+            createdUser.Source = UserGroupSource.Database;
             AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
         }
 
@@ -299,13 +299,13 @@ namespace AdminStoreTests.UsersTests
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, InstanceAdminErrorMessages.LoginNameUnique);
         }
 
-        [TestCase((UserSource)0xFF, InstanceAdminErrorMessages.CreateOnlyDatabaseUsers)]
-        [TestCase(UserSource.Unknown, InstanceAdminErrorMessages.CreateOnlyDatabaseUsers)]
-        [TestCase(UserSource.Windows, InstanceAdminErrorMessages.CreateOnlyDatabaseUsers)]
+        [TestCase((UserGroupSource)0xFF, InstanceAdminErrorMessages.CreateOnlyDatabaseUsers)]
+        [TestCase(UserGroupSource.Unknown, InstanceAdminErrorMessages.CreateOnlyDatabaseUsers)]
+        [TestCase(UserGroupSource.Windows, InstanceAdminErrorMessages.CreateOnlyDatabaseUsers)]
         [Description("Create an instance user with an invalid user source. Try to add the user. " +
                      "Verify that 400 Bad Request is returned.")]
         [TestRail(303606)]
-        public void AddInstanceUser_InvalidSource_400BadRequest(UserSource? source, string errorMessage)
+        public void AddInstanceUser_InvalidSource_400BadRequest(UserGroupSource? source, string errorMessage)
         {
             CreateDefaultInstanceUserWithInvalidPropertyVerify400BadRequest(
                 _adminUser,

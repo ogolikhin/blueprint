@@ -957,57 +957,51 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IAdminStore.InstanceAdminChangePassword(IUser, InstanceUser, string)"/>
-        public HttpStatusCode InstanceAdminChangePassword(IUser adminUser, InstanceUser user, string password)
+        public HttpStatusCode InstanceAdminChangePassword(IUser adminUser, InstanceUser user, string newPassword)
         {
             var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
             string path = RestPaths.Svc.AdminStore.Users.CHANGE_PASSWORD;
-            string savedPassword = user?.Password;
+
+            if (newPassword != null)
+            {
+                newPassword = HashingUtilities.EncodeTo64UTF8(newPassword);
+            }
 
             try
             {
-                if (password != null)
+                Logger.WriteInfo("Changing password...");
+
+                var bodyObject = new Dictionary<string, string>();
+
+                if (newPassword != null)
                 {
-                    password = HashingUtilities.EncodeTo64UTF8(password);
+                    bodyObject.Add("Password", newPassword);
                 }
 
-                try
-                {
-                    Logger.WriteInfo("Changing password...");
-
-                    var bodyObject = new Dictionary<string, string>();
-
-                    if (password != null)
-                    {
-                        bodyObject.Add("Password", password);
-                    }
-
-                    if (user != null)
-                    {
-                        bodyObject.Add("UserId", user.Id.ToString());
-                    }
-
-                    var response = restApi.SendRequestAndGetResponse(
-                        path,
-                        RestRequestMethod.POST,
-                        bodyObject: bodyObject,
-                        expectedStatusCodes: new List<HttpStatusCode> { HttpStatusCode.OK });
-
-                    return response.StatusCode;
-
-                }
-                catch (WebException ex)
-                {
-                    Logger.WriteError("Content = '{0}'", restApi.Content);
-                    Logger.WriteError("Error while performing InstanceAdminChangePassword - {0}", ex.Message);
-                    throw;
-                }
-            }
-            finally
-            {
                 if (user != null)
                 {
-                    user.Password = savedPassword;
+                    bodyObject.Add("UserId", user.Id.ToString());
                 }
+
+                var response = restApi.SendRequestAndGetResponse(
+                    path,
+                    RestRequestMethod.POST,
+                    bodyObject: bodyObject,
+                    expectedStatusCodes: new List<HttpStatusCode> {HttpStatusCode.OK});
+
+                if (user != null)
+                {
+                    user.Password = newPassword;
+                }
+
+                return response.StatusCode;
+
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while performing InstanceAdminChangePassword - {0}", ex.Message);
+                throw;
             }
         }
 

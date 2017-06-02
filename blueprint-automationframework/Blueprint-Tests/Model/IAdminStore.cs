@@ -424,8 +424,8 @@ namespace Model
         /// </summary>
         /// <param name="adminUser">THe admin user changing the password.</param>
         /// <param name="user">The user that will have the password changed.</param>
-        /// <param name="password">The new password</param>
+        /// <param name="newPassword">The new password</param>
         /// <returns>The returned HTTP Status Code.</returns>
-        HttpStatusCode InstanceAdminChangePassword(IUser adminUser, InstanceUser user, string password);
+        HttpStatusCode InstanceAdminChangePassword(IUser adminUser, InstanceUser user, string newPassword);
     }
 }

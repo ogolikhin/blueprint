@@ -494,6 +494,55 @@ namespace SearchService.Repositories
 
         #endregion SearchMetaData
 
+        #region Get Query
+
+        [TestMethod]
+        public void GetQuery_WithQuotes_ReturnsResults()
+        {
+            // Arrange
+            var query = "O'''Conner";
+            var expected = "\"O'''Conner\"";
+
+
+            // Act
+            var result = SqlItemSearchRepository.GetQuery(query);
+
+            // Assert
+            Assert.AreEqual(expected, result, "returned query parameter does not match expected");
+        }
+
+        [TestMethod]
+        public void GetQuery_WithBackDash_ReturnsResults()
+        {
+            // Arrange
+            var query = "O\\\\\\Conner";
+            var expected = "\"O\\\\\\Conner\"";
+
+
+            // Act
+            var result = SqlItemSearchRepository.GetQuery(query);
+
+            // Assert
+            Assert.AreEqual(expected, result, "returned query parameter does not match expected");
+        }
+
+        [TestMethod]
+        public void GetQuery_WithDoubleQuotes_ReturnsResults()
+        {
+            // Arrange
+            var query = "O\"Conner";
+            var expected = "\"O\"\"Conner\"";
+
+
+            // Act
+            var result = SqlItemSearchRepository.GetQuery(query);
+
+            // Assert
+            Assert.AreEqual(expected, result, "returned query parameter does not match expected");
+        }
+
+        #endregion
+
         private static IItemSearchRepository CreateFullTextSearchRepository<T>(
             FullTextSearchCriteria searchCriteria, 
             ICollection<T> queryResult, 

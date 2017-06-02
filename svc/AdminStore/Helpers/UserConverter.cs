@@ -39,7 +39,16 @@ namespace AdminStore.Helpers
             {
                 var settings = await settingsRepository.GetUserManagementSettingsAsync();
 
-                var decodedPassword = SystemEncryptions.Decode(user.Password);
+                string decodedPassword;
+
+                try
+                {
+                    decodedPassword = SystemEncryptions.Decode(user.Password);
+                }
+                catch (FormatException)
+                {
+                    throw new BadRequestException(ErrorMessages.IncorrectBase64FormatPasswordField, ErrorCodes.BadRequest);
+                }
 
                 if (string.IsNullOrWhiteSpace(decodedPassword) &&
                     (!user.AllowFallback.HasValue || !user.AllowFallback.Value) &&

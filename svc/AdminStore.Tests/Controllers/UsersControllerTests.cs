@@ -1583,6 +1583,25 @@ namespace AdminStore.Controllers
             // Exception
         }
 
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task CreateUser_PasswordNotBase64String_ReturnBadRequestResult()
+        {
+            // Arrange
+            _user.Password = "11111";
+            _privilegesRepository
+               .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+               .ReturnsAsync(FullPermissions);
+            _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
+                .ReturnsAsync(new UserManagementSettings());
+
+            // Act
+            await _controller.CreateUser(_user);
+
+            // Assert
+            // Exception
+        }
+
         #endregion Password
 
         [TestMethod]

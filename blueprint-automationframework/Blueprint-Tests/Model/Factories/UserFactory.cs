@@ -4,6 +4,7 @@ using Model.Impl;
 using System;
 using System.Collections.Generic;
 using Model.InstanceAdminModel;
+using Model.ModelHelpers;
 using TestConfig;
 using Utilities;
 using Utilities.Factories;
@@ -125,6 +126,16 @@ namespace Model.Factories
             var user = CreateUserOnly(username, password, instanceAdminRole, source, displayname);
             user.CreateUser();
             return user;
+        }
+
+        /// <summary>
+        /// Wraps the specified InstanceUser in an adapter that mimics the IUser interface.
+        /// </summary>
+        /// <param name="instanceUser">The InstanceUser to whose properties will be wrapped.</param>
+        /// <returns>The wrapped InstanceUser as an IUser.</returns>
+        public static IUser ConvertInstanceUserToIUser(InstanceUser instanceUser)
+        {
+            return new UserAdapter(instanceUser);
         }
 
         /// <summary>

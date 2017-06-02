@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using ServiceLibrary.Models;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using AdminStore.Models;
 
-namespace AdminStore.Repositories
+namespace ServiceLibrary.Repositories
 {
     public interface IApplicationSettingsRepository
     {

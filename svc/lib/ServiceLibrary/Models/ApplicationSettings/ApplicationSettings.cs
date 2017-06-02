@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace AdminStore.Models
+namespace ServiceLibrary.Models
 {
     [JsonObject]
     public class ApplicationSetting

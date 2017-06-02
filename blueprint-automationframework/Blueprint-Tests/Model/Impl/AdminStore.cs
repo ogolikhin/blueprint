@@ -13,6 +13,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Mime;
 using Model.Common.Enums;
+using Model.NovaModel.AdminStoreModel;
 using Utilities;
 using Utilities.Facades;
 
@@ -261,23 +262,28 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IAdminStore.DeleteUsers(IUser, List{int}, bool)"/>
-        public HttpStatusCode DeleteUsers(IUser adminUser, List<int> ids,  bool selectAll = false)
+        public DeleteResult DeleteUsers(IUser adminUser, List<int> ids,  bool selectAll = false)
         {
             var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
             const string path = RestPaths.Svc.AdminStore.Users.USERS_DELETE;
+            var jsonObject = new OperationScope
+            {
+                Ids = ids,
+                SelectAll = selectAll
+            };
 
             try
             {
                 Logger.WriteInfo("Deleting users with selectAll: {0} and ids: ({1})", selectAll, string.Join(", ", ids));
 
-                var response = restApi.SendRequestAndGetResponse
+                var deleteResult = restApi.SendRequestAndDeserializeObject<DeleteResult, OperationScope>
                 (
                     path,
                     RestRequestMethod.POST,
-                    bodyObject: new { SelectAll = selectAll, Ids = ids }
+                    jsonObject
                 );
 
-                return response.StatusCode;
+                return deleteResult;
             }
             catch (WebException ex)
             {
@@ -288,7 +294,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IAdminStore.DeleteUser(IUser, int, bool)"/>
-        public HttpStatusCode DeleteUser(IUser adminUser, int id, bool selectAll = false)
+        public DeleteResult DeleteUser(IUser adminUser, int id, bool selectAll = false)
         {
             return DeleteUsers(adminUser, new List<int> { id }, selectAll);
         }

@@ -119,7 +119,6 @@
     <Compile Include="Helpers\LdapHelper.cs" />
     <Compile Include="Helpers\LoginInfo.cs" />
     <Compile Include="Helpers\PasswordValidationHelper.cs" />
-    <Compile Include="Models\ApplicationSettings.cs" />
     <Compile Include="Models\EmailConfigInstanceSettings.cs" />
     <Compile Include="Models\InstanceItem.cs" />
     <Compile Include="Models\UserManagementSettings.cs" />
@@ -127,8 +126,6 @@
     <Compile Include="Models\ResetPasswordContent.cs" />
     <Compile Include="Models\ResetPostContent.cs" />
     <Compile Include="Models\UserIcon.cs" />
-    <Compile Include="Repositories\ApplicationSettingsRepository.cs" />
-    <Compile Include="Repositories\ISettingsRepository.cs" />
     <Compile Include="Controllers\LicensesController.cs" />
     <Compile Include="Controllers\SessionsController.cs" />
     <Compile Include="Controllers\ConfigController.cs" />

@@ -9,8 +9,6 @@ namespace Model.NovaModel.Reviews
     /// </summary>
     public class ReviewedArtifact : BaseReviewArtifact
     {
-        public ViewStateType ViewState { get; set; }
-
         [JsonProperty(NullValueHandling = NullValueHandling.Include)]
         public string Approval { get; set; }
 

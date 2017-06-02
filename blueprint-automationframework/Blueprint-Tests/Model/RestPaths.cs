@@ -272,6 +272,7 @@ namespace Model
                     public const string PARTICIPANTS                = "svc/artifactstore/containers/{0}/participants";
                     public const string ARTIFACT_REVIEWERS          = "svc/artifactstore/containers/{0}/artifactreviewers";
                     public const string ARTIFACTS                   = "svc/artifactstore/containers/{0}/artifacts";
+                    public const string TOC_id_                     = "svc/artifactstore/containers/{0}/toc/{1}";
                 }
 
                 [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.

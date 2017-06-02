@@ -637,9 +637,9 @@ namespace AdminStoreTests.UsersTests
 
         #region 401 Unauthorized Tests
 
-        [TestCase(null, "Token is missing or malformed.")]
-        [TestCase("", "Token is invalid.")]
-        [TestCase(CommonConstants.InvalidToken, "Token is invalid.")]
+        [TestCase(null, InstanceAdminErrorMessages.TokenMissingOrMalformed)]
+        [TestCase("", InstanceAdminErrorMessages.TokenInvalid)]
+        [TestCase(CommonConstants.InvalidToken, InstanceAdminErrorMessages.TokenInvalid)]
         [Description("Create and add an instance user. Try to update the user using an invalid token header. " +
                      "Verify that 401 Unauthorized is returned.")]
         [TestRail(303404)]
@@ -695,7 +695,7 @@ namespace AdminStoreTests.UsersTests
                     USER_PATH_ID);
 
                 // Verify:
-                TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "The user does not have permissions.");
+                TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.Forbidden, InstanceAdminErrorMessages.UserDoesNotHavePermissions);
             }
         }
 
@@ -768,21 +768,26 @@ namespace AdminStoreTests.UsersTests
 
         #region 404 Not Found Tests
 
-        [TestCase(0)]
         [TestCase(-1)]
-        [Description("Create and add an instance user. Try to update the user with an invalid Id. " +
-                     "Verify that 404 Not Found is returned.")]
+        [TestCase(0)]
+        [TestCase(int.MaxValue, Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)]  // Trello bug: https://trello.com/c/7jBzvetD  Returns ErrorCode=0 in body.
+        [Description("Try to update the user with an invalid Id.  Verify that 404 Not Found is returned.")]
         [TestRail(303656)]
         public void UpdateInstanceUser_InvalidUserId_404NotFound(int invalidId)
         {
             // Setup:
-            var createdUser = Helper.CreateAndAddInstanceUser(_adminUser);
-
+            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
             createdUser.Id = invalidId;
 
-            //Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() => { Helper.AdminStore.UpdateUser(_adminUser, createdUser); },
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => { Helper.AdminStore.UpdateUser(_adminUser, createdUser); },
                 "'PUT {0}' should return 404 Not Found!", USER_PATH_ID);
+
+            // Verify:
+            if (invalidId > 0)
+            {
+                TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound, InstanceAdminErrorMessages.UserNotExist);
+            }
         }
 
         [TestCase]
@@ -815,7 +820,7 @@ namespace AdminStoreTests.UsersTests
             // Setup:
             var createdUser = Helper.CreateAndAddInstanceUser(_adminUser);
 
-            if (createdUser.Id != null) Helper.AdminStore.DeleteUsers(_adminUser, new List<int> { createdUser.Id.Value });
+            Helper.AdminStore.DeleteUsers(_adminUser, new List<int> { createdUser.Id.Value });
 
             createdUser.Login = RandomGenerator.RandomAlphaNumeric(AdminStoreHelper.MinPasswordLength);
 

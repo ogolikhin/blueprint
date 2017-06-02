@@ -30,5 +30,5 @@ namespace Model.NovaModel.Reviews
         public ReviewArtifactsStatus ArtifactsStatus { get; set; }
 
         public int RevisionId { get; set; }
-    }		
+    }
 }

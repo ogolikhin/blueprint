@@ -243,7 +243,7 @@ namespace ArtifactStore.Repositories
         private async Task<QueryResult<T>> GetReviewArtifactsAsync<T>(int reviewId, int userId, Pagination pagination, int? revisionId = null, bool? addDrafts = true)
             where T : BaseReviewArtifact
         {
-            var refreshInterval = await _applicationSettingsRepository.GetValue<int>(ReviewArtifactHierarchyRebuildIntervalInMinutesKey, DefaultReviewArtifactHierarchyRebuildIntervalInMinutes);
+            int refreshInterval = await GetRebuildReviewArtifactHierarchyInterval();
             var param = new DynamicParameters();
             param.Add("@reviewId", reviewId);
             param.Add("@offset", pagination.Offset);
@@ -259,6 +259,17 @@ namespace ArtifactStore.Repositories
                 Items = result.Item1.ToList(),
                 Total = result.Item2.SingleOrDefault()
             };
+        }
+
+        private async Task<int> GetRebuildReviewArtifactHierarchyInterval()
+        {
+            var refreshInterval = await _applicationSettingsRepository.GetValue<int>(ReviewArtifactHierarchyRebuildIntervalInMinutesKey, DefaultReviewArtifactHierarchyRebuildIntervalInMinutes);
+            if (refreshInterval < 0)
+            {
+                refreshInterval = DefaultReviewArtifactHierarchyRebuildIntervalInMinutes;
+            }
+
+            return refreshInterval;
         }
 
         private async Task<ContentStatusDetails> GetReviewArtifactStatusesAsync(int reviewId, int userId, Pagination pagination,
@@ -338,7 +349,7 @@ namespace ArtifactStore.Repositories
 
         private async Task<ReviewTableOfContent> GetTableOfContentAsync(int reviewId, int revisionId, int userId, int? offset, int? limit)
         {
-            var refreshInterval = await _applicationSettingsRepository.GetValue<int>(ReviewArtifactHierarchyRebuildIntervalInMinutesKey, DefaultReviewArtifactHierarchyRebuildIntervalInMinutes);
+            int refreshInterval = await GetRebuildReviewArtifactHierarchyInterval();
             var param = new DynamicParameters();
             param.Add("@reviewId", reviewId);
             param.Add("@revisionId", revisionId);

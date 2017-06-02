@@ -67,7 +67,7 @@ namespace ArtifactStoreTests
             _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
             const int REVIEW_ID = 112;//1183;// 112;
             const int REVISION_ID = 239;//2566;//239;
-            const int NO_ACCESS_ARTIFACT_ID = 32;
+//            const int NO_ACCESS_ARTIFACT_ID = 32;
 
             var testConfig = TestConfiguration.GetInstance();
             string userName = testConfig.Username;
@@ -77,8 +77,8 @@ namespace ArtifactStoreTests
             var reviewer = UserFactory.CreateUserOnly(userName, password);
             reviewer.SetToken(sessionToken.SessionId);
 
-            var noAccessArtifact = Helper.ArtifactStore.GetArtifactDetails(_adminUser, NO_ACCESS_ARTIFACT_ID);
-            Helper.AssignProjectRolePermissionsToUser(reviewer, TestHelper.ProjectRole.None, _projectCustomData, noAccessArtifact);
+//            var noAccessArtifact = Helper.ArtifactStore.GetArtifactDetails(_adminUser, NO_ACCESS_ARTIFACT_ID);
+//            Helper.AssignProjectRolePermissionsToUser(reviewer, TestHelper.ProjectRole.None, _projectCustomData, noAccessArtifact);
 
             // Execute:
             ReviewTableOfContent reviewContainer = null;
@@ -195,8 +195,9 @@ namespace ArtifactStoreTests
 
         #region 403 Forbidden
 
+        [Explicit()]
         [Category(Categories.GoldenData)]
-        [TestCase]
+        [TestCase(Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)] //Trello https://trello.com/c/BLM8byFl
         [TestRail(303349)]
         [Description("Get Review Content by id from Custom Data project, non-reviewer user, check that server returns 403.")]
         public void GetReviewContainer_ExistingReview_NonReviewer_403Forbidden()

@@ -971,25 +971,13 @@ namespace Model.Impl
                 queryParameters: queryParams, shouldControlJsonChanges: true);
         }
 
-        /// <seealso cref="IArtifactStore.GetReviewContainer(IUser, int, int, int?, int?)"/>
-        public ReviewTableOfContent GetReviewContainer(IUser user, int reviewId, int revisionId, int? page = null, int? recordsOnPage = null)
+        /// <seealso cref="IArtifactStore.GetReviewContainer(IUser, int)"/>
+        public ReviewSummary GetReviewContainer(IUser user, int reviewId)
         {
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Containers_id_.TOC, reviewId, revisionId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.CONTAINERS_id_, reviewId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
-            var queryParams = new Dictionary<string, string>();
-
-            if (page != null)
-            {
-                queryParams.Add("offset", page.ToString());
-            }
-
-            if (recordsOnPage != null)
-            {
-                queryParams.Add("limit", recordsOnPage.ToString());
-            }
-
-            return restApi.SendRequestAndDeserializeObject<ReviewTableOfContent>(path,
+            return restApi.SendRequestAndDeserializeObject<ReviewSummary>(path,
                 RestRequestMethod.GET, shouldControlJsonChanges: true);
         }
 
@@ -1018,6 +1006,28 @@ namespace Model.Impl
 
             return restApi.SendRequestAndDeserializeObject<ReviewParticipantsContent>(path, RestRequestMethod.GET,
                 queryParameters: queryParams, shouldControlJsonChanges: true);
+        }
+
+        /// <seealso cref="IArtifactStore.GetReviewContainer(IUser, int, int, int?, int?)"/>
+        public ReviewTableOfContent GetReviewTableOfContent(IUser user, int reviewId, int revisionId, int? page = null, int? recordsOnPage = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Containers_id_.TOC, reviewId, revisionId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            var queryParams = new Dictionary<string, string>();
+
+            if (page != null)
+            {
+                queryParams.Add("offset", page.ToString());
+            }
+
+            if (recordsOnPage != null)
+            {
+                queryParams.Add("limit", recordsOnPage.ToString());
+            }
+
+            return restApi.SendRequestAndDeserializeObject<ReviewTableOfContent>(path,
+                RestRequestMethod.GET, shouldControlJsonChanges: true);
         }
 
         /// <seealso cref="IArtifactStore.GetArtifactStatusesByParticipant(IUser, int, int, int?, int?, int?)"/>

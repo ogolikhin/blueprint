@@ -65,28 +65,23 @@ namespace ArtifactStoreTests
         {
             // Setup:
             _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
-            const int REVIEW_ID = 112;//1183;// 112;
-            const int REVISION_ID = 239;//2566;//239;
-//            const int NO_ACCESS_ARTIFACT_ID = 32;
+            const int REVIEW_ID = 112;
 
             var testConfig = TestConfiguration.GetInstance();
             string userName = testConfig.Username;
             string password = testConfig.Password;
 
             var sessionToken = Helper.AdminStore.AddSession(userName, password);
-            var reviewer = UserFactory.CreateUserOnly(userName, password);
-            reviewer.SetToken(sessionToken.SessionId);
-
-//            var noAccessArtifact = Helper.ArtifactStore.GetArtifactDetails(_adminUser, NO_ACCESS_ARTIFACT_ID);
-//            Helper.AssignProjectRolePermissionsToUser(reviewer, TestHelper.ProjectRole.None, _projectCustomData, noAccessArtifact);
+            var admin = UserFactory.CreateUserOnly(userName, password);
+            admin.SetToken(sessionToken.SessionId);
 
             // Execute:
-            ReviewTableOfContent reviewContainer = null;
-            Assert.DoesNotThrow(() => reviewContainer = Helper.ArtifactStore.GetReviewContainer(reviewer, REVIEW_ID, REVISION_ID),
+            ReviewSummary reviewContainer = null;
+            Assert.DoesNotThrow(() => reviewContainer = Helper.ArtifactStore.GetReviewContainer(admin, REVIEW_ID),
                 "{0} should throw no error.", nameof(Helper.ArtifactStore.GetReviewContainer));
 
             // Verify:
-            Assert.AreEqual(15, reviewContainer.Total, "TotalArtifacts should be equal to the expected number of artifacts in Review.");
+            Assert.AreEqual(15, reviewContainer.TotalArtifacts, "TotalArtifacts should be equal to the expected number of artifacts in Review.");
         }
 
         [Category(Categories.GoldenData)]
@@ -138,8 +133,6 @@ namespace ArtifactStoreTests
         public void AddArtifactToReview_PublishedArtifact_CheckReturnedObject()
         {
             // Setup:
-//            var artifactToAdd = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.Actor, _project.Id);
-//            const int reviewId = 1183; // TODO: when real server-side call will be implemented review should be replaced
             const int artifactToAddId = 22;
             const int reviewId = 113; // TODO: when real server-side call will be implemented review should be replaced
 
@@ -197,7 +190,7 @@ namespace ArtifactStoreTests
 
         [Explicit()]
         [Category(Categories.GoldenData)]
-        [TestCase(Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)] //Trello https://trello.com/c/BLM8byFl
+        [TestCase()]
         [TestRail(303349)]
         [Description("Get Review Content by id from Custom Data project, non-reviewer user, check that server returns 403.")]
         public void GetReviewContainer_ExistingReview_NonReviewer_403Forbidden()
@@ -205,12 +198,9 @@ namespace ArtifactStoreTests
             // Setup:
             _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
             const int reviewId = 112;
-            const int REVISION_ID = 239;
-
-            _user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projectCustomData);
 
             // Execute & Verify: 
-            Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetReviewContainer(_user, reviewId, REVISION_ID),
+            Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetReviewContainer(_adminUser, reviewId),
                 "{0} should return 403 for non-reviewer user.", nameof(Helper.ArtifactStore.GetReviewContainer));
         }
 

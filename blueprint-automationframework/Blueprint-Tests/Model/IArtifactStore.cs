@@ -658,11 +658,8 @@ namespace Model
         /// </summary>
         /// <param name="user">user to perform the operation.</param>
         /// <param name="reviewId">Id of review.</param>
-        /// <param name="revisionId">Id of review revision.</param>
-        /// <param name="page">(optional) Page number. By default first page</param>
-        /// <param name="recordsOnPage">(optional) Maximum number of records on each page. By default 50 records on a page</param>
-        /// <returns>ReviewContainer</returns>
-        ReviewTableOfContent GetReviewContainer(IUser user, int reviewId, int revisionId, int? page = null, int? recordsOnPage = null);
+        /// <returns>ReviewSummary</returns>
+        ReviewSummary GetReviewContainer(IUser user, int reviewId);
 
         /// <summary>
         /// Gets list of Reviewers and additional information. Runs GET containers/{0}/participants .
@@ -675,6 +672,17 @@ namespace Model
         /// <returns>ReviewParticipantsContent</returns>
         ReviewParticipantsContent GetReviewParticipants(IUser user, int reviewId, int? offset = 0, int? limit = 50,
             int? versionId = null);
+
+        /// <summary>
+        /// Gets review header information. Runs GET containers/{0} .
+        /// </summary>
+        /// <param name="user">user to perform the operation.</param>
+        /// <param name="reviewId">Id of review.</param>
+        /// <param name="revisionId">Id of review revision.</param>
+        /// <param name="page">(optional) Page number. By default first page</param>
+        /// <param name="recordsOnPage">(optional) Maximum number of records on each page. By default 50 records on a page</param>
+        /// <returns>ReviewContainer</returns>
+        ReviewTableOfContent GetReviewTableOfContent(IUser user, int reviewId, int revisionId, int? page = null, int? recordsOnPage = null);
 
         /// <summary>
         /// Gets list of review statuses for the specified artifact of the review. Runs GET containers/{0}/artifactreviewers .

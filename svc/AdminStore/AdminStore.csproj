@@ -121,6 +121,7 @@
     <Compile Include="Helpers\PaginationValidator.cs" />
     <Compile Include="Helpers\UserConverter.cs" />
     <Compile Include="Helpers\PrivilegesManager.cs" />
+    <Compile Include="Helpers\UserGroupHelper.cs" />
     <Compile Include="Helpers\UserValidator.cs" />
     <Compile Include="Models\AdminRole.cs" />
     <Compile Include="Models\AssignScope.cs" />

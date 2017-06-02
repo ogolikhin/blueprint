@@ -8,8 +8,8 @@
         public int LicenseId { get; set; }
         public byte Source { get; set; }
         public string Email { get; set; }
-        public string GroupType { get; set; }
         public int CurrentVersion { get; set; }
         public int? ProjectId { get; set; }
+        public string GroupType { get; set; }
     }
 }

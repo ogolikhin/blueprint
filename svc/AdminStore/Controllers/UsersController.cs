@@ -468,7 +468,7 @@ namespace AdminStore.Controllers
         [SessionRequired]
         [ResponseType(typeof(int))]
         [Route("")]
-        public async Task<HttpResponseMessage> PostUser([FromBody] UserDto user)
+        public async Task<HttpResponseMessage> CreateUser([FromBody] UserDto user)
         {
             if (user == null)
             {
@@ -529,7 +529,7 @@ namespace AdminStore.Controllers
         }
 
         /// <summary>
-        /// Get user's groups list according to the input parameters 
+        /// The method returns all the groups currently assigned to the user. 
         /// </summary>
         /// <param name="userId">User's identity</param>
         /// <param name="pagination">Pagination parameters</param>

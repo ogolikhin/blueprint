@@ -34,7 +34,7 @@ namespace AdminStore.Controllers
         }
 
         /// <summary>
-        /// Get groups list according to the input parameters 
+        /// The method returns all the groups (if no user id is specified), or all the groups except those that are already assigned to the user (if user id is specified).
         /// </summary>
         /// <param name="userId">User's identity</param>
         /// <param name="pagination">Pagination parameters</param>
@@ -65,7 +65,7 @@ namespace AdminStore.Controllers
         }
 
         /// <summary>
-        /// Get groups list according to the input parameters 
+        /// The method returns all the groups and users not currently assigned to the group in context.
         /// </summary>
         /// <param name="groupdId">Group's identity</param>
         /// <param name="pagination">Pagination parameters</param>
@@ -205,6 +205,31 @@ namespace AdminStore.Controllers
             await _groupRepository.UpdateGroupAsync(groupId, group);
 
             return Ok();
+        }
+
+
+        /// <summary>
+        /// Get group's members 
+        /// </summary>
+        /// <param name="groupId">Group's identity</param>
+        /// <param name="pagination">Pagination parameters</param>
+        /// <param name="sorting">Sorting parameters</param>
+        /// <response code="200">OK. The list of members.</response>
+        /// <response code="400">BadRequest. Parameters are invalid. </response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. If used doesn’t have permissions to get group's members.</response>
+        /// <response code="404">NotFound. If group with grouId doesn’t exists or removed from the system.</response>
+        [Route("{groupId:int:min(1)}/members")]
+        [SessionRequired]
+        [ResponseType(typeof(QueryResult<GroupUser>))]
+        public async Task<IHttpActionResult> GetGroupMembers(int groupId, [FromUri]Pagination pagination, [FromUri]Sorting sorting)
+        {
+            PaginationValidator.ValidatePaginationModel(pagination);
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageGroups);
+            var tabularData = new TabularData { Pagination = pagination, Sorting = sorting };
+
+            var result = await _groupRepository.GetGroupMembersAsync(groupId, tabularData, UserGroupHelper.SortUsergroups);
+            return Ok(result);
         }
 
         /// <summary>

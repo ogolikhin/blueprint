@@ -124,6 +124,7 @@
     <Compile Include="NovaModel\Reviews\ReviewArtifactsStatus.cs" />
     <Compile Include="NovaModel\Reviews\ReviewedArtifact.cs" />
     <Compile Include="NovaModel\Reviews\ReviewSource.cs" />
+    <Compile Include="NovaModel\Reviews\ReviewSummary.cs" />
     <Compile Include="NovaModel\Reviews\ReviewParticipant.cs" />
     <Compile Include="NovaModel\Metadata\ItemTypeInformation.cs" />
     <Compile Include="NovaModel\Components\RapidReview\IDiagramElement.cs" />
@@ -160,7 +161,6 @@
     <Compile Include="NovaModel\Components\RapidReview\ArtifactWithProperties.cs" />
     <Compile Include="NovaModel\Components\RapidReview\UseCase.cs" />
     <Compile Include="NovaModel\Reviews\Enums\ReviewParticipantRole.cs" />
-    <Compile Include="NovaModel\Reviews\ReviewSummary.cs" />
     <Compile Include="NovaModel\Reviews\ReviewTableOfContent.cs" />
     <Compile Include="NovaModel\Reviews\ReviewTableOfContentItem.cs" />
     <Compile Include="NovaModel\Reviews\ViewStateType.cs" />

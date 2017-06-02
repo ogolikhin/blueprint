@@ -1008,7 +1008,7 @@ namespace Model.Impl
                 queryParameters: queryParams, shouldControlJsonChanges: true);
         }
 
-        /// <seealso cref="IArtifactStore.GetReviewContainer(IUser, int, int, int?, int?)"/>
+        /// <seealso cref="IArtifactStore.GetReviewTableOfContent(IUser, int, int, int?, int?)"/>
         public ReviewTableOfContent GetReviewTableOfContent(IUser user, int reviewId, int revisionId, int? page = null, int? recordsOnPage = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Containers_id_.TOC, reviewId, revisionId);

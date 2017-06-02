@@ -674,7 +674,7 @@ namespace Model
             int? versionId = null);
 
         /// <summary>
-        /// Gets review header information. Runs GET containers/{0} .
+        /// Gets review table of content information. Runs GET containers/{0}/toc/{1}.
         /// </summary>
         /// <param name="user">user to perform the operation.</param>
         /// <param name="reviewId">Id of review.</param>

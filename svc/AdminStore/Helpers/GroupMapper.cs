@@ -19,6 +19,7 @@ namespace AdminStore.Helpers
                     Source = ((UserGroupSource)group.Source),
                     Email = group.Email,
                     CurrentVersion = group.CurrentVersion,
+                    GroupType = group.GroupType,
                     ProjectId = group.ProjectId
                 };
             return result;

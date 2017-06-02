@@ -1,8 +1,6 @@
 ﻿using CustomAttributes;
 using Helper;
 using Model;
-using Model.ArtifactModel.Impl.OperationsResults;
-using Model.Common.Enums;
 using Model.Factories;
 using Model.NovaModel.Reviews;
 using NUnit.Framework;
@@ -10,7 +8,7 @@ using TestCommon;
 using Utilities;
 using TestConfig;
 using System.Collections.Generic;
-using Model.ArtifactModel.Enums;
+using Model.Impl;
 
 namespace ArtifactStoreTests
 {
@@ -21,14 +19,12 @@ namespace ArtifactStoreTests
         private IUser _adminUser = null;
         private IUser _user = null;
         private IProject _projectCustomData = null;
-        private IProject _project = null;
 
         [SetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            _project = ProjectFactory.GetProject(_adminUser);
         }
 
         [TearDown]
@@ -52,7 +48,7 @@ namespace ArtifactStoreTests
             const int numberOfArtifacts = 15;
 
             // Execute: 
-            ReviewContent reviewArtifacts = null;
+            QueryResult<ReviewArtifact> reviewArtifacts = null;
             Assert.DoesNotThrow(() => reviewArtifacts = Helper.ArtifactStore.GetReviewArtifacts(_user, reviewId),
                 "{0} should be successful.", nameof(Helper.ArtifactStore.GetReviewArtifacts));
 
@@ -71,23 +67,26 @@ namespace ArtifactStoreTests
             _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
             const int REVIEW_ID = 112;//1183;// 112;
             const int REVISION_ID = 239;//2566;//239;
+            const int NO_ACCESS_ARTIFACT_ID = 32;
 
             var testConfig = TestConfiguration.GetInstance();
             string userName = testConfig.Username;
             string password = testConfig.Password;
 
             var sessionToken = Helper.AdminStore.AddSession(userName, password);
-            var admin = UserFactory.CreateUserOnly(userName, password, InstanceAdminRole.DefaultInstanceAdministrator);
-            admin.SetToken(sessionToken.SessionId);
+            var reviewer = UserFactory.CreateUserOnly(userName, password);
+            reviewer.SetToken(sessionToken.SessionId);
 
-            ReviewSummary reviewContainer = null;
+            var noAccessArtifact = Helper.ArtifactStore.GetArtifactDetails(_adminUser, NO_ACCESS_ARTIFACT_ID);
+            Helper.AssignProjectRolePermissionsToUser(reviewer, TestHelper.ProjectRole.None, _projectCustomData, noAccessArtifact);
 
-            // Execute: 
-            Assert.DoesNotThrow(() => reviewContainer = Helper.ArtifactStore.GetReviewContainer(admin, REVIEW_ID, REVISION_ID),
+            // Execute:
+            ReviewTableOfContent reviewContainer = null;
+            Assert.DoesNotThrow(() => reviewContainer = Helper.ArtifactStore.GetReviewContainer(reviewer, REVIEW_ID, REVISION_ID),
                 "{0} should throw no error.", nameof(Helper.ArtifactStore.GetReviewContainer));
 
             // Verify:
-            Assert.AreEqual(15, reviewContainer.TotalArtifacts, "TotalArtifacts should be equal to the expected number of artifacts in Review.");
+            Assert.AreEqual(15, reviewContainer.Total, "TotalArtifacts should be equal to the expected number of artifacts in Review.");
         }
 
         [Category(Categories.GoldenData)]
@@ -100,9 +99,8 @@ namespace ArtifactStoreTests
             _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
             const int REVIEW_ID = 111;
 
-            ReviewParticipantsContent reviewParticipants = null;
-
             // Execute:
+            ReviewParticipantsContent reviewParticipants = null;
             Assert.DoesNotThrow(() =>
             reviewParticipants = Helper.ArtifactStore.GetReviewParticipants(_adminUser, REVIEW_ID), "GetReviewParticipants " +
             "should return 200 success.");
@@ -123,9 +121,8 @@ namespace ArtifactStoreTests
             const int reviewId = 113;
             const int artifactId = 22;
 
-            ArtifactReviewContent reviewParticipants = null;
-
             // Execute:
+            QueryResult<ReviewArtifactDetails> reviewParticipants = null;
             Assert.DoesNotThrow(() =>
             reviewParticipants = Helper.ArtifactStore.GetArtifactStatusesByParticipant(_adminUser, artifactId, reviewId,
             versionId: 1), "GetArtifactStatusesByParticipant should return 200 success.");
@@ -141,22 +138,49 @@ namespace ArtifactStoreTests
         public void AddArtifactToReview_PublishedArtifact_CheckReturnedObject()
         {
             // Setup:
-            var artifactToAdd = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.Actor, _project.Id);
-            const int reviewId = 1183; // TODO: when real server-side call will be implemented review should be replaced
-            // either with newly created one or with the copy of existing review
+//            var artifactToAdd = Helper.CreateAndPublishNovaArtifact(_adminUser, _project, ItemTypePredefined.Actor, _project.Id);
+//            const int reviewId = 1183; // TODO: when real server-side call will be implemented review should be replaced
+            const int artifactToAddId = 22;
+            const int reviewId = 113; // TODO: when real server-side call will be implemented review should be replaced
 
+            // either with newly created one or with the copy of existing review
             AddArtifactsParameter content = new AddArtifactsParameter();
-            content.ArtifactIds = new List<int> { artifactToAdd.Id };
+            content.ArtifactIds = new List<int> { artifactToAddId };
             content.AddChildren = false;
 
-            AddArtifactsResult addArtifactResult = null;
-
             // Execute:
+            AddArtifactsResult addArtifactResult = null;
             Assert.DoesNotThrow(() => addArtifactResult = Helper.ArtifactStore.AddArtifactsToReview(_adminUser, reviewId,
                 content), "AddArtifactsToReview should return 200 success.");
 
             // Verify:
             Assert.AreEqual(1, addArtifactResult.ArtifactCount, "Number of added artifacts should have expected value.");
+        }
+
+        [Category(Categories.GoldenData)]
+        [TestCase]
+        [TestRail(305010)]
+        [Description("Get Review Artifacts (Review Experience) by id from Custom Data project, check that number of artifacts has expected value.")]
+        public void GetReviewArtifacts_ExistingReview_Reviewer_CheckArtifactsCount()
+        {
+            // Setup:
+            const int reviewId = 112;
+
+            var testConfig = TestConfiguration.GetInstance();
+            string userName = testConfig.Username;
+            string password = testConfig.Password;
+
+            var sessionToken = Helper.AdminStore.AddSession(userName, password);
+            var admin = UserFactory.CreateUserOnly(userName, password);
+            admin.SetToken(sessionToken.SessionId);
+
+            // Execute:
+            QueryResult<ReviewedArtifact> reviewedArtifacts = null;
+            Assert.DoesNotThrow(() => reviewedArtifacts = Helper.ArtifactStore.GetReviewedArtifacts(_adminUser, reviewId),
+                "{0} should throw no error.", nameof(Helper.ArtifactStore.GetReviewedArtifacts));
+
+            // Verify:
+            Assert.AreEqual(15, reviewedArtifacts.Items.Count, "TotalArtifacts should be equal to the expected number of artifacts in Review.");
         }
 
         #endregion Positive Tests
@@ -182,8 +206,10 @@ namespace ArtifactStoreTests
             const int reviewId = 112;
             const int REVISION_ID = 239;
 
+            _user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projectCustomData);
+
             // Execute & Verify: 
-            Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetReviewContainer(_adminUser, reviewId, REVISION_ID),
+            Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetReviewContainer(_user, reviewId, REVISION_ID),
                 "{0} should return 403 for non-reviewer user.", nameof(Helper.ArtifactStore.GetReviewContainer));
         }
 

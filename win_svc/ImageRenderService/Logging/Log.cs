@@ -1,4 +1,5 @@
 using System;
+using ImageRenderService.Annotations;
 
 namespace ImageRenderService.Logging
 {
@@ -269,9 +270,9 @@ namespace ImageRenderService.Logging
         /// In Debug mode delegates the call to Log.Assert, in Release mode logs the assertion as a debug entry.
         /// </summary>
         /// <param name="condition">Condition.</param>
-//#if DEBUG
-//        [ContractAnnotation("condition:false => halt")]
-//#endif
+#if DEBUG
+        [ContractAnnotation("condition:false => halt")]
+#endif
         public static void Assert(bool condition)
         {
 #if DEBUG
@@ -290,9 +291,9 @@ namespace ImageRenderService.Logging
         /// </summary>
         /// <param name="condition">The condition to assert.</param>
         /// <param name="message">The message to display when the assertion of the condition fails.</param>
-//#if DEBUG
-//        [ContractAnnotation("condition:false => halt")]
-//#endif
+#if DEBUG
+        [ContractAnnotation("condition:false => halt")]
+#endif
         public static void Assert(bool condition, string message)
         {
 #if DEBUG
@@ -312,9 +313,9 @@ namespace ImageRenderService.Logging
         /// <param name="condition">Condition to assert.</param>
         /// <param name="message">Message to display when the assertion of the condition fails.</param>
         /// <param name="detailMessage">Detailed message supplementing the primary message.</param>
-//#if DEBUG
-//        [ContractAnnotation("condition:false => halt")]
-//#endif
+#if DEBUG
+        [ContractAnnotation("condition:false => halt")]
+#endif
         public static void Assert(bool condition, string message, string detailMessage)
         {
 #if DEBUG
@@ -337,9 +338,9 @@ namespace ImageRenderService.Logging
         /// <param name="message">Message to display when the assertion of the condition fails.</param>
         /// <param name="detailMessageFormat">Detailed message supplementing the primary message as a formatted string.</param>
         /// <param name="args">Variable number of parameters to be used with the formatted string.</param>
-//#if DEBUG
-//        [ContractAnnotation("condition:false => halt")]
-//#endif
+#if DEBUG
+        [ContractAnnotation("condition:false => halt")]
+#endif
         public static void Assert(bool condition, string message, string detailMessageFormat, params object[] args)
         {
             Assert(condition, message, string.Format(detailMessageFormat, args));

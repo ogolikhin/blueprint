@@ -14,8 +14,10 @@ namespace ArtifactStore.Models.Review
 
         public int ItemTypePredefined { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? IconImageId { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public bool HasAccess { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]

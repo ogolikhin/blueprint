@@ -32,6 +32,7 @@ namespace Model
                 public static class Artifacts_id_
                 {
                     public const string ATTACHMENTS                 = "api/v1/projects/{0}/artifacts/{1}/attachments";
+                    public const string IMAGE                       = "api/v1/projects/{0}/artifacts/{1}/image";
                     public const string TRACES                      = "api/v1/projects/{0}/artifacts/{1}/traces";
 
                     public static class SubArtifacts_id_
@@ -266,6 +267,7 @@ namespace Model
                     public const string PARTICIPANTS                = "svc/artifactstore/containers/{0}/participants";
                     public const string ARTIFACT_REVIEWERS          = "svc/artifactstore/containers/{0}/artifactreviewers";
                     public const string TOC                         = "svc/artifactstore/containers/{0}/toc/{1}";
+                    public const string ARTIFACTS                   = "svc/artifactstore/containers/{0}/artifacts";
                 }
 
                 [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.

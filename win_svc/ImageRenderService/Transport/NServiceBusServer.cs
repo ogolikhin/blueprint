@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using BluePrintSys.Messaging.Models.ProcessImageGeneration;
 using ImageRenderService.Helpers;
 using NServiceBus;
+using ImageRenderService.Logging;
 
 namespace ImageRenderService.Transport
 {
@@ -64,6 +65,9 @@ namespace ImageRenderService.Transport
                     }
                     return TimeSpan.MaxValue;
                 });
+
+            var loggerDefinition = NServiceBus.Logging.LogManager.Use<LoggerDefinition>();
+            loggerDefinition.Level(NServiceBus.Logging.LogLevel.Warn); 
 
             _endpointInstance = await Endpoint.Start(endpointConfiguration);
         }

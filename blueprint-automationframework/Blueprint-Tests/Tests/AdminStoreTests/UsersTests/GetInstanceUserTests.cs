@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using CustomAttributes;
+﻿using CustomAttributes;
 using Helper;
 using Model;
 using Model.Common.Enums;
@@ -39,30 +38,32 @@ namespace AdminStoreTests.UsersTests
 
         #region 200 OK Tests
 
-        [TestCase(InstanceAdminRole.AssignInstanceAdministrators)]
-        [TestCase(InstanceAdminRole.DefaultInstanceAdministrator)]
-        [TestCase(InstanceAdminRole.ProvisionUsers)]
-        [Description("Create and add a default instance user. Get the added user using a user that has permissions to " +
+        [TestCase]
+        [Description("Create and add a default instance user. Get the added user using a user that only has permissions to " +
                      "view users. Verify the same user that was created is returned.")]
         [TestRail(303341)]
-        public void GetInstanceUser_PermissionsToGetUser_ReturnsCorrectUser(InstanceAdminRole adminRole)
+        public void GetInstanceUser_PermissionsToGetUser_ReturnsCorrectUser()
         {
-            // Setup:
-            var createdUser = Helper.CreateAndAddInstanceUser(_adminUser);
-
-            var userWithPermissionsToGetUsers = Helper.CreateUserAndAuthenticate(
-                TestHelper.AuthenticationTokenTypes.AccessControlToken, adminRole);
-
-            InstanceUser returnedUser = null;
-
-            // Execute:
-            Assert.DoesNotThrow(() =>
+            using (var adminStoreHelper = new AdminStoreHelper())
             {
-                returnedUser = Helper.AdminStore.GetUserById(userWithPermissionsToGetUsers, createdUser.Id);
-            }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
+                // Setup:
+                var adminRole = adminStoreHelper.AddInstanceAdminRoleToDatabase(InstanceAdminPrivileges.ViewUsers);
+                var createdUser = Helper.CreateAndAddInstanceUser(_adminUser);
 
-            //Verify:
-            AdminStoreHelper.AssertAreEqual(createdUser, returnedUser);
+                var userWithPermissionsToGetUsers = Helper.CreateUserAndAuthenticate(
+                    TestHelper.AuthenticationTokenTypes.AccessControlToken, adminRole);
+
+                InstanceUser returnedUser = null;
+
+                // Execute:
+                Assert.DoesNotThrow(() =>
+                {
+                    returnedUser = Helper.AdminStore.GetUserById(userWithPermissionsToGetUsers, createdUser.Id);
+                }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
+
+                //Verify:
+                AdminStoreHelper.AssertAreEqual(createdUser, returnedUser);
+            }
         }
 
         #endregion 200 OK Tests
@@ -99,34 +100,32 @@ namespace AdminStoreTests.UsersTests
 
         #region 403 Forbidden Tests
 
-        [TestCase(null)]
-        [TestCase(InstanceAdminRole.AdministerALLProjects)]
-        [TestCase(InstanceAdminRole.BlueprintAnalytics)]
-        [TestCase(InstanceAdminRole.Email_ActiveDirectory_SAMLSettings)]
-        [TestCase(InstanceAdminRole.InstanceStandardsManager)]
-        [TestCase(InstanceAdminRole.LogGatheringAndLicenseReporting)]
-        [TestCase(InstanceAdminRole.ManageAdministratorRoles)]
-        [TestCase(InstanceAdminRole.ProvisionProjects)]
-        [Description("Create and add an instance user.  Try to get the user with another user that does not have " +
-                     "permission to view users. Verify that 401 Unauthorized is returned.")]
+        [TestCase]
+        [Description("Create and add an instance user.  Try to get the user with another user that has all permissions except " +
+                     "permission to view users. Verify that 403 Forbidden is returned.")]
         [TestRail(303452)]
-        public void GetInstanceUser_NoPermissionsToGetUsers_403Forbidden(InstanceAdminRole? adminRole)
+        public void GetInstanceUser_NoPermissionsToGetUsers_403Forbidden()
         {
-            // Setup:
-            var createdUser = Helper.CreateAndAddInstanceUser(_adminUser);
-
-            var userWithNoPermissionsToGetUsers = Helper.CreateUserAndAuthenticate(
-                TestHelper.AuthenticationTokenTypes.AccessControlToken, adminRole);
-
-            // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() =>
+            using (var adminStoreHelper = new AdminStoreHelper())
             {
-                Helper.AdminStore.GetUserById(userWithNoPermissionsToGetUsers, createdUser.Id);
-            },
-            "'PUT {0}' should return 403 Forbidden when the user updating the user has no permissions to get users!", USER_PATH_ID);
+                // Setup:
+                var allPrivilegesExceptViewUsers = (InstanceAdminPrivileges) int.MaxValue & ~InstanceAdminPrivileges.ViewUsers;
+                var adminRole = adminStoreHelper.AddInstanceAdminRoleToDatabase(allPrivilegesExceptViewUsers);
+                var createdUser = Helper.CreateAndAddInstanceUser(_adminUser);
 
-            // Verify:
-            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "The user does not have permissions.");
+                var userWithNoPermissionsToGetUsers = Helper.CreateUserAndAuthenticate(
+                    TestHelper.AuthenticationTokenTypes.AccessControlToken, adminRole);
+
+                // Execute:
+                var ex = Assert.Throws<Http403ForbiddenException>(() =>
+                {
+                    Helper.AdminStore.GetUserById(userWithNoPermissionsToGetUsers, createdUser.Id);
+                },
+                    "'PUT {0}' should return 403 Forbidden when the user updating the user has no permissions to get users!", USER_PATH_ID);
+
+                // Verify:
+                TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "The user does not have permissions.");
+            }
         }
 
         #endregion 403 Forbidden Tests

@@ -1,17 +1,14 @@
-﻿using BluePrintSys.RC.Service.Business.Baselines.Impl;
-using Dapper;
+﻿using Dapper;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Data.SqlTypes;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
-using ServiceLibrary.Exceptions;
 
 namespace ServiceLibrary.Repositories
 {

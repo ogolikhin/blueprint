@@ -164,6 +164,8 @@
     <Compile Include="Repositories\SqlProjectMetaRepository.cs" />
     <Compile Include="Repositories\SqlRelationshipsRepository.cs" />
     <Compile Include="Repositories\SqlReviewsRepository.cs" />
+    <Compile Include="Repositories\Workflow\IWorkflowRepository.cs" />
+    <Compile Include="Repositories\Workflow\SqlWorkflowRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config">
@@ -179,6 +181,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Models\Workflow\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\lib\HtmlLibrary\HtmlLibrary.csproj">

@@ -659,8 +659,8 @@ namespace Model
         /// <param name="user">user to perform the operation.</param>
         /// <param name="reviewId">Id of review.</param>
         /// <param name="revisionId">Id of review revision.</param>
-        /// <param name="page">Page number.</param>
-        /// <param name="recordsOnPage">Maximum number of records on each page.</param>
+        /// <param name="page">(optional) Page number. By default first page</param>
+        /// <param name="recordsOnPage">(optional) Maximum number of records on each page. By default 50 records on a page</param>
         /// <returns>ReviewContainer</returns>
         ReviewTableOfContent GetReviewContainer(IUser user, int reviewId, int revisionId, int? page = null, int? recordsOnPage = null);
 

@@ -34,7 +34,7 @@ namespace AdminStore.Controllers
         }
 
         /// <summary>
-        /// Get groups list according to the input parameters 
+        /// The method returns all the groups (if no user id is specified), or all the groups except those that are already assigned to the user (if user id is specified).
         /// </summary>
         /// <param name="userId">User's identity</param>
         /// <param name="pagination">Pagination parameters</param>
@@ -65,7 +65,7 @@ namespace AdminStore.Controllers
         }
 
         /// <summary>
-        /// Get groups list according to the input parameters 
+        /// The method returns all the groups and users not currently assigned to the group in context.
         /// </summary>
         /// <param name="groupdId">Group's identity</param>
         /// <param name="pagination">Pagination parameters</param>

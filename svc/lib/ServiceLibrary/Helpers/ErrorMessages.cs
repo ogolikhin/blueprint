@@ -45,6 +45,7 @@
         public static readonly string InvalidAddUserToGroupsParameters = "Invalid parameters to add user to groups.";
         public static readonly string GeneralErrorOfAddingUserToGroups = "An error has occurred when the operation was being performed at the SQL level.";
         public static readonly string CantGetUsersToBeDeleted = "Can't get users to be deleted";
+        public static readonly string IncorrectBase64FormatPasswordField = "The password is not a valid Base-64 string as it contains a non-base 64 character, more than two padding characters, or an illegal character among the padding characters";
         //Groups
         public static readonly string GroupModelIsEmpty = "The group model is empty.";
         public static readonly string GroupName = "Please ensure the Group Name is not empty.";

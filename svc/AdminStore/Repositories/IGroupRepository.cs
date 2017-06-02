@@ -13,5 +13,6 @@ namespace AdminStore.Repositories
         Task<GroupDto> GetGroupDetailsAsync(int groupId);
         Task UpdateGroupAsync(int groupId, GroupDto group);
         Task<QueryResult<GroupUser>> GetGroupUsersAsync(int groupId, TabularData tabularData, Func<Sorting, string> sort = null);
+        Task<bool> AssignMembers(int groupId, AssignScope scope, string search = null);
     }
 }

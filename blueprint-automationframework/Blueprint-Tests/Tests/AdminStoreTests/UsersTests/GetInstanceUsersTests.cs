@@ -296,7 +296,7 @@ namespace AdminStoreTests.UsersTests
                 {
                     Helper.AdminStore.GetUsers(userWithNoPermissionsToGetUsers, offset: 0, limit: 999);
                 },
-                    "'PUT {0}' should return 403 Forbidden when the user updating the user has no permissions to get users!", USER_PATH);
+                    "'GET {0}' should return 403 Forbidden when the user updating the user has no permissions to get users!", USER_PATH);
 
                 // Verify:
                 TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.Forbidden, InstanceAdminErrorMessages.UserDoesNotHavePermissions);

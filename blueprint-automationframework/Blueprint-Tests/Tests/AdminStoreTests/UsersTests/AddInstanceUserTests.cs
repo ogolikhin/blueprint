@@ -314,8 +314,8 @@ namespace AdminStoreTests.UsersTests
                 errorMessage);
         }
 
-        [TestCase("", InstanceAdminErrorMessages.PasswordMissing, Description = "Empty Password", Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/DDD9rkA7  Returns 201
-        [TestCase(null, InstanceAdminErrorMessages.PasswordMissing, Description = "Null Password", Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/DDD9rkA7  Returns 201
+        [TestCase("", InstanceAdminErrorMessages.PasswordMissing, Description = "Empty Password")]
+        [TestCase(null, InstanceAdminErrorMessages.PasswordMissing, Description = "Null Password")]
         [TestCase("$Blue99", InstanceAdminErrorMessages.PasswordInvalidLength, Description = "Password less that 8 characters")]
         [TestCase("$Blue9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999", 
             InstanceAdminErrorMessages.PasswordInvalidLength, Description = "Password greater than 128 characters")]
@@ -518,7 +518,6 @@ namespace AdminStoreTests.UsersTests
                 InstanceAdminErrorMessages.TitleFieldLimitation);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/wiwUFifW  Returns 500 error.
         [TestCase]
         [Description("Create a valid instance user but when you add the user don't Base64 encode the password. " +
                      "Verify that 400 Bad Request is returned.")]
@@ -533,19 +532,16 @@ namespace AdminStoreTests.UsersTests
                 "'POST '{0}' should return 400 Bad Request if the Password isn't Base64 encoded.");
 
             // Verify:
-            const string expectedErrorMessage =
-                "The input is not a valid Base-64 string as it contains a non-base 64 character, more than two padding characters, or an illegal character among the padding characters. ";
-
-            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, expectedErrorMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.BadRequest, InstanceAdminErrorMessages.PasswordIsNotBase64);
         }
 
         #endregion 400 Bad Request Tests
 
         #region 401 Unauthorized Tests
 
-        [TestCase(null, "Token is missing or malformed.")]
-        [TestCase("", "Token is invalid.")]
-        [TestCase(CommonConstants.InvalidToken, "Token is invalid.")]
+        [TestCase(null, InstanceAdminErrorMessages.TokenMissingOrMalformed)]
+        [TestCase("", InstanceAdminErrorMessages.TokenInvalid)]
+        [TestCase(CommonConstants.InvalidToken, InstanceAdminErrorMessages.TokenInvalid)]
         [Description("Create and add an instance user with an invalid token header. " +
                      "Verify that 401 Unauthorized is returned.")]
         [TestRail(303373)]
@@ -598,7 +594,7 @@ namespace AdminStoreTests.UsersTests
                     USER_PATH);
 
                 // Verify:
-                TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "The user does not have permissions.");
+                TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.Forbidden, InstanceAdminErrorMessages.UserDoesNotHavePermissions);
             }
         }
 

@@ -45,5 +45,11 @@
         public const string PasswordDoesNotHaveUpperCase = "Password must contain an upper-case letter";
         public const string PasswordSameAsLogin = "Password cannot be equal to login name.";
         public const string PasswordSameAsDisplayName = "Password cannot be equal to display name.";
+        public const string PasswordIsNotBase64 = "The password is not a valid Base-64 string as it contains a non-base 64 character, " +
+                                                  "more than two padding characters, or an illegal character among the padding characters";
+
+        // Authentication:
+        public const string TokenInvalid = "Token is invalid.";
+        public const string TokenMissingOrMalformed = "Token is missing or malformed.";
     }
 }

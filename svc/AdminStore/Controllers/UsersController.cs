@@ -468,7 +468,7 @@ namespace AdminStore.Controllers
         [SessionRequired]
         [ResponseType(typeof(int))]
         [Route("")]
-        public async Task<HttpResponseMessage> PostUser([FromBody] UserDto user)
+        public async Task<HttpResponseMessage> CreateUser([FromBody] UserDto user)
         {
             if (user == null)
             {

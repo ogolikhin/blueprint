@@ -28,9 +28,9 @@ namespace AdminStore.Controllers
         private Mock<ISqlSettingsRepository> _settingsRepoMock;
         private Mock<IEmailHelper> _emailHelperMock;
         private Mock<IApplicationSettingsRepository> _applicationSettingsRepository;
-        private UsersController _controller;
         private Mock<IHttpClientProvider> _httpClientProviderMock;
         private Mock<IPrivilegesRepository> _privilegesRepository;
+        private UsersController _controller;
         private UserDto _user;
 
         private const InstanceAdminPrivileges FullPermissions = InstanceAdminPrivileges.AssignAdminRoles;
@@ -939,9 +939,10 @@ namespace AdminStore.Controllers
         }
         #endregion
 
-        #region Post user
+        #region Create User
+
         [TestMethod]
-        public async Task PostUser_SuccessfulCreationOfUser_ReturnCreatedUserIdResult()
+        public async Task CreateUser_SuccessfulCreationOfUser_ReturnCreatedUserIdResult()
         {
             // Arrange
             _privilegesRepository
@@ -952,7 +953,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(new UserManagementSettings ());
 
             // Act
-            var result = await _controller.PostUser(_user);
+            var result = await _controller.CreateUser(_user);
 
             // Assert
             Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
@@ -961,7 +962,7 @@ namespace AdminStore.Controllers
 
         [TestMethod]
         [ExpectedException(typeof(AuthorizationException))]
-        public async Task PostUser_NoManageUsersPermissions_ReturnForbiddenErrorResult()
+        public async Task CreateUser_NoManageUsersPermissions_ReturnForbiddenErrorResult()
         {
             // Arrange
             _privilegesRepository
@@ -969,7 +970,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(NoManageUsersPermissions);
 
             // Act
-            await _controller.PostUser(_user);
+            await _controller.CreateUser(_user);
 
             // Assert
             // Exception
@@ -977,7 +978,7 @@ namespace AdminStore.Controllers
 
         [TestMethod]
         [ExpectedException(typeof(AuthorizationException))]
-        public async Task PostUser_NoAssignAdminRolesPermissions_ReturnForbiddenErrorResult()
+        public async Task CreateUser_NoAssignAdminRolesPermissions_ReturnForbiddenErrorResult()
         {
             // Arrange
             _user.InstanceAdminRoleId = 1;
@@ -986,7 +987,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(NoAssignAdminRolesPermissions);
 
             // Act
-            await _controller.PostUser(_user);
+            await _controller.CreateUser(_user);
 
             // Assert
             // Exception
@@ -994,7 +995,7 @@ namespace AdminStore.Controllers
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
-        public async Task PostUser_UserLoginEmpty_ReturnBadRequestResult()
+        public async Task CreateUser_UserLoginEmpty_ReturnBadRequestResult()
         {
             // Arrange
             _user.Login = string.Empty;
@@ -1003,7 +1004,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(FullPermissions);
 
             // Act
-            await _controller.PostUser(_user);
+            await _controller.CreateUser(_user);
 
             // Assert
             // Exception
@@ -1011,7 +1012,7 @@ namespace AdminStore.Controllers
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
-        public async Task PostUser_UserLoginOutOfRangeLengthString_ReturnBadRequestResult()
+        public async Task CreateUser_UserLoginOutOfRangeLengthString_ReturnBadRequestResult()
         {
             // Arrange
             _user.Login = "123";
@@ -1020,7 +1021,7 @@ namespace AdminStore.Controllers
                .ReturnsAsync(FullPermissions);
 
             // Act
-            await _controller.PostUser(_user);
+            await _controller.CreateUser(_user);
 
             // Assert
             // Exception
@@ -1028,7 +1029,7 @@ namespace AdminStore.Controllers
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
-        public async Task PostUser_UserLoginAlreadyExist_ReturnBadRequestResult()
+        public async Task CreateUser_UserLoginAlreadyExist_ReturnBadRequestResult()
         {
             // Arrange
             _user.Login = ExistedUserLogin;
@@ -1039,14 +1040,14 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(new UserManagementSettings());
 
             // Act
-            await _controller.PostUser(_user);
+            await _controller.CreateUser(_user);
 
             // Assert
             // Exception
         }
 
         [TestMethod]
-        public async Task PostUser_UserWithExpiredUserKeyLogin_ReturnBadRequestResult()
+        public async Task CreateUser_UserWithExpiredUserKeyLogin_ReturnBadRequestResult()
         {
             // Arrange
             _user.Login = ServiceConstants.ExpiredUserKey;
@@ -1060,7 +1061,7 @@ namespace AdminStore.Controllers
             // Act
             try
             {
-                await _controller.PostUser(_user);
+                await _controller.CreateUser(_user);
             }
             catch (BadRequestException ex)
             {
@@ -1074,7 +1075,7 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public async Task PostUser_UserWithUserLogoutLogin_ReturnBadRequestResult()
+        public async Task CreateUser_UserWithUserLogoutLogin_ReturnBadRequestResult()
         {
             // Arrange
             _user.Login = ServiceConstants.UserLogout;
@@ -1086,7 +1087,7 @@ namespace AdminStore.Controllers
             // Act
             try
             {
-                await _controller.PostUser(_user);
+                await _controller.CreateUser(_user);
             }
             catch (BadRequestException ex)
             {
@@ -1100,7 +1101,7 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public async Task PostUser_UserWithInvalidUserKeyLogin_ReturnBadRequestResult()
+        public async Task CreateUser_UserWithInvalidUserKeyLogin_ReturnBadRequestResult()
         {
             // Arrange
             _user.Login = ServiceConstants.InvalidUserKey;
@@ -1112,7 +1113,7 @@ namespace AdminStore.Controllers
             // Act
             try
             {
-                await _controller.PostUser(_user);
+                await _controller.CreateUser(_user);
             }
             catch (BadRequestException ex)
             {
@@ -1127,7 +1128,7 @@ namespace AdminStore.Controllers
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
-        public async Task PostUser_DisplayNameEmpty_ReturnBadRequestResult()
+        public async Task CreateUser_DisplayNameEmpty_ReturnBadRequestResult()
         {
             // Arrange
             _user.DisplayName = string.Empty;
@@ -1136,7 +1137,7 @@ namespace AdminStore.Controllers
               .ReturnsAsync(FullPermissions);
 
             // Act
-            await _controller.PostUser(_user);
+            await _controller.CreateUser(_user);
 
             // Assert
             // Exception
@@ -1144,7 +1145,7 @@ namespace AdminStore.Controllers
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
-        public async Task PostUser_DisplayNameOutOfRangeStringLength_ReturnBadRequestResult()
+        public async Task CreateUser_DisplayNameOutOfRangeStringLength_ReturnBadRequestResult()
         {
             // Arrange
             _user.DisplayName = new string('1', 256);
@@ -1153,7 +1154,7 @@ namespace AdminStore.Controllers
               .ReturnsAsync(FullPermissions);
 
             // Act
-            await _controller.PostUser(_user);
+            await _controller.CreateUser(_user);
 
             // Assert
             // Exception
@@ -1161,7 +1162,7 @@ namespace AdminStore.Controllers
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
-        public async Task PostUser_FirstNameOutOfRangeStringLength_ReturnBadRequestResult()
+        public async Task CreateUser_FirstNameOutOfRangeStringLength_ReturnBadRequestResult()
         {
             // Arrange
             _user.FirstName = new string('1', 256); ;
@@ -1170,7 +1171,7 @@ namespace AdminStore.Controllers
               .ReturnsAsync(FullPermissions);
 
             // Act
-            await _controller.PostUser(_user);
+            await _controller.CreateUser(_user);
 
             // Assert
             // Exception
@@ -1178,7 +1179,7 @@ namespace AdminStore.Controllers
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
-        public async Task PostUser_LastNameOutOfRangeStringLength_ReturnBadRequestResult()
+        public async Task CreateUser_LastNameOutOfRangeStringLength_ReturnBadRequestResult()
         {
             // Arrange
             _user.LastName = new string('1', 256); 
@@ -1187,7 +1188,7 @@ namespace AdminStore.Controllers
               .ReturnsAsync(FullPermissions);
 
             // Act
-            await _controller.PostUser(_user);
+            await _controller.CreateUser(_user);
 
             // Assert
             // Exception
@@ -1195,7 +1196,7 @@ namespace AdminStore.Controllers
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
-        public async Task PostUser_EmailOutOfRangeStringLength_ReturnBadRequestResult()
+        public async Task CreateUser_EmailOutOfRangeStringLength_ReturnBadRequestResult()
         {
             // Arrange
             _user.Email = "1@1";
@@ -1204,7 +1205,7 @@ namespace AdminStore.Controllers
              .ReturnsAsync(FullPermissions);
 
             // Act
-            await _controller.PostUser(_user);
+            await _controller.CreateUser(_user);
 
             // Assert
             // Exception
@@ -1212,7 +1213,7 @@ namespace AdminStore.Controllers
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
-        public async Task PostUser_TitleOutOfRangeStringLength_ReturnBadRequestResult()
+        public async Task CreateUser_TitleOutOfRangeStringLength_ReturnBadRequestResult()
         {
             // Arrange
             _user.Title = new string('1', 256); ;
@@ -1221,7 +1222,7 @@ namespace AdminStore.Controllers
              .ReturnsAsync(FullPermissions);
 
             // Act
-            await _controller.PostUser(_user);
+            await _controller.CreateUser(_user);
 
             // Assert
             // Exception
@@ -1229,7 +1230,7 @@ namespace AdminStore.Controllers
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
-        public async Task PostUser_DepartmentOutOfRangeStringLength_ReturnBadRequestResult()
+        public async Task CreateUser_DepartmentOutOfRangeStringLength_ReturnBadRequestResult()
         {
             // Arrange
             for (var i = 0; i < 258; i++)
@@ -1241,29 +1242,31 @@ namespace AdminStore.Controllers
               .ReturnsAsync(FullPermissions);
 
             // Act
-            await _controller.PostUser(_user);
+            await _controller.CreateUser(_user);
 
             // Assert
             // Exception
         }
 
+        #region Password
+
         [TestMethod]
-        public async Task PostUser_PasswordEmpty_ReturnBadRequestResult()
+        public async Task CreateUser_PasswordIsNull_AllowFallbackIsNull_FederatedAuthenticationIsDisabled_ReturnBadRequestResult()
         {
             // Arrange
-            _user.Password = string.Empty;
-            _user.AllowFallback = true;
+            _user.Password = null;
+            _user.AllowFallback = null;
             _privilegesRepository
-               .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
-               .ReturnsAsync(FullPermissions);
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
             _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
-                .ReturnsAsync(new UserManagementSettings {IsFederatedAuthenticationEnabled = true});
+                .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = false });
             BadRequestException exception = null;
 
             // Act
             try
             {
-                await _controller.PostUser(_user);
+                await _controller.CreateUser(_user);
             }
             catch (BadRequestException ex)
             {
@@ -1276,7 +1279,237 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public async Task PostUser_PasswordSameAsLogin_ReturnBadRequestResult()
+        public async Task CreateUser_PasswordIsProvided_AllowFallbackIsNull_FederatedAuthenticationIsDisabled_ReturnCreatedResult()
+        {
+            // Arrange
+            _user.AllowFallback = null;
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+            _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
+                .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = false });
+
+            // Act
+            var result = await _controller.CreateUser(_user);
+
+            // Assert
+            Assert.IsNotNull(result.Content);
+        }
+
+        [TestMethod]
+        public async Task CreateUser_PasswordIsNull_AllowFallbackIsFalse_FederatedAuthenticationIsDisabled_ReturnBadRequestResult()
+        {
+            // Arrange
+            _user.Password = null;
+            _user.AllowFallback = false;
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+            _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
+                .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = false });
+            BadRequestException exception = null;
+
+            // Act
+            try
+            {
+                await _controller.CreateUser(_user);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(exception.ErrorCode, ErrorCodes.BadRequest);
+        }
+
+        [TestMethod]
+        public async Task CreateUser_PasswordIsProvided_AllowFallbackIsFalse_FederatedAuthenticationIsDisabled_ReturnCreatedResult()
+        {
+            // Arrange
+            _user.AllowFallback = false;
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+            _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
+                .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = false });
+
+            // Act
+            var result = await _controller.CreateUser(_user);
+
+            // Assert
+            Assert.IsNotNull(result.Content);
+        }
+
+        [TestMethod]
+        public async Task CreateUser_PasswordIsNull_AllowFallbackIsTrue_FederatedAuthenticationIsDisabled_ReturnBadRequestResult()
+        {
+            // Arrange
+            _user.Password = null;
+            _user.AllowFallback = true;
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+            _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
+                .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = false });
+            BadRequestException exception = null;
+
+            // Act
+            try
+            {
+                await _controller.CreateUser(_user);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(exception.ErrorCode, ErrorCodes.BadRequest);
+        }
+
+        [TestMethod]
+        public async Task CreateUser_PasswordIsProvided_AllowFallbackIsTrue_FederatedAuthenticationIsDisabled_ReturnCreatedResult()
+        {
+            // Arrange
+            _user.AllowFallback = true;
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+            _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
+                .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = false });
+
+            // Act
+            var result = await _controller.CreateUser(_user);
+
+            // Assert
+            Assert.IsNotNull(result.Content);
+        }
+
+        [TestMethod]
+        public async Task CreateUser_PasswordIsNull_AllowFallbackIsNull_FederatedAuthenticationIsEnabled_ReturnCreatedResult()
+        {
+            // Arrange
+            _user.Password = null;
+            _user.AllowFallback = null;
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+            _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
+                .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = true });
+
+            // Act
+            var result = await _controller.CreateUser(_user);
+
+            // Assert
+            Assert.IsNotNull(result.Content);
+        }
+
+        [TestMethod]
+        public async Task CreateUser_PasswordIsProvided_AllowFallbackIsNull_FederatedAuthenticationIsEnabled_ReturnCreatedResult()
+        {
+            // Arrange
+            _user.AllowFallback = null;
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+            _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
+                .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = true });
+
+            // Act
+            var result = await _controller.CreateUser(_user);
+
+            // Assert
+            Assert.IsNotNull(result.Content);
+        }
+
+        [TestMethod]
+        public async Task CreateUser_PasswordIsNull_AllowFallbackIsFalse_FederatedAuthenticationIsEnabled_ReturnCreatedResult()
+        {
+            // Arrange
+            _user.Password = null;
+            _user.AllowFallback = false;
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+            _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
+                .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = true });
+
+            // Act
+            var result = await _controller.CreateUser(_user);
+
+            // Assert
+            Assert.IsNotNull(result.Content);
+        }
+
+        [TestMethod]
+        public async Task CreateUser_PasswordIsProvided_AllowFallbackIsFalse_FederatedAuthenticationIsEnabled_ReturnCreatedResult()
+        {
+            // Arrange
+            _user.AllowFallback = false;
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+            _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
+                .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = true });
+
+            // Act
+            var result = await _controller.CreateUser(_user);
+
+            // Assert
+            Assert.IsNotNull(result.Content);
+        }
+
+        [TestMethod]
+        public async Task CreateUser_PasswordIsNull_AllowFallbackIsTrue_FederatedAuthenticationIsEnabled_ReturnBadRequestResult()
+        {
+            // Arrange
+            _user.Password = null;
+            _user.AllowFallback = true;
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+            _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
+                .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = true });
+            BadRequestException exception = null;
+
+            // Act
+            try
+            {
+                await _controller.CreateUser(_user);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(exception.ErrorCode, ErrorCodes.BadRequest);
+        }
+
+        [TestMethod]
+        public async Task CreateUser_PasswordIsProvided_AllowFallbackIsTrue_FederatedAuthenticationIsEnabled_ReturnCreatedResult()
+        {
+            // Arrange
+            _user.AllowFallback = true;
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+            _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
+                .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = true });
+
+            // Act
+            var result = await _controller.CreateUser(_user);
+
+            // Assert
+            Assert.IsNotNull(result.Content);
+        }
+
+        [TestMethod]
+        public async Task CreateUser_PasswordSameAsLogin_ReturnBadRequestResult()
         {
             // Arrange
             _user.Login = "RobertJordan_1!";
@@ -1291,7 +1524,7 @@ namespace AdminStore.Controllers
             // Act
             try
             {
-                await _controller.PostUser(_user);
+                await _controller.CreateUser(_user);
             }
             catch (BadRequestException ex)
             {
@@ -1304,7 +1537,7 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public async Task PostUser_PasswordSameAsDisplayName_ReturnBadRequestResult()
+        public async Task CreateUser_PasswordSameAsDisplayName_ReturnBadRequestResult()
         {
             // Arrange
             _user.DisplayName = "RobertJordan_1!";
@@ -1319,7 +1552,7 @@ namespace AdminStore.Controllers
             // Act
             try
             {
-                await _controller.PostUser(_user);
+                await _controller.CreateUser(_user);
             }
             catch (BadRequestException ex)
             {
@@ -1333,7 +1566,7 @@ namespace AdminStore.Controllers
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
-        public async Task PostUser_PasswordContainsOnlyAlphanumericCharacters_ReturnBadRequestResult()
+        public async Task CreateUser_PasswordContainsOnlyAlphanumericCharacters_ReturnBadRequestResult()
         {
             // Arrange
             _user.Password = "MTIzNDU2Nzg=";
@@ -1344,15 +1577,17 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(new UserManagementSettings());
 
             // Act
-            await _controller.PostUser(_user);
+            await _controller.CreateUser(_user);
 
             // Assert
             // Exception
         }
 
+        #endregion Password
+
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
-        public async Task PostUser_EmailWithoutAtSymbol_ReturnBadRequestResult()
+        public async Task CreateUser_EmailWithoutAtSymbol_ReturnBadRequestResult()
         {
             // Arrange
             _user.Email = "testemail.com";
@@ -1361,7 +1596,7 @@ namespace AdminStore.Controllers
                .ReturnsAsync(FullPermissions);
 
             // Act
-            await _controller.PostUser(_user);
+            await _controller.CreateUser(_user);
 
             // Assert
             // Exception
@@ -1369,7 +1604,7 @@ namespace AdminStore.Controllers
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
-        public async Task PostUser_EmailWithMultipleAtSymbols_ReturnBadRequestResult()
+        public async Task CreateUser_EmailWithMultipleAtSymbols_ReturnBadRequestResult()
         {
             // Arrange
             _user.Email = "sp@rk@email.com";
@@ -1378,13 +1613,13 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(FullPermissions);
 
             // Act
-            await _controller.PostUser(_user);
+            await _controller.CreateUser(_user);
 
             // Assert
             // Exception
         }
 
-        #endregion
+        #endregion Create User
 
         #region Update user
 

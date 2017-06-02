@@ -265,7 +265,7 @@ namespace Model.Impl
         public DeleteResult DeleteUsers(IUser adminUser, List<int> ids,  bool selectAll = false)
         {
             var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
-            const string path = RestPaths.Svc.AdminStore.Users.USERS_DELETE;
+            const string path = RestPaths.Svc.AdminStore.Users.DELETE;
             var jsonObject = new OperationScope
             {
                 Ids = ids,
@@ -932,6 +932,7 @@ namespace Model.Impl
             return addJobResult;
         }
 
+        /// <seealso cref="IAdminStore.GetInstanceRoles(IUser)"/>
         public List<AdminRole> GetInstanceRoles(IUser adminUser)
         {
             var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
@@ -952,6 +953,61 @@ namespace Model.Impl
                 Logger.WriteError("Content = '{0}'", restApi.Content);
                 Logger.WriteError("Error while performing GetInstanceRoles - {0}", ex.Message);
                 throw;
+            }
+        }
+
+        /// <seealso cref="IAdminStore.InstanceAdminChangePassword(IUser, InstanceUser, string)"/>
+        public HttpStatusCode InstanceAdminChangePassword(IUser adminUser, InstanceUser user, string password)
+        {
+            var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
+            string path = RestPaths.Svc.AdminStore.Users.CHANGE_PASSWORD;
+            string savedPassword = user?.Password;
+
+            try
+            {
+                if (password != null)
+                {
+                    password = HashingUtilities.EncodeTo64UTF8(password);
+                }
+
+                try
+                {
+                    Logger.WriteInfo("Changing password...");
+
+                    var bodyObject = new Dictionary<string, string>();
+
+                    if (password != null)
+                    {
+                        bodyObject.Add("Password", password);
+                    }
+
+                    if (user != null)
+                    {
+                        bodyObject.Add("UserId", user.Id.ToString());
+                    }
+
+                    var response = restApi.SendRequestAndGetResponse(
+                        path,
+                        RestRequestMethod.POST,
+                        bodyObject: bodyObject,
+                        expectedStatusCodes: new List<HttpStatusCode> { HttpStatusCode.OK });
+
+                    return response.StatusCode;
+
+                }
+                catch (WebException ex)
+                {
+                    Logger.WriteError("Content = '{0}'", restApi.Content);
+                    Logger.WriteError("Error while performing InstanceAdminChangePassword - {0}", ex.Message);
+                    throw;
+                }
+            }
+            finally
+            {
+                if (user != null)
+                {
+                    user.Password = savedPassword;
+                }
             }
         }
 

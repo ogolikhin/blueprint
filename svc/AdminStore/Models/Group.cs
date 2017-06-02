@@ -10,5 +10,6 @@
         public string Email { get; set; }
         public int CurrentVersion { get; set; }
         public int? ProjectId { get; set; }
+        public string GroupType { get; set; }
     }
 }

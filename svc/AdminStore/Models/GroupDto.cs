@@ -22,5 +22,7 @@ namespace AdminStore.Models
         public IEnumerable<int> Users { get; set; }
 
         public int CurrentVersion { get; set; }
+
+        public string GroupType { get; set; }
     }
 }

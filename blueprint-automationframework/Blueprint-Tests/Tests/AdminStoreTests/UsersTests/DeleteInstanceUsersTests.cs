@@ -118,6 +118,25 @@ namespace AdminStoreTests.UsersTests
             AssertUserNotFound(createdUser);
         }
 
+        [TestCase(-1)]
+        [TestCase(0)]
+        [TestCase(int.MaxValue)]
+        [Description("Try to delete a user with an invalid Id.  Verify the 2nd delete call returns 200 OK with TotalDeleted = 0.")]
+        [TestRail(303466)]
+        public void DeleteInstanceUser_UserDoesNotExist_TotalDeletedZero(int userId)
+        {
+            // Execute:
+            DeleteResult result = null;
+
+            Assert.DoesNotThrow(() =>
+            {
+                result = Helper.AdminStore.DeleteUser(_adminUser, userId);
+            }, "'DELETE {0}' should return 404 Not Found!", USER_PATH);
+
+            // Verify:
+            Assert.AreEqual(0, result.TotalDeleted, "There should be 0 users deleted!");
+        }
+
         [TestCase]
         [Description("Create and add 2 instance users & delete the first one.  Delete both users.  " +
                      "Verify the second user was deleted and the call returns 200 OK with TotalDeleted = 1.")]
@@ -180,6 +199,63 @@ namespace AdminStoreTests.UsersTests
         }
 
         #endregion Positive tests
+
+        #region Negative tests
+
+        [TestCase(null, InstanceAdminErrorMessages.TokenMissingOrMalformed)]
+        [TestCase("", InstanceAdminErrorMessages.TokenInvalid)]
+        [TestCase(CommonConstants.InvalidToken, InstanceAdminErrorMessages.TokenInvalid)]
+        [Description("Create and add an instance user.  Try to delete the user with a missing or invalid session token.  " +
+                     "Verify 401 Unauthorized is returned.")]
+        [TestRail(303463)]
+        public void DeleteInstanceUser_MissingOrInvalidSessionToken_401Unauthorized(string token, string expectedError)
+        {
+            // Setup:
+            var createdUser = Helper.CreateAndAddInstanceUser(_adminUser);
+            var userWithInvalidToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken,
+                badToken: token);
+
+            // Execute:
+            var ex = Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                Helper.AdminStore.DeleteUser(userWithInvalidToken, createdUser.Id.Value);
+            }, "'DELETE {0}' should return 401 Unauthorized with a missing or invalid session token!", USER_PATH);
+
+            // Verify:
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, expectedError);
+            AssertUserExists(createdUser);
+        }
+
+        [TestCase(InstanceAdminPrivileges.ManageUsersOnly)]
+        [TestCase(InstanceAdminPrivileges.ViewUsers)]
+        [Description("Create and add an instance user.  Try to delete the user with a user that doesn't have permission to view or manage users.  " +
+                     "Verify 403 Forbidden is returned.")]
+        [TestRail(303465)]
+        public void DeleteInstanceUser_NoPermissionsToDeleteUser_403Forbidden(InstanceAdminPrivileges privilegeToRemove)
+        {
+            using (var adminStoreHelper = new AdminStoreHelper())
+            {
+                // Setup:
+                var allPrivilegesExceptManageUsers = (InstanceAdminPrivileges) int.MaxValue & ~privilegeToRemove;
+                var adminRole = adminStoreHelper.AddInstanceAdminRoleToDatabase(allPrivilegesExceptManageUsers);
+
+                var createdUser = Helper.CreateAndAddInstanceUser(_adminUser);
+                var userWithNoPermissionsToManageUsers = Helper.CreateUserAndAuthenticate(
+                    TestHelper.AuthenticationTokenTypes.AccessControlToken, adminRole);
+
+                // Execute:
+                var ex = Assert.Throws<Http403ForbiddenException>(() =>
+                {
+                    Helper.AdminStore.DeleteUser(userWithNoPermissionsToManageUsers, createdUser.Id.Value);
+                }, "'DELETE {0}' should return 403 Forbidden when the user doesn't have permission to delete users!", USER_PATH);
+
+                // Verify:
+                TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.Forbidden, InstanceAdminErrorMessages.UserDoesNotHavePermissions);
+                AssertUserExists(createdUser);
+            }
+        }
+
+        #endregion Negative tests
 
         #region Private methods
 

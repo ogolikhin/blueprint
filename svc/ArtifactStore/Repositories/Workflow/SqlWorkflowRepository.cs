@@ -81,12 +81,13 @@ namespace ArtifactStore.Repositories.Workflow
                 throw new ConflictException("Artifact has been updated. Please refresh your view.");
             }
 
+            bool obtainedLockDuringProcess = false;
             //Obtain lock if it is not already locked by current user
             if (artifactInfo.LockedByUser == null)
             {
-                var isLocked =
+                obtainedLockDuringProcess =
                     await _artifactVersionsRepository.LockArtifactAsync(stateChangeParameter.ArtifactId, userId);
-                if (!isLocked)
+                if (!obtainedLockDuringProcess)
                 {
                     throw new ConflictException("Artifact has been updated. Please refresh your view.");
                 }
@@ -126,6 +127,18 @@ namespace ArtifactStore.Repositories.Workflow
             }
 
             //Change transition
+            //try
+            //{
+            //    return await ChangeStateForArtifactInternal(userId, desiredTransition.Id);
+            //}
+            //catch
+            //{
+            //    if (obtainedLockDuringProcess)
+            //    {
+            //        //Release lock
+            //    }
+            //    throw;
+            //}
             return await ChangeStateForArtifactInternal(userId, desiredTransition.Id);
         }
 

@@ -1,11 +1,15 @@
 ﻿using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using ArtifactStore.Models;
+using ArtifactStore.Repositories;
 using ArtifactStore.Repositories.Workflow;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models.Workflow;
+using ServiceLibrary.Repositories;
+using ServiceLibrary.Helpers;
 
 namespace ArtifactStore.Controllers
 {
@@ -17,13 +21,15 @@ namespace ArtifactStore.Controllers
 
         public override string LogSource { get; } = "ArtifactStore.Workflow";
 
-        public WorkflowController() : this(new SqlWorkflowRepository())
+        public WorkflowController() : this(new SqlWorkflowRepository(), new SqlArtifactPermissionsRepository(), new SqlArtifactVersionsRepository())
         {
         }
 
         public WorkflowController(IWorkflowRepository workflowRepository) 
         {
             _workflowRepository = workflowRepository;
+            _artifactPermissionsRepository = artifactPermissionsRepository;
+            _artifactVersionsRepository = artifactVersionsRepository;
         }
 
         /// <summary>
@@ -68,6 +74,27 @@ namespace ArtifactStore.Controllers
         {
             //We assume that Session always exist as we have SessionRequired attribute
             return Ok(await _workflowRepository.GetCurrentState(Session.UserId, artifactId, revisionId ?? int.MaxValue, addDrafts));
+        }
+
+        /// <summary>
+        /// Modifies the current state to the new desired state.
+        /// Permission for the artifact is based on user id which is retrieved from the request.
+        /// </summary>
+        /// <param name="stateChangeParameter"></param>
+        /// <returns></returns>
+        [HttpPost, NoCache]
+        [Route("artifacts/{artifactId:int:min(1)}/state"), SessionRequired]
+        [ActionName("ChangeStateForArtifact")]
+        [ResponseType(typeof(WorkflowState))]
+        public async Task<IHttpActionResult> ChangeStateForArtifactAsync([FromUri] WorkflowStateChangeParameter stateChangeParameter)
+        {
+            //We assume that Session always exist as we have SessionRequired attribute
+            if (stateChangeParameter == null || !ModelState.IsValid)
+            {
+                throw new BadRequestException("Please provide valid state change parameters");
+            }
+
+            return Ok(await _workflowRepository.ChangeStateForArtifact(Session.UserId, stateChangeParameter));
         }
     }
 }

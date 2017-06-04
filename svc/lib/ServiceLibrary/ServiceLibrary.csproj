@@ -169,6 +169,7 @@
     <Compile Include="Models\Workflow\Workflow.cs" />
     <Compile Include="Models\Workflow\WorkflowConstants.cs" />
     <Compile Include="Models\Workflow\WorkflowState.cs" />
+    <Compile Include="Models\Workflow\WorkflowStateChangeParameter.cs" />
     <Compile Include="Models\Workflow\WorkflowTransition.cs" />
     <Compile Include="Models\Workflow\WorkflowTransitionResult.cs" />
     <Compile Include="Repositories\ApplicationSettings\ApplicationSettingsRepository.cs" />

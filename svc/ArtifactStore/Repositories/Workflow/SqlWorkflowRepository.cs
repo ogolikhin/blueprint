@@ -3,6 +3,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
@@ -13,20 +14,27 @@ namespace ArtifactStore.Repositories.Workflow
 {
     public class SqlWorkflowRepository : SqlBaseArtifactRepository, IWorkflowRepository
     {
-        public SqlWorkflowRepository()
-            : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
-        {
-        }
+        private readonly IArtifactVersionsRepository _artifactVersionsRepository;
 
-        public SqlWorkflowRepository(ISqlConnectionWrapper connectionWrapper)
-            : this(connectionWrapper, new SqlArtifactPermissionsRepository(connectionWrapper))
+        public SqlWorkflowRepository()
+            : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain),
+                  new SqlArtifactVersionsRepository())
         {
         }
 
         public SqlWorkflowRepository(ISqlConnectionWrapper connectionWrapper,
-            IArtifactPermissionsRepository artifactPermissionsRepository) 
+            IArtifactVersionsRepository artifactVersionsRepository)
+            : this(connectionWrapper, new SqlArtifactPermissionsRepository(connectionWrapper), 
+                  artifactVersionsRepository)
+        {
+        }
+
+        public SqlWorkflowRepository(ISqlConnectionWrapper connectionWrapper,
+            IArtifactPermissionsRepository artifactPermissionsRepository,
+            IArtifactVersionsRepository artifactVersionsRepository) 
             : base(connectionWrapper,artifactPermissionsRepository)
         {
+            _artifactVersionsRepository = artifactVersionsRepository;
         }
 
         #region artifact workflow
@@ -45,6 +53,80 @@ namespace ArtifactStore.Repositories.Workflow
             await CheckForArtifactPermissions(userId, artifactId, revisionId);
             
             return await GetCurrentStateInternal(userId, artifactId, revisionId, addDrafts);
+        }
+
+        public async Task<QuerySingleResult<WorkflowState>> ChangeStateForArtifact(int userId, WorkflowStateChangeParameter stateChangeParameter)
+        {
+            //Confirm that the artifact is not deleted
+            var isDeleted = await _artifactVersionsRepository.IsItemDeleted(stateChangeParameter.ArtifactId);
+            if (isDeleted)
+            {
+                throw new ConflictException("Artifact has been updated. Please refresh your view.");
+            }
+
+            //Get artifact info
+            var artifactInfo =
+                await _artifactVersionsRepository.GetVersionControlArtifactInfoAsync(stateChangeParameter.ArtifactId,
+                    null,
+                    userId);
+
+            if (artifactInfo.VersionCount > stateChangeParameter.CurrentVersionId)
+            {
+                throw new ConflictException("Artifact has been updated. Please refresh your view.");
+            }
+
+            //Check that it is not locked by some other user
+            if (artifactInfo.LockedByUser != null && artifactInfo.LockedByUser.Id != userId)
+            {
+                throw new ConflictException("Artifact has been updated. Please refresh your view.");
+            }
+
+            //Obtain lock if it is not already locked by current user
+            if (artifactInfo.LockedByUser == null)
+            {
+                var isLocked =
+                    await _artifactVersionsRepository.LockArtifactAsync(stateChangeParameter.ArtifactId, userId);
+                if (!isLocked)
+                {
+                    throw new ConflictException("Artifact has been updated. Please refresh your view.");
+                }
+            }
+
+            //Need to access code for artifact permissions for revision
+            await CheckForArtifactPermissions(userId, stateChangeParameter.ArtifactId, stateChangeParameter.CurrentVersionId);
+
+            //Get current state and validate current state
+            var currentState = await GetCurrentState(userId, stateChangeParameter.ArtifactId);
+            if (currentState == null || 
+                currentState.ResultCode != QueryResultCode.Success || 
+                currentState.Item == null ||
+                currentState.Item.Id != stateChangeParameter.FromStateId)
+            {
+                throw new ConflictException("Artifact has been updated. Please refresh your view.");
+            }
+
+            //Get available transitions and validate the required transition
+            var availableTransitions =
+                await GetAvailableTransitions(userId, stateChangeParameter.WorkflowId, stateChangeParameter.FromStateId);
+            if (availableTransitions.Total == 0 ||
+                availableTransitions.ResultCode != QueryResultCode.Success)
+            {
+                throw new ConflictException("Artifact has been updated. Please refresh your view.");
+            }
+
+            var desiredTransition =
+                availableTransitions.Items.FirstOrDefault(tr => tr.WorkflowId == stateChangeParameter.WorkflowId &&
+                                                               tr.FromState.Id == stateChangeParameter.FromStateId &&
+                                                               tr.ToState.Id == stateChangeParameter.ToStateId &&
+                                                               tr.Id == stateChangeParameter.TransitionId);
+
+            if (desiredTransition == null)
+            {
+                throw new ConflictException("Artifact has been updated. Please refresh your view.");
+            }
+
+            //Change transition
+            return await ChangeStateForArtifactInternal(userId, desiredTransition.Id);
         }
 
         #endregion
@@ -151,6 +233,35 @@ namespace ArtifactStore.Repositories.Workflow
                 Total = workflowTransitions.Count,
                 Count = workflowTransitions.Count,
                 Items = workflowTransitions
+            };
+        }
+
+        private async Task<QuerySingleResult<WorkflowState>> ChangeStateForArtifactInternal(int userId, int transitionId)
+        {
+            var param = new DynamicParameters();
+            param.Add("@transitionId", transitionId);
+            param.Add("@userId", userId);
+
+            var result = (await ConnectionWrapper.QueryAsync<SqlWorkFlowState>("ChangeStateForArtifact", param, commandType: CommandType.StoredProcedure))
+                .Select(workflowState => new WorkflowState
+                {
+                    Id = workflowState.WorkflowStateId,
+                    Name = workflowState.WorkflowStateName,
+                    WorkflowId = workflowState.WorkflowId
+                }).FirstOrDefault();
+
+            if (result == null)
+            {
+                return new QuerySingleResult<WorkflowState>
+                {
+                    ResultCode = QueryResultCode.Failure,
+                    Message = I18NHelper.FormatInvariant("State could not be modified")
+                };
+            }
+            return new QuerySingleResult<WorkflowState>
+            {
+                ResultCode = QueryResultCode.Success,
+                Item = result
             };
         }
 

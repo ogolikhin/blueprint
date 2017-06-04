@@ -9,5 +9,7 @@ namespace ArtifactStore.Repositories.Workflow
         Task<WorkflowTransitionResult> GetTransitions(int userId, int artifactId, int workflowId, int stateId);
 
         Task<QuerySingleResult<WorkflowState>>  GetCurrentState(int userId, int artifactId, int revisionId = int.MaxValue, bool addDrafts = true);
+
+        Task<QuerySingleResult<WorkflowState>> ChangeStateForArtifact(int userId, WorkflowStateChangeParameter stateChangeParameter);
     }
 }

@@ -1,8 +1,7 @@
 ﻿
 namespace Model.NovaModel.Reviews
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1028:EnumStorageShouldBeInt32")]
-    public enum ViewStateType : byte
+    public enum ViewStateType
     {
         NotViewed = 0,
         Viewed = 1,

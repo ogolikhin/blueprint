@@ -690,8 +690,7 @@ namespace AdminStoreTests.UsersTests
                 var ex = Assert.Throws<Http403ForbiddenException>(() =>
                 {
                     Helper.AdminStore.UpdateUser(userWithNoPermissionsToManageUsers, createdUser);
-                },
-                    "'PUT {0}' should return 403 Forbidden when the user updating the user has no permissions to manage users!",
+                }, "'PUT {0}' should return 403 Forbidden when the user updating the user has no permissions to manage users!",
                     USER_PATH_ID);
 
                 // Verify:
@@ -853,8 +852,7 @@ namespace AdminStoreTests.UsersTests
             var ex = Assert.Throws<Http409ConflictException>(() =>
             {
                 Helper.AdminStore.UpdateUser(_adminUser, createdUser);
-            },
-            "'PUT {0}' should return 409 Conflict when ttrying to update a user with an incorrect Current Version!", USER_PATH_ID);
+            }, "'PUT {0}' should return 409 Conflict when ttrying to update a user with an incorrect Current Version!", USER_PATH_ID);
 
             // Verify:
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, InstanceAdminErrorMessages.UserVersionsNotEqual);

@@ -164,6 +164,8 @@
     <Compile Include="NovaModel\Components\RapidReview\ArtifactWithProperties.cs" />
     <Compile Include="NovaModel\Components\RapidReview\UseCase.cs" />
     <Compile Include="NovaModel\Reviews\Enums\ReviewParticipantRole.cs" />
+    <Compile Include="NovaModel\Reviews\ReviewTableOfContent.cs" />
+    <Compile Include="NovaModel\Reviews\ReviewTableOfContentItem.cs" />
     <Compile Include="NovaModel\Reviews\ViewStateType.cs" />
     <Compile Include="OpenApiModel\UserModel\Results\UserCallResultCollection.cs" />
     <Compile Include="Impl\LicenseUsage.cs" />

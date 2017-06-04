@@ -58,8 +58,14 @@ namespace AdminStoreTests.UsersTests
         [TestRail(303340)]
         public void AddInstanceUser_ValidUser_UserCreated()
         {
-            // Setup & Execute:
-            var createdUser = Helper.CreateAndAddInstanceUser(_adminUser);
+            // Setup:
+            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                createdUser.Id = Helper.AdminStore.AddUser(_adminUser, createdUser);
+            }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
 
             InstanceUser addedUser = null;
 
@@ -69,6 +75,8 @@ namespace AdminStoreTests.UsersTests
             }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
 
             // Verify:
+            // Update Id and CurrentVersion in CreatedUser for comparison
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUser.Id);
 
             AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
         }
@@ -210,8 +218,13 @@ namespace AdminStoreTests.UsersTests
                 var userPermissionsToManageUsers = Helper.CreateUserAndAuthenticate(
                     TestHelper.AuthenticationTokenTypes.AccessControlToken, adminRole);
 
+                var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
+
                 // Execute:
-                var createdUser = Helper.CreateAndAddInstanceUser(userPermissionsToManageUsers);
+                Assert.DoesNotThrow(() =>
+                {
+                    createdUser.Id = Helper.AdminStore.AddUser(userPermissionsToManageUsers, createdUser);
+                }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
 
                 InstanceUser addedUser = null;
 
@@ -221,6 +234,9 @@ namespace AdminStoreTests.UsersTests
                 }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
 
                 // Verify:
+                // Update Id and CurrentVersion in CreatedUser for comparison
+                AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUser.Id);
+
                 AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
             }
         }
@@ -244,8 +260,13 @@ namespace AdminStoreTests.UsersTests
             var userWithPermissionsToAssignAdminRoles = Helper.CreateUserAndAuthenticate(
                 TestHelper.AuthenticationTokenTypes.AccessControlToken, InstanceAdminRole.AssignInstanceAdministrators);
 
+            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser(instanceAdminRole: adminRole);
+
             // Execute:
-            var createdUser = Helper.CreateAndAddInstanceUser(userWithPermissionsToAssignAdminRoles, instanceAdminRole: adminRole);
+            Assert.DoesNotThrow(() =>
+            {
+                createdUser.Id = Helper.AdminStore.AddUser(userWithPermissionsToAssignAdminRoles, createdUser);
+            }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
 
             InstanceUser addedUser = null;
 
@@ -257,6 +278,9 @@ namespace AdminStoreTests.UsersTests
             // Verify:
             // Update License Type for comparison
             createdUser.LicenseType = expectedLicenseLevel;
+
+            // Update Id and CurrentVersion in CreatedUser for comparison
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUser.Id);
 
             AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
         }
@@ -589,8 +613,7 @@ namespace AdminStoreTests.UsersTests
                 var ex = Assert.Throws<Http403ForbiddenException>(() =>
                 {
                     Helper.AdminStore.AddUser(userWithNoPermissionsToManageUsers, createdUser);
-                },
-                    "'POST {0}' should return 403 Forbidden when the user adding the created user has no permissions to manage users!",
+                }, "'POST {0}' should return 403 Forbidden when the user adding the created user has no permissions to manage users!",
                     USER_PATH);
 
                 // Verify:

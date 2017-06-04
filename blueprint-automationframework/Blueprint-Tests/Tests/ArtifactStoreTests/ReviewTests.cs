@@ -33,6 +33,8 @@ namespace ArtifactStoreTests
             Helper?.Dispose();
         }
 
+        #region Positive Tests
+
         [Category(Categories.GoldenData)]
         [TestCase]
         [TestRail(290224)]
@@ -63,7 +65,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
-            const int reviewId = 112;
+            const int REVIEW_ID = 112;
 
             var testConfig = TestConfiguration.GetInstance();
             string userName = testConfig.Username;
@@ -73,29 +75,13 @@ namespace ArtifactStoreTests
             var admin = UserFactory.CreateUserOnly(userName, password);
             admin.SetToken(sessionToken.SessionId);
 
+            // Execute:
             ReviewSummary reviewContainer = null;
-
-            // Execute: 
-            Assert.DoesNotThrow(() => reviewContainer = Helper.ArtifactStore.GetReviewContainer(admin, reviewId),
+            Assert.DoesNotThrow(() => reviewContainer = Helper.ArtifactStore.GetReviewContainer(admin, REVIEW_ID),
                 "{0} should throw no error.", nameof(Helper.ArtifactStore.GetReviewContainer));
 
             // Verify:
             Assert.AreEqual(15, reviewContainer.TotalArtifacts, "TotalArtifacts should be equal to the expected number of artifacts in Review.");
-        }
-
-        [Category(Categories.GoldenData)]
-        [TestCase]
-        [TestRail(303349)]
-        [Description("Get Review Content by id from Custom Data project, non-reviewer user, check that server returns 403.")]
-        public void GetReviewContainer_ExistingReview_NonReviewer_403Forbidden()
-        {
-            // Setup:
-            _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
-            const int reviewId = 112;
-
-            // Execute & Verify: 
-            Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetReviewContainer(_adminUser, reviewId),
-                "{0} should return 403 for non-reviewer user.", nameof(Helper.ArtifactStore.GetReviewContainer));
         }
 
         [Category(Categories.GoldenData)]
@@ -106,13 +92,12 @@ namespace ArtifactStoreTests
         {
             // Setup:
             _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
-            const int reviewId = 111;
-
-            ReviewParticipantsContent reviewParticipants = null;
+            const int REVIEW_ID = 111;
 
             // Execute:
+            ReviewParticipantsContent reviewParticipants = null;
             Assert.DoesNotThrow(() =>
-            reviewParticipants = Helper.ArtifactStore.GetReviewParticipants(_adminUser, reviewId), "GetReviewParticipants " +
+            reviewParticipants = Helper.ArtifactStore.GetReviewParticipants(_adminUser, REVIEW_ID), "GetReviewParticipants " +
             "should return 200 success.");
 
             // Verify:
@@ -131,9 +116,8 @@ namespace ArtifactStoreTests
             const int reviewId = 113;
             const int artifactId = 22;
 
-            QueryResult<ReviewArtifactDetails> reviewParticipants = null;
-
             // Execute:
+            QueryResult<ReviewArtifactDetails> reviewParticipants = null;
             Assert.DoesNotThrow(() =>
             reviewParticipants = Helper.ArtifactStore.GetArtifactStatusesByParticipant(_adminUser, artifactId, reviewId,
             versionId: 1), "GetArtifactStatusesByParticipant should return 200 success.");
@@ -151,15 +135,14 @@ namespace ArtifactStoreTests
             // Setup:
             const int artifactToAddId = 22;
             const int reviewId = 113; // TODO: when real server-side call will be implemented review should be replaced
-            // either with newly created one or with the copy of existing review
 
+            // either with newly created one or with the copy of existing review
             AddArtifactsParameter content = new AddArtifactsParameter();
             content.ArtifactIds = new List<int> { artifactToAddId };
             content.AddChildren = false;
 
-            AddArtifactsResult addArtifactResult = null;
-
             // Execute:
+            AddArtifactsResult addArtifactResult = null;
             Assert.DoesNotThrow(() => addArtifactResult = Helper.ArtifactStore.AddArtifactsToReview(_adminUser, reviewId,
                 content), "AddArtifactsToReview should return 200 success.");
 
@@ -184,14 +167,47 @@ namespace ArtifactStoreTests
             var admin = UserFactory.CreateUserOnly(userName, password);
             admin.SetToken(sessionToken.SessionId);
 
+            // Execute:
             QueryResult<ReviewedArtifact> reviewedArtifacts = null;
-
-            // Execute: 
             Assert.DoesNotThrow(() => reviewedArtifacts = Helper.ArtifactStore.GetReviewedArtifacts(_adminUser, reviewId),
                 "{0} should throw no error.", nameof(Helper.ArtifactStore.GetReviewedArtifacts));
 
             // Verify:
             Assert.AreEqual(15, reviewedArtifacts.Items.Count, "TotalArtifacts should be equal to the expected number of artifacts in Review.");
         }
+
+        #endregion Positive Tests
+
+        #region 400 Bad Request
+
+        #endregion 400 Bad Request
+
+        #region 401 Unauthorized
+
+        #endregion 401 Unauthorized
+
+        #region 403 Forbidden
+
+        [Explicit()]
+        [Category(Categories.GoldenData)]
+        [TestCase()]
+        [TestRail(303349)]
+        [Description("Get Review Content by id from Custom Data project, non-reviewer user, check that server returns 403.")]
+        public void GetReviewContainer_ExistingReview_NonReviewer_403Forbidden()
+        {
+            // Setup:
+            _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
+            const int reviewId = 112;
+
+            // Execute & Verify: 
+            Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetReviewContainer(_adminUser, reviewId),
+                "{0} should return 403 for non-reviewer user.", nameof(Helper.ArtifactStore.GetReviewContainer));
+        }
+
+        #endregion 403 Forbidden
+
+        #region 404 Not Found
+
+        #endregion 404 Not Found
     }
 }

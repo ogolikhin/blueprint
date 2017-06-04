@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -57,6 +58,8 @@ namespace ArtifactStore.Repositories.Workflow
 
         public async Task<QuerySingleResult<WorkflowState>> ChangeStateForArtifact(int userId, WorkflowStateChangeParameter stateChangeParameter)
         {
+            //Start a transaction. we need to import code from blueprint-current for creating transactions
+
             //Confirm that the artifact is not deleted
             var isDeleted = await _artifactVersionsRepository.IsItemDeleted(stateChangeParameter.ArtifactId);
             if (isDeleted)
@@ -126,6 +129,24 @@ namespace ArtifactStore.Repositories.Workflow
                 throw new ConflictException("Artifact has been updated. Please refresh your view.");
             }
 
+            //Get enhanced state information so that we can validate constraints
+            //VALIDATE CONSTRAINTS. USER PERMISSIONS IS ONE SUCH VALID CONSTRAINT
+            //PROPERTY CONSTRAINTS WILL BE APPLIED
+            var propertyConstraints = new List<IConstraint<Artifact>>()
+            {
+                new ArtifactPropertyConstraint(),
+                new ArtifactPropertyConstraint(),
+                new ArtifactPropertyConstraint()
+            };
+
+            foreach (var propertyConstraint in propertyConstraints)
+            {
+                if (!await propertyConstraint.IsFulfilled())
+                {
+                    throw new ConflictException("State cannot be modified as the constrating is not fulfilled");
+                }
+            }
+
             //Change transition
             //try
             //{
@@ -139,7 +160,27 @@ namespace ArtifactStore.Repositories.Workflow
             //    }
             //    throw;
             //}
-            return await ChangeStateForArtifactInternal(userId, desiredTransition.Id);
+            var stateChangeResult = await ChangeStateForArtifactInternal(userId, desiredTransition.Id);
+
+            //On successful state change, we should run synchronous actions
+            if (stateChangeResult.ResultCode == QueryResultCode.Success)
+            {
+                var triggerExecutors = new List<ITriggerExecutor<Artifact, Boolean>>
+                {
+                    new PropertyChangeTrigger(),
+                    new PropertyChangeTrigger(),
+                    new PropertyChangeTrigger()
+                };
+                foreach (var triggerExecutor in triggerExecutors)
+                {
+                    if (!await triggerExecutor.Execute(null))
+                    {
+                        throw new ConflictException("State cannot be modified as the trigger cannot be executed");
+                    }
+                }
+            }
+
+            return stateChangeResult;
         }
 
         #endregion

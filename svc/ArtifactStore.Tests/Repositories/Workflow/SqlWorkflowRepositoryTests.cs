@@ -22,7 +22,9 @@ namespace ArtifactStore.Repositories.Workflow
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlWorkflowRepository(cxn.Object);
+            var repository = new SqlWorkflowRepository(cxn.Object, 
+                new Mock<IArtifactPermissionsRepository>().Object,
+                new Mock<IArtifactVersionsRepository>().Object);
             cxn.SetupQueryAsync("GetArtifactBasicDetails",
               new Dictionary<string, object>
               {
@@ -41,7 +43,8 @@ namespace ArtifactStore.Repositories.Workflow
             // Arrange
             var permissionsRepository = CreatePermissionsRepositoryMock(new[] { 1 }, 1, RolePermissions.None);
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object);
+            var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object,
+                new Mock<IArtifactVersionsRepository>().Object);
             cxn.SetupQueryAsync("GetArtifactBasicDetails",
               new Dictionary<string, object>
               {
@@ -60,7 +63,7 @@ namespace ArtifactStore.Repositories.Workflow
             // Arrange
             var permissionsRepository = CreatePermissionsRepositoryMock(new[] { 1 }, 1, RolePermissions.None);
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object);
+            var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object, new Mock<IArtifactVersionsRepository>().Object);
             cxn.SetupQueryAsync("GetArtifactBasicDetails",
               new Dictionary<string, object>
               {
@@ -78,7 +81,7 @@ namespace ArtifactStore.Repositories.Workflow
             // Arrange
             var permissionsRepository = CreatePermissionsRepositoryMock(new[] { 1 }, 1, RolePermissions.Edit);
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object);
+            var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object, new Mock<IArtifactVersionsRepository>().Object);
             cxn.SetupQueryAsync("GetArtifactBasicDetails",
               new Dictionary<string, object>
               {
@@ -135,7 +138,7 @@ namespace ArtifactStore.Repositories.Workflow
             // Arrange
             var permissionsRepository = CreatePermissionsRepositoryMock(new[] { 1 }, 1, RolePermissions.Edit | RolePermissions.Read);
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object);
+            var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object, new Mock<IArtifactVersionsRepository>().Object);
             cxn.SetupQueryAsync("GetArtifactBasicDetails",
               new Dictionary<string, object>
               {
@@ -173,7 +176,7 @@ namespace ArtifactStore.Repositories.Workflow
             // Arrange
             var permissionsRepository = CreatePermissionsRepositoryMock(new[] { 1 }, 1, RolePermissions.Edit | RolePermissions.Read);
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object);
+            var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object, new Mock<IArtifactVersionsRepository>().Object);
             cxn.SetupQueryAsync("GetArtifactBasicDetails",
               new Dictionary<string, object>
               {

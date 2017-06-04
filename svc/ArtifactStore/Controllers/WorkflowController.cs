@@ -21,15 +21,13 @@ namespace ArtifactStore.Controllers
 
         public override string LogSource { get; } = "ArtifactStore.Workflow";
 
-        public WorkflowController() : this(new SqlWorkflowRepository(), new SqlArtifactPermissionsRepository(), new SqlArtifactVersionsRepository())
+        public WorkflowController() : this(new SqlWorkflowRepository())
         {
         }
 
         public WorkflowController(IWorkflowRepository workflowRepository) 
         {
             _workflowRepository = workflowRepository;
-            _artifactPermissionsRepository = artifactPermissionsRepository;
-            _artifactVersionsRepository = artifactVersionsRepository;
         }
 
         /// <summary>
@@ -82,7 +80,7 @@ namespace ArtifactStore.Controllers
         /// </summary>
         /// <param name="stateChangeParameter"></param>
         /// <returns></returns>
-        [HttpPost, NoCache]
+        [HttpPost]
         [Route("artifacts/{artifactId:int:min(1)}/state"), SessionRequired]
         [ActionName("ChangeStateForArtifact")]
         [ResponseType(typeof(WorkflowState))]

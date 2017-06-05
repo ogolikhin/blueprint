@@ -11,6 +11,7 @@ using System.Globalization;
 using System.Linq;
 using Model.Common.Enums;
 using Model.InstanceAdminModel;
+using Model.NovaModel.AdminStoreModel;
 using Utilities;
 using Utilities.Factories;
 
@@ -427,7 +428,7 @@ namespace Helper
             string lastName = null,
             string email = null,
             string displayname = null,
-            UserSource? source = null,
+            UserGroupSource? source = null,
             LicenseLevel? licenseLevel = null,
             InstanceAdminRole? instanceAdminRole = null,
             InstanceAdminPrivileges? adminPrivileges = null,
@@ -448,7 +449,7 @@ namespace Helper
                 lastName,
                 displayname,
                 email,
-                source ?? UserSource.Database,
+                source ?? UserGroupSource.Database,
                 eulaAccepted: false,
                 license: licenseLevel ?? LicenseLevel.Viewer,
                 isSso: false,

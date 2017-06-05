@@ -39,7 +39,7 @@ namespace Model.Impl
         /// <summary>
         /// The authentication source of the user.
         /// </summary>
-        public UserSource? Source { get; set; }
+        public UserGroupSource? Source { get; set; }
 
         /// <summary>
         /// True if this user has accepted the EULA, false otherwise.
@@ -74,7 +74,7 @@ namespace Model.Impl
         public InstanceAdminPrivileges? InstanceAdminPrivileges { get; set; }
 
         public LoginUser(string login, string firstName, string lastName, string displayName, string email,
-            UserSource? source, bool eulaAccepted, LicenseLevel? license, bool isSso, bool? allowFallback, 
+            UserGroupSource? source, bool eulaAccepted, LicenseLevel? license, bool isSso, bool? allowFallback, 
             InstanceAdminRole? instanceAdminRole, InstanceAdminPrivileges? instanceAdminPrivileges)
         {
             Login = login;

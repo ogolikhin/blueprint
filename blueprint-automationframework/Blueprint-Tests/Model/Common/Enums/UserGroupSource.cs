@@ -1,6 +1,6 @@
 ﻿namespace Model.Common.Enums
 {
-    public enum UserSource
+    public enum UserGroupSource
     {
         Unknown = -1,
         Database = 0,

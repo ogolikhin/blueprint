@@ -5,7 +5,7 @@ using CustomAttributes;
 using Helper;
 using Model;
 using Model.Common.Enums;
-using Model.Impl;
+using Model.NovaModel.AdminStoreModel;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
@@ -372,7 +372,7 @@ namespace AdminStoreTests.UsersTests
             // Verify:
             // Update CurrentVersion and Source in CreatedUser for comparison
             createdUser.CurrentVersion++;
-            createdUser.Source = UserSource.Database;
+            createdUser.Source = UserGroupSource.Database;
 
             AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
         }
@@ -566,13 +566,13 @@ namespace AdminStoreTests.UsersTests
                 );
         }
 
-        [TestCase((UserSource)0xFF, InstanceAdminErrorMessages.ModifyOnlyDatabaseUsers)]
-        [TestCase(UserSource.Unknown, InstanceAdminErrorMessages.ModifyOnlyDatabaseUsers)]
-        [TestCase(UserSource.Windows, InstanceAdminErrorMessages.ModifyOnlyDatabaseUsers)]
+        [TestCase((UserGroupSource)0xFF, InstanceAdminErrorMessages.ModifyOnlyDatabaseUsers)]
+        [TestCase(UserGroupSource.Unknown, InstanceAdminErrorMessages.ModifyOnlyDatabaseUsers)]
+        [TestCase(UserGroupSource.Windows, InstanceAdminErrorMessages.ModifyOnlyDatabaseUsers)]
         [Description("Create and add a default instance user.  Modify the source to an invalid value. " +
                      "Update the user. Verify that 400 Bad Request is returned.")]
         [TestRail(303414)]
-        public void UpdateInstanceUser_InvalidSource_400BadRequest(UserSource? source, string errorMessage)
+        public void UpdateInstanceUser_InvalidSource_400BadRequest(UserGroupSource? source, string errorMessage)
         {
             UpdateDefaultInstanceUserWithInvalidPropertyVerify400BadRequest(
                 _adminUser,

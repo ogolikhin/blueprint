@@ -180,8 +180,7 @@ namespace AdminStore.Controllers
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewUsers);
 
             var user = await _userRepository.GetUserDtoAsync(userId);
-
-            if (user.Id == 0)
+            if (user == null)
             {
                 throw new ResourceNotFoundException(ErrorMessages.UserNotExist, ErrorCodes.ResourceNotFound);
             }

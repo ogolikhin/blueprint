@@ -510,7 +510,7 @@ namespace Model
             string search = null);
 
         /// <summary>
-        /// Gets all the groups gets all groups except those that are already assigned to the specified user.
+        /// Gets all the groups except those that are already assigned to the specified user.
         /// (Runs: GET /svc/adminstore/groups)
         /// </summary>
         /// <param name="adminUser">The admin user getting the groups.</param>

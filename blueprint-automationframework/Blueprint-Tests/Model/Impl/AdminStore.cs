@@ -1053,7 +1053,7 @@ namespace Model.Impl
 
             try
             {
-                Logger.WriteInfo("Getting groups for user...");
+                Logger.WriteInfo("Getting groups for user: {0}...", userId);
 
                 return restApi.SendRequestAndDeserializeObject<QueryResult<InstanceGroup>>(
                     path,
@@ -1090,7 +1090,7 @@ namespace Model.Impl
 
             if (selectAll != null)
             {
-                bodyObject.SelectAll = (bool)selectAll;
+                bodyObject.SelectAll = selectAll.Value;
             }
 
             if (groupIds != null)
@@ -1130,7 +1130,7 @@ namespace Model.Impl
 
             if (selectAll != null)
             {
-                bodyObject.SelectAll = (bool)selectAll;
+                bodyObject.SelectAll = selectAll.Value;
             }
 
             if (groupIds != null)
@@ -1164,52 +1164,7 @@ namespace Model.Impl
             SortOrder? order = null,
             string search = null)
         {
-            var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Groups.GROUPS);
-
-            var queryParameters = new Dictionary<string, string>();
-
-            if (offset != null)
-            {
-                queryParameters.Add("offset", offset.ToStringInvariant());
-            }
-
-            if (limit != null)
-            {
-                queryParameters.Add("limit", limit.ToStringInvariant());
-            }
-
-            if (!string.IsNullOrEmpty(sort))
-            {
-                queryParameters.Add("sort", sort);
-            }
-
-            if (order != null)
-            {
-                queryParameters.Add("order", order.ToString());
-            }
-
-            if (!string.IsNullOrEmpty(search))
-            {
-                queryParameters.Add("search", search);
-            }
-
-            try
-            {
-                Logger.WriteInfo("Getting all groups...");
-
-                return restApi.SendRequestAndDeserializeObject<QueryResult<InstanceGroup>>(
-                    path,
-                    RestRequestMethod.GET,
-                    queryParameters: queryParameters,
-                    shouldControlJsonChanges: false);
-            }
-            catch (WebException ex)
-            {
-                Logger.WriteError("Content = '{0}'", restApi.Content);
-                Logger.WriteError("Error while performing GetAllGroups - {0}", ex.Message);
-                throw;
-            }
+            return GetGroups(adminUser, offset, limit, sort, order, search);
         }
 
         /// <seealso cref="IAdminStore.GetUnassignedGroups(IUser, int?, int?, int?, string, SortOrder?, string)"/>
@@ -1221,57 +1176,7 @@ namespace Model.Impl
             SortOrder? order = null,
             string search = null)
         {
-            var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Groups.GROUPS);
-
-            var queryParameters = new Dictionary<string, string>();
-
-            if (userId != null)
-            {
-                queryParameters.Add("userId", userId.ToStringInvariant());
-            }
-
-            if (offset != null)
-            {
-                queryParameters.Add("offset", offset.ToStringInvariant());
-            }
-
-            if (limit != null)
-            {
-                queryParameters.Add("limit", limit.ToStringInvariant());
-            }
-
-            if (!string.IsNullOrEmpty(sort))
-            {
-                queryParameters.Add("sort", sort);
-            }
-
-            if (order != null)
-            {
-                queryParameters.Add("order", order.ToString());
-            }
-
-            if (!string.IsNullOrEmpty(search))
-            {
-                queryParameters.Add("search", search);
-            }
-
-            try
-            {
-                Logger.WriteInfo("Getting all unassigned groups...");
-
-                return restApi.SendRequestAndDeserializeObject<QueryResult<InstanceGroup>>(
-                    path,
-                    RestRequestMethod.GET,
-                    queryParameters: queryParameters,
-                    shouldControlJsonChanges: false);
-            }
-            catch (WebException ex)
-            {
-                Logger.WriteError("Content = '{0}'", restApi.Content);
-                Logger.WriteError("Error while performing GetUnassignedGroups - {0}", ex.Message);
-                throw;
-            }
+            return GetGroups(adminUser, offset, limit, sort, order, search, userId);
         }
 
         /// <seealso cref="IAdminStore.GetUnassignedGroupsAndUsers(IUser, int?, int?, int?, string, SortOrder?, string)"/>
@@ -1356,7 +1261,7 @@ namespace Model.Impl
 
             if (selectAll != null)
             {
-                bodyObject.SelectAll = (bool)selectAll;
+                bodyObject.SelectAll = selectAll.Value;
             }
 
             if (groupIds != null)
@@ -1556,5 +1461,78 @@ namespace Model.Impl
         }
 
         #endregion Members inherited from IDisposable
+
+        #region Private Methods
+
+        /// <summary>
+        /// If user id is null, gets all groups. If user id is not null, gets all the groups except those that are already assigned to the specified user.
+        /// (Runs: GET /svc/adminstore/groups)
+        /// </summary>
+        /// <param name="adminUser">The admin user getting the groups.</param>
+        /// <param name="offset">0-based index of the first item to return.</param>
+        /// <param name="limit">(optional) Maximum number of items to return (if any). 
+        /// The server may return fewer items than requested.</param>
+        /// <param name="sort">(optional) Property name by which to sort results (Default: does not sort results).</param>
+        /// <param name="order">(optional) "asc" sorts in ascending order; "desc" sorts in descending order (Default: asc). 
+        /// The default order depends on the particular property.</param>
+        /// <param name="search">(optional) Search query that would be applied to group Name field (Default: null).</param>
+        /// <param name="userId">(optional)The user id of the user.</param>
+        /// <returns>The QueryResult object of InstanceGroup.</returns>
+        private QueryResult<InstanceGroup> GetGroups(IUser adminUser, int? offset, int? limit, string sort, SortOrder? order, string search, int? userId = null)
+        {
+            var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Groups.GROUPS);
+
+            var queryParameters = new Dictionary<string, string>();
+
+            if (userId != null)
+            {
+                queryParameters.Add("userId", userId.ToStringInvariant());
+            }
+
+            if (offset != null)
+            {
+                queryParameters.Add("offset", offset.ToStringInvariant());
+            }
+
+            if (limit != null)
+            {
+                queryParameters.Add("limit", limit.ToStringInvariant());
+            }
+
+            if (!string.IsNullOrEmpty(sort))
+            {
+                queryParameters.Add("sort", sort);
+            }
+
+            if (order != null)
+            {
+                queryParameters.Add("order", order.ToString());
+            }
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                queryParameters.Add("search", search);
+            }
+
+            try
+            {
+                Logger.WriteInfo("Getting groups...");
+
+                return restApi.SendRequestAndDeserializeObject<QueryResult<InstanceGroup>>(
+                    path,
+                    RestRequestMethod.GET,
+                    queryParameters: queryParameters,
+                    shouldControlJsonChanges: false);
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while performing GetGroups - {0}", ex.Message);
+                throw;
+            }
+        }
+
+        #endregion Private Methods
     }
 }

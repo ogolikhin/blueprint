@@ -163,7 +163,6 @@ namespace ArtifactStore.Repositories
                 else
                 {
                     ClearReviewArtifactProperties(reviewArtifact);
-                    reviewArtifact.IsApprovalRequired = false;
                 }
             }
             return reviewArtifacts;
@@ -178,6 +177,7 @@ namespace ArtifactStore.Repositories
             reviewArtifact.ItemTypePredefined = 0;
             reviewArtifact.IconImageId = null;
             reviewArtifact.HasAccess = false;
+            reviewArtifact.IsApprovalRequired = false;
         }
 
         public Task<AddArtifactsResult> AddArtifactsToReview(int reviewId, int userId, AddArtifactsParameter content)
@@ -197,9 +197,9 @@ namespace ArtifactStore.Repositories
             var reviewArtifacts = await GetReviewArtifactsAsync<ReviewedArtifact>(reviewId, userId, pagination, revisionId, false);
 
             var reviewArtifactIds = reviewArtifacts.Items.Select(a => a.Id).ToList();
-            reviewArtifactIds.Add(reviewId);
 
-            var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(reviewArtifactIds, userId);
+            var artifactPermissionsDictionary = await _artifactPermissionsRepository
+                .GetArtifactPermissions(reviewArtifactIds.Union(new [] { reviewId }), userId);
 
             if (!SqlArtifactPermissionsRepository.HasPermissions(reviewId, artifactPermissionsDictionary, RolePermissions.Read))
             {

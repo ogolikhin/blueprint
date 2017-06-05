@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using ArtifactStore.Models;
 using ArtifactStore.Models.Review;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Repositories;
-using System.Linq;
-using ArtifactStore.Models;
 using ServiceLibrary.Models;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
@@ -251,6 +252,126 @@ namespace ArtifactStore.Repositories
             }
         }
 
+        [TestMethod]
+        public async Task GetReviewedArtifacts_AuthorizationException()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            int revisionId = 999;
+            var pagination = new Pagination
+            {
+                Offset =0,
+                Limit = 50
+            };
+            _itemInfoRepositoryMock.Setup(i => i.GetRevisionId(reviewId, userId, null, null)).ReturnsAsync(revisionId);
+            _applicationSettingsRepositoryMock.Setup(s => s.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
+            var param = new Dictionary<string, object> {
+                { "reviewId", reviewId },
+                { "userId", userId },
+                { "addDrafts", false },
+                { "revisionId", revisionId },
+                { "offset", pagination.Offset },
+                { "limit", pagination.Limit },
+                { "refreshInterval", 20 }
+            };
+            var reviewArtifacts = new List<ReviewedArtifact>();
+            var artifact1 = new ReviewedArtifact { Id = 1 };
+            reviewArtifacts.Add(artifact1);
+            var artifact2 = new ReviewedArtifact { Id = 2 };
+            reviewArtifacts.Add(artifact2);
+
+            var result = new Tuple<IEnumerable<ReviewedArtifact>, IEnumerable<int>>(reviewArtifacts, new[] { 2 });
+            _cxn.SetupQueryMultipleAsync("GetReviewArtifacts", param, result);
+
+            _artifactPermissionsRepositoryMock
+                .Setup(p => p.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true))
+                .ReturnsAsync(new Dictionary<int, RolePermissions>());
+
+            //Act
+            bool isExceptionThrown = false;
+            try
+            {
+                var review = await _reviewsRepository.GetReviewedArtifacts(reviewId, userId, pagination, revisionId);
+            }
+            catch (AuthorizationException ex)
+            {
+                isExceptionThrown = true;
+                //Assert
+                Assert.AreEqual(ErrorCodes.UnauthorizedAccess, ex.ErrorCode);
+                Assert.AreEqual("User does not have permissions to access the review (Id:1).", ex.Message);
+            }
+            finally
+            {
+                if (!isExceptionThrown)
+                {
+                    Assert.Fail();
+                }
+            }
+        }
+
+        [TestMethod]
+        public async Task GetReviewedArtifacts_Success()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            int revisionId = 999;
+            var pagination = new Pagination
+            {
+                Offset = 0,
+                Limit = 50
+            };
+            _itemInfoRepositoryMock.Setup(i => i.GetRevisionId(reviewId, userId, null, null)).ReturnsAsync(revisionId);
+            _applicationSettingsRepositoryMock.Setup(s => s.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
+            var param = new Dictionary<string, object> {
+                { "reviewId", reviewId },
+                { "userId", userId },
+                { "addDrafts", false },
+                { "revisionId", revisionId },
+                { "offset", pagination.Offset },
+                { "limit", pagination.Limit },
+                { "refreshInterval", 20 }
+            };
+            var reviewArtifacts = new List<ReviewedArtifact>();
+            var artifact1 = new ReviewedArtifact { Id = 2 };
+            reviewArtifacts.Add(artifact1);
+            var artifact2 = new ReviewedArtifact { Id = 3 };
+            reviewArtifacts.Add(artifact2);
+
+            var result = new Tuple<IEnumerable<ReviewedArtifact>, IEnumerable<int>>(reviewArtifacts, new[] { 2 });
+            _cxn.SetupQueryMultipleAsync("GetReviewArtifacts", param, result);
+
+            var reviewArtifacts2 = new List<ReviewedArtifact>();
+            var reviewArtifact1 = new ReviewedArtifact { Id = 2 };
+            reviewArtifacts2.Add(artifact1);
+            var reviewArtifact2 = new ReviewedArtifact { Id = 3 };
+            reviewArtifacts2.Add(artifact2);
+
+            var param2 = new Dictionary<string, object> {
+                { "reviewId", reviewId },
+                { "userId", userId },
+                { "revisionId", revisionId },
+                { "itemIds", SqlConnectionWrapper.ToDataTable(new [] { 2, 3 }) },
+            };
+            _cxn.SetupQueryAsync("GetReviewArtifactsByParticipant", param2, reviewArtifacts2);
+
+            var permisions = new Dictionary<int, RolePermissions>
+            {
+                { 1, RolePermissions.Read }
+            };
+            _artifactPermissionsRepositoryMock
+                .Setup(p => p.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true))
+                .ReturnsAsync(permisions);
+
+            //Act
+            var artifacts = await _reviewsRepository.GetReviewedArtifacts(reviewId, userId, pagination, revisionId);
+
+            Assert.AreEqual(2, artifacts.Total);
+
+            Assert.AreEqual(2, artifacts.Items.ElementAt(0).Id);
+            Assert.AreEqual(3, artifacts.Items.ElementAt(1).Id);
+        }
         #endregion
 
 

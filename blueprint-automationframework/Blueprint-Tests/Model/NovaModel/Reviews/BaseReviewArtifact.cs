@@ -17,6 +17,7 @@ namespace Model.NovaModel.Reviews
 
         public int ItemTypePredefined { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? IconImageId { get; set; }
 
         public bool HasAccess { get; set; }

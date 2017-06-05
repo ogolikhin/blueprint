@@ -35,7 +35,7 @@ namespace Model.Impl
         // [InvalidLogonAttemptsNumber],[LastInvalidLogonTimeStamp],[LastName],[LastPasswordChangeTimestamp],[Login],[Password],[Source],[StartTimestamp],[Title],[UserId],[UserSALT]
         public LicenseLevel? License { get; set; }
         public IEnumerable<byte> Picture { get; set; }
-        public virtual UserSource Source { get { return UserSource.Unknown; } }
+        public virtual UserGroupSource Source { get { return UserGroupSource.Unknown; } }
         public IBlueprintToken Token { get; set; } = new BlueprintToken();
 
         // These are fields not included by IUser:
@@ -198,7 +198,7 @@ namespace Model.Impl
         /// Creates a new user on the Blueprint server.
         /// </summary>
         /// <param name="source">The source where this user is defined.</param>
-        public abstract void CreateUser(UserSource source = UserSource.Database);
+        public abstract void CreateUser(UserGroupSource source = UserGroupSource.Database);
 
         /// <seealso cref="IUser.DeleteUser(bool)"/>
         public abstract void DeleteUser(bool useSqlUpdate = true);  // TODO: Change useSqlUpdate = false when OpenAPI Delete call is working.
@@ -380,7 +380,7 @@ namespace Model.Impl
     {
         #region Properties
 
-        public override UserSource Source { get { return UserSource.Database; } }
+        public override UserGroupSource Source { get { return UserGroupSource.Database; } }
 
         #endregion Properties
 
@@ -438,7 +438,7 @@ namespace Model.Impl
         /// </summary>
         /// <param name="source">The source where this user is defined.</param>
         /// <exception cref="SqlQueryFailedException">If no rows were affected.</exception>
-        public override void CreateUser(UserSource source = UserSource.Database)
+        public override void CreateUser(UserGroupSource source = UserGroupSource.Database)
         {
             using (var database = DatabaseFactory.CreateDatabase())
             {
@@ -588,7 +588,7 @@ namespace Model.Impl
 
     public class WindowsUser : User, IWindowsUser
     {
-        public override UserSource Source { get { return UserSource.Windows; } }
+        public override UserGroupSource Source { get { return UserGroupSource.Windows; } }
 
         /// <summary>
         /// Default constructor.
@@ -607,8 +607,8 @@ namespace Model.Impl
             // Intentionally left blank.
         }
 
-        /// <seealso cref="IUser.CreateUser(UserSource)"/>
-        public override void CreateUser(UserSource source = UserSource.Database)
+        /// <seealso cref="IUser.CreateUser(UserGroupSource)"/>
+        public override void CreateUser(UserGroupSource source = UserGroupSource.Database)
         {
             throw new NotImplementedException();
         }

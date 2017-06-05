@@ -7,20 +7,23 @@
     {
         //Users
         public const string InvalidPagination = "The \"offset\" and/or \"limit\" parameters are required.";
-        public const string LoginRequired = "The \"Login\" field is required.";
-        public const string DisplayNameRequired = "The \"Display name\" field is required.";
+        public const string LoginRequired = "The user name field is required.";
+        public const string DisplayNameRequired = "The display name field is required.";
         public const string FirstNameRequired = "The \"First name\" field is required.";
         public const string LastNameRequired = "The \"Last name\" field is required.";
         public const string LoginNameUnique = "Please enter a unique username.";
         public const string SessionIsEmpty = "The session is empty.";
+
         public const string UserDoesNotHavePermissions = "The user does not have permissions.";
-        public const string LoginFieldLimitation = "The length of the \"Login\" field must be between 4 and 256 characters.";
-        public const string DisplayNameFieldLimitation = "The length of the \"Display name\" field must be between 2 and 255 characters.";
-        public const string FirstNameFieldLimitation = "The length of the \"First name\" field must be between 2 and 255 characters.";
-        public const string LastNameFieldLimitation = "The length of the \"Last name\" field must be between 2 and 255 characters.";
-        public const string EmailFieldLimitation = "The length of the \"Email\" field must be between 4 and 255 characters.";
-        public const string TitleFieldLimitation = "The length of the \"Title\" field must be between 2 and 255 characters.";
-        public const string DepartmentFieldLimitation = "The length of the \"Department\" field must be between 1 and 255 characters.";
+
+        public const string LoginFieldLimitation = "Please use a user name between 4 and 255 alphanumeric characters.";
+        public const string DisplayNameFieldLimitation = "Please enter a display name between 1 and 255 characters.";
+        public const string FirstNameFieldLimitation = "Please enter a first name between 1 and 255 characters.";
+        public const string LastNameFieldLimitation = "Please enter a last name between 1 and 255 characters.";
+        public const string EmailFieldLimitation = "Please enter an email between 4 and 255 characters.";
+        public const string TitleFieldLimitation = "Please enter a title between 1 and 255 characters.";
+        public const string DepartmentFieldLimitation = "Please enter a department between 1 and 255 characters.";
+
         public const string UserModelIsEmpty = "The user model is empty.";
         public const string GeneralErrorOfCreatingUser = "The user was not created.";
         public const string GeneralErrorOfUpdatingUser = "The user was not updated.";
@@ -29,7 +32,7 @@
         public const string IncorrectUserId = "Incorrect userId.";
         public const string CreateOnlyDatabaseUsers = "You can create only database users.";
         public const string ModifyOnlyDatabaseUsers = "You can modify only database users.";
-        public const string EmailFormatIncorrect = "Please ensure the email address is correct.";
+        public const string EmailFormatIncorrect = "Please ensure the email address is in the following format: user@company.com.";
         public const string LoginInvalid = "The \"Login\" field is invalid.";
         public const string IncorrectLimitParameter = "The \"limit\" parameter is required and should not be negative.";
         public const string IncorrectOffsetParameter = "The \"offset\" parameter is required and should not be negative.";
@@ -42,5 +45,11 @@
         public const string PasswordDoesNotHaveUpperCase = "Password must contain an upper-case letter";
         public const string PasswordSameAsLogin = "Password cannot be equal to login name.";
         public const string PasswordSameAsDisplayName = "Password cannot be equal to display name.";
+        public const string PasswordIsNotBase64 = "The password is not a valid Base-64 string as it contains a non-base 64 character, " +
+                                                  "more than two padding characters, or an illegal character among the padding characters";
+
+        // Authentication:
+        public const string TokenInvalid = "Token is invalid.";
+        public const string TokenMissingOrMalformed = "Token is missing or malformed.";
     }
 }

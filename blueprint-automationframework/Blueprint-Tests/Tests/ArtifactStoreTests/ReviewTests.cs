@@ -58,6 +58,7 @@ namespace ArtifactStoreTests
         }
 
         [Category(Categories.GoldenData)]
+        [Category(Categories.CannotRunInParallel)]
         [TestCase]
         [TestRail(303353)]
         [Description("Get Review Content by id from Custom Data project, check that artifacts have expected values.")]
@@ -170,6 +171,7 @@ namespace ArtifactStoreTests
         }
 
         [Category(Categories.GoldenData)]
+        [Category(Categories.CannotRunInParallel)]
         [TestCase]
         [TestRail(305010)]
         [Description("Get Review Artifacts (Review Experience) by id from Custom Data project, check that number of artifacts has expected value.")]
@@ -199,6 +201,7 @@ namespace ArtifactStoreTests
         #region Artifacts Hierarchy Tests
 
         [Category(Categories.GoldenData)]
+        [Category(Categories.CannotRunInParallel)]
         [Explicit(IgnoreReasons.DeploymentNotReady)]
         [TestCase]
         [TestRail(305070)]
@@ -240,10 +243,10 @@ namespace ArtifactStoreTests
         #region Private Functions
 
         /// <summary>
-        /// Checks that artifacts in review ordered 
+        /// Checks that artifacts in review ordered by OrderIndex.
         /// </summary>
-        /// <param name="artifactsFromProject"></param>
-        /// <param name="artifactsFromReview"></param>
+        /// <param name="artifactsFromProject">List of Project's artifact.</param>
+        /// <param name="artifactsFromReview">List of artifacts from Review.</param>
         private static void ValidateArtifactsHierarchy(List<NovaArtifactDetails> artifactsFromProject,
             List<ReviewedArtifact> artifactsFromReview)
         {
@@ -251,7 +254,8 @@ namespace ArtifactStoreTests
             Assert.AreEqual(artifactsFromReview.Count, artifactsSortedByOrderIndex.Count, "Number of artifacts in these two lists should be the same.");
             for (int i = 0; i < artifactsFromReview.Count; i++)
             {
-                Assert.AreEqual(artifactsSortedByOrderIndex[i].Id, artifactsFromReview[i].Id);
+                Assert.AreEqual(artifactsSortedByOrderIndex[i].Id, artifactsFromReview[i].Id,
+                    "Ids of artifacts in the same position of the lists should be equal.");
             }
         }
 

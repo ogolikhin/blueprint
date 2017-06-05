@@ -151,7 +151,7 @@ namespace Model.ArtifactModel.Impl
         public DateTime? LastSavedOn { get; set; }
         public bool? LastSaveInvalid { get; set; }
         public RolePermissions? Permissions { get; set; }
-        public int? ReadOnlyReuseSettings { get; set; }
+        public int? ReadOnlyReuseSettings { get; set; } // TODO: extend methods to compare Artifacts
         public Identification LockedByUser { get; set; }
         public DateTime? LockedDateTime { get; set; }
         public override int Id { get; set; }

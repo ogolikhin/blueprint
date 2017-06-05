@@ -441,7 +441,7 @@ namespace Model
         /// <param name="userId">The user id of the user.</param>
         /// <param name="offset">0-based index of the first item to return.</param>
         /// <param name="limit">Maximum number of items to return (if any). 
-        /// The server may return fewer items than requested (Default: null).</param>
+        /// The server may return fewer items than requested.</param>
         /// <param name="sort">(optional) Property name by which to sort results (Default: does not sort results).</param>
         /// <param name="order">(optional) "asc" sorts in ascending order; "desc" sorts in descending order (Default: asc). 
         /// The default order depends on the particular property.</param>
@@ -496,7 +496,7 @@ namespace Model
         /// <param name="adminUser">The admin user getting the groups.</param>
         /// <param name="offset">0-based index of the first item to return.</param>
         /// <param name="limit">(optional) Maximum number of items to return (if any). 
-        /// The server may return fewer items than requested (Default: null).</param>
+        /// The server may return fewer items than requested.</param>
         /// <param name="sort">(optional) Property name by which to sort results (Default: does not sort results).</param>
         /// <param name="order">(optional) "asc" sorts in ascending order; "desc" sorts in descending order (Default: asc). 
         /// The default order depends on the particular property.</param>
@@ -517,7 +517,7 @@ namespace Model
         /// <param name="userId">The user id of the user.</param>
         /// <param name="offset">0-based index of the first item to return.</param>
         /// <param name="limit">(optional) Maximum number of items to return (if any). 
-        /// The server may return fewer items than requested (Default: null).</param>
+        /// The server may return fewer items than requested.</param>
         /// <param name="sort">(optional) Property name by which to sort results (Default: does not sort results).</param>
         /// <param name="order">(optional) "asc" sorts in ascending order; "desc" sorts in descending order (Default: asc). 
         /// The default order depends on the particular property.</param>
@@ -605,7 +605,7 @@ namespace Model
         /// <param name="groupId">The group id of the group.</param>
         /// <param name="offset">0-based index of the first item to return.</param>
         /// <param name="limit">Maximum number of items to return (if any). 
-        /// The server may return fewer items than requested (Default: null).</param>
+        /// The server may return fewer items than requested.</param>
         /// <param name="sort">(optional) Property name by which to sort results (Default: does not sort results).</param>
         /// <param name="order">(optional) "asc" sorts in ascending order; "desc" sorts in descending order (Default: asc). 
         /// The default order depends on the particular property.</param>

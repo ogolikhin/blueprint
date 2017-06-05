@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Model.InstanceAdminModel;
 using Model.ModelHelpers;
+using Model.NovaModel.AdminStoreModel;
 using TestConfig;
 using Utilities;
 using Utilities.Factories;

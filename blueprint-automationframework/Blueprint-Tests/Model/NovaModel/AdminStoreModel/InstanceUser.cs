@@ -1,8 +1,9 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Model.Common.Enums;
+using Model.Impl;
 using Newtonsoft.Json;
 
-namespace Model.Impl
+namespace Model.NovaModel.AdminStoreModel
 {
     //class for object returned by adminstore/users
     public class InstanceUser : LoginUser

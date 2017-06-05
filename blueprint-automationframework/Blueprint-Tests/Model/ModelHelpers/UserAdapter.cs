@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Model.Common.Enums;
 using Model.Impl;
 using Model.InstanceAdminModel;
+using Model.NovaModel.AdminStoreModel;
 
 namespace Model.ModelHelpers
 {

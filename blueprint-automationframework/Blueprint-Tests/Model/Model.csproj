@@ -74,8 +74,8 @@
     <Compile Include="Factories\ArtifactWrapperFactory.cs" />
     <Compile Include="Factories\ImpactAnalysisFactory.cs" />
     <Compile Include="Impl\AdminRole.cs" />
-    <Compile Include="Impl\InstanceGroup.cs" />
-    <Compile Include="Impl\InstanceGroupUser.cs" />
+    <Compile Include="NovaModel\AdminStoreModel\InstanceGroup.cs" />
+    <Compile Include="NovaModel\AdminStoreModel\InstanceGroupUser.cs" />
     <Compile Include="Impl\QueryResult.cs" />
     <Compile Include="InstanceAdminModel\CustomInstanceAdminRole.cs" />
     <Compile Include="ModelHelpers\DocumentArtifactWrapper.cs" />
@@ -136,7 +136,7 @@
     <Compile Include="NovaModel\Components\RapidReview\Prop.cs" />
     <Compile Include="NovaModel\Components\RapidReview\Shape.cs" />
     <Compile Include="Common\Enums\InstanceAdminPrivileges.cs" />
-    <Compile Include="Impl\InstanceUser.cs" />
+    <Compile Include="NovaModel\AdminStoreModel\InstanceUser.cs" />
     <Compile Include="ModelHelpers\ArtifactState.cs" />
     <Compile Include="ModelHelpers\ArtifactWrapper.cs" />
     <Compile Include="ArtifactModel\Impl\Review.cs" />
@@ -324,7 +324,7 @@
     <Compile Include="IUser.cs" />
     <Compile Include="Archive\ArtifactModel\IUserStory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Common\Enums\UserSource.cs" />
+    <Compile Include="Common\Enums\UserGroupSource.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj">

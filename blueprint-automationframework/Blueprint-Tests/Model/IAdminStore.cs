@@ -188,17 +188,17 @@ namespace Model
         /// property1={value}..., propertyN={value}, search={string}
         /// </summary>
         /// <param name="adminUser">The admin user getting the users.</param>
-        /// <param name="offset">(optional) 0-based index of the first item to return (Default: null).</param>
-        /// <param name="limit">(optional) Maximum number of items to return (if any) (Default: null). 
+        /// <param name="offset">0-based index of the first item to return.</param>
+        /// <param name="limit">Maximum number of items to return (if any). 
         /// The server may return fewer items than requested (Default: null).</param>
-        /// <param name="sort">(optional) Property name by which to sort results (Default: null).</param>
-        /// <param name="order">(optional) "asc" sorts in ascending order; "desc" sorts in descending order (Default: null). 
+        /// <param name="sort">(optional) Property name by which to sort results (Default: "DisplayName").</param>
+        /// <param name="order">(optional) "asc" sorts in ascending order; "desc" sorts in descending order (Default: asc). 
         /// The default order depends on the particular property.</param>
-        /// <param name="search">(optional) Search query that would be applied on predefined properties specific to data (Default: null).</param>
+        /// <param name="search">(optional) Search query that would be applied to Login, DisplayName and Email fields (Default: all results returned).</param>
         /// <returns>A QueryResult object of InstanceUser objects</returns>
         QueryResult<InstanceUser> GetUsers(IUser adminUser,
-            int? offset = null,
-            int? limit = null,
+            int? offset,
+            int? limit,
             string sort = null,
             SortOrder? order = null,
             string search = null);
@@ -439,18 +439,18 @@ namespace Model
         /// </summary>
         /// <param name="adminUser">The admin user getting the groups.</param>
         /// <param name="userId">The user id of the user.</param>
-        /// <param name="offset">(optional) 0-based index of the first item to return (Default: null).</param>
-        /// <param name="limit">(optional) Maximum number of items to return (if any) (Default: null). 
+        /// <param name="offset">0-based index of the first item to return.</param>
+        /// <param name="limit">Maximum number of items to return (if any). 
         /// The server may return fewer items than requested (Default: null).</param>
-        /// <param name="sort">(optional) Property name by which to sort results (Default: null).</param>
-        /// <param name="order">(optional) "asc" sorts in ascending order; "desc" sorts in descending order (Default: null). 
+        /// <param name="sort">(optional) Property name by which to sort results (Default: does not sort results).</param>
+        /// <param name="order">(optional) "asc" sorts in ascending order; "desc" sorts in descending order (Default: asc). 
         /// The default order depends on the particular property.</param>
-        /// <param name="search">(optional) Search query that would be applied on predefined properties specific to data (Default: null).</param>
+        /// <param name="search">(optional) Search query that would be applied to group Name field (Default: all results returned).</param>
         /// <returns>The QueryResult object of InstanceGroup.</returns>
         QueryResult<InstanceGroup> GetUserGroups(IUser adminUser,
-            int? userId = null,
-            int? offset = null,
-            int? limit = null,
+            int? userId,
+            int? offset,
+            int? limit,
             string sort = null,
             SortOrder? order = null,
             string search = null);
@@ -463,13 +463,13 @@ namespace Model
         /// <param name="userId">The user id of the user.</param>
         /// <param name="groupIds">The group ids of the groups that will contain the user.</param>
         /// <param name="selectAll">(optional) The selection scope indicator. If false, 
-        /// the user is included in the addition. If true, the user is excluded from the addition. 
+        /// the user is added to all groups returned by the search. If true, the user is added to all groups not returned by the search. 
         /// Default is false.</param>
-        /// <param name="search"></param>
+        /// <param name="search">(optional) Search query that would be applied to Login, DisplayName and Email fields (Default: null).</param>
         /// <returns>The CreateResult object.</returns>
         CreateResult AddUserToGroups(IUser adminUser,
-            int? userId = null,
-            List<int> groupIds = null,
+            int? userId,
+            List<int> groupIds,
             bool selectAll = false,
             string search = null);
 
@@ -481,32 +481,52 @@ namespace Model
         /// <param name="userId">The user id of the user.</param>
         /// <param name="groupIds">The group ids of the groups being deleted.</param>
         /// <param name="selectAll">(optional) The selection scope indicator. If false, 
-        /// the user is included in the deletion. If true, the user is excluded from the deletion. 
+        /// the user is deleted from the groups listed. If true, the user is deleted from all groups except those in the groups list. 
         /// Default is false.</param>
         /// <returns>The DeleteResult object.</returns>
         DeleteResult DeleteUserFromGroups(IUser adminUser,
-            int? userId = null,
-            List<int> groupIds = null,
+            int? userId,
+            List<int> groupIds,
             bool selectAll = false);
 
         /// <summary>
-        /// Gets all the groups if no user id is specified. If the user id is specified, gets all groups except those that are already assigned to the user.
+        /// Gets all the groups.
+        /// (Runs: GET /svc/adminstore/groups)
+        /// </summary>
+        /// <param name="adminUser">The admin user getting the groups.</param>
+        /// <param name="offset">0-based index of the first item to return.</param>
+        /// <param name="limit">(optional) Maximum number of items to return (if any). 
+        /// The server may return fewer items than requested (Default: null).</param>
+        /// <param name="sort">(optional) Property name by which to sort results (Default: does not sort results).</param>
+        /// <param name="order">(optional) "asc" sorts in ascending order; "desc" sorts in descending order (Default: asc). 
+        /// The default order depends on the particular property.</param>
+        /// <param name="search">(optional) Search query that would be applied to group Name field (Default: null).</param>
+        /// <returns>The QueryResult object of InstanceGroup.</returns>
+        QueryResult<InstanceGroup> GetAllGroups(IUser adminUser,
+            int? offset,
+            int? limit,
+            string sort = null,
+            SortOrder? order = null,
+            string search = null);
+
+        /// <summary>
+        /// Gets all the groups gets all groups except those that are already assigned to the specified user.
         /// (Runs: GET /svc/adminstore/groups)
         /// </summary>
         /// <param name="adminUser">The admin user getting the groups.</param>
         /// <param name="userId">The user id of the user.</param>
-        /// <param name="offset">(optional) 0-based index of the first item to return (Default: null).</param>
-        /// <param name="limit">(optional) Maximum number of items to return (if any) (Default: null). 
+        /// <param name="offset">0-based index of the first item to return.</param>
+        /// <param name="limit">(optional) Maximum number of items to return (if any). 
         /// The server may return fewer items than requested (Default: null).</param>
-        /// <param name="sort">(optional) Property name by which to sort results (Default: null).</param>
-        /// <param name="order">(optional) "asc" sorts in ascending order; "desc" sorts in descending order (Default: null). 
+        /// <param name="sort">(optional) Property name by which to sort results (Default: does not sort results).</param>
+        /// <param name="order">(optional) "asc" sorts in ascending order; "desc" sorts in descending order (Default: asc). 
         /// The default order depends on the particular property.</param>
-        /// <param name="search">(optional) Search query that would be applied on predefined properties specific to data (Default: null).</param>
+        /// <param name="search">(optional) Search query that would be applied to group Name field (Default: null).</param>
         /// <returns>The QueryResult object of InstanceGroup.</returns>
-        QueryResult<InstanceGroup> GetGroups(IUser adminUser,
-            int? userId = null,
-            int? offset = null,
-            int? limit = null,
+        QueryResult<InstanceGroup> GetUnassignedGroups(IUser adminUser,
+            int? userId,
+            int? offset,
+            int? limit,
             string sort = null,
             SortOrder? order = null,
             string search = null);
@@ -517,18 +537,18 @@ namespace Model
         /// </summary>
         /// <param name="adminUser">The admin user getting the groups and users.</param>
         /// <param name="groupId">The group id of the group.</param>
-        /// <param name="offset">(optional) 0-based index of the first item to return (Default: null).</param>
-        /// <param name="limit">(optional) Maximum number of items to return (if any) (Default: null). 
-        /// The server may return fewer items than requested (Default: null).</param>
-        /// <param name="sort">(optional) Property name by which to sort results (Default: null).</param>
-        /// <param name="order">(optional) "asc" sorts in ascending order; "desc" sorts in descending order (Default: null). 
+        /// <param name="offset">0-based index of the first item to return.</param>
+        /// <param name="limit">Maximum number of items to return (if any). 
+        /// The server may return fewer items than requested.</param>
+        /// <param name="sort">(optional) Property name by which to sort results (Default: does not sort results).</param>
+        /// <param name="order">(optional) "asc" sorts in ascending order; "desc" sorts in descending order (Default: asc). 
         /// The default order depends on the particular property.</param>
-        /// <param name="search">(optional) Search query that would be applied on predefined properties specific to data (Default: null).</param>
+        /// <param name="search">(optional) Search query that would be applied to user Login, DisplayName and Email and group Name fields (Default: all results returned).</param>
         /// <returns>The QueryResult object of InstanceGroupUser.</returns>
-        QueryResult<InstanceGroupUser> GetGroupsAndUsers(IUser adminUser,
-            int? groupId = null,
-            int? offset = null,
-            int? limit = null,
+        QueryResult<InstanceGroupUser> GetUnassignedGroupsAndUsers(IUser adminUser,
+            int? groupId,
+            int? offset,
+            int? limit,
             string sort = null,
             SortOrder? order = null,
             string search = null);
@@ -540,12 +560,12 @@ namespace Model
         /// <param name="adminUser">The admin user deleting the groups.</param>
         /// <param name="groupIds">The group ids of the groups.</param>
         /// <param name="selectAll">(optional) The selection scope indicator. If false, 
-        /// the user is included in the deletion. If true, the user is excluded from the deletion. 
+        /// the groups are deleted if they are found in the search results. If true, all groups in the search results are deleted except those in the group ids list. 
         /// Default is false.</param>
-        /// <param name="search">(optional) Search query that would be applied on predefined properties specific to data (Default: null).</param>
+        /// <param name="search">(optional) Search query that would be applied on predefined properties specific to data (Default: all results are returned).</param>
         /// <returns>The DeleteResult object.</returns>
         DeleteResult DeleteGroups(IUser adminUser,
-            List<int> groupIds = null,
+            List<int> groupIds,
             bool selectAll = false,
             string search = null);
 
@@ -556,7 +576,7 @@ namespace Model
         /// <param name="adminUser">The admin user adding the group.</param>
         /// <param name="group">The group to add.</param>
         /// <returns>The group id of the group that was created.</returns>
-        int CreateGroup(IUser adminUser, InstanceGroup group = null);
+        int CreateGroup(IUser adminUser, InstanceGroup group);
 
         /// <summary>
         /// Gets group details.
@@ -564,7 +584,7 @@ namespace Model
         /// </summary>
         /// <param name="adminUser">The admin user getting the group details.</param>
         /// <param name="groupId">The group id of the group.</param>
-        /// <returns>The group that was created.</returns>
+        /// <returns>The group that was retrieved.</returns>
         InstanceGroup GetGroup(IUser adminUser, int? groupId);
 
         /// <summary>
@@ -575,7 +595,7 @@ namespace Model
         /// <param name="groupId">The group id of the group.</param>
         /// <param name="group">The updated group content.</param>
         /// <returns>The HttpStatusCode of the group update.</returns>
-        HttpStatusCode UpdateGroup(IUser adminUser, int? groupId, InstanceGroup group = null);
+        HttpStatusCode UpdateGroup(IUser adminUser, int? groupId, InstanceGroup group);
 
         /// <summary>
         /// Gets a groups members(users and groups).
@@ -583,17 +603,17 @@ namespace Model
         /// </summary>
         /// <param name="adminUser">The admin user getting the group members.</param>
         /// <param name="groupId">The group id of the group.</param>
-        /// <param name="offset">(optional) 0-based index of the first item to return (Default: null).</param>
-        /// <param name="limit">(optional) Maximum number of items to return (if any) (Default: null). 
+        /// <param name="offset">0-based index of the first item to return.</param>
+        /// <param name="limit">Maximum number of items to return (if any). 
         /// The server may return fewer items than requested (Default: null).</param>
-        /// <param name="sort">(optional) Property name by which to sort results (Default: null).</param>
-        /// <param name="order">(optional) "asc" sorts in ascending order; "desc" sorts in descending order (Default: null). 
+        /// <param name="sort">(optional) Property name by which to sort results (Default: does not sort results).</param>
+        /// <param name="order">(optional) "asc" sorts in ascending order; "desc" sorts in descending order (Default: asc). 
         /// The default order depends on the particular property.</param>
         /// <returns>The QueryResult of InstanceGroupUser.</returns>
         QueryResult<InstanceGroupUser> GetGroupMembers(IUser adminUser,
-            int? groupId = null,
-            int? offset = null,
-            int? limit = null,
+            int? groupId,
+            int? offset,
+            int? limit,
             string sort = null,
             SortOrder? order = null);
     }

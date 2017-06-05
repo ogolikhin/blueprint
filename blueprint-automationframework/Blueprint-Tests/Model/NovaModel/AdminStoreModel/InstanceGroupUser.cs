@@ -2,8 +2,9 @@
 using Model.Common.Enums;
 using Newtonsoft.Json;
 
-namespace Model.Impl
+namespace Model.NovaModel.AdminStoreModel
 {
+    // Similar to GroupUser found in: blueprint/svc/AdminStore/Models/GroupUser.cs (in bp-offshore/blueprint repo)
     public class InstanceGroupUser
     {
         public string DisplayName { get; set; }

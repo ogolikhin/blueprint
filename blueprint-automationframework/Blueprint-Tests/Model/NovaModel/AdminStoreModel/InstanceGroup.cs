@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using Model.Common.Enums;
 
-namespace Model.Impl
+namespace Model.NovaModel.AdminStoreModel
 {
+    // Similar to GroupDto found in: blueprint/svc/AdminStore/Models/GroupDto.cs (in bp-offshore/blueprint repo)
     public class InstanceGroup
     {
         public int Id { get; set; }
@@ -19,7 +20,7 @@ namespace Model.Impl
 
         public int? ProjectId { get; set; }
 
-        public IEnumerable<int> Users { get; set; }
+        public List<int> Users { get; set; }
 
         public int CurrentVersion { get; set; }
 

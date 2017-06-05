@@ -5,7 +5,7 @@ using CustomAttributes;
 using Helper;
 using Model;
 using Model.Common.Enums;
-using Model.Impl;
+using Model.NovaModel.AdminStoreModel;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;

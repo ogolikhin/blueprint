@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AdminStore.Helpers;
 using AdminStore.Models;
+using AdminStore.Models.Enums;
 using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
@@ -210,6 +211,33 @@ namespace AdminStore.Repositories
 
             var queryDataResult = new QueryResult<GroupUser>() { Items = userGroups, Total = total.Value };
             return queryDataResult;
+        }
+
+
+        public async Task<int> DeleteMembersFromGroupAsync(int groupId, AssignScope body)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@GroupId", groupId);
+            parameters.Add("@GroupsIds", SqlConnectionWrapper.ToDataTable(GroupsHelper.ParsingTypesToUserTypeArray(body.Types, UserType.Group)));
+            parameters.Add("@UsersIds", SqlConnectionWrapper.ToDataTable(GroupsHelper.ParsingTypesToUserTypeArray(body.Types, UserType.User)));
+            parameters.Add("@SelectAll", body.SelectAll);
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var result = await _connectionWrapper.ExecuteScalarAsync<int>("DeleteMembersFromGroup", parameters, commandType: CommandType.StoredProcedure);
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.GeneralSqlError:
+                        throw new Exception(ErrorMessages.GeneralErrorOfRemovingMembersFromGroup);
+
+                    case (int)SqlErrorCodes.GroupWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.GroupNotExist);
+                }
+            }
+            return result;
         }
     }
 }

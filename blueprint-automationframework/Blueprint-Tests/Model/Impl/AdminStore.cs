@@ -371,8 +371,8 @@ namespace Model.Impl
 
         /// <seealso cref="IAdminStore.GetUsers(IUser, int?, int?, string, SortOrder?, string)"/>
         public QueryResult<InstanceUser> GetUsers(IUser adminUser, 
-            int? offset = null, 
-            int? limit = null, 
+            int? offset, 
+            int? limit, 
             string sort = null, 
             SortOrder? order = null,
             string search = null)
@@ -1010,6 +1010,110 @@ namespace Model.Impl
                 Logger.WriteError("Error while performing InstanceAdminChangePassword - {0}", ex.Message);
                 throw;
             }
+        }
+
+        /// <seealso cref="IAdminStore.GetUserGroups(IUser, int?, int?, int?, string, SortOrder?, string)"/>
+        public QueryResult<InstanceGroup> GetUserGroups(IUser adminUser,
+            int? userId,
+            int? offset,
+            int? limit,
+            string sort = null,
+            SortOrder? order = null,
+            string search = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <seealso cref="IAdminStore.AddUserToGroups(IUser, int?, List{int}, bool, string)"/>
+        public CreateResult AddUserToGroups(IUser adminUser,
+            int? userId,
+            List<int> groupIds,
+            bool selectAll = false,
+            string search = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <seealso cref="IAdminStore.DeleteUserFromGroups(IUser, int?, List{int}, bool)"/>
+        public DeleteResult DeleteUserFromGroups(IUser adminUser,
+            int? userId,
+            List<int> groupIds,
+            bool selectAll = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <seealso cref="IAdminStore.GetAllGroups(IUser, int?, int?, string, SortOrder?, string)"/>
+        public QueryResult<InstanceGroup> GetAllGroups(IUser adminUser,
+            int? offset,
+            int? limit,
+            string sort = null,
+            SortOrder? order = null,
+            string search = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <seealso cref="IAdminStore.GetUnassignedGroups(IUser, int?, int?, int?, string, SortOrder?, string)"/>
+        public QueryResult<InstanceGroup> GetUnassignedGroups(IUser adminUser,
+            int? userId,
+            int? offset,
+            int? limit,
+            string sort = null,
+            SortOrder? order = null,
+            string search = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <seealso cref="IAdminStore.GetUnassignedGroupsAndUsers(IUser, int?, int?, int?, string, SortOrder?, string)"/>
+        public QueryResult<InstanceGroupUser> GetUnassignedGroupsAndUsers(IUser adminUser,
+            int? groupId,
+            int? offset,
+            int? limit,
+            string sort = null,
+            SortOrder? order = null,
+            string search = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <seealso cref="IAdminStore.DeleteGroups(IUser, List{int}, bool, string)"/>
+        public DeleteResult DeleteGroups(IUser adminUser,
+            List<int> groupIds,
+            bool selectAll = false,
+            string search = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <seealso cref="IAdminStore.CreateGroup(IUser, InstanceGroup)"/>
+        public int CreateGroup(IUser adminUser, InstanceGroup group)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <seealso cref="IAdminStore.GetGroup(IUser, int?)"/>
+        public InstanceGroup GetGroup(IUser adminUser, int? groupId)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <seealso cref="IAdminStore.UpdateGroup(IUser, int?, InstanceGroup)"/>
+        public HttpStatusCode UpdateGroup(IUser adminUser, int? groupId, InstanceGroup group)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <seealso cref="IAdminStore.GetGroupMembers(IUser, int?, int?, int?, string, SortOrder?)"/>
+        public QueryResult<InstanceGroupUser> GetGroupMembers(IUser adminUser,
+            int? groupId,
+            int? offset,
+            int? limit,
+            string sort = null,
+            SortOrder? order = null)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion Members inherited from IAdminStore

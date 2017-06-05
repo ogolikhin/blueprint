@@ -23,8 +23,7 @@ namespace ArtifactStore.Repositories.Workflow
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlWorkflowRepository(cxn.Object, 
-                new Mock<IArtifactPermissionsRepository>().Object,
-                new Mock<IArtifactVersionsRepository>().Object);
+                new Mock<IArtifactPermissionsRepository>().Object);
             cxn.SetupQueryAsync("GetArtifactBasicDetails",
               new Dictionary<string, object>
               {
@@ -43,8 +42,7 @@ namespace ArtifactStore.Repositories.Workflow
             // Arrange
             var permissionsRepository = CreatePermissionsRepositoryMock(new[] { 1 }, 1, RolePermissions.None);
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object,
-                new Mock<IArtifactVersionsRepository>().Object);
+            var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object);
             cxn.SetupQueryAsync("GetArtifactBasicDetails",
               new Dictionary<string, object>
               {
@@ -63,7 +61,7 @@ namespace ArtifactStore.Repositories.Workflow
             // Arrange
             var permissionsRepository = CreatePermissionsRepositoryMock(new[] { 1 }, 1, RolePermissions.None);
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object, new Mock<IArtifactVersionsRepository>().Object);
+            var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object);
             cxn.SetupQueryAsync("GetArtifactBasicDetails",
               new Dictionary<string, object>
               {
@@ -81,7 +79,7 @@ namespace ArtifactStore.Repositories.Workflow
             // Arrange
             var permissionsRepository = CreatePermissionsRepositoryMock(new[] { 1 }, 1, RolePermissions.Edit);
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object, new Mock<IArtifactVersionsRepository>().Object);
+            var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object);
             cxn.SetupQueryAsync("GetArtifactBasicDetails",
               new Dictionary<string, object>
               {
@@ -138,7 +136,7 @@ namespace ArtifactStore.Repositories.Workflow
             // Arrange
             var permissionsRepository = CreatePermissionsRepositoryMock(new[] { 1 }, 1, RolePermissions.Edit | RolePermissions.Read);
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object, new Mock<IArtifactVersionsRepository>().Object);
+            var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object);
             cxn.SetupQueryAsync("GetArtifactBasicDetails",
               new Dictionary<string, object>
               {
@@ -165,7 +163,7 @@ namespace ArtifactStore.Repositories.Workflow
              });
             
             // Act
-            var result = (await repository.GetCurrentState(1, 1));
+            var result = (await repository.GetState(1, 1, int.MaxValue, true));
             
             Assert.IsTrue(result.ResultCode == QueryResultCode.Success, "Result is not success");
             Assert.IsTrue(result.Item != null, "Workflow State is null");
@@ -176,7 +174,7 @@ namespace ArtifactStore.Repositories.Workflow
             // Arrange
             var permissionsRepository = CreatePermissionsRepositoryMock(new[] { 1 }, 1, RolePermissions.Edit | RolePermissions.Read);
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object, new Mock<IArtifactVersionsRepository>().Object);
+            var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object);
             cxn.SetupQueryAsync("GetArtifactBasicDetails",
               new Dictionary<string, object>
               {
@@ -195,7 +193,7 @@ namespace ArtifactStore.Repositories.Workflow
              new List<SqlWorkFlowState>());
 
             // Act
-            var result = (await repository.GetCurrentState(1, 1));
+            var result = (await repository.GetState(1, 1, int.MaxValue, true));
             
             Assert.IsTrue(result.ResultCode == QueryResultCode.Failure, "Result is success");
             Assert.IsFalse(String.IsNullOrEmpty(result.Message), "Error message is null");

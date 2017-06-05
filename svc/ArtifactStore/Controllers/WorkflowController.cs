@@ -1,15 +1,11 @@
 ﻿using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
-using ArtifactStore.Models;
-using ArtifactStore.Repositories;
 using ArtifactStore.Repositories.Workflow;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models.Workflow;
-using ServiceLibrary.Repositories;
-using ServiceLibrary.Helpers;
 
 namespace ArtifactStore.Controllers
 {
@@ -71,7 +67,7 @@ namespace ArtifactStore.Controllers
         public async Task<IHttpActionResult> GetCurrentStateAsync(int artifactId, int? revisionId = null, bool addDrafts = true)
         {
             //We assume that Session always exist as we have SessionRequired attribute
-            return Ok(await _workflowRepository.GetCurrentState(Session.UserId, artifactId, revisionId ?? int.MaxValue, addDrafts));
+            return Ok(await _workflowRepository.GetState(Session.UserId, artifactId, revisionId ?? int.MaxValue, addDrafts));
         }
 
         /// <summary>

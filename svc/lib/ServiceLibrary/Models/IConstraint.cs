@@ -2,12 +2,12 @@
 
 namespace ServiceLibrary.Models
 {
-    public interface IConstraint<in T>
+    public interface IConstraint
     {
         Task<bool> IsFulfilled();
     }
 
-    public class ArtifactPropertyConstraint : IConstraint<Artifact>
+    public class PropertyRequiredConstraint : IConstraint
     {
         public async Task<bool> IsFulfilled()
         {

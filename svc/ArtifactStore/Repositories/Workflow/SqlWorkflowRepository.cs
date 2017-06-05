@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
+﻿using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
-using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
@@ -15,27 +12,22 @@ namespace ArtifactStore.Repositories.Workflow
 {
     public class SqlWorkflowRepository : SqlBaseArtifactRepository, IWorkflowRepository
     {
-        private readonly IArtifactVersionsRepository _artifactVersionsRepository;
+        
 
         public SqlWorkflowRepository()
-            : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain),
-                  new SqlArtifactVersionsRepository())
+            : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
+        {
+        }
+
+        public SqlWorkflowRepository(ISqlConnectionWrapper connectionWrapper)
+            : this(connectionWrapper, new SqlArtifactPermissionsRepository(connectionWrapper))
         {
         }
 
         public SqlWorkflowRepository(ISqlConnectionWrapper connectionWrapper,
-            IArtifactVersionsRepository artifactVersionsRepository)
-            : this(connectionWrapper, new SqlArtifactPermissionsRepository(connectionWrapper), 
-                  artifactVersionsRepository)
-        {
-        }
-
-        public SqlWorkflowRepository(ISqlConnectionWrapper connectionWrapper,
-            IArtifactPermissionsRepository artifactPermissionsRepository,
-            IArtifactVersionsRepository artifactVersionsRepository) 
+            IArtifactPermissionsRepository artifactPermissionsRepository) 
             : base(connectionWrapper,artifactPermissionsRepository)
         {
-            _artifactVersionsRepository = artifactVersionsRepository;
         }
 
         #region artifact workflow
@@ -48,7 +40,7 @@ namespace ArtifactStore.Repositories.Workflow
             return await GetAvailableTransitions(userId, workflowId, stateId);
         }
 
-        public async Task<QuerySingleResult<WorkflowState>> GetCurrentState(int userId, int artifactId, int revisionId = int.MaxValue, bool addDrafts = true)
+        public async Task<QuerySingleResult<WorkflowState>> GetState(int userId, int artifactId, int revisionId, bool addDrafts)
         {
             //Need to access code for artifact permissions for revision
             await CheckForArtifactPermissions(userId, artifactId, revisionId);
@@ -58,129 +50,10 @@ namespace ArtifactStore.Repositories.Workflow
 
         public async Task<QuerySingleResult<WorkflowState>> ChangeStateForArtifact(int userId, WorkflowStateChangeParameter stateChangeParameter)
         {
-            //Start a transaction. we need to import code from blueprint-current for creating transactions
-
-            //Confirm that the artifact is not deleted
-            var isDeleted = await _artifactVersionsRepository.IsItemDeleted(stateChangeParameter.ArtifactId);
-            if (isDeleted)
-            {
-                throw new ConflictException("Artifact has been updated. Please refresh your view.");
-            }
-
-            //Get artifact info
-            var artifactInfo =
-                await _artifactVersionsRepository.GetVersionControlArtifactInfoAsync(stateChangeParameter.ArtifactId,
-                    null,
-                    userId);
-
-            if (artifactInfo.VersionCount > stateChangeParameter.CurrentVersionId)
-            {
-                throw new ConflictException("Artifact has been updated. Please refresh your view.");
-            }
-
-            //Check that it is not locked by some other user
-            if (artifactInfo.LockedByUser != null && artifactInfo.LockedByUser.Id != userId)
-            {
-                throw new ConflictException("Artifact has been updated. Please refresh your view.");
-            }
-
-            bool obtainedLockDuringProcess = false;
-            //Obtain lock if it is not already locked by current user
-            if (artifactInfo.LockedByUser == null)
-            {
-                obtainedLockDuringProcess =
-                    await _artifactVersionsRepository.LockArtifactAsync(stateChangeParameter.ArtifactId, userId);
-                if (!obtainedLockDuringProcess)
-                {
-                    throw new ConflictException("Artifact has been updated. Please refresh your view.");
-                }
-            }
-
             //Need to access code for artifact permissions for revision
-            await CheckForArtifactPermissions(userId, stateChangeParameter.ArtifactId, stateChangeParameter.CurrentVersionId);
+            await CheckForArtifactPermissions(userId, stateChangeParameter.ArtifactId);
 
-            //Get current state and validate current state
-            var currentState = await GetCurrentState(userId, stateChangeParameter.ArtifactId);
-            if (currentState == null || 
-                currentState.ResultCode != QueryResultCode.Success || 
-                currentState.Item == null ||
-                currentState.Item.Id != stateChangeParameter.FromStateId)
-            {
-                throw new ConflictException("Artifact has been updated. Please refresh your view.");
-            }
-
-            //Get available transitions and validate the required transition
-            var availableTransitions =
-                await GetAvailableTransitions(userId, stateChangeParameter.WorkflowId, stateChangeParameter.FromStateId);
-            if (availableTransitions.Total == 0 ||
-                availableTransitions.ResultCode != QueryResultCode.Success)
-            {
-                throw new ConflictException("Artifact has been updated. Please refresh your view.");
-            }
-
-            var desiredTransition =
-                availableTransitions.Items.FirstOrDefault(tr => tr.WorkflowId == stateChangeParameter.WorkflowId &&
-                                                               tr.FromState.Id == stateChangeParameter.FromStateId &&
-                                                               tr.ToState.Id == stateChangeParameter.ToStateId &&
-                                                               tr.Id == stateChangeParameter.TransitionId);
-
-            if (desiredTransition == null)
-            {
-                throw new ConflictException("Artifact has been updated. Please refresh your view.");
-            }
-
-            //Get enhanced state information so that we can validate constraints
-            //VALIDATE CONSTRAINTS. USER PERMISSIONS IS ONE SUCH VALID CONSTRAINT
-            //PROPERTY CONSTRAINTS WILL BE APPLIED
-            var propertyConstraints = new List<IConstraint<Artifact>>()
-            {
-                new ArtifactPropertyConstraint(),
-                new ArtifactPropertyConstraint(),
-                new ArtifactPropertyConstraint()
-            };
-
-            foreach (var propertyConstraint in propertyConstraints)
-            {
-                if (!await propertyConstraint.IsFulfilled())
-                {
-                    throw new ConflictException("State cannot be modified as the constrating is not fulfilled");
-                }
-            }
-
-            //Change transition
-            //try
-            //{
-            //    return await ChangeStateForArtifactInternal(userId, desiredTransition.Id);
-            //}
-            //catch
-            //{
-            //    if (obtainedLockDuringProcess)
-            //    {
-            //        //Release lock
-            //    }
-            //    throw;
-            //}
-            var stateChangeResult = await ChangeStateForArtifactInternal(userId, desiredTransition.Id);
-
-            //On successful state change, we should run synchronous actions
-            if (stateChangeResult.ResultCode == QueryResultCode.Success)
-            {
-                var triggerExecutors = new List<ITriggerExecutor<Artifact, Boolean>>
-                {
-                    new PropertyChangeTrigger(),
-                    new PropertyChangeTrigger(),
-                    new PropertyChangeTrigger()
-                };
-                foreach (var triggerExecutor in triggerExecutors)
-                {
-                    if (!await triggerExecutor.Execute(null))
-                    {
-                        throw new ConflictException("State cannot be modified as the trigger cannot be executed");
-                    }
-                }
-            }
-
-            return stateChangeResult;
+            return await ChangeStateForArtifactInternal(userId, stateChangeParameter.TransitionId);
         }
 
         #endregion
@@ -192,38 +65,7 @@ namespace ArtifactStore.Repositories.Workflow
             return await GetAvailableTransitionsInternal(userId, workflowId, stateId);
         }
 
-        /// <summary>
-        /// Checks whether the user has permission for this artifact. 
-        /// if a revision Id is provided, the artifact's revision has to be less than the current revision.
-        /// If the artifact is not a regular artifact type then we throw a non-supported exception.
-        /// </summary>
-        /// <param name="userId"></param>
-        /// <param name="artifactId"></param>
-        /// <param name="revisionId"></param>
-        /// <param name="permissions"></param>
-        /// <returns></returns>
-        private async Task CheckForArtifactPermissions(int userId, int artifactId, int revisionId = int.MaxValue, RolePermissions permissions = RolePermissions.Read)
-        {
-            var artifactBasicDetails = await GetArtifactBasicDetails(ConnectionWrapper, artifactId, userId);
-            if (artifactBasicDetails == null || artifactBasicDetails.RevisionId > revisionId)
-            {
-                ExceptionHelper.ThrowArtifactNotFoundException(artifactId);
-            }
-
-            if (!((ItemTypePredefined) artifactBasicDetails.PrimitiveItemTypePredefined).IsRegularArtifactType())
-            {
-                ExceptionHelper.ThrowArtifactDoesNotSupportOperation(artifactId);
-            }
-
-            var artifactsPermissions =
-                await ArtifactPermissionsRepository.GetArtifactPermissions(new List<int> { artifactId }, userId);
-
-            if (!artifactsPermissions.ContainsKey(artifactId) ||
-                !artifactsPermissions[artifactId].HasFlag(permissions))
-            {
-                ExceptionHelper.ThrowArtifactForbiddenException(artifactId);
-            }
-        }
+        
 
         private async Task<QuerySingleResult<WorkflowState>> GetCurrentStateInternal(int userId, int artifactId, int revisionId, bool addDrafts)
         {

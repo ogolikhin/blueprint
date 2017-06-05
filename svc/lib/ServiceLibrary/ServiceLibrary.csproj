@@ -130,6 +130,7 @@
     <Compile Include="Models\Enums\SortOrder.cs" />
     <Compile Include="Models\Files\File.cs" />
     <Compile Include="Models\Files\FileInfo.cs" />
+    <Compile Include="Models\IAction.cs" />
     <Compile Include="Models\IConstraint.cs" />
     <Compile Include="Models\InstanceSettings\EmailSettings.cs" />
     <Compile Include="Models\Interfaces\IArtifact.cs" />
@@ -166,6 +167,7 @@
     <Compile Include="Models\Session.cs" />
     <Compile Include="Helpers\ILoggable.cs" />
     <Compile Include="Models\SubArtifact.cs" />
+    <Compile Include="Models\TransactionalTriggerExecutor.cs" />
     <Compile Include="Models\UserGroup.cs" />
     <Compile Include="Models\UserInfo.cs" />
     <Compile Include="Models\Workflow\Workflow.cs" />

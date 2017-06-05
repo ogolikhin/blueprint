@@ -6,10 +6,10 @@ using ArtifactStore.Models;
 using ArtifactStore.Models.Review;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using ServiceLibrary.Repositories;
+using ServiceLibrary.Models;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
-using ServiceLibrary.Models;
-using ServiceLibrary.Repositories;
 
 namespace ArtifactStore.Repositories
 {
@@ -178,6 +178,80 @@ namespace ArtifactStore.Repositories
             }
         }
 
+        #region GetReviewTableOfContent
+
+        [TestMethod]
+        [ExpectedException(typeof (ResourceNotFoundException))]
+        public async Task GetReviewTableOfContentAsync_ReviewNotFound()
+        {
+            await TestGetReviewTableOfContentErrorsAsync(1, ErrorCodes.ResourceNotFound);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task GetReviewTableOfContentAsync_ReviewNotActive()
+        {
+            await TestGetReviewTableOfContentErrorsAsync(2, ErrorCodes.ResourceNotFound);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task GetReviewTableOfContentAsync_UserNotParticipant()
+        {
+            await TestGetReviewTableOfContentErrorsAsync(3, ErrorCodes.UnauthorizedAccess);
+        }
+
+        private static async Task TestGetReviewTableOfContentErrorsAsync(int retResult, int expectedErrorCode)
+        {
+            // Arrange
+            const int reviewId = 11;
+            const int revisionId = 22;
+            const int userId = 33;
+            const int offset = 44;
+            const int limit = 55;
+            const int refreshInterval = 66;
+
+            var appSettingsRepoMock = new Mock<IApplicationSettingsRepository>();
+            appSettingsRepoMock.Setup(m => m.GetValue(
+                SqlReviewsRepository.ReviewArtifactHierarchyRebuildIntervalInMinutesKey,
+                SqlReviewsRepository.DefaultReviewArtifactHierarchyRebuildIntervalInMinutes))
+                .Returns(Task.FromResult(refreshInterval));
+
+            var cxn = new SqlConnectionWrapperMock();
+
+            var prm = new Dictionary<string, object>
+            {
+                {"@reviewId", reviewId},
+                {"@revisionId", revisionId},
+                {"@userId", userId},
+                {"offset", offset},
+                {"@limit", limit},
+                {"@refreshInterval", refreshInterval}
+            };
+
+            var outPrm = new Dictionary<string, object>
+            {
+                {"@retResult", retResult}
+            };
+
+            var testResult = new ReviewTableOfContentItem[] { };
+            cxn.SetupQueryAsync("GetReviewTableOfContent", prm, testResult, outPrm);
+
+            var repository = new SqlReviewsRepository(cxn.Object, null, null, null, appSettingsRepoMock.Object);
+
+            try
+            {
+                // Act
+                await repository.GetReviewTableOfContent(reviewId, revisionId, userId, offset, limit);
+            }
+            catch (ExceptionWithErrorCode e)
+            {
+                // Assert
+                Assert.AreEqual(expectedErrorCode, e.ErrorCode);
+                throw;
+            }
+        }
+
         [TestMethod]
         public async Task GetReviewedArtifacts_AuthorizationException()
         {
@@ -298,5 +372,8 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(2, artifacts.Items.ElementAt(0).Id);
             Assert.AreEqual(3, artifacts.Items.ElementAt(1).Id);
         }
+        #endregion
+
+
     }
 }

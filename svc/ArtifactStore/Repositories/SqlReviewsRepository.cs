@@ -24,9 +24,9 @@ namespace ArtifactStore.Repositories
 
         internal readonly IApplicationSettingsRepository _applicationSettingsRepository;
 
-        private const string ReviewArtifactHierarchyRebuildIntervalInMinutesKey = "ReviewArtifactHierarchyRebuildIntervalInMinutes";
+        internal const string ReviewArtifactHierarchyRebuildIntervalInMinutesKey = "ReviewArtifactHierarchyRebuildIntervalInMinutes";
 
-        private const int DefaultReviewArtifactHierarchyRebuildIntervalInMinutes = 20;
+        internal const int DefaultReviewArtifactHierarchyRebuildIntervalInMinutes = 20;
 
         private const string NOT_SPECIFIED = "Not Specified";
 
@@ -58,22 +58,19 @@ namespace ArtifactStore.Repositories
             var reviewInfo = await _artifactVersionsRepository.GetVersionControlArtifactInfoAsync(containerId, null, userId);
             if (reviewInfo.IsDeleted || reviewInfo.PredefinedType != ItemTypePredefined.ArtifactReviewPackage)
             {
-                string errorMessage = I18NHelper.FormatInvariant("Review (Id:{0}) is not found.", containerId);
-                throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
+                ThrowReviewNotFoundException(containerId);
             }
 
             var reviewDetails = await GetReviewSummaryDetails(containerId, userId);
 
             if (reviewDetails.ReviewPackageStatus == ReviewPackageStatus.Draft)
             {
-                string errorMessage = I18NHelper.FormatInvariant("Review (Id:{0}) is not found.", containerId);
-                throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
+                ThrowReviewNotFoundException(containerId);
             }
 
             if (!reviewDetails.ReviewParticipantRole.HasValue && reviewDetails.TotalReviewers > 0)
             {
-                string errorMessage = I18NHelper.FormatInvariant("User does not have permissions to access the review (Id:{0}).", containerId);
-                throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
+                ThrowUserCannotAccessReviewException(containerId);
             }
 
             var reviewSource = new ReviewSource();
@@ -133,8 +130,7 @@ namespace ArtifactStore.Repositories
 
             if (!SqlArtifactPermissionsRepository.HasPermissions(reviewId, artifactPermissionsDictionary, RolePermissions.Read))
             {
-                string errorMessage = I18NHelper.FormatInvariant("User does not have permissions to access the review (Id:{0}).", reviewId);
-                throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
+                ThrowUserCannotAccessReviewException(reviewId);
             }
 
             var reviewArtifactStatuses = await GetReviewArtifactStatusesAsync(reviewId, userId, pagination, versionId, addDrafts, reviewArtifactIds);
@@ -203,8 +199,7 @@ namespace ArtifactStore.Repositories
 
             if (!SqlArtifactPermissionsRepository.HasPermissions(reviewId, artifactPermissionsDictionary, RolePermissions.Read))
             {
-                string errorMessage = I18NHelper.FormatInvariant("User does not have permissions to access the review (Id:{0}).", reviewId);
-                throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
+                ThrowUserCannotAccessReviewException(reviewId);
             }
 
             var reviewedArtifacts = (await GetReviewArtifactsByParticipant(reviewArtifactIds, userId, reviewId, revisionId)).ToDictionary(k => k.Id);
@@ -380,8 +375,23 @@ namespace ArtifactStore.Repositories
             param.Add("@limit", limit);
             param.Add("@refreshInterval", refreshInterval);
             param.Add("@total", dbType:DbType.Int32, direction: ParameterDirection.Output);
+            param.Add("@retResult", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
 
             var result = await ConnectionWrapper.QueryAsync<ReviewTableOfContentItem>("GetReviewTableOfContent", param, commandType: CommandType.StoredProcedure);
+
+            var retResult = param.Get<int>("@retResult");
+
+            // The review is not found or not active.
+            if (retResult == 1 || retResult == 2)
+            {
+                ThrowReviewNotFoundException(reviewId);
+            }
+
+            // The user is not a review participant.
+            if (retResult == 3)
+            {
+                ThrowUserCannotAccessReviewException(reviewId);
+            }
 
             return new ReviewTableOfContent
             {
@@ -395,7 +405,7 @@ namespace ArtifactStore.Repositories
         public async Task<ReviewTableOfContent> GetReviewTableOfContent(int reviewId, int revisionId, int userId, int? offset, int? limit)
         {
 
-            //get all review content item in a hierachy list
+            //get all review content item in a hierarchy list
             var toc = await GetTableOfContentAsync(reviewId, revisionId, userId, offset, limit);
 
             var artifactIds = new List<int>{reviewId}.Concat(toc.Items.Select(a => a.Id).ToList());
@@ -405,11 +415,10 @@ namespace ArtifactStore.Repositories
 
             if (!SqlArtifactPermissionsRepository.HasPermissions(reviewId, artifactPermissionsDictionary, RolePermissions.Read))
             {
-                string errorMessage = I18NHelper.FormatInvariant("User does not have permissions to access the review (Id:{0}).", reviewId);
-                throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
+                ThrowUserCannotAccessReviewException(reviewId);
             }
 
-            var reviewedArtifacts = await GetReviewArtifactsByParticipant(toc.Items.Select(a => a.Id), userId, reviewId, revisionId);
+            var reviewedArtifacts = (await GetReviewArtifactsByParticipant(toc.Items.Select(a => a.Id), userId, reviewId, revisionId)).ToList();
 
             //TODO: Update artifact statuses and permissions
             //
@@ -440,6 +449,18 @@ namespace ArtifactStore.Repositories
             item.Included = false;
             item.Viewed = false;
             item.HasAccess = false;
+        }
+
+        private static void ThrowUserCannotAccessReviewException(int reviewId)
+        {
+            var errorMessage = I18NHelper.FormatInvariant("User does not have permissions to access the review (Id:{0}).", reviewId);
+            throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
+        }
+
+        private static void ThrowReviewNotFoundException(int reviewId)
+        {
+            var errorMessage = I18NHelper.FormatInvariant("Review (Id:{0}) is not found.", reviewId);
+            throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
         }
     }
 }

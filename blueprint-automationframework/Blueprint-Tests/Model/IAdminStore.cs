@@ -470,7 +470,7 @@ namespace Model
         CreateResult AddUserToGroups(IUser adminUser,
             int? userId,
             List<int> groupIds,
-            bool selectAll = false,
+            bool? selectAll,
             string search = null);
 
         /// <summary>
@@ -487,7 +487,7 @@ namespace Model
         DeleteResult DeleteUserFromGroups(IUser adminUser,
             int? userId,
             List<int> groupIds,
-            bool selectAll = false);
+            bool? selectAll);
 
         /// <summary>
         /// Gets all the groups.
@@ -510,7 +510,7 @@ namespace Model
             string search = null);
 
         /// <summary>
-        /// Gets all the groups gets all groups except those that are already assigned to the specified user.
+        /// Gets all the groups except those that are already assigned to the specified user.
         /// (Runs: GET /svc/adminstore/groups)
         /// </summary>
         /// <param name="adminUser">The admin user getting the groups.</param>
@@ -566,7 +566,7 @@ namespace Model
         /// <returns>The DeleteResult object.</returns>
         DeleteResult DeleteGroups(IUser adminUser,
             List<int> groupIds,
-            bool selectAll = false,
+            bool? selectAll,
             string search = null);
 
         /// <summary>

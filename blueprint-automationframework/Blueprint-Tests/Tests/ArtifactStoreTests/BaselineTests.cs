@@ -995,7 +995,7 @@ namespace ArtifactStoreTests
                 "Get Baseline reviews shouldn't return an error.");
 
             // Verify:
-            Assert.AreEqual(3, reviews.reviewArtifacts.Count, "List should have expected number of reviews.");
+            Assert.AreEqual(4, reviews.reviewArtifacts.Count, "List should have expected number of reviews.");
             foreach (var review in reviews.reviewArtifacts)
             {
                 var reviewArtifact = (Review)Helper.ArtifactStore.GetArtifactDetails(viewerUser, review.ItemId);

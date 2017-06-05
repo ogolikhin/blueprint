@@ -53,7 +53,7 @@ namespace AdminStore.Controllers
             _groupsQueryDataResult = new QueryResult<GroupDto>() { Total = 1, Items = new List<GroupDto>() };
             _groupsTabularPagination = new Pagination() { Limit = 1, Offset = 0 };
             _groupsSorting = new Sorting() { Order = SortOrder.Asc, Sort = "Name" };
-            _group = new GroupDto {Name = "Group1", Email = "TestEmail@test.com", Source = UserGroupSource.Database, LicenseType = LicenseType.Collaborator};            
+            _group = new GroupDto { Name = "Group1", Email = "TestEmail@test.com", Source = UserGroupSource.Database, LicenseType = LicenseType.Collaborator };
         }
 
         #region Constuctor
@@ -238,7 +238,7 @@ namespace AdminStore.Controllers
             _sqlGroupRepositoryMock.Setup(repo => repo.GetGroupDetailsAsync(It.IsAny<int>())).ReturnsAsync(group);
 
             //act
-            var result = await _controller.GetGroup(3) as OkNegotiatedContentResult<GroupDto>; 
+            var result = await _controller.GetGroup(3) as OkNegotiatedContentResult<GroupDto>;
 
             //assert
             Assert.IsNotNull(result);
@@ -475,10 +475,10 @@ namespace AdminStore.Controllers
             // Arrange
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
-                .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);            
+                .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
 
             // Act
-             await _controller.UpdateGroup(_groupId, _group);
+            await _controller.UpdateGroup(_groupId, _group);
 
             // Assert
             // Exception
@@ -644,6 +644,60 @@ namespace AdminStore.Controllers
             //assert
             Assert.IsNotNull(result);
             Assert.IsInstanceOfType(result.Content, typeof(QueryResult<GroupUser>));
+        }
+
+        #endregion
+
+        #region AssignMembers
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task AssignMembers_ParametersAreInvalid_BadRequestResult()
+        {
+            //arrange
+
+            //act
+            await _controller.AssignMembers(_groupId, null);
+
+            //assert   
+            //Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task AssignMembers_UserDoesNotHaveRequiredPermissions_ForbiddenResult()
+        {
+            //arrange
+            var collection = new List<KeyValuePair<int, UserType>>() {new KeyValuePair<int, UserType>(1, UserType.Group)};
+            var scope = new AssignScope() {Types = collection.ToArray() };
+            _privilegesRepository
+               .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+               .ReturnsAsync(InstanceAdminPrivileges.None);
+            _sqlGroupRepositoryMock.Setup(repo => repo.AssignMembers(It.IsAny<int>(), It.IsAny<AssignScope>(), It.IsAny<string>()));
+
+            //act
+            await _controller.AssignMembers(_groupId, scope);
+
+            //assert
+        }
+
+        [TestMethod]
+        public async Task AssignMembers_ParametersAndPermissionsAreFine_ReturnOkResult()
+        {
+            //arrange
+            var collection = new List<KeyValuePair<int, UserType>>() { new KeyValuePair<int, UserType>(1, UserType.Group) };
+            var scope = new AssignScope() { Types = collection.ToArray() };
+            _privilegesRepository
+               .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+               .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+            _sqlGroupRepositoryMock.Setup(repo => repo.AssignMembers(It.IsAny<int>(), It.IsAny<AssignScope>(), It.IsAny<string>())).ReturnsAsync(true);
+
+            //act
+            var result = await _controller.AssignMembers(_groupId, scope) as OkResult;
+
+            //assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(OkResult));
         }
 
         #endregion

@@ -56,7 +56,6 @@ namespace AdminStore.Repositories
 
         #endregion AddGroupAsync
 
-
         #region UpdateGroupAsync
 
         [TestMethod]
@@ -248,5 +247,79 @@ namespace AdminStore.Repositories
         }
 
         #endregion UpdateGroupAsync
+
+        #region DeleteMembersFromGroupAsync
+
+        [TestMethod]
+        public async Task DeleteMembersFromGroupAsync_SuccessfulDeletingMembers_ReturnCountDeletedMembers()
+        {
+            // Arrange
+            var assignScope = new AssignScope
+            {
+                SelectAll = true,
+                Types = new List<KeyValuePair<int, UserType>> { new KeyValuePair<int, UserType>(1, UserType.User) }
+            };
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlGroupRepository(cxn.Object);
+            var errorId = 0;
+            var groupId = 1;
+
+            cxn.SetupExecuteScalarAsync("DeleteMembersFromGroup", It.IsAny<Dictionary<string, object>>(), 0, new Dictionary<string, object> { { "ErrorCode", errorId } });
+
+            // Act
+            await repository.DeleteMembersFromGroupAsync(groupId, assignScope);
+
+            // Assert
+            cxn.Verify();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public async Task DeleteMembersFromGroupAsync_GeneralSqlExeption_ReturnException()
+        {
+            // Arrange
+            var assignScope = new AssignScope
+            {
+                SelectAll = true,
+                Types = new List<KeyValuePair<int, UserType>> { new KeyValuePair<int, UserType>(1, UserType.User) }
+            };
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlGroupRepository(cxn.Object);
+            var errorId = (int)SqlErrorCodes.GeneralSqlError;
+            var groupId = 1;
+
+            cxn.SetupExecuteScalarAsync("DeleteMembersFromGroup", It.IsAny<Dictionary<string, object>>(), 0, new Dictionary<string, object> { { "ErrorCode", errorId } });
+
+            // Act
+            await repository.DeleteMembersFromGroupAsync(groupId, assignScope);
+
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task DeleteMembersFromGroupAsync_GroupWithCurrentIdNotExist_ReturnNotFoundException()
+        {
+            // Arrange
+            var assignScope = new AssignScope
+            {
+                SelectAll = true,
+                Types = new List<KeyValuePair<int, UserType>> { new KeyValuePair<int, UserType>(1, UserType.User) }
+            };
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlGroupRepository(cxn.Object);
+            var errorId = (int)SqlErrorCodes.GroupWithCurrentIdNotExist;
+            var groupId = 1;
+
+            cxn.SetupExecuteScalarAsync("DeleteMembersFromGroup", It.IsAny<Dictionary<string, object>>(), 0, new Dictionary<string, object> { { "ErrorCode", errorId } });
+
+            // Act
+            await repository.DeleteMembersFromGroupAsync(groupId, assignScope);
+
+            // Assert
+            // Exception
+        }
+        #endregion DeleteMembersFromGroupAsync
     }
 }

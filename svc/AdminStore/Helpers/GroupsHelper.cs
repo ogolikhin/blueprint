@@ -30,6 +30,12 @@ namespace AdminStore.Helpers
                 : defaultSortColumn;
 
             return sorting.Order == SortOrder.Desc ? "-" + sortColumn : sortColumn;
-        }      
+        }
+
+        public static IEnumerable<int> ParsingTypesToUserTypeArray(IEnumerable<KeyValuePair<int, UserType>> types, UserType userType)
+        {
+            var members = types.Where(e=>e.Value == userType).Select(e=>e.Key).ToList();
+            return members;
+        }
     }
 }

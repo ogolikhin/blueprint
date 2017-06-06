@@ -22,7 +22,7 @@ namespace AdminStore
             config.EnsureInitialized();
 
             // Assert
-            config.AssertTotalRoutes(42, "Please update asserts in WebApiConfigTests when changing routes.");
+            config.AssertTotalRoutes(43, "Please update asserts in WebApiConfigTests when changing routes.");
             config.AssertAction<ConfigController>("GetConfigSettings", HttpMethod.Get, "config/settings");
             config.AssertAction<ConfigController>("GetConfig", HttpMethod.Get, "config/config.js");
             config.AssertAction<ConfigController>("GetApplicationSettings", HttpMethod.Get, "config");
@@ -67,6 +67,7 @@ namespace AdminStore
             config.AssertAction<GroupsController>("UpdateGroup", HttpMethod.Put, "/groups/1");
             config.AssertAction<GroupsController>("GetGroupsAndUsers", HttpMethod.Get, "/groups/usersgroups?offset=0&limit=20&sort=email&order=asc");
             config.AssertAction<GroupsController>("GetGroupMembers", HttpMethod.Get, "/groups/10/members?offset=0&limit=20&sort=email&order=asc");
+            config.AssertAction<GroupsController>("RemoveMembersFromGroup", HttpMethod.Post, "/groups/10/removemembers");
         }
 
         [TestMethod]

@@ -210,20 +210,22 @@ namespace ArtifactStore.Repositories
             var reviewedArtifacts = (await GetReviewArtifactsByParticipant(reviewArtifactIds, userId, reviewId, revisionId)).ToDictionary(k => k.Id);
             foreach (var artifact in reviewArtifacts.Items)
             {
-                ReviewedArtifact reviewedArtifact;
-                if (reviewedArtifacts.TryGetValue(artifact.Id, out reviewedArtifact))
+                if (SqlArtifactPermissionsRepository.HasPermissions(artifact.Id, artifactPermissionsDictionary, RolePermissions.Read))
                 {
-                    artifact.Approval = GetApprovalStatus(reviewedArtifact, artifact.IsApprovalRequired);
-                    artifact.ApprovalFlag = reviewedArtifact.ApprovalFlag;
-                    artifact.ArtifactVersion = reviewedArtifact.ArtifactVersion;
-                    artifact.PublishedOnTimestamp = reviewedArtifact.PublishedOnTimestamp;
-                    artifact.UserDisplayName = reviewedArtifact.UserDisplayName;
-                    artifact.ViewedArtifactVersion = reviewedArtifact.ViewedArtifactVersion;
-                    artifact.SignedOnTimestamp = reviewedArtifact.SignedOnTimestamp;
-                    artifact.HasAttachments = reviewedArtifact.HasAttachments;
-                    artifact.HasRelationships = reviewedArtifact.HasRelationships;
-                    artifact.HasAttachments = reviewedArtifact.HasAttachments;
-                    artifact.HasAccess = true;
+                    ReviewedArtifact reviewedArtifact;
+                    if (reviewedArtifacts.TryGetValue(artifact.Id, out reviewedArtifact))
+                    {
+                        artifact.Approval = GetApprovalStatus(reviewedArtifact, artifact.IsApprovalRequired);
+                        artifact.ApprovalFlag = reviewedArtifact.ApprovalFlag;
+                        artifact.ArtifactVersion = reviewedArtifact.ArtifactVersion;
+                        artifact.PublishedOnTimestamp = reviewedArtifact.PublishedOnTimestamp;
+                        artifact.UserDisplayName = reviewedArtifact.UserDisplayName;
+                        artifact.ViewedArtifactVersion = reviewedArtifact.ViewedArtifactVersion;
+                        artifact.SignedOnTimestamp = reviewedArtifact.SignedOnTimestamp;
+                        artifact.HasAttachments = reviewedArtifact.HasAttachments;
+                        artifact.HasRelationships = reviewedArtifact.HasRelationships;
+                        artifact.HasAccess = true;
+                    }
                 }
                 else
                 {

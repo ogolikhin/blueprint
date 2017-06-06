@@ -244,7 +244,7 @@ namespace AdminStore.Controllers
         /// <response code="404">NotFound. if the group with groupId doesn’t exists or removed from the system.</response>
         [HttpPost]
         [SessionRequired]
-        [Route("{groupId:int:min(1)}/removemembers")]
+        [Route("{groupId:int:min(1)}/members")]
         [ResponseType(typeof(DeleteResult))]
         public async Task<IHttpActionResult> RemoveMembersFromGroup(int groupId, [FromBody] AssignScope scope)
         {

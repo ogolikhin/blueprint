@@ -61,14 +61,14 @@ namespace ArtifactStore.Executors
             }
 
             //Obtain lock if it is not already locked by current user
-            if (artifactInfo.LockedByUser == null)
-            {
-                var obtainedLockDuringProcess = await _artifactVersionsRepository.LockArtifactAsync(input.ArtifactId, _userId);
-                if (!obtainedLockDuringProcess)
-                {
-                    throw new ConflictException("Artifact has been updated. Please refresh your view.");
-                }
-            }
+            //if (artifactInfo.LockedByUser == null)
+            //{
+            //    var obtainedLockDuringProcess = await _artifactVersionsRepository.LockArtifactAsync(input.ArtifactId, _userId);
+            //    if (!obtainedLockDuringProcess)
+            //    {
+            //        throw new ConflictException("Artifact has been updated. Please refresh your view.");
+            //    }
+            //}
 
             //Get current state and validate current state
             var currentState = await _workflowRepository.GetState(_userId, input.ArtifactId, int.MaxValue, true);

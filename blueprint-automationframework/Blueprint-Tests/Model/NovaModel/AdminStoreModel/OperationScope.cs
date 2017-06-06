@@ -8,7 +8,7 @@ namespace Model.NovaModel.AdminStoreModel
     {
         public bool SelectAll { get; set; }
 
-        public IEnumerable<int> Ids { get; set; }
+        public List<int> Ids { get; set; }
 
         public bool IsEmpty()
         {

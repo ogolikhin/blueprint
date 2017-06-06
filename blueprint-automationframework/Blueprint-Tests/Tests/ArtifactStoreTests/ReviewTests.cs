@@ -9,8 +9,8 @@ using Utilities;
 using TestConfig;
 using System.Collections.Generic;
 using Model.Impl;
-using System;
-using System.Collections;
+using System.Linq;
+using Model.ArtifactModel.Impl;
 
 namespace ArtifactStoreTests
 {
@@ -62,6 +62,7 @@ namespace ArtifactStoreTests
         }
 
         [Category(Categories.GoldenData)]
+        [Category(Categories.CannotRunInParallel)]
         [TestCase]
         [TestRail(303353)]
         [Description("Get Review Content by id from Custom Data project, check that artifacts have expected values.")]
@@ -79,7 +80,7 @@ namespace ArtifactStoreTests
             var admin = UserFactory.CreateUserOnly(userName, password);
             admin.SetToken(sessionToken.SessionId);
 
-            // Execute:
+            // Execute: 
             ReviewSummary reviewContainer = null;
             Assert.DoesNotThrow(() => reviewContainer = Helper.ArtifactStore.GetReviewContainer(admin, REVIEW_ID),
                 "{0} should throw no error.", nameof(Helper.ArtifactStore.GetReviewContainer));
@@ -215,6 +216,7 @@ namespace ArtifactStoreTests
         }
 
         [Category(Categories.GoldenData)]
+        [Category(Categories.CannotRunInParallel)]
         [TestCase]
         [TestRail(305010)]
         [Description("Get Review Artifacts (Review Experience) by id from Custom Data project, check that number of artifacts has expected value.")]
@@ -231,7 +233,7 @@ namespace ArtifactStoreTests
             var admin = UserFactory.CreateUserOnly(userName, password);
             admin.SetToken(sessionToken.SessionId);
 
-            // Execute:
+            // Execute: 
             QueryResult<ReviewedArtifact> reviewedArtifacts = null;
             Assert.DoesNotThrow(() => reviewedArtifacts = Helper.ArtifactStore.GetReviewedArtifacts(_adminUser, reviewId),
                 "{0} should throw no error.", nameof(Helper.ArtifactStore.GetReviewedArtifacts));
@@ -239,6 +241,48 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(15, reviewedArtifacts.Items.Count, "TotalArtifacts should be equal to the expected number of artifacts in Review.");
         }
+
+        #region Artifacts Hierarchy Tests
+
+        [Category(Categories.GoldenData)]
+        [Category(Categories.CannotRunInParallel)]
+        [Explicit(IgnoreReasons.DeploymentNotReady)]
+        [TestCase]
+        [TestRail(305070)]
+        [Description("Get Review Artifacts (Review Experience) by id from Custom Data project, check that artifacts are ordered by OrderIndex.")]
+        public void GetReviewArtifacts_ExistingReview_Reviewer_ValidateHierarchy()
+        {
+            // Setup:
+            const int reviewId = 112;
+
+            var testConfig = TestConfiguration.GetInstance();
+            string userName = testConfig.Username;
+            string password = testConfig.Password;
+
+            var sessionToken = Helper.AdminStore.AddSession(userName, password);
+            var testUser = UserFactory.CreateUserOnly(userName, password);
+            testUser.SetToken(sessionToken.SessionId);
+
+            var reviewContainer = Helper.ArtifactStore.GetReviewContainer(testUser, reviewId);
+
+            QueryResult<ReviewedArtifact> reviewedArtifacts = null;
+
+            // Execute: 
+            Assert.DoesNotThrow(() => reviewedArtifacts = Helper.ArtifactStore.GetReviewedArtifacts(testUser, reviewId,
+                revisionId: reviewContainer.RevisionId),
+                "{0} should throw no error.", nameof(Helper.ArtifactStore.GetReviewedArtifacts));
+
+            List<NovaArtifactDetails> artifacts = new List<NovaArtifactDetails>();
+            foreach (var a in reviewedArtifacts.Items)
+            {
+                artifacts.Add(Helper.ArtifactStore.GetArtifactDetails(testUser, a.Id));
+            }
+
+            // Verify:
+            ValidateArtifactsHierarchy(artifacts, reviewedArtifacts.Items);
+        }
+
+        #endregion Artifacts Hierarchy Tests
 
         #endregion Positive Tests
 
@@ -305,6 +349,23 @@ namespace ArtifactStoreTests
             Assert.IsTrue(items[0].Viewed, "Viewed property is supposed to be True!");
         }
 
-        #endregion Private functions
+        /// <summary>
+        /// Checks that artifacts in review ordered by OrderIndex.
+        /// </summary>
+        /// <param name="artifactsFromProject">List of Project's artifact.</param>
+        /// <param name="artifactsFromReview">List of artifacts from Review.</param>
+        private static void ValidateArtifactsHierarchy(List<NovaArtifactDetails> artifactsFromProject,
+            List<ReviewedArtifact> artifactsFromReview)
+        {
+            var artifactsSortedByOrderIndex = artifactsFromProject.OrderBy(i => i.OrderIndex).ToList();
+            Assert.AreEqual(artifactsFromReview.Count, artifactsSortedByOrderIndex.Count, "Number of artifacts in these two lists should be the same.");
+            for (int i = 0; i < artifactsFromReview.Count; i++)
+            {
+                Assert.AreEqual(artifactsSortedByOrderIndex[i].Id, artifactsFromReview[i].Id,
+                    "Ids of artifacts in the same position of the lists should be equal.");
+            }
+        }
+
+        #endregion Private Functions
     }
 }

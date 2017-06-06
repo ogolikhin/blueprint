@@ -2,7 +2,7 @@
 
 namespace ServiceLibrary.Models.Workflow
 {
-    public class WorkflowTransition
+    public class WorkflowTransition : ITrigger
     {
         public int WorkflowId { get; set; }
 

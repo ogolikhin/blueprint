@@ -297,8 +297,8 @@ namespace AdminStoreTests.UsersTests
         [TestCase(InstanceAdminRole.ManageAdministratorRoles, LicenseLevel.Viewer)]
         [TestRail(000)]
         [Description("Create an instance user with a role when Password Expiration is enabled by setting its value to '1'" + 
-            "and Verify that Password gets expired based on value set for PasswordExpireationIndays from Instances table.")]
-        public void AddInstanceUser_AssigningRoleWhenPasswordExpirationEnabled_VerifyUserPasswordExpiredBasedOnPasswordExpirationInDaysSet(
+            "and Verify that Password gets expired based on the value set on PasswordExpireationIndays from Instances table.")]
+        public void AddInstanceUser_AssigningRoleWhenPasswordExpirationEnabled_VerifyUserPasswordExpirationBasedOnPasswordExpirationInDays(
             InstanceAdminRole adminRole,
             LicenseLevel expectedLicenseLevel
             )
@@ -344,14 +344,15 @@ namespace AdminStoreTests.UsersTests
                 AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
 
                 // Login using the user with expired password
+                Helper.AdminStore.DeleteSession(userWithPermissionsToAssignAdminRoles);
+
                 var ex = Assert.Throws<Http401UnauthorizedException>(() =>
                 {
                     Helper.AdminStore.AddSession(userWithPermissionsToAssignAdminRoles.Username, userWithPermissionsToAssignAdminRoles.Password, force: true);
-                }, "AddSession() should throw exceotion since the user password is expired.");
+                }, "AddSession() should throw exception since the user password is expired.");
 
                 TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordExpired,
                     "User password expired for the login: " +userWithPermissionsToAssignAdminRoles.Username);
-
             }
             finally
             {

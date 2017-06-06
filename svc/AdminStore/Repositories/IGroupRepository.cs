@@ -14,6 +14,7 @@ namespace AdminStore.Repositories
         Task UpdateGroupAsync(int groupId, GroupDto group);
         Task<QueryResult<GroupUser>> GetGroupUsersAsync(int groupId, TabularData tabularData, Func<Sorting, string> sort = null);
         Task<QueryResult<GroupUser>> GetGroupMembersAsync(int groupId, TabularData tabularData, Func<Sorting, string> sort = null);
+        Task<int> DeleteMembersFromGroupAsync(int groupId, AssignScope body);
         Task<bool> AssignMembers(int groupId, AssignScope scope, string search = null);
     }
 }

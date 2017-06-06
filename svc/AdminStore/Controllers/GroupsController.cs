@@ -233,6 +233,39 @@ namespace AdminStore.Controllers
         }
 
         /// <summary>
+        /// Remove members from a group
+        /// </summary>
+        /// <param name="groupId">group's id</param>
+        /// <param name="scope">list of groups and users ids, selectAll flag</param>
+        /// <response code="200">OK. Count of deleted members from a group.</response>
+        /// <response code="400">BadRequest. Parameters are invalid. </response>
+        /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
+        /// <response code="403">Forbidden if used doesn’t have permissions to remove members from a group</response>
+        /// <response code="404">NotFound. if the group with groupId doesn’t exists or removed from the system.</response>
+        [HttpPost]
+        [SessionRequired]
+        [Route("{groupId:int:min(1)}/members")]
+        [ResponseType(typeof(DeleteResult))]
+        public async Task<IHttpActionResult> RemoveMembersFromGroup(int groupId, [FromBody] AssignScope scope)
+        {
+            if (scope == null)
+            {
+                throw new BadRequestException(ErrorMessages.InvalidGroupMembersParameters, ErrorCodes.BadRequest);
+            }
+
+            if (scope.IsEmpty())
+            {
+                return Ok(DeleteResult.Empty);
+            }
+
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageGroups);
+
+            var result = await _groupRepository.DeleteMembersFromGroupAsync(groupId, scope);
+
+            return Ok(new DeleteResult { TotalDeleted = result });
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="groupId">Group's identity</param>

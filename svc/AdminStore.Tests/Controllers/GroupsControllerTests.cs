@@ -32,6 +32,7 @@ namespace AdminStore.Controllers
         private const int UserId = 10;
         private GroupDto _group;
         private int _groupId = 10;
+        private AssignScope _assignScope;
 
         [TestInitialize]
         public void Initialize()
@@ -53,7 +54,12 @@ namespace AdminStore.Controllers
             _groupsQueryDataResult = new QueryResult<GroupDto>() { Total = 1, Items = new List<GroupDto>() };
             _groupsTabularPagination = new Pagination() { Limit = 1, Offset = 0 };
             _groupsSorting = new Sorting() { Order = SortOrder.Asc, Sort = "Name" };
-            _group = new GroupDto { Name = "Group1", Email = "TestEmail@test.com", Source = UserGroupSource.Database, LicenseType = LicenseType.Collaborator };
+            _group = new GroupDto {Name = "Group1", Email = "TestEmail@test.com", Source = UserGroupSource.Database, LicenseType = LicenseType.Collaborator};
+            _assignScope = new AssignScope
+            {
+                SelectAll = true,
+                Members = new List<KeyValuePair<int, UserType>> {new KeyValuePair<int, UserType>(1, UserType.User)}
+            };
         }
 
         #region Constuctor
@@ -648,6 +654,56 @@ namespace AdminStore.Controllers
 
         #endregion
 
+        #region  RemoveMembersFromGroup
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task RemoveMembersFromGroup_PaginationParamsAreNotCorrect_BadRequestResult()
+        {
+            //arrange
+
+            //act
+            await _controller.RemoveMembersFromGroup(_groupId, null);
+
+            //assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task RemoveMembersFromGroup_UserDoesNotHaveRequiredPermissions_ForbiddenResult()
+        {
+            //arrange
+            _privilegesRepository
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
+
+            //act
+            await _controller.RemoveMembersFromGroup(_groupId, _assignScope);
+
+            //assert
+            // Exception
+        }
+
+        [TestMethod]
+        public async Task RemoveMembersFromGroup_AllParametersAreCorrect_ReturnCountDeletedMembers()
+        {
+            //arrange
+            _privilegesRepository
+               .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+               .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+            _sqlGroupRepositoryMock.Setup(repo => repo.DeleteMembersFromGroupAsync(It.IsAny<int>(), It.IsAny<AssignScope>())).ReturnsAsync(1);
+
+            //act
+            var result = await _controller.RemoveMembersFromGroup(_groupId, _assignScope) as OkNegotiatedContentResult<DeleteResult>;
+
+            //assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result.Content, typeof(DeleteResult));
+        }
+
+        #endregion
+
         #region AssignMembers
 
         [TestMethod]
@@ -669,7 +725,7 @@ namespace AdminStore.Controllers
         {
             //arrange
             var collection = new List<KeyValuePair<int, UserType>>() {new KeyValuePair<int, UserType>(1, UserType.Group)};
-            var scope = new AssignScope() {Types = collection.ToArray() };
+            var scope = new AssignScope() {Members = collection.ToArray() };
             _privilegesRepository
                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(InstanceAdminPrivileges.None);
@@ -686,7 +742,7 @@ namespace AdminStore.Controllers
         {
             //arrange
             var collection = new List<KeyValuePair<int, UserType>>() { new KeyValuePair<int, UserType>(1, UserType.Group) };
-            var scope = new AssignScope() { Types = collection.ToArray() };
+            var scope = new AssignScope() { Members = collection.ToArray() };
             _privilegesRepository
                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);

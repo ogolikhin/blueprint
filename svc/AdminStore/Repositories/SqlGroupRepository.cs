@@ -218,6 +218,33 @@ namespace AdminStore.Repositories
             return queryDataResult;
         }
 
+
+        public async Task<int> DeleteMembersFromGroupAsync(int groupId, AssignScope body)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@GroupId", groupId);
+            parameters.Add("@GroupsIds", SqlConnectionWrapper.ToDataTable(GroupsHelper.ParsingTypesToUserTypeArray(body.Members, UserType.Group)));
+            parameters.Add("@UsersIds", SqlConnectionWrapper.ToDataTable(GroupsHelper.ParsingTypesToUserTypeArray(body.Members, UserType.User)));
+            parameters.Add("@SelectAll", body.SelectAll);
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var result = await _connectionWrapper.ExecuteScalarAsync<int>("DeleteMembersFromGroup", parameters, commandType: CommandType.StoredProcedure);
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.GeneralSqlError:
+                        throw new Exception(ErrorMessages.GeneralErrorOfRemovingMembersFromGroup);
+
+                    case (int)SqlErrorCodes.GroupWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.GroupNotExist);
+                }
+            }
+            return result;
+        }
+
         public async Task<bool> AssignMembers(int groupId, AssignScope scope, string search = null)
         {
             if (search != null)
@@ -226,7 +253,7 @@ namespace AdminStore.Repositories
             }
             var parameters = new DynamicParameters();
             parameters.Add("@GroupId", groupId);
-            parameters.Add("@Members", ToDataTable(scope.Types));
+            parameters.Add("@Members", ToDataTable(scope.Members));
             parameters.Add("@SelectAll", scope.SelectAll);
             parameters.Add("@Search", search);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);

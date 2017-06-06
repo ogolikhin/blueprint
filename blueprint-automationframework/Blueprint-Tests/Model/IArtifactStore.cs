@@ -682,7 +682,7 @@ namespace Model
         /// <param name="page">(optional) Page number. By default first page</param>
         /// <param name="recordsOnPage">(optional) Maximum number of records on each page. By default 50 records on a page</param>
         /// <returns>ReviewContainer</returns>
-        ReviewTableOfContent GetReviewTableOfContent(IUser user, int reviewId, int revisionId, int? page = null, int? recordsOnPage = null);
+        ReviewTableOfContent GetReviewTableOfContent(IUser user, int reviewId, int revisionId, int? index = null, int? recordsOnPage = null);
 
         /// <summary>
         /// Gets list of review statuses for the specified artifact of the review. Runs GET containers/{0}/artifactreviewers .

@@ -1009,16 +1009,16 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.GetReviewTableOfContent(IUser, int, int, int?, int?)"/>
-        public ReviewTableOfContent GetReviewTableOfContent(IUser user, int reviewId, int revisionId, int? page = null, int? recordsOnPage = null)
+        public ReviewTableOfContent GetReviewTableOfContent(IUser user, int reviewId, int revisionId, int? index = null, int? recordsOnPage = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Containers_id_.TOC_id_, reviewId, revisionId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
             var queryParams = new Dictionary<string, string>();
 
-            if (page != null)
+            if (index != null)
             {
-                queryParams.Add("offset", page.ToString());
+                queryParams.Add("offset", index.ToString());
             }
 
             if (recordsOnPage != null)
@@ -1027,7 +1027,7 @@ namespace Model.Impl
             }
 
             return restApi.SendRequestAndDeserializeObject<ReviewTableOfContent>(path,
-                RestRequestMethod.GET, shouldControlJsonChanges: true);
+                RestRequestMethod.GET, queryParameters: queryParams, shouldControlJsonChanges: true);
         }
 
         /// <seealso cref="IArtifactStore.GetArtifactStatusesByParticipant(IUser, int, int, int?, int?, int?)"/>

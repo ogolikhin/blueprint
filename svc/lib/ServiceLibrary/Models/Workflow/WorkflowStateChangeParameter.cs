@@ -1,14 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using ServiceLibrary.Attributes;
 
 namespace ServiceLibrary.Models.Workflow
 {
     public class WorkflowStateChangeParameter
     {
-        [Required]
-        [Range(1, int.MaxValue)]
-        public int ArtifactId { get; set; }
-
         [Required]
         [Range(1, int.MaxValue)]
         public int CurrentVersionId { get; set; }
@@ -28,5 +23,26 @@ namespace ServiceLibrary.Models.Workflow
         [Required]
         [Range(1, int.MaxValue)]
         public int TransitionId { get; set; }
+    }
+
+    public class WorkflowStateChangeParameterEx : WorkflowStateChangeParameter
+    {
+        public WorkflowStateChangeParameterEx()
+        {
+                
+        }
+
+        public WorkflowStateChangeParameterEx(WorkflowStateChangeParameter workflowStateChangeParameter)
+        {
+            CurrentVersionId = workflowStateChangeParameter.CurrentVersionId;
+            FromStateId = workflowStateChangeParameter.FromStateId;
+            ToStateId = workflowStateChangeParameter.ToStateId;
+            WorkflowId = workflowStateChangeParameter.WorkflowId;
+            TransitionId = workflowStateChangeParameter.TransitionId;
+        }
+
+        [Required]
+        [Range(1, int.MaxValue)]
+        public int ArtifactId { get; set; }
     }
 }

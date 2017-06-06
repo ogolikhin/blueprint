@@ -15,10 +15,10 @@ namespace ArtifactStore.Repositories.Workflow
     [TestClass]
     public class SqlWorkflowRepositoryTests
     {
-        #region GetTransitions
+        #region GetTransitionsAsync
         [TestMethod]
         [ExpectedException(typeof(ResourceNotFoundException))]
-        public async Task GetTransitions_NotFoundArtifact_ThrowsException()
+        public async Task GetTransitionsAsync_NotFoundArtifact_ThrowsException()
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
@@ -33,11 +33,11 @@ namespace ArtifactStore.Repositories.Workflow
               new List<ArtifactBasicDetails>());
 
             // Act
-            await repository.GetTransitions(1, 1, 1, 1);
+            await repository.GetTransitionsAsync(1, 1, 1, 1);
         }
         [TestMethod]
         [ExpectedException(typeof(AuthorizationException))]
-        public async Task GetTransitions_NoReadPermissions_ThrowsException()
+        public async Task GetTransitionsAsync_NoReadPermissions_ThrowsException()
         {
             // Arrange
             var permissionsRepository = CreatePermissionsRepositoryMock(new[] { 1 }, 1, RolePermissions.None);
@@ -51,12 +51,12 @@ namespace ArtifactStore.Repositories.Workflow
               },
               new List<ArtifactBasicDetails> { new ArtifactBasicDetails() { PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor} });
             // Act
-            await repository.GetTransitions(1, 1, 1, 1);
+            await repository.GetTransitionsAsync(1, 1, 1, 1);
         }
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
-        public async Task GetTransitions_IncorrectArtifactType_ThrowsException()
+        public async Task GetTransitionsAsync_IncorrectArtifactType_ThrowsException()
         {
             // Arrange
             var permissionsRepository = CreatePermissionsRepositoryMock(new[] { 1 }, 1, RolePermissions.None);
@@ -70,11 +70,11 @@ namespace ArtifactStore.Repositories.Workflow
               },
               new List<ArtifactBasicDetails> { new ArtifactBasicDetails() { PrimitiveItemTypePredefined = (int)ItemTypePredefined.Project } });
             // Act
-            await repository.GetTransitions(1, 1, 1, 1);
+            await repository.GetTransitionsAsync(1, 1, 1, 1);
         }
 
         [TestMethod]
-        public async Task GetTransitions_WithEditPermissions_SuccessfullyReads()
+        public async Task GetTransitionsAsync_WithEditPermissions_SuccessfullyReads()
         {
             // Arrange
             var permissionsRepository = CreatePermissionsRepositoryMock(new[] { 1 }, 1, RolePermissions.Edit);
@@ -122,7 +122,7 @@ namespace ArtifactStore.Repositories.Workflow
                  }
              });
             // Act
-            var result = (await repository.GetTransitions(1, 1, 1, 1));
+            var result = (await repository.GetTransitionsAsync(1, 1, 1, 1));
 
             Assert.IsTrue(result.Total == 3, "Transitions could not be retrieved");
         }
@@ -163,7 +163,7 @@ namespace ArtifactStore.Repositories.Workflow
              });
             
             // Act
-            var result = (await repository.GetState(1, 1, int.MaxValue, true));
+            var result = (await repository.GetStateForArtifactAsync(1, 1, int.MaxValue, true));
             
             Assert.IsTrue(result.ResultCode == QueryResultCode.Success, "Result is not success");
             Assert.IsTrue(result.Item != null, "Workflow State is null");
@@ -193,7 +193,7 @@ namespace ArtifactStore.Repositories.Workflow
              new List<SqlWorkFlowState>());
 
             // Act
-            var result = (await repository.GetState(1, 1, int.MaxValue, true));
+            var result = (await repository.GetStateForArtifactAsync(1, 1, int.MaxValue, true));
             
             Assert.IsTrue(result.ResultCode == QueryResultCode.Failure, "Result is success");
             Assert.IsFalse(String.IsNullOrEmpty(result.Message), "Error message is null");

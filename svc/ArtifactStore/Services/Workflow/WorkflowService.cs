@@ -11,12 +11,12 @@ namespace ArtifactStore.Services.Workflow
 {
     public interface IWorkflowService
     {
-        Task<WorkflowTransitionResult> GetTransitions(int userId, int artifactId, int workflowId, int stateId);
+        Task<WorkflowTransitionResult> GetTransitionsAsync(int userId, int artifactId, int workflowId, int stateId);
 
-        Task<QuerySingleResult<WorkflowState>> GetCurrentState(int userId, int artifactId, int revisionId = int.MaxValue,
+        Task<QuerySingleResult<WorkflowState>> GetStateForArtifactAsync(int userId, int artifactId, int revisionId = int.MaxValue,
             bool addDrafts = true);
 
-        Task<QuerySingleResult<WorkflowState>> ChangeStateForArtifact(int userId,
+        Task<QuerySingleResult<WorkflowState>> ChangeStateForArtifactAsync(int userId, int artifactId,
             WorkflowStateChangeParameter stateChangeParameter);
     }
 
@@ -32,38 +32,25 @@ namespace ArtifactStore.Services.Workflow
             _artifactVersionsRepository = artifactVersionsRepository;
         }
 
-        public async Task<WorkflowTransitionResult> GetTransitions(int userId, int artifactId, int workflowId, int stateId)
+        public async Task<WorkflowTransitionResult> GetTransitionsAsync(int userId, int artifactId, int workflowId, int stateId)
         {
-            return await _workflowRepository.GetTransitions(userId, artifactId, workflowId, stateId);
+            return await _workflowRepository.GetTransitionsAsync(userId, artifactId, workflowId, stateId);
         }
 
-        public async Task<QuerySingleResult<WorkflowState>> GetCurrentState(int userId, int artifactId, int revisionId = Int32.MaxValue, bool addDrafts = true)
+        public async Task<QuerySingleResult<WorkflowState>> GetStateForArtifactAsync(int userId, int artifactId, int revisionId = Int32.MaxValue, bool addDrafts = true)
         {
-            return await _workflowRepository.GetState(userId, artifactId, revisionId, addDrafts);
+            return await _workflowRepository.GetStateForArtifactAsync(userId, artifactId, revisionId, addDrafts);
         }
 
-        public async Task<QuerySingleResult<WorkflowState>> ChangeStateForArtifact(int userId, WorkflowStateChangeParameter stateChangeParameter)
+        public async Task<QuerySingleResult<WorkflowState>> ChangeStateForArtifactAsync(int userId, int artifactId, WorkflowStateChangeParameter stateChangeParameter)
         {
-            //Get enhanced state information so that we can validate constraints
-            //VALIDATE CONSTRAINTS. USER PERMISSIONS IS ONE SUCH VALID CONSTRAINT
-            //PROPERTY CONSTRAINTS WILL BE APPLIED
-            var propertyConstraints = new List<IConstraint>
-            {
-                new PropertyRequiredConstraint(),
-                new PropertyRequiredConstraint(),
-                new PropertyRequiredConstraint()
-            };
-
-            var postOpActions = new List<IAction>
+            //We will be getting state information and then will construct the property constraints and post operation actions over here
+            var stateChangeExecutor = new StateChangeExecutor(null, 
+                null, 
+                new WorkflowStateChangeParameterEx(stateChangeParameter)
                 {
-                    new EmailAction(),
-                    new EmailAction(),
-                    new EmailAction(),
-                };
-
-            var stateChangeExecutor = new StateChangeExecutor(propertyConstraints, 
-                postOpActions, 
-                stateChangeParameter, 
+                    ArtifactId = artifactId
+                },
                 userId, 
                 _artifactVersionsRepository, 
                 _workflowRepository);

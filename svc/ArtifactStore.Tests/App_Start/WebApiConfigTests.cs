@@ -40,7 +40,7 @@ namespace ArtifactStore
             config.AssertAction<ArtifactController>("GetArtifactsAuthorHistories", HttpMethod.Post, "artifacts/authorHistories");
             config.AssertAction<ArtifactController>("GetBaselineInfo", HttpMethod.Post, "artifacts/baselineInfo");
             config.AssertAction<WorkflowController>("GetTransitions", HttpMethod.Get, "artifacts/1/transitions");
-            config.AssertAction<WorkflowController>("GetCurrentState", HttpMethod.Get, "artifacts/1/state");
+            config.AssertAction<WorkflowController>("GetStateForArtifact", HttpMethod.Get, "artifacts/1/state");
             config.AssertAction<WorkflowController>("ChangeStateForArtifact", HttpMethod.Post, "artifacts/1/state");
             config.AssertAction<ReviewContainersController>("GetReviewSummary", HttpMethod.Get, "containers/1");
             config.AssertAction<ReviewContainersController>("GetContentAsync", HttpMethod.Get, "containers/1/content");

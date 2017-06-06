@@ -1,7 +1,9 @@
 ﻿using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using ArtifactStore.Repositories;
 using ArtifactStore.Repositories.Workflow;
+using ArtifactStore.Services.Workflow;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
@@ -13,17 +15,17 @@ namespace ArtifactStore.Controllers
     [BaseExceptionFilter]
     public class WorkflowController : LoggableApiController
     {
-        private readonly IWorkflowRepository _workflowRepository;
+        private readonly IWorkflowService _workflowService;
 
         public override string LogSource { get; } = "ArtifactStore.Workflow";
 
-        public WorkflowController() : this(new SqlWorkflowRepository())
+        public WorkflowController() : this(new WorkflowService(new SqlWorkflowRepository(), new SqlArtifactVersionsRepository()))
         {
         }
 
-        public WorkflowController(IWorkflowRepository workflowRepository) 
+        public WorkflowController(IWorkflowService workflowService) 
         {
-            _workflowRepository = workflowRepository;
+            _workflowService = workflowService;
         }
 
         /// <summary>
@@ -49,7 +51,7 @@ namespace ArtifactStore.Controllers
                 throw new BadRequestException("Please provide valid workflow id and state id");
             }
             //We assume that Session always exist as we have SessionRequired attribute
-            return Ok(await _workflowRepository.GetTransitions(Session.UserId, artifactId, workflowId, stateId));
+            return Ok(await _workflowService.GetTransitionsAsync(Session.UserId, artifactId, workflowId, stateId));
         }
 
         /// <summary>
@@ -62,25 +64,26 @@ namespace ArtifactStore.Controllers
         /// <returns></returns>
         [HttpGet, NoCache]
         [Route("artifacts/{artifactId:int:min(1)}/state"), SessionRequired]
-        [ActionName("GetCurrentState")]
+        [ActionName("GetStateForArtifact")]
         [ResponseType(typeof(WorkflowState))]
-        public async Task<IHttpActionResult> GetCurrentStateAsync(int artifactId, int? revisionId = null, bool addDrafts = true)
+        public async Task<IHttpActionResult> GetStateForArtifactAsync(int artifactId, int? revisionId = null, bool addDrafts = true)
         {
             //We assume that Session always exist as we have SessionRequired attribute
-            return Ok(await _workflowRepository.GetState(Session.UserId, artifactId, revisionId ?? int.MaxValue, addDrafts));
+            return Ok(await _workflowService.GetStateForArtifactAsync(Session.UserId, artifactId, revisionId ?? int.MaxValue, addDrafts));
         }
 
         /// <summary>
         /// Modifies the current state to the new desired state.
         /// Permission for the artifact is based on user id which is retrieved from the request.
         /// </summary>
+        /// <param name="artifactId"></param>
         /// <param name="stateChangeParameter"></param>
         /// <returns></returns>
         [HttpPost]
         [Route("artifacts/{artifactId:int:min(1)}/state"), SessionRequired]
         [ActionName("ChangeStateForArtifact")]
         [ResponseType(typeof(WorkflowState))]
-        public async Task<IHttpActionResult> ChangeStateForArtifactAsync([FromUri] WorkflowStateChangeParameter stateChangeParameter)
+        public async Task<IHttpActionResult> ChangeStateForArtifactAsync([FromUri] int artifactId, [FromBody] WorkflowStateChangeParameter stateChangeParameter)
         {
             //We assume that Session always exist as we have SessionRequired attribute
             if (stateChangeParameter == null || !ModelState.IsValid)
@@ -88,7 +91,7 @@ namespace ArtifactStore.Controllers
                 throw new BadRequestException("Please provide valid state change parameters");
             }
 
-            return Ok(await _workflowRepository.ChangeStateForArtifact(Session.UserId, stateChangeParameter));
+            return Ok(await _workflowService.ChangeStateForArtifactAsync(Session.UserId, artifactId, stateChangeParameter));
         }
     }
 }

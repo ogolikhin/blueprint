@@ -10,7 +10,7 @@ using ServiceLibrary.Models.Workflow;
 
 namespace ArtifactStore.Executors
 {
-    public class StateChangeExecutor : TransactionalTriggerExecutor<WorkflowStateChangeParameter, QuerySingleResult<WorkflowState>>
+    public class StateChangeExecutor : TransactionalTriggerExecutor<WorkflowStateChangeParameterEx, QuerySingleResult<WorkflowState>>
     {
         private readonly int _userId;
 
@@ -20,7 +20,7 @@ namespace ArtifactStore.Executors
         public StateChangeExecutor(
             IEnumerable<IConstraint> preOps,
             IEnumerable<IAction> postOps,
-            WorkflowStateChangeParameter input,
+            WorkflowStateChangeParameterEx input,
             int userId,
             IArtifactVersionsRepository artifactVersionsRepository,
             IWorkflowRepository workflowRepository
@@ -34,7 +34,7 @@ namespace ArtifactStore.Executors
             _workflowRepository = workflowRepository;
         }
 
-        protected override async Task<QuerySingleResult<WorkflowState>> ExecuteInternal(WorkflowStateChangeParameter input)
+        protected override async Task<QuerySingleResult<WorkflowState>> ExecuteInternal(WorkflowStateChangeParameterEx input)
         {
             //Confirm that the artifact is not deleted
             var isDeleted = await _artifactVersionsRepository.IsItemDeleted(input.ArtifactId);
@@ -54,24 +54,15 @@ namespace ArtifactStore.Executors
                 throw new ConflictException("Artifact has been updated. Please refresh your view.");
             }
 
+            //Lock is obtained by current user inside the stored procedure itself
             //Check that it is not locked by some other user
             if (artifactInfo.LockedByUser != null && artifactInfo.LockedByUser.Id != _userId)
             {
                 throw new ConflictException("Artifact has been updated. Please refresh your view.");
             }
 
-            //Obtain lock if it is not already locked by current user
-            //if (artifactInfo.LockedByUser == null)
-            //{
-            //    var obtainedLockDuringProcess = await _artifactVersionsRepository.LockArtifactAsync(input.ArtifactId, _userId);
-            //    if (!obtainedLockDuringProcess)
-            //    {
-            //        throw new ConflictException("Artifact has been updated. Please refresh your view.");
-            //    }
-            //}
-
             //Get current state and validate current state
-            var currentState = await _workflowRepository.GetState(_userId, input.ArtifactId, int.MaxValue, true);
+            var currentState = await _workflowRepository.GetStateForArtifactAsync(_userId, input.ArtifactId, int.MaxValue, true);
             if (currentState == null ||
                 currentState.ResultCode != QueryResultCode.Success ||
                 currentState.Item == null ||
@@ -82,7 +73,7 @@ namespace ArtifactStore.Executors
 
             //Get available transitions and validate the required transition
             var availableTransitions =
-                await _workflowRepository.GetTransitions(_userId, input.ArtifactId, input.WorkflowId, input.FromStateId);
+                await _workflowRepository.GetTransitionsAsync(_userId, input.ArtifactId, input.WorkflowId, input.FromStateId);
             if (availableTransitions.Total == 0 ||
                 availableTransitions.ResultCode != QueryResultCode.Success)
             {
@@ -100,20 +91,7 @@ namespace ArtifactStore.Executors
                 throw new ConflictException("Artifact has been updated. Please refresh your view.");
             }
 
-            //Change transition
-            //try
-            //{
-            //    return await ChangeStateForArtifactInternal(_userId, desiredTransition.Id);
-            //}
-            //catch
-            //{
-            //    if (obtainedLockDuringProcess)
-            //    {
-            //        //Release lock
-            //    }
-            //    throw;
-            //}
-            var stateChangeResult = await  _workflowRepository.ChangeStateForArtifact(_userId, input);
+            var stateChangeResult = await  _workflowRepository.ChangeStateForArtifactAsync(_userId, input.ArtifactId, input);
 
             return stateChangeResult;
         }

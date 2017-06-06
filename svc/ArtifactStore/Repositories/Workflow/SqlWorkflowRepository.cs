@@ -32,7 +32,7 @@ namespace ArtifactStore.Repositories.Workflow
 
         #region artifact workflow
 
-        public async Task<WorkflowTransitionResult> GetTransitions(int userId, int artifactId, int workflowId, int stateId)
+        public async Task<WorkflowTransitionResult> GetTransitionsAsync(int userId, int artifactId, int workflowId, int stateId)
         {
             //Do not return transitions if the 
             await CheckForArtifactPermissions(userId, artifactId, permissions: RolePermissions.Edit);
@@ -40,7 +40,7 @@ namespace ArtifactStore.Repositories.Workflow
             return await GetAvailableTransitions(userId, workflowId, stateId);
         }
 
-        public async Task<QuerySingleResult<WorkflowState>> GetState(int userId, int artifactId, int revisionId, bool addDrafts)
+        public async Task<QuerySingleResult<WorkflowState>> GetStateForArtifactAsync(int userId, int artifactId, int revisionId, bool addDrafts)
         {
             //Need to access code for artifact permissions for revision
             await CheckForArtifactPermissions(userId, artifactId, revisionId);
@@ -48,12 +48,12 @@ namespace ArtifactStore.Repositories.Workflow
             return await GetCurrentStateInternal(userId, artifactId, revisionId, addDrafts);
         }
 
-        public async Task<QuerySingleResult<WorkflowState>> ChangeStateForArtifact(int userId, WorkflowStateChangeParameter stateChangeParameter)
+        public async Task<QuerySingleResult<WorkflowState>> ChangeStateForArtifactAsync(int userId, int artifactId, WorkflowStateChangeParameter stateChangeParameter)
         {
             //Need to access code for artifact permissions for revision
-            await CheckForArtifactPermissions(userId, stateChangeParameter.ArtifactId);
+            await CheckForArtifactPermissions(userId, artifactId);
 
-            return await ChangeStateForArtifactInternal(userId, stateChangeParameter.ArtifactId, stateChangeParameter.ToStateId);
+            return await ChangeStateForArtifactInternal(userId, artifactId, stateChangeParameter.ToStateId);
         }
 
         #endregion
@@ -83,7 +83,7 @@ namespace ArtifactStore.Repositories.Workflow
                     WorkflowId = workflowState.WorkflowId
                 }).FirstOrDefault();
 
-            if (result == null)
+            if (result == null || result.WorkflowId <= 0 || result.Id <= 0)
             {
                 return new QuerySingleResult<WorkflowState>
                 {
@@ -138,6 +138,7 @@ namespace ArtifactStore.Repositories.Workflow
             param.Add("@userId", userId);
             param.Add("@artifactId", artifactId);
             param.Add("@desiredStateId", desiredStateId);
+            param.Add("@result", null);
 
             var result = (await ConnectionWrapper.QueryAsync<SqlWorkFlowState>("ChangeStateForArtifact", param, commandType: CommandType.StoredProcedure))
                 .Select(workflowState => new WorkflowState

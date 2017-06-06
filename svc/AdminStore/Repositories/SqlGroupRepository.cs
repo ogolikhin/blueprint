@@ -257,7 +257,7 @@ namespace AdminStore.Repositories
             parameters.Add("@SelectAll", scope.SelectAll);
             parameters.Add("@Search", search);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            await _connectionWrapper.ExecuteScalarAsync<int>("AssignMemberToTheGroup", parameters, commandType: CommandType.StoredProcedure);
+            await _connectionWrapper.ExecuteScalarAsync<int>("AssignGroupMembers", parameters, commandType: CommandType.StoredProcedure);
             var errorCode = parameters.Get<int?>("ErrorCode");
 
             if (errorCode.HasValue)
@@ -267,9 +267,9 @@ namespace AdminStore.Repositories
                     case (int)SqlErrorCodes.GeneralSqlError:
                         throw new Exception(ErrorMessages.GeneralErrorOfUpdatingGroup);
                     case (int)SqlErrorCodes.UserAlreadyAssignedToTheGroup:
-                        throw new Exception(ErrorMessages.UserAlreadyAssignedToTheGroup);
+                        throw new Exception(ErrorMessages.UserAlreadyAssignedToGroup);
                     case (int)SqlErrorCodes.GroupAlreadyAssignedToTheGroup:
-                        throw new Exception(ErrorMessages.GroupAlreadyAssignedToTheGroup);
+                        throw new Exception(ErrorMessages.GroupAlreadyAssignedToGroup);
 
                 }
             }

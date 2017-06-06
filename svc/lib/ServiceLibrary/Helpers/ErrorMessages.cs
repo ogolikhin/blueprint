@@ -67,7 +67,7 @@
         public static readonly string InvalidGroupMembersParameters = "Invalid parameters to delete members from the group.";
         public static readonly string GeneralErrorOfRemovingMembersFromGroup = "An error has occurred when the operation was being performed at SQL level.";
         public static readonly string AssignMemberScopeEmpty = "Please provide the scope for the assign operation";
-        public static readonly string UserAlreadyAssignedToTheGroup = "User already assigned to the group";
-        public static readonly string GroupAlreadyAssignedToTheGroup = "Group already assigned to the group";
+        public static readonly string UserAlreadyAssignedToGroup = "User already assigned to the group";
+        public static readonly string GroupAlreadyAssignedToGroup = "Group already assigned to the group";
     }
 }

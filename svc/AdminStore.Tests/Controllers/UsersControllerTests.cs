@@ -96,9 +96,9 @@ namespace AdminStore.Controllers
                 .Setup(repo => repo.AddUserAsync(It.Is<User>(u => u.Login == ExistedUserLogin)))
                 .ThrowsAsync(badRequestException);
 
-            _userGroupsTabularPagination = new Pagination() { Limit = 1, Offset = 0 };
-            _userGroupsSorting = new Sorting() { Order = SortOrder.Asc, Sort = "Name" };
-            _userGoupsQueryDataResult = new QueryResult<GroupDto>() { Total = 1, Items = new List<GroupDto>() };
+            _userGroupsTabularPagination = new Pagination { Limit = 1, Offset = 0 };
+            _userGroupsSorting = new Sorting { Order = SortOrder.Asc, Sort = "Name" };
+            _userGoupsQueryDataResult = new QueryResult<GroupDto> { Total = 1, Items = new List<GroupDto>() };
             _operationScope = new OperationScope { Ids = new[] { 3, 4 } };
         }
 
@@ -424,7 +424,7 @@ namespace AdminStore.Controllers
             _usersRepoMock
                 .Setup(repo => repo.GetPasswordRecoveryTokensAsync(It.IsAny<Guid>()))
                 .ReturnsAsync(tokenList);
-            IEnumerable<ApplicationSetting> applicationSettings = new List<ApplicationSetting> { new ApplicationSetting() { Key = "PasswordResetTokenExpirationInHours", Value = "40" } };
+            IEnumerable<ApplicationSetting> applicationSettings = new List<ApplicationSetting> { new ApplicationSetting { Key = "PasswordResetTokenExpirationInHours", Value = "40" } };
             _applicationSettingsRepository
                 .Setup(repo => repo.GetSettingsAsync(false))
                 .ReturnsAsync(applicationSettings);
@@ -706,7 +706,7 @@ namespace AdminStore.Controllers
             // Arrange
             SetupMocksForRequestPasswordReset();
 
-            var instanceSettings = new InstanceSettings() { EmailSettingsDeserialized = null };
+            var instanceSettings = new InstanceSettings { EmailSettingsDeserialized = null };
 
             _settingsRepoMock
                 .Setup(repo => repo.GetInstanceSettingsAsync())
@@ -781,7 +781,7 @@ namespace AdminStore.Controllers
                 .SetupGet(s => s.HostName)
                 .Returns("http://myhostname");
 
-            var instanceSettings = new InstanceSettings() { EmailSettingsDeserialized = emailConfigSettings.Object };
+            var instanceSettings = new InstanceSettings { EmailSettingsDeserialized = emailConfigSettings.Object };
 
             _settingsRepoMock
                 .Setup(repo => repo.GetInstanceSettingsAsync())
@@ -789,7 +789,7 @@ namespace AdminStore.Controllers
 
             _usersRepoMock
                 .Setup(repo => repo.GetUserByLoginAsync(It.IsAny<string>()))
-                .ReturnsAsync(new AuthenticationUser() { Email = "a@b.com" });
+                .ReturnsAsync(new AuthenticationUser { Email = "a@b.com" });
 
             _usersRepoMock
                 .Setup(repo => repo.CanUserResetPasswordAsync(It.IsAny<string>()))
@@ -873,14 +873,15 @@ namespace AdminStore.Controllers
         public async Task GetUser_AllParamsAreCorrectAndPermissionsOk_RepositoryReturnUser()
         {
             //arrange
-            var user = new UserDto() { Id = 5 };
-            _usersRepoMock.Setup(repo => repo.GetUserDtoAsync(It.Is<int>(i => i > 0))).ReturnsAsync(user);
+            const int userId = 5;
+            var user = new UserDto { Id = userId };
+            _usersRepoMock.Setup(repo => repo.GetUserDtoAsync(It.Is<int>(i => i == userId))).ReturnsAsync(user);
             _privilegesRepository
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
 
             //act
-            var result = await _controller.GetUser(5) as OkNegotiatedContentResult<UserDto>;
+            var result = await _controller.GetUser(userId) as OkNegotiatedContentResult<UserDto>;
 
             //assert
             Assert.IsNotNull(result);
@@ -914,19 +915,19 @@ namespace AdminStore.Controllers
         public async Task GetUser_ThereIsNoSuchUser_NotFoundResult()
         {
             //arrange
-            IHttpActionResult result = null;
+            const int userId = 1;
             ResourceNotFoundException exception = null;
-            var user = new UserDto();
-            _usersRepoMock.Setup(repo => repo.GetUserDtoAsync(It.Is<int>(i => i > 0))).ReturnsAsync(user);
+            _usersRepoMock
+                .Setup(repo => repo.GetUserDtoAsync(It.Is<int>(i => i == userId)))
+                .ReturnsAsync(null);
             _privilegesRepository
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
 
             //act
-
             try
             {
-                result =  await _controller.GetUser(1); 
+                await _controller.GetUser(userId);
             }
             catch (ResourceNotFoundException ex)
             {
@@ -934,9 +935,10 @@ namespace AdminStore.Controllers
             }
 
             //assert
+            Assert.IsNotNull(exception);
             Assert.AreEqual(ErrorMessages.UserNotExist, exception.Message);
-
         }
+
         #endregion
 
         #region Create User
@@ -950,7 +952,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(FullPermissions);
 
             _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
-                .ReturnsAsync(new UserManagementSettings ());
+                .ReturnsAsync(new UserManagementSettings());
 
             // Act
             var result = await _controller.CreateUser(_user);
@@ -1182,7 +1184,7 @@ namespace AdminStore.Controllers
         public async Task CreateUser_LastNameOutOfRangeStringLength_ReturnBadRequestResult()
         {
             // Arrange
-            _user.LastName = new string('1', 256); 
+            _user.LastName = new string('1', 256);
             _privilegesRepository
               .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
               .ReturnsAsync(FullPermissions);
@@ -1518,7 +1520,7 @@ namespace AdminStore.Controllers
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
             _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
-                .ReturnsAsync(new UserManagementSettings ());
+                .ReturnsAsync(new UserManagementSettings());
             BadRequestException exception = null;
 
             // Act
@@ -1926,8 +1928,8 @@ namespace AdminStore.Controllers
             var pass = "asdf1";
             var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(pass);
             var encodedPassword = Convert.ToBase64String(plainTextBytes);
-            var updatePasswor = new UpdateUserPassword() { Password = encodedPassword };
-            var user = new User() { Id = 3 };
+            var updatePasswor = new UpdateUserPassword { Password = encodedPassword };
+            var user = new User { Id = 3 };
             IHttpActionResult result = null;
             BadRequestException exception = null;
 
@@ -1955,7 +1957,7 @@ namespace AdminStore.Controllers
         public async Task InstanceAdminChangePassword_UserNotFound_ResourceNotFoundException()
         {
             //arrange
-            var updatePasswor = new UpdateUserPassword() { Password = "adf1T~asdfasdf" };
+            var updatePasswor = new UpdateUserPassword { Password = "adf1T~asdfasdf" };
             IHttpActionResult result = null;
             ResourceNotFoundException exception = null;
 
@@ -1986,8 +1988,8 @@ namespace AdminStore.Controllers
             var pass = "adf1T~asdfasdf";
             var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(pass);
             var encodedPassword = Convert.ToBase64String(plainTextBytes);
-            var updatePasswor = new UpdateUserPassword() { Password = encodedPassword };
-            var user = new User() { Id = 3 };
+            var updatePasswor = new UpdateUserPassword { Password = encodedPassword };
+            var user = new User { Id = 3 };
             IHttpActionResult result = null;
 
             _privilegesRepository

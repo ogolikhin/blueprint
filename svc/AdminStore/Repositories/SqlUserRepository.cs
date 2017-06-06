@@ -178,15 +178,14 @@ namespace AdminStore.Repositories
         {
             var parameters = new DynamicParameters();
             parameters.Add("@UserId", userId);
-            var result = await _connectionWrapper.QueryAsync<User>("GetUserDetails", parameters, commandType: CommandType.StoredProcedure);
-            var enumerable = result as IList<User> ?? result.ToList();
-            return enumerable.Any() ? enumerable.First() : new User();
+            var result = (await _connectionWrapper.QueryAsync<User>("GetUserDetails", parameters, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+            return result;
         }
 
         public async Task<UserDto> GetUserDtoAsync(int userId)
         {
             var user = await GetUserAsync(userId);
-            return UserMapper.Map(user);
+            return user == null ? null : UserMapper.Map(user);
         }
 
         public async Task<bool> HasUserExceededPasswordRequestLimitAsync(string login)
@@ -295,12 +294,6 @@ namespace AdminStore.Repositories
             parameters.Add("@Email", string.IsNullOrWhiteSpace(loginUser.Email) ? string.Empty : loginUser.Email);
             parameters.Add("@Title", string.IsNullOrWhiteSpace(loginUser.Title) ? string.Empty : loginUser.Title);
             parameters.Add("@Department", string.IsNullOrWhiteSpace(loginUser.Department) ? string.Empty : loginUser.Department);
-
-            if (loginUser.GroupMembership != null)
-            {
-                parameters.Add("@GroupMembership", SqlConnectionWrapper.ToDataTable(loginUser.GroupMembership));
-            }
-
             parameters.Add("@Guest", loginUser.Guest);
             parameters.Add("@UserId", loginUser.Id);
             parameters.Add("@CurrentVersion", loginUser.CurrentVersion);

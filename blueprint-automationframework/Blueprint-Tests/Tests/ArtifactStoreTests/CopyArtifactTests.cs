@@ -532,7 +532,7 @@ namespace ArtifactStoreTests
         [TestCase(49, "Generic Diagram", 2)]
         [TestCase(32, "Storyboard", 2)]
         [TestCase(22, "UI Mockup", 4)]
-        [TestCase(17, "MainUseCase", 2)]
+        [TestCase(17, "MainUseCase", 3)]
         [TestCase(29, "Use Case Diagram", 3)]
         [TestRail(195562)]
         [Description("Create & publish a destination folder.  Copy the pre-created source artifact to the destination artifact.  Verify the source artifact is " +
@@ -561,7 +561,11 @@ namespace ArtifactStoreTests
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifact, copyResult, author,
                 expectedVersionOfOriginalArtifact: expectedVersionOfOriginalArtifact, skipCreatedBy: true, skipIndicatorFlags: skipIndicatorFlags);
 
-            AssertCopiedSubArtifactsAreEqualToOriginal(author, sourceArtifact, copyResult.Artifact);
+            var compareOptions = new Attachments.CompareOptions
+            {
+                CompareAttachmentIds = false,
+            };
+            AssertCopiedSubArtifactsAreEqualToOriginal(author, sourceArtifact, copyResult.Artifact, attachmentCompareOptions: compareOptions);
         }
 
         [Category(Categories.CustomData)]
@@ -1624,6 +1628,7 @@ namespace ArtifactStoreTests
                     CompareArtifactIds = false,
                     CompareTraces = !skipSubArtifactTraces,
                 };
+
                 ArtifactStoreHelper.AssertSubArtifactsAreEqual(sourceSubArtifact, copiedSubArtifact, Helper.ArtifactStore, user,
                      copiedArtifact.Id, propertyCompareOptions, attachmentCompareOptions, actualProcessStoryLinksShouldBeNull);
 
@@ -1749,12 +1754,18 @@ namespace ArtifactStoreTests
 
             Assert.AreEqual(sourceChildren.Count, copiedChildren.Count, "The number of artifacts copied is incorrect!");
 
+            var compareOptions = new Attachments.CompareOptions
+            {
+                CompareAttachmentIds = false,
+            };
+
             for (int i = 0; i < sourceChildren.Count; ++i)
             {
                 var sourceChild = sourceChildren[i];
                 var copiedChild = copiedChildren[i];
 
-                AssertCopiedSubArtifactsAreEqualToOriginal(user, sourceChild, copiedChild, skipSubArtifactTraces: skipSubArtifactTraces);
+                AssertCopiedSubArtifactsAreEqualToOriginal(user, sourceChild, copiedChild, skipSubArtifactTraces: skipSubArtifactTraces, 
+                    attachmentCompareOptions: compareOptions);
 
                 NovaArtifact.AssertAreEqual(sourceChild, copiedChild,
                     skipIdAndVersion: true, skipParentId: true, skipOrderIndex: true, skipPublishedProperties: true);

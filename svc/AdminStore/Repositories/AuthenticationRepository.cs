@@ -7,6 +7,7 @@ using AdminStore.Saml;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories.ConfigControl;
+using ServiceLibrary.Repositories;
 
 namespace AdminStore.Repositories
 {

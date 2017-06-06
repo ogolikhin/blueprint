@@ -13,6 +13,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Mime;
 using Model.Common.Enums;
+using Model.NovaModel.AdminStoreModel;
 using Utilities;
 using Utilities.Facades;
 
@@ -234,50 +235,66 @@ namespace Model.Impl
         {
             var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
             string path = RestPaths.Svc.AdminStore.Users.USERS;
-
-            if (user != null && user.Password != null)
-            {
-                user.Password = HashingUtilities.EncodeTo64UTF8(user.Password);
-            }
+            string savedPassword = user?.Password;
 
             try
             {
-                Logger.WriteInfo("Creating user...");
+                if ((user != null) && (user.Password != null))
+                {
+                    user.Password = HashingUtilities.EncodeTo64UTF8(user.Password);
+                }
 
-                var response = restApi.SendRequestAndGetResponse(
-                    path,
-                    RestRequestMethod.POST,
-                    bodyObject: user,
-                    expectedStatusCodes: new List<HttpStatusCode> { HttpStatusCode.Created });
+                try
+                {
+                    Logger.WriteInfo("Creating user...");
 
-                return I18NHelper.Int32ParseInvariant(response.Content);
+                    var response = restApi.SendRequestAndGetResponse(
+                        path,
+                        RestRequestMethod.POST,
+                        bodyObject: user,
+                        expectedStatusCodes: new List<HttpStatusCode> {HttpStatusCode.Created});
+
+                    return I18NHelper.Int32ParseInvariant(response.Content);
+                }
+                catch (WebException ex)
+                {
+                    Logger.WriteError("Content = '{0}'", restApi.Content);
+                    Logger.WriteError("Error while performing AddUser - {0}", ex.Message);
+                    throw;
+                }
             }
-            catch (WebException ex)
+            finally
             {
-                Logger.WriteError("Content = '{0}'", restApi.Content);
-                Logger.WriteError("Error while performing AddUser - {0}", ex.Message);
-                throw;
+                if (user != null)
+                {
+                    user.Password = savedPassword;
+                }
             }
         }
 
         /// <seealso cref="IAdminStore.DeleteUsers(IUser, List{int}, bool)"/>
-        public HttpStatusCode DeleteUsers(IUser adminUser, List<int> ids,  bool selectAll = false)
+        public DeleteResult DeleteUsers(IUser adminUser, List<int> ids,  bool selectAll = false)
         {
             var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
-            const string path = RestPaths.Svc.AdminStore.Users.USERS_DELETE;
+            const string path = RestPaths.Svc.AdminStore.Users.DELETE;
+            var jsonObject = new OperationScope
+            {
+                Ids = ids,
+                SelectAll = selectAll
+            };
 
             try
             {
                 Logger.WriteInfo("Deleting users with selectAll: {0} and ids: ({1})", selectAll, string.Join(", ", ids));
 
-                var response = restApi.SendRequestAndGetResponse
+                var deleteResult = restApi.SendRequestAndDeserializeObject<DeleteResult, OperationScope>
                 (
                     path,
                     RestRequestMethod.POST,
-                    bodyObject: new { SelectAll = selectAll, Ids = ids }
+                    jsonObject
                 );
 
-                return response.StatusCode;
+                return deleteResult;
             }
             catch (WebException ex)
             {
@@ -288,7 +305,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IAdminStore.DeleteUser(IUser, int, bool)"/>
-        public HttpStatusCode DeleteUser(IUser adminUser, int id, bool selectAll = false)
+        public DeleteResult DeleteUser(IUser adminUser, int id, bool selectAll = false)
         {
             return DeleteUsers(adminUser, new List<int> { id }, selectAll);
         }
@@ -354,8 +371,8 @@ namespace Model.Impl
 
         /// <seealso cref="IAdminStore.GetUsers(IUser, int?, int?, string, SortOrder?, string)"/>
         public QueryResult<InstanceUser> GetUsers(IUser adminUser, 
-            int? offset = null, 
-            int? limit = null, 
+            int? offset, 
+            int? limit, 
             string sort = null, 
             SortOrder? order = null,
             string search = null)
@@ -926,6 +943,7 @@ namespace Model.Impl
             return addJobResult;
         }
 
+        /// <seealso cref="IAdminStore.GetInstanceRoles(IUser)"/>
         public List<AdminRole> GetInstanceRoles(IUser adminUser)
         {
             var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
@@ -945,6 +963,455 @@ namespace Model.Impl
             {
                 Logger.WriteError("Content = '{0}'", restApi.Content);
                 Logger.WriteError("Error while performing GetInstanceRoles - {0}", ex.Message);
+                throw;
+            }
+        }
+
+        /// <seealso cref="IAdminStore.InstanceAdminChangePassword(IUser, InstanceUser, string)"/>
+        public HttpStatusCode InstanceAdminChangePassword(IUser adminUser, InstanceUser user, string newPassword)
+        {
+            var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
+            string path = RestPaths.Svc.AdminStore.Users.CHANGE_PASSWORD;
+
+            string encodedPassword = (newPassword != null) ? HashingUtilities.EncodeTo64UTF8(newPassword) : null;
+
+            try
+            {
+                Logger.WriteInfo("Changing password...");
+
+                var bodyObject = new Dictionary<string, string>();
+
+                if (encodedPassword != null)
+                {
+                    bodyObject.Add("Password", encodedPassword);
+                }
+
+                if (user != null)
+                {
+                    bodyObject.Add("UserId", user.Id.ToString());
+                }
+
+                var response = restApi.SendRequestAndGetResponse(
+                    path,
+                    RestRequestMethod.POST,
+                    bodyObject: bodyObject);
+
+                if (user != null)
+                {
+                    user.Password = newPassword;
+                }
+
+                return response.StatusCode;
+
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while performing InstanceAdminChangePassword - {0}", ex.Message);
+                throw;
+            }
+        }
+
+        /// <seealso cref="IAdminStore.GetUserGroups(IUser, int?, int?, int?, string, SortOrder?, string)"/>
+        public QueryResult<InstanceGroup> GetUserGroups(IUser adminUser,
+            int? userId,
+            int? offset,
+            int? limit,
+            string sort = null,
+            SortOrder? order = null,
+            string search = null)
+        {
+            var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Users_id_.GROUPS, userId);
+
+            var queryParameters = new Dictionary<string, string>();
+
+            if (offset != null)
+            {
+                queryParameters.Add("offset", offset.ToStringInvariant());
+            }
+
+            if (limit != null)
+            {
+                queryParameters.Add("limit", limit.ToStringInvariant());
+            }
+
+            if (!string.IsNullOrEmpty(sort))
+            {
+                queryParameters.Add("sort", sort);
+            }
+
+            if (order != null)
+            {
+                queryParameters.Add("order", order.ToString());
+            }
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                queryParameters.Add("search", search);
+            }
+
+            try
+            {
+                Logger.WriteInfo("Getting groups for user: {0}...", userId);
+
+                return restApi.SendRequestAndDeserializeObject<QueryResult<InstanceGroup>>(
+                    path,
+                    RestRequestMethod.GET,
+                    queryParameters: queryParameters,
+                    shouldControlJsonChanges: false);
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while performing GetUserGroups - {0}", ex.Message);
+                throw;
+            }
+        }
+
+        /// <seealso cref="IAdminStore.AddUserToGroups(IUser, int?, List{int}, bool?, string)"/>
+        public CreateResult AddUserToGroups(IUser adminUser,
+            int? userId,
+            List<int> groupIds,
+            bool? selectAll,
+            string search = null)
+        {
+            var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Users_id_.GROUPS, userId);
+
+            var queryParameters = new Dictionary<string, string>();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                queryParameters.Add("search", search);
+            }
+
+            var bodyObject = new OperationScope();
+
+            if (selectAll != null)
+            {
+                bodyObject.SelectAll = selectAll.Value;
+            }
+
+            if (groupIds != null)
+            {
+                bodyObject.Ids = groupIds;
+            }
+
+            try
+            {
+                Logger.WriteInfo("Adding user to groups...");
+
+                return restApi.SendRequestAndDeserializeObject<CreateResult, OperationScope>(
+                    path,
+                    RestRequestMethod.PUT,
+                    bodyObject,
+                    queryParameters: queryParameters,
+                    shouldControlJsonChanges: false);
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while performing AddUserToGroups - {0}", ex.Message);
+                throw;
+            }
+        }
+
+        /// <seealso cref="IAdminStore.DeleteUserFromGroups(IUser, int?, List{int}, bool?)"/>
+        public DeleteResult DeleteUserFromGroups(IUser adminUser,
+            int? userId,
+            List<int> groupIds,
+            bool? selectAll)
+        {
+            var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Users_id_.GROUPS, userId);
+
+            var bodyObject = new OperationScope();
+
+            if (selectAll != null)
+            {
+                bodyObject.SelectAll = selectAll.Value;
+            }
+
+            if (groupIds != null)
+            {
+                bodyObject.Ids = groupIds;
+            }
+
+            try
+            {
+                Logger.WriteInfo("Deleting user from groups...");
+
+                return restApi.SendRequestAndDeserializeObject<DeleteResult, OperationScope>(
+                    path,
+                    RestRequestMethod.POST,
+                    bodyObject,
+                    shouldControlJsonChanges: false);
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while performing DeleteUserFromGroups - {0}", ex.Message);
+                throw;
+            }
+        }
+
+        /// <seealso cref="IAdminStore.GetAllGroups(IUser, int?, int?, string, SortOrder?, string)"/>
+        public QueryResult<InstanceGroup> GetAllGroups(IUser adminUser,
+            int? offset,
+            int? limit,
+            string sort = null,
+            SortOrder? order = null,
+            string search = null)
+        {
+            return GetGroups(adminUser, offset, limit, sort, order, search);
+        }
+
+        /// <seealso cref="IAdminStore.GetUnassignedGroups(IUser, int?, int?, int?, string, SortOrder?, string)"/>
+        public QueryResult<InstanceGroup> GetUnassignedGroups(IUser adminUser,
+            int? userId,
+            int? offset,
+            int? limit,
+            string sort = null,
+            SortOrder? order = null,
+            string search = null)
+        {
+            return GetGroups(adminUser, offset, limit, sort, order, search, userId);
+        }
+
+        /// <seealso cref="IAdminStore.GetUnassignedGroupsAndUsers(IUser, int?, int?, int?, string, SortOrder?, string)"/>
+        public QueryResult<InstanceGroupUser> GetUnassignedGroupsAndUsers(IUser adminUser,
+            int? groupId,
+            int? offset,
+            int? limit,
+            string sort = null,
+            SortOrder? order = null,
+            string search = null)
+        {
+            var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Groups.USERSGROUPS);
+
+            var queryParameters = new Dictionary<string, string>();
+
+            if (groupId != null)
+            {
+                queryParameters.Add("groupId", groupId.ToStringInvariant());
+            }
+
+            if (offset != null)
+            {
+                queryParameters.Add("offset", offset.ToStringInvariant());
+            }
+
+            if (limit != null)
+            {
+                queryParameters.Add("limit", limit.ToStringInvariant());
+            }
+
+            if (!string.IsNullOrEmpty(sort))
+            {
+                queryParameters.Add("sort", sort);
+            }
+
+            if (order != null)
+            {
+                queryParameters.Add("order", order.ToString());
+            }
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                queryParameters.Add("search", search);
+            }
+
+            try
+            {
+                Logger.WriteInfo("Getting unassigned groups and users...");
+
+                return restApi.SendRequestAndDeserializeObject<QueryResult<InstanceGroupUser>>(
+                    path,
+                    RestRequestMethod.GET,
+                    queryParameters: queryParameters,
+                    shouldControlJsonChanges: false);
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while performing GetUnassignedGroupsAndUsers - {0}", ex.Message);
+                throw;
+            }
+        }
+
+        /// <seealso cref="IAdminStore.DeleteGroups(IUser, List{int}, bool?, string)"/>
+        public DeleteResult DeleteGroups(IUser adminUser,
+            List<int> groupIds,
+            bool? selectAll,
+            string search = null)
+        {
+            var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Groups.DELETE);
+
+            var queryParameters = new Dictionary<string, string>();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                queryParameters.Add("search", search);
+            }
+
+            var bodyObject = new OperationScope();
+
+            if (selectAll != null)
+            {
+                bodyObject.SelectAll = selectAll.Value;
+            }
+
+            if (groupIds != null)
+            {
+                bodyObject.Ids = groupIds;
+            }
+
+            try
+            {
+                Logger.WriteInfo("Deleting groups...");
+
+                return restApi.SendRequestAndDeserializeObject<DeleteResult, OperationScope>(
+                    path,
+                    RestRequestMethod.POST,
+                    bodyObject,
+                    queryParameters: queryParameters,
+                    shouldControlJsonChanges: false);
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while performing DeleteGroups - {0}", ex.Message);
+                throw;
+            }
+        }
+
+        /// <seealso cref="IAdminStore.CreateGroup(IUser, InstanceGroup)"/>
+        public int CreateGroup(IUser adminUser, InstanceGroup group)
+        {
+            ThrowIf.ArgumentNull(group, nameof(group));
+
+            var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Groups.GROUPS);
+
+            try
+            {
+                Logger.WriteInfo("Creating group with name: {0}...", group.Name);
+
+                var response = restApi.SendRequestAndGetResponse(
+                    path,
+                    RestRequestMethod.POST,
+                    bodyObject: group);
+
+                return I18NHelper.Int32ParseInvariant(response.Content);
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while performing CreateGroup - {0}", ex.Message);
+                throw;
+            }
+        }
+
+        /// <seealso cref="IAdminStore.GetGroup(IUser, int?)"/>
+        public InstanceGroup GetGroup(IUser adminUser, int? groupId)
+        {
+            var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Groups.GROUPS_id_, groupId);
+
+            try
+            {
+                Logger.WriteInfo("Getting group by group id...");
+
+                return restApi.SendRequestAndDeserializeObject<InstanceGroup>(
+                    path,
+                    RestRequestMethod.GET,
+                    shouldControlJsonChanges: false);
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while performing GetGroup - {0}", ex.Message);
+                throw;
+            }
+        }
+
+        /// <seealso cref="IAdminStore.UpdateGroup(IUser, int?, InstanceGroup)"/>
+        public HttpStatusCode UpdateGroup(IUser adminUser, int? groupId, InstanceGroup group)
+        {
+            ThrowIf.ArgumentNull(group, nameof(group));
+
+            var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Groups.GROUPS_id_, group.Id);
+
+            try
+            {
+                Logger.WriteInfo("Updating group with Id: {0}", group.Id);
+
+                var response = restApi.SendRequestAndGetResponse(
+                    path,
+                    RestRequestMethod.PUT,
+                    bodyObject: group);
+
+                return response.StatusCode;
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while performing UpdateGroup - {0}", ex.Message);
+                throw;
+            }
+        }
+
+        /// <seealso cref="IAdminStore.GetGroupMembers(IUser, int?, int?, int?, string, SortOrder?)"/>
+        public QueryResult<InstanceGroupUser> GetGroupMembers(IUser adminUser,
+            int? groupId,
+            int? offset,
+            int? limit,
+            string sort = null,
+            SortOrder? order = null)
+        {
+            var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Groups_id_.MEMBERS, groupId);
+
+            var queryParameters = new Dictionary<string, string>();
+
+            if (offset != null)
+            {
+                queryParameters.Add("offset", offset.ToStringInvariant());
+            }
+
+            if (limit != null)
+            {
+                queryParameters.Add("limit", limit.ToStringInvariant());
+            }
+
+            if (!string.IsNullOrEmpty(sort))
+            {
+                queryParameters.Add("sort", sort);
+            }
+
+            if (order != null)
+            {
+                queryParameters.Add("order", order.ToString());
+            }
+
+            try
+            {
+                Logger.WriteInfo("Getting all group members...");
+
+                return restApi.SendRequestAndDeserializeObject<QueryResult<InstanceGroupUser>>(
+                    path,
+                    RestRequestMethod.GET,
+                    queryParameters: queryParameters,
+                    shouldControlJsonChanges: false);
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while performing GetGroupMembers - {0}", ex.Message);
                 throw;
             }
         }
@@ -994,5 +1461,78 @@ namespace Model.Impl
         }
 
         #endregion Members inherited from IDisposable
+
+        #region Private Methods
+
+        /// <summary>
+        /// If user id is null, gets all groups. If user id is not null, gets all the groups except those that are already assigned to the specified user.
+        /// (Runs: GET /svc/adminstore/groups)
+        /// </summary>
+        /// <param name="adminUser">The admin user getting the groups.</param>
+        /// <param name="offset">0-based index of the first item to return.</param>
+        /// <param name="limit">(optional) Maximum number of items to return (if any). 
+        /// The server may return fewer items than requested.</param>
+        /// <param name="sort">(optional) Property name by which to sort results (Default: does not sort results).</param>
+        /// <param name="order">(optional) "asc" sorts in ascending order; "desc" sorts in descending order (Default: asc). 
+        /// The default order depends on the particular property.</param>
+        /// <param name="search">(optional) Search query that would be applied to group Name field (Default: null).</param>
+        /// <param name="userId">(optional)The user id of the user.</param>
+        /// <returns>The QueryResult object of InstanceGroup.</returns>
+        private QueryResult<InstanceGroup> GetGroups(IUser adminUser, int? offset, int? limit, string sort, SortOrder? order, string search, int? userId = null)
+        {
+            var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Groups.GROUPS);
+
+            var queryParameters = new Dictionary<string, string>();
+
+            if (userId != null)
+            {
+                queryParameters.Add("userId", userId.ToStringInvariant());
+            }
+
+            if (offset != null)
+            {
+                queryParameters.Add("offset", offset.ToStringInvariant());
+            }
+
+            if (limit != null)
+            {
+                queryParameters.Add("limit", limit.ToStringInvariant());
+            }
+
+            if (!string.IsNullOrEmpty(sort))
+            {
+                queryParameters.Add("sort", sort);
+            }
+
+            if (order != null)
+            {
+                queryParameters.Add("order", order.ToString());
+            }
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                queryParameters.Add("search", search);
+            }
+
+            try
+            {
+                Logger.WriteInfo("Getting groups...");
+
+                return restApi.SendRequestAndDeserializeObject<QueryResult<InstanceGroup>>(
+                    path,
+                    RestRequestMethod.GET,
+                    queryParameters: queryParameters,
+                    shouldControlJsonChanges: false);
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while performing GetGroups - {0}", ex.Message);
+                throw;
+            }
+        }
+
+        #endregion Private Methods
     }
 }

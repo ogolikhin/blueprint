@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,22 +22,35 @@ namespace ArtifactStore.Repositories
 
         private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
 
+        internal readonly IApplicationSettingsRepository _applicationSettingsRepository;
+
+        internal const string ReviewArtifactHierarchyRebuildIntervalInMinutesKey = "ReviewArtifactHierarchyRebuildIntervalInMinutes";
+
+        internal const int DefaultReviewArtifactHierarchyRebuildIntervalInMinutes = 20;
+
+        private const string NOT_SPECIFIED = "Not Specified";
+
+        private const string PENDING = "Pending";
+
         public SqlReviewsRepository(): this(new SqlConnectionWrapper(ServiceConstants.RaptorMain), 
                                             new SqlArtifactVersionsRepository(), 
                                             new SqlItemInfoRepository(),
-                                            new SqlArtifactPermissionsRepository())
+                                            new SqlArtifactPermissionsRepository(),
+                                            new ApplicationSettingsRepository())
         {
         }
 
         public SqlReviewsRepository(ISqlConnectionWrapper connectionWrapper, 
                                     IArtifactVersionsRepository artifactVersionsRepository, 
                                     ISqlItemInfoRepository itemInfoRepository,
-                                    IArtifactPermissionsRepository artifactPermissionsRepository)
+                                    IArtifactPermissionsRepository artifactPermissionsRepository,
+                                    IApplicationSettingsRepository applicationSettingsRepository)
         {
             ConnectionWrapper = connectionWrapper;
             _artifactVersionsRepository = artifactVersionsRepository;
             _itemInfoRepository = itemInfoRepository;
             _artifactPermissionsRepository = artifactPermissionsRepository;
+            _applicationSettingsRepository = applicationSettingsRepository;
         }
 
         public async Task<ReviewSummary> GetReviewSummary(int containerId, int userId)
@@ -44,22 +58,19 @@ namespace ArtifactStore.Repositories
             var reviewInfo = await _artifactVersionsRepository.GetVersionControlArtifactInfoAsync(containerId, null, userId);
             if (reviewInfo.IsDeleted || reviewInfo.PredefinedType != ItemTypePredefined.ArtifactReviewPackage)
             {
-                string errorMessage = I18NHelper.FormatInvariant("Review (Id:{0}) is not found.", containerId);
-                throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
+                ThrowReviewNotFoundException(containerId);
             }
 
             var reviewDetails = await GetReviewSummaryDetails(containerId, userId);
 
             if (reviewDetails.ReviewPackageStatus == ReviewPackageStatus.Draft)
             {
-                string errorMessage = I18NHelper.FormatInvariant("Review (Id:{0}) is not found.", containerId);
-                throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
+                ThrowReviewNotFoundException(containerId);
             }
 
             if (!reviewDetails.ReviewParticipantRole.HasValue && reviewDetails.TotalReviewers > 0)
             {
-                string errorMessage = I18NHelper.FormatInvariant("User does not have permissions to access the review (Id:{0}).", containerId);
-                throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
+                ThrowUserCannotAccessReviewException(containerId);
             }
 
             var reviewSource = new ReviewSource();
@@ -119,8 +130,7 @@ namespace ArtifactStore.Repositories
 
             if (!SqlArtifactPermissionsRepository.HasPermissions(reviewId, artifactPermissionsDictionary, RolePermissions.Read))
             {
-                string errorMessage = I18NHelper.FormatInvariant("User does not have permissions to access the review (Id:{0}).", reviewId);
-                throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
+                ThrowUserCannotAccessReviewException(reviewId);
             }
 
             var reviewArtifactStatuses = await GetReviewArtifactStatusesAsync(reviewId, userId, pagination, versionId, addDrafts, reviewArtifactIds);
@@ -149,7 +159,6 @@ namespace ArtifactStore.Repositories
                 else
                 {
                     ClearReviewArtifactProperties(reviewArtifact);
-                    reviewArtifact.IsApprovalRequired = false;
                 }
             }
             return reviewArtifacts;
@@ -164,6 +173,7 @@ namespace ArtifactStore.Repositories
             reviewArtifact.ItemTypePredefined = 0;
             reviewArtifact.IconImageId = null;
             reviewArtifact.HasAccess = false;
+            reviewArtifact.IsApprovalRequired = false;
         }
 
         public Task<AddArtifactsResult> AddArtifactsToReview(int reviewId, int userId, AddArtifactsParameter content)
@@ -183,34 +193,34 @@ namespace ArtifactStore.Repositories
             var reviewArtifacts = await GetReviewArtifactsAsync<ReviewedArtifact>(reviewId, userId, pagination, revisionId, false);
 
             var reviewArtifactIds = reviewArtifacts.Items.Select(a => a.Id).ToList();
-            reviewArtifactIds.Add(reviewId);
 
-            var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(reviewArtifactIds, userId);
+            var artifactPermissionsDictionary = await _artifactPermissionsRepository
+                .GetArtifactPermissions(reviewArtifactIds.Union(new [] { reviewId }), userId);
 
             if (!SqlArtifactPermissionsRepository.HasPermissions(reviewId, artifactPermissionsDictionary, RolePermissions.Read))
             {
-                string errorMessage = I18NHelper.FormatInvariant("User does not have permissions to access the review (Id:{0}).", reviewId);
-                throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
+                ThrowUserCannotAccessReviewException(reviewId);
             }
 
             var reviewedArtifacts = (await GetReviewArtifactsByParticipant(reviewArtifactIds, userId, reviewId, revisionId)).ToDictionary(k => k.Id);
             foreach (var artifact in reviewArtifacts.Items)
             {
-                ReviewedArtifact reviewedArtifact;
-                if (reviewedArtifacts.TryGetValue(artifact.Id, out reviewedArtifact))
+                if (SqlArtifactPermissionsRepository.HasPermissions(artifact.Id, artifactPermissionsDictionary, RolePermissions.Read))
                 {
-                    artifact.ViewState = reviewedArtifact.ViewState;
-                    artifact.Approval = reviewedArtifact.Approval;
-                    artifact.ApprovalFlag = reviewedArtifact.ApprovalFlag;
-                    artifact.ArtifactVersion = reviewedArtifact.ArtifactVersion;
-                    artifact.PublishedOnTimestamp = reviewedArtifact.PublishedOnTimestamp;
-                    artifact.UserDisplayName = reviewedArtifact.UserDisplayName;
-                    artifact.ViewedArtifactVersion = reviewedArtifact.ViewedArtifactVersion;
-                    artifact.SignedOnTimestamp = reviewedArtifact.SignedOnTimestamp;
-                    artifact.HasAttachments = reviewedArtifact.HasAttachments;
-                    artifact.HasRelationships = reviewedArtifact.HasRelationships;
-                    artifact.HasAttachments = reviewedArtifact.HasAttachments;
-                    artifact.HasAccess = true;
+                    ReviewedArtifact reviewedArtifact;
+                    if (reviewedArtifacts.TryGetValue(artifact.Id, out reviewedArtifact))
+                    {
+                        artifact.Approval = GetApprovalStatus(reviewedArtifact, artifact.IsApprovalRequired);
+                        artifact.ApprovalFlag = reviewedArtifact.ApprovalFlag;
+                        artifact.ArtifactVersion = reviewedArtifact.ArtifactVersion;
+                        artifact.PublishedOnTimestamp = reviewedArtifact.PublishedOnTimestamp;
+                        artifact.UserDisplayName = reviewedArtifact.UserDisplayName;
+                        artifact.ViewedArtifactVersion = reviewedArtifact.ViewedArtifactVersion;
+                        artifact.SignedOnTimestamp = reviewedArtifact.SignedOnTimestamp;
+                        artifact.HasAttachments = reviewedArtifact.HasAttachments;
+                        artifact.HasRelationships = reviewedArtifact.HasRelationships;
+                        artifact.HasAccess = true;
+                    }
                 }
                 else
                 {
@@ -219,6 +229,23 @@ namespace ArtifactStore.Repositories
             }
 
             return reviewArtifacts;
+        }
+
+        /// <summary>
+        /// To replicate Silverlight behaviour, all 'Not Specified' labels will be converted to 'Pending'
+        /// </summary>
+        /// <param name="reviewedArtifact"></param>
+        /// <param name="isApprovalRequired"></param>
+        /// <returns></returns>
+        private static string GetApprovalStatus(ReviewedArtifact reviewedArtifact, bool isApprovalRequired)
+        {
+            if (reviewedArtifact.ApprovalFlag == ApprovalType.NotSpecified
+                && string.Compare(reviewedArtifact.Approval, NOT_SPECIFIED, StringComparison.OrdinalIgnoreCase) == 0
+                || isApprovalRequired && string.IsNullOrEmpty(reviewedArtifact.Approval))
+            {
+                return PENDING;
+            }
+            return reviewedArtifact.Approval;
         }
 
         private Task<IEnumerable<ReviewedArtifact>> GetReviewArtifactsByParticipant(IEnumerable<int> artifactIds, int userId, int reviewId, int revisionId)
@@ -235,6 +262,7 @@ namespace ArtifactStore.Repositories
         private async Task<QueryResult<T>> GetReviewArtifactsAsync<T>(int reviewId, int userId, Pagination pagination, int? revisionId = null, bool? addDrafts = true)
             where T : BaseReviewArtifact
         {
+            int refreshInterval = await GetRebuildReviewArtifactHierarchyInterval();
             var param = new DynamicParameters();
             param.Add("@reviewId", reviewId);
             param.Add("@offset", pagination.Offset);
@@ -242,6 +270,7 @@ namespace ArtifactStore.Repositories
             param.Add("@revisionId", revisionId);
             param.Add("@addDrafts", revisionId < int.MaxValue ? false : addDrafts);
             param.Add("@userId", userId);
+            param.Add("@refreshInterval", refreshInterval);
 
             var result = await ConnectionWrapper.QueryMultipleAsync<T, int>("GetReviewArtifacts", param, commandType: CommandType.StoredProcedure);
             return new QueryResult<T>()
@@ -249,6 +278,17 @@ namespace ArtifactStore.Repositories
                 Items = result.Item1.ToList(),
                 Total = result.Item2.SingleOrDefault()
             };
+        }
+
+        private async Task<int> GetRebuildReviewArtifactHierarchyInterval()
+        {
+            var refreshInterval = await _applicationSettingsRepository.GetValue<int>(ReviewArtifactHierarchyRebuildIntervalInMinutesKey, DefaultReviewArtifactHierarchyRebuildIntervalInMinutes);
+            if (refreshInterval < 0)
+            {
+                refreshInterval = DefaultReviewArtifactHierarchyRebuildIntervalInMinutes;
+            }
+
+            return refreshInterval;
         }
 
         private async Task<ContentStatusDetails> GetReviewArtifactStatusesAsync(int reviewId, int userId, Pagination pagination,
@@ -328,16 +368,32 @@ namespace ArtifactStore.Repositories
 
         private async Task<ReviewTableOfContent> GetTableOfContentAsync(int reviewId, int revisionId, int userId, int? offset, int? limit)
         {
-
+            int refreshInterval = await GetRebuildReviewArtifactHierarchyInterval();
             var param = new DynamicParameters();
             param.Add("@reviewId", reviewId);
             param.Add("@revisionId", revisionId);
             param.Add("@userId", userId);
             param.Add("@offset", offset);
             param.Add("@limit", limit);
+            param.Add("@refreshInterval", refreshInterval);
             param.Add("@total", dbType:DbType.Int32, direction: ParameterDirection.Output);
+            param.Add("@retResult", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
 
             var result = await ConnectionWrapper.QueryAsync<ReviewTableOfContentItem>("GetReviewTableOfContent", param, commandType: CommandType.StoredProcedure);
+
+            var retResult = param.Get<int>("@retResult");
+
+            // The review is not found or not active.
+            if (retResult == 1 || retResult == 2)
+            {
+                ThrowReviewNotFoundException(reviewId);
+            }
+
+            // The user is not a review participant.
+            if (retResult == 3)
+            {
+                ThrowUserCannotAccessReviewException(reviewId);
+            }
 
             return new ReviewTableOfContent
             {
@@ -351,7 +407,7 @@ namespace ArtifactStore.Repositories
         public async Task<ReviewTableOfContent> GetReviewTableOfContent(int reviewId, int revisionId, int userId, int? offset, int? limit)
         {
 
-            //get all review content item in a hierachy list
+            //get all review content item in a hierarchy list
             var toc = await GetTableOfContentAsync(reviewId, revisionId, userId, offset, limit);
 
             var artifactIds = new List<int>{reviewId}.Concat(toc.Items.Select(a => a.Id).ToList());
@@ -361,11 +417,10 @@ namespace ArtifactStore.Repositories
 
             if (!SqlArtifactPermissionsRepository.HasPermissions(reviewId, artifactPermissionsDictionary, RolePermissions.Read))
             {
-                string errorMessage = I18NHelper.FormatInvariant("User does not have permissions to access the review (Id:{0}).", reviewId);
-                throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
+                ThrowUserCannotAccessReviewException(reviewId);
             }
 
-            var reviewedArtifacts = await GetReviewArtifactsByParticipant(toc.Items.Select(a => a.Id), userId, reviewId, revisionId);
+            var reviewedArtifacts = (await GetReviewArtifactsByParticipant(toc.Items.Select(a => a.Id), userId, reviewId, revisionId)).ToList();
 
             //TODO: Update artifact statuses and permissions
             //
@@ -376,7 +431,7 @@ namespace ArtifactStore.Repositories
                     //TODO update item status
                     tocItem.HasAccess = true;
                     var artifact = reviewedArtifacts.First(it => it.Id == tocItem.Id);
-                    tocItem.Viewed = artifact?.ViewState == ViewStateType.Viewed;
+                    tocItem.Viewed = artifact?.ViewedArtifactVersion != null;
                 }
                 else
                 {
@@ -396,6 +451,18 @@ namespace ArtifactStore.Repositories
             item.Included = false;
             item.Viewed = false;
             item.HasAccess = false;
+        }
+
+        private static void ThrowUserCannotAccessReviewException(int reviewId)
+        {
+            var errorMessage = I18NHelper.FormatInvariant("User does not have permissions to access the review (Id:{0}).", reviewId);
+            throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
+        }
+
+        private static void ThrowReviewNotFoundException(int reviewId)
+        {
+            var errorMessage = I18NHelper.FormatInvariant("Review (Id:{0}) is not found.", reviewId);
+            throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
         }
     }
 }

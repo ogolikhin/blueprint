@@ -6,7 +6,6 @@ using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
-using Model.Impl;
 using Model.StorytellerModel.Impl;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -16,7 +15,6 @@ using System.Linq;
 using System.Net;
 using TestCommon;
 using Utilities;
-using Utilities.Facades;
 using Utilities.Factories;
 using Model.ModelHelpers;
 
@@ -571,6 +569,8 @@ namespace ArtifactStoreTests
 
         #region 400 Bad Request
 
+        private const string ARTIFACT_NOT_PROVIDED = "Artifact not provided.";
+
         [TestCase]
         [TestRail(156662)]
         [Description("Try to update an artifact, but send an empty request body.  Verify 400 Bad Request is returned.")]
@@ -588,8 +588,7 @@ namespace ArtifactStoreTests
                 UPDATE_ARTIFACT_ID_PATH);
 
             // Verify:
-            const string expectedMessage = "Artifact not provided.";
-            AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, ARTIFACT_NOT_PROVIDED);
         }
 
         [TestCase]
@@ -612,8 +611,7 @@ namespace ArtifactStoreTests
                 UPDATE_ARTIFACT_ID_PATH);
 
             // Verify:
-            const string expectedMessage = "Artifact not provided.";
-            AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, ARTIFACT_NOT_PROVIDED);
         }
 
         [TestCase]
@@ -635,8 +633,7 @@ namespace ArtifactStoreTests
             }, "'PATCH {0}' should return 400 Bad Request if the 'Id' property is missing in the JSON body!", UPDATE_ARTIFACT_ID_PATH);
 
             // Verify:
-            const string expectedMessage = "Artifact not provided.";
-            AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, ARTIFACT_NOT_PROVIDED);
         }
 
         [TestCase]
@@ -660,7 +657,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             const string expectedMessage = "Artifact does not match Id of request.";
-            AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, expectedMessage);
         }
 
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForNovaRestMethods))]
@@ -687,6 +684,8 @@ namespace ArtifactStoreTests
 
         #endregion 400 Bad Request
 
+        #region 401 Unauthorized
+
         [TestCase]
         [TestRail(156657)]
         [Description("Create & save an artifact.  Try to update the artifact but don't send a 'Session-Token' header in the request.  Verify 400 Bad Request is returned.")]
@@ -700,8 +699,7 @@ namespace ArtifactStoreTests
                 "'PATCH {0}' should return 401 Unauthorized if no Session-Token header is passed!", UPDATE_ARTIFACT_ID_PATH);
 
             // Verify:
-            const string expectedMessage = "Unauthorized call";
-            AssertStringMessageIsCorrect(ex.RestResponse, expectedMessage);
+            TestHelper.ValidateBodyContents(ex.RestResponse, "Unauthorized call");
         }
 
         [TestCase]
@@ -718,30 +716,16 @@ namespace ArtifactStoreTests
                 "'PATCH {0}' should return 401 Unauthorized if an invalid token is passed!", UPDATE_ARTIFACT_ID_PATH);
 
             // Verify
-            const string expectedMessage = "Unauthorized call";
-            AssertStringMessageIsCorrect(ex.RestResponse, expectedMessage);
+            TestHelper.ValidateBodyContents(ex.RestResponse, "Unauthorized call");
         }
 
-        [Ignore(IgnoreReasons.UnderDevelopmentQaDev)]   // This test isn't valid because you need to lock the artifact before updating it, but you can't lock it if you don't have permission to it.
-        [TestCase]
-        [TestRail(156659)]
-        [Description("Create & publish an artifact.  Try to update the artifact as a user that doesn't have permission to update artifacts in the project.  Verify 403 Forbidden is returned.")]
-        public void UpdateArtifact_UserWithoutPermissions_403Forbidden()
-        {
-            // Setup:
-            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.UseCase);
-            var userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+        #endregion 401 Unauthorized
 
-            artifact.Lock(userWithoutPermission);
+        // NOTE: No 403 tests are possible because the user needs to lock the artifact before updating it, so the lock would fail if the user has no access to it.
 
-            // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => UpdateArtifact(userWithoutPermission, artifact),
-                "'PATCH {0}' should return 403 Forbidden if the user doesn't have permission to update artifacts!", UPDATE_ARTIFACT_ID_PATH);
+        #region 404 Not Found
 
-            // Verify:
-            string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to access the artifact (ID: {0})", artifact.Id);
-            AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedMessage);
-        }
+        private const string ARTIFACT_NOT_FOUND = "You have attempted to access an artifact that does not exist or has been deleted.";
 
         [TestCase(0)]
         [TestCase(int.MaxValue)]
@@ -764,8 +748,7 @@ namespace ArtifactStoreTests
             // Skip for Id == 0 because in that case IIS returns the generic HTML 404 response.
             if (nonExistentArtifactId != 0)
             {
-                const string expectedMessage = "You have attempted to access an artifact that does not exist or has been deleted.";
-                AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedMessage);
+                TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, ARTIFACT_NOT_FOUND);
             }
         }
 
@@ -784,9 +767,12 @@ namespace ArtifactStoreTests
                 "'PATCH {0}' should return 404 Not Found if the artifact was deleted!", UPDATE_ARTIFACT_ID_PATH);
 
             // Verify:
-            const string expectedMessage = "You have attempted to access an artifact that does not exist or has been deleted.";
-            AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, ARTIFACT_NOT_FOUND);
         }
+
+        #endregion 404 Not Found
+
+        #region 409 Conflict
 
         #region Artifact Properties tests
 
@@ -813,10 +799,8 @@ namespace ArtifactStoreTests
 
             // Verify: Check that returned custom property name equals to default custom property since the requsted updated is invalid
             // Validation: Exception should contain proper errorCode in the response content
-            var serviceErrorMessage = SerializationUtilities.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
-            Assert.AreEqual(InternalApiErrorCodes.CannotPublishOverValidationErrors, serviceErrorMessage.ErrorCode,
-                "Error code for PublishArtifact with the artifact containing invalid change should be {0}",
-                InternalApiErrorCodes.CannotPublishOverValidationErrors);
+            string expectedError = I18NHelper.FormatInvariant("Artifact with ID {0} has validation errors.", artifact.Id);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotPublishOverValidationErrors, expectedError);
         }
 
         #endregion Artifact Properties tests
@@ -854,15 +838,15 @@ namespace ArtifactStoreTests
 
             // Verify: Check that returned custom property name equals to default custom property since the requsted updated is invalid
             // Validation: Exception should contain proper errorCode in the response content
-            var serviceErrorMessage = SerializationUtilities.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
-            Assert.AreEqual(InternalApiErrorCodes.CannotPublishOverValidationErrors, serviceErrorMessage.ErrorCode,
-                "Error code for PublishArtifact with the artifact containing invalid change should be {0}",
-                InternalApiErrorCodes.CannotPublishOverValidationErrors);
+            string expectedError = I18NHelper.FormatInvariant("Artifact with ID {0} has validation errors.", artifact.Id);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotPublishOverValidationErrors, expectedError);
         }
 
         #endregion Subartifact Properties tests
 
         #endregion Negative tests
+
+        #endregion 409 Conflict
 
         #region Custom data tests
 
@@ -1031,12 +1015,13 @@ namespace ArtifactStoreTests
             string modifiedRequestBody = requestBody.Replace(toChange, changeTo);
             Assert.AreNotEqual(requestBody, modifiedRequestBody, "Check that RequestBody was updated.");
 
-            // Execute & Verify:
+            // Execute:
             var ex = Assert.Throws<Http400BadRequestException>(() =>
                 ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, modifiedRequestBody, artifact.Id, _user),
                 "'PATCH {0}' should return 400 Bad Request if the value is set to wrong type!", UPDATE_ARTIFACT_ID_PATH);
 
-            AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedError);
+            // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ValidationFailed, expectedError);
         }
 
         [TestCase]
@@ -1055,7 +1040,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             const string expectedError = "The artifact is not locked.";
-            AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedError);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.UnexpectedLockException, expectedError);
         }
 
         #endregion Custom Data
@@ -1315,34 +1300,6 @@ namespace ArtifactStoreTests
             return properties.FirstOrDefault(property => property.PropertyTypeId == propertyTypeId);
         }
 
-        /// <summary>
-        /// Asserts that the specified RestResponse contains the expected error message.
-        /// </summary>
-        /// <param name="restReponse">The RestResponse that contains the message.</param>
-        /// <param name="expectedMessage">The expected error message.</param>
-        /// <param name="requestMethod">(optional) The REST request method of the call.  This is used for the assert message.</param>
-        private static void AssertRestResponseMessageIsCorrect(RestResponse restReponse, string expectedMessage, string requestMethod = "PATCH")
-        {
-            var result = JsonConvert.DeserializeObject<SaveArtifactResult>(restReponse.Content);
-
-            Assert.AreEqual(expectedMessage, result.Message, "The wrong message was returned by '{0} {1}'.",
-                requestMethod, UPDATE_ARTIFACT_ID_PATH);
-        }
-
-        /// <summary>
-        /// Asserts that the specified RestResponse contains the expected error message.
-        /// </summary>
-        /// <param name="restResponse">The RestResponse that contains the message.</param>
-        /// <param name="expectedMessage">The expected error message.</param>
-        /// <param name="requestMethod">(optional) The REST request method of the call.  This is used for the assert message.</param>
-        private static void AssertStringMessageIsCorrect(RestResponse restResponse, string expectedMessage, string requestMethod = "PATCH")
-        {
-            string result = JsonConvert.DeserializeObject<string>(restResponse.Content);
-
-            Assert.AreEqual(expectedMessage, result, "The wrong message was returned by '{0} {1}'.",
-                requestMethod, UPDATE_ARTIFACT_ID_PATH);
-        }
-        
         #endregion Private functions
     }
 }

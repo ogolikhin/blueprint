@@ -1008,6 +1008,28 @@ namespace Model.Impl
                 queryParameters: queryParams, shouldControlJsonChanges: true);
         }
 
+        /// <seealso cref="IArtifactStore.GetReviewTableOfContent(IUser, int, int, int?, int?)"/>
+        public ReviewTableOfContent GetReviewTableOfContent(IUser user, int reviewId, int revisionId, int? page = null, int? recordsOnPage = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Containers_id_.TOC_id_, reviewId, revisionId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            var queryParams = new Dictionary<string, string>();
+
+            if (page != null)
+            {
+                queryParams.Add("offset", page.ToString());
+            }
+
+            if (recordsOnPage != null)
+            {
+                queryParams.Add("limit", recordsOnPage.ToString());
+            }
+
+            return restApi.SendRequestAndDeserializeObject<ReviewTableOfContent>(path,
+                RestRequestMethod.GET, shouldControlJsonChanges: true);
+        }
+
         /// <seealso cref="IArtifactStore.GetArtifactStatusesByParticipant(IUser, int, int, int?, int?, int?)"/>
         public QueryResult<ReviewArtifactDetails> GetArtifactStatusesByParticipant(IUser user, int artifactId, int reviewId,
             int? offset = 0, int? limit = 50, int? versionId = null)

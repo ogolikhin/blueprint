@@ -11,6 +11,7 @@ using System.Globalization;
 using System.Linq;
 using Model.Common.Enums;
 using Model.InstanceAdminModel;
+using Model.NovaModel.AdminStoreModel;
 using Utilities;
 using Utilities.Factories;
 
@@ -419,6 +420,7 @@ namespace Helper
         /// <param name="adminPrivileges">(optional) The user's instance admin privileges.  Defaults to None.</param>
         /// <param name="imageId">(optional) The user's image id. Defaults to null.</param>
         /// <param name="password">(optional) The user's password. Randomly generated if not specified.</param>
+        /// <param name="expirePassword">(optional) Pass false if you don't want the user's password to expire.</param>
         /// <returns>An InstanceUser object.</returns>
         public static InstanceUser GenerateRandomInstanceUser(
             string login = null,
@@ -426,12 +428,13 @@ namespace Helper
             string lastName = null,
             string email = null,
             string displayname = null,
-            UserSource? source = null,
+            UserGroupSource? source = null,
             LicenseLevel? licenseLevel = null,
             InstanceAdminRole? instanceAdminRole = null,
             InstanceAdminPrivileges? adminPrivileges = null,
             int? imageId = null,
-            string password = null)
+            string password = null,
+            bool expirePassword = true)
         {
             login = login ?? RandomGenerator.RandomAlphaNumeric(MinPasswordLength);
             firstName = firstName ?? RandomGenerator.RandomAlphaNumeric(10);
@@ -446,7 +449,7 @@ namespace Helper
                 lastName,
                 displayname,
                 email,
-                source ?? UserSource.Database,
+                source ?? UserGroupSource.Database,
                 eulaAccepted: false,
                 license: licenseLevel ?? LicenseLevel.Viewer,
                 isSso: false,
@@ -458,7 +461,7 @@ namespace Helper
                 enabled: true,
                 title: RandomGenerator.RandomAlphaNumeric(10),
                 department: RandomGenerator.RandomAlphaNumeric(10),
-                expirePassword: true,
+                expirePassword: expirePassword,
                 imageId: imageId,
                 groupMembership: null,
                 password: password ?? GenerateValidPassword()

@@ -15,6 +15,7 @@ using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Controllers
@@ -357,7 +358,7 @@ namespace AdminStore.Controllers
         public async Task<IHttpActionResult> PostPasswordResetAsync([FromBody]ResetPasswordContent content)
         {
             //the deserializer creates a zero filled guid when none provided
-            if (content.Token == null || content.Token.GetHashCode() == 0)
+            if (content.Token == Guid.Empty || content.Token.GetHashCode() == 0)
             {
                 throw new BadRequestException("Password reset failed, token not provided", ErrorCodes.PasswordResetEmptyToken);
             }

@@ -119,6 +119,7 @@
     <Compile Include="LocalLog\ILocalLog.cs" />
     <Compile Include="LocalLog\LocalEventLog.cs" />
     <Compile Include="LocalLog\LocalFileLog.cs" />
+    <Compile Include="Models\ApplicationSettings\ApplicationSettings.cs" />
     <Compile Include="Models\Artifact.cs" />
     <Compile Include="Models\ArtifactBasicDetails.cs" />
     <Compile Include="Models\ArtifactsNavigationPath.cs" />
@@ -175,6 +176,8 @@
     <Compile Include="Models\Workflow\WorkflowState.cs" />
     <Compile Include="Models\Workflow\WorkflowTransition.cs" />
     <Compile Include="Models\Workflow\WorkflowTransitionResult.cs" />
+    <Compile Include="Repositories\ApplicationSettings\ApplicationSettingsRepository.cs" />
+    <Compile Include="Repositories\ApplicationSettings\ISettingsRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IServiceLogRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IConfigRepository.cs" />
     <Compile Include="Repositories\ConfigControl\ServiceLogRepository.cs" />

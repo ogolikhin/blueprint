@@ -9,6 +9,8 @@ using Utilities;
 using TestConfig;
 using System.Collections.Generic;
 using Model.Impl;
+using System;
+using System.Collections;
 
 namespace ArtifactStoreTests
 {
@@ -19,6 +21,8 @@ namespace ArtifactStoreTests
         private IUser _adminUser = null;
         private IUser _user = null;
         private IProject _projectCustomData = null;
+
+        const int REVISION_ID = int.MaxValue;
 
         [SetUp]
         public void SetUp()
@@ -83,6 +87,66 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(15, reviewContainer.TotalArtifacts, "TotalArtifacts should be equal to the expected number of artifacts in Review.");
         }
+
+        [Category(Categories.GoldenData)]
+        [TestCase]
+        [TestRail(0)]
+        [Description("Get Review Table of Content by rview id and revision id from Custom Data project, check that artifacts have expected values.")]
+        public void GetReviewTableOfContent_ExistingReview_Reviewer_CheckReviewProperties()
+        {
+            // Setup:
+            _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
+            const int REVIEW_ID = 112;
+            const int REVISION_ID = 239;
+
+            var testConfig = TestConfiguration.GetInstance();
+            string userName = testConfig.Username;
+            string password = testConfig.Password;
+
+            var sessionToken = Helper.AdminStore.AddSession(userName, password);
+            var reviewer = UserFactory.CreateUserOnly(userName, password);
+            reviewer.SetToken(sessionToken.SessionId);
+
+            // Execute:
+            ReviewTableOfContent reviewContainer = null;
+            Assert.DoesNotThrow(() => reviewContainer = Helper.ArtifactStore.GetReviewTableOfContent(reviewer, REVIEW_ID, REVISION_ID),
+                "{0} should throw no error.", nameof(Helper.ArtifactStore.GetReviewContainer));
+
+            // Verify:
+            Assert.AreEqual(15, reviewContainer.Total, "TotalArtifacts should be equal to the expected number of artifacts in Review.");
+        }
+
+        [Category(Categories.GoldenData)]
+        [TestCase]
+        [TestRail(0)]
+        [Description("Get Review Table of Content by rview id and revision id from Custom Data project, check that artifacts have expected values.")]
+        public void GetReviewTableOfContent_ExistingReview_Reviewer_CheckLevelProperty()
+        {
+            // Setup:
+            _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
+            const int REVIEW_ID = 160;
+            
+            var testConfig = TestConfiguration.GetInstance();
+            string userName = testConfig.Username;
+            string password = testConfig.Password;
+
+            var sessionToken = Helper.AdminStore.AddSession(userName, password);
+            var reviewer = UserFactory.CreateUserOnly(userName, password);
+            reviewer.SetToken(sessionToken.SessionId);
+
+            // Execute:
+            ReviewTableOfContent tableOfContentResponse = null;
+            Assert.DoesNotThrow(() => tableOfContentResponse = Helper.ArtifactStore.GetReviewTableOfContent(reviewer, REVIEW_ID, REVISION_ID),
+                "{0} should throw no error.", nameof(Helper.ArtifactStore.GetReviewContainer));
+
+            // Verify:
+            Assert.AreEqual(3, tableOfContentResponse.Total, "TotalArtifacts should be equal to the expected number of artifacts in Review.");
+
+            ValidateTableOfContentResponce(tableOfContentResponse);
+        }
+
+
+
 
         [Category(Categories.GoldenData)]
         [TestCase]
@@ -209,5 +273,38 @@ namespace ArtifactStoreTests
         #region 404 Not Found
 
         #endregion 404 Not Found
+
+        #region Private functions
+
+        private static void ValidateTableOfContentResponce(ReviewTableOfContent tableOfContentResponse)
+        {
+            var items = (List<ReviewTableOfContentItem>)tableOfContentResponse.Items;
+
+            Assert.AreEqual(ApprovalType.NotSpecified, items[0].ApprovalStatus, "Approval status is different from NotSpecified!");
+            Assert.IsTrue(items[0].HasAccess, "HasAccess property is supposed to be True!");
+            Assert.IsTrue(items[0].HasComments.Value, "HasComments property is supposed to be True!");
+            Assert.IsTrue(items[0].Included, "Included property is supposed to be True!");
+            Assert.IsFalse(items[0].IsApprovalRequired, "IsApprovedRequired property is supposed to be False!");
+            Assert.AreEqual(1, items[0].Level, "Level property is not 1!");
+            Assert.IsFalse(items[0].Viewed, "Viewed property is supposed to be False!");
+
+            Assert.AreEqual(ApprovalType.Approved, items[0].ApprovalStatus, "Approval status is different from Approved!");
+            Assert.IsTrue(items[0].HasAccess, "HasAccess property is supposed to be True!");
+            Assert.IsFalse(items[0].HasComments.Value, "HasComments property is supposed to be False!");
+            Assert.IsTrue(items[0].Included, "Included property is supposed to be True!");
+            Assert.IsTrue(items[0].IsApprovalRequired, "IsApprovedRequired property is supposed to be True!");
+            Assert.AreEqual(2, items[0].Level, "Level property is not 2!");
+            Assert.IsTrue(items[0].Viewed, "Viewed property is supposed to be True!");
+
+            Assert.AreEqual(ApprovalType.Disapproved, items[0].ApprovalStatus, "Approval status is different from Disapproved!");
+            Assert.IsTrue(items[0].HasAccess, "HasAccess property is supposed to be True!");
+            Assert.IsFalse(items[0].HasComments.Value, "HasComments property is supposed to be False!");
+            Assert.IsTrue(items[0].Included, "Included property is supposed to be True!");
+            Assert.IsTrue(items[0].IsApprovalRequired, "IsApprovedRequired property is supposed to be True!");
+            Assert.AreEqual(3, items[0].Level, "Level property is not 3!");
+            Assert.IsTrue(items[0].Viewed, "Viewed property is supposed to be True!");
+        }
+
+        #endregion Private functions
     }
 }

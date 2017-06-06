@@ -257,7 +257,7 @@ namespace AdminStore.Repositories
             var assignScope = new AssignScope
             {
                 SelectAll = true,
-                Types = new List<KeyValuePair<int, UserType>> { new KeyValuePair<int, UserType>(1, UserType.User) }
+                Members = new List<KeyValuePair<int, UserType>> { new KeyValuePair<int, UserType>(1, UserType.User) }
             };
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlGroupRepository(cxn.Object);
@@ -281,7 +281,7 @@ namespace AdminStore.Repositories
             var assignScope = new AssignScope
             {
                 SelectAll = true,
-                Types = new List<KeyValuePair<int, UserType>> { new KeyValuePair<int, UserType>(1, UserType.User) }
+                Members = new List<KeyValuePair<int, UserType>> { new KeyValuePair<int, UserType>(1, UserType.User) }
             };
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlGroupRepository(cxn.Object);
@@ -305,7 +305,7 @@ namespace AdminStore.Repositories
             var assignScope = new AssignScope
             {
                 SelectAll = true,
-                Types = new List<KeyValuePair<int, UserType>> { new KeyValuePair<int, UserType>(1, UserType.User) }
+                Members = new List<KeyValuePair<int, UserType>> { new KeyValuePair<int, UserType>(1, UserType.User) }
             };
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlGroupRepository(cxn.Object);

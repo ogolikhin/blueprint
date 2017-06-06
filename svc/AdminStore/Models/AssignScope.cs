@@ -9,11 +9,11 @@ namespace AdminStore.Models
     public class AssignScope
     {
         public bool SelectAll { get; set; }
-        public IEnumerable<KeyValuePair<int, UserType>> Types { get; set; }
+        public IEnumerable<KeyValuePair<int, UserType>> Members { get; set; }
 
         public bool IsEmpty()
         {
-            return !SelectAll && (Types == null || !Types.Any());
+            return !SelectAll && (Members == null || !Members.Any());
         }
     }
 }

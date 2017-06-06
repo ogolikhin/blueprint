@@ -58,7 +58,7 @@ namespace AdminStore.Controllers
             _assignScope = new AssignScope
             {
                 SelectAll = true,
-                Types = new List<KeyValuePair<int, UserType>> {new KeyValuePair<int, UserType>(1, UserType.User)}
+                Members = new List<KeyValuePair<int, UserType>> {new KeyValuePair<int, UserType>(1, UserType.User)}
             };
         }
 

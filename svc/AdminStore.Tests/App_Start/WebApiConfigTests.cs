@@ -67,7 +67,7 @@ namespace AdminStore
             config.AssertAction<GroupsController>("UpdateGroup", HttpMethod.Put, "/groups/1");
             config.AssertAction<GroupsController>("GetGroupsAndUsers", HttpMethod.Get, "/groups/usersgroups?offset=0&limit=20&sort=email&order=asc");
             config.AssertAction<GroupsController>("GetGroupMembers", HttpMethod.Get, "/groups/10/members?offset=0&limit=20&sort=email&order=asc");
-            config.AssertAction<GroupsController>("RemoveMembersFromGroup", HttpMethod.Post, "/groups/10/removemembers");
+            config.AssertAction<GroupsController>("RemoveMembersFromGroup", HttpMethod.Post, "/groups/10/members");
         }
 
         [TestMethod]

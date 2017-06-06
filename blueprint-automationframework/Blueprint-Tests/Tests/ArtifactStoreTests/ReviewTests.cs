@@ -94,7 +94,7 @@ namespace ArtifactStoreTests
         [Category(Categories.GoldenData)]
         [TestCase(156)]
         [TestCase(160)]
-        [TestRail(0)]
+        [TestRail(308878)]
         [Description("Get Review Table of Content by review id and revision id from Custom Data project with approver/reviewer user, " + 
             "check that artifacts have expected values.")]
         public void GetReviewTableOfContent_ExistingReview_CheckReviewProperties(int reviewId)
@@ -123,7 +123,7 @@ namespace ArtifactStoreTests
 
         [Category(Categories.GoldenData)]
         [TestCase(112)]
-        [TestRail(0)]
+        [TestRail(308879)]
         [Description("Get Review Table of Content by review id and revision id from Custom Data project with approver/reviewer user, " +
             "check that artifacts have expected values.")]
         public void GetReviewTableOfContent_ExistingReview_CheckHasAccessProperty(int reviewId)
@@ -160,7 +160,7 @@ namespace ArtifactStoreTests
         [TestCase(5, null, 10)]
         [TestCase(2, 3, 3)]
         [TestCase(15, 3, 0)]
-        [TestRail(0)]
+        [TestRail(308880)]
         [Description("Get Review Table of Content by review id and revision id from Custom Data project with" +
             "check that expected artifacts are in the response.")]
         public void GetReviewTableOfContent_ExistingReview_Filtered_CheckCorrectArtifactsReturned(int? offset, int? maxToReturn, int numberReturned)

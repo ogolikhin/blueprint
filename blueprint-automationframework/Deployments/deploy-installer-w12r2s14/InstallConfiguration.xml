@@ -33,7 +33,7 @@
   </AdminStorageDatabaseInfo>
   <BlueprintMessagingInfo>
     <Host>titan.blueprintsys.net</Host>
-    <VirtualHost>novaintegration</VirtualHost>
+    <VirtualHost>deploy-installer-w12r2s14</VirtualHost>
     <Username>admin</Username>
   </BlueprintMessagingInfo>
 </OutputSettings>

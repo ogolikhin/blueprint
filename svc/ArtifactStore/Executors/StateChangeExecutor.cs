@@ -73,7 +73,7 @@ namespace ArtifactStore.Executors
 
             //Get available transitions and validate the required transition
             var availableTransitions =
-                await _workflowRepository.GetTransitionsAsync(_userId, input.ArtifactId, input.WorkflowId, input.FromStateId);
+                await _workflowRepository.GetTransitionsAsync(_userId, input.ArtifactId, currentState.Item.WorkflowId, input.FromStateId);
             if (availableTransitions.Total == 0 ||
                 availableTransitions.ResultCode != QueryResultCode.Success)
             {
@@ -81,10 +81,8 @@ namespace ArtifactStore.Executors
             }
 
             var desiredTransition =
-                availableTransitions.Items.FirstOrDefault(tr => tr.WorkflowId == input.WorkflowId &&
-                                                               tr.FromState.Id == input.FromStateId &&
-                                                               tr.ToState.Id == input.ToStateId &&
-                                                               tr.Id == input.TransitionId);
+                availableTransitions.Items.FirstOrDefault(tr => tr.FromState.Id == input.FromStateId &&
+                                                               tr.ToState.Id == input.ToStateId);
 
             if (desiredTransition == null)
             {

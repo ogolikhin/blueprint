@@ -10,19 +10,11 @@ namespace ServiceLibrary.Models.Workflow
 
         [Required]
         [Range(1, int.MaxValue)]
-        public int WorkflowId { get; set; }
-
-        [Required]
-        [Range(1, int.MaxValue)]
         public int FromStateId { get; set; }
 
         [Required]
         [Range(1, int.MaxValue)]
         public int ToStateId { get; set; }
-
-        [Required]
-        [Range(1, int.MaxValue)]
-        public int TransitionId { get; set; }
     }
 
     public class WorkflowStateChangeParameterEx : WorkflowStateChangeParameter
@@ -37,8 +29,6 @@ namespace ServiceLibrary.Models.Workflow
             CurrentVersionId = workflowStateChangeParameter.CurrentVersionId;
             FromStateId = workflowStateChangeParameter.FromStateId;
             ToStateId = workflowStateChangeParameter.ToStateId;
-            WorkflowId = workflowStateChangeParameter.WorkflowId;
-            TransitionId = workflowStateChangeParameter.TransitionId;
         }
 
         [Required]

@@ -166,6 +166,8 @@
     <Compile Include="Repositories\SqlReviewsRepository.cs" />
     <Compile Include="Repositories\Workflow\IWorkflowRepository.cs" />
     <Compile Include="Repositories\Workflow\SqlWorkflowRepository.cs" />
+    <Compile Include="Executors\StateChangeExecutor.cs" />
+    <Compile Include="Services\Workflow\WorkflowService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config">

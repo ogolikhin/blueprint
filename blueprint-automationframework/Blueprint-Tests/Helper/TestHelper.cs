@@ -1961,6 +1961,47 @@ namespace Helper
             return queryResult.Items;
         }
 
+        /// <summary>
+        /// Verifies that the user can login with its current password.
+        /// </summary>
+        /// <param name="username">Username for the user to login.</param>
+        /// <param name="password">Password for the user to login.</param>
+        public void VerifyLogin(string username, string password)
+        {
+            // Verify: make sure user can login with its password.
+            Assert.DoesNotThrow(() =>
+            {
+                AdminStore.AddSession(username, password);
+            }, "User {0} couldn't login with the password {1}!", username, password);
+        }
+
+        /// <summary>
+        /// Creates a valid password
+        /// </summary>
+        /// <param name="length">The length of password to create.</param>
+        /// <param name="minPasswordLength">The minimum password length.</param>
+        /// <param name="maxPasswordLength">The maximum password length.</param>
+        /// <param name="skipLengthRequirement">Boolean indicator that if the password length validation is required.
+        /// By default, the validation is enforced.</param>
+        /// <returns>valid password</returns>
+        public static string CreateValidPassword(uint length, uint minPasswordLength, uint maxPasswordLength, bool skipLengthRequirement = false)
+        {
+            if (!skipLengthRequirement)
+            {
+                Assert.GreaterOrEqual(length, minPasswordLength, "Length must be between {0} and {1}.", minPasswordLength, maxPasswordLength);
+                Assert.LessOrEqual(length, maxPasswordLength, "Length must be between {0} and {1}.", minPasswordLength, maxPasswordLength);
+            }
+
+            // A valid password needs at least 1 of each of these: number, lower case, upper case, special char.
+            string passwordComplexityChars = I18NHelper.FormatInvariant("{0}{1}{2}{3}",
+                RandomGenerator.RandomNumber(9),
+                RandomGenerator.RandomLowerCase(1),
+                RandomGenerator.RandomUpperCase(1),
+                RandomGenerator.RandomSpecialChars(1));
+
+            return RandomGenerator.RandomAlphaNumericUpperAndLowerCase(length - (uint)passwordComplexityChars.Length) + passwordComplexityChars;
+        }
+
         #endregion User management
 
         #region Group management

@@ -67,7 +67,7 @@ namespace AdminStore.Controllers
         /// <summary>
         /// The method returns all the groups and users not currently assigned to the group in context.
         /// </summary>
-        /// <param name="groupdId">Group's identity</param>
+        /// <param name="groupId">Group's identity</param>
         /// <param name="pagination">Pagination parameters</param>
         /// <param name="sorting">Sorting parameters</param>
         /// <param name="search">The parameter for searching by group name and scope.</param>
@@ -75,16 +75,16 @@ namespace AdminStore.Controllers
         /// <response code="400">BadRequest. Parameters are invalid. </response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. if used doesn’t have permissions to get groups\users list.</response>
-        [Route("usersgroups")]
+        [Route("{groupId:int:min(1)}/usersgroups")]
         [SessionRequired]
         [ResponseType(typeof(QueryResult<GroupUser>))]
-        public async Task<IHttpActionResult> GetGroupsAndUsers([FromUri]Pagination pagination, [FromUri]Sorting sorting, string search = null, int groupdId = 0)
+        public async Task<IHttpActionResult> GetGroupsAndUsers([FromUri]Pagination pagination, [FromUri]Sorting sorting, string search = null, int groupId = 0)
         {
             PaginationValidator.ValidatePaginationModel(pagination);
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageGroups);
             var tabularData = new TabularData { Pagination = pagination, Sorting = sorting, Search = search };
 
-            var result = await _groupRepository.GetGroupUsersAsync(groupdId, tabularData, GroupsHelper.SortGroups);
+            var result = await _groupRepository.GetGroupUsersAsync(groupId, tabularData, GroupsHelper.SortGroups);
             return Ok(result);
         }
 
@@ -263,6 +263,35 @@ namespace AdminStore.Controllers
             var result = await _groupRepository.DeleteMembersFromGroupAsync(groupId, scope);
 
             return Ok(new DeleteResult { TotalDeleted = result });
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="groupId">Group's identity</param>
+        /// <param name="scope">Group's model</param>
+        /// <param name="search">search by displayName or group name</param>
+        /// <remarks>
+        /// Returns Ok result.
+        /// </remarks>
+        /// <response code="200">OK. The group's/user's were assigned to the Group which Id = groupId .</response>
+        /// <response code="400">BadRequest. Parameters are invalid. </response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions to assign group's/users's</response>
+        /// <response code="404">NotFound. The group with the current groupId doesn’t exist or removed from the system.</response>
+        [HttpPost]
+        [SessionRequired]
+        [ResponseType(typeof(HttpResponseMessage))]
+        [Route("{groupId:int:min(1)}/assign")]
+        public async Task<IHttpActionResult> AssignMembers(int groupId, AssignScope scope, string search = null)
+        {
+            if (scope == null || scope.IsEmpty())
+            {
+                throw new BadRequestException(ErrorMessages.AssignMemberScopeEmpty, ErrorCodes.BadRequest);
+            }
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageGroups);
+            await _groupRepository.AssignMembers(groupId, scope, search);
+            return Ok();
         }
     }
 }

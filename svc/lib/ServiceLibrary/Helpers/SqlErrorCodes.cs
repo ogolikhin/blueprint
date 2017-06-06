@@ -11,6 +11,8 @@
         GroupWithNameAndScopeExist = 50005,
         GroupWithCurrentIdNotExist = 50006,
         GroupVersionsNotEqual = 50007,
-        GroupCanNotBeUpdatedWithExistingScope = 50008
+        GroupCanNotBeUpdatedWithExistingScope = 50008,
+        UserAlreadyAssignedToTheGroup = 50009,
+        GroupAlreadyAssignedToTheGroup = 50010
     }
 }

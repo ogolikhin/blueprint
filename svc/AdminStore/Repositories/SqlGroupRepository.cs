@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using AdminStore.Helpers;
@@ -167,6 +168,10 @@ namespace AdminStore.Repositories
             {
                 orderField = sort(tabularData.Sorting);
             }
+            if (tabularData.Search != null)
+            {
+                tabularData.Search = UsersHelper.ReplaceWildcardCharacters(tabularData.Search);
+            }
             var parameters = new DynamicParameters();
             parameters.Add("@GroupId", groupId);
             parameters.Add("@Offset", tabularData.Pagination.Offset);
@@ -238,6 +243,50 @@ namespace AdminStore.Repositories
                 }
             }
             return result;
+        }
+
+        public async Task<bool> AssignMembers(int groupId, AssignScope scope, string search = null)
+        {
+            if (search != null)
+            {
+                search = UsersHelper.ReplaceWildcardCharacters(search);
+            }
+            var parameters = new DynamicParameters();
+            parameters.Add("@GroupId", groupId);
+            parameters.Add("@Members", ToDataTable(scope.Members));
+            parameters.Add("@SelectAll", scope.SelectAll);
+            parameters.Add("@Search", search);
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            await _connectionWrapper.ExecuteScalarAsync<int>("AssignMemberToTheGroup", parameters, commandType: CommandType.StoredProcedure);
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.GeneralSqlError:
+                        throw new Exception(ErrorMessages.GeneralErrorOfUpdatingGroup);
+                    case (int)SqlErrorCodes.UserAlreadyAssignedToTheGroup:
+                        throw new Exception(ErrorMessages.UserAlreadyAssignedToTheGroup);
+                    case (int)SqlErrorCodes.GroupAlreadyAssignedToTheGroup:
+                        throw new Exception(ErrorMessages.GroupAlreadyAssignedToTheGroup);
+
+                }
+            }
+            return true;
+        }
+
+        private DataTable ToDataTable(IEnumerable<KeyValuePair<int, UserType>> members, string typeName = "AssignMembersCollection", string keyColumnName = "PairKey", string valueColumnName = "PairValue")
+        {
+            var table = new DataTable { Locale = CultureInfo.InvariantCulture };
+            table.SetTypeName(typeName);
+            table.Columns.Add(keyColumnName, typeof(int));
+            table.Columns.Add(valueColumnName, typeof(string));
+            foreach (var member in members)
+            {
+                table.Rows.Add(member.Key, member.Value.ToString());
+            }
+            return table;
         }
     }
 }

@@ -168,6 +168,10 @@ namespace AdminStore.Repositories
             {
                 orderField = sort(tabularData.Sorting);
             }
+            if (tabularData.Search != null)
+            {
+                tabularData.Search = UsersHelper.ReplaceWildcardCharacters(tabularData.Search);
+            }
             var parameters = new DynamicParameters();
             parameters.Add("@GroupId", groupId);
             parameters.Add("@Offset", tabularData.Pagination.Offset);

@@ -67,7 +67,7 @@ namespace AdminStore.Controllers
         /// <summary>
         /// The method returns all the groups and users not currently assigned to the group in context.
         /// </summary>
-        /// <param name="groupdId">Group's identity</param>
+        /// <param name="groupId">Group's identity</param>
         /// <param name="pagination">Pagination parameters</param>
         /// <param name="sorting">Sorting parameters</param>
         /// <param name="search">The parameter for searching by group name and scope.</param>
@@ -75,16 +75,16 @@ namespace AdminStore.Controllers
         /// <response code="400">BadRequest. Parameters are invalid. </response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. if used doesn’t have permissions to get groups\users list.</response>
-        [Route("usersgroups")]
+        [Route("{groupId:int:min(1)}/usersgroups")]
         [SessionRequired]
         [ResponseType(typeof(QueryResult<GroupUser>))]
-        public async Task<IHttpActionResult> GetGroupsAndUsers([FromUri]Pagination pagination, [FromUri]Sorting sorting, string search = null, int groupdId = 0)
+        public async Task<IHttpActionResult> GetGroupsAndUsers([FromUri]Pagination pagination, [FromUri]Sorting sorting, string search = null, int groupId = 0)
         {
             PaginationValidator.ValidatePaginationModel(pagination);
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageGroups);
             var tabularData = new TabularData { Pagination = pagination, Sorting = sorting, Search = search };
 
-            var result = await _groupRepository.GetGroupUsersAsync(groupdId, tabularData, GroupsHelper.SortGroups);
+            var result = await _groupRepository.GetGroupUsersAsync(groupId, tabularData, GroupsHelper.SortGroups);
             return Ok(result);
         }
 

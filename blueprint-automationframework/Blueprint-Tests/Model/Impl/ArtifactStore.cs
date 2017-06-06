@@ -550,7 +550,7 @@ namespace Model.Impl
             return relationships;
         }
 
-        /// <seealso cref="IArtifactStore.GetRelationshipsDetails(IUser, int})"/>
+        /// <seealso cref="IArtifactStore.GetRelationshipsDetails(IUser, int)"/>
         public TraceDetails GetRelationshipsDetails(
             IUser user,
             int artifactId)
@@ -853,7 +853,7 @@ namespace Model.Impl
             return publishedArtifacts;
         }
 
-        /// <seealso cref="IArtifactStore.PublishAllArtifacts(IUser))"/>
+        /// <seealso cref="IArtifactStore.PublishAllArtifacts(IUser)"/>
         public NovaArtifactsAndProjectsResponse PublishAllArtifacts(IUser user)
         {
             return PublishArtifacts(artifactIds: null, user: user, publishAll: true);

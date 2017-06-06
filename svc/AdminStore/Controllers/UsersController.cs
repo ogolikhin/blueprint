@@ -514,7 +514,7 @@ namespace AdminStore.Controllers
             var existingUser = await _userRepository.GetUserAsync(userId);
             if (existingUser == null)
             {
-                throw new BadRequestException(ErrorMessages.UserNotExist, ErrorCodes.ResourceNotFound);
+                throw new ResourceNotFoundException(ErrorMessages.UserNotExist, ErrorCodes.ResourceNotFound);
             }
 
             if (existingUser.InstanceAdminRoleId != user.InstanceAdminRoleId)

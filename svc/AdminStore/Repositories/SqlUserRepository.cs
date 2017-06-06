@@ -178,15 +178,14 @@ namespace AdminStore.Repositories
         {
             var parameters = new DynamicParameters();
             parameters.Add("@UserId", userId);
-            var result = await _connectionWrapper.QueryAsync<User>("GetUserDetails", parameters, commandType: CommandType.StoredProcedure);
-            var enumerable = result as IList<User> ?? result.ToList();
-            return enumerable.Any() ? enumerable.First() : new User();
+            var result = (await _connectionWrapper.QueryAsync<User>("GetUserDetails", parameters, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+            return result;
         }
 
         public async Task<UserDto> GetUserDtoAsync(int userId)
         {
             var user = await GetUserAsync(userId);
-            return UserMapper.Map(user);
+            return user == null ? null : UserMapper.Map(user);
         }
 
         public async Task<bool> HasUserExceededPasswordRequestLimitAsync(string login)

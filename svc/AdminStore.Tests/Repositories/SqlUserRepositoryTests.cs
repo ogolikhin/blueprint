@@ -342,12 +342,12 @@ namespace AdminStore.Repositories
         }
 
         [TestMethod]
-        public async Task GetUser_WeDoNotHaveThisActiveUserInDb_QueryReturnEmptyUser()
+        public async Task GetUser_WeDoNotHaveThisActiveUserInDb_ReturnsNull()
         {
             //arrange
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlUserRepository(cxn.Object, cxn.Object);
-            User[] returnResult = { new User() };
+            User[] returnResult = { };
             cxn.SetupQueryAsync("GetUserDetails", new Dictionary<string, object> { { "UserId", 0 } }, returnResult);
 
             //act
@@ -355,7 +355,7 @@ namespace AdminStore.Repositories
 
             //assert
             cxn.Verify();
-            Assert.AreEqual(returnResult.First(), result);
+            Assert.IsNull(result);
         }
 
         #endregion

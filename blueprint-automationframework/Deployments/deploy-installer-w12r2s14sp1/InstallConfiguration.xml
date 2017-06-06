@@ -29,4 +29,9 @@
     <IsWindowsAuthentication>false</IsWindowsAuthentication>
     <IsAdminStoreDifferentServer>false</IsAdminStoreDifferentServer>
   </AdminStorageDatabaseInfo>
+  <BlueprintMessagingInfo>
+    <Host>titan.blueprintsys.net</Host>
+    <VirtualHost>novaintegration</VirtualHost>
+    <Username>admin</Username>
+  </BlueprintMessagingInfo>
 </OutputSettings>

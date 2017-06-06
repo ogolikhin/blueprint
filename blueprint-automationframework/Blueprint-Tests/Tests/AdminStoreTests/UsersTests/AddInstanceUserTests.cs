@@ -288,14 +288,8 @@ namespace AdminStoreTests.UsersTests
             AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
         [TestCase(InstanceAdminRole.AssignInstanceAdministrators, LicenseLevel.Viewer)]
-        [TestCase(InstanceAdminRole.ProvisionUsers, LicenseLevel.Viewer)]
-        [TestCase(InstanceAdminRole.BlueprintAnalytics, LicenseLevel.Viewer)]
-        [TestCase(InstanceAdminRole.Email_ActiveDirectory_SAMLSettings, LicenseLevel.Viewer)]
-        [TestCase(InstanceAdminRole.LogGatheringAndLicenseReporting, LicenseLevel.Viewer)]
-        [TestCase(InstanceAdminRole.ManageAdministratorRoles, LicenseLevel.Viewer)]
-        [TestRail(000)]
+        [TestRail(308877)]
         [Description("Create an instance user with a role when Password Expiration is enabled by setting its value to '1'" + 
             "and Verify that Password gets expired based on the value set on PasswordExpireationIndays from Instances table.")]
         public void AddInstanceUser_AssigningRoleWhenPasswordExpirationEnabled_VerifyUserPasswordExpirationBasedOnPasswordExpirationInDays(
@@ -312,7 +306,6 @@ namespace AdminStoreTests.UsersTests
 
             // Setup: Enable the Instance password expiration feature by setting the value to '1' 
             var originalPasswordExpirationInDays = TestHelper.GetValueFromInstancesTable(PASSWORD_EXPIRATION_IN_DAYS);
-            TestHelper.UpdateValueFromInstancesTable(PASSWORD_EXPIRATION_IN_DAYS, "1");
 
             try
             {
@@ -329,11 +322,6 @@ namespace AdminStoreTests.UsersTests
                     addedUser = Helper.AdminStore.GetUserById(_adminUser, createdUser.Id);
                 }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
 
-                // Simluate Password Expiration
-                TestHelper.UpdateLastPasswordChangeTimestampFromUsersTable(
-                    (int)addedUser.Id,
-                    DateTime.UtcNow.AddHours(-25));
-
                 // Verify:
                 // Update License Type for comparison
                 createdUser.LicenseType = expectedLicenseLevel;
@@ -343,16 +331,27 @@ namespace AdminStoreTests.UsersTests
 
                 AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
 
-                // Login using the user with expired password
-                Helper.AdminStore.DeleteSession(userWithPermissionsToAssignAdminRoles);
+                // Login with the created user
+                var session = Helper.AdminStore.AddSession(createdUser.Login, createdUser.Password);
 
+                // Logout with the created user
+                Helper.AdminStore.DeleteSession(session);
+
+                // Simluate Password Expiration
+                TestHelper.UpdateLastPasswordChangeTimestampFromUsersTable(
+                    (int)addedUser.Id,
+                    DateTime.UtcNow.AddHours(-25));
+
+                TestHelper.UpdateValueFromInstancesTable(PASSWORD_EXPIRATION_IN_DAYS, "1");
+
+                // Login again after enable password expiration from instances
                 var ex = Assert.Throws<Http401UnauthorizedException>(() =>
                 {
-                    Helper.AdminStore.AddSession(userWithPermissionsToAssignAdminRoles.Username, userWithPermissionsToAssignAdminRoles.Password, force: true);
+                    Helper.AdminStore.AddSession(createdUser.Login, createdUser.Password, force: true);
                 }, "AddSession() should throw exception since the user password is expired.");
 
                 TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordExpired,
-                    "User password expired for the login: " +userWithPermissionsToAssignAdminRoles.Username);
+                    "User password expired for the login: " + createdUser.Login);
             }
             finally
             {

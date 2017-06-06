@@ -11,6 +11,8 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Exceptions;
 using System.Collections.Generic;
 using System.Linq;
+using ServiceLibrary.Repositories;
+using ServiceLibrary.Models;
 
 namespace AdminStore.Repositories
 {

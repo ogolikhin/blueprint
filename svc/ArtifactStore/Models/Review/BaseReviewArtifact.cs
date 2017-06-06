@@ -10,6 +10,8 @@ namespace ArtifactStore.Models.Review
 
         public string Prefix { get; set; }
 
+        public bool IsApprovalRequired { get; set; }
+
         public int ItemTypeId { get; set; }
 
         public int ItemTypePredefined { get; set; }

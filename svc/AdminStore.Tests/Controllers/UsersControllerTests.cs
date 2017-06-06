@@ -15,6 +15,7 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Controllers
@@ -1167,7 +1168,7 @@ namespace AdminStore.Controllers
         public async Task CreateUser_FirstNameOutOfRangeStringLength_ReturnBadRequestResult()
         {
             // Arrange
-            _user.FirstName = new string('1', 256); ;
+            _user.FirstName = new string('1', 256);
             _privilegesRepository
               .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
               .ReturnsAsync(FullPermissions);
@@ -1218,7 +1219,7 @@ namespace AdminStore.Controllers
         public async Task CreateUser_TitleOutOfRangeStringLength_ReturnBadRequestResult()
         {
             // Arrange
-            _user.Title = new string('1', 256); ;
+            _user.Title = new string('1', 256);
             _privilegesRepository
              .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
              .ReturnsAsync(FullPermissions);

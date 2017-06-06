@@ -1,8 +1,9 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Model.Common.Enums;
+using Model.Impl;
 using Newtonsoft.Json;
 
-namespace Model.Impl
+namespace Model.NovaModel.AdminStoreModel
 {
     //class for object returned by adminstore/users
     public class InstanceUser : LoginUser
@@ -56,7 +57,7 @@ namespace Model.Impl
         public string Password { get; set; }
 
         public InstanceUser(string login, string firstName, string lastName, string displayName, string email,
-            UserSource? source, bool eulaAccepted, LicenseLevel? license, bool isSso, bool? allowFallback, 
+            UserGroupSource? source, bool eulaAccepted, LicenseLevel? license, bool isSso, bool? allowFallback, 
             InstanceAdminRole? instanceAdminRole, InstanceAdminPrivileges? instanceAdminPrivileges,
             bool guest, int currentVersion, bool enabled, string title, string department, bool? expirePassword, 
             int? imageId, int[] groupMembership, string password = null)

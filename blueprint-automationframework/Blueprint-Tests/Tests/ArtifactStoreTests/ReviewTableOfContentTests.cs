@@ -77,7 +77,6 @@ namespace ArtifactStoreTests
             var user = UserFactory.CreateUserOnly(GoldenData.GoldenUsers.UserWithNoAccessToArtifact29.Username, 
                 GoldenData.GoldenUsers.UserWithNoAccessToArtifact29.Password);
             Helper.AdminStore.AddSession(user);
-            user.Id = int.MaxValue;
 
             // Execute:
             QueryResult<ReviewTableOfContentItem> tableOfContentResponse = null;

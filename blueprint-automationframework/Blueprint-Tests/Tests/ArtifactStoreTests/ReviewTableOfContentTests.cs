@@ -8,6 +8,7 @@ using NUnit.Framework;
 using System.Linq;
 using TestCommon;
 using TestConfig;
+using Utilities;
 
 namespace ArtifactStoreTests
 {
@@ -70,7 +71,7 @@ namespace ArtifactStoreTests
         public void GetReviewTableOfContent_ExistingReview_CheckHasAccessProperty(int reviewId)
         {
             // Setup:
-            const string USERNAME = "Author1";
+            const string USERNAME = "UserForReviewTest-308879";
             const string PASSWORD = "Welcome1!";
 
             var sessionToken = Helper.AdminStore.AddSession(USERNAME, PASSWORD);
@@ -145,6 +146,26 @@ namespace ArtifactStoreTests
         #endregion 401 Unauthorized
 
         #region 403 Forbidden
+
+        [Category(Categories.GoldenData)]
+        [TestCase()] //Trello https://trello.com/c/BLM8byFl
+        [TestRail(0)]
+        [Description("Get review table of content by review id and revision id from Custom Data project with non-reviewer user, " +
+            "check that server returns 403 Forbiddeb.")]
+        public void GetReviewTableOfContent_ExistingReview_NonReviewer_403Forbidden()
+        {
+            // Setup:
+            var adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+
+            const int reviewId = 112;
+            const int REVISION_ID = 239;
+
+//            var user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, projectCustomData);
+
+            // Execute: 
+            Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetReviewTableOfContent(adminUser, reviewId, REVISION_ID),
+                "{0} should return 403 for non-reviewer user.", nameof(Helper.ArtifactStore.GetReviewContainer));
+        }
 
         #endregion 403 Forbidden
 

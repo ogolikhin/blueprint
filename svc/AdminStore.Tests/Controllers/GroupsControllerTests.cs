@@ -308,24 +308,6 @@ namespace AdminStore.Controllers
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
-        public async Task CreateGroup_GroupNameOutOfRangeStringLength_ReturnBadRequestResult()
-        {
-            // Arrange
-            _group.Name = "123";
-            _privilegesRepository
-               .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
-               .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
-            _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>())).ReturnsAsync(_groupId);
-
-            // Act
-            await _controller.CreateGroup(_group);
-
-            // Assert
-            // Exception
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
         public async Task CreateGroup_EmailOutOfRangeStringLength_ReturnBadRequestResult()
         {
             // Arrange

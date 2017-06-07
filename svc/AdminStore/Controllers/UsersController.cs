@@ -443,13 +443,23 @@ namespace AdminStore.Controllers
             var user = await _userRepository.GetUserAsync(updatePassword.UserId);
             if (user == null)
             {
-                throw new ResourceNotFoundException($"User does not exist with UserId: {updatePassword.UserId}", ErrorCodes.ResourceNotFound);
+                throw new ResourceNotFoundException(ErrorMessages.UserNotExist, ErrorCodes.ResourceNotFound);
             }
 
-            var decodedPasword = SystemEncryptions.Decode(updatePassword.Password);
-            UserConverter.ValidatePassword(user, decodedPasword);
+            string decodedPassword;
 
-            await _userRepository.UpdateUserPasswordAsync(user.Login, decodedPasword);
+            try
+            {
+                decodedPassword = SystemEncryptions.Decode(updatePassword.Password);
+            }
+            catch (FormatException)
+            {
+                throw new BadRequestException(ErrorMessages.IncorrectBase64FormatPasswordField, ErrorCodes.BadRequest);
+            }
+
+            UserConverter.ValidatePassword(user, decodedPassword);
+
+            await _userRepository.UpdateUserPasswordAsync(user.Login, decodedPassword);
 
             return Ok();
         }

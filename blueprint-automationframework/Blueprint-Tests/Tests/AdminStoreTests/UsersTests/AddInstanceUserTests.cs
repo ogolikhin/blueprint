@@ -290,7 +290,7 @@ namespace AdminStoreTests.UsersTests
 
         [TestCase(InstanceAdminRole.AssignInstanceAdministrators, LicenseLevel.Viewer)]
         [TestRail(308877)]
-        [Description("Create an instance user with a role when Password Expiration is enabled by setting its value to '1'" + 
+        [Description("Create an instance user with a role when Password Expiration is enabled by setting its value to '1' " + 
             "and Verify that Password gets expired based on the value set on PasswordExpirationIndays from Instances table.")]
         public void AddInstanceUser_AssigningRoleWhenPasswordExpirationEnabled_VerifyUserPasswordExpirationBasedOnPasswordExpirationInDays(
             InstanceAdminRole adminRole,
@@ -304,7 +304,7 @@ namespace AdminStoreTests.UsersTests
                 instanceAdminRole: adminRole,
                 expirePassword: true);
 
-            // Setup: Enable the Instance password expiration feature by setting the value to '1' 
+            // Enable the Instance password expiration feature by setting the value to '1' 
             var originalPasswordExpirationInDays = TestHelper.GetValueFromInstancesTable(PASSWORD_EXPIRATION_IN_DAYS);
 
             try
@@ -316,12 +316,10 @@ namespace AdminStoreTests.UsersTests
                 }, "'POST {0}' should return 201 Created for a valid session token!", USER_PATH);
 
 
-                // Verify:
-                // Update License Type for comparison
+                // Verify: Update License Type for comparison
+                createdUser.LicenseType = expectedLicenseLevel;
 
                 var addedUser = Helper.AdminStore.GetUserById(_adminUser, createdUser.Id);
-
-                createdUser.LicenseType = expectedLicenseLevel;
 
                 // Update Id and CurrentVersion in CreatedUser for comparison
                 AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUser.Id);

@@ -1009,7 +1009,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.GetReviewTableOfContent(IUser, int, int, int?, int?)"/>
-        public ReviewTableOfContent GetReviewTableOfContent(IUser user, int reviewId, int revisionId, int? index = null, int? recordsOnPage = null)
+        public QueryResult<ReviewTableOfContentItem> GetReviewTableOfContent(IUser user, int reviewId, int revisionId, int? index = null, int? recordsToReturn = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Containers_id_.TOC_id_, reviewId, revisionId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
@@ -1021,12 +1021,12 @@ namespace Model.Impl
                 queryParams.Add("offset", index.ToString());
             }
 
-            if (recordsOnPage != null)
+            if (recordsToReturn != null)
             {
-                queryParams.Add("limit", recordsOnPage.ToString());
+                queryParams.Add("limit", recordsToReturn.ToString());
             }
 
-            return restApi.SendRequestAndDeserializeObject<ReviewTableOfContent>(path,
+            return restApi.SendRequestAndDeserializeObject<QueryResult<ReviewTableOfContentItem>>(path,
                 RestRequestMethod.GET, queryParameters: queryParams, shouldControlJsonChanges: true);
         }
 

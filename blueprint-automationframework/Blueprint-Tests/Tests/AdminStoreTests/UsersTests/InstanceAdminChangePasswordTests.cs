@@ -93,6 +93,75 @@ namespace AdminStoreTests.UsersTests
             }
         }
 
+        [TestCase]
+        [TestRail(308885)]
+        [Description("Change a user's password to a valid new password 2 times in a row.  The password should be changed " +
+                     "successfully and the user should be able to login with the new password.")]
+        public void InstanceAdminChangePassword_ChangePasswordTwiceWithin24Hrs_VerifyUserCanLoginWithNewPassword()
+        {
+            // Setup: Create and add user with valid password.
+            var instanceUser = Helper.CreateAndAddInstanceUser(_adminUser);
+
+            string firstPassword = AdminStoreHelper.GenerateValidPassword();
+
+            // First password change
+            Helper.AdminStore.InstanceAdminChangePassword(_adminUser, instanceUser, firstPassword);
+
+            string secondPassword = AdminStoreHelper.GenerateValidPassword();
+
+            // Execute: Second password change.
+            Assert.DoesNotThrow(() =>
+            {
+                Helper.AdminStore.InstanceAdminChangePassword(_adminUser, instanceUser, secondPassword);
+            }, "'POST {0}' failed when attempting to change password 2 times within 24 Hrs!", USER_CHANGE_PASSWORD);
+
+            // Verify: make sure user can login with the new password.
+            Helper.AssertUserCanLogin(instanceUser.Login, secondPassword);
+        }
+
+        [TestCase]
+        [TestRail(308886)]
+        [Description("Change a user's password to using the existing user password.  The password should be changed " +
+                     "successfully and the user should be able to login with the password.")]
+        public void InstanceAdminChangePassword_ChangePasswordToExistingPassword_VerifyUserCanLoginWithNewPassword()
+        {
+            // Setup: Create and add user with valid password.
+            var instanceUser = Helper.CreateAndAddInstanceUser(_adminUser);
+
+            // Execute:.
+            Assert.DoesNotThrow(() =>
+            {
+                Helper.AdminStore.InstanceAdminChangePassword(_adminUser, instanceUser, instanceUser.Password);
+            }, "'POST {0}' failed when attempting to change passord to the existing password!", USER_CHANGE_PASSWORD);
+
+            // Verify: make sure user can login with the original password.
+            Helper.AssertUserCanLogin(instanceUser.Login, instanceUser.Password);
+        }
+
+        [TestCase]
+        [TestRail(308887)]
+        [Description("Change a user's password to a previously used password.  The password should be changed " +
+                     "successfully and the user should be able to login with the new password.")]
+        public void InstanceAdminChangePassword_ChangePasswordToPreviousPassword_VerifyUserCanLoginWithNewPassword()
+        {
+            // Setup: Create and add user with valid password.
+            var instanceUser = Helper.CreateAndAddInstanceUser(_adminUser);
+            string originalPassword = instanceUser.Password;
+
+            // Password change to new passowrd
+            string newPassword = AdminStoreHelper.GenerateValidPassword();
+            Helper.AdminStore.InstanceAdminChangePassword(_adminUser, instanceUser, newPassword);
+
+            // Execute: Change password back to original password.
+            Assert.DoesNotThrow(() =>
+            {
+                Helper.AdminStore.InstanceAdminChangePassword(_adminUser, instanceUser, originalPassword);
+            }, "'POST {0}' failed when attempting to change password to a previously used password!", USER_CHANGE_PASSWORD);
+
+            // Verify: make sure user can login with the original password.
+            Helper.AssertUserCanLogin(instanceUser.Login, originalPassword);
+        }
+
         #endregion 200 OK Tests
 
         #region 400 Bad Request Tests

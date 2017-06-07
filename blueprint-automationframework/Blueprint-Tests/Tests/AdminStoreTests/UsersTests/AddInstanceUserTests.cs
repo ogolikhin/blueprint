@@ -332,7 +332,7 @@ namespace AdminStoreTests.UsersTests
             }
             finally
             {
-                // Restore CannotUserLastPasswords back to original value.
+                // Restore PasswordExpirationInDays back to original value.
                 TestHelper.UpdateValueFromInstancesTable(PASSWORD_EXPIRATION_IN_DAYS, originalPasswordExpirationInDays);
             }
         }

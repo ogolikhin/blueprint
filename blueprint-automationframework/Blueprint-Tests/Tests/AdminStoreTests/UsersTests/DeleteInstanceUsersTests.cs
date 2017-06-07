@@ -167,7 +167,6 @@ namespace AdminStoreTests.UsersTests
             Assert.AreEqual(1, result.TotalDeleted, "There should be 1 user deleted!");
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // AddSession fails with "Invalid Username or Password"
         [TestCase]
         [Description("Create and add an instance admin user.  Have the admin user try to delete themself.  " +
                      "Verify the user is not deleted.")]

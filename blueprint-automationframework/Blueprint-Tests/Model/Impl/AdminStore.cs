@@ -967,13 +967,18 @@ namespace Model.Impl
             }
         }
 
-        /// <seealso cref="IAdminStore.InstanceAdminChangePassword(IUser, InstanceUser, string)"/>
-        public HttpStatusCode InstanceAdminChangePassword(IUser adminUser, InstanceUser user, string newPassword)
+        /// <seealso cref="IAdminStore.InstanceAdminChangePassword(IUser, InstanceUser, string, bool)"/>
+        public HttpStatusCode InstanceAdminChangePassword(IUser adminUser, InstanceUser user, string newPassword, bool encodePassword = true)
         {
             var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
             string path = RestPaths.Svc.AdminStore.Users.CHANGE_PASSWORD;
 
-            string encodedPassword = (newPassword != null) ? HashingUtilities.EncodeTo64UTF8(newPassword) : null;
+            string encodedPassword = newPassword;
+
+            if (encodedPassword != null && encodePassword)
+            {
+                encodedPassword = HashingUtilities.EncodeTo64UTF8(encodedPassword);
+            }
 
             try
             {

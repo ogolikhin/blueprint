@@ -361,17 +361,35 @@ namespace Helper
         /// Generates a valid random password of the specified length.  NOTE: Length must be between 8 and 128.
         /// </summary>
         /// <param name="length">The length of the password to generate.</param>
+        /// <param name="skipLengthRequirement">Boolean indicator that if the password length validation is required.
+        /// By default, the validation is enforced.</param>
         /// <returns>A new valid random password.</returns>
-        public static string GenerateValidPassword(uint length = MinPasswordLength)
+        public static string GenerateValidPassword(uint length = MinPasswordLength, bool skipLengthRequirement = false)
         {
-            if ((length < MinPasswordLength) || (length > MaxPasswordLength))
+            if (!skipLengthRequirement)
             {
-                throw new ArgumentOutOfRangeException(nameof(length),
-                    I18NHelper.FormatInvariant("The length must be between {0} and {1}!",
-                    MinPasswordLength, MaxPasswordLength));
+                if ((length < MinPasswordLength) || (length > MaxPasswordLength))
+                {
+                    throw new ArgumentOutOfRangeException(nameof(length),
+                        I18NHelper.FormatInvariant("The length must be between {0} and {1}!",
+                        MinPasswordLength, MaxPasswordLength));
+                }
             }
 
-            return RandomGenerator.RandomUpperCase(length - 2) + "1$";
+            // A valid password needs at least 1 of each of these: number, upper case, special char.
+            string passwordComplexityChars = I18NHelper.FormatInvariant("{0}{1}{2}",
+                RandomGenerator.RandomNumber(9),
+                RandomGenerator.RandomUpperCase(1),
+                "$");
+
+            if (skipLengthRequirement && length < passwordComplexityChars.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(length),
+                    I18NHelper.FormatInvariant("When skipping length requirement, the length must be at least {0} characters to allow " +
+                                               "for the complexity rules to be met!", passwordComplexityChars.Length));
+            }
+
+            return RandomGenerator.RandomAlphaNumericUpperAndLowerCase(length - (uint)passwordComplexityChars.Length) + passwordComplexityChars;
         }
 
         /// <summary>

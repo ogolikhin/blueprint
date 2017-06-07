@@ -1961,6 +1961,21 @@ namespace Helper
             return queryResult.Items;
         }
 
+        /// <summary>
+        /// Verifies that the user can login with its current password.
+        /// </summary>
+        /// <param name="username">Username for the user to login.</param>
+        /// <param name="password">Password for the user to login.</param>
+        public void AssertUserCanLogin(string username, string password)
+        {
+            // Verify: make sure user can login with its password.
+            Assert.DoesNotThrow(() =>
+            {
+                // Forces a new session in case one already exists
+                AdminStore.AddSession(username, password, force: true);
+            }, "User {0} couldn't login with the password {1}!", username, password);
+        }
+
         #endregion User management
 
         #region Group management

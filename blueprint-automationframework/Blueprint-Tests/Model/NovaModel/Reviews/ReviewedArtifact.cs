@@ -16,15 +16,16 @@ namespace Model.NovaModel.Reviews
 
         public int ArtifactVersion { get; set; }
 
-        public DateTime PublishedOnTimestamp { get; set; }
-
-        public string UserDisplayName { get; set; }
         /// <summary>
         /// Viewed artifact version
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Include)]
         public int? ViewedArtifactVersion { get; set; }
 
+        public string UserDisplayName { get; set; }
+
+        public DateTime PublishedOnTimestamp { get; set; }
+        
         /// <summary>
         /// e-signed by UserId on that UTC date time
         /// </summary>

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Data;
+﻿using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
@@ -13,6 +12,8 @@ namespace ArtifactStore.Repositories.Workflow
 {
     public class SqlWorkflowRepository : SqlBaseArtifactRepository, IWorkflowRepository
     {
+        
+
         public SqlWorkflowRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {
@@ -31,7 +32,7 @@ namespace ArtifactStore.Repositories.Workflow
 
         #region artifact workflow
 
-        public async Task<WorkflowTransitionResult> GetTransitions(int userId, int artifactId, int workflowId, int stateId)
+        public async Task<WorkflowTransitionResult> GetTransitionsAsync(int userId, int artifactId, int workflowId, int stateId)
         {
             //Do not return transitions if the 
             await CheckForArtifactPermissions(userId, artifactId, permissions: RolePermissions.Edit);
@@ -39,12 +40,20 @@ namespace ArtifactStore.Repositories.Workflow
             return await GetAvailableTransitions(userId, workflowId, stateId);
         }
 
-        public async Task<QuerySingleResult<WorkflowState>> GetCurrentState(int userId, int artifactId, int revisionId = int.MaxValue, bool addDrafts = true)
+        public async Task<QuerySingleResult<WorkflowState>> GetStateForArtifactAsync(int userId, int artifactId, int revisionId, bool addDrafts)
         {
             //Need to access code for artifact permissions for revision
             await CheckForArtifactPermissions(userId, artifactId, revisionId);
             
             return await GetCurrentStateInternal(userId, artifactId, revisionId, addDrafts);
+        }
+
+        public async Task<QuerySingleResult<WorkflowState>> ChangeStateForArtifactAsync(int userId, int artifactId, WorkflowStateChangeParameter stateChangeParameter)
+        {
+            //Need to access code for artifact permissions for revision
+            await CheckForArtifactPermissions(userId, artifactId);
+
+            return await ChangeStateForArtifactInternal(userId, artifactId, stateChangeParameter.ToStateId);
         }
 
         #endregion
@@ -56,38 +65,7 @@ namespace ArtifactStore.Repositories.Workflow
             return await GetAvailableTransitionsInternal(userId, workflowId, stateId);
         }
 
-        /// <summary>
-        /// Checks whether the user has permission for this artifact. 
-        /// if a revision Id is provided, the artifact's revision has to be less than the current revision.
-        /// If the artifact is not a regular artifact type then we throw a non-supported exception.
-        /// </summary>
-        /// <param name="userId"></param>
-        /// <param name="artifactId"></param>
-        /// <param name="revisionId"></param>
-        /// <param name="permissions"></param>
-        /// <returns></returns>
-        private async Task CheckForArtifactPermissions(int userId, int artifactId, int revisionId = int.MaxValue, RolePermissions permissions = RolePermissions.Read)
-        {
-            var artifactBasicDetails = await GetArtifactBasicDetails(ConnectionWrapper, artifactId, userId);
-            if (artifactBasicDetails == null || artifactBasicDetails.RevisionId > revisionId)
-            {
-                ExceptionHelper.ThrowArtifactNotFoundException(artifactId);
-            }
-
-            if (!((ItemTypePredefined) artifactBasicDetails.PrimitiveItemTypePredefined).IsRegularArtifactType())
-            {
-                ExceptionHelper.ThrowArtifactDoesNotSupportOperation(artifactId);
-            }
-
-            var artifactsPermissions =
-                await ArtifactPermissionsRepository.GetArtifactPermissions(new List<int> { artifactId }, userId);
-
-            if (!artifactsPermissions.ContainsKey(artifactId) ||
-                !artifactsPermissions[artifactId].HasFlag(permissions))
-            {
-                ExceptionHelper.ThrowArtifactForbiddenException(artifactId);
-            }
-        }
+        
 
         private async Task<QuerySingleResult<WorkflowState>> GetCurrentStateInternal(int userId, int artifactId, int revisionId, bool addDrafts)
         {
@@ -105,7 +83,7 @@ namespace ArtifactStore.Repositories.Workflow
                     WorkflowId = workflowState.WorkflowId
                 }).FirstOrDefault();
 
-            if (result == null)
+            if (result == null || result.WorkflowId <= 0 || result.Id <= 0)
             {
                 return new QuerySingleResult<WorkflowState>
                 {
@@ -151,6 +129,37 @@ namespace ArtifactStore.Repositories.Workflow
                 Total = workflowTransitions.Count,
                 Count = workflowTransitions.Count,
                 Items = workflowTransitions
+            };
+        }
+
+        private async Task<QuerySingleResult<WorkflowState>> ChangeStateForArtifactInternal(int userId, int artifactId, int desiredStateId)
+        {
+            var param = new DynamicParameters();
+            param.Add("@userId", userId);
+            param.Add("@artifactId", artifactId);
+            param.Add("@desiredStateId", desiredStateId);
+            param.Add("@result", null);
+
+            var result = (await ConnectionWrapper.QueryAsync<SqlWorkFlowState>("ChangeStateForArtifact", param, commandType: CommandType.StoredProcedure))
+                .Select(workflowState => new WorkflowState
+                {
+                    Id = workflowState.WorkflowStateId,
+                    Name = workflowState.WorkflowStateName,
+                    WorkflowId = workflowState.WorkflowId
+                }).FirstOrDefault();
+
+            if (result == null)
+            {
+                return new QuerySingleResult<WorkflowState>
+                {
+                    ResultCode = QueryResultCode.Failure,
+                    Message = I18NHelper.FormatInvariant("State could not be modified")
+                };
+            }
+            return new QuerySingleResult<WorkflowState>
+            {
+                ResultCode = QueryResultCode.Success,
+                Item = result
             };
         }
 

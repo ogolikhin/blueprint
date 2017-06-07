@@ -285,6 +285,32 @@ namespace AdminStoreTests.UsersTests
             AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
         }
 
+        [TestCase]
+        [Description("Verify that a user who was created with 'enabled = False' is unable to log in.")]
+        [TestRail(308851)]
+        public void AddInstanceUser_LoginDisabled_UserCannotLogIn()
+        {
+            // Setup: prepare user to be created
+            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
+            createdUser.Enabled = false;
+
+            // Execute: add the user
+            Assert.DoesNotThrow(() =>
+            {
+                createdUser.Id = Helper.AdminStore.AddUser(_adminUser, createdUser);
+            }, "'POST {0}' should return 201 CREATED!", RestPaths.Svc.AdminStore.Users.USERS);
+
+            // Verify: that the user cannot log in
+            var ex = Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+               Helper.AdminStore.AddSession(createdUser.Login, createdUser.Password);
+            }, "User should not be able to log in!");
+
+            string expectedMessage = I18NHelper.FormatInvariant("User account is locked out for the login: {0}", createdUser.Login);
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.AccountIsLocked, expectedMessage);
+
+        }
+
         #endregion 201 Created Tests
 
         #region 400 Bad Request Tests

@@ -23,7 +23,7 @@ namespace ArtifactStoreTests
         private IUser _user = null;
         private IProject _projectCustomData = null;
 
-        const int REVISION_ID = int.MaxValue;
+        const int LAST_REVISION_ID = int.MaxValue;
 
         [SetUp]
         public void SetUp()
@@ -90,14 +90,15 @@ namespace ArtifactStoreTests
             Assert.AreEqual(15, reviewContainer.TotalArtifacts, "TotalArtifacts should be equal to the expected number of artifacts in Review.");
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [Explicit(IgnoreReasons.UnderDevelopment)]  // Trello bug: https://trello.com/c/AKDTJgFY
         [Category(Categories.GoldenData)]
-        [TestCase(156)]
-        [TestCase(160)]
+        [TestCase(156, LAST_REVISION_ID)]
+        [TestCase(160, 358)]
+        [TestCase(160, LAST_REVISION_ID)]
         [TestRail(308878)]
         [Description("Get Review Table of Content by review id and revision id from Custom Data project with approver/reviewer user, " + 
             "check that artifacts have expected values.")]
-        public void GetReviewTableOfContent_ExistingReview_CheckReviewProperties(int reviewId)
+        public void GetReviewTableOfContent_ExistingReview_CheckReviewProperties(int reviewId, int revisionId)
         {
             // Setup:
             _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
@@ -112,7 +113,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             ReviewTableOfContent tableOfContentResponse = null;
-            Assert.DoesNotThrow(() => tableOfContentResponse = Helper.ArtifactStore.GetReviewTableOfContent(user, reviewId, REVISION_ID),
+            Assert.DoesNotThrow(() => tableOfContentResponse = Helper.ArtifactStore.GetReviewTableOfContent(user, reviewId, revisionId),
                 "{0} should throw no error.", nameof(Helper.ArtifactStore.GetReviewContainer));
 
             // Verify:
@@ -141,7 +142,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             ReviewTableOfContent tableOfContentResponse = null;
-            Assert.DoesNotThrow(() => tableOfContentResponse = Helper.ArtifactStore.GetReviewTableOfContent(user, reviewId, REVISION_ID),
+            Assert.DoesNotThrow(() => tableOfContentResponse = Helper.ArtifactStore.GetReviewTableOfContent(user, reviewId, LAST_REVISION_ID),
                 "{0} should throw no error.", nameof(Helper.ArtifactStore.GetReviewContainer));
 
             // Verify:
@@ -179,7 +180,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             ReviewTableOfContent tableOfContentResponse = null;
-            Assert.DoesNotThrow(() => tableOfContentResponse = Helper.ArtifactStore.GetReviewTableOfContent(reviewer, REVIEW_ID, REVISION_ID, offset, maxToReturn),
+            Assert.DoesNotThrow(() => tableOfContentResponse = Helper.ArtifactStore.GetReviewTableOfContent(reviewer, REVIEW_ID, LAST_REVISION_ID, offset, maxToReturn),
                 "{0} should throw no error.", nameof(Helper.ArtifactStore.GetReviewContainer));
 
             // Verify:

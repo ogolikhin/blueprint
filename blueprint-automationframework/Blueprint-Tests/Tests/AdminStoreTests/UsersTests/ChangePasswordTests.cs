@@ -72,7 +72,6 @@ namespace AdminStoreTests.UsersTests
             Helper.AssertUserCanLogin(_adminUser.Username, newPassword);
         }
 
-        [Category(Categories.CannotRunInParallel)]
         [TestCase(MinPasswordLength)]
         [TestCase(MaxPasswordLength)]
         [TestRail(234571)]

@@ -328,27 +328,7 @@ namespace AdminStoreTests.UsersTests
 
                 AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
 
-                // Login with the created user
-                var session = Helper.AdminStore.AddSession(createdUser.Login, createdUser.Password);
-
-                // Logout with the created user
-                Helper.AdminStore.DeleteSession(session);
-
-                // Simulate Password Expiration
-                TestHelper.UpdateLastPasswordChangeTimestampFromUsersTable(
-                    addedUser.Id.Value,
-                    DateTime.UtcNow.AddHours(-25));
-
-                TestHelper.UpdateValueFromInstancesTable(PASSWORD_EXPIRATION_IN_DAYS, "1");
-
-                // Login again after enable password expiration from instances
-                var ex = Assert.Throws<Http401UnauthorizedException>(() =>
-                {
-                    Helper.AdminStore.AddSession(createdUser.Login, createdUser.Password, force: true);
-                }, "AddSession() should throw exception since the user password is expired.");
-
-                TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordExpired,
-                    "User password expired for the login: " + createdUser.Login);
+                ValidateUserPasswordExpiration(createdUser);
             }
             finally
             {
@@ -746,6 +726,39 @@ namespace AdminStoreTests.UsersTests
 
             // Verify:
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, expectedErrorMessage);
+        }
+
+        /// <summary>
+        /// Validates that a user with expired password cannot login and get proper error response.
+        /// </summary>
+        /// <param name="instanceUser">user with the expired password</param>
+        private void ValidateUserPasswordExpiration(
+            InstanceUser instanceUser
+            )
+        {
+            ThrowIf.ArgumentNull(instanceUser, nameof(instanceUser));
+
+            // Login with the created user
+            var session = Helper.AdminStore.AddSession(instanceUser.Login, instanceUser.Password);
+
+            // Logout with the created user
+            Helper.AdminStore.DeleteSession(session);
+
+            // Simulate Password Expiration
+            TestHelper.UpdateLastPasswordChangeTimestampFromUsersTable(
+                instanceUser.Id.Value,
+                DateTime.UtcNow.AddHours(-25));
+
+            TestHelper.UpdateValueFromInstancesTable(PASSWORD_EXPIRATION_IN_DAYS, "1");
+
+            // Login again after enable password expiration from instances
+            var ex = Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                Helper.AdminStore.AddSession(instanceUser.Login, instanceUser.Password, force: true);
+            }, "AddSession() should throw exception since the user password is expired.");
+
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordExpired,
+                "User password expired for the login: " + instanceUser.Login);
         }
 
         #endregion Private Methods

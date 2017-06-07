@@ -11,7 +11,7 @@
         public static readonly string LoginNameUnique = "Please enter a unique username.";
         public static readonly string SessionIsEmpty = "The session is empty.";
         public static readonly string UserDoesNotHavePermissions = "The user does not have permissions.";
-        public static readonly string LoginFieldLimitation = "Please use a user name between 4 and 255 alphanumeric characters.";
+        public static readonly string LoginFieldLimitation = "Please enter a user name between 4 and 255 characters.";
         public static readonly string DisplayNameFieldLimitation = "Please enter a display name between 1 and 255 characters.";
         public static readonly string FirstNameFieldLimitation = "Please enter a first name between 1 and 255 characters.";
         public static readonly string LastNameFieldLimitation = "Please enter a last name between 1 and 255 characters.";

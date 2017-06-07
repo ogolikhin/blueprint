@@ -95,6 +95,7 @@ namespace AdminStoreTests.UsersTests
             }
         }
 
+        [Category(Categories.CannotRunInParallel)]
         [TestCase]
         [TestRail(308885)]
         [Description("Change a user's password to a valid new password 2 times in a row.  The password should be changed " +
@@ -133,6 +134,7 @@ namespace AdminStoreTests.UsersTests
             }
         }
 
+        [Category(Categories.CannotRunInParallel)]
         [TestCase]
         [TestRail(308886)]
         [Description("Change a user's password to using the existing user password.  The password should be changed " +
@@ -164,6 +166,7 @@ namespace AdminStoreTests.UsersTests
             }
         }
 
+        [Category(Categories.CannotRunInParallel)]
         [TestCase]
         [TestRail(308887)]
         [Description("Change a user's password to a previously used password.  The password should be changed " +

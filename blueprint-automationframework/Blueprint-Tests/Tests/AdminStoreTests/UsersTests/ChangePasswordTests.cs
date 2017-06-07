@@ -72,6 +72,7 @@ namespace AdminStoreTests.UsersTests
             Helper.AssertUserCanLogin(_adminUser.Username, newPassword);
         }
 
+        [Category(Categories.CannotRunInParallel)]
         [TestCase(MinPasswordLength)]
         [TestCase(MaxPasswordLength)]
         [TestRail(234571)]
@@ -92,6 +93,7 @@ namespace AdminStoreTests.UsersTests
             Helper.AssertUserCanLogin(_adminUser.Username, newPassword);
         }
 
+        [Category(Categories.CannotRunInParallel)]
         [TestCase(MaxPasswordLength, "3")]
         [TestRail(266426)]
         [Description("Reset the user's password with the password which was used before but not in the password history. " +
@@ -141,6 +143,7 @@ namespace AdminStoreTests.UsersTests
             }
         }
 
+        [Category(Categories.CannotRunInParallel)]
         [TestCase(MinPasswordLength)]
         [TestRail(266427)]
         [Description("Disable CannotUseLastPassword by setting its value to '0' and Verify that CannotUseLastPasswords " +
@@ -304,6 +307,7 @@ namespace AdminStoreTests.UsersTests
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordSameAsDisplayName, expectedExceptionMessage);
         }
 
+        [Category(Categories.CannotRunInParallel)]
         [TestCase(MinPasswordLength, "2")]
         [TestRail(266428)]
         [Description("Reset the user's password with the previously used password which is in password history." +

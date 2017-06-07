@@ -68,7 +68,7 @@ namespace AdminStoreTests.UsersTests
             Assert.DoesNotThrow(() =>
             {
                 createdUser.Id = Helper.AdminStore.AddUser(_adminUser, createdUser);
-            }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
+            }, "'POST {0}' should return 201 Created for a valid session token!", USER_PATH);
 
             InstanceUser addedUser = null;
 
@@ -102,7 +102,7 @@ namespace AdminStoreTests.UsersTests
             Assert.DoesNotThrow(() =>
             {
                 createdUserId = Helper.AdminStore.AddUser(_adminUser, createdUser);
-            }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
+            }, "'POST {0}' should return 201 Created for a valid session token!", USER_PATH);
 
             InstanceUser addedUser = null;
 
@@ -141,7 +141,7 @@ namespace AdminStoreTests.UsersTests
             Assert.DoesNotThrow(() =>
             {
                 createdUserId = Helper.AdminStore.AddUser(_adminUser, createdUser);
-            }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
+            }, "'POST {0}' should return 201 Created for a valid session token!", USER_PATH);
 
             InstanceUser addedUser = null;
 
@@ -185,7 +185,7 @@ namespace AdminStoreTests.UsersTests
             Assert.DoesNotThrow(() =>
             {
                 createdUserId = Helper.AdminStore.AddUser(_adminUser, createdUser);
-            }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
+            }, "'POST {0}' should return 201 Created for a valid session token!", USER_PATH);
 
             InstanceUser addedUser = null;
 
@@ -227,7 +227,7 @@ namespace AdminStoreTests.UsersTests
                 Assert.DoesNotThrow(() =>
                 {
                     createdUser.Id = Helper.AdminStore.AddUser(userPermissionsToManageUsers, createdUser);
-                }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
+                }, "'POST {0}' should return 201 Created for a valid session token!", USER_PATH);
 
                 InstanceUser addedUser = null;
 
@@ -269,7 +269,7 @@ namespace AdminStoreTests.UsersTests
             Assert.DoesNotThrow(() =>
             {
                 createdUser.Id = Helper.AdminStore.AddUser(userWithPermissionsToAssignAdminRoles, createdUser);
-            }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
+            }, "'POST {0}' should return 201 Created for a valid session token!", USER_PATH);
 
             InstanceUser addedUser = null;
 
@@ -291,7 +291,7 @@ namespace AdminStoreTests.UsersTests
         [TestCase(InstanceAdminRole.AssignInstanceAdministrators, LicenseLevel.Viewer)]
         [TestRail(308877)]
         [Description("Create an instance user with a role when Password Expiration is enabled by setting its value to '1'" + 
-            "and Verify that Password gets expired based on the value set on PasswordExpireationIndays from Instances table.")]
+            "and Verify that Password gets expired based on the value set on PasswordExpirationIndays from Instances table.")]
         public void AddInstanceUser_AssigningRoleWhenPasswordExpirationEnabled_VerifyUserPasswordExpirationBasedOnPasswordExpirationInDays(
             InstanceAdminRole adminRole,
             LicenseLevel expectedLicenseLevel
@@ -309,21 +309,18 @@ namespace AdminStoreTests.UsersTests
 
             try
             {
-                // Execution: Add and Get Insintace Users
+                // Execution: Add and Get Instance Users
                 Assert.DoesNotThrow(() =>
                 {
                     createdUser.Id = Helper.AdminStore.AddUser(userWithPermissionsToAssignAdminRoles, createdUser);
-                }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
+                }, "'POST {0}' should return 201 Created for a valid session token!", USER_PATH);
 
-                InstanceUser addedUser = null;
-
-                Assert.DoesNotThrow(() =>
-                {
-                    addedUser = Helper.AdminStore.GetUserById(_adminUser, createdUser.Id);
-                }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
 
                 // Verify:
                 // Update License Type for comparison
+
+                var addedUser = Helper.AdminStore.GetUserById(_adminUser, createdUser.Id);
+
                 createdUser.LicenseType = expectedLicenseLevel;
 
                 // Update Id and CurrentVersion in CreatedUser for comparison
@@ -337,9 +334,9 @@ namespace AdminStoreTests.UsersTests
                 // Logout with the created user
                 Helper.AdminStore.DeleteSession(session);
 
-                // Simluate Password Expiration
+                // Simulate Password Expiration
                 TestHelper.UpdateLastPasswordChangeTimestampFromUsersTable(
-                    (int)addedUser.Id,
+                    addedUser.Id.Value,
                     DateTime.UtcNow.AddHours(-25));
 
                 TestHelper.UpdateValueFromInstancesTable(PASSWORD_EXPIRATION_IN_DAYS, "1");

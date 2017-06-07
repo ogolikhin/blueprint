@@ -214,9 +214,8 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact.Id,
-                    targetArtifact.Id, targetArtifact.ProjectId.Value, changeType: ChangeType.Update, artifactStore: Helper.ArtifactStore,
-                    traceDirection: finalDirection);
+                ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact.Id, targetArtifact.Id, targetArtifact.ProjectId.Value,
+                    ChangeType.Update, traceDirection: finalDirection);
             }, "Changing trace direction shouldn't throw any error.");
 
             // Verify:

@@ -1962,7 +1962,6 @@ namespace Helper
                 traceTargetArtifactId: traceTargetArtifactId,
                 traceTargetArtifactProjectId: traceTargetArtifactProjectId,
                 changeType: ChangeType.Create,
-                artifactStore: ArtifactStore,
                 traceDirection: traceDirection,
                 isSuspect: isSuspect,
                 targetSubArtifactId: targetSubArtifactId);
@@ -2020,7 +2019,6 @@ namespace Helper
                 traceTargetArtifactId: traceTargetArtifactId,
                 traceTargetArtifactProjectId: traceTargetArtifactProjectId,
                 changeType: ChangeType.Delete,
-                artifactStore: ArtifactStore,
                 targetSubArtifactId: targetSubArtifactId);
         }
 
@@ -2100,7 +2098,6 @@ namespace Helper
         /// <param name="traceTargetArtifactId">Id of Trace's target artifact.</param>
         /// <param name="traceTargetArtifactProjectId">Id of Trace's target artifact project.</param>
         /// <param name="changeType">ChangeType enum - Add, Update or Delete trace</param>
-        /// <param name="artifactStore">IArtifactStore.</param>
         /// <param name="traceDirection">(optional) Trace direction. 'From' by default.</param>
         /// <param name="isSuspect">(optional) isSuspect, true for suspect trace, false otherwise.</param>
         /// <param name="targetSubArtifactId">(optional) The ID of the sub-artifact for trace target (creates/updates/deletes trace with subartifact).</param>
@@ -2111,16 +2108,14 @@ namespace Helper
             int traceTargetArtifactId,
             int traceTargetArtifactProjectId,
             ChangeType changeType,
-            IArtifactStore artifactStore,       // TODO: Remove this parameter.
             TraceDirection traceDirection = TraceDirection.From,
             bool? isSuspect = null,
             int? targetSubArtifactId = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(traceDirection, nameof(traceDirection));
-            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
 
-            var artifactDetails = artifactStore.GetArtifactDetails(user, artifactId);
+            var artifactDetails = ArtifactStore.GetArtifactDetails(user, artifactId);
 
             var traceToCreate = UpdateManualArtifactTrace(
                 user,

@@ -2109,6 +2109,23 @@ namespace Helper
             }
         }
 
+        /// <summary>
+        /// Updates LastPasswordChangeTimestamp value from Users table for the specific user.
+        /// </summary>
+        /// <param name="UserId">The ID for the User.</param>
+        /// <param name="dateTime">The new dateTime value to set.</param>
+        /// <exception cref="SqlQueryFailedException">If the SQL query failed.</exception>
+        public static void UpdateLastPasswordChangeTimestampFromUsersTable(int UserId, DateTime dateTime)
+        {
+            string updatedDateString = dateTime.ToStringInvariant("yyyy-MM-dd HH:mm:ss");
+
+            string updateQuery = I18NHelper.FormatInvariant("UPDATE [dbo].[Users] SET LastPasswordChangeTimestamp = '{0}' WHERE UserId = {1}",
+                updatedDateString, UserId);
+
+            int rowsAffected = DatabaseHelper.ExecuteUpdateSqlQuery(updateQuery);
+            Assert.IsTrue(rowsAffected == 1, "Update more than one row in Users table!");
+        }
+
         #endregion Database Settings Management
 
         #region Custom Asserts

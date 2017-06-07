@@ -19,6 +19,8 @@ namespace AdminStoreTests.UsersTests
         private const uint MinPasswordLength = AdminStoreHelper.MinPasswordLength;
         private const uint MaxPasswordLength = AdminStoreHelper.MaxPasswordLength;
 
+        private const string CANNOTUSELASTPASSWORDS = "CannotUseLastPasswords";
+
         private IUser _adminUser = null;
 
         #region Setup and Cleanup
@@ -90,6 +92,114 @@ namespace AdminStoreTests.UsersTests
 
                 // Verify: make sure user can login with the new password.
                 Helper.AssertUserCanLogin(instanceUser.Login, newPassword);
+            }
+        }
+
+        [Category(Categories.CannotRunInParallel)]
+        [TestCase]
+        [TestRail(308885)]
+        [Description("Change a user's password to a valid new password 2 times in a row.  The password should be changed " +
+                     "successfully and the user should be able to login with the new password.")]
+        public void InstanceAdminChangePassword_ChangePasswordTwiceWithin24Hrs_VerifyUserCanLoginWithNewPassword()
+        {
+            // Setup: Create and add user with valid password.
+            var instanceUser = Helper.CreateAndAddInstanceUser(_adminUser);
+
+            string firstPassword = AdminStoreHelper.GenerateValidPassword();
+
+            // First password change
+            Helper.AdminStore.InstanceAdminChangePassword(_adminUser, instanceUser, firstPassword);
+
+            string secondPassword = AdminStoreHelper.GenerateValidPassword();
+
+            // Set CannotUseLastPasswords in instance table and store original value
+            var originalCannotUseLastPasswords = TestHelper.GetValueFromInstancesTable(CANNOTUSELASTPASSWORDS);
+            TestHelper.UpdateValueFromInstancesTable(CANNOTUSELASTPASSWORDS, "10");
+
+            // Execute: Second password change.
+            try
+            {
+                Assert.DoesNotThrow(() =>
+                {
+                    Helper.AdminStore.InstanceAdminChangePassword(_adminUser, instanceUser, secondPassword);
+                }, "'POST {0}' failed when attempting to change password 2 times within 24 Hrs!", USER_CHANGE_PASSWORD);
+
+                // Verify: make sure user can login with the new password.
+                Helper.AssertUserCanLogin(instanceUser.Login, secondPassword);
+            }
+            finally
+            {
+                // Restore CannotUseLastPasswords back to original value.
+                TestHelper.UpdateValueFromInstancesTable(CANNOTUSELASTPASSWORDS, originalCannotUseLastPasswords);
+            }
+        }
+
+        [Category(Categories.CannotRunInParallel)]
+        [TestCase]
+        [TestRail(308886)]
+        [Description("Change a user's password to using the existing user password.  The password should be changed " +
+                     "successfully and the user should be able to login with the password.")]
+        public void InstanceAdminChangePassword_ChangePasswordToExistingPassword_VerifyUserCanLoginWithNewPassword()
+        {
+            // Setup: Create and add user with valid password.
+            var instanceUser = Helper.CreateAndAddInstanceUser(_adminUser);
+
+            // Set CannotUseLastPasswords in instance table and store original value
+            var originalCannotUseLastPasswords = TestHelper.GetValueFromInstancesTable(CANNOTUSELASTPASSWORDS);
+            TestHelper.UpdateValueFromInstancesTable(CANNOTUSELASTPASSWORDS, "10");
+
+            try
+            {
+                // Execute:.
+                Assert.DoesNotThrow(() =>
+                {
+                    Helper.AdminStore.InstanceAdminChangePassword(_adminUser, instanceUser, instanceUser.Password);
+                }, "'POST {0}' failed when attempting to change passord to the existing password!", USER_CHANGE_PASSWORD);
+
+                // Verify: make sure user can login with the original password.
+                Helper.AssertUserCanLogin(instanceUser.Login, instanceUser.Password);
+            }
+            finally
+            {
+                // Restore CannotUseLastPasswords back to original value.
+                TestHelper.UpdateValueFromInstancesTable(CANNOTUSELASTPASSWORDS, originalCannotUseLastPasswords);
+            }
+        }
+
+        [Category(Categories.CannotRunInParallel)]
+        [TestCase]
+        [TestRail(308887)]
+        [Description("Change a user's password to a previously used password.  The password should be changed " +
+                     "successfully and the user should be able to login with the new password.")]
+        public void InstanceAdminChangePassword_ChangePasswordToPreviousPassword_VerifyUserCanLoginWithNewPassword()
+        {
+            // Setup: Create and add user with valid password.
+            var instanceUser = Helper.CreateAndAddInstanceUser(_adminUser);
+            string originalPassword = instanceUser.Password;
+
+            // Password change to new passowrd
+            string newPassword = AdminStoreHelper.GenerateValidPassword();
+            Helper.AdminStore.InstanceAdminChangePassword(_adminUser, instanceUser, newPassword);
+
+            // Set CannotUseLastPasswords in instance table and store original value
+            var originalCannotUseLastPasswords = TestHelper.GetValueFromInstancesTable(CANNOTUSELASTPASSWORDS);
+            TestHelper.UpdateValueFromInstancesTable(CANNOTUSELASTPASSWORDS, "10");
+
+            try
+            {
+                // Execute: Change password back to original password.
+                Assert.DoesNotThrow(() =>
+                {
+                    Helper.AdminStore.InstanceAdminChangePassword(_adminUser, instanceUser, originalPassword);
+                }, "'POST {0}' failed when attempting to change password to a previously used password!", USER_CHANGE_PASSWORD);
+
+                // Verify: make sure user can login with the original password.
+                Helper.AssertUserCanLogin(instanceUser.Login, originalPassword);
+            }
+            finally
+            {
+                // Restore CannotUseLastPasswords back to original value.
+                TestHelper.UpdateValueFromInstancesTable(CANNOTUSELASTPASSWORDS, originalCannotUseLastPasswords);
             }
         }
 

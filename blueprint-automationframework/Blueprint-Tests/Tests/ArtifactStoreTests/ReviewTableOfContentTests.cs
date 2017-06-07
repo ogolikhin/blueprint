@@ -1,4 +1,5 @@
-﻿using CustomAttributes;
+﻿using Common;
+using CustomAttributes;
 using Helper;
 using Model.Common.Enums;
 using Model.Factories;
@@ -54,16 +55,17 @@ namespace ArtifactStoreTests
             // Execute:
             QueryResult<ReviewTableOfContentItem> tableOfContentResponse = null;
             Assert.DoesNotThrow(() => tableOfContentResponse = Helper.ArtifactStore.GetReviewTableOfContent(user, reviewId, revisionId),
-                "{0} should throw no error.", nameof(Helper.ArtifactStore.GetReviewContainer));
+                "{0} should throw no error.", nameof(Helper.ArtifactStore.GetReviewTableOfContent));
 
             // Verify:
             Assert.AreEqual(3, tableOfContentResponse.Total, "TotalArtifacts should be equal to the expected number of artifacts in Review.");
 
-            ValidateTableOfContentResponce(tableOfContentResponse);
+            ValidateTableOfContentResponseForReview(tableOfContentResponse);
         }
 
         [Explicit(IgnoreReasons.UnderDevelopmentDev)]  // Trello bug: https://trello.com/c/lpZT5WXc
         [Category(Categories.GoldenData)]
+        [Category(Categories.CannotRunInParallel)]
         [TestCase(112)]
         [TestRail(308879)]
         [Description("Get Review Table of Content by review id and revision id from Custom Data project with approver/reviewer user, " +
@@ -71,32 +73,39 @@ namespace ArtifactStoreTests
         public void GetReviewTableOfContent_ExistingReview_CheckHasAccessProperty(int reviewId)
         {
             // Setup:
-            const string USERNAME = "UserForReviewTest-308879";
-            const string PASSWORD = "Welcome1!";
+            const int ARTIFACT_ID = 29;
 
-            var sessionToken = Helper.AdminStore.AddSession(USERNAME, PASSWORD);
-            var user = UserFactory.CreateUserOnly(USERNAME, PASSWORD, InstanceAdminRole.DefaultInstanceAdministrator);
-            user.SetToken(sessionToken.SessionId);
-            user.Id = int.MaxValue;
+            var user = UserFactory.CreateUserOnly(GoldenData.GoldenUsers.UserWithNoAccessToArtifact29.Username, 
+                GoldenData.GoldenUsers.UserWithNoAccessToArtifact29.Password);
+            Helper.AdminStore.AddSession(user);
 
             // Execute:
             QueryResult<ReviewTableOfContentItem> tableOfContentResponse = null;
             Assert.DoesNotThrow(() => tableOfContentResponse = Helper.ArtifactStore.GetReviewTableOfContent(user, reviewId, LAST_REVISION_ID),
-                "{0} should throw no error.", nameof(Helper.ArtifactStore.GetReviewContainer));
+                "{0} should throw no error.", nameof(Helper.ArtifactStore.GetReviewTableOfContent));
 
             // Verify:
             Assert.AreEqual(15, tableOfContentResponse.Total, "TotalArtifacts should be equal to the expected number of artifacts in Review.");
 
-            Assert.IsFalse(tableOfContentResponse.Items.Last().HasAccess, "HasAccess property for artifact 29 should be False!");
-            Assert.IsNull(tableOfContentResponse.Items.Last().Name, "Name property for artifact 29 should be null!");
-            Assert.IsNull(tableOfContentResponse.Items.Last().Prefix, "Prefix property for artifact 29 should be null!");
-            Assert.IsFalse(tableOfContentResponse.Items.Last().Included, "Included property is supposed to be False for artifact 29");
+            Assert.IsFalse(tableOfContentResponse.Items.Last().HasAccess, I18NHelper.FormatInvariant(
+                "HasAccess property for artifact {0} should be False!", ARTIFACT_ID));
+            Assert.IsNull(tableOfContentResponse.Items.Last().Name, I18NHelper.FormatInvariant(
+                "Name property for artifact {0} should be null!", ARTIFACT_ID));
+            Assert.IsNull(tableOfContentResponse.Items.Last().Prefix, I18NHelper.FormatInvariant(
+                "Prefix property for artifact {0} should be null!", ARTIFACT_ID));
+            Assert.IsFalse(tableOfContentResponse.Items.Last().Included, I18NHelper.FormatInvariant(
+                "Included property for artifact {0} is supposed to be False!", ARTIFACT_ID));
 
-            Assert.IsFalse(tableOfContentResponse.Items.Last().HasComments.Value, "HasComments property is supposed to be False for artifact 29!");
-            Assert.AreEqual(29, tableOfContentResponse.Items.Last().Id, "Id property is supposed to be 29 for last artifact!");
-            Assert.IsFalse(tableOfContentResponse.Items.Last().IsApprovalRequired, "IsApprovalRequired is supposed to be False for artifact 29!");
-            Assert.AreEqual(2, tableOfContentResponse.Items.Last().Level, "Level property is supposed to be 2 for last artifact for artifact 29!");
-            Assert.IsFalse(tableOfContentResponse.Items.Last().Viewed, "Viewed property is supposed to be False for artifact 29!");
+            Assert.IsFalse(tableOfContentResponse.Items.Last().HasComments.Value, I18NHelper.FormatInvariant(
+                "HasComments property for artifact {0} is supposed to be False!", ARTIFACT_ID));
+            Assert.AreEqual(29, tableOfContentResponse.Items.Last().Id, I18NHelper.FormatInvariant(
+                "Id property is supposed to be {0} for last artifact!", ARTIFACT_ID));
+            Assert.IsFalse(tableOfContentResponse.Items.Last().IsApprovalRequired, I18NHelper.FormatInvariant(
+                "IsApprovalRequired property for artifact {0} is supposed to be False!", ARTIFACT_ID));
+            Assert.AreEqual(2, tableOfContentResponse.Items.Last().Level, I18NHelper.FormatInvariant(
+                "Level property for artifact {0} is supposed to be 2 for last artifact!", ARTIFACT_ID));
+            Assert.IsFalse(tableOfContentResponse.Items.Last().Viewed, I18NHelper.FormatInvariant(
+                "Viewed property for artifact {0} is supposed to be False!", ARTIFACT_ID));
         }
 
         [Category(Categories.GoldenData)]
@@ -106,10 +115,11 @@ namespace ArtifactStoreTests
         [TestCase(5, null, 10)]
         [TestCase(2, 3, 3)]
         [TestCase(15, 3, 0)]
+        [TestCase(0, int.MaxValue, 15)]
         [TestRail(308880)]
-        [Description("Get Review Table of Content by review id and revision id from Custom Data project with" +
+        [Description("Get Review Table of Content by review id and revision id from Custom Data project with " +
             "check that expected artifacts are in the response.")]
-        public void GetReviewTableOfContent_ExistingReview_Filtered_CheckCorrectArtifactsReturned(int? offset, int? maxToReturn, int numberReturned)
+        public void GetReviewTableOfContent_ExistingReview_Filtered_CheckCorrectArtifactsReturned(int? offset, int? maxToReturn, int expectedNumberReturned)
         {
             // Setup:
             const int REVIEW_ID = 112;
@@ -124,15 +134,17 @@ namespace ArtifactStoreTests
             // Execute:
             QueryResult<ReviewTableOfContentItem> tableOfContentResponse = null;
             Assert.DoesNotThrow(() => tableOfContentResponse = Helper.ArtifactStore.GetReviewTableOfContent(user, REVIEW_ID, LAST_REVISION_ID, offset, maxToReturn),
-                "{0} should throw no error.", nameof(Helper.ArtifactStore.GetReviewContainer));
+                "{0} should throw no error.", nameof(Helper.ArtifactStore.GetReviewTableOfContent));
 
             // Verify:
             Assert.AreEqual(15, tableOfContentResponse.Total, "TotalArtifacts should be equal to the expected number of artifacts in Review!");
-            Assert.AreEqual(numberReturned, tableOfContentResponse.Items.Count(),
+            Assert.AreEqual(expectedNumberReturned, tableOfContentResponse.Items.Count(),
                 "Returned artifact number should be equal to the expected number of returned artifacts!");
 
-            if (numberReturned > 0)
-                ValidateReturnedArtifactIds(tableOfContentResponse, offset, numberReturned);
+            if (expectedNumberReturned > 0)
+            {
+                ValidateReturnedArtifactIdsForReviewId112(tableOfContentResponse, offset, expectedNumberReturned);
+            }
         }
 
         #endregion Positive tests
@@ -157,14 +169,15 @@ namespace ArtifactStoreTests
             // Setup:
             var adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
-            const int reviewId = 112;
+            const int REVIEW_ID = 112;
             const int REVISION_ID = 239;
 
-//            var user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, projectCustomData);
-
             // Execute: 
-            Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetReviewTableOfContent(adminUser, reviewId, REVISION_ID),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetReviewTableOfContent(adminUser, REVIEW_ID, REVISION_ID),
                 "{0} should return 403 for non-reviewer user.", nameof(Helper.ArtifactStore.GetReviewContainer));
+
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess,
+                I18NHelper.FormatInvariant("User does not have permissions to access the review(Id: {0}).", REVIEW_ID));
         }
 
         #endregion 403 Forbidden
@@ -179,7 +192,7 @@ namespace ArtifactStoreTests
         /// Validates that returned items in table of content response for review 160 have specific properties.
         /// </summary>
         /// <param name="tableOfContentResponse">Actual table of content call response.</param>
-        private static void ValidateTableOfContentResponce(QueryResult<ReviewTableOfContentItem> tableOfContentResponse)
+        private static void ValidateTableOfContentResponseForReview(QueryResult<ReviewTableOfContentItem> tableOfContentResponse)
         {
             Assert.AreEqual(ApprovalType.NotSpecified, tableOfContentResponse.Items[0].ApprovalStatus, "Approval status is different from NotSpecified!");
             Assert.IsTrue(tableOfContentResponse.Items[0].HasAccess, "HasAccess property is supposed to be True!");
@@ -210,9 +223,9 @@ namespace ArtifactStoreTests
         /// Validates that returned items in table of content response for review 112 are the same as expected.
         /// </summary>
         /// <param name="tableOfContentResponse">Actual table of content call response.</param>
-        /// <param name="offset">(optional)Offset from the beginning of artifact list. By default starts from the fist item.</param>
+        /// <param name="offset">(optional)Offset from the beginning of artifact list. By default starts from the first item.</param>
         /// <param name="numberReturned">Expected number of items to return.</param>
-        private static void ValidateReturnedArtifactIds(QueryResult<ReviewTableOfContentItem> tableOfContentResponse, int? offset, int numberReturned)
+        private static void ValidateReturnedArtifactIdsForReviewId112(QueryResult<ReviewTableOfContentItem> tableOfContentResponse, int? offset, int numberReturned)
         {
             int[] ids = new int[] { 7, 15, 16, 33, 36, 31, 49, 40, 34, 32, 23, 22, 17, 24, 29 };
 

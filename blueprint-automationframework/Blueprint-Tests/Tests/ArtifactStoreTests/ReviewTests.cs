@@ -22,8 +22,6 @@ namespace ArtifactStoreTests
         private IUser _user = null;
         private IProject _projectCustomData = null;
 
-        const int LAST_REVISION_ID = int.MaxValue;
-
         [SetUp]
         public void SetUp()
         {

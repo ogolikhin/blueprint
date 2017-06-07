@@ -180,6 +180,48 @@ namespace ArtifactStoreTests
             Assert.AreEqual(15, reviewedArtifacts.Items.Count, "TotalArtifacts should be equal to the expected number of artifacts in Review.");
         }
 
+        #region Artifacts Hierarchy Tests
+
+        [Category(Categories.GoldenData)]
+        [Category(Categories.CannotRunInParallel)]
+        [Explicit(IgnoreReasons.DeploymentNotReady)]
+        [TestCase]
+        [TestRail(305070)]
+        [Description("Get Review Artifacts (Review Experience) by id from Custom Data project, check that artifacts are ordered by OrderIndex.")]
+        public void GetReviewArtifacts_ExistingReview_Reviewer_ValidateHierarchy()
+        {
+            // Setup:
+            const int reviewId = 112;
+
+            var testConfig = TestConfiguration.GetInstance();
+            string userName = testConfig.Username;
+            string password = testConfig.Password;
+
+            var sessionToken = Helper.AdminStore.AddSession(userName, password);
+            var testUser = UserFactory.CreateUserOnly(userName, password);
+            testUser.SetToken(sessionToken.SessionId);
+
+            var reviewContainer = Helper.ArtifactStore.GetReviewContainer(testUser, reviewId);
+
+            QueryResult<ReviewedArtifact> reviewedArtifacts = null;
+
+            // Execute: 
+            Assert.DoesNotThrow(() => reviewedArtifacts = Helper.ArtifactStore.GetReviewedArtifacts(testUser, reviewId,
+                revisionId: reviewContainer.RevisionId),
+                "{0} should throw no error.", nameof(Helper.ArtifactStore.GetReviewedArtifacts));
+
+            List<NovaArtifactDetails> artifacts = new List<NovaArtifactDetails>();
+            foreach (var a in reviewedArtifacts.Items)
+            {
+                artifacts.Add(Helper.ArtifactStore.GetArtifactDetails(testUser, a.Id));
+            }
+
+            // Verify:
+            ValidateArtifactsHierarchy(artifacts, reviewedArtifacts.Items);
+        }
+
+        #endregion Artifacts Hierarchy Tests
+
         #endregion Positive Tests
 
         #region 400 Bad Request
@@ -214,49 +256,7 @@ namespace ArtifactStoreTests
 
         #endregion 404 Not Found
 
-        #region Artifacts Hierarchy Tests
-
-        [Category(Categories.GoldenData)]
-        [Category(Categories.CannotRunInParallel)]
-        [Explicit(IgnoreReasons.DeploymentNotReady)]
-        [TestCase]
-        [TestRail(305070)]
-        [Description("Get Review Artifacts (Review Experience) by id from Custom Data project, check that artifacts are ordered by OrderIndex.")]
-        public void GetReviewArtifacts_ExistingReview_Reviewer_ValidateHierarchy()
-        {
-            // Setup:
-            const int reviewId = 112;
-
-            var testConfig = TestConfiguration.GetInstance();
-            string userName = testConfig.Username;
-            string password = testConfig.Password;
-
-            var sessionToken = Helper.AdminStore.AddSession(userName, password);
-            var testUser = UserFactory.CreateUserOnly(userName, password);
-            testUser.SetToken(sessionToken.SessionId);
-
-            var reviewContainer = Helper.ArtifactStore.GetReviewContainer(testUser, reviewId);
-            
-            QueryResult<ReviewedArtifact> reviewedArtifacts = null;
-
-            // Execute: 
-            Assert.DoesNotThrow(() => reviewedArtifacts = Helper.ArtifactStore.GetReviewedArtifacts(testUser, reviewId,
-                revisionId: reviewContainer.RevisionId),
-                "{0} should throw no error.", nameof(Helper.ArtifactStore.GetReviewedArtifacts));
-
-            List<NovaArtifactDetails> artifacts = new List<NovaArtifactDetails>();
-            foreach (var a in reviewedArtifacts.Items)
-            {
-                artifacts.Add(Helper.ArtifactStore.GetArtifactDetails(testUser, a.Id));
-            }
-
-            // Verify:
-            ValidateArtifactsHierarchy(artifacts, reviewedArtifacts.Items);
-        }
-
-        #endregion Artifacts Hierarchy Tests
-
-        #region Private Functions
+        #region Private functions
 
         /// <summary>
         /// Checks that artifacts in review ordered by OrderIndex.

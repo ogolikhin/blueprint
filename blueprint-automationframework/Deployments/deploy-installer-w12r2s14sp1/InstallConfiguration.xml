@@ -29,4 +29,9 @@
     <IsWindowsAuthentication>false</IsWindowsAuthentication>
     <IsAdminStoreDifferentServer>false</IsAdminStoreDifferentServer>
   </AdminStorageDatabaseInfo>
+  <BlueprintMessagingInfo>
+    <Host>titan.blueprintsys.net</Host>
+    <VirtualHost>deploy-installer-w12r2s14sp1</VirtualHost>
+    <Username>admin</Username>
+  </BlueprintMessagingInfo>
 </OutputSettings>

@@ -404,12 +404,11 @@ namespace Model.Impl
             Pagination pagination = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(pagination, nameof(pagination));
 
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.VERSION, artifactId);
             Dictionary<string, string> queryParameters = null;
 
-            if ((sortByDateAsc != null) || (pagination.Limit != null) || (pagination.Offset != null))
+            if ((sortByDateAsc != null) || (pagination?.Limit != null) || (pagination?.Offset != null))
             {
                 queryParameters = new Dictionary<string, string>();
 
@@ -418,12 +417,12 @@ namespace Model.Impl
                     queryParameters.Add("asc", sortByDateAsc.ToString());
                 }
 
-                if (pagination.Limit != null)
+                if (pagination?.Limit != null)
                 {
                     queryParameters.Add("limit", pagination.Limit.ToString());
                 }
 
-                if (pagination.Offset != null)
+                if (pagination?.Offset != null)
                 {
                     queryParameters.Add("offset", pagination.Offset.ToString());
                 }
@@ -812,7 +811,7 @@ namespace Model.Impl
             return AddArtifactToBaselineOrCollection<AddToBaselineResult>(user, artifactId, path, includeDescendants, expectedStatusCodes);
         }
 
-        /// <seealso cref="IArtifactStore.GetArtifactHistory(int, IUser, bool?, int?, int?, List{HttpStatusCode})"/>
+        /// <seealso cref="IArtifactStore.GetArtifactsAuthorHistory(List{int}, IUser, List{HttpStatusCode})"/>
         public List<AuthorHistoryItem> GetArtifactsAuthorHistory(List<int> artifactIds,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)

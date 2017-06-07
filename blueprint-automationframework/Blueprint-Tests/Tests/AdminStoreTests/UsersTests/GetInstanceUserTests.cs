@@ -151,7 +151,6 @@ namespace AdminStoreTests.UsersTests
             }
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
         [TestCase]
         [Description("Create and add an instance user. Delete the user.  Try to get the deleted user. " +
                      "Verify that 404 Not Found is returned.")]

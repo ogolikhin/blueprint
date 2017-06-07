@@ -122,6 +122,7 @@ namespace ArtifactStoreTests
             ValidateTableOfContentResponce(tableOfContentResponse);
         }
 
+        [Explicit(IgnoreReasons.UnderDevelopment)]  // Trello bug: https://trello.com/c/lpZT5WXc
         [Category(Categories.GoldenData)]
         [TestCase(112)]
         [TestRail(308879)]
@@ -150,9 +151,16 @@ namespace ArtifactStoreTests
 
             var items = (List<ReviewTableOfContentItem>)tableOfContentResponse.Items;
 
-            Assert.IsFalse(items[14].HasAccess, "HasAccess property for artifact 29 should be false!");
-            Assert.IsNull(items[14].Name, "Name property for artifact 29 should be null!");
-            Assert.IsNull(items[14].Prefix, "Prefix property for artifact 29 should be null!");
+            Assert.IsFalse(items.Last().HasAccess, "HasAccess property for artifact 29 should be False!");
+            Assert.IsNull(items.Last().Name, "Name property for artifact 29 should be null!");
+            Assert.IsNull(items.Last().Prefix, "Prefix property for artifact 29 should be null!");
+            Assert.IsFalse(items.Last().Included, "Included property is supposed to be False for artifact 29");
+
+            Assert.IsFalse(items.Last().HasComments.Value, "HasComments property is supposed to be False for artifact 29!");
+            Assert.AreEqual(29, items.Last().Id, "Id property is supposed to be 29 for last artifact!");
+            Assert.IsFalse(items.Last().IsApprovalRequired, "IsApprovalRequired is supposed to be False for artifact 29!");
+            Assert.AreEqual(2, items.Last().Level, "Level property is supposed to be 2 for last artifact for artifact 29!");
+            Assert.IsFalse(items.Last().Viewed, "Viewed property is supposed to be False for artifact 29!");
         }
 
         [Category(Categories.GoldenData)]

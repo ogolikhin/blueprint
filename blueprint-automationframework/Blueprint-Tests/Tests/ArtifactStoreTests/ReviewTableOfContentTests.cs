@@ -1,6 +1,7 @@
 ﻿using Common;
 using CustomAttributes;
 using Helper;
+using Model;
 using Model.Common.Enums;
 using Model.Factories;
 using Model.Impl;
@@ -18,6 +19,8 @@ namespace ArtifactStoreTests
     public class ReviewTableOfContentTests : TestBase
     {
         const int LAST_REVISION_ID = int.MaxValue;
+        const int REVIEW_ID_112 = 112;
+        const int REVISION_ID_239 = 239;
 
         [SetUp]
         public void SetUp()
@@ -66,7 +69,7 @@ namespace ArtifactStoreTests
         [Explicit(IgnoreReasons.UnderDevelopmentDev)]  // Trello bug: https://trello.com/c/lpZT5WXc
         [Category(Categories.GoldenData)]
         [Category(Categories.CannotRunInParallel)]
-        [TestCase(112)]
+        [TestCase(REVIEW_ID_112)]
         [TestRail(308879)]
         [Description("Get Review Table of Content by review id and revision id from Custom Data project with approver/reviewer user, " +
             "check that artifacts have expected values.")]
@@ -122,8 +125,6 @@ namespace ArtifactStoreTests
         public void GetReviewTableOfContent_ExistingReview_Filtered_CheckCorrectArtifactsReturned(int? offset, int? maxToReturn, int expectedNumberReturned)
         {
             // Setup:
-            const int REVIEW_ID = 112;
-
             var testConfig = TestConfiguration.GetInstance();
             string userName = testConfig.Username;
             string password = testConfig.Password;
@@ -133,8 +134,8 @@ namespace ArtifactStoreTests
 
             // Execute:
             QueryResult<ReviewTableOfContentItem> tableOfContentResponse = null;
-            Assert.DoesNotThrow(() => tableOfContentResponse = Helper.ArtifactStore.GetReviewTableOfContent(user, REVIEW_ID, LAST_REVISION_ID, offset, maxToReturn),
-                "{0} should throw no error.", nameof(Helper.ArtifactStore.GetReviewTableOfContent));
+            Assert.DoesNotThrow(() => tableOfContentResponse = Helper.ArtifactStore.GetReviewTableOfContent(user, REVIEW_ID_112, LAST_REVISION_ID, offset,
+                maxToReturn), "{0} should throw no error.", nameof(Helper.ArtifactStore.GetReviewTableOfContent));
 
             // Verify:
             Assert.AreEqual(15, tableOfContentResponse.Total, "TotalArtifacts should be equal to the expected number of artifacts in Review!");
@@ -150,10 +151,48 @@ namespace ArtifactStoreTests
         #endregion Positive tests
 
         #region 400 Bad Request
+        /*
+                [TestCase]
+                [TestRail(0)]
+                [Description("Send empty list of artifacts, checks returned result is 400 Bad Request.")]
+                public void PublishArtifact_EmptyArtifactList_BadRequest()
+                {
+                    // Execute:
+                    var ex = Assert.Throws<Http400BadRequestException>(() => Helper.ArtifactStore.PublishArtifacts(new List<int>(), _user),
+                    "'POST {0}' should return 400 Bad Request if body of the request does not have any artifact ids!", PUBLISH_PATH);
 
+                    // Verify:
+                    string expectedExceptionMessage = "The list of artifact Ids is empty.";
+                    TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, expectedExceptionMessage);
+                }
+        */
         #endregion 400 Bad Request
 
         #region 401 Unauthorized
+
+        [TestCase()]
+        [TestRail(165975)]
+        [Description("Create & save a single artifact.  Publish the artifact with wrong token.  Verify publish returns code 401 Unauthorized.")]
+        public void GetReviewTableOfContent_InvalidToken_Unauthorized()
+        {
+            // Setup:
+            var testConfig = TestConfiguration.GetInstance();
+            string userName = testConfig.Username;
+            string password = testConfig.Password;
+
+            var user = UserFactory.CreateUserOnly(userName, password);
+            Helper.AdminStore.AddSession(user);
+            user.SetToken(CommonConstants.InvalidToken);
+
+            //            var userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+
+            // Execute:
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.GetReviewTableOfContent(user, REVIEW_ID_112, REVISION_ID_239),
+                "{0} should return 401 Unauthorized for user with bad token.", nameof(Helper.ArtifactStore.GetReviewTableOfContent));
+
+            // Verify:
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "Token is invalid.");
+        }
 
         #endregion 401 Unauthorized
 
@@ -163,21 +202,18 @@ namespace ArtifactStoreTests
         [TestCase()] //Trello https://trello.com/c/BLM8byFl
         [TestRail(0)]
         [Description("Get review table of content by review id and revision id from Custom Data project with non-reviewer user, " +
-            "check that server returns 403 Forbiddeb.")]
+            "check that server returns 403 Forbidden.")]
         public void GetReviewTableOfContent_ExistingReview_NonReviewer_403Forbidden()
         {
             // Setup:
             var adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
-            const int REVIEW_ID = 112;
-            const int REVISION_ID = 239;
-
             // Execute: 
-            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetReviewTableOfContent(adminUser, REVIEW_ID, REVISION_ID),
-                "{0} should return 403 for non-reviewer user.", nameof(Helper.ArtifactStore.GetReviewContainer));
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetReviewTableOfContent(adminUser, REVIEW_ID_112, REVISION_ID_239),
+                "{0} should return 403 for non-reviewer user.", nameof(Helper.ArtifactStore.GetReviewTableOfContent));
 
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess,
-                I18NHelper.FormatInvariant("User does not have permissions to access the review(Id: {0}).", REVIEW_ID));
+                I18NHelper.FormatInvariant("User does not have permissions to access the review (Id:{0}).", REVIEW_ID_112));
         }
 
         #endregion 403 Forbidden

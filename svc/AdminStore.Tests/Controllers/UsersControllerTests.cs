@@ -1014,6 +1014,49 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
+        public async Task CreateUser_UserLoginContainsInvalidCharacters_ReturnsBadRequestResult()
+        {
+            // Arrange
+            BadRequestException exception = null;
+            _user.Login = "abcырyz";
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+
+            // Act
+            try
+            {
+                await _controller.CreateUser(_user);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(exception.Message, ErrorMessages.LoginInvalid);
+            Assert.AreEqual(exception.ErrorCode, ErrorCodes.BadRequest);
+        }
+
+        [TestMethod]
+        public async Task CreateUser_UserLoginContainsValidCharacters_ReturnsOk()
+        {
+            // Arrange
+            _user.Login = "test-user!test_@user";
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+
+            // Act
+            var result = await _controller.CreateUser(_user);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(HttpResponseMessage));
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
         public async Task CreateUser_UserLoginOutOfRangeLengthString_ReturnBadRequestResult()
         {
@@ -1712,7 +1755,7 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
+        [ExpectedException(typeof(ResourceNotFoundException))]
         public async Task UpdateUser_UserIdNotPassed_ReturnBadRequestErrorResult()
         {
             // Arrange
@@ -1798,6 +1841,57 @@ namespace AdminStore.Controllers
 
             _user.DisplayName = "New DisplayName";
             _user.InstanceAdminRoleId = 1;
+
+            // Act
+            var result = await _controller.UpdateUser(UserId, _user);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(OkResult));
+        }
+
+        [TestMethod]
+        public async Task UpdateUser_UserLoginContainsInvalidCharacters_ReturnsBadRequestResult()
+        {
+            // Arrange
+            BadRequestException exception = null;
+            _user.Login = "abcырyz";
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+            var existingUser = new User { Id = UserId, Login = "test_user" };
+            _usersRepoMock
+                .Setup(r => r.GetUserAsync(UserId))
+                .ReturnsAsync(existingUser);
+
+            // Act
+            try
+            {
+                await _controller.UpdateUser(UserId, _user);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(exception.Message, ErrorMessages.LoginInvalid);
+            Assert.AreEqual(exception.ErrorCode, ErrorCodes.BadRequest);
+        }
+
+        [TestMethod]
+        public async Task UpdateUser_UserLoginContainsValidCharacters_ReturnsOk()
+        {
+            // Arrange
+            _user.Login = "test-user!test_@user";
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+            var existingUser = new User { Id = UserId, Login = "test_user" };
+            _usersRepoMock
+                .Setup(r => r.GetUserAsync(UserId))
+                .ReturnsAsync(existingUser);
 
             // Act
             var result = await _controller.UpdateUser(UserId, _user);

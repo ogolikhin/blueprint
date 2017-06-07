@@ -48,10 +48,9 @@
         public static readonly string IncorrectBase64FormatPasswordField = "The password is not a valid Base-64 string as it contains a non-base 64 character, more than two padding characters, or an illegal character among the padding characters";
         //Groups
         public static readonly string GroupModelIsEmpty = "The group model is empty.";
-        public static readonly string GroupName = "Please ensure the Group Name is not empty.";
+        public static readonly string GroupName = "Please enter a Group Name.";
         public static readonly string GroupNameFieldLimitation = "The length of the \"Group Name\" field must be between 4 and 255 characters.";
         public static readonly string GroupEmailFieldLimitation = "The length of the \"Group Email\" field must be between 4 and 255 characters.";
-        public static readonly string GroupEmailFormatIncorrect = "Please ensure the email address is correct.";
         public static readonly string GeneralErrorOfCreatingGroup = "An error has occurred when the operation was being performed at SQL level.";
         public static readonly string CreationOnlyDatabaseGroup = "You can create only database group.";
         public static readonly string CreationGroupsOnlyWithCollaboratorOrAuthorOrNoneLicenses = "You can create groups only with the \"collaborator\", the \"author\" or empty license.";
@@ -69,5 +68,6 @@
         public static readonly string AssignMemberScopeEmpty = "Please provide the scope for the assign operation";
         public static readonly string UserAlreadyAssignedToGroup = "User already assigned to the group";
         public static readonly string GroupAlreadyAssignedToGroup = "Group already assigned to the group";
+        public static readonly string GroupEmailFormatIncorrect = "Please ensure the email address is in the following format: group@company.com.";
     }
 }

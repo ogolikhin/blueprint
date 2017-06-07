@@ -12,6 +12,9 @@ namespace AdminStore.Helpers
 {
     public class GroupValidator
     {
+        public const int MinEmailLength = 4;
+        public const int MaxEmailLength = 255;
+
         public static void ValidateModel(GroupDto group, OperationMode operationMode)
         {
             if (string.IsNullOrWhiteSpace(group.Name))
@@ -19,16 +22,15 @@ namespace AdminStore.Helpers
                 throw new BadRequestException(ErrorMessages.GroupName, ErrorCodes.BadRequest);
             }
 
-            if (group.Name.Length < 4 || group.Name.Length > 255)
-            {
-                throw new BadRequestException(ErrorMessages.GroupNameFieldLimitation, ErrorCodes.BadRequest);
-            }
+            group.Name = group.Name.Trim();
 
-            if (!string.IsNullOrWhiteSpace(group.Email))
+            if (!string.IsNullOrEmpty(group.Email))
             {
-                if (group.Email.Length < 4 || group.Email.Length > 255)
+                group.Email = group.Email.Trim();
+
+                if (group.Email.Length < MinEmailLength || group.Email.Length > MaxEmailLength)
                 {
-                    throw new BadRequestException(ErrorMessages.GroupEmailFieldLimitation, ErrorCodes.BadRequest);
+                    throw new BadRequestException(ErrorMessages.EmailFieldLimitation, ErrorCodes.BadRequest);
                 }
 
                 var emailRegex =

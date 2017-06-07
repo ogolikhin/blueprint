@@ -445,10 +445,7 @@ namespace AdminStoreTests.UsersTests
 
             Assert.IsTrue(updatedUser.Enabled, "User should have Enabled=True, but has Enabled=False.");
 
-            Assert.DoesNotThrow(() =>
-            {
-                Helper.AssertUserCanLogin(createdUser.Login, createdUser.Password);
-            }, "User should be able to log in!");
+            Helper.AssertUserCanLogin(createdUser.Login, createdUser.Password);
         }
 
         [TestCase]

@@ -719,25 +719,6 @@ namespace AdminStore.Controllers
             //assert
         }
 
-        [TestMethod]
-        public async Task AssignMembers_ParametersAndPermissionsAreFine_ReturnOkResult()
-        {
-            //arrange
-            var collection = new List<KeyValuePair<int, UserType>>() { new KeyValuePair<int, UserType>(1, UserType.Group) };
-            var scope = new AssignScope() { Members = collection.ToArray() };
-            _privilegesRepository
-               .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
-               .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
-            _sqlGroupRepositoryMock.Setup(repo => repo.AssignMembers(It.IsAny<int>(), It.IsAny<AssignScope>(), It.IsAny<string>())).ReturnsAsync(true);
-
-            //act
-            var result = await _controller.AssignMembers(_groupId, scope) as OkResult;
-
-            //assert
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result, typeof(OkResult));
-        }
-
         #endregion
     }
 }

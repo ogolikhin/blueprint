@@ -266,7 +266,7 @@ namespace AdminStore.Controllers
         }
 
         /// <summary>
-        /// 
+        /// Assign group/user to the group
         /// </summary>
         /// <param name="groupId">Group's identity</param>
         /// <param name="scope">Group's model</param>

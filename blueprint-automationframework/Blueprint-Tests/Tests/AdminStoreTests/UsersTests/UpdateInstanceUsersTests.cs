@@ -769,7 +769,7 @@ namespace AdminStoreTests.UsersTests
 
         [TestCase(-1)]
         [TestCase(0)]
-        [TestCase(int.MaxValue, Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)]  // Trello bug: https://trello.com/c/7jBzvetD  Returns ErrorCode=0 in body.
+        [TestCase(int.MaxValue)]
         [Description("Try to update the user with an invalid Id.  Verify that 404 Not Found is returned.")]
         [TestRail(303656)]
         public void UpdateInstanceUser_InvalidUserId_404NotFound(int invalidId)

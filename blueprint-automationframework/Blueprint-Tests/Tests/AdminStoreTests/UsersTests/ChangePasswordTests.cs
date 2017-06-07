@@ -60,7 +60,7 @@ namespace AdminStoreTests.UsersTests
         public void ResetUserPassword_SendValidNewPassword_VerifyUserCanLoginWithNewPassword(uint length)
         {
             // Setup: generate a valid password.
-            string newPassword = TestHelper.CreateValidPassword(length, MinPasswordLength, MaxPasswordLength);
+            string newPassword = AdminStoreHelper.GenerateValidPassword(length);
 
             // Execute: change the user's password.
             Assert.DoesNotThrow(() =>
@@ -69,7 +69,7 @@ namespace AdminStoreTests.UsersTests
             }, "'POST {0}' failed when we passed a valid username & password!", REST_PATH);
 
             // Verify: make sure user can login with the new password.
-            Helper.VerifyLogin(_adminUser.Username, newPassword);
+            Helper.AssertUserCanLogin(_adminUser.Username, newPassword);
         }
 
         [TestCase(MinPasswordLength)]
@@ -83,13 +83,13 @@ namespace AdminStoreTests.UsersTests
             SetUserWithValidPassword(_adminUser, length);
 
             // Execute: Attempt to change the password again after the 24-hours password reset cooldown period.
-            string newPassword = TestHelper.CreateValidPassword(length, MinPasswordLength, MaxPasswordLength);
+            string newPassword = AdminStoreHelper.GenerateValidPassword(length);
             Assert.DoesNotThrow(() => Helper.AdminStore.ChangePassword(user: _adminUser, newPassword: newPassword),
                 "'POST {0}' failed when user tried to reset the password after 24-hours password reset cooldown period.",
                 REST_PATH);
 
             // Verify: Make sure the user can login with the new password.
-            Helper.VerifyLogin(_adminUser.Username, newPassword);
+            Helper.AssertUserCanLogin(_adminUser.Username, newPassword);
         }
 
         [TestCase(MaxPasswordLength, "3")]
@@ -109,7 +109,7 @@ namespace AdminStoreTests.UsersTests
 
             for (int i = 0; i < resetExecutionCount; i++)
             {
-                usedValidPasswords.Add(TestHelper.CreateValidPassword(length, MinPasswordLength, MaxPasswordLength));
+                usedValidPasswords.Add(AdminStoreHelper.GenerateValidPassword(length));
             }
 
             var originalCannotUseLastPassword = TestHelper.GetValueFromInstancesTable(CANNOTUSELASTPASSWORDS);
@@ -132,7 +132,7 @@ namespace AdminStoreTests.UsersTests
                     REST_PATH);
 
                 // Verify: Make sure the user can still login with the updated password.
-                Helper.VerifyLogin(_adminUser.Username, usedValidPasswords.First());
+                Helper.AssertUserCanLogin(_adminUser.Username, usedValidPasswords.First());
             }
             finally
             {
@@ -157,11 +157,11 @@ namespace AdminStoreTests.UsersTests
             try
             {
                 // Setup: Reset the password with first updated password
-                string firstUpdatedPassword = TestHelper.CreateValidPassword(length, MinPasswordLength, MaxPasswordLength);
+                string firstUpdatedPassword = AdminStoreHelper.GenerateValidPassword(length);
                 ResetPassword25HoursAgo(_adminUser, firstUpdatedPassword);
 
                 // Setup: Reset the password with second updated password
-                string secondUpdatedPassword = TestHelper.CreateValidPassword(length, MinPasswordLength, MaxPasswordLength);
+                string secondUpdatedPassword = AdminStoreHelper.GenerateValidPassword(length);
                 ResetPassword25HoursAgo(_adminUser, secondUpdatedPassword);
 
                 // Execute: Attempt to change the password with the first updated password
@@ -170,7 +170,7 @@ namespace AdminStoreTests.UsersTests
                     REST_PATH);
 
                 // Verify: Make sure the user can login with the new password, which is same as the first changed value.
-                Helper.VerifyLogin(_adminUser.Username, firstUpdatedPassword);
+                Helper.AssertUserCanLogin(_adminUser.Username, firstUpdatedPassword);
             }
             finally
             {
@@ -197,7 +197,7 @@ namespace AdminStoreTests.UsersTests
             }, "'POST {0}' should get a 400 Bad Request when passing a null or empty new password!", REST_PATH);
 
             // Verify: make sure user can still login with their old password.
-            Helper.VerifyLogin(_adminUser.Username, _adminUser.Password);
+            Helper.AssertUserCanLogin(_adminUser.Username, _adminUser.Password);
 
             const string expectedExceptionMessage = "Password reset failed, new password cannot be empty";
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.EmptyPassword, expectedExceptionMessage);
@@ -216,7 +216,7 @@ namespace AdminStoreTests.UsersTests
             }, "'POST {0}' should get a 400 Bad Request when old and new passwords are the same!", REST_PATH);
 
             // Verify: make sure user can still login with their old password.
-            Helper.VerifyLogin(_adminUser.Username, _adminUser.Password);
+            Helper.AssertUserCanLogin(_adminUser.Username, _adminUser.Password);
 
             const string expectedExceptionMessage = "Password reset failed, new password cannot be equal to the old one";
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.SamePassword, expectedExceptionMessage);
@@ -239,7 +239,7 @@ namespace AdminStoreTests.UsersTests
             }, "'POST {0}' should get a 400 Bad Request when the new password doesn't meet the complexity rules!", REST_PATH);
 
             // Verify: make sure user can still login with their old password.
-            Helper.VerifyLogin(_adminUser.Username, _adminUser.Password);
+            Helper.AssertUserCanLogin(_adminUser.Username, _adminUser.Password);
 
             const string expectedExceptionMessage = "Password reset failed, new password is invalid";
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.TooSimplePassword, expectedExceptionMessage);
@@ -253,7 +253,7 @@ namespace AdminStoreTests.UsersTests
         public void ResetUserPassword_SendNewPasswordWithInvalidLength_Verify400Error(uint length)
         {
             // Setup: generate an invalid password.
-            string newPassword = TestHelper.CreateValidPassword(length, MinPasswordLength, MaxPasswordLength, skipLengthRequirement: true);
+            string newPassword = AdminStoreHelper.GenerateValidPassword(length, skipLengthRequirement: true);
 
             // Execute: try to change the user's password to an invalid password.
             var ex = Assert.Throws<Http400BadRequestException>(() =>
@@ -262,7 +262,7 @@ namespace AdminStoreTests.UsersTests
             }, "'POST {0}' should get a 400 Bad Request when passing new password that is too short or too long!", REST_PATH);
 
             // Verify: make sure user can still login with their old password.
-            Helper.VerifyLogin(_adminUser.Username, _adminUser.Password);
+            Helper.AssertUserCanLogin(_adminUser.Username, _adminUser.Password);
 
             const string expectedExceptionMessage = "Password reset failed, new password is invalid";
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.TooSimplePassword, expectedExceptionMessage);
@@ -280,7 +280,7 @@ namespace AdminStoreTests.UsersTests
                 "'POST {0}' should get a 400 Bad Request when passing its user name as a new password!", REST_PATH);
 
             // Verify: Make sure the user can still login with their old password.
-            Helper.VerifyLogin(_adminUser.Username, _adminUser.Password);
+            Helper.AssertUserCanLogin(_adminUser.Username, _adminUser.Password);
 
             const string expectedExceptionMessage = "Password reset failed, new password cannot be equal to login name";
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordSameAsLogin, expectedExceptionMessage);
@@ -298,7 +298,7 @@ namespace AdminStoreTests.UsersTests
                 "'POST {0}' should get a 400 Bad Request when passing its display name as a new password!", REST_PATH);
 
             // Verify: Make sure the user can still login with their old password.
-            Helper.VerifyLogin(_adminUser.Username, _adminUser.Password);
+            Helper.AssertUserCanLogin(_adminUser.Username, _adminUser.Password);
 
             const string expectedExceptionMessage = "Password reset failed, new password cannot be equal to display name";
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordSameAsDisplayName, expectedExceptionMessage);
@@ -319,7 +319,7 @@ namespace AdminStoreTests.UsersTests
             List<string> usedValidPasswords = new List<string>();
             for (int i = 0; i < resetExecutionCount; i++)
             {
-                usedValidPasswords.Add(TestHelper.CreateValidPassword(length, MinPasswordLength, MaxPasswordLength));
+                usedValidPasswords.Add(AdminStoreHelper.GenerateValidPassword(length));
             }
 
             var originalCannotUseLastPassword = TestHelper.GetValueFromInstancesTable(CANNOTUSELASTPASSWORDS);
@@ -340,7 +340,7 @@ namespace AdminStoreTests.UsersTests
                     REST_PATH);
 
                 // Verify: Make sure the user can still login with their old password.
-                Helper.VerifyLogin(_adminUser.Username, _adminUser.Password);
+                Helper.AssertUserCanLogin(_adminUser.Username, _adminUser.Password);
 
                 const string expectedExceptionMessage = "The new password matches a previously used password.";
                 TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordAlreadyUsedPreviously, expectedExceptionMessage);
@@ -362,7 +362,7 @@ namespace AdminStoreTests.UsersTests
         public void ResetUserPassword_SendNonExistentUser_Verify401Error()
         {
             // Setup: generate a valid password.
-            string newPassword = TestHelper.CreateValidPassword(MinPasswordLength, MinPasswordLength, MaxPasswordLength);
+            string newPassword = AdminStoreHelper.GenerateValidPassword();
             var missingUser = UserFactory.CreateUserOnly();
 
             // Execute & Verify: try to change the user's password.
@@ -382,7 +382,7 @@ namespace AdminStoreTests.UsersTests
         public void ResetUserPassword_DoNotSendOldPassword_Verify401Error()
         {
             // Setup: generate a valid password.
-            string newPassword = TestHelper.CreateValidPassword(MinPasswordLength, MinPasswordLength, MaxPasswordLength);
+            string newPassword = AdminStoreHelper.GenerateValidPassword();
             var userWithNullPassword = UserFactory.CreateCopyOfUser(_adminUser);
             userWithNullPassword.Password = null;
 
@@ -393,7 +393,7 @@ namespace AdminStoreTests.UsersTests
             }, "'POST {0}' should get a 401 Unauthorized when passing a user with no Old Password!", REST_PATH);
 
             // Verify: make sure user can still login with their old password.
-            Helper.VerifyLogin(_adminUser.Username, _adminUser.Password);
+            Helper.AssertUserCanLogin(_adminUser.Username, _adminUser.Password);
 
             const string expectedExceptionMessage = "Username and password cannot be empty";
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.EmptyCredentials, expectedExceptionMessage);
@@ -406,9 +406,9 @@ namespace AdminStoreTests.UsersTests
         public void ResetUserPassword_SendWrongOldPassword_Verify401Error()
         {
             // Setup: generate a valid password.
-            string newPassword = TestHelper.CreateValidPassword(MinPasswordLength, MinPasswordLength, MaxPasswordLength);
+            string newPassword = AdminStoreHelper.GenerateValidPassword();
             var userWithBadPassword = UserFactory.CreateCopyOfUser(_adminUser);
-            string wrongPassword = TestHelper.CreateValidPassword(MinPasswordLength, MinPasswordLength, MaxPasswordLength);
+            string wrongPassword = AdminStoreHelper.GenerateValidPassword();
             userWithBadPassword.Password = wrongPassword;
 
             // Execute: try to change the user's password.
@@ -418,7 +418,7 @@ namespace AdminStoreTests.UsersTests
             }, "'POST {0}' should get a 401 Unauthorized when passing a user that doesn't exist!", REST_PATH);
 
             // Verify: make sure user can still login with their old password.
-            Helper.VerifyLogin(_adminUser.Username, _adminUser.Password);
+            Helper.AssertUserCanLogin(_adminUser.Username, _adminUser.Password);
 
             const string expectedExceptionMessage = "Invalid username or password";
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.InvalidCredentials, expectedExceptionMessage);
@@ -436,21 +436,21 @@ namespace AdminStoreTests.UsersTests
         public void ResetUserPassword_ChangingPasswordWithin24HoursCooldown_409Conflict(uint length, int hoursPassedAfterPasswordReset)
         {
             // Setup: Reset the password with valid new password
-            string changedPassword = TestHelper.CreateValidPassword(length, MinPasswordLength, MaxPasswordLength);
+            string changedPassword = AdminStoreHelper.GenerateValidPassword(length);
             Helper.AdminStore.ChangePassword(_adminUser, changedPassword);
             _adminUser.Password = changedPassword;
 
             // Execute: Attempt to change the password again after resetting the password.
             SimulateTimeSpentAfterLastPasswordUpdate(_adminUser, timespent: hoursPassedAfterPasswordReset);
 
-            string newPassword = TestHelper.CreateValidPassword(length, MinPasswordLength, MaxPasswordLength);
+            string newPassword = AdminStoreHelper.GenerateValidPassword(length);
             var ex = Assert.Throws<Http409ConflictException>(
                 () => Helper.AdminStore.ChangePassword(user: _adminUser, newPassword: newPassword),
                 "'POST {0}' should get a 409 Conflict if the password was updated within 24-hours password reset cooldown period!",
                 REST_PATH);
 
             // Verify: Make sure the user can login with their last successfully changed password.
-            Helper.VerifyLogin(_adminUser.Username, changedPassword);
+            Helper.AssertUserCanLogin(_adminUser.Username, changedPassword);
 
             const string expectedExceptionMessage = "Password reset failed, password reset cooldown in effect";
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ChangePasswordCooldownInEffect, expectedExceptionMessage);
@@ -469,7 +469,7 @@ namespace AdminStoreTests.UsersTests
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            string successfullyChangedPassword = TestHelper.CreateValidPassword(length, MinPasswordLength, MaxPasswordLength);
+            string successfullyChangedPassword = AdminStoreHelper.GenerateValidPassword(length);
             ResetPassword25HoursAgo(user, successfullyChangedPassword);
         }
 

@@ -399,17 +399,17 @@ namespace Model.Impl
                 shouldControlJsonChanges: false);
         }
 
-        /// <seealso cref="IArtifactStore.GetArtifactHistory(int, IUser, bool?, int?, int?, List{HttpStatusCode})"/>
-        public List<ArtifactHistoryVersion> GetArtifactHistory(int artifactId, IUser user, 
-            bool? sortByDateAsc = null, int? limit = null, int? offset = null, 
-            List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IArtifactStore.GetArtifactHistory(int, IUser, bool?, Pagination, List{HttpStatusCode})"/>
+        public List<ArtifactHistoryVersion> GetArtifactHistory(int artifactId, IUser user, bool? sortByDateAsc = null,
+            Pagination pagination = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(pagination, nameof(pagination));
 
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.VERSION, artifactId);
             Dictionary<string, string> queryParameters = null;
 
-            if ((sortByDateAsc != null) || (limit != null) || (offset != null))
+            if ((sortByDateAsc != null) || (pagination.Limit != null) || (pagination.Offset != null))
             {
                 queryParameters = new Dictionary<string, string>();
 
@@ -418,14 +418,14 @@ namespace Model.Impl
                     queryParameters.Add("asc", sortByDateAsc.ToString());
                 }
 
-                if (limit != null)
+                if (pagination.Limit != null)
                 {
-                    queryParameters.Add("limit", limit.ToString());
+                    queryParameters.Add("limit", pagination.Limit.ToString());
                 }
 
-                if (offset != null)
+                if (pagination.Offset != null)
                 {
-                    queryParameters.Add("offset", offset.ToString());
+                    queryParameters.Add("offset", pagination.Offset.ToString());
                 }
             }
 

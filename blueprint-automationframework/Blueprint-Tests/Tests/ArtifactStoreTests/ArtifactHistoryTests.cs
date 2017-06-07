@@ -9,6 +9,7 @@ using Model.ArtifactModel.Enums;
 using Model.Factories;
 using Model.ArtifactModel.Impl;
 using Utilities;
+using Model.Impl;
 
 namespace ArtifactStoreTests
 {
@@ -281,11 +282,13 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_user, _project, ItemTypePredefined.Actor, numberOfVersions: 5);
 
             List<ArtifactHistoryVersion> artifactHistory = null;
+            var pagination = new Pagination();
+            pagination.Offset = 2;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-              artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user, offset: 2);
+              artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user, pagination: pagination);
             }, "GetArtifactHistory shouldn't throw any error.");
 
             // Verify:
@@ -307,12 +310,16 @@ namespace ArtifactStoreTests
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             List<ArtifactHistoryVersion> artifactHistory = null;
+            var pagination = new Pagination();
+            pagination.Limit = 1;
+            pagination.Offset = 3;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
                 //sortByDateAsc: true, offset: 3, limit: 1 for history with 5 versions must return version 4
-                artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, viewer, sortByDateAsc: true, offset: 3, limit: 1);
+                artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, viewer, sortByDateAsc: true,
+                    pagination: pagination);
             }, "GetArtifactHistory shouldn't throw any error.");
 
             // Verify:
@@ -483,11 +490,13 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_user, _project, ItemTypePredefined.Actor, numberOfVersions);
 
             List<ArtifactHistoryVersion> artifactHistory = null;
+            var pagination = new Pagination();
+            pagination.Limit = limit;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user, limit: limit);
+                artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user, pagination: pagination);
             }, "GetArtifactHistory shouldn't throw any error.");
 
             // Verify:

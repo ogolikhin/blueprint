@@ -2,14 +2,12 @@
 using CustomAttributes;
 using Helper;
 using Model;
-using Model.Common.Enums;
 using Model.Factories;
 using Model.Impl;
 using Model.NovaModel.Reviews;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using TestCommon;
 using TestConfig;
 using Utilities;

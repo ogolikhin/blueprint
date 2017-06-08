@@ -55,7 +55,7 @@
         public static readonly string CreationOnlyDatabaseGroup = "You can create only database group.";
         public static readonly string CreationGroupsOnlyWithCollaboratorOrAuthorOrNoneLicenses = "You can create groups only with the \"collaborator\", the \"author\" or empty license.";
         public static readonly string CreationGroupWithScopeAndLicenseIdSimultaneously = "You can not create the \"Access Group\" and \"License Group\" simultaneously.";
-        public static readonly string GroupAlreadyExist = "The same group already exists. You cannot add duplicate groups.";
+        public static readonly string GroupAlreadyExist = "An existing group has the same name. Please try another.";
         public static readonly string GroupDoesNotExist = "The group with this Id does not exist or removed from the system.";
         public static readonly string SourceFieldValueForGroupsShouldBeOnlyDatabase = "You can modify only database groups.";
         public static readonly string TheScopeCannotBeChanged = "The scope cannot be changed.";

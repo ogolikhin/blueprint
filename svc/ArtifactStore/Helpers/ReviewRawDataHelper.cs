@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using System.Runtime.Serialization;
+using System.Xml;
+using System.Xml.Linq;
+using System.Text;
 
 namespace ArtifactStore.Helpers
 {
@@ -65,5 +69,24 @@ namespace ArtifactStore.Helpers
             }
             return endDate;
         }
+
+        /// <summary>
+        /// Extracts serialized string from raw data object
+        /// </summary>
+        /// <param name="rawData"></param>
+        /// <typeparam name="RawDataType"></typeparam>
+        /// <returns></returns>
+        public static string GetStoreData<RawDataType>(RawDataType rawData)
+        {
+            var serializer = new DataContractSerializer(typeof(RawDataType));
+
+            var result = new StringBuilder();
+            using (XmlWriter xmlWriter = XmlWriter.Create(result))
+            {
+                serializer.WriteObject(xmlWriter, rawData);
+            }
+            return result.ToString();
+        }
     }
+}
 }

@@ -2,12 +2,14 @@
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using System.ServiceModel.DomainServices.Server;
 using ArtifactStore.Models.Review;
 using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
+using System;
 
 namespace ArtifactStore.Repositories
 {
@@ -166,16 +168,17 @@ namespace ArtifactStore.Repositories
             reviewArtifact.HasAccess = false;
         }
 
-        public Task<AddArtifactsResult> AddArtifactsToReview(int reviewId, int userId, AddArtifactsParameter content)
+        public async Task<AddArtifactsResult> AddArtifactsToReview(int reviewId, int userId, AddArtifactsParameter content)
         {
+            var addArtifacts = await AddArtifactsToReviewAsync<AddArtifactsResult>(reviewId, userId, content);
             //TODO
-            return Task.FromResult(new AddArtifactsResult
-            {
-                ArtifactCount = 1,
-                AlreadyIncludedArtifactCount = 1,
-                NonexistentArtifactCount = 1,
-                UnpublishedArtifactCount = 1
-            });
+            //return Task.FromResult(new AddArtifactsResult
+            //{
+            //    ArtifactCount = 1,
+            //    AlreadyIncludedArtifactCount = 1,
+            //    NonexistentArtifactCount = 1,
+            //    UnpublishedArtifactCount = 1
+            //});
         }
 
         public async Task<QueryResult<ReviewedArtifact>> GetReviewedArtifacts(int reviewId, int userId, Pagination pagination, int revisionId)
@@ -251,7 +254,41 @@ namespace ArtifactStore.Repositories
             };
         }
 
-        private async Task<ContentStatusDetails> GetReviewArtifactStatusesAsync(int reviewId, int userId, Pagination pagination,
+        private async Task<AddArtifactsResult> AddArtifactsToReviewAsync(int reviewId, int userId,int projectId, AddArtifactsParameter content)
+        {
+            var param = new DynamicParameters();
+            param.Add("@artifactIds", content.ArtifactIds);
+            param.Add("@userId", userId);
+            param.Add("@reviewId", reviewId);
+            param.Add("@projectId", projectId);
+            var result = await ConnectionWrapper.QueryAsync<IEnumerable<int>>("GetEffectiveArtifactIds", param, commandType: CommandType.StoredProcedure);
+            var artifactIds = result.ToList();
+            GetReviewPropertyString(reviewId, userId, projectId, content);
+            return Task.FromResult(new AddArtifactsResult { });
+        }
+
+        private async Task<AddArtifactsResult> GetReviewPropertyString(int reviewId, int userId, int projectId, AddArtifactsParameter content)
+        {
+            var param = new DynamicParameters();
+            param.Add("@projectId", projectId);
+            param.Add("@reviewId", reviewId);
+            param.Add("@userId", userId);
+
+            var result = await ConnectionWrapper.QueryMultipleAsync<PropertyValueVersions, bool>("GetReviewPropertyString", param, commandType: CommandType.StoredProcedure);
+          //  var res = result.
+        }
+
+        private void StoreContentArtifacts(DArtifact dReview, ReviewPackage review, ChangeSet changeSet)
+        {
+            if (isMigration || changeSet.GetAssociatedChanges(review, rp => rp.ContentArtifacts).Cast<ContentArtifactInfo>().Any())
+            {
+                var contentRawData = RawDataHelper.GetStoreData(review.GetContentStoreData());
+
+                PropertyValueUtils.SetTextPropertyValue(_dal, newContentHolder, PropertyTypePredefined.RawData, contentRawData);
+            }
+        }
+
+    private async Task<ContentStatusDetails> GetReviewArtifactStatusesAsync(int reviewId, int userId, Pagination pagination,
                                                                         int? versionId = null,
                                                                         bool? addDrafts = true,
                                                                         IEnumerable<int> reviewArtifactIds = null)
@@ -399,3 +436,4 @@ namespace ArtifactStore.Repositories
         }
     }
 }
+

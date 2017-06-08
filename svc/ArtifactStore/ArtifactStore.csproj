@@ -65,6 +65,8 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.ServiceModel.DomainServices.Server, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -136,6 +138,7 @@
     <Compile Include="Models\Review\BaseReviewArtifact.cs" />
     <Compile Include="Models\Review\ReviewedArtifact.cs" />
     <Compile Include="Models\Review\ReviewArtifactsStatus.cs" />
+    <Compile Include="Models\Review\ReviewPackageRawData.cs" />
     <Compile Include="Models\Review\ReviewPackageStatus.cs" />
     <Compile Include="Models\Review\ReviewParticipant.cs" />
     <Compile Include="Models\Review\ReviewTableOfContent.cs" />
@@ -145,6 +148,7 @@
     <Compile Include="Models\Review\ReviewSource.cs" />
     <Compile Include="Models\Review\ReviewStatus.cs" />
     <Compile Include="Models\Review\ReviewType.cs" />
+    <Compile Include="Models\Review\SimulationSettings.cs" />
     <Compile Include="Models\Review\ViewStateType.cs" />
     <Compile Include="Models\VersionControlArtifactInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

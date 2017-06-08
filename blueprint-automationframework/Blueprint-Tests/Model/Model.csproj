@@ -74,6 +74,7 @@
     <Compile Include="Factories\ArtifactWrapperFactory.cs" />
     <Compile Include="Factories\ImpactAnalysisFactory.cs" />
     <Compile Include="Impl\AdminRole.cs" />
+    <Compile Include="Impl\Pagination.cs" />
     <Compile Include="NovaModel\AdminStoreModel\InstanceGroup.cs" />
     <Compile Include="NovaModel\AdminStoreModel\InstanceGroupUser.cs" />
     <Compile Include="Impl\QueryResult.cs" />

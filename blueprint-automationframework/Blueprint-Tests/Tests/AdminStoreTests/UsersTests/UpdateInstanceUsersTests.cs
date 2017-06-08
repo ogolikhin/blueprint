@@ -420,13 +420,9 @@ namespace AdminStoreTests.UsersTests
             // Setup: create use with login disabled
             var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
             createdUser.Enabled = false;
+            createdUser.Id = Helper.AdminStore.AddUser(_adminUser, createdUser);
 
-            Assert.DoesNotThrow(() =>
-            {
-                createdUser.Id = Helper.AdminStore.AddUser(_adminUser, createdUser);
-            }, "'POST {0}' should return 201 CREATED!", RestPaths.Svc.AdminStore.Users.USERS);
-
-            CSharpUtilities.SetProperty("Enabled", true, createdUser);
+            createdUser.Enabled = true;
             AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUser.Id);
 
             // Execute: enable login for the user
@@ -436,12 +432,8 @@ namespace AdminStoreTests.UsersTests
             }, "'PUT {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
 
             // Verify: that Enabled=True and that the user can log in
-            InstanceUser updatedUser = null;
 
-            Assert.DoesNotThrow(() =>
-            {
-                updatedUser = Helper.AdminStore.GetUserById(_adminUser, createdUser.Id);
-            }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
+            var updatedUser = Helper.AdminStore.GetUserById(_adminUser, createdUser.Id);
 
             Assert.IsTrue(updatedUser.Enabled, "User should have Enabled=True, but has Enabled=False.");
 
@@ -457,7 +449,7 @@ namespace AdminStoreTests.UsersTests
             var createdUser = Helper.CreateAndAddInstanceUser(_adminUser);
 
             // Execute: disable login for the user
-            CSharpUtilities.SetProperty("Enabled", false, createdUser);
+            createdUser.Enabled = false;
 
             Assert.DoesNotThrow(() =>
             {
@@ -465,12 +457,7 @@ namespace AdminStoreTests.UsersTests
             }, "'PUT {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
 
             // Verify: that Enabled=False and that the user cannot log in
-            InstanceUser updatedUser = null;
-
-            Assert.DoesNotThrow(() =>
-            {
-                updatedUser = Helper.AdminStore.GetUserById(_adminUser, createdUser.Id);
-            }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
+            var updatedUser = Helper.AdminStore.GetUserById(_adminUser, createdUser.Id);
 
             Assert.IsFalse(updatedUser.Enabled, "User should have Enabled=False, but has Enabled=True.");
 

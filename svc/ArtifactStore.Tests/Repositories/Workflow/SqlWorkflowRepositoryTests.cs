@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models;
-using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
 
@@ -87,7 +85,7 @@ namespace ArtifactStore.Repositories.Workflow
                     {"itemId", 1}
               },
               new List<ArtifactBasicDetails> { new ArtifactBasicDetails { PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor } });
-            cxn.SetupQueryAsync("GetAvailableTransitions",
+            cxn.SetupQueryAsync("GetTransitionsForState",
              new Dictionary<string, object>
              {
                  {"workflowId", 1},
@@ -99,32 +97,32 @@ namespace ArtifactStore.Repositories.Workflow
                  new SqlWorkflowTransition
                  {
                     TriggerId = 1,
-                    StateId = 2,
-                    StateName = "A",
-                    CurrentStateId = 1,
+                    ToStateId = 2,
+                    ToStateName = "A",
+                    FromStateId = 1,
                     TriggerName = "TA"
                  },
                  new SqlWorkflowTransition
                  {
                     TriggerId = 2,
-                    StateId = 3,
-                    StateName = "B",
-                    CurrentStateId = 1,
+                    ToStateId = 3,
+                    ToStateName = "B",
+                    FromStateId = 1,
                     TriggerName = "TB"
                  },
                  new SqlWorkflowTransition
                  {
                     TriggerId = 3,
-                    StateId = 4,
-                    StateName = "C",
-                    CurrentStateId = 1,
+                    ToStateId = 4,
+                    ToStateName = "C",
+                    FromStateId = 1,
                     TriggerName = "TC"
                  }
              });
             // Act
             var result = (await repository.GetTransitionsAsync(1, 1, 1, 1));
 
-            Assert.IsTrue(result.Total == 3, "Transitions could not be retrieved");
+            Assert.IsTrue(result.Count == 3, "Transitions could not be retrieved");
         }
         #endregion
 
@@ -165,8 +163,7 @@ namespace ArtifactStore.Repositories.Workflow
             // Act
             var result = (await repository.GetStateForArtifactAsync(1, 1, int.MaxValue, true));
             
-            Assert.IsTrue(result.ResultCode == QueryResultCode.Success, "Result is not success");
-            Assert.IsTrue(result.Item != null, "Workflow State is null");
+            Assert.IsTrue(result != null, "Workflow State is null");
         }
         [TestMethod]
         public async Task GetCurrentState_StoredProcedureReturnsNull_ReturnsFailureResult()
@@ -195,9 +192,7 @@ namespace ArtifactStore.Repositories.Workflow
             // Act
             var result = (await repository.GetStateForArtifactAsync(1, 1, int.MaxValue, true));
             
-            Assert.IsTrue(result.ResultCode == QueryResultCode.Failure, "Result is success");
-            Assert.IsFalse(String.IsNullOrEmpty(result.Message), "Error message is null");
-            Assert.IsTrue(result.Item == null, "Workflow State is not null");
+            Assert.IsTrue(result == null, "Workflow State is not null");
         }
         #endregion
 

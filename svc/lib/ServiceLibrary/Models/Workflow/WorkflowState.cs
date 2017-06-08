@@ -2,6 +2,7 @@
 
 namespace ServiceLibrary.Models.Workflow
 {
+    [JsonObject]
     public class WorkflowState
     {
         public int WorkflowId { get; set; }

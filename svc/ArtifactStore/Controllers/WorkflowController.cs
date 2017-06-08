@@ -7,6 +7,7 @@ using ArtifactStore.Services.Workflow;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
+using ServiceLibrary.Models;
 using ServiceLibrary.Models.Workflow;
 
 namespace ArtifactStore.Controllers
@@ -65,7 +66,7 @@ namespace ArtifactStore.Controllers
         [HttpGet, NoCache]
         [Route("artifacts/{artifactId:int:min(1)}/state"), SessionRequired]
         [ActionName("GetStateForArtifact")]
-        [ResponseType(typeof(WorkflowState))]
+        [ResponseType(typeof(QuerySingleResult<WorkflowState>))]
         public async Task<IHttpActionResult> GetStateForArtifactAsync(int artifactId, int? revisionId = null, bool addDrafts = true)
         {
             //We assume that Session always exist as we have SessionRequired attribute
@@ -82,7 +83,7 @@ namespace ArtifactStore.Controllers
         [HttpPost]
         [Route("artifacts/{artifactId:int:min(1)}/state"), SessionRequired]
         [ActionName("ChangeStateForArtifact")]
-        [ResponseType(typeof(WorkflowState))]
+        [ResponseType(typeof(QuerySingleResult<WorkflowState>))]
         public async Task<IHttpActionResult> ChangeStateForArtifactAsync([FromUri] int artifactId, [FromBody] WorkflowStateChangeParameter stateChangeParameter)
         {
             //We assume that Session always exist as we have SessionRequired attribute

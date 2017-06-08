@@ -67,7 +67,6 @@ namespace ArtifactStoreTests
             ValidateTableOfContentResponseForReview(tableOfContentResponse);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopmentDev)]  // Trello bug: https://trello.com/c/lpZT5WXc
         [Category(Categories.GoldenData)]
         [Category(Categories.CannotRunInParallel)]
         [TestCase(REVIEW_ID_112)]

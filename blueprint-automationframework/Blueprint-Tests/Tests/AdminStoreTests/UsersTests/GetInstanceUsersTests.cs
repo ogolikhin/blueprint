@@ -298,6 +298,37 @@ namespace AdminStoreTests.UsersTests
 
         [Category(Categories.CannotRunInParallel)]
         [TestCase]
+        [Description("Create and add 5 instance users with a specific e-mail addresses. Get all users with search parameter that contains a substring " +
+                     "of users' e-mail address. Verify that all 5 matching users are returned in the result.")]
+        [TestRail(308913)]
+        public void GetInstanceUsers_SearchMultipleCreatedUsersByEmail_ReturnsAllMatchingUsersInResult()
+        {
+            // Setup:
+            var search = "radiohead.com";
+            Helper.CreateAndAddInstanceUser(_adminUser, email: "tyorke@radiohead.com");
+            Helper.CreateAndAddInstanceUser(_adminUser, email: "jgreenwood@radiohead.com");
+            Helper.CreateAndAddInstanceUser(_adminUser, email: "cgreenwood@radiohead.com");
+            Helper.CreateAndAddInstanceUser(_adminUser, email: "eobrien@radiohead.com");
+            Helper.CreateAndAddInstanceUser(_adminUser, email: "pselway@radiohead.com");
+
+            QueryResult<InstanceUser> queryResult = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                queryResult = Helper.AdminStore.GetUsers(_adminUser, offset: 0, limit: 20, search: search);
+            }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH);
+
+            //Verify:
+            var returnedUsers = queryResult.Items;
+            var returnedUsersCount = returnedUsers.Count;
+            var expectedUsersCount = 5;
+
+            Assert.AreEqual(expectedUsersCount, returnedUsersCount, returnedUsersCount + " users were returned but a " + expectedUsersCount + " users was expected!");
+        }
+
+        [Category(Categories.CannotRunInParallel)]
+        [TestCase]
         [Description("Get all users with search parameter that doesn't match any existing users. Verify that no users are returned as a result.")]
         [TestRail(308904)]
         public void GetInstanceUsers_SearchNonExistingUsers_ReturnsNoResults()

@@ -7,6 +7,7 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
+using ServiceLibrary.Repositories;
 
 namespace ArtifactStore.Services.Workflow
 {
@@ -14,7 +15,7 @@ namespace ArtifactStore.Services.Workflow
     {
         Task<WorkflowTransitionResult> GetTransitionsAsync(int userId, int artifactId, int workflowId, int stateId);
 
-        Task<QuerySingleResult<WorkflowState>> GetStateForArtifactAsync(int userId, int artifactId, int revisionId = int.MaxValue,
+        Task<QuerySingleResult<WorkflowState>> GetStateForArtifactAsync(int userId, int artifactId, int? versionId = null,
             bool addDrafts = true);
 
         Task<QuerySingleResult<WorkflowState>> ChangeStateForArtifactAsync(int userId, int artifactId,
@@ -25,12 +26,15 @@ namespace ArtifactStore.Services.Workflow
     {
         private readonly IWorkflowRepository _workflowRepository;
         private readonly IArtifactVersionsRepository _artifactVersionsRepository;
+        private readonly ISqlItemInfoRepository _itemInfoRepository;
 
         public WorkflowService(IWorkflowRepository workflowRepository,
-            IArtifactVersionsRepository artifactVersionsRepository)
+            IArtifactVersionsRepository artifactVersionsRepository,
+            ISqlItemInfoRepository itemInfoRepository)
         {
             _workflowRepository = workflowRepository;
             _artifactVersionsRepository = artifactVersionsRepository;
+            _itemInfoRepository = itemInfoRepository;
         }
 
         public async Task<WorkflowTransitionResult> GetTransitionsAsync(int userId, int artifactId, int workflowId, int stateId)
@@ -46,8 +50,9 @@ namespace ArtifactStore.Services.Workflow
             };
         }
 
-        public async Task<QuerySingleResult<WorkflowState>> GetStateForArtifactAsync(int userId, int artifactId, int revisionId = Int32.MaxValue, bool addDrafts = true)
+        public async Task<QuerySingleResult<WorkflowState>> GetStateForArtifactAsync(int userId, int artifactId, int? versionId = null, bool addDrafts = true)
         {
+            var revisionId = await _itemInfoRepository.GetRevisionId(artifactId, userId, versionId);
             var state = await _workflowRepository.GetStateForArtifactAsync(userId, artifactId, revisionId, addDrafts);
             if (state == null || state.WorkflowId <= 0 || state.Id <= 0)
             {

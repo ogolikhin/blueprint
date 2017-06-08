@@ -10,6 +10,7 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 using System;
+using ArtifactStore.Helpers;
 
 namespace ArtifactStore.Repositories
 {
@@ -179,6 +180,29 @@ namespace ArtifactStore.Repositories
             //    NonexistentArtifactCount = 1,
             //    UnpublishedArtifactCount = 1
             //});
+        }
+
+        private string AddArtifactsToXML (string xmlArtifacts, ISet<int> artifactsToAdd)
+        {
+            var rdReviewContents = ReviewRawDataHelper.RestoreData<RDReviewContents>(xmlArtifacts);
+
+            var currentArtifactIds = rdReviewContents.Artifacts.Select(a => a.Id);
+
+            foreach (var artifactToAdd in artifactsToAdd)
+            {
+                if (!currentArtifactIds.Contains(artifactToAdd))
+                {
+                    var addedArtifact = new RDArtifact()
+                    {
+                        Id = artifactToAdd,
+                        ApprovalNotRequested = false
+                        
+                    };
+                    rdReviewContents.Artifacts.Add(addedArtifact);
+                }
+            }
+
+            return ReviewRawDataHelper.GetStoreData(rdReviewContents);
         }
 
         public async Task<QueryResult<ReviewedArtifact>> GetReviewedArtifacts(int reviewId, int userId, Pagination pagination, int revisionId)

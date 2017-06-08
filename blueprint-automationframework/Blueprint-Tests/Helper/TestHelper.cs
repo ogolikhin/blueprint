@@ -1961,6 +1961,21 @@ namespace Helper
             return queryResult.Items;
         }
 
+        /// <summary>
+        /// Verifies that the user can login with its current password.
+        /// </summary>
+        /// <param name="username">Username for the user to login.</param>
+        /// <param name="password">Password for the user to login.</param>
+        public void AssertUserCanLogin(string username, string password)
+        {
+            // Verify: make sure user can login with its password.
+            Assert.DoesNotThrow(() =>
+            {
+                // Forces a new session in case one already exists
+                AdminStore.AddSession(username, password, force: true);
+            }, "User {0} couldn't login with the password {1}!", username, password);
+        }
+
         #endregion User management
 
         #region Group management
@@ -2092,6 +2107,23 @@ namespace Helper
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Updates LastPasswordChangeTimestamp value from Users table for the specific user.
+        /// </summary>
+        /// <param name="UserId">The ID for the User.</param>
+        /// <param name="dateTime">The new dateTime value to set.</param>
+        /// <exception cref="SqlQueryFailedException">If the SQL query failed.</exception>
+        public static void UpdateLastPasswordChangeTimestampFromUsersTable(int UserId, DateTime dateTime)
+        {
+            string updatedDateString = dateTime.ToStringInvariant("yyyy-MM-dd HH:mm:ss");
+
+            string updateQuery = I18NHelper.FormatInvariant("UPDATE [dbo].[Users] SET LastPasswordChangeTimestamp = '{0}' WHERE UserId = {1}",
+                updatedDateString, UserId);
+
+            int rowsAffected = DatabaseHelper.ExecuteUpdateSqlQuery(updateQuery);
+            Assert.IsTrue(rowsAffected == 1, "Update more than one row in Users table!");
         }
 
         #endregion Database Settings Management

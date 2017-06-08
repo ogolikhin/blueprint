@@ -7,8 +7,10 @@ namespace Model.NovaModel.Reviews
     {
         public int Id { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]
         public string Name { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]
         public string Prefix { get; set; }
 
         public bool IsApprovalRequired { get; set; }

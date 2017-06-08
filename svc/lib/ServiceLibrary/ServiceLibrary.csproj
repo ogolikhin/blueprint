@@ -134,10 +134,13 @@
     <Compile Include="Models\Enums\SortOrder.cs" />
     <Compile Include="Models\Files\File.cs" />
     <Compile Include="Models\Files\FileInfo.cs" />
+    <Compile Include="Models\IAction.cs" />
+    <Compile Include="Models\IConstraint.cs" />
     <Compile Include="Models\InstanceSettings\EmailSettings.cs" />
     <Compile Include="Models\Interfaces\IArtifact.cs" />
     <Compile Include="Models\ItemDetails.cs" />
     <Compile Include="Models\ItemInfo.cs" />
+    <Compile Include="Models\ITrigger.cs" />
     <Compile Include="Models\Jobs\AddJobResult.cs" />
     <Compile Include="Models\Jobs\DJobMessage.cs" />
     <Compile Include="Models\Jobs\JobInfo.cs" />
@@ -169,11 +172,13 @@
     <Compile Include="Models\Session.cs" />
     <Compile Include="Helpers\ILoggable.cs" />
     <Compile Include="Models\SubArtifact.cs" />
+    <Compile Include="Models\TransactionalTriggerExecutor.cs" />
     <Compile Include="Models\UserGroup.cs" />
     <Compile Include="Models\UserInfo.cs" />
     <Compile Include="Models\Workflow\Workflow.cs" />
     <Compile Include="Models\Workflow\WorkflowConstants.cs" />
     <Compile Include="Models\Workflow\WorkflowState.cs" />
+    <Compile Include="Models\Workflow\WorkflowStateChangeParameter.cs" />
     <Compile Include="Models\Workflow\WorkflowTransition.cs" />
     <Compile Include="Models\Workflow\WorkflowTransitionResult.cs" />
     <Compile Include="Repositories\ApplicationSettings\ApplicationSettingsRepository.cs" />

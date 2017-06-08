@@ -244,13 +244,11 @@ namespace Model
         /// <param name="artifactId">The id of artifact.</param>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="sortByDateAsc">(optional) False - the latest version comes first, true the latest version comes last. Without this param call return versions as for sortByDateAsc=false.</param>
-        /// <param name="limit">(optional) The maximum number of history items returned in the request. Without this param call return 10 versions.</param>
-        /// <param name="offset">(optional) The offset for the pagination.</param>
+        /// <param name="pagination">(optional)The paging offset (index) at which the results start and  the number of items to retrieve per query.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>List of artifacts versions.</returns>
-        List<ArtifactHistoryVersion> GetArtifactHistory(int artifactId, IUser user,
-            bool? sortByDateAsc = null, int? limit = null, int? offset = null,
-            List<HttpStatusCode> expectedStatusCodes = null);
+        List<ArtifactHistoryVersion> GetArtifactHistory(int artifactId, IUser user, bool? sortByDateAsc = null,
+            Pagination pagination = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets discussions for the artifact or subartifact with specified id
@@ -679,10 +677,10 @@ namespace Model
         /// <param name="user">user to perform the operation.</param>
         /// <param name="reviewId">Id of review.</param>
         /// <param name="revisionId">Id of review revision.</param>
-        /// <param name="page">(optional) Page number. By default first page</param>
-        /// <param name="recordsOnPage">(optional) Maximum number of records on each page. By default 50 records on a page</param>
-        /// <returns>ReviewContainer</returns>
-        ReviewTableOfContent GetReviewTableOfContent(IUser user, int reviewId, int revisionId, int? page = null, int? recordsOnPage = null);
+        /// <param name="index">(optional) Index number. By default first item</param>
+        /// <param name="recordsToReturn">(optional) Maximum number of records to return. By default 50 records</param>
+        /// <returns>ReviewTableOfContentItem</returns>
+        QueryResult<ReviewTableOfContentItem> GetReviewTableOfContent(IUser user, int reviewId, int revisionId, int? index = null, int? recordsToReturn = null);
 
         /// <summary>
         /// Gets list of review statuses for the specified artifact of the review. Runs GET containers/{0}/artifactreviewers .

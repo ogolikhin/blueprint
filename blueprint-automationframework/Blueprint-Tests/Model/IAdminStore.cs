@@ -430,8 +430,9 @@ namespace Model
         /// <param name="adminUser">The admin user changing the password.</param>
         /// <param name="user">The user that will have the password changed.</param>
         /// <param name="newPassword">The new password</param>
+        /// <param name="encodePassword">(optional) If true, the password is to be Base64 encoded. If false, it is not encoded (Default: true)</param>
         /// <returns>The returned HTTP Status Code.</returns>
-        HttpStatusCode InstanceAdminChangePassword(IUser adminUser, InstanceUser user, string newPassword);
+        HttpStatusCode InstanceAdminChangePassword(IUser adminUser, InstanceUser user, string newPassword, bool encodePassword = true);
 
         /// <summary>
         /// Gets all the groups currently assigned to the user.

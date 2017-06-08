@@ -86,7 +86,7 @@ namespace ArtifactStore.Controllers
         public async Task<IHttpActionResult> ChangeStateForArtifactAsync([FromUri] int artifactId, [FromBody] WorkflowStateChangeParameter stateChangeParameter)
         {
             //We assume that Session always exist as we have SessionRequired attribute
-            if (stateChangeParameter == null || !ModelState.IsValid)
+            if (artifactId <= 0 || stateChangeParameter == null || !ModelState.IsValid)
             {
                 throw new BadRequestException("Please provide valid state change parameters");
             }

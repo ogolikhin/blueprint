@@ -89,4 +89,3 @@ namespace ArtifactStore.Helpers
         }
     }
 }
-}

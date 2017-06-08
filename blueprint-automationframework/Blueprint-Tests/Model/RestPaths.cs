@@ -116,6 +116,7 @@ namespace Model
                 {
                     public const string SETTINGS                    = "svc/adminstore/config/settings";
                     public const string CONFIG_JS                   = "svc/adminstore/config/config.js";
+                    public const string USERS                       = "svc/adminstore/config/users";
                 }
 
                 public static class Groups

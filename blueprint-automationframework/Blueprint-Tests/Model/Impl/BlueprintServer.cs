@@ -4,7 +4,7 @@ using System.Net;
 using Common;
 using Utilities;
 using Utilities.Facades;
-
+using Model.Factories;
 
 namespace Model.Impl
 {
@@ -141,6 +141,60 @@ namespace Model.Impl
         public HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null)
         {
             return GetStatusUpcheck(RestPaths.Svc.Status.UPCHECK, expectedStatusCodes);
+        }
+
+        /// <seealso cref="IBlueprintServer.GetIsFedAuthenticationEnabledDB()"/>
+        public bool GetIsFedAuthenticationEnabledDB()
+        {
+            bool result = false;
+
+            using (var database = DatabaseFactory.CreateDatabase())
+            {
+                string query = I18NHelper.FormatInvariant(
+                    "SELECT Enabled FROM [dbo].[FederatedAuthentications] WHERE InstanceId = 1");
+                Logger.WriteDebug("Running: {0}", query);
+
+                using (var cmd = database.CreateSqlCommand(query))
+                {
+                    database.Open();
+
+                    try
+                    {
+                        result = (bool)cmd.ExecuteScalar();
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        Logger.WriteError("SQL query didn't get processed. Exception details = {0}", ex);
+                    }
+                }
+            }
+            return result;
+        }
+
+        /// <seealso cref="IBlueprintServer.SetIsFedAuthenticationEnabledDB(bool)"/>
+        public void SetIsFedAuthenticationEnabledDB(bool isFedAuthenticationEnabledDB)
+        {
+            using (var database = DatabaseFactory.CreateDatabase())
+            {
+                string query = I18NHelper.FormatInvariant(
+                    "UPDATE [dbo].[FederatedAuthentications] SET Enabled = {0} WHERE InstanceId = 1",
+                    Convert.ToInt32(isFedAuthenticationEnabledDB));
+                Logger.WriteDebug("Running: {0}", query);
+
+                using (var cmd = database.CreateSqlCommand(query))
+                {
+                    database.Open();
+
+                    try
+                    {
+                        cmd.ExecuteScalar();
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        Logger.WriteError("SQL query didn't get processed. Exception details = {0}", ex);
+                    }
+                }
+            }
         }
 
         #endregion Inherited from IBlueprintServer

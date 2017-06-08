@@ -1421,6 +1421,16 @@ namespace Model.Impl
             }
         }
 
+        /// <seealso cref="IAdminStore.GetUserManagementSettings(IUser)"/>
+        public UserManagementSettings GetUserManagementSettings(IUser adminUser)
+        {
+            var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Config.USERS);
+            return restApi.SendRequestAndDeserializeObject<UserManagementSettings>(
+                    path,
+                    RestRequestMethod.GET, shouldControlJsonChanges: true);
+        }
+
         #endregion Members inherited from IAdminStore
 
         #region Members inherited from IDisposable

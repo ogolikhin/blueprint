@@ -451,6 +451,7 @@ namespace ArtifactStore.Repositories
             item.Included = false;
             item.Viewed = false;
             item.HasAccess = false;
+            item.IsApprovalRequired = false;
         }
 
         private static void ThrowUserCannotAccessReviewException(int reviewId)

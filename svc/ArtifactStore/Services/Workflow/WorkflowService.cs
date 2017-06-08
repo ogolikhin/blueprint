@@ -1,10 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using ArtifactStore.Executors;
 using ArtifactStore.Repositories;
 using ArtifactStore.Repositories.Workflow;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
 
 namespace ArtifactStore.Services.Workflow
@@ -34,12 +35,33 @@ namespace ArtifactStore.Services.Workflow
 
         public async Task<WorkflowTransitionResult> GetTransitionsAsync(int userId, int artifactId, int workflowId, int stateId)
         {
-            return await _workflowRepository.GetTransitionsAsync(userId, artifactId, workflowId, stateId);
+            var transitions = await _workflowRepository.GetTransitionsAsync(userId, artifactId, workflowId, stateId);
+
+            return new WorkflowTransitionResult
+            {
+                ResultCode = QueryResultCode.Success,
+                Total = transitions.Count,
+                Count = transitions.Count,
+                Items = transitions
+            };
         }
 
         public async Task<QuerySingleResult<WorkflowState>> GetStateForArtifactAsync(int userId, int artifactId, int revisionId = Int32.MaxValue, bool addDrafts = true)
         {
-            return await _workflowRepository.GetStateForArtifactAsync(userId, artifactId, revisionId, addDrafts);
+            var state = await _workflowRepository.GetStateForArtifactAsync(userId, artifactId, revisionId, addDrafts);
+            if (state == null || state.WorkflowId <= 0 || state.Id <= 0)
+            {
+                return new QuerySingleResult<WorkflowState>
+                {
+                    ResultCode = QueryResultCode.Failure,
+                    Message = I18NHelper.FormatInvariant("State information could not be retrieved for Artifact (Id:{0}).", artifactId)
+                };
+            }
+            return new QuerySingleResult<WorkflowState>
+            {
+                ResultCode = QueryResultCode.Success,
+                Item = state
+            };
         }
 
         public async Task<QuerySingleResult<WorkflowState>> ChangeStateForArtifactAsync(int userId, int artifactId, WorkflowStateChangeParameter stateChangeParameter)

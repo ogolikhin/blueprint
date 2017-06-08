@@ -82,7 +82,6 @@ namespace AdminStore.Repositories
             parameters.Add("@Source", group.Source);
             parameters.Add("@LicenseId", (int)group.LicenseType);
             parameters.Add("@ProjectId", group.ProjectId);
-
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
             var groupId = await _connectionWrapper.ExecuteScalarAsync<int>("AddGroup", parameters, commandType: CommandType.StoredProcedure);
@@ -94,9 +93,6 @@ namespace AdminStore.Repositories
                 {
                     case (int)SqlErrorCodes.GeneralSqlError:
                         throw new Exception(ErrorMessages.GeneralErrorOfCreatingGroup);
-
-                    case (int)SqlErrorCodes.GroupWithNameAndLicenseIdExist:
-                        throw new BadRequestException(ErrorMessages.GroupAlreadyExist);
 
                     case (int)SqlErrorCodes.GroupWithNameAndScopeExist:
                         throw new BadRequestException(ErrorMessages.GroupAlreadyExist);

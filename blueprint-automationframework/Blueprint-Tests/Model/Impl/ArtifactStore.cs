@@ -399,17 +399,16 @@ namespace Model.Impl
                 shouldControlJsonChanges: false);
         }
 
-        /// <seealso cref="IArtifactStore.GetArtifactHistory(int, IUser, bool?, int?, int?, List{HttpStatusCode})"/>
-        public List<ArtifactHistoryVersion> GetArtifactHistory(int artifactId, IUser user, 
-            bool? sortByDateAsc = null, int? limit = null, int? offset = null, 
-            List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IArtifactStore.GetArtifactHistory(int, IUser, bool?, Pagination, List{HttpStatusCode})"/>
+        public List<ArtifactHistoryVersion> GetArtifactHistory(int artifactId, IUser user, bool? sortByDateAsc = null,
+            Pagination pagination = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.VERSION, artifactId);
             Dictionary<string, string> queryParameters = null;
 
-            if ((sortByDateAsc != null) || (limit != null) || (offset != null))
+            if ((sortByDateAsc != null) || (pagination?.Limit != null) || (pagination?.Offset != null))
             {
                 queryParameters = new Dictionary<string, string>();
 
@@ -418,14 +417,14 @@ namespace Model.Impl
                     queryParameters.Add("asc", sortByDateAsc.ToString());
                 }
 
-                if (limit != null)
+                if (pagination?.Limit != null)
                 {
-                    queryParameters.Add("limit", limit.ToString());
+                    queryParameters.Add("limit", pagination.Limit.ToString());
                 }
 
-                if (offset != null)
+                if (pagination?.Offset != null)
                 {
-                    queryParameters.Add("offset", offset.ToString());
+                    queryParameters.Add("offset", pagination.Offset.ToString());
                 }
             }
 
@@ -812,7 +811,7 @@ namespace Model.Impl
             return AddArtifactToBaselineOrCollection<AddToBaselineResult>(user, artifactId, path, includeDescendants, expectedStatusCodes);
         }
 
-        /// <seealso cref="IArtifactStore.GetArtifactHistory(int, IUser, bool?, int?, int?, List{HttpStatusCode})"/>
+        /// <seealso cref="IArtifactStore.GetArtifactsAuthorHistory(List{int}, IUser, List{HttpStatusCode})"/>
         public List<AuthorHistoryItem> GetArtifactsAuthorHistory(List<int> artifactIds,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
@@ -1009,25 +1008,25 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.GetReviewTableOfContent(IUser, int, int, int?, int?)"/>
-        public ReviewTableOfContent GetReviewTableOfContent(IUser user, int reviewId, int revisionId, int? page = null, int? recordsOnPage = null)
+        public QueryResult<ReviewTableOfContentItem> GetReviewTableOfContent(IUser user, int reviewId, int revisionId, int? index = null, int? recordsToReturn = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Containers_id_.TOC_id_, reviewId, revisionId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
             var queryParams = new Dictionary<string, string>();
 
-            if (page != null)
+            if (index != null)
             {
-                queryParams.Add("offset", page.ToString());
+                queryParams.Add("offset", index.ToString());
             }
 
-            if (recordsOnPage != null)
+            if (recordsToReturn != null)
             {
-                queryParams.Add("limit", recordsOnPage.ToString());
+                queryParams.Add("limit", recordsToReturn.ToString());
             }
 
-            return restApi.SendRequestAndDeserializeObject<ReviewTableOfContent>(path,
-                RestRequestMethod.GET, shouldControlJsonChanges: true);
+            return restApi.SendRequestAndDeserializeObject<QueryResult<ReviewTableOfContentItem>>(path,
+                RestRequestMethod.GET, queryParameters: queryParams, shouldControlJsonChanges: true);
         }
 
         /// <seealso cref="IArtifactStore.GetArtifactStatusesByParticipant(IUser, int, int, int?, int?, int?)"/>

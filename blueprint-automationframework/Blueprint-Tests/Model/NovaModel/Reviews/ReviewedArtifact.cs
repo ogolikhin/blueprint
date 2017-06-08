@@ -22,6 +22,7 @@ namespace Model.NovaModel.Reviews
         [JsonProperty(NullValueHandling = NullValueHandling.Include)]
         public int? ViewedArtifactVersion { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]
         public string UserDisplayName { get; set; }
 
         public DateTime PublishedOnTimestamp { get; set; }

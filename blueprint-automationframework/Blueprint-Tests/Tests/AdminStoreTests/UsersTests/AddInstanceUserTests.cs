@@ -1,12 +1,13 @@
-﻿using System.Collections.Generic;
-using System.Net;
-using Common;
+﻿using Common;
 using CustomAttributes;
 using Helper;
 using Model;
 using Model.Common.Enums;
 using Model.NovaModel.AdminStoreModel;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Net;
 using TestCommon;
 using Utilities;
 using Utilities.Facades;
@@ -22,6 +23,8 @@ namespace AdminStoreTests.UsersTests
     {
         private const string USER_PATH = RestPaths.Svc.AdminStore.Users.USERS;
         private const string USER_PATH_ID = RestPaths.Svc.AdminStore.Users.USERS_id_;
+
+        private const string PASSWORD_EXPIRATION_IN_DAYS = "PasswordExpirationInDays";
 
         private IUser _adminUser = null;
 
@@ -65,7 +68,7 @@ namespace AdminStoreTests.UsersTests
             Assert.DoesNotThrow(() =>
             {
                 createdUser.Id = Helper.AdminStore.AddUser(_adminUser, createdUser);
-            }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
+            }, "'POST {0}' should return 201 Created for a valid session token!", USER_PATH);
 
             InstanceUser addedUser = null;
 
@@ -99,7 +102,7 @@ namespace AdminStoreTests.UsersTests
             Assert.DoesNotThrow(() =>
             {
                 createdUserId = Helper.AdminStore.AddUser(_adminUser, createdUser);
-            }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
+            }, "'POST {0}' should return 201 Created for a valid session token!", USER_PATH);
 
             InstanceUser addedUser = null;
 
@@ -138,7 +141,7 @@ namespace AdminStoreTests.UsersTests
             Assert.DoesNotThrow(() =>
             {
                 createdUserId = Helper.AdminStore.AddUser(_adminUser, createdUser);
-            }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
+            }, "'POST {0}' should return 201 Created for a valid session token!", USER_PATH);
 
             InstanceUser addedUser = null;
 
@@ -182,7 +185,7 @@ namespace AdminStoreTests.UsersTests
             Assert.DoesNotThrow(() =>
             {
                 createdUserId = Helper.AdminStore.AddUser(_adminUser, createdUser);
-            }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
+            }, "'POST {0}' should return 201 Created for a valid session token!", USER_PATH);
 
             InstanceUser addedUser = null;
 
@@ -224,7 +227,7 @@ namespace AdminStoreTests.UsersTests
                 Assert.DoesNotThrow(() =>
                 {
                     createdUser.Id = Helper.AdminStore.AddUser(userPermissionsToManageUsers, createdUser);
-                }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
+                }, "'POST {0}' should return 201 Created for a valid session token!", USER_PATH);
 
                 InstanceUser addedUser = null;
 
@@ -266,7 +269,7 @@ namespace AdminStoreTests.UsersTests
             Assert.DoesNotThrow(() =>
             {
                 createdUser.Id = Helper.AdminStore.AddUser(userWithPermissionsToAssignAdminRoles, createdUser);
-            }, "'POST {0}' should return 201 OK for a valid session token!", USER_PATH);
+            }, "'POST {0}' should return 201 Created for a valid session token!", USER_PATH);
 
             InstanceUser addedUser = null;
 
@@ -283,6 +286,79 @@ namespace AdminStoreTests.UsersTests
             AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUser.Id);
 
             AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
+        }
+
+        [TestCase(InstanceAdminRole.AssignInstanceAdministrators, LicenseLevel.Viewer)]
+        [TestRail(308877)]
+        [Description("Create an instance user with a role when Password Expiration is enabled by setting its value to '1' " + 
+            "and Verify that Password gets expired based on the value set on PasswordExpirationIndays from Instances table.")]
+        public void AddInstanceUser_AssigningRoleWhenPasswordExpirationEnabled_VerifyUserPasswordExpirationBasedOnPasswordExpirationInDays(
+            InstanceAdminRole adminRole,
+            LicenseLevel expectedLicenseLevel
+            )
+        {
+            // Setup: Set the user that has expirable password
+            var userWithPermissionsToAssignAdminRoles = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken, InstanceAdminRole.AssignInstanceAdministrators);
+
+            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser(
+                instanceAdminRole: adminRole,
+                expirePassword: true);
+
+            // Enable the Instance password expiration feature by setting the value to '1' 
+            var originalPasswordExpirationInDays = TestHelper.GetValueFromInstancesTable(PASSWORD_EXPIRATION_IN_DAYS);
+
+            try
+            {
+                // Execution: Add and Get Instance Users
+                Assert.DoesNotThrow(() =>
+                {
+                    createdUser.Id = Helper.AdminStore.AddUser(userWithPermissionsToAssignAdminRoles, createdUser);
+                }, "'POST {0}' should return 201 Created for a valid session token!", USER_PATH);
+
+
+                // Verify: Update License Type for comparison
+                createdUser.LicenseType = expectedLicenseLevel;
+
+                var addedUser = Helper.AdminStore.GetUserById(_adminUser, createdUser.Id);
+
+                // Update Id and CurrentVersion in CreatedUser for comparison
+                AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUser.Id);
+
+                AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
+
+                ValidateUserPasswordExpiration(createdUser);
+            }
+            finally
+            {
+                // Restore PasswordExpirationInDays back to original value.
+                TestHelper.UpdateValueFromInstancesTable(PASSWORD_EXPIRATION_IN_DAYS, originalPasswordExpirationInDays);
+            }
+        }
+
+        [TestCase]
+        [Description("Verify that a user who was created with 'enabled = False' is unable to log in.")]
+        [TestRail(308851)]
+        public void AddInstanceUser_LoginDisabled_UserCannotLogIn()
+        {
+            // Setup: prepare user to be created
+            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
+            createdUser.Enabled = false;
+
+            // Execute: add the user
+            Assert.DoesNotThrow(() =>
+            {
+                createdUser.Id = Helper.AdminStore.AddUser(_adminUser, createdUser);
+            }, "'POST {0}' should return 201 CREATED!", RestPaths.Svc.AdminStore.Users.USERS);
+
+            // Verify: that the user cannot log in
+            var ex = Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+               Helper.AdminStore.AddSession(createdUser.Login, createdUser.Password);
+            }, "User should not be able to log in!");
+
+            string expectedMessage = I18NHelper.FormatInvariant("User account is locked out for the login: {0}", createdUser.Login);
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.AccountIsLocked, expectedMessage);
+
         }
 
         #endregion 201 Created Tests
@@ -674,6 +750,39 @@ namespace AdminStoreTests.UsersTests
 
             // Verify:
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, expectedErrorMessage);
+        }
+
+        /// <summary>
+        /// Validates that a user with expired password cannot login and get proper error response.
+        /// </summary>
+        /// <param name="instanceUser">user with the expired password</param>
+        private void ValidateUserPasswordExpiration(
+            InstanceUser instanceUser
+            )
+        {
+            ThrowIf.ArgumentNull(instanceUser, nameof(instanceUser));
+
+            // Login with the created user
+            var session = Helper.AdminStore.AddSession(instanceUser.Login, instanceUser.Password);
+
+            // Logout with the created user
+            Helper.AdminStore.DeleteSession(session);
+
+            // Simulate Password Expiration
+            TestHelper.UpdateLastPasswordChangeTimestampFromUsersTable(
+                instanceUser.Id.Value,
+                DateTime.UtcNow.AddHours(-25));
+
+            TestHelper.UpdateValueFromInstancesTable(PASSWORD_EXPIRATION_IN_DAYS, "1");
+
+            // Login again after enable password expiration from instances
+            var ex = Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                Helper.AdminStore.AddSession(instanceUser.Login, instanceUser.Password, force: true);
+            }, "AddSession() should throw exception since the user password is expired.");
+
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordExpired,
+                "User password expired for the login: " + instanceUser.Login);
         }
 
         #endregion Private Methods

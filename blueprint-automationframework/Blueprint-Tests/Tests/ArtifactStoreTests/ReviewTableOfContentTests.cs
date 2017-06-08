@@ -155,7 +155,7 @@ namespace ArtifactStoreTests
         [TestCase("A", "5", 5)]
         [TestRail(308914)]
         [Description("Get review table of content by review id and revision id from Custom Data project with revisionId as a character, " +
-            "check that server returns 400 Bad Request.")]
+            "check that server still returns 200 OK in response.")]
         public void GetReviewTableOfContent_BadParameters(string offset, string maxToReturn, int expectedNumberReturned)
         {
             var testConfig = TestConfiguration.GetInstance();
@@ -184,7 +184,7 @@ namespace ArtifactStoreTests
             QueryResult<ReviewTableOfContentItem> tableOfContentResponse = null;
             Assert.DoesNotThrow(() => tableOfContentResponse = restApi.SendRequestAndDeserializeObject<QueryResult<ReviewTableOfContentItem>>(path,
                 RestRequestMethod.GET, queryParameters: queryParams, shouldControlJsonChanges: true),
-                "{0} should return 200 OK for call with bad parameter.", nameof(Helper.ArtifactStore.GetReviewTableOfContent));
+                "{0} should return 200 OK for call even with bad parameter.", nameof(Helper.ArtifactStore.GetReviewTableOfContent));
 
             // Verify:
             Assert.AreEqual(15, tableOfContentResponse.Total, "TotalArtifacts should be equal to the expected number of artifacts in Review!");

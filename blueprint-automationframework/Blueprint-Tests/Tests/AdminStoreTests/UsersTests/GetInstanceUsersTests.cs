@@ -215,6 +215,111 @@ namespace AdminStoreTests.UsersTests
             Assert.IsNull(returnedUsers.Find(user => user.Id == addedUser.Id), "The deleted user was returned!");
         }
 
+        [Category(Categories.CannotRunInParallel)]
+        [TestCase]
+        [Description("Create and add an instance user with a specific login. Get all users with search parameter that contains a substring " + 
+                     "of user's login. Verify that a single user is returned in the result.")]
+        [TestRail(308901)]
+        public void GetInstanceUsers_SearchCreatedUserByLogin_ReturnsSingleUserResult()
+        {
+            // Setup:
+            var login = "thom_yorke";
+            var search = "m_";
+            Helper.CreateAndAddInstanceUser(_adminUser, login: login);
+
+            QueryResult<InstanceUser> queryResult = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                queryResult = Helper.AdminStore.GetUsers(_adminUser, offset: 0, limit: 20, search: search);
+            }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH);
+
+            //Verify:
+            var returnedUsers = queryResult.Items;
+            var returnedUsersCount = returnedUsers.Count;
+
+            Assert.AreEqual(1, returnedUsersCount, returnedUsersCount + " users were returned but a single user was expected!");
+        }
+
+        [Category(Categories.CannotRunInParallel)]
+        [TestCase]
+        [Description("Create and add an instance user with a specific display name. Get all users with search parameter that contains a substring " +
+                     "of user's display name. Verify that a single user is returned in the result.")]
+        [TestRail(308902)]
+        public void GetInstanceUsers_SearchCreatedUserByDisplayName_ReturnsSingleUserResult()
+        {
+            // Setup:
+            var displayName = "Thom Yorke";
+            var search = "Yo";
+            Helper.CreateAndAddInstanceUser(_adminUser, displayname: displayName);
+
+            QueryResult<InstanceUser> queryResult = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                queryResult = Helper.AdminStore.GetUsers(_adminUser, offset: 0, limit: 20, search: search);
+            }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH);
+
+            //Verify:
+            var returnedUsers = queryResult.Items;
+            var returnedUsersCount = returnedUsers.Count;
+
+            Assert.AreEqual(1, returnedUsersCount, returnedUsersCount + " users were returned but a single user was expected!");
+        }
+
+        [Category(Categories.CannotRunInParallel)]
+        [TestCase]
+        [Description("Create and add an instance user with a specific e-mail address. Get all users with search parameter that contains a substring " +
+                     "of user's e-mail address. Verify that a single user is returned in the result.")]
+        [TestRail(308903)]
+        public void GetInstanceUsers_SearchCreatedUserByEmail_ReturnsSingleUserResult()
+        {
+            // Setup:
+            var email = "thomyorke@radiohead.com";
+            var search = "radiohead";
+            Helper.CreateAndAddInstanceUser(_adminUser, email: email);
+
+            QueryResult<InstanceUser> queryResult = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                queryResult = Helper.AdminStore.GetUsers(_adminUser, offset: 0, limit: 20, search: search);
+            }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH);
+
+            //Verify:
+            var returnedUsers = queryResult.Items;
+            var returnedUsersCount = returnedUsers.Count;
+
+            Assert.AreEqual(1, returnedUsersCount, returnedUsersCount + " users were returned but a single user was expected!");
+        }
+
+        [Category(Categories.CannotRunInParallel)]
+        [TestCase]
+        [Description("Get all users with search parameter that doesn't match any existing users. Verify that no users are returned as a result.")]
+        [TestRail(308904)]
+        public void GetInstanceUsers_SearchNonExistingUsers_ReturnsNoResults()
+        {
+            // Setup:
+            var search = "jonnygreenwood";
+
+            QueryResult<InstanceUser> queryResult = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                queryResult = Helper.AdminStore.GetUsers(_adminUser, offset: 0, limit: 20, search: search);
+            }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH);
+
+            //Verify:
+            var returnedUsers = queryResult.Items;
+            var returnedUsersCount = returnedUsers.Count;
+
+            Assert.AreEqual(0, returnedUsersCount, returnedUsersCount + " users were returned but none was expected!");
+        }
+
         #endregion 200 OK Tests
 
         #region 400 BadRequest

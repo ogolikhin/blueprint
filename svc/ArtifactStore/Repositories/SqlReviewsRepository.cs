@@ -32,6 +32,8 @@ namespace ArtifactStore.Repositories
 
         private const string PENDING = "Pending";
 
+        private const string UNATHORIZED = "Unauthorized";
+
         public SqlReviewsRepository(): this(new SqlConnectionWrapper(ServiceConstants.RaptorMain), 
                                             new SqlArtifactVersionsRepository(), 
                                             new SqlItemInfoRepository(),
@@ -430,7 +432,9 @@ namespace ArtifactStore.Repositories
                 {
                     //TODO update item status
                     tocItem.HasAccess = true;
+                    
                     var artifact = reviewedArtifacts.First(it => it.Id == tocItem.Id);
+                    tocItem.ApprovalStatus = (ApprovalType)artifact?.ApprovalFlag;
                     tocItem.Viewed = artifact?.ViewedArtifactVersion != null;
                 }
                 else
@@ -446,8 +450,7 @@ namespace ArtifactStore.Repositories
 
         private void UnauthorizedItem(ReviewTableOfContentItem item)
         {
-            item.Name = null; // unauthorize
-            item.Prefix = null;
+            item.Name = UNATHORIZED; // unauthorize
             item.Included = false;
             item.Viewed = false;
             item.HasAccess = false;

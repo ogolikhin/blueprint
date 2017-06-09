@@ -78,10 +78,10 @@ namespace ImpactAnalysisTests
             var targetArtifact2 = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.UIMockup);
 
             sourceArtifact.Lock(_user);
-            var trace1 = ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_user, sourceArtifact.Id, targetArtifact1.Id, (int)targetArtifact1.ProjectId,
-                ChangeType.Create, Helper.ArtifactStore, direction);
-            var trace2 = ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_user, sourceArtifact.Id, targetArtifact2.Id, (int)targetArtifact2.ProjectId,
-                ChangeType.Create, Helper.ArtifactStore, direction, isSuspect: true);
+            var trace1 = ArtifactStoreHelper.AddManualArtifactTraceAndSave(_user, sourceArtifact.Id, targetArtifact1.Id, targetArtifact1.ProjectId.Value,
+                direction);
+            var trace2 = ArtifactStoreHelper.AddManualArtifactTraceAndSave(_user, sourceArtifact.Id, targetArtifact2.Id, targetArtifact2.ProjectId.Value,
+                direction, isSuspect: true);
             sourceArtifact.Publish(_user);
 
             // Execute:
@@ -114,8 +114,8 @@ namespace ImpactAnalysisTests
             Helper.AssignProjectRolePermissionsToUser(userWithoutPermissionToTarget, TestHelper.ProjectRole.None, _project, targetArtifact);
 
             sourceArtifact.Lock(_user);
-            var trace = ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_user, sourceArtifact.Id, targetArtifact.Id, (int)targetArtifact.ProjectId,
-                ChangeType.Create, Helper.ArtifactStore, direction, isSuspect: true);
+            var trace = ArtifactStoreHelper.AddManualArtifactTraceAndSave(_user, sourceArtifact.Id, targetArtifact.Id, targetArtifact.ProjectId.Value,
+                direction, isSuspect: true);
             sourceArtifact.Publish(_user);
 
             // Execute:
@@ -147,8 +147,7 @@ namespace ImpactAnalysisTests
             var targetArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Actor);
 
             sourceArtifact.Lock(_user);
-            ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_user, sourceArtifact.Id, targetArtifact.Id, (int)targetArtifact.ProjectId, ChangeType.Create,
-                Helper.ArtifactStore, TraceDirection.To);
+            ArtifactStoreHelper.AddManualArtifactTraceAndSave(_user, sourceArtifact.Id, targetArtifact.Id, targetArtifact.ProjectId.Value, TraceDirection.To);
             sourceArtifact.Publish(_user);
 
             // Execute:
@@ -177,8 +176,7 @@ namespace ImpactAnalysisTests
             Helper.AssignProjectRolePermissionsToUser(userWithoutPermissionToSource, TestHelper.ProjectRole.None, _project, sourceArtifact);
 
             sourceArtifact.Lock(_user);
-            ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_user, sourceArtifact.Id, targetArtifact.Id, (int)targetArtifact.ProjectId, ChangeType.Create,
-                Helper.ArtifactStore, direction);
+            ArtifactStoreHelper.AddManualArtifactTraceAndSave(_user, sourceArtifact.Id, targetArtifact.Id, targetArtifact.ProjectId.Value, direction);
             sourceArtifact.Publish(_user);
 
             // Execute:

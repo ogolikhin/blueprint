@@ -217,7 +217,6 @@ namespace AdminStoreTests.UsersTests
             Assert.IsNull(returnedUsers.Find(user => user.Id == addedUser.Id), "The deleted user was returned!");
         }
 
-        [Category(Categories.CannotRunInParallel)]
         [TestCase]
         [Description("Create and add an instance user with a specific login. Get all users with search parameter that contains a substring " + 
                      "of user's login. Verify that a single created user is returned in the result.")]
@@ -245,7 +244,6 @@ namespace AdminStoreTests.UsersTests
             Assert.AreEqual(login, returnedUsers[0].Login, "Expected user's login to be '" + login + "' but found '" + returnedUsers[0].Login + "'");
         }
 
-        [Category(Categories.CannotRunInParallel)]
         [TestCase]
         [Description("Create and add an instance user with a specific display name. Get all users with search parameter that contains a substring " +
                      "of user's display name. Verify that a single created user is returned in the result.")]
@@ -273,7 +271,6 @@ namespace AdminStoreTests.UsersTests
             Assert.AreEqual(displayName, returnedUsers[0].DisplayName, "Expected user's display name to be '" + displayName + "' but found '" + returnedUsers[0].DisplayName + "'");
         }
 
-        [Category(Categories.CannotRunInParallel)]
         [TestCase]
         [Description("Create and add an instance user with a specific e-mail address. Get all users with search parameter that contains a substring " +
                      "of user's e-mail address. Verify that a single created user is returned in the result.")]
@@ -301,7 +298,6 @@ namespace AdminStoreTests.UsersTests
             Assert.AreEqual(email, returnedUsers[0].Email, "Expected user's e-mail name to be '" + email + "' but found '" + returnedUsers[0].Email + "'");
         }
 
-        [Category(Categories.CannotRunInParallel)]
         [TestCase]
         [Description("Create and add 5 instance users with specific e-mail addresses. Get all users with search parameter that contains a substring " +
                      "of users' e-mail address. Verify that all 5 matching users are returned in the result.")]

@@ -462,8 +462,8 @@ namespace ArtifactStore.Repositories
         private static void ThrowReviewNotFoundException(int reviewId, int? revisionId = null)
         {
             var errorMessage = revisionId.HasValue ? 
-                I18NHelper.FormatInvariant("Review (Id:#{0}) or its revision (#{1}) is not found.", reviewId, revisionId) :
-                I18NHelper.FormatInvariant("Review (Id:#{0}) is not found.", reviewId);
+                I18NHelper.FormatInvariant("Review (Id:{0}) or its revision (#{1}) is not found.", reviewId, revisionId) :
+                I18NHelper.FormatInvariant("Review (Id:{0}) is not found.", reviewId);
             throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
         }
     }

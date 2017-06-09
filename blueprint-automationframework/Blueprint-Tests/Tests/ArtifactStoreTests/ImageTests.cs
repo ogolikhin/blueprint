@@ -358,7 +358,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             string selectQuery = I18NHelper.FormatInvariant("SELECT ExpiredTime FROM [dbo].[EmbeddedImages] WHERE [FileId] ='{0}'", addedFile.Guid);
-            Assert.IsNull(DatabaseHelper.ExecuteSingleValueSqlQuery<string>(selectQuery), "ExpiredTime is not null!");
+            Assert.IsNull(DatabaseHelper.ExecuteSingleValueSqlQuery<System.DateTime?>(selectQuery), "ExpiredTime is not null!");
 
             selectQuery = I18NHelper.FormatInvariant("SELECT ExpiredTime FROM [FileStore].[Files] WHERE [FileId] = '{0}'", addedFile.Guid);
             Assert.IsNull(DatabaseHelper.ExecuteSingleValueSqlQuery<string>(selectQuery, "FileStore"), "ExpiredTime is not null!");

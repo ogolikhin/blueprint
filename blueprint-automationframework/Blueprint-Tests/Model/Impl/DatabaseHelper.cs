@@ -26,7 +26,15 @@ namespace Model.Impl
 
                 using (var cmd = database.CreateSqlCommand(query))
                 {
-                    return (T)cmd.ExecuteScalar();
+                    var result = cmd.ExecuteScalar();
+                    if (result == null || result == DBNull.Value)
+                    {
+                        return default(T);
+                    }
+                    else
+                    {
+                        return (T)result;
+                    }
                 }
 
                 throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were found when running: {0}", query));
@@ -224,7 +232,7 @@ namespace Model.Impl
         {
             string selectQuery = I18NHelper.FormatInvariant("SELECT FileId FROM [dbo].[EmbeddedImages] WHERE [EmbeddedImageId] ='{0}'", embeddedImageid);
 
-            return ExecuteSingleValueSqlQuery<string>(selectQuery);
+            return ExecuteSingleValueSqlQuery<Guid>(selectQuery).ToString();
         }
 
         /// <summary>

@@ -311,6 +311,17 @@ namespace ArtifactStore.Repositories
         //    }
         //}
 
+        private async Task UpdateReviewArtifacts(int reviewId, int userId, string xmlArtifacts)
+        {
+
+            var param = new DynamicParameters();
+            param.Add("@reviewId", reviewId);
+            param.Add("@userId", userId);
+            param.Add("@xmlArtifacts", xmlArtifacts);
+
+            await ConnectionWrapper.ExecuteAsync("UpdateReviewArtifacts", param, commandType: CommandType.StoredProcedure);
+        }
+
         private async Task<ContentStatusDetails> GetReviewArtifactStatusesAsync(int reviewId, int userId, Pagination pagination,
                                                                         int? versionId = null,
                                                                         bool? addDrafts = true,

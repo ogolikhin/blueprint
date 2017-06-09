@@ -154,19 +154,7 @@ namespace Model.Impl
                     "SELECT Enabled FROM [dbo].[FederatedAuthentications] WHERE InstanceId = 1");
                 Logger.WriteDebug("Running: {0}", query);
 
-                using (var cmd = database.CreateSqlCommand(query))
-                {
-                    database.Open();
-
-                    try
-                    {
-                        result = (bool)cmd.ExecuteScalar();
-                    }
-                    catch (InvalidOperationException ex)
-                    {
-                        Logger.WriteError("SQL query didn't get processed. Exception details = {0}", ex);
-                    }
-                }
+                result = DatabaseHelper.ExecuteSingleValueSqlQuery<bool>(query);
             }
             return result;
         }

@@ -624,7 +624,7 @@ namespace Model.Impl
             const string FILES_TABLE = "[FileStore].[Files]";
             string query = I18NHelper.FormatInvariant("SELECT ExpiredTime FROM {0} WHERE FileId = '{1}'", FILES_TABLE, fileId);
 
-            return DatabaseHelper.ExecuteSingleValueSqlQuery<DateTime?>(query, "ExpiredTime", "FileStore");
+            return DatabaseHelper.ExecuteSingleValueSqlQuery<DateTime?>(query, "FileStore");
         }
 
         #endregion Inherited from IFileStore

@@ -67,6 +67,7 @@ namespace ArtifactStoreTests
             ValidateTableOfContentResponseForReview(tableOfContentResponse);
         }
 
+        [Explicit(IgnoreReasons.UnderDevelopmentDev)]  // Trello bug: https://trello.com/c/HZ0U1PyZ
         [Category(Categories.GoldenData)]
         [Category(Categories.CannotRunInParallel)]
         [TestCase(REVIEW_ID_112)]
@@ -92,8 +93,8 @@ namespace ArtifactStoreTests
 
             Assert.IsNull(tableOfContentResponse.Items.Last().Name, I18NHelper.FormatInvariant(
                 "Name property for artifact {0} should be null!", ARTIFACT_ID));
-            Assert.IsNull(tableOfContentResponse.Items.Last().Prefix, I18NHelper.FormatInvariant(
-                "Prefix property for artifact {0} should be null!", ARTIFACT_ID));
+            Assert.AreEqual("UCD", tableOfContentResponse.Items.Last().Prefix, I18NHelper.FormatInvariant(
+                "Prefix property for artifact {0} should be 'UCD'!", ARTIFACT_ID));
             Assert.IsFalse(tableOfContentResponse.Items.Last().Included, I18NHelper.FormatInvariant(
                 "Included property for artifact {0} is supposed to be False!", ARTIFACT_ID));
             Assert.IsFalse(tableOfContentResponse.Items.Last().Viewed, I18NHelper.FormatInvariant(
@@ -150,12 +151,14 @@ namespace ArtifactStoreTests
             }
         }
 
+        [Category(Categories.GoldenData)]
+        [Category(Categories.CannotRunInParallel)]
         [TestCase("5", "A", 10)]
         [TestCase("A", "5", 5)]
         [TestRail(308914)]
         [Description("Get review table of content by review id and revision id from Custom Data project with revisionId as a character, " +
             "check that server still returns 200 OK in response.")]
-        public void GetReviewTableOfContent_BadParameters(string offset, string maxToReturn, int expectedNumberReturned)
+        public void GetReviewTableOfContent_BadParameters_CheckTableOfContentIsReturned(string offset, string maxToReturn, int expectedNumberReturned)
         {
             var testConfig = TestConfiguration.GetInstance();
             string userName = testConfig.Username;
@@ -169,15 +172,9 @@ namespace ArtifactStoreTests
 
             var queryParams = new Dictionary<string, string>();
 
-            if (offset != null)
-            {
-                queryParams.Add("offset", offset);
-            }
+            queryParams.Add("offset", offset);
 
-            if (maxToReturn != null)
-            {
-                queryParams.Add("limit", maxToReturn);
-            }
+            queryParams.Add("limit", maxToReturn);
 
             // Execute:
             QueryResult<ReviewTableOfContentItem> tableOfContentResponse = null;
@@ -203,6 +200,8 @@ namespace ArtifactStoreTests
 
         #region 401 Unauthorized
 
+        [Category(Categories.GoldenData)]
+        [Category(Categories.CannotRunInParallel)]
         [TestCase()]
         [TestRail(308915)]
         [Description("Get review table of content by review id and revision id from Custom Data project with user that has invalid token, " +
@@ -238,7 +237,7 @@ namespace ArtifactStoreTests
         public void GetReviewTableOfContent_ExistingReview_NonReviewer_403Forbidden()
         {
             // Setup:
-            var adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            var adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
 
             // Execute: 
             var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetReviewTableOfContent(adminUser, REVIEW_ID_112, REVISION_ID_239),
@@ -252,11 +251,12 @@ namespace ArtifactStoreTests
 
         #region 404 Not Found
 
-        [Explicit(IgnoreReasons.UnderDevelopmentDev)]  // Trello bug: https://trello.com/c/Cyp0wdhh
+        [Category(Categories.GoldenData)]
+        [Category(Categories.CannotRunInParallel)]
         [TestCase(REVIEW_ID_112, 1)]
         [TestCase(1, REVISION_ID_239)]
         [TestRail(308917)]
-        [Description("Get review table of content by using non-existing review id or revision id from Custom Data project " +
+        [Description("Get review table of content by using non-existing review id or revision id from Custom Data project, " +
             "check that server returns 404 Not Found.")]
         public void GetReviewTableOfContent_NonExistingReviewOrRevisionId_404NotFound(int reviewId, int revisionId)
         {

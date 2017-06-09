@@ -168,20 +168,7 @@ namespace Model.Impl
                     "UPDATE [dbo].[FederatedAuthentications] SET Enabled = {0} WHERE InstanceId = 1",
                     Convert.ToInt32(isFedAuthenticationEnabledDB));
                 Logger.WriteDebug("Running: {0}", query);
-
-                using (var cmd = database.CreateSqlCommand(query))
-                {
-                    database.Open();
-
-                    try
-                    {
-                        cmd.ExecuteScalar();
-                    }
-                    catch (InvalidOperationException ex)
-                    {
-                        Logger.WriteError("SQL query didn't get processed. Exception details = {0}", ex);
-                    }
-                }
+                DatabaseHelper.ExecuteUpdateSqlQuery(query);
             }
         }
 

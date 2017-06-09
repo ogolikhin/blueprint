@@ -208,17 +208,12 @@ namespace Model.Impl
 
                 using (var cmd = database.CreateSqlCommand(updateQuery))
                 {
-                    cmd.ExecuteNonQuery();
-
-                    using (var sqlDataReader = cmd.ExecuteReader())
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    if (rowsAffected < 1)
                     {
-                        if (sqlDataReader.RecordsAffected <= 0)
-                        {
-                            throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", updateQuery));
-                        }
-
-                        return sqlDataReader.RecordsAffected;
+                        throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", updateQuery));
                     }
+                    return rowsAffected;
                 }
             }
         }

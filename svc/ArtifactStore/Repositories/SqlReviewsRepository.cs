@@ -432,7 +432,9 @@ namespace ArtifactStore.Repositories
                 {
                     //TODO update item status
                     tocItem.HasAccess = true;
+                    
                     var artifact = reviewedArtifacts.First(it => it.Id == tocItem.Id);
+                    tocItem.ApprovalStatus = (ApprovalType)artifact?.ApprovalFlag;
                     tocItem.Viewed = artifact?.ViewedArtifactVersion != null;
                 }
                 else

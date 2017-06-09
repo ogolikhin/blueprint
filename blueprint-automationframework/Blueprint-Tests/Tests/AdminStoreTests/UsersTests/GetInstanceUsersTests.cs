@@ -225,8 +225,8 @@ namespace AdminStoreTests.UsersTests
         public void GetInstanceUsers_SearchCreatedUserByLogin_ReturnsSingleUserResult()
         {
             // Setup:
-            var login = RandomGenerator.RandomAlphaNumeric(10);
-            var search = login.Substring(1, 5);
+            var login = RandomGenerator.RandomAlphaNumeric(25);
+            var search = login.Substring(5, 20);
             Helper.CreateAndAddInstanceUser(_adminUser, login: login);
 
             QueryResult<InstanceUser> queryResult = null;
@@ -253,8 +253,8 @@ namespace AdminStoreTests.UsersTests
         public void GetInstanceUsers_SearchCreatedUserByDisplayName_ReturnsSingleUserResult()
         {
             // Setup:
-            var displayName = RandomGenerator.RandomAlphaNumeric(10);
-            var search = displayName.Substring(1, 5);
+            var displayName = RandomGenerator.RandomAlphaNumeric(25);
+            var search = displayName.Substring(5, 20);
             Helper.CreateAndAddInstanceUser(_adminUser, displayname: displayName);
 
             QueryResult<InstanceUser> queryResult = null;
@@ -281,7 +281,7 @@ namespace AdminStoreTests.UsersTests
         public void GetInstanceUsers_SearchCreatedUserByEmail_ReturnsSingleUserResult()
         {
             // Setup:
-            var domain = RandomGenerator.RandomAlphaNumeric(5) + ".com";
+            var domain = RandomGenerator.RandomAlphaNumeric(15) + ".com";
             var email = I18NHelper.FormatInvariant("{0}@{1}", RandomGenerator.RandomAlphaNumeric(5), domain);
             Helper.CreateAndAddInstanceUser(_adminUser, email: email);
 
@@ -303,13 +303,13 @@ namespace AdminStoreTests.UsersTests
 
         [Category(Categories.CannotRunInParallel)]
         [TestCase]
-        [Description("Create and add 5 instance users with a specific e-mail addresses. Get all users with search parameter that contains a substring " +
+        [Description("Create and add 5 instance users with specific e-mail addresses. Get all users with search parameter that contains a substring " +
                      "of users' e-mail address. Verify that all 5 matching users are returned in the result.")]
         [TestRail(308913)]
         public void GetInstanceUsers_SearchMultipleCreatedUsersByEmail_ReturnsAllMatchingUsersInResult()
         {
             // Setup:
-            var domain = RandomGenerator.RandomAlphaNumeric(5) + ".com";
+            var domain = RandomGenerator.RandomAlphaNumeric(15) + ".com";
             var email1 = I18NHelper.FormatInvariant("{0}@{1}", RandomGenerator.RandomAlphaNumeric(5), domain);
             var email2 = I18NHelper.FormatInvariant("{0}@{1}", RandomGenerator.RandomAlphaNumeric(5), domain);
             var email3 = I18NHelper.FormatInvariant("{0}@{1}", RandomGenerator.RandomAlphaNumeric(5), domain);

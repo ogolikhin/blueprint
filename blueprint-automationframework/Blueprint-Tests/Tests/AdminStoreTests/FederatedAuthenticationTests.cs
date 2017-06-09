@@ -13,7 +13,7 @@ namespace AdminStoreTests
     [Category(Categories.AdminPortal)]
     [Category(Categories.AdminStore)]
     [Category(Categories.CannotRunInParallel)]
-    public class FederatedAuthenticationTests : TestBase
+    public class FederatedAuthenticationTests : TestBase // TODO : delete this file and distribute test cases between other files to keep one endpoint under the test per file logic
     {
         private IUser _defaultAdmin;
         private IUser _nonAdmin;
@@ -40,7 +40,7 @@ namespace AdminStoreTests
         [TestCase(false)]
         [TestRail(308939)]
         [Description("Set FedAuthenticationEnabled value in DB, get it from svc/adminstore/config/users and compare with expectations.")]
-        public void GetUserManagementSettings_CheckIsFederatedAuthenticationEnabled(bool isFederatedAuthenticationEnabled)
+        public void GetUserManagementSettings_EnableOrDisableFederatedAuthentication_CheckFederatedAuthenticationSetting(bool isFederatedAuthenticationEnabled)
         {
             UserManagementSettings userManagementSettings = null;
             Helper.BlueprintServer.SetIsFedAuthenticationEnabledDB(isFederatedAuthenticationEnabled);
@@ -57,15 +57,19 @@ namespace AdminStoreTests
                 "FederatedAuthenticationEnabled should have expected value.");
         }
 
-        [TestCase]
+        [TestCase(true)]
+        [TestCase(false)]
         [Description("Set FedAuthenticationEnabled to true in DB. Create and add an instance user without password. " +
-            "Get the added user using using an admin user. Verify the same user that was created is returned.")]
-        [TestRail(308940)]
-        public void AddInstanceUser_NoPassword_FederatedAuthenticationEnabled_UserCreated()
+            "Get the added user using an admin user. Verify the same user that was created is returned.")]
+        [TestRail(308940)] // TODO : add test 
+        public void AddInstanceUser_WithWithoutPassword_FederatedAuthenticationEnabled_UserCreated(bool isPasswordNull)
         {
             // Setup:
             var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
-            createdUser.Password = null;
+            if (isPasswordNull)
+            {
+                createdUser.Password = null;
+            }
 
             Helper.BlueprintServer.SetIsFedAuthenticationEnabledDB(isFedAuthenticationEnabledDB: true);
 
@@ -75,16 +79,10 @@ namespace AdminStoreTests
                 createdUser.Id = Helper.AdminStore.AddUser(_usersAdmin, createdUser);
             }, "AddUser should return 201 Created!");
 
-            InstanceUser addedUser = null;
-
-            Assert.DoesNotThrow(() =>
-            {
-                addedUser = Helper.AdminStore.GetUserById(_usersAdmin, createdUser.Id);
-            }, "GetUserById should return 200 OK!");
-
             // Verify:
             // Update Id and CurrentVersion in CreatedUser for comparison
             AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUser.Id);
+            var addedUser = Helper.AdminStore.GetUserById(_usersAdmin, createdUser.Id);
 
             AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
         }

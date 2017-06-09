@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Common;
 using CustomAttributes;
 using Helper;
 using Model;
@@ -9,6 +10,7 @@ using Model.NovaModel.AdminStoreModel;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
+using Utilities.Factories;
 
 namespace AdminStoreTests.UsersTests
 {
@@ -218,13 +220,13 @@ namespace AdminStoreTests.UsersTests
         [Category(Categories.CannotRunInParallel)]
         [TestCase]
         [Description("Create and add an instance user with a specific login. Get all users with search parameter that contains a substring " + 
-                     "of user's login. Verify that a single user is returned in the result.")]
+                     "of user's login. Verify that a single created user is returned in the result.")]
         [TestRail(308901)]
         public void GetInstanceUsers_SearchCreatedUserByLogin_ReturnsSingleUserResult()
         {
             // Setup:
-            var login = "thom_yorke";
-            var search = "m_";
+            var login = RandomGenerator.RandomAlphaNumeric(10);
+            var search = login.Substring(1, 5);
             Helper.CreateAndAddInstanceUser(_adminUser, login: login);
 
             QueryResult<InstanceUser> queryResult = null;
@@ -240,18 +242,19 @@ namespace AdminStoreTests.UsersTests
             var returnedUsersCount = returnedUsers.Count;
 
             Assert.AreEqual(1, returnedUsersCount, returnedUsersCount + " users were returned but a single user was expected!");
+            Assert.AreEqual(login, returnedUsers[0].Login, "Expected user's login to be '" + login + "' but found '" + returnedUsers[0].Login + "'");
         }
 
         [Category(Categories.CannotRunInParallel)]
         [TestCase]
         [Description("Create and add an instance user with a specific display name. Get all users with search parameter that contains a substring " +
-                     "of user's display name. Verify that a single user is returned in the result.")]
+                     "of user's display name. Verify that a single created user is returned in the result.")]
         [TestRail(308902)]
         public void GetInstanceUsers_SearchCreatedUserByDisplayName_ReturnsSingleUserResult()
         {
             // Setup:
-            var displayName = "Thom Yorke";
-            var search = "Yo";
+            var displayName = RandomGenerator.RandomAlphaNumeric(10);
+            var search = displayName.Substring(1, 5);
             Helper.CreateAndAddInstanceUser(_adminUser, displayname: displayName);
 
             QueryResult<InstanceUser> queryResult = null;
@@ -267,18 +270,19 @@ namespace AdminStoreTests.UsersTests
             var returnedUsersCount = returnedUsers.Count;
 
             Assert.AreEqual(1, returnedUsersCount, returnedUsersCount + " users were returned but a single user was expected!");
+            Assert.AreEqual(displayName, returnedUsers[0].DisplayName, "Expected user's display name to be '" + displayName + "' but found '" + returnedUsers[0].DisplayName + "'");
         }
 
         [Category(Categories.CannotRunInParallel)]
         [TestCase]
         [Description("Create and add an instance user with a specific e-mail address. Get all users with search parameter that contains a substring " +
-                     "of user's e-mail address. Verify that a single user is returned in the result.")]
+                     "of user's e-mail address. Verify that a single created user is returned in the result.")]
         [TestRail(308903)]
         public void GetInstanceUsers_SearchCreatedUserByEmail_ReturnsSingleUserResult()
         {
             // Setup:
-            var email = "thomyorke@radiohead.com";
-            var search = "radiohead";
+            var domain = RandomGenerator.RandomAlphaNumeric(5) + ".com";
+            var email = I18NHelper.FormatInvariant("{0}@{1}", RandomGenerator.RandomAlphaNumeric(5), domain);
             Helper.CreateAndAddInstanceUser(_adminUser, email: email);
 
             QueryResult<InstanceUser> queryResult = null;
@@ -286,7 +290,7 @@ namespace AdminStoreTests.UsersTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                queryResult = Helper.AdminStore.GetUsers(_adminUser, offset: 0, limit: 20, search: search);
+                queryResult = Helper.AdminStore.GetUsers(_adminUser, offset: 0, limit: 20, search: domain);
             }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH);
 
             //Verify:
@@ -294,6 +298,7 @@ namespace AdminStoreTests.UsersTests
             var returnedUsersCount = returnedUsers.Count;
 
             Assert.AreEqual(1, returnedUsersCount, returnedUsersCount + " users were returned but a single user was expected!");
+            Assert.AreEqual(email, returnedUsers[0].Email, "Expected user's e-mail name to be '" + email + "' but found '" + returnedUsers[0].Email + "'");
         }
 
         [Category(Categories.CannotRunInParallel)]
@@ -304,19 +309,26 @@ namespace AdminStoreTests.UsersTests
         public void GetInstanceUsers_SearchMultipleCreatedUsersByEmail_ReturnsAllMatchingUsersInResult()
         {
             // Setup:
-            var search = "radiohead.com";
-            Helper.CreateAndAddInstanceUser(_adminUser, email: "tyorke@radiohead.com");
-            Helper.CreateAndAddInstanceUser(_adminUser, email: "jgreenwood@radiohead.com");
-            Helper.CreateAndAddInstanceUser(_adminUser, email: "cgreenwood@radiohead.com");
-            Helper.CreateAndAddInstanceUser(_adminUser, email: "eobrien@radiohead.com");
-            Helper.CreateAndAddInstanceUser(_adminUser, email: "pselway@radiohead.com");
+            var domain = RandomGenerator.RandomAlphaNumeric(5) + ".com";
+            var email1 = I18NHelper.FormatInvariant("{0}@{1}", RandomGenerator.RandomAlphaNumeric(5), domain);
+            var email2 = I18NHelper.FormatInvariant("{0}@{1}", RandomGenerator.RandomAlphaNumeric(5), domain);
+            var email3 = I18NHelper.FormatInvariant("{0}@{1}", RandomGenerator.RandomAlphaNumeric(5), domain);
+            var email4 = I18NHelper.FormatInvariant("{0}@{1}", RandomGenerator.RandomAlphaNumeric(5), domain);
+            var email5 = I18NHelper.FormatInvariant("{0}@{1}", RandomGenerator.RandomAlphaNumeric(5), domain);
+
+
+            Helper.CreateAndAddInstanceUser(_adminUser, email: email1);
+            Helper.CreateAndAddInstanceUser(_adminUser, email: email2);
+            Helper.CreateAndAddInstanceUser(_adminUser, email: email3);
+            Helper.CreateAndAddInstanceUser(_adminUser, email: email4);
+            Helper.CreateAndAddInstanceUser(_adminUser, email: email5);
 
             QueryResult<InstanceUser> queryResult = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                queryResult = Helper.AdminStore.GetUsers(_adminUser, offset: 0, limit: 20, search: search);
+                queryResult = Helper.AdminStore.GetUsers(_adminUser, offset: 0, limit: 20, search: domain);
             }, "'GET {0}' should return 200 OK for a valid session token!", USER_PATH);
 
             //Verify:
@@ -325,6 +337,11 @@ namespace AdminStoreTests.UsersTests
             var expectedUsersCount = 5;
 
             Assert.AreEqual(expectedUsersCount, returnedUsersCount, returnedUsersCount + " users were returned but a " + expectedUsersCount + " users was expected!");
+            Assert.IsTrue(returnedUsers.Any(user => user.Email == email1), "Expected user with e-mail '" + email1 + "' to be returned, but none were found");
+            Assert.IsTrue(returnedUsers.Any(user => user.Email == email2), "Expected user with e-mail '" + email2 + "' to be returned, but none were found");
+            Assert.IsTrue(returnedUsers.Any(user => user.Email == email3), "Expected user with e-mail '" + email3 + "' to be returned, but none were found");
+            Assert.IsTrue(returnedUsers.Any(user => user.Email == email4), "Expected user with e-mail '" + email4 + "' to be returned, but none were found");
+            Assert.IsTrue(returnedUsers.Any(user => user.Email == email5), "Expected user with e-mail '" + email5 + "' to be returned, but none were found");
         }
 
         [Category(Categories.CannotRunInParallel)]

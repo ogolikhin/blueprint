@@ -617,5 +617,13 @@ namespace Model
             int? limit,
             string sort = null,
             SortOrder? order = null);
+
+        /// <summary>
+        /// Gets UserManagementSettings
+        /// (Runs: GET /svc/adminstore/config/users)
+        /// </summary>
+        /// <param name="adminUser">User to perform an operation</param>
+        /// <returns>UserManagementSettings</returns>
+        UserManagementSettings GetUserManagementSettings(IUser adminUser);
     }
 }

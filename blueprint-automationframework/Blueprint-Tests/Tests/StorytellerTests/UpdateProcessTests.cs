@@ -887,7 +887,7 @@ namespace StorytellerTests
             string query = I18NHelper.FormatInvariant("SELECT COUNT (*) as counter FROM dbo.Images WHERE ImageId = {0};", imageId);
 
             const int expectedImagerowCount = 1;
-            int resultCount = DatabaseHelper.ExecuteSingleValueSqlQuery<int>(query, "counter");
+            int resultCount = DatabaseHelper.ExecuteSingleValueSqlQuery<int>(query);
 
             Assert.AreEqual(expectedImagerowCount, resultCount, "The total number of rows for the uploaded image is {0} but we expected {1}",
                 resultCount, expectedImagerowCount);

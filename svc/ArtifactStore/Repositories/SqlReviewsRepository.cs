@@ -386,7 +386,7 @@ namespace ArtifactStore.Repositories
             // The review is not found or not active.
             if (retResult == 1 || retResult == 2)
             {
-                ThrowReviewNotFoundException(reviewId);
+                ThrowReviewNotFoundException(reviewId, revisionId);
             }
 
             // The user is not a review participant.
@@ -460,9 +460,11 @@ namespace ArtifactStore.Repositories
             throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
         }
 
-        private static void ThrowReviewNotFoundException(int reviewId)
+        private static void ThrowReviewNotFoundException(int reviewId, int? revisionId = null)
         {
-            var errorMessage = I18NHelper.FormatInvariant("Review (Id:{0}) is not found.", reviewId);
+            var errorMessage = revisionId.HasValue ? 
+                I18NHelper.FormatInvariant("Review (Id:{0}) or its revision (#{1}) is not found.", reviewId, revisionId) :
+                I18NHelper.FormatInvariant("Review (Id:{0}) is not found.", reviewId);
             throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
         }
     }

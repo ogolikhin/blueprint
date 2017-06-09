@@ -70,9 +70,16 @@ namespace Model
         void DeleteProject();
 
         /// <summary>
+        /// Gets the default Baseline, Collection or Review folder for this project.
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="folderType">The specific type of folder you want to get.</param>
+        /// <returns>The default Baseline, Collection or Review folder for this project.</returns>
+        INovaArtifact GetDefaultCollectionOrBaselineReviewFolder(IUser user, BaselineAndCollectionTypePredefined folderType);
+
+        /// <summary>
         /// Gets the default Baseline and Review folder for this project.
         /// </summary>
-        /// <param name="address">The base Uri address of the ArtifactStore server.</param>
         /// <param name="user">The user to authenticate to the server with.</param>
         /// <returns>The default Baseline and Review for this project.</returns>
         INovaArtifactBase GetDefaultBaselineFolder(IUser user);
@@ -80,7 +87,6 @@ namespace Model
         /// <summary>
         /// Gets the default Collection folder for this project.
         /// </summary>
-        /// <param name="address">The base Uri address of the ArtifactStore server.</param>
         /// <param name="user">The user to authenticate to the server with.</param>
         /// <returns>The default Collection folder for this project.</returns>
         INovaArtifactBase GetDefaultCollectionFolder(IUser user);

@@ -126,6 +126,180 @@ namespace ArtifactStore.Repositories.Workflow
         }
         #endregion
 
+        #region GetTransitionForAssociatedStatesAsync
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task GetTransitionForAssociatedStatesAsync_NotFoundArtifact_ThrowsException()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlWorkflowRepository(cxn.Object,
+                new Mock<IArtifactPermissionsRepository>().Object);
+            cxn.SetupQueryAsync("GetArtifactBasicDetails",
+              new Dictionary<string, object>
+              {
+                    {"userId", 1},
+                    {"itemId", 1}
+              },
+              new List<ArtifactBasicDetails>());
+
+            // Act
+            await repository.GetTransitionsAsync(1, 1, 1, 1);
+        }
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task GetTransitionForAssociatedStatesAsync_NoReadPermissions_ThrowsException()
+        {
+            // Arrange
+            var permissionsRepository = CreatePermissionsRepositoryMock(new[] { 1 }, 1, RolePermissions.None);
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object);
+            cxn.SetupQueryAsync("GetArtifactBasicDetails",
+              new Dictionary<string, object>
+              {
+                    {"userId", 1},
+                    {"itemId", 1}
+              },
+              new List<ArtifactBasicDetails> { new ArtifactBasicDetails() { PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor } });
+            // Act
+            await repository.GetTransitionsAsync(1, 1, 1, 1);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task GetTransitionForAssociatedStatesAsync_IncorrectArtifactType_ThrowsException()
+        {
+            // Arrange
+            var permissionsRepository = CreatePermissionsRepositoryMock(new[] { 1 }, 1, RolePermissions.None);
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object);
+            cxn.SetupQueryAsync("GetArtifactBasicDetails",
+              new Dictionary<string, object>
+              {
+                    {"userId", 1},
+                    {"itemId", 1}
+              },
+              new List<ArtifactBasicDetails> { new ArtifactBasicDetails() { PrimitiveItemTypePredefined = (int)ItemTypePredefined.Project } });
+            // Act
+            await repository.GetTransitionsAsync(1, 1, 1, 1);
+        }
+
+        [TestMethod]
+        public async Task GetTransitionForAssociatedStatesAsync_WithEditPermissions_SuccessfullyReturnsTransition()
+        {
+            // Arrange
+            var permissionsRepository = CreatePermissionsRepositoryMock(new[] { 1 }, 1, RolePermissions.Edit);
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object);
+            int userId = 1;
+            int workflowId = 4;
+            int fromStateId = 5;
+            int toStateId = 6;
+            
+            var expected = new SqlWorkflowTransition
+            {
+                TriggerId = 1,
+                ToStateId = toStateId,
+                ToStateName = "New",
+                FromStateId = fromStateId,
+                FromStateName = "Ready",
+                TriggerName = "New To Redy",
+                WorkflowId = workflowId
+            };
+
+            cxn.SetupQueryAsync("GetArtifactBasicDetails",
+              new Dictionary<string, object>
+              {
+                    {"userId", userId},
+                    {"itemId", 1}
+              },
+              new List<ArtifactBasicDetails> { new ArtifactBasicDetails { PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor } });
+            cxn.SetupQueryAsync("GetTransitionAssociatedWithStates",
+             new Dictionary<string, object>
+             {
+                 {"workflowId", workflowId},
+                 { "fromStateId", fromStateId },
+                 { "toStateId", toStateId },
+                 {"userId", userId}
+             },
+             new List<SqlWorkflowTransition>
+             {
+                 expected
+             });
+            // Act
+            var result = (await repository.GetTransitionForAssociatedStatesAsync(userId, 1, workflowId, fromStateId, toStateId));
+
+            //Assert
+            Assert.AreEqual(workflowId, result.WorkflowId);
+            Assert.AreEqual(fromStateId, result.FromState.Id);
+            Assert.AreEqual(toStateId, result.ToState.Id);
+            Assert.AreEqual(1, result.Id);
+        }
+
+        #endregion
+
+        #region ChangeStateForArtifactAsync
+
+        [TestMethod]
+        public async Task ChangeStateForArtifactAsync_WithEditPermissions_SuccessfullyReturnsState()
+        {
+            // Arrange
+            int userId = 1;
+            int workflowId = 4;
+            int artifactId = 1;
+            int desiredStateId = 6;
+
+            var permissionsRepository = CreatePermissionsRepositoryMock(new[] { artifactId }, userId, RolePermissions.Edit);
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object);
+            
+            var stateChangeParam = new WorkflowStateChangeParameter
+            {
+                ToStateId = desiredStateId
+            };
+            var expected = new WorkflowState
+            {
+                Id = desiredStateId,
+                Name = "Ready",
+                WorkflowId = workflowId
+            };
+
+            cxn.SetupQueryAsync("GetArtifactBasicDetails",
+              new Dictionary<string, object>
+              {
+                    {"userId", userId},
+                    {"itemId", artifactId}
+              },
+              new List<ArtifactBasicDetails> { new ArtifactBasicDetails { PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor } });
+            cxn.SetupQueryAsync("ChangeStateForArtifact",
+             new Dictionary<string, object>
+             {
+                 { "userId", userId},
+                 { "artifactId", artifactId },
+                 { "desiredStateId", desiredStateId },
+                 { "result", null}
+             },
+             new List<SqlWorkFlowState>
+             {
+                 new SqlWorkFlowState()
+                 {
+                     WorkflowId = workflowId,
+                     WorkflowStateId = desiredStateId,
+                     WorkflowStateName = "Ready",
+                     Result = 0
+                 }
+             });
+            // Act
+            var result = (await repository.ChangeStateForArtifactAsync(userId, artifactId, stateChangeParam));
+
+            //Assert
+            Assert.AreEqual(workflowId, result.WorkflowId);
+            Assert.AreEqual(desiredStateId, result.Id);
+        }
+
+        #endregion
+
         #region GetCurrentState
 
         [TestMethod]

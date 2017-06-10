@@ -4,6 +4,7 @@
     {
         //Generic errors
         public const int BadRequest = 400;
+        public const int Conflict = 409;
 
         //Configuration errors
         public const int LdapIsDisabled = 1000;

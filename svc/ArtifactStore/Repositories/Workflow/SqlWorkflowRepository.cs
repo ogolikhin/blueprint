@@ -59,7 +59,7 @@ namespace ArtifactStore.Repositories.Workflow
         public async Task<WorkflowState> ChangeStateForArtifactAsync(int userId, int artifactId, WorkflowStateChangeParameter stateChangeParameter)
         {
             //Need to access code for artifact permissions for revision
-            await CheckForArtifactPermissions(userId, artifactId);
+            await CheckForArtifactPermissions(userId, artifactId, permissions: RolePermissions.Edit);
 
             return await ChangeStateForArtifactInternal(userId, artifactId, stateChangeParameter.ToStateId);
         }

@@ -61,6 +61,7 @@
   <ItemGroup>
     <Compile Include="AccessControlDoubleTests.cs" />
     <Compile Include="CustomUserIconTests.cs" />
+    <Compile Include="FederatedAuthenticationTests.cs" />
     <Compile Include="InstanceFolderTests.cs" />
     <Compile Include="InstanceProjectTests.cs" />
     <Compile Include="JobResultFileTests.cs" />

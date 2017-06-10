@@ -32,6 +32,8 @@ namespace ArtifactStore.Repositories
 
         private const string PENDING = "Pending";
 
+        private const string UNATHORIZED = "Unauthorized";
+
         public SqlReviewsRepository(): this(new SqlConnectionWrapper(ServiceConstants.RaptorMain), 
                                             new SqlArtifactVersionsRepository(), 
                                             new SqlItemInfoRepository(),
@@ -386,7 +388,7 @@ namespace ArtifactStore.Repositories
             // The review is not found or not active.
             if (retResult == 1 || retResult == 2)
             {
-                ThrowReviewNotFoundException(reviewId);
+                ThrowReviewNotFoundException(reviewId, revisionId);
             }
 
             // The user is not a review participant.
@@ -430,7 +432,9 @@ namespace ArtifactStore.Repositories
                 {
                     //TODO update item status
                     tocItem.HasAccess = true;
+                    
                     var artifact = reviewedArtifacts.First(it => it.Id == tocItem.Id);
+                    tocItem.ApprovalStatus = (ApprovalType)artifact?.ApprovalFlag;
                     tocItem.Viewed = artifact?.ViewedArtifactVersion != null;
                 }
                 else
@@ -446,8 +450,7 @@ namespace ArtifactStore.Repositories
 
         private void UnauthorizedItem(ReviewTableOfContentItem item)
         {
-            item.Name = null; // unauthorize
-            item.Prefix = null;
+            item.Name = UNATHORIZED; // unauthorize
             item.Included = false;
             item.Viewed = false;
             item.HasAccess = false;
@@ -460,9 +463,11 @@ namespace ArtifactStore.Repositories
             throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
         }
 
-        private static void ThrowReviewNotFoundException(int reviewId)
+        private static void ThrowReviewNotFoundException(int reviewId, int? revisionId = null)
         {
-            var errorMessage = I18NHelper.FormatInvariant("Review (Id:{0}) is not found.", reviewId);
+            var errorMessage = revisionId.HasValue ? 
+                I18NHelper.FormatInvariant("Review (Id:{0}) or its revision (#{1}) is not found.", reviewId, revisionId) :
+                I18NHelper.FormatInvariant("Review (Id:{0}) is not found.", reviewId);
             throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
         }
     }

@@ -81,11 +81,15 @@ namespace Model.Impl
             throw new NotImplementedException();
         }
 
-        private INovaArtifact GetDefaultCollectionOrBaselineReviewFolder(IUser user,
+        /// <seealso cref="IProject.GetDefaultCollectionOrBaselineReviewFolder(IUser, BaselineAndCollectionTypePredefined)"/>
+        public INovaArtifact GetDefaultCollectionOrBaselineReviewFolder(IUser user,
             BaselineAndCollectionTypePredefined folderType)
         {
-            var expectedTypesPredefined = new List<BaselineAndCollectionTypePredefined> { BaselineAndCollectionTypePredefined.BaselineFolder,
-            BaselineAndCollectionTypePredefined.CollectionFolder};
+            var expectedTypesPredefined = new List<BaselineAndCollectionTypePredefined>
+            {
+                BaselineAndCollectionTypePredefined.BaselineFolder,
+                BaselineAndCollectionTypePredefined.CollectionFolder
+            };
             Assert.IsTrue(expectedTypesPredefined.Contains(folderType), "Method works for BaselineFolder or CollectionFolder only.");
 
             var novaArtifacts = ArtifactStore.GetProjectChildrenByProjectId(Id, user);

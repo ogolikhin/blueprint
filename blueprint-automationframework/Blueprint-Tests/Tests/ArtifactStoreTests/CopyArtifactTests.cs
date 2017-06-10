@@ -241,8 +241,8 @@ namespace ArtifactStoreTests
             var targetArtifact = Helper.CreateAndPublishNovaArtifact(author, _project, ItemTypePredefined.PrimitiveFolder);
 
             // Create & add manual trace to the source artifact:
-            ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(author, sourceArtifact.Id, targetArtifact.Id,
-                targetArtifact.ProjectId.Value, ChangeType.Create, Helper.ArtifactStore, direction, isSuspect);
+            ArtifactStoreHelper.AddManualArtifactTraceAndSave(author, sourceArtifact.Id, targetArtifact.Id, targetArtifact.ProjectId.Value,
+                direction, isSuspect);
 
             int expectedVersionOfOriginalArtifact = -1;
 
@@ -290,8 +290,8 @@ namespace ArtifactStoreTests
             var targetArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.PrimitiveFolder);
 
             // Create & add manual trace to the source artifact:
-            ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_user, sourceArtifact.Id, targetArtifact.Id,
-                targetArtifact.ProjectId.Value, ChangeType.Create, Helper.ArtifactStore, direction, isSuspect);
+            ArtifactStoreHelper.AddManualArtifactTraceAndSave(_user, sourceArtifact.Id, targetArtifact.Id, targetArtifact.ProjectId.Value,
+                direction, isSuspect);
 
             sourceArtifact.Publish(_user);
             sourceArtifact.RefreshArtifactFromServer(_user);

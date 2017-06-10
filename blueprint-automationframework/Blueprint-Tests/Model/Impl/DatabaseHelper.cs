@@ -13,11 +13,10 @@ namespace Model.Impl
         /// </summary>
         /// <typeparam name="T">The data type to return.</typeparam>
         /// <param name="query">The SQL query to run.</param>
-        /// <param name="columnName">The column name whose value you want to retrieve.</param>
         /// <param name="databaseName">(optional) The database name (as specified in TestConfiguration.xml).  Defaults to 'Blueprint' (i.e. Raptor).</param>
         /// <returns>The value returned by the query.</returns>
         /// <exception cref="SqlQueryFailedException">If no rows were found during the query.</exception>
-        public static T ExecuteSingleValueSqlQuery<T>(string query, string columnName, string databaseName = "Blueprint")
+        public static T ExecuteSingleValueSqlQuery<T>(string query, string databaseName = "Blueprint")
         {
             using (var database = DatabaseFactory.CreateDatabase(databaseName))
             {
@@ -26,17 +25,19 @@ namespace Model.Impl
                 Logger.WriteDebug("Running: {0}", query);
 
                 using (var cmd = database.CreateSqlCommand(query))
-                using (var sqlDataReader = cmd.ExecuteReader())
                 {
-                    if (sqlDataReader.Read())
+                    var result = cmd.ExecuteScalar();
+                    if (result == null || result == DBNull.Value)
                     {
-                        T value = DatabaseUtilities.GetValueOrDefault<T>(sqlDataReader, columnName);
-                        Logger.WriteInfo("SQL Query returned '{0}'='{1}'", columnName, value);
-                        return value;
+                        return default(T);
                     }
-
-                    throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were found when running: {0}", query));
+                    else
+                    {
+                        return (T)result;
+                    }
                 }
+
+                throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were found when running: {0}", query));
             }
         }
 
@@ -207,17 +208,12 @@ namespace Model.Impl
 
                 using (var cmd = database.CreateSqlCommand(updateQuery))
                 {
-                    cmd.ExecuteNonQuery();
-
-                    using (var sqlDataReader = cmd.ExecuteReader())
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    if (rowsAffected < 1)
                     {
-                        if (sqlDataReader.RecordsAffected <= 0)
-                        {
-                            throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", updateQuery));
-                        }
-
-                        return sqlDataReader.RecordsAffected;
+                        throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", updateQuery));
                     }
+                    return rowsAffected;
                 }
             }
         }
@@ -231,7 +227,7 @@ namespace Model.Impl
         {
             string selectQuery = I18NHelper.FormatInvariant("SELECT FileId FROM [dbo].[EmbeddedImages] WHERE [EmbeddedImageId] ='{0}'", embeddedImageid);
 
-            return ExecuteSingleValueSqlQuery<string>(selectQuery, "FileId");
+            return ExecuteSingleValueSqlQuery<Guid>(selectQuery).ToString();
         }
 
         /// <summary>

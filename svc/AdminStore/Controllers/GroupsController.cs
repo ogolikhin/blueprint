@@ -225,7 +225,7 @@ namespace AdminStore.Controllers
         public async Task<IHttpActionResult> GetGroupMembers(int groupId, [FromUri]Pagination pagination, [FromUri]Sorting sorting)
         {
             PaginationValidator.ValidatePaginationModel(pagination);
-            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageGroups);
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewGroups);
             var tabularData = new TabularData { Pagination = pagination, Sorting = sorting };
 
             var result = await _groupRepository.GetGroupMembersAsync(groupId, tabularData, UserGroupHelper.SortUsergroups);

@@ -7,7 +7,9 @@ using ArtifactStore.Services.Workflow;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
+using ServiceLibrary.Models;
 using ServiceLibrary.Models.Workflow;
+using ServiceLibrary.Repositories;
 
 namespace ArtifactStore.Controllers
 {
@@ -19,7 +21,11 @@ namespace ArtifactStore.Controllers
 
         public override string LogSource { get; } = "ArtifactStore.Workflow";
 
-        public WorkflowController() : this(new WorkflowService(new SqlWorkflowRepository(), new SqlArtifactVersionsRepository()))
+        public WorkflowController() : this(
+            new WorkflowService(
+                new SqlWorkflowRepository(), 
+                new SqlArtifactVersionsRepository(), 
+                new SqlItemInfoRepository()))
         {
         }
 
@@ -59,17 +65,17 @@ namespace ArtifactStore.Controllers
         /// Permission for the artifact is based on user id which is retrieved from the request.
         /// </summary>
         /// <param name="artifactId"></param>
-        /// <param name="revisionId"></param>
+        /// <param name="versionId"></param>
         /// <param name="addDrafts"></param>
         /// <returns></returns>
         [HttpGet, NoCache]
         [Route("artifacts/{artifactId:int:min(1)}/state"), SessionRequired]
         [ActionName("GetStateForArtifact")]
-        [ResponseType(typeof(WorkflowState))]
-        public async Task<IHttpActionResult> GetStateForArtifactAsync(int artifactId, int? revisionId = null, bool addDrafts = true)
+        [ResponseType(typeof(QuerySingleResult<WorkflowState>))]
+        public async Task<IHttpActionResult> GetStateForArtifactAsync(int artifactId, int? versionId = null, bool addDrafts = true)
         {
             //We assume that Session always exist as we have SessionRequired attribute
-            return Ok(await _workflowService.GetStateForArtifactAsync(Session.UserId, artifactId, revisionId ?? int.MaxValue, addDrafts));
+            return Ok(await _workflowService.GetStateForArtifactAsync(Session.UserId, artifactId, versionId, addDrafts));
         }
 
         /// <summary>
@@ -82,11 +88,11 @@ namespace ArtifactStore.Controllers
         [HttpPost]
         [Route("artifacts/{artifactId:int:min(1)}/state"), SessionRequired]
         [ActionName("ChangeStateForArtifact")]
-        [ResponseType(typeof(WorkflowState))]
+        [ResponseType(typeof(QuerySingleResult<WorkflowState>))]
         public async Task<IHttpActionResult> ChangeStateForArtifactAsync([FromUri] int artifactId, [FromBody] WorkflowStateChangeParameter stateChangeParameter)
         {
             //We assume that Session always exist as we have SessionRequired attribute
-            if (stateChangeParameter == null || !ModelState.IsValid)
+            if (artifactId <= 0 || stateChangeParameter == null || !ModelState.IsValid || stateChangeParameter.FromStateId == stateChangeParameter.ToStateId)
             {
                 throw new BadRequestException("Please provide valid state change parameters");
             }

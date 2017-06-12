@@ -42,7 +42,7 @@ namespace ServiceLibrary.Repositories
         protected async Task CheckForArtifactPermissions(int userId, int artifactId, int revisionId = int.MaxValue, RolePermissions permissions = RolePermissions.Read)
         {
             var artifactBasicDetails = await GetArtifactBasicDetails(ConnectionWrapper, artifactId, userId);
-            if (artifactBasicDetails == null || artifactBasicDetails.RevisionId > revisionId)
+            if (artifactBasicDetails == null)
             {
                 ExceptionHelper.ThrowArtifactNotFoundException(artifactId);
             }

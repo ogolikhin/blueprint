@@ -4,6 +4,7 @@
     {
         //Generic errors
         public const int BadRequest = 400;
+        public const int Conflict = 409;
 
         //Forbidden error
         public const int Forbidden = 403;

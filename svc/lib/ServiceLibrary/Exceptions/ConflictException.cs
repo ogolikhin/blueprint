@@ -1,15 +1,16 @@
 ﻿using System;
+using ServiceLibrary.Helpers;
 
 namespace ServiceLibrary.Exceptions
 {
     [Serializable]
     public class ConflictException : ExceptionWithErrorCode
     {
-        public ConflictException() : base()
+        public ConflictException() : this("")
         {
         }
 
-        public ConflictException(string message) : base(message)
+        public ConflictException(string message) : this(message, ErrorCodes.Conflict)
         {
         }
 

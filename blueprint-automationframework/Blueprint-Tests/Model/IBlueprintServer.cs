@@ -36,5 +36,19 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>Status of File Store service.</returns>
         HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets FedAuthenticationEnabled from DB.
+        /// (Runs: SELECT Enabled FROM [dbo].[FederatedAuthentications] WHERE InstanceId = 1)
+        /// </summary>
+        /// <returns>True if Federated Authentication Enabled, False otherwise</returns>
+        bool GetIsFedAuthenticationEnabledDB();
+
+        /// <summary>
+        /// Sets FedAuthenticationEnabled in DB.
+        /// (Runs: UPDATE [dbo].[FederatedAuthentications] SET Enabled = {0} WHERE InstanceId = 1)
+        /// </summary>
+        /// <param name="isFedAuthenticationEnabledDB">true/false for Federated Authentication Enabled</param>
+        void SetIsFedAuthenticationEnabledDB(bool isFedAuthenticationEnabledDB);
     }
 }

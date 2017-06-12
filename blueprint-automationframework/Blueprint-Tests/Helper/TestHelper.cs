@@ -2037,7 +2037,7 @@ namespace Helper
         {
             string selectQuery = I18NHelper.FormatInvariant("SELECT Value FROM [dbo].[ApplicationSettings] WHERE [ApplicationSettings].[Key] ='{0}'", key);
 
-            return DatabaseHelper.ExecuteSingleValueSqlQuery<string>(selectQuery, "Value");
+            return DatabaseHelper.ExecuteSingleValueSqlQuery<string>(selectQuery);
         }
 
         /// <summary>
@@ -2078,7 +2078,7 @@ namespace Helper
         {
             string selectQuery = I18NHelper.FormatInvariant("SELECT {0} FROM [dbo].[Instances]", column);
 
-            return DatabaseHelper.ExecuteSingleValueSqlQuery<string>(selectQuery, column);
+            return DatabaseHelper.ExecuteSingleValueSqlQuery<string>(selectQuery);
         }
 
         /// <summary>

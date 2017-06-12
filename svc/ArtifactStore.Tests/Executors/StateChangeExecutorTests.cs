@@ -101,38 +101,6 @@ namespace ArtifactStore.Executors
         }
 
         [TestMethod]
-        public async Task ExecuteInternal_ArtifactIsNotLocked_ThrowsConflictException()
-        {
-            //Arrange
-            ConflictException conflictException = null;
-            _artifactVersionsRepository.Setup(t => t.IsItemDeleted(ArtifactId))
-                .ReturnsAsync(false);
-
-            var vcArtifactInfo = new VersionControlArtifactInfo
-            {
-                Id = ArtifactId,
-                VersionCount = CurrentVersionId,
-                LockedByUser = null
-            };
-            _artifactVersionsRepository.Setup(t => t.GetVersionControlArtifactInfoAsync(ArtifactId, null, UserId))
-                .ReturnsAsync(vcArtifactInfo);
-
-            //Act
-            try
-            {
-                await _stateChangeExecutor.Execute();
-            }
-            catch (ConflictException ex)
-            {
-                conflictException = ex;
-            }
-
-            //Assert
-            Assert.IsNotNull(conflictException);
-            Assert.AreEqual(ErrorCodes.Conflict, conflictException.ErrorCode);
-        }
-
-        [TestMethod]
         public async Task ExecuteInternal_LockedByAnotherUser_ThrowsConflictException()
         {
             //Arrange

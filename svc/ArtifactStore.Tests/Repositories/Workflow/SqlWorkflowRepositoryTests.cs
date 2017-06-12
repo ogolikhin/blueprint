@@ -309,6 +309,10 @@ namespace ArtifactStore.Repositories.Workflow
             var permissionsRepository = CreatePermissionsRepositoryMock(new[] { 1 }, 1, RolePermissions.Edit | RolePermissions.Read);
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object);
+
+            
+            var artifactIdsTable = SqlConnectionWrapper.ToDataTable(new [] {1}, "Int32Collection", "Int32Value");
+            
             cxn.SetupQueryAsync("GetArtifactBasicDetails",
               new Dictionary<string, object>
               {
@@ -316,11 +320,11 @@ namespace ArtifactStore.Repositories.Workflow
                     {"itemId", 1}
               },
               new List<ArtifactBasicDetails> { new ArtifactBasicDetails { PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor } });
-            cxn.SetupQueryAsync("GetCurrentWorkflowState",
+            cxn.SetupQueryAsync("GetWorkflowStatesForArtifacts",
              new Dictionary<string, object>
              {
                  {"userId", 1},
-                 {"artifactId", 1 },
+                 {"artifactIds", artifactIdsTable },
                  {"revisionId", 2147483647},
                  {"addDrafts", true}
             },
@@ -344,6 +348,8 @@ namespace ArtifactStore.Repositories.Workflow
         {
             // Arrange
             var permissionsRepository = CreatePermissionsRepositoryMock(new[] { 1 }, 1, RolePermissions.Edit | RolePermissions.Read);
+            var artifactIdsTable = SqlConnectionWrapper.ToDataTable(new[] { 1 }, "Int32Collection", "Int32Value");
+
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object);
             cxn.SetupQueryAsync("GetArtifactBasicDetails",
@@ -353,11 +359,11 @@ namespace ArtifactStore.Repositories.Workflow
                     {"itemId", 1}
               },
               new List<ArtifactBasicDetails> { new ArtifactBasicDetails { PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor } });
-            cxn.SetupQueryAsync("GetCurrentWorkflowState",
+            cxn.SetupQueryAsync("GetWorkflowStatesForArtifacts",
              new Dictionary<string, object>
              {
                  {"userId", 1},
-                 {"artifactId", 1 },
+                 {"artifactIds", artifactIdsTable },
                  {"revisionId", 2147483647},
                  {"addDrafts", true}
             },

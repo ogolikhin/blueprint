@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
 
 namespace ServiceLibrary.Models.Workflow
 {
+    [JsonObject]
     public class WorkflowStateChangeParameter
     {
         [Required]

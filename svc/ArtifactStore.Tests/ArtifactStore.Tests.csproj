@@ -84,6 +84,7 @@
     <Compile Include="Controllers\StatusControllerTests.cs" />
     <Compile Include="Controllers\ArtifactControllerTests.cs" />
     <Compile Include="Controllers\WorkflowControllerTests.cs" />
+    <Compile Include="Executors\StateChangeExecutorTests.cs" />
     <Compile Include="Helpers\MentionHelperTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\SqlArtifactRelationshipsRepositoryTests.cs" />
@@ -93,6 +94,7 @@
     <Compile Include="Repositories\SqlProjectMetaRepositoryTests.cs" />
     <Compile Include="Repositories\SqlReviewsRepositoryTests.cs" />
     <Compile Include="Repositories\Workflow\SqlWorkflowRepositoryTests.cs" />
+    <Compile Include="Services\WorkflowServiceUnitTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ArtifactStore\ArtifactStore.csproj">

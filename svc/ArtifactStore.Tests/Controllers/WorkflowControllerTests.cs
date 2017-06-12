@@ -47,7 +47,21 @@ namespace ArtifactStore.Controllers
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
-        public async Task ChangeStateForArtifactAsync_WorkflowStateChangeParameter_ThrowsException()
+        public async Task ChangeStateForArtifactAsync_NewDesiredStateSameAsExistingState_ThrowsException()
+        {
+            var controller = new WorkflowController(_workflowServiceMock.Object);
+
+            await controller.ChangeStateForArtifactAsync(1, new WorkflowStateChangeParameter
+            {
+                ToStateId = 1,
+                FromStateId = 1,
+                CurrentVersionId = 1
+            });
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task ChangeStateForArtifactAsync_WorkflowStateChangeParameterNull_ThrowsException()
         {
             var controller = new WorkflowController(_workflowServiceMock.Object);
 

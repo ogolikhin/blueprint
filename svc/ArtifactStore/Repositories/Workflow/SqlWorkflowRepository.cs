@@ -70,13 +70,23 @@ namespace ArtifactStore.Repositories.Workflow
 
         private async Task<WorkflowState> GetCurrentStateInternal(int userId, int artifactId, int revisionId, bool addDrafts)
         {
+            return (await GetCurrentStatesInternal(userId, 
+                new [] { artifactId }, revisionId, addDrafts)).FirstOrDefault();
+        }
+
+        private async Task<IList<WorkflowState>> GetCurrentStatesInternal(int userId, IEnumerable<int>  artifactIds, int revisionId, bool addDrafts)
+        {
             var param = new DynamicParameters();
             param.Add("@userId", userId);
-            param.Add("@artifactId", artifactId);
+            var artifactIdsTable = SqlConnectionWrapper.ToDataTable(artifactIds, "Int32Collection", "Int32Value");
+            param.Add("@artifactIds", artifactIdsTable);
             param.Add("@revisionId", revisionId);
             param.Add("@addDrafts", addDrafts);
-            
-            return ToWorkflowState(await ConnectionWrapper.QueryAsync<SqlWorkFlowState>("GetCurrentWorkflowState", param, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+
+            return ToWorkflowStates(
+                await 
+                    ConnectionWrapper.QueryAsync<SqlWorkFlowState>("GetWorkflowStatesForArtifacts", param, 
+                        commandType: CommandType.StoredProcedure));
         }
 
         private async Task<IList<WorkflowTransition>> GetTransitionsForStateInternalAsync(int userId, int workflowId, int stateId)
@@ -137,12 +147,12 @@ namespace ArtifactStore.Repositories.Workflow
             param.Add("@result");
 
             return
-                ToWorkflowState(await
+                ToWorkflowStates(await
                     ConnectionWrapper.QueryAsync<SqlWorkFlowState>("ChangeStateForArtifact", param,
                         commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
 
-        private IList<WorkflowState> ToWorkflowState(IEnumerable<SqlWorkFlowState> sqlWorkFlowStates)
+        private IList<WorkflowState> ToWorkflowStates(IEnumerable<SqlWorkFlowState> sqlWorkFlowStates)
         {
             return sqlWorkFlowStates.Select(workflowState => new WorkflowState
             {

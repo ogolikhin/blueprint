@@ -56,7 +56,7 @@ namespace ArtifactStore.Executors
 
             //Lock is obtained by current user inside the stored procedure itself
             //Check that it is not locked by some other user
-            if (artifactInfo.LockedByUser == null || artifactInfo.LockedByUser.Id != _userId)
+            if (artifactInfo.LockedByUser != null && artifactInfo.LockedByUser.Id != _userId)
             {
                 throw new ConflictException(I18NHelper.FormatInvariant("Artifact has been updated. Artifact is locked by another user. Please refresh your view."));
             }

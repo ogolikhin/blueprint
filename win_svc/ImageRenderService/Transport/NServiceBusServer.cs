@@ -20,12 +20,22 @@ namespace ImageRenderService.Transport
             await _endpointInstance.Stop().ConfigureAwait(false);
         }
 
-        public async Task Start(string connectionString)
+        public async Task<string> Start(string connectionString)
         {
             if (string.IsNullOrEmpty(connectionString))
-                throw new ArgumentNullException(nameof(connectionString));
+            {
+                return new ArgumentNullException(nameof(connectionString)).Message;
+            }
 
-            await CreateEndPoint(Handler, connectionString);
+            try
+            {
+                await CreateEndPoint(Handler, connectionString);
+                return null;
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
         }
 
         private async Task CreateEndPoint(string name, string connectionString)

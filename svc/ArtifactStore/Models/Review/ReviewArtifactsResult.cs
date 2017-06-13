@@ -29,26 +29,12 @@ namespace ArtifactStore.Models.Review
         internal int NumUsers { get; set; }
     }
 
-    internal class PropertyValueVersions
+    internal class PropertyValueString
     {
-      public int  VersionId { get; set; }
-        public int VersionUserId { get; set; }
-        public int? VersionProjectId { get; set; }
-        public int? VersionArtifactId { get; set; }
-        public int? VersionItemId { get; set; }
-        public int StartRevision { get; set; }
-        public int EndRevision { get; set; }
-        public int PropertyTypePredefined { get; set; }
-        public int PrimitiveType { get; set; }
-        public decimal? DecimalValue{ get; set; }
-        public DateTime? DateValue { get; set; }
-        public string UserValue { get; set; }
-        public string UserLabel { get; set; }
-        public string StringValue { get; set; }
-        public string CustomPropertyChar { get; set; }
-        public int ImageValue_ImageId { get; set; }
-        public int PropertyType_PropertyTypeId { get; set; }
-        public decimal? NumericValue { get; set; }
-        public string CustomProperty { get; set; }
-}
+        public bool IsDraftRevisionExists { get; set; }
+        public string ArtifactXml { get; set; }
+        public int RevewSubartifactId { get; set; }
+        public int ProjectId { get; set; }
+
+    }
 }

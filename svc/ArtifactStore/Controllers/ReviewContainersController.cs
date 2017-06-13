@@ -105,7 +105,7 @@ namespace ArtifactStore.Controllers
         public void AddArtifactsToReview(int reviewId, [FromBody] AddArtifactsParameter content)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            _sqlReviewsRepository.AddArtifactsToReview(reviewId, session.UserId, content);
+            _sqlReviewsRepository.AddArtifactsToReviewAsync(reviewId, session.UserId, content);
         }
 
         /// <summary>

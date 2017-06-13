@@ -7,7 +7,7 @@ namespace AdminStore.Repositories.Workflow
 {
     public interface IWorkflowRepository
     {
-        Task<ImportWorkflowResult> ImportWorflowAsync(IeWorkflow workflow, int userId);
+        Task<ImportWorkflowResult> ImportWorkflowAsync(IeWorkflow workflow, int userId);
 
         Task<string> GetImportWorkflowErrorsAsync(string guid, int userId);
 

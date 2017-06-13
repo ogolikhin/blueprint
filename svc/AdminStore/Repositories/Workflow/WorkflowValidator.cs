@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AdminStore.Models.Workflow;
+using ServiceLibrary.Helpers;
 
 namespace AdminStore.Repositories.Workflow
 {
@@ -16,29 +17,41 @@ namespace AdminStore.Repositories.Workflow
 
             var result = new WorkflowValidationResult();
 
-            if (!ValidateWorkflowNameNotEmpty(workflow.Name))
+            if (!ValidatePropertyNotEmpty(workflow.Name))
             {
-                result.Errors.Add(new WorkflowValidationError { Element = workflow, ErrorCode = WorkflowValidationErrorCode.WorkflowNameEmpty});
+                result.Errors.Add(new WorkflowValidationError { Element = workflow, ErrorCode = WorkflowValidationErrorCodes.WorkflowNameEmpty});
             }
 
-            if (!ValidateWorkflowNameLimit(workflow.Name))
+            if (!ValidatePropertyLimit(workflow.Name, 75))
             {
-                result.Errors.Add(new WorkflowValidationError { Element = workflow, ErrorCode = WorkflowValidationErrorCode.WorkflowNameExceedsLimit75 });
+                result.Errors.Add(new WorkflowValidationError { Element = workflow, ErrorCode = WorkflowValidationErrorCodes.WorkflowNameExceedsLimit75 });
             }
 
-            if (!ValidateWorkflowDescriptionLimit(workflow.Description))
+            if (!ValidatePropertyLimit(workflow.Description, 250))
             {
-                result.Errors.Add(new WorkflowValidationError { Element = workflow, ErrorCode = WorkflowValidationErrorCode.WorkflowDescriptionExceedsLimit250 });
+                result.Errors.Add(new WorkflowValidationError { Element = workflow, ErrorCode = WorkflowValidationErrorCodes.WorkflowDescriptionExceedsLimit250 });
             }
 
             if (!ValidateWorkflowContainsStates(workflow.States))
             {
-                result.Errors.Add(new WorkflowValidationError { Element = workflow, ErrorCode = WorkflowValidationErrorCode.WorkflowDoesNotContainAnyStates });
+                result.Errors.Add(new WorkflowValidationError { Element = workflow, ErrorCode = WorkflowValidationErrorCodes.WorkflowDoesNotContainAnyStates });
+            }
+            else
+            {
+                var initialStatesCount = workflow.States.Count(s => s.IsInitial.GetValueOrDefault());
+                if (initialStatesCount == 0)
+                {
+                    result.Errors.Add(new WorkflowValidationError { Element = workflow, ErrorCode = WorkflowValidationErrorCodes.NoInitialState });
+                }
+                else if (initialStatesCount == 0)
+                {
+                    result.Errors.Add(new WorkflowValidationError { Element = workflow, ErrorCode = WorkflowValidationErrorCodes.MultipleInitialStates });
+                }
             }
 
             if (!ValidateStatesCount(workflow.States))
             {
-                result.Errors.Add(new WorkflowValidationError { Element = workflow, ErrorCode = WorkflowValidationErrorCode.StatesCountExceedsLimit100 });
+                result.Errors.Add(new WorkflowValidationError { Element = workflow, ErrorCode = WorkflowValidationErrorCodes.StatesCountExceedsLimit100 });
             }
 
 
@@ -46,48 +59,107 @@ namespace AdminStore.Repositories.Workflow
             foreach (var state in workflow.States.FindAll(s => s != null))
             {
 
-                if (!ValidateStateNameNotEmpty(state.Name))
+                if (!ValidatePropertyNotEmpty(state.Name))
                 {
-                    result.Errors.Add(new WorkflowValidationError { Element = state, ErrorCode = WorkflowValidationErrorCode.StateNameEmpty });
+                    result.Errors.Add(new WorkflowValidationError { Element = state, ErrorCode = WorkflowValidationErrorCodes.StateNameEmpty });
                 }
                 else
                 {
                     if (stateNames.Contains(state.Name))
                     {
-                        result.Errors.Add(new WorkflowValidationError { Element = state, ErrorCode = WorkflowValidationErrorCode.StateNameNotUnique });
+                        result.Errors.Add(new WorkflowValidationError { Element = state, ErrorCode = WorkflowValidationErrorCodes.StateNameNotUnique });
                     }
-                    stateNames.Add(state.Name);
+                    else
+                    {
+                        stateNames.Add(state.Name);
+                    }
                 }
 
-                if (!ValidateStateNameLimit(state.Name))
+                if (!ValidatePropertyLimit(state.Name, 26))
                 {
-                    result.Errors.Add(new WorkflowValidationError { Element = state, ErrorCode = WorkflowValidationErrorCode.StateNameExceedsLimit26 });
+                    result.Errors.Add(new WorkflowValidationError { Element = state, ErrorCode = WorkflowValidationErrorCodes.StateNameExceedsLimit26 });
                 }
 
-                if (!ValidateStateDescriptionLimit(state.Description))
+                if (!ValidatePropertyLimit(state.Description, 250))
                 {
-                    result.Errors.Add(new WorkflowValidationError { Element = state, ErrorCode = WorkflowValidationErrorCode.StateDescriptionExceedsLimit250 });
+                    result.Errors.Add(new WorkflowValidationError { Element = state, ErrorCode = WorkflowValidationErrorCodes.StateDescriptionExceedsLimit250 });
                 }
             }
 
+            var stateTransitions = stateNames.ToDictionary(s => s, s => new List<string>());
+            foreach (var transition in workflow.Transitions.FindAll(s => s != null))
+            {
+                var from = ValidatePropertyNotEmpty(transition.FromState) ? transition.FromState : string.Empty;
+                var to = ValidatePropertyNotEmpty(transition.ToState) ? transition.ToState : string.Empty;
 
-            //TODO:
+                if (!ValidatePropertyNotEmpty(transition.Name))
+                {
+                    result.Errors.Add(new WorkflowValidationError { Element = transition, ErrorCode = WorkflowValidationErrorCodes.TransitionNameEmpty });
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(from) && stateTransitions.ContainsKey(from))
+                    {
+                        stateTransitions[from].Add(transition.Name);
+                    }
+
+                    if (string.IsNullOrEmpty(to) && stateTransitions.ContainsKey(to))
+                    {
+                        stateTransitions[to].Add(transition.Name);
+                    }
+                }
+
+                if (!ValidatePropertyLimit(transition.Name, 26))
+                {
+                    result.Errors.Add(new WorkflowValidationError { Element = transition, ErrorCode = WorkflowValidationErrorCodes.TransitionNameExceedsLimit26 });
+                }
+
+                if (string.IsNullOrEmpty(from) && string.IsNullOrEmpty(to))
+                {
+                    result.Errors.Add(new WorkflowValidationError { Element = transition, ErrorCode = WorkflowValidationErrorCodes.TransitionOrphan });
+                }
+                else if(from.EqualsOrdinalIgnoreCase(to))
+                {
+                    result.Errors.Add(new WorkflowValidationError { Element = transition, ErrorCode = WorkflowValidationErrorCodes.TransitionFromAndToStatesSame });
+                }
+
+                if ((string.IsNullOrEmpty(from) && !stateNames.Contains(from))
+                    || (string.IsNullOrEmpty(to) && !stateNames.Contains(to)))
+                {
+                    result.Errors.Add(new WorkflowValidationError { Element = transition, ErrorCode = WorkflowValidationErrorCodes.TransitionStateNotFound });
+                }
+            }
+
+            foreach (var stateName in stateTransitions.Keys)
+            {
+                var transitionNames = stateTransitions[stateName];
+                if (!transitionNames.Any())
+                {
+                    result.Errors.Add(new WorkflowValidationError { Element = stateName, ErrorCode = WorkflowValidationErrorCodes.StateDoesNotHaveAnyTransitions });
+                }
+
+                if (transitionNames.Count > 10)
+                {
+                    result.Errors.Add(new WorkflowValidationError { Element = stateName, ErrorCode = WorkflowValidationErrorCodes.TransitionCountOnStateExceedsLimit10 });
+                }
+
+                if (transitionNames.Count != transitionNames.Distinct().Count())
+                {
+                    result.Errors.Add(new WorkflowValidationError { Element = stateName, ErrorCode = WorkflowValidationErrorCodes.TransitionNameNotUniqueOnState });
+                }
+            }
+
             return result;
         }
 
-        private static bool ValidateWorkflowNameNotEmpty(string name)
+        private static bool ValidatePropertyNotEmpty(string property)
         {
-            return !string.IsNullOrWhiteSpace(name);
+            return !string.IsNullOrWhiteSpace(property);
         }
 
-        private static bool ValidateWorkflowNameLimit(string name)
+        private static bool ValidatePropertyLimit(string property, int limit)
         {
-            return !(name?.Length > 75);
-        }
-
-        private static bool ValidateWorkflowDescriptionLimit(string description)
-        {
-            return !(description?.Length > 250);
+            return !(property?.Length > limit);
         }
 
         private static bool ValidateWorkflowContainsStates(IEnumerable<IeState> states)
@@ -98,21 +170,6 @@ namespace AdminStore.Repositories.Workflow
         private static bool ValidateStatesCount(IEnumerable<IeState> states)
         {
             return !((states?.Count()).GetValueOrDefault() > 100);
-        }
-
-        private static bool ValidateStateNameNotEmpty(string name)
-        {
-            return !string.IsNullOrWhiteSpace(name);
-        }
-
-        private static bool ValidateStateNameLimit(string name)
-        {
-            return !(name?.Length > 26);
-        }
-
-        private static bool ValidateStateDescriptionLimit(string description)
-        {
-            return !(description?.Length > 250);
         }
     }
 }

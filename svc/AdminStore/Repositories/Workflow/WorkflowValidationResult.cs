@@ -13,12 +13,12 @@ namespace AdminStore.Repositories.Workflow
     public class WorkflowValidationError
     {
         public object Element { get; set; }
-        public WorkflowValidationErrorCode ErrorCode { get; set; }
+        public WorkflowValidationErrorCodes ErrorCode { get; set; }
 
     }
 
 
-    public enum WorkflowValidationErrorCode
+    public enum WorkflowValidationErrorCodes
     {
         WorkflowNameEmpty,
         WorkflowNameExceedsLimit75,
@@ -32,9 +32,12 @@ namespace AdminStore.Repositories.Workflow
         NoInitialState,
         MultipleInitialStates,
         StateDoesNotHaveAnyTransitions,
+        TransitionNameEmpty,
         TransitionNameExceedsLimit26,
         TransitionNameNotUniqueOnState,
         TransitionCountOnStateExceedsLimit10,
-        TransitionStateNotFound
+        TransitionStateNotFound,
+        TransitionOrphan,
+        TransitionFromAndToStatesSame
     }
 }

@@ -36,7 +36,7 @@ namespace AdminStore.Repositories.Workflow
 
         #region Interface implementation
 
-        public async Task<ImportWorkflowResult> ImportWorflowAsync(IeWorkflow workflow, int userId)
+        public async Task<ImportWorkflowResult> ImportWorkflowAsync(IeWorkflow workflow, int userId)
         {
             if (workflow == null)
             {

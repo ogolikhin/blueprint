@@ -48,7 +48,7 @@ namespace AdminStore.Controllers
             using (var stream = await Request.Content.ReadAsStreamAsync())
             {
                 var workflow = DeserializeWorkflow(stream);
-                return await _workflowRepository.ImportWorflowAsync(workflow, session.UserId);
+                return await _workflowRepository.ImportWorkflowAsync(workflow, session.UserId);
             }
         }
 

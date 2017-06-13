@@ -271,7 +271,15 @@ namespace ArtifactStore.Repositories
         private string AddArtifactsToXML (string xmlArtifacts, ISet<int> artifactsToAdd, out int alreadyIncluded)
         {
             alreadyIncluded = 0;
-            var rdReviewContents = ReviewRawDataHelper.RestoreData<RDReviewContents>(xmlArtifacts);
+            RDReviewContents rdReviewContents;
+            if (string.IsNullOrEmpty(xmlArtifacts))
+            {
+                rdReviewContents = new RDReviewContents();
+            }
+            else
+            {
+                rdReviewContents = ReviewRawDataHelper.RestoreData<RDReviewContents>(xmlArtifacts);
+            }
 
             var currentArtifactIds = rdReviewContents.Artifacts.Select(a => a.Id);
 

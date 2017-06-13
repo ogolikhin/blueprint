@@ -273,12 +273,13 @@ namespace ArtifactStore.Repositories
             param.Add("@addDrafts", revisionId < int.MaxValue ? false : addDrafts);
             param.Add("@userId", userId);
             param.Add("@refreshInterval", refreshInterval);
+            param.Add("@numResult", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-            var result = await ConnectionWrapper.QueryMultipleAsync<T, int>("GetReviewArtifacts", param, commandType: CommandType.StoredProcedure);
+            var result = await ConnectionWrapper.QueryAsync<T>("GetReviewArtifacts", param, commandType: CommandType.StoredProcedure);
             return new QueryResult<T>()
             {
-                Items = result.Item1.ToList(),
-                Total = result.Item2.SingleOrDefault()
+                Items = result.ToList(),
+                Total = param.Get<int>("@numResult")
             };
         }
 
@@ -368,49 +369,41 @@ namespace ArtifactStore.Repositories
         }
 
 
-        private async Task<ReviewTableOfContent> GetTableOfContentAsync(int reviewId, int revisionId, int userId, int? offset, int? limit)
+        private async Task<ReviewTableOfContent> GetTableOfContentAsync(int reviewId, int revisionId, int userId, Pagination pagination)
         {
             int refreshInterval = await GetRebuildReviewArtifactHierarchyInterval();
             var param = new DynamicParameters();
             param.Add("@reviewId", reviewId);
+            param.Add("@offset", pagination.Offset);
+            param.Add("@limit", pagination.Limit);
             param.Add("@revisionId", revisionId);
+            param.Add("@addDrafts", false);
             param.Add("@userId", userId);
-            param.Add("@offset", offset);
-            param.Add("@limit", limit);
             param.Add("@refreshInterval", refreshInterval);
-            param.Add("@total", dbType:DbType.Int32, direction: ParameterDirection.Output);
-            param.Add("@retResult", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
+            param.Add("@numResult", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-            var result = await ConnectionWrapper.QueryAsync<ReviewTableOfContentItem>("GetReviewTableOfContent", param, commandType: CommandType.StoredProcedure);
 
-            var retResult = param.Get<int>("@retResult");
-
-            // The review is not found or not active.
-            if (retResult == 1 || retResult == 2)
-            {
-                ThrowReviewNotFoundException(reviewId, revisionId);
-            }
-
-            // The user is not a review participant.
-            if (retResult == 3)
-            {
-                ThrowUserCannotAccessReviewException(reviewId);
-            }
+            var result = await ConnectionWrapper.QueryAsync<ReviewTableOfContentItem>("GetReviewArtifacts", param, commandType: CommandType.StoredProcedure);
 
             return new ReviewTableOfContent
             {
                 Items = result.ToList(),
-                Total = param.Get<int>("@total")
+                Total = param.Get<int>("@numResult")
             };
         }
 
 
         
-        public async Task<ReviewTableOfContent> GetReviewTableOfContent(int reviewId, int revisionId, int userId, int? offset, int? limit)
+        public async Task<ReviewTableOfContent> GetReviewTableOfContent(int reviewId, int revisionId, int userId, Pagination pagination)
         {
 
             //get all review content item in a hierarchy list
-            var toc = await GetTableOfContentAsync(reviewId, revisionId, userId, offset, limit);
+            var toc = await GetTableOfContentAsync(reviewId, revisionId, userId, pagination);
+            // The review is not found or not active.
+            if (toc == null || toc.Items.Count() == 0)
+            {
+                ThrowReviewNotFoundException(reviewId, revisionId);
+            }
 
             var artifactIds = new List<int>{reviewId}.Concat(toc.Items.Select(a => a.Id).ToList());
 

@@ -91,5 +91,17 @@ namespace ServiceLibrary.Helpers
 
             return builder.ToString();
         }
+
+        public static T FromXml<T>(Stream xml) where T : class
+        {
+            if (xml.CanSeek)
+            {
+                xml.Position = 0;
+            }
+
+            var serializer = new XmlSerializer(typeof(T));
+            var obj = serializer.Deserialize(xml) as T;
+            return obj;
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.SelfHost;
 using CefSharp;
@@ -65,7 +66,15 @@ namespace ImageRenderService.ImageGen
                 Log.DebugFormat("Failed to start self host web server.", e);
             }
 
-            _nServiceBusServer.Start(NServiceBusConnectionString).Wait();
+            Task.Run(() => _nServiceBusServer.Start(NServiceBusConnectionString))
+                .ContinueWith(startTask =>
+                {
+                    if (!string.IsNullOrEmpty(startTask.Result))
+                    {
+                        Log.Error(startTask.Result);
+                        Stop(null);
+                    }
+                });
 
             Log.Info("ImageGen Service is started.");
             return true;

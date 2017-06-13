@@ -49,6 +49,11 @@ namespace ArtifactStore.Executors
                     null,
                     _userId);
 
+            if (artifactInfo.IsDeleted)
+            {
+                throw new ConflictException(I18NHelper.FormatInvariant("Artifact has been deleted and is no longer available for workflow state change. Please refresh your view."));
+            }
+
             if (artifactInfo.VersionCount != input.CurrentVersionId)
             {
                 throw new ConflictException(I18NHelper.FormatInvariant("Artifact has been updated. The current version of the artifact {0} does not match the specified version {1}. Please refresh your view.", artifactInfo.VersionCount, input.CurrentVersionId));
@@ -81,7 +86,7 @@ namespace ArtifactStore.Executors
                 throw new ConflictException(I18NHelper.FormatInvariant("No transitions available. Workflow could have been updated. Please refresh your view."));
             }
 
-            var newState = await  _workflowRepository.ChangeStateForArtifactAsync(_userId, input.ArtifactId, input);
+            var newState = await _workflowRepository.ChangeStateForArtifactAsync(_userId, input.ArtifactId, input);
 
             if (newState == null)
             {

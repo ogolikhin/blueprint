@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.Serialization;
 using ServiceLibrary.Helpers;
 
 namespace ServiceLibrary.Exceptions

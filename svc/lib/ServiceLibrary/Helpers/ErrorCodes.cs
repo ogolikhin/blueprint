@@ -4,6 +4,7 @@
     {
         //Generic errors
         public const int BadRequest = 400;
+        public const int Conflict = 409;
 
         //Configuration errors
         public const int LdapIsDisabled = 1000;
@@ -41,6 +42,7 @@
 
         //Bad request
         public const int OutOfRangeParameter = 6000;
+        public const int InvalidWorkflowXml = 6001;
 
         //Timeout
         public const int Timeout = 7000;

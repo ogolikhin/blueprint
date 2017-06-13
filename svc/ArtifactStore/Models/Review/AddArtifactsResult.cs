@@ -22,9 +22,9 @@ namespace ArtifactStore.Models.Review
 
     internal class EffectiveArtifactIdsResult
     {
-        internal IEnumerable<int> ArtifactIds { get; set; }
-        internal int NotExisted { get; set; }
-        internal int Unpublished { get; set; }
-        internal int ProjectMoved { get; set; }
+        public IEnumerable<int> ArtifactIds { get; set; }
+        public int Nonexistent { get; set; }
+        public int Unpublished { get; set; }
+        public int ProjectMoved { get; set; }
     }
 }

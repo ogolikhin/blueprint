@@ -10,7 +10,6 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
-using System;
 using ArtifactStore.Helpers;
 
 namespace ArtifactStore.Repositories
@@ -181,11 +180,34 @@ namespace ArtifactStore.Repositories
             reviewArtifact.IsApprovalRequired = false;
         }
 
-        public async Task AddArtifactsToReview(int reviewId, int userId, AddArtifactsParameter content)
+        public async Task<AddArtifactsResult> AddArtifactsToReviewAsync (int reviewId, int userId, AddArtifactsParameter content)
         {
-            await AddArtifactsToReviewAsync(reviewId, userId, content);
+            int alreadyIncludedCount;
+            var propertyResult = await GetReviewPropertyString(reviewId, userId, content);
+
+            var effectiveIds = await GetEffectiveArtifactIds(userId, content, propertyResult.ProjectId);
+
+            var artifactXmlResult = AddArtifactsToXML(propertyResult.ArtifactXml, new HashSet<int>(effectiveIds.ArtifactIds), out alreadyIncludedCount);
+            await UpdateReviewArtifacts(reviewId, userId, propertyResult.ArtifactXml);
+
+            return new AddArtifactsResult() {
+                ArtifactCount = effectiveIds.ArtifactIds.Count<int>(),
+                AlreadyIncludedArtifactCount = alreadyIncludedCount,
+                NonexistentArtifactCount = effectiveIds.Nonexistent,
+                UnpublishedArtifactCount = effectiveIds.Unpublished
+            };
+            //var 
+
+            //return Task.FromResult(new AddArtifactsResult { });
             //TODO
-            //return Task.FromResult(new AddArtifactsResult
+            // return Task.FromResult(new AddArtifactsResult
+            //     {
+            //    ArtifactCount = 1,
+            //    AlreadyIncludedArtifactCount = 1,
+            //    NonexistentArtifactCount = 1,
+            //    UnpublishedArtifactCount = 1
+            //});
+
             //{
             //    ArtifactCount = 1,
             //    AlreadyIncludedArtifactCount = 1,
@@ -194,8 +216,61 @@ namespace ArtifactStore.Repositories
             //});
         }
 
-        private string AddArtifactsToXML (string xmlArtifacts, ISet<int> artifactsToAdd)
+
+        private async Task<PropertyValueString> GetReviewPropertyString(int reviewId, int userId, AddArtifactsParameter content)
         {
+            var param = new DynamicParameters();
+            param.Add("@reviewId", reviewId);
+            param.Add("@userId", userId);
+
+            return (await ConnectionWrapper.QueryAsync<PropertyValueString>("GetReviewPropertyString", param, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+        }
+
+        private async Task<EffectiveArtifactIdsResult> GetEffectiveArtifactIds(int userId, AddArtifactsParameter content, int projectId)
+        {
+            string error;
+            var param = new DynamicParameters();
+            param.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(content.ArtifactIds));
+            param.Add("@userId", userId);
+            param.Add("@projectId", projectId);
+            try
+            {
+                //return (await ConnectionWrapper.QueryAsync<EffectiveArtifactIdsResult>("GetEffectiveArtifactIds", param, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+                //return new EffectiveArtifactIdsResult()
+                //{
+                //    ArtifactIds = (ISet<int>)result.Item1.ToList(),
+                //    Unpublished = result.Item2.SingleOrDefault(),
+                //    Nonexistent = result.Item3.SingleOrDefault(),
+                //    ProjectMoved = result.Item4.SingleOrDefault()
+                //};
+                var result = await ConnectionWrapper.QueryMultipleAsync<int, int, int, int>("GetEffectiveArtifactIds", param, commandType: CommandType.StoredProcedure);
+                //return new QueryResult<T>()
+                //{
+                //    Items = result.Item1.ToList(),
+                //    Total = result.Item2.SingleOrDefault()
+                //};
+                return new EffectiveArtifactIdsResult()
+                {
+                    ArtifactIds = result.Item1.ToList(),
+                    Unpublished = result.Item2.SingleOrDefault(),
+                    Nonexistent = result.Item3.SingleOrDefault(),
+                    ProjectMoved = result.Item4.SingleOrDefault()
+                };
+            }
+            catch (Exception e)
+            {
+                error = e.Message;
+            }
+            finally
+            {
+                error = "Finally"; 
+            }
+            return null;
+        }
+
+        private string AddArtifactsToXML (string xmlArtifacts, ISet<int> artifactsToAdd, out int alreadyIncluded)
+        {
+            alreadyIncluded = 0;
             var rdReviewContents = ReviewRawDataHelper.RestoreData<RDReviewContents>(xmlArtifacts);
 
             var currentArtifactIds = rdReviewContents.Artifacts.Select(a => a.Id);
@@ -208,10 +283,12 @@ namespace ArtifactStore.Repositories
                     {
                         Id = artifactToAdd,
                         ApprovalNotRequested = false
-                        
+
                     };
                     rdReviewContents.Artifacts.Add(addedArtifact);
                 }
+                else
+                    ++alreadyIncluded;
             }
 
             return ReviewRawDataHelper.GetStoreData(rdReviewContents);
@@ -309,28 +386,18 @@ namespace ArtifactStore.Repositories
             };
         }
 
-        private async Task AddArtifactsToReviewAsync(int reviewId, int userId, AddArtifactsParameter content)
-        {
-            var param = new DynamicParameters();
-            param.Add("@artifactIds", content.ArtifactIds);
-            param.Add("@userId", userId);
-            param.Add("@reviewId", reviewId);
-            var result = await ConnectionWrapper.QueryAsync<IEnumerable<int>>("GetEffectiveArtifactIds", param, commandType: CommandType.StoredProcedure);
-            var artifactIds = result.ToList();
-            //GetReviewPropertyString(reviewId, userId, projectId, content);
-            //return Task.FromResult(new AddArtifactsResult { });
-        }
+        //private async Task AddArtifactsToReviewAsync(int reviewId, int userId, AddArtifactsParameter content)
+        //{
+        //    var param = new DynamicParameters();
+        //    param.Add("@artifactIds", content.ArtifactIds);
+        //    param.Add("@userId", userId);
+        //    param.Add("@reviewId", reviewId);
+        //    var result = await ConnectionWrapper.QueryAsync<IEnumerable<int>>("GetEffectiveArtifactIds", param, commandType: CommandType.StoredProcedure);
+        //    var artifactIds = result.ToList();
+        //    //GetReviewPropertyString(reviewId, userId, projectId, content);
+        //    //return Task.FromResult(new AddArtifactsResult { });
+        //}
 
-        private async Task<AddArtifactsResult> GetReviewPropertyString(int reviewId, int userId, int projectId, AddArtifactsParameter content)
-        {
-            var param = new DynamicParameters();
-            param.Add("@projectId", projectId);
-            param.Add("@reviewId", reviewId);
-            param.Add("@userId", userId);
-
-            var result = await ConnectionWrapper.QueryMultipleAsync<PropertyValueVersions, bool>("GetReviewPropertyString", param, commandType: CommandType.StoredProcedure);
-            return null;
-        }
 
         //private void StoreContentArtifacts(DArtifact dReview, ReviewPackage review, ChangeSet changeSet)
         //{

@@ -2,7 +2,7 @@
 using Helper;
 using Model;
 using Model.Common.Enums;
-using Model.Impl;
+using Model.NovaModel.AdminStoreModel;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
@@ -70,9 +70,9 @@ namespace AdminStoreTests.UsersTests
 
         #region 401 Unauthorized Tests
 
-        [TestCase(null, "Token is missing or malformed.")]
-        [TestCase("", "Token is invalid.")]
-        [TestCase(CommonConstants.InvalidToken, "Token is invalid.")]
+        [TestCase(null, InstanceAdminErrorMessages.TokenMissingOrMalformed)]
+        [TestCase("", InstanceAdminErrorMessages.TokenInvalid)]
+        [TestCase(CommonConstants.InvalidToken, InstanceAdminErrorMessages.TokenInvalid)]
         [Description("Create and add an instance user. Try to get the user using an invalid token header. " +
                      "Verify that 401 Unauthorized is returned.")]
         [TestRail(303451)]
@@ -90,7 +90,7 @@ namespace AdminStoreTests.UsersTests
             var ex = Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 Helper.AdminStore.GetUserById(userWithInvalidTokenHeader, createdUser.Id);
-            }, "'PUT {0}' should return 401 Unauthorized with invalid token header!", USER_PATH_ID);
+            }, "'GET {0}' should return 401 Unauthorized with invalid token header!", USER_PATH_ID);
 
             // Verify:
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, errorMessage);
@@ -120,11 +120,10 @@ namespace AdminStoreTests.UsersTests
                 var ex = Assert.Throws<Http403ForbiddenException>(() =>
                 {
                     Helper.AdminStore.GetUserById(userWithNoPermissionsToGetUsers, createdUser.Id);
-                },
-                    "'PUT {0}' should return 403 Forbidden when the user updating the user has no permissions to get users!", USER_PATH_ID);
+                }, "'GET {0}' should return 403 Forbidden when the user updating the user has no permissions to get users!", USER_PATH_ID);
 
                 // Verify:
-                TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "The user does not have permissions.");
+                TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.Forbidden, InstanceAdminErrorMessages.UserDoesNotHavePermissions);
             }
         }
 
@@ -132,21 +131,26 @@ namespace AdminStoreTests.UsersTests
 
         #region 404 Not Found Tests
 
-        [TestCase(0)]
         [TestCase(-1)]
+        [TestCase(0)]
         [TestCase(int.MaxValue)]
-        [Description("Try to get the non-existing user. Verify that 404 Not Found is returned.")]
+        [Description("Try to get a non-existing user. Verify that 404 Not Found is returned.")]
         [TestRail(303453)]
         public void GetInstanceUser_UserDoesntExist_404NotFound(int userId)
         {
             // Setup, Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() =>
+            var ex = Assert.Throws<Http404NotFoundException>(() =>
             {
                 Helper.AdminStore.GetUserById(_adminUser, userId);
-            }, "'PUT {0}' should return 404 Not Found for nonexistent user!", USER_PATH_ID);
+            }, "'GET {0}' should return 404 Not Found for a non-existent user ID!", USER_PATH_ID);
+
+            // Verify:
+            if (userId > 0)
+            {
+                TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound, InstanceAdminErrorMessages.UserNotExist);
+            }
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
         [TestCase]
         [Description("Create and add an instance user. Delete the user.  Try to get the deleted user. " +
                      "Verify that 404 Not Found is returned.")]

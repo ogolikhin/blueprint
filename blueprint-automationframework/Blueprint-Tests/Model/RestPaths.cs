@@ -116,19 +116,23 @@ namespace Model
                 {
                     public const string SETTINGS                    = "svc/adminstore/config/settings";
                     public const string CONFIG_JS                   = "svc/adminstore/config/config.js";
+                    public const string USERS                       = "svc/adminstore/config/users";
                 }
 
                 public static class Groups
                 {
                     public const string GROUPS                      = "svc/adminstore/groups";
                     public const string GROUPS_id_                  = "svc/adminstore/groups/{0}";
-                    public const string SEARCH                      = "svc/adminstore/groups/search"; 
+                    public const string DELETE                      = "svc/adminstore/groups/delete";
+                    public const string SEARCH                      = "svc/adminstore/groups/search";
+                    public const string USERSGROUPS                 = "svc/adminstore/groups/usersgroups";
                 }
 
                 public static class Groups_id_
                 {
                     public const string USERS                       = "svc/adminstore/groups/{0}/users";
                     public const string CHILDREN                    = "svc/adminstore/groups/{0}/children";
+                    public const string MEMBERS                     = "svc/adminstore/groups/{0}/members";
                 }
 
                 [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
@@ -182,12 +186,13 @@ namespace Model
 
                 public static class Users
                 {
+                    public const string CHANGE_PASSWORD             = "svc/adminstore/users/changepassword";
+                    public const string DELETE                      = "svc/adminstore/users/delete";
                     public const string INSTANCE_ROLES              = "svc/adminstore/users/instanceroles";
                     public const string LOGINUSER                   = "svc/adminstore/users/loginuser";
                     public const string RESET                       = "svc/adminstore/users/reset";
                     public const string USERS                       = "svc/adminstore/users";
                     public const string USERS_id_                   = "svc/adminstore/users/{0}";
-                    public const string USERS_DELETE                = "svc/adminstore/users/delete";
 
                     public static class PasswordRecovery
                     {
@@ -268,6 +273,7 @@ namespace Model
                     public const string PARTICIPANTS                = "svc/artifactstore/containers/{0}/participants";
                     public const string ARTIFACT_REVIEWERS          = "svc/artifactstore/containers/{0}/artifactreviewers";
                     public const string ARTIFACTS                   = "svc/artifactstore/containers/{0}/artifacts";
+                    public const string TOC_id_                     = "svc/artifactstore/containers/{0}/toc/{1}";
                 }
 
                 [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.

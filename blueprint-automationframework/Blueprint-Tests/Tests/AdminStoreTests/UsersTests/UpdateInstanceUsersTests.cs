@@ -5,7 +5,7 @@ using CustomAttributes;
 using Helper;
 using Model;
 using Model.Common.Enums;
-using Model.Impl;
+using Model.NovaModel.AdminStoreModel;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
@@ -17,7 +17,6 @@ namespace AdminStoreTests.UsersTests
     [TestFixture]
     [Category(Categories.AdminPortal)]
     [Category(Categories.AdminStore)]
-
     public class UpdateInstanceUserTests : TestBase
     {
         private const string USER_PATH_ID = RestPaths.Svc.AdminStore.Users.USERS_id_;
@@ -372,7 +371,7 @@ namespace AdminStoreTests.UsersTests
             // Verify:
             // Update CurrentVersion and Source in CreatedUser for comparison
             createdUser.CurrentVersion++;
-            createdUser.Source = UserSource.Database;
+            createdUser.Source = UserGroupSource.Database;
 
             AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
         }
@@ -411,6 +410,62 @@ namespace AdminStoreTests.UsersTests
             createdUser.LicenseType = LicenseLevel.Viewer;
 
             AdminStoreHelper.AssertAreEqual(createdUser, addedUser);
+        }
+
+        [TestCase]
+        [Description("User that is updated with 'enabled = true' is able to log in.")]
+        [TestRail(308846)]
+        public void UpdateInstanceUser_EnableLogin_UserCanLogIn()
+        {
+            // Setup: create use with login disabled
+            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
+            createdUser.Enabled = false;
+            createdUser.Id = Helper.AdminStore.AddUser(_adminUser, createdUser);
+
+            createdUser.Enabled = true;
+            AdminStoreHelper.UpdateUserIdAndIncrementCurrentVersion(createdUser, createdUser.Id);
+
+            // Execute: enable login for the user
+            Assert.DoesNotThrow(() =>
+            {
+                Helper.AdminStore.UpdateUser(_adminUser, createdUser);                
+            }, "'PUT {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
+
+            // Verify: that Enabled=True and that the user can log in
+
+            var updatedUser = Helper.AdminStore.GetUserById(_adminUser, createdUser.Id);
+
+            Assert.IsTrue(updatedUser.Enabled, "User should have Enabled=True, but has Enabled=False.");
+
+            Helper.AssertUserCanLogin(createdUser.Login, createdUser.Password);
+        }
+
+        [TestCase]
+        [Description("User that is updated with 'enabled = false' is not able to log in.")]
+        [TestRail(308847)]
+        public void UpdateInstanceUser_DisableLogin_UserCannotLogIn()
+        {
+            // Setup: create use with login enabled
+            var createdUser = Helper.CreateAndAddInstanceUser(_adminUser);
+
+            // Execute: disable login for the user
+            createdUser.Enabled = false;
+
+            Assert.DoesNotThrow(() =>
+            {
+                Helper.AdminStore.UpdateUser(_adminUser, createdUser);
+            }, "'PUT {0}' should return 200 OK for a valid session token!", USER_PATH_ID);
+
+            // Verify: that Enabled=False and that the user cannot log in
+            var updatedUser = Helper.AdminStore.GetUserById(_adminUser, createdUser.Id);
+
+            Assert.IsFalse(updatedUser.Enabled, "User should have Enabled=False, but has Enabled=True.");
+
+            Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+               Helper.AdminStore.AddSession(createdUser.Login, createdUser.Password);
+            }, "'PUT {0}' should return 401 Unauthorized with invalid token header!", USER_PATH_ID);
+
         }
 
         #endregion 200 OK Tests
@@ -511,7 +566,6 @@ namespace AdminStoreTests.UsersTests
                 InstanceAdminErrorMessages.DisplayNameRequired);
         }
 
-        [TestCase((uint)1, Description = "Minimum 2 characters")]
         [TestCase((uint)256, Description = "Maximum 255 characters")]
         [Description("Create and add a default instance user. Modify the display name of the user to an invalid value. " +
                      "Update the user. Verify 400 Bad Request is returned.")]
@@ -567,13 +621,13 @@ namespace AdminStoreTests.UsersTests
                 );
         }
 
-        [TestCase((UserSource)0xFF, InstanceAdminErrorMessages.ModifyOnlyDatabaseUsers)]
-        [TestCase(UserSource.Unknown, InstanceAdminErrorMessages.ModifyOnlyDatabaseUsers)]
-        [TestCase(UserSource.Windows, InstanceAdminErrorMessages.ModifyOnlyDatabaseUsers)]
+        [TestCase((UserGroupSource)0xFF, InstanceAdminErrorMessages.ModifyOnlyDatabaseUsers)]
+        [TestCase(UserGroupSource.Unknown, InstanceAdminErrorMessages.ModifyOnlyDatabaseUsers)]
+        [TestCase(UserGroupSource.Windows, InstanceAdminErrorMessages.ModifyOnlyDatabaseUsers)]
         [Description("Create and add a default instance user.  Modify the source to an invalid value. " +
                      "Update the user. Verify that 400 Bad Request is returned.")]
         [TestRail(303414)]
-        public void UpdateInstanceUser_InvalidSource_400BadRequest(UserSource? source, string errorMessage)
+        public void UpdateInstanceUser_InvalidSource_400BadRequest(UserGroupSource? source, string errorMessage)
         {
             UpdateDefaultInstanceUserWithInvalidPropertyVerify400BadRequest(
                 _adminUser,
@@ -582,7 +636,6 @@ namespace AdminStoreTests.UsersTests
                 errorMessage);
         }
 
-        [TestCase((uint)1, Description = "Minimum 2 characters")]
         [TestCase((uint)256, Description = "Maximum 255 characters")]
         [Description("Create and add a default instance user.  Modify the first name to an invalid value. " +
                      "Update the user. Verify that 400 Bad Request is returned.")]
@@ -596,7 +649,6 @@ namespace AdminStoreTests.UsersTests
                 InstanceAdminErrorMessages.FirstNameFieldLimitation);
         }
 
-        [TestCase((uint)1, Description = "Minimum 2 characters")]
         [TestCase((uint)256, Description = "Maximum 255 characters")]
         [Description("Create and add a default instance user.  Modify the last name to an invalid value. " +
                      "Update the user. Verify that 400 Bad Request is returned.")]
@@ -623,7 +675,6 @@ namespace AdminStoreTests.UsersTests
                 InstanceAdminErrorMessages.DepartmentFieldLimitation);
         }
 
-        [TestCase((uint)1, Description = "Minimum 2 characters")]
         [TestCase((uint)256, Description = "Maximum 255 characters")]
         [Description("Create and add a default instance user.  Modify the title to an invalid value. " +
                      "Update the user. Verify that 400 Bad Request is returned.")]
@@ -641,9 +692,9 @@ namespace AdminStoreTests.UsersTests
 
         #region 401 Unauthorized Tests
 
-        [TestCase(null, "Token is missing or malformed.")]
-        [TestCase("", "Token is invalid.")]
-        [TestCase(CommonConstants.InvalidToken, "Token is invalid.")]
+        [TestCase(null, InstanceAdminErrorMessages.TokenMissingOrMalformed)]
+        [TestCase("", InstanceAdminErrorMessages.TokenInvalid)]
+        [TestCase(CommonConstants.InvalidToken, InstanceAdminErrorMessages.TokenInvalid)]
         [Description("Create and add an instance user. Try to update the user using an invalid token header. " +
                      "Verify that 401 Unauthorized is returned.")]
         [TestRail(303404)]
@@ -694,12 +745,11 @@ namespace AdminStoreTests.UsersTests
                 var ex = Assert.Throws<Http403ForbiddenException>(() =>
                 {
                     Helper.AdminStore.UpdateUser(userWithNoPermissionsToManageUsers, createdUser);
-                },
-                    "'PUT {0}' should return 403 Forbidden when the user updating the user has no permissions to manage users!",
+                }, "'PUT {0}' should return 403 Forbidden when the user updating the user has no permissions to manage users!",
                     USER_PATH_ID);
 
                 // Verify:
-                TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "The user does not have permissions.");
+                TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.Forbidden, InstanceAdminErrorMessages.UserDoesNotHavePermissions);
             }
         }
 
@@ -772,21 +822,26 @@ namespace AdminStoreTests.UsersTests
 
         #region 404 Not Found Tests
 
-        [TestCase(0)]
         [TestCase(-1)]
-        [Description("Create and add an instance user. Try to update the user with an invalid Id. " +
-                     "Verify that 404 Not Found is returned.")]
+        [TestCase(0)]
+        [TestCase(int.MaxValue)]
+        [Description("Try to update the user with an invalid Id.  Verify that 404 Not Found is returned.")]
         [TestRail(303656)]
         public void UpdateInstanceUser_InvalidUserId_404NotFound(int invalidId)
         {
             // Setup:
-            var createdUser = Helper.CreateAndAddInstanceUser(_adminUser);
-
+            var createdUser = AdminStoreHelper.GenerateRandomInstanceUser();
             createdUser.Id = invalidId;
 
-            //Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() => { Helper.AdminStore.UpdateUser(_adminUser, createdUser); },
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => { Helper.AdminStore.UpdateUser(_adminUser, createdUser); },
                 "'PUT {0}' should return 404 Not Found!", USER_PATH_ID);
+
+            // Verify:
+            if (invalidId > 0)
+            {
+                TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound, InstanceAdminErrorMessages.UserNotExist);
+            }
         }
 
         [TestCase]
@@ -819,7 +874,7 @@ namespace AdminStoreTests.UsersTests
             // Setup:
             var createdUser = Helper.CreateAndAddInstanceUser(_adminUser);
 
-            if (createdUser.Id != null) Helper.AdminStore.DeleteUsers(_adminUser, new List<int> { createdUser.Id.Value });
+            Helper.AdminStore.DeleteUsers(_adminUser, new List<int> { createdUser.Id.Value });
 
             createdUser.Login = RandomGenerator.RandomAlphaNumeric(AdminStoreHelper.MinPasswordLength);
 
@@ -852,8 +907,7 @@ namespace AdminStoreTests.UsersTests
             var ex = Assert.Throws<Http409ConflictException>(() =>
             {
                 Helper.AdminStore.UpdateUser(_adminUser, createdUser);
-            },
-            "'PUT {0}' should return 409 Conflict when ttrying to update a user with an incorrect Current Version!", USER_PATH_ID);
+            }, "'PUT {0}' should return 409 Conflict when ttrying to update a user with an incorrect Current Version!", USER_PATH_ID);
 
             // Verify:
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, InstanceAdminErrorMessages.UserVersionsNotEqual);
@@ -902,7 +956,7 @@ namespace AdminStoreTests.UsersTests
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            var restApi = new RestApiFacade(Helper.ArtifactStore.Address, adminUser?.Token?.AccessControlToken);
+            var restApi = new RestApiFacade(Helper.AdminStore.Address, adminUser?.Token?.AccessControlToken);
             var path = I18NHelper.FormatInvariant(USER_PATH_ID, user.Id);
 
             try

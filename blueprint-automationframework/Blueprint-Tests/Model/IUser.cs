@@ -23,7 +23,7 @@ namespace Model
         LicenseLevel? License { get; set; }                   // This isn't in the database, it's inferred by the Group memberships.
         string Password { get; set; }                       // (NULLABLE)
         IEnumerable<byte> Picture { get; set; }             // (NULLABLE) "Image_ImageId" in database.
-        UserSource Source { get; }
+        UserGroupSource Source { get; }
         string Title { get; set; }                          // (NULLABLE)
         IBlueprintToken Token { get; set; }                 // This isn't in the database.
         string Username { get; set; }                       // i.e. "Login" field in database.
@@ -44,7 +44,7 @@ namespace Model
         /// Creates a new user on the Blueprint server.
         /// </summary>
         /// <param name="source">The source where this user is defined.</param>
-        void CreateUser(UserSource source = UserSource.Database);
+        void CreateUser(UserGroupSource source = UserGroupSource.Database);
 
         /// <summary>
         /// Deletes a user from the Blueprint server.

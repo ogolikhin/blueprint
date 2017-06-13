@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Model.InstanceAdminModel;
 using Model.ModelHelpers;
+using Model.NovaModel.AdminStoreModel;
 using TestConfig;
 using Utilities;
 using Utilities.Factories;
@@ -24,11 +25,11 @@ namespace Model.Factories
 
             IUser copy = null;
 
-            if (user.Source == UserSource.Database)
+            if (user.Source == UserGroupSource.Database)
             {
                 copy = new DatabaseUser(user as DatabaseUser);
             }
-            else if (user.Source == UserSource.Windows)
+            else if (user.Source == UserGroupSource.Windows)
             {
                 copy = new WindowsUser(user as WindowsUser);
             }
@@ -48,7 +49,7 @@ namespace Model.Factories
         /// <param name="licenseLevel">(optional) The license type of the user (Author, Collaborator, Viewer).</param>
         /// <returns>A new unique user object that was added to the database.</returns>
         public static IUser CreateUserAndAddToDatabase(InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
-            UserSource source = UserSource.Database, LicenseLevel licenseLevel = LicenseLevel.Author)
+            UserGroupSource source = UserGroupSource.Database, LicenseLevel licenseLevel = LicenseLevel.Author)
         {
             var user = CreateUserOnly(source, licenseLevel);
             user.InstanceAdminRole = instanceAdminRole;
@@ -64,7 +65,7 @@ namespace Model.Factories
         /// <param name="licenseLevel">(optional) The license type of the user (Author, Collaborator, Viewer).</param>
         /// <returns>A new unique user object that was added to the database.</returns>
         public static IUser CreateUserAndAddToDatabase(CustomInstanceAdminRole customInstanceAdminRole,
-            UserSource source = UserSource.Database, LicenseLevel licenseLevel = LicenseLevel.Author)
+            UserGroupSource source = UserGroupSource.Database, LicenseLevel licenseLevel = LicenseLevel.Author)
         {
             var user = CreateUserOnly(source, licenseLevel, adminRole: null);
             user.CustomInstanceAdminRole = customInstanceAdminRole;
@@ -83,7 +84,7 @@ namespace Model.Factories
         /// <returns>A new user object.</returns>
         public static IUser CreateUserAndAddToDatabase(string username, string password,
             InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
-            UserSource source = UserSource.Database)
+            UserGroupSource source = UserGroupSource.Database)
         {
             var user = CreateUserOnly(username, password, instanceAdminRole, source);
             user.CreateUser();
@@ -101,7 +102,7 @@ namespace Model.Factories
         /// <returns>A new user object.</returns>
         public static IUser CreateUserAndAddToDatabase(string username, string password,
             CustomInstanceAdminRole customInstanceAdminRole,
-            UserSource source = UserSource.Database)
+            UserGroupSource source = UserGroupSource.Database)
         {
             var user = CreateUserOnly(username, password, adminRole: null, source: source);
             user.CustomInstanceAdminRole = customInstanceAdminRole;
@@ -121,7 +122,7 @@ namespace Model.Factories
         /// <returns>A new user object.</returns>
         public static IUser CreateUserAndAddToDatabase(string username, string password, string displayname,
             InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
-            UserSource source = UserSource.Database)
+            UserGroupSource source = UserGroupSource.Database)
         {
             var user = CreateUserOnly(username, password, instanceAdminRole, source, displayname);
             user.CreateUser();
@@ -146,7 +147,7 @@ namespace Model.Factories
         /// <param name="adminRole">(optional) The Instance Admin Role to assign to the user.</param>
         /// <returns>A new unique user object.</returns>
         public static IUser CreateUserOnly(
-            UserSource source = UserSource.Database,
+            UserGroupSource source = UserGroupSource.Database,
             LicenseLevel licenseLevel = LicenseLevel.Author,
             InstanceAdminRole? adminRole = InstanceAdminRole.DefaultInstanceAdministrator)
         {
@@ -170,17 +171,17 @@ namespace Model.Factories
             string username,
             string password,
             InstanceAdminRole? adminRole = null,
-            UserSource source = UserSource.Database,
+            UserGroupSource source = UserGroupSource.Database,
             string displayname = null,
             LicenseLevel licenseLevel = LicenseLevel.Author)
         {
             User user;
 
-            if (source == UserSource.Database)
+            if (source == UserGroupSource.Database)
             {
                 user = new DatabaseUser { Username = username, Password = password, StartTimestamp = DateTime.Now };
             }
-            else if (source == UserSource.Windows)
+            else if (source == UserGroupSource.Windows)
             {
                 user = new WindowsUser { Username = username, Password = password };
             }
@@ -252,7 +253,7 @@ namespace Model.Factories
 
                     while (reader.Read())
                     {
-                        UserSource source = (UserSource) DatabaseUtilities.GetValueOrDefault<int>(reader, "Source");
+                        UserGroupSource source = (UserGroupSource) DatabaseUtilities.GetValueOrDefault<int>(reader, "Source");
                         User user = (User)CreateUserOnly(source);
 
                         user.Department = DatabaseUtilities.GetValueOrDefault<string>(reader, "Department");

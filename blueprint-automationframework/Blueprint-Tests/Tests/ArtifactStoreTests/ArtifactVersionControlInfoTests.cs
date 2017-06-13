@@ -968,8 +968,8 @@ namespace ArtifactStoreTests
             var sourceArtifact = Helper.CreateNovaArtifact(user, _project, artifactType);
             var targetArtifact = Helper.CreateAndPublishNovaArtifact(user, _project, ItemTypePredefined.UseCase);
 
-            ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(user, sourceArtifact.Id, targetArtifact.Id, targetArtifact.ProjectId.Value,
-                traceDirection: traceDirection, changeType: ChangeType.Create, artifactStore: Helper.ArtifactStore);
+            ArtifactStoreHelper.AddManualArtifactTraceAndSave(user, sourceArtifact.Id, targetArtifact.Id, targetArtifact.ProjectId.Value,
+                traceDirection: traceDirection);
 
             sourceArtifact.Publish(user);
 

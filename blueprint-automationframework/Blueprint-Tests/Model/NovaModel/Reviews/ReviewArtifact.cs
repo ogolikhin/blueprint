@@ -7,7 +7,6 @@ namespace Model.NovaModel.Reviews
     /// </summary>
     public class ReviewArtifact : BaseReviewArtifact
     {
-        public bool IsApprovalRequired { get; set; }
         public int Pending { get; set; }
         public int Approved { get; set; }
         public int Disapproved { get; set; }

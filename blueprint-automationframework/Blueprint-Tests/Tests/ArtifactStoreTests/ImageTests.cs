@@ -358,10 +358,10 @@ namespace ArtifactStoreTests
 
             // Verify:
             string selectQuery = I18NHelper.FormatInvariant("SELECT ExpiredTime FROM [dbo].[EmbeddedImages] WHERE [FileId] ='{0}'", addedFile.Guid);
-            Assert.IsNull(DatabaseHelper.ExecuteSingleValueSqlQuery<string>(selectQuery, "ExpiredTime"), "ExpiredTime is not null!");
+            Assert.IsNull(DatabaseHelper.ExecuteSingleValueSqlQuery<System.DateTime?>(selectQuery), "ExpiredTime is not null!");
 
             selectQuery = I18NHelper.FormatInvariant("SELECT ExpiredTime FROM [FileStore].[Files] WHERE [FileId] = '{0}'", addedFile.Guid);
-            Assert.IsNull(DatabaseHelper.ExecuteSingleValueSqlQuery<string>(selectQuery, "ExpiredTime", "FileStore"), "ExpiredTime is not null!");
+            Assert.IsNull(DatabaseHelper.ExecuteSingleValueSqlQuery<string>(selectQuery, "FileStore"), "ExpiredTime is not null!");
         }
 
         [TestCase(70, 50, ArtifactStoreHelper.ImageType.PNG, "image/png")]
@@ -396,10 +396,10 @@ namespace ArtifactStoreTests
 
             // Verify:
             string selectQuery = I18NHelper.FormatInvariant("SELECT ExpiredTime FROM [dbo].[EmbeddedImages] WHERE [FileId] ='{0}'", addedFile.Guid);
-            Assert.IsNull(DatabaseHelper.ExecuteSingleValueSqlQuery<string>(selectQuery, "ExpiredTime"), "ExpiredTime is not null!");
+            Assert.IsNull(DatabaseHelper.ExecuteSingleValueSqlQuery<string>(selectQuery), "ExpiredTime is not null!");
 
             selectQuery = I18NHelper.FormatInvariant("SELECT ExpiredTime FROM [FileStore].[Files] WHERE [FileId] = '{0}'", addedFile.Guid);
-            Assert.IsNull(DatabaseHelper.ExecuteSingleValueSqlQuery<string>(selectQuery, "ExpiredTime", "FileStore"), "ExpiredTime is not null!");
+            Assert.IsNull(DatabaseHelper.ExecuteSingleValueSqlQuery<string>(selectQuery, "FileStore"), "ExpiredTime is not null!");
         }
 
         #endregion Other tests
@@ -413,7 +413,7 @@ namespace ArtifactStoreTests
         private static void AssertFileNotInEmbeddedImagesTable(string filename)
         {
             string fileIdQuery = I18NHelper.FormatInvariant("SELECT COUNT(*) FROM [FileStore].[Files] WHERE [FileName] ='{0}'", filename);
-            int numberOfRows = DatabaseHelper.ExecuteSingleValueSqlQuery<int>(fileIdQuery, "FileId", databaseName: "FileStore");
+            int numberOfRows = DatabaseHelper.ExecuteSingleValueSqlQuery<int>(fileIdQuery, databaseName: "FileStore");
 
             Assert.AreEqual(0, numberOfRows, "Found {0} rows in the EmbeddedImages table containing FileName: '{1}'", numberOfRows, filename);
         }

@@ -7,14 +7,19 @@ namespace Model.NovaModel.Reviews
     {
         public int Id { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]
         public string Name { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]
         public string Prefix { get; set; }
+
+        public bool IsApprovalRequired { get; set; }
 
         public int ItemTypeId { get; set; }
 
         public int ItemTypePredefined { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? IconImageId { get; set; }
 
         public bool HasAccess { get; set; }

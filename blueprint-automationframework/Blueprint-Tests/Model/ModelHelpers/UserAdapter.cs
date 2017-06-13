@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Model.Common.Enums;
 using Model.Impl;
 using Model.InstanceAdminModel;
+using Model.NovaModel.AdminStoreModel;
 
 namespace Model.ModelHelpers
 {
@@ -76,7 +77,7 @@ namespace Model.ModelHelpers
 
         public IEnumerable<byte> Picture { get; set; }
 
-        public UserSource Source
+        public UserGroupSource Source
         {
             get { return InstanceUser.Source.Value; }
         }
@@ -113,7 +114,7 @@ namespace Model.ModelHelpers
             set { InstanceUser.Id = value; }
         }
 
-        public void CreateUser(UserSource source = UserSource.Database)
+        public void CreateUser(UserGroupSource source = UserGroupSource.Database)
         {
             throw new NotImplementedException("This isn't a real IUser.  It's just wrapping an InstanceUser.");
         }

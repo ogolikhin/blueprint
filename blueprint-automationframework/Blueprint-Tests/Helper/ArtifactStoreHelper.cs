@@ -139,7 +139,7 @@ namespace Helper
         /// <summary>
         /// Asserts that the properties of the NovaArtifactResponse match with the specified artifact.  Some properties are expected to be null.
         /// </summary>
-        /// <param name="novaArtifactDetails">The artifact returned by the Nova call.</param>
+        /// <param name="returnedArtifact">The artifact returned by the Nova call.</param>
         /// <param name="artifact">The artifact to compare against.</param>
         /// <param name="expectedVersion">The version expected in the NovaArtifactResponse.</param>
         public static void AssertNovaArtifactResponsePropertiesMatchWithArtifact(
@@ -1101,31 +1101,6 @@ namespace Helper
         /// <summary>
         /// Gets all details for all the sub-artifacts passed in.
         /// </summary>
-        /// <param name="artifactStore">A reference to an instance of artifact store</param>
-        /// <param name="artifact">The artifact to which the sub-artifacts belong.</param>
-        /// <param name="subArtifacts">The list of sub-artifacts to get more details for.</param>
-        /// <param name="user">The user to authenticate with.</param>
-        /// <returns>A list of NovaSubArtifacts.</returns>
-        public static List<NovaSubArtifact> GetDetailsForAllSubArtifacts(IArtifactStore artifactStore, IArtifactBase artifact, List<SubArtifact> subArtifacts, IUser user)
-        {
-            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
-            ThrowIf.ArgumentNull(subArtifacts, nameof(subArtifacts));
-
-            var subArtifactDetailsList = new List<NovaSubArtifact>();
-
-            foreach (var subArtifact in subArtifacts)
-            {
-                var subArtifactDetails = artifactStore.GetSubartifact(user, artifact.Id, subArtifact.Id);
-                subArtifactDetailsList.Add(subArtifactDetails);
-            }
-
-            return subArtifactDetailsList;
-        }
-
-        /// <summary>
-        /// Gets all details for all the sub-artifacts passed in.
-        /// </summary>
         /// <param name="artifactId">The ID of the artifact to which the sub-artifacts belong.</param>
         /// <param name="subArtifacts">The list of sub-artifacts to get more details for.</param>
         /// <param name="user">The user to authenticate with.</param>
@@ -1823,25 +1798,6 @@ namespace Helper
             return inlineTraceLink.ToUpper(CultureInfo.InvariantCulture).Contains(validTag.ToUpper(CultureInfo.InvariantCulture));
         }
 
-        // TODO: Remove this function once SaveTracesTests converted to use ArtifactWrapper
-        /// <summary>
-        /// Validates that the NovaTrace from the source artifact has the correct properties to point to the target artifact.
-        /// </summary>
-        /// <param name="sourceArtifactTrace">The Nova trace obtained from the source artifact.</param>
-        /// <param name="targetArtifact">The target artifact of the trace.</param>
-        /// <exception cref="AssertionException">If any properties of the trace don't match the target artifact.</exception>
-        public static void ValidateTrace(INovaTrace sourceArtifactTrace, IArtifactBase targetArtifact)
-        {
-            ThrowIf.ArgumentNull(sourceArtifactTrace, nameof(sourceArtifactTrace));
-            ThrowIf.ArgumentNull(targetArtifact, nameof(targetArtifact));
-
-            Assert.AreEqual(sourceArtifactTrace.ArtifactId, targetArtifact.Id, "Id from trace and artifact should be equal to each other.");
-            Assert.AreEqual(sourceArtifactTrace.ArtifactName, targetArtifact.Name, "Name from trace and artifact should be equal to each other.");
-            Assert.AreEqual(sourceArtifactTrace.ItemId, targetArtifact.Id, "itemId from trace and artifact should be equal to each other.");
-            Assert.AreEqual(sourceArtifactTrace.ProjectId, targetArtifact.ProjectId, "ProjectId from trace and artifact should be equal to each other.");
-            Assert.AreEqual(sourceArtifactTrace.ProjectName, targetArtifact.Project.Name, "ProjectName from trace and artifact should be equal to each other.");
-        }
-
         /// <summary>
         /// Validates that the NovaTrace from the source artifact has the correct properties to point to the target artifact.
         /// </summary>
@@ -2006,7 +1962,6 @@ namespace Helper
                 traceTargetArtifactId: traceTargetArtifactId,
                 traceTargetArtifactProjectId: traceTargetArtifactProjectId,
                 changeType: ChangeType.Create,
-                artifactStore: ArtifactStore,
                 traceDirection: traceDirection,
                 isSuspect: isSuspect,
                 targetSubArtifactId: targetSubArtifactId);
@@ -2064,7 +2019,6 @@ namespace Helper
                 traceTargetArtifactId: traceTargetArtifactId,
                 traceTargetArtifactProjectId: traceTargetArtifactProjectId,
                 changeType: ChangeType.Delete,
-                artifactStore: ArtifactStore,
                 targetSubArtifactId: targetSubArtifactId);
         }
 
@@ -2144,7 +2098,6 @@ namespace Helper
         /// <param name="traceTargetArtifactId">Id of Trace's target artifact.</param>
         /// <param name="traceTargetArtifactProjectId">Id of Trace's target artifact project.</param>
         /// <param name="changeType">ChangeType enum - Add, Update or Delete trace</param>
-        /// <param name="artifactStore">IArtifactStore.</param>
         /// <param name="traceDirection">(optional) Trace direction. 'From' by default.</param>
         /// <param name="isSuspect">(optional) isSuspect, true for suspect trace, false otherwise.</param>
         /// <param name="targetSubArtifactId">(optional) The ID of the sub-artifact for trace target (creates/updates/deletes trace with subartifact).</param>
@@ -2155,16 +2108,14 @@ namespace Helper
             int traceTargetArtifactId,
             int traceTargetArtifactProjectId,
             ChangeType changeType,
-            IArtifactStore artifactStore,       // TODO: Remove this parameter.
             TraceDirection traceDirection = TraceDirection.From,
             bool? isSuspect = null,
             int? targetSubArtifactId = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(traceDirection, nameof(traceDirection));
-            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
 
-            var artifactDetails = artifactStore.GetArtifactDetails(user, artifactId);
+            var artifactDetails = ArtifactStore.GetArtifactDetails(user, artifactId);
 
             var traceToCreate = UpdateManualArtifactTrace(
                 user,

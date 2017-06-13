@@ -4,19 +4,21 @@ namespace ArtifactStore.Models.Review
 {
     public class ReviewedArtifact : BaseReviewArtifact
     {
-        public ViewStateType ViewState { get; set; }
-
         public string Approval { get; set; }
 
         public ApprovalType ApprovalFlag { get; set; }
 
         public int ArtifactVersion { get; set; }
 
-        public string UserDisplayName { get; set; }
         /// <summary>
         /// Viewed artifact version
         /// </summary>
         public int? ViewedArtifactVersion { get; set; }
+
+        /// <summary>
+        /// Display name of the user published the artifact  
+        /// </summary>
+        public string UserDisplayName { get; set; }
 
         private DateTime _publishedOnTimestamp;
         public DateTime PublishedOnTimestamp

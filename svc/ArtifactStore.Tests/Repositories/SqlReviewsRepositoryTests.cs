@@ -179,7 +179,6 @@ namespace ArtifactStore.Repositories
         }
 
         #region GetReviewTableOfContent
-
         [TestMethod]
         [ExpectedException(typeof (ResourceNotFoundException))]
         public async Task GetReviewTableOfContentAsync_ReviewNotFound()
@@ -194,21 +193,18 @@ namespace ArtifactStore.Repositories
             await TestGetReviewTableOfContentErrorsAsync(2, ErrorCodes.ResourceNotFound);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(AuthorizationException))]
-        public async Task GetReviewTableOfContentAsync_UserNotParticipant()
-        {
-            await TestGetReviewTableOfContentErrorsAsync(3, ErrorCodes.UnauthorizedAccess);
-        }
-
+       
         private static async Task TestGetReviewTableOfContentErrorsAsync(int retResult, int expectedErrorCode)
         {
             // Arrange
             const int reviewId = 11;
             const int revisionId = 22;
             const int userId = 33;
-            const int offset = 44;
-            const int limit = 55;
+         
+            var pagination = new Pagination {
+                Offset = 0,
+                Limit = 50
+            };
             const int refreshInterval = 66;
 
             var appSettingsRepoMock = new Mock<IApplicationSettingsRepository>();
@@ -224,25 +220,26 @@ namespace ArtifactStore.Repositories
                 {"@reviewId", reviewId},
                 {"@revisionId", revisionId},
                 {"@userId", userId},
-                {"offset", offset},
-                {"@limit", limit},
+                {"offset", pagination.Offset},
+                {"@limit", pagination.Limit},
                 {"@refreshInterval", refreshInterval}
             };
 
             var outPrm = new Dictionary<string, object>
             {
+                {"@numResult", 0},
                 {"@retResult", retResult}
             };
 
             var testResult = new ReviewTableOfContentItem[] { };
-            cxn.SetupQueryAsync("GetReviewTableOfContent", prm, testResult, outPrm);
+            cxn.SetupQueryAsync("GetReviewArtifacts", prm, testResult, outPrm);
 
             var repository = new SqlReviewsRepository(cxn.Object, null, null, null, appSettingsRepoMock.Object);
 
             try
             {
                 // Act
-                await repository.GetReviewTableOfContent(reviewId, revisionId, userId, offset, limit);
+                await repository.GetReviewTableOfContent(reviewId, revisionId, userId, pagination);
             }
             catch (ExceptionWithErrorCode e)
             {
@@ -281,8 +278,10 @@ namespace ArtifactStore.Repositories
             var artifact2 = new ReviewedArtifact { Id = 2 };
             reviewArtifacts.Add(artifact2);
 
-            var result = new Tuple<IEnumerable<ReviewedArtifact>, IEnumerable<int>>(reviewArtifacts, new[] { 2 });
-            _cxn.SetupQueryMultipleAsync("GetReviewArtifacts", param, result);
+            var outputParams = new Dictionary<string, object>() {
+                { "@numResult", 2 }
+            };
+            _cxn.SetupQueryAsync("GetReviewArtifacts", param, reviewArtifacts, outputParams);
 
             _artifactPermissionsRepositoryMock
                 .Setup(p => p.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true))
@@ -317,6 +316,7 @@ namespace ArtifactStore.Repositories
             int reviewId = 1;
             int userId = 2;
             int revisionId = 999;
+            
             var pagination = new Pagination
             {
                 Offset = 0,
@@ -333,14 +333,18 @@ namespace ArtifactStore.Repositories
                 { "limit", pagination.Limit },
                 { "refreshInterval", 20 }
             };
+            var outputParams = new Dictionary<string, object>() {
+                { "@numResult", 2 }
+            };
+
             var reviewArtifacts = new List<ReviewedArtifact>();
             var artifact1 = new ReviewedArtifact { Id = 2 };
             reviewArtifacts.Add(artifact1);
             var artifact2 = new ReviewedArtifact { Id = 3 };
             reviewArtifacts.Add(artifact2);
 
-            var result = new Tuple<IEnumerable<ReviewedArtifact>, IEnumerable<int>>(reviewArtifacts, new[] { 2 });
-            _cxn.SetupQueryMultipleAsync("GetReviewArtifacts", param, result);
+          
+            _cxn.SetupQueryAsync("GetReviewArtifacts", param, reviewArtifacts, outputParams);
 
             var reviewArtifacts2 = new List<ReviewedArtifact>();
             var reviewArtifact1 = new ReviewedArtifact { Id = 2 };

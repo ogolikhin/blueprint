@@ -42,6 +42,7 @@
 
         //Bad request
         public const int OutOfRangeParameter = 6000;
+        public const int InvalidWorkflowXml = 6001;
 
         //Timeout
         public const int Timeout = 7000;

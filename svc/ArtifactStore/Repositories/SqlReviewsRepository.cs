@@ -192,7 +192,7 @@ namespace ArtifactStore.Repositories
             await UpdateReviewArtifacts(reviewId, userId, artifactXmlResult);
 
             return new AddArtifactsResult() {
-                ArtifactCount = effectiveIds.ArtifactIds.Count(),
+                ArtifactCount = effectiveIds.ArtifactIds.Count() - alreadyIncludedCount,
                 AlreadyIncludedArtifactCount = alreadyIncludedCount,
                 NonexistentArtifactCount = effectiveIds.Nonexistent,
                 UnpublishedArtifactCount = effectiveIds.Unpublished

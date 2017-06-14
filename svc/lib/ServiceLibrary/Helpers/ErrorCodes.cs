@@ -9,6 +9,7 @@
         //Configuration errors
         public const int LdapIsDisabled = 1000;
         public const int FallbackIsDisabled = 1001;
+        public const int WorkflowIsDisabled = 1002;
 
         //Authentication errors
         public const int InvalidCredentials = 2000;

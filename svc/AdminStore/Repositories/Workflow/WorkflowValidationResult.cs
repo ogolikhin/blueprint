@@ -7,7 +7,8 @@ namespace AdminStore.Repositories.Workflow
     {
         public bool HasErrors => Errors.Any();
 
-        public List<WorkflowValidationError> Errors => new List<WorkflowValidationError>();
+        private List<WorkflowValidationError> _errors;
+        public List<WorkflowValidationError> Errors => _errors ?? (_errors = new List<WorkflowValidationError>());
     }
 
     public class WorkflowValidationError
@@ -37,7 +38,11 @@ namespace AdminStore.Repositories.Workflow
         TransitionNameNotUniqueOnState,
         TransitionCountOnStateExceedsLimit10,
         TransitionStateNotFound,
-        TransitionOrphan,
-        TransitionFromAndToStatesSame
+        TransitionStartStateNotSpecified,
+        TransitionEndStateNotSpecified,
+        TransitionFromAndToStatesSame,
+        ProjectNoSpecified,
+        ProjectInvalidId,
+        ArtifactTypeNoSpecified
     }
 }

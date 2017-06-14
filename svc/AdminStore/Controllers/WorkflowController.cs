@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Description;
 using AdminStore.Models.Workflow;
 using AdminStore.Repositories.Workflow;
 using ServiceLibrary.Attributes;
@@ -34,7 +37,8 @@ namespace AdminStore.Controllers
 
         [HttpPost]
         [Route("import"), SessionRequired]
-        public async Task<ImportWorkflowResult> ImportWorkflowAsync()
+        [ResponseType(typeof(ServiceStatus))]
+        public async Task<IHttpActionResult> ImportWorkflowAsync()
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             Debug.Assert(session != null, "The session is null.");
@@ -42,24 +46,54 @@ namespace AdminStore.Controllers
             // The file name is specified in Content-Disposition header,
             // for example, Content-Disposition: workflow;filename=workflow.xml
             // The first parameter does not matter, can be workflow, file etc.
-            // TODO: Required for messages
+            // Required for messages.
             var fileName = Request.Content.Headers?.ContentDisposition?.FileName;
 
             using (var stream = await Request.Content.ReadAsStreamAsync())
             {
-                var workflow = DeserializeWorkflow(stream);
-                return await _workflowRepository.ImportWorkflowAsync(workflow, session.UserId);
+                IeWorkflow workflow;
+                try
+                {
+                    workflow = DeserializeWorkflow(stream);
+                }
+                catch (Exception ex)
+                {
+                    var errorResult = new ImportWorkflowResult
+                    {
+                        ErrorMessage = ex.Message
+                    };
+
+                    var response = Request.CreateResponse(HttpStatusCode.BadRequest, errorResult);
+                    return ResponseMessage(response);
+                }
+                var result = await _workflowRepository.ImportWorkflowAsync(workflow, fileName, session.UserId);
+
+                switch (result.ResultCode)
+                {
+                    case ImportWorkflowResultCodes.Ok:
+                        return Ok(result);
+                    case ImportWorkflowResultCodes.InvalidModel:
+                        return ResponseMessage(Request.CreateResponse(HttpStatusCode.BadRequest, result));
+                    case ImportWorkflowResultCodes.Conflict:
+                        var response = Request.CreateResponse(HttpStatusCode.BadRequest, result);
+                        return ResponseMessage(Request.CreateResponse(HttpStatusCode.Conflict, result));
+                    default:
+                        // Should never happen.
+                        return InternalServerError(new Exception("Unknown error."));
+                }
             }
         }
 
         [HttpGet, NoCache]
         [Route("import/errors"), SessionRequired]
-        public async Task<string> GetImportWorkflowErrorsAsync(string guid)
+        [ResponseType(typeof(string))]
+        public async Task<IHttpActionResult> GetImportWorkflowErrorsAsync(string guid)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             Debug.Assert(session != null, "The session is null.");
 
-            return await _workflowRepository.GetImportWorkflowErrorsAsync(guid, session.UserId);
+            var errors = await _workflowRepository.GetImportWorkflowErrorsAsync(guid, session.UserId);
+            return Ok(errors);
         }
 
         #region Private methods

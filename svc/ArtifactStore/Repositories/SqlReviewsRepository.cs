@@ -354,14 +354,14 @@ namespace ArtifactStore.Repositories
             };
         }
 
-        private async Task UpdateReviewArtifacts(int reviewId, int userId, string xmlArtifacts)
+        private async Task<int> UpdateReviewArtifacts(int reviewId, int userId, string xmlArtifacts)
         {
             var param = new DynamicParameters();
             param.Add("@reviewId", reviewId);
             param.Add("@userId", userId);
             param.Add("@xmlArtifacts", xmlArtifacts);
 
-            await ConnectionWrapper.ExecuteAsync("UpdateReviewArtifacts", param, commandType: CommandType.StoredProcedure);
+            return await ConnectionWrapper.ExecuteAsync("UpdateReviewArtifacts", param, commandType: CommandType.StoredProcedure);
         }
 
         private async Task<int> GetRebuildReviewArtifactHierarchyInterval()

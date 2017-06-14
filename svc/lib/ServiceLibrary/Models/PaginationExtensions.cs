@@ -1,12 +1,11 @@
 ﻿using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
-using ServiceLibrary.Models;
 
-namespace AdminStore.Helpers
+namespace ServiceLibrary.Models
 {
-    public class PaginationValidator
+    public static class PaginationExtensions
     {
-        public static void ValidatePaginationModel(Pagination pagination)
+        public static void Validate(this Pagination pagination)
         {
             if (pagination == null)
             {
@@ -18,7 +17,7 @@ namespace AdminStore.Helpers
                 throw new BadRequestException(ErrorMessages.IncorrectOffsetParameter, ErrorCodes.BadRequest);
             }
 
-            if (!pagination.Limit.HasValue || pagination.Limit < 0)
+            if (!pagination.Limit.HasValue || pagination.Limit <= 0)
             {
                 throw new BadRequestException(ErrorMessages.IncorrectLimitParameter, ErrorCodes.BadRequest);
             }

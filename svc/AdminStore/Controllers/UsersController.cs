@@ -117,14 +117,9 @@ namespace AdminStore.Controllers
         [SessionRequired]
         [Route("")]
         [ResponseType(typeof(QueryResult<UserDto>))]
-        public async Task<IHttpActionResult> GetUsers([FromUri]Pagination pagination, [FromUri]Sorting sorting, string search = null)
+        public async Task<IHttpActionResult> GetUsers([FromUri]Pagination pagination, [FromUri]Sorting sorting = null, string search = null)
         {
-            PaginationValidator.ValidatePaginationModel(pagination);
-
-            if (pagination.IsEmpty())
-            {
-                return Ok(QueryResult<UserDto>.Empty);
-            }
+            pagination.Validate();
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewUsers);
 
@@ -553,14 +548,9 @@ namespace AdminStore.Controllers
         [SessionRequired]
         [ResponseType(typeof(QueryResult<GroupDto>))]
         [Route("{userId:int:min(1)}/groups")]
-        public async Task<IHttpActionResult> GetUserGroups(int userId, [FromUri]Pagination pagination, [FromUri]Sorting sorting, [FromUri] string search = null)
+        public async Task<IHttpActionResult> GetUserGroups(int userId, [FromUri]Pagination pagination, [FromUri]Sorting sorting = null, [FromUri] string search = null)
         {
-            PaginationValidator.ValidatePaginationModel(pagination);
-
-            if (pagination.IsEmpty())
-            {
-                return Ok(QueryResult<GroupDto>.Empty);
-            }
+            pagination.Validate();
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewUsers);
 

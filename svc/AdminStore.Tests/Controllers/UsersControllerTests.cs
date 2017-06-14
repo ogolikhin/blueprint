@@ -825,30 +825,11 @@ namespace AdminStore.Controllers
         #region GetUsers
 
         [TestMethod]
-        public async Task GetAllUsers_ParamsAreNotCorrect_BadRequestResult()
+        public async Task GetUsers_NoRequiredPermissions_ForbiddenResult()
         {
             //arrange
-            BadRequestException exception = null;
-
-            //act
-            try
-            {
-                var result = await _controller.GetUsers(null, null);
-            }
-            catch (BadRequestException ex)
-            {
-                exception = ex;
-            }
-
-            //assert
-            Assert.IsInstanceOfType(exception, typeof(BadRequestException));
-        }
-
-        [TestMethod]
-        public async Task GetAllUsers_UserDoesNotHaveRequiredPermissions_ForbiddenResult()
-        {
-            //arrange
-            Exception exception = null;
+            AuthorizationException exception = null;
+            var pagination = new Pagination { Offset = 0, Limit = 20 };
             _privilegesRepository
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.None);
@@ -856,16 +837,38 @@ namespace AdminStore.Controllers
             //act
             try
             {
-                await _controller.GetUsers(new Pagination { Offset = 0, Limit = 20 }, new Sorting());
+                await _controller.GetUsers(pagination);
             }
-            catch (Exception ex)
+            catch (AuthorizationException ex)
             {
                 exception = ex;
             }
 
             //assert
-            Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
+            Assert.IsNotNull(exception);
         }
+
+        [TestMethod]
+        public async Task GetUsers_AllRequirementsSatisfied_ReturnsUsers()
+        {
+            //arrange
+            var pagination = new Pagination { Offset = 0, Limit = 20 };
+            _privilegesRepository
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
+            _usersRepoMock
+                .Setup(r => r.GetUsersAsync(pagination, It.IsAny<Sorting>(), It.IsAny<string>(), It.IsAny<Func<Sorting, string>>()))
+                .ReturnsAsync(QueryResult<UserDto>.Empty);
+
+            //act
+            var result = await _controller.GetUsers(pagination) as OkNegotiatedContentResult<QueryResult<UserDto>>;
+
+            //assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(0, result.Content.Total);
+            Assert.AreEqual(0, result.Content.Items.Count());
+        }
+
         #endregion
 
         #region GetUser
@@ -1906,13 +1909,68 @@ namespace AdminStore.Controllers
         #region GetUserGroups
 
         [TestMethod]
-        public async Task GetUserGroups_AllRequirementsSatisfied_ReturnUserGroups()
+        public async Task GetUserGroups_UserDoesNotHaveRequiredPermissions_ForbiddenResult()
         {
-            //arrange         
+            //arrange
+            AuthorizationException exception = null;
+            _privilegesRepository
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.None);
+            _usersRepoMock
+                .Setup(repo => repo.GetUserGroupsAsync(It.IsAny<int>(), It.IsAny<TabularData>(), It.IsAny<Func<Sorting, string>>()))
+                .ReturnsAsync(_userGoupsQueryDataResult);
+
+            //act
+            try
+            {
+                await _controller.GetUserGroups(UserId, _userGroupsTabularPagination, _userGroupsSorting, string.Empty);
+            }
+            catch (AuthorizationException ex)
+            {
+                exception = ex;
+            }
+
+            //assert
+            Assert.IsNotNull(exception);
+        }
+
+        [TestMethod]
+        public async Task GetUserGroups_UserNotFound_ResourceNotFoundResult()
+        {
+            //arrange
+            ResourceNotFoundException exception = null;
             _privilegesRepository
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
-            _usersRepoMock.Setup(repo => repo.GetUserGroupsAsync(It.IsAny<int>(), It.IsAny<TabularData>(), It.IsAny<Func<Sorting, string>>())).ReturnsAsync(_userGoupsQueryDataResult);
+            _usersRepoMock.Setup(repo => repo.GetUserGroupsAsync(It.IsAny<int>(), It.IsAny<TabularData>(), It.IsAny<Func<Sorting, string>>()))
+                .ThrowsAsync(new ResourceNotFoundException(ErrorMessages.UserNotExist, ErrorCodes.ResourceNotFound));
+
+            //act
+            try
+            {
+                await _controller.GetUserGroups(UserId, _userGroupsTabularPagination, _userGroupsSorting, string.Empty);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                exception = ex;
+            }
+
+            //assert
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(ErrorMessages.UserNotExist, exception.Message);
+            Assert.AreEqual(ErrorCodes.ResourceNotFound, exception.ErrorCode);
+        }
+
+        [TestMethod]
+        public async Task GetUserGroups_AllRequirementsSatisfied_ReturnsUserGroups()
+        {
+            //arrange
+            _privilegesRepository
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
+            _usersRepoMock
+                .Setup(repo => repo.GetUserGroupsAsync(It.IsAny<int>(), It.IsAny<TabularData>(), It.IsAny<Func<Sorting, string>>()))
+                .ReturnsAsync(_userGoupsQueryDataResult);
 
             //act
             var result = await _controller.GetUserGroups(UserId, _userGroupsTabularPagination, _userGroupsSorting, string.Empty) as OkNegotiatedContentResult<QueryResult<GroupDto>>;
@@ -1922,54 +1980,6 @@ namespace AdminStore.Controllers
             Assert.IsInstanceOfType(result.Content, typeof(QueryResult<GroupDto>));
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
-        public async Task GetUserGroups_ParamsAreNotCorrect_BadRequestResult()
-        {
-            //arrange
-
-            //act
-            await _controller.GetUserGroups(UserId, new Pagination(), new Sorting(), string.Empty);
-
-            //assert
-            // Exception
-
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(AuthorizationException))]
-        public async Task GetUserGroups_UserDoesNotHaveRequiredPermissions_ForbiddenResult()
-        {
-            //arrange
-            _privilegesRepository
-                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
-                .ReturnsAsync(InstanceAdminPrivileges.None);
-            _usersRepoMock.Setup(repo => repo.GetUserGroupsAsync(It.IsAny<int>(), It.IsAny<TabularData>(), It.IsAny<Func<Sorting, string>>())).ReturnsAsync(_userGoupsQueryDataResult);
-
-            //act
-            await _controller.GetUserGroups(UserId, _userGroupsTabularPagination, _userGroupsSorting, string.Empty);
-
-            //assert
-            // Exception
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ResourceNotFoundException))]
-        public async Task GetUserGroups_UserNotFound_ResourceNotFoundResult()
-        {
-            //arrange
-            _privilegesRepository
-                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
-                .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
-            _usersRepoMock.Setup(repo => repo.GetUserGroupsAsync(It.IsAny<int>(), It.IsAny<TabularData>(), It.IsAny<Func<Sorting, string>>()))
-                .ThrowsAsync(new ResourceNotFoundException(ErrorMessages.UserNotExist));
-
-            //act
-            await _controller.GetUserGroups(UserId, _userGroupsTabularPagination, _userGroupsSorting, string.Empty);
-
-            //assert
-            // Exception
-        }
         #endregion
 
         #region Deletete users

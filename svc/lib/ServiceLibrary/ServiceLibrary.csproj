@@ -154,6 +154,7 @@
     <Compile Include="Models\Messaging\SystemMessage.cs" />
     <Compile Include="Models\OperationScope.cs" />
     <Compile Include="Models\Pagination.cs" />
+    <Compile Include="Models\PaginationExtensions.cs" />
     <Compile Include="Models\PermissionsItem.cs" />
     <Compile Include="Models\ProjectNameIdPair.cs" />
     <Compile Include="Models\ProjectPermissions.cs" />

@@ -348,7 +348,7 @@ namespace AdminStore.Repositories
                         throw new BadRequestException(ErrorMessages.GeneralErrorOfGettingUserGroups);
 
                     case (int)SqlErrorCodes.UserLoginNotExist:
-                        throw new ResourceNotFoundException(ErrorMessages.UserNotExist);
+                        throw new ResourceNotFoundException(ErrorMessages.UserNotExist, ErrorCodes.ResourceNotFound);
                 }
             }
 

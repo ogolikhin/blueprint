@@ -15,7 +15,7 @@ namespace AdminStore.Repositories.Workflow
     public class WorkflowRepository : IWorkflowRepository
     {
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
-        private readonly ISqlUserRepository _userRepository;
+        private readonly IUserRepository _userRepository;
         private readonly ISqlHelper _sqlHelper;
         private readonly IWorkflowValidator _workflowValidator;
 
@@ -32,7 +32,7 @@ namespace AdminStore.Repositories.Workflow
         internal WorkflowRepository(ISqlConnectionWrapper connectionWrapper,
             ISqlHelper sqlHelper,
             IWorkflowValidator workfloweValidator,
-            ISqlUserRepository userRepository)
+            IUserRepository userRepository)
         {
             ConnectionWrapper = connectionWrapper;
             _sqlHelper = sqlHelper;

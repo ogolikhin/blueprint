@@ -104,10 +104,10 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPut]
         [Route("containers/{reviewId:int:min(1)}/content"), SessionRequired]
-        public void AddArtifactsToReview(int reviewId, [FromBody] AddArtifactsParameter content)
+        public Task<AddArtifactsResult> AddArtifactsToReview(int reviewId, [FromBody] AddArtifactsParameter content)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            _sqlReviewsRepository.AddArtifactsToReviewAsync(reviewId, session.UserId, content);
+            return _sqlReviewsRepository.AddArtifactsToReviewAsync(reviewId, session.UserId, content);
         }
 
         /// <summary>

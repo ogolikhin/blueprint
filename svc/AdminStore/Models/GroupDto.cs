@@ -19,8 +19,6 @@ namespace AdminStore.Models
 
         public int? ProjectId { get; set; }
 
-        public IEnumerable<int> Users { get; set; }
-
         public int CurrentVersion { get; set; }
 
         public string GroupType { get; set; }

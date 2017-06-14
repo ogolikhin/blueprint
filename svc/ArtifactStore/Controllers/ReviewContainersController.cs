@@ -65,6 +65,7 @@ namespace ArtifactStore.Controllers
         public Task<QueryResult<ReviewedArtifact>> GetReviewedArtifacts(int containerId, [FromUri] Pagination pagination, int? revisionId = int.MaxValue)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            pagination.SetDefaultValues(0, 10);
             return _sqlReviewsRepository.GetReviewedArtifacts(containerId, session.UserId, pagination, revisionId.Value);
         }
 
@@ -85,6 +86,7 @@ namespace ArtifactStore.Controllers
         public Task<QueryResult<ReviewArtifact>> GetContentAsync(int containerId, [FromUri] Pagination pagination, int? versionId = null)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            pagination.SetDefaultValues(0, 10);
             return _sqlReviewsRepository.GetReviewArtifactsContentAsync(containerId, session.UserId, pagination, versionId);
         }
 
@@ -125,6 +127,7 @@ namespace ArtifactStore.Controllers
         public Task<ReviewTableOfContent> GetTableOfContentAsync(int containerId, int revisionId, [FromUri] Pagination pagination)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            pagination.SetDefaultValues(0, 50);
             return _sqlReviewsRepository.GetReviewTableOfContent(containerId, revisionId, session.UserId, pagination);
         }
 

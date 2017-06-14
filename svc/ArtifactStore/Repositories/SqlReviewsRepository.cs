@@ -122,6 +122,8 @@ namespace ArtifactStore.Repositories
 
         public async Task<QueryResult<ReviewArtifact>> GetReviewArtifactsContentAsync(int reviewId, int userId, Pagination pagination, int? versionId = null, bool? addDrafts = true)
         {
+            
+
             int? revisionId = await _itemInfoRepository.GetRevisionId(reviewId, userId, versionId);
 
             var reviewArtifacts = await GetReviewArtifactsAsync<ReviewArtifact>(reviewId, userId, pagination, revisionId, addDrafts);

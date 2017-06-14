@@ -166,7 +166,7 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPut]
         [Route("containers/{reviewId:int:min(1)}/participants"), SessionRequired]
-        public Task<ReviewParticipantsContent> AddParticipantsToReview(int reviewId, [FromBody] AddParticipantsParameter content)
+        public Task<AddParticipantsResult> AddParticipantsToReview(int reviewId, [FromBody] AddParticipantsParameter content)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             return _sqlReviewsRepository.AddParticipantsToReviewAsync(reviewId, session.UserId, content);

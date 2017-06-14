@@ -13,6 +13,6 @@ namespace ArtifactStore.Repositories
         Task<QueryResult<ReviewArtifact>> GetReviewArtifactsContentAsync(int reviewId, int userId, Pagination pagination, int? versionId = null, bool? addDrafts = true);
         Task<ReviewTableOfContent> GetReviewTableOfContent(int reviewId, int revisionId, int userId, Pagination pagination);
         Task<AddArtifactsResult> AddArtifactsToReviewAsync(int reviewId, int userId, AddArtifactsParameter content);
-        Task<ReviewParticipantsContent> AddParticipantsToReviewAsync(int reviewId, int userId, AddParticipantsParameter content);
+        Task<AddParticipantsResult> AddParticipantsToReviewAsync(int reviewId, int userId, AddParticipantsParameter content);
     }
 }

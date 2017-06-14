@@ -4,15 +4,14 @@ namespace ArtifactStore.Models.Review
 {
     public class AddParticipantsResult
     {
-        public int ArtifactCount { get; set; }
+        public int Total { get; set; }
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public int AlreadyIncludedArtifactCount { get; set; }
+        public int Successful { get; set; }
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public int UnpublishedArtifactCount { get; set; }
+        public int Failed { get; set; }
 
-        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public int NonexistentArtifactCount { get; set; }
+        
     }
 }

@@ -135,6 +135,7 @@
     <Compile Include="Models\TabularData.cs" />
     <Compile Include="Models\UpdateUserPassword.cs" />
     <Compile Include="Models\UserDto.cs" />
+	<Compile Include="Controllers\WorkflowController.cs" />
     <Compile Include="Helpers\EmailHelper.cs" />
     <Compile Include="Helpers\HashingUtilities.cs" />
     <Compile Include="Helpers\JobsValidationHelper.cs" />
@@ -169,6 +170,14 @@
     <Compile Include="Models\LicenseTransactionUser.cs" />
     <Compile Include="Models\LoginUser.cs" />
     <Compile Include="Models\UserGroupSource.cs" />
+    <Compile Include="Models\Workflow\IeArtifactType.cs" />
+    <Compile Include="Models\Workflow\IeProject.cs" />
+    <Compile Include="Models\Workflow\IeGroup.cs" />
+    <Compile Include="Models\Workflow\IeState.cs" />
+    <Compile Include="Models\Workflow\IeTransition.cs" />
+    <Compile Include="Models\Workflow\ImportWorkflowResult.cs" />
+    <Compile Include="Models\Workflow\IeWorkflow.cs" />
+    <Compile Include="Models\Workflow\DWorkflow.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\AuthenticationRepository.cs" />
     <Compile Include="Repositories\IAuthenticationRepository.cs" />
@@ -186,6 +195,11 @@
     <Compile Include="Repositories\SqlPrivilegesRepository.cs" />
     <Compile Include="Repositories\SqlSettingsRepository.cs" />
     <Compile Include="Repositories\SqlUserRepository.cs" />
+    <Compile Include="Repositories\Workflow\IWorkflowRepository.cs" />
+    <Compile Include="Repositories\Workflow\IWorkflowValidator.cs" />
+    <Compile Include="Repositories\Workflow\WorkflowRepository.cs" />
+    <Compile Include="Repositories\Workflow\WorkflowValidationResult.cs" />
+    <Compile Include="Repositories\Workflow\WorkflowValidator.cs" />
     <Compile Include="Saml\BpSaml2SecurityTokenHandler.cs" />
     <Compile Include="Saml\FederatedAuthenticationErrorCode.cs" />
     <Compile Include="Saml\FederatedAuthenticationException.cs" />

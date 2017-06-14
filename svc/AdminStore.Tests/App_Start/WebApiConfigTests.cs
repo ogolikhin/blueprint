@@ -22,7 +22,7 @@ namespace AdminStore
             config.EnsureInitialized();
 
             // Assert
-            config.AssertTotalRoutes(44, "Please update asserts in WebApiConfigTests when changing routes.");
+            config.AssertTotalRoutes(46, "Please update asserts in WebApiConfigTests when changing routes.");
             config.AssertAction<ConfigController>("GetConfigSettings", HttpMethod.Get, "config/settings");
             config.AssertAction<ConfigController>("GetConfig", HttpMethod.Get, "config/config.js");
             config.AssertAction<ConfigController>("GetApplicationSettings", HttpMethod.Get, "config");
@@ -69,7 +69,8 @@ namespace AdminStore
             config.AssertAction<GroupsController>("GetGroupMembers", HttpMethod.Get, "/groups/10/members?offset=0&limit=20&sort=email&order=asc");
             config.AssertAction<GroupsController>("RemoveMembersFromGroup", HttpMethod.Post, "/groups/10/members");
             config.AssertAction<GroupsController>("AssignMembers", HttpMethod.Post, "/groups/1/assign?search=test");
-
+            config.AssertAction<WorkflowController>("ImportWorkflowAsync", HttpMethod.Post, "workflow/import");
+            config.AssertAction<WorkflowController>("GetImportWorkflowErrorsAsync", HttpMethod.Get, "workflow/import/errors?guid=abc");
         }
 
         [TestMethod]

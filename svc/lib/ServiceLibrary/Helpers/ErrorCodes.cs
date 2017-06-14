@@ -12,6 +12,7 @@
         //Configuration errors
         public const int LdapIsDisabled = 1000;
         public const int FallbackIsDisabled = 1001;
+        public const int WorkflowIsDisabled = 1002;
 
         //Authentication errors
         public const int InvalidCredentials = 2000;
@@ -45,6 +46,7 @@
 
         //Bad request
         public const int OutOfRangeParameter = 6000;
+        public const int InvalidWorkflowXml = 6001;
 
         //Timeout
         public const int Timeout = 7000;

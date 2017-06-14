@@ -552,7 +552,7 @@ namespace AdminStore.Controllers
         {
             pagination.Validate();
 
-            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageUsers);
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewUsers);
 
             var tabularData = new TabularData { Pagination = pagination, Sorting = sorting, Search = search };
             var result = await _userRepository.GetUserGroupsAsync(userId, tabularData, GroupsHelper.SortGroups);

@@ -1941,7 +1941,7 @@ namespace AdminStore.Controllers
             ResourceNotFoundException exception = null;
             _privilegesRepository
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
-                .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
+                .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
             _usersRepoMock.Setup(repo => repo.GetUserGroupsAsync(It.IsAny<int>(), It.IsAny<TabularData>(), It.IsAny<Func<Sorting, string>>()))
                 .ThrowsAsync(new ResourceNotFoundException(ErrorMessages.UserNotExist, ErrorCodes.ResourceNotFound));
 
@@ -1967,7 +1967,7 @@ namespace AdminStore.Controllers
             //arrange
             _privilegesRepository
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
-                .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
+                .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
             _usersRepoMock
                 .Setup(repo => repo.GetUserGroupsAsync(It.IsAny<int>(), It.IsAny<TabularData>(), It.IsAny<Func<Sorting, string>>()))
                 .ReturnsAsync(_userGoupsQueryDataResult);

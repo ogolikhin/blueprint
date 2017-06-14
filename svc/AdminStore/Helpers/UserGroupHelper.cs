@@ -17,7 +17,9 @@ namespace AdminStore.Helpers
             {
                 defaultSortColumn,
                 "source",
-                "userType",
+                "type",
+                "scope",
+                "licenseType",
                 "email",
                 "userName"
             };

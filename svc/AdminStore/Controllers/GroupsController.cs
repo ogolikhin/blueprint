@@ -51,7 +51,8 @@ namespace AdminStore.Controllers
         {
             pagination.Validate();
 
-            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewGroups);
+            var privileges = userId == 0 ? InstanceAdminPrivileges.ViewGroups : InstanceAdminPrivileges.ManageUsers;
+            await _privilegesManager.Demand(Session.UserId, privileges);
 
             var tabularData = new TabularData { Pagination = pagination, Sorting = sorting, Search = search };
             var result = await _groupRepository.GetGroupsAsync(userId, tabularData, GroupsHelper.SortGroups);
@@ -80,7 +81,7 @@ namespace AdminStore.Controllers
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageGroups);
 
             var tabularData = new TabularData { Pagination = pagination, Sorting = sorting, Search = search };
-            var result = await _groupRepository.GetGroupUsersAsync(groupId, tabularData, GroupsHelper.SortGroups);
+            var result = await _groupRepository.GetGroupUsersAsync(groupId, tabularData, UserGroupHelper.SortUsergroups);
 
             return Ok(result);
         }

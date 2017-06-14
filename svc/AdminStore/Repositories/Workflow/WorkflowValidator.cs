@@ -114,11 +114,16 @@ namespace AdminStore.Repositories.Workflow
                     result.Errors.Add(new WorkflowValidationError { Element = transition, ErrorCode = WorkflowValidationErrorCodes.TransitionNameExceedsLimit26 });
                 }
 
-                if (string.IsNullOrEmpty(from) && string.IsNullOrEmpty(to))
+                if (string.IsNullOrEmpty(from))
                 {
-                    result.Errors.Add(new WorkflowValidationError { Element = transition, ErrorCode = WorkflowValidationErrorCodes.TransitionOrphan });
+                    result.Errors.Add(new WorkflowValidationError { Element = transition, ErrorCode = WorkflowValidationErrorCodes.TransitionStartStateNotSpecified });
                 }
-                else if(from.EqualsOrdinalIgnoreCase(to))
+                if (string.IsNullOrEmpty(to))
+                {
+                    result.Errors.Add(new WorkflowValidationError { Element = transition, ErrorCode = WorkflowValidationErrorCodes.TransitionEndStateNotSpecified });
+                }
+
+                if(from != null && from.EqualsOrdinalIgnoreCase(to))
                 {
                     result.Errors.Add(new WorkflowValidationError { Element = transition, ErrorCode = WorkflowValidationErrorCodes.TransitionFromAndToStatesSame });
                 }
@@ -146,6 +151,27 @@ namespace AdminStore.Repositories.Workflow
                 if (transitionNames.Count != transitionNames.Distinct().Count())
                 {
                     result.Errors.Add(new WorkflowValidationError { Element = stateName, ErrorCode = WorkflowValidationErrorCodes.TransitionNameNotUniqueOnState });
+                }
+            }
+
+            foreach (var project in workflow.Projects.FindAll(p => p != null))
+            {
+                if (!project.Id.HasValue && !ValidatePropertyNotEmpty(project.Path))
+                {
+                    result.Errors.Add(new WorkflowValidationError { Element = project, ErrorCode = WorkflowValidationErrorCodes.ProjectNoSpecified });
+                }
+
+                if (project.Id.GetValueOrDefault() < 1)
+                {
+                    result.Errors.Add(new WorkflowValidationError { Element = project, ErrorCode = WorkflowValidationErrorCodes.ProjectInvalidId });
+                }
+            }
+
+            foreach (var artifactType in workflow.ArtifactTypes.FindAll(at => at != null))
+            {
+                if (ValidatePropertyNotEmpty(artifactType.Name))
+                {
+                    result.Errors.Add(new WorkflowValidationError { Element = artifactType, ErrorCode = WorkflowValidationErrorCodes.ArtifactTypeNoSpecified });
                 }
             }
 

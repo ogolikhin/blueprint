@@ -11,15 +11,19 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
+using System.Runtime.Caching;
+using System.Diagnostics.CodeAnalysis;
 
 namespace AccessControl.Controllers
 {
     [TestClass]
+    [SuppressMessage("Microsoft.Design", "CA1001")]
     public class SessionsControllerTests
     {
         private Mock<IServiceLogRepository> _logMock;
         private Mock<ISessionsRepository> _sessionsRepoMock;
         private Mock<ITimeoutManager<Guid>> _cacheMock;
+        private MemoryCache _sessionsCache;
         private SessionsController _controller;
 
         [TestInitialize]
@@ -28,12 +32,19 @@ namespace AccessControl.Controllers
             _sessionsRepoMock = new Mock<ISessionsRepository>();
             _cacheMock = new Mock<ITimeoutManager<Guid>>();
             _logMock = new Mock<IServiceLogRepository>();
+            _sessionsCache = new MemoryCache("TEST_USER_SESSIONS");
 
-            _controller = new SessionsController(_cacheMock.Object, _sessionsRepoMock.Object, _logMock.Object)
+            _controller = new SessionsController(_cacheMock.Object, _sessionsCache, _sessionsRepoMock.Object, _logMock.Object)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()
             };
+        }
+
+        [TestCleanup]
+        public void Cleanup()
+        {
+            _sessionsCache.Dispose();
         }
 
         #region Constructor
@@ -476,6 +487,26 @@ namespace AccessControl.Controllers
             Assert.AreEqual(session, await result.Response.Content.ReadAsAsync<Session>());
             Assert.AreEqual(token, result.Response.Headers.GetValues("Session-Token").Single());
             _cacheMock.Verify(c => c.Insert(guid, session.EndTime, It.Is<Action>(a => VerifyCallback(a, session))));
+        }
+
+        [TestMethod]
+        public async Task PutSession_SessionCachedLocallyAndNotExpired_UpdatesCacheAndReturnsSession()
+        {
+            // Arrange
+            var guid = Guid.NewGuid();
+            var token = Session.Convert(guid);
+            _controller.Request.Headers.Add("Session-Token", token);
+            var session = new Session { SessionId = guid, EndTime = DateTime.UtcNow.AddDays(1) };
+            _sessionsCache.Add(token, session, DateTimeOffset.UtcNow.AddMinutes(1)); // populate value in the cache
+
+            // Act
+            var result = await _controller.PutSession("", 1) as ResponseMessageResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.Response.IsSuccessStatusCode);
+            Assert.AreEqual(session, await result.Response.Content.ReadAsAsync<Session>());
+            Assert.AreEqual(token, result.Response.Headers.GetValues("Session-Token").Single());
         }
 
         [TestMethod]

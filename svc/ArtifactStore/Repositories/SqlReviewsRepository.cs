@@ -458,10 +458,8 @@ namespace ArtifactStore.Repositories
 
             return Task.FromResult(new AddParticipantsResult
             {
-                Total = 0,
-                Successful = 0,
-                Failed = 0
-                
+                ParticipantCount = 0,
+                AlreadyIncludedCount = 0
             });
         }
 

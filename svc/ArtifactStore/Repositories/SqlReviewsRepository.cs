@@ -188,7 +188,7 @@ namespace ArtifactStore.Repositories
             var effectiveIds = await GetEffectiveArtifactIds(userId, content, propertyResult.ProjectId);
 
             var artifactXmlResult = AddArtifactsToXML(propertyResult.ArtifactXml, new HashSet<int>(effectiveIds.ArtifactIds), out alreadyIncludedCount);
-            await UpdateReviewArtifacts(reviewId, userId, propertyResult.ArtifactXml);
+            await UpdateReviewArtifacts(reviewId, userId, artifactXmlResult);
 
             return new AddArtifactsResult() {
                 ArtifactCount = effectiveIds.ArtifactIds.Count<int>(),

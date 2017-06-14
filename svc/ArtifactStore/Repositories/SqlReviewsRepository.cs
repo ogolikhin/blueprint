@@ -449,6 +449,23 @@ namespace ArtifactStore.Repositories
             return reviewersRoot;
         }
 
+        public Task<ReviewParticipantsContent> AddParticipantsToReview(int reviewId, int userId, AddParticipantsParameter content)
+        {
+            //Validate cont
+
+            //TODO: implement the loginc to add participants to review
+
+
+            return Task.FromResult(new ReviewParticipantsContent
+            {
+                Items= new List<ReviewParticipant>(),
+                Total = 0,
+                TotalArtifacts = 0,
+                TotalArtifactsRequestedApproval = 0
+                
+            });
+        }
+
 
         private async Task<ReviewTableOfContent> GetTableOfContentAsync(int reviewId, int revisionId, int userId, Pagination pagination)
         {

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace ArtifactStore.Models.Review
 {
@@ -25,5 +26,14 @@ namespace ArtifactStore.Models.Review
     {
         internal IEnumerable<ReviewArtifactStatus> ItemStatuses { get; set; }
         internal int NumUsers { get; set; }
+    }
+
+    internal class PropertyValueString
+    {
+        public bool IsDraftRevisionExists { get; set; }
+        public string ArtifactXml { get; set; }
+        public int RevewSubartifactId { get; set; }
+        public int ProjectId { get; set; }
+
     }
 }

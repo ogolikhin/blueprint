@@ -9,6 +9,7 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
+using ArtifactStore.Helpers;
 
 namespace ArtifactStore.Repositories
 {
@@ -122,6 +123,8 @@ namespace ArtifactStore.Repositories
 
         public async Task<QueryResult<ReviewArtifact>> GetReviewArtifactsContentAsync(int reviewId, int userId, Pagination pagination, int? versionId = null, bool? addDrafts = true)
         {
+            
+
             int? revisionId = await _itemInfoRepository.GetRevisionId(reviewId, userId, versionId);
 
             var reviewArtifacts = await GetReviewArtifactsAsync<ReviewArtifact>(reviewId, userId, pagination, revisionId, addDrafts);
@@ -178,16 +181,84 @@ namespace ArtifactStore.Repositories
             reviewArtifact.IsApprovalRequired = false;
         }
 
-        public Task<AddArtifactsResult> AddArtifactsToReview(int reviewId, int userId, AddArtifactsParameter content)
+        public async Task<AddArtifactsResult> AddArtifactsToReviewAsync (int reviewId, int userId, AddArtifactsParameter content)
         {
-            //TODO
-            return Task.FromResult(new AddArtifactsResult
+            int alreadyIncludedCount;
+            var propertyResult = await GetReviewPropertyString(reviewId, userId, content);
+
+            var effectiveIds = await GetEffectiveArtifactIds(userId, content, propertyResult.ProjectId);
+
+            var artifactXmlResult = AddArtifactsToXML(propertyResult.ArtifactXml, new HashSet<int>(effectiveIds.ArtifactIds), out alreadyIncludedCount);
+            await UpdateReviewArtifacts(reviewId, userId, artifactXmlResult);
+
+            return new AddArtifactsResult() {
+                ArtifactCount = effectiveIds.ArtifactIds.Count(),
+                AlreadyIncludedArtifactCount = alreadyIncludedCount,
+                NonexistentArtifactCount = effectiveIds.Nonexistent,
+                UnpublishedArtifactCount = effectiveIds.Unpublished
+            };
+        }
+
+
+        private async Task<PropertyValueString> GetReviewPropertyString(int reviewId, int userId, AddArtifactsParameter content)
+        {
+            var param = new DynamicParameters();
+            param.Add("@reviewId", reviewId);
+            param.Add("@userId", userId);
+
+            return (await ConnectionWrapper.QueryAsync<PropertyValueString>("GetReviewPropertyString", param, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+        }
+
+        private async Task<EffectiveArtifactIdsResult> GetEffectiveArtifactIds(int userId, AddArtifactsParameter content, int projectId)
+        {
+            var param = new DynamicParameters();
+            param.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(content.ArtifactIds));
+            param.Add("@userId", userId);
+            param.Add("@projectId", projectId);
+
+            var result = await ConnectionWrapper.QueryMultipleAsync<int, int, int, int>("GetEffectiveArtifactIds", param, commandType: CommandType.StoredProcedure);
+            return new EffectiveArtifactIdsResult()
             {
-                ArtifactCount = 1,
-                AlreadyIncludedArtifactCount = 1,
-                NonexistentArtifactCount = 1,
-                UnpublishedArtifactCount = 1
-            });
+                ArtifactIds = result.Item1.ToList(),
+                Unpublished = result.Item2.SingleOrDefault(),
+                Nonexistent = result.Item3.SingleOrDefault(),
+                ProjectMoved = result.Item4.SingleOrDefault()
+            };
+        }
+
+        private string AddArtifactsToXML (string xmlArtifacts, ISet<int> artifactsToAdd, out int alreadyIncluded)
+        {
+            alreadyIncluded = 0;
+            RDReviewContents rdReviewContents;
+            if (string.IsNullOrEmpty(xmlArtifacts))
+            {
+                rdReviewContents = new RDReviewContents();
+                rdReviewContents.Artifacts = new List<RDArtifact>();
+            }
+            else
+            {
+                rdReviewContents = ReviewRawDataHelper.RestoreData<RDReviewContents>(xmlArtifacts);
+            }
+
+            var currentArtifactIds = rdReviewContents.Artifacts.Select(a => a.Id);
+
+            foreach (var artifactToAdd in artifactsToAdd)
+            {
+                if (!currentArtifactIds.Contains(artifactToAdd))
+                {
+                    var addedArtifact = new RDArtifact()
+                    {
+                        Id = artifactToAdd,
+                        ApprovalNotRequested = false
+
+                    };
+                    rdReviewContents.Artifacts.Add(addedArtifact);
+                }
+                else
+                    ++alreadyIncluded;
+            }
+
+            return ReviewRawDataHelper.GetStoreData(rdReviewContents);
         }
 
         public async Task<QueryResult<ReviewedArtifact>> GetReviewedArtifacts(int reviewId, int userId, Pagination pagination, int revisionId)
@@ -273,13 +344,24 @@ namespace ArtifactStore.Repositories
             param.Add("@addDrafts", revisionId < int.MaxValue ? false : addDrafts);
             param.Add("@userId", userId);
             param.Add("@refreshInterval", refreshInterval);
+            param.Add("@numResult", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-            var result = await ConnectionWrapper.QueryMultipleAsync<T, int>("GetReviewArtifacts", param, commandType: CommandType.StoredProcedure);
+            var result = await ConnectionWrapper.QueryAsync<T>("GetReviewArtifacts", param, commandType: CommandType.StoredProcedure);
             return new QueryResult<T>()
             {
-                Items = result.Item1.ToList(),
-                Total = result.Item2.SingleOrDefault()
+                Items = result.ToList(),
+                Total = param.Get<int>("@numResult")
             };
+        }
+
+        private async Task UpdateReviewArtifacts(int reviewId, int userId, string xmlArtifacts)
+        {
+            var param = new DynamicParameters();
+            param.Add("@reviewId", reviewId);
+            param.Add("@userId", userId);
+            param.Add("@xmlArtifacts", xmlArtifacts);
+
+            await ConnectionWrapper.ExecuteAsync("UpdateReviewArtifacts", param, commandType: CommandType.StoredProcedure);
         }
 
         private async Task<int> GetRebuildReviewArtifactHierarchyInterval()
@@ -368,49 +450,41 @@ namespace ArtifactStore.Repositories
         }
 
 
-        private async Task<ReviewTableOfContent> GetTableOfContentAsync(int reviewId, int revisionId, int userId, int? offset, int? limit)
+        private async Task<ReviewTableOfContent> GetTableOfContentAsync(int reviewId, int revisionId, int userId, Pagination pagination)
         {
             int refreshInterval = await GetRebuildReviewArtifactHierarchyInterval();
             var param = new DynamicParameters();
             param.Add("@reviewId", reviewId);
+            param.Add("@offset", pagination.Offset);
+            param.Add("@limit", pagination.Limit);
             param.Add("@revisionId", revisionId);
+            param.Add("@addDrafts", false);
             param.Add("@userId", userId);
-            param.Add("@offset", offset);
-            param.Add("@limit", limit);
             param.Add("@refreshInterval", refreshInterval);
-            param.Add("@total", dbType:DbType.Int32, direction: ParameterDirection.Output);
-            param.Add("@retResult", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
+            param.Add("@numResult", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-            var result = await ConnectionWrapper.QueryAsync<ReviewTableOfContentItem>("GetReviewTableOfContent", param, commandType: CommandType.StoredProcedure);
 
-            var retResult = param.Get<int>("@retResult");
-
-            // The review is not found or not active.
-            if (retResult == 1 || retResult == 2)
-            {
-                ThrowReviewNotFoundException(reviewId, revisionId);
-            }
-
-            // The user is not a review participant.
-            if (retResult == 3)
-            {
-                ThrowUserCannotAccessReviewException(reviewId);
-            }
+            var result = await ConnectionWrapper.QueryAsync<ReviewTableOfContentItem>("GetReviewArtifacts", param, commandType: CommandType.StoredProcedure);
 
             return new ReviewTableOfContent
             {
                 Items = result.ToList(),
-                Total = param.Get<int>("@total")
+                Total = param.Get<int>("@numResult")
             };
         }
 
 
         
-        public async Task<ReviewTableOfContent> GetReviewTableOfContent(int reviewId, int revisionId, int userId, int? offset, int? limit)
+        public async Task<ReviewTableOfContent> GetReviewTableOfContent(int reviewId, int revisionId, int userId, Pagination pagination)
         {
 
             //get all review content item in a hierarchy list
-            var toc = await GetTableOfContentAsync(reviewId, revisionId, userId, offset, limit);
+            var toc = await GetTableOfContentAsync(reviewId, revisionId, userId, pagination);
+            // The review is not found or not active.
+            if (toc == null || toc.Items.Count() == 0)
+            {
+                ThrowReviewNotFoundException(reviewId, revisionId);
+            }
 
             var artifactIds = new List<int>{reviewId}.Concat(toc.Items.Select(a => a.Id).ToList());
 
@@ -472,3 +546,4 @@ namespace ArtifactStore.Repositories
         }
     }
 }
+

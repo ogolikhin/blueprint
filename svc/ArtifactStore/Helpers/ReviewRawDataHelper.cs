@@ -2,6 +2,11 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using System.Runtime.Serialization;
+using System.Xml;
+using System.Xml.Linq;
+using System.Text;
+using System.IO;
 
 namespace ArtifactStore.Helpers
 {
@@ -64,6 +69,43 @@ namespace ArtifactStore.Helpers
                 }
             }
             return endDate;
+        }
+
+        /// <summary>
+        /// Extracts serialized string from raw data object
+        /// </summary>
+        /// <param name="rawData"></param>
+        /// <typeparam name="RawDataType"></typeparam>
+        /// <returns></returns>
+        public static string GetStoreData<RawDataType>(RawDataType rawData)
+        {
+            var serializer = new DataContractSerializer(typeof(RawDataType));
+
+            var result = new StringBuilder();
+            using (XmlWriter xmlWriter = XmlWriter.Create(result))
+            {
+                serializer.WriteObject(xmlWriter, rawData);
+            }
+            return result.ToString();
+        }
+
+        /// <summary>
+        /// Extracts data from serialized raw data
+        /// </summary>
+        /// <param name="rawDataValue"></param>
+        /// <typeparam name="RawDataType"></typeparam>
+        public static RawDataType RestoreData<RawDataType>(string rawDataValue) where RawDataType : class
+        {
+            if (!string.IsNullOrEmpty(rawDataValue))
+            {
+                var serializer = new DataContractSerializer(typeof(RawDataType));
+
+                using (XmlReader xmlReaderCreate = XmlReader.Create(new StringReader(rawDataValue)))
+                {
+                    return serializer.ReadObject(xmlReaderCreate) as RawDataType;
+                }
+            }
+            return null;
         }
     }
 }

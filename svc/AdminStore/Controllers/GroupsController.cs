@@ -47,14 +47,9 @@ namespace AdminStore.Controllers
         [Route("")]
         [SessionRequired]
         [ResponseType(typeof(QueryResult<GroupDto>))]
-        public async Task<IHttpActionResult> GetGroups([FromUri]Pagination pagination, [FromUri]Sorting sorting, [FromUri] string search = null, int userId = 0)
+        public async Task<IHttpActionResult> GetGroups([FromUri]Pagination pagination, [FromUri]Sorting sorting = null, [FromUri] string search = null, int userId = 0)
         {
-            PaginationValidator.ValidatePaginationModel(pagination);
-
-            if (pagination.IsEmpty())
-            {
-                return Ok(QueryResult<GroupDto>.Empty);
-            }
+            pagination.Validate();
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewGroups);
 
@@ -80,11 +75,13 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(QueryResult<GroupUser>))]
         public async Task<IHttpActionResult> GetGroupsAndUsers([FromUri]Pagination pagination, [FromUri]Sorting sorting, string search = null, int groupId = 0)
         {
-            PaginationValidator.ValidatePaginationModel(pagination);
-            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageGroups);
-            var tabularData = new TabularData { Pagination = pagination, Sorting = sorting, Search = search };
+            pagination.Validate();
 
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageGroups);
+
+            var tabularData = new TabularData { Pagination = pagination, Sorting = sorting, Search = search };
             var result = await _groupRepository.GetGroupUsersAsync(groupId, tabularData, GroupsHelper.SortGroups);
+
             return Ok(result);
         }
 
@@ -224,11 +221,13 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(QueryResult<GroupUser>))]
         public async Task<IHttpActionResult> GetGroupMembers(int groupId, [FromUri]Pagination pagination, [FromUri]Sorting sorting)
         {
-            PaginationValidator.ValidatePaginationModel(pagination);
-            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewGroups);
-            var tabularData = new TabularData { Pagination = pagination, Sorting = sorting };
+            pagination.Validate();
 
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewGroups);
+
+            var tabularData = new TabularData { Pagination = pagination, Sorting = sorting };
             var result = await _groupRepository.GetGroupMembersAsync(groupId, tabularData, UserGroupHelper.SortUsergroups);
+
             return Ok(result);
         }
 

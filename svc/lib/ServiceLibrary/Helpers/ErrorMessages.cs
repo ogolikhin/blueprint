@@ -28,7 +28,7 @@
         public static readonly string IncorrectUserId = "Incorrect userId.";
         public static readonly string InvalidDeleteUsersParameters = "Invalid parameters to delete users";
         public static readonly string InvalidDeleteGroupsParameters = "Invalid parameters to delete group(s)";
-        public static readonly string IncorrectLimitParameter = "The \"limit\" parameter is required and should not be negative.";
+        public static readonly string IncorrectLimitParameter = "The \"limit\" parameter is required and should be a positive integer.";
         public static readonly string IncorrectOffsetParameter = "The \"offset\" parameter is required and should not be negative.";
         public static readonly string TotalNull = "The \"total\" is null.";
         public static readonly string GeneralErrorOfGettingUserGroups = "The general error of getting user's groups.";

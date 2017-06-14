@@ -449,9 +449,9 @@ namespace ArtifactStore.Repositories
             return reviewersRoot;
         }
 
-        public Task<ReviewParticipantsContent> AddParticipantsToReview(int reviewId, int userId, AddParticipantsParameter content)
+        public Task<ReviewParticipantsContent> AddParticipantsToReviewAsync(int reviewId, int userId, AddParticipantsParameter content)
         {
-            //Validate cont
+            //TODO: Validate content parameters
 
             //TODO: implement the loginc to add participants to review
 

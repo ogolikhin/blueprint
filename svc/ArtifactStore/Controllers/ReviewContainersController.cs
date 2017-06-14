@@ -153,7 +153,7 @@ namespace ArtifactStore.Controllers
         }
 
         /// <summary>
-        /// Adds an artifact(s) to the specified review. Locks review if it is necessary.
+        /// Adds a participant(s) to the specified review.Locks review if it is necessary.
         /// </summary>
         /// <param name="reviewId"></param>
         /// <param name="content"></param>

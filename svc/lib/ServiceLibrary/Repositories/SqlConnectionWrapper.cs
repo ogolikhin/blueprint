@@ -155,5 +155,17 @@ namespace ServiceLibrary.Repositories
             return table;
         }
 
+        public static DataTable ToStringDataTable(IEnumerable<string> values, string typeName = "StringCollection", string columnName = "StringValue")
+        {
+            var table = new DataTable { Locale = CultureInfo.InvariantCulture };
+            table.SetTypeName(typeName);
+            table.Columns.Add(columnName, typeof(string));
+            foreach (var value in values)
+            {
+                table.Rows.Add(value);
+            }
+            return table;
+        }
+
     }
 }

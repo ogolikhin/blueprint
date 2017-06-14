@@ -275,6 +275,7 @@ namespace ArtifactStore.Repositories
             if (string.IsNullOrEmpty(xmlArtifacts))
             {
                 rdReviewContents = new RDReviewContents();
+                rdReviewContents.Artifacts = new List<RDArtifact>();
             }
             else
             {

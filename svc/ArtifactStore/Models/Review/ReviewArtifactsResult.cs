@@ -33,7 +33,8 @@ namespace ArtifactStore.Models.Review
         public bool IsDraftRevisionExists { get; set; }
         public string ArtifactXml { get; set; }
         public int RevewSubartifactId { get; set; }
-        public int ProjectId { get; set; }
+        public int? ProjectId { get; set; }
+        public bool IsReviewLocked { get; set; }
 
     }
 }

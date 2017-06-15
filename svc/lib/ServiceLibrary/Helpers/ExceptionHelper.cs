@@ -42,6 +42,13 @@ namespace ServiceLibrary.Helpers
             throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
         }
 
+        public static void ThrowArtifactNotLockedException(int artifactId, int userId)
+        {
+            var errorMessage = I18NHelper.FormatInvariant("Artifact (Id:{0}) is not locked by user (Id:{1}).",
+                                   artifactId, userId);
+            throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
+        }
+
         public static void ThrowArtifactDoesNotSupportOperation(int artifactId)
         {
             var errorMessage = I18NHelper.FormatInvariant("Operation cannot be invoked on Artifact with (Id:{0}).",

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AdminStore.Models.Workflow;
 using Dapper;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
 
@@ -14,21 +15,29 @@ namespace AdminStore.Repositories.Workflow
     public class WorkflowRepository : IWorkflowRepository
     {
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
-        private ISqlHelper _sqlHelper;
-        private IWorkflowValidator _workflowValidator;
+        private readonly ISqlUserRepository _userRepository;
+        private readonly ISqlHelper _sqlHelper;
+        private readonly IWorkflowValidator _workflowValidator;
 
         #region Constructors
 
         public WorkflowRepository()
-            : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain), new SqlHelper(), new WorkflowValidator())
+            : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain),
+                  new SqlHelper(), 
+                  new WorkflowValidator(),
+                  new SqlUserRepository())
         {
         }
 
-        internal WorkflowRepository(ISqlConnectionWrapper connectionWrapper, ISqlHelper sqlHelper, IWorkflowValidator workfloweValidator)
+        internal WorkflowRepository(ISqlConnectionWrapper connectionWrapper,
+            ISqlHelper sqlHelper,
+            IWorkflowValidator workfloweValidator,
+            ISqlUserRepository userRepository)
         {
             ConnectionWrapper = connectionWrapper;
             _sqlHelper = sqlHelper;
             _workflowValidator = workfloweValidator;
+            _userRepository = userRepository;
         }
 
         #endregion
@@ -36,24 +45,17 @@ namespace AdminStore.Repositories.Workflow
 
         #region Interface implementation
 
-        public async Task<ImportWorkflowResult> ImportWorkflowAsync(IeWorkflow workflow, int userId)
+        public async Task<ImportWorkflowResult> ImportWorkflowAsync(IeWorkflow workflow, string fileName, int userId)
         {
             if (workflow == null)
             {
                 throw new NullReferenceException(nameof(workflow));
             }
 
-            var importResult = new ImportWorkflowResult();
+            await VerifyUserRole(userId);
+            VerifyWorkflowFeature();
 
-            if (!IsWorkflowFeatureEnabled())
-            {
-                // TODO: Create a text file and save it to the file store.
-                // TODO: The name convention for the error file "$workflow_import_errors$.txt".
-                // TODO: The name convention should be checked when the errors are requested by the client. 
-                // TODO: Return guid of the errors file.
-                importResult.ErrorsGuid = "temp_guid";
-                return importResult;
-            }
+            var importResult = new ImportWorkflowResult();
 
             var validationResult = _workflowValidator.Validate(workflow);
             if (validationResult.HasErrors)
@@ -63,6 +65,7 @@ namespace AdminStore.Repositories.Workflow
                 // TODO: The name convention should be checked when the errors are requested by the client. 
                 // TODO: Return guid of the errors file.
                 importResult.ErrorsGuid = "temp_guid";
+                importResult.ResultCode = ImportWorkflowResultCodes.InvalidModel;
                 return importResult;
             }
 
@@ -89,6 +92,7 @@ namespace AdminStore.Repositories.Workflow
 
             await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, action);
             importResult.WorkflowId = newWorkflow?.WorkflowId;
+            importResult.ResultCode = ImportWorkflowResultCodes.Ok;
 
             return importResult;
 
@@ -96,6 +100,9 @@ namespace AdminStore.Repositories.Workflow
 
         public async Task<string> GetImportWorkflowErrorsAsync(string guid, int userId)
         {
+            await VerifyUserRole(userId);
+            VerifyWorkflowFeature();
+
             await Task.Delay(1); // TODO: temp, remove
             throw new NotImplementedException();
         }
@@ -140,6 +147,26 @@ namespace AdminStore.Repositories.Workflow
         #endregion
 
         #region Private methods
+
+        private async Task VerifyUserRole(int userId)
+        {
+            var user = await _userRepository.GetLoginUserByIdAsync(userId);
+            // At least for now, all instance administrators can import workflows.
+            if (user.InstanceAdminRoleId == null)
+            {
+                throw new AuthorizationException(
+                    "The user is not an instance administrator and therefore does not have permissions to import workflows.",
+                    ErrorCodes.UnauthorizedAccess);
+            }
+        }
+
+        private void VerifyWorkflowFeature()
+        {
+            if (!IsWorkflowFeatureEnabled())
+            {
+                throw new ConflictException("The Workflow feature is disabled.", ErrorCodes.WorkflowIsDisabled);
+            }
+        }
 
         private bool IsWorkflowFeatureEnabled()
         {

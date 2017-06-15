@@ -183,16 +183,31 @@ namespace ArtifactStore.Repositories
 
         public async Task<AddArtifactsResult> AddArtifactsToReviewAsync (int reviewId, int userId, AddArtifactsParameter content)
         {
+            if (content.ArtifactIds == null || content.ArtifactIds.Count() == 0)
+            {
+                throw new BadRequestException("There is nothing to add to review.", ErrorCodes.OutOfRangeParameter);
+            }
+
             int alreadyIncludedCount;
             var propertyResult = await GetReviewPropertyString(reviewId, userId, content);
 
-            var effectiveIds = await GetEffectiveArtifactIds(userId, content, propertyResult.ProjectId);
+            if (propertyResult.ProjectId == null || propertyResult.ProjectId < 1)
+            {
+                ThrowReviewNotFoundException(reviewId);
+            }
+
+            if (propertyResult.IsReviewLocked == false)
+            {
+                ExceptionHelper.ThrowArtifactNotLockedException(reviewId, userId);
+            }
+
+            var effectiveIds = await GetEffectiveArtifactIds(userId, content, propertyResult.ProjectId.Value);
 
             var artifactXmlResult = AddArtifactsToXML(propertyResult.ArtifactXml, new HashSet<int>(effectiveIds.ArtifactIds), out alreadyIncludedCount);
             await UpdateReviewArtifacts(reviewId, userId, artifactXmlResult);
 
             return new AddArtifactsResult() {
-                ArtifactCount = effectiveIds.ArtifactIds.Count(),
+                ArtifactCount = effectiveIds.ArtifactIds.Count() - alreadyIncludedCount,
                 AlreadyIncludedArtifactCount = alreadyIncludedCount,
                 NonexistentArtifactCount = effectiveIds.Nonexistent,
                 UnpublishedArtifactCount = effectiveIds.Unpublished
@@ -354,14 +369,14 @@ namespace ArtifactStore.Repositories
             };
         }
 
-        private async Task UpdateReviewArtifacts(int reviewId, int userId, string xmlArtifacts)
+        private async Task<int> UpdateReviewArtifacts(int reviewId, int userId, string xmlArtifacts)
         {
             var param = new DynamicParameters();
             param.Add("@reviewId", reviewId);
             param.Add("@userId", userId);
             param.Add("@xmlArtifacts", xmlArtifacts);
 
-            await ConnectionWrapper.ExecuteAsync("UpdateReviewArtifacts", param, commandType: CommandType.StoredProcedure);
+            return await ConnectionWrapper.ExecuteAsync("UpdateReviewArtifacts", param, commandType: CommandType.StoredProcedure);
         }
 
         private async Task<int> GetRebuildReviewArtifactHierarchyInterval()
@@ -542,6 +557,11 @@ namespace ArtifactStore.Repositories
             }
 
             return toc;
+        }
+
+        public Task AssignApprovalRequiredToArtifacts(int reviewId, int userId, AssignArtifactsApprovalParameter content)
+        {
+            return new Task(() => { });
         }
 
         private void UnauthorizedItem(ReviewTableOfContentItem item)

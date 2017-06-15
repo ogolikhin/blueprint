@@ -16,8 +16,22 @@ namespace AdminStore.Models.Workflow
         [XmlElement(IsNullable = false)]
         public string Description { get; set; }
 
-        [XmlAttribute]
+        //========================================================
+        // To make xml attribute nullable.
+        [XmlIgnore]
         public bool? IsInitial { get; set; }
-        public bool ShouldSerializeIsInitial() { return IsInitial.HasValue; } // TODO: Works for elements, check for attributes
+
+        [XmlAttribute("IsInitial")]
+        public bool IsInitialSerializable
+        {
+            get { return IsInitial.GetValueOrDefault(); }
+            set { IsInitial = value; }
+        }
+
+        public bool ShouldSerializeIsInitialSerializable()
+        {
+            return IsInitial.HasValue;
+        }
+        //========================================================
     }
 }

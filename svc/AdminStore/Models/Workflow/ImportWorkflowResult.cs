@@ -9,6 +9,19 @@ namespace AdminStore.Models.Workflow
         public int? WorkflowId { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string ErrorMessage { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string ErrorsGuid { get; set;  }
+
+        [JsonIgnore]
+        internal ImportWorkflowResultCodes ResultCode { get; set; }
+    }
+
+    internal enum ImportWorkflowResultCodes
+    {
+        Ok,
+        InvalidModel,
+        Conflict
     }
 }

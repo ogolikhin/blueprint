@@ -519,7 +519,7 @@ namespace AdminStore.Controllers
             // Assert
             Assert.IsNotNull(exception);
             Assert.AreEqual(ErrorMessages.CreationGroupWithScopeAndLicenseIdSimultaneously, exception.Message);
-            Assert.AreEqual(ErrorCodes.BadRequest, exception.Message);
+            Assert.AreEqual(ErrorCodes.BadRequest, exception.ErrorCode);
         }
 
         [TestMethod]

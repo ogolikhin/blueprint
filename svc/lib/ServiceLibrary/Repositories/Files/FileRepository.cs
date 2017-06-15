@@ -8,6 +8,8 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Files;
 using File = ServiceLibrary.Models.Files.File;
 using FileInfo = ServiceLibrary.Models.Files.FileInfo;
+using System.Web;
+using System.Xml;
 
 namespace ServiceLibrary.Repositories.Files
 {
@@ -36,9 +38,75 @@ namespace ServiceLibrary.Repositories.Files
             };
         }
 
+        public async Task<string> UploadFileAsync(string fileName, string fileType, Stream content, DateTime? expired = null)
+        {
+            if (string.IsNullOrWhiteSpace(fileName))
+            {
+                throw new ArgumentNullException("fileName");
+            }
+
+            if (content == null)
+            {
+                throw new ArgumentNullException("content");
+            }
+
+            var request = CreateUploadFileRequest(fileName, fileType, content, expired);
+
+            var response = await _httpWebClient.GetHttpWebResponseAsync(request);
+
+            var fileGuid = GetFileGuidFromResponse(response);
+
+            return fileGuid;
+        }
+
+        private HttpWebRequest CreateUploadFileRequest(string fileName, string fileType, Stream content, DateTime? expired = null)
+        {
+            string expireDate = expired != null ? expired.ToStringInvariant("dd-MM-yyyy") : null;
+           
+            var requestAddress = I18NHelper.FormatInvariant("/svc/components/filestore/files/{0}/{1}", fileName, expireDate);
+
+            var request = _httpWebClient.CreateHttpWebRequest(requestAddress, "POST");
+
+            request.ContentType = MimeMapping.GetMimeMapping(string.IsNullOrWhiteSpace(fileType) ? fileName : fileType);
+            request.Accept = "application/xml";
+
+            using (var requestStream = request.GetRequestStream())
+            {
+                content.CopyTo(requestStream);
+            }
+
+            return request;
+        }
+
+        private string GetFileGuidFromResponse(HttpWebResponse response)
+        {
+            string fileGuid = null;            
+            string xmlReply;
+            
+            using (var streamReader = new StreamReader(response.GetResponseStream()))
+            {
+                xmlReply = streamReader.ReadToEnd();
+            }
+
+            if (response.StatusCode == HttpStatusCode.Created)
+            {
+                XmlDocument dox = new XmlDocument();
+                dox.LoadXml(xmlReply);
+                var nodes = dox.GetElementsByTagName("Guid");
+                fileGuid = nodes.Count > 0 ? nodes[0].InnerText : null;                
+            }
+            else
+            {
+                string msg = I18NHelper.FormatInvariant("Failed to upload file: Unexpected status code '{0}'.", response.StatusCode);
+                throw new Exception(msg);
+            }
+
+            return fileGuid;
+        }
+
         private async Task<FileInfo> GetFileInfoAsync(Guid fileId)
         {
-            var requestAddress = $"/svc/filestore/files/{fileId}";
+            var requestAddress = $"/svc/filestore/files/{fileId}";  
             var request = _httpWebClient.CreateHttpWebRequest(requestAddress, "Head");
             var response = await _httpWebClient.GetHttpWebResponseAsync(request);
 

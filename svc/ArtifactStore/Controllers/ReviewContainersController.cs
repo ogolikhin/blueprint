@@ -104,10 +104,10 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPut]
         [Route("containers/{reviewId:int:min(1)}/content"), SessionRequired]
-        public void AddArtifactsToReview(int reviewId, [FromBody] AddArtifactsParameter content)
+        public Task<AddArtifactsResult> AddArtifactsToReview(int reviewId, [FromBody] AddArtifactsParameter content)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            _sqlReviewsRepository.AddArtifactsToReviewAsync(reviewId, session.UserId, content);
+            return _sqlReviewsRepository.AddArtifactsToReviewAsync(reviewId, session.UserId, content);
         }
 
         /// <summary>
@@ -150,6 +150,26 @@ namespace ArtifactStore.Controllers
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             return _sqlReviewsRepository.GetReviewParticipantsAsync(containerId, offset, limit, session.UserId, versionId);
+        }
+
+        /// <summary>
+        /// Adds a participant(s) to the specified review.Locks review if it is necessary.
+        /// </summary>
+        /// <param name="reviewId"></param>
+        /// <param name="content"></param>
+        /// <returns></returns>
+        /// <response code="200">OK.</response>
+        /// <response code="400">Bad Request.</response>
+        /// <response code="401">Unauthorized. The session token is invalid.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for the artifact or it is locked by another user.</response>
+        /// <response code="404">Not found. An artifact for the specified id is not found, does not exist or is deleted.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpPut]
+        [Route("containers/{reviewId:int:min(1)}/participants"), SessionRequired]
+        public Task<AddParticipantsResult> AddParticipantsToReview(int reviewId, [FromBody] AddParticipantsParameter content)
+        {
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            return _sqlReviewsRepository.AddParticipantsToReviewAsync(reviewId, session.UserId, content);
         }
 
         /// <summary>

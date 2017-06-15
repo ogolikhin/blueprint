@@ -192,7 +192,7 @@ namespace ArtifactStore.Repositories
             await UpdateReviewArtifacts(reviewId, userId, artifactXmlResult);
 
             return new AddArtifactsResult() {
-                ArtifactCount = effectiveIds.ArtifactIds.Count(),
+                ArtifactCount = effectiveIds.ArtifactIds.Count() - alreadyIncludedCount,
                 AlreadyIncludedArtifactCount = alreadyIncludedCount,
                 NonexistentArtifactCount = effectiveIds.Nonexistent,
                 UnpublishedArtifactCount = effectiveIds.Unpublished
@@ -354,14 +354,14 @@ namespace ArtifactStore.Repositories
             };
         }
 
-        private async Task UpdateReviewArtifacts(int reviewId, int userId, string xmlArtifacts)
+        private async Task<int> UpdateReviewArtifacts(int reviewId, int userId, string xmlArtifacts)
         {
             var param = new DynamicParameters();
             param.Add("@reviewId", reviewId);
             param.Add("@userId", userId);
             param.Add("@xmlArtifacts", xmlArtifacts);
 
-            await ConnectionWrapper.ExecuteAsync("UpdateReviewArtifacts", param, commandType: CommandType.StoredProcedure);
+            return await ConnectionWrapper.ExecuteAsync("UpdateReviewArtifacts", param, commandType: CommandType.StoredProcedure);
         }
 
         private async Task<int> GetRebuildReviewArtifactHierarchyInterval()
@@ -447,6 +447,20 @@ namespace ArtifactStore.Repositories
                 Total = participants.Item2.SingleOrDefault()
             };
             return reviewersRoot;
+        }
+
+        public Task<AddParticipantsResult> AddParticipantsToReviewAsync(int reviewId, int userId, AddParticipantsParameter content)
+        {
+            //TODO: Validate content parameters
+
+            //TODO: implement the loginc to add participants to review
+
+
+            return Task.FromResult(new AddParticipantsResult
+            {
+                ParticipantCount = 0,
+                AlreadyIncludedCount = 0
+            });
         }
 
 

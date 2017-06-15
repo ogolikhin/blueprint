@@ -551,6 +551,11 @@ namespace ArtifactStore.Repositories
             return toc;
         }
 
+        public Task AssignApprovalRequiredToArtifacts(int reviewId, int userId, AssignArtifactsApprovalParameter content)
+        {
+            return new Task(() => { });
+        }
+
         private void UnauthorizedItem(ReviewTableOfContentItem item)
         {
             item.Name = UNATHORIZED; // unauthorize

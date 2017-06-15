@@ -472,18 +472,31 @@ namespace ArtifactStore.Repositories
             param.Add("@offset", pagination.Offset);
             param.Add("@limit", pagination.Limit);
             param.Add("@revisionId", revisionId);
-            param.Add("@addDrafts", false);
+            //param.Add("@addDrafts", false);
             param.Add("@userId", userId);
             param.Add("@refreshInterval", refreshInterval);
-            param.Add("@numResult", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            param.Add("@total", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            param.Add("@retResult", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
 
 
-            var result = await ConnectionWrapper.QueryAsync<ReviewTableOfContentItem>("GetReviewArtifacts", param, commandType: CommandType.StoredProcedure);
+            var result = await ConnectionWrapper.QueryAsync<ReviewTableOfContentItem>("GetReviewTableOfContent", param, commandType: CommandType.StoredProcedure);
+            var retResult = param.Get<int>("@retResult");
+            // The review is not found or not active.		
+            if (retResult == 1 || retResult == 2)
+            {
+                ThrowReviewNotFoundException(reviewId, revisionId);
+            }
+
+            // The user is not a review participant.		 
+            if (retResult == 3)
+            {
+                ThrowUserCannotAccessReviewException(reviewId);
+            }
 
             return new ReviewTableOfContent
             {
                 Items = result.ToList(),
-                Total = param.Get<int>("@numResult")
+                Total = param.Get<int>("@total")
             };
         }
 
@@ -494,11 +507,6 @@ namespace ArtifactStore.Repositories
 
             //get all review content item in a hierarchy list
             var toc = await GetTableOfContentAsync(reviewId, revisionId, userId, pagination);
-            // The review is not found or not active.
-            if (toc == null || toc.Items.Count() == 0)
-            {
-                ThrowReviewNotFoundException(reviewId, revisionId);
-            }
 
             var artifactIds = new List<int>{reviewId}.Concat(toc.Items.Select(a => a.Id).ToList());
 

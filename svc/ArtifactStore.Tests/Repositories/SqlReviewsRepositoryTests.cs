@@ -227,12 +227,12 @@ namespace ArtifactStore.Repositories
 
             var outPrm = new Dictionary<string, object>
             {
-                {"@numResult", 0},
+                {"@total", 0},
                 {"@retResult", retResult}
             };
 
             var testResult = new ReviewTableOfContentItem[] { };
-            cxn.SetupQueryAsync("GetReviewArtifacts", prm, testResult, outPrm);
+            cxn.SetupQueryAsync("GetReviewTableOfContent", prm, testResult, outPrm);
 
             var repository = new SqlReviewsRepository(cxn.Object, null, null, null, appSettingsRepoMock.Object);
 

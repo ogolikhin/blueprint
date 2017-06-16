@@ -178,7 +178,7 @@ namespace ArtifactStore.Repositories
             }
         }
 
-        #region GetReviewTableOfContent
+        #region GetReviewTableOfContentAsync
         [TestMethod]
         [ExpectedException(typeof (ResourceNotFoundException))]
         public async Task GetReviewTableOfContentAsync_ReviewNotFound()
@@ -193,7 +193,6 @@ namespace ArtifactStore.Repositories
             await TestGetReviewTableOfContentErrorsAsync(2, ErrorCodes.ResourceNotFound);
         }
 
-       
         private static async Task TestGetReviewTableOfContentErrorsAsync(int retResult, int expectedErrorCode)
         {
             // Arrange
@@ -248,6 +247,7 @@ namespace ArtifactStore.Repositories
                 throw;
             }
         }
+        #endregion
 
         [TestMethod]
         public async Task GetReviewedArtifacts_AuthorizationException()
@@ -376,6 +376,157 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(2, artifacts.Items.ElementAt(0).Id);
             Assert.AreEqual(3, artifacts.Items.ElementAt(1).Id);
         }
+
+        #region AddParticipantsToReviewAsync
+
+        [TestMethod]
+        public async Task AddParticipants_UsersAndGroups_Success()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            var content = new AddParticipantsParameter() {
+                UserIds = new []{1,2},
+                GroupIds = new []{ 2, 4}
+            };
+
+            var param = new Dictionary<string, object> {
+                { "reviewId", reviewId },
+                { "userId", userId },
+                { "xmlString", "" }
+            };
+            _cxn.SetupExecuteAsync("UpdateReviewParticipants", param, 0);
+
+            //Act
+            var result = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, content);
+
+            //Assert
+            _cxn.Verify();
+
+            Assert.AreEqual(0, result.ParticipantCount);
+            Assert.AreEqual(0, result.AlreadyIncludedCount);
+
+
+        }
+
+        [TestMethod]
+        public async Task AddParticipants_UsersExist_Success()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            var content = new AddParticipantsParameter()
+            {
+                UserIds = new[] { 1, 2 },
+                GroupIds = new[] { 2, 4 }
+            };
+
+            var param = new Dictionary<string, object> {
+                { "reviewId", reviewId },
+                { "userId", userId },
+                { "xmlString", "" }
+            };
+            _cxn.SetupExecuteAsync("UpdateReviewParticipants", param, 0);
+
+            //Act
+            var result = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, content);
+
+            //Assert
+            _cxn.Verify();
+
+            Assert.AreEqual(0, result.ParticipantCount);
+            Assert.AreEqual(0, result.AlreadyIncludedCount);
+
+        }
+
+        [TestMethod]
+        [Ignore]
+        public async Task AddParticipants_UsersNotFound_Failed()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            var content = new AddParticipantsParameter()
+            {
+                UserIds = new[] { 1, 2 },
+                GroupIds = new[] { 2, 4 }
+            };
+            var isExceptionThrown = false;
+
+            var param = new Dictionary<string, object> {
+                { "reviewId", reviewId },
+                { "userId", userId },
+                { "xmlString", "" }
+            };
+            _cxn.SetupExecuteAsync("UpdateReviewParticipants", param, 0);
+
+            //Act
+            try
+            {
+                var result = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, content);
+
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                isExceptionThrown = true;
+                //Assert
+                Assert.AreEqual(ErrorCodes.ResourceNotFound, ex.ErrorCode);
+                Assert.AreEqual("", ex.Message);
+            }
+            finally
+            {
+                if (!isExceptionThrown)
+                {
+                    Assert.Fail();
+                }
+            }
+        }
+
+        [TestMethod]
+        [Ignore]
+        public async Task AddParticipants_GroupsNotFound_Failed()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            var content = new AddParticipantsParameter()
+            {
+                UserIds = new[] { 1, 2 },
+                GroupIds = new[] { 2, 4 }
+            };
+            var isExceptionThrown = false;
+
+            var param = new Dictionary<string, object> {
+                { "reviewId", reviewId },
+                { "userId", userId },
+                { "xmlString", "" }
+            };
+            _cxn.SetupExecuteAsync("UpdateReviewParticipants", param, 0);
+
+            //Act
+            try
+            {
+                var result = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, content);
+
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                isExceptionThrown = true;
+                //Assert
+                Assert.AreEqual(ErrorCodes.ResourceNotFound, ex.ErrorCode);
+                Assert.AreEqual("", ex.Message);
+            }
+            finally
+            {
+                if (!isExceptionThrown)
+                {
+                    Assert.Fail();
+                }
+            }
+
+        }
+
+
         #endregion
 
 

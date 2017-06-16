@@ -464,20 +464,34 @@ namespace ArtifactStore.Repositories
             return reviewersRoot;
         }
 
-        public Task<AddParticipantsResult> AddParticipantsToReviewAsync(int reviewId, int userId, AddParticipantsParameter content)
+        public async Task<AddParticipantsResult> AddParticipantsToReviewAsync(int reviewId, int userId, AddParticipantsParameter content)
         {
+            var TotalUsers = 3; // For testing purpose. Needs to be changed 
+            var AlreadyIncludedUsers = 1; // For testing purpose. Needs to be changed 
+            string xmlResult = "";
+
             //TODO: Validate content parameters
 
             //TODO: implement the loginc to add participants to review
 
-
-            return Task.FromResult(new AddParticipantsResult
+            await UpdateReviewParticipants(reviewId, userId, xmlResult);
+            return new AddParticipantsResult
             {
-                ParticipantCount = 0,
-                AlreadyIncludedCount = 0
-            });
+                ParticipantCount = TotalUsers,
+                AlreadyIncludedCount = AlreadyIncludedUsers
+            };
+            
         }
 
+        private async Task<int> UpdateReviewParticipants(int reviewId, int userId, string xmlString)
+        {
+            var param = new DynamicParameters();
+            param.Add("@reviewId", reviewId);
+            param.Add("@userId", userId);
+            param.Add("@xmlString", xmlString);
+
+            return await ConnectionWrapper.ExecuteAsync("UpdateReviewParticipants", param, commandType: CommandType.StoredProcedure);
+        }
 
         private async Task<ReviewTableOfContent> GetTableOfContentAsync(int reviewId, int revisionId, int userId, Pagination pagination)
         {

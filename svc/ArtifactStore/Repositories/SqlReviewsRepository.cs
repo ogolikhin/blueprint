@@ -519,7 +519,7 @@ namespace ArtifactStore.Repositories
 
             return new AddParticipantsResult
             {
-                NewParticipantCount = newParticipantsCount,
+                ParticipantCount = newParticipantsCount,
                 AlreadyIncludedCount = uniqueParticipantsSet.Count - newParticipantsCount
             };
         }

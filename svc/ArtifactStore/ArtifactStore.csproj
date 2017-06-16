@@ -142,7 +142,6 @@
     <Compile Include="Models\Review\ReviewPackageRawData.cs" />
     <Compile Include="Models\Review\ReviewPackageStatus.cs" />
     <Compile Include="Models\Review\ReviewParticipant.cs" />
-    <Compile Include="Models\Review\ReviewPropertyValue.cs" />
     <Compile Include="Models\Review\ReviewTableOfContent.cs" />
     <Compile Include="Models\Review\ReviwerRole.cs" />
     <Compile Include="Models\Review\ReviewSummary.cs" />

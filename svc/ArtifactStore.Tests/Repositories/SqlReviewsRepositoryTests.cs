@@ -221,9 +221,9 @@ namespace ArtifactStore.Repositories
                 { "@userId", userId } 
             };
 
-            var queryResult = new List<ReviewPropertyValue>();
+            var queryResult = new List<string>();
 
-            _cxn.SetupQueryAsync("GetReviewPropertyValue", queryParameters, queryResult);
+            _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
 
             //Act
             await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);
@@ -249,12 +249,12 @@ namespace ArtifactStore.Repositories
                 { "@userId", userId }
             };
 
-            var queryResult = new List<ReviewPropertyValue>()
+            var queryResult = new List<string>()
             {
-                new ReviewPropertyValue() { StringValue = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Status>Closed</Status></ReviewPackageRawData>" }
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Status>Closed</Status></ReviewPackageRawData>"
             };
 
-            _cxn.SetupQueryAsync("GetReviewPropertyValue", queryParameters, queryResult);
+            _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
 
             //Act
             await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);
@@ -279,12 +279,12 @@ namespace ArtifactStore.Repositories
                 { "@userId", userId }
             };
 
-            var queryResult = new List<ReviewPropertyValue>()
+            var queryResult = new List<string>()
             {
-                new ReviewPropertyValue() { StringValue = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>" }
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>"
             };
 
-            _cxn.SetupQueryAsync("GetReviewPropertyValue", queryParameters, queryResult);
+            _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
 
             //Act 
             var addParticipantResult = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);
@@ -313,12 +313,12 @@ namespace ArtifactStore.Repositories
                 { "@userId", userId }
             };
 
-            var queryResult = new List<ReviewPropertyValue>()
+            var queryResult = new List<string>()
             {
-                new ReviewPropertyValue() { StringValue = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>" }
+               "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>"
             };
 
-            _cxn.SetupQueryAsync("GetReviewPropertyValue", queryParameters, queryResult);
+            _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
 
             _usersRepositoryMock.Setup(repo => repo.GetUserInfosFromGroupsAsync(new[] { 6, 7 })).ReturnsAsync(new List<UserInfo>()
             {
@@ -354,12 +354,12 @@ namespace ArtifactStore.Repositories
                 { "@userId", userId }
             };
 
-            var queryResult = new List<ReviewPropertyValue>()
+            var queryResult = new List<string>()
             {
-                new ReviewPropertyValue() { StringValue = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>" }
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>"
             };
 
-            _cxn.SetupQueryAsync("GetReviewPropertyValue", queryParameters, queryResult);
+            _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
 
             _usersRepositoryMock.Setup(repo => repo.GetUserInfosFromGroupsAsync(new[] { 4 })).ReturnsAsync(new List<UserInfo>()
             {
@@ -394,12 +394,12 @@ namespace ArtifactStore.Repositories
                 { "@userId", userId }
             };
 
-            var queryResult = new List<ReviewPropertyValue>()
+            var queryResult = new List<string>()
             {
-                new ReviewPropertyValue() { StringValue = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>3</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>" }
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>3</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>"
             };
 
-            _cxn.SetupQueryAsync("GetReviewPropertyValue", queryParameters, queryResult);
+            _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
 
             //Act 
             var addParticipantResult = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);

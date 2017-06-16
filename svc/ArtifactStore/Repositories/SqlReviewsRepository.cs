@@ -475,53 +475,47 @@ namespace ArtifactStore.Repositories
             if((content.GroupIds == null || !content.GroupIds.Any()) &&
                (content.UserIds == null || !content.UserIds.Any()))
             {
-                throw new BadRequestException("No users were selected to be added.");
+                throw new BadRequestException("No users were selected to be added.", ErrorCodes.OutOfRangeParameter);
             }
 
-            //Check the review exists
-            var reviewPropertyValue = await GetReviewPropertyValueAsync(reviewId, userId);
+            var reviewXml = await GetReviewXmlAsync(reviewId, userId);
 
-            if(reviewPropertyValue == null)
+            if(reviewXml == null)
             {
                 ThrowReviewNotFoundException(reviewId);
             }
 
-            //Get review participants XML and convert into an object
-            var reviewXmlPropertyString = ReviewRawDataHelper.RestoreData<ReviewPackageRawData>(reviewPropertyValue.StringValue);
+            var reviewPackageRawData = ReviewRawDataHelper.RestoreData<ReviewPackageRawData>(reviewXml);
 
-            //Check that the review is in draft or live settings
-            if(reviewXmlPropertyString.Status == ReviewPackageStatus.Closed)
+            if(reviewPackageRawData.Status == ReviewPackageStatus.Closed)
             {
-                throw new BadRequestException("Cannot add Participants as review status is closed.");
+                throw new BadRequestException("Cannot add participants as review status is closed.");
             }
 
-            //Get all users from all groups
-            var groupUsers = await _usersRepository.GetUserInfosFromGroupsAsync(content.GroupIds);
+            IEnumerable<int> groupUserIds = await GetUsersFromGroupsAsync(content.GroupIds);
 
-            var groupUserIds = groupUsers.Select(gu => gu.UserId);
+            var userIds = content.UserIds ?? new int[0];
 
             //Flatten users into a single collection and remove duplicates
-            var uniqueParticipantsSet = new HashSet<int>(content.UserIds.Concat(groupUserIds));
+            var uniqueParticipantsSet = new HashSet<int>(userIds.Concat(groupUserIds));
 
-            if (reviewXmlPropertyString.Reviwers == null)
+            if (reviewPackageRawData.Reviwers == null)
             {
-                reviewXmlPropertyString.Reviwers = new List<ReviewerRawData>();
+                reviewPackageRawData.Reviwers = new List<ReviewerRawData>();
             }
 
-            //Calculate how many participants were already included
-            var participantIdsToAdd = uniqueParticipantsSet.Except(reviewXmlPropertyString.Reviwers.Select(r => r.UserId)).ToList();
+            var participantIdsToAdd = uniqueParticipantsSet.Except(reviewPackageRawData.Reviwers.Select(r => r.UserId)).ToList();
 
             int newParticipantsCount = participantIdsToAdd.Count;
 
-            //Add new participants to the XML
-            reviewXmlPropertyString.Reviwers.AddRange(participantIdsToAdd.Select(p => new ReviewerRawData()
+            reviewPackageRawData.Reviwers.AddRange(participantIdsToAdd.Select(p => new ReviewerRawData()
             {
                 UserId = p,
                 Permission = ReviewParticipantRole.Reviewer
             }));
 
             //Save XML in the database
-
+            await UpdateReviewXmlAsync(reviewId, userId, ReviewRawDataHelper.GetStoreData(reviewPackageRawData));
 
             return new AddParticipantsResult
             {
@@ -530,17 +524,44 @@ namespace ArtifactStore.Repositories
             };
         }
 
-        private async Task<ReviewPropertyValue> GetReviewPropertyValueAsync(int reviewId, int userId)
+        private async Task<string> GetReviewXmlAsync(int reviewId, int userId)
         {
             var parameters = new DynamicParameters();
 
             parameters.Add("@reviewId", reviewId);
             parameters.Add("@userId", userId);
 
-            var result = await ConnectionWrapper.QueryAsync<ReviewPropertyValue>("GetReviewPropertyValue", parameters, commandType: CommandType.StoredProcedure);
+            var result = await ConnectionWrapper.QueryAsync<string>("GetReviewParticipantsPropertyString", parameters, commandType: CommandType.StoredProcedure);
 
             return result.FirstOrDefault();
         }
+
+        private Task UpdateReviewXmlAsync(int reviewId, int userId, string reviewXml)
+        {
+            var parameters = new DynamicParameters();
+
+            parameters.Add("@reviewId", reviewId);
+            parameters.Add("@userId", userId);
+            parameters.Add("@xmlString", reviewXml);
+
+            return ConnectionWrapper.ExecuteAsync("UpdateReviewParticipants", parameters, commandType: CommandType.StoredProcedure);
+        }
+
+        private async Task<IEnumerable<int>> GetUsersFromGroupsAsync(IEnumerable<int> groupIds)
+        {
+            if (groupIds != null && groupIds.Any())
+            {
+                //Get all users from all groups
+                var groupUsers = await _usersRepository.GetUserInfosFromGroupsAsync(groupIds);
+
+                return groupUsers.Select(gu => gu.UserId);
+            }
+            else
+            {
+                return new int[0];
+            }
+        }
+
         private async Task<ReviewTableOfContent> GetTableOfContentAsync(int reviewId, int revisionId, int userId, Pagination pagination)
         {
             int refreshInterval = await GetRebuildReviewArtifactHierarchyInterval();

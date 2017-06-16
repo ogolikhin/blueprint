@@ -61,12 +61,11 @@ namespace ServiceLibrary.Repositories.Files
 
         private HttpWebRequest CreateUploadFileRequest(string fileName, string fileType, Stream content, DateTime? expired = null)
         {
-            string expireDate = expired != null ? expired.ToStringInvariant("dd-MM-yyyy") : null;
-           
+            string expireDate = expired == null ? null : 
+                "?expired=" + HttpUtility.UrlEncode(expired.Value.ToStringInvariant("o"));
             var requestAddress = I18NHelper.FormatInvariant("/svc/components/filestore/files/{0}/{1}", fileName, expireDate);
 
             var request = _httpWebClient.CreateHttpWebRequest(requestAddress, "POST");
-
             request.ContentType = MimeMapping.GetMimeMapping(string.IsNullOrWhiteSpace(fileType) ? fileName : fileType);
             request.Accept = "application/xml";
 
@@ -97,8 +96,21 @@ namespace ServiceLibrary.Repositories.Files
             }
             else
             {
-                string msg = I18NHelper.FormatInvariant("Failed to upload file: Unexpected status code '{0}'.", response.StatusCode);
-                throw new Exception(msg);
+                switch (response.StatusCode)
+                {
+                    case HttpStatusCode.Unauthorized:
+                        throw new AuthenticationException("Authentication is required.", ErrorCodes.UnauthorizedAccess);
+
+                    case HttpStatusCode.BadRequest:
+                        throw new BadRequestException("Invalid request.", ErrorCodes.BadRequest);
+
+                    case HttpStatusCode.NotFound:
+                    case HttpStatusCode.ServiceUnavailable:
+                        throw new ResourceNotFoundException("Resource not found.", ErrorCodes.ResourceNotFound);
+
+                    default:
+                        throw new Exception(I18NHelper.FormatInvariant("Failed to upload file. Unexpected status code '{0}'", response.StatusCode));
+                }
             }
 
             return fileGuid;

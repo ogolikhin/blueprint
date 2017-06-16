@@ -14,24 +14,6 @@ namespace AdminStore.Models.Workflow
         //public int? Id { get; set; }
         //public bool ShouldSerializeId() { return Id.HasValue; }
 
-        //========================================================
-        // To make xml attribute nullable.
-        [XmlIgnore]
-        public bool? IsActive { get; set; }
-
-        [XmlAttribute("IsActive")]
-        public bool IsActiveSerializable
-        {
-            get { return IsActive.GetValueOrDefault(); }
-            set { IsActive = value; }
-        }
-
-        public bool ShouldSerializeIsActiveSerializable()
-        {
-            return IsActive.HasValue;
-        }
-        //========================================================
-
         [XmlElement(IsNullable = false)]
         public string Name { get; set; }
 

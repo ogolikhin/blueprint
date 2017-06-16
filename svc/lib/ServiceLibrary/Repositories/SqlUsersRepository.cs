@@ -31,14 +31,14 @@ namespace ServiceLibrary.Repositories
             return await ConnectionWrapper.QueryAsync<UserInfo>("GetUserInfos", userInfosPrm, commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<IEnumerable<UserInfo>> GetUserInfosFromGroupsAsync(IEnumerable<int> groupIds)
+        public Task<IEnumerable<UserInfo>> GetUserInfosFromGroupsAsync(IEnumerable<int> groupIds)
         {
             var parameters = new DynamicParameters();
             var groupIdsTable = SqlConnectionWrapper.ToDataTable(groupIds);
 
             parameters.Add("@groupIds", groupIdsTable);
 
-            return await ConnectionWrapper.QueryAsync<UserInfo>("GetUserInfosFromGroups", parameters, commandType: CommandType.StoredProcedure);
+            return ConnectionWrapper.QueryAsync<UserInfo>("GetUserInfosFromGroups", parameters, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<IEnumerable<UserInfo>> GetUsersByEmail(string email, bool? guestsOnly = false)

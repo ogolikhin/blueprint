@@ -533,7 +533,7 @@ namespace ArtifactStore.Repositories
 
             var result = await ConnectionWrapper.QueryAsync<string>("GetReviewParticipantsPropertyString", parameters, commandType: CommandType.StoredProcedure);
 
-            return result.FirstOrDefault();
+            return result.SingleOrDefault();
         }
 
         private Task UpdateReviewXmlAsync(int reviewId, int userId, string reviewXml)

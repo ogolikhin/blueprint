@@ -466,14 +466,14 @@ namespace ArtifactStore.Repositories
 
         public async Task<AddParticipantsResult> AddParticipantsToReviewAsync(int reviewId, int userId, AddParticipantsParameter content)
         {
+            var TotalUsers = 3; // For testing purpose. Needs to be changed 
+            var AlreadyIncludedUsers = 1; // For testing purpose. Needs to be changed 
+            string xmlResult = "";
+
             //TODO: Validate content parameters
 
             //TODO: implement the loginc to add participants to review
 
-            var TotalUsers = 0;
-            var AlreadyIncludedUsers = 0;
-
-            string xmlResult = "";
             await UpdateReviewParticipants(reviewId, userId, xmlResult);
             return new AddParticipantsResult
             {

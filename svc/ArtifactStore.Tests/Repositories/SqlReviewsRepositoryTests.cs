@@ -178,7 +178,7 @@ namespace ArtifactStore.Repositories
             }
         }
 
-        #region GetReviewTableOfContent Tests
+        #region GetReviewTableOfContentAsync
         [TestMethod]
         [ExpectedException(typeof (ResourceNotFoundException))]
         public async Task GetReviewTableOfContentAsync_ReviewNotFound()
@@ -377,7 +377,7 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(3, artifacts.Items.ElementAt(1).Id);
         }
 
-        #region Add Review Participants tests
+        #region AddParticipantsToReviewAsync
 
         [TestMethod]
         public async Task AddParticipants_UsersAndGroups_Success()

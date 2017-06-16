@@ -13,6 +13,7 @@
         GroupVersionsNotEqual = 50007,
         GroupCanNotBeUpdatedWithExistingScope = 50008,
         UserAlreadyAssignedToTheGroup = 50009,
-        GroupAlreadyAssignedToTheGroup = 50010
+        GroupAlreadyAssignedToTheGroup = 50010,
+        CurrentProjectIsNotExist = 50011
     }
 }

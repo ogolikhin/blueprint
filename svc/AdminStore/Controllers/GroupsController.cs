@@ -165,7 +165,7 @@ namespace AdminStore.Controllers
             var groupDetails = await _groupRepository.GetGroupDetailsAsync(groupId);
             if (groupDetails.Id == 0)
             {
-                throw new ResourceNotFoundException(ErrorMessages.GroupDoesNotExist, ErrorCodes.ResourceNotFound);
+                throw new ResourceNotFoundException(ErrorMessages.GroupNotExist, ErrorCodes.ResourceNotFound);
             }
 
             return Ok(groupDetails);

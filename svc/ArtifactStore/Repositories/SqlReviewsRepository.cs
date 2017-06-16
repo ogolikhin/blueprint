@@ -23,6 +23,8 @@ namespace ArtifactStore.Repositories
 
         private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
 
+        private readonly IUsersRepository _usersRepository;
+
         internal readonly IApplicationSettingsRepository _applicationSettingsRepository;
 
         internal const string ReviewArtifactHierarchyRebuildIntervalInMinutesKey = "ReviewArtifactHierarchyRebuildIntervalInMinutes";
@@ -39,7 +41,8 @@ namespace ArtifactStore.Repositories
                                             new SqlArtifactVersionsRepository(), 
                                             new SqlItemInfoRepository(),
                                             new SqlArtifactPermissionsRepository(),
-                                            new ApplicationSettingsRepository())
+                                            new ApplicationSettingsRepository(),
+                                            new SqlUsersRepository())
         {
         }
 
@@ -47,13 +50,15 @@ namespace ArtifactStore.Repositories
                                     IArtifactVersionsRepository artifactVersionsRepository, 
                                     ISqlItemInfoRepository itemInfoRepository,
                                     IArtifactPermissionsRepository artifactPermissionsRepository,
-                                    IApplicationSettingsRepository applicationSettingsRepository)
+                                    IApplicationSettingsRepository applicationSettingsRepository,
+                                    IUsersRepository usersRepository)
         {
             ConnectionWrapper = connectionWrapper;
             _artifactVersionsRepository = artifactVersionsRepository;
             _itemInfoRepository = itemInfoRepository;
             _artifactPermissionsRepository = artifactPermissionsRepository;
             _applicationSettingsRepository = applicationSettingsRepository;
+            _usersRepository = usersRepository;
         }
 
         public async Task<ReviewSummary> GetReviewSummary(int containerId, int userId)
@@ -467,7 +472,8 @@ namespace ArtifactStore.Repositories
         public async Task<AddParticipantsResult> AddParticipantsToReviewAsync(int reviewId, int userId, AddParticipantsParameter content)
         {
             //Check there is at least one user/group to add
-            if(!content.GroupIds.Any() && !content.UserIds.Any())
+            if((content.GroupIds == null || !content.GroupIds.Any()) &&
+               (content.UserIds == null || !content.UserIds.Any()))
             {
                 throw new BadRequestException("No users were selected to be added.");
             }
@@ -486,14 +492,16 @@ namespace ArtifactStore.Repositories
             //Check that the review is in draft or live settings
             if(reviewXmlPropertyString.Status == ReviewPackageStatus.Closed)
             {
-                throw new BadRequestException("Review status is closed.");
+                throw new BadRequestException("Cannot add Participants as review status is closed.");
             }
 
             //Get all users from all groups
-            IEnumerable<int> groupUsers = new List<int>();
+            var groupUsers = await _usersRepository.GetUserInfosFromGroupsAsync(content.GroupIds);
+
+            var groupUserIds = groupUsers.Select(gu => gu.UserId);
 
             //Flatten users into a single collection and remove duplicates
-            HashSet<int> uniqueParticipantsSet = new HashSet<int>(content.UserIds.Concat(groupUsers));
+            var uniqueParticipantsSet = new HashSet<int>(content.UserIds.Concat(groupUserIds));
 
             if (reviewXmlPropertyString.Reviwers == null)
             {
@@ -501,12 +509,12 @@ namespace ArtifactStore.Repositories
             }
 
             //Calculate how many participants were already included
-            var participantsToAdd = uniqueParticipantsSet.Except(reviewXmlPropertyString.Reviwers.Select(r => r.UserId)).ToList();
+            var participantIdsToAdd = uniqueParticipantsSet.Except(reviewXmlPropertyString.Reviwers.Select(r => r.UserId)).ToList();
 
-            int newParticipants = participantsToAdd.Count;
+            int newParticipantsCount = participantIdsToAdd.Count;
 
             //Add new participants to the XML
-            reviewXmlPropertyString.Reviwers.AddRange(participantsToAdd.Select(p => new ReviewerRawData()
+            reviewXmlPropertyString.Reviwers.AddRange(participantIdsToAdd.Select(p => new ReviewerRawData()
             {
                 UserId = p,
                 Permission = ReviewParticipantRole.Reviewer
@@ -514,11 +522,11 @@ namespace ArtifactStore.Repositories
 
             //Save XML in the database
 
-            //Return the 
+
             return new AddParticipantsResult
             {
-                NewParticipantCount = newParticipants,
-                AlreadyIncludedCount = uniqueParticipantsSet.Count - newParticipants
+                NewParticipantCount = newParticipantsCount,
+                AlreadyIncludedCount = uniqueParticipantsSet.Count - newParticipantsCount
             };
         }
 

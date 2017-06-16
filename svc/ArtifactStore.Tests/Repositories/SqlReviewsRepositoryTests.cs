@@ -23,6 +23,7 @@ namespace ArtifactStore.Repositories
         private Mock<ISqlItemInfoRepository> _itemInfoRepositoryMock;
         private Mock<IArtifactPermissionsRepository> _artifactPermissionsRepositoryMock;
         private Mock<IApplicationSettingsRepository> _applicationSettingsRepositoryMock;
+        private Mock<IUsersRepository> _usersRepositoryMock;
 
         [TestInitialize]
         public void Initialize()
@@ -32,11 +33,13 @@ namespace ArtifactStore.Repositories
             _itemInfoRepositoryMock = new Mock<ISqlItemInfoRepository>(MockBehavior.Strict);
             _artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>(MockBehavior.Strict);
             _applicationSettingsRepositoryMock = new Mock<IApplicationSettingsRepository>(MockBehavior.Strict);
+            _usersRepositoryMock = new Mock<IUsersRepository>();
             _reviewsRepository = new SqlReviewsRepository(_cxn.Object, 
                     _artifactVersionsRepositoryMock.Object, 
                     _itemInfoRepositoryMock.Object,
                     _artifactPermissionsRepositoryMock.Object,
-                    _applicationSettingsRepositoryMock.Object);
+                    _applicationSettingsRepositoryMock.Object,
+                    _usersRepositoryMock.Object);
         }
 
         [TestMethod]
@@ -292,6 +295,47 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
+        public async Task AddParticipantsToReviewAsync_Should_Add_Users_From_Groups()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+
+            var addParticipantsParameter = new AddParticipantsParameter()
+            {
+                GroupIds = new[] { 6, 7 },
+                UserIds = new int[0]
+            };
+
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+
+            var queryResult = new List<ReviewPropertyValue>()
+            {
+                new ReviewPropertyValue() { StringValue = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>" }
+            };
+
+            _cxn.SetupQueryAsync("GetReviewPropertyValue", queryParameters, queryResult);
+
+            _usersRepositoryMock.Setup(repo => repo.GetUserInfosFromGroupsAsync(new[] { 6, 7 })).ReturnsAsync(new List<UserInfo>()
+            {
+                new UserInfo() { UserId = 3 },
+                new UserInfo() { UserId = 4 },
+                new UserInfo() { UserId = 5 }
+            });
+
+            //Act 
+            var addParticipantResult = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);
+
+            //Assert
+            Assert.AreEqual(addParticipantResult.NewParticipantCount, 3);
+            Assert.AreEqual(addParticipantResult.AlreadyIncludedCount, 0);
+        }
+
+        [TestMethod]
         public async Task AddParticipantsToReviewAsync_Should_Not_Add_Duplicates_From_Users_And_Groups()
         {
             //Arrange
@@ -316,6 +360,12 @@ namespace ArtifactStore.Repositories
             };
 
             _cxn.SetupQueryAsync("GetReviewPropertyValue", queryParameters, queryResult);
+
+            _usersRepositoryMock.Setup(repo => repo.GetUserInfosFromGroupsAsync(new[] { 4 })).ReturnsAsync(new List<UserInfo>()
+            {
+                new UserInfo() { UserId = 1 },
+                new UserInfo() { UserId = 2 }
+            });
 
             //Act 
             var addParticipantResult = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);
@@ -417,7 +467,7 @@ namespace ArtifactStore.Repositories
             var testResult = new ReviewTableOfContentItem[] { };
             cxn.SetupQueryAsync("GetReviewTableOfContent", prm, testResult, outPrm);
 
-            var repository = new SqlReviewsRepository(cxn.Object, null, null, null, appSettingsRepoMock.Object);
+            var repository = new SqlReviewsRepository(cxn.Object, null, null, null, appSettingsRepoMock.Object, null);
 
             try
             {

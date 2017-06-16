@@ -69,5 +69,6 @@
         public static readonly string UserAlreadyAssignedToGroup = "User already assigned to the group";
         public static readonly string GroupAlreadyAssignedToGroup = "Group already assigned to the group";
         public static readonly string GroupEmailFormatIncorrect = "Please ensure the email address is in the following format: group@company.com.";
+
     }
 }

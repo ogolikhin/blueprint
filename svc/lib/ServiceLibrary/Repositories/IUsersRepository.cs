@@ -8,6 +8,8 @@ namespace ServiceLibrary.Repositories
     {
         Task<IEnumerable<UserInfo>> GetUserInfos(IEnumerable<int> userIds);
 
+        Task<IEnumerable<UserInfo>> GetUserInfosFromGroupsAsync(IEnumerable<int> groupIds);
+
         /// <summary>
         /// Returns list of users by e-mail.
         /// If the parameter set to NULL returns all users (regestered and guest).

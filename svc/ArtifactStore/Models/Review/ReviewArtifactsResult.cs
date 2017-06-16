@@ -35,6 +35,7 @@ namespace ArtifactStore.Models.Review
         public int RevewSubartifactId { get; set; }
         public int? ProjectId { get; set; }
         public bool IsReviewLocked { get; set; }
+        public bool IsReviewReadOnly { get; set; }
 
     }
 }

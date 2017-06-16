@@ -66,6 +66,5 @@
         //Artifact Retrieval Errors
         public const int ArtifactNotFound = 9001;
         public const int SubartifactNotFound = 9002;
-
     }
 }

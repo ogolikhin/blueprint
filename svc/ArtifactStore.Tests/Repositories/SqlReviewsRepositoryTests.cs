@@ -403,8 +403,8 @@ namespace ArtifactStore.Repositories
             //Assert
             _cxn.Verify();
 
-            Assert.AreEqual(0, result.ParticipantCount);
-            Assert.AreEqual(0, result.AlreadyIncludedCount);
+            Assert.AreEqual(4, result.ParticipantCount);
+            Assert.AreEqual(1, result.AlreadyIncludedCount);
 
 
         }
@@ -434,8 +434,8 @@ namespace ArtifactStore.Repositories
             //Assert
             _cxn.Verify();
 
-            Assert.AreEqual(0, result.ParticipantCount);
-            Assert.AreEqual(0, result.AlreadyIncludedCount);
+            Assert.AreEqual(4, result.ParticipantCount);
+            Assert.AreEqual(1, result.AlreadyIncludedCount);
 
         }
 

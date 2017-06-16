@@ -119,7 +119,7 @@ namespace AdminStore.Repositories.Workflow
                                 Name = transition.Name,
                                 Description = string.Empty,
                                 WorkflowId = newWorkflow.WorkflowId,
-                                Type = 1,
+                                Type = DTriggerType.Transition,
                                 Permissions = transition.PermissionGroups.ToString(),
                                 Validations = null,
                                 Actions = null,

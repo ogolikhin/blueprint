@@ -16,7 +16,7 @@
 
         public string Description { get; set; }
 
-        public int Type { get; set; }
+        public DTriggerType Type { get; set; }
 
         public string Permissions { get; set; }
 
@@ -29,5 +29,10 @@
         public int? WorkflowState1Id { get; set; }
 
         public int? WorkflowState2Id { get; set; }
+    }
+
+    public enum DTriggerType
+    {
+        Transition = 0
     }
 }

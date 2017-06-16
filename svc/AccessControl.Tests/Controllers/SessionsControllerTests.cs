@@ -16,8 +16,8 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace AccessControl.Controllers
 {
+    [SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable")]
     [TestClass]
-    [SuppressMessage("Microsoft.Design", "CA1001")]
     public class SessionsControllerTests
     {
         private Mock<IServiceLogRepository> _logMock;

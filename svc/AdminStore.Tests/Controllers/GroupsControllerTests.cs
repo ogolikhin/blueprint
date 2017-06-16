@@ -253,7 +253,8 @@ namespace AdminStore.Controllers
 
         #endregion
 
-        #region Create group
+        #region CreateGroup
+
         [TestMethod]
         public async Task CreateGroup_SuccessfulCreationOfGroup_ReturnCreatedGroupIdResult()
         {
@@ -289,133 +290,237 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
         public async Task CreateGroup_GroupNameEmpty_ReturnBadRequestResult()
         {
             // Arrange
+            BadRequestException exception = null;
             _group.Name = string.Empty;
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
-            _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>())).ReturnsAsync(_groupId);
+            _sqlGroupRepositoryMock
+                .Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>()))
+                .ReturnsAsync(_groupId);
 
             // Act
-            await _controller.CreateGroup(_group);
+            try
+            {
+                await _controller.CreateGroup(_group);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
 
             // Assert
-            // Exception
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(ErrorMessages.GroupNameRequired, exception.Message);
+            Assert.AreEqual(ErrorCodes.BadRequest, exception.ErrorCode);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
+        public async Task CreateGroup_GroupNameIsTooLong_ReturnBadRequestResult()
+        {
+            // Arrange
+            BadRequestException exception = null;
+            _group.Name = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis,.";
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+            _sqlGroupRepositoryMock
+                .Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>()))
+                .ReturnsAsync(_groupId);
+
+            // Act
+            try
+            {
+                await _controller.CreateGroup(_group);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(ErrorMessages.GroupNameFieldLimitation, exception.Message);
+            Assert.AreEqual(ErrorCodes.BadRequest, exception.ErrorCode);
+        }
+
+        [TestMethod]
         public async Task CreateGroup_EmailOutOfRangeStringLength_ReturnBadRequestResult()
         {
             // Arrange
+            BadRequestException exception = null;
             _group.Email = "1@1";
             _privilegesRepository
              .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
              .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
-            _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>())).ReturnsAsync(_groupId);
+            _sqlGroupRepositoryMock
+                .Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>()))
+                .ReturnsAsync(_groupId);
 
             // Act
-            await _controller.CreateGroup(_group);
+            try
+            {
+                await _controller.CreateGroup(_group);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
 
             // Assert
-            // Exception
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(ErrorMessages.EmailFieldLimitation, exception.Message);
+            Assert.AreEqual(ErrorCodes.BadRequest, exception.ErrorCode);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
         public async Task CreateGroup_EmailWithoutAtSymbol_ReturnBadRequestResult()
         {
             // Arrange
+            BadRequestException exception = null;
             _group.Email = "testemail.com";
             _privilegesRepository
                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
-            _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>())).ReturnsAsync(_groupId);
+            _sqlGroupRepositoryMock
+                .Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>()))
+                .ReturnsAsync(_groupId);
 
             // Act
-            await _controller.CreateGroup(_group);
+            try
+            {
+                await _controller.CreateGroup(_group);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
 
             // Assert
-            // Exception
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(ErrorMessages.GroupEmailFormatIncorrect, exception.Message);
+            Assert.AreEqual(ErrorCodes.BadRequest, exception.ErrorCode);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
         public async Task CreateGroup_EmailWithMultipleAtSymbols_ReturnBadRequestResult()
         {
             // Arrange
+            BadRequestException exception = null;
             _group.Email = "sp@rk@email.com";
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
-            _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>())).ReturnsAsync(_groupId);
+            _sqlGroupRepositoryMock
+                .Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>()))
+                .ReturnsAsync(_groupId);
 
             // Act
-            await _controller.CreateGroup(_group);
+            try
+            {
+                await _controller.CreateGroup(_group);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
 
             // Assert
-            // Exception
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(ErrorMessages.GroupEmailFormatIncorrect, exception.Message);
+            Assert.AreEqual(ErrorCodes.BadRequest, exception.ErrorCode);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
         public async Task CreateGroup_CreateWindowsGroup_ReturnBadRequestResult()
         {
             // Arrange
+            BadRequestException exception = null;
             _group.Source = UserGroupSource.Windows;
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
-            _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>())).ReturnsAsync(_groupId);
+            _sqlGroupRepositoryMock
+                .Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>()))
+                .ReturnsAsync(_groupId);
 
             // Act
-            await _controller.CreateGroup(_group);
+            try
+            {
+                await _controller.CreateGroup(_group);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
 
             // Assert
-            // Exception
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(ErrorMessages.CreationOnlyDatabaseGroup, exception.Message);
+            Assert.AreEqual(ErrorCodes.BadRequest, exception.ErrorCode);
         }
 
-
         [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
         public async Task CreateGroup_WithViewerLicense_ReturnBadRequestResult()
         {
             // Arrange
+            BadRequestException exception = null;
             _group.LicenseType = LicenseType.Viewer;
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
-            _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>())).ReturnsAsync(_groupId);
+            _sqlGroupRepositoryMock
+                .Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>()))
+                .ReturnsAsync(_groupId);
 
             // Act
-            await _controller.CreateGroup(_group);
+            try
+            {
+                await _controller.CreateGroup(_group);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
 
             // Assert
-            // Exception
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(ErrorMessages.CreationGroupsOnlyWithCollaboratorOrAuthorOrNoneLicenses, exception.Message);
+            Assert.AreEqual(ErrorCodes.BadRequest, exception.ErrorCode);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
         public async Task CreateGroup_CreationGroupWithScopeAndLicenseIdSimultaneously_ReturnBadRequestResult()
         {
             // Arrange
+            BadRequestException exception = null;
             _group.LicenseType = LicenseType.Collaborator;
             _group.ProjectId = 1;
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
-            _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>())).ReturnsAsync(_groupId);
+            _sqlGroupRepositoryMock
+                .Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>()))
+                .ReturnsAsync(_groupId);
 
             // Act
-            await _controller.CreateGroup(_group);
+            try
+            {
+                await _controller.CreateGroup(_group);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
 
             // Assert
-            // Exception
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(ErrorMessages.CreationGroupWithScopeAndLicenseIdSimultaneously, exception.Message);
+            Assert.AreEqual(ErrorCodes.BadRequest, exception.ErrorCode);
         }
-
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
@@ -437,7 +542,7 @@ namespace AdminStore.Controllers
             // Exception
         }
 
-        #endregion
+        #endregion CreateGroup
 
         #region Update group
         [TestMethod]

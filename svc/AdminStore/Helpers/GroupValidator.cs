@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Web;
-using AdminStore.Models;
+﻿using AdminStore.Models;
 using AdminStore.Models.Enums;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
+using System.Text.RegularExpressions;
 
 namespace AdminStore.Helpers
 {
     public class GroupValidator
     {
+        public const int MinNameLength = 1;
+        public const int MaxNameLength = 255;
         public const int MinEmailLength = 4;
         public const int MaxEmailLength = 255;
 
@@ -19,10 +17,15 @@ namespace AdminStore.Helpers
         {
             if (string.IsNullOrWhiteSpace(group.Name))
             {
-                throw new BadRequestException(ErrorMessages.GroupName, ErrorCodes.BadRequest);
+                throw new BadRequestException(ErrorMessages.GroupNameRequired, ErrorCodes.BadRequest);
             }
 
             group.Name = group.Name.Trim();
+
+            if (group.Name.Length < MinNameLength || group.Name.Length > MaxNameLength)
+            {
+                throw new BadRequestException(ErrorMessages.GroupNameFieldLimitation, ErrorCodes.BadRequest);
+            }
 
             if (!string.IsNullOrEmpty(group.Email))
             {

@@ -489,8 +489,8 @@ namespace ArtifactStore.Repositories
             var addParticipantResult = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);
 
             //Assert
-            Assert.AreEqual(addParticipantResult.ParticipantCount, 2);
-            Assert.AreEqual(addParticipantResult.AlreadyIncludedCount, 0);
+            Assert.AreEqual(2, addParticipantResult.ParticipantCount);
+            Assert.AreEqual(0, addParticipantResult.AlreadyIncludedCount);
         }
 
         [TestMethod]
@@ -530,8 +530,8 @@ namespace ArtifactStore.Repositories
             var addParticipantResult = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);
 
             //Assert
-            Assert.AreEqual(addParticipantResult.ParticipantCount, 3);
-            Assert.AreEqual(addParticipantResult.AlreadyIncludedCount, 0);
+            Assert.AreEqual(3, addParticipantResult.ParticipantCount);
+            Assert.AreEqual(0, addParticipantResult.AlreadyIncludedCount);
         }
 
         [TestMethod]
@@ -570,8 +570,8 @@ namespace ArtifactStore.Repositories
             var addParticipantResult = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);
 
             //Assert
-            Assert.AreEqual(addParticipantResult.ParticipantCount, 2);
-            Assert.AreEqual(addParticipantResult.AlreadyIncludedCount, 0);
+            Assert.AreEqual(2, addParticipantResult.ParticipantCount);
+            Assert.AreEqual(0, addParticipantResult.AlreadyIncludedCount);
         }
 
         [TestMethod]
@@ -604,8 +604,8 @@ namespace ArtifactStore.Repositories
             var addParticipantResult = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);
 
             //Assert
-            Assert.AreEqual(addParticipantResult.ParticipantCount, 0);
-            Assert.AreEqual(addParticipantResult.AlreadyIncludedCount, 2);
+            Assert.AreEqual(0, addParticipantResult.ParticipantCount);
+            Assert.AreEqual(2, addParticipantResult.AlreadyIncludedCount);
         }
 
         [TestMethod]
@@ -615,16 +615,35 @@ namespace ArtifactStore.Repositories
             int reviewId = 1;
             int userId = 2;
             var content = new AddParticipantsParameter() {
-                UserIds = new []{1,2},
-                GroupIds = new []{ 2, 4}
+                UserIds = new[] { 1, 2 },
+                GroupIds = new[] { 2, 4 }
             };
 
             var param = new Dictionary<string, object> {
                 { "reviewId", reviewId },
                 { "userId", userId },
-                { "xmlString", "" }
+                { "xmlString", "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>4</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>5</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>" }
             };
             _cxn.SetupExecuteAsync("UpdateReviewParticipants", param, 0);
+
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+
+            var queryResult = new List<string>()
+            {
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>"
+            };
+
+            _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
+
+            _usersRepositoryMock.Setup(repo => repo.GetUserInfosFromGroupsAsync(new[] { 2, 4 })).ReturnsAsync(new List<UserInfo>()
+            {
+                new UserInfo() { UserId = 4 },
+                new UserInfo() { UserId = 5 }
+            });
 
             //Act
             var result = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, content);
@@ -632,7 +651,7 @@ namespace ArtifactStore.Repositories
             //Assert
             _cxn.Verify();
 
-            Assert.AreEqual(0, result.ParticipantCount);
+            Assert.AreEqual(4, result.ParticipantCount);
             Assert.AreEqual(0, result.AlreadyIncludedCount);
 
 
@@ -646,15 +665,28 @@ namespace ArtifactStore.Repositories
             int userId = 2;
             var content = new AddParticipantsParameter()
             {
-                UserIds = new[] { 1, 2 },
-                GroupIds = new[] { 2, 4 }
+                UserIds = new[] { 1, 2 }
             };
+
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+
+            var queryResult = new List<string>()
+            {
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>"
+            };
+
+            _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
 
             var param = new Dictionary<string, object> {
                 { "reviewId", reviewId },
                 { "userId", userId },
-                { "xmlString", "" }
+                { "xmlString", "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>" }
             };
+
             _cxn.SetupExecuteAsync("UpdateReviewParticipants", param, 0);
 
             //Act
@@ -663,7 +695,7 @@ namespace ArtifactStore.Repositories
             //Assert
             _cxn.Verify();
 
-            Assert.AreEqual(0, result.ParticipantCount);
+            Assert.AreEqual(2, result.ParticipantCount);
             Assert.AreEqual(0, result.AlreadyIncludedCount);
 
         }

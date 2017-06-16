@@ -87,7 +87,9 @@ namespace AdminStore.Repositories.Workflow
                 newWorkflow = (await CreateWorkflowsAsync(new [] {importParams}, publishRevision, transaction)).FirstOrDefault();
 
                 var importStateParams = new List<DState>();
+                var importTriggersParams = new List<DTrigger>();
                 IEnumerable<DState> newStates = null;
+                IEnumerable<DTrigger> newTriggers = null;
                 if (newWorkflow != null)
                 {
                     float orderIndex = 0;
@@ -104,8 +106,33 @@ namespace AdminStore.Repositories.Workflow
                         });
                         orderIndex += 10;
                     });
+                    newStates = await CreateWorkflowStatesAsync(importStateParams, publishRevision, transaction);
+
+                    if (newStates != null)
+                    {
+                        var newStatesArray = newStates.ToArray();
+                        workflow.Transitions.ForEach(transition =>
+                        {
+
+                            importTriggersParams.Add(new DTrigger
+                            {
+                                Name = transition.Name,
+                                Description = string.Empty,
+                                WorkflowId = newWorkflow.WorkflowId,
+                                Type = 1,
+                                Permissions = transition.PermissionGroups.ToString(),
+                                Validations = null,
+                                Actions = null,
+                                ProjectId = null,
+                                WorkflowState1Id = newStatesArray.FirstOrDefault(s => s.Name.Equals(transition.FromState))?.WorkflowStateId,
+                                WorkflowState2Id = newStatesArray.FirstOrDefault(s => s.Name.Equals(transition.ToState))?.WorkflowStateId
+                            });
+                        });
+                        newTriggers = await CreateWorkflowTriggersAsync(importTriggersParams, publishRevision, transaction);
+                    }
+                    
                 }
-                newStates = await CreateWorkflowStatesAsync(importStateParams, publishRevision, transaction);
+                
             };
 
             await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, action);
@@ -195,6 +222,43 @@ namespace AdminStore.Repositories.Workflow
             return result;
         }
 
+        public async Task<IEnumerable<DTrigger>> CreateWorkflowTriggersAsync(IEnumerable<DTrigger> workflowTriggers, int publishRevision, IDbTransaction transaction = null)
+        {
+            if (workflowTriggers == null)
+            {
+                throw new ArgumentNullException(nameof(workflowTriggers));
+            }
+
+            var dWorkflowTriggers = workflowTriggers.ToList();
+            if (!dWorkflowTriggers.Any())
+            {
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is empty.", nameof(dWorkflowTriggers)));
+            }
+
+            if (publishRevision < 1)
+            {
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is less than 1.", nameof(publishRevision)));
+            }
+
+            var prm = new DynamicParameters();
+            prm.Add("@publishRevision", publishRevision);
+            prm.Add("@workflowTriggers", ToWorkflowTriggersCollectionDataTable(dWorkflowTriggers));
+
+            IEnumerable<DTrigger> result;
+            if (transaction == null)
+            {
+                result = await ConnectionWrapper.QueryAsync<DTrigger>("CreateWorkflowTriggers", prm,
+                    commandType: CommandType.StoredProcedure);
+            }
+            else
+            {
+                result = await transaction.Connection.QueryAsync<DTrigger>("CreateWorkflowTriggers", prm,
+                    transaction, commandType: CommandType.StoredProcedure); ;
+            }
+
+            return result;
+        }
+
         #endregion
 
         #region Private methods
@@ -241,6 +305,31 @@ namespace AdminStore.Repositories.Workflow
             {
                 table.Rows.Add(workflowState.WorkflowStateId, workflowState.Name, workflowState.Description,
                     workflowState.WorkflowId, workflowState.Default, workflowState.OrderIndex);
+            }
+            return table;
+        }
+
+        private static DataTable ToWorkflowTriggersCollectionDataTable(IEnumerable<DTrigger> workflowTriggers)
+        {
+            var table = new DataTable { Locale = CultureInfo.InvariantCulture };
+            table.SetTypeName("WorkflowTriggersCollection");
+            table.Columns.Add("TriggerId", typeof(int));
+            table.Columns.Add("Name", typeof(string));
+            table.Columns.Add("Description", typeof(string));
+            table.Columns.Add("WorkflowId", typeof(int));
+            table.Columns.Add("Type", typeof(int));
+            table.Columns.Add("Permissions", typeof(string));
+            table.Columns.Add("Validations", typeof(string));
+            table.Columns.Add("Actions", typeof(string));
+            table.Columns.Add("ProjectId", typeof(int));
+            table.Columns.Add("WorkflowState1Id", typeof(int));
+            table.Columns.Add("WorkflowState2Id", typeof(int));
+
+            foreach (var workflowTrigger in workflowTriggers)
+            {
+                table.Rows.Add(workflowTrigger.TriggerId, workflowTrigger.Name, workflowTrigger.Description,
+                    workflowTrigger.WorkflowId, workflowTrigger.Type, workflowTrigger.Permissions, workflowTrigger.Validations,
+                    workflowTrigger.Actions, workflowTrigger.ProjectId, workflowTrigger.WorkflowState1Id, workflowTrigger.WorkflowState2Id);
             }
             return table;
         }

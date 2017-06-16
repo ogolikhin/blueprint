@@ -97,6 +97,9 @@ namespace AdminStore.Repositories
                     case (int)SqlErrorCodes.GroupWithNameAndScopeExist:
                         throw new BadRequestException(ErrorMessages.GroupAlreadyExist);
 
+                    case (int)SqlErrorCodes.CurrentProjectIsNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.CurrentProjectIsNotExist);
+
                     default:
                         return groupId;
                 }

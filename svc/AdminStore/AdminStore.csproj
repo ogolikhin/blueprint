@@ -144,9 +144,12 @@
     <Compile Include="Models\LicenseTransactionUser.cs" />
     <Compile Include="Models\LoginUser.cs" />
     <Compile Include="Models\UserGroupSource.cs" />
+    <Compile Include="Models\Workflow\DState.cs" />
+    <Compile Include="Models\Workflow\DTrigger.cs" />
     <Compile Include="Models\Workflow\IeGroup.cs" />
     <Compile Include="Models\Workflow\IeState.cs" />
     <Compile Include="Models\Workflow\IeTransition.cs" />
+    <Compile Include="Models\Workflow\IeTrigger.cs" />
     <Compile Include="Models\Workflow\ImportWorkflowResult.cs" />
     <Compile Include="Models\Workflow\IeWorkflow.cs" />
     <Compile Include="Models\Workflow\DWorkflow.cs" />

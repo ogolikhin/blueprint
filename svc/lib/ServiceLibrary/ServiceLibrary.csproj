@@ -81,6 +81,7 @@
     </Compile>
     <Compile Include="Attributes\ApiControllerConfigAttribute.cs" />
     <Compile Include="Attributes\BaseExceptionFilterAttribute.cs" />
+    <Compile Include="Attributes\FeatureActivationAttribute.cs" />
     <Compile Include="Attributes\NoCacheAttribute.cs" />
     <Compile Include="Attributes\SessionAttribute.cs" />
     <Compile Include="Attributes\UnhandledExceptionFilterAttribute.cs" />
@@ -97,12 +98,16 @@
     <Compile Include="Exceptions\ConflictException.cs" />
     <Compile Include="Exceptions\ExceptionWithErrorCode.cs" />
     <Compile Include="Exceptions\ResourceNotFoundException.cs" />
+    <Compile Include="Helpers\FeatureLicenseHelper.cs" />
+    <Compile Include="Helpers\FeatureTypes.cs" />
+    <Compile Include="Helpers\CacheHelper.cs" />
     <Compile Include="Helpers\ErrorCodes.cs" />
     <Compile Include="Helpers\HttpWebClient.cs" />
     <Compile Include="Helpers\IHttpWebClient.cs" />
     <Compile Include="Helpers\ImageHelper.cs" />
     <Compile Include="Helpers\ISqlHelper.cs" />
     <Compile Include="Helpers\ItemTypePredefinedExtension.cs" />
+    <Compile Include="Helpers\LicenseType.cs" />
     <Compile Include="Helpers\RemoveSecurityRelatedHeadersHttpModule.cs" />
     <Compile Include="Helpers\SerializationHelper.cs" />
     <Compile Include="Helpers\ServerHelper.cs" />
@@ -148,6 +153,7 @@
     <Compile Include="Models\Jobs\ProjectExportResultDetails.cs" />
     <Compile Include="Models\Jobs\ProjectExportTaskStatus.cs" />
     <Compile Include="Models\Jobs\JobResult.cs" />
+    <Compile Include="Models\Licenses\FeatureInformation.cs" />
     <Compile Include="Models\LicenseUsage.cs" />
     <Compile Include="Models\Messaging\SystemJobCommand.cs" />
     <Compile Include="Models\Messaging\SystemMessage.cs" />
@@ -194,6 +200,8 @@
     <Compile Include="Repositories\ISqlItemInfoRepository.cs" />
     <Compile Include="Repositories\IUsersRepository.cs" />
     <Compile Include="Repositories\JobExecutorStatusRepository.cs" />
+    <Compile Include="Repositories\Licenses\ILicenseRepository.cs" />
+    <Compile Include="Repositories\Licenses\LicenseRepository.cs" />
     <Compile Include="Repositories\SqlArtifactPermissionsRepository.cs" />
     <Compile Include="Repositories\SqlArtifactRepository.cs" />
     <Compile Include="Helpers\ExceptionHelper.cs" />

@@ -89,6 +89,7 @@
     <Compile Include="EventSources\EventSourcesTests.cs" />
     <Compile Include="Helpers\HttpFilterHelper.cs" />
     <Compile Include="Helpers\TestHttpClientProvider.cs" />
+    <Compile Include="Helpers\TestsForHelpers\CacheHelperTests.cs" />
     <Compile Include="Helpers\TestsForHelpers\I18HelperTests.cs" />
     <Compile Include="Helpers\TestsForHelpers\LoggableApiControllerTests.cs" />
     <Compile Include="Helpers\TestsForHelpers\StatusControllerHelperTests.cs" />

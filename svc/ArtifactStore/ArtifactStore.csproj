@@ -128,6 +128,9 @@
     <Compile Include="Models\PropertyTypePredefined.cs" />
     <Compile Include="Models\RelationshipResultSet.cs" />
     <Compile Include="Models\ReviewRelationshipResultSet.cs" />
+    <Compile Include="Models\Review\AssignArtifactsApprovalParameter.cs" />
+    <Compile Include="Models\Review\AddParticipantsResult.cs" />
+    <Compile Include="Models\Review\AddParticipantsParameter.cs" />
     <Compile Include="Models\Review\AddArtifactsParameter.cs" />
     <Compile Include="Models\Review\AddArtifactsResult.cs" />
     <Compile Include="Models\Review\BaseReviewArtifactsContent.cs" />
@@ -136,6 +139,7 @@
     <Compile Include="Models\Review\BaseReviewArtifact.cs" />
     <Compile Include="Models\Review\ReviewedArtifact.cs" />
     <Compile Include="Models\Review\ReviewArtifactsStatus.cs" />
+    <Compile Include="Models\Review\ReviewPackageRawData.cs" />
     <Compile Include="Models\Review\ReviewPackageStatus.cs" />
     <Compile Include="Models\Review\ReviewParticipant.cs" />
     <Compile Include="Models\Review\ReviewTableOfContent.cs" />
@@ -145,6 +149,7 @@
     <Compile Include="Models\Review\ReviewSource.cs" />
     <Compile Include="Models\Review\ReviewStatus.cs" />
     <Compile Include="Models\Review\ReviewType.cs" />
+    <Compile Include="Models\Review\SimulationSettings.cs" />
     <Compile Include="Models\Review\ViewStateType.cs" />
     <Compile Include="Models\VersionControlArtifactInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

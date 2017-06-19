@@ -65,6 +65,7 @@ namespace ArtifactStore.Controllers
         public Task<QueryResult<ReviewedArtifact>> GetReviewedArtifacts(int containerId, [FromUri] Pagination pagination, int? revisionId = int.MaxValue)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            pagination.SetDefaultValues(0, 10);
             return _sqlReviewsRepository.GetReviewedArtifacts(containerId, session.UserId, pagination, revisionId.Value);
         }
 
@@ -85,6 +86,7 @@ namespace ArtifactStore.Controllers
         public Task<QueryResult<ReviewArtifact>> GetContentAsync(int containerId, [FromUri] Pagination pagination, int? versionId = null)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            pagination.SetDefaultValues(0, 10);
             return _sqlReviewsRepository.GetReviewArtifactsContentAsync(containerId, session.UserId, pagination, versionId);
         }
 
@@ -105,7 +107,7 @@ namespace ArtifactStore.Controllers
         public Task<AddArtifactsResult> AddArtifactsToReview(int reviewId, [FromBody] AddArtifactsParameter content)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return _sqlReviewsRepository.AddArtifactsToReview(reviewId, session.UserId, content);
+            return _sqlReviewsRepository.AddArtifactsToReviewAsync(reviewId, session.UserId, content);
         }
 
         /// <summary>
@@ -113,8 +115,7 @@ namespace ArtifactStore.Controllers
         /// </summary>
         /// <param name="containerId">Review artifact Id</param>
         /// <param name="revisionId">Revision Id</param>
-        /// <param name="offset">Offset</param>
-        /// <param name="limit">Page size</param>
+        /// <param name="pagination"></param>
         /// <returns></returns>
         /// <response code="200">OK.</response>
         /// <response code="400">Bad Request.</response>
@@ -123,10 +124,11 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("containers/{containerId:int:min(1)}/toc/{revisionId:int:min(1)}"), SessionRequired]
-        public Task<ReviewTableOfContent> GetTableOfContentAsync(int containerId, int revisionId, int? offset = 0, int? limit = 50)
+        public Task<ReviewTableOfContent> GetTableOfContentAsync(int containerId, int revisionId, [FromUri] Pagination pagination)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return _sqlReviewsRepository.GetReviewTableOfContent(containerId, revisionId, session.UserId, offset, limit);
+            pagination.SetDefaultValues(0, 50);
+            return _sqlReviewsRepository.GetReviewTableOfContent(containerId, revisionId, session.UserId, pagination);
         }
 
         /// <summary>
@@ -151,6 +153,26 @@ namespace ArtifactStore.Controllers
         }
 
         /// <summary>
+        /// Adds a participant(s) to the specified review.Locks review if it is necessary.
+        /// </summary>
+        /// <param name="reviewId"></param>
+        /// <param name="content"></param>
+        /// <returns></returns>
+        /// <response code="200">OK.</response>
+        /// <response code="400">Bad Request.</response>
+        /// <response code="401">Unauthorized. The session token is invalid.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for the artifact or it is locked by another user.</response>
+        /// <response code="404">Not found. An artifact for the specified id is not found, does not exist or is deleted.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpPut]
+        [Route("containers/{reviewId:int:min(1)}/participants"), SessionRequired]
+        public Task<AddParticipantsResult> AddParticipantsToReview(int reviewId, [FromBody] AddParticipantsParameter content)
+        {
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            return _sqlReviewsRepository.AddParticipantsToReviewAsync(reviewId, session.UserId, content);
+        }
+
+        /// <summary>
         /// Gets review participants for a review given offset and limit, also returns total count.
         /// </summary>
         /// <param name="artifactId"></param>
@@ -170,6 +192,26 @@ namespace ArtifactStore.Controllers
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             return _sqlReviewsRepository.GetReviewArtifactStatusesByParticipant(artifactId, containerId, offset, limit, session.UserId, versionId);
+        }
+
+        /// <summary>
+        /// Assigns ApprovalRequired flag for artifact in the review.
+        /// </summary>
+        /// <param name="reviewId"></param>
+        /// <param name="content"></param>
+        /// <returns></returns>
+        /// <response code="200">OK.</response>
+        /// <response code="400">Bad Request.</response>
+        /// <response code="401">Unauthorized. The session token is invalid.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for the review or it is locked by another user.</response>
+        /// <response code="404">Not found. An artifact for the specified id is not found, does not exist or is deleted.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpPut]
+        [Route("containers/{reviewId:int:min(1)}/artifacts/approval"), SessionRequired]
+        public Task AssignApprovalRequiredToArtifacts(int reviewId, [FromBody] AssignArtifactsApprovalParameter content)
+        {
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            return _sqlReviewsRepository.AssignApprovalRequiredToArtifacts(reviewId, session.UserId, content);
         }
     }
 }

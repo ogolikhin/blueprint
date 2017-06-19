@@ -11,6 +11,7 @@ using AccessControl.Repositories;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
+using System.Runtime.Caching;
 
 namespace AccessControl.Controllers
 {
@@ -19,18 +20,21 @@ namespace AccessControl.Controllers
     public class SessionsController : ApiController
     {
         private static readonly ITimeoutManager<Guid> Sessions = new TimeoutManager<Guid>();
+        private static readonly ObjectCache SessionsCache = new MemoryCache("USER_SESSIONS");
 
         internal readonly ITimeoutManager<Guid> _sessions;
+        internal readonly ObjectCache _sessionsCache;
         internal readonly ISessionsRepository _repo;
         internal readonly IServiceLogRepository _log;
 
-        public SessionsController() : this(Sessions, new SqlSessionsRepository(), new ServiceLogRepository())
+        public SessionsController() : this(Sessions, SessionsCache, new SqlSessionsRepository(), new ServiceLogRepository())
         {
         }
 
-        internal SessionsController(ITimeoutManager<Guid> sessions, ISessionsRepository repo, IServiceLogRepository log)
+        internal SessionsController(ITimeoutManager<Guid> sessions, ObjectCache sessionsCache, ISessionsRepository repo, IServiceLogRepository log)
         {
             _sessions = sessions;
+            _sessionsCache = sessionsCache;
             _repo = repo;
             _log = log;
         }
@@ -148,6 +152,7 @@ namespace AccessControl.Controllers
                     throw new KeyNotFoundException();
                 }
                 var token = Session.Convert(session.SessionId);
+                _sessionsCache.Add(token, session, DateTimeOffset.UtcNow.Add(WebApiConfig.SessionCacheExpiration));
                 InsertSession(session);
                 var response = Request.CreateResponse(HttpStatusCode.OK);
                 response.Headers.Add("Session-Token", token);
@@ -173,12 +178,21 @@ namespace AccessControl.Controllers
             {
                 var token = GetHeaderSessionToken();
                 var guid = Session.Convert(token);
-                var session = await _repo.ExtendSession(guid);
+                var session = _sessionsCache.Get(token) as Session;
+
                 if (session == null)
                 {
-                    throw new KeyNotFoundException();
+                    session = await _repo.ExtendSession(guid);
+
+                    if (session == null)
+                    {
+                        throw new KeyNotFoundException();
+                    }
+
+                    _sessionsCache.Add(token, session, DateTimeOffset.UtcNow.Add(WebApiConfig.SessionCacheExpiration));
+                    InsertSession(session);
                 }
-                InsertSession(session);
+                
                 var response = Request.CreateResponse(HttpStatusCode.OK, session);
                 response.Headers.Add("Session-Token", token);
                 return ResponseMessage(response);

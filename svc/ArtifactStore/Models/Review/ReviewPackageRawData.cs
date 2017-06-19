@@ -5,8 +5,50 @@ using System.Runtime.Serialization;
 
 namespace ArtifactStore.Models.Review
 {
-    public class ReviewPackageRawData
+    [DataContract(Namespace = "http://www.blueprintsys.com/raptor/reviews")]
+    internal class ReviewPackageRawData : IExtensibleDataObject
     {
+        [DataMember(EmitDefaultValue = false)]
+        public DateTime? EndDate;
+
+        [DataMember(EmitDefaultValue = false)]
+        public bool IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed;
+
+        [DataMember(EmitDefaultValue = false)]
+        public bool IsBaselineFollowUpReview;
+
+        [DataMember(EmitDefaultValue = false)]
+        public bool IsESignatureEnabled;
+
+        [DataMember(EmitDefaultValue = false)]
+        public bool IsFollowUpReview;
+
+        [DataMember(EmitDefaultValue = false)]
+        public bool IsIgnoreFolder;
+
+        [DataMember(EmitDefaultValue = false)]
+        public bool IsMoSEnabled;
+
+        [DataMember(EmitDefaultValue = false)]
+        public ReviewPackageStatus Status;
+
+        //Intentionally spelt wrong to be compatible with existing system
+        [DataMember(EmitDefaultValue = false)]
+        public List<ReviewerRawData> Reviwers;
+
+        public ExtensionDataObject ExtensionData { get; set; }
+    }
+
+    [DataContract(Namespace = "http://www.blueprintsys.com/raptor/reviews")]
+    internal class ReviewerRawData : IExtensibleDataObject
+    {
+        [DataMember()]
+        public ReviewParticipantRole Permission;
+
+        [DataMember()]
+        public int UserId;
+
+        public ExtensionDataObject ExtensionData { get; set; }
     }
 
     // If the structure of this class changes we need to update the xsd in the database in DataAnalytics.sql file too for performance reasons.

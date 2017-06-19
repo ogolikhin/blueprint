@@ -170,6 +170,8 @@
     <Compile Include="Models\LicenseTransactionUser.cs" />
     <Compile Include="Models\LoginUser.cs" />
     <Compile Include="Models\UserGroupSource.cs" />
+    <Compile Include="Models\Workflow\DState.cs" />
+    <Compile Include="Models\Workflow\DTrigger.cs" />
     <Compile Include="Models\Workflow\IeArtifactType.cs" />
     <Compile Include="Models\Workflow\IeProject.cs" />
     <Compile Include="Models\Workflow\IeGroup.cs" />

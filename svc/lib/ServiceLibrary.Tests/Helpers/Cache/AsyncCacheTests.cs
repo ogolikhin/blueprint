@@ -33,7 +33,6 @@ namespace ServiceLibrary.Helpers.Cache
             };
 
             _cacheMock
-
                 .Setup(c => c.AddOrGetExisting(key, It.IsAny<AsyncLazy<string>>(), cacheItemPolicy, null))
                 .Returns(null);
 

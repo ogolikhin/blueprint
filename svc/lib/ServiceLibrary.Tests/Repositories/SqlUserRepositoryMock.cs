@@ -25,6 +25,30 @@ namespace ServiceLibrary.Repositories
             }
             return await Task.FromResult(result);
         }
+
+        public Task<IEnumerable<UserInfo>> GetUserInfosFromGroupsAsync(IEnumerable<int> groupIds)
+        {
+            return Task.FromResult((IEnumerable<UserInfo>)new List<UserInfo>()
+            {
+                new UserInfo()
+                {
+                    UserId = 1,
+                    DisplayName = "User1",
+                    ImageId = 1,
+                    IsEnabled = true,
+                    IsGuest = false
+                },
+                new UserInfo()
+                {
+                    UserId = 2,
+                    DisplayName = "User2",
+                    ImageId = 2,
+                    IsEnabled = true,
+                    IsGuest = false
+                }
+            });
+        }
+
         public async Task<IEnumerable<UserInfo>> GetUsersByEmail(string email, bool? guestsOnly = false)
         {
             if (email == "DisabledUser@MyDomain")

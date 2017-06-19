@@ -128,6 +128,9 @@
     <Compile Include="Models\PropertyTypePredefined.cs" />
     <Compile Include="Models\RelationshipResultSet.cs" />
     <Compile Include="Models\ReviewRelationshipResultSet.cs" />
+    <Compile Include="Models\Review\AssignArtifactsApprovalParameter.cs" />
+    <Compile Include="Models\Review\AddParticipantsResult.cs" />
+    <Compile Include="Models\Review\AddParticipantsParameter.cs" />
     <Compile Include="Models\Review\AddArtifactsParameter.cs" />
     <Compile Include="Models\Review\AddArtifactsResult.cs" />
     <Compile Include="Models\Review\BaseReviewArtifactsContent.cs" />

@@ -217,149 +217,112 @@ namespace ServiceLibrary.Repositories
         }
 
         [TestMethod]
-        public async Task UploadFileAsync_InvalidArguments()
+        [ExpectedException(typeof(ArgumentNullException), "ArgumentNull Exception is not thrown.")]
+        public async Task UploadFileAsync_NullFileNameArgument()
         {
             // Arrange
+            string fileName = "";
+            string fileType = "xml";
+
             var uri = new Uri("http://localhost");
             var httpWebClient = new HttpWebClient(uri, null);
-
+            
+            // Act
             var fileRepository = new FileRepository(httpWebClient);
-            ArgumentNullException argException = null;
+            await fileRepository.UploadFileAsync(fileName, fileType, null, null);
 
-            // Test "fileName" argument
-            try
-            {
-                await fileRepository.UploadFileAsync(" ", "", null, null);
-            }
-            catch (ArgumentNullException ex)
-            {
-                argException = ex;
-            }
-            Assert.IsNotNull(argException);
-
-            // Test "content" argument
-            try
-            {
-                argException = null;
-
-                await fileRepository.UploadFileAsync("TEST", "", null, null);
-            }
-            catch (ArgumentNullException ex)
-            {
-                argException = ex;
-            }
-            Assert.IsNotNull(argException);
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException), "ArgumentNull Exception is not thrown.")]
+        public async Task UploadFileAsync_NullFileTypeArgument()
+        {
+            // Arrange
+            string fileName = "Test.xml";
+            string fileType = "";
+
+            var uri = new Uri("http://localhost");
+            var httpWebClient = new HttpWebClient(uri, null);
+            
+            // Act
+            var fileRepository = new FileRepository(httpWebClient);
+            await fileRepository.UploadFileAsync(fileName, fileType, null, null);
+           
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthenticationException), "Authentication Exception is not thrown.")]
         public async Task UploadFileAsync_AuthenticationException()
         {
             // Arrange
-            AuthenticationException retException = null;
             string fileName = "Test.xml";
-            string type = "xml";
+            string fileType = "xml";
+            string txtContent = "Test...Test...";
 
-            var response = CreateUploadFileHttpWebResponse(fileName, type, HttpStatusCode.Unauthorized);
+            Stream content = new MemoryStream(Encoding.ASCII.GetBytes(txtContent));
+            var response = CreateUploadFileHttpWebResponse(fileName, fileType, HttpStatusCode.Unauthorized);
             var httpWebClient = CreateUploadHttpClient(response);
 
-            var fileRepository = new FileRepository(httpWebClient);
-
             // Act
-            try
-            {
-                byte[] arr = Encoding.ASCII.GetBytes("Test...Test...");
-                Stream content = new MemoryStream(arr);
-                await fileRepository.UploadFileAsync("Test", "xml", content);
-            }
-            catch (AuthenticationException ex)
-            {
-                retException = ex;
-            }
-            Assert.IsNotNull(retException);
-            
+            var fileRepository = new FileRepository(httpWebClient);
+            await fileRepository.UploadFileAsync(fileName, fileType, content);
+
         }
 
         [TestMethod]
+        [ExpectedException(typeof(BadRequestException), "The BadRequest Exception is not thrown.")]
         public async Task UploadFileAsync_BadRequestException()
         {
             // Arrange
-            BadRequestException retException = null;
             string fileName = "Test.xml";
-            string type = "xml";
+            string fileType = "xml";
+            string txtContent = "Test...Test...";
 
-            var response = CreateUploadFileHttpWebResponse(fileName, type, HttpStatusCode.BadRequest);
+            Stream content = new MemoryStream(Encoding.ASCII.GetBytes(txtContent));
+            var response = CreateUploadFileHttpWebResponse(fileName, fileType, HttpStatusCode.BadRequest);
             var httpWebClient = CreateUploadHttpClient(response);
 
-            var fileRepository = new FileRepository(httpWebClient);
-
             // Act
-            try
-            {
-                byte[] arr = Encoding.ASCII.GetBytes("Test...Test...");
-                Stream content = new MemoryStream(arr);
-                await fileRepository.UploadFileAsync("Test", "xml", content);
-            }
-            catch (BadRequestException ex)
-            {
-                retException = ex;
-            }
-            Assert.IsNotNull(retException);
+            var fileRepository = new FileRepository(httpWebClient);
+            await fileRepository.UploadFileAsync(fileName, fileType, content);
 
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException), "The ResourceNotFound Exception is not thrown.")]
         public async Task UploadFileAsync_ResourceNotFoundException()
         {
             // Arrange
-            ResourceNotFoundException retException = null;
             string fileName = "Test.xml";
-            string type = "xml";
+            string fileType = "xml";
+            string txtContent = "Test...Test...";
 
-            var response = CreateUploadFileHttpWebResponse(fileName, type, HttpStatusCode.NotFound);
+            Stream content = new MemoryStream(Encoding.ASCII.GetBytes(txtContent));
+            var response = CreateUploadFileHttpWebResponse(fileName, fileType, HttpStatusCode.NotFound);
             var httpWebClient = CreateUploadHttpClient(response);
 
-            var fileRepository = new FileRepository(httpWebClient);
-
             // Act
-            try
-            {
-                byte[] arr = Encoding.ASCII.GetBytes("Test...Test...");
-                Stream content = new MemoryStream(arr);
-                await fileRepository.UploadFileAsync("Test", "xml", content);
-            }
-            catch (ResourceNotFoundException ex)
-            {
-                retException = ex;
-            }
-            Assert.IsNotNull(retException);
+            var fileRepository = new FileRepository(httpWebClient);
+            await fileRepository.UploadFileAsync(fileName, fileType, content);
 
         }
 
         [TestMethod]
+        [ExpectedException(typeof(Exception), "The Default Exception is not thrown.")]
         public async Task UploadFileAsync_DefaultException()
         {
             // Arrange
-            Exception retException = null;
             string fileName = "Test.xml";
-            string type = "xml";
+            string fileType = "xml";
+            string txtContent = "Test...Test...";
 
-            var response = CreateUploadFileHttpWebResponse(fileName, type, HttpStatusCode.OK);
+            Stream content = new MemoryStream(Encoding.ASCII.GetBytes(txtContent));
+            var response = CreateUploadFileHttpWebResponse(fileName, fileType, HttpStatusCode.OK);
             var httpWebClient = CreateUploadHttpClient(response);
 
-            var fileRepository = new FileRepository(httpWebClient);
-
             // Act
-            try
-            {
-                byte[] arr = Encoding.ASCII.GetBytes("Test...Test...");
-                Stream content = new MemoryStream(arr);
-                await fileRepository.UploadFileAsync("Test", "xml", content);
-            }
-            catch (Exception ex)
-            {
-                retException = ex;
-            }
-            Assert.IsNotNull(retException);
+            var fileRepository = new FileRepository(httpWebClient);
+            await fileRepository.UploadFileAsync(fileName, fileType, content);
 
         }
 

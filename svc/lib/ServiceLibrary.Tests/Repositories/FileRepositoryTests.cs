@@ -326,6 +326,26 @@ namespace ServiceLibrary.Repositories
 
         }
 
+        [TestMethod]
+        public async Task UploadFileAsync_Success()
+        {
+            // Arrange
+            string fileName = "Test.xml";
+            string fileType = "application/xml";
+
+            string guid = Guid.NewGuid().ToStringInvariant();
+            string xmlResponse = I18NHelper.FormatInvariant(@"<FileResult><Guid>{0}</Guid><UriToFile>/svc/components/filestore/image/{0}</UriToFile></FileResult>", guid);
+            Stream content = new MemoryStream(Encoding.ASCII.GetBytes(xmlResponse));
+            var response = CreateUploadFileHttpWebResponse(fileName, fileType, HttpStatusCode.Created, xmlResponse);
+            var httpWebClient = CreateUploadHttpClient(response);
+
+            // Act
+            var fileRepository = new FileRepository(httpWebClient);
+            string responseGuid = await fileRepository.UploadFileAsync(fileName, fileType, content);
+           
+            Assert.AreEqual(responseGuid, guid);
+            
+        }
         private static HttpWebResponse CreateHttpWebResponse(HttpStatusCode status)
         {
             var responseMock = new Mock<HttpWebResponse>();
@@ -361,7 +381,7 @@ namespace ServiceLibrary.Repositories
             return responseMock.Object;
         }
 
-        private static HttpWebResponse CreateUploadFileHttpWebResponse(string fileName, string type, HttpStatusCode code)
+        private static HttpWebResponse CreateUploadFileHttpWebResponse(string fileName, string type, HttpStatusCode code, string content = null)
         {
             var responseMock = new Mock<HttpWebResponse>();
             responseMock.Setup(m => m.StatusCode).Returns(code);
@@ -378,7 +398,7 @@ namespace ServiceLibrary.Repositories
             );
             responseMock.Setup(m => m.GetResponseStream()).Returns(() =>
             {
-                var expected = "response content";
+                var expected = content == null ? "response content" : content;
                 var expectedBytes = Encoding.UTF8.GetBytes(expected);
                 var responseStream = new MemoryStream();
                 responseStream.Write(expectedBytes, 0, expectedBytes.Length);

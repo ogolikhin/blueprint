@@ -194,7 +194,7 @@ namespace ArtifactStore.Repositories
             }
 
             int alreadyIncludedCount;
-            var propertyResult = await GetReviewPropertyString(reviewId, userId);
+            var propertyResult = await GetReviewPropertyString(reviewId, userId, false);
 
             if (propertyResult.ProjectId == null || propertyResult.ProjectId < 1)
             {
@@ -220,11 +220,12 @@ namespace ArtifactStore.Repositories
         }
 
 
-        private async Task<PropertyValueString> GetReviewPropertyString(int reviewId, int userId)
+        private async Task<PropertyValueString> GetReviewPropertyString(int reviewId, int userId, bool assignApprovalRequired = false)
         {
             var param = new DynamicParameters();
             param.Add("@reviewId", reviewId);
             param.Add("@userId", userId);
+            param.Add("@assignApprovalRequired", assignApprovalRequired);
 
             return (await ConnectionWrapper.QueryAsync<PropertyValueString>("GetReviewPropertyString", param, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
@@ -650,7 +651,7 @@ namespace ArtifactStore.Repositories
                 throw new BadRequestException("Incorrect input parameters", ErrorCodes.OutOfRangeParameter);
             }
 
-            var propertyResult = await GetReviewPropertyString(reviewId, userId);
+            var propertyResult = await GetReviewPropertyString(reviewId, userId, true);
 
             if (propertyResult.ProjectId == null || propertyResult.ProjectId < 1)
             {

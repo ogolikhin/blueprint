@@ -128,7 +128,8 @@ namespace AdminStore.Repositories.Workflow
                                 Actions = null,
                                 ProjectId = null,
                                 WorkflowState1Id = newStatesArray.FirstOrDefault(s => s.Name.Equals(transition.FromState))?.WorkflowStateId,
-                                WorkflowState2Id = newStatesArray.FirstOrDefault(s => s.Name.Equals(transition.ToState))?.WorkflowStateId
+                                WorkflowState2Id = newStatesArray.FirstOrDefault(s => s.Name.Equals(transition.ToState))?.WorkflowStateId,
+                                PropertyTypeId = null
                             });
                         });
                         newTriggers = await CreateWorkflowTriggersAsync(importTriggersParams, publishRevision, transaction);
@@ -351,12 +352,14 @@ namespace AdminStore.Repositories.Workflow
             table.Columns.Add("ProjectId", typeof(int));
             table.Columns.Add("WorkflowState1Id", typeof(int));
             table.Columns.Add("WorkflowState2Id", typeof(int));
+            table.Columns.Add("PropertyTypeId", typeof(int));
 
             foreach (var workflowTrigger in workflowTriggers)
             {
                 table.Rows.Add(workflowTrigger.TriggerId, workflowTrigger.Name, workflowTrigger.Description,
-                    workflowTrigger.WorkflowId, workflowTrigger.Type, workflowTrigger.Permissions, workflowTrigger.Validations,
-                    workflowTrigger.Actions, workflowTrigger.ProjectId, workflowTrigger.WorkflowState1Id, workflowTrigger.WorkflowState2Id);
+                    workflowTrigger.WorkflowId, workflowTrigger.Type, workflowTrigger.Permissions, 
+                    workflowTrigger.Validations, workflowTrigger.Actions, workflowTrigger.ProjectId, 
+                    workflowTrigger.WorkflowState1Id, workflowTrigger.WorkflowState2Id, workflowTrigger.PropertyTypeId);
             }
             return table;
         }

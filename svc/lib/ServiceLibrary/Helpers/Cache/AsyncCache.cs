@@ -18,7 +18,7 @@ namespace ServiceLibrary.Helpers.Cache
             Cache = cache;
         }
 
-        public async Task<T> AddOrGetExystingAsync<T>(string key, Func<Task<T>> asyncValueFactory, CacheItemPolicy policy)
+        public async Task<T> AddOrGetExistingAsync<T>(string key, Func<Task<T>> asyncValueFactory, CacheItemPolicy policy)
         {
             ValidateKey(key);
 
@@ -51,14 +51,14 @@ namespace ServiceLibrary.Helpers.Cache
             }
         }
 
-        public Task<T> AddOrGetExystingAsync<T>(string key, Func<Task<T>> asyncValueFactory, DateTimeOffset absoluteExpiration)
+        public Task<T> AddOrGetExistingAsync<T>(string key, Func<Task<T>> asyncValueFactory, DateTimeOffset absoluteExpiration)
         {
-            return AddOrGetExystingAsync(key, asyncValueFactory, new CacheItemPolicy { AbsoluteExpiration = absoluteExpiration });
+            return AddOrGetExistingAsync(key, asyncValueFactory, new CacheItemPolicy { AbsoluteExpiration = absoluteExpiration });
         }
 
-        public Task<T> AddOrGetExystingAsync<T>(string key, Func<Task<T>> asyncValueFactory, TimeSpan slidingExpiration)
+        public Task<T> AddOrGetExistingAsync<T>(string key, Func<Task<T>> asyncValueFactory, TimeSpan slidingExpiration)
         {
-            return AddOrGetExystingAsync(key, asyncValueFactory, new CacheItemPolicy { SlidingExpiration = slidingExpiration });
+            return AddOrGetExistingAsync(key, asyncValueFactory, new CacheItemPolicy { SlidingExpiration = slidingExpiration });
         }
 
         public void Remove(string key)

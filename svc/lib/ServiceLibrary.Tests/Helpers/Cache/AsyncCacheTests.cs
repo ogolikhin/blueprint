@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System.Runtime.Caching;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace ServiceLibrary.Helpers.Cache
 {
@@ -32,14 +33,14 @@ namespace ServiceLibrary.Helpers.Cache
             };
 
             _cacheMock
-                //.Setup(c => c.AddOrGetExisting(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CacheItemPolicy>(), null))
+
                 .Setup(c => c.AddOrGetExisting(key, It.IsAny<AsyncLazy<string>>(), cacheItemPolicy, null))
                 .Returns(null);
 
             var cache = new AsyncCache(_cacheMock.Object);
 
             // Act
-            var result = await cache.AddOrGetExystingAsync(key, func, cacheItemPolicy);
+            var result = await cache.AddOrGetExistingAsync(key, func, cacheItemPolicy);
 
             // Asserts
             Assert.AreEqual(value, result);
@@ -52,9 +53,7 @@ namespace ServiceLibrary.Helpers.Cache
         {
             // Arrange
             var key = "this-is-the-key";
-            var value = "this-is-the-value";
             var absoluteExpiration = DateTime.UtcNow.AddSeconds(30);
-            Func<Task<string>> func = () => Task.FromResult(value);
 
             _cacheMock
                 .Setup(c => c.AddOrGetExisting(key, It.IsAny<AsyncLazy<string>>(), It.Is<CacheItemPolicy>(policy => policy.AbsoluteExpiration == absoluteExpiration), null))
@@ -63,10 +62,29 @@ namespace ServiceLibrary.Helpers.Cache
             var cache = new AsyncCache(_cacheMock.Object);
 
             // Act
-            var result = await cache.AddOrGetExystingAsync(key, func, absoluteExpiration);
+            var result = await cache.AddOrGetExistingAsync(key, () => Task.FromResult("this-is-the-value"), absoluteExpiration);
 
             // Asserts
-            Assert.AreEqual(value, result);
+            _cacheMock.VerifyAll();
+        }
+
+        [TestMethod]
+        public async Task AddOrGetExystingAsync_SlidingExpiration_ItemNotCached_ItemFactoryCalledAndResultCached()
+        {
+            // Arrange
+            var key = "this-is-the-key";
+            var slidingExpiration = TimeSpan.FromMinutes(1);
+
+            _cacheMock
+                .Setup(c => c.AddOrGetExisting(key, It.IsAny<AsyncLazy<string>>(), It.Is<CacheItemPolicy>(policy => policy.SlidingExpiration == slidingExpiration), null))
+                .Returns(null);
+
+            var cache = new AsyncCache(_cacheMock.Object);
+
+            // Act
+            var result = await cache.AddOrGetExistingAsync(key, () => Task.FromResult("this-is-the-value"), slidingExpiration);
+
+            // Asserts
             _cacheMock.VerifyAll();
         }
 
@@ -92,7 +110,7 @@ namespace ServiceLibrary.Helpers.Cache
             var cache = new AsyncCache(_cacheMock.Object);
 
             // Act
-            var result = await cache.AddOrGetExystingAsync(key, func, cacheItemPolicy);
+            var result = await cache.AddOrGetExistingAsync(key, func, cacheItemPolicy);
 
             // Asserts
             Assert.AreEqual(value, result);
@@ -118,7 +136,7 @@ namespace ServiceLibrary.Helpers.Cache
             var cache = new AsyncCache(_cacheMock.Object);
 
             // Act
-            var result = cache.AddOrGetExystingAsync(key, func, cacheItemPolicy);
+            var result = cache.AddOrGetExistingAsync(key, func, cacheItemPolicy);
 
             // Asserts
             try
@@ -133,5 +151,50 @@ namespace ServiceLibrary.Helpers.Cache
             }
             _cacheMock.Verify(c => c.Remove(key, null), Times.Once);
         }
+
+        [TestMethod]
+        public void AddOrGetExystingAsync_ItemNotCached_ParallelRequests()
+        {
+            const int parallelRequestsCount = 10;
+            int factoryCalls = 0;
+
+            using (var barrier = new Barrier(parallelRequestsCount + 1))
+            using (var memoryCache = new MemoryCache(nameof(AddOrGetExystingAsync_ItemNotCached_ParallelRequests)))
+            {
+                var asyncCache = new AsyncCache(memoryCache);
+                var key = "this-is-key";
+                
+                for (int i = 0; i < parallelRequestsCount; i++)
+                {
+                    string value = "Value " + i;
+                    Task.Factory.StartNew(async () =>
+                    {
+                        barrier.SignalAndWait(500);
+                        var resultValue = await asyncCache.AddOrGetExistingAsync(
+                            key,
+                            () =>
+                            {
+                                Interlocked.Increment(ref factoryCalls);
+                                return Task.FromResult(value);
+                            },
+                            DateTime.UtcNow.AddSeconds(30)
+                        );
+
+                        Assert.IsTrue(resultValue.StartsWith("Value"));
+
+                        barrier.SignalAndWait(500);
+                    });
+                }
+                barrier.SignalAndWait(500);
+
+                // Threads will call Cache at that time
+
+                barrier.SignalAndWait(500);
+            }
+            
+
+            Assert.AreEqual(1, factoryCalls);
+        }
+
     }
 }

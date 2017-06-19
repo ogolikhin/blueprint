@@ -29,6 +29,8 @@
         public int? WorkflowState1Id { get; set; }
 
         public int? WorkflowState2Id { get; set; }
+
+        public int? PropertyTypeId { get; set; }
     }
 
     public enum DTriggerType

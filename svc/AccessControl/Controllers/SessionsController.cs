@@ -230,7 +230,8 @@ namespace AccessControl.Controllers
                 {
                     throw new KeyNotFoundException();
                 }
-                _sessions.Remove(guid);
+                RemoveCachedSession(guid);
+
                 return Ok();
             }
             catch (ArgumentNullException)
@@ -269,7 +270,7 @@ namespace AccessControl.Controllers
                 {
                     throw new KeyNotFoundException();
                 }
-                _sessions.Remove(session.SessionId);
+                RemoveCachedSession(session.SessionId);
                 return Ok();
             }
             catch (ArgumentNullException)
@@ -295,9 +296,15 @@ namespace AccessControl.Controllers
         {
             _sessions.Insert(session.SessionId, session.EndTime, async () =>
             {
-                _sessions.Remove(session.SessionId);
+                RemoveCachedSession(session.SessionId);
                 await _repo.EndSession(session.SessionId, session.EndTime);
             });
+        }
+
+        private void RemoveCachedSession(Guid sessionId)
+        {
+            _sessions.Remove(sessionId);
+            _sessionsCache.Remove(sessionId.ToString());
         }
     }
 }

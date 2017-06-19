@@ -6,7 +6,7 @@
 
         public int TriggerId { get; set; }
 
-        public int WorkflowId { get; set; }
+        public int? WorkflowId { get; set; }
 
         public int StartRevision { get; set; }
 

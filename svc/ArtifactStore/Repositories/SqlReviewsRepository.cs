@@ -194,7 +194,7 @@ namespace ArtifactStore.Repositories
             }
 
             int alreadyIncludedCount;
-            var propertyResult = await GetReviewPropertyString(reviewId, userId, content);
+            var propertyResult = await GetReviewPropertyString(reviewId, userId);
 
             if (propertyResult.ProjectId == null || propertyResult.ProjectId < 1)
             {
@@ -220,7 +220,7 @@ namespace ArtifactStore.Repositories
         }
 
 
-        private async Task<PropertyValueString> GetReviewPropertyString(int reviewId, int userId, AddArtifactsParameter content)
+        private async Task<PropertyValueString> GetReviewPropertyString(int reviewId, int userId)
         {
             var param = new DynamicParameters();
             param.Add("@reviewId", reviewId);
@@ -374,12 +374,13 @@ namespace ArtifactStore.Repositories
             };
         }
 
-        private async Task<int> UpdateReviewArtifacts(int reviewId, int userId, string xmlArtifacts)
+        private async Task<int> UpdateReviewArtifacts(int reviewId, int userId, string xmlArtifacts, bool addReviewSubArtifactIfNeeded = true)
         {
             var param = new DynamicParameters();
             param.Add("@reviewId", reviewId);
             param.Add("@userId", userId);
             param.Add("@xmlArtifacts", xmlArtifacts);
+            param.Add("@addReviewSubArtifactIfNeeded", addReviewSubArtifactIfNeeded);
 
             return await ConnectionWrapper.ExecuteAsync("UpdateReviewArtifacts", param, commandType: CommandType.StoredProcedure);
         }
@@ -642,9 +643,65 @@ namespace ArtifactStore.Repositories
             return toc;
         }
 
-        public Task AssignApprovalRequiredToArtifacts(int reviewId, int userId, AssignArtifactsApprovalParameter content)
+        public async Task AssignApprovalRequiredToArtifacts(int reviewId, int userId, AssignArtifactsApprovalParameter content)
         {
-            return new Task(() => { });
+            if (content.ArtifactsApprovalRequiredInfo == null || content.ArtifactsApprovalRequiredInfo.Count() == 0)
+            {
+                throw new BadRequestException("Incorrect input parameters", ErrorCodes.OutOfRangeParameter);
+            }
+
+            var propertyResult = await GetReviewPropertyString(reviewId, userId);
+
+            if (propertyResult.ProjectId == null || propertyResult.ProjectId < 1)
+            {
+                ThrowReviewNotFoundException(reviewId);
+            }
+
+            if (propertyResult.IsReviewLocked == false)
+            {
+                ExceptionHelper.ThrowArtifactNotLockedException(reviewId, userId);
+            }
+
+            if (string.IsNullOrEmpty(propertyResult.ArtifactXml))
+            {
+                throw new BadRequestException("Review has no artifacts", ErrorCodes.OutOfRangeParameter);
+            }
+
+            bool hasChanges;
+            var artifactXmlResult = UpdateApprovalRequiredForArtifactsXML(propertyResult.ArtifactXml, content, out hasChanges);
+            if (hasChanges)
+            {
+                await UpdateReviewArtifacts(reviewId, userId, artifactXmlResult, false);
+            }
+        }
+
+        private string UpdateApprovalRequiredForArtifactsXML(string xmlArtifacts, AssignArtifactsApprovalParameter content, out bool hasChanges)
+        {
+            hasChanges = false;
+            var rdReviewContents = ReviewRawDataHelper.RestoreData<RDReviewContents>(xmlArtifacts);
+            foreach (var approvalRequiredInfo in content.ArtifactsApprovalRequiredInfo)
+            {
+                var updatingArtifacts = rdReviewContents.Artifacts.Where(a => a.Id == approvalRequiredInfo.Id);
+                if (updatingArtifacts.Count() == 0)
+                {
+                    throw new BadRequestException("Artifacts not included in the review", ErrorCodes.OutOfRangeParameter);
+                }
+                foreach (var updatingArtifact in updatingArtifacts)
+                {
+                    if (updatingArtifact.ApprovalNotRequested != approvalRequiredInfo.ApprovalRequired)
+                    {
+                        updatingArtifact.ApprovalNotRequested = approvalRequiredInfo.ApprovalRequired;
+                        hasChanges = true;
+                    }
+                }
+            }
+
+            if (hasChanges)
+            {
+                return ReviewRawDataHelper.GetStoreData(rdReviewContents);
+            }
+
+            return xmlArtifacts;
         }
 
         private void UnauthorizedItem(ReviewTableOfContentItem item)

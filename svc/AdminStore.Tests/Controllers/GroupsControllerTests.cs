@@ -150,17 +150,6 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public async Task DeleteGroups_ScopeDoesNotProvided_TotalDeletedIsZero()
-        {
-            //arrange
-            //act
-            var result = await _controller.DeleteGroups(new OperationScope()) as OkNegotiatedContentResult<DeleteResult>;
-
-            //assert
-            Assert.AreEqual(0, result.Content.TotalDeleted);
-        }
-
-        [TestMethod]
         public async Task DeleteGroups_InvalidParameteres_BadRequest()
         {
             //arrange

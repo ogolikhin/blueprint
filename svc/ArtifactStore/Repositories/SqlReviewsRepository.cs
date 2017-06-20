@@ -523,9 +523,16 @@ namespace ArtifactStore.Repositories
                 UserId = p,
                 Permission = ReviewParticipantRole.Reviewer
             }));
+            if (newParticipantsCount > 0 )
+            {
+                //Save XML in the database
+                var result = await UpdateReviewXmlAsync(reviewId, userId, ReviewRawDataHelper.GetStoreData(reviewPackageRawData));
 
-            //Save XML in the database
-            await UpdateReviewXmlAsync(reviewId, userId, ReviewRawDataHelper.GetStoreData(reviewPackageRawData));
+                if (result != 1)
+                {
+                    throw new BadRequestException("Cannot add participants as project or review couldn't be found", ErrorCodes.ResourceNotFound);
+                }
+            }
 
             return new AddParticipantsResult
             {
@@ -546,7 +553,7 @@ namespace ArtifactStore.Repositories
             return result.SingleOrDefault();
         }
 
-        private Task UpdateReviewXmlAsync(int reviewId, int userId, string reviewXml)
+        private Task<int> UpdateReviewXmlAsync(int reviewId, int userId, string reviewXml)
         {
             var parameters = new DynamicParameters();
 

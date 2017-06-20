@@ -759,9 +759,251 @@ namespace ArtifactStore.Repositories
            await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, content);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [TestMethod]
+        public async Task AddArtifacts_AndCollections_Success()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            int projectId = 1;
+           var ids = new[] { 1, 2 };
+            var content = new AddArtifactsParameter()
+            {
+                ArtifactIds = ids,
+                AddChildren = false
+            };
+
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+
+            var param = new Dictionary<string, object> {
+                { "reviewId", reviewId },
+                { "userId", userId },
+                { "xmlArtifacts", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA><CA><Id>1</Id></CA><CA><Id>2</Id></CA></Artifacts></RDReviewContents>" }
+            };
+            _cxn.SetupExecuteAsync("UpdateReviewArtifacts", param, 0);
+
+            var PropertyValueStringResult = new[]
+            {
+               new PropertyValueString
+               {
+               IsDraftRevisionExists = true,
+                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>",
+                RevewSubartifactId = 3,
+                ProjectId = projectId,
+                IsReviewLocked = true
+                }
+            };
+
+            _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters,  PropertyValueStringResult);
+
+            var effectiveArtifactIdsQueryParameters = new Dictionary<string, object>()
+            {
+               {"@artifactIds",  SqlConnectionWrapper.ToDataTable(ids)},
+                { "@userId", userId },
+            {"@projectId", projectId}
+        };
+          
+
+            IEnumerable<int> ArtifactIds = new List<int> { 1, 2 };
+            IEnumerable< int > Unpublished = new List<int> {0 };
+            IEnumerable<int> Nonexistent = new List<int> { 0 };
+            IEnumerable<int> ProjectMoved = new List<int> { 0 };
+
+            Dictionary<string, object> outParameters = new Dictionary<string, object>()
+            {
+               {"ArtifactIds",  ids},
+                { "Unpublished", 0},
+            {"Nonexistent", 0},
+            {"ProjectMoved", 0}
+        };
+
+            var mockResult = new Tuple<IEnumerable<int>, IEnumerable<int>,IEnumerable <int>,IEnumerable <int>> (ArtifactIds, Unpublished, Nonexistent, ProjectMoved);
+            
+            _cxn.SetupQueryMultipleAsync("GetEffectiveArtifactIds", effectiveArtifactIdsQueryParameters, mockResult, outParameters);
+
+            //Act
+            var result = await _reviewsRepository.AddArtifactsToReviewAsync(reviewId, userId, content);
+
+            //Assert
+            _cxn.Verify();
+
+            Assert.AreEqual(2, result.ArtifactCount);
+            Assert.AreEqual(0, result.AlreadyIncludedArtifactCount);
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [TestMethod]
+        public async Task AddArtifactsToReviewAsync_ShouldThrowBadRequestException()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            bool isExceptionThrown = false;
+            var content = new AddArtifactsParameter()
+            {
+                ArtifactIds = null,
+                AddChildren = false
+            };
+
+            //Act
+
+            try
+            {
+                var review = await _reviewsRepository.AddArtifactsToReviewAsync(reviewId, userId, content);
+            }
+            catch (BadRequestException ex)
+            {
+                isExceptionThrown = true;
+                //Assert
+                Assert.AreEqual(ErrorCodes.OutOfRangeParameter, ex.ErrorCode);
+                Assert.AreEqual("There is nothing to add to review.", ex.Message);
+            }
+            finally
+            {
+                if (!isExceptionThrown)
+                {
+                    Assert.Fail();
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [TestMethod]
+        public async Task AddArtifactsToReviewAsync_ShouldThrowReviewNotFoundException()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            int projectId = 0;
+            bool isExceptionThrown = false;
+            var content = new AddArtifactsParameter()
+            {
+                ArtifactIds = new[] { 1, 2 },
+                AddChildren = false
+            };
+
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+
+            var PropertyValueStringResult = new[]
+            {
+               new PropertyValueString
+               {
+               IsDraftRevisionExists = true,
+                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
+                RevewSubartifactId = 3,
+                ProjectId = projectId,
+                IsReviewLocked = true
+                }
+            };
+
+            _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters, PropertyValueStringResult);
+
+            //Act
+
+            try
+            {
+                var review = await _reviewsRepository.AddArtifactsToReviewAsync(reviewId, userId, content);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                isExceptionThrown = true;
+                //Assert
+                Assert.AreEqual(ErrorCodes.ResourceNotFound, ex.ErrorCode);
+                Assert.AreEqual("Review (Id:1) is not found.", ex.Message);
+
+            }
+            finally
+            {
+                if (!isExceptionThrown)
+                {
+                    Assert.Fail();
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [TestMethod]
+        public async Task AddArtifactsToReviewAsync_ShouldThrowArtifactNotLockedException()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            int projectId = 1;
+            bool isExceptionThrown = false;
+            var content = new AddArtifactsParameter()
+            {
+                ArtifactIds = new[] { 1, 2 },
+                AddChildren = false
+            };
+
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+
+            var PropertyValueStringResult = new[]
+            {
+               new PropertyValueString
+               {
+               IsDraftRevisionExists = true,
+                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
+                RevewSubartifactId = 3,
+                ProjectId = projectId,
+                IsReviewLocked = false
+                }
+            };
+
+            _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters, PropertyValueStringResult);
+
+            //Act
+
+            try
+            {
+                var review = await _reviewsRepository.AddArtifactsToReviewAsync(reviewId, userId, content);
+            }
+            catch (AuthorizationException ex)
+            {
+                isExceptionThrown = true;
+
+                //Assert
+                Assert.AreEqual(ErrorCodes.UnauthorizedAccess, ex.ErrorCode);
+                Assert.AreEqual("Artifact (Id:1) is not locked by user (Id:2).", ex.Message);
+
+            }
+            finally
+            {
+                if (!isExceptionThrown)
+                {
+                    Assert.Fail();
+                }
+            }
+        }
 
  
-
         #endregion
 
 

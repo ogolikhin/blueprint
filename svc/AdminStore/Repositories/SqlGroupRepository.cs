@@ -129,7 +129,7 @@ namespace AdminStore.Repositories
                         throw new Exception(ErrorMessages.GeneralErrorOfUpdatingGroup);
 
                     case (int)SqlErrorCodes.GroupWithCurrentIdNotExist:
-                        throw new ResourceNotFoundException(ErrorMessages.GroupNotExist);
+                        throw new ResourceNotFoundException(ErrorMessages.GroupNotExist, ErrorCodes.ResourceNotFound);
 
                     case (int)SqlErrorCodes.GroupVersionsNotEqual:
                         throw new ConflictException(ErrorMessages.UserVersionsNotEqual);

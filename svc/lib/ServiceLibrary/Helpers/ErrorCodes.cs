@@ -2,6 +2,9 @@
 {
     public class ErrorCodes
     {
+        // Common error codes for blueprint and blueprint-current repositories
+        public const int LockedByOtherUser = 111;
+
         //Generic errors
         public const int BadRequest = 400;
         public const int Conflict = 409;

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Licenses;
 using ServiceLibrary.Repositories;
 
@@ -54,7 +55,7 @@ namespace ServiceLibrary.Helpers
             {
                 if (validLicenses[lic] != null)
                 {
-                    if (validLicenses[lic].GetStatus() == BlueprintFeatureLicenseStatus.Active)
+                    if (validLicenses[lic].GetStatus() == FeatureLicenseStatus.Active)
                     {
                         if (_validFeatures == FeatureTypes.None)
                         {
@@ -65,7 +66,7 @@ namespace ServiceLibrary.Helpers
                             _validFeatures |= lic;
                         }
                     }
-                    else if (validLicenses[lic].GetStatus() == BlueprintFeatureLicenseStatus.Expired)
+                    else if (validLicenses[lic].GetStatus() == FeatureLicenseStatus.Expired)
                     {
                         _expiredFeatures |= lic;
                     }

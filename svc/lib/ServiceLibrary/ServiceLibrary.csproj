@@ -100,7 +100,6 @@
     <Compile Include="Exceptions\ExceptionWithErrorCode.cs" />
     <Compile Include="Exceptions\ResourceNotFoundException.cs" />
     <Compile Include="Helpers\FeatureLicenseHelper.cs" />
-    <Compile Include="Helpers\FeatureTypes.cs" />
     <Compile Include="Helpers\CacheHelper.cs" />
     <Compile Include="Helpers\Cache\AsyncCache.cs" />
     <Compile Include="Helpers\Cache\AsyncLazy.cs" />
@@ -111,7 +110,6 @@
     <Compile Include="Helpers\ImageHelper.cs" />
     <Compile Include="Helpers\ISqlHelper.cs" />
     <Compile Include="Helpers\ItemTypePredefinedExtension.cs" />
-    <Compile Include="Helpers\LicenseType.cs" />
     <Compile Include="Helpers\RemoveSecurityRelatedHeadersHttpModule.cs" />
     <Compile Include="Helpers\SerializationHelper.cs" />
     <Compile Include="Helpers\ServerHelper.cs" />
@@ -136,6 +134,8 @@
     <Compile Include="Models\AuthorHistory.cs" />
     <Compile Include="Models\BaselineInfo.cs" />
     <Compile Include="Models\ClientLogModel.cs" />
+    <Compile Include="Models\Enums\FeatureLicenseStatus.cs" />
+    <Compile Include="Models\Enums\FeatureTypes.cs" />
     <Compile Include="Models\Enums\ItemTypePredefined.cs" />
     <Compile Include="Models\Enums\ProjectSection.cs" />
     <Compile Include="Models\Enums\QueryResultCode.cs" />

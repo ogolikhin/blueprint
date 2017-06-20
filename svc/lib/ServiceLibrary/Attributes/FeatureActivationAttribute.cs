@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models.Enums;
 
 namespace ServiceLibrary.Attributes
 {

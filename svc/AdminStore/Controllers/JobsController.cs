@@ -55,7 +55,7 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(JobResult))]
         public async Task<IHttpActionResult> GetLatestJobs(int? page = null, int? pageSize = null, JobType jobType = JobType.None)
         {
-            var session = GetSession(Request);
+            var session = ServerHelper.GetSession(Request);
 
             var jobsHelper = new JobsValidationHelper();
             jobsHelper.Validate(page, pageSize);
@@ -77,7 +77,7 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(JobInfo))]
         public async Task<IHttpActionResult> GetJob(int jobId)
         {
-            var session = GetSession(Request);
+            var session = ServerHelper.GetSession(Request);
 
             return Ok(await _jobsRepository.GetJob(jobId, session.UserId));
         }
@@ -95,7 +95,7 @@ namespace AdminStore.Controllers
         [Route("{jobId:int:min(1)}/result/file"), SessionRequired(true)]
         public async Task<IHttpActionResult> GetJobResultFile(int jobId)
         {
-            var session = GetSession(Request);
+            var session = ServerHelper.GetSession(Request);
             var baseUri = WebApiConfig.FileStore != null ? new Uri(WebApiConfig.FileStore) : Request.RequestUri;
             var fileRepository = _fileRepository ?? new FileRepository(new FileHttpWebClient(baseUri, Session.Convert(session.SessionId)));
 
@@ -115,16 +115,5 @@ namespace AdminStore.Controllers
         }
 
         #endregion
-
-        private static Session GetSession(HttpRequestMessage request)
-        {
-            object sessionValue;
-            if (!request.Properties.TryGetValue(ServiceConstants.SessionProperty, out sessionValue))
-            {
-                throw new AuthenticationException("Authorization is required", ErrorCodes.UnauthorizedAccess);
-            }
-
-            return (Session)sessionValue;
-        }
     }
 }

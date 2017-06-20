@@ -9,6 +9,7 @@ using Moq;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories.Files;
+using System.Text;
 
 namespace ServiceLibrary.Repositories
 {
@@ -215,6 +216,136 @@ namespace ServiceLibrary.Repositories
             Assert.AreEqual("BlueprintFile", file.Info.Name);
         }
 
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException), "ArgumentNull Exception is not thrown.")]
+        public async Task UploadFileAsync_NullFileNameArgument()
+        {
+            // Arrange
+            string fileName = "";
+            string fileType = "xml";
+
+            var uri = new Uri("http://localhost");
+            var httpWebClient = new HttpWebClient(uri, null);
+            
+            // Act
+            var fileRepository = new FileRepository(httpWebClient);
+            await fileRepository.UploadFileAsync(fileName, fileType, null, null);
+
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException), "ArgumentNull Exception is not thrown.")]
+        public async Task UploadFileAsync_NullFileTypeArgument()
+        {
+            // Arrange
+            string fileName = "Test.xml";
+            string fileType = "";
+
+            var uri = new Uri("http://localhost");
+            var httpWebClient = new HttpWebClient(uri, null);
+            
+            // Act
+            var fileRepository = new FileRepository(httpWebClient);
+            await fileRepository.UploadFileAsync(fileName, fileType, null, null);
+           
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthenticationException), "Authentication Exception is not thrown.")]
+        public async Task UploadFileAsync_AuthenticationException()
+        {
+            // Arrange
+            string fileName = "Test.xml";
+            string fileType = "xml";
+            string txtContent = "Test...Test...";
+
+            Stream content = new MemoryStream(Encoding.ASCII.GetBytes(txtContent));
+            var response = CreateUploadFileHttpWebResponse(fileName, fileType, HttpStatusCode.Unauthorized);
+            var httpWebClient = CreateUploadHttpClient(response);
+
+            // Act
+            var fileRepository = new FileRepository(httpWebClient);
+            await fileRepository.UploadFileAsync(fileName, fileType, content);
+
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException), "The BadRequest Exception is not thrown.")]
+        public async Task UploadFileAsync_BadRequestException()
+        {
+            // Arrange
+            string fileName = "Test.xml";
+            string fileType = "xml";
+            string txtContent = "Test...Test...";
+
+            Stream content = new MemoryStream(Encoding.ASCII.GetBytes(txtContent));
+            var response = CreateUploadFileHttpWebResponse(fileName, fileType, HttpStatusCode.BadRequest);
+            var httpWebClient = CreateUploadHttpClient(response);
+
+            // Act
+            var fileRepository = new FileRepository(httpWebClient);
+            await fileRepository.UploadFileAsync(fileName, fileType, content);
+
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException), "The ResourceNotFound Exception is not thrown.")]
+        public async Task UploadFileAsync_ResourceNotFoundException()
+        {
+            // Arrange
+            string fileName = "Test.xml";
+            string fileType = "xml";
+            string txtContent = "Test...Test...";
+
+            Stream content = new MemoryStream(Encoding.ASCII.GetBytes(txtContent));
+            var response = CreateUploadFileHttpWebResponse(fileName, fileType, HttpStatusCode.NotFound);
+            var httpWebClient = CreateUploadHttpClient(response);
+
+            // Act
+            var fileRepository = new FileRepository(httpWebClient);
+            await fileRepository.UploadFileAsync(fileName, fileType, content);
+
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception), "The Default Exception is not thrown.")]
+        public async Task UploadFileAsync_DefaultException()
+        {
+            // Arrange
+            string fileName = "Test.xml";
+            string fileType = "xml";
+            string txtContent = "Test...Test...";
+
+            Stream content = new MemoryStream(Encoding.ASCII.GetBytes(txtContent));
+            var response = CreateUploadFileHttpWebResponse(fileName, fileType, HttpStatusCode.OK);
+            var httpWebClient = CreateUploadHttpClient(response);
+
+            // Act
+            var fileRepository = new FileRepository(httpWebClient);
+            await fileRepository.UploadFileAsync(fileName, fileType, content);
+
+        }
+
+        [TestMethod]
+        public async Task UploadFileAsync_Success()
+        {
+            // Arrange
+            string fileName = "Test.xml";
+            string fileType = "application/xml";
+
+            string guid = Guid.NewGuid().ToStringInvariant();
+            string xmlResponse = I18NHelper.FormatInvariant(@"<FileResult><Guid>{0}</Guid><UriToFile>/svc/components/filestore/image/{0}</UriToFile></FileResult>", guid);
+            Stream content = new MemoryStream(Encoding.ASCII.GetBytes(xmlResponse));
+            var response = CreateUploadFileHttpWebResponse(fileName, fileType, HttpStatusCode.Created, xmlResponse);
+            var httpWebClient = CreateUploadHttpClient(response);
+
+            // Act
+            var fileRepository = new FileRepository(httpWebClient);
+            string responseGuid = await fileRepository.UploadFileAsync(fileName, fileType, content);
+           
+            Assert.AreEqual(responseGuid, guid);
+            
+        }
         private static HttpWebResponse CreateHttpWebResponse(HttpStatusCode status)
         {
             var responseMock = new Mock<HttpWebResponse>();
@@ -250,6 +381,34 @@ namespace ServiceLibrary.Repositories
             return responseMock.Object;
         }
 
+        private static HttpWebResponse CreateUploadFileHttpWebResponse(string fileName, string type, HttpStatusCode code, string content = null)
+        {
+            var responseMock = new Mock<HttpWebResponse>();
+            responseMock.Setup(m => m.StatusCode).Returns(code);
+            responseMock.Setup(m => m.Headers).Returns
+            (
+                new WebHeaderCollection
+                {
+                    {
+                        ServiceConstants.ContentDispositionHeader,
+                        string.Format(CultureInfo.InvariantCulture, "filename=\"{0}\"", fileName)
+                    },
+                    {ServiceConstants.ContentTypeHeader, type}
+                }
+            );
+            responseMock.Setup(m => m.GetResponseStream()).Returns(() =>
+            {
+                var expected = content == null ? "response content" : content;
+                var expectedBytes = Encoding.UTF8.GetBytes(expected);
+                var responseStream = new MemoryStream();
+                responseStream.Write(expectedBytes, 0, expectedBytes.Length);
+                responseStream.Seek(0, SeekOrigin.Begin);
+                return responseStream;
+            });
+
+            return responseMock.Object;
+        }
+
         private static IHttpWebClient CreateHttpWebClientClient(HttpWebResponse response)
         {
             var clientMock = new Mock<IHttpWebClient>();
@@ -257,8 +416,30 @@ namespace ServiceLibrary.Repositories
             clientMock
                 .Setup(m => m.GetHttpWebResponseAsync(It.IsAny<HttpWebRequest>()))
                 .Returns(Task.FromResult(response));
+          
+            return clientMock.Object;
+        }
+
+        private static IHttpWebClient CreateUploadHttpClient(HttpWebResponse response)
+        {
+            var clientMock = new Mock<IHttpWebClient>();
+
+            clientMock
+                .Setup(m => m.GetHttpWebResponseAsync(It.IsAny<HttpWebRequest>()))
+                .Returns(Task.FromResult(response));
+
+            clientMock
+                .Setup(r => r.CreateHttpWebRequest(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(() =>
+                {
+                    var request = WebRequest.CreateHttp("http://localhost");
+                    request.Method = "POST";
+ 
+                    return request;
+                });
 
             return clientMock.Object;
         }
+
     }
 }

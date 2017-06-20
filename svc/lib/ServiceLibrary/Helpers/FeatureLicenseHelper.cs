@@ -90,11 +90,5 @@ namespace ServiceLibrary.Helpers
             var serializableLicenses = SerializationHelper.FromXml<FeatureInformation[]>(xml);
             return serializableLicenses.ToDictionary(f => f.GetFeatureType(), f => f);
         }
-
-        private static string EncryptLicenses(Dictionary<FeatureTypes, FeatureInformation> licenses)
-        {
-            var serializableLicenses = licenses.Select(k => k.Value).ToArray();
-            return SerializationHelper.ToXml(serializableLicenses);
-        }
     }
 }

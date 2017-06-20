@@ -8,17 +8,17 @@ namespace ServiceLibrary.Attributes
 {
     public class FeatureActivationAttribute : ActionFilterAttribute
     {
-        private readonly FeatureTypes _required;
+        private readonly FeatureTypes _requiredFeatureTypes;
 
-        public FeatureActivationAttribute(FeatureTypes required)
+        public FeatureActivationAttribute(FeatureTypes requiredFeatureTypes)
         {
-            _required = required;
+            _requiredFeatureTypes = requiredFeatureTypes;
         }
 
         public override void OnActionExecuting(HttpActionContext actionContext)
         {
             var licenses = FeatureLicenseHelper.GetValidBlueprintLicenseFeatures();
-            if ((licenses & _required) != _required)
+            if ((licenses & _requiredFeatureTypes) != _requiredFeatureTypes)
             {
                 //required license not found
                 actionContext.Response = new HttpResponseMessage(HttpStatusCode.Forbidden);

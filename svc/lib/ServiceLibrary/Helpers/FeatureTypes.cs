@@ -29,13 +29,11 @@ namespace ServiceLibrary.Helpers
         public const string InishTechOpenApiName = "Blueprint API";
         public const string InishTechStorytellerName = "Storyteller";
         public const string InishTechBlueprintName = "Blueprint";
-        //public const string INISHTECH_HP_QC_LICENSE_NAME_2 = "HP ALM Adaptor";
-        //public const string INISHTECH_MSF_TFS_LICENSE_NAME_2 = "Microsoft TFS Adaptor";
 
         public static IDictionary<FeatureTypes, string> BlueprintLicenseToInishTechLicense = new Dictionary<FeatureTypes, string>
         {
-            { FeatureTypes.HewlettPackardQCIntegration, InishTechHewlettPackardQCIntegrationName},//INISHTECH_HP_QC_LICENSE_NAME_2} },
-            { FeatureTypes.MicrosoftTfsIntegration, InishTechMicrosoftTfsName},//INISHTECH_MSF_TFS_LICENSE_NAME_2}},
+            { FeatureTypes.HewlettPackardQCIntegration, InishTechHewlettPackardQCIntegrationName},
+            { FeatureTypes.MicrosoftTfsIntegration, InishTechMicrosoftTfsName},
             { FeatureTypes.BlueprintOpenApi, InishTechOpenApiName},
             { FeatureTypes.Storyteller, InishTechStorytellerName },
             { FeatureTypes.Blueprint, InishTechBlueprintName },
@@ -45,9 +43,7 @@ namespace ServiceLibrary.Helpers
         public static IDictionary<string, FeatureTypes> InishTechLicenseToBlueprintLicense = new Dictionary<string, FeatureTypes>
         {
             { InishTechHewlettPackardQCIntegrationName, FeatureTypes.HewlettPackardQCIntegration},
-            //{INISHTECH_HP_QC_LICENSE_NAME_2, FeatureTypes.HewletPackardQCIntegration },
             { InishTechMicrosoftTfsName, FeatureTypes.MicrosoftTfsIntegration},
-            //{INISHTECH_MSF_TFS_LICENSE_NAME_2, FeatureTypes.MicrosoftTfsIntegration},
             { InishTechOpenApiName, FeatureTypes.BlueprintOpenApi},
             { InishTechStorytellerName, FeatureTypes.Storyteller },
             { InishTechBlueprintName, FeatureTypes.Blueprint },

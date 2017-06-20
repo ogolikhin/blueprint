@@ -128,7 +128,7 @@ namespace AdminStore.Repositories.Workflow
                         var existingGroupNames = (await _userRepository.GetExistingInstanceGroupsByNames(listOfAllGroups)).ToArray();
                         if (existingGroupNames.Length != listOfAllGroups.Count)
                         {
-                            throw new DuplicateNameException(existingGroupNames.ToString());
+                            throw new DuplicateNameException(listOfAllGroups.Select(li => existingGroupNames.All(g => g.Name != li)).ToString());
                         }
                         
                         workflow.Transitions.ForEach(transition =>

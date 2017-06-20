@@ -114,7 +114,7 @@ namespace AdminStore.Repositories.Workflow
                     if (newStates != null)
                     {
                         var newStatesArray = newStates.ToArray();
-                        List<string> listOfAllGroups = new List<string>();
+                        HashSet<string> listOfAllGroups = new HashSet<string>();
                         workflow.Transitions.ForEach(transition =>
                         {
                             transition.PermissionGroups.ForEach(group =>

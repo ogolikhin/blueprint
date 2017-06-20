@@ -13,6 +13,8 @@ namespace AdminStore.Repositories
 
         Task<UserIcon> GetUserIconByUserIdAsync(int userId);
 
+        Task<IEnumerable<string>> GetNonExistantGroupsByName(IEnumerable<string> groupNames);
+
         Task<IEnumerable<LicenseTransactionUser>> GetLicenseTransactionUserInfoAsync(IEnumerable<int> userIds);
 
         Task<int> GetEffectiveUserLicenseAsync(int userId);

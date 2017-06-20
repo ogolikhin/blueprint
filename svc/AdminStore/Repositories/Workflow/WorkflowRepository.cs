@@ -114,16 +114,32 @@ namespace AdminStore.Repositories.Workflow
                     if (newStates != null)
                     {
                         var newStatesArray = newStates.ToArray();
+                        List<string> listOfAllGroups = new List<string>();
                         workflow.Transitions.ForEach(transition =>
                         {
-
+                            transition.PermissionGroups.ForEach(group =>
+                            {
+                                if (!listOfAllGroups.Contains(group.Name))
+                                {
+                                    listOfAllGroups.Add(group.Name);
+                                }
+                            });
+                        });
+                        var nonExistantGroupNames = await _userRepository.GetNonExistantGroupsByName(listOfAllGroups);
+                        if (nonExistantGroupNames.Any())
+                        {
+                            throw new DuplicateNameException(nonExistantGroupNames.ToString());
+                        }
+                        
+                        workflow.Transitions.ForEach(transition =>
+                        {
                             importTriggersParams.Add(new DTrigger
                             {
                                 Name = transition.Name,
                                 Description = string.Empty,
                                 WorkflowId = newWorkflow.WorkflowId,
                                 Type = DTriggerType.Transition,
-                                Permissions = transition.PermissionGroups.ToString(),
+                                Permissions = SerializationHelper.ToXml(transition.PermissionGroups),
                                 Validations = null,
                                 Actions = null,
                                 ProjectId = null,

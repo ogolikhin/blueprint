@@ -55,6 +55,13 @@ namespace AdminStore.Repositories
             return (await _connectionWrapper.QueryAsync<UserIcon>("GetUserIconByUserId", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
 
+        public async Task<IEnumerable<string>> GetNonExistantGroupsByName(IEnumerable<string> groupNames)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@groupNames", SqlConnectionWrapper.ToStringDataTable(groupNames));
+            return await _connectionWrapper.QueryAsync<string>("GetNonExistingGroupsByName", prm, commandType: CommandType.StoredProcedure);
+        }
+
         public async Task<IEnumerable<LicenseTransactionUser>> GetLicenseTransactionUserInfoAsync(IEnumerable<int> userIds)
         {
             var prm = new DynamicParameters();

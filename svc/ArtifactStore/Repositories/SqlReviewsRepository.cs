@@ -194,7 +194,7 @@ namespace ArtifactStore.Repositories
             }
 
             int alreadyIncludedCount;
-            var propertyResult = await GetReviewPropertyString(reviewId, userId, false);
+            var propertyResult = await GetReviewPropertyString(reviewId, userId);
 
             if (propertyResult.ProjectId == null || propertyResult.ProjectId < 1)
             {
@@ -220,14 +220,22 @@ namespace ArtifactStore.Repositories
         }
 
 
-        private async Task<PropertyValueString> GetReviewPropertyString(int reviewId, int userId, bool assignApprovalRequired = false)
+        private async Task<PropertyValueString> GetReviewPropertyString(int reviewId, int userId)
         {
             var param = new DynamicParameters();
             param.Add("@reviewId", reviewId);
             param.Add("@userId", userId);
-            param.Add("@assignApprovalRequired", assignApprovalRequired);
 
             return (await ConnectionWrapper.QueryAsync<PropertyValueString>("GetReviewPropertyString", param, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+        }
+
+        private async Task<PropertyValueString> GetReviewArtifactApprovalRequestedInfo(int reviewId, int userId)
+        {
+            var param = new DynamicParameters();
+            param.Add("@reviewId", reviewId);
+            param.Add("@userId", userId);
+
+            return (await ConnectionWrapper.QueryAsync<PropertyValueString>("GetReviewArtifactApprovalRequestedInfo", param, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
 
         private async Task<EffectiveArtifactIdsResult> GetEffectiveArtifactIds(int userId, AddArtifactsParameter content, int projectId)
@@ -651,7 +659,7 @@ namespace ArtifactStore.Repositories
                 throw new BadRequestException("Incorrect input parameters", ErrorCodes.OutOfRangeParameter);
             }
 
-            var propertyResult = await GetReviewPropertyString(reviewId, userId, true);
+            var propertyResult = await GetReviewArtifactApprovalRequestedInfo(reviewId, userId);
 
             if (propertyResult.ProjectId == null || propertyResult.ProjectId < 1)
             {

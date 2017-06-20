@@ -20,6 +20,24 @@ namespace AdminStore.Models.Workflow
         [XmlElement(IsNullable = false)]
         public string Description { get; set; }
 
+        //========================================================
+        // To make xml attribute nullable.
+        [XmlIgnore]
+        public bool? IsActive { get; set; }
+
+        [XmlAttribute("IsActive")]
+        public bool IsActiveSerializable
+        {
+            get { return IsActive.GetValueOrDefault(); }
+            set { IsActive = value; }
+        }
+
+        public bool ShouldSerializeIsInitialSerializable()
+        {
+            return IsActive.HasValue;
+        }
+        //========================================================
+
         [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
         [XmlArray("States"), XmlArrayItem("State")]
         public List<IeState> States { get; set; }

@@ -30,7 +30,7 @@ namespace AdminStore.Controllers
         {
             ValidateRequest(request);
 
-            var session = GetSession(Request);    
+            var session = ServerHelper.GetSession(Request);    
             var parameters = SerializationHelper.ToXml(request.Processes);
             var hostUri = ServerUriHelper.BaseHostUri;
             var jobId = await _jobsRepository.AddJobMessage(JobType.GenerateProcessTests, 

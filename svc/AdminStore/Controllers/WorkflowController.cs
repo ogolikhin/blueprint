@@ -12,8 +12,10 @@ using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Helpers.Files;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
+using ServiceLibrary.Repositories.Files;
 
 namespace AdminStore.Controllers
 {
@@ -35,9 +37,33 @@ namespace AdminStore.Controllers
             _workflowRepository = workflowRepository;
         }
 
+        /// <summary>
+        /// Import Workflow
+        /// </summary>
+        /// <remarks>
+        /// Imports a workflow specified in the uploaded XML file. The file name is specified in Content-Disposition header,
+        /// for example, Content-Disposition: workflow;filename=workflow.xml. The first parameter does not matter, can be workflow, file etc.
+        /// The file name is required for messages.
+        /// 
+        /// </remarks>
+        /// <response code="200">OK. The workflow is imported successfully from the uploaded XML file. The response contains Id of the new workflow.</response>
+        /// <response code="400">Bad Request.
+        /// * The workflow XML format is invalid.
+        /// * The workflow model validation failed. The validation errors can be retrieved with
+        ///   'Get Import Workflow Errors' call by the GUID returned in the response of this call.
+        /// </response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden.
+        /// * The user does not permissions to import workflows (currently the user is not an instance administrator).
+        /// * The product does not have a license for the Workflow feature.</response>
+        /// <response code="409">Conflict. The specified workflow conflicts with existing workflows or some specified elements,
+        ///   e.g. projects, artifact types etc., are not found. 
+        ///   The errors can be retrieved with 'Get Import Workflow Errors' call
+        ///   by the GUID returned in the response of this call.
+        /// </response>
         [HttpPost]
         [Route("import"), SessionRequired]
-        [ResponseType(typeof(ServiceStatus))]
+        [ResponseType(typeof(ImportWorkflowResult))]
         public async Task<IHttpActionResult> ImportWorkflowAsync()
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
@@ -66,6 +92,8 @@ namespace AdminStore.Controllers
                     var response = Request.CreateResponse(HttpStatusCode.BadRequest, errorResult);
                     return ResponseMessage(response);
                 }
+
+                _workflowRepository.FileRepository = GetFileRepository();
                 var result = await _workflowRepository.ImportWorkflowAsync(workflow, fileName, session.UserId);
 
                 switch (result.ResultCode)
@@ -75,7 +103,6 @@ namespace AdminStore.Controllers
                     case ImportWorkflowResultCodes.InvalidModel:
                         return ResponseMessage(Request.CreateResponse(HttpStatusCode.BadRequest, result));
                     case ImportWorkflowResultCodes.Conflict:
-                        var response = Request.CreateResponse(HttpStatusCode.BadRequest, result);
                         return ResponseMessage(Request.CreateResponse(HttpStatusCode.Conflict, result));
                     default:
                         // Should never happen.
@@ -84,6 +111,21 @@ namespace AdminStore.Controllers
             }
         }
 
+        /// <summary>
+        /// Get Import Workflow Errors
+        /// </summary>
+        /// <remarks>
+        /// Returns workflow import errors as plain text (do not confuse with the response format that can be XML or JSON) for the specified GUID.
+        /// The GUID is returned in the response of 'Import Workflow' call.
+        /// </remarks>
+        /// <param name="guid">The GUID of the workflow import errors.</param>
+        /// <response code="200">OK. The requested workflow import errors are successfully returned.</response>
+        /// <response code="400">Bad Request. The GUID format is invalid.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden.
+        /// * The user does not permissions to import workflows (currently the user is not an instance administrator).
+        /// * The product does not have a license for the Workflow feature.</response>
+        /// <response code="404">Not Found. The workflow import errors are not found for the specified GUID.</response>
         [HttpGet, NoCache]
         [Route("import/errors"), SessionRequired]
         [ResponseType(typeof(string))]
@@ -92,11 +134,19 @@ namespace AdminStore.Controllers
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             Debug.Assert(session != null, "The session is null.");
 
+            _workflowRepository.FileRepository = GetFileRepository();
             var errors = await _workflowRepository.GetImportWorkflowErrorsAsync(guid, session.UserId);
             return Ok(errors);
         }
 
         #region Private methods
+
+        private IFileRepository GetFileRepository()
+        {
+            var session = ServerHelper.GetSession(Request);
+            var baseUri = WebApiConfig.FileStore != null ? new Uri(WebApiConfig.FileStore) : Request.RequestUri;
+            return new FileRepository(new FileHttpWebClient(baseUri, Session.Convert(session.SessionId)));
+        }
 
         private static IeWorkflow DeserializeWorkflow(Stream workflowContent)
         {

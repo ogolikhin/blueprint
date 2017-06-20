@@ -13,7 +13,7 @@ namespace AdminStore.Helpers
         public const int MinEmailLength = 4;
         public const int MaxEmailLength = 255;
 
-        public static void ValidateModel(GroupDto group, OperationMode operationMode)
+        public static void ValidateModel(GroupDto group, OperationMode operationMode, int? existingGroupProjectId = null)
         {
             if (string.IsNullOrWhiteSpace(group.Name))
             {
@@ -71,7 +71,7 @@ namespace AdminStore.Helpers
             }
             else
             {
-                if (group.ProjectId != null)
+                if (group.ProjectId != existingGroupProjectId)
                 {
                     throw new BadRequestException(ErrorMessages.TheScopeCannotBeChanged, ErrorCodes.BadRequest);
                 }

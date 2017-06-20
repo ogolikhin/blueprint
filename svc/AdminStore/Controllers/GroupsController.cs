@@ -193,7 +193,13 @@ namespace AdminStore.Controllers
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageGroups);
 
-            GroupValidator.ValidateModel(group, OperationMode.Edit);
+            var existingGroup = await _groupRepository.GetGroupDetailsAsync(groupId);
+            if (existingGroup == null || existingGroup.Id == 0)
+            {
+                throw new ResourceNotFoundException(ErrorMessages.GroupNotExist, ErrorCodes.ResourceNotFound);
+            }
+
+            GroupValidator.ValidateModel(group, OperationMode.Edit, existingGroup.ProjectId);
 
             await _groupRepository.UpdateGroupAsync(groupId, group);
 

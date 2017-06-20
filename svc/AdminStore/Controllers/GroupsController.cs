@@ -99,14 +99,9 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(int))]
         public async Task<IHttpActionResult> DeleteGroups([FromBody] OperationScope scope, string search = null)
         {
-            if (scope == null)
+            if (scope == null || scope.IsEmpty())
             {
                 return BadRequest(ErrorMessages.InvalidDeleteGroupsParameters);
-            }
-
-            if (scope.IsEmpty())
-            {
-                return Ok(DeleteResult.Empty);
             }
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageGroups);

@@ -147,14 +147,14 @@ namespace AdminStore.Repositories.Workflow
                         });
                         newTriggers = await CreateWorkflowTriggersAsync(importTriggersParams, publishRevision, transaction);
                     }
-                    
+
+                    importResult.ResultCode = ImportWorkflowResultCodes.Ok;
                 }
                 
             };
 
             await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, action);
             importResult.WorkflowId = newWorkflow?.WorkflowId;
-            importResult.ResultCode = ImportWorkflowResultCodes.Ok;
 
             return importResult;
 

@@ -542,7 +542,7 @@ namespace AdminStore.Controllers
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
 
-            var existingGroup = new GroupDto();
+            var existingGroup = new GroupDto { Id = 1 };
             _sqlGroupRepositoryMock
                 .Setup(r => r.GetGroupDetailsAsync(It.IsAny<int>()))
                 .ReturnsAsync(existingGroup);
@@ -581,7 +581,7 @@ namespace AdminStore.Controllers
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
 
-            var existingGroup = new GroupDto();
+            var existingGroup = new GroupDto { Id = 1 };
             _sqlGroupRepositoryMock
                 .Setup(r => r.GetGroupDetailsAsync(It.IsAny<int>()))
                 .ReturnsAsync(existingGroup);
@@ -604,7 +604,7 @@ namespace AdminStore.Controllers
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
 
-            var existingGroup = new GroupDto();
+            var existingGroup = new GroupDto { Id = 1 };
             _sqlGroupRepositoryMock
                 .Setup(r => r.GetGroupDetailsAsync(It.IsAny<int>()))
                 .ReturnsAsync(existingGroup);
@@ -626,7 +626,7 @@ namespace AdminStore.Controllers
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
 
-            var existingGroup = new GroupDto();
+            var existingGroup = new GroupDto {Id = 1};
             _sqlGroupRepositoryMock
                 .Setup(r => r.GetGroupDetailsAsync(It.IsAny<int>()))
                 .ReturnsAsync(existingGroup);

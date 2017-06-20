@@ -38,7 +38,7 @@ namespace ServiceLibrary.Attributes
         protected const string TokenInvalidMessage = "Token is invalid.";
         protected const string InternalServerErrorMessage = "An error occurred.";
         protected const string BlueprintSessionTokenIgnore = "e51d8f58-0c62-46ad-a6fc-7e7994670f34";
-        protected const int DefaultSessionCacheExpiration = 60;
+        protected const int DefaultSessionCacheExpiration = 30;
 
         private readonly bool _allowCookie;
         private readonly bool _ignoreBadToken;
@@ -63,7 +63,7 @@ namespace ServiceLibrary.Attributes
             try
             {
                 var value = I18NHelper.Int32ParseInvariant(ConfigurationManager.AppSettings["SessionCacheExpiration"]);
-                expirationTimeInSeconds = value > 0 ? value : DefaultSessionCacheExpiration;
+                expirationTimeInSeconds = value >= 0 ? value : DefaultSessionCacheExpiration;
             }
             catch (Exception)
             {

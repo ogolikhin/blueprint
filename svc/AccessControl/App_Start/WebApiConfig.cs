@@ -20,7 +20,7 @@ namespace AccessControl
         }
 
         private const int DefaultSessionTimeoutInterval = 1200;
-        private const int DefaultSessionCacheExpiration = 60;
+        private const int DefaultSessionCacheExpiration = 30;
 
         public static string AdminStorage = ConfigurationManager.ConnectionStrings["AdminStorage"].ConnectionString;
 
@@ -34,7 +34,7 @@ namespace AccessControl
                     try
                     {
                         var timeout = I18NHelper.Int32ParseInvariant(ConfigurationManager.AppSettings["SessionTimeoutInterval"]);
-                        _sessionTimeoutInterval = timeout > 0 ? timeout : DefaultSessionTimeoutInterval;
+                        _sessionTimeoutInterval = timeout >= 0 ? timeout : DefaultSessionTimeoutInterval;
                     }
                     catch (Exception)
                     {

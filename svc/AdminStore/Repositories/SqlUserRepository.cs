@@ -379,7 +379,7 @@ namespace AdminStore.Repositories
                 switch (errorCode.Value)
                 {
                     case (int)SqlErrorCodes.UserLoginNotExist:
-                        throw new ResourceNotFoundException(ErrorMessages.UserNotExist);
+                        throw new ResourceNotFoundException(ErrorMessages.UserNotExist, ErrorCodes.ResourceNotFound);
                 }
             }
             return result;

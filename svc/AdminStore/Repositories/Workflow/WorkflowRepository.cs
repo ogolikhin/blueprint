@@ -125,10 +125,10 @@ namespace AdminStore.Repositories.Workflow
                                 }
                             });
                         });
-                        var nonExistantGroupNames = await _userRepository.GetNonExistantGroupsByName(listOfAllGroups);
-                        if (nonExistantGroupNames.Any())
+                        var existingGroupNames = (await _userRepository.GetExistingInstanceGroupsByNames(listOfAllGroups)).ToArray();
+                        if (existingGroupNames.Length != listOfAllGroups.Count)
                         {
-                            throw new DuplicateNameException(nonExistantGroupNames.ToString());
+                            throw new DuplicateNameException(existingGroupNames.ToString());
                         }
                         
                         workflow.Transitions.ForEach(transition =>
@@ -139,7 +139,11 @@ namespace AdminStore.Repositories.Workflow
                                 Description = string.Empty,
                                 WorkflowId = newWorkflow.WorkflowId,
                                 Type = DTriggerType.Transition,
-                                Permissions = SerializationHelper.ToXml(transition.PermissionGroups),
+                                Permissions = SerializationHelper.ToXml(new XmlTriggerPermissions
+                                {
+                                    Skip = "0",
+                                    GroupIds = transition.PermissionGroups.Select(pg => existingGroupNames.First(p => p.Name == pg.Name).GroupId).ToList()
+                                }),
                                 Validations = null,
                                 Actions = null,
                                 ProjectId = null,

@@ -53,5 +53,6 @@ namespace AdminStore.Repositories
         Task<int> AddUserToGroupsAsync(int userId, OperationScope body, string search);
 
         Task<int> DeleteUserFromGroupsAsync(int userId, OperationScope body);
+        Task<IEnumerable<SqlGroup>> GetExistingInstanceGroupsByNames(IEnumerable<string> groupNames);
     }
 }

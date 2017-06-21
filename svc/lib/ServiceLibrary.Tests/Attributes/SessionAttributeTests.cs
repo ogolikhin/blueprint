@@ -8,9 +8,35 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Helpers.Cache;
+using System.Runtime.Caching;
 
 namespace ServiceLibrary.Attributes
 {
+
+    public class NoCacheMock : IAsyncCache
+    {
+        public Task<T> AddOrGetExistingAsync<T>(string key, Func<Task<T>> asyncValueFactory, DateTimeOffset absoluteExpiration)
+        {
+            return asyncValueFactory();
+        }
+
+        public Task<T> AddOrGetExistingAsync<T>(string key, Func<Task<T>> asyncValueFactory, TimeSpan slidingExpiration)
+        {
+            return asyncValueFactory();
+        }
+
+        public Task<T> AddOrGetExistingAsync<T>(string key, Func<Task<T>> asyncValueFactory, CacheItemPolicy policy)
+        {
+            return asyncValueFactory();
+        }
+
+        public void Remove(string key)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     [TestClass]
     public class SessionAttributeTests
     {
@@ -53,7 +79,7 @@ namespace ServiceLibrary.Attributes
         {
             // Arrange
             string session = Session.Convert(new Guid());
-            var attribute = new SessionAttribute(false, false, CreateHttpClientProvider(session));
+            var attribute = new SessionAttribute(false, false, CreateHttpClientProvider(session), CreateCache());
             var request = new HttpRequestMessage(HttpMethod.Get, "");
             request.Headers.Add("Session-Token", session);
             var actionContext = HttpFilterHelper.CreateHttpActionContext(request);
@@ -70,7 +96,7 @@ namespace ServiceLibrary.Attributes
         {
             // Arrange
             string session = Session.Convert(new Guid());
-            var attribute = new SessionAttribute(true, false, CreateHttpClientProvider(session, false));
+            var attribute = new SessionAttribute(true, false, CreateHttpClientProvider(session, false), CreateCache());
             var request = new HttpRequestMessage(HttpMethod.Get, "");
             request.Headers.Add("Cookie", "BLUEPRINT_SESSION_TOKEN=" + session);
             var actionContext = HttpFilterHelper.CreateHttpActionContext(request);
@@ -87,7 +113,8 @@ namespace ServiceLibrary.Attributes
         {
             // Arrange
             string session = Session.Convert(new Guid());
-            var attribute = new SessionAttribute(false, false, CreateHttpClientProvider(""));
+            var attribute = new SessionAttribute(false, false, CreateHttpClientProvider(""), CreateCache());
+
             var request = new HttpRequestMessage(HttpMethod.Get, "");
             request.Headers.Add("Session-Token", session);
             var actionContext = HttpFilterHelper.CreateHttpActionContext(request);
@@ -104,7 +131,7 @@ namespace ServiceLibrary.Attributes
         {
             // Arrange
             string session = Session.Convert(new Guid());
-            var attribute = new SessionAttribute(false, true, CreateHttpClientProvider(""));
+            var attribute = new SessionAttribute(false, true, CreateHttpClientProvider(""), CreateCache());
             var request = new HttpRequestMessage(HttpMethod.Get, "");
             request.Headers.Add("Session-Token", session);
             var actionContext = HttpFilterHelper.CreateHttpActionContext(request);
@@ -136,7 +163,7 @@ namespace ServiceLibrary.Attributes
         {
             // Arrange
             string session = Session.Convert(new Guid());
-            var attribute = new SessionAttribute(false, false, CreateHttpClientProvider(session, false));
+            var attribute = new SessionAttribute(false, false, CreateHttpClientProvider(session, false), CreateCache());
             var request = new HttpRequestMessage(HttpMethod.Put, "");
             request.Headers.Add("Cookie", "BLUEPRINT_SESSION_TOKEN=" + session);
             var actionContext = HttpFilterHelper.CreateHttpActionContext(request);
@@ -153,7 +180,7 @@ namespace ServiceLibrary.Attributes
         {
             // Arrange
             string session = Session.Convert(new Guid());
-            var attribute = new SessionAttribute(false, true, CreateHttpClientProvider(session));
+            var attribute = new SessionAttribute(false, true, CreateHttpClientProvider(session), CreateCache());
             var request = new HttpRequestMessage(HttpMethod.Put, "");
             var actionContext = HttpFilterHelper.CreateHttpActionContext(request);
 
@@ -169,7 +196,7 @@ namespace ServiceLibrary.Attributes
         {
             // Arrange
             string session = Session.Convert(new Guid());
-            var attribute = new SessionAttribute(false, false, new TestHttpClientProvider(r => { throw new Exception(); }));
+            var attribute = new SessionAttribute(false, false, new TestHttpClientProvider(r => { throw new Exception(); }), CreateCache());
             var request = new HttpRequestMessage(HttpMethod.Get, "");
             request.Headers.Add("Session-Token", session);
             var actionContext = HttpFilterHelper.CreateHttpActionContext(request);
@@ -197,6 +224,11 @@ namespace ServiceLibrary.Attributes
                 }
                 return new HttpResponseMessage(HttpStatusCode.NotFound);
             }) { UseCookies = useCookies };
+        }
+
+        private static IAsyncCache CreateCache()
+        {
+            return new NoCacheMock();
         }
     }
 }

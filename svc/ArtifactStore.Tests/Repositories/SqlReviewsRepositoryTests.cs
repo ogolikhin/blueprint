@@ -836,7 +836,6 @@ namespace ArtifactStore.Repositories
                 isExceptionThrown = true;
                 //Assert
                 Assert.AreEqual(ErrorCodes.OutOfRangeParameter, ex.ErrorCode);
-                Assert.AreEqual("There is nothing to add to review.", ex.Message);
             }
             finally
             {
@@ -896,8 +895,6 @@ namespace ArtifactStore.Repositories
                 isExceptionThrown = true;
                 //Assert
                 Assert.AreEqual(ErrorCodes.ResourceNotFound, ex.ErrorCode);
-                Assert.AreEqual("Review (Id:1) is not found.", ex.Message);
-
             }
             finally
             {
@@ -953,13 +950,12 @@ namespace ArtifactStore.Repositories
             {
                 var review = await _reviewsRepository.AddArtifactsToReviewAsync(reviewId, userId, content);
             }
-            catch (AuthorizationException ex)
+            catch (BadRequestException ex)
             {
                 isExceptionThrown = true;
 
                 //Assert
-                Assert.AreEqual(ErrorCodes.UnauthorizedAccess, ex.ErrorCode);
-                Assert.AreEqual("Artifact (Id:1) is not locked by user (Id:2).", ex.Message);
+                Assert.AreEqual(ErrorCodes.LockedByOtherUser, ex.ErrorCode);
 
             }
             finally

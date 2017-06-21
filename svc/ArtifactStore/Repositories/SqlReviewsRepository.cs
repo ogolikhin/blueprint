@@ -488,14 +488,23 @@ namespace ArtifactStore.Repositories
                 throw new BadRequestException("No users were selected to be added.", ErrorCodes.OutOfRangeParameter);
             }
 
-            var reviewXml = await GetReviewXmlAsync(reviewId, userId);
+            var reviewXmlResult = await GetReviewXmlAsync(reviewId, userId);
 
-            if(reviewXml == null)
+            if(!reviewXmlResult.ReviewExists)
             {
                 ThrowReviewNotFoundException(reviewId);
             }
 
-            var reviewPackageRawData = ReviewRawDataHelper.RestoreData<ReviewPackageRawData>(reviewXml);
+            ReviewPackageRawData reviewPackageRawData;
+            
+            if(reviewXmlResult.XmlString != null)
+            {
+                reviewPackageRawData = ReviewRawDataHelper.RestoreData<ReviewPackageRawData>(reviewXmlResult.XmlString);
+            }
+            else
+            {
+                reviewPackageRawData = new ReviewPackageRawData();
+            }
 
             if(reviewPackageRawData.Status == ReviewPackageStatus.Closed)
             {
@@ -523,6 +532,7 @@ namespace ArtifactStore.Repositories
                 UserId = p,
                 Permission = ReviewParticipantRole.Reviewer
             }));
+
             if (newParticipantsCount > 0 )
             {
                 //Save XML in the database
@@ -541,16 +551,20 @@ namespace ArtifactStore.Repositories
             };
         }
 
-        private async Task<string> GetReviewXmlAsync(int reviewId, int userId)
+        private async Task<ReviewXmlResult> GetReviewXmlAsync(int reviewId, int userId)
         {
             var parameters = new DynamicParameters();
 
             parameters.Add("@reviewId", reviewId);
             parameters.Add("@userId", userId);
 
-            var result = await ConnectionWrapper.QueryAsync<string>("GetReviewParticipantsPropertyString", parameters, commandType: CommandType.StoredProcedure);
+            var result = (await ConnectionWrapper.QueryAsync<string>("GetReviewParticipantsPropertyString", parameters, commandType: CommandType.StoredProcedure)).ToList();
 
-            return result.SingleOrDefault();
+            return new ReviewXmlResult()
+            {
+                ReviewExists = result.Count > 0,
+                XmlString = result.SingleOrDefault()
+            };
         }
 
         private Task<int> UpdateReviewXmlAsync(int reviewId, int userId, string reviewXml)

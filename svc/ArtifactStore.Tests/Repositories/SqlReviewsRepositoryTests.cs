@@ -429,6 +429,51 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
+        public async Task AddParticipantsToReviewAsync_Should_Succeed_When_Returned_Xml_Is_Null()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+
+            var addParticipantsParameter = new AddParticipantsParameter()
+            {
+                GroupIds = new int[0],
+                UserIds = new[] { userId }
+            };
+
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+
+            var queryResult = new List<string>()
+            {
+                null
+            };
+
+            _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
+
+            var updateQueryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId },
+                { "@xmlString", "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>" }
+            };
+
+            _cxn.SetupExecuteAsync("UpdateReviewParticipants", updateQueryParameters, 1);
+
+            //Act
+            var addParticipantResult = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);
+
+            //Assert
+            _cxn.Verify();
+
+            Assert.AreEqual(1, addParticipantResult.ParticipantCount);
+            Assert.AreEqual(0, addParticipantResult.AlreadyIncludedCount);
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
         public async Task AddParticipantsToReviewAsync_Should_Throw_If_Review_Is_Closed()
         {

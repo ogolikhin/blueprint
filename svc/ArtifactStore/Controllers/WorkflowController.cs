@@ -48,7 +48,7 @@ namespace ArtifactStore.Controllers
         /// <response code="404">Not found. The artifact is not found.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
-        [FeatureActivation(FeatureTypes.Workflow)]
+        //[FeatureActivation(FeatureTypes.Workflow)]
         [Route("artifacts/{artifactId:int:min(1)}/transitions"), SessionRequired]
         [ActionName("GetTransitions")]
         [ResponseType(typeof(WorkflowTransitionResult))]

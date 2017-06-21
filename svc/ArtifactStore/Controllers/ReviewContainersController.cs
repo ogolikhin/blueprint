@@ -204,7 +204,7 @@ namespace ArtifactStore.Controllers
         /// <response code="400">Bad Request.</response>
         /// <response code="401">Unauthorized. The session token is invalid.</response>
         /// <response code="403">Forbidden. The user does not have permissions for the review or it is locked by another user.</response>
-        /// <response code="404">Not found. An artifact for the specified id is not found, does not exist or is deleted.</response>
+        /// <response code="404">Not found. An artifact for the specified id is not found, not a review, does not exist or is deleted.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPut]
         [Route("containers/{reviewId:int:min(1)}/artifacts/approval"), SessionRequired]

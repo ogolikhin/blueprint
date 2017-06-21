@@ -24,6 +24,7 @@ namespace ArtifactStore.Repositories
         private Mock<IArtifactPermissionsRepository> _artifactPermissionsRepositoryMock;
         private Mock<IApplicationSettingsRepository> _applicationSettingsRepositoryMock;
         private Mock<IUsersRepository> _usersRepositoryMock;
+        private Mock<ISqlArtifactRepository> _artifactRepositoryMock;
 
         [TestInitialize]
         public void Initialize()
@@ -34,12 +35,17 @@ namespace ArtifactStore.Repositories
             _artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>(MockBehavior.Strict);
             _applicationSettingsRepositoryMock = new Mock<IApplicationSettingsRepository>(MockBehavior.Strict);
             _usersRepositoryMock = new Mock<IUsersRepository>();
+            _artifactRepositoryMock = new Mock<ISqlArtifactRepository>();
+
+            _artifactRepositoryMock.SetReturnsDefault(Task.FromResult(true));
+
             _reviewsRepository = new SqlReviewsRepository(_cxn.Object, 
                     _artifactVersionsRepositoryMock.Object, 
                     _itemInfoRepositoryMock.Object,
                     _artifactPermissionsRepositoryMock.Object,
                     _applicationSettingsRepositoryMock.Object,
-                    _usersRepositoryMock.Object);
+                    _usersRepositoryMock.Object,
+                    _artifactRepositoryMock.Object);
         }
 
         [TestMethod]
@@ -236,7 +242,7 @@ namespace ArtifactStore.Repositories
             var testResult = new ReviewTableOfContentItem[] { };
             cxn.SetupQueryAsync("GetReviewTableOfContent", prm, testResult, outPrm);
 
-            var repository = new SqlReviewsRepository(cxn.Object, null, null, null, appSettingsRepoMock.Object, null);
+            var repository = new SqlReviewsRepository(cxn.Object, null, null, null, appSettingsRepoMock.Object, null, null);
 
             try
             {
@@ -430,7 +436,7 @@ namespace ArtifactStore.Repositories
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
-        public async Task AddParticipantsToReviewAsync_Should_Throw_If_Review_Is_Closed()
+        public async Task AddParticipantsToReviewAsync_Should_Throw_If_Review_Is_Not_Locked_By_User()
         {
             //Arrange
             int reviewId = 1;
@@ -450,10 +456,63 @@ namespace ArtifactStore.Repositories
 
             var queryResult = new List<string>()
             {
-                "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Status>Closed</Status></ReviewPackageRawData>"
+                null
             };
 
             _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
+
+            _artifactRepositoryMock.Setup(artifactRepository => artifactRepository.IsArtifactLockedByUserAsync(reviewId, userId)).ReturnsAsync(false);
+
+            //Act
+            await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);
+        }
+
+        [TestMethod]
+        public async Task AddParticipantsToReviewAsync_Should_Succeed_When_Returned_Xml_Is_Null()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+
+            var addParticipantsParameter = new AddParticipantsParameter()
+            {
+                GroupIds = new int[0],
+                UserIds = new[] { userId }
+            };
+
+            SetupGetReviewXmlQuery(reviewId, userId, null);
+
+            SetupUpdateParticipantsXmlQuery(reviewId, userId, 1,
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>"
+            );
+
+            //Act
+            var addParticipantResult = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);
+
+            //Assert
+            _cxn.Verify();
+
+            Assert.AreEqual(1, addParticipantResult.ParticipantCount);
+            Assert.AreEqual(0, addParticipantResult.AlreadyIncludedCount);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task AddParticipantsToReviewAsync_Should_Throw_If_Review_Is_Closed()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+
+            var addParticipantsParameter = new AddParticipantsParameter()
+            {
+                GroupIds = new int[0],
+                UserIds = new[] { userId }
+            };
+
+            SetupGetReviewXmlQuery(reviewId, userId,
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Status>Closed</Status></ReviewPackageRawData>"
+            );
 
             //Act
             await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);
@@ -472,18 +531,13 @@ namespace ArtifactStore.Repositories
                 UserIds = new[] { 2, 3 }
             };
 
-            var queryParameters = new Dictionary<string, object>()
-            {
-                { "@reviewId", reviewId },
-                { "@userId", userId }
-            };
-
-            var queryResult = new List<string>()
-            {
+            SetupGetReviewXmlQuery(reviewId, userId,
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>"
-            };
+            );
 
-            _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
+            SetupUpdateParticipantsXmlQuery(reviewId, userId, 1,
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>3</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>"
+            );
 
             //Act 
             var addParticipantResult = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);
@@ -506,18 +560,13 @@ namespace ArtifactStore.Repositories
                 UserIds = new int[0]
             };
 
-            var queryParameters = new Dictionary<string, object>()
-            {
-                { "@reviewId", reviewId },
-                { "@userId", userId }
-            };
+            SetupGetReviewXmlQuery(reviewId, userId,
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>"
+            );
 
-            var queryResult = new List<string>()
-            {
-               "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>"
-            };
-
-            _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
+            SetupUpdateParticipantsXmlQuery(reviewId, userId, 1,
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>3</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>4</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>5</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>"
+            );
 
             _usersRepositoryMock.Setup(repo => repo.GetUserInfosFromGroupsAsync(new[] { 6, 7 })).ReturnsAsync(new List<UserInfo>()
             {
@@ -547,18 +596,13 @@ namespace ArtifactStore.Repositories
                 UserIds = new[] { 1, 2 }
             };
 
-            var queryParameters = new Dictionary<string, object>()
-            {
-                { "@reviewId", reviewId },
-                { "@userId", userId }
-            };
-
-            var queryResult = new List<string>()
-            {
+            SetupGetReviewXmlQuery(reviewId, userId,
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>"
-            };
+            );
 
-            _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
+            SetupUpdateParticipantsXmlQuery(reviewId, userId, 1,
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>"
+            );
 
             _usersRepositoryMock.Setup(repo => repo.GetUserInfosFromGroupsAsync(new[] { 4 })).ReturnsAsync(new List<UserInfo>()
             {
@@ -587,18 +631,9 @@ namespace ArtifactStore.Repositories
                 UserIds = new[] { 2, 3 }
             };
 
-            var queryParameters = new Dictionary<string, object>()
-            {
-                { "@reviewId", reviewId },
-                { "@userId", userId }
-            };
-
-            var queryResult = new List<string>()
-            {
+            SetupGetReviewXmlQuery(reviewId, userId,
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>3</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>"
-            };
-
-            _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
+            );
 
             //Act 
             var addParticipantResult = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);
@@ -619,25 +654,13 @@ namespace ArtifactStore.Repositories
                 GroupIds = new[] { 2, 4 }
             };
 
-            var param = new Dictionary<string, object> {
-                { "reviewId", reviewId },
-                { "userId", userId },
-                { "xmlString", "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>4</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>5</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>" }
-            };
-            _cxn.SetupExecuteAsync("UpdateReviewParticipants", param, 0);
-
-            var queryParameters = new Dictionary<string, object>()
-            {
-                { "@reviewId", reviewId },
-                { "@userId", userId }
-            };
-
-            var queryResult = new List<string>()
-            {
+            SetupGetReviewXmlQuery(reviewId, userId,
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>"
-            };
+            );
 
-            _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
+            SetupUpdateParticipantsXmlQuery(reviewId, userId, 1,
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>4</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>5</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>"
+            );
 
             _usersRepositoryMock.Setup(repo => repo.GetUserInfosFromGroupsAsync(new[] { 2, 4 })).ReturnsAsync(new List<UserInfo>()
             {
@@ -653,8 +676,6 @@ namespace ArtifactStore.Repositories
 
             Assert.AreEqual(4, result.ParticipantCount);
             Assert.AreEqual(0, result.AlreadyIncludedCount);
-
-
         }
 
         [TestMethod]
@@ -668,26 +689,13 @@ namespace ArtifactStore.Repositories
                 UserIds = new[] { 1, 2 }
             };
 
-            var queryParameters = new Dictionary<string, object>()
-            {
-                { "@reviewId", reviewId },
-                { "@userId", userId }
-            };
-
-            var queryResult = new List<string>()
-            {
+            SetupGetReviewXmlQuery(reviewId, userId,
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>"
-            };
+            );
 
-            _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
-
-            var param = new Dictionary<string, object> {
-                { "reviewId", reviewId },
-                { "userId", userId },
-                { "xmlString", "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>" }
-            };
-
-            _cxn.SetupExecuteAsync("UpdateReviewParticipants", param, 0);
+            SetupUpdateParticipantsXmlQuery(reviewId, userId, 1,
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>"
+            );
 
             //Act
             var result = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, content);
@@ -701,8 +709,8 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [Ignore]
-        public async Task AddParticipants_UsersNotFound_Failed()
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task AddParticipantsToReviewAsync_Should_Fail_On_Update()
         {
             //Arrange
             int reviewId = 1;
@@ -712,70 +720,161 @@ namespace ArtifactStore.Repositories
                 UserIds = new[] { 1, 2 },
                 GroupIds = new[] { 2, 4 }
             };
-            var isExceptionThrown = false;
 
-            var param = new Dictionary<string, object> {
-                { "reviewId", reviewId },
-                { "userId", userId },
-                { "xmlString", "" }
-            };
-            _cxn.SetupExecuteAsync("UpdateReviewParticipants", param, 0);
+            SetupGetReviewXmlQuery(reviewId, userId,
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>"
+            );
 
-            //Act
-            try
-            {
-                var result = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, content);
+            SetupUpdateParticipantsXmlQuery(reviewId, userId, -1,
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>"
+            );
 
-            }
-            catch (ResourceNotFoundException ex)
-            {
-                isExceptionThrown = true;
-                //Assert
-                Assert.AreEqual(ErrorCodes.ResourceNotFound, ex.ErrorCode);
-                Assert.AreEqual("", ex.Message);
-            }
-            finally
-            {
-                if (!isExceptionThrown)
-                {
-                    Assert.Fail();
-                }
-            }
+           await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, content);
         }
 
+        private void SetupGetReviewXmlQuery(int reviewId, int userId, string xmlString)
+        {
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+
+            var queryResult = new List<string>()
+            {
+                xmlString
+            };
+
+            _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
+        }
+
+        private void SetupUpdateParticipantsXmlQuery(int reviewId, int userId, int returnValue, string xmlString)
+        {
+            var updateParameters = new Dictionary<string, object> {
+                { "reviewId", reviewId },
+                { "userId", userId },
+                { "xmlString", xmlString }
+            };
+
+            var updateResult = new Dictionary<string, object>
+            {
+                { "returnValue", returnValue }
+            };
+
+            _cxn.SetupExecuteAsync("UpdateReviewParticipants", updateParameters, -1, updateResult);
+        }
+
+        #endregion
+
+        #region AddArtifactsToReviewAsync
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         [TestMethod]
-        [Ignore]
-        public async Task AddParticipants_GroupsNotFound_Failed()
+        public async Task AddArtifacts_AndCollections_Success()
         {
             //Arrange
             int reviewId = 1;
             int userId = 2;
-            var content = new AddParticipantsParameter()
+            int projectId = 1;
+           var ids = new[] { 1, 2 };
+            var content = new AddArtifactsParameter()
             {
-                UserIds = new[] { 1, 2 },
-                GroupIds = new[] { 2, 4 }
+                ArtifactIds = ids,
+                AddChildren = false
             };
-            var isExceptionThrown = false;
+
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
 
             var param = new Dictionary<string, object> {
                 { "reviewId", reviewId },
                 { "userId", userId },
-                { "xmlString", "" }
+                { "xmlArtifacts", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA><CA><Id>1</Id></CA><CA><Id>2</Id></CA></Artifacts></RDReviewContents>" }
             };
-            _cxn.SetupExecuteAsync("UpdateReviewParticipants", param, 0);
+            _cxn.SetupExecuteAsync("UpdateReviewArtifacts", param, 0);
+
+            var PropertyValueStringResult = new[]
+            {
+               new PropertyValueString
+               {
+               IsDraftRevisionExists = true,
+                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>",
+                RevewSubartifactId = 3,
+                ProjectId = projectId,
+                IsReviewLocked = true
+                }
+            };
+
+            _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters,  PropertyValueStringResult);
+
+            var effectiveArtifactIdsQueryParameters = new Dictionary<string, object>()
+            {
+               {"@artifactIds",  SqlConnectionWrapper.ToDataTable(ids)},
+                { "@userId", userId },
+            {"@projectId", projectId}
+        };
+          
+
+            IEnumerable<int> ArtifactIds = new List<int> { 1, 2 };
+            IEnumerable< int > Unpublished = new List<int> {0 };
+            IEnumerable<int> Nonexistent = new List<int> { 0 };
+
+            Dictionary<string, object> outParameters = new Dictionary<string, object>()
+            {
+               {"ArtifactIds",  ids},
+                { "Unpublished", 0},
+            {"Nonexistent", 0},
+            {"ProjectMoved", 0}
+        };
+
+            var mockResult = new Tuple<IEnumerable<int>, IEnumerable<int>,IEnumerable <int>> (ArtifactIds, Unpublished, Nonexistent);
+            
+            _cxn.SetupQueryMultipleAsync("GetEffectiveArtifactIds", effectiveArtifactIdsQueryParameters, mockResult, outParameters);
 
             //Act
+            var result = await _reviewsRepository.AddArtifactsToReviewAsync(reviewId, userId, content);
+
+            //Assert
+            _cxn.Verify();
+
+            Assert.AreEqual(2, result.ArtifactCount);
+            Assert.AreEqual(0, result.AlreadyIncludedArtifactCount);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [TestMethod]
+        public async Task AddArtifactsToReviewAsync_ShouldThrowBadRequestException()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            bool isExceptionThrown = false;
+            var content = new AddArtifactsParameter()
+            {
+                ArtifactIds = null,
+                AddChildren = false
+            };
+
+            //Act
+
             try
             {
-                var result = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, content);
-
+                var review = await _reviewsRepository.AddArtifactsToReviewAsync(reviewId, userId, content);
             }
-            catch (ResourceNotFoundException ex)
+            catch (BadRequestException ex)
             {
                 isExceptionThrown = true;
                 //Assert
-                Assert.AreEqual(ErrorCodes.ResourceNotFound, ex.ErrorCode);
-                Assert.AreEqual("", ex.Message);
+                Assert.AreEqual(ErrorCodes.OutOfRangeParameter, ex.ErrorCode);
             }
             finally
             {
@@ -784,10 +883,130 @@ namespace ArtifactStore.Repositories
                     Assert.Fail();
                 }
             }
+        }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [TestMethod]
+        public async Task AddArtifactsToReviewAsync_ShouldThrowReviewNotFoundException()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            int projectId = 0;
+            bool isExceptionThrown = false;
+            var content = new AddArtifactsParameter()
+            {
+                ArtifactIds = new[] { 1, 2 },
+                AddChildren = false
+            };
+
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+
+            var PropertyValueStringResult = new[]
+            {
+               new PropertyValueString
+               {
+               IsDraftRevisionExists = true,
+                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
+                RevewSubartifactId = 3,
+                ProjectId = projectId,
+                IsReviewLocked = true
+                }
+            };
+
+            _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters, PropertyValueStringResult);
+
+            //Act
+
+            try
+            {
+                var review = await _reviewsRepository.AddArtifactsToReviewAsync(reviewId, userId, content);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                isExceptionThrown = true;
+                //Assert
+                Assert.AreEqual(ErrorCodes.ResourceNotFound, ex.ErrorCode);
+            }
+            finally
+            {
+                if (!isExceptionThrown)
+                {
+                    Assert.Fail();
+                }
+            }
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [TestMethod]
+        public async Task AddArtifactsToReviewAsync_ShouldThrowArtifactNotLockedException()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            int projectId = 1;
+            bool isExceptionThrown = false;
+            var content = new AddArtifactsParameter()
+            {
+                ArtifactIds = new[] { 1, 2 },
+                AddChildren = false
+            };
+
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+
+            var PropertyValueStringResult = new[]
+            {
+               new PropertyValueString
+               {
+               IsDraftRevisionExists = true,
+                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
+                RevewSubartifactId = 3,
+                ProjectId = projectId,
+                IsReviewLocked = false
+                }
+            };
+
+            _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters, PropertyValueStringResult);
+
+            //Act
+
+            try
+            {
+                var review = await _reviewsRepository.AddArtifactsToReviewAsync(reviewId, userId, content);
+            }
+            catch (BadRequestException ex)
+            {
+                isExceptionThrown = true;
+
+                //Assert
+                Assert.AreEqual(ErrorCodes.LockedByOtherUser, ex.ErrorCode);
+
+            }
+            finally
+            {
+                if (!isExceptionThrown)
+                {
+                    Assert.Fail();
+                }
+            }
+        }
+
+ 
         #endregion
 
 

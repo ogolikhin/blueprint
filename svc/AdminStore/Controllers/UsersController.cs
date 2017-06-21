@@ -23,7 +23,7 @@ namespace AdminStore.Controllers
     public class UsersController : ApiController
     {
         internal readonly IAuthenticationRepository _authenticationRepository;
-        internal readonly ISqlUserRepository _userRepository;
+        internal readonly IUserRepository _userRepository;
         internal readonly ISqlSettingsRepository _settingsRepository;
         internal readonly IEmailHelper _emailHelper;
         internal readonly IApplicationSettingsRepository _applicationSettingsRepository;
@@ -39,7 +39,7 @@ namespace AdminStore.Controllers
         }
 
         internal UsersController(IAuthenticationRepository authenticationRepository, 
-            ISqlUserRepository userRepository, ISqlSettingsRepository settingsRepository, 
+            IUserRepository userRepository, ISqlSettingsRepository settingsRepository, 
             IEmailHelper emailHelper, IApplicationSettingsRepository applicationSettingsRepository, 
             IServiceLogRepository log, IHttpClientProvider httpClientProvider)
         {

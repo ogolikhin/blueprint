@@ -5,13 +5,15 @@ using AdminStore.Models;
 
 namespace AdminStore.Repositories
 {
-    public interface ISqlUserRepository
+    public interface IUserRepository
     {
         Task<AuthenticationUser> GetUserByLoginAsync(string login);
 
         Task<LoginUser> GetLoginUserByIdAsync(int userId);
 
         Task<UserIcon> GetUserIconByUserIdAsync(int userId);
+
+        Task<IEnumerable<SqlGroup>> GetExistingInstanceGroupsByNames(IEnumerable<string> groupNames);
 
         Task<IEnumerable<LicenseTransactionUser>> GetLicenseTransactionUserInfoAsync(IEnumerable<int> userIds);
 

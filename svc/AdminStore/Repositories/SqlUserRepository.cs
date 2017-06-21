@@ -11,7 +11,7 @@ using ServiceLibrary.Helpers;
 
 namespace AdminStore.Repositories
 {
-    public class SqlUserRepository : ISqlUserRepository
+    public class SqlUserRepository : IUserRepository
     {
         internal readonly ISqlConnectionWrapper _connectionWrapper;
         internal readonly ISqlConnectionWrapper _adminStorageConnectionWrapper;
@@ -53,6 +53,13 @@ namespace AdminStore.Repositories
             var prm = new DynamicParameters();
             prm.Add("@UserId", userId);
             return (await _connectionWrapper.QueryAsync<UserIcon>("GetUserIconByUserId", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+        }
+
+        public async Task<IEnumerable<SqlGroup>> GetExistingInstanceGroupsByNames(IEnumerable<string> groupNames)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@groupNames", SqlConnectionWrapper.ToStringDataTable(groupNames));
+            return await _connectionWrapper.QueryAsync<SqlGroup>("GetExistingInstanceGroupsByNames", prm, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<IEnumerable<LicenseTransactionUser>> GetLicenseTransactionUserInfoAsync(IEnumerable<int> userIds)

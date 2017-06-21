@@ -12,6 +12,7 @@ using ServiceLibrary.Attributes;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
 using System.Runtime.Caching;
+using ServiceLibrary.Helpers;
 
 namespace AccessControl.Controllers
 {
@@ -152,7 +153,7 @@ namespace AccessControl.Controllers
                     throw new KeyNotFoundException();
                 }
                 var token = Session.Convert(session.SessionId);
-                _sessionsCache.Add(token, session, DateTimeOffset.UtcNow.Add(WebApiConfig.SessionCacheExpiration));
+                _sessionsCache.Add(token, session, DateTimeOffset.UtcNow.Add(SessionsCacheSettings.SessionCacheExpiration));
                 InsertSession(session);
                 var response = Request.CreateResponse(HttpStatusCode.OK);
                 response.Headers.Add("Session-Token", token);
@@ -178,7 +179,9 @@ namespace AccessControl.Controllers
             {
                 var token = GetHeaderSessionToken();
                 var guid = Session.Convert(token);
-                var session = _sessionsCache.Get(token) as Session;
+                var session = SessionsCacheSettings.IsSessionCacheEnabled 
+                    ? _sessionsCache.Get(token) as Session 
+                    : null;
 
                 if (session == null)
                 {
@@ -189,7 +192,7 @@ namespace AccessControl.Controllers
                         throw new KeyNotFoundException();
                     }
 
-                    _sessionsCache.Add(token, session, DateTimeOffset.UtcNow.Add(WebApiConfig.SessionCacheExpiration));
+                    _sessionsCache.Add(token, session, DateTimeOffset.UtcNow.Add(SessionsCacheSettings.SessionCacheExpiration));
                     InsertSession(session);
                 }
                 
@@ -230,7 +233,8 @@ namespace AccessControl.Controllers
                 {
                     throw new KeyNotFoundException();
                 }
-                _sessions.Remove(guid);
+                RemoveCachedSession(guid);
+
                 return Ok();
             }
             catch (ArgumentNullException)
@@ -269,7 +273,7 @@ namespace AccessControl.Controllers
                 {
                     throw new KeyNotFoundException();
                 }
-                _sessions.Remove(session.SessionId);
+                RemoveCachedSession(session.SessionId);
                 return Ok();
             }
             catch (ArgumentNullException)
@@ -295,9 +299,15 @@ namespace AccessControl.Controllers
         {
             _sessions.Insert(session.SessionId, session.EndTime, async () =>
             {
-                _sessions.Remove(session.SessionId);
+                RemoveCachedSession(session.SessionId);
                 await _repo.EndSession(session.SessionId, session.EndTime);
             });
+        }
+
+        private void RemoveCachedSession(Guid sessionId)
+        {
+            _sessions.Remove(sessionId);
+            _sessionsCache.Remove(sessionId.ToString());
         }
     }
 }

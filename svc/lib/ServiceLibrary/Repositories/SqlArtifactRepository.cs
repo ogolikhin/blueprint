@@ -733,6 +733,13 @@ namespace ServiceLibrary.Repositories
             }).ToList();
         }
 
-        
+        public Task<bool> IsArtifactLockedByUserAsync(int artifactId, int userId)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@artifactId", artifactId);
+            parameters.Add("@userId", userId);
+
+            return ConnectionWrapper.ExecuteScalarAsync<bool>("IsArtifactLockedByUser", parameters, commandType: CommandType.StoredProcedure);
+        }
     }
 }

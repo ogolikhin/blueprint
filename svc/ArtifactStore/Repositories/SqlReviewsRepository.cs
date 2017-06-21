@@ -245,13 +245,12 @@ namespace ArtifactStore.Repositories
             param.Add("@userId", userId);
             param.Add("@projectId", projectId);
 
-            var result = await ConnectionWrapper.QueryMultipleAsync<int, int, int, int>("GetEffectiveArtifactIds", param, commandType: CommandType.StoredProcedure);
+            var result = await ConnectionWrapper.QueryMultipleAsync<int, int, int>("GetEffectiveArtifactIds", param, commandType: CommandType.StoredProcedure);
             return new EffectiveArtifactIdsResult()
             {
                 ArtifactIds = result.Item1.ToList(),
                 Unpublished = result.Item2.SingleOrDefault(),
-                Nonexistent = result.Item3.SingleOrDefault(),
-                ProjectMoved = result.Item4.SingleOrDefault()
+                Nonexistent = result.Item3.SingleOrDefault()
             };
         }
 

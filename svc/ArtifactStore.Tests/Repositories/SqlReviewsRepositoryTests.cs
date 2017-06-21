@@ -785,7 +785,6 @@ namespace ArtifactStore.Repositories
             IEnumerable<int> ArtifactIds = new List<int> { 1, 2 };
             IEnumerable< int > Unpublished = new List<int> {0 };
             IEnumerable<int> Nonexistent = new List<int> { 0 };
-            IEnumerable<int> ProjectMoved = new List<int> { 0 };
 
             Dictionary<string, object> outParameters = new Dictionary<string, object>()
             {
@@ -795,7 +794,7 @@ namespace ArtifactStore.Repositories
             {"ProjectMoved", 0}
         };
 
-            var mockResult = new Tuple<IEnumerable<int>, IEnumerable<int>,IEnumerable <int>,IEnumerable <int>> (ArtifactIds, Unpublished, Nonexistent, ProjectMoved);
+            var mockResult = new Tuple<IEnumerable<int>, IEnumerable<int>,IEnumerable <int>> (ArtifactIds, Unpublished, Nonexistent);
             
             _cxn.SetupQueryMultipleAsync("GetEffectiveArtifactIds", effectiveArtifactIdsQueryParameters, mockResult, outParameters);
 

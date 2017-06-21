@@ -111,6 +111,7 @@
     <Compile Include="Helpers\ISqlHelper.cs" />
     <Compile Include="Helpers\ItemTypePredefinedExtension.cs" />
     <Compile Include="Helpers\RemoveSecurityRelatedHeadersHttpModule.cs" />
+    <Compile Include="Helpers\Security\SystemEncryptions.cs" />
     <Compile Include="Helpers\SerializationHelper.cs" />
     <Compile Include="Helpers\ServerHelper.cs" />
     <Compile Include="Helpers\ServerUriHelper.cs" />
@@ -123,6 +124,7 @@
     <Compile Include="Helpers\HttpClientProvider.cs" />
     <Compile Include="Helpers\LogHelper.cs" />
     <Compile Include="Helpers\I18NHelper.cs" />
+    <Compile Include="Helpers\TimeProvider.cs" />
     <Compile Include="LocalLog\ILocalLog.cs" />
     <Compile Include="LocalLog\LocalEventLog.cs" />
     <Compile Include="LocalLog\LocalFileLog.cs" />

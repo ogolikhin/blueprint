@@ -1,77 +1,64 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
+using ServiceLibrary.Helpers.Security;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Licenses;
 using ServiceLibrary.Repositories;
 
 namespace ServiceLibrary.Helpers
 {
-    public class FeatureLicenseHelper
+    public interface IFeatureLicenseHelper
     {
-        private const int ExpirationTime = 20; //minutes
+        FeatureTypes GetValidBlueprintLicenseFeatures();
+    }
 
-        private static FeatureTypes _validFeatures = FeatureTypes.None;
-        private static FeatureTypes _expiredFeatures = FeatureTypes.None;
+    public class FeatureLicenseHelper : IFeatureLicenseHelper
+    {
+        private const int CacheExpirationTime = 20; //minutes
+        private static readonly CacheHelper<FeatureTypes> ValidBlueprintLicenseFeaturesCache = new CacheHelper<FeatureTypes>(TimeSpan.FromMinutes(CacheExpirationTime), InternalGetValidBlueprintLicenseFeatures);
 
-        private static CacheHelper<FeatureTypes> _validBlueprintLicenseFeaturesCache = new CacheHelper<FeatureTypes>(
-            TimeSpan.FromMinutes(ExpirationTime),
-            () => InternalGetValidBlueprintLicenseFeatures()
-        );
-        public static FeatureTypes GetValidBlueprintLicenseFeatures()
+        private FeatureLicenseHelper()
         {
-            return _validBlueprintLicenseFeaturesCache.Get();
+        }
+
+        public static IFeatureLicenseHelper Instance { get; } = new FeatureLicenseHelper();
+
+        public FeatureTypes GetValidBlueprintLicenseFeatures()
+        {
+            return ValidBlueprintLicenseFeaturesCache.Get();
         }
 
         private static FeatureTypes InternalGetValidBlueprintLicenseFeatures()
         {
-            CalculateValidIntegrationFeatures();
-            return _validFeatures;
-        }
-
-        public static FeatureTypes GetExpiredLicenseFeatures()
-        {
-            return _expiredFeatures;
-        }
-
-        private static CacheHelper<IDictionary<FeatureTypes, FeatureInformation>> _allLicenseFeaturesCache =
-            new CacheHelper<IDictionary<FeatureTypes, FeatureInformation>>(
-                TimeSpan.FromMinutes(ExpirationTime),
-                () => new ReadOnlyDictionary<FeatureTypes, FeatureInformation>(
-                    GetLicensesFromDatabase()
-                )
-            );
-        public static IDictionary<FeatureTypes, FeatureInformation> GetAllLicenseFeatures()
-        {
-            return _allLicenseFeaturesCache.Get();
-        }
-
-        private static void CalculateValidIntegrationFeatures()
-        {
-            _validFeatures = FeatureTypes.None;
-            var validLicenses = GetLicensesFromDatabase();
+            var validFeatures = FeatureTypes.None;
+            var validLicenses = GetValidLicenses();
             foreach (var lic in validLicenses.Keys)
             {
-                if (validLicenses[lic] != null)
+                if (validLicenses[lic] == null || validLicenses[lic].GetStatus() != FeatureLicenseStatus.Active)
                 {
-                    if (validLicenses[lic].GetStatus() == FeatureLicenseStatus.Active)
-                    {
-                        if (_validFeatures == FeatureTypes.None)
-                        {
-                            _validFeatures = lic;
-                        }
-                        else
-                        {
-                            _validFeatures |= lic;
-                        }
-                    }
-                    else if (validLicenses[lic].GetStatus() == FeatureLicenseStatus.Expired)
-                    {
-                        _expiredFeatures |= lic;
-                    }
+                    continue;
+                }
+                if (validFeatures == FeatureTypes.None)
+                {
+                    validFeatures = lic;
+                }
+                else
+                {
+                    validFeatures |= lic;
                 }
             }
+            return validFeatures;
+        }
+
+
+        private static Dictionary<FeatureTypes, FeatureInformation> GetValidLicenses()
+        {
+#if DEBUG
+            return GetVirtualLicenses();
+#else
+            return GetLicensesFromDatabase();
+#endif
         }
 
         private static Dictionary<FeatureTypes, FeatureInformation> GetLicensesFromDatabase()
@@ -82,14 +69,17 @@ namespace ServiceLibrary.Helpers
             {
                 return new Dictionary<FeatureTypes, FeatureInformation>();
             }
-            var licenses = DecryptLicenses(licenseSettings.Single().Value);
-            return licenses;
+            var decryptedXml = SystemEncryptions.Decrypt(licenseSettings.Single().Value);
+            var featureInfos = SerializationHelper.FromXml<FeatureInformation[]>(decryptedXml);
+            return featureInfos.ToDictionary(f => f.GetFeatureType(), f => f);
         }
 
-        private static Dictionary<FeatureTypes, FeatureInformation> DecryptLicenses(string xml)
+        private static Dictionary<FeatureTypes, FeatureInformation> GetVirtualLicenses()
         {
-            var serializableLicenses = SerializationHelper.FromXml<FeatureInformation[]>(xml);
-            return serializableLicenses.ToDictionary(f => f.GetFeatureType(), f => f);
+            return new Dictionary<FeatureTypes, FeatureInformation>
+            {
+                {FeatureTypes.Workflow, new FeatureInformation(FeatureTypes.Workflow.ToStringInvariant(), DateTime.MaxValue)}
+            };
         }
     }
 }

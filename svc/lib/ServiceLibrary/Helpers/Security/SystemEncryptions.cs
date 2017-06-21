@@ -3,7 +3,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace AdminStore.Helpers
+namespace ServiceLibrary.Helpers.Security
 {
     /// <summary>
     /// Provides encryption for both Client and Server sides. There is also another class:BackendEncryptions that

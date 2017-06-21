@@ -136,7 +136,6 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\AuthenticationStatus.cs" />
-    <Compile Include="Helpers\SystemEncryptions.cs" />
     <Compile Include="Models\AuthenticationUser.cs" />
     <Compile Include="Models\FederatedAuthenticationSettings.cs" />
     <Compile Include="Models\InstanceSettings.cs" />

@@ -10,15 +10,21 @@ namespace ServiceLibrary.Attributes
     public class FeatureActivationAttribute : ActionFilterAttribute
     {
         private readonly FeatureTypes _requiredFeatureTypes;
+        private readonly IFeatureLicenseHelper _featureLicenseHelper;
 
-        public FeatureActivationAttribute(FeatureTypes requiredFeatureTypes)
+        public FeatureActivationAttribute(FeatureTypes requiredFeatureTypes) : this(requiredFeatureTypes, FeatureLicenseHelper.Instance)
+        {
+        }
+
+        internal FeatureActivationAttribute(FeatureTypes requiredFeatureTypes, IFeatureLicenseHelper featureLicenseHelper)
         {
             _requiredFeatureTypes = requiredFeatureTypes;
+            _featureLicenseHelper = featureLicenseHelper;
         }
 
         public override void OnActionExecuting(HttpActionContext actionContext)
         {
-            var licenses = FeatureLicenseHelper.GetValidBlueprintLicenseFeatures();
+            var licenses = _featureLicenseHelper.GetValidBlueprintLicenseFeatures();
             if ((licenses & _requiredFeatureTypes) != _requiredFeatureTypes)
             {
                 //required license not found

@@ -25,7 +25,7 @@ namespace AdminStore.Controllers
     {
         internal readonly IApplicationSettingsRepository _applicationSettingsRepository;
         internal readonly ISqlSettingsRepository _settingsRepository;
-        internal readonly ISqlUserRepository _userRepository;
+        internal readonly IUserRepository _userRepository;
         internal readonly IHttpClientProvider _httpClientProvider;
 
         public override string LogSource => WebApiConfig.LogSourceConfig;
@@ -45,7 +45,7 @@ namespace AdminStore.Controllers
         (
             IApplicationSettingsRepository applicationSettingsRepository, 
             ISqlSettingsRepository settingsRepository, 
-            ISqlUserRepository userRepository,
+            IUserRepository userRepository,
             IHttpClientProvider httpClientProvider, 
             IServiceLogRepository log
         ) : base (log)

@@ -57,7 +57,7 @@ namespace AdminStore.Controllers
                 new LicenseTransactionUser { Id = 1, Login = "user", Department = "Department" },
                 new LicenseTransactionUser { Id = 2, Login = "another_user" }
             };
-            var userRepository = new Mock<ISqlUserRepository>();
+            var userRepository = new Mock<IUserRepository>();
             var logMock = new Mock<IServiceLogRepository>();
             userRepository.Setup(r => r.GetLicenseTransactionUserInfoAsync(new[] { 1, 2 })).ReturnsAsync(users);
             var controller = new LicensesController(httpClientProvider, userRepository.Object, logMock.Object) { Request = new HttpRequestMessage() };
@@ -81,7 +81,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             var httpClientProvider = CreateTestHttpClientProvider(null);
-            var userRepository = new Mock<ISqlUserRepository>();
+            var userRepository = new Mock<IUserRepository>();
             var logMock = new Mock<IServiceLogRepository>();
             var controller = new LicensesController(httpClientProvider, userRepository.Object, logMock.Object) { Request = new HttpRequestMessage() };
             int days = 1;
@@ -104,7 +104,7 @@ namespace AdminStore.Controllers
                 new LicenseTransaction { LicenseActivityId = 3, UserId = 1, TransactionType = 2, ActionType = 2, ConsumerType = 1 },
             };
             var httpClientProvider = CreateTestHttpClientProvider(transactions);
-            var userRepository = new Mock<ISqlUserRepository>();
+            var userRepository = new Mock<IUserRepository>();
             var logMock = new Mock<IServiceLogRepository>();
             userRepository.Setup(r => r.GetLicenseTransactionUserInfoAsync(new[] { 1, 2 })).Throws<Exception>();
             var controller = new LicensesController(httpClientProvider, userRepository.Object, logMock.Object) { Request = new HttpRequestMessage() };

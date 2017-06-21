@@ -5,7 +5,7 @@ using AdminStore.Models;
 
 namespace AdminStore.Repositories
 {
-    public interface ISqlUserRepository
+    public interface IUserRepository
     {
         Task<AuthenticationUser> GetUserByLoginAsync(string login);
 

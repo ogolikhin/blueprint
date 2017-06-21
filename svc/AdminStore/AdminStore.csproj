@@ -162,7 +162,7 @@
     <Compile Include="Repositories\ILdapRepository.cs" />
     <Compile Include="Repositories\ISqlInstanceRepository.cs" />
     <Compile Include="Repositories\ISqlSettingsRepository.cs" />
-    <Compile Include="Repositories\ISqlUserRepository.cs" />
+    <Compile Include="Repositories\IUserRepository.cs" />
     <Compile Include="Repositories\Jobs\IJobsRepository.cs" />
     <Compile Include="Repositories\Jobs\JobsRepository.cs" />
     <Compile Include="Repositories\LdapRepository.cs" />

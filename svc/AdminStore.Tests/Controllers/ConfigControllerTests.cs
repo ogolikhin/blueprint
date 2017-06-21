@@ -107,7 +107,7 @@ namespace AdminStore.Controllers
             settingsRepositoryMock
                 .Setup(m => m.GetUserManagementSettingsAsync())
                 .ReturnsAsync(settings);
-            var userRepositoryMock = new Mock<ISqlUserRepository>();
+            var userRepositoryMock = new Mock<IUserRepository>();
             userRepositoryMock
                 .Setup(m => m.GetLoginUserByIdAsync(userId))
                 .ReturnsAsync(user);
@@ -144,7 +144,7 @@ namespace AdminStore.Controllers
             settingsRepositoryMock
                 .Setup(m => m.GetUserManagementSettingsAsync())
                 .ReturnsAsync(settings);
-            var userRepositoryMock = new Mock<ISqlUserRepository>();
+            var userRepositoryMock = new Mock<IUserRepository>();
             userRepositoryMock
                 .Setup(m => m.GetLoginUserByIdAsync(userId))
                 .ReturnsAsync(user);

@@ -441,27 +441,11 @@ namespace ArtifactStore.Repositories
                 UserIds = new[] { userId }
             };
 
-            var queryParameters = new Dictionary<string, object>()
-            {
-                { "@reviewId", reviewId },
-                { "@userId", userId }
-            };
+            SetupGetReviewXmlQuery(reviewId, userId, null);
 
-            var queryResult = new List<string>()
-            {
-                null
-            };
-
-            _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
-
-            var updateQueryParameters = new Dictionary<string, object>()
-            {
-                { "@reviewId", reviewId },
-                { "@userId", userId },
-                { "@xmlString", "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>" }
-            };
-
-            _cxn.SetupExecuteAsync("UpdateReviewParticipants", updateQueryParameters, 1);
+            SetupUpdateParticipantsXmlQuery(reviewId, userId, 1,
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>"
+            );
 
             //Act
             var addParticipantResult = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);
@@ -487,18 +471,9 @@ namespace ArtifactStore.Repositories
                 UserIds = new[] { userId }
             };
 
-            var queryParameters = new Dictionary<string, object>()
-            {
-                { "@reviewId", reviewId },
-                { "@userId", userId }
-            };
-
-            var queryResult = new List<string>()
-            {
+            SetupGetReviewXmlQuery(reviewId, userId,
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Status>Closed</Status></ReviewPackageRawData>"
-            };
-
-            _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
+            );
 
             //Act
             await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);
@@ -517,25 +492,13 @@ namespace ArtifactStore.Repositories
                 UserIds = new[] { 2, 3 }
             };
 
-            var queryParameters = new Dictionary<string, object>()
-            {
-                { "@reviewId", reviewId },
-                { "@userId", userId }
-            };
-
-            var queryResult = new List<string>()
-            {
+            SetupGetReviewXmlQuery(reviewId, userId,
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>"
-            };
+            );
 
-            _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
-
-            var param = new Dictionary<string, object> {
-                { "reviewId", reviewId },
-                { "userId", userId },
-                { "xmlString", "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>3</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>" }
-            };
-            _cxn.SetupExecuteAsync("UpdateReviewParticipants", param, 1);
+            SetupUpdateParticipantsXmlQuery(reviewId, userId, 1,
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>3</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>"
+            );
 
             //Act 
             var addParticipantResult = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);
@@ -558,25 +521,13 @@ namespace ArtifactStore.Repositories
                 UserIds = new int[0]
             };
 
-            var queryParameters = new Dictionary<string, object>()
-            {
-                { "@reviewId", reviewId },
-                { "@userId", userId }
-            };
+            SetupGetReviewXmlQuery(reviewId, userId,
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>"
+            );
 
-            var queryResult = new List<string>()
-            {
-               "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>"
-            };
-
-            _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
-
-            var param = new Dictionary<string, object> {
-                { "reviewId", reviewId },
-                { "userId", userId },
-                { "xmlString", "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>3</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>4</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>5</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>" }
-            };
-            _cxn.SetupExecuteAsync("UpdateReviewParticipants", param, 1);
+            SetupUpdateParticipantsXmlQuery(reviewId, userId, 1,
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>3</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>4</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>5</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>"
+            );
 
             _usersRepositoryMock.Setup(repo => repo.GetUserInfosFromGroupsAsync(new[] { 6, 7 })).ReturnsAsync(new List<UserInfo>()
             {
@@ -606,26 +557,13 @@ namespace ArtifactStore.Repositories
                 UserIds = new[] { 1, 2 }
             };
 
-            var queryParameters = new Dictionary<string, object>()
-            {
-                { "@reviewId", reviewId },
-                { "@userId", userId }
-            };
-
-            var queryResult = new List<string>()
-            {
+            SetupGetReviewXmlQuery(reviewId, userId,
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>"
-            };
+            );
 
-            _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
-
-            var param = new Dictionary<string, object> {
-                { "reviewId", reviewId },
-                { "userId", userId },
-                { "xmlString", "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>" }
-            };
-
-            _cxn.SetupExecuteAsync("UpdateReviewParticipants", param, 1);
+            SetupUpdateParticipantsXmlQuery(reviewId, userId, 1,
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>"
+            );
 
             _usersRepositoryMock.Setup(repo => repo.GetUserInfosFromGroupsAsync(new[] { 4 })).ReturnsAsync(new List<UserInfo>()
             {
@@ -654,18 +592,9 @@ namespace ArtifactStore.Repositories
                 UserIds = new[] { 2, 3 }
             };
 
-            var queryParameters = new Dictionary<string, object>()
-            {
-                { "@reviewId", reviewId },
-                { "@userId", userId }
-            };
-
-            var queryResult = new List<string>()
-            {
+            SetupGetReviewXmlQuery(reviewId, userId,
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>3</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>"
-            };
-
-            _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
+            );
 
             //Act 
             var addParticipantResult = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);
@@ -686,25 +615,13 @@ namespace ArtifactStore.Repositories
                 GroupIds = new[] { 2, 4 }
             };
 
-            var param = new Dictionary<string, object> {
-                { "reviewId", reviewId },
-                { "userId", userId },
-                { "xmlString", "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>4</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>5</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>" }
-            };
-            _cxn.SetupExecuteAsync("UpdateReviewParticipants", param, 1);
-
-            var queryParameters = new Dictionary<string, object>()
-            {
-                { "@reviewId", reviewId },
-                { "@userId", userId }
-            };
-
-            var queryResult = new List<string>()
-            {
+            SetupGetReviewXmlQuery(reviewId, userId,
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>"
-            };
+            );
 
-            _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
+            SetupUpdateParticipantsXmlQuery(reviewId, userId, 1,
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>4</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>5</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>"
+            );
 
             _usersRepositoryMock.Setup(repo => repo.GetUserInfosFromGroupsAsync(new[] { 2, 4 })).ReturnsAsync(new List<UserInfo>()
             {
@@ -720,8 +637,6 @@ namespace ArtifactStore.Repositories
 
             Assert.AreEqual(4, result.ParticipantCount);
             Assert.AreEqual(0, result.AlreadyIncludedCount);
-
-
         }
 
         [TestMethod]
@@ -735,26 +650,13 @@ namespace ArtifactStore.Repositories
                 UserIds = new[] { 1, 2 }
             };
 
-            var queryParameters = new Dictionary<string, object>()
-            {
-                { "@reviewId", reviewId },
-                { "@userId", userId }
-            };
-
-            var queryResult = new List<string>()
-            {
+            SetupGetReviewXmlQuery(reviewId, userId,
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>"
-            };
+            );
 
-            _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
-
-            var param = new Dictionary<string, object> {
-                { "reviewId", reviewId },
-                { "userId", userId },
-                { "xmlString", "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>" }
-            };
-
-            _cxn.SetupExecuteAsync("UpdateReviewParticipants", param, 1);
+            SetupUpdateParticipantsXmlQuery(reviewId, userId, 1,
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>"
+            );
 
             //Act
             var result = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, content);
@@ -780,6 +682,19 @@ namespace ArtifactStore.Repositories
                 GroupIds = new[] { 2, 4 }
             };
 
+            SetupGetReviewXmlQuery(reviewId, userId,
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>"
+            );
+
+            SetupUpdateParticipantsXmlQuery(reviewId, userId, -1,
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>"
+            );
+
+           await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, content);
+        }
+
+        private void SetupGetReviewXmlQuery(int reviewId, int userId, string xmlString)
+        {
             var queryParameters = new Dictionary<string, object>()
             {
                 { "@reviewId", reviewId },
@@ -788,21 +703,31 @@ namespace ArtifactStore.Repositories
 
             var queryResult = new List<string>()
             {
-                "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>"
+                xmlString
             };
 
             _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
+        }
 
-            var param = new Dictionary<string, object> {
+        private void SetupUpdateParticipantsXmlQuery(int reviewId, int userId, int returnValue, string xmlString)
+        {
+            var updateParameters = new Dictionary<string, object> {
                 { "reviewId", reviewId },
                 { "userId", userId },
-                { "xmlString", "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>" }
+                { "xmlString", xmlString }
             };
 
-            _cxn.SetupExecuteAsync("UpdateReviewParticipants", param, -1);
+            var updateResult = new Dictionary<string, object>
+            {
+                { "returnValue", returnValue }
+            };
 
-           await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, content);
+            _cxn.SetupExecuteAsync("UpdateReviewParticipants", updateParameters, -1, updateResult);
         }
+
+        #endregion
+
+        #region AddArtifactsToReviewAsync
 
         /// <summary>
         /// 
@@ -883,7 +808,6 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(2, result.ArtifactCount);
             Assert.AreEqual(0, result.AlreadyIncludedArtifactCount);
         }
-
 
         /// <summary>
         /// 

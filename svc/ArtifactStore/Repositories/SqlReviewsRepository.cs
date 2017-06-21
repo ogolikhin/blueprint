@@ -654,7 +654,7 @@ namespace ArtifactStore.Repositories
 
         public async Task AssignApprovalRequiredToArtifacts(int reviewId, int userId, AssignArtifactsApprovalParameter content)
         {
-            if (content.ArtifactsApprovalRequiredInfo == null || content.ArtifactsApprovalRequiredInfo.Count() == 0)
+            if (content.ArtifactIds == null || content.ArtifactIds.Count() == 0)
             {
                 throw new BadRequestException("Incorrect input parameters", ErrorCodes.OutOfRangeParameter);
             }
@@ -692,18 +692,18 @@ namespace ArtifactStore.Repositories
         {
             hasChanges = false;
             var rdReviewContents = ReviewRawDataHelper.RestoreData<RDReviewContents>(xmlArtifacts);
-            foreach (var approvalRequiredInfo in content.ArtifactsApprovalRequiredInfo)
+            foreach (var artifactId in content.ArtifactIds)
             {
-                var updatingArtifacts = rdReviewContents.Artifacts.Where(a => a.Id == approvalRequiredInfo.Id);
+                var updatingArtifacts = rdReviewContents.Artifacts.Where(a => a.Id == artifactId);
                 if (updatingArtifacts.Count() == 0)
                 {
                     ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);
                 }
                 foreach (var updatingArtifact in updatingArtifacts)
                 {
-                    if (updatingArtifact.ApprovalNotRequested == approvalRequiredInfo.ApprovalRequired)
+                    if (updatingArtifact.ApprovalNotRequested == content.ApprovalRequired)
                     {
-                        updatingArtifact.ApprovalNotRequested = !approvalRequiredInfo.ApprovalRequired;
+                        updatingArtifact.ApprovalNotRequested = !content.ApprovalRequired;
                         hasChanges = true;
                     }
                 }

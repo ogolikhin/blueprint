@@ -1,8 +1,8 @@
-﻿using System;
+﻿using AdminStore.Models;
+using ServiceLibrary.Models;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AdminStore.Models;
-using ServiceLibrary.Models;
 
 namespace AdminStore.Repositories
 {
@@ -13,6 +13,8 @@ namespace AdminStore.Repositories
         Task<LoginUser> GetLoginUserByIdAsync(int userId);
 
         Task<UserIcon> GetUserIconByUserIdAsync(int userId);
+
+        Task<IEnumerable<SqlGroup>> GetExistingInstanceGroupsByNames(IEnumerable<string> groupNames);
 
         Task<IEnumerable<LicenseTransactionUser>> GetLicenseTransactionUserInfoAsync(IEnumerable<int> userIds);
 
@@ -42,17 +44,16 @@ namespace AdminStore.Repositories
 
         Task<int> AddUserAsync(User loginUser);
 
+        Task<int> AddUserToGroupsAsync(int userId, OperationScope body, string search);
+
         Task UpdateUserAsync(User loginUser);
 
-        Task<int> DeleteUsers(OperationScope scope, string search, int sessionUserId);
+        Task<int> DeleteUsers(OperationScope body, string search, int sessionUserId);
 
         Task UpdateUserPasswordAsync(string login, string password);
 
         Task<QueryResult<GroupDto>> GetUserGroupsAsync(int userId, TabularData tabularData, Func<Sorting, string> sort = null);
 
-        Task<int> AddUserToGroupsAsync(int userId, OperationScope body, string search);
-
         Task<int> DeleteUserFromGroupsAsync(int userId, OperationScope body);
-        Task<IEnumerable<SqlGroup>> GetExistingInstanceGroupsByNames(IEnumerable<string> groupNames);
     }
 }

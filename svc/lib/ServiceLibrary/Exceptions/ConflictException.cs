@@ -14,7 +14,11 @@ namespace ServiceLibrary.Exceptions
         {
         }
 
-        public ConflictException(string message, int errorCode) : base(message, errorCode)
+        public ConflictException(string message, int errorCode) : this(message, errorCode, null)
+        {
+        }
+
+        public ConflictException(string message, int errorCode, object content) : base(message, errorCode, content)
         {
         }
     }

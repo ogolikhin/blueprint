@@ -97,6 +97,7 @@
     <Compile Include="Exceptions\ConflictException.cs" />
     <Compile Include="Exceptions\ExceptionWithErrorCode.cs" />
     <Compile Include="Exceptions\ResourceNotFoundException.cs" />
+    <Compile Include="Helpers\ActionRepeater.cs" />
     <Compile Include="Helpers\ErrorCodes.cs" />
     <Compile Include="Helpers\HttpWebClient.cs" />
     <Compile Include="Helpers\IHttpWebClient.cs" />
@@ -122,13 +123,17 @@
     <Compile Include="Models\ApplicationSettings\ApplicationSettings.cs" />
     <Compile Include="Models\Artifact.cs" />
     <Compile Include="Models\ArtifactBasicDetails.cs" />
+    <Compile Include="Models\ArtifactResultSet.cs" />
     <Compile Include="Models\ArtifactsNavigationPath.cs" />
     <Compile Include="Models\ArtifactVersion.cs" />
     <Compile Include="Models\AuthorHistory.cs" />
     <Compile Include="Models\BaselineInfo.cs" />
     <Compile Include="Models\ClientLogModel.cs" />
+    <Compile Include="Models\Enums\ActionType.cs" />
+    <Compile Include="Models\Enums\ElementType.cs" />
     <Compile Include="Models\Enums\ItemTypePredefined.cs" />
     <Compile Include="Models\Enums\ProjectSection.cs" />
+    <Compile Include="Models\Enums\PublishErrors.cs" />
     <Compile Include="Models\Enums\QueryResultCode.cs" />
     <Compile Include="Models\Enums\SortOrder.cs" />
     <Compile Include="Models\Files\File.cs" />
@@ -137,6 +142,7 @@
     <Compile Include="Models\IConstraint.cs" />
     <Compile Include="Models\InstanceSettings\EmailSettings.cs" />
     <Compile Include="Models\Interfaces\IArtifact.cs" />
+    <Compile Include="Models\Item.cs" />
     <Compile Include="Models\ItemDetails.cs" />
     <Compile Include="Models\ItemInfo.cs" />
     <Compile Include="Models\ITrigger.cs" />
@@ -173,6 +179,13 @@
     <Compile Include="Models\TransactionalTriggerExecutor.cs" />
     <Compile Include="Models\UserGroup.cs" />
     <Compile Include="Models\UserInfo.cs" />
+    <Compile Include="Models\VersionControl\SqlDiscardPublishDetails.cs" />
+    <Compile Include="Models\VersionControl\SqlDiscardPublishDetailsResult.cs" />
+    <Compile Include="Models\VersionControl\SqlDiscardPublishProjectInfo.cs" />
+    <Compile Include="Models\VersionControl\SqlDiscardPublishState.cs" />
+    <Compile Include="Models\VersionControl\SqlItemInfo.cs" />
+    <Compile Include="Models\VersionControl\SqlJournalEntry.cs" />
+    <Compile Include="Models\VersionControl\SqlPublishResult.cs" />
     <Compile Include="Models\Workflow\Workflow.cs" />
     <Compile Include="Models\Workflow\WorkflowConstants.cs" />
     <Compile Include="Models\Workflow\WorkflowState.cs" />

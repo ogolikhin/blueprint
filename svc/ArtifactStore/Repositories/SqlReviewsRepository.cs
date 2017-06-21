@@ -194,7 +194,7 @@ namespace ArtifactStore.Repositories
             }
 
             int alreadyIncludedCount;
-            var propertyResult = await GetReviewPropertyString(reviewId, userId, false);
+            var propertyResult = await GetReviewPropertyString(reviewId, userId);
 
             if (propertyResult.ProjectId == null || propertyResult.ProjectId < 1)
             {
@@ -220,14 +220,22 @@ namespace ArtifactStore.Repositories
         }
 
 
-        private async Task<PropertyValueString> GetReviewPropertyString(int reviewId, int userId, bool assignApprovalRequired = false)
+        private async Task<PropertyValueString> GetReviewPropertyString(int reviewId, int userId)
         {
             var param = new DynamicParameters();
             param.Add("@reviewId", reviewId);
             param.Add("@userId", userId);
-            param.Add("@assignApprovalRequired", assignApprovalRequired);
 
             return (await ConnectionWrapper.QueryAsync<PropertyValueString>("GetReviewPropertyString", param, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+        }
+
+        private async Task<PropertyValueString> GetReviewArtifactApprovalRequestedInfo(int reviewId, int userId)
+        {
+            var param = new DynamicParameters();
+            param.Add("@reviewId", reviewId);
+            param.Add("@userId", userId);
+
+            return (await ConnectionWrapper.QueryAsync<PropertyValueString>("GetReviewArtifactApprovalRequestedInfo", param, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
 
         private async Task<EffectiveArtifactIdsResult> GetEffectiveArtifactIds(int userId, AddArtifactsParameter content, int projectId)
@@ -515,9 +523,16 @@ namespace ArtifactStore.Repositories
                 UserId = p,
                 Permission = ReviewParticipantRole.Reviewer
             }));
+            if (newParticipantsCount > 0 )
+            {
+                //Save XML in the database
+                var result = await UpdateReviewXmlAsync(reviewId, userId, ReviewRawDataHelper.GetStoreData(reviewPackageRawData));
 
-            //Save XML in the database
-            await UpdateReviewXmlAsync(reviewId, userId, ReviewRawDataHelper.GetStoreData(reviewPackageRawData));
+                if (result != 1)
+                {
+                    throw new BadRequestException("Cannot add participants as project or review couldn't be found", ErrorCodes.ResourceNotFound);
+                }
+            }
 
             return new AddParticipantsResult
             {
@@ -538,7 +553,7 @@ namespace ArtifactStore.Repositories
             return result.SingleOrDefault();
         }
 
-        private Task UpdateReviewXmlAsync(int reviewId, int userId, string reviewXml)
+        private Task<int> UpdateReviewXmlAsync(int reviewId, int userId, string reviewXml)
         {
             var parameters = new DynamicParameters();
 
@@ -651,7 +666,7 @@ namespace ArtifactStore.Repositories
                 throw new BadRequestException("Incorrect input parameters", ErrorCodes.OutOfRangeParameter);
             }
 
-            var propertyResult = await GetReviewPropertyString(reviewId, userId, true);
+            var propertyResult = await GetReviewArtifactApprovalRequestedInfo(reviewId, userId);
 
             if (propertyResult.ProjectId == null || propertyResult.ProjectId < 1)
             {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AdminStore.Models.Workflow;
@@ -9,15 +10,21 @@ using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories.Files;
+using File = ServiceLibrary.Models.Files.File;
 
 namespace AdminStore.Repositories.Workflow
 {
     public class WorkflowRepository : IWorkflowRepository
     {
+        private const string WorkflowImportErrorsFile = "$workflow_import_errors$.txt";
+
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
         private readonly IUserRepository _userRepository;
         private readonly ISqlHelper _sqlHelper;
         private readonly IWorkflowValidator _workflowValidator;
+
+        public IFileRepository FileRepository { get; set; }
 
         #region Constructors
 
@@ -52,6 +59,10 @@ namespace AdminStore.Repositories.Workflow
                 throw new NullReferenceException(nameof(workflow));
             }
 
+            //////////////////////////
+            CreateTestXmlWorkflow();
+            /////////////////////////
+
             await VerifyUserRole(userId);
             VerifyWorkflowFeature();
 
@@ -79,13 +90,15 @@ namespace AdminStore.Repositories.Workflow
                 {
                     // TODO: Create a text file and save it to the file store, see TODO above.
                     importResult.ErrorsGuid = "temp_guid";
+                    importResult.ResultCode = ImportWorkflowResultCodes.Conflict;
                     return;
                 }
                 
                 var importParams = new DWorkflow
                 {
                     Name = workflow.Name,
-                    Description = workflow.Description
+                    Description = workflow.Description,
+                    Active = workflow.IsActive.GetValueOrDefault()
                 };
                 newWorkflow = (await CreateWorkflowsAsync(new [] {importParams}, publishRevision, transaction)).FirstOrDefault();
 
@@ -114,16 +127,36 @@ namespace AdminStore.Repositories.Workflow
                     if (newStates != null)
                     {
                         var newStatesArray = newStates.ToArray();
+                        HashSet<string> listOfAllGroups = new HashSet<string>();
                         workflow.Transitions.ForEach(transition =>
                         {
-
+                            transition.PermissionGroups.ForEach(group =>
+                            {
+                                if (!listOfAllGroups.Contains(group.Name))
+                                {
+                                    listOfAllGroups.Add(group.Name);
+                                }
+                            });
+                        });
+                        var existingGroupNames = (await _userRepository.GetExistingInstanceGroupsByNames(listOfAllGroups)).ToArray();
+                        if (existingGroupNames.Length != listOfAllGroups.Count)
+                        {
+                            throw new DuplicateNameException(listOfAllGroups.Select(li => existingGroupNames.All(g => g.Name != li)).ToString());
+                        }
+                        
+                        workflow.Transitions.ForEach(transition =>
+                        {
                             importTriggersParams.Add(new DTrigger
                             {
                                 Name = transition.Name,
                                 Description = string.Empty,
                                 WorkflowId = newWorkflow.WorkflowId,
                                 Type = DTriggerType.Transition,
-                                Permissions = transition.PermissionGroups.ToString(),
+                                Permissions = SerializationHelper.ToXml(new XmlTriggerPermissions
+                                {
+                                    Skip = "0",
+                                    GroupIds = transition.PermissionGroups.Select(pg => existingGroupNames.First(p => p.Name == pg.Name).GroupId).ToList()
+                                }),
                                 Validations = null,
                                 Actions = null,
                                 ProjectId = null,
@@ -134,14 +167,14 @@ namespace AdminStore.Repositories.Workflow
                         });
                         newTriggers = await CreateWorkflowTriggersAsync(importTriggersParams, publishRevision, transaction);
                     }
-                    
+
+                    importResult.ResultCode = ImportWorkflowResultCodes.Ok;
                 }
                 
             };
 
             await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, action);
             importResult.WorkflowId = newWorkflow?.WorkflowId;
-            importResult.ResultCode = ImportWorkflowResultCodes.Ok;
 
             return importResult;
 
@@ -152,8 +185,30 @@ namespace AdminStore.Repositories.Workflow
             await VerifyUserRole(userId);
             VerifyWorkflowFeature();
 
-            await Task.Delay(1); // TODO: temp, remove
-            throw new NotImplementedException();
+            File errorsFile = null;
+            try
+            {
+                errorsFile = await FileRepository.GetFileAsync(Guid.Parse(guid));
+            }
+            catch (FormatException ex)
+            {
+                throw new BadRequestException(ex.Message, ErrorCodes.BadRequest);
+            }
+            catch (ResourceNotFoundException)
+            {
+            }
+            // Use the name convention for the workflow import error file for security reasons
+            // in order not to provided access to other files in the file store.
+            if (errorsFile == null || !WorkflowImportErrorsFile.Equals(errorsFile.Info.Name))
+            {
+                throw new ResourceNotFoundException(I18NHelper.FormatInvariant(
+                    "The workflow import errors for GUID={0} are not found.", guid),
+                    ErrorCodes.ResourceNotFound);
+            }
+            using (var reader = new StreamReader(errorsFile.ContentStream))
+            {
+                return reader.ReadToEnd();
+            }
         }
 
         public async Task<IEnumerable<DWorkflow>> CreateWorkflowsAsync(IEnumerable<DWorkflow> workflows, int publishRevision, IDbTransaction transaction = null)
@@ -187,7 +242,7 @@ namespace AdminStore.Repositories.Workflow
             else
             {
                 result = await transaction.Connection.QueryAsync<DWorkflow>("CreateWorkflows", prm,
-                    transaction, commandType: CommandType.StoredProcedure); ;
+                    transaction, commandType: CommandType.StoredProcedure);
             }
 
             return result;
@@ -287,7 +342,7 @@ namespace AdminStore.Repositories.Workflow
         {
             if (!IsWorkflowFeatureEnabled())
             {
-                throw new ConflictException("The Workflow feature is disabled.", ErrorCodes.WorkflowIsDisabled);
+                throw new AuthorizationException("The Workflow feature is disabled.", ErrorCodes.WorkflowDisabled);
             }
         }
 
@@ -312,9 +367,10 @@ namespace AdminStore.Repositories.Workflow
             table.Columns.Add("WorkflowId", typeof(int));
             table.Columns.Add("Name", typeof(string));
             table.Columns.Add("Description", typeof(string));
+            table.Columns.Add("Active", typeof(bool));
             foreach (var workflow in workflows)
             {
-                table.Rows.Add(workflow.WorkflowId, workflow.Name, workflow.Description);
+                table.Rows.Add(workflow.WorkflowId, workflow.Name, workflow.Description, 0);
             }
             return table;
         }
@@ -364,7 +420,56 @@ namespace AdminStore.Repositories.Workflow
             return table;
         }
 
+        private static string CreateTestXmlWorkflow()
+        {
+            var workflow = new IeWorkflow
+            {
+                Name = "My Workflow " + DateTime.Now,
+                Description = "Description of Workflow",
+                States = new List<IeState>(),
+                ArtifactTypes = new List<IeArtifactType>(),
+                Transitions = new List<IeTransition>(),
+                Projects = new List<IeProject>()
+            };
 
+            // States
+            workflow.States.Add(new IeState
+            {
+                Name = "New",
+                Description = "Description of New",
+                IsInitial = true
+            });
+            workflow.States.Add(new IeState
+            {
+                Name = "Active",
+                Description = "Description of Active"
+            });
+            workflow.States.Add(new IeState
+            {
+                Name = "Closed",
+                Description = "Description of Closed"
+            });
+
+            // Transitions
+            workflow.Transitions.Add(new IeTransition
+            {
+                Name = "Triaged",
+                FromState = "New",
+                ToState = "Active",
+                PermissionGroups = new List<IeGroup>()
+            });
+
+            workflow.Transitions.Add(new IeTransition
+            {
+                Name = "Fixed",
+                FromState = "Active",
+                ToState = "Closed",
+                PermissionGroups = new List<IeGroup>()
+            });
+
+            var xmlWorkflow = SerializationHelper.ToXml(workflow);
+            return xmlWorkflow;
+        }
 
         #endregion
 

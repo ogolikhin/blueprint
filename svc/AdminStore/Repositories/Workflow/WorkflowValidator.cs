@@ -98,12 +98,12 @@ namespace AdminStore.Repositories.Workflow
                 }
                 else
                 {
-                    if (string.IsNullOrEmpty(from) && stateTransitions.ContainsKey(from))
+                    if (!string.IsNullOrEmpty(from) && stateTransitions.ContainsKey(from))
                     {
                         stateTransitions[from].Add(transition.Name);
                     }
 
-                    if (string.IsNullOrEmpty(to) && stateTransitions.ContainsKey(to))
+                    if (!string.IsNullOrEmpty(to) && stateTransitions.ContainsKey(to))
                     {
                         stateTransitions[to].Add(transition.Name);
                     }

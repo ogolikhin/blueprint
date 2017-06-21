@@ -3,7 +3,10 @@ using System.Text;
 using System.Web;
 using System.Web.Http;
 using System.Linq;
+using System.Net.Http;
 using System.Net.Http.Formatting;
+using ServiceLibrary.Exceptions;
+using ServiceLibrary.Models;
 
 namespace ServiceLibrary.Helpers
 {
@@ -39,6 +42,17 @@ namespace ServiceLibrary.Helpers
                 response.Write(errorMessage);
                 response.AddHeader("Content-Type", "text/plain");
             }
+        }
+
+        public static Session GetSession(HttpRequestMessage request)
+        {
+            object sessionValue;
+            if (!request.Properties.TryGetValue(ServiceConstants.SessionProperty, out sessionValue))
+            {
+                throw new AuthenticationException("Authorization is required", ErrorCodes.UnauthorizedAccess);
+            }
+
+            return (Session)sessionValue;
         }
 
     }

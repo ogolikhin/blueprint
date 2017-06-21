@@ -2,11 +2,14 @@
 using System.Data;
 using System.Threading.Tasks;
 using AdminStore.Models.Workflow;
+using ServiceLibrary.Repositories.Files;
 
 namespace AdminStore.Repositories.Workflow
 {
     public interface IWorkflowRepository
     {
+        IFileRepository FileRepository { get; set; }
+
         Task<ImportWorkflowResult> ImportWorkflowAsync(IeWorkflow workflow, string fileName, int userId);
 
         Task<string> GetImportWorkflowErrorsAsync(string guid, int userId);

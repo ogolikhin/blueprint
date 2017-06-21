@@ -13,30 +13,6 @@ using System.Runtime.Caching;
 
 namespace ServiceLibrary.Attributes
 {
-
-    public class NoCacheMock : IAsyncCache
-    {
-        public Task<T> AddOrGetExistingAsync<T>(string key, Func<Task<T>> asyncValueFactory, DateTimeOffset absoluteExpiration)
-        {
-            return asyncValueFactory();
-        }
-
-        public Task<T> AddOrGetExistingAsync<T>(string key, Func<Task<T>> asyncValueFactory, TimeSpan slidingExpiration)
-        {
-            return asyncValueFactory();
-        }
-
-        public Task<T> AddOrGetExistingAsync<T>(string key, Func<Task<T>> asyncValueFactory, CacheItemPolicy policy)
-        {
-            return asyncValueFactory();
-        }
-
-        public void Remove(string key)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
     [TestClass]
     public class SessionAttributeTests
     {
@@ -228,7 +204,7 @@ namespace ServiceLibrary.Attributes
 
         private static IAsyncCache CreateCache()
         {
-            return new NoCacheMock();
+            return AsyncCache.NoCache;
         }
     }
 }

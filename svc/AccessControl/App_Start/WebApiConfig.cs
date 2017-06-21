@@ -46,22 +46,6 @@ namespace AccessControl
             }
         }
 
-        private static Lazy<TimeSpan> _sessionCacheExpiration = new Lazy<TimeSpan>(() => {
-            int expirationTimeInSeconds;
-            try
-            {
-                var value = I18NHelper.Int32ParseInvariant(ConfigurationManager.AppSettings["SessionCacheExpiration"]);
-                expirationTimeInSeconds = value > 0 ? value : DefaultSessionCacheExpiration;
-            }
-            catch (Exception)
-            {
-                expirationTimeInSeconds = DefaultSessionCacheExpiration;
-            }
-
-            return TimeSpan.FromSeconds(expirationTimeInSeconds);
-        });
-        public static TimeSpan SessionCacheExpiration => _sessionCacheExpiration.Value;
-
         public static int LicenseHoldTime = LicenceHelper.GetLicenseHoldTime(
             ConfigurationManager.AppSettings["LHTSetting"], 1440);
 

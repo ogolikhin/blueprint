@@ -677,52 +677,56 @@ namespace ArtifactStore.Repositories
 
         public async Task AssignApprovalRequiredToArtifacts(int reviewId, int userId, AssignArtifactsApprovalParameter content)
         {
-            if (content.ArtifactsApprovalRequiredInfo == null || content.ArtifactsApprovalRequiredInfo.Count() == 0)
+            if (content.ArtifactIds == null || content.ArtifactIds.Count() == 0)
             {
                 throw new BadRequestException("Incorrect input parameters", ErrorCodes.OutOfRangeParameter);
             }
 
             var propertyResult = await GetReviewArtifactApprovalRequestedInfo(reviewId, userId);
 
-            if (propertyResult.ProjectId == null || propertyResult.ProjectId < 1)
-            {
-                ThrowReviewNotFoundException(reviewId);
-            }
-
             if (propertyResult.IsReviewLocked == false)
             {
                 ExceptionHelper.ThrowArtifactNotLockedException(reviewId, userId);
             }
 
+            if (propertyResult.ProjectId == null || propertyResult.ProjectId < 1)
+            {
+                if (propertyResult.IsReviewReadOnly)
+                {
+                    ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);
+                }
+                ThrowReviewNotFoundException(reviewId);
+            }
+
             if (string.IsNullOrEmpty(propertyResult.ArtifactXml))
             {
-                throw new BadRequestException("Review has no artifacts", ErrorCodes.OutOfRangeParameter);
+                ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);
             }
 
             bool hasChanges;
-            var artifactXmlResult = UpdateApprovalRequiredForArtifactsXML(propertyResult.ArtifactXml, content, out hasChanges);
+            var artifactXmlResult = UpdateApprovalRequiredForArtifactsXML(propertyResult.ArtifactXml, content, reviewId, out hasChanges);
             if (hasChanges)
             {
                 await UpdateReviewArtifacts(reviewId, userId, artifactXmlResult, false);
             }
         }
 
-        private string UpdateApprovalRequiredForArtifactsXML(string xmlArtifacts, AssignArtifactsApprovalParameter content, out bool hasChanges)
+        private string UpdateApprovalRequiredForArtifactsXML(string xmlArtifacts, AssignArtifactsApprovalParameter content, int reviewId, out bool hasChanges)
         {
             hasChanges = false;
             var rdReviewContents = ReviewRawDataHelper.RestoreData<RDReviewContents>(xmlArtifacts);
-            foreach (var approvalRequiredInfo in content.ArtifactsApprovalRequiredInfo)
+            foreach (var artifactId in content.ArtifactIds)
             {
-                var updatingArtifacts = rdReviewContents.Artifacts.Where(a => a.Id == approvalRequiredInfo.Id);
+                var updatingArtifacts = rdReviewContents.Artifacts.Where(a => a.Id == artifactId);
                 if (updatingArtifacts.Count() == 0)
                 {
-                    throw new BadRequestException("Artifacts not included in the review", ErrorCodes.OutOfRangeParameter);
+                    ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);
                 }
                 foreach (var updatingArtifact in updatingArtifacts)
                 {
-                    if (updatingArtifact.ApprovalNotRequested != approvalRequiredInfo.ApprovalRequired)
+                    if (updatingArtifact.ApprovalNotRequested == content.ApprovalRequired)
                     {
-                        updatingArtifact.ApprovalNotRequested = approvalRequiredInfo.ApprovalRequired;
+                        updatingArtifact.ApprovalNotRequested = !content.ApprovalRequired;
                         hasChanges = true;
                     }
                 }

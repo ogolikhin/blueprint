@@ -32,7 +32,7 @@ namespace AdminStore.Models.Workflow
             set { IsActive = value; }
         }
 
-        public bool ShouldSerializeIsInitialSerializable()
+        public bool ShouldSerializeIsActiveSerializable()
         {
             return IsActive.HasValue;
         }

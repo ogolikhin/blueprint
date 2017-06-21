@@ -25,6 +25,8 @@ namespace ArtifactStore.Repositories
 
         private readonly IUsersRepository _usersRepository;
 
+        private readonly ISqlArtifactRepository _artifactRepository;
+
         internal readonly IApplicationSettingsRepository _applicationSettingsRepository;
 
         internal const string ReviewArtifactHierarchyRebuildIntervalInMinutesKey = "ReviewArtifactHierarchyRebuildIntervalInMinutes";
@@ -42,7 +44,8 @@ namespace ArtifactStore.Repositories
                                             new SqlItemInfoRepository(),
                                             new SqlArtifactPermissionsRepository(),
                                             new ApplicationSettingsRepository(),
-                                            new SqlUsersRepository())
+                                            new SqlUsersRepository(),
+                                            new SqlArtifactRepository())
         {
         }
 
@@ -51,7 +54,8 @@ namespace ArtifactStore.Repositories
                                     ISqlItemInfoRepository itemInfoRepository,
                                     IArtifactPermissionsRepository artifactPermissionsRepository,
                                     IApplicationSettingsRepository applicationSettingsRepository,
-                                    IUsersRepository usersRepository)
+                                    IUsersRepository usersRepository,
+                                    ISqlArtifactRepository artifactRepository)
         {
             ConnectionWrapper = connectionWrapper;
             _artifactVersionsRepository = artifactVersionsRepository;
@@ -59,6 +63,7 @@ namespace ArtifactStore.Repositories
             _artifactPermissionsRepository = artifactPermissionsRepository;
             _applicationSettingsRepository = applicationSettingsRepository;
             _usersRepository = usersRepository;
+            _artifactRepository = artifactRepository;
         }
 
         public async Task<ReviewSummary> GetReviewSummary(int containerId, int userId)
@@ -492,6 +497,13 @@ namespace ArtifactStore.Repositories
             if(!reviewXmlResult.ReviewExists)
             {
                 ThrowReviewNotFoundException(reviewId);
+            }
+
+            var reviewLockedByUser = await _artifactRepository.IsArtifactLockedByUserAsync(reviewId, userId);
+
+            if (!reviewLockedByUser)
+            {
+                ExceptionHelper.ThrowArtifactNotLockedException(reviewId, userId);
             }
 
             ReviewPackageRawData reviewPackageRawData;

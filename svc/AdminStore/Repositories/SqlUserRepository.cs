@@ -11,7 +11,7 @@ using ServiceLibrary.Helpers;
 
 namespace AdminStore.Repositories
 {
-    public class SqlUserRepository : ISqlUserRepository
+    public class SqlUserRepository : IUserRepository
     {
         internal readonly ISqlConnectionWrapper _connectionWrapper;
         internal readonly ISqlConnectionWrapper _adminStorageConnectionWrapper;

@@ -19,7 +19,7 @@ namespace AdminStore.Repositories
     [TestClass]
     public class AuthenticationRepositoryTests
     {
-        private static Mock<ISqlUserRepository> _sqlUserRepositoryMock;
+        private static Mock<IUserRepository> _sqlUserRepositoryMock;
         private static Mock<ISqlSettingsRepository> _sqlSettingsRepositoryMock;
         private static Mock<ILdapRepository> _ldapRepositoryMock;
         private static Mock<ISamlRepository> _samlRepositoryMock;
@@ -53,7 +53,7 @@ namespace AdminStore.Repositories
                 IsEnabled = true
             };
 
-            _sqlUserRepositoryMock = new Mock<ISqlUserRepository>();
+            _sqlUserRepositoryMock = new Mock<IUserRepository>();
             _sqlUserRepositoryMock
                 .Setup(m => m.GetUserByLoginAsync(Login))
                 .ReturnsAsync(_loginUser);

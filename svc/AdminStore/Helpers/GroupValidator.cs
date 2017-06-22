@@ -59,6 +59,10 @@ namespace AdminStore.Helpers
 
             if (operationMode == OperationMode.Create)
             {
+                if (group.ProjectId != null && group.ProjectId < 0)
+                {
+                    throw new BadRequestException(ErrorMessages.ProjectIdIsInvalid, ErrorCodes.BadRequest);
+                }
                 if (group.ProjectId != null && (group.LicenseType != LicenseType.None))
                 {
                     throw new BadRequestException(ErrorMessages.CreationGroupWithScopeAndLicenseIdSimultaneously, ErrorCodes.BadRequest);

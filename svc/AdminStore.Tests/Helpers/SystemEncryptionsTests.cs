@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ServiceLibrary.Helpers.Security;
 
 namespace AdminStore.Helpers
 {

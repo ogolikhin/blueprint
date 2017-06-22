@@ -9,19 +9,19 @@ using ServiceLibrary.Repositories;
 
 namespace ArtifactStore.Repositories.VersionControl
 {
-    public class SqlPublishRepository : SqlBaseArtifactRepository
+    public abstract class SqlPublishRepository : SqlBaseArtifactRepository
     {
-        public SqlPublishRepository()
+        protected SqlPublishRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {
         }
 
-        public SqlPublishRepository(ISqlConnectionWrapper connectionWrapper)
+        protected SqlPublishRepository(ISqlConnectionWrapper connectionWrapper)
             : this(connectionWrapper, new SqlArtifactPermissionsRepository(connectionWrapper))
         {
         }
 
-        public SqlPublishRepository(ISqlConnectionWrapper connectionWrapper,
+        protected SqlPublishRepository(ISqlConnectionWrapper connectionWrapper,
             IArtifactPermissionsRepository artifactPermissionsRepository)
             : base(connectionWrapper, artifactPermissionsRepository)
         {
@@ -48,6 +48,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 commandType: CommandType.StoredProcedure)).ToHashSet();
         }
 
+        protected abstract string MarkAsLatestStoredProcedureName { get; }
         public async Task MarkAsLatest(HashSet<int> markAsLatestVersionIds, int revisionId, IDbTransaction transaction = null)
         {
             if (markAsLatestVersionIds.Count == 0)
@@ -61,15 +62,16 @@ namespace ArtifactStore.Repositories.VersionControl
 
             if (transaction == null)
             {
-                await ConnectionWrapper.ExecuteAsync("MarkAsLatestItemVersions", param,
+                await ConnectionWrapper.ExecuteAsync(MarkAsLatestStoredProcedureName, param,
                 commandType: CommandType.StoredProcedure);
                 return;
             }
 
-            await transaction.Connection.ExecuteAsync("MarkAsLatestItemVersions", param,
+            await transaction.Connection.ExecuteAsync(MarkAsLatestStoredProcedureName, param,
                 commandType: CommandType.StoredProcedure);
         }
 
+        protected abstract string DeleteVersionsStoredProcedureName { get; }
         public async Task DeleteVersions(HashSet<int> deleteVersionsIds, IDbTransaction transaction = null)
         {
             if (deleteVersionsIds.Count == 0)
@@ -82,15 +84,16 @@ namespace ArtifactStore.Repositories.VersionControl
 
             if (transaction == null)
             {
-                await ConnectionWrapper.ExecuteAsync("RemoveItemVersions", param,
+                await ConnectionWrapper.ExecuteAsync(DeleteVersionsStoredProcedureName, param,
                 commandType: CommandType.StoredProcedure);
                 return;
             }
 
-            await transaction.Connection.ExecuteAsync("RemoveItemVersions", param,
+            await transaction.Connection.ExecuteAsync(DeleteVersionsStoredProcedureName, param,
                 commandType: CommandType.StoredProcedure);
         }
 
+        protected abstract string CloseVersionsStoredProcedureName { get; }
         public async Task CloseVersions(HashSet<int> closeVersionIds, int revisionId, IDbTransaction transaction = null)
         {
             if (closeVersionIds.Count == 0)
@@ -104,12 +107,12 @@ namespace ArtifactStore.Repositories.VersionControl
 
             if (transaction == null)
             {
-                await ConnectionWrapper.ExecuteAsync("CloseItemVersions", param,
+                await ConnectionWrapper.ExecuteAsync(CloseVersionsStoredProcedureName, param,
                 commandType: CommandType.StoredProcedure);
                 return;
             }
 
-            await transaction.Connection.ExecuteAsync("CloseItemVersions", param,
+            await transaction.Connection.ExecuteAsync(CloseVersionsStoredProcedureName, param,
                 commandType: CommandType.StoredProcedure);
 
             //Log.Assert(updatedRowsCount == closeVersionIds.Count, "Publish: Some item versions are not closed");

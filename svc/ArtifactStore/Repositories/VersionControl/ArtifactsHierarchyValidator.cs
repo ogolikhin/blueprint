@@ -7,11 +7,17 @@ using ServiceLibrary.Helpers;
 
 namespace ArtifactStore.Repositories.VersionControl
 {
-    public class ArtifactsHierarchyValidator : SqlPublishRepository
+    public class ArtifactsHierarchyValidator
     {
         private readonly IDictionary<int, ICollection<SqlDraftAndLatestItem>> _checkParents = new Dictionary<int, ICollection<SqlDraftAndLatestItem>>();
         private readonly IDictionary<SqlDraftAndLatestItem, int> _checkOrderIndex = new Dictionary<SqlDraftAndLatestItem, int>();
-        
+        private readonly SqlPublishRepository _publishRepository;
+
+        public ArtifactsHierarchyValidator(SqlPublishRepository publishRepository)
+        {
+            _publishRepository = publishRepository;
+        }
+
         public void ScheduleReparentAndReorderArtifactsCheck(SqlDraftAndLatestItem item, ISet<int> artifactIds)
         {
             if (!IsArtifact(item))
@@ -54,7 +60,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 }
 
                 var mayBeAlive = parentsToCheck.Except(notLiveArtifacts).ToHashSet();
-                mayBeAlive.ExceptWith(await GetLiveItemsOnly(mayBeAlive, transaction));
+                mayBeAlive.ExceptWith(await _publishRepository.GetLiveItemsOnly(mayBeAlive, transaction));
 
                 notLiveArtifacts.AddRange(mayBeAlive);
 
@@ -68,7 +74,7 @@ namespace ArtifactStore.Repositories.VersionControl
                         {
                             if (lastOrderIndex == null)
                             {
-                                double? maxOrderIndex = await GetMaxChildOrderIndex(item.DraftProjectId, transaction);
+                                double? maxOrderIndex = await _publishRepository.GetMaxChildOrderIndex(item.DraftProjectId, transaction);
 
                                 lastOrderIndex = !maxOrderIndex.HasValue || maxOrderIndex < 0d
                                     ? 0d
@@ -79,7 +85,7 @@ namespace ArtifactStore.Repositories.VersionControl
 
                             if (env.GetArtifactBaseType(item.ArtifactId).IsRegularArtifactType())
                             {
-                                await SetParentAndOrderIndex(item.DraftVersionId, item.DraftProjectId, lastOrderIndex.Value);
+                                await _publishRepository.SetParentAndOrderIndex(item.DraftVersionId, item.DraftProjectId, lastOrderIndex.Value);
                             }
                         }
                     }
@@ -108,7 +114,5 @@ namespace ArtifactStore.Repositories.VersionControl
         {
             return item.ArtifactId == item.ItemId;
         }
-
-        
     }
 }

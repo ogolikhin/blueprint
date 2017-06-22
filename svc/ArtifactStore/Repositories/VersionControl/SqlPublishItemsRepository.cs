@@ -8,6 +8,10 @@ namespace ArtifactStore.Repositories.VersionControl
 {
     public class SqlPublishItemsRepository : SqlPublishRepository, IPublishRepository
     {
+        protected override string MarkAsLatestStoredProcedureName { get; } = "MarkAsLatestItemVersions";
+        protected override string DeleteVersionsStoredProcedureName { get; } = "RemoveItemVersions";
+        protected override string CloseVersionsStoredProcedureName { get; } = "CloseItemVersions";
+
         public async Task Execute(int revisionId, PublishParameters parameters, PublishEnvironment environment, IDbTransaction transaction = null)
         {
             var items = await GetDraftAndLatestItems(parameters.UserId, parameters.AffectedArtifactIds, transaction);
@@ -17,7 +21,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 return;
             }
 
-            var hierarchyValidator = new ArtifactsHierarchyValidator();
+            var hierarchyValidator = new ArtifactsHierarchyValidator(this);
 
             var deleteVersionsIds = new HashSet<int>();
             var closeVersionIds = new HashSet<int>();

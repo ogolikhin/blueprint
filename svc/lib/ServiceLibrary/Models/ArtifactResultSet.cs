@@ -7,10 +7,10 @@ namespace ServiceLibrary.Models
     public class ArtifactResultSet
     {
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public List<Artifact> Artifacts { get; set; }
+        public IList<Artifact> Artifacts { get; } = new List<Artifact>();
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public List<Item> Projects { get; set; }
+        public IList<Item> Projects { get;  } = new List<Item>();
     }
 
 }

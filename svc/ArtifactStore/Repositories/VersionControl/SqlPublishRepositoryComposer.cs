@@ -1,43 +1,41 @@
-﻿using System.Collections.Generic;
+﻿using System.Data;
 using System.Threading.Tasks;
 using ArtifactStore.Helpers;
 using ArtifactStore.Services.VersionControl;
-using ServiceLibrary.Helpers;
 
 namespace ArtifactStore.Repositories.VersionControl
 {
     public class SqlPublishRepositoryComposer : IPublishRepository
     {
-        private readonly ICollection<IPublishRepository> _repositories;
+        private readonly IPublishRepositoriesContainer _repositoriesContainer;
 
         public SqlPublishRepositoryComposer() :
-            this(new List<IPublishRepository>
-            {
-                new SqlPublishItemsRepository(),
-                new SqlPublishRelationshipsRepository(),
-                new SqlPublishPropertiesRepository(),
-                new SqlPublishAttachmentsRepository(),
-                new SqlPublishReuseProcessingRepository(),
-                new SqlPublishCollectionAssignmentsRepository(),
-                new SqlJournalPublishRepository()
-            })
+            this(new PublishRepositoriesContainer())
         { }
 
-        public SqlPublishRepositoryComposer(ICollection<IPublishRepository> repositories)
+        public SqlPublishRepositoryComposer(IPublishRepositoriesContainer repositoriesContainer)
         {
-            _repositories = repositories ?? new List<IPublishRepository>();
+            _repositoriesContainer = repositoriesContainer ?? new PublishRepositoriesContainer();
         }
 
-        public async Task Execute(ISqlHelper sqlHelper, int revisionId, PublishParameters parameters, PublishEnvironment environment)
+        public async Task Execute(int revisionId, PublishParameters parameters, PublishEnvironment environment, IDbTransaction transaction = null)
         {
-            await Task.Run(() =>
-            {
-                
-            });
-            foreach (var repo in _repositories)
-            {
-                await repo.Execute(sqlHelper, revisionId, parameters, environment);
-            }
+            await _repositoriesContainer.PublishItemsRepo.Execute(revisionId, parameters, environment, transaction);
+
+            await _repositoriesContainer.PublishRelationshipsRepo.Execute(revisionId, parameters, environment, transaction);
+
+            await _repositoriesContainer.PublishPropertiesRepo.Execute(revisionId, parameters, environment, transaction);
+
+            await _repositoriesContainer.PublishAttachmentsRepo.Execute(revisionId, parameters, environment, transaction);
+
+            await _repositoriesContainer.PublishReuseProcessingRepo.Execute(revisionId, parameters, environment, transaction);
+
+            //DISCUSSIONS IS NOT IMPLEMENTED
+
+            await _repositoriesContainer.PublishCollectionAssignmentsRepo.Execute(revisionId, parameters, environment, transaction);
+
+            //ADDING HISTORY
+
         }
     }
 }

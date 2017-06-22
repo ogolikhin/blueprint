@@ -4,8 +4,8 @@ namespace ServiceLibrary.Models.VersionControl
 {
     public class SqlDiscardPublishDetailsResult
     {
-        public ICollection<SqlDiscardPublishDetails> Details { get; set; }
+        public IList<SqlDiscardPublishDetails> Details { get; } = new List<SqlDiscardPublishDetails>();
 
-        public IDictionary<int, string> ProjectInfos { get; set; }
+        public IDictionary<int, string> ProjectInfos { get; } = new Dictionary<int, string>();
     }
 }

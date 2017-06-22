@@ -1,13 +1,13 @@
-﻿using System.Threading.Tasks;
+﻿using System.Data;
+using System.Threading.Tasks;
 using ArtifactStore.Helpers;
 using ArtifactStore.Services.VersionControl;
-using ServiceLibrary.Helpers;
 
 namespace ArtifactStore.Repositories.VersionControl
 {
     public class SqlPublishAttachmentsRepository : SqlPublishRepository, IPublishRepository
     {
-        public async Task Execute(ISqlHelper sqlHelper, int revisionId, PublishParameters parameters, PublishEnvironment environment)
+        public async Task Execute(int revisionId, PublishParameters parameters, PublishEnvironment environment, IDbTransaction transaction = null)
         {
             await Task.Run(() => { });
         }

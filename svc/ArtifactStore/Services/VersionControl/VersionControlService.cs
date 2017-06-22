@@ -18,6 +18,7 @@ namespace ArtifactStore.Services.VersionControl
         public int UserId { get; set; }
         public bool? All { get; set; }
         public IEnumerable<int> ArtifactIds { get; set; }
+        public ISet<int> AffectedArtifactIds { get; } = new HashSet<int>();
     }
 
     public interface IVersionControlService
@@ -126,13 +127,15 @@ namespace ArtifactStore.Services.VersionControl
                 var publishRevision =
                     await
                         _sqlHelper.CreateRevisionInTransactionAsync(transaction, parameters.UserId, "New Publish: publishing artifacts.");
-                var artifactIdsSet = artifactIdsList.ToHashSet();
-                var publishResults = new List<SqlPublishResult>(artifactIdsSet.Count);
-                var artifactStates = await _versionControlRepository.GetPublishStates(parameters.UserId, artifactIdsSet);
+
+                parameters.AffectedArtifactIds.Clear();
+                parameters.AffectedArtifactIds.AddRange(artifactIdsList);
+                var publishResults = new List<SqlPublishResult>(parameters.AffectedArtifactIds.Count);
+                var artifactStates = await _versionControlRepository.GetPublishStates(parameters.UserId, parameters.AffectedArtifactIds);
 
                 var artifactsCannotBePublished = _versionControlRepository.CanPublish(artifactStates);
 
-                artifactIdsSet.ExceptWith(artifactsCannotBePublished.Keys);
+                parameters.AffectedArtifactIds.ExceptWith(artifactsCannotBePublished.Keys);
 
                 // Notify about artifactsCannotBePublished - callback
                 //if (onError != null && onError(new ReadOnlyDictionary<int, PublishErrors>(artifactsCannotBePublished)))
@@ -140,7 +143,7 @@ namespace ArtifactStore.Services.VersionControl
                 //    throw new DataAccessException("Publish interrupted", BusinessLayerErrorCodes.RequiredArtifactHasNotBeenPublished);
                 //}
 
-                if (artifactIdsSet.Count == 0)
+                if (parameters.AffectedArtifactIds.Count == 0)
                 {
                     return;
                 }
@@ -155,18 +158,25 @@ namespace ArtifactStore.Services.VersionControl
                     SensitivityCollector = new ReuseSensitivityCollector()
                 };
 
-                if (artifactIdsSet.Count > 0)
+                
+
+                if (parameters.AffectedArtifactIds.Count > 0)
                 {
-                        var deletedArtifactIds = await _versionControlRepository.DetectAndPublishDeletedArtifacts(parameters.UserId, artifactIdsSet, env);
-                        env.DeletedArtifactIds = deletedArtifactIds;
-                        artifactIdsSet.ExceptWith(deletedArtifactIds);
+                    env.DeletedArtifactIds.Clear();
+                    env.DeletedArtifactIds.AddRange(await _versionControlRepository.DetectAndPublishDeletedArtifacts(parameters.UserId, 
+                        parameters.AffectedArtifactIds, 
+                        env));
+                    parameters.AffectedArtifactIds.ExceptWith(env.DeletedArtifactIds);
+
+                    if (!env.KeepLock)
+                    {
+                        await _versionControlRepository.ReleaseLock(parameters.UserId, parameters.AffectedArtifactIds, transaction);
+                    }
 
                     ActionRepeater.Retry(() =>
                     {
-                        _publishRepositoryComposer.Execute(_sqlHelper, publishRevision, TODO, TODO);
+                        _publishRepositoryComposer.Execute(publishRevision, parameters, env, transaction);
                     });
-
-                    
 
                     publishResults.AddRange(env.GetChangeSqlPublishResults());
                 }
@@ -202,7 +212,8 @@ namespace ArtifactStore.Services.VersionControl
             var artifactResultSet = new ArtifactResultSet();
             if (discardPublishDetails != null)
             {
-                artifactResultSet.Artifacts = discardPublishDetails.Select(dpd => new Artifact
+                artifactResultSet.Artifacts.Clear();
+                artifactResultSet.Artifacts.AddRange(discardPublishDetails.Select(dpd => new Artifact
                 {
                     Id = dpd.ItemId,
                     Name = dpd.Name,
@@ -214,17 +225,18 @@ namespace ArtifactStore.Services.VersionControl
                     PredefinedType = dpd.BaseItemTypePredefined,
                     ProjectId = dpd.ProjectId,
                     Version = dpd.VersionsCount == 0 ? -1 : dpd.VersionsCount
-                }).ToList();
+                }));
 
                 SortArtifactsByProjectNameThenById(projectsNames, artifactResultSet);
             }
             if (projectsNames != null)
             {
-                artifactResultSet.Projects = projectsNames.Select(pn => new Item
+                artifactResultSet.Projects.Clear();
+                artifactResultSet.Projects.AddRange(projectsNames.Select(pn => new Item
                 {
                     Id = pn.Key,
                     Name = pn.Value
-                }).ToList();
+                }).ToList());
             }
             return artifactResultSet;
         }
@@ -232,7 +244,8 @@ namespace ArtifactStore.Services.VersionControl
         private static void SortArtifactsByProjectNameThenById(IDictionary<int, string> projectsNames,
             ArtifactResultSet novaArtifactResultSet)
         {
-            novaArtifactResultSet.Artifacts =
+            novaArtifactResultSet.Artifacts.Clear();
+            novaArtifactResultSet.Artifacts.AddRange(
                 novaArtifactResultSet.Artifacts.OrderBy(a =>
                 {
                     string projectName;
@@ -242,7 +255,7 @@ namespace ArtifactStore.Services.VersionControl
                     }
                     projectsNames.TryGetValue(a.ProjectId, out projectName);
                     return projectName;
-                }).ThenBy(a => a.Id).ToList();
+                }).ThenBy(a => a.Id));
         }
     }
 }

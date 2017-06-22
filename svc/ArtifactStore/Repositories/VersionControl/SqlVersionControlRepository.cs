@@ -13,20 +13,21 @@ namespace ArtifactStore.Repositories.VersionControl
 {
     public interface IVersionControlRepository
     {
-        Task<ICollection<SqlDiscardPublishState>> GetDiscardPublishStates(int userId, IEnumerable<int> artifactIds);
+        Task<ICollection<SqlDiscardPublishState>> GetDiscardPublishStates(int userId, IEnumerable<int> artifactIds, IDbTransaction transaction = null);
 
-        Task<ICollection<SqlDiscardPublishState>> GetAllDiscardPublish(int userId);
+        Task<ICollection<SqlDiscardPublishState>> GetAllDiscardPublish(int userId, IDbTransaction transaction = null);
 
-        Task<ICollection<int>> GetDiscardPublishDependentArtifacts(int userId, IEnumerable<int> artifactIds, bool forDiscard);
+        Task<ICollection<int>> GetDiscardPublishDependentArtifacts(int userId, IEnumerable<int> artifactIds, bool forDiscard, IDbTransaction transaction = null);
 
-        Task<SqlDiscardPublishDetailsResult> GetDiscardPublishDetails(int userId, IEnumerable<int> artifactIds, bool addProjectsNames);
+        Task<SqlDiscardPublishDetailsResult> GetDiscardPublishDetails(int userId, IEnumerable<int> artifactIds, bool addProjectsNames, IDbTransaction transaction = null);
 
-        Task<ICollection<SqlItemInfo>> GetPublishStates(int userId, ISet<int> ids, bool ignoreComments = false);
+        Task<ICollection<SqlItemInfo>> GetPublishStates(int userId, ISet<int> ids, bool ignoreComments = false, IDbTransaction transaction = null);
 
-        IDictionary<int, PublishErrors> CanPublish(ICollection<SqlItemInfo> artifactStates);
+        IDictionary<int, PublishErrors> CanPublish(ICollection<SqlItemInfo> artifactStates, IDbTransaction transaction = null);
 
-        Task<ISet<int>> DetectAndPublishDeletedArtifacts(int userId, ISet<int> artifactIds, PublishEnvironment env);
+        Task<ISet<int>> DetectAndPublishDeletedArtifacts(int userId, ISet<int> artifactIds, PublishEnvironment env, IDbTransaction transaction = null);
 
+        Task ReleaseLock(int userId, ISet<int> affectedArtifactIds, IDbTransaction transaction = null);
     }
 
     public class SqlVersionControlRepository : SqlBaseArtifactRepository, IVersionControlRepository
@@ -47,70 +48,77 @@ namespace ArtifactStore.Repositories.VersionControl
         {
         }
 
-        public async Task<ICollection<SqlDiscardPublishState>> GetDiscardPublishStates(int userId, IEnumerable<int> artifactIds)
+        public async Task<ICollection<SqlDiscardPublishState>> GetDiscardPublishStates(int userId, IEnumerable<int> artifactIds, IDbTransaction transaction = null)
         {
-            return await GetDiscardPublishStatesInternal(userId, artifactIds);
+            return await GetDiscardPublishStatesInternal(userId, artifactIds, transaction);
         }
 
-        public async Task<ICollection<SqlDiscardPublishState>> GetAllDiscardPublish(int userId)
+        public async Task<ICollection<SqlDiscardPublishState>> GetAllDiscardPublish(int userId, IDbTransaction transaction = null)
         {
-            return await GetAllDiscardPublishInternal(userId);
+            return await GetAllDiscardPublishInternal(userId, transaction);
         }
 
-        public async Task<ICollection<int>> GetDiscardPublishDependentArtifacts(int userId, IEnumerable<int> artifactIds, bool forDiscard)
+        public async Task<ICollection<int>> GetDiscardPublishDependentArtifacts(int userId, IEnumerable<int> artifactIds, bool forDiscard, IDbTransaction transaction = null)
         {
-            return await GetDiscardPublishDependentArtifactsInternal(userId, artifactIds, forDiscard);
+            return await GetDiscardPublishDependentArtifactsInternal(userId, artifactIds, forDiscard, transaction);
         }
 
-        public async Task<SqlDiscardPublishDetailsResult> GetDiscardPublishDetails(int userId, IEnumerable<int> artifactIds, bool addProjectsNames)
+        public async Task<SqlDiscardPublishDetailsResult> GetDiscardPublishDetails(int userId, IEnumerable<int> artifactIds, bool addProjectsNames, IDbTransaction transaction = null)
         {
-            return await GetDiscardPublishDetailsInternal(userId, artifactIds, addProjectsNames);
+            return await GetDiscardPublishDetailsInternal(userId, artifactIds, addProjectsNames, transaction);
         }
 
-        public async Task<ICollection<SqlItemInfo>> GetPublishStates(int userId, ISet<int> ids, bool ignoreComments = false)
+        public async Task<ICollection<SqlItemInfo>> GetPublishStates(int userId, ISet<int> ids, bool ignoreComments = false, IDbTransaction transaction = null)
         {
-            return await GetPublishStatesInternal(userId, ids, ignoreComments);
+            return await GetPublishStatesInternal(userId, ids, ignoreComments, transaction);
         }
 
-        public IDictionary<int, PublishErrors> CanPublish(ICollection<SqlItemInfo> artifactStates)
+        public IDictionary<int, PublishErrors> CanPublish(ICollection<SqlItemInfo> artifactStates, IDbTransaction transaction = null)
         {
             return CanPublishInternal(artifactStates);
         }
 
-        public async Task<ISet<int>> DetectAndPublishDeletedArtifacts(int userId, ISet<int> artifactIds, PublishEnvironment env)
+        public async Task<ISet<int>> DetectAndPublishDeletedArtifacts(int userId, ISet<int> artifactIds, PublishEnvironment env, IDbTransaction transaction = null)
         {
-            var deletedArtifactIds = (await GetDeletedArtifacts(userId, artifactIds)).ToHashSet();
+            var deletedArtifactIds = (await GetDeletedArtifacts(userId, artifactIds, transaction)).ToHashSet();
 
             if (deletedArtifactIds.Any())
             {
-                RemoveCollectionAssignments(userId, deletedArtifactIds, env);
+                RemoveCollectionAssignments(userId, deletedArtifactIds, env, transaction);
 
-                DeleteAndPublishArtifactsInSql(userId, deletedArtifactIds, env.RevisionId);
+                DeleteAndPublishArtifactsInSql(userId, deletedArtifactIds, env.RevisionId, transaction);
             }
 
             return deletedArtifactIds;
         }
 
-        private void RemoveCollectionAssignments(int userId, IEnumerable<int> deletedArtifactIds, PublishEnvironment env)
+        public async Task ReleaseLock(int userId, ISet<int> affectedArtifactIds, IDbTransaction transaction = null)
         {
-            //Create stored procedure for removing collection assignments
-                //bool hasChanges = false;
-                //foreach (var artifactId in env.FilterByBaseType(deletedArtifactIds, ItemTypePredefined.ArtifactCollection))
-                //{
-                //    ACollectionAssignment.RemoveAllAsPublishMarkedForDeletion(env.RevisionId, artifactId, ctx);
-                //    hasChanges = true;
-                //}
-
-                //if (hasChanges)
-                //{
-                //    ctx.SaveChanges();
-                //}
+            await ReleaseLockInternal(userId, affectedArtifactIds);
         }
 
-        
+
+        private void RemoveCollectionAssignments(int userId, IEnumerable<int> deletedArtifactIds, PublishEnvironment env, IDbTransaction transaction)
+        {
+            //Create stored procedure for removing collection assignments
+            //bool hasChanges = false;
+            //foreach (var artifactId in env.FilterByBaseType(deletedArtifactIds, ItemTypePredefined.ArtifactCollection))
+            //{
+            //    ACollectionAssignment.RemoveAllAsPublishMarkedForDeletion(env.RevisionId, artifactId, ctx);
+            //    hasChanges = true;
+            //}
+
+            //if (hasChanges)
+            //{
+            //    ctx.SaveChanges();
+            //}
+        }
+
+
 
         private async Task<ICollection<SqlDiscardPublishState>> GetDiscardPublishStatesInternal(int userId,
-            IEnumerable<int> artifactIds)
+            IEnumerable<int> artifactIds, 
+            IDbTransaction transaction)
         {
             var aids = artifactIds as int[] ?? artifactIds.ToArray();
             var discardPublishStates = aids.ToDictionary(artifactId => artifactId, artifactId => new SqlDiscardPublishState
@@ -124,9 +132,21 @@ namespace ArtifactStore.Repositories.VersionControl
             var artifactIdsTable = SqlConnectionWrapper.ToDataTable(aids);
             param.Add("@artifactIds", artifactIdsTable);
 
-            foreach (var dpState in await
+            IEnumerable<SqlDiscardPublishState> sqlDiscardPublishStates;
+
+            if (transaction == null)
+            {
+                sqlDiscardPublishStates = await
                     ConnectionWrapper.QueryAsync<SqlDiscardPublishState>("GetDiscardPublishStates", param,
-                        commandType: CommandType.StoredProcedure))
+                        commandType: CommandType.StoredProcedure);
+            }
+            else
+            {
+                sqlDiscardPublishStates = await
+                    transaction.Connection.QueryAsync<SqlDiscardPublishState>("GetDiscardPublishStates", param,
+                        commandType: CommandType.StoredProcedure);
+            }
+            foreach (var dpState in sqlDiscardPublishStates)
             {
                 SqlDiscardPublishState discardPublishState;
                 if (!discardPublishStates.TryGetValue(dpState.ItemId, out discardPublishState))
@@ -156,14 +176,25 @@ namespace ArtifactStore.Repositories.VersionControl
             return discardPublishStates.Values;
         }
 
-        private async Task<ICollection<SqlDiscardPublishState>> GetAllDiscardPublishInternal(int userId)
+        private async Task<ICollection<SqlDiscardPublishState>> GetAllDiscardPublishInternal(int userId, 
+            IDbTransaction transaction)
         {
             var param = new DynamicParameters();
             param.Add("@userId", userId);
 
-            var sqlDiscardPublishStates = (await
+            IList<SqlDiscardPublishState> sqlDiscardPublishStates;
+            if (transaction == null)
+            {
+                sqlDiscardPublishStates = (await
                 ConnectionWrapper.QueryAsync<SqlDiscardPublishState>("GetAllDiscardPublishArtifactIds", param,
                     commandType: CommandType.StoredProcedure)).ToList();
+            }
+            else
+            {
+                sqlDiscardPublishStates = (await
+                transaction.Connection.QueryAsync<SqlDiscardPublishState>("GetAllDiscardPublishArtifactIds", param,
+                    commandType: CommandType.StoredProcedure)).ToList();
+            }
             sqlDiscardPublishStates.ForEach(
                         dps =>
                         {
@@ -179,8 +210,10 @@ namespace ArtifactStore.Repositories.VersionControl
             return sqlDiscardPublishStates;
         }
 
-        private async Task<ICollection<int>> GetDiscardPublishDependentArtifactsInternal(int userId, IEnumerable<int> artifactIds,
-            bool forDiscard)
+        private async Task<ICollection<int>> GetDiscardPublishDependentArtifactsInternal(int userId, 
+            IEnumerable<int> artifactIds,
+            bool forDiscard, 
+            IDbTransaction transaction)
         {
             var param = new DynamicParameters();
             param.Add("@userId", userId);
@@ -188,16 +221,29 @@ namespace ArtifactStore.Repositories.VersionControl
             param.Add("@artifactIds", artifactIdsTable);
             param.Add("@forDiscard", forDiscard);
 
-            var sqlDiscardPublishStates = (await
-                ConnectionWrapper.QueryAsync<SqlDiscardPublishState>("GetDiscardPublishAncestors", param,
-                    commandType: CommandType.StoredProcedure)).ToList();
+            IList<SqlDiscardPublishState> sqlDiscardPublishStates;
+            if (transaction == null)
+            {
+                sqlDiscardPublishStates = (await
+                    ConnectionWrapper.QueryAsync<SqlDiscardPublishState>("GetDiscardPublishAncestors", param,
+                        commandType: CommandType.StoredProcedure)).ToList();
+            }
+            else
+            {
+                sqlDiscardPublishStates = (await
+                    transaction.Connection.QueryAsync<SqlDiscardPublishState>("GetDiscardPublishAncestors", param,
+                        commandType: CommandType.StoredProcedure)).ToList();
+            }
+
             var discardPublishDependentArtifacts = new List<int>(0x100);
             discardPublishDependentArtifacts.AddRange(from sqlDiscardPublishState in sqlDiscardPublishStates where forDiscard ? sqlDiscardPublishState.DiscardDependent : sqlDiscardPublishState.PublishDependent select sqlDiscardPublishState.ItemId);
             return discardPublishDependentArtifacts;
         }
 
-        private async Task<SqlDiscardPublishDetailsResult> GetDiscardPublishDetailsInternal(int userId, IEnumerable<int> artifactIds,
-            bool addProjectsNames)
+        private async Task<SqlDiscardPublishDetailsResult> GetDiscardPublishDetailsInternal(int userId, 
+            IEnumerable<int> artifactIds,
+            bool addProjectsNames, 
+            IDbTransaction transaction)
         {
             var result = new SqlDiscardPublishDetailsResult();
 
@@ -208,9 +254,19 @@ namespace ArtifactStore.Repositories.VersionControl
             var artifactIdsTable = SqlConnectionWrapper.ToDataTable(artifactIds);
             param.Add("@artifactIds", artifactIdsTable);
 
-            result.Details = (await
+            result.Details.Clear();
+            if (transaction == null)
+            {
+                result.Details.AddRange((await
                 ConnectionWrapper.QueryAsync<SqlDiscardPublishDetails>("GetDiscardPublishDetails", param,
-                    commandType: CommandType.StoredProcedure)).ToList();
+                    commandType: CommandType.StoredProcedure)).ToList());
+            }
+            else
+            {
+                result.Details.AddRange((await
+                transaction.Connection.QueryAsync<SqlDiscardPublishDetails>("GetDiscardPublishDetails", param,
+                    commandType: CommandType.StoredProcedure)).ToList());
+            }
             foreach (var sqlDiscardPublishDetail in result.Details)
             {
                 projectIdSet.Add(sqlDiscardPublishDetail.ProjectId);
@@ -218,12 +274,15 @@ namespace ArtifactStore.Repositories.VersionControl
 
             if (addProjectsNames)
             {
-                result.ProjectInfos = await GetProjectNames(userId, projectIdSet);
+                result.ProjectInfos.Clear();
+                result.ProjectInfos.AddRange(await GetProjectNames(userId, projectIdSet, transaction));
             }
             return result;
         }
 
-        private async Task<IDictionary<int, string>> GetProjectNames(int userId, HashSet<int> projectIdSet)
+        private async Task<IDictionary<int, string>> GetProjectNames(int userId, 
+            HashSet<int> projectIdSet, 
+            IDbTransaction transaction)
         {
             var result = new Dictionary<int, string>();
             var param = new DynamicParameters();
@@ -231,9 +290,19 @@ namespace ArtifactStore.Repositories.VersionControl
             var projectIdsTable = SqlConnectionWrapper.ToDataTable(projectIdSet);
             param.Add("@projectIds", projectIdsTable);
 
-            var discardPublishProjectDetails = (await
-                ConnectionWrapper.QueryAsync<SqlDiscardPublishProjectInfo>("GetDiscardPublishProjectsDetails", param,
-                    commandType: CommandType.StoredProcedure)).ToList();
+            IList<SqlDiscardPublishProjectInfo> discardPublishProjectDetails;
+            if (transaction == null)
+            {
+                discardPublishProjectDetails = (await
+                    ConnectionWrapper.QueryAsync<SqlDiscardPublishProjectInfo>("GetDiscardPublishProjectsDetails", param,
+                        commandType: CommandType.StoredProcedure)).ToList();
+            }
+            else
+            {
+                discardPublishProjectDetails = (await
+                    transaction.Connection.QueryAsync<SqlDiscardPublishProjectInfo>("GetDiscardPublishProjectsDetails", param,
+                        commandType: CommandType.StoredProcedure)).ToList();
+            }
 
             foreach (var sqlDiscardPublishProjectInfo in discardPublishProjectDetails)
             {
@@ -249,18 +318,29 @@ namespace ArtifactStore.Repositories.VersionControl
             return result;
         }
 
-        private async Task<ICollection<SqlItemInfo>> GetPublishStatesInternal(int userId, ISet<int> ids, bool ignoreComments = false)
+        private async Task<ICollection<SqlItemInfo>> GetPublishStatesInternal(int userId, 
+            ISet<int> ids, 
+            bool ignoreComments, 
+            IDbTransaction transaction)
         {
             var param = new DynamicParameters();
             param.Add("@userId", userId);
             var artifactIds = SqlConnectionWrapper.ToDataTable(ids);
             param.Add("@artifactIds", artifactIds);
             param.Add("@ignoreComments", ignoreComments);
-
-            var existingItemsInfo = (await
-                ConnectionWrapper.QueryAsync<SqlItemInfo>("GetPublishInfo", param,
-                    commandType: CommandType.StoredProcedure)).ToList();
-
+            IList<SqlItemInfo> existingItemsInfo;
+            if (transaction == null)
+            {
+                existingItemsInfo = (await
+                    ConnectionWrapper.QueryAsync<SqlItemInfo>("GetPublishInfo", param,
+                        commandType: CommandType.StoredProcedure)).ToList();
+            }
+            else
+            {
+                existingItemsInfo = (await
+                    transaction.Connection.QueryAsync<SqlItemInfo>("GetPublishInfo", param,
+                        commandType: CommandType.StoredProcedure)).ToList();
+            }
             existingItemsInfo.AddRange(
                 ids.Except(existingItemsInfo.Select(i => i.ItemId))
                     .Select(id => new SqlItemInfo
@@ -296,19 +376,25 @@ namespace ArtifactStore.Repositories.VersionControl
             return result;
         }
 
-        private async Task<IList<int>> GetDeletedArtifacts(int userId, ISet<int> artifactIds)
+        private async Task<IList<int>> GetDeletedArtifacts(int userId, ISet<int> artifactIds, IDbTransaction transaction)
         {
             var param = new DynamicParameters();
             param.Add("@userId", userId);
             var aids = SqlConnectionWrapper.ToDataTable(artifactIds);
             param.Add("@artifactIds", aids);
 
+            if (transaction == null)
+            {
+                return (await
+                    ConnectionWrapper.QueryAsync<int>("GetArtifactsDeletedInDraft", param,
+                        commandType: CommandType.StoredProcedure)).ToList();
+            }
             return (await
-                ConnectionWrapper.QueryAsync<int>("GetArtifactsDeletedInDraft", param,
+                transaction.Connection.QueryAsync<int>("GetArtifactsDeletedInDraft", param,
                     commandType: CommandType.StoredProcedure)).ToList();
         }
 
-        private async void DeleteAndPublishArtifactsInSql(int userId, IEnumerable<int> artifactIds, int revisionId)
+        private async void DeleteAndPublishArtifactsInSql(int userId, IEnumerable<int> artifactIds, int revisionId, IDbTransaction transaction)
         {
 
             var param = new DynamicParameters();
@@ -317,9 +403,35 @@ namespace ArtifactStore.Repositories.VersionControl
             var aids = SqlConnectionWrapper.ToDataTable(artifactIds);
             param.Add("@artifactIds", aids);
 
+            if (transaction == null)
+            {
+                await
+                    ConnectionWrapper.ExecuteAsync("DeleteAndPublishArtifacts", param,
+                        commandType: CommandType.StoredProcedure);
+                return;
+            }
             await
-                ConnectionWrapper.ExecuteAsync("DeleteAndPublishArtifacts", param,
+                transaction.Connection.ExecuteAsync("DeleteAndPublishArtifacts", param,
                     commandType: CommandType.StoredProcedure);
+        }
+
+        private async Task ReleaseLockInternal(int userId, ISet<int> artifactIds, IDbTransaction transaction = null)
+        {
+            var param = new DynamicParameters();
+            param.Add("@userId", userId);
+            var aids = SqlConnectionWrapper.ToDataTable(artifactIds);
+            param.Add("@artifactIds", aids);
+
+            if (transaction == null)
+            {
+                await ConnectionWrapper.ExecuteAsync("ReleaseLock", param,
+                    commandType: CommandType.StoredProcedure);
+            }
+            else
+            {
+                await transaction.Connection.ExecuteAsync("ReleaseLock", param,
+                    commandType: CommandType.StoredProcedure);
+            }
         }
     }
 }

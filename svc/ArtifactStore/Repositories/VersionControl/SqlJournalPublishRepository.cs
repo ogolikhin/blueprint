@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using ArtifactStore.Helpers;
 using ArtifactStore.Services.VersionControl;
 using Dapper;
-using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.VersionControl;
 
@@ -12,9 +11,9 @@ namespace ArtifactStore.Repositories.VersionControl
 {
     public class SqlJournalPublishRepository : SqlPublishRepository, IPublishRepository
     {
-        public async Task Execute(ISqlHelper sqlHelper, int revisionId, PublishParameters parameters, PublishEnvironment environment)
+        public async Task Execute(int revisionId, PublishParameters parameters, PublishEnvironment environment, IDbTransaction transaction = null)
         {
-            await AddArtifactChanges(sqlHelper, parameters, environment);
+            await AddArtifactChanges(parameters, environment, transaction);
             //_repositories.Journal.AddArtifactChanges(env);
             await Task.Run(() =>
             {
@@ -22,7 +21,8 @@ namespace ArtifactStore.Repositories.VersionControl
             });
         }
 
-        public async Task AddArtifactChanges(ISqlHelper sqlHelper, PublishParameters parameters, PublishEnvironment environment)
+        
+        public async Task AddArtifactChanges(PublishParameters parameters, PublishEnvironment environment, IDbTransaction transaction = null)
         {
             var affectedArtifacts = environment.GetAffectedArtifacts();
             foreach (var item in environment.ArtifactStates)

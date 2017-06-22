@@ -46,7 +46,7 @@ namespace ArtifactStore.Helpers
             return DeletedArtifactIds?.Contains(artifactId) ?? false;
         }
 
-        public ISet<int> DeletedArtifactIds { get; set; }
+        public ISet<int> DeletedArtifactIds { get; } = new HashSet<int>();
         public bool KeepLock { get; set; }
 
         public IDictionary<int, SqlItemInfo> ArtifactStates { get; internal set; }

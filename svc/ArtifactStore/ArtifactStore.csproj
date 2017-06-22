@@ -175,6 +175,7 @@
     <Compile Include="Repositories\SqlRelationshipsRepository.cs" />
     <Compile Include="Repositories\SqlReviewsRepository.cs" />
     <Compile Include="Repositories\VersionControl\IPublishRepository.cs" />
+    <Compile Include="Repositories\VersionControl\PublishRepositoriesContainer.cs" />
     <Compile Include="Repositories\VersionControl\SqlJournalPublishRepository.cs" />
     <Compile Include="Repositories\VersionControl\SqlPublishAttachmentsRepository.cs" />
     <Compile Include="Repositories\VersionControl\SqlPublishCollectionAssignmentsRepository.cs" />

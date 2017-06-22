@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using ArtifactStore.Helpers;
 using ArtifactStore.Services.VersionControl;
+using ServiceLibrary.Models.VersionControl;
 
 namespace ArtifactStore.Repositories.VersionControl
 {

@@ -184,6 +184,7 @@
     <Compile Include="Models\TransactionalTriggerExecutor.cs" />
     <Compile Include="Models\UserGroup.cs" />
     <Compile Include="Models\UserInfo.cs" />
+    <Compile Include="Models\VersionControl\PublishParameters.cs" />
     <Compile Include="Models\VersionControl\SqlDiscardPublishDetails.cs" />
     <Compile Include="Models\VersionControl\SqlDiscardPublishDetailsResult.cs" />
     <Compile Include="Models\VersionControl\SqlDiscardPublishProjectInfo.cs" />

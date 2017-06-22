@@ -10,9 +10,9 @@ namespace ArtifactStore.Repositories.Revisions
 {
     public interface IRevisionRepository
     {
-        Task<int?> CreateNewRevision(int userId, string comment);
+        Task<int?> CreateNewRevision(int userId, string comment, IDbTransaction transaction = null);
 
-        Task<IEnumerable<int>> AddHistory(int revisionId, ISet<int> artifactIds);
+        Task<IEnumerable<int>> AddHistory(int revisionId, ISet<int> artifactIds, IDbTransaction transaction = null);
     }
 
     public class SqlRevisionRepository : SqlBaseArtifactRepository, IRevisionRepository
@@ -33,26 +33,32 @@ namespace ArtifactStore.Repositories.Revisions
         {
         }
 
-        public async Task<int?> CreateNewRevision(int userId, string comment)
+        public async Task<int?> CreateNewRevision(int userId, string comment, IDbTransaction transaction = null)
         {
-            return await CreateNewRevisionInternal(userId, comment);
+            return await CreateNewRevisionInternal(userId, comment, transaction);
         }
 
-        public async Task<IEnumerable<int>> AddHistory(int revisionId, ISet<int> artifactIds)
+        public async Task<IEnumerable<int>> AddHistory(int revisionId, ISet<int> artifactIds, IDbTransaction transaction = null)
         {
-            return await AddHistoryInternal(revisionId, artifactIds);
+            return await AddHistoryInternal(revisionId, artifactIds, transaction);
         }
 
-        private async Task<int?> CreateNewRevisionInternal(int userId, string comment)
+        private async Task<int?> CreateNewRevisionInternal(int userId, string comment, IDbTransaction transaction)
         {
             var param = new DynamicParameters();
             param.Add("@userId", userId);
             param.Add("@comment", comment);
-            return (await ConnectionWrapper.QueryAsync<int?>("CreateRevision", param,
+            if (transaction == null)
+            {
+                return (await ConnectionWrapper.QueryAsync<int?>("CreateRevision", param,
+                commandType: CommandType.StoredProcedure)).FirstOrDefault();
+            }
+
+            return (await transaction.Connection.QueryAsync<int?>("CreateRevision", param,
                 commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
 
-        private async Task<IEnumerable<int>> AddHistoryInternal(int revisionId, ISet<int> artifactIds)
+        private async Task<IEnumerable<int>> AddHistoryInternal(int revisionId, ISet<int> artifactIds, IDbTransaction transaction)
         {
             if (artifactIds.Count == 0)
             {
@@ -64,7 +70,13 @@ namespace ArtifactStore.Repositories.Revisions
             var artifactIdsTable = SqlConnectionWrapper.ToDataTable(artifactIds);
             param.Add("@artifactIds", artifactIdsTable);
 
-            return (await ConnectionWrapper.QueryAsync<int>("AddHistory", param,
+            if (transaction == null)
+            {
+                return (await ConnectionWrapper.QueryAsync<int>("AddHistory", param,
+                commandType: CommandType.StoredProcedure));
+            }
+
+            return (await transaction.Connection.QueryAsync<int>("AddHistory", param,
                 commandType: CommandType.StoredProcedure));
         }
     }

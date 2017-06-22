@@ -22,7 +22,7 @@ namespace ServiceLibrary.Attributes
         }
 
         [TestMethod]
-        public void IfRequiredLicenseIsNotFoundThenResponseCodeIsForbidden()
+        public void OnActionExecuting_WhenRequiredLicenseIsNotFound_ResponseCodeIsForbidden()
         {
             //Arrange
             var requiredLicense = FeatureTypes.Workflow;
@@ -38,7 +38,7 @@ namespace ServiceLibrary.Attributes
         }
 
         [TestMethod]
-        public void IfOneOfTheRequiredLicensesIsNotFoundThenResponseCodeIsForbidden()
+        public void OnActionExecuting_WhenOneOfTheRequiredLicensesIsNotFound_ResponseCodeIsForbidden()
         {
             //Arrange
             var requiredLicenses = FeatureTypes.Workflow | FeatureTypes.Storyteller;
@@ -54,7 +54,7 @@ namespace ServiceLibrary.Attributes
         }
 
         [TestMethod]
-        public void IfAllRequiredLicensesAreNotFoundThenResponseCodeIsForbidden()
+        public void OnActionExecuting_WhenAllRequiredLicensesAreNotFound_ResponseCodeIsForbidden()
         {
             //Arrange
             var requiredLicenses = FeatureTypes.Workflow | FeatureTypes.Storyteller;
@@ -70,7 +70,7 @@ namespace ServiceLibrary.Attributes
         }
 
         [TestMethod]
-        public void IfRequiredLicenseIsFoundThenResponseIsNull()
+        public void OnActionExecuting_WhenRequiredLicenseIsFound_ResponseIsNull()
         {
             //Arrange
             var requiredLicense = FeatureTypes.Workflow;
@@ -85,7 +85,7 @@ namespace ServiceLibrary.Attributes
         }
 
         [TestMethod]
-        public void IfAllRequiredLicensesAreFoundThenResponseIsNull()
+        public void OnActionExecuting_WhenAllRequiredLicensesAreFound_ResponseIsNull()
         {
             //Arrange
             var requiredLicenses = FeatureTypes.Workflow | FeatureTypes.Storyteller;
@@ -100,7 +100,7 @@ namespace ServiceLibrary.Attributes
         }
 
         [TestMethod]
-        public void IfMoreThanAllRequiredLicensesAreFoundThenResponseIsNull()
+        public void OnActionExecuting_WhenMoreThanAllRequiredLicensesAreFound_ResponseIsNull()
         {
             //Arrange
             var requiredLicenses = FeatureTypes.Workflow | FeatureTypes.Storyteller;

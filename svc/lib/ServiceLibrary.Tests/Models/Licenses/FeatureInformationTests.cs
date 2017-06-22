@@ -22,7 +22,7 @@ namespace ServiceLibrary.Models.Licenses
         }
 
         [TestMethod]
-        public void StatusIsActiveWhenExpirationDateIsUpcoming()
+        public void GetStatus_WhenExpirationDateIsUpcoming_StatusIsActive()
         {
             //Arrange
             var expirationDate = DateTime.MaxValue;
@@ -34,7 +34,7 @@ namespace ServiceLibrary.Models.Licenses
         }
 
         [TestMethod]
-        public void StatusIsActiveWhenExpirationDateIsEqual()
+        public void GetStatus_WhenExpirationDateIsEqual_StatusIsActive()
         {
             //Arrange
             var expirationDate = new DateTime(2000, 1, 1);
@@ -47,7 +47,7 @@ namespace ServiceLibrary.Models.Licenses
         }
 
         [TestMethod]
-        public void StatusIsExpiredWhenExpirationDateHasPassed()
+        public void GetStatus_WhenExpirationDateHasPassed_StatusIsExpired()
         {
             //Arrange
             var expirationDate = DateTime.MinValue;
@@ -59,7 +59,7 @@ namespace ServiceLibrary.Models.Licenses
         }
 
         [TestMethod]
-        public void GetFeatureTypeReturnsProperFeatureType()
+        public void GetFeatureType_WhenFeatureNameIsWorkflow_FeatureTypeIsWorkflow()
         {
             //Arrange
             var featureInformation = new FeatureInformation(WorkflowFeatureName, DateTime.UtcNow);

@@ -160,7 +160,7 @@ namespace ArtifactStore.Services.VersionControl
 
                     
 
-                    ActionRepeater.Retry(async () =>
+                    await ActionRepeater.RetryAsync(async () =>
                     {
                         if (!env.KeepLock)
                         {
@@ -178,10 +178,12 @@ namespace ArtifactStore.Services.VersionControl
                 
             };
 
+            await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, action);
+
             var discardPublishDetails = (await _versionControlRepository.GetDiscardPublishDetails(parameters.UserId, artifactIdsList, true)).Details;
             return ToNovaArtifactResultSet(discardPublishDetails, projectsNames);
         }
-
+        
         private async Task ProcessDependentArtifactsDiscovery(PublishParameters parameters, IList<int> dependentArtifactsIds,
             IList<int> independentArtifactsIds, IDictionary<int, string> projectsNames)
         {

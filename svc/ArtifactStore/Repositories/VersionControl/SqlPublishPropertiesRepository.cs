@@ -72,14 +72,36 @@ namespace ArtifactStore.Repositories.VersionControl
                 }
             }
 
-            await CloseVersions(closeVersionIds, environment.RevisionId, transaction);
+            await CloseAllPropertyVersions(closeVersionIds, environment.RevisionId, transaction);
             await CloseVersionsForCrossProjectMovedArtifacts(environment.GetArtifactsMovedAcrossProjects(parameters.AffectedArtifactIds), 
                 environment.RevisionId, 
                 transaction);
             await DeleteVersions(deleteVersionsIds, transaction);
             await MarkAsLatest(markAsLatestVersionIds, environment.RevisionId, transaction);
         }
+        private async Task CloseAllPropertyVersions(HashSet<int> closeVersionIds, int revisionId, IDbTransaction transaction = null)
+        {
+            if (closeVersionIds.Count == 0)
+            {
+                return;
+            }
 
+            var param = new DynamicParameters();
+            param.Add("@revisionId", revisionId);
+            param.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(closeVersionIds));
+
+            if (transaction == null)
+            {
+                await ConnectionWrapper.ExecuteAsync(CloseVersionsStoredProcedureName, param,
+                commandType: CommandType.StoredProcedure);
+                return;
+            }
+
+            await transaction.Connection.ExecuteAsync(CloseVersionsStoredProcedureName, param, transaction,
+                commandType: CommandType.StoredProcedure);
+
+            //Log.Assert(updatedRowsCount == closeVersionIds.Count, "Publish: Some item versions are not closed");
+        }
         private void RegisterPropertyModification(ReuseSensitivityCollector sensitivityCollector, SqlDraftAndLatestProperty property)
         {
             if (IsSubArtifactChange(property))
@@ -124,7 +146,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 return;
             }
 
-            await transaction.Connection.ExecuteAsync("CloseAllPropertyVersions", param,
+            await transaction.Connection.ExecuteAsync("CloseAllPropertyVersions", param, transaction,
                 commandType: CommandType.StoredProcedure);
         }
     }

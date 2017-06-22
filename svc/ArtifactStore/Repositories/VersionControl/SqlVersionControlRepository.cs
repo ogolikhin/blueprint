@@ -143,7 +143,7 @@ namespace ArtifactStore.Repositories.VersionControl
             else
             {
                 sqlDiscardPublishStates = await
-                    transaction.Connection.QueryAsync<SqlDiscardPublishState>("GetDiscardPublishStates", param,
+                    transaction.Connection.QueryAsync<SqlDiscardPublishState>("GetDiscardPublishStates", param, transaction,
                         commandType: CommandType.StoredProcedure);
             }
             foreach (var dpState in sqlDiscardPublishStates)
@@ -192,7 +192,7 @@ namespace ArtifactStore.Repositories.VersionControl
             else
             {
                 sqlDiscardPublishStates = (await
-                transaction.Connection.QueryAsync<SqlDiscardPublishState>("GetAllDiscardPublishArtifactIds", param,
+                transaction.Connection.QueryAsync<SqlDiscardPublishState>("GetAllDiscardPublishArtifactIds", param, transaction,
                     commandType: CommandType.StoredProcedure)).ToList();
             }
             sqlDiscardPublishStates.ForEach(
@@ -231,7 +231,7 @@ namespace ArtifactStore.Repositories.VersionControl
             else
             {
                 sqlDiscardPublishStates = (await
-                    transaction.Connection.QueryAsync<SqlDiscardPublishState>("GetDiscardPublishAncestors", param,
+                    transaction.Connection.QueryAsync<SqlDiscardPublishState>("GetDiscardPublishAncestors", param, transaction,
                         commandType: CommandType.StoredProcedure)).ToList();
             }
 
@@ -264,7 +264,7 @@ namespace ArtifactStore.Repositories.VersionControl
             else
             {
                 result.Details.AddRange((await
-                transaction.Connection.QueryAsync<SqlDiscardPublishDetails>("GetDiscardPublishDetails", param,
+                transaction.Connection.QueryAsync<SqlDiscardPublishDetails>("GetDiscardPublishDetails", param, transaction,
                     commandType: CommandType.StoredProcedure)).ToList());
             }
             foreach (var sqlDiscardPublishDetail in result.Details)
@@ -300,7 +300,7 @@ namespace ArtifactStore.Repositories.VersionControl
             else
             {
                 discardPublishProjectDetails = (await
-                    transaction.Connection.QueryAsync<SqlDiscardPublishProjectInfo>("GetDiscardPublishProjectsDetails", param,
+                    transaction.Connection.QueryAsync<SqlDiscardPublishProjectInfo>("GetDiscardPublishProjectsDetails", param, transaction,
                         commandType: CommandType.StoredProcedure)).ToList();
             }
 
@@ -338,7 +338,7 @@ namespace ArtifactStore.Repositories.VersionControl
             else
             {
                 existingItemsInfo = (await
-                    transaction.Connection.QueryAsync<SqlItemInfo>("GetPublishInfo", param,
+                    transaction.Connection.QueryAsync<SqlItemInfo>("GetPublishInfo", param, transaction,
                         commandType: CommandType.StoredProcedure)).ToList();
             }
             existingItemsInfo.AddRange(
@@ -390,7 +390,7 @@ namespace ArtifactStore.Repositories.VersionControl
                         commandType: CommandType.StoredProcedure)).ToList();
             }
             return (await
-                transaction.Connection.QueryAsync<int>("GetArtifactsDeletedInDraft", param,
+                transaction.Connection.QueryAsync<int>("GetArtifactsDeletedInDraft", param, transaction,
                     commandType: CommandType.StoredProcedure)).ToList();
         }
 
@@ -411,7 +411,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 return;
             }
             await
-                transaction.Connection.ExecuteAsync("DeleteAndPublishArtifacts", param,
+                transaction.Connection.ExecuteAsync("DeleteAndPublishArtifacts", param, transaction,
                     commandType: CommandType.StoredProcedure);
         }
 
@@ -429,7 +429,7 @@ namespace ArtifactStore.Repositories.VersionControl
             }
             else
             {
-                await transaction.Connection.ExecuteAsync("ReleaseLock", param,
+                await transaction.Connection.ExecuteAsync("ReleaseLock", param, transaction,
                     commandType: CommandType.StoredProcedure);
             }
         }

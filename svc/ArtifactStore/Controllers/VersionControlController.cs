@@ -36,7 +36,8 @@ namespace ArtifactStore.Controllers
             return Ok(await _versionControlService.PublishArtifacts( new PublishParameters
             {
                 All = all,
-                ArtifactIds = artifactIds
+                ArtifactIds = artifactIds,
+                UserId = Session.UserId
             }));
         }
     }

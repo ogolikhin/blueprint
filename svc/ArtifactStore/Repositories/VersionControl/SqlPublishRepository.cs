@@ -52,7 +52,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 commandType: CommandType.StoredProcedure)).ToHashSet();
             }
 
-            return (await transaction.Connection.QueryAsync<int>("GetLiveItems", param,
+            return (await transaction.Connection.QueryAsync<int>("GetLiveItems", param, transaction,
                 commandType: CommandType.StoredProcedure)).ToHashSet();
         }
 
@@ -75,7 +75,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 return;
             }
 
-            await transaction.Connection.ExecuteAsync(MarkAsLatestStoredProcedureName, param,
+            await transaction.Connection.ExecuteAsync(MarkAsLatestStoredProcedureName, param, transaction,
                 commandType: CommandType.StoredProcedure);
         }
 
@@ -97,7 +97,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 return;
             }
 
-            await transaction.Connection.ExecuteAsync(DeleteVersionsStoredProcedureName, param,
+            await transaction.Connection.ExecuteAsync(DeleteVersionsStoredProcedureName, param, transaction,
                 commandType: CommandType.StoredProcedure);
         }
 
@@ -120,7 +120,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 return;
             }
 
-            await transaction.Connection.ExecuteAsync(CloseVersionsStoredProcedureName, param,
+            await transaction.Connection.ExecuteAsync(CloseVersionsStoredProcedureName, param, transaction,
                 commandType: CommandType.StoredProcedure);
 
             //Log.Assert(updatedRowsCount == closeVersionIds.Count, "Publish: Some item versions are not closed");
@@ -137,7 +137,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 commandType: CommandType.StoredProcedure)).FirstOrDefault();
             }
 
-            return (await transaction.Connection.QueryAsync<double?>("GetMaxChildOrderIndex", param,
+            return (await transaction.Connection.QueryAsync<double?>("GetMaxChildOrderIndex", param, transaction,
                 commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
 
@@ -155,7 +155,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 return;
             }
 
-            await transaction.Connection.ExecuteAsync("SetParentAndOrderIndex", param,
+            await transaction.Connection.ExecuteAsync("SetParentAndOrderIndex", param, transaction,
                 commandType: CommandType.StoredProcedure);
         }
 
@@ -174,7 +174,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 commandType: CommandType.StoredProcedure)).ToList();
             }
 
-            return (await transaction.Connection.QueryAsync<T>(GetDraftAndLatestStoredProcedureName, param,
+            return (await transaction.Connection.QueryAsync<T>(GetDraftAndLatestStoredProcedureName, param, transaction,
                 commandType: CommandType.StoredProcedure)).ToList();
         }
 
@@ -191,7 +191,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 commandType: CommandType.StoredProcedure)).ToList();
             }
 
-            return (await transaction.Connection.QueryAsync<int>("GetArtifactsDeletedInDraft", param,
+            return (await transaction.Connection.QueryAsync<int>("GetArtifactsDeletedInDraft", param, transaction,
                 commandType: CommandType.StoredProcedure)).ToList();
         }
     }

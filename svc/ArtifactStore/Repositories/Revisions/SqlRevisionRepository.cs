@@ -54,7 +54,7 @@ namespace ArtifactStore.Repositories.Revisions
                 commandType: CommandType.StoredProcedure)).FirstOrDefault();
             }
 
-            return (await transaction.Connection.QueryAsync<int?>("CreateRevision", param,
+            return (await transaction.Connection.QueryAsync<int?>("CreateRevision", param, transaction,
                 commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
 
@@ -76,7 +76,7 @@ namespace ArtifactStore.Repositories.Revisions
                 commandType: CommandType.StoredProcedure));
             }
 
-            return (await transaction.Connection.QueryAsync<int>("AddHistory", param,
+            return (await transaction.Connection.QueryAsync<int>("AddHistory", param, transaction,
                 commandType: CommandType.StoredProcedure));
         }
     }

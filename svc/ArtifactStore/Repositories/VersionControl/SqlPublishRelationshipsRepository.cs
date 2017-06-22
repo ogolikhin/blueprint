@@ -115,12 +115,12 @@ namespace ArtifactStore.Repositories.VersionControl
             if (transaction == null)
             {
                 await
-                    ConnectionWrapper.ExecuteAsync("RemoveLinkVersions", prm, commandType: CommandType.StoredProcedure);
+                    ConnectionWrapper.ExecuteAsync("RemoveLinkVersions", prm,  commandType: CommandType.StoredProcedure);
             }
             else
             {
                 await
-                    transaction.Connection.ExecuteAsync("RemoveLinkVersions", prm, commandType: CommandType.StoredProcedure);
+                    transaction.Connection.ExecuteAsync("RemoveLinkVersions", prm, transaction, commandType: CommandType.StoredProcedure);
             }
 
         }
@@ -148,7 +148,7 @@ WHERE Artifact1Id = @artifactId1
             else
             {
 
-                await transaction.Connection.ExecuteAsync(sqlString, prm, commandType: CommandType.Text);
+                await transaction.Connection.ExecuteAsync(sqlString, prm, transaction, commandType: CommandType.Text);
             }
 
         }
@@ -165,7 +165,7 @@ WHERE Artifact1Id = @artifactId1
                     "GetDraftAndLatestLinks", prm, commandType: CommandType.StoredProcedure)).ToList();
             }
             return (await transaction.Connection.QueryAsync<DraftAndLatestLink>(
-                "GetDraftAndLatestLinks", prm, commandType: CommandType.StoredProcedure)).ToList();
+                "GetDraftAndLatestLinks", prm, transaction, commandType: CommandType.StoredProcedure)).ToList();
         }
 
         private void MarkArtifactsAsAffectedIfRequired(DraftAndLatestLink link, HashSet<int> artifactIds, PublishEnvironment env)

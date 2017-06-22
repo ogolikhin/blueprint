@@ -5,6 +5,13 @@ namespace ArtifactStore.Repositories.VersionControl
 {
     public class SqlPublishRepository : SqlBaseArtifactRepository
     {
+        protected abstract class BaseVersionData
+        {
+            public int DraftVersionId { get; set; }
+            public int? LatestVersionId { get; set; }
+
+            public bool DraftDeleted { get; set; }
+        }
         public SqlPublishRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {

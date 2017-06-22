@@ -1,5 +1,4 @@
-﻿using AdminStore.Helpers;
-using AdminStore.Models;
+﻿using AdminStore.Models;
 using AdminStore.Repositories;
 using AdminStore.Saml;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -14,6 +13,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
+using ServiceLibrary.Helpers.Security;
 
 namespace AdminStore.Controllers
 {

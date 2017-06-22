@@ -13,14 +13,6 @@ using ServiceLibrary.Models.VersionControl;
 
 namespace ArtifactStore.Services.VersionControl
 {
-    public class PublishParameters
-    {
-        public int UserId { get; set; }
-        public bool? All { get; set; }
-        public IEnumerable<int> ArtifactIds { get; set; }
-        public ISet<int> AffectedArtifactIds { get; } = new HashSet<int>();
-    }
-
     public interface IVersionControlService
     {
         Task<ArtifactResultSet> PublishArtifacts(PublishParameters parameters);
@@ -158,8 +150,6 @@ namespace ArtifactStore.Services.VersionControl
                     SensitivityCollector = new ReuseSensitivityCollector()
                 };
 
-                
-
                 if (parameters.AffectedArtifactIds.Count > 0)
                 {
                     env.DeletedArtifactIds.Clear();
@@ -168,14 +158,18 @@ namespace ArtifactStore.Services.VersionControl
                         env));
                     parameters.AffectedArtifactIds.ExceptWith(env.DeletedArtifactIds);
 
-                    if (!env.KeepLock)
-                    {
-                        await _versionControlRepository.ReleaseLock(parameters.UserId, parameters.AffectedArtifactIds, transaction);
-                    }
+                    
 
-                    ActionRepeater.Retry(() =>
+                    ActionRepeater.Retry(async () =>
                     {
-                        _publishRepositoryComposer.Execute(publishRevision, parameters, env, transaction);
+                        if (!env.KeepLock)
+                        {
+                            await _versionControlRepository.ReleaseLock(parameters.UserId, parameters.AffectedArtifactIds, transaction);
+                        }
+
+                        await _publishRepositoryComposer.Execute(publishRevision, parameters, env, transaction);
+
+                        await _revisionRepository.AddHistory(publishRevision, parameters.AffectedArtifactIds, transaction);
                     });
 
                     publishResults.AddRange(env.GetChangeSqlPublishResults());

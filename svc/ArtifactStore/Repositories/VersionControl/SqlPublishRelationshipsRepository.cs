@@ -8,6 +8,7 @@ using ArtifactStore.Models;
 using ArtifactStore.Services.VersionControl;
 using Dapper;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Models.VersionControl;
 
 namespace ArtifactStore.Repositories.VersionControl
 {

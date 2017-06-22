@@ -5,6 +5,7 @@ using System.Web.Http.Description;
 using ArtifactStore.Services.VersionControl;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
+using ServiceLibrary.Models.VersionControl;
 
 namespace ArtifactStore.Controllers
 {

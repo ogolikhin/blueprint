@@ -38,12 +38,12 @@ namespace AdminStore.Repositories.Workflow
 
         internal WorkflowRepository(ISqlConnectionWrapper connectionWrapper,
             ISqlHelper sqlHelper,
-            IWorkflowValidator workfloweValidator,
+            IWorkflowValidator workflowValidator,
             IUserRepository userRepository)
         {
             ConnectionWrapper = connectionWrapper;
             _sqlHelper = sqlHelper;
-            _workflowValidator = workfloweValidator;
+            _workflowValidator = workflowValidator;
             _userRepository = userRepository;
         }
 

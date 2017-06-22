@@ -159,7 +159,8 @@ namespace ArtifactStore.Repositories.VersionControl
                 commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<ICollection<SqlDraftAndLatestItem>> GetDraftAndLatestItems(int userId, ISet<int> artifactIds, IDbTransaction transaction)
+        protected abstract string GetDraftAndLatestStoredProcedureName { get; }
+        public async Task<ICollection<T>> GetDraftAndLatest<T>(int userId, ISet<int> artifactIds, IDbTransaction transaction)
         {
 
             var param = new DynamicParameters();
@@ -169,11 +170,11 @@ namespace ArtifactStore.Repositories.VersionControl
 
             if (transaction == null)
             {
-                return (await ConnectionWrapper.QueryAsync<SqlDraftAndLatestItem>("GetDraftAndLatestItemVersions", param,
+                return (await ConnectionWrapper.QueryAsync<T>(GetDraftAndLatestStoredProcedureName, param,
                 commandType: CommandType.StoredProcedure)).ToList();
             }
 
-            return (await transaction.Connection.QueryAsync<SqlDraftAndLatestItem>("GetDraftAndLatestItemVersions", param,
+            return (await transaction.Connection.QueryAsync<T>(GetDraftAndLatestStoredProcedureName, param,
                 commandType: CommandType.StoredProcedure)).ToList();
         }
 

@@ -11,10 +11,11 @@ namespace ArtifactStore.Repositories.VersionControl
         protected override string MarkAsLatestStoredProcedureName { get; } = "MarkAsLatestItemVersions";
         protected override string DeleteVersionsStoredProcedureName { get; } = "RemoveItemVersions";
         protected override string CloseVersionsStoredProcedureName { get; } = "CloseItemVersions";
+        protected override string GetDraftAndLatestStoredProcedureName { get; } = "GetDraftAndLatestItemVersions";
 
         public async Task Execute(int revisionId, PublishParameters parameters, PublishEnvironment environment, IDbTransaction transaction = null)
         {
-            var items = await GetDraftAndLatestItems(parameters.UserId, parameters.AffectedArtifactIds, transaction);
+            var items = await GetDraftAndLatest<SqlDraftAndLatestItem>(parameters.UserId, parameters.AffectedArtifactIds, transaction);
 
             if (items.Count == 0)
             {

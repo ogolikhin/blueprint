@@ -11,14 +11,13 @@ namespace ArtifactStore.Repositories.VersionControl
 {
     public class SqlJournalPublishRepository : SqlPublishRepository, IPublishRepository
     {
+        protected override string MarkAsLatestStoredProcedureName { get; } = "";
+        protected override string DeleteVersionsStoredProcedureName { get; } = "";
+        protected override string CloseVersionsStoredProcedureName { get; } = "";
+
         public async Task Execute(int revisionId, PublishParameters parameters, PublishEnvironment environment, IDbTransaction transaction = null)
         {
             await AddArtifactChanges(parameters, environment, transaction);
-            //_repositories.Journal.AddArtifactChanges(env);
-            await Task.Run(() =>
-            {
-
-            });
         }
 
         

@@ -14,6 +14,9 @@ namespace ArtifactStore.Repositories.VersionControl
 {
     public class SqlPublishRelationshipsRepository : SqlPublishRepository, IPublishRepository
     {
+        protected override string MarkAsLatestStoredProcedureName { get; } = "";
+        protected override string DeleteVersionsStoredProcedureName { get; } = "";
+        protected override string CloseVersionsStoredProcedureName { get; } = "";
         protected class DraftAndLatestLink : BaseVersionData
         {
             public LinkType Type { get; set; }

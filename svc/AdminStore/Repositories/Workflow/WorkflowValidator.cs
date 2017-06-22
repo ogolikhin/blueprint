@@ -22,14 +22,14 @@ namespace AdminStore.Repositories.Workflow
                 result.Errors.Add(new WorkflowValidationError { Element = workflow, ErrorCode = WorkflowValidationErrorCodes.WorkflowNameEmpty});
             }
 
-            if (!ValidatePropertyLimit(workflow.Name, 75))
+            if (!ValidatePropertyLimit(workflow.Name, 24))
             {
-                result.Errors.Add(new WorkflowValidationError { Element = workflow, ErrorCode = WorkflowValidationErrorCodes.WorkflowNameExceedsLimit75 });
+                result.Errors.Add(new WorkflowValidationError { Element = workflow, ErrorCode = WorkflowValidationErrorCodes.WorkflowNameExceedsLimit24 });
             }
 
-            if (!ValidatePropertyLimit(workflow.Description, 250))
+            if (!ValidatePropertyLimit(workflow.Description, 4000))
             {
-                result.Errors.Add(new WorkflowValidationError { Element = workflow, ErrorCode = WorkflowValidationErrorCodes.WorkflowDescriptionExceedsLimit250 });
+                result.Errors.Add(new WorkflowValidationError { Element = workflow, ErrorCode = WorkflowValidationErrorCodes.WorkflowDescriptionExceedsLimit4000 });
             }
 
             if (!ValidateWorkflowContainsStates(workflow.States))
@@ -75,14 +75,14 @@ namespace AdminStore.Repositories.Workflow
                     }
                 }
 
-                if (!ValidatePropertyLimit(state.Name, 26))
+                if (!ValidatePropertyLimit(state.Name, 24))
                 {
-                    result.Errors.Add(new WorkflowValidationError { Element = state, ErrorCode = WorkflowValidationErrorCodes.StateNameExceedsLimit26 });
+                    result.Errors.Add(new WorkflowValidationError { Element = state, ErrorCode = WorkflowValidationErrorCodes.StateNameExceedsLimit24 });
                 }
 
-                if (!ValidatePropertyLimit(state.Description, 250))
+                if (!ValidatePropertyLimit(state.Description, 4000))
                 {
-                    result.Errors.Add(new WorkflowValidationError { Element = state, ErrorCode = WorkflowValidationErrorCodes.StateDescriptionExceedsLimit250 });
+                    result.Errors.Add(new WorkflowValidationError { Element = state, ErrorCode = WorkflowValidationErrorCodes.StateDescriptionExceedsLimit4000 });
                 }
             }
 
@@ -109,9 +109,14 @@ namespace AdminStore.Repositories.Workflow
                     }
                 }
 
-                if (!ValidatePropertyLimit(transition.Name, 26))
+                if (!ValidatePropertyLimit(transition.Name, 24))
                 {
-                    result.Errors.Add(new WorkflowValidationError { Element = transition, ErrorCode = WorkflowValidationErrorCodes.TransitionNameExceedsLimit26 });
+                    result.Errors.Add(new WorkflowValidationError { Element = transition, ErrorCode = WorkflowValidationErrorCodes.TransitionNameExceedsLimit24 });
+                }
+
+                if (!ValidatePropertyLimit(transition.Description, 4000))
+                {
+                    result.Errors.Add(new WorkflowValidationError { Element = transition, ErrorCode = WorkflowValidationErrorCodes.TransitionDescriptionExceedsLimit4000 });
                 }
 
                 if (string.IsNullOrEmpty(from))

@@ -59,10 +59,6 @@ namespace AdminStore.Repositories.Workflow
                 throw new NullReferenceException(nameof(workflow));
             }
 
-            //////////////////////////
-            CreateTestXmlWorkflow();
-            /////////////////////////
-
             await VerifyUserRole(userId);
             VerifyWorkflowFeature();
 
@@ -98,7 +94,7 @@ namespace AdminStore.Repositories.Workflow
                 {
                     Name = workflow.Name,
                     Description = workflow.Description,
-                    Active = workflow.IsActive.GetValueOrDefault()
+                    Active = false // imported workflows are inactive. Users need explicitly activate workflows via UI.
                 };
                 newWorkflow = (await CreateWorkflowsAsync(new [] {importParams}, publishRevision, transaction)).FirstOrDefault();
 
@@ -149,7 +145,7 @@ namespace AdminStore.Repositories.Workflow
                             importTriggersParams.Add(new DTrigger
                             {
                                 Name = transition.Name,
-                                Description = string.Empty,
+                                Description = transition.Description,
                                 WorkflowId = newWorkflow.WorkflowId,
                                 Type = DTriggerType.Transition,
                                 Permissions = SerializationHelper.ToXml(new XmlTriggerPermissions
@@ -420,6 +416,7 @@ namespace AdminStore.Repositories.Workflow
             return table;
         }
 
+        // TODO: Temp, remove
         private static string CreateTestXmlWorkflow()
         {
             var workflow = new IeWorkflow
@@ -456,7 +453,11 @@ namespace AdminStore.Repositories.Workflow
                 Name = "Triaged",
                 FromState = "New",
                 ToState = "Active",
-                PermissionGroups = new List<IeGroup>()
+                PermissionGroups = new List<IeGroup>
+                {
+                    new IeGroup { Name = "Authors"},
+                    new IeGroup { Name = "Authors 2" }
+                }
             });
 
             workflow.Transitions.Add(new IeTransition
@@ -464,7 +465,11 @@ namespace AdminStore.Repositories.Workflow
                 Name = "Fixed",
                 FromState = "Active",
                 ToState = "Closed",
-                PermissionGroups = new List<IeGroup>()
+                PermissionGroups = new List<IeGroup>
+                {
+                    new IeGroup { Name = "Collaborators"},
+                    new IeGroup { Name = "Authors 2" }
+                }
             });
 
             var xmlWorkflow = SerializationHelper.ToXml(workflow);

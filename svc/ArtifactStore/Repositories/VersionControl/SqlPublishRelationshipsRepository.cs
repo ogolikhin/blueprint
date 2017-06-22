@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using ArtifactStore.Helpers;
 using ArtifactStore.Models;
-using ArtifactStore.Services.VersionControl;
 using Dapper;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Models.VersionControl;
@@ -14,9 +13,11 @@ namespace ArtifactStore.Repositories.VersionControl
 {
     public class SqlPublishRelationshipsRepository : SqlPublishRepository, IPublishRepository
     {
-        protected override string MarkAsLatestStoredProcedureName { get; } = "";
+        protected override string MarkAsLatestStoredProcedureName { get; } = "MarkAsLatestLinkVersions";
         protected override string DeleteVersionsStoredProcedureName { get; } = "";
-        protected override string CloseVersionsStoredProcedureName { get; } = "";
+        protected override string CloseVersionsStoredProcedureName { get; } = "CloseLinkVersions";
+        protected override string GetDraftAndLatestStoredProcedureName { get; } = "";
+
         protected class DraftAndLatestLink : BaseVersionData
         {
             public LinkType Type { get; set; }
@@ -69,7 +70,7 @@ namespace ArtifactStore.Repositories.VersionControl
 
                             if (link.Type == LinkType.Reuse)
                             {
-                                DeleteReuseMapping(link.Item1Id, link.Item2Id, environment.RevisionId, transaction);
+                                await DeleteReuseMapping(link.Item1Id, link.Item2Id, environment.RevisionId, transaction);
                             }
 
                             RegisterLinkModification(environment, link);
@@ -97,62 +98,13 @@ namespace ArtifactStore.Repositories.VersionControl
                     }
                 }
 
-                DeleteLinkVersions(deleteLinkVersionsIds, transaction);
-                CloseLinkVersions(closeLinkVersionIds, environment.RevisionId, transaction);
-                MarkAsLatest(markAsLatestLinkVersionIds, environment.RevisionId, transaction);
+                await DeleteLinkVersions(deleteLinkVersionsIds, transaction);
+                await CloseVersions(closeLinkVersionIds, environment.RevisionId, transaction);
+                await MarkAsLatest(markAsLatestLinkVersionIds, environment.RevisionId, transaction);
             //});
         }
-
-        private async void MarkAsLatest(HashSet<int> markAsLatestLinkVersionIds, int revisionId, IDbTransaction transaction)
-        {
-            if (markAsLatestLinkVersionIds.Count == 0)
-            {
-                return;
-            }
-
-            var prm = new DynamicParameters();
-            prm.Add("@revisionId", revisionId);
-            prm.Add("@versionIds", SqlConnectionWrapper.ToDataTable(markAsLatestLinkVersionIds));
-            //int updatedRowsCount;
-            if (transaction == null)
-            {
-                //updatedRowsCount = 
-                await ConnectionWrapper.ExecuteAsync("MarkAsLatestLinkVersions", prm, commandType: CommandType.StoredProcedure);
-            }
-            else
-            {
-                //updatedRowsCount = 
-                await transaction.Connection.ExecuteAsync("MarkAsLatestLinkVersions", prm, commandType: CommandType.StoredProcedure);
-            }
-            //Log.Assert(updatedRowsCount == markAsLatestLinkVersionIds.Count, "Publish: Some links not marked as Latest");
-        }
-
-        private async void CloseLinkVersions(HashSet<int> closeLinkVersionIds, int revisionId, IDbTransaction transaction)
-        {
-            if (closeLinkVersionIds.Count == 0)
-            {
-                return;
-            }
-
-            var prm = new DynamicParameters();
-            prm.Add("@revisionId", revisionId);
-            prm.Add("@versionIds", SqlConnectionWrapper.ToDataTable(closeLinkVersionIds));
-            //int updatedRowsCount;
-            if (transaction == null)
-            {
-                //updatedRowsCount = 
-                    await ConnectionWrapper.ExecuteAsync("CloseLinkVersions", prm, commandType: CommandType.StoredProcedure);
-            }
-            else
-            {
-                //updatedRowsCount = 
-                    await transaction.Connection.ExecuteAsync("CloseLinkVersions", prm, commandType: CommandType.StoredProcedure);
-            }
-            
-            //Log.Assert(updatedRowsCount == closeLinkVersionIds.Count, "Publish: Some links are not closed");
-        }
-
-        private async void DeleteLinkVersions(HashSet<int> deleteLinkVersionsIds, IDbTransaction transaction)
+        
+        private async Task DeleteLinkVersions(HashSet<int> deleteLinkVersionsIds, IDbTransaction transaction)
         {
             if (deleteLinkVersionsIds.Count == 0)
             {
@@ -174,7 +126,7 @@ namespace ArtifactStore.Repositories.VersionControl
         }
 
         // Was in AReuse in Raptor solution
-        private async void DeleteReuseMapping(int artifactIdA, int artifactIdB, int revisionId, IDbTransaction transaction)
+        private async Task DeleteReuseMapping(int artifactIdA, int artifactIdB, int revisionId, IDbTransaction transaction)
         {
             int artifactId1 = Math.Min(artifactIdA, artifactIdB);
             int artifactId2 = Math.Max(artifactIdA, artifactIdB);
@@ -214,15 +166,6 @@ WHERE Artifact1Id = @artifactId1
             }
             return (await transaction.Connection.QueryAsync<DraftAndLatestLink>(
                 "GetDraftAndLatestLinks", prm, commandType: CommandType.StoredProcedure)).ToList();
-        }
-
-        // Was in ItemsRepo in Raptor solution
-        private async Task<ISet<int>> GetLiveItemsOnly(IEnumerable<int> artifactIds)
-        {
-            var prm = new DynamicParameters();
-            prm.Add("@itemIds", SqlConnectionWrapper.ToDataTable(artifactIds));
-            return (await ConnectionWrapper.QueryAsync<int>(
-                "GetLiveItems", prm, commandType: CommandType.StoredProcedure)).ToHashSet();
         }
 
         private void MarkArtifactsAsAffectedIfRequired(DraftAndLatestLink link, HashSet<int> artifactIds, PublishEnvironment env)

@@ -20,6 +20,7 @@ namespace ServiceLibrary.Helpers.TestsForHelpers
                 TimeSpan.FromMilliseconds(-1),
                 () => value
             );
+            helper.Get();
 
             Assert.Fail("Must fail before");
         }

@@ -38,7 +38,7 @@ namespace ServiceLibrary.Attributes
         protected const string TokenInvalidMessage = "Token is invalid.";
         protected const string InternalServerErrorMessage = "An error occurred.";
         protected const string BlueprintSessionTokenIgnore = "e51d8f58-0c62-46ad-a6fc-7e7994670f34";
-        protected const int DefaultSessionCacheExpiration = 60;
+        protected const int DefaultSessionCacheExpiration = 30;
 
         private readonly bool _allowCookie;
         private readonly bool _ignoreBadToken;
@@ -46,7 +46,7 @@ namespace ServiceLibrary.Attributes
         internal readonly IAsyncCache _cache;
 
         protected internal SessionAttribute(bool allowCookie = false, bool ignoreBadToken = false) :
-            this(allowCookie, ignoreBadToken, new HttpClientProvider(), new AsyncCache(MemoryCache.Default))
+            this(allowCookie, ignoreBadToken, new HttpClientProvider(), SessionsCacheSettings.IsSessionCacheEnabled ? AsyncCache.Default : AsyncCache.NoCache)
         {
         }
 
@@ -57,22 +57,6 @@ namespace ServiceLibrary.Attributes
             _httpClientProvider = httpClientProvider;
             _cache = cache;
         }
-
-        private static Lazy<TimeSpan> _sessionCacheExpiration = new Lazy<TimeSpan>(() => {
-            int expirationTimeInSeconds;
-            try
-            {
-                var value = I18NHelper.Int32ParseInvariant(ConfigurationManager.AppSettings["SessionCacheExpiration"]);
-                expirationTimeInSeconds = value > 0 ? value : DefaultSessionCacheExpiration;
-            }
-            catch (Exception)
-            {
-                expirationTimeInSeconds = DefaultSessionCacheExpiration;
-            }
-
-            return TimeSpan.FromSeconds(expirationTimeInSeconds);
-        });
-        public static TimeSpan SessionCacheExpiration => _sessionCacheExpiration.Value;
 
         public override async Task OnActionExecutingAsync(HttpActionContext actionContext, CancellationToken cancellationToken)
         {
@@ -117,7 +101,7 @@ namespace ServiceLibrary.Attributes
                 throw new ArgumentNullException(nameof(sessionToken));
             }
 
-            var session = await _cache.AddOrGetExistingAsync(sessionToken, () => GetSessionFromAccessControl(sessionToken), DateTimeOffset.UtcNow.Add(SessionCacheExpiration));
+            var session = await _cache.AddOrGetExistingAsync(sessionToken, () => GetSessionFromAccessControl(sessionToken), DateTimeOffset.UtcNow.Add(SessionsCacheSettings.SessionCacheExpiration));
             return session;
         }
 

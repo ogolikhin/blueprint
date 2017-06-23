@@ -89,17 +89,20 @@
       <Link>Properties\SolutionAssemblyVersion.cs</Link>
     </Compile>
     <Compile Include="Attributes\BaseExceptionFilterAttributeTests.cs" />
+    <Compile Include="Attributes\FeatureActivationAttributeTests.cs" />
     <Compile Include="Attributes\NoCacheAttributeTests.cs" />
     <Compile Include="Attributes\SessionAttributeTests.cs" />
     <Compile Include="EventSources\EventSourcesTests.cs" />
     <Compile Include="Helpers\Cache\AsyncCacheTests.cs" />
     <Compile Include="Helpers\HttpFilterHelper.cs" />
     <Compile Include="Helpers\TestHttpClientProvider.cs" />
+    <Compile Include="Helpers\TestsForHelpers\CacheHelperTests.cs" />
     <Compile Include="Helpers\TestsForHelpers\I18HelperTests.cs" />
     <Compile Include="Helpers\TestsForHelpers\LoggableApiControllerTests.cs" />
     <Compile Include="Helpers\TestsForHelpers\StatusControllerHelperTests.cs" />
     <Compile Include="Helpers\WebApiConfigHelper.cs" />
     <Compile Include="LocalLog\LocalLogTests.cs" />
+    <Compile Include="Models\Licenses\FeatureInformationTests.cs" />
     <Compile Include="Models\LicenseTransactionTests.cs" />
     <Compile Include="Models\PaginationExtensionsTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

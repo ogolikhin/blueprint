@@ -1,5 +1,5 @@
 ﻿using System.DirectoryServices;
-using AdminStore.Helpers;
+using ServiceLibrary.Helpers.Security;
 
 namespace AdminStore.Models
 {

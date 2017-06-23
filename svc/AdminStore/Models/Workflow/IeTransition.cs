@@ -11,6 +11,9 @@ namespace AdminStore.Models.Workflow
         public string Name { get; set; }
 
         [XmlElement(IsNullable = false)]
+        public string Description { get; set; }
+
+        [XmlElement(IsNullable = false)]
         public string FromState { get; set; }
 
         [XmlElement(IsNullable = false)]

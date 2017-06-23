@@ -20,7 +20,7 @@ namespace AccessControl
         }
 
         private const int DefaultSessionTimeoutInterval = 1200;
-        private const int DefaultSessionCacheExpiration = 60;
+        private const int DefaultSessionCacheExpiration = 30;
 
         public static string AdminStorage = ConfigurationManager.ConnectionStrings["AdminStorage"].ConnectionString;
 
@@ -34,7 +34,7 @@ namespace AccessControl
                     try
                     {
                         var timeout = I18NHelper.Int32ParseInvariant(ConfigurationManager.AppSettings["SessionTimeoutInterval"]);
-                        _sessionTimeoutInterval = timeout > 0 ? timeout : DefaultSessionTimeoutInterval;
+                        _sessionTimeoutInterval = timeout >= 0 ? timeout : DefaultSessionTimeoutInterval;
                     }
                     catch (Exception)
                     {
@@ -45,22 +45,6 @@ namespace AccessControl
                 return _sessionTimeoutInterval.Value;
             }
         }
-
-        private static Lazy<TimeSpan> _sessionCacheExpiration = new Lazy<TimeSpan>(() => {
-            int expirationTimeInSeconds;
-            try
-            {
-                var value = I18NHelper.Int32ParseInvariant(ConfigurationManager.AppSettings["SessionCacheExpiration"]);
-                expirationTimeInSeconds = value > 0 ? value : DefaultSessionCacheExpiration;
-            }
-            catch (Exception)
-            {
-                expirationTimeInSeconds = DefaultSessionCacheExpiration;
-            }
-
-            return TimeSpan.FromSeconds(expirationTimeInSeconds);
-        });
-        public static TimeSpan SessionCacheExpiration => _sessionCacheExpiration.Value;
 
         public static int LicenseHoldTime = LicenceHelper.GetLicenseHoldTime(
             ConfigurationManager.AppSettings["LHTSetting"], 1440);

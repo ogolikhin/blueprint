@@ -519,7 +519,7 @@ namespace ArtifactStore.Repositories
 
             if(reviewPackageRawData.Status == ReviewPackageStatus.Closed)
             {
-                throw new BadRequestException("Cannot add participants as review status is closed.");
+                ThrowReviewClosedException();
             }
 
             IEnumerable<int> groupUserIds = await GetUsersFromGroupsAsync(content.GroupIds);
@@ -812,6 +812,12 @@ namespace ArtifactStore.Repositories
         {
             var errorMessage = I18NHelper.FormatInvariant("The artifact could not be updated because it has been removed from review.");
             throw new BadRequestException(errorMessage, ErrorCodes.ApprovalRequiredArtifactNotInReview);
+        }
+
+        private static void ThrowReviewClosedException()
+        {
+            var errorMessage = "This Review is now closed. No modifications can be made to its artifacts or participants.";
+            throw new BadRequestException(errorMessage, ErrorCodes.ReviewClosed);
         }
     }
 }

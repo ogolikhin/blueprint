@@ -753,7 +753,7 @@ namespace ArtifactStore.Repositories
                 var updatingArtifacts = rdReviewContents.Artifacts.Where(a => a.Id == artifactId);
                 if (updatingArtifacts.Count() == 0)
                 {
-                    ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);
+                    ThrowApprovalRequiredArtifactNotInReview();
                 }
                 foreach (var updatingArtifact in updatingArtifacts)
                 {
@@ -806,6 +806,12 @@ namespace ArtifactStore.Repositories
         {
             var errorMessage = I18NHelper.FormatInvariant("The artifact could not be updated because another user has changed the Review status.");
             throw new BadRequestException(errorMessage, ErrorCodes.ApprovalRequiredIsReadonlyForReview);
+        }
+
+        public static void ThrowApprovalRequiredArtifactNotInReview()
+        {
+            var errorMessage = I18NHelper.FormatInvariant("The artifact could not be updated because it has been removed from review.");
+            throw new BadRequestException(errorMessage, ErrorCodes.ApprovalRequiredArtifactNotInReview);
         }
     }
 }

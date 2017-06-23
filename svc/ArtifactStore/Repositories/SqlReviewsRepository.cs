@@ -768,40 +768,39 @@ namespace ArtifactStore.Repositories
         {
 
             var propertyResult = await GetReviewPermissionRolesInfo(reviewId, userId);
-            if (propertyResult != null)
+            if (propertyResult == null)
             {
-                if (propertyResult.IsReviewDeleted)
-                {
-
-                    ThrowReviewNotFoundException(reviewId);
-                }
-
-                if (propertyResult.IsReviewLocked == false)
-                {
-                    ExceptionHelper.ThrowArtifactNotLockedException(reviewId, content.UserId);
-                }
-
-                if (propertyResult.IsReviewReadOnly || string.IsNullOrEmpty(propertyResult.ArtifactXml))
-                {
-                    ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);
-                }
-
-                if (propertyResult.ProjectId == null || propertyResult.ProjectId < 1)
-                {
-
-                    ThrowReviewNotFoundException(reviewId);
-                }
-
-                var artifactXmlResult = UpdatePermissionRolesXML(propertyResult.ArtifactXml, content, reviewId);
-
-                var result = await UpdateReviewXmlAsync(reviewId, userId, artifactXmlResult);
-                if (result != 1)
-                {
-                    throw new BadRequestException("Cannot add participants as project or review couldn't be found", ErrorCodes.ResourceNotFound);
-                }
+                throw new BadRequestException("Cannot update approval role as project or review couldn't be found", ErrorCodes.ResourceNotFound);
             }
-            else
+            if (propertyResult.IsReviewDeleted)
+            {
+
+                ThrowReviewNotFoundException(reviewId);
+            }
+
+            if (propertyResult.IsReviewLocked == false)
+            {
+                ExceptionHelper.ThrowArtifactNotLockedException(reviewId, content.UserId);
+            }
+
+            if (propertyResult.IsReviewReadOnly || string.IsNullOrEmpty(propertyResult.ArtifactXml))
+            {
+                ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);
+            }
+
+            if (propertyResult.ProjectId == null || propertyResult.ProjectId < 1)
+            {
+
+                ThrowReviewNotFoundException(reviewId);
+            }
+
+            var artifactXmlResult = UpdatePermissionRolesXML(propertyResult.ArtifactXml, content, reviewId);
+
+            var result = await UpdateReviewXmlAsync(reviewId, userId, artifactXmlResult);
+            if (result != 1)
+            {
                 throw new BadRequestException("Cannot add participants as project or review couldn't be found", ErrorCodes.ResourceNotFound);
+            }
         }
 
         private void UnauthorizedItem(ReviewTableOfContentItem item)

@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Globalization;
 using AdminStore.Models;
 using MailBee.Mime;
 using MailBee.Security;
 using MailBee.SmtpMail;
+using ServiceLibrary.Helpers.Security;
 
 namespace AdminStore.Helpers
 {

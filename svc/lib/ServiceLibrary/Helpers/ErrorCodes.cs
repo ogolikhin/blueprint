@@ -66,5 +66,10 @@
         //Artifact Retrieval Errors
         public const int ArtifactNotFound = 9001;
         public const int SubartifactNotFound = 9002;
+
+        //Review Artifact Errors
+        public const int ApprovalRequiredIsReadonlyForReview = 10001;
+        public const int ApprovalRequiredArtifactNotInReview = 10002;
+        public const int ReviewClosed = 10003;
     }
 }

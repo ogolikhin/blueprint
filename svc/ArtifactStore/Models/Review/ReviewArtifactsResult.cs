@@ -39,6 +39,5 @@ namespace ArtifactStore.Models.Review
         public int? BaselineId { get; set; }
         public bool IsReviewDeleted { get; set; }
 
-
     }
 }

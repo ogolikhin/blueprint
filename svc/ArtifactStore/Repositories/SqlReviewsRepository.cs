@@ -25,6 +25,8 @@ namespace ArtifactStore.Repositories
 
         private readonly IUsersRepository _usersRepository;
 
+        private readonly ISqlArtifactRepository _artifactRepository;
+
         internal readonly IApplicationSettingsRepository _applicationSettingsRepository;
 
         internal const string ReviewArtifactHierarchyRebuildIntervalInMinutesKey = "ReviewArtifactHierarchyRebuildIntervalInMinutes";
@@ -42,7 +44,8 @@ namespace ArtifactStore.Repositories
                                             new SqlItemInfoRepository(),
                                             new SqlArtifactPermissionsRepository(),
                                             new ApplicationSettingsRepository(),
-                                            new SqlUsersRepository())
+                                            new SqlUsersRepository(),
+                                            new SqlArtifactRepository())
         {
         }
 
@@ -51,7 +54,8 @@ namespace ArtifactStore.Repositories
                                     ISqlItemInfoRepository itemInfoRepository,
                                     IArtifactPermissionsRepository artifactPermissionsRepository,
                                     IApplicationSettingsRepository applicationSettingsRepository,
-                                    IUsersRepository usersRepository)
+                                    IUsersRepository usersRepository,
+                                    ISqlArtifactRepository artifactRepository)
         {
             ConnectionWrapper = connectionWrapper;
             _artifactVersionsRepository = artifactVersionsRepository;
@@ -59,6 +63,7 @@ namespace ArtifactStore.Repositories
             _artifactPermissionsRepository = artifactPermissionsRepository;
             _applicationSettingsRepository = applicationSettingsRepository;
             _usersRepository = usersRepository;
+            _artifactRepository = artifactRepository;
         }
 
         public async Task<ReviewSummary> GetReviewSummary(int containerId, int userId)
@@ -503,6 +508,13 @@ namespace ArtifactStore.Repositories
                 ThrowReviewNotFoundException(reviewId);
             }
 
+            var reviewLockedByUser = await _artifactRepository.IsArtifactLockedByUserAsync(reviewId, userId);
+
+            if (!reviewLockedByUser)
+            {
+                ExceptionHelper.ThrowArtifactNotLockedException(reviewId, userId);
+            }
+
             ReviewPackageRawData reviewPackageRawData;
             
             if(reviewXmlResult.XmlString != null)
@@ -516,7 +528,7 @@ namespace ArtifactStore.Repositories
 
             if(reviewPackageRawData.Status == ReviewPackageStatus.Closed)
             {
-                throw new BadRequestException("Cannot add participants as review status is closed.");
+                ThrowReviewClosedException();
             }
 
             IEnumerable<int> groupUserIds = await GetUsersFromGroupsAsync(content.GroupIds);
@@ -694,23 +706,44 @@ namespace ArtifactStore.Repositories
 
             var propertyResult = await GetReviewArtifactApprovalRequestedInfo(reviewId, userId);
 
+            if (propertyResult.IsReviewDeleted)
+            {
+                ThrowReviewNotFoundException(reviewId);
+            }
+
+            if (propertyResult.IsReviewReadOnly)
+            {
+                ThrowApprovalRequiredIsReadonlyForReview();
+            }
+
             if (propertyResult.IsReviewLocked == false)
             {
                 ExceptionHelper.ThrowArtifactNotLockedException(reviewId, userId);
             }
 
-            if (propertyResult.ProjectId == null || propertyResult.ProjectId < 1)
-            {
-                if (propertyResult.IsReviewReadOnly)
-                {
-                    ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);
-                }
-                ThrowReviewNotFoundException(reviewId);
-            }
-
-            if (string.IsNullOrEmpty(propertyResult.ArtifactXml))
+            if (propertyResult.ProjectId == null || propertyResult.ProjectId < 1 ||string.IsNullOrEmpty(propertyResult.ArtifactXml))
             {
                 ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);
+            }
+
+            var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(content.ArtifactIds, userId);
+            var artifactsWithReadPermissions = artifactPermissionsDictionary.Where(p => p.Value.HasFlag(RolePermissions.Read)).Select(p => p.Key);
+            if (artifactsWithReadPermissions.Intersect(content.ArtifactIds).Count() != content.ArtifactIds.Count())
+            {
+                ThrowUserCannotAccessArtifactInTheReviewException(propertyResult.ProjectId.Value);
+            }
+
+            // For Informal review
+            if (propertyResult.BaselineId == null || propertyResult.BaselineId < 1)
+            {
+                foreach (var artifactId in content.ArtifactIds)
+                {
+                    var isArtifactDeleted = await _artifactVersionsRepository.IsItemDeleted(artifactId);
+                    if (isArtifactDeleted)
+                    {
+                        ThrowUserCannotAccessArtifactInTheReviewException(propertyResult.ProjectId.Value);
+                    }
+                }
             }
 
             bool hasChanges;
@@ -744,7 +777,7 @@ namespace ArtifactStore.Repositories
                 var updatingArtifacts = rdReviewContents.Artifacts.Where(a => a.Id == artifactId);
                 if (updatingArtifacts.Count() == 0)
                 {
-                    ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);
+                    ThrowApprovalRequiredArtifactNotInReview();
                 }
                 foreach (var updatingArtifact in updatingArtifacts)
                 {
@@ -818,12 +851,36 @@ namespace ArtifactStore.Repositories
             throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
         }
 
+        private static void ThrowUserCannotAccessArtifactInTheReviewException(int projectId)
+        {
+            var errorMessage = I18NHelper.FormatInvariant("Artifacts could not be updated because they are no longer accessible in this project (Id:{0}).", projectId);
+            throw new ResourceNotFoundException(errorMessage, ErrorCodes.ArtifactNotFound);
+        }
+
         private static void ThrowReviewNotFoundException(int reviewId, int? revisionId = null)
         {
             var errorMessage = revisionId.HasValue ? 
                 I18NHelper.FormatInvariant("Review (Id:{0}) or its revision (#{1}) is not found.", reviewId, revisionId) :
                 I18NHelper.FormatInvariant("Review (Id:{0}) is not found.", reviewId);
             throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
+        }
+
+        public static void ThrowApprovalRequiredIsReadonlyForReview()
+        {
+            var errorMessage = I18NHelper.FormatInvariant("The artifact could not be updated because another user has changed the Review status.");
+            throw new BadRequestException(errorMessage, ErrorCodes.ApprovalRequiredIsReadonlyForReview);
+        }
+
+        public static void ThrowApprovalRequiredArtifactNotInReview()
+        {
+            var errorMessage = I18NHelper.FormatInvariant("The artifact could not be updated because it has been removed from review.");
+            throw new BadRequestException(errorMessage, ErrorCodes.ApprovalRequiredArtifactNotInReview);
+        }
+
+        private static void ThrowReviewClosedException()
+        {
+            var errorMessage = "This Review is now closed. No modifications can be made to its artifacts or participants.";
+            throw new BadRequestException(errorMessage, ErrorCodes.ReviewClosed);
         }
     }
 }

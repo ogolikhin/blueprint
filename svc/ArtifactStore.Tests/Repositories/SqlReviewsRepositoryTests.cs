@@ -24,6 +24,7 @@ namespace ArtifactStore.Repositories
         private Mock<IArtifactPermissionsRepository> _artifactPermissionsRepositoryMock;
         private Mock<IApplicationSettingsRepository> _applicationSettingsRepositoryMock;
         private Mock<IUsersRepository> _usersRepositoryMock;
+        private Mock<ISqlArtifactRepository> _artifactRepositoryMock;
 
         [TestInitialize]
         public void Initialize()
@@ -34,12 +35,17 @@ namespace ArtifactStore.Repositories
             _artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>(MockBehavior.Strict);
             _applicationSettingsRepositoryMock = new Mock<IApplicationSettingsRepository>(MockBehavior.Strict);
             _usersRepositoryMock = new Mock<IUsersRepository>();
+            _artifactRepositoryMock = new Mock<ISqlArtifactRepository>();
+
+            _artifactRepositoryMock.SetReturnsDefault(Task.FromResult(true));
+
             _reviewsRepository = new SqlReviewsRepository(_cxn.Object, 
                     _artifactVersionsRepositoryMock.Object, 
                     _itemInfoRepositoryMock.Object,
                     _artifactPermissionsRepositoryMock.Object,
                     _applicationSettingsRepositoryMock.Object,
-                    _usersRepositoryMock.Object);
+                    _usersRepositoryMock.Object,
+                    _artifactRepositoryMock.Object);
         }
 
         [TestMethod]
@@ -236,7 +242,7 @@ namespace ArtifactStore.Repositories
             var testResult = new ReviewTableOfContentItem[] { };
             cxn.SetupQueryAsync("GetReviewTableOfContent", prm, testResult, outPrm);
 
-            var repository = new SqlReviewsRepository(cxn.Object, null, null, null, appSettingsRepoMock.Object, null);
+            var repository = new SqlReviewsRepository(cxn.Object, null, null, null, appSettingsRepoMock.Object, null, null);
 
             try
             {
@@ -423,6 +429,39 @@ namespace ArtifactStore.Repositories
             var queryResult = new List<string>();
 
             _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
+
+            //Act
+            await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task AddParticipantsToReviewAsync_Should_Throw_If_Review_Is_Not_Locked_By_User()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+
+            var addParticipantsParameter = new AddParticipantsParameter()
+            {
+                GroupIds = new int[0],
+                UserIds = new[] { userId }
+            };
+
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+
+            var queryResult = new List<string>()
+            {
+                null
+            };
+
+            _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
+
+            _artifactRepositoryMock.Setup(artifactRepository => artifactRepository.IsArtifactLockedByUserAsync(reviewId, userId)).ReturnsAsync(false);
 
             //Act
             await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);

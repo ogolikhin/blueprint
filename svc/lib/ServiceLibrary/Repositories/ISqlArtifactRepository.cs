@@ -29,5 +29,7 @@ namespace ServiceLibrary.Repositories
         Task<IEnumerable<ProjectNameIdPair>> GetProjectNameByIdsAsync(IEnumerable<int> projectIds);
 
         Task<IEnumerable<BaselineInfo>> GetBaselineInfo(IEnumerable<int> artifactIds, int userId, bool addDrafts, int revisionId);
+
+        Task<bool> IsArtifactLockedByUserAsync(int artifactId, int userId);
     }
 }

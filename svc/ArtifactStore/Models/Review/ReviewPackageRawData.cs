@@ -42,10 +42,10 @@ namespace ArtifactStore.Models.Review
     [DataContract(Namespace = "http://www.blueprintsys.com/raptor/reviews")]
     internal class ReviewerRawData : IExtensibleDataObject
     {
-        [DataMember()]
+        [DataMember]
         public ReviewParticipantRole Permission;
 
-        [DataMember()]
+        [DataMember]
         public int UserId;
 
         public ExtensionDataObject ExtensionData { get; set; }

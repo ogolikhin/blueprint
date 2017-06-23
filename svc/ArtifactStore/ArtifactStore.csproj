@@ -143,6 +143,7 @@
     <Compile Include="Models\Review\ReviewPackageStatus.cs" />
     <Compile Include="Models\Review\ReviewParticipant.cs" />
     <Compile Include="Models\Review\ReviewTableOfContent.cs" />
+    <Compile Include="Models\Review\ReviewXmlResult.cs" />
     <Compile Include="Models\Review\ReviwerRole.cs" />
     <Compile Include="Models\Review\ReviewSummary.cs" />
     <Compile Include="Models\Review\ReviewArtifactsResult.cs" />

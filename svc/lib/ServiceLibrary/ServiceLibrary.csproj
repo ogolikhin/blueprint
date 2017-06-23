@@ -82,6 +82,7 @@
     </Compile>
     <Compile Include="Attributes\ApiControllerConfigAttribute.cs" />
     <Compile Include="Attributes\BaseExceptionFilterAttribute.cs" />
+    <Compile Include="Attributes\FeatureActivationAttribute.cs" />
     <Compile Include="Attributes\NoCacheAttribute.cs" />
     <Compile Include="Attributes\PreRequiredPrivilegeAttribute.cs" />
     <Compile Include="Attributes\SessionAttribute.cs" />
@@ -99,6 +100,8 @@
     <Compile Include="Exceptions\ConflictException.cs" />
     <Compile Include="Exceptions\ExceptionWithErrorCode.cs" />
     <Compile Include="Exceptions\ResourceNotFoundException.cs" />
+    <Compile Include="Helpers\FeatureLicenseHelper.cs" />
+    <Compile Include="Helpers\CacheHelper.cs" />
     <Compile Include="Helpers\Cache\AsyncCache.cs" />
     <Compile Include="Helpers\Cache\AsyncLazy.cs" />
     <Compile Include="Helpers\Cache\IAsyncCache.cs" />
@@ -110,11 +113,13 @@
     <Compile Include="Helpers\ISqlHelper.cs" />
     <Compile Include="Helpers\ItemTypePredefinedExtension.cs" />
     <Compile Include="Helpers\RemoveSecurityRelatedHeadersHttpModule.cs" />
+    <Compile Include="Helpers\Security\SystemEncryptions.cs" />
     <Compile Include="Helpers\SerializationHelper.cs" />
     <Compile Include="Helpers\ServerHelper.cs" />
     <Compile Include="Helpers\ServerUriHelper.cs" />
     <Compile Include="Helpers\ComplexObjectReader.cs" />
     <Compile Include="Helpers\ServiceConstants.cs" />
+    <Compile Include="Helpers\SessionsCacheSettings.cs" />
     <Compile Include="Helpers\SqlErrorCodes.cs" />
     <Compile Include="Helpers\SqlHelper.cs" />
     <Compile Include="Helpers\StatusControllerHelper.cs" />
@@ -123,6 +128,7 @@
     <Compile Include="Helpers\HttpClientProvider.cs" />
     <Compile Include="Helpers\LogHelper.cs" />
     <Compile Include="Helpers\I18NHelper.cs" />
+    <Compile Include="Helpers\TimeProvider.cs" />
     <Compile Include="LocalLog\ILocalLog.cs" />
     <Compile Include="LocalLog\LocalEventLog.cs" />
     <Compile Include="LocalLog\LocalFileLog.cs" />
@@ -134,6 +140,8 @@
     <Compile Include="Models\AuthorHistory.cs" />
     <Compile Include="Models\BaselineInfo.cs" />
     <Compile Include="Models\ClientLogModel.cs" />
+    <Compile Include="Models\Enums\FeatureLicenseStatus.cs" />
+    <Compile Include="Models\Enums\FeatureTypes.cs" />
     <Compile Include="Models\InstanceAdminPrivileges.cs" />
     <Compile Include="Models\Enums\ItemTypePredefined.cs" />
     <Compile Include="Models\Enums\ProjectSection.cs" />
@@ -156,6 +164,7 @@
     <Compile Include="Models\Jobs\ProjectExportResultDetails.cs" />
     <Compile Include="Models\Jobs\ProjectExportTaskStatus.cs" />
     <Compile Include="Models\Jobs\JobResult.cs" />
+    <Compile Include="Models\Licenses\FeatureInformation.cs" />
     <Compile Include="Models\LicenseUsage.cs" />
     <Compile Include="Models\Messaging\SystemJobCommand.cs" />
     <Compile Include="Models\Messaging\SystemMessage.cs" />
@@ -204,6 +213,8 @@
     <Compile Include="Repositories\ISqlItemInfoRepository.cs" />
     <Compile Include="Repositories\IUsersRepository.cs" />
     <Compile Include="Repositories\JobExecutorStatusRepository.cs" />
+    <Compile Include="Repositories\Licenses\ILicenseRepository.cs" />
+    <Compile Include="Repositories\Licenses\LicenseRepository.cs" />
     <Compile Include="Repositories\SqlArtifactPermissionsRepository.cs" />
     <Compile Include="Repositories\SqlArtifactRepository.cs" />
     <Compile Include="Helpers\ExceptionHelper.cs" />

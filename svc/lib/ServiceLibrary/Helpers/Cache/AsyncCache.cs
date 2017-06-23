@@ -6,6 +6,33 @@ namespace ServiceLibrary.Helpers.Cache
 {
     public class AsyncCache: IAsyncCache
     {
+        private class NoCacheImpl : IAsyncCache
+        {
+            public Task<T> AddOrGetExistingAsync<T>(string key, Func<Task<T>> asyncValueFactory, DateTimeOffset absoluteExpiration)
+            {
+                return asyncValueFactory();
+            }
+
+            public Task<T> AddOrGetExistingAsync<T>(string key, Func<Task<T>> asyncValueFactory, TimeSpan slidingExpiration)
+            {
+                return asyncValueFactory();
+            }
+
+            public Task<T> AddOrGetExistingAsync<T>(string key, Func<Task<T>> asyncValueFactory, CacheItemPolicy policy)
+            {
+                return asyncValueFactory();
+            }
+
+            public void Remove(string key)
+            {
+                // Do nothing
+            }
+        }
+
+        public static IAsyncCache NoCache = new NoCacheImpl();
+
+        public static IAsyncCache Default = new AsyncCache(MemoryCache.Default);
+
         protected ObjectCache Cache { get; }
 
         public AsyncCache(ObjectCache cache)

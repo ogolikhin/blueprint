@@ -238,6 +238,15 @@ namespace ArtifactStore.Repositories
             return (await ConnectionWrapper.QueryAsync<PropertyValueString>("GetReviewArtifactApprovalRequestedInfo", param, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
 
+        private async Task<PropertyValueString> GetReviewPermissionRolesInfo(int reviewId, int userId)
+        {
+            var param = new DynamicParameters();
+            param.Add("@reviewId", reviewId);
+            param.Add("@userId", userId);
+
+            return (await ConnectionWrapper.QueryAsync<PropertyValueString>("GetReviewApprovalRolesInfo", param, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+        }
+
         private async Task<EffectiveArtifactIdsResult> GetEffectiveArtifactIds(int userId, AddArtifactsParameter content, int projectId)
         {
             var param = new DynamicParameters();
@@ -566,6 +575,7 @@ namespace ArtifactStore.Repositories
             };
         }
 
+
         private async Task<int> UpdateReviewXmlAsync(int reviewId, int userId, string reviewXml)
         {
             var parameters = new DynamicParameters();
@@ -710,6 +720,20 @@ namespace ArtifactStore.Repositories
                 await UpdateReviewArtifacts(reviewId, userId, artifactXmlResult, false);
             }
         }
+        private string UpdatePermissionRolesXML(string xmlArtifacts, AssignReviewerRolesParameter content, int reviewId)
+        {
+           
+            var reviewPackageRawData = ReviewRawDataHelper.RestoreData<ReviewPackageRawData>(xmlArtifacts);
+
+            var participantIdsToAdd = reviewPackageRawData.Reviwers.Where(a => a.UserId == content.UserId).FirstOrDefault<ReviewerRawData>();
+            if (participantIdsToAdd == null)
+            {
+                ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);
+            }
+            participantIdsToAdd.Permission = content.Role;
+        
+            return ReviewRawDataHelper.GetStoreData(reviewPackageRawData);
+        }
 
         private string UpdateApprovalRequiredForArtifactsXML(string xmlArtifacts, AssignArtifactsApprovalParameter content, int reviewId, out bool hasChanges)
         {
@@ -738,6 +762,37 @@ namespace ArtifactStore.Repositories
             }
 
             return xmlArtifacts;
+        }
+
+        public async Task AssignRolesToReviewers(int reviewId, AssignReviewerRolesParameter content, int userId)
+        {
+
+            var propertyResult = await GetReviewPermissionRolesInfo(reviewId, userId);
+            if (propertyResult.IsReviewDeleted)
+            {
+
+                ThrowReviewNotFoundException(reviewId);
+            }
+            
+            if (propertyResult.IsReviewLocked == false)
+            {
+                ExceptionHelper.ThrowArtifactNotLockedException(reviewId, content.UserId);
+            }
+          
+            if (propertyResult.IsReviewReadOnly || string.IsNullOrEmpty(propertyResult.ArtifactXml))
+            {
+                ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);
+            }
+
+            if (propertyResult.ProjectId == null || propertyResult.ProjectId < 1)
+            {
+                
+                ThrowReviewNotFoundException(reviewId);
+            }
+
+            var artifactXmlResult = UpdatePermissionRolesXML(propertyResult.ArtifactXml, content, reviewId);
+            
+                await UpdateReviewXmlAsync(reviewId, userId, artifactXmlResult);
         }
 
         private void UnauthorizedItem(ReviewTableOfContentItem item)

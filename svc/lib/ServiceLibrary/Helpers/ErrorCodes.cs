@@ -69,5 +69,6 @@
 
         //Review Artifact Errors
         public const int ApprovalRequiredIsReadonlyForReview = 10001;
+        public const int ApprovalRequiredArtifactNotInReview = 10002;
     }
 }

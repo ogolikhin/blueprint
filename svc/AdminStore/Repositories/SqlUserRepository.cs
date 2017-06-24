@@ -397,30 +397,36 @@ namespace AdminStore.Repositories
             var parameters = new DynamicParameters();
             parameters.Add("@UserId", userId);
             parameters.Add("@SelectAll", body.SelectAll);
+
             if (body.Ids != null)
+            {
                 parameters.Add("@GroupMembership", SqlConnectionWrapper.ToDataTable(body.Ids));
+            }
+
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
             var result = await _connectionWrapper.ExecuteScalarAsync<int>("DeleteUserFromGroups", parameters, commandType: CommandType.StoredProcedure);
             var errorCode = parameters.Get<int?>("ErrorCode");
+
             if (errorCode.HasValue)
             {
                 switch (errorCode.Value)
                 {
-                    case (int)SqlErrorCodes.UserLoginNotExist:
-                        throw new BadRequestException(ErrorMessages.UserNotExist);
-
                     case (int)SqlErrorCodes.GeneralSqlError:
                         throw new BadRequestException(ErrorMessages.GeneralErrorOfDeletingUserFromGroups);
+
+                    case (int)SqlErrorCodes.UserLoginNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.UserNotExist, ErrorCodes.ResourceNotFound);
                 }
             }
+
             return result;
         }
-
 
         internal class HashedPassword
         {
             internal string Password { get; set; }
+
             internal Guid UserSALT { get; set; }
         }
     }

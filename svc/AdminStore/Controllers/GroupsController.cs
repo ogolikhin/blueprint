@@ -103,6 +103,7 @@ namespace AdminStore.Controllers
             {
                 return BadRequest(ErrorMessages.InvalidDeleteGroupsParameters);
             }
+
             if (scope.IsEmpty())
             {
                 return Ok(DeleteResult.Empty);

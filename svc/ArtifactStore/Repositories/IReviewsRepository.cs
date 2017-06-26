@@ -16,5 +16,8 @@ namespace ArtifactStore.Repositories
         Task<AddParticipantsResult> AddParticipantsToReviewAsync(int reviewId, int userId, AddParticipantsParameter content);
         Task AssignApprovalRequiredToArtifacts(int reviewId, int userId, AssignArtifactsApprovalParameter content);
         Task AssignRolesToReviewers(int reviewId, AssignReviewerRolesParameter content, int userId);
+        Task<int> GetReviewArtifactIndexAsync(int reviewId, int revisionId, int artifactId, int userId, bool? addDraft = true);
+        Task<int> GetReviewTableOfContentArtifactIndexAsync(int reviewId, int revisionId, int artifactId, int userId);
+
     }
 }

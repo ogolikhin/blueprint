@@ -22,7 +22,7 @@ namespace ArtifactStore
             config.EnsureInitialized();
 
             // Assert
-            config.AssertTotalRoutes(31, "Please update asserts in WebApiConfigTests when changing routes.");
+            config.AssertTotalRoutes(33, "Please update asserts in WebApiConfigTests when changing routes.");
             config.AssertAction<StatusController>("GetStatus", HttpMethod.Get, "status");
             config.AssertAction<StatusController>("GetStatusUpCheck", HttpMethod.Get, "status/upcheck");
             config.AssertAction<ArtifactController>("GetProjectChildren", HttpMethod.Get, "projects/1/children");
@@ -47,11 +47,13 @@ namespace ArtifactStore
             config.AssertAction<ReviewContainersController>("GetParticipantsAsync", HttpMethod.Get, "containers/1/participants");
             config.AssertAction<ReviewContainersController>("AddParticipantsToReview", HttpMethod.Put, "containers/1/participants");
             config.AssertAction<ReviewContainersController>("GetReviewArtifactStatusesByParticipantAsync", HttpMethod.Get, "containers/1/artifactreviewers/artifactId=1");
-            config.AssertAction<ReviewContainersController>("GetTableOfContentAsync", HttpMethod.Get, "containers/1/toc/1");
+            config.AssertAction<ReviewContainersController>("GetTableOfContentAsync", HttpMethod.Get, "containers/1/toc");
             config.AssertAction<ReviewContainersController>("AddArtifactsToReview", HttpMethod.Put, "containers/1/content");
             config.AssertAction<ReviewContainersController>("GetReviewedArtifacts", HttpMethod.Get, "containers/1/artifacts");
             config.AssertAction<ReviewContainersController>("AssignApprovalRequiredToArtifacts", HttpMethod.Put, "containers/1/artifacts/approval");
             config.AssertAction<ReviewContainersController>("AssignRolesToReviewers", HttpMethod.Put, "containers/1/reviewers/approval");
+            config.AssertAction<ReviewContainersController>("GetReviewArtifactIndex", HttpMethod.Get, "containers/1/index/1");
+            config.AssertAction<ReviewContainersController>("GetReviewTableOfContentArtifactIndex", HttpMethod.Get, "containers/1/toc/index/1");
         }
 
         [TestMethod]

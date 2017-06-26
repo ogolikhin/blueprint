@@ -835,6 +835,43 @@ namespace ArtifactStore.Repositories
             }
         }
 
+
+
+        public async Task<int> GetReviewArtifactIndexAsync(int reviewId, int revisionId, int artifactId, int userId, bool? addDrafts = true)
+        {
+            int refreshInterval = await GetRebuildReviewArtifactHierarchyInterval();
+            var parameters = new DynamicParameters();
+
+            parameters.Add("@reviewId", reviewId);
+            parameters.Add("@revisionId", revisionId);
+            parameters.Add("@userId", userId);
+            parameters.Add("@artifactId", artifactId);
+            parameters.Add("@addDrafts", revisionId < int.MaxValue ? false : addDrafts);
+            parameters.Add("@refreshInterval", refreshInterval);
+            parameters.Add("@result", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
+
+            await ConnectionWrapper.ExecuteAsync("GetReviewArtifactIndex", parameters, commandType: CommandType.StoredProcedure);
+
+            return parameters.Get<int>("@result");
+
+        }
+
+        public async Task<int> GetReviewTableOfContentArtifactIndexAsync(int reviewId, int revisionId, int artifactId, int userId)
+        {
+            int refreshInterval = await GetRebuildReviewArtifactHierarchyInterval();
+            var parameters = new DynamicParameters();
+
+            parameters.Add("@reviewId", reviewId);
+            parameters.Add("@revisionId", revisionId);
+            parameters.Add("@userId", userId);
+            parameters.Add("@artifactId", artifactId);
+            parameters.Add("@refreshInterval", refreshInterval);
+            parameters.Add("@result", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
+
+            await ConnectionWrapper.ExecuteAsync("GetReviewTableOfContentArtifactIndex", parameters, commandType: CommandType.StoredProcedure);
+            return parameters.Get<int>("@result");
+        }
+
         private void UnauthorizedItem(ReviewTableOfContentItem item)
         {
             item.Name = UNATHORIZED; // unauthorize

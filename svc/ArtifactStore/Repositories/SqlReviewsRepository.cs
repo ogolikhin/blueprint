@@ -201,6 +201,11 @@ namespace ArtifactStore.Repositories
             int alreadyIncludedCount;
             var propertyResult = await GetReviewPropertyString(reviewId, userId);
 
+            if (propertyResult.IsReviewReadOnly)
+            {
+                ThrowReviewClosedException();
+            }
+
             if (propertyResult.ProjectId == null || propertyResult.ProjectId < 1)
             {
                 ThrowReviewNotFoundException(reviewId);

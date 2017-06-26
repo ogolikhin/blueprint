@@ -1006,7 +1006,62 @@ namespace ArtifactStore.Repositories
             }
         }
 
- 
+        [TestMethod]
+        public async Task AddArtifactsToReviewAsync_Should_Throw_Review_Closed_ErrorCode_When_Review_Is_Closed()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            int projectId = 1;
+            bool isExceptionThrown = false;
+            var content = new AddArtifactsParameter()
+            {
+                ArtifactIds = new[] { 1, 2 },
+                AddChildren = false
+            };
+
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+
+            var PropertyValueStringResult = new[]
+            {
+                new PropertyValueString
+                {
+                    IsDraftRevisionExists = true,
+                    ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
+                    RevewSubartifactId = 3,
+                    ProjectId = projectId,
+                    IsReviewLocked = true,
+                    IsReviewReadOnly = true
+                }
+            };
+
+            _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters, PropertyValueStringResult);
+
+            //Act
+            try
+            {
+                var review = await _reviewsRepository.AddArtifactsToReviewAsync(reviewId, userId, content);
+            }
+            catch (BadRequestException ex)
+            {
+                isExceptionThrown = true;
+
+                //Assert
+                Assert.AreEqual(ErrorCodes.ReviewClosed, ex.ErrorCode);
+            }
+            finally
+            {
+                if (!isExceptionThrown)
+                {
+                    Assert.Fail();
+                }
+            }
+        }
+
         #endregion
 
 

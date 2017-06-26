@@ -150,6 +150,7 @@ namespace ArtifactStore.Repositories
 
             var reviewArtifactStatuses = await GetReviewArtifactStatusesAsync(reviewId, userId, pagination, versionId, addDrafts, reviewArtifactIds);
             var numUsers = reviewArtifactStatuses.NumUsers;
+            var numApprovers = reviewArtifactStatuses.NumApprovers;
             var artifactStatusDictionary = reviewArtifactStatuses.ItemStatuses.ToDictionary(a => a.ArtifactId);
 
             ReviewArtifactStatus reviewArtifactStatus;
@@ -166,7 +167,7 @@ namespace ArtifactStore.Repositories
                         reviewArtifact.Viewed = reviewArtifactStatus.Viewed;
                         reviewArtifact.Unviewed = reviewArtifactStatus.Unviewed;
                     } else {
-                        reviewArtifact.Pending = numUsers;
+                        reviewArtifact.Pending = numApprovers;
                         reviewArtifact.Unviewed = numUsers;
                     }
                     reviewArtifact.HasAccess = true;
@@ -436,11 +437,12 @@ namespace ArtifactStore.Repositories
             param.Add("@addDrafts", addDrafts);
             param.Add("@userId", userId);
             param.Add("@itemIds", SqlConnectionWrapper.ToDataTable(reviewArtifactIds));
-            var result = await ConnectionWrapper.QueryMultipleAsync<ReviewArtifactStatus, int>("GetReviewArtifactsStatus", param, commandType: CommandType.StoredProcedure);
+            var result = await ConnectionWrapper.QueryMultipleAsync<ReviewArtifactStatus, int, int>("GetReviewArtifactsStatus", param, commandType: CommandType.StoredProcedure);
             return new ContentStatusDetails
             {
                 ItemStatuses = result.Item1.ToList(),
-                NumUsers = result.Item2.SingleOrDefault()
+                NumUsers = result.Item2.SingleOrDefault(),
+                NumApprovers = result.Item3.SingleOrDefault()
             };
         }
 

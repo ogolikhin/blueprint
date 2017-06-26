@@ -811,6 +811,11 @@ namespace ArtifactStore.Repositories
                 ThrowReviewNotFoundException(reviewId);
             }
 
+            if (propertyResult.IsReviewReadOnly)
+            {
+                ThrowApprovalStatusIsReadonlyForReview();
+            }
+
             if (propertyResult.IsReviewLocked == false)
             {
                 ExceptionHelper.ThrowArtifactNotLockedException(reviewId, content.UserId);
@@ -819,12 +824,6 @@ namespace ArtifactStore.Repositories
             if (propertyResult.IsReviewReadOnly || string.IsNullOrEmpty(propertyResult.ArtifactXml))
             {
                 ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);
-            }
-
-            if (propertyResult.ProjectId == null || propertyResult.ProjectId < 1)
-            {
-
-                ThrowReviewNotFoundException(reviewId);
             }
 
             var artifactXmlResult = UpdatePermissionRolesXML(propertyResult.ArtifactXml, content, reviewId);
@@ -868,6 +867,11 @@ namespace ArtifactStore.Repositories
         public static void ThrowApprovalRequiredIsReadonlyForReview()
         {
             var errorMessage = I18NHelper.FormatInvariant("The artifact could not be updated because another user has changed the Review status.");
+            throw new BadRequestException(errorMessage, ErrorCodes.ApprovalRequiredIsReadonlyForReview);
+        }
+        public static void ThrowApprovalStatusIsReadonlyForReview()
+        {
+            var errorMessage = I18NHelper.FormatInvariant("The approval status could not be updated because another user has changed the Review status.");
             throw new BadRequestException(errorMessage, ErrorCodes.ApprovalRequiredIsReadonlyForReview);
         }
 

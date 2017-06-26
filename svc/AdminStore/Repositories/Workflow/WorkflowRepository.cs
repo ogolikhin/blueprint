@@ -416,66 +416,6 @@ namespace AdminStore.Repositories.Workflow
             return table;
         }
 
-        // TODO: Temp, remove
-        private static string CreateTestXmlWorkflow()
-        {
-            var workflow = new IeWorkflow
-            {
-                Name = "My Workflow " + DateTime.Now,
-                Description = "Description of Workflow",
-                States = new List<IeState>(),
-                ArtifactTypes = new List<IeArtifactType>(),
-                Transitions = new List<IeTransition>(),
-                Projects = new List<IeProject>()
-            };
-
-            // States
-            workflow.States.Add(new IeState
-            {
-                Name = "New",
-                Description = "Description of New",
-                IsInitial = true
-            });
-            workflow.States.Add(new IeState
-            {
-                Name = "Active",
-                Description = "Description of Active"
-            });
-            workflow.States.Add(new IeState
-            {
-                Name = "Closed",
-                Description = "Description of Closed"
-            });
-
-            // Transitions
-            workflow.Transitions.Add(new IeTransition
-            {
-                Name = "Triaged",
-                FromState = "New",
-                ToState = "Active",
-                PermissionGroups = new List<IeGroup>
-                {
-                    new IeGroup { Name = "Authors"},
-                    new IeGroup { Name = "Authors 2" }
-                }
-            });
-
-            workflow.Transitions.Add(new IeTransition
-            {
-                Name = "Fixed",
-                FromState = "Active",
-                ToState = "Closed",
-                PermissionGroups = new List<IeGroup>
-                {
-                    new IeGroup { Name = "Collaborators"},
-                    new IeGroup { Name = "Authors 2" }
-                }
-            });
-
-            var xmlWorkflow = SerializationHelper.ToXml(workflow);
-            return xmlWorkflow;
-        }
-
         #endregion
 
     }

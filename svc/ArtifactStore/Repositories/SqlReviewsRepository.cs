@@ -821,7 +821,7 @@ namespace ArtifactStore.Repositories
                 ExceptionHelper.ThrowArtifactNotLockedException(reviewId, content.UserId);
             }
 
-            if (propertyResult.IsReviewReadOnly || string.IsNullOrEmpty(propertyResult.ArtifactXml))
+            if (string.IsNullOrEmpty(propertyResult.ArtifactXml))
             {
                 ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);
             }

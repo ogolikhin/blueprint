@@ -816,7 +816,7 @@ namespace ArtifactStore.Repositories
                 ThrowApprovalStatusIsReadonlyForReview();
             }
 
-            if (propertyResult.IsReviewLocked == false)
+            if (!propertyResult.IsReviewLocked)
             {
                 ExceptionHelper.ThrowArtifactNotLockedException(reviewId, content.UserId);
             }

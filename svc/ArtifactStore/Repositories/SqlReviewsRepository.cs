@@ -202,6 +202,11 @@ namespace ArtifactStore.Repositories
             int alreadyIncludedCount;
             var propertyResult = await GetReviewPropertyString(reviewId, userId);
 
+            if (propertyResult.IsReviewReadOnly)
+            {
+                ThrowReviewClosedException();
+            }
+
             if (propertyResult.ProjectId == null || propertyResult.ProjectId < 1)
             {
                 ThrowReviewNotFoundException(reviewId);
@@ -550,8 +555,10 @@ namespace ArtifactStore.Repositories
 
             var userIds = content.UserIds ?? new int[0];
 
-            //Flatten users into a single collection and remove duplicates
-            var uniqueParticipantsSet = new HashSet<int>(userIds.Concat(groupUserIds));
+            var deletedUserIds = (await _usersRepository.FindNonExistentUsersAsync(userIds)).ToList();
+
+            //Flatten users into a single collection and remove duplicates and non existant users
+            var uniqueParticipantsSet = new HashSet<int>(userIds.Except(deletedUserIds).Concat(groupUserIds));
 
             if (reviewPackageRawData.Reviwers == null)
             {
@@ -582,7 +589,8 @@ namespace ArtifactStore.Repositories
             return new AddParticipantsResult
             {
                 ParticipantCount = newParticipantsCount,
-                AlreadyIncludedCount = uniqueParticipantsSet.Count - newParticipantsCount
+                AlreadyIncludedCount = uniqueParticipantsSet.Count - newParticipantsCount,
+                NonExistentUsers = deletedUserIds.Count()
             };
         }
 

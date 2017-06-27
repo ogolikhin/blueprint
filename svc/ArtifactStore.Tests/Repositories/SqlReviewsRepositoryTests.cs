@@ -519,6 +519,32 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
+        public async Task AddParticipantsToReviewAsync_Should_Return_Non_Existant_Users_If_Users_Are_Deleted_Or_NonExistant()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+
+            var addParticipantsParameter = new AddParticipantsParameter()
+            {
+                GroupIds = new int[0],
+                UserIds = new[] { 2, 3, 4 }
+            };
+
+            SetupGetReviewXmlQuery(reviewId, userId, null);
+
+            _usersRepositoryMock.Setup(repo => repo.FindNonExistentUsersAsync(new[] { 2, 3, 4 })).ReturnsAsync(new[] { 2, 3, 4 });
+
+            //Act
+            var addParticipantsResult = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);
+
+            //Assert
+            Assert.AreEqual(addParticipantsResult.NonExistentUsers, 3);
+            Assert.AreEqual(addParticipantsResult.ParticipantCount, 0);
+            Assert.AreEqual(addParticipantsResult.AlreadyIncludedCount, 0);
+        }
+
+        [TestMethod]
         public async Task AddParticipantsToReviewAsync_Should_Add_Users()
         {
             //Arrange
@@ -1006,6 +1032,7 @@ namespace ArtifactStore.Repositories
             }
         }
 
+
         /// <summary>
         /// 
         /// </summary>
@@ -1119,6 +1146,54 @@ namespace ArtifactStore.Repositories
                 isExceptionThrown = true;
 
                 Assert.AreEqual(ErrorCodes.ApprovalRequiredIsReadonlyForReview, ex.ErrorCode);
+
+        [TestMethod]
+        public async Task AddArtifactsToReviewAsync_Should_Throw_Review_Closed_ErrorCode_When_Review_Is_Closed()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            int projectId = 1;
+            bool isExceptionThrown = false;
+            var content = new AddArtifactsParameter()
+            {
+                ArtifactIds = new[] { 1, 2 },
+                AddChildren = false
+            };
+
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+
+            var PropertyValueStringResult = new[]
+            {
+                new PropertyValueString
+                {
+                    IsDraftRevisionExists = true,
+                    ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
+                    RevewSubartifactId = 3,
+                    ProjectId = projectId,
+                    IsReviewLocked = true,
+                    IsReviewReadOnly = true
+                }
+            };
+
+            _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters, PropertyValueStringResult);
+
+            //Act
+            try
+            {
+                var review = await _reviewsRepository.AddArtifactsToReviewAsync(reviewId, userId, content);
+            }
+            catch (BadRequestException ex)
+            {
+                isExceptionThrown = true;
+
+                //Assert
+                Assert.AreEqual(ErrorCodes.ReviewClosed, ex.ErrorCode);
+
             }
             finally
             {
@@ -1128,6 +1203,10 @@ namespace ArtifactStore.Repositories
                 }
             }
         }
+
+
+
+
         #endregion
 
 

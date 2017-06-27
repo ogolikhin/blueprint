@@ -1011,7 +1011,7 @@ namespace ArtifactStore.Repositories
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task AssignRolesToReviewers_ShouldThrowResourceNotFoundExceptionException()
+        public async Task AssignRolesToReviewers_ShouldThrowResourceNotFoundException()
         {
             //Arrange
             //   PropertyValueString result = null;
@@ -1073,7 +1073,7 @@ namespace ArtifactStore.Repositories
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task AssignRolesToReviewers_ShouldThrowBadReqExceptionException()
+        public async Task AssignRolesToReviewers_ShouldThrowBadRequestExceptionException()
         {
             //Arrange
             //   PropertyValueString result = null;

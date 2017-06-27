@@ -249,13 +249,26 @@ namespace ArtifactStore.Repositories
             return (await ConnectionWrapper.QueryAsync<PropertyValueString>("GetReviewArtifactApprovalRequestedInfo", param, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
 
-        private async Task<PropertyValueString> GetReviewPermissionRolesInfo(int reviewId, int userId)
+        private async Task<PropertyValueString> GetReviewApprovalRolesInfo(int reviewId, int userId, int roleUserId)
         {
             var param = new DynamicParameters();
             param.Add("@reviewId", reviewId);
             param.Add("@userId", userId);
+            param.Add("@roleUserId", roleUserId);
 
-            return (await ConnectionWrapper.QueryAsync<PropertyValueString>("GetReviewApprovalRolesInfo", param, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+            var result =  (await ConnectionWrapper.QueryAsync<PropertyValueString>("GetReviewApprovalRolesInfo", param, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+            return new PropertyValueString()
+            {
+                IsDraftRevisionExists = result.IsDraftRevisionExists,
+                ArtifactXml = result.ArtifactXml,
+                RevewSubartifactId = result.RevewSubartifactId,
+                ProjectId= result.ProjectId,
+                IsReviewLocked= result.IsReviewLocked,
+                IsReviewReadOnly = result.IsReviewReadOnly,
+                BaselineId = result.BaselineId,
+                IsReviewDeleted = result.IsReviewDeleted,
+                IsUserDisabled = result.IsUserDisabled
+            };
         }
 
         private async Task<EffectiveArtifactIdsResult> GetEffectiveArtifactIds(int userId, AddArtifactsParameter content, int projectId)
@@ -810,10 +823,14 @@ namespace ArtifactStore.Repositories
         public async Task AssignRolesToReviewers(int reviewId, AssignReviewerRolesParameter content, int userId)
         {
 
-            var propertyResult = await GetReviewPermissionRolesInfo(reviewId, userId);
+            var propertyResult = await GetReviewApprovalRolesInfo(reviewId, userId, content.UserId);
             if (propertyResult == null)
             {
                 throw new BadRequestException("Cannot update approval role as project or review couldn't be found", ErrorCodes.ResourceNotFound);
+            }
+            if (propertyResult.IsUserDisabled.Value)
+            {
+                throw new ConflictException("User deleted or not active", ErrorCodes.UserDisabled);
             }
             if (propertyResult.IsReviewDeleted)
             {

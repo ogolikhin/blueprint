@@ -39,6 +39,7 @@ namespace ArtifactStore.Models.Review
         public bool IsReviewReadOnly { get; set; }
         public int? BaselineId { get; set; }
         public bool IsReviewDeleted { get; set; }
+        public bool? IsUserDisabled { get; set; }
 
     }
 }

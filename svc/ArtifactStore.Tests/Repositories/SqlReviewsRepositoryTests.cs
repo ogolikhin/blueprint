@@ -519,6 +519,32 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
+        public async Task AddParticipantsToReviewAsync_Should_Return_Non_Existant_Users_If_Users_Are_Deleted_Or_NonExistant()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+
+            var addParticipantsParameter = new AddParticipantsParameter()
+            {
+                GroupIds = new int[0],
+                UserIds = new[] { 2, 3, 4 }
+            };
+
+            SetupGetReviewXmlQuery(reviewId, userId, null);
+
+            _usersRepositoryMock.Setup(repo => repo.FindNonExistentUsersAsync(new[] { 2, 3, 4 })).ReturnsAsync(new[] { 2, 3, 4 });
+
+            //Act
+            var addParticipantsResult = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);
+
+            //Assert
+            Assert.AreEqual(addParticipantsResult.NonExistentUsers, 3);
+            Assert.AreEqual(addParticipantsResult.ParticipantCount, 0);
+            Assert.AreEqual(addParticipantsResult.AlreadyIncludedCount, 0);
+        }
+
+        [TestMethod]
         public async Task AddParticipantsToReviewAsync_Should_Add_Users()
         {
             //Arrange

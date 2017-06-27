@@ -41,6 +41,16 @@ namespace ServiceLibrary.Repositories
             return ConnectionWrapper.QueryAsync<UserInfo>("GetUserInfosFromGroups", parameters, commandType: CommandType.StoredProcedure);
         }
 
+        public Task<IEnumerable<int>> FindNonExistentUsersAsync(IEnumerable<int> userIds)
+        {
+            var parameters = new DynamicParameters();
+            var userIdsTable = SqlConnectionWrapper.ToDataTable(userIds);
+
+            parameters.Add("@userIds", userIdsTable);
+
+            return ConnectionWrapper.QueryAsync<int>("FindNonExistentUsers", parameters, commandType: CommandType.StoredProcedure);
+        }
+
         public async Task<IEnumerable<UserInfo>> GetUsersByEmail(string email, bool? guestsOnly = false)
         {
             var userInfosPrm = new DynamicParameters();

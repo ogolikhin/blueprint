@@ -1006,7 +1006,128 @@ namespace ArtifactStore.Repositories
             }
         }
 
- 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [TestMethod]
+        public async Task AssignRolesToReviewers_ShouldThrowResourceNotFoundExceptionException()
+        {
+            //Arrange
+            //   PropertyValueString result = null;
+            bool isExceptionThrown = false;
+            var propertyValueStringResult = new List<PropertyValueString>();
+
+            var propertyValue = new PropertyValueString()
+            {
+                IsDraftRevisionExists = true,
+                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
+                RevewSubartifactId = 3,
+                ProjectId = 1,
+                IsReviewLocked = true,
+                IsReviewReadOnly = true,
+                BaselineId = 2,
+                IsReviewDeleted = true,
+                IsUserDisabled = false
+            };
+            propertyValueStringResult.Add(propertyValue);
+            int reviewId = 1;
+            int userId = 1;
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId },
+                 { "@roleUserId", 1 }
+            };
+            _cxn.SetupQueryAsync("GetReviewApprovalRolesInfo", queryParameters, propertyValueStringResult);
+            AssignReviewerRolesParameter content = new AssignReviewerRolesParameter()
+            {
+                UserId = 1,
+                Role = ReviewParticipantRole.Approver
+            };
+            //Act
+
+            try
+            {
+                await _reviewsRepository.AssignRolesToReviewers(reviewId, content, userId);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                //Assert
+                isExceptionThrown = true;
+
+                Assert.AreEqual(ErrorCodes.ResourceNotFound, ex.ErrorCode);
+            }
+            finally
+            {
+                if (!isExceptionThrown)
+                {
+                    Assert.Fail();
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [TestMethod]
+        public async Task AssignRolesToReviewers_ShouldThrowBadReqExceptionException()
+        {
+            //Arrange
+            //   PropertyValueString result = null;
+            bool isExceptionThrown = false;
+            var propertyValueStringResult = new List<PropertyValueString>();
+
+            var propertyValue = new PropertyValueString()
+            {
+                IsDraftRevisionExists = true,
+                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
+                RevewSubartifactId = 3,
+                ProjectId = 1,
+                IsReviewLocked = true,
+                IsReviewReadOnly = true,
+                BaselineId = 2,
+                IsReviewDeleted = false,
+                IsUserDisabled = false
+            };
+            propertyValueStringResult.Add(propertyValue);
+            int reviewId = 1;
+            int userId = 1;
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId },
+                 { "@roleUserId", 1 }
+            };
+            _cxn.SetupQueryAsync("GetReviewApprovalRolesInfo", queryParameters, propertyValueStringResult);
+            AssignReviewerRolesParameter content = new AssignReviewerRolesParameter()
+            {
+                UserId = 1,
+                Role = ReviewParticipantRole.Approver
+            };
+            //Act
+
+            try
+            {
+                await _reviewsRepository.AssignRolesToReviewers(reviewId, content, userId);
+            }
+            catch (BadRequestException ex)
+            {
+                //Assert
+                isExceptionThrown = true;
+
+                Assert.AreEqual(ErrorCodes.ApprovalRequiredIsReadonlyForReview, ex.ErrorCode);
+            }
+            finally
+            {
+                if (!isExceptionThrown)
+                {
+                    Assert.Fail();
+                }
+            }
+        }
         #endregion
 
 

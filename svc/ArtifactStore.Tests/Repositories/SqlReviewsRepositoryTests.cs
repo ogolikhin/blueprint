@@ -1146,6 +1146,15 @@ namespace ArtifactStore.Repositories
                 isExceptionThrown = true;
 
                 Assert.AreEqual(ErrorCodes.ApprovalRequiredIsReadonlyForReview, ex.ErrorCode);
+            }
+            finally
+            {
+                if (!isExceptionThrown)
+                {
+                    Assert.Fail();
+                }
+            }
+        }
 
         [TestMethod]
         public async Task AddArtifactsToReviewAsync_Should_Throw_Review_Closed_ErrorCode_When_Review_Is_Closed()

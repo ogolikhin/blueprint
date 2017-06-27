@@ -150,6 +150,7 @@ namespace ArtifactStore.Repositories
 
             var reviewArtifactStatuses = await GetReviewArtifactStatusesAsync(reviewId, userId, pagination, versionId, addDrafts, reviewArtifactIds);
             var numUsers = reviewArtifactStatuses.NumUsers;
+            var numApprovers = reviewArtifactStatuses.NumApprovers;
             var artifactStatusDictionary = reviewArtifactStatuses.ItemStatuses.ToDictionary(a => a.ArtifactId);
 
             ReviewArtifactStatus reviewArtifactStatus;
@@ -166,7 +167,7 @@ namespace ArtifactStore.Repositories
                         reviewArtifact.Viewed = reviewArtifactStatus.Viewed;
                         reviewArtifact.Unviewed = reviewArtifactStatus.Unviewed;
                     } else {
-                        reviewArtifact.Pending = numUsers;
+                        reviewArtifact.Pending = numApprovers;
                         reviewArtifact.Unviewed = numUsers;
                     }
                     reviewArtifact.HasAccess = true;
@@ -241,6 +242,15 @@ namespace ArtifactStore.Repositories
             param.Add("@userId", userId);
 
             return (await ConnectionWrapper.QueryAsync<PropertyValueString>("GetReviewArtifactApprovalRequestedInfo", param, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+        }
+
+        private async Task<PropertyValueString> GetReviewPermissionRolesInfo(int reviewId, int userId)
+        {
+            var param = new DynamicParameters();
+            param.Add("@reviewId", reviewId);
+            param.Add("@userId", userId);
+
+            return (await ConnectionWrapper.QueryAsync<PropertyValueString>("GetReviewApprovalRolesInfo", param, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
 
         private async Task<EffectiveArtifactIdsResult> GetEffectiveArtifactIds(int userId, AddArtifactsParameter content, int projectId)
@@ -427,11 +437,12 @@ namespace ArtifactStore.Repositories
             param.Add("@addDrafts", addDrafts);
             param.Add("@userId", userId);
             param.Add("@itemIds", SqlConnectionWrapper.ToDataTable(reviewArtifactIds));
-            var result = await ConnectionWrapper.QueryMultipleAsync<ReviewArtifactStatus, int>("GetReviewArtifactsStatus", param, commandType: CommandType.StoredProcedure);
+            var result = await ConnectionWrapper.QueryMultipleAsync<ReviewArtifactStatus, int, int>("GetReviewArtifactsStatus", param, commandType: CommandType.StoredProcedure);
             return new ContentStatusDetails
             {
                 ItemStatuses = result.Item1.ToList(),
-                NumUsers = result.Item2.SingleOrDefault()
+                NumUsers = result.Item2.SingleOrDefault(),
+                NumApprovers = result.Item3.SingleOrDefault()
             };
         }
 
@@ -519,7 +530,7 @@ namespace ArtifactStore.Repositories
 
             if(reviewPackageRawData.Status == ReviewPackageStatus.Closed)
             {
-                throw new BadRequestException("Cannot add participants as review status is closed.");
+                ThrowReviewClosedException();
             }
 
             IEnumerable<int> groupUserIds = await GetUsersFromGroupsAsync(content.GroupIds);
@@ -577,6 +588,7 @@ namespace ArtifactStore.Repositories
                 XmlString = result.SingleOrDefault()
             };
         }
+
 
         private async Task<int> UpdateReviewXmlAsync(int reviewId, int userId, string reviewXml)
         {
@@ -743,6 +755,20 @@ namespace ArtifactStore.Repositories
                 await UpdateReviewArtifacts(reviewId, userId, artifactXmlResult, false);
             }
         }
+        private string UpdatePermissionRolesXML(string xmlArtifacts, AssignReviewerRolesParameter content, int reviewId)
+        {
+           
+            var reviewPackageRawData = ReviewRawDataHelper.RestoreData<ReviewPackageRawData>(xmlArtifacts);
+
+            var participantIdsToAdd = reviewPackageRawData.Reviwers.Where(a => a.UserId == content.UserId).FirstOrDefault<ReviewerRawData>();
+            if (participantIdsToAdd == null)
+            {
+                ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);
+            }
+            participantIdsToAdd.Permission = content.Role;
+        
+            return ReviewRawDataHelper.GetStoreData(reviewPackageRawData);
+        }
 
         private string UpdateApprovalRequiredForArtifactsXML(string xmlArtifacts, AssignArtifactsApprovalParameter content, int reviewId, out bool hasChanges)
         {
@@ -771,6 +797,81 @@ namespace ArtifactStore.Repositories
             }
 
             return xmlArtifacts;
+        }
+
+        public async Task AssignRolesToReviewers(int reviewId, AssignReviewerRolesParameter content, int userId)
+        {
+
+            var propertyResult = await GetReviewPermissionRolesInfo(reviewId, userId);
+            if (propertyResult == null)
+            {
+                throw new BadRequestException("Cannot update approval role as project or review couldn't be found", ErrorCodes.ResourceNotFound);
+            }
+            if (propertyResult.IsReviewDeleted)
+            {
+
+                ThrowReviewNotFoundException(reviewId);
+            }
+
+            if (propertyResult.IsReviewReadOnly)
+            {
+                ThrowApprovalStatusIsReadonlyForReview();
+            }
+
+            if (!propertyResult.IsReviewLocked)
+            {
+                ExceptionHelper.ThrowArtifactNotLockedException(reviewId, content.UserId);
+            }
+
+            if (string.IsNullOrEmpty(propertyResult.ArtifactXml))
+            {
+                ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);
+            }
+
+            var artifactXmlResult = UpdatePermissionRolesXML(propertyResult.ArtifactXml, content, reviewId);
+
+            var result = await UpdateReviewXmlAsync(reviewId, userId, artifactXmlResult);
+            if (result != 1)
+            {
+                throw new BadRequestException("Cannot add participants as project or review couldn't be found", ErrorCodes.ResourceNotFound);
+            }
+        }
+
+
+
+        public async Task<int> GetReviewArtifactIndexAsync(int reviewId, int revisionId, int artifactId, int userId, bool? addDrafts = true)
+        {
+            int refreshInterval = await GetRebuildReviewArtifactHierarchyInterval();
+            var parameters = new DynamicParameters();
+
+            parameters.Add("@reviewId", reviewId);
+            parameters.Add("@revisionId", revisionId);
+            parameters.Add("@userId", userId);
+            parameters.Add("@artifactId", artifactId);
+            parameters.Add("@addDrafts", revisionId < int.MaxValue ? false : addDrafts);
+            parameters.Add("@refreshInterval", refreshInterval);
+            parameters.Add("@result", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
+
+            await ConnectionWrapper.ExecuteAsync("GetReviewArtifactIndex", parameters, commandType: CommandType.StoredProcedure);
+
+            return parameters.Get<int>("@result");
+
+        }
+
+        public async Task<int> GetReviewTableOfContentArtifactIndexAsync(int reviewId, int revisionId, int artifactId, int userId)
+        {
+            int refreshInterval = await GetRebuildReviewArtifactHierarchyInterval();
+            var parameters = new DynamicParameters();
+
+            parameters.Add("@reviewId", reviewId);
+            parameters.Add("@revisionId", revisionId);
+            parameters.Add("@userId", userId);
+            parameters.Add("@artifactId", artifactId);
+            parameters.Add("@refreshInterval", refreshInterval);
+            parameters.Add("@result", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
+
+            await ConnectionWrapper.ExecuteAsync("GetReviewTableOfContentArtifactIndex", parameters, commandType: CommandType.StoredProcedure);
+            return parameters.Get<int>("@result");
         }
 
         private void UnauthorizedItem(ReviewTableOfContentItem item)
@@ -807,11 +908,22 @@ namespace ArtifactStore.Repositories
             var errorMessage = I18NHelper.FormatInvariant("The artifact could not be updated because another user has changed the Review status.");
             throw new BadRequestException(errorMessage, ErrorCodes.ApprovalRequiredIsReadonlyForReview);
         }
+        public static void ThrowApprovalStatusIsReadonlyForReview()
+        {
+            var errorMessage = I18NHelper.FormatInvariant("The approval status could not be updated because another user has changed the Review status.");
+            throw new BadRequestException(errorMessage, ErrorCodes.ApprovalRequiredIsReadonlyForReview);
+        }
 
         public static void ThrowApprovalRequiredArtifactNotInReview()
         {
             var errorMessage = I18NHelper.FormatInvariant("The artifact could not be updated because it has been removed from review.");
             throw new BadRequestException(errorMessage, ErrorCodes.ApprovalRequiredArtifactNotInReview);
+        }
+
+        private static void ThrowReviewClosedException()
+        {
+            var errorMessage = "This Review is now closed. No modifications can be made to its artifacts or participants.";
+            throw new BadRequestException(errorMessage, ErrorCodes.ReviewClosed);
         }
     }
 }

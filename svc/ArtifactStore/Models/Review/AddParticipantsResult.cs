@@ -10,6 +10,7 @@ namespace ArtifactStore.Models.Review
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public int AlreadyIncludedCount { get; set; }
 
-        
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public int NonExistentUsers { get; set; }
     }
 }

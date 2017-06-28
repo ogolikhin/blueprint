@@ -77,5 +77,9 @@
         //Review Artifact Errors
         public const int ApprovalRequiredIsReadonlyForReview = 10001;
         public const int ApprovalRequiredArtifactNotInReview = 10002;
+        public const int ReviewClosed = 10003;
+
+        //User Review Errors
+        public const int UserDisabled = 11001;
     }
 }

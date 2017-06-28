@@ -43,7 +43,7 @@ namespace AdminStore.Repositories.Workflow
                 {
                     result.Errors.Add(new WorkflowValidationError { Element = workflow, ErrorCode = WorkflowValidationErrorCodes.NoInitialState });
                 }
-                else if (initialStatesCount == 0)
+                else if (initialStatesCount > 1)
                 {
                     result.Errors.Add(new WorkflowValidationError { Element = workflow, ErrorCode = WorkflowValidationErrorCodes.MultipleInitialStates });
                 }
@@ -133,8 +133,8 @@ namespace AdminStore.Repositories.Workflow
                     result.Errors.Add(new WorkflowValidationError { Element = transition, ErrorCode = WorkflowValidationErrorCodes.TransitionFromAndToStatesSame });
                 }
 
-                if ((string.IsNullOrEmpty(from) && !stateNames.Contains(from))
-                    || (string.IsNullOrEmpty(to) && !stateNames.Contains(to)))
+                if ((!string.IsNullOrEmpty(from) && !stateNames.Contains(from))
+                    || (!string.IsNullOrEmpty(to) && !stateNames.Contains(to)))
                 {
                     result.Errors.Add(new WorkflowValidationError { Element = transition, ErrorCode = WorkflowValidationErrorCodes.TransitionStateNotFound });
                 }
@@ -166,7 +166,7 @@ namespace AdminStore.Repositories.Workflow
                     result.Errors.Add(new WorkflowValidationError { Element = project, ErrorCode = WorkflowValidationErrorCodes.ProjectNoSpecified });
                 }
 
-                if (project.Id.GetValueOrDefault() < 1)
+                if (project.Id.HasValue && project.Id.Value < 1)
                 {
                     result.Errors.Add(new WorkflowValidationError { Element = project, ErrorCode = WorkflowValidationErrorCodes.ProjectInvalidId });
                 }
@@ -174,7 +174,7 @@ namespace AdminStore.Repositories.Workflow
 
             foreach (var artifactType in workflow.ArtifactTypes.FindAll(at => at != null))
             {
-                if (ValidatePropertyNotEmpty(artifactType.Name))
+                if (!ValidatePropertyNotEmpty(artifactType.Name))
                 {
                     result.Errors.Add(new WorkflowValidationError { Element = artifactType, ErrorCode = WorkflowValidationErrorCodes.ArtifactTypeNoSpecified });
                 }

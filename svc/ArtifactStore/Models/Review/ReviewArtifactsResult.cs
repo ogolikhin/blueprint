@@ -26,6 +26,7 @@ namespace ArtifactStore.Models.Review
     {
         internal IEnumerable<ReviewArtifactStatus> ItemStatuses { get; set; }
         internal int NumUsers { get; set; }
+        internal int NumApprovers { get; set; }
     }
 
     internal class PropertyValueString
@@ -38,6 +39,7 @@ namespace ArtifactStore.Models.Review
         public bool IsReviewReadOnly { get; set; }
         public int? BaselineId { get; set; }
         public bool IsReviewDeleted { get; set; }
+        public bool? IsUserDisabled { get; set; }
 
     }
 }

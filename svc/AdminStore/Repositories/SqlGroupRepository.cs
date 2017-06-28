@@ -39,19 +39,31 @@ namespace AdminStore.Repositories
             {
                 tabularData.Search = UsersHelper.ReplaceWildcardCharacters(tabularData.Search);
             }
-           
+
             var parameters = new DynamicParameters();
-            if (userId > 0)
-            {
-                parameters.Add("@UserId", userId);
-            }
+            //if (userId > 0)
+            //{
+            //    parameters.Add("@UserId", userId);
+            //}
+            parameters.Add("@UserId", userId);
             parameters.Add("@Offset", tabularData.Pagination.Offset);
             parameters.Add("@Limit", tabularData.Pagination.Limit);
             parameters.Add("@OrderField", orderField);
             parameters.Add("@Search", tabularData.Search);
             parameters.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
             var userGroups = await _connectionWrapper.QueryAsync<Group>("GetGroups", parameters, commandType: CommandType.StoredProcedure);
             var total = parameters.Get<int?>("Total");
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.UserLoginNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.UserNotExist, ErrorCodes.ResourceNotFound);
+                }
+            }
 
             var mappedGroups = GroupMapper.Map(userGroups);
 
@@ -264,6 +276,8 @@ namespace AdminStore.Repositories
             {
                 switch (errorCode.Value)
                 {
+                    case (int)SqlErrorCodes.GroupWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.GroupNotExist);
                     case (int)SqlErrorCodes.GeneralSqlError:
                         throw new Exception(ErrorMessages.GeneralErrorOfUpdatingGroup);
                     case (int)SqlErrorCodes.UserAlreadyAssignedToTheGroup:

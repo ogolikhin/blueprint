@@ -194,5 +194,24 @@ namespace ArtifactStore.Repositories.VersionControl
             return (await transaction.Connection.QueryAsync<int>("GetArtifactsDeletedInDraft", param, transaction,
                 commandType: CommandType.StoredProcedure)).ToList();
         }
+
+        protected async Task MarkReuseLinksOutOfSync(IEnumerable<int> artifactIds, PublishEnvironment environment, IDbTransaction transaction = null)
+        {
+            var param = new DynamicParameters();
+            var artifactIdsTable = SqlConnectionWrapper.ToDataTable(artifactIds);
+            param.Add("@artifactIds", artifactIdsTable);
+            param.Add("@revisionId", environment.RevisionId);
+
+            if (transaction == null)
+            {
+                await ConnectionWrapper.ExecuteAsync("MarkReuseLinksOutOfSync", param,
+                commandType: CommandType.StoredProcedure);
+                return;
+            }
+
+            await transaction.Connection.ExecuteAsync("MarkReuseLinksOutOfSync", param, 
+                transaction,
+                commandType: CommandType.StoredProcedure);
+        }
     }
 }

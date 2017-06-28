@@ -5,6 +5,7 @@ using System.Web.Http.Description;
 using ArtifactStore.Services.VersionControl;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
+using ServiceLibrary.Models;
 using ServiceLibrary.Models.VersionControl;
 
 namespace ArtifactStore.Controllers
@@ -30,7 +31,7 @@ namespace ArtifactStore.Controllers
         [HttpPost]
         [Route("artifacts/publish"), SessionRequired]
         [ActionName("PublishArtifacts")]
-        [ResponseType(typeof(object))]
+        [ResponseType(typeof(ArtifactResultSet))]
         public async Task<IHttpActionResult> PublishArtifacts([FromBody] IEnumerable<int> artifactIds, [FromUri] bool? all = null)
         {
             return Ok(await _versionControlService.PublishArtifacts( new PublishParameters

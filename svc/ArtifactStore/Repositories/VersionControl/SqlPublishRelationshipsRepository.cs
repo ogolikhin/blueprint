@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ArtifactStore.Helpers;
 using ArtifactStore.Models;
 using Dapper;
+using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Models.VersionControl;
 

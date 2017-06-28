@@ -6,6 +6,7 @@ using ArtifactStore.Helpers;
 using ArtifactStore.Models;
 using ArtifactStore.Services.VersionControl;
 using Dapper;
+using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.VersionControl;
 using ServiceLibrary.Repositories;
 
@@ -15,7 +16,7 @@ namespace ArtifactStore.Repositories.VersionControl
     {
         protected override string MarkAsLatestStoredProcedureName { get; } = "MarkAsLatestPropertyVersions";
         protected override string DeleteVersionsStoredProcedureName { get; } = "RemovePropertyVersions";
-        protected override string CloseVersionsStoredProcedureName { get; } = "CloseAllPropertyVersions";
+        protected override string CloseVersionsStoredProcedureName { get; } = "ClosePropertyVersions";
         protected override string GetDraftAndLatestStoredProcedureName { get; } = "GetDraftAndLatestPropertyVersions";
         public async Task Execute(int revisionId, PublishParameters parameters, PublishEnvironment environment, IDbTransaction transaction = null)
         {
@@ -72,14 +73,15 @@ namespace ArtifactStore.Repositories.VersionControl
                 }
             }
 
-            await CloseAllPropertyVersions(closeVersionIds, environment.RevisionId, transaction);
+            await ClosePropertyVersions(closeVersionIds, environment.RevisionId, transaction);
             await CloseVersionsForCrossProjectMovedArtifacts(environment.GetArtifactsMovedAcrossProjects(parameters.AffectedArtifactIds), 
                 environment.RevisionId, 
                 transaction);
             await DeleteVersions(deleteVersionsIds, transaction);
             await MarkAsLatest(markAsLatestVersionIds, environment.RevisionId, transaction);
         }
-        private async Task CloseAllPropertyVersions(HashSet<int> closeVersionIds, int revisionId, IDbTransaction transaction = null)
+
+        private async Task ClosePropertyVersions(ISet<int> closeVersionIds, int revisionId, IDbTransaction transaction)
         {
             if (closeVersionIds.Count == 0)
             {
@@ -88,7 +90,7 @@ namespace ArtifactStore.Repositories.VersionControl
 
             var param = new DynamicParameters();
             param.Add("@revisionId", revisionId);
-            param.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(closeVersionIds));
+            param.Add("@versionIds", SqlConnectionWrapper.ToDataTable(closeVersionIds));
 
             if (transaction == null)
             {
@@ -100,8 +102,10 @@ namespace ArtifactStore.Repositories.VersionControl
             await transaction.Connection.ExecuteAsync(CloseVersionsStoredProcedureName, param, transaction,
                 commandType: CommandType.StoredProcedure);
 
-            //Log.Assert(updatedRowsCount == closeVersionIds.Count, "Publish: Some item versions are not closed");
+            //TODO: Fix this assert
+            //Log.Assert(updatedRowsCount == closeVersionIds.Count, "Publish: Some property versions are not closed");
         }
+        
         private void RegisterPropertyModification(ReuseSensitivityCollector sensitivityCollector, SqlDraftAndLatestProperty property)
         {
             if (IsSubArtifactChange(property))

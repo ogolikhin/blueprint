@@ -31,12 +31,9 @@ namespace ArtifactStore.Repositories.VersionControl
 
             await _repositoriesContainer.PublishReuseProcessingRepo.Execute(revisionId, parameters, environment, transaction);
 
-            //DISCUSSIONS IS NOT IMPLEMENTED
+            //TODO: DISCUSSIONS IS NOT IMPLEMENTED
 
             await _repositoriesContainer.PublishCollectionAssignmentsRepo.Execute(revisionId, parameters, environment, transaction);
-
-            //ADDING HISTORY
-
         }
     }
 }

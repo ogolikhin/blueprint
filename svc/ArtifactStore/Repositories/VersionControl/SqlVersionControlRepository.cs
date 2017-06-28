@@ -94,7 +94,7 @@ namespace ArtifactStore.Repositories.VersionControl
 
         public async Task ReleaseLock(int userId, ISet<int> affectedArtifactIds, IDbTransaction transaction = null)
         {
-            await ReleaseLockInternal(userId, affectedArtifactIds);
+            await ReleaseLockInternal(userId, affectedArtifactIds, transaction);
         }
 
 
@@ -269,7 +269,7 @@ namespace ArtifactStore.Repositories.VersionControl
             }
             foreach (var sqlDiscardPublishDetail in result.Details)
             {
-                projectIdSet.Add(sqlDiscardPublishDetail.ProjectId);
+                projectIdSet.Add(sqlDiscardPublishDetail.VersionProjectId);
             }
 
             if (addProjectsNames)
@@ -415,7 +415,7 @@ namespace ArtifactStore.Repositories.VersionControl
                     commandType: CommandType.StoredProcedure);
         }
 
-        private async Task ReleaseLockInternal(int userId, ISet<int> artifactIds, IDbTransaction transaction = null)
+        private async Task ReleaseLockInternal(int userId, ISet<int> artifactIds, IDbTransaction transaction)
         {
             var param = new DynamicParameters();
             param.Add("@userId", userId);

@@ -2,6 +2,7 @@
 using System.Data;
 using System.Threading.Tasks;
 using ArtifactStore.Helpers;
+using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.VersionControl;
 
 namespace ArtifactStore.Repositories.VersionControl

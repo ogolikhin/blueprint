@@ -160,8 +160,9 @@ namespace ArtifactStore.Services.VersionControl
 
                     
 
-                    await ActionRepeater.RetryAsync(async () =>
-                    {
+                    //await ActionRepeater.RetryAsync(async () =>
+                    //{
+                        //Release lock
                         if (!env.KeepLock)
                         {
                             await _versionControlRepository.ReleaseLock(parameters.UserId, parameters.AffectedArtifactIds, transaction);
@@ -169,8 +170,9 @@ namespace ArtifactStore.Services.VersionControl
 
                         await _publishRepositoryComposer.Execute(publishRevision, parameters, env, transaction);
 
+                        //Add history
                         await _revisionRepository.AddHistory(publishRevision, parameters.AffectedArtifactIds, transaction);
-                    });
+                    //});
 
                     publishResults.AddRange(env.GetChangeSqlPublishResults());
                 }
@@ -180,7 +182,10 @@ namespace ArtifactStore.Services.VersionControl
 
             await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, action);
 
-            var discardPublishDetails = (await _versionControlRepository.GetDiscardPublishDetails(parameters.UserId, artifactIdsList, true)).Details;
+            var discardPublishDetailsResult =
+                await _versionControlRepository.GetDiscardPublishDetails(parameters.UserId, artifactIdsList, true);
+            var discardPublishDetails = discardPublishDetailsResult.Details;
+            projectsNames = discardPublishDetailsResult.ProjectInfos;
             return ToNovaArtifactResultSet(discardPublishDetails, projectsNames);
         }
         
@@ -215,11 +220,11 @@ namespace ArtifactStore.Services.VersionControl
                     Name = dpd.Name,
                     ParentId = dpd.ParentId,
                     OrderIndex = dpd.OrderIndex,
-                    ItemTypeId = dpd.ItemTypeId,
-                    Prefix = dpd.ItemTypePrefix,
-                    ItemTypeIconId = dpd.ItemTypeIconId,
-                    PredefinedType = dpd.BaseItemTypePredefined,
-                    ProjectId = dpd.ProjectId,
+                    ItemTypeId = dpd.ItemType_ItemTypeId,
+                    Prefix = dpd.Prefix,
+                    ItemTypeIconId = dpd.Icon_ImageId,
+                    PredefinedType = dpd.PrimitiveItemTypePredefined,
+                    ProjectId = dpd.VersionProjectId,
                     Version = dpd.VersionsCount == 0 ? -1 : dpd.VersionsCount
                 }));
 
@@ -240,9 +245,10 @@ namespace ArtifactStore.Services.VersionControl
         private static void SortArtifactsByProjectNameThenById(IDictionary<int, string> projectsNames,
             ArtifactResultSet novaArtifactResultSet)
         {
+            var artifactResultSet = novaArtifactResultSet.Artifacts.ToArray();
             novaArtifactResultSet.Artifacts.Clear();
             novaArtifactResultSet.Artifacts.AddRange(
-                novaArtifactResultSet.Artifacts.OrderBy(a =>
+                artifactResultSet.OrderBy(a =>
                 {
                     string projectName;
                     if (a.ProjectId <= 0)

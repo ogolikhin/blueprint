@@ -844,7 +844,7 @@ namespace ArtifactStore.Repositories
 
 
 
-        public async Task<int> GetReviewArtifactIndexAsync(int reviewId, int revisionId, int artifactId, int userId, bool? addDrafts = true)
+        public async Task<ReviewArtifactIndex> GetReviewArtifactIndexAsync(int reviewId, int revisionId, int artifactId, int userId, bool? addDrafts = true)
         {
             int refreshInterval = await GetRebuildReviewArtifactHierarchyInterval();
             var parameters = new DynamicParameters();
@@ -859,11 +859,12 @@ namespace ArtifactStore.Repositories
 
             await ConnectionWrapper.ExecuteAsync("GetReviewArtifactIndex", parameters, commandType: CommandType.StoredProcedure);
 
-            return parameters.Get<int>("@result");
+            var result = (await ConnectionWrapper.QueryAsync<ReviewArtifactIndex>("GetReviewArtifactIndex", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+            return result;
 
         }
 
-        public async Task<int> GetReviewTableOfContentArtifactIndexAsync(int reviewId, int revisionId, int artifactId, int userId)
+        public async Task<ReviewArtifactIndex> GetReviewTableOfContentArtifactIndexAsync(int reviewId, int revisionId, int artifactId, int userId)
         {
             int refreshInterval = await GetRebuildReviewArtifactHierarchyInterval();
             var parameters = new DynamicParameters();
@@ -875,8 +876,8 @@ namespace ArtifactStore.Repositories
             parameters.Add("@refreshInterval", refreshInterval);
             parameters.Add("@result", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
 
-            await ConnectionWrapper.ExecuteAsync("GetReviewTableOfContentArtifactIndex", parameters, commandType: CommandType.StoredProcedure);
-            return parameters.Get<int>("@result");
+            var result =  (await ConnectionWrapper.QueryAsync<ReviewArtifactIndex>("GetReviewTableOfContentArtifactIndex", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+            return result;
         }
 
         private void UnauthorizedItem(ReviewTableOfContentItem item)

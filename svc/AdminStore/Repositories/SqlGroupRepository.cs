@@ -250,7 +250,7 @@ namespace AdminStore.Repositories
                         throw new Exception(ErrorMessages.GeneralErrorOfRemovingMembersFromGroup);
 
                     case (int)SqlErrorCodes.GroupWithCurrentIdNotExist:
-                        throw new ResourceNotFoundException(ErrorMessages.GroupNotExist);
+                        throw new ResourceNotFoundException(ErrorMessages.GroupNotExist, ErrorCodes.ResourceNotFound);
                 }
             }
             return result;

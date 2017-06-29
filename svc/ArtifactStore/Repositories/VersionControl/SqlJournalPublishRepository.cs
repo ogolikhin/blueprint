@@ -2,7 +2,6 @@
 using System.Data;
 using System.Threading.Tasks;
 using ArtifactStore.Helpers;
-using ArtifactStore.Services.VersionControl;
 using Dapper;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.VersionControl;
@@ -14,7 +13,7 @@ namespace ArtifactStore.Repositories.VersionControl
         protected override string MarkAsLatestStoredProcedureName { get; } = "";
         protected override string DeleteVersionsStoredProcedureName { get; } = "";
         protected override string CloseVersionsStoredProcedureName { get; } = "";
-        protected override string GetDraftAndLatestStoredProcedureName { get; }
+        protected override string GetDraftAndLatestStoredProcedureName { get; } = "";
 
         public async Task Execute(int revisionId, PublishParameters parameters, PublishEnvironment environment, IDbTransaction transaction = null)
         {

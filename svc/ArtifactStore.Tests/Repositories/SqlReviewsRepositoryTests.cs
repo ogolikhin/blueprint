@@ -519,6 +519,32 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
+        public async Task AddParticipantsToReviewAsync_Should_Return_Non_Existant_Users_If_Users_Are_Deleted_Or_NonExistant()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+
+            var addParticipantsParameter = new AddParticipantsParameter()
+            {
+                GroupIds = new int[0],
+                UserIds = new[] { 2, 3, 4 }
+            };
+
+            SetupGetReviewXmlQuery(reviewId, userId, null);
+
+            _usersRepositoryMock.Setup(repo => repo.FindNonExistentUsersAsync(new[] { 2, 3, 4 })).ReturnsAsync(new[] { 2, 3, 4 });
+
+            //Act
+            var addParticipantsResult = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);
+
+            //Assert
+            Assert.AreEqual(addParticipantsResult.NonExistentUsers, 3);
+            Assert.AreEqual(addParticipantsResult.ParticipantCount, 0);
+            Assert.AreEqual(addParticipantsResult.AlreadyIncludedCount, 0);
+        }
+
+        [TestMethod]
         public async Task AddParticipantsToReviewAsync_Should_Add_Users()
         {
             //Arrange
@@ -1006,6 +1032,245 @@ namespace ArtifactStore.Repositories
             }
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [TestMethod]
+        public async Task AssignRolesToReviewers_ShouldThrowResourceNotFoundException()
+        {
+            //Arrange
+            //   PropertyValueString result = null;
+            bool isExceptionThrown = false;
+            var propertyValueStringResult = new List<PropertyValueString>();
+
+            var propertyValue = new PropertyValueString()
+            {
+                IsDraftRevisionExists = true,
+                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
+                RevewSubartifactId = 3,
+                ProjectId = 1,
+                IsReviewLocked = true,
+                IsReviewReadOnly = true,
+                BaselineId = 2,
+                IsReviewDeleted = true,
+                IsUserDisabled = false
+            };
+            propertyValueStringResult.Add(propertyValue);
+            int reviewId = 1;
+            int userId = 1;
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId },
+                 { "@roleUserId", 1 }
+            };
+            _cxn.SetupQueryAsync("GetReviewApprovalRolesInfo", queryParameters, propertyValueStringResult);
+            AssignReviewerRolesParameter content = new AssignReviewerRolesParameter()
+            {
+                UserId = 1,
+                Role = ReviewParticipantRole.Approver
+            };
+            //Act
+
+            try
+            {
+                await _reviewsRepository.AssignRolesToReviewers(reviewId, content, userId);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                //Assert
+                isExceptionThrown = true;
+
+                Assert.AreEqual(ErrorCodes.ResourceNotFound, ex.ErrorCode);
+            }
+            finally
+            {
+                if (!isExceptionThrown)
+                {
+                    Assert.Fail();
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [TestMethod]
+        public async Task AssignRolesToReviewers_ShouldThrowBadRequestExceptionException()
+        {
+            //Arrange
+            //   PropertyValueString result = null;
+            bool isExceptionThrown = false;
+            var propertyValueStringResult = new List<PropertyValueString>();
+
+            var propertyValue = new PropertyValueString()
+            {
+                IsDraftRevisionExists = true,
+                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
+                RevewSubartifactId = 3,
+                ProjectId = 1,
+                IsReviewLocked = true,
+                IsReviewReadOnly = true,
+                BaselineId = 2,
+                IsReviewDeleted = false,
+                IsUserDisabled = false
+            };
+            propertyValueStringResult.Add(propertyValue);
+            int reviewId = 1;
+            int userId = 1;
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId },
+                 { "@roleUserId", 1 }
+            };
+            _cxn.SetupQueryAsync("GetReviewApprovalRolesInfo", queryParameters, propertyValueStringResult);
+            AssignReviewerRolesParameter content = new AssignReviewerRolesParameter()
+            {
+                UserId = 1,
+                Role = ReviewParticipantRole.Approver
+            };
+            //Act
+
+            try
+            {
+                await _reviewsRepository.AssignRolesToReviewers(reviewId, content, userId);
+            }
+            catch (BadRequestException ex)
+            {
+                //Assert
+                isExceptionThrown = true;
+
+                Assert.AreEqual(ErrorCodes.ApprovalRequiredIsReadonlyForReview, ex.ErrorCode);
+            }
+            finally
+            {
+                if (!isExceptionThrown)
+                {
+                    Assert.Fail();
+                }
+            }
+        }
+
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task AssignRolesToReviewers_IsNotLocked_ShouldThrowBadRequestExceptionException()
+        {
+            var propertyValueStringResult = new List<PropertyValueString>();
+
+            var propertyValue = new PropertyValueString()
+            {
+                IsDraftRevisionExists = true,
+                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
+                RevewSubartifactId = 3,
+                ProjectId = 1,
+                IsReviewLocked = false,
+                IsReviewReadOnly = false,
+                BaselineId = 2,
+                IsReviewDeleted = false,
+                IsUserDisabled = false
+            };
+            propertyValueStringResult.Add(propertyValue);
+            int reviewId = 1;
+            int userId = 1;
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId },
+                 { "@roleUserId", 1 }
+            };
+            _cxn.SetupQueryAsync("GetReviewApprovalRolesInfo", queryParameters, propertyValueStringResult);
+            AssignReviewerRolesParameter content = new AssignReviewerRolesParameter()
+            {
+                UserId = 1,
+                Role = ReviewParticipantRole.Approver
+            };
+            //Act
+
+            await _reviewsRepository.AssignRolesToReviewers(reviewId, content, userId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ConflictException))]
+        public async Task AssignRolesToReviewers_IfUserDisabled_ShouldThrowConflictException()
+        {
+            var propertyValueStringResult = new List<PropertyValueString>();
+
+            var propertyValue = new PropertyValueString()
+            {
+                IsDraftRevisionExists = true,
+                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
+                RevewSubartifactId = 3,
+                ProjectId = 1,
+                IsReviewLocked = true,
+                IsReviewReadOnly = false,
+                BaselineId = 2,
+                IsReviewDeleted = false,
+                IsUserDisabled = true
+            };
+            propertyValueStringResult.Add(propertyValue);
+            int reviewId = 1;
+            int userId = 1;
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId },
+                 { "@roleUserId", 1 }
+            };
+            _cxn.SetupQueryAsync("GetReviewApprovalRolesInfo", queryParameters, propertyValueStringResult);
+            AssignReviewerRolesParameter content = new AssignReviewerRolesParameter()
+            {
+                UserId = 1,
+                Role = ReviewParticipantRole.Approver
+            };
+            //Act
+
+            await _reviewsRepository.AssignRolesToReviewers(reviewId, content, userId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task AssignRolesToReviewers_IfXMLEmpty_ShouldThrowConflictException()
+        {
+            var propertyValueStringResult = new List<PropertyValueString>();
+
+            var propertyValue = new PropertyValueString()
+            {
+                IsDraftRevisionExists = true,
+                ArtifactXml = "",
+                RevewSubartifactId = 3,
+                ProjectId = 1,
+                IsReviewLocked = true,
+                IsReviewReadOnly = false,
+                BaselineId = 2,
+                IsReviewDeleted = false,
+                IsUserDisabled = false
+            };
+            propertyValueStringResult.Add(propertyValue);
+            int reviewId = 1;
+            int userId = 1;
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId },
+                 { "@roleUserId", 1 }
+            };
+            _cxn.SetupQueryAsync("GetReviewApprovalRolesInfo", queryParameters, propertyValueStringResult);
+            AssignReviewerRolesParameter content = new AssignReviewerRolesParameter()
+            {
+                UserId = 1,
+                Role = ReviewParticipantRole.Approver
+            };
+            //Act
+
+            await _reviewsRepository.AssignRolesToReviewers(reviewId, content, userId);
+        }
+
         [TestMethod]
         public async Task AddArtifactsToReviewAsync_Should_Throw_Review_Closed_ErrorCode_When_Review_Is_Closed()
         {
@@ -1052,6 +1317,7 @@ namespace ArtifactStore.Repositories
 
                 //Assert
                 Assert.AreEqual(ErrorCodes.ReviewClosed, ex.ErrorCode);
+
             }
             finally
             {
@@ -1062,6 +1328,136 @@ namespace ArtifactStore.Repositories
             }
         }
 
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task AssignApprovalRequiredToArtifacts_Should_Throw_BadRequestException()
+        {
+            //Arrange
+            var content = new AssignArtifactsApprovalParameter()
+            {
+                ArtifactIds = null,
+                ApprovalRequired = true
+            };
+
+            //Act
+
+            await _reviewsRepository.AssignApprovalRequiredToArtifacts(1, 1, content);
+        }
+
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task AssignApprovalRequiredToArtifacts_Should_Throw_ResourceNotFoundException()
+        {
+
+            var propertyValueStringResult = new List<PropertyValueString>();
+
+            var propertyValue = new PropertyValueString()
+            {
+                IsDraftRevisionExists = true,
+                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
+                RevewSubartifactId = 3,
+                ProjectId = 1,
+                IsReviewLocked = true,
+                IsReviewReadOnly = false,
+                BaselineId = 2,
+                IsReviewDeleted = true,
+                IsUserDisabled = false
+            };
+            propertyValueStringResult.Add(propertyValue);
+            int reviewId = 1;
+            int userId = 1;
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+            var content = new AssignArtifactsApprovalParameter()
+            {
+                ArtifactIds = new List<int>(new int[] { 1, 2, 3 }),
+                ApprovalRequired = true
+            };
+            _cxn.SetupQueryAsync("GetReviewArtifactApprovalRequestedInfo", queryParameters, propertyValueStringResult);
+            //Act
+            await _reviewsRepository.AssignApprovalRequiredToArtifacts(reviewId, 1, content);
+
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task AssignApprovalRequiredToArtifacts_Review_ReadOnly_Should_Throw_BadRequestException()
+        {
+
+            var propertyValueStringResult = new List<PropertyValueString>();
+
+            var propertyValue = new PropertyValueString()
+            {
+                IsDraftRevisionExists = true,
+                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
+                RevewSubartifactId = 3,
+                ProjectId = 1,
+                IsReviewLocked = true,
+                IsReviewReadOnly = true,
+                BaselineId = 2,
+                IsReviewDeleted = false,
+                IsUserDisabled = false
+            };
+            propertyValueStringResult.Add(propertyValue);
+            int reviewId = 1;
+            int userId = 1;
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+            var content = new AssignArtifactsApprovalParameter()
+            {
+                ArtifactIds = new List<int>(new int[] { 1, 2, 3 }),
+                ApprovalRequired = true
+            };
+            _cxn.SetupQueryAsync("GetReviewArtifactApprovalRequestedInfo", queryParameters, propertyValueStringResult);
+            //Act
+            await _reviewsRepository.AssignApprovalRequiredToArtifacts(reviewId, 1, content);
+
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task AssignApprovalRequiredToArtifacts_Review_NotLocked_Should_Throw_BadRequestException()
+        {
+
+            var propertyValueStringResult = new List<PropertyValueString>();
+
+            var propertyValue = new PropertyValueString()
+            {
+                IsDraftRevisionExists = true,
+                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
+                RevewSubartifactId = 3,
+                ProjectId = 1,
+                IsReviewLocked = false,
+                IsReviewReadOnly = false,
+                BaselineId = 2,
+                IsReviewDeleted = false,
+                IsUserDisabled = false
+            };
+            propertyValueStringResult.Add(propertyValue);
+            int reviewId = 1;
+            int userId = 1;
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+            var content = new AssignArtifactsApprovalParameter()
+            {
+                ArtifactIds = new List<int>(new int[] { 1, 2, 3 }),
+                ApprovalRequired = true
+            };
+            _cxn.SetupQueryAsync("GetReviewArtifactApprovalRequestedInfo", queryParameters, propertyValueStringResult);
+            //Act
+            await _reviewsRepository.AssignApprovalRequiredToArtifacts(reviewId, 1, content);
+
+        }
         #endregion
 
 

@@ -144,7 +144,7 @@
     <Compile Include="Models\LicenseTransactionUser.cs" />
     <Compile Include="Models\LoginUser.cs" />
     <Compile Include="Models\UserGroupSource.cs" />
-    <Compile Include="Models\Workflow\sqlProjectPathPair.cs" />
+    <Compile Include="Models\Workflow\SqlProjectPathPair.cs" />
     <Compile Include="Models\Workflow\SqlState.cs" />
     <Compile Include="Models\Workflow\SqlTrigger.cs" />
     <Compile Include="Models\Workflow\IeArtifactType.cs" />
@@ -181,6 +181,8 @@
     <Compile Include="Saml\SamlCertificateValidator.cs" />
     <Compile Include="Saml\SamlRepository.cs" />
     <Compile Include="Saml\SamlIssuerNameRegistry.cs" />
+    <Compile Include="Services\Workflow\IWorkflowService.cs" />
+    <Compile Include="Services\Workflow\WorkflowService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config">

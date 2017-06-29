@@ -8,6 +8,7 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using AdminStore.Models.Workflow;
 using AdminStore.Repositories.Workflow;
+using AdminStore.Services.Workflow;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
@@ -26,15 +27,15 @@ namespace AdminStore.Controllers
     {
         public override string LogSource => "AdminStore.Workflow";
 
-        private readonly IWorkflowRepository _workflowRepository;
+        private readonly IWorkflowService _workflowService;
 
-        public WorkflowController() : this(new WorkflowRepository(), new ServiceLogRepository())
+        public WorkflowController() : this(new WorkflowService(), new ServiceLogRepository())
         {
         }
 
-        public WorkflowController(IWorkflowRepository workflowRepository, IServiceLogRepository log) : base(log)
+        public WorkflowController(IWorkflowService workflowService, IServiceLogRepository log) : base(log)
         {
-            _workflowRepository = workflowRepository;
+            _workflowService = workflowService;
         }
 
         /// <summary>
@@ -93,8 +94,8 @@ namespace AdminStore.Controllers
                     return ResponseMessage(response);
                 }
 
-                _workflowRepository.FileRepository = GetFileRepository();
-                var result = await _workflowRepository.ImportWorkflowAsync(workflow, fileName, session.UserId);
+                _workflowService.FileRepository = GetFileRepository();
+                var result = await _workflowService.ImportWorkflowAsync(workflow, fileName, session.UserId);
 
                 switch (result.ResultCode)
                 {
@@ -134,8 +135,8 @@ namespace AdminStore.Controllers
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             Debug.Assert(session != null, "The session is null.");
 
-            _workflowRepository.FileRepository = GetFileRepository();
-            var errors = await _workflowRepository.GetImportWorkflowErrorsAsync(guid, session.UserId);
+            _workflowService.FileRepository = GetFileRepository();
+            var errors = await _workflowService.GetImportWorkflowErrorsAsync(guid, session.UserId);
             return Ok(errors);
         }
 

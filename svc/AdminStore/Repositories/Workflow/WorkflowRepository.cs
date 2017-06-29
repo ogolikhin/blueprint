@@ -76,7 +76,7 @@ namespace AdminStore.Repositories.Workflow
                 return importResult;
             }
 
-            DWorkflow newWorkflow = null;
+            SqlWorkflow newWorkflow = null;
 
             Func<IDbTransaction, Task> action = async transaction =>
             {
@@ -90,7 +90,7 @@ namespace AdminStore.Repositories.Workflow
                     return;
                 }
                 
-                var importParams = new DWorkflow
+                var importParams = new SqlWorkflow
                 {
                     Name = workflow.Name,
                     Description = workflow.Description,
@@ -98,17 +98,17 @@ namespace AdminStore.Repositories.Workflow
                 };
                 newWorkflow = (await CreateWorkflowsAsync(new [] {importParams}, publishRevision, transaction)).FirstOrDefault();
 
-                var importStateParams = new List<DState>();
-                var importTriggersParams = new List<DTrigger>();
-                IEnumerable<DState> newStates = null;
-                IEnumerable<DTrigger> newTriggers = null;
+                var importStateParams = new List<SqlState>();
+                var importTriggersParams = new List<SqlTrigger>();
+                IEnumerable<SqlState> newStates = null;
+                IEnumerable<SqlTrigger> newTriggers = null;
                 if (newWorkflow != null)
                 {
                     float orderIndex = 0;
                     workflow.States.ForEach(state =>
                     {
 
-                        importStateParams.Add(new DState
+                        importStateParams.Add(new SqlState
                         {
                             Name = state.Name,
                             Description = state.Description,
@@ -142,7 +142,7 @@ namespace AdminStore.Repositories.Workflow
                         
                         workflow.Transitions.ForEach(transition =>
                         {
-                            importTriggersParams.Add(new DTrigger
+                            importTriggersParams.Add(new SqlTrigger
                             {
                                 Name = transition.Name,
                                 Description = transition.Description,
@@ -164,9 +164,46 @@ namespace AdminStore.Repositories.Workflow
                         newTriggers = await CreateWorkflowTriggersAsync(importTriggersParams, publishRevision, transaction);
                     }
 
+                    Dictionary<int, string> projectPaths = new Dictionary<int, string>();
+                    HashSet<string> projectPathsToLookup = new HashSet<string>();
+                    workflow.Projects.ForEach(project =>
+                    {
+                        if (project.Id.HasValue)
+                        {
+                            projectPaths[project.Id.Value] = project.Path;
+                        }
+                        else
+                        {
+                            if (!string.IsNullOrEmpty(project.Path))
+                            {
+                                projectPathsToLookup.Add(project.Path);
+                            }
+                        }
+                    });
+
+                    //look up ID of projects that have no ID provided
+                    foreach (var sqlProjectPathPair in await GetProjectIdsByProjectPaths(projectPathsToLookup))
+                    {
+                        projectPaths[sqlProjectPathPair.ProjectId] = sqlProjectPathPair.ProjectPath;
+                    }
+
+                    if (projectPaths.Count != workflow.Projects.Count)
+                    {
+                        //generate a list of all projects in the workflow who are either missing from id list or were not looked up by path
+                        throw new DuplicateNameException(workflow.Projects
+                            .Select(proj => projectPaths.All(
+                                path => proj.Id.HasValue ? 
+                                path.Key != proj.Id.Value : 
+                                !path.Value.Equals(proj.Path))
+                            ).ToString());
+                    }
+
+                    await CreateWorkflowArtifactAssociationsAsync(workflow.ArtifactTypes.Select(at => at.Name),
+                        projectPaths.Select(p => p.Key), newWorkflow.WorkflowId, publishRevision);
+
                     importResult.ResultCode = ImportWorkflowResultCodes.Ok;
                 }
-                
+
             };
 
             await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, action);
@@ -207,7 +244,7 @@ namespace AdminStore.Repositories.Workflow
             }
         }
 
-        public async Task<IEnumerable<DWorkflow>> CreateWorkflowsAsync(IEnumerable<DWorkflow> workflows, int publishRevision, IDbTransaction transaction = null)
+        public async Task<IEnumerable<SqlWorkflow>> CreateWorkflowsAsync(IEnumerable<SqlWorkflow> workflows, int publishRevision, IDbTransaction transaction = null)
         {
             if (workflows == null)
             {
@@ -229,22 +266,22 @@ namespace AdminStore.Repositories.Workflow
             prm.Add("@publishRevision", publishRevision);
             prm.Add("@workflows", ToWorkflowsCollectionDataTable(dWorkflows));
 
-            IEnumerable<DWorkflow> result;
+            IEnumerable<SqlWorkflow> result;
             if (transaction == null)
             {
-                result = await ConnectionWrapper.QueryAsync<DWorkflow>("CreateWorkflows", prm,
+                result = await ConnectionWrapper.QueryAsync<SqlWorkflow>("CreateWorkflows", prm,
                     commandType: CommandType.StoredProcedure);
             }
             else
             {
-                result = await transaction.Connection.QueryAsync<DWorkflow>("CreateWorkflows", prm,
+                result = await transaction.Connection.QueryAsync<SqlWorkflow>("CreateWorkflows", prm,
                     transaction, commandType: CommandType.StoredProcedure);
             }
 
             return result;
         }
 
-        public async Task<IEnumerable<DState>> CreateWorkflowStatesAsync(IEnumerable<DState> workflowStates, int publishRevision, IDbTransaction transaction = null)
+        public async Task<IEnumerable<SqlState>> CreateWorkflowStatesAsync(IEnumerable<SqlState> workflowStates, int publishRevision, IDbTransaction transaction = null)
         {
             if (workflowStates == null)
             {
@@ -266,22 +303,22 @@ namespace AdminStore.Repositories.Workflow
             prm.Add("@publishRevision", publishRevision);
             prm.Add("@workflowStates", ToWorkflowStatesCollectionDataTable(dWorkflowStates));
 
-            IEnumerable<DState> result;
+            IEnumerable<SqlState> result;
             if (transaction == null)
             {
-                result = await ConnectionWrapper.QueryAsync<DState>("CreateWorkflowStates", prm,
+                result = await ConnectionWrapper.QueryAsync<SqlState>("CreateWorkflowStates", prm,
                     commandType: CommandType.StoredProcedure);
             }
             else
             {
-                result = await transaction.Connection.QueryAsync<DState>("CreateWorkflowStates", prm,
+                result = await transaction.Connection.QueryAsync<SqlState>("CreateWorkflowStates", prm,
                     transaction, commandType: CommandType.StoredProcedure); ;
             }
 
             return result;
         }
 
-        public async Task<IEnumerable<DTrigger>> CreateWorkflowTriggersAsync(IEnumerable<DTrigger> workflowTriggers, int publishRevision, IDbTransaction transaction = null)
+        public async Task<IEnumerable<SqlTrigger>> CreateWorkflowTriggersAsync(IEnumerable<SqlTrigger> workflowTriggers, int publishRevision, IDbTransaction transaction = null)
         {
             if (workflowTriggers == null)
             {
@@ -303,19 +340,73 @@ namespace AdminStore.Repositories.Workflow
             prm.Add("@publishRevision", publishRevision);
             prm.Add("@workflowTriggers", ToWorkflowTriggersCollectionDataTable(dWorkflowTriggers));
 
-            IEnumerable<DTrigger> result;
+            IEnumerable<SqlTrigger> result;
             if (transaction == null)
             {
-                result = await ConnectionWrapper.QueryAsync<DTrigger>("CreateWorkflowTriggers", prm,
+                result = await ConnectionWrapper.QueryAsync<SqlTrigger>("CreateWorkflowTriggers", prm,
                     commandType: CommandType.StoredProcedure);
             }
             else
             {
-                result = await transaction.Connection.QueryAsync<DTrigger>("CreateWorkflowTriggers", prm,
+                result = await transaction.Connection.QueryAsync<SqlTrigger>("CreateWorkflowTriggers", prm,
                     transaction, commandType: CommandType.StoredProcedure); ;
             }
 
             return result;
+        }
+
+        public async Task CreateWorkflowArtifactAssociationsAsync(IEnumerable<string> artifactTypeNames, 
+            IEnumerable<int> projectIds, int workflowId, int publishRevision, IDbTransaction transaction = null)
+        {
+
+            var dArtifactTypeNames = artifactTypeNames.ToList();
+            if (!dArtifactTypeNames.Any())
+            {
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is empty.", nameof(dArtifactTypeNames)));
+            }
+
+            var dProjectIds = projectIds.ToList();
+            if (!dProjectIds.Any())
+            {
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is empty.", nameof(dProjectIds)));
+            }
+
+            if (publishRevision < 1)
+            {
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is less than 1.", nameof(publishRevision)));
+            }
+
+            var prm = new DynamicParameters();
+            prm.Add("@names", SqlConnectionWrapper.ToStringDataTable(dArtifactTypeNames));
+            prm.Add("@revisionId", publishRevision);
+            prm.Add("@workflowId", workflowId);
+            prm.Add("@projectIds", SqlConnectionWrapper.ToDataTable(dProjectIds));
+
+            if (transaction == null)
+            {
+                await ConnectionWrapper.ExecuteAsync("UpdateItemTypeVersionsWithWorkflowId", prm,
+                    commandType: CommandType.StoredProcedure);
+            }
+            else
+            {
+                await transaction.Connection.ExecuteAsync("UpdateItemTypeVersionsWithWorkflowId", prm,
+                    transaction, commandType: CommandType.StoredProcedure);
+            }
+        }
+
+        public async Task<IEnumerable<sqlProjectPathPair>> GetProjectIdsByProjectPaths(IEnumerable<string> projectPaths)
+        {
+            var dProjectPaths = projectPaths.ToList();
+            if (!dProjectPaths.Any())
+            {
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is empty.", nameof(dProjectPaths)));
+            }
+
+            var prm = new DynamicParameters();
+            prm.Add("@projectPaths", SqlConnectionWrapper.ToStringDataTable(dProjectPaths));
+
+            return await ConnectionWrapper.QueryAsync<sqlProjectPathPair>("GetProjectIdsByProjectPaths", prm,
+                commandType: CommandType.StoredProcedure);
         }
 
         #endregion
@@ -356,7 +447,7 @@ namespace AdminStore.Repositories.Workflow
             return duplicateNames;
         }
 
-        private static DataTable ToWorkflowsCollectionDataTable(IEnumerable<DWorkflow> workflows)
+        private static DataTable ToWorkflowsCollectionDataTable(IEnumerable<SqlWorkflow> workflows)
         {
             var table = new DataTable { Locale = CultureInfo.InvariantCulture };
             table.SetTypeName("WorkflowsCollection");
@@ -371,7 +462,7 @@ namespace AdminStore.Repositories.Workflow
             return table;
         }
 
-        private static DataTable ToWorkflowStatesCollectionDataTable(IEnumerable<DState> workflowStates)
+        private static DataTable ToWorkflowStatesCollectionDataTable(IEnumerable<SqlState> workflowStates)
         {
             var table = new DataTable { Locale = CultureInfo.InvariantCulture };
             table.SetTypeName("WorkflowStatesCollection");
@@ -389,7 +480,7 @@ namespace AdminStore.Repositories.Workflow
             return table;
         }
 
-        private static DataTable ToWorkflowTriggersCollectionDataTable(IEnumerable<DTrigger> workflowTriggers)
+        private static DataTable ToWorkflowTriggersCollectionDataTable(IEnumerable<SqlTrigger> workflowTriggers)
         {
             var table = new DataTable { Locale = CultureInfo.InvariantCulture };
             table.SetTypeName("WorkflowTriggersCollection");

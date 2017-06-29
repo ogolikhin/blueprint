@@ -15,6 +15,6 @@ namespace AdminStore.Repositories.Workflow
         Task<string> GetImportWorkflowErrorsAsync(string guid, int userId);
 
         // Only the name and the description of DWorkflow are used.
-        Task<IEnumerable<DWorkflow>> CreateWorkflowsAsync(IEnumerable<DWorkflow> workflows, int publishRevision, IDbTransaction transaction = null);
+        Task<IEnumerable<SqlWorkflow>> CreateWorkflowsAsync(IEnumerable<SqlWorkflow> workflows, int publishRevision, IDbTransaction transaction = null);
     }
 }

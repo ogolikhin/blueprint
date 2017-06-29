@@ -148,6 +148,7 @@
     <Compile Include="Models\Review\AddArtifactsResult.cs" />
     <Compile Include="Models\Review\AssignReviewerRolesParameter.cs" />
     <Compile Include="Models\Review\BaseReviewArtifactsContent.cs" />
+    <Compile Include="Models\Review\ReviewArtifactIndex.cs" />
     <Compile Include="Models\Review\ReviewArtifactDetails.cs" />
     <Compile Include="Models\Review\ApprovalType.cs" />
     <Compile Include="Models\Review\BaseReviewArtifact.cs" />

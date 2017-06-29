@@ -15,18 +15,18 @@ namespace ArtifactStore.Repositories.VersionControl
         protected override string CloseVersionsStoredProcedureName { get; } = "";
         protected override string GetDraftAndLatestStoredProcedureName { get; } = "";
 
-        private readonly ISqlReuseRepository _sqlReuseRepository;
+        private readonly IReuseRepository _reuseRepository;
         private readonly ISensitivityCommonHelper _sensitivityCommonHelper;
 
-        public SqlPublishReuseProcessingRepository() : this(new SqlReuseRepository(), new SensitivityCommonHelper())
+        public SqlPublishReuseProcessingRepository() : this(new ReuseRepository(), new SensitivityCommonHelper())
         {
             
         }
 
-        public SqlPublishReuseProcessingRepository(ISqlReuseRepository sqlReuseRepository,
+        public SqlPublishReuseProcessingRepository(IReuseRepository reuseRepository,
             ISensitivityCommonHelper sensitivityCommonHelper)
         {
-            _sqlReuseRepository = sqlReuseRepository;
+            _reuseRepository = reuseRepository;
             _sensitivityCommonHelper = sensitivityCommonHelper;
         }
 
@@ -43,7 +43,7 @@ namespace ArtifactStore.Repositories.VersionControl
             
             var affectedStandardArtifacts = await _sensitivityCommonHelper.FilterInsensitiveItems(affectedArtifacts, 
                 environment.SensitivityCollector, 
-                _sqlReuseRepository);
+                _reuseRepository);
             await MarkReuseLinksOutOfSync(affectedStandardArtifacts, environment, transaction);
         }
     }

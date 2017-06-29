@@ -13,14 +13,14 @@ namespace ArtifactStore.Helpers
     {
         Task<ISet<int>> FilterInsensitiveItems(ICollection<int> affectedItems,
             ReuseSensitivityCollector sensitivityCollector,
-            ISqlReuseRepository sqlReuseRepository);
+            IReuseRepository reuseRepository);
     }
 
     public class SensitivityCommonHelper : ISensitivityCommonHelper
     {
         public async Task<ISet<int>> FilterInsensitiveItems(ICollection<int> affectedItems,
             ReuseSensitivityCollector sensitivityCollector,
-            ISqlReuseRepository sqlReuseRepository)
+            IReuseRepository reuseRepository)
         {
             var modifiedArtifacts = GetModifiedArtifacts(affectedItems, sensitivityCollector);
             var result = new HashSet<int>();
@@ -32,10 +32,10 @@ namespace ArtifactStore.Helpers
             //TODO: we can improve the artifact type Id retrieval as the inforamtion is already loaded into memory
             var artifactId2StandardTypeId =
                 await
-                    sqlReuseRepository.GetStandardTypeIdsForArtifactsIdsAsync(
+                    reuseRepository.GetStandardTypeIdsForArtifactsIdsAsync(
                         modifiedArtifacts.ToHashSet());
 
-            var reuseTemplatesDic = await sqlReuseRepository.GetReuseItemTypeTemplatesAsyc(
+            var reuseTemplatesDic = await reuseRepository.GetReuseItemTypeTemplatesAsyc(
                 artifactId2StandardTypeId.Values.Where(v => v?.InstanceTypeId != null).
                     Select(v => v.InstanceTypeId.Value).ToHashSet());
 
@@ -55,7 +55,7 @@ namespace ArtifactStore.Helpers
                     if ((modification.ArtifactAspects & (~settings.SensitivitySettings)) !=
                         ItemTypeReuseTemplateSetting.None
                         ||
-                        await HasSensitiveModifiedProperty(modification, settings, standardTypeInfo.ItemTypePredefined, sqlReuseRepository))
+                        await HasSensitiveModifiedProperty(modification, settings, standardTypeInfo.ItemTypePredefined, reuseRepository))
                     {
                         result.Add(itemId);
                     }
@@ -73,7 +73,7 @@ namespace ArtifactStore.Helpers
             ReuseSensitivityCollector.ArtifactModification modification,
             ItemTypeReuseTemplate itemTypeReuseTemplate,
             ItemTypePredefined artifacTypePredefined,
-            ISqlReuseRepository sqlReuseRepository)
+            IReuseRepository reuseRepository)
         {
             HashSet<int> modifiedPropertyTypes = new HashSet<int>();
             foreach (var modifiedPropertyType in modification.ModifiedPropertyTypes)
@@ -81,7 +81,7 @@ namespace ArtifactStore.Helpers
                 modifiedPropertyTypes.Add(modifiedPropertyType.Item1);
             }
             var propertyTypesToStandardPropertyTypeDict =
-                await sqlReuseRepository.GetStandardPropertyTypeIdsForPropertyIdsAsync(modifiedPropertyTypes);
+                await reuseRepository.GetStandardPropertyTypeIdsForPropertyIdsAsync(modifiedPropertyTypes);
 
             foreach (var modifiedPropertyType in modification.ModifiedPropertyTypes)
             {

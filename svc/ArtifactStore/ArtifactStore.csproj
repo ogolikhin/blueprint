@@ -126,6 +126,7 @@
     <Compile Include="Models\Reuse\ReuseSystemPropertiesMap.cs" />
     <Compile Include="Models\Reuse\ReuseTemplateSettingsMap.cs" />
     <Compile Include="Models\Reuse\SqlItemTypeReuseTemplate.cs" />
+    <Compile Include="Models\Reuse\SqlModifiedItems.cs" />
     <Compile Include="Models\Reuse\SqlReuseSettingsInfo.cs" />
     <Compile Include="Models\VersionControl\PublishEnvironment.cs" />
     <Compile Include="Helpers\ReviewRawDataHelper.cs" />

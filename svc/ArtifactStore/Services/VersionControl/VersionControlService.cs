@@ -114,7 +114,7 @@ namespace ArtifactStore.Services.VersionControl
                 await ProcessDependentArtifactsDiscovery(parameters, dependentArtifactsIds, independentArtifactsIds, projectsNames);
             }
 
-            Func<IDbTransaction, Task> action = async transaction =>
+            Func<IDbTransaction, Task<int>> action = async transaction =>
             {
                 var publishRevision =
                     await
@@ -137,7 +137,7 @@ namespace ArtifactStore.Services.VersionControl
 
                 if (parameters.AffectedArtifactIds.Count == 0)
                 {
-                    return;
+                    return publishRevision;
                 }
 
                 var env = new PublishEnvironment
@@ -175,18 +175,21 @@ namespace ArtifactStore.Services.VersionControl
                     //});
 
                     publishResults.AddRange(env.GetChangeSqlPublishResults());
+                    
                 }
 
-                
+                return publishRevision;
             };
 
-            await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, action);
+            var revisionId = await _sqlHelper.RunInTransactionAsync<int>(ServiceConstants.RaptorMain, action);
 
             var discardPublishDetailsResult =
                 await _versionControlRepository.GetDiscardPublishDetails(parameters.UserId, artifactIdsList, true);
             var discardPublishDetails = discardPublishDetailsResult.Details;
             projectsNames = discardPublishDetailsResult.ProjectInfos;
-            return ToNovaArtifactResultSet(discardPublishDetails, projectsNames);
+            var artifactResultSet = ToNovaArtifactResultSet(discardPublishDetails, projectsNames);
+            artifactResultSet.RevisionId = revisionId;
+            return artifactResultSet;
         }
         
         private async Task ProcessDependentArtifactsDiscovery(PublishParameters parameters, IList<int> dependentArtifactsIds,

@@ -57,7 +57,7 @@ namespace ArtifactStore.Repositories.VersionControl
         }
 
         protected abstract string MarkAsLatestStoredProcedureName { get; }
-        public async Task MarkAsLatest(HashSet<int> markAsLatestVersionIds, int revisionId, IDbTransaction transaction = null)
+        protected async Task MarkAsLatest(HashSet<int> markAsLatestVersionIds, int revisionId, IDbTransaction transaction = null)
         {
             if (markAsLatestVersionIds.Count == 0)
             {
@@ -80,7 +80,7 @@ namespace ArtifactStore.Repositories.VersionControl
         }
 
         protected abstract string DeleteVersionsStoredProcedureName { get; }
-        public async Task DeleteVersions(HashSet<int> deleteVersionsIds, IDbTransaction transaction = null)
+        protected async Task DeleteVersions(HashSet<int> deleteVersionsIds, IDbTransaction transaction = null)
         {
             if (deleteVersionsIds.Count == 0)
             {
@@ -102,7 +102,7 @@ namespace ArtifactStore.Repositories.VersionControl
         }
 
         protected abstract string CloseVersionsStoredProcedureName { get; }
-        public async Task CloseVersions(HashSet<int> closeVersionIds, int revisionId, IDbTransaction transaction = null)
+        protected async Task CloseVersions(HashSet<int> closeVersionIds, int revisionId, IDbTransaction transaction = null)
         {
             if (closeVersionIds.Count == 0)
             {
@@ -160,7 +160,7 @@ namespace ArtifactStore.Repositories.VersionControl
         }
 
         protected abstract string GetDraftAndLatestStoredProcedureName { get; }
-        public async Task<ICollection<T>> GetDraftAndLatest<T>(int userId, ISet<int> artifactIds, IDbTransaction transaction)
+        protected async Task<ICollection<T>> GetDraftAndLatest<T>(int userId, ISet<int> artifactIds, IDbTransaction transaction)
         {
 
             var param = new DynamicParameters();
@@ -178,7 +178,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 commandType: CommandType.StoredProcedure)).ToList();
         }
 
-        public async Task<IList<int>> GetDeletedArtifacts(int userId, ISet<int> artifactIds, IDbTransaction transaction = null)
+        protected async Task<IList<int>> GetDeletedArtifacts(int userId, ISet<int> artifactIds, IDbTransaction transaction = null)
         {
             var param = new DynamicParameters();
             param.Add("@userId", userId);
@@ -197,8 +197,13 @@ namespace ArtifactStore.Repositories.VersionControl
 
         protected async Task MarkReuseLinksOutOfSync(IEnumerable<int> artifactIds, PublishEnvironment environment, IDbTransaction transaction = null)
         {
+            var enumerable = artifactIds as int[] ?? artifactIds.ToArray();
+            if (!enumerable.Any())
+            {
+                return;
+            }
             var param = new DynamicParameters();
-            var artifactIdsTable = SqlConnectionWrapper.ToDataTable(artifactIds);
+            var artifactIdsTable = SqlConnectionWrapper.ToDataTable(enumerable);
             param.Add("@artifactIds", artifactIdsTable);
             param.Add("@revisionId", environment.RevisionId);
 

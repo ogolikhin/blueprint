@@ -10,7 +10,7 @@ using ServiceLibrary.Repositories;
 
 namespace ArtifactStore.Repositories.Reuse
 {
-    public interface ISqlReuseRepository
+    public interface IReuseRepository
     {
         /// <summary>
         /// 
@@ -32,21 +32,29 @@ namespace ArtifactStore.Repositories.Reuse
         /// <param name="instanceItemTypeIds"></param>
         /// <returns>Dictionary with Type Id as Key</returns>
         Task<IDictionary<int, ItemTypeReuseTemplate>> GetReuseItemTypeTemplatesAsyc(IEnumerable<int> instanceItemTypeIds);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="revisionId"></param>
+        /// <param name="transaction"></param>
+        /// <returns>Dictionary with Type Id as Key</returns>
+        Task<IEnumerable<SqlModifiedItems>> GetModificationsForRevisionIdAsyc(int revisionId, IDbTransaction transaction = null);
     }
 
-    public class SqlReuseRepository : SqlBaseArtifactRepository, ISqlReuseRepository
+    public class ReuseRepository : SqlBaseArtifactRepository, IReuseRepository
     {
-        public SqlReuseRepository()
+        public ReuseRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {
         }
 
-        public SqlReuseRepository(ISqlConnectionWrapper connectionWrapper)
+        public ReuseRepository(ISqlConnectionWrapper connectionWrapper)
             : this(connectionWrapper, new SqlArtifactPermissionsRepository(connectionWrapper))
         {
         }
 
-        public SqlReuseRepository(ISqlConnectionWrapper connectionWrapper,
+        public ReuseRepository(ISqlConnectionWrapper connectionWrapper,
             IArtifactPermissionsRepository artifactPermissionsRepository)
             : base(connectionWrapper, artifactPermissionsRepository)
         {
@@ -132,6 +140,20 @@ namespace ArtifactStore.Repositories.Reuse
                 }
             }
             return templates;
+        }
+
+        public async Task<IEnumerable<SqlModifiedItems>> GetModificationsForRevisionIdAsyc(int revisionId, IDbTransaction transaction = null)
+        {
+            var param = new DynamicParameters();
+            param.Add("@revisionId", revisionId);
+
+            if (transaction == null)
+            {
+                return await ConnectionWrapper.QueryAsync<SqlModifiedItems>("GetModificationsForRevisionId", param,
+                            commandType: CommandType.StoredProcedure);
+            }
+            return await transaction.Connection.QueryAsync<SqlModifiedItems>("GetModificationsForRevisionId", param, transaction,
+                            commandType: CommandType.StoredProcedure);
         }
     }
 }

@@ -41,11 +41,10 @@ namespace AdminStore.Repositories
             }
 
             var parameters = new DynamicParameters();
-            //if (userId > 0)
-            //{
-            //    parameters.Add("@UserId", userId);
-            //}
-            parameters.Add("@UserId", userId);
+            if (userId > 0)
+            {
+                parameters.Add("@UserId", userId);
+            }
             parameters.Add("@Offset", tabularData.Pagination.Offset);
             parameters.Add("@Limit", tabularData.Pagination.Limit);
             parameters.Add("@OrderField", orderField);

@@ -93,6 +93,7 @@
     <Compile Include="Controllers\ConfigControllerTests.cs" />
     <Compile Include="Controllers\InstanceControllerTests.cs" />
     <Compile Include="Controllers\UsersControllerTests.cs" />
+    <Compile Include="Controllers\WorkflowControllerTest.cs" />
     <Compile Include="Helpers\EmailHelperTests.cs" />
     <Compile Include="Helpers\HashingUtilitiesTests.cs" />
     <Compile Include="Helpers\PrivilegesManagerTests.cs" />
@@ -108,6 +109,7 @@
     <Compile Include="Repositories\SqlSettingsRepositoryTests.cs" />
     <Compile Include="Repositories\SqlUserRepositoryTests.cs" />
     <Compile Include="Repositories\LdapRepositoryTests.cs" />
+    <Compile Include="Repositories\WorkflowRepositoryTest.cs" />
     <Compile Include="Repositories\Workflow\WorkflowValidatorTests.cs" />
     <Compile Include="Saml\SamlCertificateValidatorTests.cs" />
     <Compile Include="Saml\SamlIssuerNameRegistryTests.cs" />

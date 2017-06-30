@@ -16,5 +16,7 @@ namespace AdminStore.Repositories.Workflow
 
         // Only the name and the description of DWorkflow are used.
         Task<IEnumerable<DWorkflow>> CreateWorkflowsAsync(IEnumerable<DWorkflow> workflows, int publishRevision, IDbTransaction transaction = null);
+
+        Task<DWorkflow> GetWorkflowDetailsAsync(int workflowId);
     }
 }

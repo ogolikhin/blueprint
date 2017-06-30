@@ -324,18 +324,15 @@ namespace AdminStore.Repositories.Workflow
 
         public async Task<DWorkflow> GetWorkflowDetailsAsync(int workflowId)
         {
-            //var parameters = new DynamicParameters();
-            //parameters.Add("@GroupId", groupId);
+            var parameters = new DynamicParameters();
+            parameters.Add("WorkflowId", workflowId);
 
-            //var result =
-            //    await
-            //        _connectionWrapper.QueryAsync<Group>("GetGroupDetails", parameters,
-            //            commandType: CommandType.StoredProcedure);
-            //var enumerable = result as IList<Group> ?? result.ToList();
-            //var group = enumerable.Any() ? enumerable.First() : new Group();
-            //return GroupMapper.Map(group);
-            await Task.Delay(5000);
-            return null;
+            var result =
+                (await
+                    ConnectionWrapper.QueryAsync<DWorkflow>("GetWorkflowDetails", parameters,
+                        commandType: CommandType.StoredProcedure)).FirstOrDefault();
+
+            return result;
         }
 
         #endregion

@@ -158,17 +158,15 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(DWorkflow))]
         public async Task<IHttpActionResult> GetWorkflow(int workflowId)
         {
-            //await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewGroups);
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
 
-            //var workflowDetails = await _workflowRepository.GetGroupDetailsAsync(groupId);
-            //if (groupDetails.Id == 0)
-            //{
-            //    throw new ResourceNotFoundException(ErrorMessages.GroupNotExist, ErrorCodes.ResourceNotFound);
-            //}
+            var workflowDetails = await _workflowRepository.GetWorkflowDetailsAsync(workflowId);
+            if (workflowDetails == null)
+            {
+                throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
+            }
 
-            //return Ok(groupDetails);
-            await Task.Delay(5000);
-            return Ok();
+            return Ok(workflowDetails);
         }
 
 

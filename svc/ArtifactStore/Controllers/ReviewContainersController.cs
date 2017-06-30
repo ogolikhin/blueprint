@@ -251,7 +251,7 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("containers/{reviewId:int:min(1)}/index/{artifactId:int:min(1)}"), SessionRequired]
-        public Task<int> GetReviewArtifactIndex(int reviewId, int artifactId, int? revisionId = int.MaxValue)
+        public Task<ReviewArtifactIndex> GetReviewArtifactIndex(int reviewId, int artifactId, int? revisionId = int.MaxValue)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             return _sqlReviewsRepository.GetReviewArtifactIndexAsync(reviewId, revisionId.Value, artifactId, session.UserId);
@@ -272,7 +272,7 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("containers/{reviewId:int:min(1)}/toc/index/{artifactId:int:min(1)}"), SessionRequired]
-        public Task<int> GetReviewTableOfContentArtifactIndex(int reviewId, int artifactId, int? revisionId = int.MaxValue)
+        public Task<ReviewArtifactIndex> GetReviewTableOfContentArtifactIndex(int reviewId, int artifactId, int? revisionId = int.MaxValue)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             return _sqlReviewsRepository.GetReviewTableOfContentArtifactIndexAsync(reviewId, revisionId.Value, artifactId, session.UserId);

@@ -5,10 +5,13 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using AdminStore.Helpers;
+using AdminStore.Models;
 using AdminStore.Models.Workflow;
 using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.Files;
 using File = ServiceLibrary.Models.Files.File;
@@ -316,6 +319,23 @@ namespace AdminStore.Repositories.Workflow
             }
 
             return result;
+        }
+
+
+        public async Task<DWorkflow> GetWorkflowDetailsAsync(int workflowId)
+        {
+            //var parameters = new DynamicParameters();
+            //parameters.Add("@GroupId", groupId);
+
+            //var result =
+            //    await
+            //        _connectionWrapper.QueryAsync<Group>("GetGroupDetails", parameters,
+            //            commandType: CommandType.StoredProcedure);
+            //var enumerable = result as IList<Group> ?? result.ToList();
+            //var group = enumerable.Any() ? enumerable.First() : new Group();
+            //return GroupMapper.Map(group);
+            await Task.Delay(5000);
+            return null;
         }
 
         #endregion

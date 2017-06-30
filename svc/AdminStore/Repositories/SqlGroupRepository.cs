@@ -276,7 +276,7 @@ namespace AdminStore.Repositories
                 switch (errorCode.Value)
                 {
                     case (int)SqlErrorCodes.GroupWithCurrentIdNotExist:
-                        throw new ResourceNotFoundException(ErrorMessages.GroupNotExist);
+                        throw new ResourceNotFoundException(ErrorMessages.GroupNotExist, ErrorCodes.ResourceNotFound);
                     case (int)SqlErrorCodes.GeneralSqlError:
                         throw new Exception(ErrorMessages.GeneralErrorOfUpdatingGroup);
                 }

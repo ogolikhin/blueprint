@@ -1,10 +1,8 @@
 ﻿namespace AdminStore.Models.Workflow
 {
-    public class DState
+    public class SqlWorkflow
     {
         public int VersionId { get; set; }
-
-        public int WorkflowStateId { get; set; }
 
         public int WorkflowId { get; set; }
 
@@ -16,8 +14,6 @@
 
         public string Description { get; set; }
 
-        public bool Default { get; set; }
-
-        public float OrderIndex { get; set; }
+        public bool Active { get; set; }
     }
 }

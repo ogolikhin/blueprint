@@ -6,7 +6,9 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using AdminStore.Helpers;
 using AdminStore.Models.Workflow;
+using AdminStore.Repositories;
 using AdminStore.Repositories.Workflow;
 using AdminStore.Services.Workflow;
 using ServiceLibrary.Attributes;
@@ -28,14 +30,16 @@ namespace AdminStore.Controllers
         public override string LogSource => "AdminStore.Workflow";
 
         private readonly IWorkflowService _workflowService;
+        internal readonly PrivilegesManager _privilegesManager;
 
-        public WorkflowController() : this(new WorkflowService(), new ServiceLogRepository())
+        public WorkflowController() : this(new WorkflowService(), new ServiceLogRepository(), new SqlPrivilegesRepository())
         {
         }
 
-        public WorkflowController(IWorkflowService workflowService, IServiceLogRepository log) : base(log)
+        public WorkflowController(IWorkflowService workflowService, IServiceLogRepository log, IPrivilegesRepository privilegesRepository) : base(log)
         {
             _workflowService = workflowService;
+            _privilegesManager = new PrivilegesManager(privilegesRepository);
         }
 
         /// <summary>
@@ -139,6 +143,30 @@ namespace AdminStore.Controllers
             var errors = await _workflowService.GetImportWorkflowErrorsAsync(guid, session.UserId);
             return Ok(errors);
         }
+
+
+        /// <summary>
+        /// Get workflow details by workflow identifier
+        /// </summary>
+        /// <param name="workflowId">Workflow's identity</param>
+        /// <returns>
+        /// <response code="200">OK. Returns the specified workflow.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">User doesn’t have permission to view workflow.</response>
+        /// <response code="404">Not Found. The workflow with the provided Id was not found.</response>
+        /// </returns>
+        [SessionRequired]
+        [Route("{workflowId:int:min(1)}")]
+        [ResponseType(typeof (SqlWorkflow))]
+        public async Task<IHttpActionResult> GetWorkflow(int workflowId)
+        {
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+
+            var workflowDetails = await _workflowService.GetWorkflowDetailsAsync(workflowId);
+
+            return Ok(workflowDetails);
+        }
+
 
         #region Private methods
 

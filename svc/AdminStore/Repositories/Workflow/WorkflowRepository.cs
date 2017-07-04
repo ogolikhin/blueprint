@@ -233,11 +233,21 @@ namespace AdminStore.Repositories.Workflow
             await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, action);
         }
 
+
+        public async Task<SqlWorkflow> GetWorkflowDetailsAsync(int workflowId)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("WorkflowId", workflowId);
+
+            var result = (await ConnectionWrapper.QueryAsync<SqlWorkflow>("GetWorkflowDetails", parameters, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+            return result;           
+        }
+
         #endregion
 
-        #region Private methods
+    #region Private methods
 
-        private static DataTable ToWorkflowsCollectionDataTable(IEnumerable<SqlWorkflow> workflows)
+    private static DataTable ToWorkflowsCollectionDataTable(IEnumerable<SqlWorkflow> workflows)
         {
             var table = new DataTable { Locale = CultureInfo.InvariantCulture };
             table.SetTypeName("WorkflowsCollection");

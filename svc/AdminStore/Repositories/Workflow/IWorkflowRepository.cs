@@ -32,5 +32,7 @@ namespace AdminStore.Repositories.Workflow
             IEnumerable<string> names);
 
         Task RunInTransactionAsync(Func<IDbTransaction, Task> action);
+
+        Task<SqlWorkflow> GetWorkflowDetailsAsync(int workflowId);
     }
 }

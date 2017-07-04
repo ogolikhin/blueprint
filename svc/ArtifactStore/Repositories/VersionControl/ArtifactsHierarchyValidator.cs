@@ -8,13 +8,19 @@ using ServiceLibrary.Helpers;
 
 namespace ArtifactStore.Repositories.VersionControl
 {
-    public class ArtifactsHierarchyValidator
+    public interface IArtifactsHierarchyValidator
+    {
+        void ScheduleReparentAndReorderArtifactsCheck(SqlDraftAndLatestItem item, ISet<int> artifactIds);
+        Task CheckAndFix(PublishEnvironment env, IDbTransaction transaction);
+    }
+
+    public class ArtifactsHierarchyValidator : IArtifactsHierarchyValidator
     {
         private readonly IDictionary<int, ICollection<SqlDraftAndLatestItem>> _checkParents = new Dictionary<int, ICollection<SqlDraftAndLatestItem>>();
         private readonly IDictionary<SqlDraftAndLatestItem, int> _checkOrderIndex = new Dictionary<SqlDraftAndLatestItem, int>();
-        private readonly SqlPublishRepository _publishRepository;
+        private readonly ISqlPublishRepository _publishRepository;
 
-        public ArtifactsHierarchyValidator(SqlPublishRepository publishRepository)
+        public ArtifactsHierarchyValidator(ISqlPublishRepository publishRepository)
         {
             _publishRepository = publishRepository;
         }

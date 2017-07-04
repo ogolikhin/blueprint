@@ -174,8 +174,9 @@
     <Compile Include="Models\LicenseTransactionUser.cs" />
     <Compile Include="Models\LoginUser.cs" />
     <Compile Include="Models\UserGroupSource.cs" />
-    <Compile Include="Models\Workflow\DState.cs" />
-    <Compile Include="Models\Workflow\DTrigger.cs" />
+    <Compile Include="Models\Workflow\SqlProjectPathPair.cs" />
+    <Compile Include="Models\Workflow\SqlState.cs" />
+    <Compile Include="Models\Workflow\SqlTrigger.cs" />
     <Compile Include="Models\Workflow\IeArtifactType.cs" />
     <Compile Include="Models\Workflow\IeProject.cs" />
     <Compile Include="Models\Workflow\IeGroup.cs" />
@@ -183,7 +184,7 @@
     <Compile Include="Models\Workflow\IeTransition.cs" />
     <Compile Include="Models\Workflow\ImportWorkflowResult.cs" />
     <Compile Include="Models\Workflow\IeWorkflow.cs" />
-    <Compile Include="Models\Workflow\DWorkflow.cs" />
+    <Compile Include="Models\Workflow\SqlWorkflow.cs" />
     <Compile Include="Models\Workflow\XmlTriggerPermissions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\AuthenticationRepository.cs" />
@@ -214,6 +215,8 @@
     <Compile Include="Saml\SamlCertificateValidator.cs" />
     <Compile Include="Saml\SamlRepository.cs" />
     <Compile Include="Saml\SamlIssuerNameRegistry.cs" />
+    <Compile Include="Services\Workflow\IWorkflowService.cs" />
+    <Compile Include="Services\Workflow\WorkflowService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config">

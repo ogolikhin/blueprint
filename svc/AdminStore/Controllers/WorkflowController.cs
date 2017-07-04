@@ -6,8 +6,11 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using AdminStore.Helpers;
 using AdminStore.Models.Workflow;
+using AdminStore.Repositories;
 using AdminStore.Repositories.Workflow;
+using AdminStore.Services.Workflow;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
@@ -26,15 +29,17 @@ namespace AdminStore.Controllers
     {
         public override string LogSource => "AdminStore.Workflow";
 
-        private readonly IWorkflowRepository _workflowRepository;
+        private readonly IWorkflowService _workflowService;
+        internal readonly PrivilegesManager _privilegesManager;
 
-        public WorkflowController() : this(new WorkflowRepository(), new ServiceLogRepository())
+        public WorkflowController() : this(new WorkflowService(), new ServiceLogRepository(), new SqlPrivilegesRepository())
         {
         }
 
-        public WorkflowController(IWorkflowRepository workflowRepository, IServiceLogRepository log) : base(log)
+        public WorkflowController(IWorkflowService workflowService, IServiceLogRepository log, IPrivilegesRepository privilegesRepository) : base(log)
         {
-            _workflowRepository = workflowRepository;
+            _workflowService = workflowService;
+            _privilegesManager = new PrivilegesManager(privilegesRepository);
         }
 
         /// <summary>
@@ -93,8 +98,8 @@ namespace AdminStore.Controllers
                     return ResponseMessage(response);
                 }
 
-                _workflowRepository.FileRepository = GetFileRepository();
-                var result = await _workflowRepository.ImportWorkflowAsync(workflow, fileName, session.UserId);
+                _workflowService.FileRepository = GetFileRepository();
+                var result = await _workflowService.ImportWorkflowAsync(workflow, fileName, session.UserId);
 
                 switch (result.ResultCode)
                 {
@@ -134,10 +139,34 @@ namespace AdminStore.Controllers
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             Debug.Assert(session != null, "The session is null.");
 
-            _workflowRepository.FileRepository = GetFileRepository();
-            var errors = await _workflowRepository.GetImportWorkflowErrorsAsync(guid, session.UserId);
+            _workflowService.FileRepository = GetFileRepository();
+            var errors = await _workflowService.GetImportWorkflowErrorsAsync(guid, session.UserId);
             return Ok(errors);
         }
+
+
+        /// <summary>
+        /// Get workflow details by workflow identifier
+        /// </summary>
+        /// <param name="workflowId">Workflow's identity</param>
+        /// <returns>
+        /// <response code="200">OK. Returns the specified workflow.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">User doesn’t have permission to view workflow.</response>
+        /// <response code="404">Not Found. The workflow with the provided Id was not found.</response>
+        /// </returns>
+        [SessionRequired]
+        [Route("{workflowId:int:min(1)}")]
+        [ResponseType(typeof (SqlWorkflow))]
+        public async Task<IHttpActionResult> GetWorkflow(int workflowId)
+        {
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+
+            var workflowDetails = await _workflowService.GetWorkflowDetailsAsync(workflowId);
+
+            return Ok(workflowDetails);
+        }
+
 
         #region Private methods
 

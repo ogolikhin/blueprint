@@ -1,6 +1,6 @@
 ﻿namespace AdminStore.Models.Workflow
 {
-    public class DTrigger
+    public class SqlTrigger
     {
         public int VersionId { get; set; }
 

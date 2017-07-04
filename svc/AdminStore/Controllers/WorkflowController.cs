@@ -30,15 +30,17 @@ namespace AdminStore.Controllers
         public override string LogSource => "AdminStore.Workflow";
 
         private readonly IWorkflowService _workflowService;
+        private readonly IWorkflowRepository _workflowRepository;
         internal readonly PrivilegesManager _privilegesManager;
 
-        public WorkflowController() : this(new WorkflowService(), new ServiceLogRepository(), new SqlPrivilegesRepository())
+        public WorkflowController() : this(new WorkflowRepository(), new WorkflowService(), new ServiceLogRepository(), new SqlPrivilegesRepository())
         {
         }
 
-        public WorkflowController(IWorkflowService workflowService, IServiceLogRepository log, IPrivilegesRepository privilegesRepository) : base(log)
+        public WorkflowController(IWorkflowRepository workflowRepository, IWorkflowService workflowService, IServiceLogRepository log, IPrivilegesRepository privilegesRepository) : base(log)
         {
             _workflowService = workflowService;
+            _workflowRepository = workflowRepository;
             _privilegesManager = new PrivilegesManager(privilegesRepository);
         }
 
@@ -167,6 +169,26 @@ namespace AdminStore.Controllers
             return Ok(workflowDetails);
         }
 
+
+        /// <summary>
+        /// Get workflows list according to the input parameters
+        /// </summary>
+        /// <param name="pagination">Limit and offset values to query workflows</param>
+        /// <param name="sorting">(optional) Sort and its order</param>
+        /// <param name="search">(optional) Search query parameter</param>
+        /// <response code="200">OK if admin user session exists and user is permitted to list workflows</response>
+        /// <response code="400">BadRequest if pagination object didn't provide</response>
+        /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
+        /// <response code="403">Forbidden if used doesn’t have permissions to get workflows list</response>
+        public async Task<IHttpActionResult> GetWorkflows([FromUri] Pagination pagination, [FromUri] Sorting sorting = null, string search = null)
+        {
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+            pagination.Validate();
+
+            var result = await _workflowRepository.GetWorkflows(pagination, sorting, search, UsersHelper.SortUsers);
+            return Ok(result);
+
+        }
 
         #region Private methods
 

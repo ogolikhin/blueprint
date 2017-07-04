@@ -16,6 +16,7 @@ using Moq;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Controllers
@@ -27,6 +28,7 @@ namespace AdminStore.Controllers
         private Mock<IWorkflowService> _workflowServiceMock;
         private Mock<IServiceLogRepository> _logMock;
         private Mock<IPrivilegesRepository> _privilegesRepositoryMock;
+        private Mock<IWorkflowRepository> _workflowRepositoryMock;
 
         private WorkflowController _controller;
         private const int SessionUserId = 1;
@@ -38,9 +40,10 @@ namespace AdminStore.Controllers
             _privilegesRepositoryMock = new Mock<IPrivilegesRepository>();
             _logMock = new Mock<IServiceLogRepository>();
             _workflowServiceMock = new Mock<IWorkflowService>();
+            _workflowRepositoryMock = new Mock<IWorkflowRepository>();
 
             var session = new Session { UserId = SessionUserId };
-            _controller = new WorkflowController(_workflowServiceMock.Object, _logMock.Object, _privilegesRepositoryMock.Object)
+            _controller = new WorkflowController(_workflowRepositoryMock.Object, _workflowServiceMock.Object, _logMock.Object, _privilegesRepositoryMock.Object)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()
@@ -71,7 +74,7 @@ namespace AdminStore.Controllers
         public async Task GetWorkflow_AllParamsAreCorrectAndPermissionsOk_ReturnWorkflow()
         {
             //arrange
-            var workflow = new SqlWorkflow { Name = "Workflow1", Description = "DescriptionWorkflow1", Active = true};
+            var workflow = new SqlWorkflow { Name = "Workflow1", Description = "DescriptionWorkflow1", Active = true };
             _workflowServiceMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(workflow);
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
@@ -98,6 +101,58 @@ namespace AdminStore.Controllers
             try
             {
                 await _controller.GetWorkflow(WorkflowId);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            //assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
+        }
+
+        #endregion
+
+        #region GetWorkflows
+
+        [TestMethod]
+        public async Task GetWorkflows_AllParamsAreCorrectAndPermissionsOk_ReturnWorkflows()
+        {
+            //arrange
+            var workflows = new QueryResult<WorkflowDto>() { Total = 10, Items = new List<WorkflowDto>() { new WorkflowDto(), new WorkflowDto() } };
+            var pagination = new Pagination() { Limit = 10, Offset = 0 };
+            var sorting = new Sorting() { Order = SortOrder.Asc, Sort = "name" };
+
+            _workflowRepositoryMock.Setup(w => w.GetWorkflows(It.IsAny<Pagination>(), It.IsAny<Sorting>(), It.IsAny<string>(), It.IsAny<Func<Sorting, string>>()))
+                .ReturnsAsync(workflows);
+
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            //act
+            var result =
+                await _controller.GetWorkflows(pagination, sorting) as OkNegotiatedContentResult<QueryResult<WorkflowDto>>;
+
+            //assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(workflows, result.Content);
+        }
+
+        [TestMethod]
+        public async Task GetWorkflows_WorkflowWithInvalidPermissions_ForbiddenResult()
+        {
+            //arrange
+            Exception exception = null;
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewProjects);
+
+            //act
+            try
+            {
+                await _controller.GetWorkflows(new Pagination(), new Sorting());
             }
             catch (Exception ex)
             {

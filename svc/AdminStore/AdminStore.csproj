@@ -185,6 +185,7 @@
     <Compile Include="Models\Workflow\ImportWorkflowResult.cs" />
     <Compile Include="Models\Workflow\IeWorkflow.cs" />
     <Compile Include="Models\Workflow\SqlWorkflow.cs" />
+    <Compile Include="Models\Workflow\WorkflowDto.cs" />
     <Compile Include="Models\Workflow\XmlTriggerPermissions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\AuthenticationRepository.cs" />

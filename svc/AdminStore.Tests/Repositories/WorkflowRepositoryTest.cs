@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using AdminStore.Models.Workflow;
 using AdminStore.Repositories.Workflow;
@@ -40,13 +37,12 @@ namespace AdminStore.Repositories
             //arrange
             var cxn = new SqlConnectionWrapperMock();
             var sqlHelperMock = new Mock<ISqlHelper>();
-            var userRepositoryMock = new Mock<IUserRepository>();
-            var repository = new WorkflowRepository(cxn.Object, sqlHelperMock.Object,
-                userRepositoryMock.Object);
-            
+
+            var repository = new WorkflowRepository(cxn.Object, sqlHelperMock.Object);
+
             var workflowId = 10;
-            var workflow = new SqlWorkflow { Name = "Workflow1", Description = "Workflow1Description"};
-            var workflowsList = new List<SqlWorkflow> {workflow};
+            var workflow = new SqlWorkflow { Name = "Workflow1", Description = "Workflow1Description" };
+            var workflowsList = new List<SqlWorkflow> { workflow };
             cxn.SetupQueryAsync("GetWorkflowDetails", new Dictionary<string, object> { { "WorkflowId", workflowId } }, workflowsList);
 
             //act

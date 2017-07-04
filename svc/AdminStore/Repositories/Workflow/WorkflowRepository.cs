@@ -4,9 +4,11 @@ using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using AdminStore.Helpers;
 using AdminStore.Models.Workflow;
 using Dapper;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.Files;
 
@@ -14,12 +16,11 @@ namespace AdminStore.Repositories.Workflow
 {
     public class WorkflowRepository : IWorkflowRepository
     {
-        
+
 
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
-        private readonly IUserRepository _userRepository;
         private readonly ISqlHelper _sqlHelper;
-        
+
 
         public IFileRepository FileRepository { get; set; }
 
@@ -27,18 +28,15 @@ namespace AdminStore.Repositories.Workflow
 
         public WorkflowRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain),
-                  new SqlHelper(), 
-                  new SqlUserRepository())
+                  new SqlHelper())
         {
         }
 
         internal WorkflowRepository(ISqlConnectionWrapper connectionWrapper,
-            ISqlHelper sqlHelper,
-            IUserRepository userRepository)
+            ISqlHelper sqlHelper)
         {
             ConnectionWrapper = connectionWrapper;
             _sqlHelper = sqlHelper;
-            _userRepository = userRepository;
         }
 
         #endregion
@@ -46,7 +44,7 @@ namespace AdminStore.Repositories.Workflow
 
         #region Interface implementation
 
-        
+
 
         public async Task<IEnumerable<SqlWorkflow>> CreateWorkflowsAsync(IEnumerable<SqlWorkflow> workflows, int publishRevision, IDbTransaction transaction = null)
         {
@@ -159,7 +157,7 @@ namespace AdminStore.Repositories.Workflow
             return result;
         }
 
-        public async Task CreateWorkflowArtifactAssociationsAsync(IEnumerable<string> artifactTypeNames, 
+        public async Task CreateWorkflowArtifactAssociationsAsync(IEnumerable<string> artifactTypeNames,
             IEnumerable<int> projectIds, int workflowId, int publishRevision, IDbTransaction transaction = null)
         {
 
@@ -213,7 +211,7 @@ namespace AdminStore.Repositories.Workflow
                 commandType: CommandType.StoredProcedure);
         }
 
-        
+
 
         public Task<int> CreateRevisionInTransactionAsync(IDbTransaction transaction, int userId, string description)
         {
@@ -234,6 +232,34 @@ namespace AdminStore.Repositories.Workflow
         }
 
 
+        public async Task<QueryResult<WorkflowDto>> GetWorkflows(Pagination pagination, Sorting sorting = null,
+            string search = null, Func<Sorting, string> sort = null)
+        {
+            var orderField = string.Empty;
+            if (sort != null && sorting != null)
+            {
+                orderField = sort(sorting);
+            }
+            if (search != null)
+            {
+                search = UsersHelper.ReplaceWildcardCharacters(search);
+            }
+            var parameters = new DynamicParameters();
+            parameters.Add("@Offset", pagination.Offset);
+            parameters.Add("@Limit", pagination.Limit);
+            parameters.Add("@Search", search ?? string.Empty);
+            parameters.Add("@OrderField", string.IsNullOrEmpty(orderField) ? "Name" : orderField);
+            parameters.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            var workflows =
+                (await
+                    ConnectionWrapper.QueryAsync<WorkflowDto>("GetWorkflows", parameters,
+                        commandType: CommandType.StoredProcedure)).ToList();
+            var total = parameters.Get<int>("Total");
+            return new QueryResult<WorkflowDto>() {Items = workflows, Total = total};
+        }
+
+
+
         public async Task<SqlWorkflow> GetWorkflowDetailsAsync(int workflowId)
         {
             var parameters = new DynamicParameters();
@@ -241,6 +267,7 @@ namespace AdminStore.Repositories.Workflow
 
             var result = (await ConnectionWrapper.QueryAsync<SqlWorkflow>("GetWorkflowDetails", parameters, commandType: CommandType.StoredProcedure)).FirstOrDefault();
             return result;           
+
         }
 
         #endregion
@@ -300,8 +327,8 @@ namespace AdminStore.Repositories.Workflow
             foreach (var workflowTrigger in workflowTriggers)
             {
                 table.Rows.Add(workflowTrigger.TriggerId, workflowTrigger.Name, workflowTrigger.Description,
-                    workflowTrigger.WorkflowId, workflowTrigger.Type, workflowTrigger.Permissions, 
-                    workflowTrigger.Validations, workflowTrigger.Actions, workflowTrigger.ProjectId, 
+                    workflowTrigger.WorkflowId, workflowTrigger.Type, workflowTrigger.Permissions,
+                    workflowTrigger.Validations, workflowTrigger.Actions, workflowTrigger.ProjectId,
                     workflowTrigger.WorkflowState1Id, workflowTrigger.WorkflowState2Id, workflowTrigger.PropertyTypeId);
             }
             return table;

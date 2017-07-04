@@ -6,7 +6,9 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using AdminStore.Helpers;
 using AdminStore.Models.Workflow;
+using AdminStore.Repositories;
 using AdminStore.Repositories.Workflow;
 using AdminStore.Services.Workflow;
 using ServiceLibrary.Attributes;
@@ -28,14 +30,18 @@ namespace AdminStore.Controllers
         public override string LogSource => "AdminStore.Workflow";
 
         private readonly IWorkflowService _workflowService;
+        private readonly IWorkflowRepository _workflowRepository;
+        internal readonly PrivilegesManager _privilegesManager;
 
-        public WorkflowController() : this(new WorkflowService(), new ServiceLogRepository())
+        public WorkflowController() : this(new WorkflowRepository(), new WorkflowService(), new ServiceLogRepository(), new SqlPrivilegesRepository())
         {
         }
 
-        public WorkflowController(IWorkflowService workflowService, IServiceLogRepository log) : base(log)
+        public WorkflowController(IWorkflowRepository workflowRepository, IWorkflowService workflowService, IServiceLogRepository log, IPrivilegesRepository privilegesRepository) : base(log)
         {
             _workflowService = workflowService;
+            _workflowRepository = workflowRepository;
+            _privilegesManager = new PrivilegesManager(privilegesRepository);
         }
 
         /// <summary>
@@ -138,6 +144,17 @@ namespace AdminStore.Controllers
             _workflowService.FileRepository = GetFileRepository();
             var errors = await _workflowService.GetImportWorkflowErrorsAsync(guid, session.UserId);
             return Ok(errors);
+        }
+
+
+        public async Task<IHttpActionResult> GetWorkflows([FromUri] Pagination pagination, [FromUri] Sorting sorting = null, string search = null)
+        {
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+            pagination.Validate();
+
+            var result = await _workflowRepository.GetWorkflows(pagination, sorting, search, UsersHelper.SortUsers);
+            return Ok(result);
+
         }
 
         #region Private methods

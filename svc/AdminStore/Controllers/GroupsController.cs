@@ -51,6 +51,11 @@ namespace AdminStore.Controllers
         {
             pagination.Validate();
 
+            if (userId < 0)
+            {
+                throw new BadRequestException(ErrorMessages.TheUserIdCanNotBeNegative, ErrorCodes.BadRequest);
+            }
+
             var privileges = userId == 0 ? InstanceAdminPrivileges.ViewGroups : InstanceAdminPrivileges.ManageUsers;
             await _privilegesManager.Demand(Session.UserId, privileges);
 

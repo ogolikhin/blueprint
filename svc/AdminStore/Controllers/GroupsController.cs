@@ -99,7 +99,7 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(int))]
         public async Task<IHttpActionResult> DeleteGroups([FromBody] OperationScope scope, string search = null)
         {
-            if (scope == null )
+            if (scope == null)
             {
                 return BadRequest(ErrorMessages.InvalidDeleteGroupsParameters);
             }
@@ -296,8 +296,8 @@ namespace AdminStore.Controllers
                 throw new BadRequestException(ErrorMessages.AssignMemberScopeEmpty, ErrorCodes.BadRequest);
             }
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageGroups);
-            await _groupRepository.AssignMembers(groupId, scope, search);
-            return Ok();
+            var result = await _groupRepository.AssignMembers(groupId, scope, search);
+            return Ok(new AssignResult() { TotalAssigned = result });
         }
     }
 }

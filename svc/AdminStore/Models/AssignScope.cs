@@ -14,7 +14,15 @@ namespace AdminStore.Models
 
         public bool IsEmpty()
         {
-            return !SelectAll && (Members == null || !Members.Any());
+            if (!SelectAll && (Members == null || !Members.Any()))
+            {
+                return true;
+            }
+            if (SelectAll && Members == null)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }

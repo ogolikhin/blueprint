@@ -40,21 +40,20 @@ namespace AdminStore.Repositories
             //arrange
             var cxn = new SqlConnectionWrapperMock();
             var sqlHelperMock = new Mock<ISqlHelper>();
-            var workflowValidatorMock = new Mock<IWorkflowValidator>();
             var userRepositoryMock = new Mock<IUserRepository>();
-            var repository = new WorkflowRepository(cxn.Object, sqlHelperMock.Object, workflowValidatorMock.Object,
+            var repository = new WorkflowRepository(cxn.Object, sqlHelperMock.Object,
                 userRepositoryMock.Object);
             
             var workflowId = 10;
-            var workflow = new DWorkflow {Name = "Workflow1", Description = "Workflow1Description"};
-            var workflowsList = new List<DWorkflow> {workflow};
+            var workflow = new SqlWorkflow { Name = "Workflow1", Description = "Workflow1Description"};
+            var workflowsList = new List<SqlWorkflow> {workflow};
             cxn.SetupQueryAsync("GetWorkflowDetails", new Dictionary<string, object> { { "WorkflowId", workflowId } }, workflowsList);
 
             //act
-            await repository.GetWorkflowDetailsAsync(workflowId);
+            var workflowDetails = await repository.GetWorkflowDetailsAsync(workflowId);
 
             //assert
-            cxn.Verify();
+            Assert.IsNotNull(workflowDetails);
         }
 
         #endregion

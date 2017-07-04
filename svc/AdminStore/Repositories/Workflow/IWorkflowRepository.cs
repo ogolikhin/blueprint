@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using AdminStore.Models.Workflow;
@@ -10,13 +11,28 @@ namespace AdminStore.Repositories.Workflow
     {
         IFileRepository FileRepository { get; set; }
 
-        Task<ImportWorkflowResult> ImportWorkflowAsync(IeWorkflow workflow, string fileName, int userId);
-
-        Task<string> GetImportWorkflowErrorsAsync(string guid, int userId);
 
         // Only the name and the description of DWorkflow are used.
-        Task<IEnumerable<DWorkflow>> CreateWorkflowsAsync(IEnumerable<DWorkflow> workflows, int publishRevision, IDbTransaction transaction = null);
+        Task<IEnumerable<SqlWorkflow>> CreateWorkflowsAsync(IEnumerable<SqlWorkflow> workflows, int publishRevision, IDbTransaction transaction = null);
 
-        Task<DWorkflow> GetWorkflowDetailsAsync(int workflowId);
+        Task<IEnumerable<SqlState>> CreateWorkflowStatesAsync(IEnumerable<SqlState> workflowStates, int publishRevision,
+            IDbTransaction transaction = null);
+
+        Task<IEnumerable<SqlTrigger>> CreateWorkflowTriggersAsync(IEnumerable<SqlTrigger> workflowTriggers,
+            int publishRevision, IDbTransaction transaction = null);
+
+        Task CreateWorkflowArtifactAssociationsAsync(IEnumerable<string> artifactTypeNames,
+            IEnumerable<int> projectIds, int workflowId, int publishRevision, IDbTransaction transaction = null);
+
+        Task<IEnumerable<SqlProjectPathPair>> GetProjectIdsByProjectPaths(IEnumerable<string> projectPaths);
+
+        Task<int> CreateRevisionInTransactionAsync(IDbTransaction transaction, int userId, string description);
+
+        Task<IEnumerable<string>> CheckLiveWorkflowsForNameUniqueness(IDbTransaction transaction,
+            IEnumerable<string> names);
+
+        Task RunInTransactionAsync(Func<IDbTransaction, Task> action);
+
+        Task<SqlWorkflow> GetWorkflowDetailsAsync(int workflowId);
     }
 }

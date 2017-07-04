@@ -113,6 +113,7 @@
     <Compile Include="Repositories\Workflow\WorkflowValidatorTests.cs" />
     <Compile Include="Saml\SamlCertificateValidatorTests.cs" />
     <Compile Include="Saml\SamlIssuerNameRegistryTests.cs" />
+    <Compile Include="Services\WorkflowServiceTest.cs" />
     <Compile Include="Utilities\SamlUtilities.cs" />
   </ItemGroup>
   <ItemGroup>

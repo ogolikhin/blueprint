@@ -255,7 +255,7 @@ namespace AdminStore.Repositories
             return result;
         }
 
-        public async Task AssignMembers(int groupId, AssignScope scope, string search = null)
+        public async Task<int> AssignMembers(int groupId, AssignScope scope, string search = null)
         {
             if (search != null)
             {
@@ -268,7 +268,7 @@ namespace AdminStore.Repositories
             parameters.Add("@SelectAll", scope.SelectAll);
             parameters.Add("@Search", search);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            await _connectionWrapper.ExecuteScalarAsync<int>("AssignGroupMembers", parameters, commandType: CommandType.StoredProcedure);
+            var result = await _connectionWrapper.ExecuteScalarAsync<int>("AssignGroupMembers", parameters, commandType: CommandType.StoredProcedure);
             var errorCode = parameters.Get<int?>("ErrorCode");
 
             if (errorCode.HasValue)
@@ -276,16 +276,12 @@ namespace AdminStore.Repositories
                 switch (errorCode.Value)
                 {
                     case (int)SqlErrorCodes.GroupWithCurrentIdNotExist:
-                        throw new ResourceNotFoundException(ErrorMessages.GroupNotExist);
+                        throw new ResourceNotFoundException(ErrorMessages.GroupNotExist, ErrorCodes.ResourceNotFound);
                     case (int)SqlErrorCodes.GeneralSqlError:
                         throw new Exception(ErrorMessages.GeneralErrorOfUpdatingGroup);
-                    case (int)SqlErrorCodes.UserAlreadyAssignedToTheGroup:
-                        throw new Exception(ErrorMessages.UserAlreadyAssignedToGroup);
-                    case (int)SqlErrorCodes.GroupAlreadyAssignedToTheGroup:
-                        throw new Exception(ErrorMessages.GroupAlreadyAssignedToGroup);
-
                 }
             }
+            return result;
         }
 
     }

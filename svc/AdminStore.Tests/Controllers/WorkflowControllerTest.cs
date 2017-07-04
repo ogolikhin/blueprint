@@ -10,6 +10,7 @@ using AdminStore.Helpers;
 using AdminStore.Models.Workflow;
 using AdminStore.Repositories;
 using AdminStore.Repositories.Workflow;
+using AdminStore.Services.Workflow;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Exceptions;
@@ -23,7 +24,7 @@ namespace AdminStore.Controllers
     public class WorkflowControllerTest
     {
 
-        private Mock<IWorkflowRepository> _workflowRepoMock;
+        private Mock<IWorkflowService> _workflowServiceMock;
         private Mock<IServiceLogRepository> _logMock;
         private Mock<IPrivilegesRepository> _privilegesRepositoryMock;
 
@@ -36,10 +37,10 @@ namespace AdminStore.Controllers
         {
             _privilegesRepositoryMock = new Mock<IPrivilegesRepository>();
             _logMock = new Mock<IServiceLogRepository>();
-            _workflowRepoMock = new Mock<IWorkflowRepository>();
+            _workflowServiceMock = new Mock<IWorkflowService>();
 
             var session = new Session { UserId = SessionUserId };
-            _controller = new WorkflowController(_workflowRepoMock.Object, _logMock.Object, _privilegesRepositoryMock.Object)
+            _controller = new WorkflowController(_workflowServiceMock.Object, _logMock.Object, _privilegesRepositoryMock.Object)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()
@@ -64,22 +65,20 @@ namespace AdminStore.Controllers
 
         #endregion
 
-
-
         #region GetWorkflow
 
         [TestMethod]
         public async Task GetWorkflow_AllParamsAreCorrectAndPermissionsOk_ReturnWorkflow()
         {
             //arrange
-            var workflow = new DWorkflow { Name = "Workflow1", Description = "DescriptionWorkflow1", Active = true};
-            _workflowRepoMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(workflow);
+            var workflow = new SqlWorkflow { Name = "Workflow1", Description = "DescriptionWorkflow1", Active = true};
+            _workflowServiceMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(workflow);
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
             //act
-            var result = await _controller.GetWorkflow(WorkflowId) as OkNegotiatedContentResult<DWorkflow>;
+            var result = await _controller.GetWorkflow(WorkflowId) as OkNegotiatedContentResult<SqlWorkflow>;
 
             //assert
             Assert.IsNotNull(result);
@@ -108,31 +107,6 @@ namespace AdminStore.Controllers
             //assert
             Assert.IsNotNull(exception);
             Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
-        }
-
-        [TestMethod]
-        public async Task GetWorkflow_ThereIsNoSuchWorkflow_NotFoundResult()
-        {
-            //arrange
-            ResourceNotFoundException exception = null;
-            _workflowRepoMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(null);
-            _privilegesRepositoryMock
-                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
-                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
-
-            //act
-            try
-            {
-                await _controller.GetWorkflow(WorkflowId);
-            }
-            catch (ResourceNotFoundException ex)
-            {
-                exception = ex;
-            }
-
-            //assert
-            Assert.IsNotNull(exception);
-            Assert.AreEqual(ErrorMessages.WorkflowNotExist, exception.Message);
         }
 
         #endregion

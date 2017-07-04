@@ -4,6 +4,8 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using ArtifactStore.Helpers;
+using ArtifactStore.Models.Reuse;
+using ArtifactStore.Models.VersionControl;
 using ArtifactStore.Repositories.Revisions;
 using ArtifactStore.Repositories.VersionControl;
 using ServiceLibrary.Exceptions;
@@ -66,42 +68,7 @@ namespace ArtifactStore.Services.VersionControl
                 }
                 discardPublishStates = await _versionControlRepository.GetDiscardPublishStates(parameters.UserId, artifactIdsList);
             }
-            if (artifactIdsList.Count != discardPublishStates.Count)
-            {
-                throw new ResourceNotFoundException("Not all items could be located.", ErrorCodes.ItemNotFound);
-            }
-
-            var errorState = discardPublishStates.FirstOrDefault(dps => dps.NotExist);
-            if (errorState != null)
-            {
-                throw new ResourceNotFoundException($"Item with ID {errorState.ItemId} is not found.", ErrorCodes.ItemNotFound);
-            }
-
-            errorState = discardPublishStates.FirstOrDefault(dps => dps.NotArtifact);
-            if (errorState != null)
-            {
-                throw new ResourceNotFoundException($"Item with ID {errorState.ItemId} is not an artifact.", ErrorCodes.ItemNotFound);
-            }
-
-            errorState = discardPublishStates.FirstOrDefault(dps => dps.Deleted);
-            if (errorState != null)
-            {
-                throw new ResourceNotFoundException($"Item with ID {errorState.ItemId} is deleted.", ErrorCodes.ItemNotFound);
-            }
-
-            errorState = discardPublishStates.FirstOrDefault(dps => dps.NoChanges);
-            if (errorState != null)
-            {
-                throw new ConflictException($"Artifact with ID {errorState.ItemId} has nothing to publish. The artifact will now be refreshed.",
-                    ErrorCodes.CannotPublish);
-            }
-
-            errorState = discardPublishStates.FirstOrDefault(dps => dps.Invalid);
-            if (errorState != null)
-            {
-                throw new ConflictException($"Artifact with ID {errorState.ItemId} has validation errors.",
-                    ErrorCodes.CannotPublishOverValidationErrors);
-            }
+            HandleErrorStates(artifactIdsList, discardPublishStates);
 
             IDictionary<int, string> projectsNames = new Dictionary<int, string>();
             // These artifacts can be published alone.
@@ -114,16 +81,77 @@ namespace ArtifactStore.Services.VersionControl
                 await ProcessDependentArtifactsDiscovery(parameters, dependentArtifactsIds, independentArtifactsIds, projectsNames);
             }
 
+            var revisionId = await _sqlHelper.RunInTransactionAsync<int>(ServiceConstants.RaptorMain, 
+                GetPublishTransactionAction(parameters, artifactIdsList));
+
+            var discardPublishDetailsResult =
+                await _versionControlRepository.GetDiscardPublishDetails(parameters.UserId, artifactIdsList, true);
+            var discardPublishDetails = discardPublishDetailsResult.Details;
+            projectsNames = discardPublishDetailsResult.ProjectInfos;
+            var artifactResultSet = ToNovaArtifactResultSet(discardPublishDetails, projectsNames);
+            artifactResultSet.RevisionId = revisionId;
+            return artifactResultSet;
+        }
+
+        private static void HandleErrorStates(IList<int> artifactIdsList, ICollection<SqlDiscardPublishState> discardPublishStates)
+        {
+            if (artifactIdsList.Count != discardPublishStates.Count)
+            {
+                throw new ResourceNotFoundException(I18NHelper.FormatInvariant("Not all items could be located.", null), ErrorCodes.ItemNotFound);
+            }
+
+            var errorState = discardPublishStates.FirstOrDefault(dps => dps.NotExist);
+            if (errorState != null)
+            {
+                throw new ResourceNotFoundException(I18NHelper.FormatInvariant("Item with ID {0} is not found.", errorState.ItemId), 
+                    ErrorCodes.ItemNotFound);
+            }
+
+            errorState = discardPublishStates.FirstOrDefault(dps => dps.NotArtifact);
+            if (errorState != null)
+            {
+                throw new ResourceNotFoundException(I18NHelper.FormatInvariant("Item with ID {0} is not an artifact.", errorState.ItemId),
+                    ErrorCodes.ItemNotFound);
+            }
+
+            errorState = discardPublishStates.FirstOrDefault(dps => dps.Deleted);
+            if (errorState != null)
+            {
+                throw new ResourceNotFoundException(I18NHelper.FormatInvariant("Item with ID {0} is deleted.", errorState.ItemId), 
+                    ErrorCodes.ItemNotFound);
+            }
+
+            errorState = discardPublishStates.FirstOrDefault(dps => dps.NoChanges);
+            if (errorState != null)
+            {
+                throw new ConflictException(
+                    I18NHelper.FormatInvariant("Artifact with ID {0} has nothing to publish. The artifact will now be refreshed.",
+                    errorState.ItemId),
+                    ErrorCodes.CannotPublish);
+            }
+
+            errorState = discardPublishStates.FirstOrDefault(dps => dps.Invalid);
+            if (errorState != null)
+            {
+                throw new ConflictException(I18NHelper.FormatInvariant("Artifact with ID {0} has validation errors.", errorState.ItemId),
+                    ErrorCodes.CannotPublishOverValidationErrors);
+            }
+        }
+
+        private Func<IDbTransaction, Task<int>> GetPublishTransactionAction(PublishParameters parameters, IList<int> artifactIdsList)
+        {
             Func<IDbTransaction, Task<int>> action = async transaction =>
             {
                 var publishRevision =
                     await
-                        _sqlHelper.CreateRevisionInTransactionAsync(transaction, parameters.UserId, "New Publish: publishing artifacts.");
+                        _sqlHelper.CreateRevisionInTransactionAsync(transaction, parameters.UserId,
+                            "New Publish: publishing artifacts.");
 
                 parameters.AffectedArtifactIds.Clear();
                 parameters.AffectedArtifactIds.AddRange(artifactIdsList);
                 var publishResults = new List<SqlPublishResult>(parameters.AffectedArtifactIds.Count);
-                var artifactStates = await _versionControlRepository.GetPublishStates(parameters.UserId, parameters.AffectedArtifactIds);
+                var artifactStates =
+                    await _versionControlRepository.GetPublishStates(parameters.UserId, parameters.AffectedArtifactIds);
 
                 var artifactsCannotBePublished = _versionControlRepository.CanPublish(artifactStates);
 
@@ -150,48 +178,38 @@ namespace ArtifactStore.Services.VersionControl
                     SensitivityCollector = new ReuseSensitivityCollector()
                 };
 
-                if (parameters.AffectedArtifactIds.Count > 0)
+                if (parameters.AffectedArtifactIds.Count <= 0)
                 {
-                    env.DeletedArtifactIds.Clear();
-                    env.DeletedArtifactIds.AddRange(await _versionControlRepository.DetectAndPublishDeletedArtifacts(parameters.UserId, 
-                        parameters.AffectedArtifactIds, 
-                        env));
-                    parameters.AffectedArtifactIds.ExceptWith(env.DeletedArtifactIds);
-
-                    
-
-                    //await ActionRepeater.RetryAsync(async () =>
-                    //{
-                        //Release lock
-                        if (!env.KeepLock)
-                        {
-                            await _versionControlRepository.ReleaseLock(parameters.UserId, parameters.AffectedArtifactIds, transaction);
-                        }
-
-                        await _publishRepositoryComposer.Execute(publishRevision, parameters, env, transaction);
-
-                        //Add history
-                        await _revisionRepository.AddHistory(publishRevision, parameters.AffectedArtifactIds, transaction);
-                    //});
-
-                    publishResults.AddRange(env.GetChangeSqlPublishResults());
-                    
+                    return publishRevision;
                 }
+
+                env.DeletedArtifactIds.Clear();
+                env.DeletedArtifactIds.AddRange(
+                    await _versionControlRepository.DetectAndPublishDeletedArtifacts(parameters.UserId,
+                        parameters.AffectedArtifactIds,
+                        env));
+                parameters.AffectedArtifactIds.ExceptWith(env.DeletedArtifactIds);
+
+                //Release lock
+                if (!env.KeepLock)
+                {
+                    await _versionControlRepository.ReleaseLock(parameters.UserId, parameters.AffectedArtifactIds, transaction);
+                }
+
+                await _publishRepositoryComposer.Execute(publishRevision, parameters, env, transaction);
+
+                //Add history
+                await _revisionRepository.AddHistory(publishRevision, parameters.AffectedArtifactIds, transaction);
+                //});
+
+                publishResults.AddRange(env.GetChangeSqlPublishResults());
 
                 return publishRevision;
             };
 
-            var revisionId = await _sqlHelper.RunInTransactionAsync<int>(ServiceConstants.RaptorMain, action);
-
-            var discardPublishDetailsResult =
-                await _versionControlRepository.GetDiscardPublishDetails(parameters.UserId, artifactIdsList, true);
-            var discardPublishDetails = discardPublishDetailsResult.Details;
-            projectsNames = discardPublishDetailsResult.ProjectInfos;
-            var artifactResultSet = ToNovaArtifactResultSet(discardPublishDetails, projectsNames);
-            artifactResultSet.RevisionId = revisionId;
-            return artifactResultSet;
+            return action;
         }
-        
+
         private async Task ProcessDependentArtifactsDiscovery(PublishParameters parameters, IList<int> dependentArtifactsIds,
             IList<int> independentArtifactsIds, IDictionary<int, string> projectsNames)
         {

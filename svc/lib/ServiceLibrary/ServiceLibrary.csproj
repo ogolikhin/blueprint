@@ -99,6 +99,7 @@
     <Compile Include="Exceptions\ConflictException.cs" />
     <Compile Include="Exceptions\ExceptionWithErrorCode.cs" />
     <Compile Include="Exceptions\ResourceNotFoundException.cs" />
+    <Compile Include="Helpers\CollectionHelper.cs" />
     <Compile Include="Helpers\FeatureLicenseHelper.cs" />
     <Compile Include="Helpers\CacheHelper.cs" />
     <Compile Include="Helpers\Cache\AsyncCache.cs" />
@@ -151,6 +152,7 @@
     <Compile Include="Models\Enums\PublishErrors.cs" />
     <Compile Include="Models\Enums\QueryResultCode.cs" />
     <Compile Include="Models\Enums\SortOrder.cs" />
+    <Compile Include="Models\Enums\UserType.cs" />
     <Compile Include="Models\Files\File.cs" />
     <Compile Include="Models\Files\FileInfo.cs" />
     <Compile Include="Models\IAction.cs" />

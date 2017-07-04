@@ -3,6 +3,8 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using ArtifactStore.Helpers;
+using ArtifactStore.Models.Reuse;
+using ArtifactStore.Models.VersionControl;
 using Dapper;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;

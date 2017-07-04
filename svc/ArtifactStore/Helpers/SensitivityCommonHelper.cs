@@ -147,11 +147,6 @@ namespace ArtifactStore.Helpers
 
             foreach (var affectedItem in affectedItems)
             {
-                //var canProceed = ParticipatesInSensitivityCalculation(affectedItem);
-                //if (!canProceed)
-                //{
-                //    continue;
-                //}
                 ReuseSensitivityCollector.ArtifactModification modifications;
                 if (
                     !sensitivityCollector.ArtifactModifications.TryGetValue(affectedItem,
@@ -170,28 +165,5 @@ namespace ArtifactStore.Helpers
             }
             return modifiedArtifacts;
         }
-
-        //private bool IsStandardArtifactItem(ItemVersion itemVersion)
-        //{
-        //    //(item.DraftVersion != null && item.DraftVersion.ItemType != null && item.DraftVersion.ItemType.InstanceItemTypeId.HasValue)
-        //    //(item.LatestVersion != null && item.LatestVersion.ItemType != null && item.LatestVersion.ItemType.InstanceItemTypeId.HasValue)
-        //    return itemVersion != null && itemVersion.ItemType != null &&
-        //           itemVersion.ItemType.InstanceItemTypeId.HasValue;
-        //}
-
-        //private bool ParticipatesInSensitivityCalculation<U>(U affectedItem)
-        //{
-        //    var item = affectedItem as Item;
-        //    if (item != null)
-        //    {
-        //        if ((IsStandardArtifactItem(item.DraftVersion) || IsStandardArtifactItem(item.LatestVersion)) &&
-        //            ((ItemTypePredefined) item.PrimitiveItemTypePredefined).IsAvailableForSensitivityCalculations())
-        //        {
-        //            return true;
-        //        }
-        //        return false;
-        //    }
-        //    return true;
-        //}
     }
 }

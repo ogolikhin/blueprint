@@ -115,7 +115,6 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Helpers\CollectionHelper.cs" />
     <Compile Include="Helpers\MentionHelper.cs" />
     <Compile Include="Helpers\PropertyHelper.cs" />
     <Compile Include="Helpers\SensitivityCommonHelper.cs" />
@@ -123,6 +122,7 @@
     <Compile Include="Models\Reuse\ItemTypeReuseTemplate.cs" />
     <Compile Include="Models\Reuse\PropertyTypeReuseTemplate.cs" />
     <Compile Include="Models\Reuse\ReconcileProperty.cs" />
+    <Compile Include="Models\Reuse\ReuseSensitivityCollector.cs" />
     <Compile Include="Models\Reuse\ReuseSystemPropertiesMap.cs" />
     <Compile Include="Models\Reuse\ReuseTemplateSettingsMap.cs" />
     <Compile Include="Models\Reuse\SqlItemTypeReuseTemplate.cs" />

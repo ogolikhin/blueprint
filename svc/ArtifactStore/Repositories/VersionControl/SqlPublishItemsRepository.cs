@@ -2,6 +2,8 @@
 using System.Data;
 using System.Threading.Tasks;
 using ArtifactStore.Helpers;
+using ArtifactStore.Models.Reuse;
+using ArtifactStore.Models.VersionControl;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.VersionControl;
 

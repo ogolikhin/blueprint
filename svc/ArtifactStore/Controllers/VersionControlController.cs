@@ -28,6 +28,19 @@ namespace ArtifactStore.Controllers
             _versionControlService = versionControlService;
         }
 
+        /// <summary>
+        /// Publish artifacts.
+        /// </summary>
+        /// <remarks>
+        /// Publish all or specified artifacts.
+        /// </remarks>
+        /// <response code="200">OK.</response>
+        /// <response code="401">Unauthorized. The session token is invalid or missing.</response>
+        /// <response code="400">Bad Request. The input list of artifacts Ids is missing or incorrect when query parameter 'all' is not specified or false.</response>
+        /// <response code="409">Conflict. There are dependent artifacts that are needed to be published.
+        /// Or some properties at least of one artifact are invalid
+        /// Or at least one of the specified artifacts is already published.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost]
         [Route("artifacts/publish"), SessionRequired]
         [ActionName("PublishArtifacts")]

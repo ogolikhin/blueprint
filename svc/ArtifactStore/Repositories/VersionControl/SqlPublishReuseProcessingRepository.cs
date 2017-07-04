@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using ArtifactStore.Helpers;
+using ArtifactStore.Models.VersionControl;
 using ArtifactStore.Repositories.Reuse;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.VersionControl;

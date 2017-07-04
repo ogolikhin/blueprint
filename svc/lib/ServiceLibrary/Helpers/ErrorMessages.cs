@@ -70,5 +70,7 @@
         public static readonly string GroupEmailFormatIncorrect = "Please ensure the email address is in the following format: group@company.com.";
         public static readonly string TheProjectDoesNotExist = "The project does not exist.";
         public static readonly string ProjectIdIsInvalid = "The project Id is invalid";
+        //Workflow
+        public static readonly string WorkflowNotExist = "The workflow with the current workflowId doesn’t exist or removed from the system.";
     }
 }

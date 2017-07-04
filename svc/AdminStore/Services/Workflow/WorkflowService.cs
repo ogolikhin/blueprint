@@ -133,6 +133,16 @@ namespace AdminStore.Services.Workflow
 
         }
 
+        public async Task<SqlWorkflow> GetWorkflowDetailsAsync(int workflowId)
+        {
+            var workflowDetails = await _workflowRepository.GetWorkflowDetailsAsync(workflowId);
+            if (workflowDetails == null)
+            {
+                throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
+            }
+            return workflowDetails;
+        }
+
         private async Task ImportWorkflowComponentsAsync(IeWorkflow workflow, SqlWorkflow newWorkflow, int publishRevision, IDbTransaction transaction)
         {
             IEnumerable<SqlState> newStates = null;

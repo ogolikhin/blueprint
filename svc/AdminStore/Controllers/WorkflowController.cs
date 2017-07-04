@@ -147,6 +147,30 @@ namespace AdminStore.Controllers
         }
 
 
+        /// <summary>
+        /// Get workflow details by workflow identifier
+        /// </summary>
+        /// <param name="workflowId">Workflow's identity</param>
+        /// <returns>
+        /// <response code="200">OK. Returns the specified workflow.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">User doesn’t have permission to view workflow.</response>
+        /// <response code="404">Not Found. The workflow with the provided Id was not found.</response>
+        /// </returns>
+        [SessionRequired]
+        [Route("{workflowId:int:min(1)}")]
+        [ResponseType(typeof (SqlWorkflow))]
+        public async Task<IHttpActionResult> GetWorkflow(int workflowId)
+        {
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+
+            var workflowDetails = await _workflowService.GetWorkflowDetailsAsync(workflowId);
+
+            return Ok(workflowDetails);
+        }
+
+
+
         public async Task<IHttpActionResult> GetWorkflows([FromUri] Pagination pagination, [FromUri] Sorting sorting = null, string search = null)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);

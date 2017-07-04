@@ -19,7 +19,6 @@ namespace AdminStore.Repositories.Workflow
 
 
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
-        private readonly IUserRepository _userRepository;
         private readonly ISqlHelper _sqlHelper;
 
 
@@ -29,18 +28,15 @@ namespace AdminStore.Repositories.Workflow
 
         public WorkflowRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain),
-                  new SqlHelper(),
-                  new SqlUserRepository())
+                  new SqlHelper())
         {
         }
 
         internal WorkflowRepository(ISqlConnectionWrapper connectionWrapper,
-            ISqlHelper sqlHelper,
-            IUserRepository userRepository)
+            ISqlHelper sqlHelper)
         {
             ConnectionWrapper = connectionWrapper;
             _sqlHelper = sqlHelper;
-            _userRepository = userRepository;
         }
 
         #endregion
@@ -235,7 +231,9 @@ namespace AdminStore.Repositories.Workflow
             await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, action);
         }
 
-        public async Task<QueryResult<WorkflowDto>> GetWorkflows(Pagination pagination, Sorting sorting = null, string search = null, Func<Sorting, string> sort = null)
+
+        public async Task<QueryResult<WorkflowDto>> GetWorkflows(Pagination pagination, Sorting sorting = null,
+            string search = null, Func<Sorting, string> sort = null)
         {
             var orderField = string.Empty;
             if (sort != null && sorting != null)
@@ -252,17 +250,31 @@ namespace AdminStore.Repositories.Workflow
             parameters.Add("@Search", search ?? string.Empty);
             parameters.Add("@OrderField", string.IsNullOrEmpty(orderField) ? "Name" : orderField);
             parameters.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            var workflows = (await ConnectionWrapper.QueryAsync<WorkflowDto>("GetWorkflows", parameters, commandType: CommandType.StoredProcedure)).ToList();
+            var workflows =
+                (await
+                    ConnectionWrapper.QueryAsync<WorkflowDto>("GetWorkflows", parameters,
+                        commandType: CommandType.StoredProcedure)).ToList();
             var total = parameters.Get<int>("Total");
-            return new QueryResult<WorkflowDto>() { Items = workflows, Total = total };
+            return new QueryResult<WorkflowDto>() {Items = workflows, Total = total};
+        }
+
+
+
+        public async Task<SqlWorkflow> GetWorkflowDetailsAsync(int workflowId)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("WorkflowId", workflowId);
+
+            var result = (await ConnectionWrapper.QueryAsync<SqlWorkflow>("GetWorkflowDetails", parameters, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+            return result;           
 
         }
 
         #endregion
 
-        #region Private methods
+    #region Private methods
 
-        private static DataTable ToWorkflowsCollectionDataTable(IEnumerable<SqlWorkflow> workflows)
+    private static DataTable ToWorkflowsCollectionDataTable(IEnumerable<SqlWorkflow> workflows)
         {
             var table = new DataTable { Locale = CultureInfo.InvariantCulture };
             table.SetTypeName("WorkflowsCollection");

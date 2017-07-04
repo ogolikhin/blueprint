@@ -46,6 +46,7 @@
         public static readonly string GeneralErrorOfAddingUserToGroups = "An error has occurred when the operation was being performed at the SQL level.";
         public static readonly string CantGetUsersToBeDeleted = "Can't get users to be deleted";
         public static readonly string IncorrectBase64FormatPasswordField = "The password is not a valid Base-64 string as it contains a non-base 64 character, more than two padding characters, or an illegal character among the padding characters";
+        public static readonly string TheUserIdCanNotBeNegative = "The userId can not be negative.";
         //Groups
         public static readonly string GroupModelIsEmpty = "The group model is empty.";
         public static readonly string GroupNameRequired = "Please enter a Group Name.";
@@ -72,5 +73,6 @@
         public static readonly string ProjectIdIsInvalid = "The project Id is invalid";
         //Workflow
         public static readonly string WorkflowNotExist = "The workflow with the current workflowId doesn’t exist or removed from the system.";
+
     }
 }

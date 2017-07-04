@@ -10,7 +10,14 @@ using ServiceLibrary.Repositories;
 
 namespace ArtifactStore.Repositories.VersionControl
 {
-    public abstract class SqlPublishRepository : SqlBaseArtifactRepository
+    public interface ISqlPublishRepository
+    {
+        Task<ISet<int>> GetLiveItemsOnly(ISet<int> itemsToVerify, IDbTransaction transaction = null);
+        Task<double?> GetMaxChildOrderIndex(int parentId, IDbTransaction transaction = null);
+        Task SetParentAndOrderIndex(int itemVersionId, int newParentId, double newOrderIndex, IDbTransaction transaction = null);
+    }
+
+    public abstract class SqlPublishRepository : SqlBaseArtifactRepository, ISqlPublishRepository
     {
         protected abstract class BaseVersionData
         {

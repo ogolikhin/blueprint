@@ -24,8 +24,6 @@
 
         public string Actions { get; set; }
 
-        public int? ProjectId { get; set; }
-
         public int? WorkflowState1Id { get; set; }
 
         public int? WorkflowState2Id { get; set; }

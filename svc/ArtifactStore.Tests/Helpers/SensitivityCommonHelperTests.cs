@@ -60,10 +60,12 @@ namespace ArtifactStore.Helpers
                 });
 
             //Act
-            var result = await _sensitivityCommonHelper.FilterInsensitiveItems(new List<int>() {1}, _sensitivityCollector, _reuseRepository.Object);
+            var result = (await _sensitivityCommonHelper.FilterInsensitiveItems(new List<int>() {1}, _sensitivityCollector, _reuseRepository.Object))
+                .ToList();
 
             //Assert
-            Assert.IsTrue(result.First() == 1, "One item should have been retrieved as sensitive.");
+            Assert.IsTrue(result.Count == 1, "One item should have been retrieved as sensitive.");
+            Assert.IsTrue(result[0] == 1, "One item should have been retrieved as sensitive.");
         }
 
         [TestMethod]
@@ -100,10 +102,11 @@ namespace ArtifactStore.Helpers
                 });
 
             //Act
-            var result = await _sensitivityCommonHelper.FilterInsensitiveItems(new List<int> { 1, 5, 8 }, _sensitivityCollector, _reuseRepository.Object);
+            var result = (await _sensitivityCommonHelper.FilterInsensitiveItems(new List<int> { 1, 5, 8 }, _sensitivityCollector, _reuseRepository.Object)).ToList();
 
             //Assert
-            Assert.IsTrue(result.First() == 1, "One item should have been retrieved as sensitive.");
+            Assert.IsTrue(result.Count == 1, "One item should have been retrieved as sensitive.");
+            Assert.IsTrue(result[0] == 1, "One item should have been retrieved as sensitive.");
         }
 
         [TestMethod]

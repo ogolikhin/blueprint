@@ -16,11 +16,11 @@ namespace ArtifactStore.Helpers
             //Arrange
 
 
-            //Assert
+            //Act
             var ptf = ReuseSystemPropertiesMap.Instance.GetPropertyTypePredefined(ReconcileProperty.Name,
                 ItemTypePredefined.Actor);
 
-            //Act
+            //Assert
             Assert.IsFalse(!ptf.Any(), "No property type info should have been returned");
         }
 
@@ -30,11 +30,11 @@ namespace ArtifactStore.Helpers
             //Arrange
 
 
-            //Assert
+            //Act
             var ptf = ReuseSystemPropertiesMap.Instance.GetPropertyTypePredefined(ReconcileProperty.ActorImageName,
                 ItemTypePredefined.Actor).ToList();
 
-            //Act
+            //Assert
             Assert.IsNotNull(ptf, "property type info should have been returned");
             Assert.IsTrue(ptf.Count == 2, "2 property type infos should have been returned");
             Assert.IsTrue(ptf[0] == PropertyTypePredefined.RawData, "first property type info should have been RawData");

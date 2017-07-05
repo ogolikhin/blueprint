@@ -251,6 +251,73 @@ namespace AdminStore.Controllers
             Assert.IsInstanceOfType(result, typeof(InternalServerErrorResult));
         }
 
+        [TestMethod]
+        public async Task GetLoginUser_CheckAdminRoleRepositoryReturnsTrue_ReturnsUser()
+        {
+            // Arrange
+            var loginUser = new LoginUser {IsProjectAdmin = false};
+
+            _usersRepoMock
+                .Setup(repo => repo.GetLoginUserByIdAsync(It.IsAny<int>()))
+                .ReturnsAsync(loginUser);
+            _usersRepoMock
+                .Setup(repo => repo.CheckUserHasProjectAdminRoleAsync(It.IsAny<int>()))
+                .ReturnsAsync(true);
+
+            // Act
+            var result = await _controller.GetLoginUser() as OkNegotiatedContentResult<LoginUser>;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(loginUser, result.Content);
+            Assert.AreEqual(loginUser.IsProjectAdmin, result.Content.IsProjectAdmin);
+            Assert.IsTrue(result.Content.IsProjectAdmin);
+        }
+
+        [TestMethod]
+        public async Task GetLoginUser_CheckAdminRoleRepositoryWasNotHandled_ReturnsUser()
+        {
+            // Arrange
+            var loginUser = new LoginUser {InstanceAdminRoleId = 1};
+
+            _usersRepoMock
+                .Setup(repo => repo.GetLoginUserByIdAsync(It.IsAny<int>()))
+                .ReturnsAsync(loginUser);
+            _usersRepoMock
+                .Setup(repo => repo.CheckUserHasProjectAdminRoleAsync(It.IsAny<int>()))
+                .ReturnsAsync(false);
+
+            // Act
+            var result = await _controller.GetLoginUser() as OkNegotiatedContentResult<LoginUser>;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(loginUser, result.Content);
+            Assert.AreEqual(loginUser.IsProjectAdmin, result.Content.IsProjectAdmin);
+            Assert.IsTrue(result.Content.IsProjectAdmin);
+            _usersRepoMock.Verify(x => x.CheckUserHasProjectAdminRoleAsync(It.IsAny<int>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task GetLoginUser_CheckAdminRoleRepositoryThrowsException_InternalServerErrorResult()
+        {
+            // Arrange
+            var loginUser = new LoginUser { IsProjectAdmin = false };
+
+            _usersRepoMock
+                .Setup(repo => repo.GetLoginUserByIdAsync(It.IsAny<int>()))
+                .ReturnsAsync(loginUser);
+            _usersRepoMock
+                .Setup(repo => repo.CheckUserHasProjectAdminRoleAsync(It.IsAny<int>()))
+                .Throws(new Exception());
+
+            // Act
+            IHttpActionResult result = await _controller.GetLoginUser();
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(InternalServerErrorResult));
+        }
+
         #endregion GetLoginUser
 
         #region PostReset

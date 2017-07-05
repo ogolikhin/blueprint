@@ -155,6 +155,44 @@ namespace AdminStore.Repositories
 
         #endregion GetLoginUserByIdAsync
 
+        #region CheckUserHasProjectAdminRoleAsync
+
+        [TestMethod]
+        public async Task CheckUserHasProjectAdminRoleAsync_QueryReturnsTrue_ReturnsTrue()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
+            var userId = 1;
+            cxn.SetupExecuteScalarAsync("IsProjectAdminForAnyNonDeletedProject", new Dictionary<string, object> { { "UserId", userId } }, true);
+
+            // Act
+            var isUserHasAdminRole = await repository.CheckUserHasProjectAdminRoleAsync(userId);
+
+            // Assert
+            cxn.Verify();
+            Assert.IsTrue(isUserHasAdminRole);
+        }
+
+        [TestMethod]
+        public async Task CheckUserHasProjectAdminRoleAsync_QueryReturnsFalse_ReturnsFalse()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
+            var userId = 5;
+            cxn.SetupExecuteScalarAsync("IsProjectAdminForAnyNonDeletedProject", new Dictionary<string, object> { { "UserId", userId } }, false);
+
+            // Act
+            var isUserHasAdminRole = await repository.CheckUserHasProjectAdminRoleAsync(userId);
+
+            // Assert
+            cxn.Verify();
+            Assert.IsFalse(isUserHasAdminRole);
+        }
+
+        #endregion CheckUserHasProjectAdminRoleAsync
+
         #region GetLicenseTransactionUserInfoAsync
 
         [TestMethod]

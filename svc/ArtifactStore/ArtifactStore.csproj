@@ -123,7 +123,7 @@
     <Compile Include="Models\Reuse\PropertyTypeReuseTemplate.cs" />
     <Compile Include="Models\Reuse\ReconcileProperty.cs" />
     <Compile Include="Models\Reuse\ReuseSensitivityCollector.cs" />
-    <Compile Include="Models\Reuse\ReuseSystemPropertiesMap.cs" />
+    <Compile Include="Helpers\ReuseSystemPropertiesMap.cs" />
     <Compile Include="Models\Reuse\ReuseTemplateSettingsMap.cs" />
     <Compile Include="Models\Reuse\SqlItemTypeReuseTemplate.cs" />
     <Compile Include="Models\Reuse\SqlModifiedItems.cs" />

@@ -4,7 +4,6 @@ using System.Linq;
 using ArtifactStore.Models.Reuse;
 using ArtifactStore.Repositories.VersionControl;
 using ServiceLibrary.Models;
-using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.VersionControl;
 
 namespace ArtifactStore.Models.VersionControl
@@ -124,56 +123,4 @@ namespace ArtifactStore.Models.VersionControl
             }
         }
     }
-
-    
-
-    
-
-    
-
-    //public class UserValue : IEquatable<UserValue>
-    //{
-    //    private readonly IEnumerable<string> _userLabels;
-    //    private readonly IEnumerable<KeyValuePair<int, UserType>> _userValues;
-
-    //    public UserValue(IEnumerable<string> userLabels, IEnumerable<KeyValuePair<int, UserType>> userValues)
-    //    {
-    //        _userLabels = userLabels;
-    //        _userValues = userValues;
-    //    }
-
-    //    public bool Equals(UserValue other)
-    //    {
-    //        if (other == null)
-    //            return false;
-
-    //        if (_userLabels == null)
-    //        {
-    //            if (other._userLabels != null)
-    //                return false;
-
-    //        }
-    //        else
-    //        {
-    //            if (other._userLabels == null)
-    //                return false;
-
-    //            return !_userLabels.Except(other._userLabels).Any() && !other._userLabels.Except(_userLabels).Any();
-    //        }
-
-    //        if (_userValues == null)
-    //        {
-    //            if (other._userValues == null || !other._userValues.Any())
-    //                return true;
-    //            return false;
-    //        }
-
-    //        if (other._userValues == null)
-    //        {
-    //            return !_userValues.Any();
-    //        }
-
-    //        return !_userValues.Except(other._userValues).Any() && !other._userValues.Except(_userValues).Any();
-    //    }
-    //}
 }

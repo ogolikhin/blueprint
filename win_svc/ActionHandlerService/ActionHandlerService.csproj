@@ -80,6 +80,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MessageHandlers\BaseMessageHandler.cs" />
     <Compile Include="MessageHandlers\GenerateUserStoriesMessageHandler.cs" />
     <Compile Include="MessageHandlers\GenerateTestsMessageHandler.cs" />
     <Compile Include="MessageHandlers\GenerateDescendantsMessageHandler.cs" />

@@ -16,9 +16,9 @@ namespace ActionHandlerServiceTests
         {
             const ActionType messageActionType = ActionType.Notification;
 
-            var actionHandlerHelperMock = new Mock<IActionHandlerHelper>();
+            var actionHandlerHelperMock = new Mock<IActionHelper>();
             actionHandlerHelperMock.Setup(m => m.HandleAction(It.IsAny<TenantInfo>())).Returns(true);
-            ActionHandlerService.ActionHandlerService.Instance.ActionHandlerHelper = actionHandlerHelperMock.Object;
+            ActionHandlerService.ActionHandlerService.Instance.ActionHelper = actionHandlerHelperMock.Object;
 
             Test.Handler<NotificationMessageHandler>().OnMessage<NotificationMessage>(message => message.ActionType = messageActionType);
         }
@@ -29,9 +29,9 @@ namespace ActionHandlerServiceTests
         {
             const ActionType messageActionType = ActionType.Notification;
 
-            var actionHandlerHelperMock = new Mock<IActionHandlerHelper>();
+            var actionHandlerHelperMock = new Mock<IActionHelper>();
             actionHandlerHelperMock.Setup(m => m.HandleAction(It.IsAny<TenantInfo>())).Throws(new Exception());
-            ActionHandlerService.ActionHandlerService.Instance.ActionHandlerHelper = actionHandlerHelperMock.Object;
+            ActionHandlerService.ActionHandlerService.Instance.ActionHelper = actionHandlerHelperMock.Object;
 
             Test.Handler<NotificationMessageHandler>().OnMessage<NotificationMessage>(message => message.ActionType = messageActionType);
         }
@@ -41,9 +41,9 @@ namespace ActionHandlerServiceTests
         {
             const ActionType messageActionType = ActionType.GenerateDescendants;
 
-            var actionHandlerHelperMock = new Mock<IActionHandlerHelper>();
+            var actionHandlerHelperMock = new Mock<IActionHelper>();
             actionHandlerHelperMock.Setup(m => m.HandleAction(It.IsAny<TenantInfo>())).Returns(true);
-            ActionHandlerService.ActionHandlerService.Instance.ActionHandlerHelper = actionHandlerHelperMock.Object;
+            ActionHandlerService.ActionHandlerService.Instance.ActionHelper = actionHandlerHelperMock.Object;
 
             Test.Handler<GenerateDescendantsMessageHandler>().OnMessage<GenerateDescendantsMessage>(message => message.ActionType = messageActionType);
         }
@@ -54,9 +54,9 @@ namespace ActionHandlerServiceTests
         {
             const ActionType messageActionType = ActionType.GenerateDescendants;
 
-            var actionHandlerHelperMock = new Mock<IActionHandlerHelper>();
+            var actionHandlerHelperMock = new Mock<IActionHelper>();
             actionHandlerHelperMock.Setup(m => m.HandleAction(It.IsAny<TenantInfo>())).Throws(new Exception());
-            ActionHandlerService.ActionHandlerService.Instance.ActionHandlerHelper = actionHandlerHelperMock.Object;
+            ActionHandlerService.ActionHandlerService.Instance.ActionHelper = actionHandlerHelperMock.Object;
 
             Test.Handler<GenerateDescendantsMessageHandler>().OnMessage<GenerateDescendantsMessage>(message => message.ActionType = messageActionType);
         }
@@ -66,9 +66,9 @@ namespace ActionHandlerServiceTests
         {
             const ActionType messageActionType = ActionType.GenerateTests;
 
-            var actionHandlerHelperMock = new Mock<IActionHandlerHelper>();
+            var actionHandlerHelperMock = new Mock<IActionHelper>();
             actionHandlerHelperMock.Setup(m => m.HandleAction(It.IsAny<TenantInfo>())).Returns(true);
-            ActionHandlerService.ActionHandlerService.Instance.ActionHandlerHelper = actionHandlerHelperMock.Object;
+            ActionHandlerService.ActionHandlerService.Instance.ActionHelper = actionHandlerHelperMock.Object;
 
             Test.Handler<GenerateTestsMessageHandler>().OnMessage<GenerateTestsMessage>(message => message.ActionType = messageActionType);
         }
@@ -79,9 +79,9 @@ namespace ActionHandlerServiceTests
         {
             const ActionType messageActionType = ActionType.GenerateTests;
 
-            var actionHandlerHelperMock = new Mock<IActionHandlerHelper>();
+            var actionHandlerHelperMock = new Mock<IActionHelper>();
             actionHandlerHelperMock.Setup(m => m.HandleAction(It.IsAny<TenantInfo>())).Throws(new Exception());
-            ActionHandlerService.ActionHandlerService.Instance.ActionHandlerHelper = actionHandlerHelperMock.Object;
+            ActionHandlerService.ActionHandlerService.Instance.ActionHelper = actionHandlerHelperMock.Object;
 
             Test.Handler<GenerateTestsMessageHandler>().OnMessage<GenerateTestsMessage>(message => message.ActionType = messageActionType);
         }

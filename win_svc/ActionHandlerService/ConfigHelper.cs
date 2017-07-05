@@ -52,8 +52,14 @@ namespace ActionHandlerService
         public static Transport Transport => GetConfigEnum(TransportKey, TransportDefault);
 
         public const string ActionTypesKey = "ActionTypes";
-        public static readonly List<ActionType> AllAllowedActionTypes = new List<ActionType> {ActionType.Notification, ActionType.GenerateDescendants, ActionType.GenerateTests, ActionType.GenerateUserStories};
-        public static List<ActionType> AllowedActionTypes => GetConfigEnumList(ActionTypesKey, AllAllowedActionTypes);
+        public static readonly List<MessageActionType> AllAllowedActionTypes = new List<MessageActionType>
+        {
+            MessageActionType.Notification,
+            MessageActionType.GenerateDescendants,
+            MessageActionType.GenerateTests,
+            MessageActionType.GenerateUserStories
+        };
+        public static List<MessageActionType> AllowedActionTypes => GetConfigEnumList(ActionTypesKey, AllAllowedActionTypes);
 
         private static T GetConfigEnum<T>(string key, T defaultValue) where T : struct
         {

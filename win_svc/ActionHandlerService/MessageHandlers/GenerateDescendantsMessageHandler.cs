@@ -1,38 +1,11 @@
-﻿using System;
-using System.Threading.Tasks;
-using BluePrintSys.ActionMessaging.Models;
-using NServiceBus;
+﻿using BluePrintSys.ActionMessaging.Models;
 
 namespace ActionHandlerService.MessageHandlers
 {
-    public class GenerateDescendantsMessageHandler : IHandleMessages<GenerateDescendantsMessage>
+    public class GenerateDescendantsMessageHandler : BaseMessageHandler<GenerateDescendantsMessage>
     {
-        public Task Handle(GenerateDescendantsMessage message, IMessageHandlerContext context)
-        {
-            try
-            {
-                if (ConfigHelper.AllowedActionTypes.Contains(message.ActionType))
-                {
-                    var tenantId = message.TenantId;
-                    var tenants = TenantInfoRetriever.GetTenants();
-                    TenantInfo tenant;
-                    if (!tenants.TryGetValue(tenantId, out tenant))
-                    {
-                        throw new Exception($"Tentant Info not found for Tenant ID {tenantId}");
-                    }
-                    ActionHandlerService.Instance.ActionHandlerHelper.HandleAction(tenant);
-                }
-                else
-                {
-                    throw new Exception($"Unsupported Action Type: {message.ActionType.ToString()}");
-                }
-            }
-            catch (Exception)
-            {
-                //todo log exception
-                throw;
-            }
-            return Task.CompletedTask;
-        }
+        protected override MessageActionType ActionType { get; } = MessageActionType.GenerateDescendants;
+
+        protected override IActionHelper ActionHelper { get; } = new GenerateDescendantsActionHelper();
     }
 }

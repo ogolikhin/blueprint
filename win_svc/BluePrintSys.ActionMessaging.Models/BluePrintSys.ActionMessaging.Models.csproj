@@ -45,6 +45,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionMessage.cs" />
+    <Compile Include="GenerateDescendantsMessage.cs" />
+    <Compile Include="GenerateTestsMessage.cs" />
+    <Compile Include="GenerateUserStoriesMessage.cs" />
+    <Compile Include="MessageActionType.cs" />
+    <Compile Include="NotificationMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

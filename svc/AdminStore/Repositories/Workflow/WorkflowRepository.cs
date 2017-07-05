@@ -282,7 +282,6 @@ namespace AdminStore.Repositories.Workflow
             table.Columns.Add("Permissions", typeof(string));
             table.Columns.Add("Validations", typeof(string));
             table.Columns.Add("Actions", typeof(string));
-            table.Columns.Add("ProjectId", typeof(int));
             table.Columns.Add("WorkflowState1Id", typeof(int));
             table.Columns.Add("WorkflowState2Id", typeof(int));
             table.Columns.Add("PropertyTypeId", typeof(int));
@@ -291,8 +290,8 @@ namespace AdminStore.Repositories.Workflow
             {
                 table.Rows.Add(workflowTrigger.TriggerId, workflowTrigger.Name, workflowTrigger.Description,
                     workflowTrigger.WorkflowId, workflowTrigger.Type, workflowTrigger.Permissions, 
-                    workflowTrigger.Validations, workflowTrigger.Actions, workflowTrigger.ProjectId, 
-                    workflowTrigger.WorkflowState1Id, workflowTrigger.WorkflowState2Id, workflowTrigger.PropertyTypeId);
+                    workflowTrigger.Validations, workflowTrigger.Actions, workflowTrigger.WorkflowState1Id, 
+                    workflowTrigger.WorkflowState2Id, workflowTrigger.PropertyTypeId);
             }
             return table;
         }

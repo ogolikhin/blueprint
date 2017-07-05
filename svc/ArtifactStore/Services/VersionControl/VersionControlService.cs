@@ -97,7 +97,7 @@ namespace ArtifactStore.Services.VersionControl
         {
             if (artifactIdsList.Count != discardPublishStates.Count)
             {
-                throw new ResourceNotFoundException(I18NHelper.FormatInvariant("Not all items could be located.", null), ErrorCodes.ItemNotFound);
+                throw new ResourceNotFoundException(I18NHelper.FormatInvariant("Not all items could be located."), ErrorCodes.ItemNotFound);
             }
 
             var errorState = discardPublishStates.FirstOrDefault(dps => dps.NotExist);

@@ -682,7 +682,7 @@ namespace AdminStore.Controllers
 
             _privilegesRepository
                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
-               .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+               .ReturnsAsync(InstanceAdminPrivileges.ViewGroups);
             _sqlGroupRepositoryMock.Setup(repo => repo.GetGroupUsersAsync(It.IsAny<int>(), It.IsAny<TabularData>(), It.IsAny<Func<Sorting, string>>())).ReturnsAsync(queryResult);
 
             //act

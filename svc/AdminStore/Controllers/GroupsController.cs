@@ -83,7 +83,7 @@ namespace AdminStore.Controllers
         {
             pagination.Validate();
 
-            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageGroups);
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewGroups);
 
             var tabularData = new TabularData { Pagination = pagination, Sorting = sorting, Search = search };
             var result = await _groupRepository.GetGroupUsersAsync(groupId, tabularData, SortingHelper.SortUsergroups);

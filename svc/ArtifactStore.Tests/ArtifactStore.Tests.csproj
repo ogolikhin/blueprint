@@ -94,6 +94,7 @@
     <Compile Include="Repositories\SqlProjectMetaRepositoryTests.cs" />
     <Compile Include="Repositories\SqlReviewsRepositoryTests.cs" />
     <Compile Include="Repositories\Workflow\SqlWorkflowRepositoryTests.cs" />
+    <Compile Include="Services\VersionControlServiceTests.cs" />
     <Compile Include="Services\WorkflowServiceUnitTests.cs" />
   </ItemGroup>
   <ItemGroup>

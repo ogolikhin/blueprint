@@ -1,12 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ArtifactStore.Helpers;
+using ArtifactStore.Models;
+using ArtifactStore.Models.Reuse;
 using ServiceLibrary.Models;
 
-namespace ArtifactStore.Models.Reuse
+namespace ArtifactStore.Helpers
 {
-    public class ReuseSystemPropertiesMap
+    public interface IReuseSystemPropertiesMap
+    {
+        IEnumerable<PropertyTypePredefined> GetPropertyTypePredefined(ReconcileProperty reconcileProperty,
+            ItemTypePredefined baseItemTypePredefined);
+
+        IList<PropertyTypePredefined> GetAssociatedPropertyTypePredefined(ItemTypePredefined baseItemTypePredefined);
+        IList<ReconcileProperty> GetAssociatedReconcileProperties(ItemTypePredefined baseItemTypePredefined);
+        IList<ReconcileProperty> GetNotDefinedReconcileProperties(ItemTypePredefined baseItemTypePredefined);
+
+        bool IsInternalSystemProperty(PropertyTypePredefined propertyTypePredefined,
+            ItemTypePredefined itemTypePredefined);
+
+        ReconcileProperty GetCorrespondingReconcileProperty(PropertyTypePredefined propertyTypePredefined, ItemTypePredefined artifacTypePredefined);
+    }
+
+    public class ReuseSystemPropertiesMap : IReuseSystemPropertiesMap
     {
         public static ReuseSystemPropertiesMap Instance { get; } = Init(new[]
         {

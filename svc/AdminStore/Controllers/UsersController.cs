@@ -92,6 +92,9 @@ namespace AdminStore.Controllers
                 loginUser.LicenseType = Session.LicenseLevel;
                 loginUser.IsSso = Session.IsSso;
 
+                loginUser.IsProjectAdmin = loginUser.InstanceAdminRoleId == 1 ||
+                                           await _userRepository.CheckUserHasProjectAdminRoleAsync(Session.UserId);
+
                 return Ok(loginUser);
             }
             catch (AuthenticationException)

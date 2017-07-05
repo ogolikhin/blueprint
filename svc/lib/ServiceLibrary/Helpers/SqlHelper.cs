@@ -23,6 +23,21 @@ namespace ServiceLibrary.Helpers
             }
         }
 
+        public async Task<T> RunInTransactionAsync<T>(string connectionString, Func<IDbTransaction, Task<T>> action)
+        {
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                using (var transaction = connection.BeginTransaction())
+                {
+                    var result = await action(transaction);
+                    transaction.Commit();
+                    return result;
+                }
+            }
+        }
+
         public async Task<int> CreateRevisionInTransactionAsync(IDbTransaction transaction, int userId, string comment)
         {
             var prm = new DynamicParameters();

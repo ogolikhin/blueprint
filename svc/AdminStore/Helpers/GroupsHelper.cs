@@ -3,6 +3,7 @@ using System.Linq;
 using AdminStore.Models.Enums;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
+using UserType = ServiceLibrary.Models.Enums.UserType;
 
 namespace AdminStore.Helpers
 {

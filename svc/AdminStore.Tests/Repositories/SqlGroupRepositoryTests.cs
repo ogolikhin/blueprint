@@ -7,6 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Repositories;
 
 namespace AdminStore.Repositories

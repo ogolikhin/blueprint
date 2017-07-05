@@ -5,32 +5,8 @@ using System.Collections.Generic;
 namespace ServiceLibrary.Models
 {
     [JsonObject]
-    public class Artifact : IArtifact
+    public class Artifact : Item, IArtifact
     {
-        [JsonProperty]
-        public int Id { get; set; }
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string Name { get; set; }
-
-        [JsonProperty]
-        public int ProjectId { get; set; }
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int? ParentId { get; set; }
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int? ItemTypeId { get; set; }
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string Prefix { get; set; }
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int? ItemTypeIconId { get; set; }
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public ItemTypePredefined? PredefinedType { get; set; }
-
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? Version { get; set; }
 

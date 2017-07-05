@@ -9,18 +9,24 @@ namespace ServiceLibrary.Exceptions
     public class ExceptionWithErrorCode : Exception
     {
         public int ErrorCode { get; set; }
+        public readonly object Content;
 
-        public ExceptionWithErrorCode() : base()
+        public ExceptionWithErrorCode() : this("", 0)
         {
         }
 
-        public ExceptionWithErrorCode(string message) : base(message)
+        public ExceptionWithErrorCode(string message) : this(message, 0)
         {
         }
 
-        public ExceptionWithErrorCode(string message, int errorCode) : base(message)
+        public ExceptionWithErrorCode(string message, int errorCode) : this(message, errorCode, null)
+        {
+        }
+
+        public ExceptionWithErrorCode(string message, int errorCode, object content) : base(message)
         {
             ErrorCode = errorCode;
+            Content = content;
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)

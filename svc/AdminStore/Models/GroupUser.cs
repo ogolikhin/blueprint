@@ -1,4 +1,5 @@
 ﻿using AdminStore.Models.Enums;
+using ServiceLibrary.Models.Enums;
 
 namespace AdminStore.Models
 {

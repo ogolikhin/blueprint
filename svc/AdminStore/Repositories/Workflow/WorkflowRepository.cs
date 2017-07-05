@@ -252,7 +252,7 @@ namespace AdminStore.Repositories.Workflow
             parameters.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
             var workflows =
                 (await
-                    ConnectionWrapper.QueryAsync<WorkflowDto>("GetWorkflows", parameters,
+                    ConnectionWrapper.QueryAsync<WorkflowDto>("GetAllWorkflows", parameters,
                         commandType: CommandType.StoredProcedure)).ToList();
             var total = parameters.Get<int>("Total");
             return new QueryResult<WorkflowDto>() {Items = workflows, Total = total};

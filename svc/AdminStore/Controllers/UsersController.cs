@@ -127,7 +127,7 @@ namespace AdminStore.Controllers
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewUsers);
 
-            var result = await _userRepository.GetUsersAsync(pagination, sorting, search, UsersHelper.SortUsers);
+            var result = await _userRepository.GetUsersAsync(pagination, sorting, search, SortingHelper.SortUsers);
 
             return Ok(result);
         }

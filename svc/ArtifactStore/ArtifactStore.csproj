@@ -135,6 +135,9 @@
     <Compile Include="Models\Review\AddArtifactsResult.cs" />
     <Compile Include="Models\Review\AssignReviewerRolesParameter.cs" />
     <Compile Include="Models\Review\BaseReviewArtifactsContent.cs" />
+    <Compile Include="Models\Review\RDReviewedArtifacts.cs" />
+    <Compile Include="Models\Review\ReviewArtifactApprovalCheck.cs" />
+    <Compile Include="Models\Review\ReviewArtifactApprovalParameter.cs" />
     <Compile Include="Models\Review\ReviewArtifactIndex.cs" />
     <Compile Include="Models\Review\ReviewArtifactDetails.cs" />
     <Compile Include="Models\Review\ApprovalType.cs" />
@@ -146,7 +149,7 @@
     <Compile Include="Models\Review\ReviewParticipant.cs" />
     <Compile Include="Models\Review\ReviewTableOfContent.cs" />
     <Compile Include="Models\Review\ReviewXmlResult.cs" />
-    <Compile Include="Models\Review\ReviwerRole.cs" />
+    <Compile Include="Models\Review\ReviewParticipantRole.cs" />
     <Compile Include="Models\Review\ReviewSummary.cs" />
     <Compile Include="Models\Review\ReviewArtifactsResult.cs" />
     <Compile Include="Models\Review\ReviewSource.cs" />

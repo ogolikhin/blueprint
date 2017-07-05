@@ -22,7 +22,7 @@ namespace ArtifactStore
             config.EnsureInitialized();
 
             // Assert
-            config.AssertTotalRoutes(33, "Please update asserts in WebApiConfigTests when changing routes.");
+            config.AssertTotalRoutes(34, "Please update asserts in WebApiConfigTests when changing routes.");
             config.AssertAction<StatusController>("GetStatus", HttpMethod.Get, "status");
             config.AssertAction<StatusController>("GetStatusUpCheck", HttpMethod.Get, "status/upcheck");
             config.AssertAction<ArtifactController>("GetProjectChildren", HttpMethod.Get, "projects/1/children");
@@ -54,6 +54,7 @@ namespace ArtifactStore
             config.AssertAction<ReviewContainersController>("AssignRolesToReviewers", HttpMethod.Put, "containers/1/reviewers/approval");
             config.AssertAction<ReviewContainersController>("GetReviewArtifactIndex", HttpMethod.Get, "containers/1/index/1");
             config.AssertAction<ReviewContainersController>("GetReviewTableOfContentArtifactIndex", HttpMethod.Get, "containers/1/toc/index/1");
+            config.AssertAction<ReviewContainersController>("UpdateReviewArtifactApprovalAsync", HttpMethod.Put, "containers/1/experience/approval");
         }
 
         [TestMethod]

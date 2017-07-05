@@ -235,7 +235,6 @@ namespace AdminStore.Services.Workflow
                     }),
                     Validations = null,
                     Actions = null,
-                    ProjectId = null,
                     WorkflowState1Id = newStatesArray.FirstOrDefault(s => s.Name.Equals(transition.FromState))?.WorkflowStateId,
                     WorkflowState2Id = newStatesArray.FirstOrDefault(s => s.Name.Equals(transition.ToState))?.WorkflowStateId,
                     PropertyTypeId = null

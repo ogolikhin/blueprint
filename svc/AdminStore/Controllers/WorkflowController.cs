@@ -185,7 +185,7 @@ namespace AdminStore.Controllers
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
             pagination.Validate();
 
-            var result = await _workflowRepository.GetWorkflows(pagination, sorting, search, UsersHelper.SortUsers);
+            var result = await _workflowRepository.GetWorkflows(pagination, sorting, search, SortingHelper.SortWorkflows);
             return Ok(result);
 
         }

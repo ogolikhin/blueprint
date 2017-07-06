@@ -144,10 +144,10 @@
     <Compile Include="Models\LicenseTransactionUser.cs" />
     <Compile Include="Models\LoginUser.cs" />
     <Compile Include="Models\UserGroupSource.cs" />
-    <Compile Include="Models\Workflow\ActionParameter.cs" />
-    <Compile Include="Models\Workflow\BaseAction.cs" />
-    <Compile Include="Models\Workflow\NotificationAction.cs" />
-    <Compile Include="Models\Workflow\PropertyAction.cs" />
+    <Compile Include="Models\Workflow\IeActionParameter.cs" />
+    <Compile Include="Models\Workflow\IeBaseAction.cs" />
+    <Compile Include="Models\Workflow\IeNotificationAction.cs" />
+    <Compile Include="Models\Workflow\IePropertyAction.cs" />
     <Compile Include="Models\Workflow\SqlProjectPathPair.cs" />
     <Compile Include="Models\Workflow\SqlState.cs" />
     <Compile Include="Models\Workflow\SqlTrigger.cs" />

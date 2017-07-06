@@ -20,6 +20,12 @@ namespace AdminStore.Models.Workflow
         public string ToState { get; set; }
 
         [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
+        [XmlArray("Actions")]
+        [XmlArrayItem("NotificationAction", typeof(IeNotificationAction))]
+        [XmlArrayItem("PropertyAction", typeof(IePropertyAction))]
+        public List<IeBaseAction> Actions { get; set; }
+
+        [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
         [XmlArray("PermissionGroups"), XmlArrayItem("Group")]
         public List<IeGroup> PermissionGroups { get; set; }
     }

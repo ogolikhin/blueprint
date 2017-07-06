@@ -9,10 +9,10 @@ namespace AdminStore.Models.Workflow
     /// DataType defines the type of data:None/Number/Text/Date
     /// </summary>
     [XmlType("Parameter")]
-    public class ActionParameter
+    public class IeActionParameter
     {
         #region Constructor
-        public ActionParameter() { }
+        public IeActionParameter() { }
         #endregion
 
         #region Properties

@@ -9,10 +9,10 @@ namespace AdminStore.Models.Workflow
     /// </summary>
     [Serializable()]
     [XmlType("PropertyAction")]
-    public class PropertyAction : BaseAction
+    public class IePropertyAction : IeBaseAction
     {
         #region Constructors
-        public PropertyAction() { }
+        public IePropertyAction() { }
         #endregion
 
         #region Properties

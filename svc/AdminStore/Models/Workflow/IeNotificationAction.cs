@@ -12,10 +12,10 @@ namespace AdminStore.Models.Workflow
     /// </summary>
     [Serializable()]
     [XmlType("NotificationAction")]
-    public class NotificationAction : BaseAction
+    public class IeNotificationAction : IeBaseAction
     {
         #region Constructors
-        public NotificationAction() { }
+        public IeNotificationAction() { }
         #endregion
 
         #region Properties

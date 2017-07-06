@@ -34,9 +34,9 @@ namespace AdminStore.Models.Workflow
     /// Base class for Actions of specific type
     /// </summary>
     [Serializable()]
-    public abstract class BaseAction
+    public abstract class IeBaseAction
     {
-        public BaseAction() { }
+        public IeBaseAction() { }
         public string Name { get; set; }
 
         public string Description { get; set; }
@@ -46,7 +46,7 @@ namespace AdminStore.Models.Workflow
 
         [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
         [XmlArray("Parameters"), XmlArrayItem("Parameter")]
-        public List<ActionParameter> Parameters { get; set; }
+        public List<IeActionParameter> Parameters { get; set; }
 
         public virtual bool IsValid()
         {

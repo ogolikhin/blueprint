@@ -41,5 +41,6 @@ namespace AdminStore.Repositories.Workflow
 
         Task<IEnumerable<SqlWorkflowArtifactTypesAndProjects>> GetWorkflowArtifactTypesAndProjectsAsync(int workflowId);
 
+        Task<int> DeleteWorkflows(OperationScope body, string search, int sessionUserId);
     }
 }

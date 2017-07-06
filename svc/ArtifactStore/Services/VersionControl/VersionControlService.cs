@@ -17,7 +17,7 @@ namespace ArtifactStore.Services.VersionControl
 {
     public interface IVersionControlService
     {
-        Task<ArtifactResultSet> PublishArtifacts(PublishParameters parameters);
+        Task<ArtifactResultSet> PublishArtifacts(PublishParameters parameters, IDbTransaction transaction = null);
     }
 
     public class VersionControlService : IVersionControlService
@@ -49,7 +49,7 @@ namespace ArtifactStore.Services.VersionControl
             _sqlHelper = sqlHelper;
         }
 
-        public async Task<ArtifactResultSet> PublishArtifacts(PublishParameters parameters)
+        public async Task<ArtifactResultSet> PublishArtifacts(PublishParameters parameters, IDbTransaction transaction = null)
         {
             IList<int> artifactIdsList;
             ICollection<SqlDiscardPublishState> discardPublishStates;
@@ -81,8 +81,17 @@ namespace ArtifactStore.Services.VersionControl
                 await ProcessDependentArtifactsDiscovery(parameters, dependentArtifactsIds, independentArtifactsIds, projectsNames);
             }
 
-            var revisionId = await _sqlHelper.RunInTransactionAsync<int>(ServiceConstants.RaptorMain, 
-                GetPublishTransactionAction(parameters, artifactIdsList));
+            int revisionId;
+            if (transaction == null)
+            {
+                revisionId = await _sqlHelper.RunInTransactionAsync<int>(ServiceConstants.RaptorMain,
+                    GetPublishTransactionAction(parameters, artifactIdsList));
+            }
+            else
+            {
+                revisionId = await TransactionalPublishArtifact(parameters, artifactIdsList, transaction);
+            }
+            
 
             var discardPublishDetailsResult =
                 await _versionControlRepository.GetDiscardPublishDetails(parameters.UserId, artifactIdsList, true);
@@ -140,74 +149,78 @@ namespace ArtifactStore.Services.VersionControl
 
         private Func<IDbTransaction, Task<int>> GetPublishTransactionAction(PublishParameters parameters, IList<int> artifactIdsList)
         {
-            Func<IDbTransaction, Task<int>> action = async transaction =>
-            {
-                var publishRevision =
-                    await
+            Func<IDbTransaction, Task<int>> action = async transaction => 
+            await TransactionalPublishArtifact(parameters, artifactIdsList, transaction);
+
+            return action;
+        }
+
+        private async Task<int> TransactionalPublishArtifact(PublishParameters parameters, 
+            IList<int> artifactIdsList, 
+            IDbTransaction transaction)
+        {
+            int publishRevision = parameters.RevisionId ?? await
                         _sqlHelper.CreateRevisionInTransactionAsync(transaction, parameters.UserId,
                             "New Publish: publishing artifacts.");
 
-                parameters.AffectedArtifactIds.Clear();
-                parameters.AffectedArtifactIds.AddRange(artifactIdsList);
-                var publishResults = new List<SqlPublishResult>(parameters.AffectedArtifactIds.Count);
-                var artifactStates =
-                    await _versionControlRepository.GetPublishStates(parameters.UserId, parameters.AffectedArtifactIds);
+            parameters.AffectedArtifactIds.Clear();
+            parameters.AffectedArtifactIds.AddRange(artifactIdsList);
+            var publishResults = new List<SqlPublishResult>(parameters.AffectedArtifactIds.Count);
+            var artifactStates =
+                await _versionControlRepository.GetPublishStates(parameters.UserId, parameters.AffectedArtifactIds);
 
-                var artifactsCannotBePublished = _versionControlRepository.CanPublish(artifactStates);
+            var artifactsCannotBePublished = _versionControlRepository.CanPublish(artifactStates);
 
-                parameters.AffectedArtifactIds.ExceptWith(artifactsCannotBePublished.Keys);
+            parameters.AffectedArtifactIds.ExceptWith(artifactsCannotBePublished.Keys);
 
-                // Notify about artifactsCannotBePublished - callback
-                //if (onError != null && onError(new ReadOnlyDictionary<int, PublishErrors>(artifactsCannotBePublished)))
-                //{
-                //    throw new DataAccessException("Publish interrupted", BusinessLayerErrorCodes.RequiredArtifactHasNotBeenPublished);
-                //}
+            // Notify about artifactsCannotBePublished - callback
+            //if (onError != null && onError(new ReadOnlyDictionary<int, PublishErrors>(artifactsCannotBePublished)))
+            //{
+            //    throw new DataAccessException("Publish interrupted", BusinessLayerErrorCodes.RequiredArtifactHasNotBeenPublished);
+            //}
 
-                if (parameters.AffectedArtifactIds.Count == 0)
-                {
-                    return publishRevision;
-                }
-
-                var env = new PublishEnvironment
-                {
-                    RevisionId = publishRevision,
-                    Timestamp = DateTime.UtcNow, // Need to get if from created revision - DB timestamp
-                    KeepLock = false,
-                    ArtifactStates = artifactStates.ToDictionary(s => s.ItemId),
-                    Repositories = null,
-                    SensitivityCollector = new ReuseSensitivityCollector()
-                };
-
-                if (parameters.AffectedArtifactIds.Count <= 0)
-                {
-                    return publishRevision;
-                }
-
-                env.DeletedArtifactIds.Clear();
-                env.DeletedArtifactIds.AddRange(
-                    await _versionControlRepository.DetectAndPublishDeletedArtifacts(parameters.UserId,
-                        parameters.AffectedArtifactIds,
-                        env));
-                parameters.AffectedArtifactIds.ExceptWith(env.DeletedArtifactIds);
-
-                //Release lock
-                if (!env.KeepLock)
-                {
-                    await _versionControlRepository.ReleaseLock(parameters.UserId, parameters.AffectedArtifactIds, transaction);
-                }
-
-                await _publishRepositoryComposer.Execute(publishRevision, parameters, env, transaction);
-
-                //Add history
-                await _revisionRepository.AddHistory(publishRevision, parameters.AffectedArtifactIds, transaction);
-                //});
-
-                publishResults.AddRange(env.GetChangeSqlPublishResults());
-
+            if (parameters.AffectedArtifactIds.Count == 0)
+            {
                 return publishRevision;
+            }
+
+            var env = new PublishEnvironment
+            {
+                RevisionId = publishRevision,
+                Timestamp = DateTime.UtcNow, // Need to get if from created revision - DB timestamp
+                KeepLock = false,
+                ArtifactStates = artifactStates.ToDictionary(s => s.ItemId),
+                Repositories = null,
+                SensitivityCollector = new ReuseSensitivityCollector()
             };
 
-            return action;
+            if (parameters.AffectedArtifactIds.Count <= 0)
+            {
+                return publishRevision;
+            }
+
+            env.DeletedArtifactIds.Clear();
+            env.DeletedArtifactIds.AddRange(
+                await _versionControlRepository.DetectAndPublishDeletedArtifacts(parameters.UserId,
+                    parameters.AffectedArtifactIds,
+                    env));
+            parameters.AffectedArtifactIds.ExceptWith(env.DeletedArtifactIds);
+
+            //Release lock
+            if (!env.KeepLock)
+            {
+                await _versionControlRepository.ReleaseLock(parameters.UserId, parameters.AffectedArtifactIds, transaction);
+            }
+
+            await _publishRepositoryComposer.Execute(publishRevision, parameters, env, transaction);
+
+            //Add history
+            await _revisionRepository.AddHistory(publishRevision, parameters.AffectedArtifactIds, transaction);
+            //});
+
+            publishResults.AddRange(env.GetChangeSqlPublishResults());
+
+            return publishRevision;
         }
 
         private async Task ProcessDependentArtifactsDiscovery(PublishParameters parameters, IList<int> dependentArtifactsIds,

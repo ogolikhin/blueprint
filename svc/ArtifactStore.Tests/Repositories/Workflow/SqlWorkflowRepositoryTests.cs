@@ -254,7 +254,7 @@ namespace ArtifactStore.Repositories.Workflow
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object);
             
-            var stateChangeParam = new WorkflowStateChangeParameter
+            var stateChangeParam = new WorkflowStateChangeParameterEx
             {
                 ToStateId = desiredStateId
             };

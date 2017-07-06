@@ -56,12 +56,12 @@ namespace ArtifactStore.Repositories.Workflow
             return await GetCurrentStateInternal(userId, artifactId, revisionId, addDrafts);
         }
 
-        public async Task<WorkflowState> ChangeStateForArtifactAsync(int userId, int artifactId, WorkflowStateChangeParameter stateChangeParameter)
+        public async Task<WorkflowState> ChangeStateForArtifactAsync(int userId, int artifactId, WorkflowStateChangeParameterEx stateChangeParameter)
         {
             //Need to access code for artifact permissions for revision
             await CheckForArtifactPermissions(userId, artifactId, permissions: RolePermissions.Edit);
 
-            return await ChangeStateForArtifactInternal(userId, artifactId, stateChangeParameter.ToStateId);
+            return await ChangeStateForArtifactInternal(userId, artifactId, stateChangeParameter.RevisionId, stateChangeParameter.ToStateId);
         }
 
         #endregion
@@ -78,7 +78,7 @@ namespace ArtifactStore.Repositories.Workflow
         {
             var param = new DynamicParameters();
             param.Add("@userId", userId);
-            var artifactIdsTable = SqlConnectionWrapper.ToDataTable(artifactIds, "Int32Collection", "Int32Value");
+            var artifactIdsTable = SqlConnectionWrapper.ToDataTable(artifactIds);
             param.Add("@artifactIds", artifactIdsTable);
             param.Add("@revisionId", revisionId);
             param.Add("@addDrafts", addDrafts);
@@ -138,11 +138,12 @@ namespace ArtifactStore.Repositories.Workflow
             }).ToList();
         }
 
-        private async Task<WorkflowState> ChangeStateForArtifactInternal(int userId, int artifactId, int desiredStateId)
+        private async Task<WorkflowState> ChangeStateForArtifactInternal(int userId, int artifactId, int revisionId, int desiredStateId)
         {
             var param = new DynamicParameters();
             param.Add("@userId", userId);
             param.Add("@artifactId", artifactId);
+            param.Add("@revisionId", revisionId);
             param.Add("@desiredStateId", desiredStateId);
             param.Add("@result");
 

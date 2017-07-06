@@ -1,43 +1,34 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Threading.Tasks;
-using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
 
 namespace ServiceLibrary.Models
 {
     public abstract class TransactionalTriggerExecutor<T, TK>
     {
-        private readonly IEnumerable<IConstraint> _preOps;
-        private readonly IEnumerable<IAction> _postOps;
-        private readonly T _input;
+        protected ISqlHelper SqlHelper { get; }
 
-        protected TransactionalTriggerExecutor(IEnumerable<IConstraint> preOps, IEnumerable<IAction> postOps, T input)
+        protected IEnumerable<IConstraint> PreOps { get; }
+        protected IEnumerable<IAction> PostOps { get; }
+        protected T Input { get; }
+
+        protected TransactionalTriggerExecutor(ISqlHelper sqlHelper, IEnumerable<IConstraint> preOps, IEnumerable<IAction> postOps, T input)
         {
-            _preOps = preOps ?? new List<IConstraint>();
-            _postOps = postOps ?? new List<IAction>();
-            _input = input;
+            SqlHelper = sqlHelper;
+            PreOps = preOps ?? new List<IConstraint>();
+            PostOps = postOps ?? new List<IAction>();
+            Input = input;
         }
 
         public async Task<TK> Execute()
         {
             //Start a transaction. we need to import code from blueprint-current for creating transactions
-
-            foreach (var constraint in _preOps)
-            {
-                if (!(await constraint.IsFulfilled()))
-                {
-                    throw new ConflictException("State cannot be modified as the constrating is not fulfilled");
-                }
-            }
-            var result = await ExecuteInternal(_input);
-            foreach (var triggerExecutor in _postOps)
-            {
-                if (!await triggerExecutor.Execute())
-                {
-                    throw new ConflictException("State cannot be modified as the trigger cannot be executed");
-                }
-            }
-            return result;
+            return await SqlHelper.RunInTransactionAsync<TK>(ServiceConstants.RaptorMain, GetAction());
         }
+
+        protected abstract Func<IDbTransaction, Task<TK>> GetAction();
 
         protected abstract Task<TK> ExecuteInternal(T input);
     }

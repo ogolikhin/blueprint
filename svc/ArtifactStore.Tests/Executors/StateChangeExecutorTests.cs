@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Data;
+using System.Threading.Tasks;
 using ArtifactStore.Models;
 using ArtifactStore.Repositories;
 using ArtifactStore.Repositories.Workflow;
@@ -24,6 +26,7 @@ namespace ArtifactStore.Executors
         private StateChangeExecutor _stateChangeExecutor;
         private Mock<IWorkflowRepository> _workflowRepository;
         private Mock<IArtifactVersionsRepository> _artifactVersionsRepository;
+        private ISqlHelper _sqlHelperMock;
 
         [TestInitialize]
         public void TestInitialize()
@@ -37,9 +40,11 @@ namespace ArtifactStore.Executors
             };
             _workflowRepository = new Mock<IWorkflowRepository>(MockBehavior.Strict);
             _artifactVersionsRepository = new Mock<IArtifactVersionsRepository>(MockBehavior.Strict);
+            _sqlHelperMock = new SqlHelperMock();
             _stateChangeExecutor = new StateChangeExecutor(null, null, ex, UserId,
                 _artifactVersionsRepository.Object,
-                _workflowRepository.Object);
+                _workflowRepository.Object,
+                _sqlHelperMock);
         }
 
         [TestMethod]

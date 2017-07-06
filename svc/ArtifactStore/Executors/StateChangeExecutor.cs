@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Threading.Tasks;
 using ArtifactStore.Repositories;
 using ArtifactStore.Repositories.Workflow;
@@ -13,7 +15,7 @@ namespace ArtifactStore.Executors
     public class StateChangeExecutor : TransactionalTriggerExecutor<WorkflowStateChangeParameterEx, QuerySingleResult<WorkflowState>>
     {
         private readonly int _userId;
-
+        
         private readonly IArtifactVersionsRepository _artifactVersionsRepository;
         private readonly IWorkflowRepository _workflowRepository;
 
@@ -23,15 +25,46 @@ namespace ArtifactStore.Executors
             WorkflowStateChangeParameterEx input,
             int userId,
             IArtifactVersionsRepository artifactVersionsRepository,
-            IWorkflowRepository workflowRepository
+            IWorkflowRepository workflowRepository,
+            ISqlHelper sqlHelper
             ) :
-            base(preOps,
+            base(sqlHelper,
+                preOps,
                 postOps,
                 input)
         {
             _userId = userId;
             _artifactVersionsRepository = artifactVersionsRepository;
             _workflowRepository = workflowRepository;
+        }
+
+        protected override Func<IDbTransaction, Task<QuerySingleResult<WorkflowState>>> GetAction()
+        {
+            Func<IDbTransaction, Task<QuerySingleResult<WorkflowState>>> action = async transaction =>
+            {
+                var publishRevision =
+                    await
+                        SqlHelper.CreateRevisionInTransactionAsync(transaction, _userId, "New Publish: publishing artifacts.");
+
+                foreach (var constraint in PreOps)
+                {
+                    if (!(await constraint.IsFulfilled()))
+                    {
+                        throw new ConflictException("State cannot be modified as the constrating is not fulfilled");
+                    }
+                }
+
+                var result = await ExecuteInternal(Input);
+                foreach (var triggerExecutor in PostOps)
+                {
+                    if (!await triggerExecutor.Execute())
+                    {
+                        throw new ConflictException("State cannot be modified as the trigger cannot be executed");
+                    }
+                }
+                return result;
+            };
+            return action;
         }
 
         protected override async Task<QuerySingleResult<WorkflowState>> ExecuteInternal(WorkflowStateChangeParameterEx input)

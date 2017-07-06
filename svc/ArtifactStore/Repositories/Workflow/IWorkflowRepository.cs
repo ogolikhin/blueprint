@@ -14,6 +14,6 @@ namespace ArtifactStore.Repositories.Workflow
         Task<WorkflowState> GetStateForArtifactAsync(int userId, int artifactId, int revisionId, bool addDrafts);
 
         Task<WorkflowState> ChangeStateForArtifactAsync(int userId, int artifactId,
-            WorkflowStateChangeParameter stateChangeParameter);
+            WorkflowStateChangeParameterEx stateChangeParameter);
     }
 }

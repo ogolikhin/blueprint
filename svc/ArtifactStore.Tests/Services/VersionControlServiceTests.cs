@@ -37,8 +37,7 @@ namespace ArtifactStore.Services
                 _revisionRepository.Object, 
                 _sqlHelper.Object);
 
-            var publishParameters = new PublishParameters();
-            publishParameters.ArtifactIds = new List<int>();
+            var publishParameters = new PublishParameters {ArtifactIds = new List<int>()};
 
             await versionControlService.PublishArtifacts(publishParameters);
         }
@@ -81,8 +80,7 @@ namespace ArtifactStore.Services
                 _revisionRepository.Object,
                 _sqlHelper.Object);
 
-            var publishParameters = new PublishParameters();
-            publishParameters.ArtifactIds = new List<int>() { 1 };
+            var publishParameters = new PublishParameters {ArtifactIds = new List<int>() {1}};
 
             await versionControlService.PublishArtifacts(publishParameters);
         }
@@ -105,8 +103,7 @@ namespace ArtifactStore.Services
                 _revisionRepository.Object,
                 _sqlHelper.Object);
 
-            var publishParameters = new PublishParameters();
-            publishParameters.ArtifactIds = new List<int>() { 1 };
+            var publishParameters = new PublishParameters {ArtifactIds = new List<int>() {1}};
 
             await versionControlService.PublishArtifacts(publishParameters);
         }
@@ -130,8 +127,7 @@ namespace ArtifactStore.Services
                 _revisionRepository.Object,
                 _sqlHelper.Object);
 
-            var publishParameters = new PublishParameters();
-            publishParameters.ArtifactIds = new List<int>() { 1 };
+            var publishParameters = new PublishParameters {ArtifactIds = new List<int>() {1}};
 
             await versionControlService.PublishArtifacts(publishParameters);
         }
@@ -154,8 +150,7 @@ namespace ArtifactStore.Services
                 _revisionRepository.Object,
                 _sqlHelper.Object);
 
-            var publishParameters = new PublishParameters();
-            publishParameters.ArtifactIds = new List<int>() { 1 };
+            var publishParameters = new PublishParameters {ArtifactIds = new List<int>() {1}};
 
             await versionControlService.PublishArtifacts(publishParameters);
         }
@@ -178,8 +173,7 @@ namespace ArtifactStore.Services
                 _revisionRepository.Object,
                 _sqlHelper.Object);
 
-            var publishParameters = new PublishParameters();
-            publishParameters.ArtifactIds = new List<int>() { 1 };
+            var publishParameters = new PublishParameters {ArtifactIds = new List<int>() {1}};
 
             await versionControlService.PublishArtifacts(publishParameters);
         }

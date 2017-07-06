@@ -133,14 +133,23 @@ namespace AdminStore.Services.Workflow
 
         }
 
-        public async Task<SqlWorkflow> GetWorkflowDetailsAsync(int workflowId)
+        public async Task<WorkflowDto> GetWorkflowDetailsAsync(int workflowId)
         {
             var workflowDetails = await _workflowRepository.GetWorkflowDetailsAsync(workflowId);
             if (workflowDetails == null)
             {
                 throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
             }
-            return workflowDetails;
+
+            var workflowDto = new WorkflowDto {Name = workflowDetails.Name, Description = workflowDetails.Description, Status = workflowDetails.Active, WorkflowId = workflowDetails.WorkflowId,
+                VersionId = workflowDetails.VersionId}; 
+
+            var workflowProjectsAndArtifactTypes = (await _workflowRepository.GetWorkflowArtifactTypesAndProjectsAsync(workflowId)).ToList();
+
+            workflowDto.Projects = workflowProjectsAndArtifactTypes.Select(e => new WorkflowProjectDto {Id = e.ProjectId, Name = e.ProjectName}).Distinct().ToList();
+            workflowDto.ArtifactTypes = workflowProjectsAndArtifactTypes.Select(e => new WorkflowArtifactTypeDto {Name = e.ArtifactName}).Distinct().ToList();
+
+            return workflowDto;
         }
 
         private async Task ImportWorkflowComponentsAsync(IeWorkflow workflow, SqlWorkflow newWorkflow, int publishRevision, IDbTransaction transaction)

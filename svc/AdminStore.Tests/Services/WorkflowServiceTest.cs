@@ -18,7 +18,7 @@ namespace AdminStore.Services
     [TestClass]
     public class WorkflowServiceTest
     {
-        #region GetWorkflow
+        #region GetWorkflowDetailsAsync
 
         [TestMethod]
         public async Task GetWorkflow_WorkflowExists_ReturnWorkflow()
@@ -31,14 +31,39 @@ namespace AdminStore.Services
                 userRepositoryMock.Object);
             var workflowId = 10;
             var workflow = new SqlWorkflow { Name = "Workflow1", Description = "Workflow1Description" };
+            var workflowArtifactTypesAndProjects = new List<SqlWorkflowArtifactTypesAndProjects>
+            {
+                new SqlWorkflowArtifactTypesAndProjects
+                {
+                    ProjectId = 1,
+                    ProjectName = "Project1",
+                    ArtifactName = "Artifact1"
+                },
+                new SqlWorkflowArtifactTypesAndProjects
+                {
+                    ProjectId = 1,
+                    ProjectName = "Project1",
+                    ArtifactName = "Artifact2"
+                },
+                new SqlWorkflowArtifactTypesAndProjects
+                {
+                    ProjectId = 2,
+                    ProjectName = "Project2",
+                    ArtifactName = "Artifact2"
+                }
+            };
 
             workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(workflow);
+
+            workflowRepositoryMock.Setup(repo => repo.GetWorkflowArtifactTypesAndProjectsAsync(It.IsAny<int>())).ReturnsAsync(workflowArtifactTypesAndProjects);
 
             //act
             var workflowDetails = await workflowService.GetWorkflowDetailsAsync(workflowId);
 
             //assert
             Assert.IsNotNull(workflowDetails);
+            Assert.AreEqual(2, workflowDetails.Projects.Count());
+            Assert.AreEqual(2, workflowDetails.ArtifactTypes.Count());
         }
 
         [TestMethod]

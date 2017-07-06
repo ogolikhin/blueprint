@@ -1,9 +1,9 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System;
 using System.Runtime.Caching;
-using System.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace ServiceLibrary.Helpers.Cache
 {
@@ -19,7 +19,7 @@ namespace ServiceLibrary.Helpers.Cache
         }
 
         [TestMethod]
-        public async Task AddOrGetExystingAsync_ItemNotCached_ItemFactoryCalledAndResultCached()
+        public async Task AddOrGetExistingAsync_ItemNotCached_ItemFactoryCalledAndResultCached()
         {
             // Arrange
             var key = "this-is-the-key";
@@ -48,7 +48,7 @@ namespace ServiceLibrary.Helpers.Cache
         }
 
         [TestMethod]
-        public async Task AddOrGetExystingAsync_AbsoluteExpiration_ItemNotCached_ItemFactoryCalledAndResultCached()
+        public async Task AddOrGetExistingAsync_AbsoluteExpiration_ItemNotCached_ItemFactoryCalledAndResultCached()
         {
             // Arrange
             var key = "this-is-the-key";
@@ -68,7 +68,7 @@ namespace ServiceLibrary.Helpers.Cache
         }
 
         [TestMethod]
-        public async Task AddOrGetExystingAsync_SlidingExpiration_ItemNotCached_ItemFactoryCalledAndResultCached()
+        public async Task AddOrGetExistingAsync_SlidingExpiration_ItemNotCached_ItemFactoryCalledAndResultCached()
         {
             // Arrange
             var key = "this-is-the-key";
@@ -88,7 +88,7 @@ namespace ServiceLibrary.Helpers.Cache
         }
 
         [TestMethod]
-        public async Task AddOrGetExystingAsync_ItemCached_ItemFactoryNotCalled()
+        public async Task AddOrGetExistingAsync_ItemCached_ItemFactoryNotCalled()
         {
             // Arrange
             var key = "this-is-the-key";
@@ -117,8 +117,8 @@ namespace ServiceLibrary.Helpers.Cache
             _cacheMock.VerifyAll();
         }
 
-        [TestMethod]        
-        public async Task AddOrGetExystingAsync_ItemNotCached_ItemFactoryFailed_ExceptionRetrown()
+        [TestMethod]
+        public async Task AddOrGetExistingAsync_ItemNotCached_ItemFactoryFailed_ExceptionRetrown()
         {
             // Arrange
             var key = "this-is-the-key";
@@ -148,17 +148,19 @@ namespace ServiceLibrary.Helpers.Cache
             {
 
             }
+
             _cacheMock.Verify(c => c.Remove(key, null), Times.Once);
         }
 
+        [Ignore]
         [TestMethod]
-        public void AddOrGetExystingAsync_ItemNotCached_ParallelRequests()
+        public void AddOrGetExistingAsync_ItemNotCached_ParallelRequests()
         {
             const int parallelRequestsCount = 10;
             int factoryCalls = 0;
 
             using (var barrier = new Barrier(parallelRequestsCount + 1))
-            using (var memoryCache = new MemoryCache(nameof(AddOrGetExystingAsync_ItemNotCached_ParallelRequests)))
+            using (var memoryCache = new MemoryCache(nameof(AddOrGetExistingAsync_ItemNotCached_ParallelRequests)))
             {
                 var asyncCache = new AsyncCache(memoryCache);
                 var key = "this-is-key";
@@ -179,21 +181,20 @@ namespace ServiceLibrary.Helpers.Cache
                             DateTime.UtcNow.AddSeconds(30)
                         );
 
-                        Assert.IsTrue(resultValue.StartsWith("Value"));
+                        Assert.IsTrue(resultValue.StartsWith("Value", StringComparison.InvariantCulture));
 
                         barrier.SignalAndWait(500);
                     });
                 }
+
                 barrier.SignalAndWait(500);
 
                 // Threads will call Cache at that time
 
                 barrier.SignalAndWait(500);
             }
-            
 
             Assert.AreEqual(1, factoryCalls);
         }
-
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 using AdminStore.Helpers;
+using AdminStore.Models;
 using AdminStore.Models.Workflow;
 using AdminStore.Repositories;
 using AdminStore.Repositories.Workflow;
@@ -159,7 +161,7 @@ namespace AdminStore.Controllers
         /// </returns>
         [SessionRequired]
         [Route("{workflowId:int:min(1)}")]
-        [ResponseType(typeof (SqlWorkflow))]
+        [ResponseType(typeof(SqlWorkflow))]
         public async Task<IHttpActionResult> GetWorkflow(int workflowId)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
@@ -191,6 +193,34 @@ namespace AdminStore.Controllers
             var result = await _workflowRepository.GetWorkflows(pagination, sorting, search, SortingHelper.SortWorkflows);
             return Ok(result);
 
+        }
+
+        /// <summary>
+        /// Delete workflow/workflows from system
+        /// </summary>
+        /// <param name="scope">list of user ids and selectAll flag</param>
+        /// <param name="search">search filter</param>
+        /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
+        /// <response code="403">Forbidden if used doesn’t have permissions to delete workflows</response>
+        /// <returns></returns>
+        [HttpPost]
+        [SessionRequired]
+        [Route("delete")]
+        [ResponseType(typeof(IEnumerable<int>))]
+        public async Task<IHttpActionResult> DeleteWorkflows([FromBody]OperationScope scope, string search = null)
+        {
+            if (scope == null)
+            {
+                return BadRequest(ErrorMessages.InvalidDeleteWorkflowsParameters);
+            }
+            if (scope.IsEmpty())
+            {
+                return Ok(DeleteResult.Empty);
+            }
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+            var result = await _workflowRepository.DeleteWorkflows(scope, search, Session.UserId);
+
+            return Ok(result);
         }
 
         #region Private methods

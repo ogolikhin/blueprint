@@ -40,5 +40,6 @@ namespace AdminStore.Repositories.Workflow
 
         Task<SqlWorkflow> GetWorkflowDetailsAsync(int workflowId);
 
+        Task<int> DeleteWorkflows(OperationScope body, string search, int sessionUserId);
     }
 }

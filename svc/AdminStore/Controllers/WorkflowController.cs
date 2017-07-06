@@ -180,6 +180,9 @@ namespace AdminStore.Controllers
         /// <response code="400">BadRequest if pagination object didn't provide</response>
         /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
         /// <response code="403">Forbidden if used doesn’t have permissions to get workflows list</response>
+        [SessionRequired]
+        [Route("")]
+        [ResponseType(typeof(QueryResult<WorkflowDto>))]
         public async Task<IHttpActionResult> GetWorkflows([FromUri] Pagination pagination, [FromUri] Sorting sorting = null, string search = null)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);

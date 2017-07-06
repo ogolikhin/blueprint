@@ -140,6 +140,9 @@ namespace AdminStore.Services.Workflow
             {
                 throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
             }
+
+            var workflowProjectsAndArtifactTypes = await _workflowRepository.GetWorkflowArtifactTypesAndProjectsAsync(workflowId);
+
             return workflowDetails;
         }
 

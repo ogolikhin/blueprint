@@ -293,7 +293,7 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPut, SessionRequired]
         [Route("containers/{reviewId:int:min(1)}/experience/approval")]
-        public Task<object> UpdateReviewArtifactApprovalAsync(int reviewId, [FromBody] IEnumerable<ReviewArtifactApprovalParameter> reviewArtifactApprovalParameters)
+        public Task UpdateReviewArtifactApprovalAsync(int reviewId, [FromBody] IEnumerable<ReviewArtifactApprovalParameter> reviewArtifactApprovalParameters)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             return _sqlReviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, reviewArtifactApprovalParameters, session.UserId);

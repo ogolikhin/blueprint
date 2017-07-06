@@ -9,11 +9,11 @@ namespace ArtifactStore.Models.Review
     public class ReviewArtifactApprovalCheck
     {
         public bool ReviewExists { get; set; }
-        public bool ReviewClosed { get; set; }
-        public bool ReviewIsDraft { get; set; }
+        public ReviewPackageStatus ReviewStatus { get; set; }
         public bool ReviewDeleted { get; set; }
         public bool AllArtifactsInReview { get; set; }
         public bool AllArtifactsRequireApproval { get; set; }
+        public bool UserInReview { get; set; }
         public ReviewParticipantRole ReviewerRole { get; set; }
     }
 }

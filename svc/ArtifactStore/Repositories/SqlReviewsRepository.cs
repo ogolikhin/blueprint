@@ -900,7 +900,7 @@ namespace ArtifactStore.Repositories
             return result;
         }
 
-        public async Task<object> UpdateReviewArtifactApprovalAsync(int reviewId, IEnumerable<ReviewArtifactApprovalParameter> reviewArtifactApprovalParameters, int userId)
+        public async Task UpdateReviewArtifactApprovalAsync(int reviewId, IEnumerable<ReviewArtifactApprovalParameter> reviewArtifactApprovalParameters, int userId)
         {
             if(reviewArtifactApprovalParameters == null || !reviewArtifactApprovalParameters.Any())
             {
@@ -909,23 +909,24 @@ namespace ArtifactStore.Repositories
 
             var artifactIds = reviewArtifactApprovalParameters.Select(a => a.ArtifactId).ToList();
 
-            var approvalCheck = await CheckReviewArtifactApprovalIsValidAsync(reviewId, userId, artifactIds);
+            var approvalCheck = await CheckReviewArtifactApprovalAsync(reviewId, userId, artifactIds);
 
             //Check the review exists and is active
             if(!approvalCheck.ReviewExists ||
-               approvalCheck.ReviewIsDraft ||
+               approvalCheck.ReviewStatus == ReviewPackageStatus.Draft || //A null review status means review is in draft
                approvalCheck.ReviewDeleted)
             {
                 ThrowReviewNotFoundException(reviewId);
             }
 
-            if(approvalCheck.ReviewClosed)
+            if(approvalCheck.ReviewStatus == ReviewPackageStatus.Closed)
             {
                 ThrowReviewClosedException();
             }
 
             //Check user is an approver for the review
-            if(approvalCheck.ReviewerRole == ReviewParticipantRole.Reviewer)
+            if(!approvalCheck.UserInReview ||
+               approvalCheck.ReviewerRole != ReviewParticipantRole.Approver)
             {
                 ThrowUserCannotAccessReviewException(reviewId);
             }
@@ -933,36 +934,18 @@ namespace ArtifactStore.Repositories
             //Check artifacts are part of the review and require approval
             if(!approvalCheck.AllArtifactsInReview)
             {
-                throw new BadRequestException("TODO - Error Message + Code");
+                throw new BadRequestException("Not all artifacts have been added to this review.");
             }
 
             if(!approvalCheck.AllArtifactsRequireApproval)
             {
-                throw new BadRequestException("TODO - Error Message + Code");
+                throw new BadRequestException("Not all artifacts require approval.");
             }
 
             //Check user has permission for the review and all of the artifact ids
             await CheckReviewAndArtifactPermissions(userId, reviewId, artifactIds);
 
-            //Get Node XML for Reviewers Stats
-            string xmlString = await GetReviewArtifactApprovalForUserXmlAsync(reviewId, userId);
-
-            //Parse XML into an object
-            RDReviewedArtifacts rdReviewedArtifacts;
-
-            if (xmlString != null)
-            {
-                rdReviewedArtifacts = ReviewRawDataHelper.RestoreData<RDReviewedArtifacts>(xmlString);
-            }
-            else
-            {
-                rdReviewedArtifacts = new RDReviewedArtifacts();
-            }
-
-            if (rdReviewedArtifacts.ReviewedArtifacts == null)
-            {
-                rdReviewedArtifacts.ReviewedArtifacts = new List<ReviewArtifactXml>();
-            }
+            RDReviewedArtifacts rdReviewedArtifacts = await GetReviewUserStatsXmlAsync(reviewId, userId);
 
             //Update approvals for the specified artifacts
             foreach (var artifact in reviewArtifactApprovalParameters)
@@ -987,13 +970,7 @@ namespace ArtifactStore.Repositories
                 reviewArtifactApproval.ArtifactVersion = artifact.VersionId;
             }
 
-            //Save Node XML in the database
-            string updatedXmlString = ReviewRawDataHelper.GetStoreData(rdReviewedArtifacts);
-
-            await UpdateReviewArtifactApprovalForUserXmlAsync(reviewId, userId, updatedXmlString);
-
-            //Return something???
-            return 0;
+            await UpdateReviewUserStatsXmlAsync(reviewId, userId, rdReviewedArtifacts);
         }
 
         private async Task CheckReviewAndArtifactPermissions(int userId, int reviewId, IEnumerable<int> artifactIds)
@@ -1018,7 +995,7 @@ namespace ArtifactStore.Repositories
             }
         }
 
-        private async Task<ReviewArtifactApprovalCheck> CheckReviewArtifactApprovalIsValidAsync(int reviewId, int userId, IEnumerable<int> artifactIds)
+        private async Task<ReviewArtifactApprovalCheck> CheckReviewArtifactApprovalAsync(int reviewId, int userId, IEnumerable<int> artifactIds)
         {
             var parameters = new DynamicParameters();
 
@@ -1026,28 +1003,48 @@ namespace ArtifactStore.Repositories
             parameters.Add("@userId", userId);
             parameters.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
 
-            return (await ConnectionWrapper.QueryAsync<ReviewArtifactApprovalCheck>("CheckReviewArtifactApproval", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+            return (await ConnectionWrapper.QueryAsync<ReviewArtifactApprovalCheck>("CheckReviewArtifactUserApproval", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
 
-        private async Task<string> GetReviewArtifactApprovalForUserXmlAsync(int reviewId, int userId)
+        private async Task<RDReviewedArtifacts> GetReviewUserStatsXmlAsync(int reviewId, int userId)
         {
             var parameters = new DynamicParameters();
 
             parameters.Add("@reviewId", reviewId);
             parameters.Add("@userId", userId);
 
-            return (await ConnectionWrapper.QueryAsync<string>("GetReviewArtifactApprovalForUserXml", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+            var xmlString = (await ConnectionWrapper.QueryAsync<string>("GetReviewUserStatsXml", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+
+            RDReviewedArtifacts rdReviewedArtifacts;
+
+            if (xmlString != null)
+            {
+                rdReviewedArtifacts = ReviewRawDataHelper.RestoreData<RDReviewedArtifacts>(xmlString);
+            }
+            else
+            {
+                rdReviewedArtifacts = new RDReviewedArtifacts();
+            }
+
+            if (rdReviewedArtifacts.ReviewedArtifacts == null)
+            {
+                rdReviewedArtifacts.ReviewedArtifacts = new List<ReviewArtifactXml>();
+            }
+
+            return rdReviewedArtifacts;
         }
 
-        private Task UpdateReviewArtifactApprovalForUserXmlAsync(int reviewId, int userId, string xmlString)
+        private Task UpdateReviewUserStatsXmlAsync(int reviewId, int userId, RDReviewedArtifacts rdReviewedArtifacts)
         {
+            string xmlString = ReviewRawDataHelper.GetStoreData(rdReviewedArtifacts);
+
             var parameters = new DynamicParameters();
 
             parameters.Add("@reviewId", reviewId);
             parameters.Add("@userId", userId);
             parameters.Add("@xmlString", xmlString);
 
-            return ConnectionWrapper.ExecuteAsync("UpdateReviewArtifactApprovalForUserXml", parameters, commandType: CommandType.StoredProcedure);
+            return ConnectionWrapper.ExecuteAsync("UpdateReviewUserStatsXml", parameters, commandType: CommandType.StoredProcedure);
         }
 
         private void UnauthorizedItem(ReviewTableOfContentItem item)

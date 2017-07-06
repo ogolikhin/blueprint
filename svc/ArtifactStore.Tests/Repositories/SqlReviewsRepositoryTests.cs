@@ -1513,7 +1513,7 @@ namespace ArtifactStore.Repositories
                 { "userId", 2 }
             };
 
-            _cxn.SetupQueryAsync("GetReviewArtifactApprovalForUserXml", getXmlParameters, new List<string>());
+            _cxn.SetupQueryAsync("GetReviewUserStatsXml", getXmlParameters, new List<string>());
 
             var updateXmlParameters = new Dictionary<string, object>()
             {
@@ -1522,7 +1522,7 @@ namespace ArtifactStore.Repositories
                 { "xmlString", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Approved</A><AF>Approved</AF><Id>3</Id><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>" }
             };
 
-            _cxn.SetupExecuteAsync("UpdateReviewArtifactApprovalForUserXml", updateXmlParameters, 1);
+            _cxn.SetupExecuteAsync("UpdateReviewUserStatsXml", updateXmlParameters, 1);
 
             //Act
             await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
@@ -1556,7 +1556,7 @@ namespace ArtifactStore.Repositories
                 { "userId", 2 }
             };
 
-            _cxn.SetupQueryAsync("GetReviewArtifactApprovalForUserXml", getXmlParameters, new List<string>()
+            _cxn.SetupQueryAsync("GetReviewUserStatsXml", getXmlParameters, new List<string>()
             {
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Approved</A><AF>Approved</AF><Id>4</Id><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>"
             });
@@ -1568,7 +1568,7 @@ namespace ArtifactStore.Repositories
                 { "xmlString", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Approved</A><AF>Approved</AF><Id>4</Id><V>1</V><VS>Viewed</VS></RA><RA><A>Custom Approval</A><AF>Approved</AF><Id>3</Id><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>" }
             };
 
-            _cxn.SetupExecuteAsync("UpdateReviewArtifactApprovalForUserXml", updateXmlParameters, 1);
+            _cxn.SetupExecuteAsync("UpdateReviewUserStatsXml", updateXmlParameters, 1);
 
             //Act
             await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
@@ -1602,7 +1602,7 @@ namespace ArtifactStore.Repositories
                 { "userId", 2 }
             };
 
-            _cxn.SetupQueryAsync("GetReviewArtifactApprovalForUserXml", getXmlParameters, new List<string>()
+            _cxn.SetupQueryAsync("GetReviewUserStatsXml", getXmlParameters, new List<string>()
             {
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Approved</A><AF>Approved</AF><Id>3</Id><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>"
             });
@@ -1614,7 +1614,7 @@ namespace ArtifactStore.Repositories
                 { "xmlString", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Disapproved</A><AF>Disapproved</AF><Id>3</Id><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>" }
             };
 
-            _cxn.SetupExecuteAsync("UpdateReviewArtifactApprovalForUserXml", updateXmlParameters, 1);
+            _cxn.SetupExecuteAsync("UpdateReviewUserStatsXml", updateXmlParameters, 1);
 
             //Act
             await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
@@ -1648,7 +1648,7 @@ namespace ArtifactStore.Repositories
                 { "userId", 2 }
             };
 
-            _cxn.SetupQueryAsync("GetReviewArtifactApprovalForUserXml", getXmlParameters, new List<string>()
+            _cxn.SetupQueryAsync("GetReviewUserStatsXml", getXmlParameters, new List<string>()
             {
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Not Specified</A><Id>3</Id><V>1</V></RA></ReviewedArtifacts></RDReviewedArtifacts>"
             });
@@ -1660,7 +1660,7 @@ namespace ArtifactStore.Repositories
                 { "xmlString", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Approved</A><AF>Approved</AF><Id>3</Id><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>" }
             };
 
-            _cxn.SetupExecuteAsync("UpdateReviewArtifactApprovalForUserXml", updateXmlParameters, 1);
+            _cxn.SetupExecuteAsync("UpdateReviewUserStatsXml", updateXmlParameters, 1);
 
             //Act
             await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
@@ -1699,7 +1699,7 @@ namespace ArtifactStore.Repositories
                 new ReviewArtifactApprovalParameter() { Approval = "Approved", ApprovalFlag = ApprovalType.Approved, ArtifactId = 3, VersionId = 1 }
             };
 
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { 3 }, check => check.ReviewIsDraft = true);
+            SetupArtifactApprovalCheck(reviewId, userId, new[] { 3 }, check => check.ReviewStatus = ReviewPackageStatus.Draft);
 
             //Act
             await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
@@ -1716,7 +1716,7 @@ namespace ArtifactStore.Repositories
                 new ReviewArtifactApprovalParameter() { Approval = "Approved", ApprovalFlag = ApprovalType.Approved, ArtifactId = 3, VersionId = 1 }
             };
 
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { 3 }, check => check.ReviewClosed = true);
+            SetupArtifactApprovalCheck(reviewId, userId, new[] { 3 }, check => check.ReviewStatus = ReviewPackageStatus.Closed);
 
             //Act
             try
@@ -1787,6 +1787,24 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_User_Is_Not_Part_Of_The_Review()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            var approvalParameter = new List<ReviewArtifactApprovalParameter>()
+            {
+                new ReviewArtifactApprovalParameter() { Approval = "Approved", ApprovalFlag = ApprovalType.Approved, ArtifactId = 3, VersionId = 1 }
+            };
+            
+            SetupArtifactApprovalCheck(reviewId, userId, new[] { 3 }, check => check.UserInReview = false);
+
+            //Act
+            await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
         public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_Artifact_Given_Doesnt_Require_Approval()
         {
@@ -1797,7 +1815,7 @@ namespace ArtifactStore.Repositories
             {
                 new ReviewArtifactApprovalParameter() { Approval = "Approved", ApprovalFlag = ApprovalType.Approved, ArtifactId = 3, VersionId = 1 }
             };
-            
+
             SetupArtifactApprovalCheck(reviewId, userId, new[] { 3 }, check => check.AllArtifactsRequireApproval = false);
 
             //Act
@@ -1881,16 +1899,15 @@ namespace ArtifactStore.Repositories
             {
                 AllArtifactsInReview = true,
                 AllArtifactsRequireApproval = true,
-                ReviewClosed = false,
-                ReviewDeleted = false,
+                ReviewStatus = ReviewPackageStatus.Active,
                 ReviewerRole = ReviewParticipantRole.Approver,
                 ReviewExists = true,
-                ReviewIsDraft = false
+                UserInReview = true
             };
 
             setCheckResult?.Invoke(check);
 
-            _cxn.SetupQueryAsync("CheckReviewArtifactApproval", getCheckParameters, new[] { check });
+            _cxn.SetupQueryAsync("CheckReviewArtifactUserApproval", getCheckParameters, new[] { check });
         }
 
         #endregion

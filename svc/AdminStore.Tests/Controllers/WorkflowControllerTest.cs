@@ -74,18 +74,17 @@ namespace AdminStore.Controllers
         public async Task GetWorkflow_AllParamsAreCorrectAndPermissionsOk_ReturnWorkflow()
         {
             //arrange
-            var workflow = new SqlWorkflow { Name = "Workflow1", Description = "DescriptionWorkflow1", Active = true };
+            var workflow = new WorkflowDto{ Name = "Workflow1", Description = "DescriptionWorkflow1", Status = true };
             _workflowServiceMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(workflow);
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
             //act
-            var result = await _controller.GetWorkflow(WorkflowId) as OkNegotiatedContentResult<SqlWorkflow>;
+            var result = await _controller.GetWorkflow(WorkflowId) as OkNegotiatedContentResult<WorkflowDto>;
 
             //assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(workflow, result.Content);
         }
 
         [TestMethod]

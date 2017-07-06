@@ -106,6 +106,10 @@ namespace AdminStore.Controllers
         /// <remarks>
         /// Returns settings necessary for user management.
         /// </remarks>
+        /// <response code="200">OK.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed, or session user does not exist.</response>
+        /// <response code="403">Forbidden. The session user is not an administrator.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("users"), SessionRequired]
         [ResponseType(typeof(UserManagementSettings))]

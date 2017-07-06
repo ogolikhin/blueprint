@@ -2,7 +2,7 @@
 {
     public enum UserType
     {
-        Group,
-        User
+        User = 0,
+        Group = 1
     }
 }

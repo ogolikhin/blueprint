@@ -992,7 +992,7 @@ namespace AdminStore.Controllers
             ResourceNotFoundException exception = null;
             _usersRepoMock
                 .Setup(repo => repo.GetUserDtoAsync(It.Is<int>(i => i == userId)))
-                .ReturnsAsync(null);
+                .ReturnsAsync((UserDto)null);
             _privilegesRepository
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
@@ -2138,7 +2138,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                .Setup(repo => repo.GetInstanceAdminPrivilegesAsync(It.IsAny<int>()))
                .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
-            _usersRepoMock.Setup(repo => repo.GetUserAsync(It.IsAny<int>())).ReturnsAsync(null);
+            _usersRepoMock.Setup(repo => repo.GetUserAsync(It.IsAny<int>())).ReturnsAsync((User)null);
 
             //act
             try

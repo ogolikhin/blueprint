@@ -78,10 +78,12 @@ namespace AdminStore.Services
                 userRepositoryMock.Object);
             var workflowId = 10;
 
-            workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(null);
+            workflowRepositoryMock
+                .Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>()))
+                .ReturnsAsync((SqlWorkflow)null);
 
             //act
-            await workflowService.GetWorkflowDetailsAsync(workflowId);       
+            await workflowService.GetWorkflowDetailsAsync(workflowId);
         }
 
         #endregion

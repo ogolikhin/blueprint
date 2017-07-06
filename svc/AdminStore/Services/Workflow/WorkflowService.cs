@@ -190,10 +190,13 @@ namespace AdminStore.Services.Workflow
                 }
             });
 
-            //look up ID of projects that have no ID provided
-            foreach (var sqlProjectPathPair in await _workflowRepository.GetProjectIdsByProjectPaths(projectPathsToLookup))
+            if (projectPathsToLookup.Any())
             {
-                projectPaths[sqlProjectPathPair.ProjectId] = sqlProjectPathPair.ProjectPath;
+                //look up ID of projects that have no ID provided
+                foreach (var sqlProjectPathPair in await _workflowRepository.GetProjectIdsByProjectPaths(projectPathsToLookup))
+                {
+                    projectPaths[sqlProjectPathPair.ProjectId] = sqlProjectPathPair.ProjectPath;
+                }
             }
 
             if (projectPaths.Count != workflow.Projects.Count)
@@ -248,7 +251,6 @@ namespace AdminStore.Services.Workflow
                     }),
                     Validations = null,
                     Actions = null,
-                    ProjectId = null,
                     WorkflowState1Id = newStatesArray.FirstOrDefault(s => s.Name.Equals(transition.FromState))?.WorkflowStateId,
                     WorkflowState2Id = newStatesArray.FirstOrDefault(s => s.Name.Equals(transition.ToState))?.WorkflowStateId,
                     PropertyTypeId = null

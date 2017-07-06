@@ -423,6 +423,13 @@ namespace AdminStore.Repositories
             return result;
         }
 
+        public async Task<bool> CheckUserHasProjectAdminRoleAsync(int sessionUserId)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@UserId", sessionUserId);
+            return await _connectionWrapper.ExecuteScalarAsync<bool>("IsProjectAdminForAnyNonDeletedProject", prm, commandType: CommandType.StoredProcedure);
+        }
+
         internal class HashedPassword
         {
             internal string Password { get; set; }

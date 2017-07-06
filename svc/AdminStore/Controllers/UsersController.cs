@@ -92,6 +92,9 @@ namespace AdminStore.Controllers
                 loginUser.LicenseType = Session.LicenseLevel;
                 loginUser.IsSso = Session.IsSso;
 
+                loginUser.IsProjectAdmin = loginUser.InstanceAdminRoleId == 1 ||
+                                           await _userRepository.CheckUserHasProjectAdminRoleAsync(Session.UserId);
+
                 return Ok(loginUser);
             }
             catch (AuthenticationException)
@@ -124,7 +127,7 @@ namespace AdminStore.Controllers
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewUsers);
 
-            var result = await _userRepository.GetUsersAsync(pagination, sorting, search, UsersHelper.SortUsers);
+            var result = await _userRepository.GetUsersAsync(pagination, sorting, search, SortingHelper.SortUsers);
 
             return Ok(result);
         }

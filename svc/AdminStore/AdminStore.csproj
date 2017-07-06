@@ -118,9 +118,9 @@
     <Compile Include="Helpers\GroupMapper.cs" />
     <Compile Include="Helpers\GroupsHelper.cs" />
     <Compile Include="Helpers\GroupValidator.cs" />
+    <Compile Include="Helpers\SortingHelper.cs" />
     <Compile Include="Helpers\UserConverter.cs" />
     <Compile Include="Helpers\PrivilegesManager.cs" />
-    <Compile Include="Helpers\UserGroupHelper.cs" />
     <Compile Include="Helpers\UserValidator.cs" />
     <Compile Include="Models\AdminRole.cs" />
     <Compile Include="Models\AssignResult.cs" />

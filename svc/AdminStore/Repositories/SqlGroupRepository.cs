@@ -190,7 +190,19 @@ namespace AdminStore.Repositories
             parameters.Add("@OrderField", orderField);
             parameters.Add("@Search", tabularData.Search);
             parameters.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
             var userGroups = await _connectionWrapper.QueryAsync<GroupUser>("GetUsersAndGroups", parameters, commandType: CommandType.StoredProcedure);
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.GroupWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.GroupNotExist);
+                }
+            }
             var total = parameters.Get<int?>("Total");
 
             var queryDataResult = new QueryResult<GroupUser>() { Items = userGroups, Total = total.Value };

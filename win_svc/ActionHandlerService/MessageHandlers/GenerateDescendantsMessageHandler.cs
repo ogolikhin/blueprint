@@ -1,11 +1,17 @@
-﻿using BluePrintSys.ActionMessaging.Models;
+﻿using BluePrintSys.Messaging.Models.Action;
 
 namespace ActionHandlerService.MessageHandlers
 {
     public class GenerateDescendantsMessageHandler : BaseMessageHandler<GenerateDescendantsMessage>
     {
-        protected override MessageActionType ActionType { get; } = MessageActionType.GenerateDescendants;
+        public GenerateDescendantsMessageHandler() : this(new GenerateDescendantsActionHelper())
+        {
+        }
 
-        protected override IActionHelper ActionHelper { get; } = new GenerateDescendantsActionHelper();
+        public GenerateDescendantsMessageHandler(IActionHelper actionHelper) : base(actionHelper)
+        {
+        }
+        
+        protected override MessageActionType ActionType { get; } = MessageActionType.GenerateDescendants;
     }
 }

@@ -7,8 +7,8 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
+using BluePrintSys.Messaging.CrossCutting.Logging;
 using ImageRenderService.Helpers;
-using ImageRenderService.Logging;
 
 namespace ImageRenderService.ImageGen
 {

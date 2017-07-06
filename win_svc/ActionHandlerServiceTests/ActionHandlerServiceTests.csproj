@@ -40,6 +40,10 @@
       <HintPath>..\..\packages\Castle.Core.4.0.0\lib\net45\Castle.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Moq, Version=4.7.10.0, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Moq.4.7.10\lib\net45\Moq.dll</HintPath>
       <Private>True</Private>
@@ -79,16 +83,21 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
+        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework">
+          <Private>False</Private>
+        </Reference>
       </ItemGroup>
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="UnitTests.cs" />
+    <Compile Include="HandlerTests.cs" />
+    <Compile Include="LoggingTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
@@ -98,9 +107,13 @@
       <Project>{7BC07A52-F604-48CD-ABFD-CF84BFD3C824}</Project>
       <Name>ActionHandlerService</Name>
     </ProjectReference>
-    <ProjectReference Include="..\BluePrintSys.ActionMessaging.Models\BluePrintSys.ActionMessaging.Models.csproj">
-      <Project>{21EA3068-782F-4FD9-8975-FEF74DFF2133}</Project>
-      <Name>BluePrintSys.ActionMessaging.Models</Name>
+    <ProjectReference Include="..\BluePrintSys.Messaging.CrossCutting\BluePrintSys.Messaging.CrossCutting.csproj">
+      <Project>{74353EB4-59E8-4F3E-A9E3-9927546970FD}</Project>
+      <Name>BluePrintSys.Messaging.CrossCutting</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BluePrintSys.Messaging.Models.Action\BluePrintSys.Messaging.Models.Action.csproj">
+      <Project>{03BD78CA-0BB7-4488-A0B3-4E07CE05391F}</Project>
+      <Name>BluePrintSys.Messaging.Models.Action</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>

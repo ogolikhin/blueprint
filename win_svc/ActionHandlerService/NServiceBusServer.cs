@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Threading.Tasks;
-using ActionHandlerService.Logging;
+using BluePrintSys.Messaging.CrossCutting.Logging;
 using NServiceBus;
 
 namespace ActionHandlerService

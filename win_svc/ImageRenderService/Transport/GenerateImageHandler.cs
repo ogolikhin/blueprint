@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Drawing.Imaging;
 using System.Threading.Tasks;
+using BluePrintSys.Messaging.CrossCutting.Logging;
 using BluePrintSys.Messaging.Models.ProcessImageGeneration;
 using ImageRenderService.ImageGen;
-using ImageRenderService.Logging;
 using NServiceBus;
 
 namespace ImageRenderService.Transport

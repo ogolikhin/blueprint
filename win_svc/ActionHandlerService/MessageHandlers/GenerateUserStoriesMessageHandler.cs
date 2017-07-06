@@ -1,11 +1,17 @@
-﻿using BluePrintSys.ActionMessaging.Models;
+﻿using BluePrintSys.Messaging.Models.Action;
 
 namespace ActionHandlerService.MessageHandlers
 {
     public class GenerateUserStoriesMessageHandler : BaseMessageHandler<GenerateUserStoriesMessage>
     {
-        protected override MessageActionType ActionType { get; } = MessageActionType.GenerateUserStories;
+        public GenerateUserStoriesMessageHandler() : this(new GenerateUserStoriesActionHelper())
+        {
+        }
 
-        protected override IActionHelper ActionHelper { get; } = new GenerateUserStoriesActionHelper();
+        public GenerateUserStoriesMessageHandler(IActionHelper actionHelper) : base(actionHelper)
+        {
+        }
+
+        protected override MessageActionType ActionType { get; } = MessageActionType.GenerateUserStories;
     }
 }

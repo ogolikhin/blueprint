@@ -90,7 +90,7 @@ namespace AdminStore.Repositories
             cxn.SetupQueryAsync("GetWorkflowProjectsAndArtifactTypes", It.IsAny<Dictionary<string, object>>(), workflowArtifactTypesAndProjects);
 
             //act
-            var workflowDetails = await repository.GetWorkflowDetailsAsync(workflowId);
+            var workflowDetails = await repository.GetWorkflowArtifactTypesAndProjectsAsync(workflowId);
 
             //assert
             Assert.IsNotNull(workflowDetails);

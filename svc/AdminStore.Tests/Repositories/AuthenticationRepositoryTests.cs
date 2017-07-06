@@ -134,7 +134,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             const string fakeLogin = "fakeLogin";
-            _sqlUserRepositoryMock.Setup(m => m.GetUserByLoginAsync(fakeLogin)).ReturnsAsync(null);
+            _sqlUserRepositoryMock.Setup(m => m.GetUserByLoginAsync(fakeLogin)).ReturnsAsync((AuthenticationUser)null);
 
             // Act
             await _authenticationRepository.AuthenticateUserAsync(fakeLogin, Password);
@@ -460,7 +460,7 @@ namespace AdminStore.Repositories
 
             _sqlSettingsRepositoryMock
                 .Setup(m => m.GetFederatedAuthenticationSettingsAsync())
-                .ReturnsAsync(null);
+                .ReturnsAsync((IFederatedAuthenticationSettings)null);
 
             // Act
             await _authenticationRepository.AuthenticateSamlUserAsync("fakeSamlResponce");
@@ -612,7 +612,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             const string fakeLogin = "fakeLogin";
-            _sqlUserRepositoryMock.Setup(m => m.GetUserByLoginAsync(fakeLogin)).ReturnsAsync(null);
+            _sqlUserRepositoryMock.Setup(m => m.GetUserByLoginAsync(fakeLogin)).ReturnsAsync((AuthenticationUser)null);
 
             // Act
             await _authenticationRepository.AuthenticateUserForResetAsync(fakeLogin, Password);

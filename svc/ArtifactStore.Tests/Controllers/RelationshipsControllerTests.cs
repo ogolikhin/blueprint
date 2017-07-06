@@ -569,7 +569,7 @@ namespace ArtifactStore.Controllers
                 Request = new HttpRequestMessage()
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
-            _artifactPermissionsRepositoryMock.Setup(m => m.GetItemInfo(artifactId, _session.UserId, true, int.MaxValue)).ReturnsAsync(null);
+            _artifactPermissionsRepositoryMock.Setup(m => m.GetItemInfo(artifactId, _session.UserId, true, int.MaxValue)).ReturnsAsync((ItemInfo)null);
 
             //Act
             var result = await controller.GetReviewRelationships(artifactId);

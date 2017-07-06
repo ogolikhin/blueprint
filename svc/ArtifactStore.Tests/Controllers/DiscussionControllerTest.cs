@@ -161,9 +161,9 @@ namespace ArtifactStore.Controllers
             var permisionDictionary = new Dictionary<int, RolePermissions>();
             var discussion = new Discussion { ItemId = artifactId };
             permisionDictionary.Add(artifactId, RolePermissions.Read);
-            _artifactPermissionsRepositoryMock.Setup(m => m.GetItemInfo(artifactId, _session.UserId, true, int.MaxValue)).ReturnsAsync(null);
+            _artifactPermissionsRepositoryMock.Setup(m => m.GetItemInfo(artifactId, _session.UserId, true, int.MaxValue)).ReturnsAsync((ItemInfo)null);
             _artifactVersionsRepositoryMock.Setup(m => m.IsItemDeleted(artifactId)).ReturnsAsync(false);
-            _artifactVersionsRepositoryMock.Setup(m => m.GetDeletedItemInfo(artifactId)).ReturnsAsync(null);
+            _artifactVersionsRepositoryMock.Setup(m => m.GetDeletedItemInfo(artifactId)).ReturnsAsync((DeletedItemInfo)null);
             _artifactPermissionsRepositoryMock.Setup(m => m.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), _session.UserId, false, int.MaxValue, true)).ReturnsAsync(permisionDictionary);
             _discussionsRepositoryMock.Setup(m => m.GetDiscussions(artifactId, projectId)).ReturnsAsync(new[] { discussion });
             var controller = new DiscussionController(_discussionsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsRepositoryMock.Object)
@@ -309,9 +309,9 @@ namespace ArtifactStore.Controllers
             var permisionDictionary = new Dictionary<int, RolePermissions>();
             var reply = new Reply { ItemId = artifactId };
             permisionDictionary.Add(artifactId, RolePermissions.Read);
-            _artifactPermissionsRepositoryMock.Setup(m => m.GetItemInfo(artifactId, _session.UserId, true, int.MaxValue)).ReturnsAsync(null);
+            _artifactPermissionsRepositoryMock.Setup(m => m.GetItemInfo(artifactId, _session.UserId, true, int.MaxValue)).ReturnsAsync((ItemInfo)null);
             _artifactVersionsRepositoryMock.Setup(m => m.IsItemDeleted(artifactId)).ReturnsAsync(false);
-            _artifactVersionsRepositoryMock.Setup(m => m.GetDeletedItemInfo(artifactId)).ReturnsAsync(null);
+            _artifactVersionsRepositoryMock.Setup(m => m.GetDeletedItemInfo(artifactId)).ReturnsAsync((DeletedItemInfo)null);
             _artifactPermissionsRepositoryMock.Setup(m => m.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), _session.UserId, false, int.MaxValue, true)).ReturnsAsync(permisionDictionary);
             _discussionsRepositoryMock.Setup(m => m.GetReplies(discussionId, projectId)).ReturnsAsync(new[] { reply });
             var controller = new DiscussionController(_discussionsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsRepositoryMock.Object)

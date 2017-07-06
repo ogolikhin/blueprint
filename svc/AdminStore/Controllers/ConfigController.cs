@@ -123,7 +123,7 @@ namespace AdminStore.Controllers
 
             if (!user.InstanceAdminRoleId.HasValue)
             {
-                throw new AuthorizationException();
+                throw new AuthorizationException("You do not have permission to access this area.", ErrorCodes.UnauthorizedAccess);
             }
 
             var settings = await _settingsRepository.GetUserManagementSettingsAsync();

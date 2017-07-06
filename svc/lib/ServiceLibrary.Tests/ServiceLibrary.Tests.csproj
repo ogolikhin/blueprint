@@ -89,6 +89,7 @@
     <Compile Include="Attributes\NoCacheAttributeTests.cs" />
     <Compile Include="Attributes\SessionAttributeTests.cs" />
     <Compile Include="EventSources\EventSourcesTests.cs" />
+    <Compile Include="Exceptions\AuthorizationExceptionTests.cs" />
     <Compile Include="Helpers\Cache\AsyncCacheTests.cs" />
     <Compile Include="Helpers\HttpFilterHelper.cs" />
     <Compile Include="Helpers\TestHttpClientProvider.cs" />

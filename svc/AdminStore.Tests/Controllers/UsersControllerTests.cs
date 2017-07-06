@@ -101,7 +101,7 @@ namespace AdminStore.Controllers
             var userId = 1;
             _usersRepoMock
                 .Setup(repo => repo.GetUserIconByUserIdAsync(It.IsAny<int>()))
-                .ReturnsAsync(null);
+                .ReturnsAsync((UserIcon)null);
 
             // Act
             try
@@ -176,7 +176,7 @@ namespace AdminStore.Controllers
             // Arrange
             _usersRepoMock
                 .Setup(repo => repo.GetLoginUserByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync(null);
+                .ReturnsAsync((LoginUser)null);
 
             // Act
             IHttpActionResult result = await _controller.GetLoginUser();
@@ -421,7 +421,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(tokenList);
             _usersRepoMock
                 .Setup(repo => repo.GetUserByLoginAsync(It.IsAny<string>()))
-                .ReturnsAsync(null);
+                .ReturnsAsync((AuthenticationUser)null);
             _applicationSettingsRepository
                 .Setup(repo => repo.GetValue(It.IsAny<string>(), It.IsAny<int>()))
                 .ReturnsAsync(24);

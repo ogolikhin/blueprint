@@ -31,7 +31,7 @@ namespace FileStore.Controllers
             var moqLog = new Mock<sl.IServiceLogRepository>();
             var httpContent = new StringContent("my file");
 
-            moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).ReturnsAsync(null);
+            moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).ReturnsAsync((File)null);
             var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object, moqLog.Object)
             {
                 Request = new HttpRequestMessage

@@ -72,7 +72,7 @@ namespace AccessControl.Controllers
         {
             // Arrange
             int uid = 100;
-            _sessionsRepoMock.Setup(repo => repo.GetUserSession(uid)).ReturnsAsync(null);
+            _sessionsRepoMock.Setup(repo => repo.GetUserSession(uid)).ReturnsAsync((Session)null);
 
             // Act
             var result = await _controller.GetSession(uid);
@@ -159,7 +159,7 @@ namespace AccessControl.Controllers
             int uid = 999;
             string userName = "user";
             int licenseLevel = 3;
-            _sessionsRepoMock.Setup(r => r.BeginSession(It.IsAny<int>(), userName, licenseLevel, false, It.IsAny<Action<Guid>>())).ReturnsAsync(null);
+            _sessionsRepoMock.Setup(r => r.BeginSession(It.IsAny<int>(), userName, licenseLevel, false, It.IsAny<Action<Guid>>())).ReturnsAsync((Session)null);
 
             // Act
             var result = await _controller.PostSession(uid, userName, licenseLevel);
@@ -300,7 +300,7 @@ namespace AccessControl.Controllers
             // Arrange
             var guid = new Guid();
             _controller.Request.Headers.Add("Session-Token", Session.Convert(guid));
-            _sessionsRepoMock.Setup(repo => repo.EndSession(guid, null)).ReturnsAsync(null);
+            _sessionsRepoMock.Setup(repo => repo.EndSession(guid, null)).ReturnsAsync((Session)null);
 
             // Act
             var result = await _controller.DeleteSession();
@@ -375,7 +375,7 @@ namespace AccessControl.Controllers
         {
             // Arrange
             int uid = 3;
-            _sessionsRepoMock.Setup(repo => repo.GetUserSession(uid)).ReturnsAsync(null);
+            _sessionsRepoMock.Setup(repo => repo.GetUserSession(uid)).ReturnsAsync((Session)null);
 
             // Act
             var result = await _controller.DeleteSession(uid);
@@ -391,7 +391,7 @@ namespace AccessControl.Controllers
             int uid = 3;
             var guid = Guid.NewGuid();
             _sessionsRepoMock.Setup(repo => repo.GetUserSession(uid)).ReturnsAsync(new Session {SessionId = guid, EndTime = DateTime.UtcNow.AddDays(1) });
-            _sessionsRepoMock.Setup(repo => repo.EndSession(guid, null)).ReturnsAsync(null);
+            _sessionsRepoMock.Setup(repo => repo.EndSession(guid, null)).ReturnsAsync((Session)null);
 
             // Act
             var result = await _controller.DeleteSession(uid);
@@ -443,7 +443,7 @@ namespace AccessControl.Controllers
             // Arrange
             var guid = Guid.NewGuid();
             _controller.Request.Headers.Add("Session-Token", Session.Convert(guid));
-            _sessionsRepoMock.Setup(r => r.GetSession(guid)).ReturnsAsync(null);
+            _sessionsRepoMock.Setup(r => r.GetSession(guid)).ReturnsAsync((Session)null);
 
             // Act
             var resultSession = await _controller.PutSession("", 1);

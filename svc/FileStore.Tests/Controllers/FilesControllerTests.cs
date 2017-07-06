@@ -91,7 +91,7 @@ namespace FileStore.Controllers
                 IsLegacyFile = true
             };
 
-            moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).ReturnsAsync(null);
+            moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).ReturnsAsync((File)null);
 
             moqFileStreamRepo.Setup(t => t.FileExists(file.FileId)).Returns(true);
             moqFileStreamRepo.Setup(t => t.GetFileHead(file.FileId)).Returns(file);

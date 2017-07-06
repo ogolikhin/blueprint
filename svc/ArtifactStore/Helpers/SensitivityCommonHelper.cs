@@ -48,7 +48,7 @@ namespace ArtifactStore.Helpers
                 }
 
                 ItemTypeReuseTemplate settings;
-                if (reuseTemplatesDic.TryGetValue(standardTypeInfo.InstanceTypeId.GetValueOrDefault(0), out settings))
+                if (reuseTemplatesDic.TryGetValue(standardTypeInfo.InstanceTypeId.GetValueOrDefault(0), out settings) && settings != null)
                 {
                     var modification = sensitivityCollector.ArtifactModifications[itemId];
 

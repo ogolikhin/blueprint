@@ -152,6 +152,8 @@ namespace ServiceLibrary.Helpers.Cache
             _cacheMock.Verify(c => c.Remove(key, null), Times.Once);
         }
 
+        // Disabling the test because of the sporadic failures in build environments
+        // which requires further investigation
         [Ignore]
         [TestMethod]
         public void AddOrGetExistingAsync_ItemNotCached_ParallelRequests()

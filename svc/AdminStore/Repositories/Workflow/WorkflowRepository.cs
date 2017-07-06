@@ -268,7 +268,15 @@ namespace AdminStore.Repositories.Workflow
 
             var result = (await ConnectionWrapper.QueryAsync<SqlWorkflow>("GetWorkflowDetails", parameters, commandType: CommandType.StoredProcedure)).FirstOrDefault();
             return result;           
+        }
 
+        public async Task<IEnumerable<SqlWorkflowArtifactTypesAndProjects>> GetWorkflowArtifactTypesAndProjectsAsync(int workflowId)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("WorkflowId", workflowId);
+
+            var result = await ConnectionWrapper.QueryAsync<SqlWorkflowArtifactTypesAndProjects>("GetWorkflowProjectsAndArtifactTypes", parameters, commandType: CommandType.StoredProcedure);
+            return result;
         }
 
         public async Task<int> DeleteWorkflows(OperationScope body, string search, int sessionUserId)
@@ -299,9 +307,9 @@ namespace AdminStore.Repositories.Workflow
 
         #endregion
 
-    #region Private methods
+        #region Private methods
 
-    private static DataTable ToWorkflowsCollectionDataTable(IEnumerable<SqlWorkflow> workflows)
+        private static DataTable ToWorkflowsCollectionDataTable(IEnumerable<SqlWorkflow> workflows)
         {
             var table = new DataTable { Locale = CultureInfo.InvariantCulture };
             table.SetTypeName("WorkflowsCollection");

@@ -12,6 +12,6 @@ namespace AdminStore.Services.Workflow
 
         Task<string> GetImportWorkflowErrorsAsync(string guid, int userId);
 
-        Task<SqlWorkflow> GetWorkflowDetailsAsync(int workflowId);
+        Task<WorkflowDto> GetWorkflowDetailsAsync(int workflowId);
     }
 }

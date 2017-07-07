@@ -996,7 +996,7 @@ namespace ArtifactStore.Repositories
             {
                 if(!SqlArtifactPermissionsRepository.HasPermissions(artifactId, artifactPermissionsDictionary, RolePermissions.Read))
                 {
-                    ThrowUserCannotAccessArtifactInTheReviewException(1); // Need Project ID
+                    throw new ResourceNotFoundException("Artifacts could not be updated because they are no longer accessible .", ErrorCodes.ArtifactNotFound);
                 }
             }
         }
@@ -1019,7 +1019,7 @@ namespace ArtifactStore.Repositories
             parameters.Add("@reviewId", reviewId);
             parameters.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
 
-            var artifactVersionNumbers = await ConnectionWrapper.QueryAsync<ReviewArtifactVersionNumber>("CheckReviewArtifactUserApproval", parameters, commandType: CommandType.StoredProcedure);
+            var artifactVersionNumbers = await ConnectionWrapper.QueryAsync<ReviewArtifactVersionNumber>("GetReviewArtifactVersionNumber", parameters, commandType: CommandType.StoredProcedure);
 
             return artifactVersionNumbers.ToDictionary(avn => avn.ArtifactId, avn => avn.VersionNumber);
         }

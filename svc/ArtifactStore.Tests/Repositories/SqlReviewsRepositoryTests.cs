@@ -1910,7 +1910,7 @@ namespace ArtifactStore.Repositories
                 { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds) }
             };
 
-            _cxn.SetupQueryAsync("CheckReviewArtifactUserApproval", getCheckParameters, artifactIds.Select(id => new ReviewArtifactVersionNumber()
+            _cxn.SetupQueryAsync("GetReviewArtifactVersionNumber", getCheckParameters, artifactIds.Select(id => new ReviewArtifactVersionNumber()
             {
                 ArtifactId = id,
                 VersionNumber = 1

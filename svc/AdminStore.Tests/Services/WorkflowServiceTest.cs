@@ -78,9 +78,7 @@ namespace AdminStore.Services
                 userRepositoryMock.Object);
             var workflowId = 10;
 
-            workflowRepositoryMock
-                .Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>()))
-                .ReturnsAsync((SqlWorkflow)null);
+            workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync((SqlWorkflow)null);
 
             //act
             await workflowService.GetWorkflowDetailsAsync(workflowId);

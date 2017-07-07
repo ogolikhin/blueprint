@@ -2138,9 +2138,8 @@ namespace AdminStore.Controllers
             _privilegesRepository
                .Setup(repo => repo.GetInstanceAdminPrivilegesAsync(It.IsAny<int>()))
                .ReturnsAsync(InstanceAdminPrivileges.ManageUsers);
-            _usersRepoMock
-                .Setup(repo => repo.GetUserAsync(It.IsAny<int>()))
-                .ReturnsAsync((User)null);
+
+            _usersRepoMock.Setup(repo => repo.GetUserAsync(It.IsAny<int>())).ReturnsAsync((User)null);
 
             //act
             try

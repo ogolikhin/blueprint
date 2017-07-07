@@ -86,11 +86,15 @@
   <ItemGroup>
     <Compile Include="Logging\Log4NetStandardLogListener.cs" />
     <Compile Include="MessageHandlers\BaseMessageHandler.cs" />
-    <Compile Include="MessageHandlers\GenerateUserStoriesMessageHandler.cs" />
-    <Compile Include="MessageHandlers\GenerateTestsMessageHandler.cs" />
-    <Compile Include="MessageHandlers\GenerateDescendantsMessageHandler.cs" />
-    <Compile Include="MessageHandlers\NotificationMessageHandler.cs" />
-    <Compile Include="ActionHandlerHelper.cs" />
+    <Compile Include="MessageHandlers\GenerateDescendants\GenerateDescendantsActionHelper.cs" />
+    <Compile Include="MessageHandlers\GenerateTests\GenerateTestsActionHelper.cs" />
+    <Compile Include="MessageHandlers\GenerateUserStories\GenerateUserStoriesActionHelper.cs" />
+    <Compile Include="MessageHandlers\GenerateUserStories\GenerateUserStoriesMessageHandler.cs" />
+    <Compile Include="MessageHandlers\GenerateTests\GenerateTestsMessageHandler.cs" />
+    <Compile Include="MessageHandlers\GenerateDescendants\GenerateDescendantsMessageHandler.cs" />
+    <Compile Include="MessageHandlers\Notifications\NotificationsActionHelper.cs" />
+    <Compile Include="MessageHandlers\Notifications\NotificationsMessageHandler.cs" />
+    <Compile Include="MessageHandlers\ActionHandlerHelper.cs" />
     <Compile Include="ActionHandlerService.cs" />
     <Compile Include="NServiceBusServer.cs" />
     <Compile Include="Program.cs" />

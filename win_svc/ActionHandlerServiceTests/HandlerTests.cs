@@ -1,6 +1,10 @@
 ﻿using System;
 using ActionHandlerService;
 using ActionHandlerService.MessageHandlers;
+using ActionHandlerService.MessageHandlers.GenerateDescendants;
+using ActionHandlerService.MessageHandlers.GenerateTests;
+using ActionHandlerService.MessageHandlers.GenerateUserStories;
+using ActionHandlerService.MessageHandlers.Notifications;
 using BluePrintSys.Messaging.Models.Action;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;

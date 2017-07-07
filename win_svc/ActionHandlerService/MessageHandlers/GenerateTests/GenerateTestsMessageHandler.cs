@@ -1,6 +1,6 @@
 ﻿using BluePrintSys.Messaging.Models.Action;
 
-namespace ActionHandlerService.MessageHandlers
+namespace ActionHandlerService.MessageHandlers.GenerateTests
 {
     public class GenerateTestsMessageHandler : BaseMessageHandler<GenerateTestsMessage>
     {

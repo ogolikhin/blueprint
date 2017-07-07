@@ -1,10 +1,10 @@
 ﻿using BluePrintSys.Messaging.Models.Action;
 
-namespace ActionHandlerService.MessageHandlers
+namespace ActionHandlerService.MessageHandlers.Notifications
 {
     public class NotificationMessageHandler : BaseMessageHandler<NotificationMessage>
     {
-        public NotificationMessageHandler() : this(new NotificationActionHelper())
+        public NotificationMessageHandler() : this(new NotificationsActionHelper())
         {
         }
 

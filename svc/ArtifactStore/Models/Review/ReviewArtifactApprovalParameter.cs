@@ -10,8 +10,6 @@ namespace ArtifactStore.Models.Review
     {
         public int ArtifactId { get; set; }
 
-        public int VersionId { get; set; }
-
         public string Approval { get; set; }
 
         public ApprovalType ApprovalFlag { get; set; }

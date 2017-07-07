@@ -142,6 +142,7 @@
     <Compile Include="Models\Review\ReviewArtifactDetails.cs" />
     <Compile Include="Models\Review\ApprovalType.cs" />
     <Compile Include="Models\Review\BaseReviewArtifact.cs" />
+    <Compile Include="Models\Review\ReviewArtifactVersionNumber.cs" />
     <Compile Include="Models\Review\ReviewedArtifact.cs" />
     <Compile Include="Models\Review\ReviewArtifactsStatus.cs" />
     <Compile Include="Models\Review\ReviewPackageRawData.cs" />

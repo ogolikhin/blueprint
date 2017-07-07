@@ -945,7 +945,9 @@ namespace ArtifactStore.Repositories
             //Check user has permission for the review and all of the artifact ids
             await CheckReviewAndArtifactPermissions(userId, reviewId, artifactIds);
 
-            RDReviewedArtifacts rdReviewedArtifacts = await GetReviewUserStatsXmlAsync(reviewId, userId);
+            var rdReviewedArtifacts = await GetReviewUserStatsXmlAsync(reviewId, userId);
+
+            var artifactVersionDictionary = await GetVersionNumberForArtifacts(reviewId, artifactIds);
 
             //Update approvals for the specified artifacts
             foreach (var artifact in reviewArtifactApprovalParameters)
@@ -967,7 +969,11 @@ namespace ArtifactStore.Repositories
 
                 reviewArtifactApproval.Approval = artifact.Approval;
                 reviewArtifactApproval.ApprovalFlag = artifact.ApprovalFlag;
-                reviewArtifactApproval.ArtifactVersion = artifact.VersionId;
+                
+                if(artifactVersionDictionary.ContainsKey(artifact.ArtifactId))
+                {
+                    reviewArtifactApproval.ArtifactVersion = artifactVersionDictionary[artifact.ArtifactId];
+                }
             }
 
             await UpdateReviewUserStatsXmlAsync(reviewId, userId, rdReviewedArtifacts);
@@ -990,7 +996,7 @@ namespace ArtifactStore.Repositories
             {
                 if(!SqlArtifactPermissionsRepository.HasPermissions(artifactId, artifactPermissionsDictionary, RolePermissions.Read))
                 {
-                    ThrowUserCannotAccessArtifactInTheReviewException(1); //Need Project ID
+                    ThrowUserCannotAccessArtifactInTheReviewException(1); // Need Project ID
                 }
             }
         }
@@ -1004,6 +1010,18 @@ namespace ArtifactStore.Repositories
             parameters.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
 
             return (await ConnectionWrapper.QueryAsync<ReviewArtifactApprovalCheck>("CheckReviewArtifactUserApproval", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+        }
+
+        private async Task<IDictionary<int, int>> GetVersionNumberForArtifacts(int reviewId, IEnumerable<int> artifactIds)
+        {
+            var parameters = new DynamicParameters();
+
+            parameters.Add("@reviewId", reviewId);
+            parameters.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
+
+            var artifactVersionNumbers = await ConnectionWrapper.QueryAsync<ReviewArtifactVersionNumber>("CheckReviewArtifactUserApproval", parameters, commandType: CommandType.StoredProcedure);
+
+            return artifactVersionNumbers.ToDictionary(avn => avn.ArtifactId, avn => avn.VersionNumber);
         }
 
         private async Task<RDReviewedArtifacts> GetReviewUserStatsXmlAsync(int reviewId, int userId)

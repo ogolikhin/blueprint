@@ -18,7 +18,7 @@ namespace ActionHandlerService
     public static class ConfigHelper
     {
         const string ServiceNameKey = "Service.Name";
-         const string ServiceNameDefault = "BlueprintActionHandler";
+        const string ServiceNameDefault = "BlueprintActionHandler";
         public static string ServiceName => AppSettingsHelper.GetConfigStringValue(ServiceNameKey, ServiceNameDefault);
 
         const string MessageProcessingMaxConcurrencyKey = "MessageProcessing.MaxConcurrency";

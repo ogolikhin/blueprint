@@ -1,4 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using System.Collections;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace AdminStore.Models
 {
@@ -15,5 +18,6 @@ namespace AdminStore.Models
         /// The users's ID.
         /// </summary>
         public int UserId { get; set; }
+
     }
 }

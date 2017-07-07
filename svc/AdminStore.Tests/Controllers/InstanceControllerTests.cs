@@ -1,65 +1,40 @@
-﻿using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Web.Http;
-using System.Web.Http.Results;
-using AdminStore.Models;
+﻿using AdminStore.Models;
 using AdminStore.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using ServiceLibrary.Exceptions;
-using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
-using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Web.Http;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Repositories;
 
 namespace AdminStore.Controllers
 {
     [TestClass]
     public class InstanceControllerTests
     {
-        private const int UserId = 9;
-        private Mock<IInstanceRepository> _instanceRepositoryMock;
-        private Mock<IServiceLogRepository> _logRepositoryMock;
-        private Mock<IArtifactPermissionsRepository> _artifactPermissionsRepositoryMock;
-        private Mock<IPrivilegesRepository> _privilegeRepositoryMock;
-        private InstanceController _controller;
-
-        [TestInitialize]
-        public void Initialize()
-        {
-            _instanceRepositoryMock = new Mock<IInstanceRepository>();
-            _logRepositoryMock = new Mock<IServiceLogRepository>();
-            _artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
-            _privilegeRepositoryMock = new Mock<IPrivilegesRepository>();
-
-            var request = new HttpRequestMessage();
-            request.Properties[ServiceConstants.SessionProperty] = new Session { UserId = UserId };
-
-            _controller = new InstanceController
-            (
-                _instanceRepositoryMock.Object,
-                _logRepositoryMock.Object,
-                _artifactPermissionsRepositoryMock.Object,
-                _privilegeRepositoryMock.Object
-            )
-            {
-                Request = request
-            };
-        }
-
         [TestMethod]
         public async Task GetInstanceFolderAsync_Success()
         {
             //Arrange
             var folderId = 99;
+            var userId = 9;
+            var session = new Session { UserId = userId };
             var folder = new InstanceItem { Id = folderId };
-            _instanceRepositoryMock
-                .Setup(r => r.GetInstanceFolderAsync(folderId, UserId))
-                .ReturnsAsync(folder);
+            var mockInstanceRepository = new Mock<ISqlInstanceRepository>();
+            mockInstanceRepository.Setup(r => r.GetInstanceFolderAsync(folderId, userId)).ReturnsAsync(folder);
+            var mockServiceLogRepository = new Mock<IServiceLogRepository>();
+            var instanceController = new InstanceController(mockInstanceRepository.Object, mockServiceLogRepository.Object, null)
+            {
+                Request = new HttpRequestMessage()
+            };
+            instanceController.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             //Act
-            var result = await _controller.GetInstanceFolderAsync(folderId);
+            var result = await instanceController.GetInstanceFolderAsync(folderId);
 
             //Assert
             Assert.AreSame(folder, result);
@@ -69,15 +44,21 @@ namespace AdminStore.Controllers
         public async Task GetInstanceFolderChildrenAsync_Success()
         {
             //Arrange
+            var userId = 88;
+            var session = new Session { UserId = userId };
             var folderId = 99;
             var children = new List<InstanceItem>();
-            _instanceRepositoryMock
-                .Setup(r => r.GetInstanceFolderChildrenAsync(folderId, UserId))
-                .ReturnsAsync(children);
+            var mockInstanceRepository = new Mock<ISqlInstanceRepository>();
+            mockInstanceRepository.Setup(r => r.GetInstanceFolderChildrenAsync(folderId, userId)).ReturnsAsync(children);
             var mockServiceLogRepository = new Mock<IServiceLogRepository>();
+            var instanceController = new InstanceController(mockInstanceRepository.Object, mockServiceLogRepository.Object, null)
+            {
+                Request = new HttpRequestMessage()
+            };
+            instanceController.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             //Act
-            var result = await _controller.GetInstanceFolderChildrenAsync(folderId);
+            var result = await instanceController.GetInstanceFolderChildrenAsync(folderId);
 
             //Assert
             Assert.AreSame(children, result);
@@ -87,14 +68,21 @@ namespace AdminStore.Controllers
         public async Task GetInstanceProjectAsync_Success()
         {
             //Arrange
+            var userId = 88;
+            var session = new Session { UserId = userId };
             var projectId = 99;
             var project = new InstanceItem { Id = projectId };
-            _instanceRepositoryMock
-                .Setup(r => r.GetInstanceProjectAsync(projectId, UserId))
-                .ReturnsAsync(project);
+            var mockInstanceRepository = new Mock<ISqlInstanceRepository>();
+            mockInstanceRepository.Setup(r => r.GetInstanceProjectAsync(projectId, userId)).ReturnsAsync(project);
+            var mockServiceLogRepository = new Mock<IServiceLogRepository>();
+            var instanceController = new InstanceController(mockInstanceRepository.Object, mockServiceLogRepository.Object, null)
+            {
+                Request = new HttpRequestMessage()
+            };
+            instanceController.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             //Act
-            var result = await _controller.GetInstanceProjectAsync(projectId);
+            var result = await instanceController.GetInstanceProjectAsync(projectId);
 
             //Assert
             Assert.AreSame(project, result);
@@ -105,104 +93,62 @@ namespace AdminStore.Controllers
         public async Task GetProjectNavigationPathAsync_InvalidPermission()
         {
             //Arrange
+            const int userId = 88;
+            var session = new Session { UserId = userId };
             const int projectId = 99;
             const bool includeProjectItself = true;
             var repositoryResult = new List<string> { "Blueprint", "ProjectName" };
-            _instanceRepositoryMock
-                .Setup(r => r.GetProjectNavigationPathAsync(projectId, UserId, includeProjectItself))
+            var mockInstanceRepository = new Mock<ISqlInstanceRepository>();
+            mockInstanceRepository.Setup(r => r.GetProjectNavigationPathAsync(projectId, userId, includeProjectItself))
                 .ReturnsAsync(repositoryResult);
-            _artifactPermissionsRepositoryMock
-                .Setup(r => r.GetArtifactPermissions(new List<int> { projectId}, UserId, false, int.MaxValue, true))
-                .ReturnsAsync(new Dictionary<int, RolePermissions>());
+            var mockArtifactRepository = new Mock<IArtifactPermissionsRepository>();
+            var permissionResult = new Dictionary<int, RolePermissions>();
+            mockArtifactRepository.Setup(r => r.GetArtifactPermissions(new List<int> { projectId}, userId, false, int.MaxValue, true))
+                .ReturnsAsync(permissionResult);
+            var mockServiceLogRepository = new Mock<IServiceLogRepository>();
+            var instanceController = new InstanceController(mockInstanceRepository.Object,
+                mockServiceLogRepository.Object, mockArtifactRepository.Object)
+            {
+                Request = new HttpRequestMessage()
+            };
+            instanceController.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             //Act
-            await _controller.GetProjectNavigationPathAsync(projectId);
+            await instanceController.GetProjectNavigationPathAsync(projectId);
+
+            //Assert
         }
 
         [TestMethod]
         public async Task GetProjectNavigationPathAsync_Success()
         {
             //Arrange
+            const int userId = 88;
+            var session = new Session { UserId = userId };
             const int projectId = 99;
             const bool includeProjectItself = true;
             var repositoryResult = new List<string> { "Blueprint", "ProjectName" };
-            _instanceRepositoryMock
-                .Setup(r => r.GetProjectNavigationPathAsync(projectId, UserId, includeProjectItself))
+            var mockInstanceRepository = new Mock<ISqlInstanceRepository>();
+            mockInstanceRepository.Setup(r => r.GetProjectNavigationPathAsync(projectId, userId, includeProjectItself))
                 .ReturnsAsync(repositoryResult);
-            _artifactPermissionsRepositoryMock
-                .Setup(r => r.GetArtifactPermissions(new List<int> { projectId }, UserId, false, int.MaxValue, true))
-                .ReturnsAsync(new Dictionary<int, RolePermissions> { { 99, RolePermissions.Read } });
+            var mockArtifactRepository = new Mock<IArtifactPermissionsRepository>();
+            var permissionResult = new Dictionary<int, RolePermissions>();
+            permissionResult.Add(99, RolePermissions.Read);
+            mockArtifactRepository.Setup(r => r.GetArtifactPermissions(new List<int> { projectId }, userId, false, int.MaxValue, true))
+                .ReturnsAsync(permissionResult);
+            var mockServiceLogRepository = new Mock<IServiceLogRepository>();
+            var instanceController = new InstanceController(mockInstanceRepository.Object,
+                mockServiceLogRepository.Object, mockArtifactRepository.Object)
+            {
+                Request = new HttpRequestMessage()
+            };
+            instanceController.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             //Act
-            var result = await _controller.GetProjectNavigationPathAsync(projectId);
+            var result = await instanceController.GetProjectNavigationPathAsync(projectId);
 
             //Assert
             Assert.AreSame(repositoryResult, result);
         }
-
-        #region GetInstanceRoles
-
-        [TestMethod]
-        public async Task GetInstanceRoles_SuccessfulGettingInstanceRoles_ReturnInstanceRolesListResult()
-        {
-            // Arrange
-            var instanceAdminRoles = new List<AdminRole>
-            {
-                new AdminRole
-                {
-                    Id = 10,
-                    Description = "Can manage standard properties and artifact types.",
-                    Name = "Instance Standards Manager",
-                    Privileges = 197313
-                }
-            };
-            _privilegeRepositoryMock
-                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
-                .ReturnsAsync(InstanceAdminPrivileges.AssignAdminRoles);
-            _instanceRepositoryMock
-                .Setup(repo => repo.GetInstanceRolesAsync())
-                .ReturnsAsync(instanceAdminRoles);
-
-            // Act
-            var result = await _controller.GetInstanceRoles() as OkNegotiatedContentResult<IEnumerable<AdminRole>>;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(result.Content, instanceAdminRoles);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
-        public async Task GetInstanceRoles_SomeError_ReturnBadRequestResult()
-        {
-            // Arrange
-            _privilegeRepositoryMock
-                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
-                .ReturnsAsync(InstanceAdminPrivileges.AssignAdminRoles);
-            _instanceRepositoryMock
-                .Setup(repo => repo.GetInstanceRolesAsync())
-                .ThrowsAsync(new BadRequestException());
-
-            // Act
-            var result = await _controller.GetInstanceRoles();
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(AuthorizationException))]
-        public async Task GetInstanceRoles_NoViewUsersPermissions_ReturnForbiddenErrorResult()
-        {
-            // Arrange
-            _privilegeRepositoryMock
-                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
-                .ReturnsAsync(InstanceAdminPrivileges.None);
-            _instanceRepositoryMock
-                .Setup(repo => repo.GetInstanceRolesAsync())
-                .ThrowsAsync(new BadRequestException());
-
-            // Act
-            var result = await _controller.GetInstanceRoles();
-        }
-
-        #endregion
     }
 }

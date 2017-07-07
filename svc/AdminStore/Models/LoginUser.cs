@@ -69,10 +69,5 @@ namespace AdminStore.Models
         /// The Instance Admin privliges of this user.
         /// </summary>
         public int InstanceAdminPrivileges { get; set; }
-
-        /// <summary>
-        /// True if this is a project admin for at least one non-deleted project, false otherwise.
-        /// </summary>
-        public bool IsProjectAdmin { get; set; }
     }
 }

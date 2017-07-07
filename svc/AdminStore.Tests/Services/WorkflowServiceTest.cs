@@ -81,7 +81,7 @@ namespace AdminStore.Services
             workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync((SqlWorkflow)null);
 
             //act
-            await workflowService.GetWorkflowDetailsAsync(workflowId);       
+            await workflowService.GetWorkflowDetailsAsync(workflowId);
         }
 
         #endregion

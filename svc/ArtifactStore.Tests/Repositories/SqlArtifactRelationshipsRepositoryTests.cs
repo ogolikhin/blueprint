@@ -334,7 +334,7 @@ namespace ArtifactStore.Repositories
 
             _cxn.SetupQueryAsync("GetRelationshipLinkInfo", new Dictionary<string, object> { { "itemId", artifactId }, { "userId", userId }, { "addDrafts", addDrafts }, { "revisionId", revisionId } }, links);
 
-            _artifactPermissionsRepositoryMock.Setup(p => p.GetItemInfo(actorInheritsFromLink.DestinationArtifactId, userId, addDrafts, revisionId)).ReturnsAsync(null);
+            _artifactPermissionsRepositoryMock.Setup(p => p.GetItemInfo(actorInheritsFromLink.DestinationArtifactId, userId, addDrafts, revisionId)).ReturnsAsync((ItemInfo)null);
 
             _itemInfoRepositoryMock.Setup(m => m.GetRevisionId(artifactId, userId, versionId, null)).ReturnsAsync(revisionId);
 

@@ -11,7 +11,7 @@ namespace ServiceLibrary.Exceptions
         public int ErrorCode { get; set; }
         public readonly object Content;
 
-        public ExceptionWithErrorCode() : this("", 0)
+        public ExceptionWithErrorCode() : this(null)
         {
         }
 

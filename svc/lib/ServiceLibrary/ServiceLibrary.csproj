@@ -84,6 +84,7 @@
     <Compile Include="Attributes\BaseExceptionFilterAttribute.cs" />
     <Compile Include="Attributes\FeatureActivationAttribute.cs" />
     <Compile Include="Attributes\NoCacheAttribute.cs" />
+    <Compile Include="Attributes\PreRequiredPrivilegeAttribute.cs" />
     <Compile Include="Attributes\SessionAttribute.cs" />
     <Compile Include="Attributes\UnhandledExceptionFilterAttribute.cs" />
     <Compile Include="Controllers\BaseApiController.cs" />
@@ -107,6 +108,7 @@
     <Compile Include="Helpers\Cache\IAsyncCache.cs" />
     <Compile Include="Helpers\ActionRepeater.cs" />
     <Compile Include="Helpers\ErrorCodes.cs" />
+    <Compile Include="Helpers\ErrorMessages.cs" />
     <Compile Include="Helpers\HttpWebClient.cs" />
     <Compile Include="Helpers\IHttpWebClient.cs" />
     <Compile Include="Helpers\ImageHelper.cs" />
@@ -120,6 +122,7 @@
     <Compile Include="Helpers\ComplexObjectReader.cs" />
     <Compile Include="Helpers\ServiceConstants.cs" />
     <Compile Include="Helpers\SessionsCacheSettings.cs" />
+    <Compile Include="Helpers\SqlErrorCodes.cs" />
     <Compile Include="Helpers\SqlHelper.cs" />
     <Compile Include="Helpers\StatusControllerHelper.cs" />
     <Compile Include="Helpers\JsonHelper.cs" />
@@ -144,6 +147,7 @@
     <Compile Include="Models\Enums\FeatureTypes.cs" />
     <Compile Include="Models\Enums\ActionType.cs" />
     <Compile Include="Models\Enums\ElementType.cs" />
+    <Compile Include="Models\InstanceAdminPrivileges.cs" />
     <Compile Include="Models\Enums\ItemTypePredefined.cs" />
     <Compile Include="Models\Enums\ItemTypeReuseTemplateSetting.cs" />
     <Compile Include="Models\Enums\ModificationType.cs" />
@@ -177,6 +181,8 @@
     <Compile Include="Models\Messaging\SystemMessage.cs" />
     <Compile Include="Models\OperationScope.cs" />
     <Compile Include="Models\Pagination.cs" />
+    <Compile Include="Models\PaginationExtensions.cs" />
+    <Compile Include="Models\PermissionsItem.cs" />
     <Compile Include="Models\ProjectNameIdPair.cs" />
     <Compile Include="Models\ProjectPermissions.cs" />
     <Compile Include="Models\QueryResult.cs" />

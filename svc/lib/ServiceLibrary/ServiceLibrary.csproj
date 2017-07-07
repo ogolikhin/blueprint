@@ -32,12 +32,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Dapper.StrongName, Version=1.50.0.0, Culture=neutral, PublicKeyToken=e3e8412083d25dd3, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\Dapper.StrongName.1.50.0-beta1\lib\net45\Dapper.StrongName.dll</HintPath>
+    <Reference Include="Dapper.StrongName, Version=1.50.2.0, Culture=neutral, PublicKeyToken=e3e8412083d25dd3, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Dapper.StrongName.1.50.2\lib\net451\Dapper.StrongName.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\Newtonsoft.Json.8.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Swashbuckle.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cd1bb07a5ac7c7bc, processorArchitecture=MSIL">
@@ -99,11 +99,13 @@
     <Compile Include="Exceptions\ConflictException.cs" />
     <Compile Include="Exceptions\ExceptionWithErrorCode.cs" />
     <Compile Include="Exceptions\ResourceNotFoundException.cs" />
+    <Compile Include="Helpers\CollectionHelper.cs" />
     <Compile Include="Helpers\FeatureLicenseHelper.cs" />
     <Compile Include="Helpers\CacheHelper.cs" />
     <Compile Include="Helpers\Cache\AsyncCache.cs" />
     <Compile Include="Helpers\Cache\AsyncLazy.cs" />
     <Compile Include="Helpers\Cache\IAsyncCache.cs" />
+    <Compile Include="Helpers\ActionRepeater.cs" />
     <Compile Include="Helpers\ErrorCodes.cs" />
     <Compile Include="Helpers\HttpWebClient.cs" />
     <Compile Include="Helpers\IHttpWebClient.cs" />
@@ -132,6 +134,7 @@
     <Compile Include="Models\ApplicationSettings\ApplicationSettings.cs" />
     <Compile Include="Models\Artifact.cs" />
     <Compile Include="Models\ArtifactBasicDetails.cs" />
+    <Compile Include="Models\ArtifactResultSet.cs" />
     <Compile Include="Models\ArtifactsNavigationPath.cs" />
     <Compile Include="Models\ArtifactVersion.cs" />
     <Compile Include="Models\AuthorHistory.cs" />
@@ -139,16 +142,24 @@
     <Compile Include="Models\ClientLogModel.cs" />
     <Compile Include="Models\Enums\FeatureLicenseStatus.cs" />
     <Compile Include="Models\Enums\FeatureTypes.cs" />
+    <Compile Include="Models\Enums\ActionType.cs" />
+    <Compile Include="Models\Enums\ElementType.cs" />
     <Compile Include="Models\Enums\ItemTypePredefined.cs" />
+    <Compile Include="Models\Enums\ItemTypeReuseTemplateSetting.cs" />
+    <Compile Include="Models\Enums\ModificationType.cs" />
     <Compile Include="Models\Enums\ProjectSection.cs" />
+    <Compile Include="Models\Enums\PropertyTypeReuseTemplateSettings.cs" />
+    <Compile Include="Models\Enums\PublishErrors.cs" />
     <Compile Include="Models\Enums\QueryResultCode.cs" />
     <Compile Include="Models\Enums\SortOrder.cs" />
+    <Compile Include="Models\Enums\UserType.cs" />
     <Compile Include="Models\Files\File.cs" />
     <Compile Include="Models\Files\FileInfo.cs" />
     <Compile Include="Models\IAction.cs" />
     <Compile Include="Models\IConstraint.cs" />
     <Compile Include="Models\InstanceSettings\EmailSettings.cs" />
     <Compile Include="Models\Interfaces\IArtifact.cs" />
+    <Compile Include="Models\Item.cs" />
     <Compile Include="Models\ItemDetails.cs" />
     <Compile Include="Models\ItemInfo.cs" />
     <Compile Include="Models\ITrigger.cs" />
@@ -186,6 +197,14 @@
     <Compile Include="Models\TransactionalTriggerExecutor.cs" />
     <Compile Include="Models\UserGroup.cs" />
     <Compile Include="Models\UserInfo.cs" />
+    <Compile Include="Models\VersionControl\PublishParameters.cs" />
+    <Compile Include="Models\VersionControl\SqlDiscardPublishDetails.cs" />
+    <Compile Include="Models\VersionControl\SqlDiscardPublishDetailsResult.cs" />
+    <Compile Include="Models\VersionControl\SqlDiscardPublishProjectInfo.cs" />
+    <Compile Include="Models\VersionControl\SqlDiscardPublishState.cs" />
+    <Compile Include="Models\VersionControl\SqlItemInfo.cs" />
+    <Compile Include="Models\VersionControl\SqlJournalEntry.cs" />
+    <Compile Include="Models\VersionControl\SqlPublishResult.cs" />
     <Compile Include="Models\Workflow\Workflow.cs" />
     <Compile Include="Models\Workflow\WorkflowConstants.cs" />
     <Compile Include="Models\Workflow\WorkflowState.cs" />

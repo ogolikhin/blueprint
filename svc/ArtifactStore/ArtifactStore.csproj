@@ -1,7 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.0\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('..\..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.0\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
-  <Import Project="..\..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props" Condition="Exists('..\..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="..\Blueprint.Common.props" Condition="Exists('..\Blueprint.Common.props')" />
   <PropertyGroup>
@@ -45,17 +43,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Dapper.StrongName, Version=1.50.0.0, Culture=neutral, PublicKeyToken=e3e8412083d25dd3, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Dapper.StrongName.1.50.0-beta1\lib\net45\Dapper.StrongName.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.0\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
+    <Reference Include="Dapper.StrongName, Version=1.50.2.0, Culture=neutral, PublicKeyToken=e3e8412083d25dd3, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Dapper.StrongName.1.50.2\lib\net451\Dapper.StrongName.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Newtonsoft.Json.8.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Data.DataSetExtensions" />
@@ -110,12 +104,25 @@
     <Compile Include="Controllers\RelationshipsController.cs" />
     <Compile Include="Controllers\ReviewContainersController.cs" />
     <Compile Include="Controllers\StatusController.cs" />
+    <Compile Include="Controllers\VersionControlController.cs" />
     <Compile Include="Controllers\WorkflowController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\MentionHelper.cs" />
     <Compile Include="Helpers\PropertyHelper.cs" />
+    <Compile Include="Helpers\SensitivityCommonHelper.cs" />
+    <Compile Include="Models\PropertyTypePredefinedExtension.cs" />
+    <Compile Include="Models\Reuse\ItemTypeReuseTemplate.cs" />
+    <Compile Include="Models\Reuse\PropertyTypeReuseTemplate.cs" />
+    <Compile Include="Models\Reuse\ReconcileProperty.cs" />
+    <Compile Include="Models\Reuse\ReuseSensitivityCollector.cs" />
+    <Compile Include="Helpers\ReuseSystemPropertiesMap.cs" />
+    <Compile Include="Models\Reuse\ReuseTemplateSettingsMap.cs" />
+    <Compile Include="Models\Reuse\SqlItemTypeReuseTemplate.cs" />
+    <Compile Include="Models\Reuse\SqlModifiedItems.cs" />
+    <Compile Include="Models\Reuse\SqlReuseSettingsInfo.cs" />
+    <Compile Include="Models\VersionControl\PublishEnvironment.cs" />
     <Compile Include="Helpers\ReviewRawDataHelper.cs" />
     <Compile Include="Models\ArtifactHistoryResultSet.cs" />
     <Compile Include="Models\ArtifactDetailsResultSet.cs" />
@@ -172,15 +179,33 @@
     <Compile Include="Repositories\PropertyXml\Models\XmlCustomProperty.cs" />
     <Compile Include="Repositories\PropertyXml\Models\XmlCustomPropertyValidValue.cs" />
     <Compile Include="Repositories\PropertyXml\XmlModelSerializer.cs" />
+    <Compile Include="Models\Reuse\SqlItemTypeInfo.cs" />
+    <Compile Include="Models\Reuse\SqlPropertyTypeInfo.cs" />
+    <Compile Include="Repositories\Reuse\SqlReuseRepository.cs" />
+    <Compile Include="Repositories\Revisions\SqlRevisionRepository.cs" />
     <Compile Include="Repositories\SqlAttachmentsRepository.cs" />
     <Compile Include="Repositories\SqlArtifactVersionsRepository.cs" />
     <Compile Include="Repositories\SqlDiscussionsRepository.cs" />
     <Compile Include="Repositories\SqlProjectMetaRepository.cs" />
     <Compile Include="Repositories\SqlRelationshipsRepository.cs" />
     <Compile Include="Repositories\SqlReviewsRepository.cs" />
+    <Compile Include="Repositories\VersionControl\ArtifactsHierarchyValidator.cs" />
+    <Compile Include="Repositories\VersionControl\IPublishRepository.cs" />
+    <Compile Include="Repositories\VersionControl\PublishRepositoriesContainer.cs" />
+    <Compile Include="Repositories\VersionControl\SqlJournalPublishRepository.cs" />
+    <Compile Include="Repositories\VersionControl\SqlPublishAttachmentsRepository.cs" />
+    <Compile Include="Repositories\VersionControl\SqlPublishCollectionAssignmentsRepository.cs" />
+    <Compile Include="Repositories\VersionControl\SqlPublishItemsRepository.cs" />
+    <Compile Include="Repositories\VersionControl\SqlPublishPropertiesRepository.cs" />
+    <Compile Include="Repositories\VersionControl\SqlPublishRelationshipsRepository.cs" />
+    <Compile Include="Repositories\VersionControl\SqlPublishRepository.cs" />
+    <Compile Include="Repositories\VersionControl\SqlPublishRepositoryComposer.cs" />
+    <Compile Include="Repositories\VersionControl\SqlPublishReuseProcessingRepository.cs" />
+    <Compile Include="Repositories\VersionControl\SqlVersionControlRepository.cs" />
     <Compile Include="Repositories\Workflow\IWorkflowRepository.cs" />
     <Compile Include="Repositories\Workflow\SqlWorkflowRepository.cs" />
     <Compile Include="Executors\StateChangeExecutor.cs" />
+    <Compile Include="Services\VersionControl\VersionControlService.cs" />
     <Compile Include="Services\Workflow\WorkflowService.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -241,12 +266,5 @@
   -->
   <Target Name="AfterBuild" Condition="'$(PublishProfileName)' == '' And '$(WebPublishProfileFile)' == ''">
     <TransformXml Source="Web.config" Transform="Web.$(Configuration).config" Destination="$(TargetPath).config" />
-  </Target>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props'))" />
-    <Error Condition="!Exists('..\..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.0\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.0\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
   </Target>
 </Project>

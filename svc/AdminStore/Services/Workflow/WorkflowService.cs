@@ -189,12 +189,13 @@ namespace AdminStore.Services.Workflow
             if (projectPaths.Count != workflow.Projects.Count)
             {
                 //generate a list of all projects in the workflow who are either missing from id list or were not looked up by path
-                throw new DuplicateNameException(workflow.Projects
-                    .Select(proj => projectPaths.All(
-                        path => proj.Id.HasValue ?
-                        path.Key != proj.Id.Value :
-                        !path.Value.Equals(proj.Path))
-                    ).ToString());
+                var listOfBadProjects = string.Join(",", workflow.Projects
+                    .Where(proj => projectPaths.All(
+                        path => proj.Id.HasValue
+                            ? path.Key != proj.Id.Value
+                            : !path.Value.Equals(proj.Path))
+                    ).Select(proj => proj.Id?.ToString() ?? proj.Path));
+                throw new ConflictException($"The following projects could not be found: {listOfBadProjects}");
             }
 
             await _workflowRepository.CreateWorkflowArtifactAssociationsAsync(workflow.ArtifactTypes.Select(at => at.Name),
@@ -220,7 +221,10 @@ namespace AdminStore.Services.Workflow
             var existingGroupNames = (await _userRepository.GetExistingInstanceGroupsByNames(listOfAllGroups)).ToArray();
             if (existingGroupNames.Length != listOfAllGroups.Count)
             {
-                throw new DuplicateNameException(listOfAllGroups.Select(li => existingGroupNames.All(g => g.Name != li)).ToString());
+                var listOfBadGroups = string.Join(",", listOfAllGroups.Where(
+                        li => existingGroupNames.All(g => g.Name != li)
+                    ));
+                throw new ConflictException($"The following groups were not found: {listOfBadGroups}");
             }
 
             workflow.Transitions.ForEach(transition =>

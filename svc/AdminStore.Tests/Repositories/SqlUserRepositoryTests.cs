@@ -7,8 +7,6 @@ using AdminStore.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
-using Moq;
-using ServiceLibrary.Models;
 
 namespace AdminStore.Repositories
 {
@@ -72,7 +70,6 @@ namespace AdminStore.Repositories
         #endregion GetUserByLoginAsync
 
         #region GetEffectiveUserLicense
-
         [TestMethod]
         public async Task GetEffectiveUserLicenseAsync_QueryReturnsLicenseType_ReturnsFirst()
         {
@@ -80,17 +77,15 @@ namespace AdminStore.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlUserRepository(cxn.Object, cxn.Object);
             var userId = 1;
-            var userIds = new[] { userId };
-            var userIdTable = SqlConnectionWrapper.ToDataTable(userIds);
-            var result = new List<UserLicense> { new UserLicense { UserId = userId, LicenseType = 3 } };
-            cxn.SetupQueryAsync("GetEffectiveUserLicense", new Dictionary<string, object> { { "UserIds", userIdTable } }, result);
+            int[] result = { 3 };
+            cxn.SetupQueryAsync("GetEffectiveUserLicense", new Dictionary<string, object> { { "UserId", userId } }, result);
 
             // Act
             var licenseType = await repository.GetEffectiveUserLicenseAsync(userId);
 
             // Assert
             cxn.Verify();
-            Assert.AreEqual(result.First().LicenseType, licenseType);
+            Assert.AreEqual(result.First(), licenseType);
         }
 
         [TestMethod]
@@ -100,10 +95,8 @@ namespace AdminStore.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlUserRepository(cxn.Object, cxn.Object);
             var userId = 1;
-            var userIds = new[] { userId };
-            var userIdTable = SqlConnectionWrapper.ToDataTable(userIds);
-            var result = Enumerable.Empty<UserLicense>();
-            cxn.SetupQueryAsync("GetEffectiveUserLicense", new Dictionary<string, object> { { "UserIds", userIdTable } }, result);
+            int[] result = { };
+            cxn.SetupQueryAsync("GetEffectiveUserLicense", new Dictionary<string, object> { { "UserId", userId } }, result);
 
             // Act
             var licenseType = await repository.GetEffectiveUserLicenseAsync(userId);
@@ -112,7 +105,6 @@ namespace AdminStore.Repositories
             cxn.Verify();
             Assert.AreEqual(0, licenseType);
         }
-
         #endregion
 
         #region GetLoginUserByIdAsync
@@ -155,44 +147,6 @@ namespace AdminStore.Repositories
 
         #endregion GetLoginUserByIdAsync
 
-        #region CheckUserHasProjectAdminRoleAsync
-
-        [TestMethod]
-        public async Task CheckUserHasProjectAdminRoleAsync_QueryReturnsTrue_ReturnsTrue()
-        {
-            // Arrange
-            var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
-            var userId = 1;
-            cxn.SetupExecuteScalarAsync("IsProjectAdminForAnyNonDeletedProject", new Dictionary<string, object> { { "UserId", userId } }, true);
-
-            // Act
-            var isUserHasAdminRole = await repository.CheckUserHasProjectAdminRoleAsync(userId);
-
-            // Assert
-            cxn.Verify();
-            Assert.IsTrue(isUserHasAdminRole);
-        }
-
-        [TestMethod]
-        public async Task CheckUserHasProjectAdminRoleAsync_QueryReturnsFalse_ReturnsFalse()
-        {
-            // Arrange
-            var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
-            var userId = 5;
-            cxn.SetupExecuteScalarAsync("IsProjectAdminForAnyNonDeletedProject", new Dictionary<string, object> { { "UserId", userId } }, false);
-
-            // Act
-            var isUserHasAdminRole = await repository.CheckUserHasProjectAdminRoleAsync(userId);
-
-            // Assert
-            cxn.Verify();
-            Assert.IsFalse(isUserHasAdminRole);
-        }
-
-        #endregion CheckUserHasProjectAdminRoleAsync
-
         #region GetLicenseTransactionUserInfoAsync
 
         [TestMethod]
@@ -202,7 +156,7 @@ namespace AdminStore.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlUserRepository(cxn.Object, cxn.Object);
             int[] userIds = { 1, 2, 3 };
-            var userIdTable = SqlConnectionWrapper.ToDataTable(userIds);
+            var userIdTable = SqlConnectionWrapper.ToDataTable(userIds, "Int32Collection", "Int32Value");
             LicenseTransactionUser[] result =
             {
                 new LicenseTransactionUser { Id = 1, Login = "Login", Department = "Dept" },
@@ -234,7 +188,7 @@ namespace AdminStore.Repositories
                 Login = "User",
                 IsEnabled = true,
                 InvalidLogonAttemptsNumber = 1,
-                LastInvalidLogonTimeStamp = new DateTime(0L)
+                LastInvalidLogonTimeStamp = new System.DateTime(0L)
             };
             cxn.SetupExecuteAsync(
                 "UpdateUserOnInvalidLogin",
@@ -358,237 +312,5 @@ namespace AdminStore.Repositories
         }
 
         #endregion ValidateUserPasswordForHistoryAsync
-
-        #region GetUser
-
-        [TestMethod]
-        public async Task GetUser_WeHaveThisUserInDb_QueryReturnUser()
-        {
-            //arrange
-            var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
-            var userId = 10;
-            User[] returnResult = { new User { Id = 5 } };
-            cxn.SetupQueryAsync("GetUserDetails", new Dictionary<string, object> { { "UserId", userId } }, returnResult);
-
-            //act
-            var result = await repository.GetUserAsync(userId);
-
-            //assert
-            cxn.Verify();
-            Assert.AreEqual(returnResult.First(), result);
-        }
-
-        [TestMethod]
-        public async Task GetUser_WeDoNotHaveThisActiveUserInDb_ReturnsNull()
-        {
-            //arrange
-            var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
-            User[] returnResult = { };
-            cxn.SetupQueryAsync("GetUserDetails", new Dictionary<string, object> { { "UserId", 0 } }, returnResult);
-
-            //act
-            var result = await repository.GetUserAsync(0);
-
-            //assert
-            cxn.Verify();
-            Assert.IsNull(result);
-        }
-
-        #endregion
-
-        #region DeleteUsers
-
-        [TestMethod]
-        public async Task DeleteUsers_UsersToDeleteExists_QueryReturnNotEmptyResult()
-        {
-            //arrange
-            var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
-            int[] userIds = { 1, 2, 3 };
-            var operationScope = new OperationScope
-            {
-                Ids = userIds,
-                SelectAll = false
-            };
-
-            var userIdTable = SqlConnectionWrapper.ToDataTable(operationScope.Ids);
-            var returntResult = 3;
-
-            cxn.SetupExecuteScalarAsync("DeleteUsers",
-                new Dictionary<string, object>
-                {
-                    {"UserIds", userIdTable},
-                    {"Search", ""},
-                    {"SessionUserId", 0},
-                    {"SelectAll", operationScope.SelectAll}
-                },
-                returntResult);
-
-            //act
-            var result = await repository.DeleteUsers(operationScope, string.Empty, 0);
-
-            //assert
-            cxn.Verify();
-            Assert.AreEqual(result, returntResult);
-        }
-
-        [TestMethod]
-        public async Task DeleteUsers_UsersToDeleteDoNotExists_QueryReturnEmptyCollection()
-        {
-            //arrange
-            var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
-            int[] userIds = { };
-            var operationScope = new OperationScope
-            {
-                Ids = userIds,
-                SelectAll = false
-            };
-
-            var userIdTable = SqlConnectionWrapper.ToDataTable(operationScope.Ids);
-            var returntResult = 0;
-
-            cxn.SetupExecuteScalarAsync("DeleteUsers",
-                new Dictionary<string, object>
-                {
-                    {"UserIds", userIdTable},
-                    {"Search", ""},
-                    {"SessionUserId", 0},
-                    {"SelectAll", operationScope.SelectAll}
-                },
-                returntResult);
-
-            //act
-            var result = await repository.DeleteUsers(operationScope, string.Empty, 0);
-
-            //assert
-            cxn.Verify();
-            Assert.AreEqual(result, returntResult);
-        }
-
-        #endregion
-
-        #region AddUserAsync
-
-        [TestMethod]
-        public async Task AddUserAsync_SuccessfulCreationOfUser_ReturnCreatedUserId()
-        {
-            // Arrange
-            var user = new User
-            {
-                Login = "LoginUser",
-                FirstName = "FirstNameValue",
-                LastName = "LastNameValue",
-                DisplayName = "DisplayNameValue",
-                Email = "email@test.com",
-                Source = UserGroupSource.Database,
-                AllowFallback = false,
-                Enabled = true,
-                ExpirePassword = true,
-                Password = "dGVzdA==",
-                UserSALT = Guid.NewGuid(),
-                Title = "TitleValue",
-                Department = "Departmentvalue",
-                GroupMembership = new int[] { 1 },
-                Guest = false
-            };
-            var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
-            var userId = 100;
-            cxn.SetupExecuteScalarAsync("AddUser", It.IsAny<Dictionary<string, object>>(), userId);
-
-            // Act
-            var result = await repository.AddUserAsync(user);
-
-            // Assert
-            cxn.Verify();
-            Assert.AreEqual(result, userId);
-        }
-
-        #endregion AddUserAsync
-
-        #region UpdateUsersync
-
-        [TestMethod]
-        public async Task UpdateUserAsync_SuccessfulUpdateOfUser_ReturnOk()
-        {
-            // Arrange
-            var user = new User
-            {
-                Login = "LoginUserUpdate",
-                FirstName = "FirstNameValueUpdate",
-                LastName = "LastNameValueUpdate",
-                DisplayName = "DisplayNameValueUpdate",
-                Email = "email@test.com",
-                Source = UserGroupSource.Database,
-                AllowFallback = false,
-                Enabled = true,
-                ExpirePassword = true,
-                Password = "dGVzdA==",
-                UserSALT = Guid.NewGuid(),
-                Title = "TitleValue",
-                Department = "DepartmentvalueUpdate",
-                GroupMembership = new int[] { 1 },
-                Guest = false,
-                CurrentVersion = 1
-            };
-            var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
-            var errorId = 1;
-
-            cxn.SetupExecuteAsync("UpdateUser", It.IsAny<Dictionary<string, object>>(), 1, new Dictionary<string, object> { { "ErrorCode", errorId } });
-
-            // Act
-            await repository.UpdateUserAsync(user);
-
-            // Assert
-            cxn.Verify();
-        }
-
-        #endregion UpdateUsersync
-
-        #region DeleteUserFromGroups
-
-        [TestMethod]
-        public async Task DeleteUserFromGroupsAsync_SuccessfulDeletingUserFromGroups_ReturnOk()
-        {
-            // Arrange
-            var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
-            var errorId = 1;
-
-            cxn.SetupExecuteScalarAsync("DeleteUserFromGroups", It.IsAny<Dictionary<string, object>>(), 1, new Dictionary<string, object> { { "ErrorCode", errorId } });
-
-            // Act
-            await repository.DeleteUserFromGroupsAsync(1, new OperationScope {Ids = new [] {3, 4}, SelectAll = false});
-
-            // Assert
-            cxn.Verify();
-        }
-
-        #endregion DeleteUserFromGroups
-
-        #region AddUserToGroups
-
-        [TestMethod]
-        public async Task AddUserToGroupsAsync_SuccessfulAddingUserToGroups_ReturnOk()
-        {
-            // Arrange
-            var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
-            var errorId = 1;
-
-            cxn.SetupExecuteScalarAsync("AddUserToGroups", It.IsAny<Dictionary<string, object>>(), 1, new Dictionary<string, object> { { "ErrorCode", errorId } });
-
-            // Act
-            await repository.AddUserToGroupsAsync(1, new OperationScope { Ids = new[] { 3, 4 }}, string.Empty);
-
-            // Assert
-            cxn.Verify();
-        }
-
-        #endregion
     }
 }

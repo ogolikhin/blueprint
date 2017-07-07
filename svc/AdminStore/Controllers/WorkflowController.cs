@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
@@ -7,10 +6,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
-using AdminStore.Helpers;
-using AdminStore.Models;
 using AdminStore.Models.Workflow;
-using AdminStore.Repositories;
 using AdminStore.Repositories.Workflow;
 using AdminStore.Services.Workflow;
 using ServiceLibrary.Attributes;
@@ -32,18 +28,14 @@ namespace AdminStore.Controllers
         public override string LogSource => "AdminStore.Workflow";
 
         private readonly IWorkflowService _workflowService;
-        private readonly IWorkflowRepository _workflowRepository;
-        internal readonly PrivilegesManager _privilegesManager;
 
-        public WorkflowController() : this(new WorkflowRepository(), new WorkflowService(), new ServiceLogRepository(), new SqlPrivilegesRepository())
+        public WorkflowController() : this(new WorkflowService(), new ServiceLogRepository())
         {
         }
 
-        public WorkflowController(IWorkflowRepository workflowRepository, IWorkflowService workflowService, IServiceLogRepository log, IPrivilegesRepository privilegesRepository) : base(log)
+        public WorkflowController(IWorkflowService workflowService, IServiceLogRepository log) : base(log)
         {
             _workflowService = workflowService;
-            _workflowRepository = workflowRepository;
-            _privilegesManager = new PrivilegesManager(privilegesRepository);
         }
 
         /// <summary>
@@ -146,81 +138,6 @@ namespace AdminStore.Controllers
             _workflowService.FileRepository = GetFileRepository();
             var errors = await _workflowService.GetImportWorkflowErrorsAsync(guid, session.UserId);
             return Ok(errors);
-        }
-
-
-        /// <summary>
-        /// Get workflow details by workflow identifier
-        /// </summary>
-        /// <param name="workflowId">Workflow's identity</param>
-        /// <returns>
-        /// <response code="200">OK. Returns the specified workflow.</response>
-        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
-        /// <response code="403">User doesn’t have permission to view workflow.</response>
-        /// <response code="404">Not Found. The workflow with the provided Id was not found.</response>
-        /// </returns>
-        [SessionRequired]
-        [Route("{workflowId:int:min(1)}")]
-        [ResponseType(typeof (WorkflowDto))]
-        public async Task<IHttpActionResult> GetWorkflow(int workflowId)
-        {
-            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
-
-            var workflowDetails = await _workflowService.GetWorkflowDetailsAsync(workflowId);
-
-            return Ok(workflowDetails);
-        }
-
-
-        /// <summary>
-        /// Get workflows list according to the input parameters
-        /// </summary>
-        /// <param name="pagination">Limit and offset values to query workflows</param>
-        /// <param name="sorting">(optional) Sort and its order</param>
-        /// <param name="search">(optional) Search query parameter</param>
-        /// <response code="200">OK if admin user session exists and user is permitted to list workflows</response>
-        /// <response code="400">BadRequest if pagination object didn't provide</response>
-        /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
-        /// <response code="403">Forbidden if used doesn’t have permissions to get workflows list</response>
-        [SessionRequired]
-        [Route("")]
-        [ResponseType(typeof(QueryResult<WorkflowDto>))]
-        public async Task<IHttpActionResult> GetWorkflows([FromUri] Pagination pagination, [FromUri] Sorting sorting = null, string search = null)
-        {
-            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
-            pagination.Validate();
-
-            var result = await _workflowRepository.GetWorkflows(pagination, sorting, search, SortingHelper.SortWorkflows);
-            return Ok(result);
-
-        }
-
-        /// <summary>
-        /// Delete workflow/workflows from system
-        /// </summary>
-        /// <param name="scope">list of user ids and selectAll flag</param>
-        /// <param name="search">search filter</param>
-        /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
-        /// <response code="403">Forbidden if used doesn’t have permissions to delete workflows</response>
-        /// <returns></returns>
-        [HttpPost]
-        [SessionRequired]
-        [Route("delete")]
-        [ResponseType(typeof(IEnumerable<int>))]
-        public async Task<IHttpActionResult> DeleteWorkflows([FromBody]OperationScope scope, string search = null)
-        {
-            if (scope == null)
-            {
-                return BadRequest(ErrorMessages.InvalidDeleteWorkflowsParameters);
-            }
-            if (scope.IsEmpty())
-            {
-                return Ok(DeleteResult.Empty);
-            }
-            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
-            var result = await _workflowRepository.DeleteWorkflows(scope, search, Session.UserId);
-
-            return Ok(result);
         }
 
         #region Private methods

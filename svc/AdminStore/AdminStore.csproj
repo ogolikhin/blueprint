@@ -35,7 +35,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -111,33 +110,9 @@
       <Link>Properties\SolutionAssemblyVersion.cs</Link>
     </Compile>
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Controllers\GroupsController.cs" />
     <Compile Include="Controllers\InstanceController.cs" />
     <Compile Include="Controllers\JobsController.cs" />
     <Compile Include="Controllers\LogController.cs" />
-    <Compile Include="Helpers\GroupMapper.cs" />
-    <Compile Include="Helpers\GroupsHelper.cs" />
-    <Compile Include="Helpers\GroupValidator.cs" />
-    <Compile Include="Helpers\SortingHelper.cs" />
-    <Compile Include="Helpers\UserConverter.cs" />
-    <Compile Include="Helpers\PrivilegesManager.cs" />
-    <Compile Include="Helpers\UserValidator.cs" />
-    <Compile Include="Models\AdminRole.cs" />
-    <Compile Include="Models\AssignResult.cs" />
-    <Compile Include="Models\AssignScope.cs" />
-    <Compile Include="Models\CreateResult.cs" />
-    <Compile Include="Models\DTO\User.cs" />
-    <Compile Include="Models\Enums\LicenseType.cs" />
-    <Compile Include="Models\Enums\OperationMode.cs" />
-    <Compile Include="Models\Group.cs" />
-    <Compile Include="Models\GroupDto.cs" />
-    <Compile Include="Models\DeleteResult.cs" />
-    <Compile Include="Models\GroupUser.cs" />
-    <Compile Include="Models\QueryDataResult.cs" />
-    <Compile Include="Models\TabularData.cs" />
-    <Compile Include="Models\TabularPagination.cs" />
-    <Compile Include="Models\UpdateUserPassword.cs" />
-    <Compile Include="Models\UserDto.cs" />
     <Compile Include="Controllers\WorkflowController.cs" />
     <Compile Include="Helpers\EmailHelper.cs" />
     <Compile Include="Helpers\HashingUtilities.cs" />
@@ -145,8 +120,6 @@
     <Compile Include="Helpers\LdapHelper.cs" />
     <Compile Include="Helpers\LoginInfo.cs" />
     <Compile Include="Helpers\PasswordValidationHelper.cs" />
-    <Compile Include="Helpers\UserMapper.cs" />
-    <Compile Include="Helpers\UsersHelper.cs" />
     <Compile Include="Models\EmailConfigInstanceSettings.cs" />
     <Compile Include="Models\InstanceItem.cs" />
     <Compile Include="Models\SqlGroup.cs" />
@@ -154,9 +127,7 @@
     <Compile Include="Models\PasswordRecoveryToken.cs" />
     <Compile Include="Models\ResetPasswordContent.cs" />
     <Compile Include="Models\ResetPostContent.cs" />
-    <Compile Include="Models\User.cs" />
     <Compile Include="Models\UserIcon.cs" />
-    <Compile Include="Models\UserLicense.cs" />
     <Compile Include="Controllers\LicensesController.cs" />
     <Compile Include="Controllers\SessionsController.cs" />
     <Compile Include="Controllers\ConfigController.cs" />
@@ -173,7 +144,6 @@
     <Compile Include="Models\LicenseTransactionUser.cs" />
     <Compile Include="Models\LoginUser.cs" />
     <Compile Include="Models\UserGroupSource.cs" />
-    <Compile Include="Models\Workflow\WorkflowArtifactTypeDto.cs" />
     <Compile Include="Models\Workflow\SqlProjectPathPair.cs" />
     <Compile Include="Models\Workflow\SqlState.cs" />
     <Compile Include="Models\Workflow\SqlTrigger.cs" />
@@ -185,25 +155,18 @@
     <Compile Include="Models\Workflow\ImportWorkflowResult.cs" />
     <Compile Include="Models\Workflow\IeWorkflow.cs" />
     <Compile Include="Models\Workflow\SqlWorkflow.cs" />
-    <Compile Include="Models\Workflow\SqlWorkflowArtifactTypesAndProjects.cs" />
-    <Compile Include="Models\Workflow\WorkflowDto.cs" />
-    <Compile Include="Models\Workflow\WorkflowProjectDto.cs" />
     <Compile Include="Models\Workflow\XmlTriggerPermissions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\AuthenticationRepository.cs" />
     <Compile Include="Repositories\IAuthenticationRepository.cs" />
     <Compile Include="Repositories\ILdapRepository.cs" />
-    <Compile Include="Repositories\IInstanceRepository.cs" />
-    <Compile Include="Repositories\IPrivilegesRepository.cs" />
-    <Compile Include="Repositories\IGroupRepository.cs" />
+    <Compile Include="Repositories\ISqlInstanceRepository.cs" />
     <Compile Include="Repositories\ISqlSettingsRepository.cs" />
     <Compile Include="Repositories\IUserRepository.cs" />
     <Compile Include="Repositories\Jobs\IJobsRepository.cs" />
     <Compile Include="Repositories\Jobs\JobsRepository.cs" />
     <Compile Include="Repositories\LdapRepository.cs" />
-    <Compile Include="Repositories\SqlGroupRepository.cs" />
     <Compile Include="Repositories\SqlInstanceRepository.cs" />
-    <Compile Include="Repositories\SqlPrivilegesRepository.cs" />
     <Compile Include="Repositories\SqlSettingsRepository.cs" />
     <Compile Include="Repositories\SqlUserRepository.cs" />
     <Compile Include="Repositories\Workflow\IWorkflowRepository.cs" />

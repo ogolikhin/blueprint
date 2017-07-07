@@ -16,9 +16,6 @@
         public const int BadRequest = 400;
         public const int Conflict = 409;
 
-        //Forbidden error
-        public const int Forbidden = 403;
-
         //Configuration errors
         public const int LdapIsDisabled = 1000;
         public const int FallbackIsDisabled = 1001;

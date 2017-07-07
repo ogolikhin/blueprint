@@ -4,12 +4,9 @@ using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using AdminStore.Helpers;
 using AdminStore.Models.Workflow;
 using Dapper;
-using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
-using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.Files;
 
@@ -17,11 +14,12 @@ namespace AdminStore.Repositories.Workflow
 {
     public class WorkflowRepository : IWorkflowRepository
     {
-
+        
 
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
+        private readonly IUserRepository _userRepository;
         private readonly ISqlHelper _sqlHelper;
-
+        
 
         public IFileRepository FileRepository { get; set; }
 
@@ -29,15 +27,18 @@ namespace AdminStore.Repositories.Workflow
 
         public WorkflowRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain),
-                  new SqlHelper())
+                  new SqlHelper(), 
+                  new SqlUserRepository())
         {
         }
 
         internal WorkflowRepository(ISqlConnectionWrapper connectionWrapper,
-            ISqlHelper sqlHelper)
+            ISqlHelper sqlHelper,
+            IUserRepository userRepository)
         {
             ConnectionWrapper = connectionWrapper;
             _sqlHelper = sqlHelper;
+            _userRepository = userRepository;
         }
 
         #endregion
@@ -45,7 +46,7 @@ namespace AdminStore.Repositories.Workflow
 
         #region Interface implementation
 
-
+        
 
         public async Task<IEnumerable<SqlWorkflow>> CreateWorkflowsAsync(IEnumerable<SqlWorkflow> workflows, int publishRevision, IDbTransaction transaction = null)
         {
@@ -158,7 +159,7 @@ namespace AdminStore.Repositories.Workflow
             return result;
         }
 
-        public async Task CreateWorkflowArtifactAssociationsAsync(IEnumerable<string> artifactTypeNames,
+        public async Task CreateWorkflowArtifactAssociationsAsync(IEnumerable<string> artifactTypeNames, 
             IEnumerable<int> projectIds, int workflowId, int publishRevision, IDbTransaction transaction = null)
         {
 
@@ -212,7 +213,7 @@ namespace AdminStore.Repositories.Workflow
                 commandType: CommandType.StoredProcedure);
         }
 
-
+        
 
         public Task<int> CreateRevisionInTransactionAsync(IDbTransaction transaction, int userId, string description)
         {
@@ -230,79 +231,6 @@ namespace AdminStore.Repositories.Workflow
         public async Task RunInTransactionAsync(Func<IDbTransaction, Task> action)
         {
             await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, action);
-        }
-
-
-        public async Task<QueryResult<WorkflowDto>> GetWorkflows(Pagination pagination, Sorting sorting = null,
-            string search = null, Func<Sorting, string> sort = null)
-        {
-            var orderField = string.Empty;
-            if (sort != null && sorting != null)
-            {
-                orderField = sort(sorting);
-            }
-            if (search != null)
-            {
-                search = UsersHelper.ReplaceWildcardCharacters(search);
-            }
-            var parameters = new DynamicParameters();
-            parameters.Add("@Offset", pagination.Offset);
-            parameters.Add("@Limit", pagination.Limit);
-            parameters.Add("@Search", search ?? string.Empty);
-            parameters.Add("@OrderField", string.IsNullOrEmpty(orderField) ? "Name" : orderField);
-            parameters.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            var workflows =
-                (await
-                    ConnectionWrapper.QueryAsync<WorkflowDto>("GetAllWorkflows", parameters,
-                        commandType: CommandType.StoredProcedure)).ToList();
-            var total = parameters.Get<int>("Total");
-            return new QueryResult<WorkflowDto>() {Items = workflows, Total = total};
-        }
-
-
-
-        public async Task<SqlWorkflow> GetWorkflowDetailsAsync(int workflowId)
-        {
-            var parameters = new DynamicParameters();
-            parameters.Add("WorkflowId", workflowId);
-
-            var result = (await ConnectionWrapper.QueryAsync<SqlWorkflow>("GetWorkflowDetails", parameters, commandType: CommandType.StoredProcedure)).FirstOrDefault();
-            return result;           
-        }
-
-        public async Task<IEnumerable<SqlWorkflowArtifactTypesAndProjects>> GetWorkflowArtifactTypesAndProjectsAsync(int workflowId)
-        {
-            var parameters = new DynamicParameters();
-            parameters.Add("WorkflowId", workflowId);
-
-            var result = await ConnectionWrapper.QueryAsync<SqlWorkflowArtifactTypesAndProjects>("GetWorkflowProjectsAndArtifactTypes", parameters, commandType: CommandType.StoredProcedure);
-            return result;
-        }
-
-        public async Task<int> DeleteWorkflows(OperationScope body, string search, int sessionUserId)
-        {
-            if (search != null)
-            {
-                search = UsersHelper.ReplaceWildcardCharacters(search);
-            }
-            var parameters = new DynamicParameters();
-            parameters.Add("@WorkflowIds", SqlConnectionWrapper.ToDataTable(body.Ids));
-            parameters.Add("@Search", search);
-            parameters.Add("@SelectAll", body.SelectAll);
-            parameters.Add("@SessionUserId", sessionUserId);
-            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            var result = await ConnectionWrapper.ExecuteScalarAsync<int>("DeleteWorkflows", parameters, commandType: CommandType.StoredProcedure);
-            var errorCode = parameters.Get<int?>("ErrorCode");
-            if (errorCode.HasValue)
-            {
-                switch (errorCode.Value)
-                {
-                    case (int)SqlErrorCodes.GeneralSqlError:
-                        throw new BadRequestException(ErrorMessages.GeneralErrorOfDeletingUsers);
-                }
-            }
-            return result;
-
         }
 
         #endregion

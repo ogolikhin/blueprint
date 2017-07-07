@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using AdminStore.Models.Workflow;
-using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.Files;
 
 namespace AdminStore.Repositories.Workflow
@@ -33,14 +32,5 @@ namespace AdminStore.Repositories.Workflow
             IEnumerable<string> names);
 
         Task RunInTransactionAsync(Func<IDbTransaction, Task> action);
-
-        Task<QueryResult<WorkflowDto>> GetWorkflows(Pagination pagination, Sorting sorting = null, string search = null,
-            Func<Sorting, string> sort = null);
-
-        Task<SqlWorkflow> GetWorkflowDetailsAsync(int workflowId);
-
-        Task<IEnumerable<SqlWorkflowArtifactTypesAndProjects>> GetWorkflowArtifactTypesAndProjectsAsync(int workflowId);
-
-        Task<int> DeleteWorkflows(OperationScope body, string search, int sessionUserId);
     }
 }

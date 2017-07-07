@@ -92,7 +92,7 @@ namespace FileStore.Controllers
         {
             // Arrange
             var moq = new Mock<IFilesRepository>();
-            moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).ReturnsAsync(null);
+            moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).ReturnsAsync((File)null);
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
             var moqLog = new Mock<sl.IServiceLogRepository>();
@@ -222,7 +222,7 @@ namespace FileStore.Controllers
             moqConfigRepo.Setup(t => t.FileChunkSize).Returns(1 * 1024 * 1024);
             moqConfigRepo.Setup(t => t.LegacyFileChunkSize).Returns(1);
 
-            moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).ReturnsAsync(null);
+            moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).ReturnsAsync((File)null);
             moq.Setup(t => t.GetFileInfo(It.IsAny<Guid>())).Returns(file);
             moq.Setup(t => t.ReadChunkContent(moqDbConnection.Object, file.FileId, 1)).Returns(fileChunk.ChunkContent);
 

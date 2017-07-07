@@ -161,7 +161,7 @@ namespace ArtifactStore.Executors
                 .ReturnsAsync(vcArtifactInfo);
 
             _workflowRepository.Setup(t => t.GetStateForArtifactAsync(UserId, ArtifactId, int.MaxValue, true))
-                .ReturnsAsync(null);
+                .ReturnsAsync((WorkflowState)null);
 
             //Act
             try
@@ -253,7 +253,7 @@ namespace ArtifactStore.Executors
 
             _workflowRepository.Setup(
                 t => t.GetTransitionForAssociatedStatesAsync(UserId, ArtifactId, WorkflowId, FromStateId, ToStateId))
-                .ReturnsAsync(null);
+                .ReturnsAsync((WorkflowTransition)null);
 
             //Act
             try
@@ -317,7 +317,7 @@ namespace ArtifactStore.Executors
                 .ReturnsAsync(transition);
 
             _workflowRepository.Setup(t => t.ChangeStateForArtifactAsync(UserId, ArtifactId, It.IsAny<WorkflowStateChangeParameterEx>()))
-                .ReturnsAsync(null);
+                .ReturnsAsync((WorkflowState)null);
 
             //Act
             var result = await _stateChangeExecutor.Execute();

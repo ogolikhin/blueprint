@@ -277,7 +277,7 @@ namespace ArtifactStore.Repositories
             Mock<IArtifactPermissionsRepository> artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
             artifactPermissionsRepositoryMock.Setup(apr => apr.GetArtifactPermissions(
                 It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
-                .ReturnsAsync(null);
+                .ReturnsAsync((Dictionary<int, RolePermissions>)null);
 
             SqlArtifactVersionsRepository artifactVersionsRepository = new SqlArtifactVersionsRepository(
                 connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object, _itemInfoRepositoryMock.Object);

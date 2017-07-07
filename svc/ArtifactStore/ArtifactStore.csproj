@@ -122,6 +122,8 @@
     <Compile Include="Models\FilesInfo.cs" />
     <Compile Include="Models\DiscussionResultSet.cs" />
     <Compile Include="Models\ItemType.cs" />
+    <Compile Include="Models\ProjectApprovalStatus.cs" />
+    <Compile Include="Models\ProjectSetting.cs" />
     <Compile Include="Models\ProjectTypes.cs" />
     <Compile Include="Models\PropertyPrimitiveType.cs" />
     <Compile Include="Models\PropertyType.cs" />

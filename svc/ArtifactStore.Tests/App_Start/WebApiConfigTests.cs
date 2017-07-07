@@ -22,13 +22,14 @@ namespace ArtifactStore
             config.EnsureInitialized();
 
             // Assert
-            config.AssertTotalRoutes(34, "Please update asserts in WebApiConfigTests when changing routes.");
+            config.AssertTotalRoutes(35, "Please update asserts in WebApiConfigTests when changing routes.");
             config.AssertAction<StatusController>("GetStatus", HttpMethod.Get, "status");
             config.AssertAction<StatusController>("GetStatusUpCheck", HttpMethod.Get, "status/upcheck");
             config.AssertAction<ArtifactController>("GetProjectChildren", HttpMethod.Get, "projects/1/children");
             config.AssertAction<ArtifactController>("GetArtifactChildren", HttpMethod.Get, "projects/1/artifacts/2/children");
             config.AssertAction<ArtifactController>("GetExpandedTreeToArtifact", HttpMethod.Get, "projects/1/artifacts?expandedToArtifactId=2&includeChildren=true");
             config.AssertAction<ProjectMetaController>("GetProjectTypes", HttpMethod.Get, "projects/1/meta/customtypes");
+            config.AssertAction<ProjectMetaController>("GetProjectApprovalStatuses", HttpMethod.Get, "projects/1/meta/approvalstatus");
             config.AssertAction<DiscussionController>("GetDiscussions", HttpMethod.Get, "artifacts/1/discussions");
             config.AssertAction<DiscussionController>("GetReplies", HttpMethod.Get, "artifacts/1/discussions/1/replies");
             config.AssertAction<RelationshipsController>("GetRelationships", HttpMethod.Get, "artifacts/1/relationships");

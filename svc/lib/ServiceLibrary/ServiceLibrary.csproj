@@ -242,6 +242,8 @@
     <Compile Include="Repositories\SqlUsersRepository.cs" />
     <Compile Include="Exceptions\SqlTimeoutException.cs" />
     <Compile Include="Repositories\BaselineRawDataHelper.cs" />
+    <Compile Include="Services\CurrentDateTimeService.cs" />
+    <Compile Include="Services\ICurrentDateTimeService.cs" />
     <Compile Include="Swagger\SwaggerConfig.cs" />
     <Compile Include="Models\Files\NetworkContentStream.cs" />
     <Compile Include="Helpers\WebHeaderCollectionExtensions.cs" />

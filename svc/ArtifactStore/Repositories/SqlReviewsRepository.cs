@@ -10,6 +10,7 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 using ArtifactStore.Helpers;
+using ServiceLibrary.Services;
 
 namespace ArtifactStore.Repositories
 {
@@ -26,6 +27,8 @@ namespace ArtifactStore.Repositories
         private readonly IUsersRepository _usersRepository;
 
         private readonly ISqlArtifactRepository _artifactRepository;
+
+        private readonly ICurrentDateTimeService _currentDateTimeService;
 
         internal readonly IApplicationSettingsRepository _applicationSettingsRepository;
 
@@ -45,7 +48,8 @@ namespace ArtifactStore.Repositories
                                             new SqlArtifactPermissionsRepository(),
                                             new ApplicationSettingsRepository(),
                                             new SqlUsersRepository(),
-                                            new SqlArtifactRepository())
+                                            new SqlArtifactRepository(),
+                                            new CurrentDateTimeService())
         {
         }
 
@@ -55,7 +59,8 @@ namespace ArtifactStore.Repositories
                                     IArtifactPermissionsRepository artifactPermissionsRepository,
                                     IApplicationSettingsRepository applicationSettingsRepository,
                                     IUsersRepository usersRepository,
-                                    ISqlArtifactRepository artifactRepository)
+                                    ISqlArtifactRepository artifactRepository,
+                                    ICurrentDateTimeService currentDateTimeService)
         {
             ConnectionWrapper = connectionWrapper;
             _artifactVersionsRepository = artifactVersionsRepository;
@@ -64,6 +69,7 @@ namespace ArtifactStore.Repositories
             _applicationSettingsRepository = applicationSettingsRepository;
             _usersRepository = usersRepository;
             _artifactRepository = artifactRepository;
+            _currentDateTimeService = currentDateTimeService;
         }
 
         public async Task<ReviewSummary> GetReviewSummary(int containerId, int userId)
@@ -900,9 +906,9 @@ namespace ArtifactStore.Repositories
             return result;
         }
 
-        public async Task UpdateReviewArtifactApprovalAsync(int reviewId, IEnumerable<ReviewArtifactApprovalParameter> reviewArtifactApprovalParameters, int userId)
+        public async Task<IEnumerable<ReviewArtifactApprovalResult>> UpdateReviewArtifactApprovalAsync(int reviewId, IEnumerable<ReviewArtifactApprovalParameter> reviewArtifactApprovalParameters, int userId)
         {
-            if(reviewArtifactApprovalParameters == null || !reviewArtifactApprovalParameters.Any())
+            if (reviewArtifactApprovalParameters == null || !reviewArtifactApprovalParameters.Any())
             {
                 throw new BadRequestException("No artifacts provided", ErrorCodes.OutOfRangeParameter);
             }
@@ -912,32 +918,32 @@ namespace ArtifactStore.Repositories
             var approvalCheck = await CheckReviewArtifactApprovalAsync(reviewId, userId, artifactIds);
 
             //Check the review exists and is active
-            if(!approvalCheck.ReviewExists ||
-               approvalCheck.ReviewStatus == ReviewPackageStatus.Draft || //A null review status means review is in draft
-               approvalCheck.ReviewDeleted)
+            if (!approvalCheck.ReviewExists
+               || approvalCheck.ReviewStatus == ReviewPackageStatus.Draft
+               || approvalCheck.ReviewDeleted)
             {
                 ThrowReviewNotFoundException(reviewId);
             }
 
-            if(approvalCheck.ReviewStatus == ReviewPackageStatus.Closed)
+            if (approvalCheck.ReviewStatus == ReviewPackageStatus.Closed)
             {
                 ThrowReviewClosedException();
             }
 
             //Check user is an approver for the review
-            if(!approvalCheck.UserInReview ||
+            if (!approvalCheck.UserInReview ||
                approvalCheck.ReviewerRole != ReviewParticipantRole.Approver)
             {
                 ThrowUserCannotAccessReviewException(reviewId);
             }
 
             //Check artifacts are part of the review and require approval
-            if(!approvalCheck.AllArtifactsInReview)
+            if (!approvalCheck.AllArtifactsInReview)
             {
                 throw new BadRequestException("Not all artifacts have been added to this review.");
             }
 
-            if(!approvalCheck.AllArtifactsRequireApproval)
+            if (!approvalCheck.AllArtifactsRequireApproval)
             {
                 throw new BadRequestException("Not all artifacts require approval.");
             }
@@ -948,6 +954,10 @@ namespace ArtifactStore.Repositories
             var rdReviewedArtifacts = await GetReviewUserStatsXmlAsync(reviewId, userId);
 
             var artifactVersionDictionary = await GetVersionNumberForArtifacts(reviewId, artifactIds);
+
+            var approvalResult = new List<ReviewArtifactApprovalResult>();
+
+            var timestamp = _currentDateTimeService.GetUtcNow();
 
             //Update approvals for the specified artifacts
             foreach (var artifact in reviewArtifactApprovalParameters)
@@ -967,16 +977,34 @@ namespace ArtifactStore.Repositories
                     reviewArtifactApproval.ViewState = ViewStateType.Viewed;
                 }
 
+                if (artifact.ApprovalFlag == ApprovalType.NotSpecified)
+                {
+                    reviewArtifactApproval.ESignedOn = null;
+                }
+                else if (reviewArtifactApproval.Approval != artifact.Approval
+                         || reviewArtifactApproval.ApprovalFlag != artifact.ApprovalFlag)
+                {
+                    reviewArtifactApproval.ESignedOn = timestamp;
+                }
+
                 reviewArtifactApproval.Approval = artifact.Approval;
                 reviewArtifactApproval.ApprovalFlag = artifact.ApprovalFlag;
                 
-                if(artifactVersionDictionary.ContainsKey(artifact.ArtifactId))
+                if (artifactVersionDictionary.ContainsKey(artifact.ArtifactId))
                 {
                     reviewArtifactApproval.ArtifactVersion = artifactVersionDictionary[artifact.ArtifactId];
                 }
+
+                approvalResult.Add(new ReviewArtifactApprovalResult()
+                {
+                    ArtifactId = reviewArtifactApproval.ArtifactId,
+                    Timestamp = reviewArtifactApproval.ESignedOn
+                });
             }
 
             await UpdateReviewUserStatsXmlAsync(reviewId, userId, rdReviewedArtifacts);
+
+            return approvalResult;
         }
 
         private async Task CheckReviewAndArtifactPermissions(int userId, int reviewId, IEnumerable<int> artifactIds)
@@ -994,9 +1022,9 @@ namespace ArtifactStore.Repositories
 
             foreach(var artifactId in artifactIds)
             {
-                if(!SqlArtifactPermissionsRepository.HasPermissions(artifactId, artifactPermissionsDictionary, RolePermissions.Read))
+                if (!SqlArtifactPermissionsRepository.HasPermissions(artifactId, artifactPermissionsDictionary, RolePermissions.Read))
                 {
-                    throw new ResourceNotFoundException("Artifacts could not be updated because they are no longer accessible .", ErrorCodes.ArtifactNotFound);
+                    throw new ResourceNotFoundException("Artifacts could not be updated because they are no longer accessible.", ErrorCodes.ArtifactNotFound);
                 }
             }
         }

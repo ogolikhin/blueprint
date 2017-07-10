@@ -1,5 +1,5 @@
 ﻿using BluePrintSys.Messaging.CrossCutting;
-using BluePrintSys.Messaging.Models.Action;
+using BluePrintSys.Messaging.Models.Actions;
 
 namespace ActionHandlerService
 {

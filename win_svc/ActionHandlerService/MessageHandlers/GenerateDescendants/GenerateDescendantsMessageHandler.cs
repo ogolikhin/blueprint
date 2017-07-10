@@ -1,4 +1,4 @@
-﻿using BluePrintSys.Messaging.Models.Action;
+﻿using BluePrintSys.Messaging.Models.Actions;
 
 namespace ActionHandlerService.MessageHandlers.GenerateDescendants
 {

@@ -15,20 +15,27 @@ namespace AdminStore.Models.Workflow
     public class IeNotificationAction : IeBaseAction
     {
         #region Constructors
-        public IeNotificationAction() { }
+        //public IeNotificationAction() { }
         #endregion
 
         #region Properties
-        [XmlElement("UserGroup")]
-        public int UserGroupId { get; set; }
+
+        [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
+        [XmlArray("Groups"), XmlArrayItem("Group")]
+        public List<string> GroupNames { get; set; }
 
         [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
         [XmlArray("Users"), XmlArrayItem("User")]
-        public List<int> Users { get; set; }
+        public List<string> UserNames { get; set; }
 
         [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
-        [XmlArray("Addresses"), XmlArrayItem("Email")]
-        public List<string> Addresses { get; set; }
+        [XmlArray("Emails"), XmlArrayItem("Email")]
+        public List<string> Emails { get; set; }
+
+        [XmlElement("PropertyTarget")]
+        public string PropertyTargetName;
+
+        public string Message { get; set; }
 
         #endregion
 

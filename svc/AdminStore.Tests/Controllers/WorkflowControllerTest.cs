@@ -8,9 +8,26 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace AdminStore.Controllers
 {
-     /// <summary>
-     /// Test Actions Container class
-     /// </summary>
+    /// <summary>
+    /// Test Actions Container class
+    /// </summary>
+    [Serializable()]
+    [XmlRoot("WorkflowTriggers")]
+    [XmlType("WorkflowTriggers")]
+    public class WorkflowTriggers
+    {
+        public WorkflowTriggers() { }
+
+        [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
+        [XmlArray("Triggers")]
+        [XmlArrayItem("TransitionTrigger", typeof(IeTransitionTrigger))]
+        [XmlArrayItem("PropertyChangeTrigger", typeof(IePropertyChangeTrigger))]
+        public List<IeTrigger> Triggers { get; set; }
+       
+    }
+    /// <summary>
+    /// Test Actions Container class
+    /// </summary>
     [Serializable()]
     [XmlRoot("WorkflowActions")]
     [XmlType("WorkflowActions")]
@@ -21,7 +38,8 @@ namespace AdminStore.Controllers
         [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
         [XmlArray("Actions")]
         [XmlArrayItem("NotificationAction", typeof(IeNotificationAction))]
-        [XmlArrayItem("PropertyAction", typeof(IePropertyAction))]
+        [XmlArrayItem("PropertyChangeAction", typeof(IePropertyChangeAction))]
+        [XmlArrayItem("GenerateAction", typeof(IeGenerateAction))]
         public List<IeBaseAction> Actions { get; set; }
 
         public bool IsValid()
@@ -49,26 +67,39 @@ namespace AdminStore.Controllers
             string xml = 
                 "<WorkflowActions>" +
                 "<Actions>" +
-                "<NotificationAction>" +
-                "<Name>NotificationAction</Name><Description>Notfication Test</Description>" +
-                "<UserGroup>456</UserGroup>" +
-                "<Users><User>111</User><User>222</User></Users>" +
-                "<Addresses><Email>user1@mail.com</Email><Email>user2@mail.com</Email></Addresses>" +
-                "<Parameters>" +
-                "<Parameter><Name>Param1</Name><Type>1</Type><Value>123</Value></Parameter>" +
-                "<Parameter><Name>Param2</Name><Type>2</Type><Value>Hello</Value></Parameter>" +
-                "</Parameters>" +
-                "</NotificationAction>" +
-
-                "<PropertyAction>" +
-                "<Name>PropertyAction</Name><Description>PropChange Test</Description>" +
-                "<Project>111111</Project>" +
-                "<Artifact>22222222</Artifact>" +
-                "<Parameters>" +
-                "<Parameter><Name>Param1</Name><Type>1</Type><Value>123</Value></Parameter>" +
-                "<Parameter><Name>Param2</Name><Type>2</Type><Value>Hello</Value></Parameter>" +
-                "</Parameters>" +
-                "</PropertyAction>" +
+                    "<NotificationAction>" +
+                        "<Name>NotificationAction</Name>" +
+                        "<Description>Notification Test</Description>" +
+                        "<Groups>" +
+                            "<Group>Group111</Group>" +
+                            "<Group>Group222</Group>" +
+                        "</Groups>" +
+                        "<Users>" +
+                            "<User>User111</User>" +
+                            "<User>User222</User>" +
+                        "</Users>" +
+                        "<Emails>" +
+                            "<Email>user1@mail.com</Email>" +
+                            "<Email>user2@mail.com</Email>" +
+                        "</Emails>" +
+                        "<PropertyTarget>Property Name</PropertyTarget>" +
+                        "<Message>Property was changed</Message>" +
+                    "</NotificationAction>" +
+                    "<PropertyChangeAction>" +
+                        "<Name>Property Change</Name>" +
+                        "<Description>Property Change Test</Description>" +
+                        "<Group>Group Admin</Group>" +
+                        "<User>User1111</User>" +
+                        "<PropertyName>Standard Property</PropertyName>" +
+                        "<PropertyValue>1111111111111-2222222222</PropertyValue>" +
+                        "<PropertyValueType>Text</PropertyValueType>" +
+                    "</PropertyChangeAction>" +
+                    "<GenerateAction>" +
+                        "<Name>Generate Action</Name>" +
+                        "<Description>Generate Action Test</Description>" +
+                        "<Childs>3</Childs>" +
+                        "<ArtifactType>UserStory</ArtifactType>" +
+                    "</GenerateAction>" +
                 "</Actions>" +
                 "</WorkflowActions>";
 
@@ -97,9 +128,52 @@ namespace AdminStore.Controllers
                 result = null;
             }
 
-            
-
             return;
+        }
+
+        /// <summary>
+        /// Deserialize/Serialize XML Triggers
+        /// </summary>
+        [TestMethod]
+        public void DeserializeTriggers()
+        {
+
+            string xml =
+                "<WorkflowTriggers>" +
+                    "<Triggers>" +
+                        "<TransitionTrigger>" +
+                            "<TriggerType>1</TriggerType>"+
+                            "<Name>TestTransition</Name>" +
+                            "<Description>Trigger Deserialization test</Description>" + 
+                            "<FromState>Begin</FromState>" +
+                            "<ToState>TheEnd</ToState>" + 
+                            "<Actions></Actions>" +
+                            "<PermissionGroups></PermissionGroups>" +
+                        "</TransitionTrigger>" +
+                        "<PropertyChangeTrigger>" +
+                            "<TriggerType>2</TriggerType>" +
+                            "<Name>TestPropChange</Name>" +
+                            "<Description>PropChangeTrigger Deserialization test</Description>" +
+                            "<FromState>Begin</FromState>" +
+                            "<ToState>TheEnd</ToState>" +
+                            "<Actions></Actions>" +
+                            "<PermissionGroups></PermissionGroups>" +
+                        "</PropertyChangeTrigger>" +
+                    "</Triggers>" +
+                "</WorkflowTriggers>";
+
+            // Test Deserialization of imported XML Actions
+            WorkflowTriggers result = null;
+            try
+            {
+                result = SerializationHelper.FromXml<WorkflowTriggers>(xml);
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                result = null;
+            }
+            Assert.IsTrue(result != null);
         }
     }
 }

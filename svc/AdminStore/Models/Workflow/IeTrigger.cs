@@ -4,9 +4,21 @@ using System.Xml.Serialization;
 
 namespace AdminStore.Models.Workflow
 {
-    [XmlType("Transition")]
-    public class IeTransition
+    public enum TriggerTypes { None, Transition, PropertyChange };
+
+    /// <summary>
+    /// Base class for Triggers of specific type
+    /// </summary>
+    public abstract class IeTrigger
     {
+        public IeTrigger(TriggerTypes type)
+        {
+            TriggerType = type;
+        }
+
+        // Define the type of Trigger
+        protected TriggerTypes TriggerType { get; set; }
+
         [XmlElement(IsNullable = false)]
         public string Name { get; set; }
 
@@ -22,7 +34,8 @@ namespace AdminStore.Models.Workflow
         [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
         [XmlArray("Actions")]
         [XmlArrayItem("NotificationAction", typeof(IeNotificationAction))]
-        [XmlArrayItem("PropertyAction", typeof(IePropertyAction))]
+        [XmlArrayItem("PropertyChangeAction", typeof(IePropertyChangeAction))]
+        [XmlArrayItem("GenerateAction", typeof(IeGenerateAction))]
         public List<IeBaseAction> Actions { get; set; }
 
         [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]

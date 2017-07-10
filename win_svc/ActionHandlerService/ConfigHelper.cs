@@ -26,7 +26,7 @@ namespace ActionHandlerService
         public static int MessageProcessingMaxConcurrency => AppSettingsHelper.GetConfigIntValue(MessageProcessingMaxConcurrencyKey, MessageProcessingMaxConcurrencyDefault);
 
         private const string NServiceBusConnectionStringKey = "NServiceBus.ConnectionString";
-        private const string NServiceBusConnectionStringDefault = "host=titan.blueprintsys.net;username=admin;password=$admin2011";
+        private const string NServiceBusConnectionStringDefault = "";
         public static string NServiceBusConnectionString => AppSettingsHelper.GetConfigStringValue(NServiceBusConnectionStringKey, NServiceBusConnectionStringDefault);
 
         private const string NServiceBusInstanceIdKey = "NServiceBus.InstanceId";

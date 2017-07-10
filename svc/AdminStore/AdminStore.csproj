@@ -144,7 +144,6 @@
     <Compile Include="Models\LicenseTransactionUser.cs" />
     <Compile Include="Models\LoginUser.cs" />
     <Compile Include="Models\UserGroupSource.cs" />
-    <Compile Include="Models\Workflow\IeActionParameter.cs" />
     <Compile Include="Models\Workflow\IeBaseAction.cs" />
     <Compile Include="Models\Workflow\IeGenerateAction.cs" />
     <Compile Include="Models\Workflow\IeNotificationAction.cs" />

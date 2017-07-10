@@ -598,7 +598,7 @@ namespace ArtifactStore.Repositories
             var approvalStatus = (await _repository.GetApprovalStatusesAsync(projectId, userId)).FirstOrDefault();
 
             //Assert
-            Assert.AreEqual(approvalStatus.StatusText, "Test Approval Status");
+            Assert.AreEqual("Test Approval Status", approvalStatus.StatusText);
         }
 
         [TestMethod]
@@ -640,7 +640,7 @@ namespace ArtifactStore.Repositories
             var approvalStatus = (await _repository.GetApprovalStatusesAsync(projectId, userId)).FirstOrDefault();
 
             //Assert
-            Assert.AreEqual(approvalStatus.ApprovalType, ApprovalType.Approved);
+            Assert.AreEqual(ApprovalType.Approved, approvalStatus.ApprovalType);
         }
 
         [TestMethod]
@@ -682,7 +682,7 @@ namespace ArtifactStore.Repositories
             var approvalStatus = (await _repository.GetApprovalStatusesAsync(projectId, userId)).FirstOrDefault();
 
             //Assert
-            Assert.AreEqual(approvalStatus.ApprovalType, ApprovalType.Disapproved);
+            Assert.AreEqual(ApprovalType.Disapproved, approvalStatus.ApprovalType);
         }
 
         [TestMethod]
@@ -724,7 +724,91 @@ namespace ArtifactStore.Repositories
             var approvalStatus = (await _repository.GetApprovalStatusesAsync(projectId, userId)).FirstOrDefault();
 
             //Assert
-            Assert.AreEqual(approvalStatus.ApprovalType, ApprovalType.NotSpecified);
+            Assert.AreEqual(ApprovalType.NotSpecified, approvalStatus.ApprovalType);
+        }
+
+        [TestMethod]
+        public async Task GetApprovalStatusesAsync_Should_Return_Correct_IsPreset_Case_True()
+        {
+            //Arrange
+            var projectId = 1;
+            var userId = 2;
+
+            var projectVersionParams = new Dictionary<string, object>
+            {
+                { "@projectId", projectId },
+                { "@userId", userId }
+            };
+
+            _cxn.SetupQueryAsync("GetInstanceProjectById", projectVersionParams, new[] { new ProjectVersion() { IsAccesible = true } });
+
+            var projectSettingsParams = new Dictionary<string, object>
+            {
+                { "@projectId", projectId },
+                { "@propertyType", PropertyTypePredefined.ApprovalStatus },
+                { "@includeDeleted", false }
+            };
+
+            _cxn.SetupQueryAsync("GetProjectSettings", projectSettingsParams, new[] {
+                    new ProjectSetting()
+                    {
+                        Deleted = false,
+                        OrderIndex = 1,
+                        Predefined = PropertyTypePredefined.ApprovalStatus,
+                        ProjectId = projectId,
+                        ProjectSettingId = 3,
+                        ReadOnly = true,
+                        Setting = "true;test"
+                    }
+                });
+
+            //Act
+            var approvalStatus = (await _repository.GetApprovalStatusesAsync(projectId, userId)).FirstOrDefault();
+
+            //Assert
+            Assert.AreEqual(true, approvalStatus.IsPreset);
+        }
+
+        [TestMethod]
+        public async Task GetApprovalStatusesAsync_Should_Return_Correct_IsPreset_Case_False()
+        {
+            //Arrange
+            var projectId = 1;
+            var userId = 2;
+
+            var projectVersionParams = new Dictionary<string, object>
+            {
+                { "@projectId", projectId },
+                { "@userId", userId }
+            };
+
+            _cxn.SetupQueryAsync("GetInstanceProjectById", projectVersionParams, new[] { new ProjectVersion() { IsAccesible = true } });
+
+            var projectSettingsParams = new Dictionary<string, object>
+            {
+                { "@projectId", projectId },
+                { "@propertyType", PropertyTypePredefined.ApprovalStatus },
+                { "@includeDeleted", false }
+            };
+
+            _cxn.SetupQueryAsync("GetProjectSettings", projectSettingsParams, new[] {
+                    new ProjectSetting()
+                    {
+                        Deleted = false,
+                        OrderIndex = 1,
+                        Predefined = PropertyTypePredefined.ApprovalStatus,
+                        ProjectId = projectId,
+                        ProjectSettingId = 3,
+                        ReadOnly = false,
+                        Setting = "true;test"
+                    }
+                });
+
+            //Act
+            var approvalStatus = (await _repository.GetApprovalStatusesAsync(projectId, userId)).FirstOrDefault();
+
+            //Assert
+            Assert.AreEqual(false, approvalStatus.IsPreset);
         }
 
         [TestMethod]
@@ -766,7 +850,7 @@ namespace ArtifactStore.Repositories
             var approvalStatus = (await _repository.GetApprovalStatusesAsync(projectId, userId)).FirstOrDefault();
 
             //Assert
-            Assert.AreEqual(approvalStatus.StatusText, "Pending");
+            Assert.AreEqual("Pending", approvalStatus.StatusText);
         }
 
         #endregion

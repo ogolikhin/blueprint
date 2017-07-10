@@ -323,7 +323,7 @@ namespace ArtifactStore.Repositories
         {
             var values = projectSetting.Setting.Split(';');
 
-            if(values.Length != 2)
+            if (values.Length != 2)
             {
                 throw new ArgumentException("Unexpected Approval Status setting format: " + projectSetting.Setting);
             }
@@ -359,7 +359,7 @@ namespace ArtifactStore.Repositories
             }
 
             //For the default not specified approval status, we want to display Pending to be consistent with SilverLight
-            if(approvalType == ApprovalType.NotSpecified && projectSetting.ReadOnly
+            if (approvalType == ApprovalType.NotSpecified && projectSetting.ReadOnly
                && statusText.Equals("Not Specified", StringComparison.OrdinalIgnoreCase))
             {
                 statusText = "Pending";
@@ -368,7 +368,8 @@ namespace ArtifactStore.Repositories
             return new ProjectApprovalStatus()
             {
                 ApprovalType = approvalType,
-                StatusText = statusText
+                StatusText = statusText,
+                IsPreset = projectSetting.ReadOnly
             };
         }
 

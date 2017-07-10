@@ -73,8 +73,10 @@
         public static readonly string ProjectIdIsInvalid = "The project Id is invalid";
         //Workflow
         public static readonly string WorkflowNotExist = "The workflow with the current workflowId doesn’t exist or removed from the system.";
+        public static readonly string WorkflowModelIsEmpty = "The workflow model is empty.";
+        public static readonly string WorkflowVersionsNotEqual = "The current version the workflow from the request doesn’t match the current version in DB.";
+        public static readonly string WorkflowWasNotUpdated = "The workflow with current parameters was not updated.";
         public static readonly string InvalidDeleteWorkflowsParameters = "Invalid parameters to delete workflows";
-        public static readonly string GeneralErrorOfDeletingWorkflows = "An error has occurred when performed workflows (s) deletion operation";
-
+        public static readonly string GeneralErrorOfDeletingWorkflows = "An error has occurred when performed workflows (s) deletion operation";        
     }
 }

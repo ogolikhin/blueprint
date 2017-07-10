@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using AdminStore.Models.Workflow;
 using AdminStore.Repositories;
 using AdminStore.Repositories.Workflow;
+using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories.Files;
@@ -150,6 +151,42 @@ namespace AdminStore.Services.Workflow
             workflowDto.ArtifactTypes = workflowProjectsAndArtifactTypes.Select(e => new WorkflowArtifactTypeDto {Name = e.ArtifactName}).Distinct().ToList();
 
             return workflowDto;
+        }
+
+
+        public async Task UpdateWorkflowStatusAsync(WorkflowDto workflowDto, int workflowId, int userId)
+        {
+            var existingWorkflow = await _workflowRepository.GetWorkflowDetailsAsync(workflowId);
+            if (existingWorkflow == null)
+            {
+                throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
+            }
+
+            if (existingWorkflow.VersionId != workflowDto.VersionId)
+            {
+                throw new ConflictException(ErrorMessages.WorkflowVersionsNotEqual, ErrorCodes.Conflict);
+            }
+            var workflows = new List<SqlWorkflow> {new SqlWorkflow {Name = existingWorkflow.Name, Description = existingWorkflow.Description, Active = workflowDto.Status, WorkflowId = workflowId} };
+
+            Func<IDbTransaction, Task> action = async transaction =>
+            {
+                var publishRevision = await _workflowRepository.CreateRevisionInTransactionAsync(transaction, userId, $"Updating the workflow with id {workflowId}.");
+                if (publishRevision < 1)
+                {
+                    throw new ArgumentException(I18NHelper.FormatInvariant("{0} is less than 1.", nameof(publishRevision)));
+                }
+               
+                var updatedWorkflows = await _workflowRepository.UpdateWorkflows(workflows, publishRevision, transaction);
+
+                var updatedWorkflowsCount = updatedWorkflows.Count();
+                var neededCountWorkflows = 1;
+
+                if (updatedWorkflowsCount != neededCountWorkflows)
+                {
+                    throw new BadRequestException(ErrorMessages.WorkflowWasNotUpdated, ErrorCodes.BadRequest);
+                }
+            };
+            await _workflowRepository.RunInTransactionAsync(action);
         }
 
         private async Task ImportWorkflowComponentsAsync(IeWorkflow workflow, SqlWorkflow newWorkflow, int publishRevision, IDbTransaction transaction)

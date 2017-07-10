@@ -222,6 +222,37 @@ namespace AdminStore.Controllers
             return Ok(result);
         }
 
+
+        /// <summary>
+        /// Update workflow's status
+        /// </summary>
+        /// <param name="workflowId">Workflow identity</param>
+        /// <param name="workflowDto">WorkflowDto model</param>
+        /// <remarks>
+        /// Returns Ok result.
+        /// </remarks>
+        /// <response code="200">Ok. Workflow is updated.</response>
+        /// <response code="400">BadRequest. Parameters are invalid. </response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for updating the workflow.</response>
+        /// <response code="404">NotFound. The workflow with the current id doesn’t exist or removed from the system.</response>
+        /// <response code="409">Conflict. The current version of the workflow from the request doesn’t match the current version in DB.</response>
+        [HttpPut]
+        [SessionRequired]
+        [ResponseType(typeof(HttpResponseMessage))]
+        [Route("UpdateWorkflowStatus/{workflowId:int:min(1)}")]
+        public async Task<IHttpActionResult> UpdateWorkflowStatus(int workflowId, [FromBody] WorkflowDto workflowDto)
+        {
+            if (workflowDto == null)
+            {
+                throw new BadRequestException(ErrorMessages.WorkflowModelIsEmpty, ErrorCodes.BadRequest);
+            }
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+            await _workflowService.UpdateWorkflowStatusAsync(workflowDto, workflowId, Session.UserId);
+
+            return Ok();
+        }
+
         #region Private methods
 
         private IFileRepository GetFileRepository()

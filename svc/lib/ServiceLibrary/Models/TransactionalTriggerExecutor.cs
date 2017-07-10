@@ -30,6 +30,6 @@ namespace ServiceLibrary.Models
 
         protected abstract Func<IDbTransaction, Task<TK>> GetAction();
 
-        protected abstract Task<TK> ExecuteInternal(T input);
+        protected abstract Task<TK> ExecuteInternal(T input, IDbTransaction transaction = null);
     }
 }

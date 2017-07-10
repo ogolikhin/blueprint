@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Data;
 using System.Threading.Tasks;
 using ArtifactStore.Models;
 using ArtifactStore.Repositories;
 using ArtifactStore.Repositories.Workflow;
+using ArtifactStore.Services.VersionControl;
 using ArtifactStore.Services.Workflow;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -22,6 +24,7 @@ namespace ArtifactStore.Services
         private Mock<ISqlItemInfoRepository> _itemInfoRepositoryMock;
         private WorkflowService _workflowServiceMock;
         private ISqlHelper _sqlHelperMock;
+        private Mock<IVersionControlService> _versionControlServiceMock;
 
         [TestInitialize]
         public void TestInitialize()
@@ -30,10 +33,12 @@ namespace ArtifactStore.Services
             _artifactVersionsRepositoryMock = new Mock<IArtifactVersionsRepository>(MockBehavior.Strict);
             _itemInfoRepositoryMock = new Mock<ISqlItemInfoRepository>(MockBehavior.Strict);
             _sqlHelperMock = new SqlHelperMock();
+            _versionControlServiceMock = new Mock<IVersionControlService>();
             _workflowServiceMock = new WorkflowService(_workflowRepositoryMock.Object, 
                 _artifactVersionsRepositoryMock.Object, 
                 _itemInfoRepositoryMock.Object, 
-                _sqlHelperMock);
+                _sqlHelperMock,
+                _versionControlServiceMock.Object);
         }
 
         [TestMethod]
@@ -210,7 +215,7 @@ namespace ArtifactStore.Services
                 .ReturnsAsync(transition);
 
             
-            _workflowRepositoryMock.Setup(t => t.ChangeStateForArtifactAsync(1, itemId, It.IsAny<WorkflowStateChangeParameterEx>()))
+            _workflowRepositoryMock.Setup(t => t.ChangeStateForArtifactAsync(1, itemId, It.IsAny<WorkflowStateChangeParameterEx>(), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync(toState);
 
             //Act

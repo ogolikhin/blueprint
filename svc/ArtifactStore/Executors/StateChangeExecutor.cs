@@ -4,10 +4,12 @@ using System.Data;
 using System.Threading.Tasks;
 using ArtifactStore.Repositories;
 using ArtifactStore.Repositories.Workflow;
+using ArtifactStore.Services.VersionControl;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Models.VersionControl;
 using ServiceLibrary.Models.Workflow;
 
 namespace ArtifactStore.Executors
@@ -18,6 +20,7 @@ namespace ArtifactStore.Executors
         
         private readonly IArtifactVersionsRepository _artifactVersionsRepository;
         private readonly IWorkflowRepository _workflowRepository;
+        private readonly IVersionControlService _versionControlService;
 
         public StateChangeExecutor(
             IEnumerable<IConstraint> preOps,
@@ -26,7 +29,8 @@ namespace ArtifactStore.Executors
             int userId,
             IArtifactVersionsRepository artifactVersionsRepository,
             IWorkflowRepository workflowRepository,
-            ISqlHelper sqlHelper
+            ISqlHelper sqlHelper,
+            IVersionControlService versionControlService
             ) :
             base(sqlHelper,
                 preOps,
@@ -36,6 +40,7 @@ namespace ArtifactStore.Executors
             _userId = userId;
             _artifactVersionsRepository = artifactVersionsRepository;
             _workflowRepository = workflowRepository;
+            _versionControlService = versionControlService;
         }
 
         protected override Func<IDbTransaction, Task<QuerySingleResult<WorkflowState>>> GetAction()
@@ -44,7 +49,19 @@ namespace ArtifactStore.Executors
             {
                 var publishRevision =
                     await
-                        SqlHelper.CreateRevisionInTransactionAsync(transaction, _userId, "New Publish: publishing artifacts.");
+                        SqlHelper.CreateRevisionInTransactionAsync(
+                            transaction, 
+                            _userId, 
+                            I18NHelper.FormatInvariant("State Change Publish: publishing changes and changing artifact {0} state to {1}", Input.ArtifactId, Input.ToStateId));
+                Input.RevisionId = publishRevision;
+
+                await _versionControlService.PublishArtifacts(new PublishParameters
+                {
+                    All = false,
+                    ArtifactIds = new []{Input.ArtifactId},
+                    UserId = _userId,
+                    RevisionId = publishRevision
+                }, transaction);
 
                 foreach (var constraint in PreOps)
                 {
@@ -53,8 +70,7 @@ namespace ArtifactStore.Executors
                         throw new ConflictException("State cannot be modified as the constrating is not fulfilled");
                     }
                 }
-
-                var result = await ExecuteInternal(Input);
+                var result = await ExecuteInternal(Input, transaction);
                 foreach (var triggerExecutor in PostOps)
                 {
                     if (!await triggerExecutor.Execute())
@@ -67,7 +83,7 @@ namespace ArtifactStore.Executors
             return action;
         }
 
-        protected override async Task<QuerySingleResult<WorkflowState>> ExecuteInternal(WorkflowStateChangeParameterEx input)
+        protected override async Task<QuerySingleResult<WorkflowState>> ExecuteInternal(WorkflowStateChangeParameterEx input, IDbTransaction transaction = null)
         {
             //Confirm that the artifact is not deleted
             var isDeleted = await _artifactVersionsRepository.IsItemDeleted(input.ArtifactId);
@@ -119,7 +135,7 @@ namespace ArtifactStore.Executors
                 throw new ConflictException(I18NHelper.FormatInvariant("No transitions available. Workflow could have been updated. Please refresh your view."));
             }
 
-            var newState = await _workflowRepository.ChangeStateForArtifactAsync(_userId, input.ArtifactId, input);
+            var newState = await _workflowRepository.ChangeStateForArtifactAsync(_userId, input.ArtifactId, input, transaction);
 
             if (newState == null)
             {

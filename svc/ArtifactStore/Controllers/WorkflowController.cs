@@ -3,6 +3,7 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using ArtifactStore.Repositories;
 using ArtifactStore.Repositories.Workflow;
+using ArtifactStore.Services.VersionControl;
 using ArtifactStore.Services.Workflow;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
@@ -28,7 +29,8 @@ namespace ArtifactStore.Controllers
                 new SqlWorkflowRepository(), 
                 new SqlArtifactVersionsRepository(), 
                 new SqlItemInfoRepository(),
-                new SqlHelper()))
+                new SqlHelper(),
+                new VersionControlService()))
         {
         }
 

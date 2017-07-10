@@ -29,13 +29,13 @@ namespace ActionHandlerService.MessageHandlers
                     TenantInfo tenant;
                     if (!tenants.TryGetValue(tenantId, out tenant))
                     {
-                        throw new Exception($"Tentant Info not found for Tenant ID {tenantId}");
+                        throw new TenantInfoNotFoundException($"Tentant Info not found for Tenant ID {tenantId}");
                     }
                     await ProcessAction(tenant, message, context);
                 }
                 else
                 {
-                    throw new Exception($"Unsupported Action Type: {message.ActionType.ToString()}");
+                    throw new UnsupportedActionTypeException($"Unsupported Action Type: {message.ActionType.ToString()}");
                 }
             }
             catch (Exception e)

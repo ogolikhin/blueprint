@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.SelfHost;
+using BluePrintSys.Messaging.CrossCutting.Logging;
 using CefSharp;
 using ImageRenderService.Helpers;
 using ImageRenderService.Transport;

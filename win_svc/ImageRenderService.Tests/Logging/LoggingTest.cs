@@ -1,8 +1,8 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ImageRenderService.Logging;
-using System.Threading.Tasks;
 using System.Threading;
+using BluePrintSys.Messaging.CrossCutting.Logging;
 using log4net.Appender;
 
 namespace ImageRenderService.Tests.Logging

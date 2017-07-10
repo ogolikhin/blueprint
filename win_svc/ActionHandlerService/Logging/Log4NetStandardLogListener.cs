@@ -6,7 +6,7 @@ using log4net.Appender;
 using log4net.Repository.Hierarchy;
 using LogManager = BluePrintSys.Messaging.CrossCutting.Logging.LogManager;
 
-namespace ImageRenderService.Logging
+namespace ActionHandlerService.Logging
 {
 
     /// <summary>
@@ -20,7 +20,7 @@ namespace ImageRenderService.Logging
         /// Locking object.
         /// </summary>
         protected static readonly object Padlock = new object();
-        
+
         /// <summary>
         /// Interface used for all logging to Log4Net
         /// </summary>
@@ -218,7 +218,7 @@ namespace ImageRenderService.Logging
         {
             return (Hierarchy)log4net.LogManager.GetRepository();
         }
-        
+
         #region Implementation of ILogWriter
 
         /// <summary>

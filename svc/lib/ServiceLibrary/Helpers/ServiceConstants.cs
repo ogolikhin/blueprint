@@ -56,5 +56,8 @@ namespace ServiceLibrary.Helpers
         public static string ForgotPasswordUrl = "/index.html#/passwordrecovery";
         public static string ForgotPasswordResetUrl = "/index.html#/passwordrecovery/reset";
 
+        public const string ExpiredUserKey = "Raptor_RC_ExpiredUser";
+        public const string UserLogout = "Raptor_RC_UserLogout";
+        public const string InvalidUserKey = "Raptor_RC_InvalidUser";
     }
 }

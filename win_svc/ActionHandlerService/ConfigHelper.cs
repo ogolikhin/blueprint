@@ -1,5 +1,5 @@
 ﻿using BluePrintSys.Messaging.CrossCutting;
-using BluePrintSys.Messaging.Models.Action;
+using BluePrintSys.Messaging.Models.Actions;
 
 namespace ActionHandlerService
 {
@@ -17,44 +17,48 @@ namespace ActionHandlerService
 
     public static class ConfigHelper
     {
-        const string ServiceNameKey = "Service.Name";
-        const string ServiceNameDefault = "BlueprintActionHandler";
+        private const string ServiceNameKey = "Service.Name";
+        private const string ServiceNameDefault = "BlueprintActionHandler";
         public static string ServiceName => AppSettingsHelper.GetConfigStringValue(ServiceNameKey, ServiceNameDefault);
 
-        const string MessageProcessingMaxConcurrencyKey = "MessageProcessing.MaxConcurrency";
-        const int MessageProcessingMaxConcurrencyDefault = 1;
+        private const string MessageProcessingMaxConcurrencyKey = "MessageProcessing.MaxConcurrency";
+        private const int MessageProcessingMaxConcurrencyDefault = 1;
         public static int MessageProcessingMaxConcurrency => AppSettingsHelper.GetConfigIntValue(MessageProcessingMaxConcurrencyKey, MessageProcessingMaxConcurrencyDefault);
 
-        const string NServiceBusConnectionStringKey = "NServiceBus.ConnectionString";
-        const string NServiceBusConnectionStringDefault = "host=titan.blueprintsys.net;username=admin;password=$admin2011";
+        private const string NServiceBusConnectionStringKey = "NServiceBus.ConnectionString";
+        private const string NServiceBusConnectionStringDefault = "host=titan.blueprintsys.net;username=admin;password=$admin2011";
         public static string NServiceBusConnectionString => AppSettingsHelper.GetConfigStringValue(NServiceBusConnectionStringKey, NServiceBusConnectionStringDefault);
 
-        const string NServiceBusInstanceIdKey = "NServiceBus.InstanceId";
-        const string NServiceBusInstanceIdDefault = "";
+        private const string NServiceBusInstanceIdKey = "NServiceBus.InstanceId";
+        private const string NServiceBusInstanceIdDefault = "";
         public static string NServiceBusInstanceId => AppSettingsHelper.GetConfigStringValue(NServiceBusInstanceIdKey, NServiceBusInstanceIdDefault);
 
-        const string SingleTenancyConnectionStringKey = "SingleTenancyConnectionString";
-        const string SingleTenancyConnectionStringDefault = "";
+        private const string SingleTenancyConnectionStringKey = "SingleTenancyConnectionString";
+        private const string SingleTenancyConnectionStringDefault = "";
         public static string SingleTenancyConnectionString => AppSettingsHelper.GetConfigStringValue(SingleTenancyConnectionStringKey, SingleTenancyConnectionStringDefault);
 
-        const string CacheExpirationMinutesKey = "CacheExpirationMinutes";
-        const int CacheExpirationMinutesDefault = 1440;
+        private const string CacheExpirationMinutesKey = "CacheExpirationMinutes";
+        private const int CacheExpirationMinutesDefault = 1440;
         public static int CacheExpirationMinutes => AppSettingsHelper.GetConfigIntValue(CacheExpirationMinutesKey, CacheExpirationMinutesDefault);
 
-        const string TenancyKey = nameof(Tenancy);
-        const Tenancy TenancyDefault = Tenancy.Single;
+        private const string TenancyKey = nameof(Tenancy);
+        private const Tenancy TenancyDefault = Tenancy.Single;
         public static Tenancy Tenancy => AppSettingsHelper.GetConfigEnum(TenancyKey, TenancyDefault);
 
-        const string TransportKey = nameof(Transport);
-        const Transport TransportDefault = Transport.RabbitMQ;
+        private const string TransportKey = nameof(Transport);
+        private const Transport TransportDefault = Transport.RabbitMQ;
         public static Transport Transport => AppSettingsHelper.GetConfigEnum(TransportKey, TransportDefault);
 
-        const string ActionTypesKey = "ActionTypesCsv";
-        const MessageActionType ActionTypesDefault = MessageActionType.All;
+        private const string ActionTypesKey = "ActionTypesCsv";
+        private const MessageActionType ActionTypesDefault = MessageActionType.All;
         public static MessageActionType AllowedActionTypes => AppSettingsHelper.GetConfigEnum(ActionTypesKey, ActionTypesDefault);
 
-        const string HandlerKey = "Handler";
-        const string HandlerKeyDefault = "Cloud.MessageServer";
+        private const string HandlerKey = "Handler";
+        private const string HandlerKeyDefault = "Cloud.MessageServer";
         public static string Handler => AppSettingsHelper.GetConfigStringValue(HandlerKey, HandlerKeyDefault);
+
+        private const string ErrorQueueKey = "ErrorQueue";
+        private const string ErrorQueueDefault = "errors";
+        public static string ErrorQueue => AppSettingsHelper.GetConfigStringValue(ErrorQueueKey, ErrorQueueDefault);
     }
 }

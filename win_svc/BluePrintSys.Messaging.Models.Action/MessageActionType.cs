@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BluePrintSys.Messaging.Models.Action
+namespace BluePrintSys.Messaging.Models.Actions
 {
     [Flags]
     public enum MessageActionType

@@ -24,11 +24,10 @@ namespace ServiceLibrary.Models
 
         public async Task<TK> Execute()
         {
-            //Start a transaction. we need to import code from blueprint-current for creating transactions
-            return await SqlHelper.RunInTransactionAsync<TK>(ServiceConstants.RaptorMain, GetAction());
+            return await SqlHelper.RunInTransactionAsync<TK>(ServiceConstants.RaptorMain, GetTransactionAction());
         }
 
-        protected abstract Func<IDbTransaction, Task<TK>> GetAction();
+        protected abstract Func<IDbTransaction, Task<TK>> GetTransactionAction();
 
         protected abstract Task<TK> ExecuteInternal(T input, IDbTransaction transaction = null);
     }

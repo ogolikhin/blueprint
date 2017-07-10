@@ -43,7 +43,7 @@ namespace ArtifactStore.Executors
             _versionControlService = versionControlService;
         }
 
-        protected override Func<IDbTransaction, Task<QuerySingleResult<WorkflowState>>> GetAction()
+        protected override Func<IDbTransaction, Task<QuerySingleResult<WorkflowState>>> GetTransactionAction()
         {
             Func<IDbTransaction, Task<QuerySingleResult<WorkflowState>>> action = async transaction =>
             {

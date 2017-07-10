@@ -305,6 +305,32 @@ namespace AdminStore.Repositories.Workflow
 
         }
 
+        public async Task<IEnumerable<SqlWorkflow>> UpdateWorkflows(IEnumerable<SqlWorkflow> workflows, int revision, IDbTransaction transaction = null)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@publishRevision", revision);
+            prm.Add("@workflows", ToWorkflowsCollectionDataTable(workflows));
+
+            IEnumerable<SqlWorkflow> updatedWorkflows;
+
+            if (transaction != null)
+            {
+                updatedWorkflows =
+                    await
+                        transaction.Connection.QueryAsync<SqlWorkflow>("UpdateWorkflows", prm, transaction,
+                            commandType: CommandType.StoredProcedure);
+            }
+            else
+            {
+                updatedWorkflows =
+                    await
+                        ConnectionWrapper.QueryAsync<SqlWorkflow>("UpdateWorkflows", prm, 
+                            commandType: CommandType.StoredProcedure);
+            }
+
+            return updatedWorkflows;
+        }
+
         #endregion
 
         #region Private methods
@@ -319,7 +345,7 @@ namespace AdminStore.Repositories.Workflow
             table.Columns.Add("Active", typeof(bool));
             foreach (var workflow in workflows)
             {
-                table.Rows.Add(workflow.WorkflowId, workflow.Name, workflow.Description, 0);
+                table.Rows.Add(workflow.WorkflowId, workflow.Name, workflow.Description, workflow.Active);
             }
             return table;
         }

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using AdminStore.Models.Workflow;
 using AdminStore.Repositories;
 using AdminStore.Repositories.Workflow;
+using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories.Files;
@@ -133,6 +134,61 @@ namespace AdminStore.Services.Workflow
 
         }
 
+        public async Task<WorkflowDto> GetWorkflowDetailsAsync(int workflowId)
+        {
+            var workflowDetails = await _workflowRepository.GetWorkflowDetailsAsync(workflowId);
+            if (workflowDetails == null)
+            {
+                throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
+            }
+
+            var workflowDto = new WorkflowDto {Name = workflowDetails.Name, Description = workflowDetails.Description, Status = workflowDetails.Active, WorkflowId = workflowDetails.WorkflowId,
+                VersionId = workflowDetails.VersionId}; 
+
+            var workflowProjectsAndArtifactTypes = (await _workflowRepository.GetWorkflowArtifactTypesAndProjectsAsync(workflowId)).ToList();
+
+            workflowDto.Projects = workflowProjectsAndArtifactTypes.Select(e => new WorkflowProjectDto {Id = e.ProjectId, Name = e.ProjectName}).Distinct().ToList();
+            workflowDto.ArtifactTypes = workflowProjectsAndArtifactTypes.Select(e => new WorkflowArtifactTypeDto {Name = e.ArtifactName}).Distinct().ToList();
+
+            return workflowDto;
+        }
+
+
+        public async Task UpdateWorkflowStatusAsync(WorkflowDto workflowDto, int workflowId, int userId)
+        {
+            var existingWorkflow = await _workflowRepository.GetWorkflowDetailsAsync(workflowId);
+            if (existingWorkflow == null)
+            {
+                throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
+            }
+
+            if (existingWorkflow.VersionId != workflowDto.VersionId)
+            {
+                throw new ConflictException(ErrorMessages.WorkflowVersionsNotEqual, ErrorCodes.Conflict);
+            }
+            var workflows = new List<SqlWorkflow> {new SqlWorkflow {Name = existingWorkflow.Name, Description = existingWorkflow.Description, Active = workflowDto.Status, WorkflowId = workflowId} };
+
+            Func<IDbTransaction, Task> action = async transaction =>
+            {
+                var publishRevision = await _workflowRepository.CreateRevisionInTransactionAsync(transaction, userId, $"Updating the workflow with id {workflowId}.");
+                if (publishRevision < 1)
+                {
+                    throw new ArgumentException(I18NHelper.FormatInvariant("{0} is less than 1.", nameof(publishRevision)));
+                }
+               
+                var updatedWorkflows = await _workflowRepository.UpdateWorkflows(workflows, publishRevision, transaction);
+
+                var updatedWorkflowsCount = updatedWorkflows.Count();
+                var neededCountWorkflows = 1;
+
+                if (updatedWorkflowsCount != neededCountWorkflows)
+                {
+                    throw new BadRequestException(ErrorMessages.WorkflowWasNotUpdated, ErrorCodes.BadRequest);
+                }
+            };
+            await _workflowRepository.RunInTransactionAsync(action);
+        }
+
         private async Task ImportWorkflowComponentsAsync(IeWorkflow workflow, SqlWorkflow newWorkflow, int publishRevision, IDbTransaction transaction)
         {
             IEnumerable<SqlState> newStates = null;
@@ -189,12 +245,13 @@ namespace AdminStore.Services.Workflow
             if (projectPaths.Count != workflow.Projects.Count)
             {
                 //generate a list of all projects in the workflow who are either missing from id list or were not looked up by path
-                throw new DuplicateNameException(workflow.Projects
-                    .Select(proj => projectPaths.All(
-                        path => proj.Id.HasValue ?
-                        path.Key != proj.Id.Value :
-                        !path.Value.Equals(proj.Path))
-                    ).ToString());
+                var listOfBadProjects = string.Join(",", workflow.Projects
+                    .Where(proj => projectPaths.All(
+                        path => proj.Id.HasValue
+                            ? path.Key != proj.Id.Value
+                            : !path.Value.Equals(proj.Path))
+                    ).Select(proj => proj.Id?.ToString() ?? proj.Path));
+                throw new ConflictException($"The following projects could not be found: {listOfBadProjects}");
             }
 
             await _workflowRepository.CreateWorkflowArtifactAssociationsAsync(workflow.ArtifactTypes.Select(at => at.Name),
@@ -220,7 +277,10 @@ namespace AdminStore.Services.Workflow
             var existingGroupNames = (await _userRepository.GetExistingInstanceGroupsByNames(listOfAllGroups)).ToArray();
             if (existingGroupNames.Length != listOfAllGroups.Count)
             {
-                throw new DuplicateNameException(listOfAllGroups.Select(li => existingGroupNames.All(g => g.Name != li)).ToString());
+                var listOfBadGroups = string.Join(",", listOfAllGroups.Where(
+                        li => existingGroupNames.All(g => g.Name != li)
+                    ));
+                throw new ConflictException($"The following groups were not found: {listOfBadGroups}");
             }
 
             workflow.Transitions.ForEach(transition =>

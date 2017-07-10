@@ -258,7 +258,6 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ResourceNotFoundException))]
         public async Task GetReviewArtifactIndex_Success()
         {
             var reviewId = 1;
@@ -348,7 +347,7 @@ namespace ArtifactStore.Repositories
             _applicationSettingsRepositoryMock.Setup(s => s.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
 
             //Act
-            var result = await _reviewsRepository.GetReviewTableOfContentArtifactIndexAsync(reviewId, revisionId, artifactId, userId);
+            var result = await _reviewsRepository.GetReviewArtifactIndexAsync(reviewId, revisionId, artifactId, userId);
 
             //Assert
             _cxn.Verify();
@@ -483,6 +482,8 @@ namespace ArtifactStore.Repositories
             };
 
             _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
+            _applicationSettingsRepositoryMock.Setup(s => s.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
+
 
             //Act
             var result = await _reviewsRepository.GetReviewTableOfContentArtifactIndexAsync(reviewId, revisionId, artifactId, userId);

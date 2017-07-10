@@ -162,7 +162,7 @@ namespace AdminStore.Controllers
                     "</Triggers>" +
                 "</WorkflowTriggers>";
 
-            // Test Deserialization of imported XML Actions
+            // Test Deserialization of imported XML Triggers
             WorkflowTriggers result = null;
             try
             {
@@ -174,6 +174,18 @@ namespace AdminStore.Controllers
                 result = null;
             }
             Assert.IsTrue(result != null);
+
+            // Serialize test
+            try
+            {
+                string xmlTriggers = SerializationHelper.ToXml(result);
+                Assert.IsNotNull(xmlTriggers);
+            }
+            catch (Exception ex)
+            {
+                var msg = ex.Message;
+                result = null;
+            }
         }
     }
 }

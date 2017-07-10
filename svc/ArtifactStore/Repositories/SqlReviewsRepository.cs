@@ -76,6 +76,11 @@ namespace ArtifactStore.Repositories
 
             var reviewDetails = await GetReviewSummaryDetails(containerId, userId);
 
+            if (reviewDetails == null)
+            {
+                ThrowReviewNotFoundException(containerId);
+            }
+
             if (reviewDetails.ReviewPackageStatus == ReviewPackageStatus.Draft)
             {
                 ThrowReviewNotFoundException(containerId);
@@ -868,6 +873,11 @@ namespace ArtifactStore.Repositories
         {
             var reviewInfo = await _artifactVersionsRepository.GetVersionControlArtifactInfoAsync(reviewId, null, userId);
 
+            if (reviewInfo.VersionCount == 0) // never published review
+            {
+                ThrowReviewNotFoundException(reviewId, revisionId);
+            }
+
             int refreshInterval = await GetRebuildReviewArtifactHierarchyInterval();
             var parameters = new DynamicParameters();
 
@@ -893,6 +903,11 @@ namespace ArtifactStore.Repositories
         public async Task<ReviewArtifactIndex> GetReviewTableOfContentArtifactIndexAsync(int reviewId, int revisionId, int artifactId, int userId)
         {
             var reviewInfo = await _artifactVersionsRepository.GetVersionControlArtifactInfoAsync(reviewId, null, userId);
+
+            if (reviewInfo.VersionCount == 0) // never published review
+            {
+                ThrowReviewNotFoundException(reviewId, revisionId);
+            }
 
             int refreshInterval = await GetRebuildReviewArtifactHierarchyInterval();
             var parameters = new DynamicParameters();

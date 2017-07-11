@@ -5,8 +5,15 @@ namespace BluePrintSys.Messaging.Models.Actions
     [Express]
     public class GenerateDescendantsMessage : ActionMessage
     {
-        public GenerateDescendantsMessage(int tenantId, int workflowId) : base(MessageActionType.GenerateDescendants, tenantId, workflowId)
+        public GenerateDescendantsMessage()
+        {
+            
+        }
+
+        public GenerateDescendantsMessage(int tenantId, int workflowId) : base(tenantId, workflowId)
         {
         }
+
+        public override MessageActionType ActionType { get; } = MessageActionType.GenerateDescendants;
     }
 }

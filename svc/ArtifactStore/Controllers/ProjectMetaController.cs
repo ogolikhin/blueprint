@@ -7,6 +7,7 @@ using ServiceLibrary.Controllers;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
+using System.Collections.Generic;
 
 namespace ArtifactStore.Controllers
 {
@@ -49,6 +50,25 @@ namespace ArtifactStore.Controllers
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             return await ProjectMetaRepository.GetCustomProjectTypesAsync(projectId, session.UserId);
+        }
+
+        /// <summary>
+        /// Get approval statuses of the project.
+        /// </summary>
+        /// <remarks>
+        /// Returns all approval status types of the project with the specified id.
+        /// </remarks>
+        /// <response code="200">OK.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for the project.</response>
+        /// <response code="404">Not found. A project for the specified id is not found, does not exist or is deleted.</response>
+        [HttpGet, NoCache]
+        [Route("projects/{projectId:int:min(1)}/meta/approvalstatus"), SessionRequired]
+        [ActionName("GetProjectApprovalStatuses")]
+        public Task<IEnumerable<ProjectApprovalStatus>> GetProjectApprovalStatusesAsync(int projectId)
+        {
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            return ProjectMetaRepository.GetApprovalStatusesAsync(projectId, session.UserId);
         }
     }
 }

@@ -151,7 +151,7 @@ namespace AdminStore.Controllers
                 "<WorkflowTriggers>" +
                     "<Triggers>" +
                         "<TransitionTrigger>" +
-                            "<TriggerType>1</TriggerType>"+
+                            "<TriggerType>Transition</TriggerType>" +
                             "<Name>TestTransition</Name>" +
                             "<Description>Trigger Deserialization test</Description>" + 
                             "<FromState>Begin</FromState>" +
@@ -160,7 +160,7 @@ namespace AdminStore.Controllers
                             "<PermissionGroups></PermissionGroups>" +
                         "</TransitionTrigger>" +
                         "<PropertyChangeTrigger>" +
-                            "<TriggerType>2</TriggerType>" +
+                            "<TriggerType>PropertyChange</TriggerType>" +
                             "<Name>TestPropChange</Name>" +
                             "<Description>PropChangeTrigger Deserialization test</Description>" +
                             "<FromState>Begin</FromState>" +

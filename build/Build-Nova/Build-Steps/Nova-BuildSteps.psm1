@@ -132,7 +132,7 @@ function Build-Nova-Windows-Services{
 
     $buildParams = @{
         workspace = $workspace
-        verbosity = $msBuildVerbosity
+        msBuildVerbosity = $msBuildVerbosity
         configuration = "Release" 
         visualStudioVersion = $visualStudioVersion 
         msbuildPath = $msBuildPath

@@ -11,5 +11,9 @@ namespace AdminStore.Services.Workflow
         IFileRepository FileRepository { get; set; }
 
         Task<string> GetImportWorkflowErrorsAsync(string guid, int userId);
+
+        Task<WorkflowDto> GetWorkflowDetailsAsync(int workflowId);
+
+        Task UpdateWorkflowStatusAsync(WorkflowDto workflowDto, int workflowId, int userId);
     }
 }

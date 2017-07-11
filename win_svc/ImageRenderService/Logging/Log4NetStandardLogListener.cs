@@ -1,19 +1,17 @@
 ﻿using System;
 using System.Linq;
-using System.Configuration;
-using System.IO;
+using BluePrintSys.Messaging.CrossCutting.Logging;
 using log4net;
 using log4net.Appender;
-using log4net.Config;
 using log4net.Repository.Hierarchy;
-using ImageRenderService.Helpers;
-
+using LogManager = BluePrintSys.Messaging.CrossCutting.Logging.LogManager;
 
 namespace ImageRenderService.Logging
 {
 
     /// <summary>
     /// Provides ad hoc logging functionality.
+    /// The settings are specified in App.config and AssemblyInfo.cs
     /// </summary>
     /// <remarks>This class is the base functionality that is also shared by LogWriter in the data access project</remarks>
     public class Log4NetStandardLogListener : LogListener<StandardLogEntry>, IFileLogListener

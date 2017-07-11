@@ -1,7 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.5\build\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('..\..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.5\build\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
-  <Import Project="..\..\packages\Microsoft.Net.Compilers.2.2.0\build\Microsoft.Net.Compilers.props" Condition="Exists('..\..\packages\Microsoft.Net.Compilers.2.2.0\build\Microsoft.Net.Compilers.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="..\Blueprint.Common.props" Condition="Exists('..\Blueprint.Common.props')" />
   <PropertyGroup>
@@ -35,6 +33,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -52,10 +51,6 @@
     <Reference Include="MailBee.NET.4, Version=8.0.4.428, Culture=neutral, PublicKeyToken=cd85b70fb26f9fc1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\lib\MailBee\MailBee.NET.4.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=1.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.5\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -110,9 +105,33 @@
       <Link>Properties\SolutionAssemblyVersion.cs</Link>
     </Compile>
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\GroupsController.cs" />
     <Compile Include="Controllers\InstanceController.cs" />
     <Compile Include="Controllers\JobsController.cs" />
     <Compile Include="Controllers\LogController.cs" />
+    <Compile Include="Helpers\GroupMapper.cs" />
+    <Compile Include="Helpers\GroupsHelper.cs" />
+    <Compile Include="Helpers\GroupValidator.cs" />
+    <Compile Include="Helpers\SortingHelper.cs" />
+    <Compile Include="Helpers\UserConverter.cs" />
+    <Compile Include="Helpers\PrivilegesManager.cs" />
+    <Compile Include="Helpers\UserValidator.cs" />
+    <Compile Include="Models\AdminRole.cs" />
+    <Compile Include="Models\AssignResult.cs" />
+    <Compile Include="Models\AssignScope.cs" />
+    <Compile Include="Models\CreateResult.cs" />
+    <Compile Include="Models\DTO\User.cs" />
+    <Compile Include="Models\Enums\LicenseType.cs" />
+    <Compile Include="Models\Enums\OperationMode.cs" />
+    <Compile Include="Models\Group.cs" />
+    <Compile Include="Models\GroupDto.cs" />
+    <Compile Include="Models\DeleteResult.cs" />
+    <Compile Include="Models\GroupUser.cs" />
+    <Compile Include="Models\QueryDataResult.cs" />
+    <Compile Include="Models\TabularData.cs" />
+    <Compile Include="Models\TabularPagination.cs" />
+    <Compile Include="Models\UpdateUserPassword.cs" />
+    <Compile Include="Models\UserDto.cs" />
     <Compile Include="Controllers\WorkflowController.cs" />
     <Compile Include="Helpers\EmailHelper.cs" />
     <Compile Include="Helpers\HashingUtilities.cs" />
@@ -120,6 +139,8 @@
     <Compile Include="Helpers\LdapHelper.cs" />
     <Compile Include="Helpers\LoginInfo.cs" />
     <Compile Include="Helpers\PasswordValidationHelper.cs" />
+    <Compile Include="Helpers\UserMapper.cs" />
+    <Compile Include="Helpers\UsersHelper.cs" />
     <Compile Include="Models\EmailConfigInstanceSettings.cs" />
     <Compile Include="Models\InstanceItem.cs" />
     <Compile Include="Models\SqlGroup.cs" />
@@ -127,7 +148,9 @@
     <Compile Include="Models\PasswordRecoveryToken.cs" />
     <Compile Include="Models\ResetPasswordContent.cs" />
     <Compile Include="Models\ResetPostContent.cs" />
+    <Compile Include="Models\User.cs" />
     <Compile Include="Models\UserIcon.cs" />
+    <Compile Include="Models\UserLicense.cs" />
     <Compile Include="Controllers\LicensesController.cs" />
     <Compile Include="Controllers\SessionsController.cs" />
     <Compile Include="Controllers\ConfigController.cs" />
@@ -150,6 +173,7 @@
     <Compile Include="Models\Workflow\IePropertyChangeAction.cs" />
     <Compile Include="Models\Workflow\IePropertyChangeTrigger.cs" />
     <Compile Include="Models\Workflow\IeTrigger.cs" />
+    <Compile Include="Models\Workflow\WorkflowArtifactTypeDto.cs" />
     <Compile Include="Models\Workflow\SqlProjectPathPair.cs" />
     <Compile Include="Models\Workflow\SqlState.cs" />
     <Compile Include="Models\Workflow\SqlTrigger.cs" />
@@ -161,18 +185,25 @@
     <Compile Include="Models\Workflow\ImportWorkflowResult.cs" />
     <Compile Include="Models\Workflow\IeWorkflow.cs" />
     <Compile Include="Models\Workflow\SqlWorkflow.cs" />
+    <Compile Include="Models\Workflow\SqlWorkflowArtifactTypesAndProjects.cs" />
+    <Compile Include="Models\Workflow\WorkflowDto.cs" />
+    <Compile Include="Models\Workflow\WorkflowProjectDto.cs" />
     <Compile Include="Models\Workflow\XmlTriggerPermissions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\AuthenticationRepository.cs" />
     <Compile Include="Repositories\IAuthenticationRepository.cs" />
     <Compile Include="Repositories\ILdapRepository.cs" />
-    <Compile Include="Repositories\ISqlInstanceRepository.cs" />
+    <Compile Include="Repositories\IInstanceRepository.cs" />
+    <Compile Include="Repositories\IPrivilegesRepository.cs" />
+    <Compile Include="Repositories\IGroupRepository.cs" />
     <Compile Include="Repositories\ISqlSettingsRepository.cs" />
     <Compile Include="Repositories\IUserRepository.cs" />
     <Compile Include="Repositories\Jobs\IJobsRepository.cs" />
     <Compile Include="Repositories\Jobs\JobsRepository.cs" />
     <Compile Include="Repositories\LdapRepository.cs" />
+    <Compile Include="Repositories\SqlGroupRepository.cs" />
     <Compile Include="Repositories\SqlInstanceRepository.cs" />
+    <Compile Include="Repositories\SqlPrivilegesRepository.cs" />
     <Compile Include="Repositories\SqlSettingsRepository.cs" />
     <Compile Include="Repositories\SqlUserRepository.cs" />
     <Compile Include="Repositories\Workflow\IWorkflowRepository.cs" />
@@ -246,12 +277,5 @@
   -->
   <Target Name="AfterBuild" Condition="'$(PublishProfileName)' == '' And '$(WebPublishProfileFile)' == ''">
     <TransformXml Source="Web.config" Transform="Web.$(Configuration).config" Destination="$(TargetPath).config" />
-  </Target>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\..\packages\Microsoft.Net.Compilers.2.2.0\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Net.Compilers.2.2.0\build\Microsoft.Net.Compilers.props'))" />
-    <Error Condition="!Exists('..\..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.5\build\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.5\build\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
   </Target>
 </Project>

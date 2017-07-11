@@ -116,6 +116,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\BluePrintSys.Messaging.CrossCutting\BluePrintSys.Messaging.CrossCutting.csproj">
+      <Project>{74353EB4-59E8-4F3E-A9E3-9927546970FD}</Project>
+      <Name>BluePrintSys.Messaging.CrossCutting</Name>
+    </ProjectReference>
     <ProjectReference Include="..\BluePrintSys.Messaging.Models\BluePrintSys.Messaging.Models.csproj">
       <Project>{c6352fb5-bfa5-4d67-86f8-69c8b5f95495}</Project>
       <Name>BluePrintSys.Messaging.Models</Name>
@@ -126,7 +130,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>

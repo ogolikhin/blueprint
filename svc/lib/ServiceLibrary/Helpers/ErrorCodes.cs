@@ -16,6 +16,9 @@
         public const int BadRequest = 400;
         public const int Conflict = 409;
 
+        //Forbidden error
+        public const int Forbidden = 403;
+
         //Configuration errors
         public const int LdapIsDisabled = 1000;
         public const int FallbackIsDisabled = 1001;
@@ -81,5 +84,9 @@
 
         //User Review Errors
         public const int UserDisabled = 11001;
+        
+        //Action Handler Service Errors
+        public const int TenantInfoNotFound = 12000;
+        public const int UnsupportedActionType = 12001;
     }
 }

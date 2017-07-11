@@ -87,6 +87,7 @@
       <Link>Properties\SolutionAssemblyVersion.cs</Link>
     </Compile>
     <Compile Include="App_Start\WebApiConfigTests.cs" />
+    <Compile Include="Controllers\GroupsControllerTests.cs" />
     <Compile Include="Controllers\JobsController.ProcessTestGenerationTests.cs" />
     <Compile Include="Controllers\JobsControllerTests.cs" />
     <Compile Include="Controllers\LicensesControllerTests.cs" />
@@ -99,19 +100,24 @@
     <Compile Include="Controllers\WorkflowControllerTest.cs" />
     <Compile Include="Helpers\EmailHelperTests.cs" />
     <Compile Include="Helpers\HashingUtilitiesTests.cs" />
+    <Compile Include="Helpers\PrivilegesManagerTests.cs" />
     <Compile Include="Helpers\SystemEncryptionsTests.cs" />
     <Compile Include="Helpers\LoginInfoTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\AuthenticationRepositoryTests.cs" />
     <Compile Include="Repositories\Jobs\JobsRepositoryTests.cs" />
     <Compile Include="Repositories\SamlRepositoryTests.cs" />
+    <Compile Include="Repositories\SqlGroupRepositoryTests.cs" />
     <Compile Include="Repositories\SqlInstanceRepositoryTests.cs" />
+    <Compile Include="Repositories\SqlPrivilegesRepositoryTest.cs" />
     <Compile Include="Repositories\SqlSettingsRepositoryTests.cs" />
     <Compile Include="Repositories\SqlUserRepositoryTests.cs" />
     <Compile Include="Repositories\LdapRepositoryTests.cs" />
+    <Compile Include="Repositories\WorkflowRepositoryTest.cs" />
     <Compile Include="Repositories\Workflow\WorkflowValidatorTests.cs" />
     <Compile Include="Saml\SamlCertificateValidatorTests.cs" />
     <Compile Include="Saml\SamlIssuerNameRegistryTests.cs" />
+    <Compile Include="Services\WorkflowServiceTest.cs" />
     <Compile Include="Utilities\SamlUtilities.cs" />
   </ItemGroup>
   <ItemGroup>

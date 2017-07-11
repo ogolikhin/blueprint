@@ -140,9 +140,9 @@ function Build-Nova-Windows-Services{
 
     Write-Section "Building Nova Windows services"
     
-    Build-ImageGen-Service @msBuildArgs
+    Build-ImageGen-Service @buildParams
     
-    Build-ActionHandler-Service @msBuildArgs 
+    Build-ActionHandler-Service @buildParams 
 }
 
 function Build-ImageGen-Service{

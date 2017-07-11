@@ -11,6 +11,7 @@ namespace BluePrintSys.Messaging.Models.Actions
         GenerateDescendants = 4,
         GenerateTests = 8,
         GenerateUserStories = 16,
-        All = Property | Notification | GenerateDescendants | GenerateTests | GenerateUserStories
+        StateChange = 32,
+        All = Property | Notification | GenerateDescendants | GenerateTests | GenerateUserStories | StateChange
     }
 }

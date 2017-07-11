@@ -1,0 +1,59 @@
+﻿using System;
+using System.Configuration;
+using System.Threading.Tasks;
+using BluePrintSys.Messaging.Models.Actions;
+using NServiceBus;
+
+namespace NServiceBusSpike
+{
+    public class AsyncLazy<T> : Lazy<Task<T>>
+    {
+        public AsyncLazy(Func<T> valueFactory) :
+            base(() => Task.Factory.StartNew(valueFactory))
+        { }
+        public AsyncLazy(Func<Task<T>> taskFactory) :
+            base(() => Task.Factory.StartNew(() => taskFactory()).Unwrap())
+        { }
+    }
+
+    public class NotificationMessageScheduler
+    {
+        private const string NServiceBusConnectionString = "host=titan.blueprintsys.net;virtualhost=workflowtest;username=admin;password=$admin2011";
+        private const string Handler = "Messaging.Blueprint.WorkflowServer";
+        public static readonly AsyncLazy<IEndpointInstance> EndPoint =
+            new AsyncLazy<IEndpointInstance>(async () => await EndpointCreator.CreateEndPoint(NServiceBusConnectionString));
+        private static int _messageScheduled;
+
+        public async void Request(NotificationMessage requestData)
+        {
+            try
+            {
+                bool enabled;
+                if (!bool.TryParse(ConfigurationManager.AppSettings["ServerEnabled"], out enabled) || !enabled)
+                {
+                    return;
+                }
+
+                var endPoint = await EndPoint.Value;
+                
+                var options = new SendOptions();
+                options.SetDestination(Handler);
+
+                await endPoint.Send(requestData, options);
+                _messageScheduled++;
+                var foreColor = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine($"Scheduled {_messageScheduled} Notification message");
+                Console.ForegroundColor = foreColor;
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
+        }
+    }
+
+    
+}
+
+

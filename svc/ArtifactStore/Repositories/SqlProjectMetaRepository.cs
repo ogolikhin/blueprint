@@ -14,6 +14,7 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
+using ArtifactStore.Models.Review;
 
 namespace ArtifactStore.Repositories
 {
@@ -45,17 +46,9 @@ namespace ArtifactStore.Repositories
             if (userId < 1)
                 throw new ArgumentOutOfRangeException(nameof(userId));
 
+            await CheckProjectIsAccessible(projectId, userId);
+
             var prm = new DynamicParameters();
-            prm.Add("@projectId", projectId);
-            prm.Add("@userId", userId);
-
-            var project = (await ConnectionWrapper.QueryAsync<ProjectVersion>("GetInstanceProjectById", prm, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
-            if (project == null)
-                throw new ResourceNotFoundException(string.Format("The project (Id:{0}) can no longer be accessed. It may have been deleted, or is no longer accessible by you.", projectId), ErrorCodes.ResourceNotFound);
-            if (!project.IsAccesible.GetValueOrDefault())
-                throw new AuthorizationException(string.Format("The user does not have permissions for Project (Id:{0}).", projectId), ErrorCodes.UnauthorizedAccess);
-
-            prm = new DynamicParameters();
             prm.Add("@projectId", projectId);
             prm.Add("@revisionId", ServiceConstants.VersionHead);
 
@@ -87,13 +80,32 @@ namespace ArtifactStore.Repositories
                 ptIds = OrderProperties(ptIds?.ToList(), projectTypes.PropertyTypes, itv.AdvancedSettings);
                 var at = ConvertItemTypeVersion(itv, ptIds, projectId);
 
-                if(itv.Predefined != null && itv.Predefined.Value.HasFlag(ItemTypePredefined.CustomArtifactGroup))
+                if (itv.Predefined != null && itv.Predefined.Value.HasFlag(ItemTypePredefined.CustomArtifactGroup))
                     projectTypes.ArtifactTypes.Add(at);
                 else if (itv.Predefined != null && itv.Predefined.Value.HasFlag(ItemTypePredefined.SubArtifactGroup))
                     projectTypes.SubArtifactTypes.Add(at);
             }
 
             return projectTypes;
+        }
+
+        private async Task CheckProjectIsAccessible(int projectId, int userId)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@projectId", projectId);
+            parameters.Add("@userId", userId);
+
+            var project = (await ConnectionWrapper.QueryAsync<ProjectVersion>("GetInstanceProjectById", parameters, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
+
+            if (project == null)
+            {
+                throw new ResourceNotFoundException(string.Format("The project (Id:{0}) can no longer be accessed. It may have been deleted, or is no longer accessible by you.", projectId), ErrorCodes.ResourceNotFound);
+            }
+
+            if (!project.IsAccesible.GetValueOrDefault())
+            {
+                throw new AuthorizationException(string.Format("The user does not have permissions for Project (Id:{0}).", projectId), ErrorCodes.UnauthorizedAccess);
+            }  
         }
 
 
@@ -280,6 +292,85 @@ namespace ArtifactStore.Repositories
             }
 
             return null;
+        }
+
+        public async Task<IEnumerable<ProjectApprovalStatus>> GetApprovalStatusesAsync(int projectId, int userId)
+        {
+            if (projectId < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(projectId));
+            }
+
+            await CheckProjectIsAccessible(projectId, userId);
+
+            var projectSettings = await GetProjectSettingsAsync(projectId, PropertyTypePredefined.ApprovalStatus);
+
+            return projectSettings.Select(MapApprovalStatus);
+        }
+
+        private Task<IEnumerable<ProjectSetting>> GetProjectSettingsAsync(int projectId, PropertyTypePredefined? propertyType = null, bool includeDeleted = false)
+        {
+            var parameters = new DynamicParameters();
+
+            parameters.Add("@projectId", projectId);
+            parameters.Add("@propertyType", propertyType);
+            parameters.Add("@includeDeleted", includeDeleted);
+
+            return ConnectionWrapper.QueryAsync<ProjectSetting>("GetProjectSettings", parameters, commandType: CommandType.StoredProcedure);
+        }
+
+        private ProjectApprovalStatus MapApprovalStatus(ProjectSetting projectSetting)
+        {
+            var values = projectSetting.Setting.Split(';');
+
+            if (values.Length != 2)
+            {
+                throw new ArgumentException("Unexpected Approval Status setting format: " + projectSetting.Setting);
+            }
+
+            var approvalTypeString = values[0];
+            var statusText = values[1];
+
+            ApprovalType approvalType;
+
+            if (String.IsNullOrEmpty(approvalTypeString))
+            {
+                approvalType = ApprovalType.NotSpecified;
+            }
+            else
+            {
+                bool isApproved;
+                
+                bool parsed = Boolean.TryParse(approvalTypeString, out isApproved);
+
+                if(!parsed)
+                {
+                    throw new ArgumentException("Unexpected Approval Status setting format: " + projectSetting.Setting);
+                }
+
+                if(isApproved)
+                {
+                    approvalType = ApprovalType.Approved;
+                }
+                else
+                {
+                    approvalType = ApprovalType.Disapproved;
+                }
+            }
+
+            //For the default not specified approval status, we want to display Pending to be consistent with SilverLight
+            if (approvalType == ApprovalType.NotSpecified && projectSetting.ReadOnly
+               && statusText.Equals("Not Specified", StringComparison.OrdinalIgnoreCase))
+            {
+                statusText = "Pending";
+            }
+
+            return new ProjectApprovalStatus()
+            {
+                ApprovalType = approvalType,
+                StatusText = statusText,
+                IsPreset = projectSetting.ReadOnly
+            };
         }
 
         internal class ProjectVersion

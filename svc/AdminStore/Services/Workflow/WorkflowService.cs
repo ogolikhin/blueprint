@@ -255,7 +255,7 @@ namespace AdminStore.Services.Workflow
             }
 
             await _workflowRepository.CreateWorkflowArtifactAssociationsAsync(workflow.ArtifactTypes.Select(at => at.Name),
-                projectPaths.Select(p => p.Key), newWorkflow.WorkflowId, publishRevision);
+                projectPaths.Select(p => p.Key), newWorkflow.WorkflowId, publishRevision, transaction);
         }
 
         private async Task ImportWorkflowTransitions(IeWorkflow workflow, SqlWorkflow newWorkflow, int publishRevision,

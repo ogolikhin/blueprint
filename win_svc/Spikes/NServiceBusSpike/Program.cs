@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Configuration;
+using Actions = BluePrintSys.Messaging.Models.Actions;
 
 namespace NServiceBusSpike
 {
@@ -33,7 +34,8 @@ namespace NServiceBusSpike
             for (int counter = 0; counter < 100; counter++)
             {
                 Console.WriteLine($"Scheduling new message: {counter + 1}");
-                await MessageScheduler.Send(new BluePrintSys.Messaging.Models.Actions.NotificationMessage(1, 2));
+                
+                await MessageScheduler.Send(new Actions.NotificationMessage(1, 2));
                 Console.WriteLine($"Scheduled new message: {counter + 1}");
             }
         }

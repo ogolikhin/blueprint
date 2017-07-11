@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using System.Threading.Tasks;
+using BluePrintSys.Messaging.Models.Actions;
 using NServiceBus;
 
 namespace NServiceBusSpike

@@ -1,20 +1,11 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using BluePrintSys.Messaging.Models.Actions;
 using NServiceBus;
 
 namespace NServiceBusSpike
 {
-    public class NotificationMessage : IMessage
-    {
-        public Guid NotificationId { get; set; }
-
-        public override string ToString()
-        {
-            return NotificationId.ToString();
-        }
-    }
-
     public class NotificationMessageHandler : IHandleMessages<NotificationMessage>
     {
         private static int _messagesHandled;
@@ -36,7 +27,7 @@ namespace NServiceBusSpike
 
             Program.StateChangeMessageScheduler.Request(new StateChangeMessage()
             {
-                ArtifactId = Guid.NewGuid()
+               TenantId = new Random(50).Next(1,100)
             });
 
             return task;

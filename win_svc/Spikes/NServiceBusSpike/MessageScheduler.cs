@@ -39,40 +39,40 @@ namespace NServiceBusSpike
     }
 }
 
-namespace BluePrintSys.Messaging.Models.Actions
-{
-    [Flags]
-    public enum MessageActionType
-    {
-        None = 0,
-        Property = 1,
-        Notification = 2,
-        GenerateDescendants = 4,
-        GenerateTests = 8,
-        GenerateUserStories = 16,
-        All = Property | Notification | GenerateDescendants | GenerateTests | GenerateUserStories
-    }
+//namespace BluePrintSys.Messaging.Models.Actions
+//{
+//    [Flags]
+//    public enum MessageActionType
+//    {
+//        None = 0,
+//        Property = 1,
+//        Notification = 2,
+//        GenerateDescendants = 4,
+//        GenerateTests = 8,
+//        GenerateUserStories = 16,
+//        All = Property | Notification | GenerateDescendants | GenerateTests | GenerateUserStories
+//    }
 
-    [Express]
-    public abstract class ActionMessage : IMessage
-    {
-        protected ActionMessage(MessageActionType actionType, int tenantId, int workflowId)
-        {
-            ActionType = actionType;
-            TenantId = tenantId;
-            WorkflowId = workflowId;
-        }
+//    [Express]
+//    public abstract class ActionMessage : IMessage
+//    {
+//        protected ActionMessage(MessageActionType actionType, int tenantId, int workflowId)
+//        {
+//            ActionType = actionType;
+//            TenantId = tenantId;
+//            WorkflowId = workflowId;
+//        }
 
-        public MessageActionType ActionType { get; set; }
-        public int TenantId { get; set; }
-        public int WorkflowId { get; set; }
-    }
+//        public MessageActionType ActionType { get; set; }
+//        public int TenantId { get; set; }
+//        public int WorkflowId { get; set; }
+//    }
 
-    [Express]
-    public class NotificationMessage : ActionMessage
-    {
-        public NotificationMessage(int tenantId, int workflowId) : base(MessageActionType.Notification, tenantId, workflowId)
-        {
-        }
-    }
-}
+//    [Express]
+//    public class NotificationMessage : ActionMessage
+//    {
+//        public NotificationMessage(int tenantId, int workflowId) : base(MessageActionType.Notification, tenantId, workflowId)
+//        {
+//        }
+//    }
+//}

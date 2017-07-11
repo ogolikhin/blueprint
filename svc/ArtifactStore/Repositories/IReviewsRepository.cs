@@ -1,5 +1,6 @@
 ﻿using ArtifactStore.Models.Review;
 using ServiceLibrary.Models;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace ArtifactStore.Repositories
@@ -18,6 +19,6 @@ namespace ArtifactStore.Repositories
         Task AssignRolesToReviewers(int reviewId, AssignReviewerRolesParameter content, int userId);
         Task<ReviewArtifactIndex> GetReviewArtifactIndexAsync(int reviewId, int revisionId, int artifactId, int userId, bool? addDraft = true);
         Task<ReviewArtifactIndex> GetReviewTableOfContentArtifactIndexAsync(int reviewId, int revisionId, int artifactId, int userId);
-
+        Task<IEnumerable<ReviewArtifactApprovalResult>> UpdateReviewArtifactApprovalAsync(int reviewId, IEnumerable<ReviewArtifactApprovalParameter> reviewArtifactApproval, int userId);
     }
 }

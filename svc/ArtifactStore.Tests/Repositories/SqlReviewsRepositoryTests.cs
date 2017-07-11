@@ -10,6 +10,7 @@ using ServiceLibrary.Repositories;
 using ServiceLibrary.Models;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Services;
 
 namespace ArtifactStore.Repositories
 {
@@ -25,6 +26,7 @@ namespace ArtifactStore.Repositories
         private Mock<IApplicationSettingsRepository> _applicationSettingsRepositoryMock;
         private Mock<IUsersRepository> _usersRepositoryMock;
         private Mock<ISqlArtifactRepository> _artifactRepositoryMock;
+        private Mock<ICurrentDateTimeService> _currentDateTimeServiceMock;
 
         [TestInitialize]
         public void Initialize()
@@ -36,8 +38,10 @@ namespace ArtifactStore.Repositories
             _applicationSettingsRepositoryMock = new Mock<IApplicationSettingsRepository>(MockBehavior.Strict);
             _usersRepositoryMock = new Mock<IUsersRepository>();
             _artifactRepositoryMock = new Mock<ISqlArtifactRepository>();
+            _currentDateTimeServiceMock = new Mock<ICurrentDateTimeService>();
 
             _artifactRepositoryMock.SetReturnsDefault(Task.FromResult(true));
+            _currentDateTimeServiceMock.Setup(service => service.GetUtcNow()).Returns(new DateTime(2017, 07, 10, 13, 20, 0));
 
             _reviewsRepository = new SqlReviewsRepository(_cxn.Object, 
                     _artifactVersionsRepositoryMock.Object, 
@@ -45,7 +49,8 @@ namespace ArtifactStore.Repositories
                     _artifactPermissionsRepositoryMock.Object,
                     _applicationSettingsRepositoryMock.Object,
                     _usersRepositoryMock.Object,
-                    _artifactRepositoryMock.Object);
+                    _artifactRepositoryMock.Object,
+                    _currentDateTimeServiceMock.Object);
         }
 
         [TestMethod]
@@ -242,7 +247,7 @@ namespace ArtifactStore.Repositories
             var testResult = new ReviewTableOfContentItem[] { };
             cxn.SetupQueryAsync("GetReviewTableOfContent", prm, testResult, outPrm);
 
-            var repository = new SqlReviewsRepository(cxn.Object, null, null, null, appSettingsRepoMock.Object, null, null);
+            var repository = new SqlReviewsRepository(cxn.Object, null, null, null, appSettingsRepoMock.Object, null, null, null);
 
             try
             {
@@ -1741,6 +1746,592 @@ namespace ArtifactStore.Repositories
         }
         #endregion
 
+        #region UpdateReviewArtifactApprovalAsync
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_Artifacts_Collection_Is_Null()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            List<ReviewArtifactApprovalParameter> approvalParameter = null;
+
+            //Act
+            await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_No_Artifacts_Provided()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            var approvalParameter = new List<ReviewArtifactApprovalParameter>();
+
+            //Act
+            await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewArtifactApprovalAsync_Should_Succeed_With_No_Existing_Xml()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            var approvalParameter = new List<ReviewArtifactApprovalParameter>()
+            {
+                new ReviewArtifactApprovalParameter() { Approval = "Approved", ApprovalFlag = ApprovalType.Approved, ArtifactId = 3 }
+            };
+
+            var artifactIds = new[] { 3 };
+
+            SetupArtifactApprovalCheck(reviewId, userId, artifactIds);
+
+            SetupGetVersionNumber(reviewId, artifactIds);
+
+            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            {
+                { 1, RolePermissions.Read },
+                { 3, RolePermissions.Read }
+            });
+
+            var getXmlParameters = new Dictionary<string, object>()
+            {
+                { "reviewId", 1 },
+                { "userId", 2 }
+            };
+
+            _cxn.SetupQueryAsync("GetReviewUserStatsXml", getXmlParameters, new List<string>());
+
+            var updateXmlParameters = new Dictionary<string, object>()
+            {
+                { "reviewId", 1 },
+                { "userId", 2 },
+                { "xmlString", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Approved</A><AF>Approved</AF><EO>2017-07-10T13:20:00</EO><Id>3</Id><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>" }
+            };
+
+            _cxn.SetupExecuteAsync("UpdateReviewUserStatsXml", updateXmlParameters, 1);
+
+            //Act
+            var result = (await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId)).FirstOrDefault();
+
+            //Assert
+            _cxn.Verify();
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(3, result.ArtifactId);
+            Assert.AreEqual(DateTime.Parse("2017-07-10T13:20:00"), result.Timestamp);
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewArtifactApprovalAsync_Should_Add_New_Artifact_Approval()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            var approvalParameter = new List<ReviewArtifactApprovalParameter>()
+            {
+                new ReviewArtifactApprovalParameter() { Approval = "Custom Approval", ApprovalFlag = ApprovalType.Approved, ArtifactId = 3 }
+            };
+
+            var artifactIds = new[] { 3 };
+
+            SetupArtifactApprovalCheck(reviewId, userId, artifactIds);
+
+            SetupGetVersionNumber(reviewId, artifactIds);
+
+            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            {
+                { 1, RolePermissions.Read },
+                { 3, RolePermissions.Read }
+            });
+
+            var getXmlParameters = new Dictionary<string, object>()
+            {
+                { "reviewId", 1 },
+                { "userId", 2 }
+            };
+
+            _cxn.SetupQueryAsync("GetReviewUserStatsXml", getXmlParameters, new List<string>()
+            {
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Approved</A><AF>Approved</AF><Id>4</Id><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>"
+            });
+
+            var updateXmlParameters = new Dictionary<string, object>()
+            {
+                { "reviewId", 1 },
+                { "userId", 2 },
+                { "xmlString", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Approved</A><AF>Approved</AF><Id>4</Id><V>1</V><VS>Viewed</VS></RA><RA><A>Custom Approval</A><AF>Approved</AF><EO>2017-07-10T13:20:00</EO><Id>3</Id><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>" }
+            };
+
+            _cxn.SetupExecuteAsync("UpdateReviewUserStatsXml", updateXmlParameters, 1);
+
+            //Act
+            await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
+
+            //Assert
+            _cxn.Verify();
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewArtifactApprovalAsync_Should_Update_Existing_Approval()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            var approvalParameter = new List<ReviewArtifactApprovalParameter>()
+            {
+                new ReviewArtifactApprovalParameter() { Approval = "Disapproved", ApprovalFlag = ApprovalType.Disapproved, ArtifactId = 3 }
+            };
+
+            var artifactIds = new[] { 3 };
+
+            SetupArtifactApprovalCheck(reviewId, userId, artifactIds);
+
+            SetupGetVersionNumber(reviewId, artifactIds);
+
+            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            {
+                { 1, RolePermissions.Read },
+                { 3, RolePermissions.Read }
+            });
+
+            var getXmlParameters = new Dictionary<string, object>()
+            {
+                { "reviewId", 1 },
+                { "userId", 2 }
+            };
+
+            _cxn.SetupQueryAsync("GetReviewUserStatsXml", getXmlParameters, new List<string>()
+            {
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Approved</A><AF>Approved</AF><Id>3</Id><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>"
+            });
+
+            var updateXmlParameters = new Dictionary<string, object>()
+            {
+                { "reviewId", 1 },
+                { "userId", 2 },
+                { "xmlString", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Disapproved</A><AF>Disapproved</AF><EO>2017-07-10T13:20:00</EO><Id>3</Id><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>" }
+            };
+
+            _cxn.SetupExecuteAsync("UpdateReviewUserStatsXml", updateXmlParameters, 1);
+
+            //Act
+            await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
+
+            //Assert
+            _cxn.Verify();
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewArtifactApprovalAsync_Should_Set_Artifact_To_Viewed()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            var approvalParameter = new List<ReviewArtifactApprovalParameter>()
+            {
+                new ReviewArtifactApprovalParameter() { Approval = "Approved", ApprovalFlag = ApprovalType.Approved, ArtifactId = 3 }
+            };
+
+            var artifactIds = new[] { 3 };
+
+            SetupArtifactApprovalCheck(reviewId, userId, artifactIds);
+
+            SetupGetVersionNumber(reviewId, artifactIds);
+
+            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            {
+                { 1, RolePermissions.Read },
+                { 3, RolePermissions.Read }
+            });
+
+            var getXmlParameters = new Dictionary<string, object>()
+            {
+                { "reviewId", 1 },
+                { "userId", 2 }
+            };
+
+            _cxn.SetupQueryAsync("GetReviewUserStatsXml", getXmlParameters, new List<string>()
+            {
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Not Specified</A><Id>3</Id><V>1</V></RA></ReviewedArtifacts></RDReviewedArtifacts>"
+            });
+
+            var updateXmlParameters = new Dictionary<string, object>()
+            {
+                { "reviewId", 1 },
+                { "userId", 2 },
+                { "xmlString", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Approved</A><AF>Approved</AF><EO>2017-07-10T13:20:00</EO><Id>3</Id><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>" }
+            };
+
+            _cxn.SetupExecuteAsync("UpdateReviewUserStatsXml", updateXmlParameters, 1);
+
+            //Act
+            await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
+
+            //Assert
+            _cxn.Verify();
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewArtifactApprovalAsync_Should_Not_Update_Approval_Timestamp_If_Approval_Doesnt_Change()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            var approvalParameter = new List<ReviewArtifactApprovalParameter>()
+            {
+                new ReviewArtifactApprovalParameter() { Approval = "Approved", ApprovalFlag = ApprovalType.Approved, ArtifactId = 3 }
+            };
+
+            var artifactIds = new[] { 3 };
+
+            SetupArtifactApprovalCheck(reviewId, userId, artifactIds);
+
+            SetupGetVersionNumber(reviewId, artifactIds);
+
+            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            {
+                { 1, RolePermissions.Read },
+                { 3, RolePermissions.Read }
+            });
+
+            var getXmlParameters = new Dictionary<string, object>()
+            {
+                { "reviewId", 1 },
+                { "userId", 2 }
+            };
+
+            _cxn.SetupQueryAsync("GetReviewUserStatsXml", getXmlParameters, new List<string>()
+            {
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Approved</A><AF>Approved</AF><EO>2017-07-10T15:00:00</EO><Id>3</Id><V>1</V></RA></ReviewedArtifacts></RDReviewedArtifacts>"
+            });
+
+            var updateXmlParameters = new Dictionary<string, object>()
+            {
+                { "reviewId", 1 },
+                { "userId", 2 },
+                { "xmlString", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Approved</A><AF>Approved</AF><EO>2017-07-10T15:00:00</EO><Id>3</Id><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>" }
+            };
+
+            _cxn.SetupExecuteAsync("UpdateReviewUserStatsXml", updateXmlParameters, 1);
+
+            //Act
+            await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
+
+            //Assert
+            _cxn.Verify();
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewArtifactApprovalAsync_Should_Remove_Approval_Timestamp_If_Approval_Set_To_NotSpecified()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            var approvalParameter = new List<ReviewArtifactApprovalParameter>()
+            {
+                new ReviewArtifactApprovalParameter() { Approval = "Pending", ApprovalFlag = ApprovalType.NotSpecified, ArtifactId = 3 }
+            };
+
+            var artifactIds = new[] { 3 };
+
+            SetupArtifactApprovalCheck(reviewId, userId, artifactIds);
+
+            SetupGetVersionNumber(reviewId, artifactIds);
+
+            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            {
+                { 1, RolePermissions.Read },
+                { 3, RolePermissions.Read }
+            });
+
+            var getXmlParameters = new Dictionary<string, object>()
+            {
+                { "reviewId", 1 },
+                { "userId", 2 }
+            };
+
+            _cxn.SetupQueryAsync("GetReviewUserStatsXml", getXmlParameters, new List<string>()
+            {
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Approved</A><AF>Approved</AF><EO>2017-07-10T15:00:00</EO><Id>3</Id><V>1</V></RA></ReviewedArtifacts></RDReviewedArtifacts>"
+            });
+
+            var updateXmlParameters = new Dictionary<string, object>()
+            {
+                { "reviewId", 1 },
+                { "userId", 2 },
+                { "xmlString", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Pending</A><Id>3</Id><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>" }
+            };
+
+            _cxn.SetupExecuteAsync("UpdateReviewUserStatsXml", updateXmlParameters, 1);
+
+            //Act
+            await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
+
+            //Assert
+            _cxn.Verify();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_Review_Doesnt_Exist()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            var approvalParameter = new List<ReviewArtifactApprovalParameter>()
+            {
+                new ReviewArtifactApprovalParameter() { Approval = "Approved", ApprovalFlag = ApprovalType.Approved, ArtifactId = 3 }
+            };
+
+            SetupArtifactApprovalCheck(reviewId, userId, new[] { 3 }, check => check.ReviewExists = false);
+
+            //Act
+            await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_Review_Is_Draft()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            var approvalParameter = new List<ReviewArtifactApprovalParameter>()
+            {
+                new ReviewArtifactApprovalParameter() { Approval = "Approved", ApprovalFlag = ApprovalType.Approved, ArtifactId = 3 }
+            };
+
+            SetupArtifactApprovalCheck(reviewId, userId, new[] { 3 }, check => check.ReviewStatus = ReviewPackageStatus.Draft);
+
+            //Act
+            await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_Review_Is_Closed()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            var approvalParameter = new List<ReviewArtifactApprovalParameter>()
+            {
+                new ReviewArtifactApprovalParameter() { Approval = "Approved", ApprovalFlag = ApprovalType.Approved, ArtifactId = 3 }
+            };
+
+            SetupArtifactApprovalCheck(reviewId, userId, new[] { 3 }, check => check.ReviewStatus = ReviewPackageStatus.Closed);
+
+            //Act
+            try
+            {
+                await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
+            }
+            catch(BadRequestException ex)
+            {
+                Assert.AreEqual(ex.ErrorCode, ErrorCodes.ReviewClosed);
+                return;
+            }
+
+            Assert.Fail();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_Review_Is_Deleted()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            var approvalParameter = new List<ReviewArtifactApprovalParameter>()
+            {
+                new ReviewArtifactApprovalParameter() { Approval = "Approved", ApprovalFlag = ApprovalType.Approved, ArtifactId = 3 }
+            };
+
+            SetupArtifactApprovalCheck(reviewId, userId, new[] { 3 }, check => check.ReviewDeleted = true);
+
+            //Act
+            await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_User_Isnt_Approver()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            var approvalParameter = new List<ReviewArtifactApprovalParameter>()
+            {
+                new ReviewArtifactApprovalParameter() { Approval = "Approved", ApprovalFlag = ApprovalType.Approved, ArtifactId = 3 }
+            };
+            
+            SetupArtifactApprovalCheck(reviewId, userId, new[] { 3 }, check => check.ReviewerRole = ReviewParticipantRole.Reviewer);
+
+            //Act
+            await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_Artifact_Given_Is_Not_In_Review()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            var approvalParameter = new List<ReviewArtifactApprovalParameter>()
+            {
+                new ReviewArtifactApprovalParameter() { Approval = "Approved", ApprovalFlag = ApprovalType.Approved, ArtifactId = 3 }
+            };
+            
+            SetupArtifactApprovalCheck(reviewId, userId, new[] { 3 }, check => check.AllArtifactsInReview = false);
+
+            //Act
+            await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_User_Is_Not_Part_Of_The_Review()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            var approvalParameter = new List<ReviewArtifactApprovalParameter>()
+            {
+                new ReviewArtifactApprovalParameter() { Approval = "Approved", ApprovalFlag = ApprovalType.Approved, ArtifactId = 3 }
+            };
+            
+            SetupArtifactApprovalCheck(reviewId, userId, new[] { 3 }, check => check.UserInReview = false);
+
+            //Act
+            await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_Artifact_Given_Doesnt_Require_Approval()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            var approvalParameter = new List<ReviewArtifactApprovalParameter>()
+            {
+                new ReviewArtifactApprovalParameter() { Approval = "Approved", ApprovalFlag = ApprovalType.Approved, ArtifactId = 3 }
+            };
+
+            SetupArtifactApprovalCheck(reviewId, userId, new[] { 3 }, check => check.AllArtifactsRequireApproval = false);
+
+            //Act
+            await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_User_Doesnt_Have_Access_To_Review()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            var approvalParameter = new List<ReviewArtifactApprovalParameter>()
+            {
+                new ReviewArtifactApprovalParameter() { Approval = "Approved", ApprovalFlag = ApprovalType.Approved, ArtifactId = 3 }
+            };
+
+            SetupArtifactApprovalCheck(reviewId, userId, new[] { 3 });
+
+            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            {
+                { 3, RolePermissions.Read }
+            });
+
+            //Act
+            try
+            {
+                await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
+            }
+            catch(AuthorizationException ex)
+            {
+                Assert.AreEqual(ex.ErrorCode, ErrorCodes.UnauthorizedAccess);
+                return;
+            }
+
+            Assert.Fail();
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_User_Doesnt_Have_Access_To_Given_Artifact()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            var approvalParameter = new List<ReviewArtifactApprovalParameter>()
+            {
+                new ReviewArtifactApprovalParameter() { Approval = "Approved", ApprovalFlag = ApprovalType.Approved, ArtifactId = 3 }
+            };
+
+            SetupArtifactApprovalCheck(reviewId, userId, new[] { 3 });
+
+            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            {
+                { 1, RolePermissions.Read }
+            });
+
+            //Act
+            try
+            {
+                await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                Assert.AreEqual(ex.ErrorCode, ErrorCodes.ArtifactNotFound);
+                return;
+            }
+
+            Assert.Fail();
+        }
+
+        private void SetupGetVersionNumber(int reviewId, IEnumerable<int> artifactIds)
+        {
+            var getCheckParameters = new Dictionary<string, object>()
+            {
+                { "reviewId", reviewId },
+                { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds) }
+            };
+
+            _cxn.SetupQueryAsync("GetReviewArtifactVersionNumber", getCheckParameters, artifactIds.Select(id => new ReviewArtifactVersionNumber()
+            {
+                ArtifactId = id,
+                VersionNumber = 1
+            }));
+        }
+
+        private void SetupArtifactApprovalCheck(int reviewId, int userId, IEnumerable<int> artifactIds, Action<ReviewArtifactApprovalCheck> setCheckResult = null)
+        {
+            var getCheckParameters = new Dictionary<string, object>()
+            {
+                { "reviewId", reviewId },
+                { "userId", userId },
+                { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds) }
+            };
+
+            var check = new ReviewArtifactApprovalCheck()
+            {
+                AllArtifactsInReview = true,
+                AllArtifactsRequireApproval = true,
+                ReviewStatus = ReviewPackageStatus.Active,
+                ReviewerRole = ReviewParticipantRole.Approver,
+                ReviewExists = true,
+                UserInReview = true
+            };
+
+            setCheckResult?.Invoke(check);
+
+            _cxn.SetupQueryAsync("CheckReviewArtifactUserApproval", getCheckParameters, new[] { check });
+        }
+
+        #endregion
 
 
     }

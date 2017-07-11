@@ -16,7 +16,7 @@ namespace AdminStore.Models.Workflow
             TriggerType = type;
         }
 
-        // Define the type of Trigger
+        // Defines the type of Trigger
         protected TriggerTypes TriggerType { get; set; }
 
         [XmlElement(IsNullable = false)]

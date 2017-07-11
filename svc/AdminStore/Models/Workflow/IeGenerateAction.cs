@@ -3,6 +3,9 @@ using System.Xml.Serialization;
 
 namespace AdminStore.Models.Workflow
 {
+    /// <summary>
+    /// Generate Action 
+    /// </summary>
     [Serializable()]
     [XmlType("GenerateAction")]
     public class IeGenerateAction :IeBaseAction

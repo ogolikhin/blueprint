@@ -10,10 +10,6 @@ namespace AdminStore.Models.Workflow
     [XmlType("PropertyChangeAction")]
     public class IePropertyChangeAction : IeBaseAction
     {
-        #region Constructors
-        //public IePropertyChangeAction() { }
-        #endregion
-
         #region Properties
 
         public string PropertyName { get; set; }

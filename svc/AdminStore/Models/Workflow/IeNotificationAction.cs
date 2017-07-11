@@ -7,17 +7,12 @@ using System.Xml.Serialization;
 namespace AdminStore.Models.Workflow
 {
     /// <summary>
-    /// Sample Email Notification Action
-    /// Note: The properties aren't defined by design/requirements
+    /// Email Notification Action
     /// </summary>
     [Serializable()]
     [XmlType("NotificationAction")]
     public class IeNotificationAction : IeBaseAction
     {
-        #region Constructors
-        //public IeNotificationAction() { }
-        #endregion
-
         #region Properties
 
         [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]

@@ -50,16 +50,7 @@ namespace AdminStore.Controllers
         [XmlArrayItem("PropertyChangeAction", typeof(IePropertyChangeAction))]
         [XmlArrayItem("GenerateAction", typeof(IeGenerateAction))]
         public List<IeBaseAction> Actions { get; set; }
-
-        public bool IsValid()
-        {
-            bool result = true;
-            foreach(var act in Actions)
-            {
-                result &= act.IsValid();
-            }
-            return result;
-        }
+       
     }
 
  
@@ -72,7 +63,7 @@ namespace AdminStore.Controllers
         [TestMethod]
         public void DeserializeActions()
         {
-
+            // Import XML Actions content
             string xml = 
                 "<WorkflowActions>" +
                 "<Actions>" +
@@ -123,7 +114,7 @@ namespace AdminStore.Controllers
                 string msg = ex.Message;
                 result = null;
             }
-            Assert.IsTrue(result != null && result.IsValid());
+            Assert.IsTrue(result != null);
 
             // Test resulting Actions Serialization
             try
@@ -146,7 +137,7 @@ namespace AdminStore.Controllers
         [TestMethod]
         public void DeserializeTriggers()
         {
-
+            // Import XML Triggers
             string xml =
                 "<WorkflowTriggers>" +
                     "<Triggers>" +
@@ -184,7 +175,7 @@ namespace AdminStore.Controllers
             }
             Assert.IsTrue(result != null);
 
-            // Serialize test
+            // Test resulting Triggers Serialization
             try
             {
                 string xmlTriggers = SerializationHelper.ToXml(result);
@@ -197,6 +188,7 @@ namespace AdminStore.Controllers
             }
         }
     }
+
 
 	[TestClass]
     public class WorkflowControllerTest

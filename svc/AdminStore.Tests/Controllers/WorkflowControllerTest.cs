@@ -5,9 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Xml.Serialization;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
@@ -24,15 +22,13 @@ using ServiceLibrary.Repositories.ConfigControl;
 namespace AdminStore.Controllers
 {
     /// <summary>
-    /// Test Actions Container class
+    /// Test Triggers Container class
     /// </summary>
     [Serializable()]
     [XmlRoot("WorkflowTriggers")]
     [XmlType("WorkflowTriggers")]
     public class WorkflowTriggers
     {
-        public WorkflowTriggers() { }
-
         [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
         [XmlArray("Triggers")]
         [XmlArrayItem("TransitionTrigger", typeof(IeTransitionTrigger))]
@@ -47,9 +43,7 @@ namespace AdminStore.Controllers
     [XmlRoot("WorkflowActions")]
     [XmlType("WorkflowActions")]
     public class WorkflowActions
-    {
-        public WorkflowActions() { }
-        
+    {        
         [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
         [XmlArray("Actions")]
         [XmlArrayItem("NotificationAction", typeof(IeNotificationAction))]
@@ -70,7 +64,7 @@ namespace AdminStore.Controllers
 
  
     [TestClass]
-    public class XmlActionsTest
+    public class XmlTriggersActionsTest
     {
         /// <summary>
         /// Deserialize/Serialize XML Actions

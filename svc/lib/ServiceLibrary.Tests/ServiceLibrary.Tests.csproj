@@ -96,6 +96,7 @@
     <Compile Include="Exceptions\AuthorizationExceptionTests.cs" />
     <Compile Include="Helpers\Cache\AsyncCacheTests.cs" />
     <Compile Include="Helpers\HttpFilterHelper.cs" />
+    <Compile Include="Helpers\SqlHelperMock.cs" />
     <Compile Include="Helpers\TestHttpClientProvider.cs" />
     <Compile Include="Helpers\TestsForHelpers\CacheHelperTests.cs" />
     <Compile Include="Helpers\TestsForHelpers\I18HelperTests.cs" />

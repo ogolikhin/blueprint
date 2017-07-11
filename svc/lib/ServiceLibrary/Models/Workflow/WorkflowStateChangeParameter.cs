@@ -36,5 +36,7 @@ namespace ServiceLibrary.Models.Workflow
         [Required]
         [Range(1, int.MaxValue)]
         public int ArtifactId { get; set; }
+
+        public int RevisionId { get; set; }
     }
 }

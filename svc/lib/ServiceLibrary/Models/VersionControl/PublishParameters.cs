@@ -8,5 +8,7 @@ namespace ServiceLibrary.Models.VersionControl
         public bool? All { get; set; }
         public IEnumerable<int> ArtifactIds { get; set; }
         public ISet<int> AffectedArtifactIds { get; } = new HashSet<int>();
+
+        public int? RevisionId { get; set; }
     }
 }

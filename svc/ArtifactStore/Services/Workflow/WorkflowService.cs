@@ -1,8 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using ArtifactStore.Executors;
 using ArtifactStore.Repositories;
 using ArtifactStore.Repositories.Workflow;
+using ArtifactStore.Services.VersionControl;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
@@ -27,14 +27,20 @@ namespace ArtifactStore.Services.Workflow
         private readonly IWorkflowRepository _workflowRepository;
         private readonly IArtifactVersionsRepository _artifactVersionsRepository;
         private readonly ISqlItemInfoRepository _itemInfoRepository;
+        private readonly ISqlHelper _sqlHelper;
+        private readonly IVersionControlService _versionControlService;
 
         public WorkflowService(IWorkflowRepository workflowRepository,
             IArtifactVersionsRepository artifactVersionsRepository,
-            ISqlItemInfoRepository itemInfoRepository)
+            ISqlItemInfoRepository itemInfoRepository,
+            ISqlHelper sqlHelper,
+            IVersionControlService versionControlService)
         {
             _workflowRepository = workflowRepository;
             _artifactVersionsRepository = artifactVersionsRepository;
             _itemInfoRepository = itemInfoRepository;
+            _sqlHelper = sqlHelper;
+            _versionControlService = versionControlService;
         }
 
         public async Task<WorkflowTransitionResult> GetTransitionsAsync(int userId, int artifactId, int workflowId, int stateId)
@@ -80,7 +86,9 @@ namespace ArtifactStore.Services.Workflow
                 },
                 userId, 
                 _artifactVersionsRepository, 
-                _workflowRepository);
+                _workflowRepository,
+                _sqlHelper,
+                _versionControlService);
 
             return await stateChangeExecutor.Execute();
         }

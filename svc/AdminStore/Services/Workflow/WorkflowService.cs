@@ -10,6 +10,7 @@ using AdminStore.Repositories.Workflow;
 using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.Files;
 using File = ServiceLibrary.Models.Files.File;
 
@@ -187,6 +188,22 @@ namespace AdminStore.Services.Workflow
                 }
             };
             await _workflowRepository.RunInTransactionAsync(action);
+        }
+
+        public async Task<int> DeleteWorkflows(OperationScope body, string search, int sessionUserId)
+        {
+            var totalDeleted = 0;
+            Func<IDbTransaction, Task> action = async transaction =>
+            {
+                var publishRevision =
+                    await
+                        _workflowRepository.CreateRevisionInTransactionAsync(transaction, sessionUserId,
+                            $"DeleteWorkflows. Session user id is {sessionUserId}.");
+                totalDeleted = await _workflowRepository.DeleteWorkflows(body, search, sessionUserId, publishRevision);
+            };
+            await _workflowRepository.RunInTransactionAsync(action);
+
+            return totalDeleted;
         }
 
         private async Task ImportWorkflowComponentsAsync(IeWorkflow workflow, SqlWorkflow newWorkflow, int publishRevision, IDbTransaction transaction)

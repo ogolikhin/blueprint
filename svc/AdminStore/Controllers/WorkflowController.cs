@@ -217,7 +217,7 @@ namespace AdminStore.Controllers
                 return Ok(DeleteResult.Empty);
             }
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
-            var result = await _workflowRepository.DeleteWorkflows(scope, search, Session.UserId);
+            var result = await _workflowService.DeleteWorkflows(scope, search, Session.UserId);
 
             return Ok(result);
         }

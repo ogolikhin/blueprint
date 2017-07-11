@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using AdminStore.Models.Workflow;
 using AdminStore.Repositories;
 using AdminStore.Repositories.Workflow;
-using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories.Files;
@@ -91,7 +91,11 @@ namespace AdminStore.Services.Workflow
                 // TODO: The name convention for the error file "$workflow_import_errors$.txt".
                 // TODO: The name convention should be checked when the errors are requested by the client. 
                 // TODO: Return guid of the errors file.
-                importResult.ErrorsGuid = "temp_guid";
+
+                var textErrors = GetValidationErrorsText(validationResult.Errors);
+                var guid = await UploadErrorsToFileStore(textErrors);
+
+                importResult.ErrorsGuid = guid;
                 importResult.ResultCode = ImportWorkflowResultCodes.InvalidModel;
                 return importResult;
             }
@@ -191,8 +195,6 @@ namespace AdminStore.Services.Workflow
 
         private async Task ImportWorkflowComponentsAsync(IeWorkflow workflow, SqlWorkflow newWorkflow, int publishRevision, IDbTransaction transaction)
         {
-            IEnumerable<SqlState> newStates = null;
-
             var importStateParams = new List<SqlState>();
 
             float orderIndex = 0;
@@ -209,7 +211,7 @@ namespace AdminStore.Services.Workflow
                 });
                 orderIndex += 10;
             });
-            newStates = await _workflowRepository.CreateWorkflowStatesAsync(importStateParams, publishRevision, transaction);
+            var newStates = await _workflowRepository.CreateWorkflowStatesAsync(importStateParams, publishRevision, transaction);
 
             if (newStates != null)
             {
@@ -333,6 +335,26 @@ namespace AdminStore.Services.Workflow
             return true;
         }
 
+        private static string GetValidationErrorsText(List<WorkflowValidationError> validationErrors)
+        {
+            // TODO: create a validation errors builder
+            var sb = new StringBuilder();
+            sb.AppendLine(I18NHelper.FormatInvariant("Uploaded workflow contains {0} error(s):", validationErrors.Count));
+            foreach (var error in validationErrors)
+            {
+                sb.AppendLine(I18NHelper.FormatInvariant("    - {0}", error.ErrorCode));
+            }
+
+            return sb.ToString();
+        }
+
+        private async Task<string> UploadErrorsToFileStore(string errors)
+        {
+            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(errors ?? string.Empty)))
+            {
+                return await FileRepository.UploadFileAsync(WorkflowImportErrorsFile, null, stream, DateTime.UtcNow + TimeSpan.FromDays(1));
+            }
+        }
 
     }
 }

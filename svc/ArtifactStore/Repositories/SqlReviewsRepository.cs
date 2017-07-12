@@ -885,8 +885,8 @@ namespace ArtifactStore.Repositories
             }
 
             int refreshInterval = await GetRebuildReviewArtifactHierarchyInterval();
-            var parameters = new DynamicParameters();
 
+            var parameters = new DynamicParameters();
             parameters.Add("@reviewId", reviewId);
             parameters.Add("@revisionId", revisionId);
             parameters.Add("@userId", userId);
@@ -894,8 +894,6 @@ namespace ArtifactStore.Repositories
             parameters.Add("@addDrafts", revisionId < int.MaxValue ? false : addDrafts);
             parameters.Add("@refreshInterval", refreshInterval);
             parameters.Add("@result", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
-
-            await ConnectionWrapper.ExecuteAsync("GetReviewArtifactIndex", parameters, commandType: CommandType.StoredProcedure);
 
             var result = (await ConnectionWrapper.QueryAsync<ReviewArtifactIndex>("GetReviewArtifactIndex", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
             var resultValue = parameters.Get<int>("@result");
@@ -907,8 +905,7 @@ namespace ArtifactStore.Repositories
             {
                 ThrowUserCannotAccessReviewException(reviewId);
             }
-
-            if (result == null)
+            else if (result == null)
             {
                 throw new ResourceNotFoundException("Specified artifact is not found in the review", ErrorCodes.ResourceNotFound);
             }
@@ -927,17 +924,17 @@ namespace ArtifactStore.Repositories
             }
 
             int refreshInterval = await GetRebuildReviewArtifactHierarchyInterval();
-            var param = new DynamicParameters();
-            param.Add("@reviewId", reviewInfo.Id);
-            param.Add("@revisionId", revisionId);
-            param.Add("@userId", userId);
-            param.Add("@artifactId", artifactId);
-            param.Add("@refreshInterval", refreshInterval);
-            param.Add("@retResult", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
 
-            var result = await ConnectionWrapper.QueryAsync<ReviewArtifactIndex>("GetReviewTableOfContentArtifactIndex", param, commandType: CommandType.StoredProcedure);
+            var parameters = new DynamicParameters();
+            parameters.Add("@reviewId", reviewId);
+            parameters.Add("@revisionId", revisionId);
+            parameters.Add("@userId", userId);
+            parameters.Add("@artifactId", artifactId);
+            parameters.Add("@refreshInterval", refreshInterval);
+            parameters.Add("@result", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
 
-            var resultValue = param.Get<int>("@retResult");
+            var result = (await ConnectionWrapper.QueryAsync<ReviewArtifactIndex>("GetReviewTableOfContentArtifactIndex", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+            var resultValue = parameters.Get<int>("@result");
             if (resultValue == 1 || resultValue == 2)
             {
                 ThrowReviewNotFoundException(reviewId, revisionId);
@@ -951,7 +948,7 @@ namespace ArtifactStore.Repositories
                 throw new ResourceNotFoundException("Specified artifact is not found in the review", ErrorCodes.ResourceNotFound);
             }
 
-            return result.SingleOrDefault();
+            return result;
         }
 
         public async Task<IEnumerable<ReviewArtifactApprovalResult>> UpdateReviewArtifactApprovalAsync(int reviewId, IEnumerable<ReviewArtifactApprovalParameter> reviewArtifactApprovalParameters, int userId)

@@ -291,7 +291,7 @@ namespace AdminStore.Repositories.Workflow
         {
             var result = new WorkflowValidationResult();
             HashSet<string> listOfAllGroups = new HashSet<string>();
-            workflow.Transitions.ForEach(transition =>
+            workflow.Triggers.OfType<IeTransitionTrigger>().ForEach(transition =>
             {
                 transition.PermissionGroups.ForEach(group =>
                 {

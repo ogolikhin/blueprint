@@ -19,6 +19,7 @@ using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Repositories.ConfigControl;
 using System.Data;
+using AdminStore.Models;
 
 namespace AdminStore.Controllers
 {
@@ -390,6 +391,66 @@ namespace AdminStore.Controllers
             //assert
             Assert.IsNotNull(exception);
             Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
+        }
+
+        #endregion
+
+        #region DeleteWorkflows
+
+        [TestMethod]
+        public async Task DeleteWorkflows_AllParamsAreCorrectAndPermissionsOk_ReturnDeletedCount()
+        {
+            //arrange
+            var response = 2;
+            var scope = new OperationScope() { Ids = new List<int>() { 1, 2, 3 }, SelectAll = false };
+            var search = string.Empty;
+
+            _privilegesRepositoryMock
+               .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+               .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+            _workflowServiceMock.Setup(w => w.DeleteWorkflows(It.IsAny<OperationScope>(), It.IsAny<string>(), It.IsAny<int>()))
+                .ReturnsAsync(response);
+
+            //act
+            var result = await _controller.DeleteWorkflows(scope, search) as OkNegotiatedContentResult<DeleteResult>;
+
+            //assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(response, result.Content.TotalDeleted);
+        }
+
+        [TestMethod]
+        public async Task DeleteWorkflows_ScopeIsNull_ReturnBadRequest()
+        {
+            //arrange
+            _privilegesRepositoryMock
+               .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+               .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            //act
+            var result = await _controller.DeleteWorkflows(null) as BadRequestErrorMessageResult;
+
+
+            //assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(BadRequestErrorMessageResult));
+        }
+
+        [TestMethod]
+        public async Task DeleteWorkflow_ScopeIsEmpty_OkResultDeletedZero()
+        {
+            //arrange
+            var scope = new OperationScope();
+            _privilegesRepositoryMock
+               .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+               .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            //act
+            var result = await _controller.DeleteWorkflows(scope) as OkNegotiatedContentResult<DeleteResult>;
+
+            //assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(OkNegotiatedContentResult<DeleteResult>));
         }
 
         #endregion

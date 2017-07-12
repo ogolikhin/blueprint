@@ -1,24 +1,24 @@
 ﻿using System;
+using AdminStore.Models.Workflow;
+using ServiceLibrary.Helpers;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Xml.Serialization;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
-using System.Xml.Serialization;
 using AdminStore.Helpers;
-using AdminStore.Models;
-using AdminStore.Models.Workflow;
 using AdminStore.Repositories;
 using AdminStore.Repositories.Workflow;
 using AdminStore.Services.Workflow;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Exceptions;
-using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Repositories.ConfigControl;
+using System.Data;
 
 namespace AdminStore.Controllers
 {
@@ -203,6 +203,7 @@ namespace AdminStore.Controllers
         private WorkflowController _controller;
         private const int SessionUserId = 1;
         private const int WorkflowId = 1;
+        private const InstanceAdminPrivileges AllProjectDataPermissions = InstanceAdminPrivileges.AccessAllProjectData;
 
         [TestInitialize]
         public void Initialize()
@@ -335,65 +336,62 @@ namespace AdminStore.Controllers
 
         #endregion
 
-        #region DeleteWorkflows
+        #region UpdateWorkflowStatus
 
         [TestMethod]
-        public async Task DeleteWorkflows_AllParamsAreCorrectAndPermissionsOk_ReturnDeletedCount()
+        public async Task UpdateWorkflowStatus_AllRequirementsSatisfied_ReturnOkResult()
         {
-            //arrange
-            var response = 2;
-            var scope = new OperationScope() { Ids = new List<int>() { 1, 2, 3 }, SelectAll = false };
-            var search = string.Empty;
-
+            // Arrange
+            var workflowDto = new WorkflowDto { VersionId = 1, Status = true };
             _privilegesRepositoryMock
-               .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
-               .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
-            _workflowServiceMock.Setup(w => w.DeleteWorkflows(It.IsAny<OperationScope>(), It.IsAny<string>(), It.IsAny<int>()))
-                .ReturnsAsync(response);
-
-            //act
-            var result = await _controller.DeleteWorkflows(scope, search) as OkNegotiatedContentResult<int>;
-
-            //assert
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(AllProjectDataPermissions);
+            // Act
+            var result = await _controller.UpdateWorkflowStatus(WorkflowId, workflowDto);
+            
+            // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(response, result.Content);
+            Assert.IsInstanceOfType(result, typeof(OkResult));
         }
-
         [TestMethod]
-        public async Task DeleteWorkflows_ScopeIsNull_ReturnBadRequest()
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task UpdateWorkflowStatus_BodyIsNull_BadRequestResult()
         {
             //arrange
             _privilegesRepositoryMock
-               .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
-               .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
-
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(AllProjectDataPermissions);
             //act
-            var result = await _controller.DeleteWorkflows(null) as BadRequestErrorMessageResult;
+            await _controller.UpdateWorkflowStatus(SessionUserId, null);
 
-
-            //assert
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result, typeof(BadRequestErrorMessageResult));
+            // Assert
+            // Exception
         }
-
         [TestMethod]
-        public async Task DeleteWorkflow_ScopeIsEmpty_OkResultDeletedZero()
+        public async Task UpdateWorkflowStatus_WorkflowWithInvalidPermissions_ForbiddenResult()
         {
             //arrange
-            var scope = new OperationScope();
+            var workflowDto = new WorkflowDto { VersionId = 1, Status = true };
+            Exception exception = null;
             _privilegesRepositoryMock
-               .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
-               .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewProjects);
 
             //act
-            var result = await _controller.DeleteWorkflows(scope) as OkNegotiatedContentResult<DeleteResult>;
+            try
+            {
+                await _controller.UpdateWorkflowStatus(SessionUserId, workflowDto);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
 
             //assert
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result, typeof(OkNegotiatedContentResult<DeleteResult>));
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
         }
 
         #endregion
     }
 }
-

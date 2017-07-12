@@ -184,9 +184,8 @@ namespace AdminStore.Services.Workflow
                 var updatedWorkflows = await _workflowRepository.UpdateWorkflows(workflows, publishRevision, transaction);
 
                 var updatedWorkflowsCount = updatedWorkflows.Count();
-                var neededCountWorkflows = 1;
 
-                if (updatedWorkflowsCount != neededCountWorkflows)
+                if (updatedWorkflowsCount != 1)
                 {
                     throw new BadRequestException(ErrorMessages.WorkflowWasNotUpdated, ErrorCodes.BadRequest);
                 }

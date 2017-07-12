@@ -316,7 +316,7 @@ namespace AdminStore.Services.Workflow
                         GroupIds = transition.PermissionGroups.Select(pg => existingGroupNames.First(p => p.Name == pg.Name).GroupId).ToList()
                     }),
                     Validations = null,
-                    Actions = null,
+                    Actions = SerializationHelper.ToXml(transition.Actions),
                     WorkflowState1Id = newStatesArray.FirstOrDefault(s => s.Name.Equals(transition.FromState))?.WorkflowStateId,
                     WorkflowState2Id = newStatesArray.FirstOrDefault(s => s.Name.Equals(transition.ToState))?.WorkflowStateId,
                     PropertyTypeId = null

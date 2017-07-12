@@ -1,7 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Data;
+using System.Threading.Tasks;
 using ArtifactStore.Models;
 using ArtifactStore.Repositories;
 using ArtifactStore.Repositories.Workflow;
+using ArtifactStore.Services.VersionControl;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Exceptions;
@@ -24,6 +27,8 @@ namespace ArtifactStore.Executors
         private StateChangeExecutor _stateChangeExecutor;
         private Mock<IWorkflowRepository> _workflowRepository;
         private Mock<IArtifactVersionsRepository> _artifactVersionsRepository;
+        private ISqlHelper _sqlHelperMock;
+        private Mock<IVersionControlService> _versionControlService;
 
         [TestInitialize]
         public void TestInitialize()
@@ -37,9 +42,14 @@ namespace ArtifactStore.Executors
             };
             _workflowRepository = new Mock<IWorkflowRepository>(MockBehavior.Strict);
             _artifactVersionsRepository = new Mock<IArtifactVersionsRepository>(MockBehavior.Strict);
+            _sqlHelperMock = new SqlHelperMock();
+            _versionControlService = new Mock<IVersionControlService>(MockBehavior.Loose);
             _stateChangeExecutor = new StateChangeExecutor(null, null, ex, UserId,
                 _artifactVersionsRepository.Object,
-                _workflowRepository.Object);
+                _workflowRepository.Object,
+                _sqlHelperMock,
+                _versionControlService.Object
+                );
         }
 
         [TestMethod]
@@ -311,7 +321,7 @@ namespace ArtifactStore.Executors
                 t => t.GetTransitionForAssociatedStatesAsync(UserId, ArtifactId, WorkflowId, FromStateId, ToStateId))
                 .ReturnsAsync(transition);
 
-            _workflowRepository.Setup(t => t.ChangeStateForArtifactAsync(UserId, ArtifactId, It.IsAny<WorkflowStateChangeParameterEx>()))
+            _workflowRepository.Setup(t => t.ChangeStateForArtifactAsync(UserId, ArtifactId, It.IsAny<WorkflowStateChangeParameterEx>(), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync((WorkflowState)null);
 
             //Act

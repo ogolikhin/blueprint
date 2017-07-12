@@ -30,6 +30,8 @@ namespace ArtifactStore.Models.Review
         public ReviewArtifactsStatus ArtifactsStatus { get; set; }
 
         public int RevisionId { get; set; }
+
+        public int ProjectId { get; set; }
     }
 
     internal class ReviewSummaryDetails

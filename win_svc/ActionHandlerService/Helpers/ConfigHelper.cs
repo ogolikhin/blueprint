@@ -1,20 +1,9 @@
-﻿using BluePrintSys.Messaging.CrossCutting;
+﻿using ActionHandlerService.Models.Enums;
+using BluePrintSys.Messaging.CrossCutting;
 using BluePrintSys.Messaging.Models.Actions;
 
-namespace ActionHandlerService
+namespace ActionHandlerService.Helpers
 {
-    public enum Tenancy
-    {
-        Single,
-        Multiple
-    }
-
-    public enum Transport
-    {
-        RabbitMQ,
-        SQL
-    }
-
     public static class ConfigHelper
     {
         private const string ServiceNameKey = "Service.Name";
@@ -33,9 +22,8 @@ namespace ActionHandlerService
         private const string NServiceBusInstanceIdDefault = "";
         public static string NServiceBusInstanceId => AppSettingsHelper.GetConfigStringValue(NServiceBusInstanceIdKey, NServiceBusInstanceIdDefault);
 
-        private const string SingleTenancyConnectionStringKey = "SingleTenancyConnectionString";
-        private const string SingleTenancyConnectionStringDefault = "";
-        public static string SingleTenancyConnectionString => AppSettingsHelper.GetConfigStringValue(SingleTenancyConnectionStringKey, SingleTenancyConnectionStringDefault);
+        private const string SingleTenancyConnectionStringKey = "TenantsDatabase";
+        public static string SingleTenancyConnectionString => AppSettingsHelper.GetConnectionStringValue(SingleTenancyConnectionStringKey);
 
         private const string CacheExpirationMinutesKey = "CacheExpirationMinutes";
         private const int CacheExpirationMinutesDefault = 1440;
@@ -46,16 +34,16 @@ namespace ActionHandlerService
         public static Tenancy Tenancy => AppSettingsHelper.GetConfigEnum(TenancyKey, TenancyDefault);
 
         private const string TransportKey = nameof(Transport);
-        private const Transport TransportDefault = Transport.RabbitMQ;
-        public static Transport Transport => AppSettingsHelper.GetConfigEnum(TransportKey, TransportDefault);
+        private const MessageTransport TransportDefault = MessageTransport.RabbitMQ;
+        public static MessageTransport Transport => AppSettingsHelper.GetConfigEnum(TransportKey, TransportDefault);
 
-        private const string ActionTypesKey = "ActionTypesCsv";
-        private const MessageActionType ActionTypesDefault = MessageActionType.All;
-        public static MessageActionType AllowedActionTypes => AppSettingsHelper.GetConfigEnum(ActionTypesKey, ActionTypesDefault);
+        private const string SupportedActionTypesKey = "SupportedActionTypes";
+        private const MessageActionType SupportedActionTypesDefault = MessageActionType.All;
+        public static MessageActionType SupportedActionTypes => AppSettingsHelper.GetConfigEnum(SupportedActionTypesKey, SupportedActionTypesDefault);
 
-        private const string HandlerKey = "Handler";
-        private const string HandlerKeyDefault = "Cloud.MessageServer";
-        public static string Handler => AppSettingsHelper.GetConfigStringValue(HandlerKey, HandlerKeyDefault);
+        private const string MessageQueueKey = "MessageQueue";
+        private const string MessageQueueKeyDefault = "Cloud.MessageServer";
+        public static string MessageQueue => AppSettingsHelper.GetConfigStringValue(MessageQueueKey, MessageQueueKeyDefault);
 
         private const string ErrorQueueKey = "ErrorQueue";
         private const string ErrorQueueDefault = "errors";

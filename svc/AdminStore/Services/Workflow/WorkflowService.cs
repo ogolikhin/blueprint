@@ -86,6 +86,7 @@ namespace AdminStore.Services.Workflow
             var importResult = new ImportWorkflowResult();
 
             var validationResult = _workflowValidator.Validate(workflow);
+            validationResult.AddResults(await _workflowValidator.ValidateData(workflow, _workflowRepository, _userRepository));
             if (validationResult.HasErrors)
             {
                 // TODO: Create a text file and save it to the file store.
@@ -234,46 +235,8 @@ namespace AdminStore.Services.Workflow
                 await ImportWorkflowTransitions(workflow, newWorkflow, publishRevision, transaction, newStates);
             }
 
-            Dictionary<int, string> projectPaths = new Dictionary<int, string>();
-            HashSet<string> projectPathsToLookup = new HashSet<string>();
-            workflow.Projects.ForEach(project =>
-            {
-                if (project.Id.HasValue)
-                {
-                    projectPaths[project.Id.Value] = project.Path;
-                }
-                else
-                {
-                    if (!string.IsNullOrEmpty(project.Path))
-                    {
-                        projectPathsToLookup.Add(project.Path);
-                    }
-                }
-            });
-
-            if (projectPathsToLookup.Any())
-            {
-                //look up ID of projects that have no ID provided
-                foreach (var sqlProjectPathPair in await _workflowRepository.GetProjectIdsByProjectPaths(projectPathsToLookup))
-                {
-                    projectPaths[sqlProjectPathPair.ProjectId] = sqlProjectPathPair.ProjectPath;
-                }
-            }
-
-            if (projectPaths.Count != workflow.Projects.Count)
-            {
-                //generate a list of all projects in the workflow who are either missing from id list or were not looked up by path
-                var listOfBadProjects = string.Join(",", workflow.Projects
-                    .Where(proj => projectPaths.All(
-                        path => proj.Id.HasValue
-                            ? path.Key != proj.Id.Value
-                            : !path.Value.Equals(proj.Path))
-                    ).Select(proj => proj.Id?.ToString() ?? proj.Path));
-                throw new ConflictException($"The following projects could not be found: {listOfBadProjects}");
-            }
-
             await _workflowRepository.CreateWorkflowArtifactAssociationsAsync(workflow.ArtifactTypes.Select(at => at.Name),
-                projectPaths.Select(p => p.Key), newWorkflow.WorkflowId, publishRevision, transaction);
+                _workflowValidator.ValidProjectIds, newWorkflow.WorkflowId, publishRevision, transaction);
         }
 
         private async Task ImportWorkflowTransitions(IeWorkflow workflow, SqlWorkflow newWorkflow, int publishRevision,
@@ -281,25 +244,6 @@ namespace AdminStore.Services.Workflow
         {
             var newStatesArray = newStates.ToArray();
             var importTriggersParams = new List<SqlTrigger>();
-            HashSet<string> listOfAllGroups = new HashSet<string>();
-            workflow.Transitions.ForEach(transition =>
-            {
-                transition.PermissionGroups.ForEach(group =>
-                {
-                    if (!listOfAllGroups.Contains(group.Name))
-                    {
-                        listOfAllGroups.Add(group.Name);
-                    }
-                });
-            });
-            var existingGroupNames = (await _userRepository.GetExistingInstanceGroupsByNames(listOfAllGroups)).ToArray();
-            if (existingGroupNames.Length != listOfAllGroups.Count)
-            {
-                var listOfBadGroups = string.Join(",", listOfAllGroups.Where(
-                        li => existingGroupNames.All(g => g.Name != li)
-                    ));
-                throw new ConflictException($"The following groups were not found: {listOfBadGroups}");
-            }
 
             workflow.Transitions.ForEach(transition =>
             {
@@ -312,7 +256,7 @@ namespace AdminStore.Services.Workflow
                     Permissions = SerializationHelper.ToXml(new XmlTriggerPermissions
                     {
                         Skip = "0",
-                        GroupIds = transition.PermissionGroups.Select(pg => existingGroupNames.First(p => p.Name == pg.Name).GroupId).ToList()
+                        GroupIds = transition.PermissionGroups.Select(pg => _workflowValidator.ValidGroups.First(p => p.Name == pg.Name).GroupId).ToList()
                     }),
                     Validations = null,
                     Actions = SerializationHelper.ToXml(transition.Actions),

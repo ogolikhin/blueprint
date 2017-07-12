@@ -9,6 +9,11 @@ namespace AdminStore.Repositories.Workflow
 
         private List<WorkflowValidationError> _errors;
         public List<WorkflowValidationError> Errors => _errors ?? (_errors = new List<WorkflowValidationError>());
+
+        public void AddResults(WorkflowValidationResult resultsToJoin)
+        {
+            Errors.AddRange(resultsToJoin.Errors);
+        }
     }
 
     public class WorkflowValidationError
@@ -44,6 +49,8 @@ namespace AdminStore.Repositories.Workflow
         TransitionFromAndToStatesSame,
         ProjectNoSpecified,
         ProjectInvalidId,
-        ArtifactTypeNoSpecified
+        ArtifactTypeNoSpecified,
+        ProjectNotFound,
+        GroupsNotFound
     }
 }

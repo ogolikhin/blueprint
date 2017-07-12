@@ -33,9 +33,9 @@ namespace ActionHandlerService.Helpers
         private const Tenancy TenancyDefault = Tenancy.Single;
         public static Tenancy Tenancy => AppSettingsHelper.GetConfigEnum(TenancyKey, TenancyDefault);
 
-        private const string TransportKey = nameof(Transport);
-        private const MessageTransport TransportDefault = MessageTransport.RabbitMQ;
-        public static MessageTransport Transport => AppSettingsHelper.GetConfigEnum(TransportKey, TransportDefault);
+        private const string TransportKey = nameof(Broker);
+        private const MessageBroker TransportDefault = MessageBroker.RabbitMQ;
+        public static MessageBroker Broker => AppSettingsHelper.GetConfigEnum(TransportKey, TransportDefault);
 
         private const string SupportedActionTypesKey = "SupportedActionTypes";
         private const MessageActionType SupportedActionTypesDefault = MessageActionType.All;

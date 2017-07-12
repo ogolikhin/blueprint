@@ -1,6 +1,6 @@
 ﻿namespace ActionHandlerService.Models.Enums
 {
-    public enum MessageTransport
+    public enum MessageBroker
     {
         RabbitMQ = 0,
         SQL = 1

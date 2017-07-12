@@ -107,9 +107,10 @@
     <Compile Include="MessageHandlers\Notifications\NotificationsMessageHandler.cs" />
     <Compile Include="MessageHandlers\ActionHandlerHelper.cs" />
     <Compile Include="ActionHandlerService.cs" />
-    <Compile Include="Models\Enums\MessageTransport.cs" />
+    <Compile Include="Models\Enums\MessageBroker.cs" />
     <Compile Include="Models\Enums\Tenancy.cs" />
     <Compile Include="Models\IMessageTransportHost.cs" />
+    <Compile Include="Models\MessageTransportHostFactory.cs" />
     <Compile Include="Models\RabbitMQTransportHost.cs" />
     <Compile Include="Models\SqlTransportHost.cs" />
     <Compile Include="Models\TenantInformation.cs" />

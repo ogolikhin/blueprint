@@ -20,18 +20,12 @@ namespace ActionHandlerService
         public bool Start(HostControl hostControl)
         {
             LogManager.Manager.AddListener(Log4NetStandardLogListener.Instance);
+
             Log.Info("Action Handler Service is starting.");
-            if (ConfigHelper.Transport == MessageTransport.RabbitMQ)
-            {
-                _messageTransportHost = new RabbitMQTransportHost();
-                _messageTransportHost.Start(() => Stop(null));
-                Log.Info("Action Handler Service started.");
-            }
-            else
-            {
-                Log.Error("Only RabbitMQ transport layer is supported");
-            }
-            
+            _messageTransportHost = MessageTransportHostFactory.GetMessageTransportHost();
+            _messageTransportHost.Start(() => Stop(null));
+            Log.Info("Action Handler Service started.");
+
             return true;
         }
 

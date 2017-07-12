@@ -48,7 +48,7 @@ namespace AdminStore.Controllers
     {        
         [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
         [XmlArray("Actions")]
-        [XmlArrayItem("NotificationAction", typeof(IeNotificationAction))]
+        [XmlArrayItem("NotificationAction", typeof(IeEmailNotificationAction))]
         [XmlArrayItem("PropertyChangeAction", typeof(IePropertyChangeAction))]
         [XmlArrayItem("GenerateAction", typeof(IeGenerateAction))]
         public List<IeBaseAction> Actions { get; set; }

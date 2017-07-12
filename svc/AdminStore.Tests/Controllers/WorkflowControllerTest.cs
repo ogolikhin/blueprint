@@ -18,6 +18,7 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Repositories.ConfigControl;
+using System.Data;
 
 namespace AdminStore.Controllers
 {
@@ -172,14 +173,13 @@ namespace AdminStore.Controllers
         public async Task UpdateWorkflowStatus_AllRequirementsSatisfied_ReturnOkResult()
         {
             // Arrange
-            var workflowDto = new WorkflowDto { VersionId = 45, WorkflowId = WorkflowId, Status = true };
+            var workflowDto = new WorkflowDto { VersionId = 1, Status = true };
             _privilegesRepositoryMock
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(AllProjectDataPermissions);
-            _workflowServiceMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(workflowDto);
             // Act
-            var result = await _controller.UpdateWorkflowStatus(WorkflowId, new WorkflowDto { VersionId = 45, WorkflowId = WorkflowId, Status = false });
-
+            var result = await _controller.UpdateWorkflowStatus(WorkflowId, workflowDto);
+            
             // Assert
             Assert.IsNotNull(result);
             Assert.IsInstanceOfType(result, typeof(OkResult));
@@ -202,7 +202,7 @@ namespace AdminStore.Controllers
         public async Task UpdateWorkflowStatus_WorkflowWithInvalidPermissions_ForbiddenResult()
         {
             //arrange
-            var workflowDto = new WorkflowDto { VersionId = 1, WorkflowId = WorkflowId, Status = true };
+            var workflowDto = new WorkflowDto { VersionId = 1, Status = true };
             Exception exception = null;
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))

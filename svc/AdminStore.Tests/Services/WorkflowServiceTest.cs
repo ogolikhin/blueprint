@@ -13,8 +13,6 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Models;
-using System.Collections;
-using System.Data;
 
 namespace AdminStore.Services
 {
@@ -114,21 +112,13 @@ namespace AdminStore.Services
 
         [TestMethod]
         [ExpectedException(typeof(ResourceNotFoundException))]
-        public async Task UpdateWorkflowStatusAsync_WorkflowDtoIsNull_BadRequestResult()
-        {
-            //arrange
-            WorkflowDto workflowDto = null;
-                await _service.UpdateWorkflowStatusAsync(workflowDto, WorkflowId, SessionUserId);
-        }
-        [TestMethod]
-        [ExpectedException(typeof(ResourceNotFoundException))]
-        public async Task UpdateWorkflowStatusAsync_RepositoryReturnsNull_NotFoundResult()
+        public async Task UpdateWorkflowStatusAsync_WorkflowNotExistsInDb_NotFoundResult()
         {
             // Arrange
-            WorkflowDto existingWorkflow = new WorkflowDto { VersionId = 45, WorkflowId = WorkflowId, Status = true };
+            var existingWorkflow = new WorkflowDto { VersionId = 45, Status = true };
             var resourceNotFoundExeption = new ResourceNotFoundException(ErrorMessages.WorkflowNotExist);
             _workflowRepositoryMock
-                .Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).Throws(resourceNotFoundExeption);
+                .Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync((SqlWorkflow)null);
             // Act
             try
             {
@@ -146,67 +136,22 @@ namespace AdminStore.Services
         public async Task UpdateWorkflowStatusAsync_WorkflowHasDifferentVersion_ReturnConflicErrorResult()
         {
             // Arrange
-            var _privilegesRepositoryMock = new Mock<IPrivilegesRepository>();
-            _privilegesRepositoryMock
-                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
-                .ReturnsAsync(AllProjectDataPermissions);
-            var existingWorkflow = new WorkflowDto { VersionId = 1, WorkflowId = 1 };
+            var existingWorkflow = new SqlWorkflow { VersionId = 1, WorkflowId = 1 };
             var workflowDto = new WorkflowDto { VersionId = 2, WorkflowId = 1 };
 
-            var conflictExeption = new ConflictException(ErrorMessages.WorkflowVersionsNotEqual);
-            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).Throws(conflictExeption);
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(existingWorkflow);
             // Act
-                await _service.UpdateWorkflowStatusAsync(workflowDto, WorkflowId, SessionUserId);
-          // Assert
-        }
-        [TestMethod]
-        public async Task UpdateWorkflowStatusAsync_RevisionIsNegative_ReturnConflicErrorResult()
-        {
-            // Arrange
-            var _privilegesRepositoryMock = new Mock<IPrivilegesRepository>();
-            _privilegesRepositoryMock
-                    .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
-                    .ReturnsAsync(AllProjectDataPermissions);
-            var workflowDto = new WorkflowDto { VersionId = 1, WorkflowId = 1 };
-            var workflowSql = new SqlWorkflow
+            try
             {
-                VersionId = 1,
-                WorkflowId = 1,
-                Active = true
-            };
-
-            var revisionIsNegativen = new BadRequestException(ErrorMessages.WorkflowWasNotUpdated);
-            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(workflowSql);
-            _workflowRepositoryMock.Setup(repo => repo.CreateRevisionInTransactionAsync(It.IsAny<IDbTransaction>(), It.IsAny<int>(), It.IsAny<string>())).Throws(revisionIsNegativen);
-            //// Act
                 await _service.UpdateWorkflowStatusAsync(workflowDto, WorkflowId, SessionUserId);
-          // Assert
-        }
-        [TestMethod]
-        public async Task UpdateWorkflowStatusAsync_WorkflowWasNotUpdated_ReturnBadRequestResult()
-        {
-            // Arrange
-            var _privilegesRepositoryMock = new Mock<IPrivilegesRepository>();
-            _privilegesRepositoryMock
-                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
-                .ReturnsAsync(AllProjectDataPermissions);
-            int publishRevision = 12;
-            IEnumerable<SqlWorkflow> updatedWorkflows = new List<SqlWorkflow>();
-            var workflowDto = new WorkflowDto { VersionId = 1, WorkflowId = 100, Status = true, Name = "workflowDto1", Description = "description1" };
-            var workflowSql = new SqlWorkflow
+             }
+            catch (Exception exception)
             {
-                VersionId = 1,
-                WorkflowId = 100,
-                Active = true
-            };
-            var workflowWasNotUpdated = new BadRequestException(ErrorMessages.WorkflowWasNotUpdated);
-            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(workflowSql);
-            _workflowRepositoryMock.Setup(repo => repo.CreateRevisionInTransactionAsync(It.IsAny<IDbTransaction>(), It.IsAny<int>(), It.IsAny<string>())).ReturnsAsync(publishRevision);
-            _workflowRepositoryMock.Setup(repo => repo.UpdateWorkflows(It.IsIn<IEnumerable<SqlWorkflow>>(), It.IsAny<int>(), It.IsAny<IDbTransaction>())).Throws(workflowWasNotUpdated);
+                // Assert
+                Assert.IsInstanceOfType(exception, typeof(ConflictException));
+                throw;
+            }
 
-            // Act
-              await _service.UpdateWorkflowStatusAsync(workflowDto, WorkflowId, SessionUserId);
-           // Assert
         }
         #endregion
     }

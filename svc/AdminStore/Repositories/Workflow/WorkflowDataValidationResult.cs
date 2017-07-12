@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using AdminStore.Models;
 
 namespace AdminStore.Repositories.Workflow
@@ -20,8 +18,12 @@ namespace AdminStore.Repositories.Workflow
     public class WorkflowDataValidationError
     {
         public string Info { get; set; }
-        public WorkflowValidationErrorCodes ErrorCode { get; set; }
+        public WorkflowDataValidationErrorCodes ErrorCode { get; set; }
 
     }
 
-}
+    public enum WorkflowDataValidationErrorCodes
+    {
+        ProjectNotFound,
+        GroupsNotFound
+    }

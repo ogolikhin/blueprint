@@ -44,8 +44,6 @@ namespace AdminStore.Repositories.Workflow
         TransitionFromAndToStatesSame,
         ProjectNoSpecified,
         ProjectInvalidId,
-        ArtifactTypeNoSpecified,
-        ProjectNotFound,
-        GroupsNotFound
+        ArtifactTypeNoSpecified
     }
 }

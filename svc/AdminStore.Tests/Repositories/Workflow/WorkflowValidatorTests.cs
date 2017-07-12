@@ -20,7 +20,7 @@ namespace AdminStore.Repositories.Workflow
                 Description = "This is my workflow.",
                 States = new List<IeState>(),
                 ArtifactTypes = new List<IeArtifactType>(),
-                Transitions = new List<IeTransition>(),
+                Transitions = new List<IeTransitionTrigger>(),
                 Projects = new List<IeProject>()
             };
 
@@ -45,7 +45,7 @@ namespace AdminStore.Repositories.Workflow
             });
 
             // Transitions
-            _workflow.Transitions.Add(new IeTransition
+            _workflow.Transitions.Add(new IeTransitionTrigger
             {
                 Name = "From New to Active",
                 Description = "Description of From New to Active",
@@ -58,7 +58,7 @@ namespace AdminStore.Repositories.Workflow
                 }
             });
 
-            _workflow.Transitions.Add(new IeTransition
+            _workflow.Transitions.Add(new IeTransitionTrigger
             {
                 Name = "From Active to Close",
                 Description = "Description of From New to Active",
@@ -299,7 +299,7 @@ namespace AdminStore.Repositories.Workflow
             // Arrange
             var workflowValidator = new WorkflowValidator();
             _workflow.States.Add(new IeState { Name = "   "});
-            _workflow.Transitions.Add(new IeTransition
+            _workflow.Transitions.Add(new IeTransitionTrigger
             {
                 Name = "Transition",
                 FromState = _workflow.States[_workflow.States.Count - 2].Name,
@@ -402,7 +402,7 @@ namespace AdminStore.Repositories.Workflow
         {
             // Arrange
             var workflowValidator = new WorkflowValidator();
-            _workflow.Transitions.Add(new IeTransition
+            _workflow.Transitions.Add(new IeTransitionTrigger
             {
                 FromState = _workflow.States[0].Name,
                 ToState = _workflow.States[2].Name
@@ -423,7 +423,7 @@ namespace AdminStore.Repositories.Workflow
         {
             // Arrange
             var workflowValidator = new WorkflowValidator();
-            _workflow.Transitions.Add(new IeTransition
+            _workflow.Transitions.Add(new IeTransitionTrigger
             {
                 Name = new string('a', 24),
                 FromState = _workflow.States[0].Name,
@@ -443,7 +443,7 @@ namespace AdminStore.Repositories.Workflow
         {
             // Arrange
             var workflowValidator = new WorkflowValidator();
-            _workflow.Transitions.Add(new IeTransition
+            _workflow.Transitions.Add(new IeTransitionTrigger
             {
                 Name = new string('a', 25),
                 FromState = _workflow.States[0].Name,
@@ -465,7 +465,7 @@ namespace AdminStore.Repositories.Workflow
         {
             // Arrange
             var workflowValidator = new WorkflowValidator();
-            _workflow.Transitions.Add(new IeTransition
+            _workflow.Transitions.Add(new IeTransitionTrigger
             {
                 Name = "Transition",
                 Description = new string('a', 4000),
@@ -486,7 +486,7 @@ namespace AdminStore.Repositories.Workflow
         {
             // Arrange
             var workflowValidator = new WorkflowValidator();
-            _workflow.Transitions.Add(new IeTransition
+            _workflow.Transitions.Add(new IeTransitionTrigger
             {
                 Name = "Transition",
                 Description = new string('a', 4001),
@@ -509,7 +509,7 @@ namespace AdminStore.Repositories.Workflow
         {
             // Arrange
             var workflowValidator = new WorkflowValidator();
-            _workflow.Transitions.Add(new IeTransition
+            _workflow.Transitions.Add(new IeTransitionTrigger
             {
                 Name = "Transition",
                 ToState = _workflow.States[2].Name
@@ -530,7 +530,7 @@ namespace AdminStore.Repositories.Workflow
         {
             // Arrange
             var workflowValidator = new WorkflowValidator();
-            _workflow.Transitions.Add(new IeTransition
+            _workflow.Transitions.Add(new IeTransitionTrigger
             {
                 Name = "Transition",
                 FromState = _workflow.States[0].Name
@@ -551,7 +551,7 @@ namespace AdminStore.Repositories.Workflow
         {
             // Arrange
             var workflowValidator = new WorkflowValidator();
-            _workflow.Transitions.Add(new IeTransition
+            _workflow.Transitions.Add(new IeTransitionTrigger
             {
                 Name = "Transition",
                 FromState = _workflow.States[0].Name,
@@ -572,7 +572,7 @@ namespace AdminStore.Repositories.Workflow
         {
             // Arrange
             var workflowValidator = new WorkflowValidator();
-            _workflow.Transitions.Add(new IeTransition
+            _workflow.Transitions.Add(new IeTransitionTrigger
             {
                 Name = "Transition",
                 FromState = _workflow.States[0].Name,
@@ -646,7 +646,7 @@ namespace AdminStore.Repositories.Workflow
         {
             // Arrange
             var workflowValidator = new WorkflowValidator();
-            _workflow.Transitions.Add(new IeTransition
+            _workflow.Transitions.Add(new IeTransitionTrigger
             {
                 Name = _workflow.Transitions[0].Name,
                 FromState = _workflow.States[0].Name,
@@ -745,7 +745,7 @@ namespace AdminStore.Repositories.Workflow
             {
                 var count = workflow.States.Count;
                 workflow.States.Add(new IeState { Name = "State " + count });
-                workflow.Transitions.Add(new IeTransition
+                workflow.Transitions.Add(new IeTransitionTrigger
                 {
                     Name = "Transition " + count,
                     FromState = workflow.States[count - 1].Name,
@@ -766,7 +766,7 @@ namespace AdminStore.Repositories.Workflow
             for(var i = 0; i < toAddCount; i++)
             {
                 workflow.States.Add(new IeState { Name = "State " + i });
-                workflow.Transitions.Add(new IeTransition
+                workflow.Transitions.Add(new IeTransitionTrigger
                 {
                     Name = "Transition " + i,
                     FromState = state.Name,

@@ -240,3 +240,4 @@ _Pvt_Extensions
 /app/NovaWeb/nbproject/
 /app/NovaWeb/start-server.bat
 /app/NovaWeb/private-build.bat
+/svc/AdminStore/Models/Workflow/WorkflowModel.xml

@@ -1,27 +1,198 @@
 ﻿using System;
+using AdminStore.Models.Workflow;
+using ServiceLibrary.Helpers;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Xml.Serialization;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
 using AdminStore.Helpers;
-using AdminStore.Models.Workflow;
 using AdminStore.Repositories;
 using AdminStore.Repositories.Workflow;
 using AdminStore.Services.Workflow;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Exceptions;
-using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Repositories.ConfigControl;
+using System.Data;
+using AdminStore.Models;
 
 namespace AdminStore.Controllers
 {
+    /// <summary>
+    /// Test Triggers Container class
+    /// </summary>
+    [Serializable()]
+    [XmlRoot("WorkflowTriggers")]
+    [XmlType("WorkflowTriggers")]
+    public class WorkflowTriggers
+    {
+        [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
+        [XmlArray("Triggers")]
+        [XmlArrayItem("TransitionTrigger", typeof(IeTransitionTrigger))]
+        [XmlArrayItem("PropertyChangeTrigger", typeof(IePropertyChangeTrigger))]
+        public List<IeTrigger> Triggers { get; set; }
+       
+    }
+    /// <summary>
+    /// Test Actions Container class
+    /// </summary>
+    [Serializable()]
+    [XmlRoot("WorkflowActions")]
+    [XmlType("WorkflowActions")]
+    public class WorkflowActions
+    {        
+        [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
+        [XmlArray("Actions")]
+        [XmlArrayItem("NotificationAction", typeof(IeNotificationAction))]
+        [XmlArrayItem("PropertyChangeAction", typeof(IePropertyChangeAction))]
+        [XmlArrayItem("GenerateAction", typeof(IeGenerateAction))]
+        public List<IeBaseAction> Actions { get; set; }
+       
+    }
+
+ 
     [TestClass]
+    public class XmlTriggersActionsTest
+    {
+        /// <summary>
+        /// Deserialize/Serialize XML Actions
+        /// </summary>
+        [TestMethod]
+        public void DeserializeActions()
+        {
+            // Import XML Actions content
+            string xml = 
+                "<WorkflowActions>" +
+                "<Actions>" +
+                    "<NotificationAction>" +
+                        "<Name>NotificationAction</Name>" +
+                        "<Description>Notification Test</Description>" +
+                        "<Groups>" +
+                            "<Group>Group111</Group>" +
+                            "<Group>Group222</Group>" +
+                        "</Groups>" +
+                        "<Users>" +
+                            "<User>User111</User>" +
+                            "<User>User222</User>" +
+                        "</Users>" +
+                        "<Emails>" +
+                            "<Email>user1@mail.com</Email>" +
+                            "<Email>user2@mail.com</Email>" +
+                        "</Emails>" +
+                        "<PropertyTarget>Property Name</PropertyTarget>" +
+                        "<Message>Property was changed</Message>" +
+                    "</NotificationAction>" +
+                    "<PropertyChangeAction>" +
+                        "<Name>Property Change</Name>" +
+                        "<Description>Property Change Test</Description>" +
+                        "<Group>Group Admin</Group>" +
+                        "<User>User1111</User>" +
+                        "<PropertyName>Standard Property</PropertyName>" +
+                        "<PropertyValue>1111111111111-2222222222</PropertyValue>" +
+                        "<PropertyValueType>Text</PropertyValueType>" +
+                    "</PropertyChangeAction>" +
+                    "<GenerateAction>" +
+                        "<Name>Generate Action</Name>" +
+                        "<Description>Generate Action Test</Description>" +
+                        "<Childs>3</Childs>" +
+                        "<ArtifactType>UserStory</ArtifactType>" +
+                    "</GenerateAction>" +
+                "</Actions>" +
+                "</WorkflowActions>";
+
+            // Test Deserialization of imported XML Actions
+            WorkflowActions result = null;
+            try
+            {
+                result = SerializationHelper.FromXml<WorkflowActions>(xml);
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                result = null;
+            }
+            Assert.IsTrue(result != null);
+
+            // Test resulting Actions Serialization
+            try
+            {
+                string xmlActions = SerializationHelper.ToXml(result);
+                Assert.IsNotNull(xmlActions);
+            }
+            catch (Exception ex)
+            {
+                var msg = ex.Message;
+                result = null;
+            }
+
+            return;
+        }
+
+        /// <summary>
+        /// Deserialize/Serialize XML Triggers
+        /// </summary>
+        [TestMethod]
+        public void DeserializeTriggers()
+        {
+            // Import XML Triggers
+            string xml =
+                "<WorkflowTriggers>" +
+                    "<Triggers>" +
+                        "<TransitionTrigger>" +
+                            "<TriggerType>Transition</TriggerType>" +
+                            "<Name>TestTransition</Name>" +
+                            "<Description>Trigger Deserialization test</Description>" + 
+                            "<FromState>Begin</FromState>" +
+                            "<ToState>TheEnd</ToState>" + 
+                            "<Actions></Actions>" +
+                            "<PermissionGroups></PermissionGroups>" +
+                        "</TransitionTrigger>" +
+                        "<PropertyChangeTrigger>" +
+                            "<TriggerType>PropertyChange</TriggerType>" +
+                            "<Name>TestPropChange</Name>" +
+                            "<Description>PropChangeTrigger Deserialization test</Description>" +
+                            "<FromState>Begin</FromState>" +
+                            "<ToState>TheEnd</ToState>" +
+                            "<Actions></Actions>" +
+                            "<PermissionGroups></PermissionGroups>" +
+                        "</PropertyChangeTrigger>" +
+                    "</Triggers>" +
+                "</WorkflowTriggers>";
+
+            // Test Deserialization of imported XML Triggers
+            WorkflowTriggers result = null;
+            try
+            {
+                result = SerializationHelper.FromXml<WorkflowTriggers>(xml);
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                result = null;
+            }
+            Assert.IsTrue(result != null);
+
+            // Test resulting Triggers Serialization
+            try
+            {
+                string xmlTriggers = SerializationHelper.ToXml(result);
+                Assert.IsNotNull(xmlTriggers);
+            }
+            catch (Exception ex)
+            {
+                var msg = ex.Message;
+                result = null;
+            }
+        }
+    }
+
+
+	[TestClass]
     public class WorkflowControllerTest
     {
 
@@ -33,6 +204,7 @@ namespace AdminStore.Controllers
         private WorkflowController _controller;
         private const int SessionUserId = 1;
         private const int WorkflowId = 1;
+        private const InstanceAdminPrivileges AllProjectDataPermissions = InstanceAdminPrivileges.AccessAllProjectData;
 
         [TestInitialize]
         public void Initialize()
@@ -161,6 +333,124 @@ namespace AdminStore.Controllers
             //assert
             Assert.IsNotNull(exception);
             Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
+        }
+
+        #endregion
+
+        #region UpdateWorkflowStatus
+
+        [TestMethod]
+        public async Task UpdateWorkflowStatus_AllRequirementsSatisfied_ReturnOkResult()
+        {
+            // Arrange
+            var workflowDto = new WorkflowDto { VersionId = 1, Status = true };
+            _privilegesRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(AllProjectDataPermissions);
+            // Act
+            var result = await _controller.UpdateWorkflowStatus(WorkflowId, workflowDto);
+            
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(OkResult));
+        }
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task UpdateWorkflowStatus_BodyIsNull_BadRequestResult()
+        {
+            //arrange
+            _privilegesRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(AllProjectDataPermissions);
+            //act
+            await _controller.UpdateWorkflowStatus(SessionUserId, null);
+
+            // Assert
+            // Exception
+        }
+        [TestMethod]
+        public async Task UpdateWorkflowStatus_WorkflowWithInvalidPermissions_ForbiddenResult()
+        {
+            //arrange
+            var workflowDto = new WorkflowDto { VersionId = 1, Status = true };
+            Exception exception = null;
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewProjects);
+
+            //act
+            try
+            {
+                await _controller.UpdateWorkflowStatus(SessionUserId, workflowDto);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            //assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
+        }
+
+        #endregion
+
+        #region DeleteWorkflows
+
+        [TestMethod]
+        public async Task DeleteWorkflows_AllParamsAreCorrectAndPermissionsOk_ReturnDeletedCount()
+        {
+            //arrange
+            var response = 2;
+            var scope = new OperationScope() { Ids = new List<int>() { 1, 2, 3 }, SelectAll = false };
+            var search = string.Empty;
+
+            _privilegesRepositoryMock
+               .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+               .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+            _workflowServiceMock.Setup(w => w.DeleteWorkflows(It.IsAny<OperationScope>(), It.IsAny<string>(), It.IsAny<int>()))
+                .ReturnsAsync(response);
+
+            //act
+            var result = await _controller.DeleteWorkflows(scope, search) as OkNegotiatedContentResult<DeleteResult>;
+
+            //assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(response, result.Content.TotalDeleted);
+        }
+
+        [TestMethod]
+        public async Task DeleteWorkflows_ScopeIsNull_ReturnBadRequest()
+        {
+            //arrange
+            _privilegesRepositoryMock
+               .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+               .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            //act
+            var result = await _controller.DeleteWorkflows(null) as BadRequestErrorMessageResult;
+
+
+            //assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(BadRequestErrorMessageResult));
+        }
+
+        [TestMethod]
+        public async Task DeleteWorkflow_ScopeIsEmpty_OkResultDeletedZero()
+        {
+            //arrange
+            var scope = new OperationScope();
+            _privilegesRepositoryMock
+               .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+               .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            //act
+            var result = await _controller.DeleteWorkflows(scope) as OkNegotiatedContentResult<DeleteResult>;
+
+            //assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(OkNegotiatedContentResult<DeleteResult>));
         }
 
         #endregion

@@ -161,7 +161,7 @@ namespace AdminStore.Controllers
         /// </returns>
         [SessionRequired]
         [Route("{workflowId:int:min(1)}")]
-        [ResponseType(typeof (WorkflowDto))]
+        [ResponseType(typeof(WorkflowDto))]
         public async Task<IHttpActionResult> GetWorkflow(int workflowId)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
@@ -202,11 +202,10 @@ namespace AdminStore.Controllers
         /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
         /// <response code="403">Forbidden if used doesn’t have permissions to delete workflows</response>
         /// <returns></returns>
-        [HttpPost]
-        [SessionRequired]
-        [Route("delete")]
-        [ResponseType(typeof(IEnumerable<int>))]
-        public async Task<IHttpActionResult> DeleteWorkflows([FromBody]OperationScope scope, string search = null)
+        [HttpDelete]
+        [Route(""), SessionRequired]
+        [ResponseType(typeof(DeleteResult))]
+        public async Task<IHttpActionResult> DeleteWorkflows([FromUri]OperationScope scope, string search = null)
         {
             if (scope == null)
             {
@@ -217,9 +216,9 @@ namespace AdminStore.Controllers
                 return Ok(DeleteResult.Empty);
             }
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
-            var result = await _workflowRepository.DeleteWorkflows(scope, search, Session.UserId);
+            var result = await _workflowService.DeleteWorkflows(scope, search, Session.UserId);
 
-            return Ok(result);
+            return Ok(new DeleteResult { TotalDeleted = result });
         }
 
 

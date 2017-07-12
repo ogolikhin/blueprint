@@ -33,6 +33,7 @@
 
     public enum DTriggerType
     {
-        Transition = 0
+        Transition = 0,
+        PropertyChange = 1
     }
 }

@@ -279,19 +279,19 @@ namespace AdminStore.Repositories.Workflow
             return result;
         }
 
-        public async Task<int> DeleteWorkflows(OperationScope body, string search, int sessionUserId)
+        public async Task<int> DeleteWorkflows(OperationScope body, string search, int revision)
         {
             if (search != null)
             {
                 search = UsersHelper.ReplaceWildcardCharacters(search);
             }
             var parameters = new DynamicParameters();
+            parameters.Add("@PublishRevision", revision);
             parameters.Add("@WorkflowIds", SqlConnectionWrapper.ToDataTable(body.Ids));
             parameters.Add("@Search", search);
             parameters.Add("@SelectAll", body.SelectAll);
-            parameters.Add("@SessionUserId", sessionUserId);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            var result = await ConnectionWrapper.ExecuteScalarAsync<int>("DeleteWorkflows", parameters, commandType: CommandType.StoredProcedure);
+            var result = await ConnectionWrapper.ExecuteScalarAsync<int>("DeleteWorkflowsAll", parameters, commandType: CommandType.StoredProcedure);
             var errorCode = parameters.Get<int?>("ErrorCode");
             if (errorCode.HasValue)
             {

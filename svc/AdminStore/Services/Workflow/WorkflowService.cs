@@ -10,6 +10,7 @@ using AdminStore.Repositories;
 using AdminStore.Repositories.Workflow;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.Files;
 using File = ServiceLibrary.Models.Files.File;
 
@@ -183,14 +184,29 @@ namespace AdminStore.Services.Workflow
                 var updatedWorkflows = await _workflowRepository.UpdateWorkflows(workflows, publishRevision, transaction);
 
                 var updatedWorkflowsCount = updatedWorkflows.Count();
-                var neededCountWorkflows = 1;
 
-                if (updatedWorkflowsCount != neededCountWorkflows)
+                if (updatedWorkflowsCount != 1)
                 {
                     throw new BadRequestException(ErrorMessages.WorkflowWasNotUpdated, ErrorCodes.BadRequest);
                 }
             };
             await _workflowRepository.RunInTransactionAsync(action);
+        }
+
+        public async Task<int> DeleteWorkflows(OperationScope body, string search, int sessionUserId)
+        {
+            var totalDeleted = 0;
+            Func<IDbTransaction, Task> action = async transaction =>
+            {
+                var publishRevision =
+                    await
+                        _workflowRepository.CreateRevisionInTransactionAsync(transaction, sessionUserId,
+                            $"DeleteWorkflows. Session user id is {sessionUserId}.");
+                totalDeleted = await _workflowRepository.DeleteWorkflows(body, search, publishRevision);
+            };
+            await _workflowRepository.RunInTransactionAsync(action);
+
+            return totalDeleted;
         }
 
         private async Task ImportWorkflowComponentsAsync(IeWorkflow workflow, SqlWorkflow newWorkflow, int publishRevision, IDbTransaction transaction)
@@ -299,7 +315,7 @@ namespace AdminStore.Services.Workflow
                         GroupIds = transition.PermissionGroups.Select(pg => existingGroupNames.First(p => p.Name == pg.Name).GroupId).ToList()
                     }),
                     Validations = null,
-                    Actions = null,
+                    Actions = SerializationHelper.ToXml(transition.Actions),
                     WorkflowState1Id = newStatesArray.FirstOrDefault(s => s.Name.Equals(transition.FromState))?.WorkflowStateId,
                     WorkflowState2Id = newStatesArray.FirstOrDefault(s => s.Name.Equals(transition.ToState))?.WorkflowStateId,
                     PropertyTypeId = null

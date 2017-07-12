@@ -55,14 +55,6 @@ namespace ArtifactStore.Executors
                             I18NHelper.FormatInvariant("State Change Publish: publishing changes and changing artifact {0} state to {1}", Input.ArtifactId, Input.ToStateId));
                 Input.RevisionId = publishRevision;
 
-                await _versionControlService.PublishArtifacts(new PublishParameters
-                {
-                    All = false,
-                    ArtifactIds = new []{Input.ArtifactId},
-                    UserId = _userId,
-                    RevisionId = publishRevision
-                }, transaction);
-
                 foreach (var constraint in PreOps)
                 {
                     if (!(await constraint.IsFulfilled()))
@@ -71,6 +63,25 @@ namespace ArtifactStore.Executors
                     }
                 }
                 var result = await ExecuteInternal(Input, transaction);
+
+                try
+                {
+                    await _versionControlService.PublishArtifacts(new PublishParameters
+                    {
+                        All = false,
+                        ArtifactIds = new[] { Input.ArtifactId },
+                        UserId = _userId,
+                        RevisionId = publishRevision
+                    }, transaction);
+                }
+                catch (ConflictException ex)
+                {
+                    if (ex.ErrorCode != ErrorCodes.CannotPublish)
+                    {
+                        throw;
+                    }
+                }
+
                 foreach (var triggerExecutor in PostOps)
                 {
                     if (!await triggerExecutor.Execute())

@@ -56,7 +56,7 @@ namespace ArtifactStore.Services.VersionControl
 
             if (parameters.All.HasValue && parameters.All.Value)
             {
-                discardPublishStates = await _versionControlRepository.GetAllDiscardPublish(parameters.UserId);
+                discardPublishStates = await _versionControlRepository.GetAllDiscardPublish(parameters.UserId, transaction);
                 artifactIdsList = discardPublishStates.Select(dps => dps.ItemId).ToList();
             }
             else

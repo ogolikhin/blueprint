@@ -1,8 +1,10 @@
-﻿namespace ActionHandlerService.MessageHandlers.Notifications
+﻿using ActionHandlerService.Models;
+
+namespace ActionHandlerService.MessageHandlers.Notifications
 {
     public class NotificationsActionHelper : IActionHelper
     {
-        public bool HandleAction(TenantInfo tenant)
+        public bool HandleAction(TenantInformation tenant)
         {
             return true;
         }

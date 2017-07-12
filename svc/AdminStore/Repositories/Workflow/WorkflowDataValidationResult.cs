@@ -9,7 +9,9 @@ namespace AdminStore.Repositories.Workflow
         public bool HasErrors => Errors.Any();
 
         private List<WorkflowDataValidationError> _errors;
-        public List<WorkflowDataValidationError> Errors => _errors ?? (_errors = new List<WorkflowDataValidationError>());
+
+        public List<WorkflowDataValidationError> Errors
+            => _errors ?? (_errors = new List<WorkflowDataValidationError>());
 
         public HashSet<int> ValidProjectIds { get; set; }
         public HashSet<SqlGroup> ValidGroups { get; set; }
@@ -27,3 +29,4 @@ namespace AdminStore.Repositories.Workflow
         ProjectNotFound,
         GroupsNotFound
     }
+}

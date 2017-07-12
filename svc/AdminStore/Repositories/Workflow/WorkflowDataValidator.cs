@@ -72,7 +72,7 @@ namespace AdminStore.Repositories.Workflow
                 result.Errors.Add(new WorkflowDataValidationError
                 {
                     Info = "The following projects could not be found",
-                    ErrorCode = WorkflowValidationErrorCodes.ProjectNotFound
+                    ErrorCode = WorkflowDataValidationErrorCodes.ProjectNotFound
                 });
             }
             
@@ -103,7 +103,7 @@ namespace AdminStore.Repositories.Workflow
                 result.Errors.Add(new WorkflowDataValidationError
                 {
                     Info = "The following groups were not found",
-                    ErrorCode = WorkflowValidationErrorCodes.GroupsNotFound
+                    ErrorCode = WorkflowDataValidationErrorCodes.GroupsNotFound
                 });
             }
 

@@ -1,28 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 
 namespace AdminStore.Models.Workflow
 {
-    // Enumeration of data types
-    public enum ActionDataTypes
-    {
-        None,
-        Number,
-        Text,
-        Date
-    }
-
     /// <summary>
     /// Base class for Actions of specific type
     /// </summary>
+    [XmlType("BaseAction")]
     public abstract class IeBaseAction
     {
+        [XmlElement(IsNullable = false)]
         public string Name { get; set; }
 
+        [XmlElement(IsNullable = false)]
         public string Description { get; set; }
-        
     }
 
 }

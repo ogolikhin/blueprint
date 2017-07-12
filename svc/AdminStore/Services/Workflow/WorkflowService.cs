@@ -203,7 +203,7 @@ namespace AdminStore.Services.Workflow
                     await
                         _workflowRepository.CreateRevisionInTransactionAsync(transaction, sessionUserId,
                             $"DeleteWorkflows. Session user id is {sessionUserId}.");
-                totalDeleted = await _workflowRepository.DeleteWorkflows(body, search, sessionUserId, publishRevision);
+                totalDeleted = await _workflowRepository.DeleteWorkflows(body, search, publishRevision);
             };
             await _workflowRepository.RunInTransactionAsync(action);
 

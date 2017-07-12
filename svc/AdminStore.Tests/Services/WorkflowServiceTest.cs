@@ -116,20 +116,12 @@ namespace AdminStore.Services
         {
             // Arrange
             var existingWorkflow = new WorkflowDto { VersionId = 45, Status = true };
-            var resourceNotFoundExeption = new ResourceNotFoundException(ErrorMessages.WorkflowNotExist);
             _workflowRepositoryMock
                 .Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync((SqlWorkflow)null);
             // Act
-            try
-            {
                 await _service.UpdateWorkflowStatusAsync(existingWorkflow, WorkflowId, SessionUserId);
-            }
-            catch (Exception exception)
-            {
-                // Assert
-                Assert.IsInstanceOfType(exception, typeof(ResourceNotFoundException));
-                throw;
-            }
+            // Assert
+            // Exception
         }
         [TestMethod]
         [ExpectedException(typeof(ConflictException))]
@@ -138,20 +130,11 @@ namespace AdminStore.Services
             // Arrange
             var existingWorkflow = new SqlWorkflow { VersionId = 1, WorkflowId = 1 };
             var workflowDto = new WorkflowDto { VersionId = 2, WorkflowId = 1 };
-
             _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(existingWorkflow);
             // Act
-            try
-            {
                 await _service.UpdateWorkflowStatusAsync(workflowDto, WorkflowId, SessionUserId);
-             }
-            catch (Exception exception)
-            {
-                // Assert
-                Assert.IsInstanceOfType(exception, typeof(ConflictException));
-                throw;
-            }
-
+            // Assert
+            // Exception
         }
         #endregion
     }

@@ -1,23 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using AdminStore.Models;
 using AdminStore.Models.Workflow;
-using ArtifactStore.Helpers;
-using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 
 namespace AdminStore.Repositories.Workflow
 {
     public class WorkflowValidator : IWorkflowValidator
     {
-        private HashSet<int> _validProjectIdIds = new HashSet<int>();
-        public HashSet<int> ValidProjectIds => _validProjectIdIds;
-
-        private HashSet<SqlGroup> _validGroups = new HashSet<SqlGroup>();
-        public HashSet<SqlGroup> ValidGroups => _validGroups;
-
         public WorkflowValidationResult Validate(IeWorkflow workflow)
         {
             if (workflow == null)
@@ -226,7 +216,6 @@ namespace AdminStore.Repositories.Workflow
             return result;
         }
 
-        
         private static bool ValidatePropertyNotEmpty(string property)
         {
             return !string.IsNullOrWhiteSpace(property);

@@ -71,7 +71,7 @@ namespace AdminStore.Repositories.Workflow
                     ).Select(proj => proj.Id?.ToString() ?? proj.Path));
                 result.Errors.Add(new WorkflowDataValidationError
                 {
-                    Info = "The following projects could not be found",
+                    Info = $"The following projects could not be found: {listOfBadProjects}",
                     ErrorCode = WorkflowDataValidationErrorCodes.ProjectNotFound
                 });
             }
@@ -102,7 +102,7 @@ namespace AdminStore.Repositories.Workflow
                     ));
                 result.Errors.Add(new WorkflowDataValidationError
                 {
-                    Info = "The following groups were not found",
+                    Info = $"The following groups were not found: {listOfBadGroups}",
                     ErrorCode = WorkflowDataValidationErrorCodes.GroupsNotFound
                 });
             }

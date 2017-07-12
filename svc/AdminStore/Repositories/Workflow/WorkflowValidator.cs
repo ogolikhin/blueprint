@@ -97,56 +97,89 @@ namespace AdminStore.Repositories.Workflow
             }
 
             var stateTransitions = stateNames.ToDictionary(s => s, s => new List<string>());
-            foreach (var transition in workflow.Transitions.FindAll(s => s != null))
+            foreach (var trigger in workflow.Triggers.FindAll(s => s != null))
             {
-                var from = ValidatePropertyNotEmpty(transition.FromState) ? transition.FromState : string.Empty;
-                var to = ValidatePropertyNotEmpty(transition.ToState) ? transition.ToState : string.Empty;
+                if (trigger.TriggerType == TriggerTypes.Transition)
+                {
+                    var transition = trigger as IeTransitionTrigger;
 
-                if (!ValidatePropertyNotEmpty(transition.Name))
-                {
-                    result.Errors.Add(new WorkflowValidationError { Element = transition, ErrorCode = WorkflowValidationErrorCodes.TransitionNameEmpty });
-                }
-                else
-                {
-                    if (!string.IsNullOrEmpty(from) && stateTransitions.ContainsKey(from))
+                    var from = ValidatePropertyNotEmpty(transition.FromState) ? transition.FromState : string.Empty;
+                    var to = ValidatePropertyNotEmpty(transition.ToState) ? transition.ToState : string.Empty;
+
+                    if (!ValidatePropertyNotEmpty(transition.Name))
                     {
-                        stateTransitions[from].Add(transition.Name);
+                        result.Errors.Add(new WorkflowValidationError
+                        {
+                            Element = transition,
+                            ErrorCode = WorkflowValidationErrorCodes.TriggerNameEmpty
+                        });
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrEmpty(from) && stateTransitions.ContainsKey(from))
+                        {
+                            stateTransitions[from].Add(transition.Name);
+                        }
+
+                        if (!string.IsNullOrEmpty(to) && stateTransitions.ContainsKey(to))
+                        {
+                            stateTransitions[to].Add(transition.Name);
+                        }
                     }
 
-                    if (!string.IsNullOrEmpty(to) && stateTransitions.ContainsKey(to))
+                    if (!ValidatePropertyLimit(transition.Name, 24))
                     {
-                        stateTransitions[to].Add(transition.Name);
+                        result.Errors.Add(new WorkflowValidationError
+                        {
+                            Element = transition,
+                            ErrorCode = WorkflowValidationErrorCodes.TriggerNameExceedsLimit24
+                        });
                     }
-                }
 
-                if (!ValidatePropertyLimit(transition.Name, 24))
-                {
-                    result.Errors.Add(new WorkflowValidationError { Element = transition, ErrorCode = WorkflowValidationErrorCodes.TransitionNameExceedsLimit24 });
-                }
+                    if (!ValidatePropertyLimit(transition.Description, 4000))
+                    {
+                        result.Errors.Add(new WorkflowValidationError
+                        {
+                            Element = transition,
+                            ErrorCode = WorkflowValidationErrorCodes.TriggerDescriptionExceedsLimit4000
+                        });
+                    }
 
-                if (!ValidatePropertyLimit(transition.Description, 4000))
-                {
-                    result.Errors.Add(new WorkflowValidationError { Element = transition, ErrorCode = WorkflowValidationErrorCodes.TransitionDescriptionExceedsLimit4000 });
-                }
+                    if (string.IsNullOrEmpty(from))
+                    {
+                        result.Errors.Add(new WorkflowValidationError
+                        {
+                            Element = transition,
+                            ErrorCode = WorkflowValidationErrorCodes.TransitionStartStateNotSpecified
+                        });
+                    }
+                    if (string.IsNullOrEmpty(to))
+                    {
+                        result.Errors.Add(new WorkflowValidationError
+                        {
+                            Element = transition,
+                            ErrorCode = WorkflowValidationErrorCodes.TransitionEndStateNotSpecified
+                        });
+                    }
 
-                if (string.IsNullOrEmpty(from))
-                {
-                    result.Errors.Add(new WorkflowValidationError { Element = transition, ErrorCode = WorkflowValidationErrorCodes.TransitionStartStateNotSpecified });
-                }
-                if (string.IsNullOrEmpty(to))
-                {
-                    result.Errors.Add(new WorkflowValidationError { Element = transition, ErrorCode = WorkflowValidationErrorCodes.TransitionEndStateNotSpecified });
-                }
+                    if (from != null && from.EqualsOrdinalIgnoreCase(to))
+                    {
+                        result.Errors.Add(new WorkflowValidationError
+                        {
+                            Element = transition,
+                            ErrorCode = WorkflowValidationErrorCodes.TransitionFromAndToStatesSame
+                        });
+                    }
 
-                if(from != null && from.EqualsOrdinalIgnoreCase(to))
-                {
-                    result.Errors.Add(new WorkflowValidationError { Element = transition, ErrorCode = WorkflowValidationErrorCodes.TransitionFromAndToStatesSame });
-                }
-
-                if ((!string.IsNullOrEmpty(from) && !stateNames.Contains(from))
-                    || (!string.IsNullOrEmpty(to) && !stateNames.Contains(to)))
-                {
-                    result.Errors.Add(new WorkflowValidationError { Element = transition, ErrorCode = WorkflowValidationErrorCodes.TransitionStateNotFound });
+                    if ((!string.IsNullOrEmpty(from) && !stateNames.Contains(from))
+                        || (!string.IsNullOrEmpty(to) && !stateNames.Contains(to)))
+                    {
+                        result.Errors.Add(new WorkflowValidationError
+                        {
+                            Element = transition,
+                            ErrorCode = WorkflowValidationErrorCodes.TransitionStateNotFound
+                        });
+                    }
                 }
             }
 

@@ -1,19 +1,31 @@
-﻿using System;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 
 namespace AdminStore.Models.Workflow
 {
+    public enum GenerateActionTypes
+    {
+        None,
+        Children,
+        UserStories,
+        TestCases
+    };
+
+
     /// <summary>
     /// Generate Action 
     /// </summary>
-    [Serializable()]
     [XmlType("GenerateAction")]
-    public class IeGenerateAction :IeBaseAction
+    public class IeGenerateAction : IeBaseAction
     {
-        [XmlElement("Childs")]
+        [XmlElement(IsNullable = false)]
+        public GenerateActionTypes GenerateActionType { get; set; }
+
+        // Used only for GenerateActionType = Children
+        [XmlElement(IsNullable = false)]
         public int ChildCount { get; set; }
 
-        [XmlElement("ArtifactType")]
-        public string ArtifactTypeName { get; set; }
+        // Used only for GenerateActionType = Children
+        [XmlElement(IsNullable = false)]
+        public string ArtifactType { get; set; }
     }
 }

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using AdminStore.Models.Workflow;
 using AdminStore.Repositories;
 using AdminStore.Repositories.Workflow;
+using ArtifactStore.Helpers;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
@@ -245,7 +246,7 @@ namespace AdminStore.Services.Workflow
             var newStatesArray = newStates.ToArray();
             var importTriggersParams = new List<SqlTrigger>();
 
-            workflow.Transitions.ForEach(transition =>
+            workflow.Triggers.OfType<IeTransitionTrigger>().ForEach(transition =>
             {
                 importTriggersParams.Add(new SqlTrigger
                 {

@@ -37,5 +37,11 @@ namespace BluePrintSys.Messaging.CrossCutting
             }
             return boolValue;
         }
+
+        public static string GetConnectionStringValue(string key)
+        {
+            var connectionString = ConfigurationManager.ConnectionStrings[key];
+            return connectionString?.ConnectionString;
+        }
     }
 }

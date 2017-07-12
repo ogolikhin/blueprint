@@ -169,7 +169,7 @@
     <Compile Include="Models\UserGroupSource.cs" />
     <Compile Include="Models\Workflow\IeBaseAction.cs" />
     <Compile Include="Models\Workflow\IeGenerateAction.cs" />
-    <Compile Include="Models\Workflow\IeNotificationAction.cs" />
+    <Compile Include="Models\Workflow\IeEmailNotificationAction.cs" />
     <Compile Include="Models\Workflow\IePropertyChangeAction.cs" />
     <Compile Include="Models\Workflow\IePropertyChangeTrigger.cs" />
     <Compile Include="Models\Workflow\IeTrigger.cs" />

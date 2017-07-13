@@ -6,52 +6,52 @@ using ServiceLibrary.Helpers;
 
 namespace AdminStore.Repositories.Workflow
 {
-    public class WorkflowValidator : IWorkflowValidator
+    public class WorkflowXmlValidator : IWorkflowXmlValidator
     {
-        public WorkflowValidationResult Validate(IeWorkflow workflow)
+        public WorkflowXmlValidationResult Validate(IeWorkflow workflow)
         {
             if (workflow == null)
             {
                 throw new ArgumentNullException(nameof(workflow));
             }
 
-            var result = new WorkflowValidationResult();
+            var result = new WorkflowXmlValidationResult();
 
             if (!ValidatePropertyNotEmpty(workflow.Name))
             {
-                result.Errors.Add(new WorkflowValidationError { Element = workflow, ErrorCode = WorkflowValidationErrorCodes.WorkflowNameEmpty});
+                result.Errors.Add(new WorkflowXmlValidationError { Element = workflow, ErrorCode = WorkflowXmlValidationErrorCodes.WorkflowNameEmpty});
             }
 
             if (!ValidatePropertyLimit(workflow.Name, 24))
             {
-                result.Errors.Add(new WorkflowValidationError { Element = workflow, ErrorCode = WorkflowValidationErrorCodes.WorkflowNameExceedsLimit24 });
+                result.Errors.Add(new WorkflowXmlValidationError { Element = workflow, ErrorCode = WorkflowXmlValidationErrorCodes.WorkflowNameExceedsLimit24 });
             }
 
             if (!ValidatePropertyLimit(workflow.Description, 4000))
             {
-                result.Errors.Add(new WorkflowValidationError { Element = workflow, ErrorCode = WorkflowValidationErrorCodes.WorkflowDescriptionExceedsLimit4000 });
+                result.Errors.Add(new WorkflowXmlValidationError { Element = workflow, ErrorCode = WorkflowXmlValidationErrorCodes.WorkflowDescriptionExceedsLimit4000 });
             }
 
             if (!ValidateWorkflowContainsStates(workflow.States))
             {
-                result.Errors.Add(new WorkflowValidationError { Element = workflow, ErrorCode = WorkflowValidationErrorCodes.WorkflowDoesNotContainAnyStates });
+                result.Errors.Add(new WorkflowXmlValidationError { Element = workflow, ErrorCode = WorkflowXmlValidationErrorCodes.WorkflowDoesNotContainAnyStates });
             }
             else
             {
                 var initialStatesCount = workflow.States.Count(s => s.IsInitial.GetValueOrDefault());
                 if (initialStatesCount == 0)
                 {
-                    result.Errors.Add(new WorkflowValidationError { Element = workflow, ErrorCode = WorkflowValidationErrorCodes.NoInitialState });
+                    result.Errors.Add(new WorkflowXmlValidationError { Element = workflow, ErrorCode = WorkflowXmlValidationErrorCodes.NoInitialState });
                 }
                 else if (initialStatesCount > 1)
                 {
-                    result.Errors.Add(new WorkflowValidationError { Element = workflow, ErrorCode = WorkflowValidationErrorCodes.MultipleInitialStates });
+                    result.Errors.Add(new WorkflowXmlValidationError { Element = workflow, ErrorCode = WorkflowXmlValidationErrorCodes.MultipleInitialStates });
                 }
             }
 
             if (!ValidateStatesCount(workflow.States))
             {
-                result.Errors.Add(new WorkflowValidationError { Element = workflow, ErrorCode = WorkflowValidationErrorCodes.StatesCountExceedsLimit100 });
+                result.Errors.Add(new WorkflowXmlValidationError { Element = workflow, ErrorCode = WorkflowXmlValidationErrorCodes.StatesCountExceedsLimit100 });
             }
 
 
@@ -61,13 +61,13 @@ namespace AdminStore.Repositories.Workflow
 
                 if (!ValidatePropertyNotEmpty(state.Name))
                 {
-                    result.Errors.Add(new WorkflowValidationError { Element = state, ErrorCode = WorkflowValidationErrorCodes.StateNameEmpty });
+                    result.Errors.Add(new WorkflowXmlValidationError { Element = state, ErrorCode = WorkflowXmlValidationErrorCodes.StateNameEmpty });
                 }
                 else
                 {
                     if (stateNames.Contains(state.Name))
                     {
-                        result.Errors.Add(new WorkflowValidationError { Element = state, ErrorCode = WorkflowValidationErrorCodes.StateNameNotUnique });
+                        result.Errors.Add(new WorkflowXmlValidationError { Element = state, ErrorCode = WorkflowXmlValidationErrorCodes.StateNameNotUnique });
                     }
                     else
                     {
@@ -77,12 +77,12 @@ namespace AdminStore.Repositories.Workflow
 
                 if (!ValidatePropertyLimit(state.Name, 24))
                 {
-                    result.Errors.Add(new WorkflowValidationError { Element = state, ErrorCode = WorkflowValidationErrorCodes.StateNameExceedsLimit24 });
+                    result.Errors.Add(new WorkflowXmlValidationError { Element = state, ErrorCode = WorkflowXmlValidationErrorCodes.StateNameExceedsLimit24 });
                 }
 
                 if (!ValidatePropertyLimit(state.Description, 4000))
                 {
-                    result.Errors.Add(new WorkflowValidationError { Element = state, ErrorCode = WorkflowValidationErrorCodes.StateDescriptionExceedsLimit4000 });
+                    result.Errors.Add(new WorkflowXmlValidationError { Element = state, ErrorCode = WorkflowXmlValidationErrorCodes.StateDescriptionExceedsLimit4000 });
                 }
             }
 
@@ -91,28 +91,28 @@ namespace AdminStore.Repositories.Workflow
             {
                 if (!ValidatePropertyNotEmpty(trigger.Name))
                 {
-                    result.Errors.Add(new WorkflowValidationError
+                    result.Errors.Add(new WorkflowXmlValidationError
                     {
                         Element = trigger,
-                        ErrorCode = WorkflowValidationErrorCodes.TriggerNameEmpty
+                        ErrorCode = WorkflowXmlValidationErrorCodes.TriggerNameEmpty
                     });
                 }
 
                 if (!ValidatePropertyLimit(trigger.Name, 24))
                 {
-                    result.Errors.Add(new WorkflowValidationError
+                    result.Errors.Add(new WorkflowXmlValidationError
                     {
                         Element = trigger,
-                        ErrorCode = WorkflowValidationErrorCodes.TriggerNameExceedsLimit24
+                        ErrorCode = WorkflowXmlValidationErrorCodes.TriggerNameExceedsLimit24
                     });
                 }
 
                 if (!ValidatePropertyLimit(trigger.Description, 4000))
                 {
-                    result.Errors.Add(new WorkflowValidationError
+                    result.Errors.Add(new WorkflowXmlValidationError
                     {
                         Element = trigger,
-                        ErrorCode = WorkflowValidationErrorCodes.TriggerDescriptionExceedsLimit4000
+                        ErrorCode = WorkflowXmlValidationErrorCodes.TriggerDescriptionExceedsLimit4000
                     });
                 }
 
@@ -139,39 +139,61 @@ namespace AdminStore.Repositories.Workflow
 
                     if (string.IsNullOrEmpty(from))
                     {
-                        result.Errors.Add(new WorkflowValidationError
+                        result.Errors.Add(new WorkflowXmlValidationError
                         {
                             Element = transition,
-                            ErrorCode = WorkflowValidationErrorCodes.TransitionStartStateNotSpecified
+                            ErrorCode = WorkflowXmlValidationErrorCodes.TransitionStartStateNotSpecified
                         });
                     }
                     if (string.IsNullOrEmpty(to))
                     {
-                        result.Errors.Add(new WorkflowValidationError
+                        result.Errors.Add(new WorkflowXmlValidationError
                         {
                             Element = transition,
-                            ErrorCode = WorkflowValidationErrorCodes.TransitionEndStateNotSpecified
+                            ErrorCode = WorkflowXmlValidationErrorCodes.TransitionEndStateNotSpecified
                         });
                     }
 
                     if (from != null && from.EqualsOrdinalIgnoreCase(to))
                     {
-                        result.Errors.Add(new WorkflowValidationError
+                        result.Errors.Add(new WorkflowXmlValidationError
                         {
                             Element = transition,
-                            ErrorCode = WorkflowValidationErrorCodes.TransitionFromAndToStatesSame
+                            ErrorCode = WorkflowXmlValidationErrorCodes.TransitionFromAndToStatesSame
                         });
                     }
 
                     if ((!string.IsNullOrEmpty(from) && !stateNames.Contains(from))
                         || (!string.IsNullOrEmpty(to) && !stateNames.Contains(to)))
                     {
-                        result.Errors.Add(new WorkflowValidationError
+                        result.Errors.Add(new WorkflowXmlValidationError
                         {
                             Element = transition,
-                            ErrorCode = WorkflowValidationErrorCodes.TransitionStateNotFound
+                            ErrorCode = WorkflowXmlValidationErrorCodes.TransitionStateNotFound
                         });
                     }
+                }
+                else if (trigger.TriggerType == TriggerTypes.PropertyChange)
+                {
+                    var pcTrigger = trigger as IePropertyChangeTrigger;
+
+                    if (!ValidatePropertyNotEmpty(pcTrigger.PropertyName))
+                    {
+                        result.Errors.Add(new WorkflowXmlValidationError
+                        {
+                            Element = pcTrigger,
+                            ErrorCode = WorkflowXmlValidationErrorCodes.PropertyChangeTriggerPropertyNotSpecified
+                        });
+                    }
+                }
+
+                if (trigger.Actions?.Count > 10)
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = trigger,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.ActionsCountOnTriggerExceedsLimit10
+                    });
                 }
             }
 
@@ -180,17 +202,17 @@ namespace AdminStore.Repositories.Workflow
                 var transitionNames = stateTransitions[stateName];
                 if (!transitionNames.Any())
                 {
-                    result.Errors.Add(new WorkflowValidationError { Element = stateName, ErrorCode = WorkflowValidationErrorCodes.StateDoesNotHaveAnyTransitions });
+                    result.Errors.Add(new WorkflowXmlValidationError { Element = stateName, ErrorCode = WorkflowXmlValidationErrorCodes.StateDoesNotHaveAnyTransitions });
                 }
 
                 if (transitionNames.Count > 10)
                 {
-                    result.Errors.Add(new WorkflowValidationError { Element = stateName, ErrorCode = WorkflowValidationErrorCodes.TransitionCountOnStateExceedsLimit10 });
+                    result.Errors.Add(new WorkflowXmlValidationError { Element = stateName, ErrorCode = WorkflowXmlValidationErrorCodes.TransitionCountOnStateExceedsLimit10 });
                 }
 
                 if (transitionNames.Count != transitionNames.Distinct().Count())
                 {
-                    result.Errors.Add(new WorkflowValidationError { Element = stateName, ErrorCode = WorkflowValidationErrorCodes.TransitionNameNotUniqueOnState });
+                    result.Errors.Add(new WorkflowXmlValidationError { Element = stateName, ErrorCode = WorkflowXmlValidationErrorCodes.TransitionNameNotUniqueOnState });
                 }
             }
 
@@ -198,12 +220,12 @@ namespace AdminStore.Repositories.Workflow
             {
                 if (!project.Id.HasValue && !ValidatePropertyNotEmpty(project.Path))
                 {
-                    result.Errors.Add(new WorkflowValidationError { Element = project, ErrorCode = WorkflowValidationErrorCodes.ProjectNoSpecified });
+                    result.Errors.Add(new WorkflowXmlValidationError { Element = project, ErrorCode = WorkflowXmlValidationErrorCodes.ProjectNoSpecified });
                 }
 
                 if (project.Id.HasValue && project.Id.Value < 1)
                 {
-                    result.Errors.Add(new WorkflowValidationError { Element = project, ErrorCode = WorkflowValidationErrorCodes.ProjectInvalidId });
+                    result.Errors.Add(new WorkflowXmlValidationError { Element = project, ErrorCode = WorkflowXmlValidationErrorCodes.ProjectInvalidId });
                 }
             }
 
@@ -211,7 +233,7 @@ namespace AdminStore.Repositories.Workflow
             {
                 if (!ValidatePropertyNotEmpty(artifactType.Name))
                 {
-                    result.Errors.Add(new WorkflowValidationError { Element = artifactType, ErrorCode = WorkflowValidationErrorCodes.ArtifactTypeNoSpecified });
+                    result.Errors.Add(new WorkflowXmlValidationError { Element = artifactType, ErrorCode = WorkflowXmlValidationErrorCodes.ArtifactTypeNoSpecified });
                 }
             }
 

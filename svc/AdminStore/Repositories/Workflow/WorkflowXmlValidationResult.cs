@@ -3,23 +3,23 @@ using System.Linq;
 
 namespace AdminStore.Repositories.Workflow
 {
-    public class WorkflowValidationResult
+    public class WorkflowXmlValidationResult
     {
         public bool HasErrors => Errors.Any();
 
-        private List<WorkflowValidationError> _errors;
-        public List<WorkflowValidationError> Errors => _errors ?? (_errors = new List<WorkflowValidationError>());
+        private List<WorkflowXmlValidationError> _errors;
+        public List<WorkflowXmlValidationError> Errors => _errors ?? (_errors = new List<WorkflowXmlValidationError>());
     }
 
-    public class WorkflowValidationError
+    public class WorkflowXmlValidationError
     {
         public object Element { get; set; }
-        public WorkflowValidationErrorCodes ErrorCode { get; set; }
+        public WorkflowXmlValidationErrorCodes ErrorCode { get; set; }
 
     }
 
 
-    public enum WorkflowValidationErrorCodes
+    public enum WorkflowXmlValidationErrorCodes
     {
         WorkflowNameEmpty,
         WorkflowNameExceedsLimit24,
@@ -42,6 +42,8 @@ namespace AdminStore.Repositories.Workflow
         TransitionStartStateNotSpecified,
         TransitionEndStateNotSpecified,
         TransitionFromAndToStatesSame,
+        ActionsCountOnTriggerExceedsLimit10,
+        PropertyChangeTriggerPropertyNotSpecified,
         ProjectNoSpecified,
         ProjectInvalidId,
         ArtifactTypeNoSpecified

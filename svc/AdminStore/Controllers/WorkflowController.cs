@@ -35,6 +35,8 @@ namespace AdminStore.Controllers
         private readonly IWorkflowRepository _workflowRepository;
         internal readonly PrivilegesManager _privilegesManager;
 
+        private const string InvalidXmlErrorMessageTemplate = "There was an error uploading {0}. The supplied XML is not valid.  Please edit your file and upload again. \r\n {1}";
+
         public WorkflowController() : this(new WorkflowRepository(), new WorkflowService(), new ServiceLogRepository(), new SqlPrivilegesRepository())
         {
         }
@@ -95,7 +97,7 @@ namespace AdminStore.Controllers
                 {
                     var errorResult = new ImportWorkflowResult
                     {
-                        ErrorMessage = ex.Message
+                        ErrorMessage = I18NHelper.FormatInvariant(InvalidXmlErrorMessageTemplate, fileName, ex.Message)
                     };
 
                     var response = Request.CreateResponse(HttpStatusCode.BadRequest, errorResult);
@@ -270,7 +272,7 @@ namespace AdminStore.Controllers
             }
             catch (Exception ex)
             {
-                throw new BadRequestException(I18NHelper.FormatInvariant("Invalid workflow XML: {0}", ex.Message), ErrorCodes.InvalidWorkflowXml);
+                throw new BadRequestException(ex.Message, ErrorCodes.InvalidWorkflowXml);
             }
         }
 

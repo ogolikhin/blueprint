@@ -25,7 +25,7 @@ namespace AdminStore.Services
         {
             //arrange
             var workflowRepositoryMock = new Mock<IWorkflowRepository>();
-            var workflowValidatorMock = new Mock<IWorkflowValidator>();
+            var workflowValidatorMock = new Mock<IWorkflowXmlValidator>();
             var userRepositoryMock = new Mock<IUserRepository>();
             var workflowService = new WorkflowService(workflowRepositoryMock.Object, workflowValidatorMock.Object,
                 userRepositoryMock.Object);
@@ -72,7 +72,7 @@ namespace AdminStore.Services
         {
             //arrange
             var workflowRepositoryMock = new Mock<IWorkflowRepository>();
-            var workflowValidatorMock = new Mock<IWorkflowValidator>();
+            var workflowValidatorMock = new Mock<IWorkflowXmlValidator>();
             var userRepositoryMock = new Mock<IUserRepository>();
             var workflowService = new WorkflowService(workflowRepositoryMock.Object, workflowValidatorMock.Object,
                 userRepositoryMock.Object);

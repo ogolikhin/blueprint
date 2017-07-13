@@ -207,10 +207,10 @@
     <Compile Include="Repositories\SqlSettingsRepository.cs" />
     <Compile Include="Repositories\SqlUserRepository.cs" />
     <Compile Include="Repositories\Workflow\IWorkflowRepository.cs" />
-    <Compile Include="Repositories\Workflow\IWorkflowValidator.cs" />
+    <Compile Include="Repositories\Workflow\IWorkflowXmlValidator.cs" />
     <Compile Include="Repositories\Workflow\WorkflowRepository.cs" />
-    <Compile Include="Repositories\Workflow\WorkflowValidationResult.cs" />
-    <Compile Include="Repositories\Workflow\WorkflowValidator.cs" />
+    <Compile Include="Repositories\Workflow\WorkflowXmlValidationResult.cs" />
+    <Compile Include="Repositories\Workflow\WorkflowXmlValidator.cs" />
     <Compile Include="Saml\BpSaml2SecurityTokenHandler.cs" />
     <Compile Include="Saml\FederatedAuthenticationErrorCode.cs" />
     <Compile Include="Saml\FederatedAuthenticationException.cs" />

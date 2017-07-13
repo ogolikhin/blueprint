@@ -19,17 +19,17 @@ namespace AdminStore.Services.Workflow
     public class WorkflowService : IWorkflowService
     {
         private readonly IWorkflowRepository _workflowRepository;
-        private readonly IWorkflowValidator _workflowValidator;
+        private readonly IWorkflowXmlValidator _workflowValidator;
         private readonly IUserRepository _userRepository;
 
         private const string WorkflowImportErrorsFile = "$workflow_import_errors$.txt";
 
         public WorkflowService()
-            : this(new WorkflowRepository(), new WorkflowValidator(), new SqlUserRepository())
+            : this(new WorkflowRepository(), new WorkflowXmlValidator(), new SqlUserRepository())
         {
         }
 
-        public WorkflowService(IWorkflowRepository workflowRepository, IWorkflowValidator workflowValidator, IUserRepository userRepository)
+        public WorkflowService(IWorkflowRepository workflowRepository, IWorkflowXmlValidator workflowValidator, IUserRepository userRepository)
         {
             _workflowRepository = workflowRepository;
             _workflowValidator = workflowValidator;
@@ -336,7 +336,7 @@ namespace AdminStore.Services.Workflow
             return true;
         }
 
-        private static string GetValidationErrorsText(List<WorkflowValidationError> validationErrors)
+        private static string GetValidationErrorsText(List<WorkflowXmlValidationError> validationErrors)
         {
             // TODO: create a validation errors builder
             var sb = new StringBuilder();

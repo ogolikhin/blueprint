@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
+using ActionHandlerService.Helpers;
+using ActionHandlerService.Models;
 using BluePrintSys.Messaging.CrossCutting.Logging;
 using BluePrintSys.Messaging.Models.Actions;
 using NServiceBus;
@@ -22,11 +24,11 @@ namespace ActionHandlerService.MessageHandlers
             try
             {
                 Log.Info($"Received Action Message {message.ActionType.ToString()}");
-                if ((ConfigHelper.AllowedActionTypes & message.ActionType) == message.ActionType)
+                if ((ConfigHelper.SupportedActionTypes & message.ActionType) == message.ActionType)
                 {
                     var tenantId = message.TenantId;
                     var tenants = TenantInfoRetriever.GetTenants();
-                    TenantInfo tenant;
+                    TenantInformation tenant;
                     if (!tenants.TryGetValue(tenantId, out tenant))
                     {
                         throw new TenantInfoNotFoundException($"Tentant Info not found for Tenant ID {tenantId}");
@@ -45,12 +47,12 @@ namespace ActionHandlerService.MessageHandlers
             }
         }
 
-        protected virtual Task ProcessAction(TenantInfo tenant, T message, IMessageHandlerContext context)
+        protected virtual Task ProcessAction(TenantInformation tenant, T message, IMessageHandlerContext context)
         {
             Log.Info($"Action handling started for {message.ActionType.ToString()}");
             ActionHelper.HandleAction(tenant);
             Log.Info($"Action handling finished for {message.ActionType.ToString()}");
-            return Task.CompletedTask;
+            return Task.Factory.StartNew(() => {});
         }
     }
 }

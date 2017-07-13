@@ -25,8 +25,10 @@ namespace AdminStore.Models.Workflow
         public List<IeState> States { get; set; }
 
         [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
-        [XmlArray("Triggers"), XmlArrayItem("TransitionTrigger")]
-        public List<IeTransitionTrigger> Transitions { get; set; }
+        [XmlArray("Triggers")]
+        [XmlArrayItem("TransitionTrigger", typeof(IeTransitionTrigger))]
+        [XmlArrayItem("PropertyChangeTrigger", typeof(IePropertyChangeTrigger))]
+        public List<IeTrigger> Triggers { get; set; }
 
         [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
         [XmlArray("Projects"), XmlArrayItem("Project")]

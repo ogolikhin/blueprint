@@ -1,8 +1,10 @@
-﻿namespace ActionHandlerService.MessageHandlers.GenerateUserStories
+﻿using ActionHandlerService.Models;
+
+namespace ActionHandlerService.MessageHandlers.GenerateUserStories
 {
     public class GenerateUserStoriesActionHelper : IActionHelper
     {
-        public bool HandleAction(TenantInfo tenant)
+        public bool HandleAction(TenantInformation tenant)
         {
             return true;
         }

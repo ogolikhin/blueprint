@@ -1,4 +1,5 @@
-﻿using Topshelf;
+﻿using ActionHandlerService.Helpers;
+using Topshelf;
 
 namespace ActionHandlerService
 {

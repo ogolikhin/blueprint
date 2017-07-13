@@ -4,7 +4,7 @@ using System.Linq;
 using AdminStore.Models.Workflow;
 using ServiceLibrary.Helpers;
 
-namespace AdminStore.Repositories.Workflow
+namespace AdminStore.Services.Workflow
 {
     public class WorkflowXmlValidator : IWorkflowXmlValidator
     {

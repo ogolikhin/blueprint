@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using AdminStore.Models.Workflow;
+using AdminStore.Services.Workflow;
 using Castle.Components.DictionaryAdapter;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ServiceLibrary.Helpers;
 
 namespace AdminStore.Repositories.Workflow
 {

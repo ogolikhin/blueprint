@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using AdminStore.Models.Workflow;
 
-namespace AdminStore.Repositories.Workflow
+namespace AdminStore.Services.Workflow
 {
     public interface IWorkflowDataValidator
     {

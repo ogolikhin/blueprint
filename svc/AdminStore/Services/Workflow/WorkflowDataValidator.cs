@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AdminStore.Models.Workflow;
+using AdminStore.Repositories;
+using AdminStore.Repositories.Workflow;
 using ArtifactStore.Helpers;
 
-namespace AdminStore.Repositories.Workflow
+namespace AdminStore.Services.Workflow
 {
     public class WorkflowDataValidator : IWorkflowDataValidator
     {

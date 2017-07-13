@@ -2,7 +2,7 @@
 using System.Linq;
 using AdminStore.Models;
 
-namespace AdminStore.Repositories.Workflow
+namespace AdminStore.Services.Workflow
 {
     public class WorkflowDataValidationResult
     {

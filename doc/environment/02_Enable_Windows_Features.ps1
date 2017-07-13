@@ -1,9 +1,9 @@
 Import-Module Dism
 
 #.NET Framework 4.5 Advanced Services
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-ASPNET45
-Enable-WindowsOptionalFeature -Online -FeatureName WCF-HTTP-Activation45
-Enable-WindowsOptionalFeature -Online -FeatureName WCF-TCP-PortSharing45
+Enable-WindowsOptionalFeature -Online -FeatureName IIS-ASPNET45 -All
+Enable-WindowsOptionalFeature -Online -FeatureName WCF-HTTP-Activation45 -All
+Enable-WindowsOptionalFeature -Online -FeatureName WCF-TCP-PortSharing45 -All
 
 #Web Management Tools
 Enable-WindowsOptionalFeature -Online -FeatureName IIS-ManagementConsole

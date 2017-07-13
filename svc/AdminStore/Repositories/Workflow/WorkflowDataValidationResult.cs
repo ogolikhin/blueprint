@@ -13,8 +13,9 @@ namespace AdminStore.Repositories.Workflow
         public List<WorkflowDataValidationError> Errors
             => _errors ?? (_errors = new List<WorkflowDataValidationError>());
 
-        public HashSet<int> ValidProjectIds { get; set; }
-        public HashSet<SqlGroup> ValidGroups { get; set; }
+        public HashSet<int> ValidProjectIds { get; } = new HashSet<int>();
+
+        public HashSet<SqlGroup> ValidGroups { get; } = new HashSet<SqlGroup>();
     }
 
     public class WorkflowDataValidationError

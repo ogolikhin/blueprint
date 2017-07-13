@@ -9,8 +9,8 @@ namespace AdminStore.Repositories.Workflow
 {
     public class WorkflowDataValidator : IWorkflowDataValidator
     {
-        private IWorkflowRepository _workflowRepository;
-        private IUserRepository _userRepository;
+        private readonly IWorkflowRepository _workflowRepository;
+        private readonly IUserRepository _userRepository;
 
         public WorkflowDataValidator(IWorkflowRepository workflowRepository, IUserRepository userRepository)
         {
@@ -28,12 +28,15 @@ namespace AdminStore.Repositories.Workflow
             var result = new WorkflowDataValidationResult();
             await ValidateProjectsData(result, workflow);
             await ValidateGroupsData(result, workflow);
+            await ValidateTriggersData(result, workflow);
+            await ValidateActionsData(result, workflow);
 
             return result;
         }
 
         private async Task<WorkflowDataValidationResult> ValidateProjectsData(WorkflowDataValidationResult result, IeWorkflow workflow)
         {
+            result.ValidProjectIds.Clear();
             Dictionary<int, string> projectPaths = new Dictionary<int, string>();
             HashSet<string> projectPathsToLookup = new HashSet<string>();
             workflow.Projects.ForEach(project =>
@@ -76,13 +79,14 @@ namespace AdminStore.Repositories.Workflow
                 });
             }
             
-            result.ValidProjectIds = projectPaths.Select(p => p.Key).ToHashSet();
+            result.ValidProjectIds.AddRange(projectPaths.Select(p => p.Key).ToHashSet());
 
             return result;
         }
 
         private async Task<WorkflowDataValidationResult> ValidateGroupsData(WorkflowDataValidationResult result, IeWorkflow workflow)
         {
+            result.ValidGroups.Clear();
             HashSet<string> listOfAllGroups = new HashSet<string>();
             workflow.Triggers.OfType<IeTransitionTrigger>().ForEach(transition =>
             {
@@ -107,10 +111,27 @@ namespace AdminStore.Repositories.Workflow
                 });
             }
 
-            result.ValidGroups = existingGroupNames.ToHashSet();
+            result.ValidGroups.AddRange(existingGroupNames.ToHashSet());
 
             return result;
         }
 
+        private async Task<WorkflowDataValidationResult> ValidateTriggersData(WorkflowDataValidationResult result, IeWorkflow workflow)
+        {
+            //validate property name in property change triggers
+
+            return await Task.FromResult(result);
+        }
+
+        private async Task<WorkflowDataValidationResult> ValidateActionsData(WorkflowDataValidationResult result, IeWorkflow workflow)
+        {
+            //validate artifact type for generate actions of type Children
+
+            //validate propertyName in email notification actions if one is provided
+
+            //validadate propertyName and propertyValue type in property change actions
+
+            return await Task.FromResult(result);
+        }
     }
 }

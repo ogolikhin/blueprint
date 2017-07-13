@@ -76,6 +76,7 @@ namespace ArtifactStore.Executors
                 }
                 catch (ConflictException ex)
                 {
+                    // We ignore this error code when there are no saved changes to be published. The publish call throws this exception when it detects no saved changes.
                     if (ex.ErrorCode != ErrorCodes.CannotPublish)
                     {
                         throw;

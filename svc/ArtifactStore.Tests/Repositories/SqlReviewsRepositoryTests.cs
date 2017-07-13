@@ -278,7 +278,7 @@ namespace ArtifactStore.Repositories
 
             _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
 
-            _applicationSettingsRepositoryMock.Setup(s => s.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
+            _applicationSettingsRepositoryMock.Setup(s => s.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", refreshInterval)).ReturnsAsync(refreshInterval);
 
             var inpParams = new Dictionary<string, object>
             {
@@ -295,7 +295,12 @@ namespace ArtifactStore.Repositories
                 Total = 10
             };
 
-            _cxn.SetupQueryAsync("GetReviewArtifactIndex", inpParams, Enumerable.Repeat(testResult, 1));
+            var outParams = new Dictionary<string, object>
+            {
+                {"@result", 0},
+            };
+
+            _cxn.SetupQueryAsync("GetReviewArtifactIndex", inpParams, Enumerable.Repeat(testResult, 1), outParams);
 
             //Act
             var result = await _reviewsRepository.GetReviewArtifactIndexAsync(reviewId, revisionId, artifactId, userId);
@@ -335,32 +340,6 @@ namespace ArtifactStore.Repositories
 
         [TestMethod]
         [ExpectedException(typeof(ResourceNotFoundException))]
-        public async Task GetReviewArtifactIndex_FailedOnDraft()
-        {
-            var reviewId = 1;
-            var userId = 1;
-            var revisionId = 1;
-            var artifactId = 1;
-            var reviewInfo = new VersionControlArtifactInfo
-            {
-                PredefinedType = ItemTypePredefined.ArtifactReviewPackage,
-                VersionCount = 1
-            };
-
-            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
-
-            _applicationSettingsRepositoryMock.Setup(s => s.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
-
-            //Act
-            var result = await _reviewsRepository.GetReviewArtifactIndexAsync(reviewId, revisionId, artifactId, userId);
-
-            //Assert
-            _cxn.Verify();
-
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ResourceNotFoundException))]
         public async Task GetReviewArtifactIndex_ArtifactNotFound()
         {
             var reviewId = 1;
@@ -387,9 +366,58 @@ namespace ArtifactStore.Repositories
                 {"@refreshInterval", refreshInterval}
             };
 
-            var testResult = null as ReviewArtifactIndex;
+            var outParams = new Dictionary<string, object>
+            {
+                {"@result", 1},
+            };
+            var testResult = new ReviewArtifactIndex[] { };
 
-            _cxn.SetupQueryAsync("GetReviewArtifactIndex", inpParams, Enumerable.Repeat(testResult, 1));
+            _cxn.SetupQueryAsync("GetReviewArtifactIndex", inpParams, testResult, outParams);
+
+            //Act
+            var result = await _reviewsRepository.GetReviewArtifactIndexAsync(reviewId, revisionId, artifactId, userId);
+
+            //Assert
+            _cxn.Verify();
+
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task GetReviewArtifactIndex_FailedOnPermissions()
+        {
+            var reviewId = 1;
+            var userId = 1;
+            var revisionId = 1;
+            var artifactId = 1;
+            var refreshInterval = 20;
+
+            var reviewInfo = new VersionControlArtifactInfo
+            {
+                PredefinedType = ItemTypePredefined.ArtifactReviewPackage,
+                VersionCount = 1
+            };
+
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
+
+            _applicationSettingsRepositoryMock.Setup(s => s.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", refreshInterval)).ReturnsAsync(refreshInterval);
+
+            var inpParams = new Dictionary<string, object>
+            {
+                {"@reviewId", reviewId},
+                {"@revisionId", revisionId},
+                {"@userId", userId},
+                {"@artifactId", artifactId},
+                {"@refreshInterval", refreshInterval}
+            };
+
+            var outParams = new Dictionary<string, object>
+            {
+                {"@result", 3},
+            };
+            var testResult = new ReviewArtifactIndex[] { };
+
+            _cxn.SetupQueryAsync("GetReviewArtifactIndex", inpParams, testResult, outParams);
 
             //Act
             var result = await _reviewsRepository.GetReviewArtifactIndexAsync(reviewId, revisionId, artifactId, userId);
@@ -401,7 +429,6 @@ namespace ArtifactStore.Repositories
 
 
         [TestMethod]
-        [ExpectedException(typeof(ResourceNotFoundException))]
         public async Task GetReviewTableOfContentArtifactIndex_Success()
         {
             var reviewId = 1;
@@ -417,7 +444,7 @@ namespace ArtifactStore.Repositories
 
             _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
 
-            _applicationSettingsRepositoryMock.Setup(s => s.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
+            _applicationSettingsRepositoryMock.Setup(s => s.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", refreshInterval)).ReturnsAsync(refreshInterval);
 
             var inpParams = new Dictionary<string, object>
             {
@@ -428,12 +455,18 @@ namespace ArtifactStore.Repositories
                 {"@refreshInterval", refreshInterval}
             };
 
-            var testResult = new ReviewArtifactIndex {
+            var testResult = new ReviewArtifactIndex
+            {
                 Index = 1,
-                Total = 10 
+                Total = 10
             };
 
-            _cxn.SetupQueryAsync("GetReviewTableOfContentArtifactIndex", inpParams, Enumerable.Repeat(testResult, 1));
+            var outParams = new Dictionary<string, object>
+            {
+                {"@result", 0}
+            };
+
+            _cxn.SetupQueryAsync("GetReviewTableOfContentArtifactIndex", inpParams, Enumerable.Repeat(testResult, 1), outParams);
 
             //Act
             var result = await _reviewsRepository.GetReviewTableOfContentArtifactIndexAsync(reviewId, revisionId, artifactId, userId);
@@ -473,33 +506,6 @@ namespace ArtifactStore.Repositories
 
         [TestMethod]
         [ExpectedException(typeof(ResourceNotFoundException))]
-        public async Task GetReviewTableOfContentArtifactIndex_FailedOnDraft()
-        {
-            var reviewId = 1;
-            var userId = 1;
-            var revisionId = 1;
-            var artifactId = 1;
-            //var refreshInterval = 20;
-            var reviewInfo = new VersionControlArtifactInfo
-            {
-                PredefinedType = ItemTypePredefined.ArtifactReviewPackage,
-                VersionCount = 1
-            };
-
-            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
-            _applicationSettingsRepositoryMock.Setup(s => s.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
-
-
-            //Act
-            var result = await _reviewsRepository.GetReviewTableOfContentArtifactIndexAsync(reviewId, revisionId, artifactId, userId);
-
-            //Assert
-            _cxn.Verify();
-
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ResourceNotFoundException))]
         public async Task GetReviewTableOfContentArtifactIndex_ArtifactNotFound()
         {
             var reviewId = 1;
@@ -515,7 +521,7 @@ namespace ArtifactStore.Repositories
 
             _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
 
-            _applicationSettingsRepositoryMock.Setup(s => s.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
+            _applicationSettingsRepositoryMock.Setup(s => s.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", refreshInterval)).ReturnsAsync(refreshInterval);
 
             var inpParams = new Dictionary<string, object>
             {
@@ -526,9 +532,86 @@ namespace ArtifactStore.Repositories
                 {"@refreshInterval", refreshInterval}
             };
 
-            var testResult = null as ReviewArtifactIndex;
+            var testResult = new ReviewArtifactIndex[] { };
 
-            _cxn.SetupQueryAsync("GetReviewTableOfContentArtifactIndex", inpParams, Enumerable.Repeat(testResult, 1));
+            var outParams = new Dictionary<string, object>
+            {
+                {"@result", 1},
+            };
+            _cxn.SetupQueryAsync("GetReviewTableOfContentArtifactIndex", inpParams, testResult, outParams);
+
+            //Act
+            var result = await _reviewsRepository.GetReviewTableOfContentArtifactIndexAsync(reviewId, revisionId, artifactId, userId);
+
+            //Assert
+            _cxn.Verify();
+
+        }
+
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task GetReviewTableOfContentArtifactIndex_FailedOnPermissions()
+        {
+            const int reviewId = 1;
+            const int userId = 1;
+            const int revisionId = 1;
+            const int artifactId = 1;
+            const int refreshInterval = 20;
+
+            var reviewInfo = new VersionControlArtifactInfo
+            {
+                PredefinedType = ItemTypePredefined.ArtifactReviewPackage,
+                VersionCount = 1
+            };
+
+
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
+
+            _applicationSettingsRepositoryMock.Setup(s => s.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", refreshInterval)).ReturnsAsync(refreshInterval);
+
+            var inpParams = new Dictionary<string, object>
+            {
+                {"@reviewId", reviewId},
+                {"@revisionId", revisionId},
+                {"@userId", userId},
+                {"@artifactId", artifactId},
+                {"@refreshInterval", refreshInterval},
+            };
+            var outParams = new Dictionary<string, object>
+            {
+                {"@result", 3},
+            };
+            var testResult = new ReviewArtifactIndex[] { };
+
+            _cxn.SetupQueryAsync("GetReviewTableOfContentArtifactIndex", inpParams, testResult, outParams);
+
+            //Act
+            var result = await _reviewsRepository.GetReviewTableOfContentArtifactIndexAsync(reviewId, revisionId, artifactId, userId);
+
+            //Assert
+            _cxn.Verify();
+        }
+
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task GetReviewTableOfContentArtifactIndex_FailedOnDraft()
+        {
+            var reviewId = 1;
+            var userId = 1;
+            var revisionId = 1;
+            var artifactId = 1;
+            //var refreshInterval = 20;
+            var reviewInfo = new VersionControlArtifactInfo
+            {
+                PredefinedType = ItemTypePredefined.ArtifactReviewPackage,
+                VersionCount = 0
+            };
+
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
+            _applicationSettingsRepositoryMock.Setup(s => s.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
+
 
             //Act
             var result = await _reviewsRepository.GetReviewTableOfContentArtifactIndexAsync(reviewId, revisionId, artifactId, userId);

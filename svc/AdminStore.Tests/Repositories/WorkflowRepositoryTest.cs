@@ -97,5 +97,29 @@ namespace AdminStore.Repositories
         }
 
         #endregion
+
+        #region UpdateWorkflows
+
+        [TestMethod]
+        public async Task UpdateWorkflows_UpdateThisWorkflowInDb_QueryReturnWorkflows()
+        {
+            //arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var sqlHelperMock = new Mock<ISqlHelper>();
+
+            var repository = new WorkflowRepository(cxn.Object, sqlHelperMock.Object);
+            var publishRevision = 12;
+            var workflow = new SqlWorkflow { Name = "Workflow1", Description = "Workflow1Description", Active = true };
+            var workflowsList = new List<SqlWorkflow> { workflow };
+            cxn.SetupQueryAsync("UpdateWorkflows", It.IsAny<Dictionary<string, object>>(), workflowsList);
+
+            //act
+            var updatedWorkflows = await repository.UpdateWorkflows(workflowsList, publishRevision);
+
+            //assert
+            Assert.IsNotNull(updatedWorkflows);
+        }
+
+        #endregion
     }
 }

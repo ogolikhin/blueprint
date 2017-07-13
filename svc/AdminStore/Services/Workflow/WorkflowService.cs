@@ -5,12 +5,14 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AdminStore.Models;
 using AdminStore.Models.Workflow;
 using AdminStore.Repositories;
 using AdminStore.Repositories.Workflow;
 using ArtifactStore.Helpers;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.Files;
 using File = ServiceLibrary.Models.Files.File;
 
@@ -21,12 +23,14 @@ namespace AdminStore.Services.Workflow
         private readonly IWorkflowRepository _workflowRepository;
         private readonly IWorkflowXmlValidator _workflowValidator;
         private readonly IUserRepository _userRepository;
+        private readonly IWorkflowDataValidator _workflowDataValidator;
 
         private const string WorkflowImportErrorsFile = "$workflow_import_errors$.txt";
 
         public WorkflowService()
             : this(new WorkflowRepository(), new WorkflowXmlValidator(), new SqlUserRepository())
         {
+            _workflowDataValidator = new WorkflowDataValidator(_workflowRepository, _userRepository);
         }
 
         public WorkflowService(IWorkflowRepository workflowRepository, IWorkflowXmlValidator workflowValidator, IUserRepository userRepository)
@@ -34,6 +38,7 @@ namespace AdminStore.Services.Workflow
             _workflowRepository = workflowRepository;
             _workflowValidator = workflowValidator;
             _userRepository = userRepository;
+            
         }
 
         public IFileRepository FileRepository
@@ -105,6 +110,22 @@ namespace AdminStore.Services.Workflow
 
             Func<IDbTransaction, Task> action = async transaction =>
             {
+                var dataValidationResult = await _workflowDataValidator.ValidateData(workflow);
+                if (dataValidationResult.HasErrors)
+                {
+                    // TODO: Create a text file and save it to the file store.
+                    // TODO: The name convention for the error file "$workflow_import_errors$.txt".
+                    // TODO: The name convention should be checked when the errors are requested by the client. 
+                    // TODO: Return guid of the errors file.
+
+                    var textErrors = GetValidationErrorsText(dataValidationResult.Errors);
+                    var guid = await UploadErrorsToFileStore(textErrors);
+
+                    importResult.ErrorsGuid = guid;
+                    importResult.ResultCode = ImportWorkflowResultCodes.InvalidModel;
+                    return;
+                }
+
                 var publishRevision = await _workflowRepository.CreateRevisionInTransactionAsync(transaction, userId, "Workflow import.");
                 var duplicateNames = await _workflowRepository.CheckLiveWorkflowsForNameUniqueness(transaction, new[] { workflow.Name });
                 if (duplicateNames.Any())
@@ -125,7 +146,7 @@ namespace AdminStore.Services.Workflow
 
                 if (newWorkflow != null)
                 {
-                    await ImportWorkflowComponentsAsync(workflow, newWorkflow, publishRevision, transaction);
+                    await ImportWorkflowComponentsAsync(workflow, newWorkflow, publishRevision, transaction, dataValidationResult.ValidProjectIds, dataValidationResult.ValidGroups);
 
                     importResult.ResultCode = ImportWorkflowResultCodes.Ok;
                 }
@@ -184,9 +205,8 @@ namespace AdminStore.Services.Workflow
                 var updatedWorkflows = await _workflowRepository.UpdateWorkflows(workflows, publishRevision, transaction);
 
                 var updatedWorkflowsCount = updatedWorkflows.Count();
-                var neededCountWorkflows = 1;
 
-                if (updatedWorkflowsCount != neededCountWorkflows)
+                if (updatedWorkflowsCount != 1)
                 {
                     throw new BadRequestException(ErrorMessages.WorkflowWasNotUpdated, ErrorCodes.BadRequest);
                 }
@@ -194,7 +214,23 @@ namespace AdminStore.Services.Workflow
             await _workflowRepository.RunInTransactionAsync(action);
         }
 
-        private async Task ImportWorkflowComponentsAsync(IeWorkflow workflow, SqlWorkflow newWorkflow, int publishRevision, IDbTransaction transaction)
+        public async Task<int> DeleteWorkflows(OperationScope body, string search, int sessionUserId)
+        {
+            var totalDeleted = 0;
+            Func<IDbTransaction, Task> action = async transaction =>
+            {
+                var publishRevision =
+                    await
+                        _workflowRepository.CreateRevisionInTransactionAsync(transaction, sessionUserId,
+                            $"DeleteWorkflows. Session user id is {sessionUserId}.");
+                totalDeleted = await _workflowRepository.DeleteWorkflows(body, search, publishRevision);
+            };
+            await _workflowRepository.RunInTransactionAsync(action);
+
+            return totalDeleted;
+        }
+
+        private async Task ImportWorkflowComponentsAsync(IeWorkflow workflow, SqlWorkflow newWorkflow, int publishRevision, IDbTransaction transaction, HashSet<int> validProjectIds, HashSet<SqlGroup> validGroups)
         {
             var importStateParams = new List<SqlState>();
 
@@ -216,75 +252,18 @@ namespace AdminStore.Services.Workflow
 
             if (newStates != null)
             {
-                await ImportWorkflowTransitions(workflow, newWorkflow, publishRevision, transaction, newStates);
-            }
-
-            Dictionary<int, string> projectPaths = new Dictionary<int, string>();
-            HashSet<string> projectPathsToLookup = new HashSet<string>();
-            workflow.Projects.ForEach(project =>
-            {
-                if (project.Id.HasValue)
-                {
-                    projectPaths[project.Id.Value] = project.Path;
-                }
-                else
-                {
-                    if (!string.IsNullOrEmpty(project.Path))
-                    {
-                        projectPathsToLookup.Add(project.Path);
-                    }
-                }
-            });
-
-            if (projectPathsToLookup.Any())
-            {
-                //look up ID of projects that have no ID provided
-                foreach (var sqlProjectPathPair in await _workflowRepository.GetProjectIdsByProjectPaths(projectPathsToLookup))
-                {
-                    projectPaths[sqlProjectPathPair.ProjectId] = sqlProjectPathPair.ProjectPath;
-                }
-            }
-
-            if (projectPaths.Count != workflow.Projects.Count)
-            {
-                //generate a list of all projects in the workflow who are either missing from id list or were not looked up by path
-                var listOfBadProjects = string.Join(",", workflow.Projects
-                    .Where(proj => projectPaths.All(
-                        path => proj.Id.HasValue
-                            ? path.Key != proj.Id.Value
-                            : !path.Value.Equals(proj.Path))
-                    ).Select(proj => proj.Id?.ToString() ?? proj.Path));
-                throw new ConflictException($"The following projects could not be found: {listOfBadProjects}");
+                await ImportWorkflowTransitions(workflow, newWorkflow, publishRevision, transaction, newStates, validGroups);
             }
 
             await _workflowRepository.CreateWorkflowArtifactAssociationsAsync(workflow.ArtifactTypes.Select(at => at.Name),
-                projectPaths.Select(p => p.Key), newWorkflow.WorkflowId, publishRevision, transaction);
+                validProjectIds, newWorkflow.WorkflowId, publishRevision, transaction);
         }
 
         private async Task ImportWorkflowTransitions(IeWorkflow workflow, SqlWorkflow newWorkflow, int publishRevision,
-            IDbTransaction transaction, IEnumerable<SqlState> newStates)
+            IDbTransaction transaction, IEnumerable<SqlState> newStates, HashSet<SqlGroup> validGroups)
         {
             var newStatesArray = newStates.ToArray();
             var importTriggersParams = new List<SqlTrigger>();
-            HashSet<string> listOfAllGroups = new HashSet<string>();
-            workflow.Triggers.OfType<IeTransitionTrigger>().ForEach(transition =>
-            {
-                transition.PermissionGroups.ForEach(group =>
-                {
-                    if (!listOfAllGroups.Contains(group.Name))
-                    {
-                        listOfAllGroups.Add(group.Name);
-                    }
-                });
-            });
-            var existingGroupNames = (await _userRepository.GetExistingInstanceGroupsByNames(listOfAllGroups)).ToArray();
-            if (existingGroupNames.Length != listOfAllGroups.Count)
-            {
-                var listOfBadGroups = string.Join(",", listOfAllGroups.Where(
-                        li => existingGroupNames.All(g => g.Name != li)
-                    ));
-                throw new ConflictException($"The following groups were not found: {listOfBadGroups}");
-            }
 
             workflow.Triggers.OfType<IeTransitionTrigger>().ForEach(transition =>
             {
@@ -297,7 +276,7 @@ namespace AdminStore.Services.Workflow
                     Permissions = SerializationHelper.ToXml(new XmlTriggerPermissions
                     {
                         Skip = "0",
-                        GroupIds = transition.PermissionGroups.Select(pg => existingGroupNames.First(p => p.Name == pg.Name).GroupId).ToList()
+                        GroupIds = transition.PermissionGroups.Select(pg => validGroups.First(p => p.Name == pg.Name).GroupId).ToList()
                     }),
                     Validations = null,
                     Actions = SerializationHelper.ToXml(transition.Actions),
@@ -342,6 +321,19 @@ namespace AdminStore.Services.Workflow
             var sb = new StringBuilder();
             sb.AppendLine(I18NHelper.FormatInvariant("Uploaded workflow contains {0} error(s):", validationErrors.Count));
             foreach (var error in validationErrors)
+            {
+                sb.AppendLine(I18NHelper.FormatInvariant("    - {0}", error.ErrorCode));
+            }
+
+            return sb.ToString();
+        }
+
+        private static string GetValidationErrorsText(List<WorkflowDataValidationError> dataValidationErrors)
+        {
+            // TODO: create a validation errors builder
+            var sb = new StringBuilder();
+            sb.AppendLine(I18NHelper.FormatInvariant("Uploaded workflow contains {0} error(s):", dataValidationErrors.Count));
+            foreach (var error in dataValidationErrors)
             {
                 sb.AppendLine(I18NHelper.FormatInvariant("    - {0}", error.ErrorCode));
             }

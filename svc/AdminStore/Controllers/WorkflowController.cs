@@ -4,9 +4,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using System.Web.Http.Results;
 using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Models.Workflow;
@@ -163,7 +166,7 @@ namespace AdminStore.Controllers
         /// </returns>
         [SessionRequired]
         [Route("{workflowId:int:min(1)}")]
-        [ResponseType(typeof (WorkflowDto))]
+        [ResponseType(typeof(WorkflowDto))]
         public async Task<IHttpActionResult> GetWorkflow(int workflowId)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
@@ -204,11 +207,10 @@ namespace AdminStore.Controllers
         /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
         /// <response code="403">Forbidden if used doesn’t have permissions to delete workflows</response>
         /// <returns></returns>
-        [HttpPost]
-        [SessionRequired]
-        [Route("delete")]
-        [ResponseType(typeof(IEnumerable<int>))]
-        public async Task<IHttpActionResult> DeleteWorkflows([FromBody]OperationScope scope, string search = null)
+        [HttpDelete]
+        [Route(""), SessionRequired]
+        [ResponseType(typeof(DeleteResult))]
+        public async Task<IHttpActionResult> DeleteWorkflows([FromUri]OperationScope scope, string search = null)
         {
             if (scope == null)
             {
@@ -219,9 +221,9 @@ namespace AdminStore.Controllers
                 return Ok(DeleteResult.Empty);
             }
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
-            var result = await _workflowRepository.DeleteWorkflows(scope, search, Session.UserId);
+            var result = await _workflowService.DeleteWorkflows(scope, search, Session.UserId);
 
-            return Ok(result);
+            return Ok(new DeleteResult { TotalDeleted = result });
         }
 
 
@@ -253,6 +255,38 @@ namespace AdminStore.Controllers
             await _workflowService.UpdateWorkflowStatusAsync(workflowDto, workflowId, Session.UserId);
 
             return Ok();
+        }
+
+        //will be removed
+        [SessionRequired]
+        [HttpGet, NoCache]
+        [ResponseType(typeof(HttpResponseMessage))]
+        [Route("export/{workflowId:int:min(1)}")]
+        public async Task<ResponseMessageResult> ExportWorkflow(int workflowId)
+        {
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+            var testString = "hello";
+            var uniEncoding = new UnicodeEncoding();
+            var bytes = uniEncoding.GetBytes(testString);
+
+            using (var stream = new MemoryStream(100))
+            {
+                stream.Write(bytes, 0, bytes.Length);
+                var result = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new ByteArrayContent(stream.GetBuffer())
+                };
+                result.Content.Headers.ContentDisposition =
+                    new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
+                    {
+                        FileName = "test.xml"
+                    };
+                result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+
+                var response = ResponseMessage(result);
+
+                return response;
+            }
         }
 
         #region Private methods

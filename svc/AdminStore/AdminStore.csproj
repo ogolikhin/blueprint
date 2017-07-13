@@ -206,8 +206,11 @@
     <Compile Include="Repositories\SqlPrivilegesRepository.cs" />
     <Compile Include="Repositories\SqlSettingsRepository.cs" />
     <Compile Include="Repositories\SqlUserRepository.cs" />
+    <Compile Include="Repositories\Workflow\IWorkflowDataValidator.cs" />
     <Compile Include="Repositories\Workflow\IWorkflowRepository.cs" />
     <Compile Include="Repositories\Workflow\IWorkflowXmlValidator.cs" />
+    <Compile Include="Repositories\Workflow\WorkflowDataValidationResult.cs" />
+    <Compile Include="Repositories\Workflow\WorkflowDataValidator.cs" />
     <Compile Include="Repositories\Workflow\WorkflowRepository.cs" />
     <Compile Include="Repositories\Workflow\WorkflowXmlValidationResult.cs" />
     <Compile Include="Repositories\Workflow\WorkflowXmlValidator.cs" />

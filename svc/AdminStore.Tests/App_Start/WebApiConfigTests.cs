@@ -22,7 +22,7 @@ namespace AdminStore
             config.EnsureInitialized();
 
             // Assert
-            config.AssertTotalRoutes(50, "Please update asserts in WebApiConfigTests when changing routes.");
+            config.AssertTotalRoutes(51, "Please update asserts in WebApiConfigTests when changing routes.");
             config.AssertAction<ConfigController>("GetConfigSettings", HttpMethod.Get, "config/settings");
             config.AssertAction<ConfigController>("GetConfig", HttpMethod.Get, "config/config.js");
             config.AssertAction<ConfigController>("GetApplicationSettings", HttpMethod.Get, "config");
@@ -73,8 +73,9 @@ namespace AdminStore
             config.AssertAction<WorkflowController>("GetImportWorkflowErrorsAsync", HttpMethod.Get, "workflow/import/errors?guid=abc");
             config.AssertAction<WorkflowController>("GetWorkflow", HttpMethod.Get, "workflow/1");
             config.AssertAction<WorkflowController>("GetWorkflows", HttpMethod.Get, "workflow?offset=0&limit=20&sort=name&order=asc");
-            config.AssertAction<WorkflowController>("DeleteWorkflows", HttpMethod.Post, "workflow/delete");
+            config.AssertAction<WorkflowController>("DeleteWorkflows", HttpMethod.Delete, "workflow?SelectAl=false&Ids=2");
             config.AssertAction<WorkflowController>("UpdateWorkflowStatus", HttpMethod.Put, "workflow/UpdateWorkflowStatus/1");
+            config.AssertAction<WorkflowController>("ExportWorkflow", HttpMethod.Get, "workflow/export/1");
         }
 
         [TestMethod]

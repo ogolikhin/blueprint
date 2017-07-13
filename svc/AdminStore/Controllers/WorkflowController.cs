@@ -4,9 +4,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using System.Web.Http.Results;
 using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Models.Workflow;
@@ -250,6 +253,38 @@ namespace AdminStore.Controllers
             await _workflowService.UpdateWorkflowStatusAsync(workflowDto, workflowId, Session.UserId);
 
             return Ok();
+        }
+
+        //will be removed
+        [SessionRequired]
+        [HttpGet, NoCache]
+        [ResponseType(typeof(HttpResponseMessage))]
+        [Route("export/{workflowId:int:min(1)}")]
+        public async Task<ResponseMessageResult> ExportWorkflow(int workflowId)
+        {
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+            var testString = "hello";
+            var uniEncoding = new UnicodeEncoding();
+            var bytes = uniEncoding.GetBytes(testString);
+
+            using (var stream = new MemoryStream(100))
+            {
+                stream.Write(bytes, 0, bytes.Length);
+                var result = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new ByteArrayContent(stream.GetBuffer())
+                };
+                result.Content.Headers.ContentDisposition =
+                    new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
+                    {
+                        FileName = "test.xml"
+                    };
+                result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+
+                var response = ResponseMessage(result);
+
+                return response;
+            }
         }
 
         #region Private methods

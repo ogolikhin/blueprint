@@ -21,7 +21,7 @@ namespace AdminStore.Services
     {
         #region Vars
 
-        private Mock<IWorkflowValidator> _workflowValidatorMock;
+        private Mock<IWorkflowXmlValidator> _workflowValidatorMock;
         private Mock<IWorkflowRepository> _workflowRepositoryMock;
         private Mock<IUserRepository> _userRepositoryMock;
 
@@ -35,7 +35,7 @@ namespace AdminStore.Services
         public void Initialize()
         {
             _workflowRepositoryMock = new Mock<IWorkflowRepository>();
-            _workflowValidatorMock = new Mock<IWorkflowValidator>();
+            _workflowValidatorMock = new Mock<IWorkflowXmlValidator>();
             _userRepositoryMock = new Mock<IUserRepository>();
             _service = new WorkflowService(_workflowRepositoryMock.Object, _workflowValidatorMock.Object, _userRepositoryMock.Object);
         }

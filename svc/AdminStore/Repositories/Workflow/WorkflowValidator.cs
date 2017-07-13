@@ -89,6 +89,33 @@ namespace AdminStore.Repositories.Workflow
             var stateTransitions = stateNames.ToDictionary(s => s, s => new List<string>());
             foreach (var trigger in workflow.Triggers.FindAll(s => s != null))
             {
+                if (!ValidatePropertyNotEmpty(trigger.Name))
+                {
+                    result.Errors.Add(new WorkflowValidationError
+                    {
+                        Element = trigger,
+                        ErrorCode = WorkflowValidationErrorCodes.TriggerNameEmpty
+                    });
+                }
+
+                if (!ValidatePropertyLimit(trigger.Name, 24))
+                {
+                    result.Errors.Add(new WorkflowValidationError
+                    {
+                        Element = trigger,
+                        ErrorCode = WorkflowValidationErrorCodes.TriggerNameExceedsLimit24
+                    });
+                }
+
+                if (!ValidatePropertyLimit(trigger.Description, 4000))
+                {
+                    result.Errors.Add(new WorkflowValidationError
+                    {
+                        Element = trigger,
+                        ErrorCode = WorkflowValidationErrorCodes.TriggerDescriptionExceedsLimit4000
+                    });
+                }
+
                 if (trigger.TriggerType == TriggerTypes.Transition)
                 {
                     var transition = trigger as IeTransitionTrigger;
@@ -96,15 +123,8 @@ namespace AdminStore.Repositories.Workflow
                     var from = ValidatePropertyNotEmpty(transition.FromState) ? transition.FromState : string.Empty;
                     var to = ValidatePropertyNotEmpty(transition.ToState) ? transition.ToState : string.Empty;
 
-                    if (!ValidatePropertyNotEmpty(transition.Name))
-                    {
-                        result.Errors.Add(new WorkflowValidationError
-                        {
-                            Element = transition,
-                            ErrorCode = WorkflowValidationErrorCodes.TriggerNameEmpty
-                        });
-                    }
-                    else
+
+                    if (ValidatePropertyNotEmpty(transition.Name))
                     {
                         if (!string.IsNullOrEmpty(from) && stateTransitions.ContainsKey(from))
                         {
@@ -115,24 +135,6 @@ namespace AdminStore.Repositories.Workflow
                         {
                             stateTransitions[to].Add(transition.Name);
                         }
-                    }
-
-                    if (!ValidatePropertyLimit(transition.Name, 24))
-                    {
-                        result.Errors.Add(new WorkflowValidationError
-                        {
-                            Element = transition,
-                            ErrorCode = WorkflowValidationErrorCodes.TriggerNameExceedsLimit24
-                        });
-                    }
-
-                    if (!ValidatePropertyLimit(transition.Description, 4000))
-                    {
-                        result.Errors.Add(new WorkflowValidationError
-                        {
-                            Element = transition,
-                            ErrorCode = WorkflowValidationErrorCodes.TriggerDescriptionExceedsLimit4000
-                        });
                     }
 
                     if (string.IsNullOrEmpty(from))

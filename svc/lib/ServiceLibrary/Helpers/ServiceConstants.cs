@@ -7,6 +7,7 @@ namespace ServiceLibrary.Helpers
         public const string SessionProperty = "Session";
 
         public const string ErrorCodeName = "ErrorCode";
+        public const string ErrorContentName = "ErrorContent";
 
         public static string RaptorMain = ConfigurationManager.ConnectionStrings["RaptorMain"].ConnectionString;
 

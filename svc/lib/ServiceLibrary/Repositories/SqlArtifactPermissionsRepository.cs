@@ -39,7 +39,7 @@ namespace ServiceLibrary.Repositories
 
     public class SqlArtifactPermissionsRepository : IArtifactPermissionsRepository
     {
-        private readonly ISqlConnectionWrapper ConnectionWrapper;
+        private readonly ISqlConnectionWrapper _connectionWrapper;
 
         public SqlArtifactPermissionsRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
@@ -48,7 +48,7 @@ namespace ServiceLibrary.Repositories
 
         public SqlArtifactPermissionsRepository(ISqlConnectionWrapper connectionWrapper)
         {
-            ConnectionWrapper = connectionWrapper;
+            _connectionWrapper = connectionWrapper;
         }
 
         private RolePermissions GetAllPermissions()
@@ -68,7 +68,7 @@ namespace ServiceLibrary.Repositories
             var prm = new DynamicParameters();
             prm.Add("@userId", sessionUserId);
             prm.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(projectArtifactIds, "Int32Collection", "Int32Value"));
-            var openArtifactPermissions = (await ConnectionWrapper.QueryAsync<OpenArtifactPermission>("GetOpenArtifactPermissions", prm, commandType: CommandType.StoredProcedure)).ToList();
+            var openArtifactPermissions = (await _connectionWrapper.QueryAsync<OpenArtifactPermission>("GetOpenArtifactPermissions", prm, commandType: CommandType.StoredProcedure)).ToList();
 
             foreach (var openArtifactPermission in openArtifactPermissions)
             {
@@ -88,7 +88,7 @@ namespace ServiceLibrary.Repositories
             prm.Add("@contextUser", contextUser);
             prm.Add("@userId", sessionUserId);
 
-            return (await ConnectionWrapper.QueryAsync<bool>("IsInstanceAdmin", prm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+            return (await _connectionWrapper.QueryAsync<bool>("IsInstanceAdmin", prm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
 
         private async Task<Tuple<IEnumerable<ProjectsArtifactsItem>, IEnumerable<VersionProjectInfo>>> GetArtifactsProjects(IEnumerable<int> itemIds, int sessionUserId, int revisionId, bool addDrafts)
@@ -97,7 +97,7 @@ namespace ServiceLibrary.Repositories
             prm.Add("@userId", sessionUserId);
             prm.Add("@itemIds", SqlConnectionWrapper.ToDataTable(itemIds, "Int32Collection", "Int32Value"));
 
-            return (await ConnectionWrapper.QueryMultipleAsync<ProjectsArtifactsItem, VersionProjectInfo>("GetArtifactsProjects", prm, commandType: CommandType.StoredProcedure));
+            return (await _connectionWrapper.QueryMultipleAsync<ProjectsArtifactsItem, VersionProjectInfo>("GetArtifactsProjects", prm, commandType: CommandType.StoredProcedure));
         }
 
         public async Task<Dictionary<int, RolePermissions>> GetArtifactPermissions(IEnumerable<int> itemIds, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue, bool addDrafts = true)
@@ -222,7 +222,7 @@ namespace ServiceLibrary.Repositories
             var discussionsPrm = new DynamicParameters();
             discussionsPrm.Add("@ProjectId", projectId);
 
-            return ConnectionWrapper.ExecuteScalarAsync<ProjectPermissions>("GetProjectPermissions", discussionsPrm, commandType: CommandType.StoredProcedure);
+            return _connectionWrapper.ExecuteScalarAsync<ProjectPermissions>("GetProjectPermissions", discussionsPrm, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<ItemInfo> GetItemInfo(int itemId, int userId, bool addDrafts = true, int revisionId = int.MaxValue)
@@ -233,7 +233,7 @@ namespace ServiceLibrary.Repositories
             itemsPrm.Add("@addDrafts", addDrafts);
             itemsPrm.Add("@revisionId", revisionId);
 
-            return (await ConnectionWrapper.QueryAsync<ItemInfo>("GetItemInfo", itemsPrm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+            return (await _connectionWrapper.QueryAsync<ItemInfo>("GetItemInfo", itemsPrm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
 
         public static bool HasPermissions(int itemId, Dictionary<int, RolePermissions> permissions, RolePermissions permissionType)

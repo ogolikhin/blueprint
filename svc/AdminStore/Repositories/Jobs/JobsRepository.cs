@@ -18,7 +18,7 @@ namespace AdminStore.Repositories.Jobs
 {
     public class JobsRepository : IJobsRepository
     {
-        private readonly ISqlConnectionWrapper ConnectionWrapper;
+        private readonly ISqlConnectionWrapper _connectionWrapper;
         private readonly ISqlArtifactRepository _sqlArtifactRepository;
         private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
         private readonly IUsersRepository _usersRepository;
@@ -42,7 +42,7 @@ namespace AdminStore.Repositories.Jobs
             IUsersRepository userRepository
         )
         {
-            ConnectionWrapper = connectionWrapper;
+            _connectionWrapper = connectionWrapper;
             _sqlArtifactRepository = sqlArtifactRepository;
             _artifactPermissionsRepository = artifactPermissionsRepository;
             _usersRepository = userRepository;
@@ -164,7 +164,7 @@ namespace AdminStore.Repositories.Jobs
 
             try
             {
-                return (await ConnectionWrapper.QueryAsync<DJobMessage>("GetJobMessage", param, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+                return (await _connectionWrapper.QueryAsync<DJobMessage>("GetJobMessage", param, commandType: CommandType.StoredProcedure)).SingleOrDefault();
             }
             catch (SqlException sqlException)
             {
@@ -204,7 +204,7 @@ namespace AdminStore.Repositories.Jobs
 
             try
             {
-                return (await ConnectionWrapper.QueryAsync<DJobMessage>("GetJobMessagesNova", param, commandType: CommandType.StoredProcedure)).ToList();
+                return (await _connectionWrapper.QueryAsync<DJobMessage>("GetJobMessagesNova", param, commandType: CommandType.StoredProcedure)).ToList();
             }
             catch (SqlException sqlException)
             {
@@ -317,7 +317,7 @@ namespace AdminStore.Repositories.Jobs
 
             try
             {
-                return (await ConnectionWrapper.QueryAsync<DJobMessage>("AddJobMessage", param, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+                return (await _connectionWrapper.QueryAsync<DJobMessage>("AddJobMessage", param, commandType: CommandType.StoredProcedure)).SingleOrDefault();
             }
             catch (SqlException sqlException)
             {

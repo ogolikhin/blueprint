@@ -1,23 +1,19 @@
-﻿using System;
-using System.IO;
+﻿using Dapper;
+using ServiceLibrary.Repositories;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Globalization;
 using System.Text;
-using Dapper;
-using ServiceLibrary.Repositories;
 
 namespace ConfigControl.Repositories
 {
     public class LogRepository : ILogRepository
     {
-        internal readonly ISqlConnectionWrapper ConnectionWrapper;
         private const string defaultStoredProcedure = "GetLogs";
-        private string csvDelemiter = ",";
+        private const string csvDelemiter = ",";
 
-        DbConnection dbConnection = null;
-
+        private readonly ISqlConnectionWrapper _connectionWrapper;
+        private DbConnection dbConnection;
 
         public LogRepository() : this(new SqlConnectionWrapper(WebApiConfig.AdminStorage))
         {
@@ -25,7 +21,7 @@ namespace ConfigControl.Repositories
 
         internal LogRepository(ISqlConnectionWrapper connectionWrapper)
         {
-            ConnectionWrapper = connectionWrapper;
+            _connectionWrapper = connectionWrapper;
         }
 
         private LogRecord GetSingleEntry(IDataReader reader, bool nameOnly = false)
@@ -60,7 +56,7 @@ namespace ConfigControl.Repositories
         {
             if (dbConnection == null)
             {
-                dbConnection = ConnectionWrapper.CreateConnection();
+                dbConnection = _connectionWrapper.CreateConnection();
             }
             if (dbConnection.State == ConnectionState.Closed)
             {

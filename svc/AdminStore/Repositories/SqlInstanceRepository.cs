@@ -14,7 +14,7 @@ namespace AdminStore.Repositories
 {
     public class SqlInstanceRepository : IInstanceRepository
     {
-        private readonly ISqlConnectionWrapper ConnectionWrapper;
+        private readonly ISqlConnectionWrapper _connectionWrapper;
 
         public SqlInstanceRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
@@ -23,7 +23,7 @@ namespace AdminStore.Repositories
 
         internal SqlInstanceRepository(ISqlConnectionWrapper connectionWrapper)
         {
-            ConnectionWrapper = connectionWrapper;
+            _connectionWrapper = connectionWrapper;
         }
 
         public async Task<InstanceItem> GetInstanceFolderAsync(int folderId, int userId)
@@ -37,7 +37,7 @@ namespace AdminStore.Repositories
             prm.Add("@folderId", folderId);
             prm.Add("@userId", userId);
 
-            var folder = (await ConnectionWrapper.QueryAsync<InstanceItem>("GetInstanceFolderById", prm, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
+            var folder = (await _connectionWrapper.QueryAsync<InstanceItem>("GetInstanceFolderById", prm, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
             if (folder == null)
             {
                 throw new ResourceNotFoundException(string.Format("Instance Folder (Id:{0}) is not found.", folderId), ErrorCodes.ResourceNotFound);
@@ -64,7 +64,7 @@ namespace AdminStore.Repositories
             prm.Add("@folderId", folderId);
             prm.Add("@userId", userId);
 
-            return ((await ConnectionWrapper.QueryAsync<InstanceItem>("GetInstanceFolderChildren", prm, commandType: CommandType.StoredProcedure))
+            return ((await _connectionWrapper.QueryAsync<InstanceItem>("GetInstanceFolderChildren", prm, commandType: CommandType.StoredProcedure))
                 ?? Enumerable.Empty<InstanceItem>()).OrderBy(i => i.Type).ThenBy(i => i.Name).ToList();
         }
 
@@ -84,7 +84,7 @@ namespace AdminStore.Repositories
             prm.Add("@projectId", projectId);
             prm.Add("@userId", userId);
 
-            var project = (await ConnectionWrapper.QueryAsync<InstanceItem>("GetInstanceProjectById", prm, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
+            var project = (await _connectionWrapper.QueryAsync<InstanceItem>("GetInstanceProjectById", prm, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
             if (project == null)
             {
                 throw new ResourceNotFoundException(string.Format("Project (Id:{0}) is not found.", projectId), ErrorCodes.ResourceNotFound);
@@ -114,7 +114,7 @@ namespace AdminStore.Repositories
             param.Add("@userId", userId);
             param.Add("@projectId", projectId);
 
-            var projectPaths = (await ConnectionWrapper.QueryAsync<ArtifactsNavigationPath>("GetProjectNavigationPath", param, commandType: CommandType.StoredProcedure)).ToList();
+            var projectPaths = (await _connectionWrapper.QueryAsync<ArtifactsNavigationPath>("GetProjectNavigationPath", param, commandType: CommandType.StoredProcedure)).ToList();
             if (projectPaths.Count == 0)
             {
                 throw new ResourceNotFoundException($"The project (Id:{projectId}) can no longer be accessed. It may have been deleted, or is no longer accessible by you.", ErrorCodes.ResourceNotFound);
@@ -130,7 +130,7 @@ namespace AdminStore.Repositories
 
         public async Task<IEnumerable<AdminRole>> GetInstanceRolesAsync()
         {
-            var result = await ConnectionWrapper.QueryAsync<AdminRole>("GetInstanceAdminRoles", commandType: CommandType.StoredProcedure);
+            var result = await _connectionWrapper.QueryAsync<AdminRole>("GetInstanceAdminRoles", commandType: CommandType.StoredProcedure);
 
             return result;
         }

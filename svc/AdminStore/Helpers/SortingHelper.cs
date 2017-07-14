@@ -16,7 +16,7 @@ namespace AdminStore.Helpers
                 "status",
                 "createdBy",
                 "lastModified",
-                "created"
+                "dateCreated"
             };
 
             var column = sorting.Sort;

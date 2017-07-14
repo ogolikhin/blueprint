@@ -1,18 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Net;
-using System.Net.Http;
-using System.Web.Http;
-using System.Web.Http.Description;
-using AccessControl.Helpers;
+﻿using AccessControl.Helpers;
 using AccessControl.Repositories;
 using ServiceLibrary.Attributes;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Runtime.Caching;
-using ServiceLibrary.Helpers;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Description;
 
 namespace AccessControl.Controllers
 {
@@ -23,10 +23,10 @@ namespace AccessControl.Controllers
         private static readonly ITimeoutManager<Guid> Sessions = new TimeoutManager<Guid>();
         private static readonly ObjectCache SessionsCache = new MemoryCache("USER_SESSIONS");
 
-        internal readonly ITimeoutManager<Guid> _sessions;
-        internal readonly ObjectCache _sessionsCache;
-        internal readonly ISessionsRepository _repo;
-        internal readonly IServiceLogRepository _log;
+        private readonly ITimeoutManager<Guid> _sessions;
+        private readonly ObjectCache _sessionsCache;
+        private readonly ISessionsRepository _repo;
+        private readonly IServiceLogRepository _log;
 
         public SessionsController() : this(Sessions, SessionsCache, new SqlSessionsRepository(), new ServiceLogRepository())
         {
@@ -47,20 +47,26 @@ namespace AccessControl.Controllers
                 try
                 {
                     await _log.LogInformation(WebApiConfig.LogSourceSessions, "Service starting...");
+
                     var ps = 100;
                     var pn = 1;
                     int count;
+
                     do
                     {
                         count = 0;
                         var sessions = await _repo.SelectSessions(ps, pn);
+
                         foreach (var session in sessions)
                         {
                             ++count;
                             InsertSession(session);
                         }
+
                         ++pn;
-                    } while (count == ps);
+                    }
+                    while (count == ps);
+
                     await _log.LogInformation(WebApiConfig.LogSourceSessions, "Service started.");
                 }
                 catch (Exception ex)
@@ -74,7 +80,10 @@ namespace AccessControl.Controllers
         private string GetHeaderSessionToken()
         {
             if (Request.Headers.Contains("Session-Token") == false)
+            {
                 throw new ArgumentNullException();
+            }
+
             return Request.Headers.GetValues("Session-Token").FirstOrDefault();
         }
 
@@ -92,6 +101,7 @@ namespace AccessControl.Controllers
                 }
 
                 var response = Request.CreateResponse(HttpStatusCode.OK, session);
+
                 return ResponseMessage(response);
             }
             catch (KeyNotFoundException)
@@ -101,6 +111,7 @@ namespace AccessControl.Controllers
             catch (Exception ex)
             {
                 await _log.LogError(WebApiConfig.LogSourceSessions, ex);
+
                 return InternalServerError();
             }
         }
@@ -117,7 +128,9 @@ namespace AccessControl.Controllers
                     int.TryParse(pn, out pnIntValue) == false ||
                     psIntValue <= 0 ||
                     pnIntValue <= 0)
+                {
                     throw new FormatException("Specified parameter is not valid.");
+                }
 
                 return Ok(await _repo.SelectSessions(psIntValue, pnIntValue)); // reading from database to avoid extending existing session
             }
@@ -136,6 +149,7 @@ namespace AccessControl.Controllers
             catch (Exception ex)
             {
                 await _log.LogError(WebApiConfig.LogSourceSessions, ex);
+
                 return InternalServerError();
             }
         }
@@ -152,11 +166,13 @@ namespace AccessControl.Controllers
                 {
                     throw new KeyNotFoundException();
                 }
+
                 var token = Session.Convert(session.SessionId);
                 _sessionsCache.Add(token, session, DateTimeOffset.UtcNow.Add(SessionsCacheSettings.SessionCacheExpiration));
                 InsertSession(session);
                 var response = Request.CreateResponse(HttpStatusCode.OK);
                 response.Headers.Add("Session-Token", token);
+
                 return ResponseMessage(response);
             }
             catch (KeyNotFoundException)
@@ -166,6 +182,7 @@ namespace AccessControl.Controllers
             catch (Exception ex)
             {
                 await _log.LogError(WebApiConfig.LogSourceSessions, ex);
+
                 return InternalServerError();
             }
         }
@@ -198,6 +215,7 @@ namespace AccessControl.Controllers
                 
                 var response = Request.CreateResponse(HttpStatusCode.OK, session);
                 response.Headers.Add("Session-Token", token);
+
                 return ResponseMessage(response);
             }
             catch (ArgumentNullException)
@@ -215,6 +233,7 @@ namespace AccessControl.Controllers
             catch (Exception ex)
             {
                 await _log.LogError(WebApiConfig.LogSourceSessions, ex);
+
                 return InternalServerError();
             }
         }
@@ -233,6 +252,7 @@ namespace AccessControl.Controllers
                 {
                     throw new KeyNotFoundException();
                 }
+
                 RemoveCachedSession(guid);
 
                 return Ok();
@@ -252,6 +272,7 @@ namespace AccessControl.Controllers
             catch (Exception ex)
             {
                 await _log.LogError(WebApiConfig.LogSourceSessions, ex);
+
                 return InternalServerError();
             }
         }
@@ -273,7 +294,9 @@ namespace AccessControl.Controllers
                 {
                     throw new KeyNotFoundException();
                 }
+
                 RemoveCachedSession(session.SessionId);
+
                 return Ok();
             }
             catch (ArgumentNullException)
@@ -291,6 +314,7 @@ namespace AccessControl.Controllers
             catch (Exception ex)
             {
                 await _log.LogError(WebApiConfig.LogSourceSessions, ex);
+
                 return InternalServerError();
             }
         }

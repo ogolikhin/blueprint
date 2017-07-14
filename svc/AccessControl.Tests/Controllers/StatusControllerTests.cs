@@ -1,34 +1,17 @@
-﻿using System.Net;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using ServiceLibrary.Helpers;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using ServiceLibrary.Repositories.ConfigControl;
-using ServiceLibrary.Helpers;
 
 namespace AccessControl.Controllers
 {
     [TestClass]
     public class StatusControllerTests
     {
-        #region Constructor
-
-        [TestMethod]
-        public void Constructor_Always_CreatesDefaultDependencies()
-        {
-            // Arrange
-
-            // Act
-            var controller = new StatusController();
-
-            // Assert
-            Assert.IsInstanceOfType(controller._statusControllerHelper, typeof(StatusControllerHelper));
-        }
-
-        #endregion Constructor
-
         #region GetStatus
 
         [TestMethod]

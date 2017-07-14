@@ -10,11 +10,12 @@ namespace AccessControl.Helpers
         where T : IComparable<T>
     {
         private readonly object _lock = new object();
+        private readonly IServiceLogRepository _log;
+        private DateTime? _nextTimeout;
+
         internal readonly IDictionary<Key, Action> Items = new SortedDictionary<Key, Action>();
         internal readonly IDictionary<T, DateTime> TimeoutsByItem = new Dictionary<T, DateTime>();
         internal ITimer Timer;
-        internal readonly IServiceLogRepository Log;
-        private DateTime? _nextTimeout;
 
         public TimeoutManager()
             : this(new TimerWrapper(), new ServiceLogRepository())
@@ -24,7 +25,7 @@ namespace AccessControl.Helpers
         internal TimeoutManager(ITimer timer, IServiceLogRepository log)
         {
             Timer = timer;
-            Log = log;
+            _log = log;
             timer.AutoReset = false;
             Timer.Elapsed += TimerOnElapsed;
         }
@@ -103,7 +104,7 @@ namespace AccessControl.Helpers
             }
             catch (Exception ex)
             {
-                Log.LogError(WebApiConfig.LogSourceSessions, ex);
+                _log.LogError(WebApiConfig.LogSourceSessions, ex);
             }
         }
 

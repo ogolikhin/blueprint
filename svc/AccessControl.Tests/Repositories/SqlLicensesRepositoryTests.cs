@@ -10,22 +10,6 @@ namespace AccessControl.Repositories
     [TestClass]
     public class SqlLicensesRepositoryTests
     {
-        #region Constructor
-
-        [TestMethod]
-        public void Constructor_CreatesConnectionToAdminStorage()
-        {
-            // Arrange
-
-            // Act
-            var repository = new SqlLicensesRepository();
-
-            // Assert
-            Assert.AreEqual(WebApiConfig.AdminStorage, repository._connectionWrapper.CreateConnection().ConnectionString);
-        }
-
-        #endregion Constructor
-
         #region GetActiveLicenses
 
         [TestMethod]

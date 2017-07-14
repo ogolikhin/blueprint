@@ -10,7 +10,7 @@ namespace AccessControl.Repositories
 {
     public class SqlLicensesRepository : ILicensesRepository
     {
-        internal readonly ISqlConnectionWrapper _connectionWrapper;
+        private readonly ISqlConnectionWrapper _connectionWrapper;
 
         public SqlLicensesRepository()
             : this(new SqlConnectionWrapper(WebApiConfig.AdminStorage))
@@ -27,6 +27,7 @@ namespace AccessControl.Repositories
             var prm = new DynamicParameters();
             prm.Add("@Now", now);
             prm.Add("@LicenseLockTimeMinutes", licenseLockTimeMinutes);
+
             return _connectionWrapper.QueryAsync<LicenseInfo>("GetActiveLicenses", prm, commandType: CommandType.StoredProcedure);
         }
 
@@ -50,6 +51,7 @@ namespace AccessControl.Repositories
             var prm = new DynamicParameters();
             prm.Add("@StartTime", startTime);
             prm.Add("@ConsumerType", consumerType);
+
             return _connectionWrapper.QueryAsync<LicenseTransaction>("GetLicenseTransactions", prm, commandType: CommandType.StoredProcedure);
         }
 
@@ -62,8 +64,8 @@ namespace AccessControl.Repositories
             var usage = new LicenseUsage();
             usage.Summary = await _connectionWrapper.QueryAsync<LicenseUsageSummary>("GetLicenseUsage", prm, commandType: CommandType.StoredProcedure);
             usage.UserActivities = await _connectionWrapper.QueryAsync<LicenseUserActivity>("GetLicenseUserActivity", prm, commandType: CommandType.StoredProcedure);
+
             return usage;
         }
-
     }
 }

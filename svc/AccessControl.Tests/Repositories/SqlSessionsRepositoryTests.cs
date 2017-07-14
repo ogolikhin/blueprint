@@ -1,33 +1,16 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ServiceLibrary.Models;
+using ServiceLibrary.Repositories;
+using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ServiceLibrary.Repositories;
-using ServiceLibrary.Models;
 
 namespace AccessControl.Repositories
 {
     [TestClass]
     public class SqlSessionsRepositoryTests
     {
-        #region Constuctor
-
-        [TestMethod]
-        public void Constructor_CreatesConnectionToAdminStorage()
-        {
-            // Arrange
-
-            // Act
-            var repository = new SqlSessionsRepository();
-
-            // Assert
-            Assert.AreEqual(WebApiConfig.AdminStorage, repository._connectionWrapper.CreateConnection().ConnectionString);
-        }
-
-        #endregion Constructor
-
         #region GetSession
 
         [TestMethod]

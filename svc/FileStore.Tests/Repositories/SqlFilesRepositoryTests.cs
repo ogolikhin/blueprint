@@ -1,4 +1,8 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Repositories;
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
@@ -7,10 +11,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Repositories;
 using File = FileStore.Models.File;
 
 namespace FileStore.Repositories
@@ -18,22 +18,6 @@ namespace FileStore.Repositories
     [TestClass]
     public class SqlFilesRepositoryTests
     {
-        #region Constuctor
-
-        [TestMethod]
-        public void Constructor_CreatesConnectionToFileStorage()
-        {
-            // Arrange
-
-            // Act
-            var repository = new SqlFilesRepository();
-
-            // Assert
-            Assert.AreEqual(ConfigRepository.Instance.FileStoreDatabase, repository.ConnectionWrapper.CreateConnection().ConnectionString);
-        }
-
-        #endregion Constructor
-
         #region PostFile
 
         [TestMethod]

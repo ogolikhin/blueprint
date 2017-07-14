@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Web.Http;
-using System.Web.Http.Description;
-using ServiceLibrary.Attributes;
+﻿using ServiceLibrary.Attributes;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Description;
 
 namespace ArtifactStore.Controllers
 {
@@ -17,8 +16,8 @@ namespace ArtifactStore.Controllers
     [RoutePrefix("status")]
     public class StatusController : ApiController
     {
-        internal readonly IStatusControllerHelper _statusControllerHelper;
-        internal readonly string _expectedPreAuthorizedKey;
+        private readonly IStatusControllerHelper _statusControllerHelper;
+        private readonly string _expectedPreAuthorizedKey;
 
         public StatusController()
             : this(new StatusControllerHelper(
@@ -27,7 +26,7 @@ namespace ArtifactStore.Controllers
                         "ArtifactStore",
                         new ServiceLogRepository(),
                         WebApiConfig.LogSourceStatus
-                    ), 
+                    ),
                     WebApiConfig.StatusCheckPreauthorizedKey
                   )
         {

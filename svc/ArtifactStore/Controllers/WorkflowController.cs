@@ -1,7 +1,4 @@
-﻿using System.Threading.Tasks;
-using System.Web.Http;
-using System.Web.Http.Description;
-using ArtifactStore.Repositories;
+﻿using ArtifactStore.Repositories;
 using ArtifactStore.Repositories.Workflow;
 using ArtifactStore.Services.VersionControl;
 using ArtifactStore.Services.Workflow;
@@ -10,9 +7,11 @@ using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
-using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Description;
 
 namespace ArtifactStore.Controllers
 {
@@ -26,15 +25,15 @@ namespace ArtifactStore.Controllers
 
         public WorkflowController() : this(
             new WorkflowService(
-                new SqlWorkflowRepository(), 
-                new SqlArtifactVersionsRepository(), 
+                new SqlWorkflowRepository(),
+                new SqlArtifactVersionsRepository(),
                 new SqlItemInfoRepository(),
                 new SqlHelper(),
                 new VersionControlService()))
         {
         }
 
-        public WorkflowController(IWorkflowService workflowService) 
+        public WorkflowController(IWorkflowService workflowService)
         {
             _workflowService = workflowService;
         }

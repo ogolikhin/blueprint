@@ -1,16 +1,15 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-using System.Web.Http;
-using ArtifactStore.Models;
+﻿using ArtifactStore.Models;
 using ArtifactStore.Repositories;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
-using ServiceLibrary.Exceptions;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace ArtifactStore.Controllers
 {
@@ -21,11 +20,13 @@ namespace ArtifactStore.Controllers
         private readonly IRelationshipsRepository _relationshipsRepository;
         private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
         private readonly IArtifactVersionsRepository _artifactVersionsRepository;
+
         public override string LogSource { get; } = "ArtifactStore.Relationships";
 
         public RelationshipsController() : this(new SqlRelationshipsRepository(), new SqlArtifactPermissionsRepository(), new SqlArtifactVersionsRepository())
         {
         }
+
         public RelationshipsController(IRelationshipsRepository relationshipsRepository,
             IArtifactPermissionsRepository artifactPermissionsRepository,
             IArtifactVersionsRepository artifactVersionsRepository) : base()

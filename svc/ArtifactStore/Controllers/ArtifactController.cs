@@ -1,15 +1,15 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Web.Http;
-using ServiceLibrary.Attributes;
+﻿using ServiceLibrary.Attributes;
+using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using ServiceLibrary.Controllers;
-using ServiceLibrary.Repositories;
+using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace ArtifactStore.Controllers
 {
@@ -17,8 +17,8 @@ namespace ArtifactStore.Controllers
     [BaseExceptionFilter]
     public class ArtifactController : LoggableApiController
     {
-        internal readonly ISqlArtifactRepository ArtifactRepository;
-        internal readonly IArtifactPermissionsRepository ArtifactPermissionsRepository;
+        private readonly ISqlArtifactRepository ArtifactRepository;
+        private readonly IArtifactPermissionsRepository ArtifactPermissionsRepository;
 
         public override string LogSource { get; } = "ArtifactStore.Artifact";
 

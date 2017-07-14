@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Data;
-using System.Threading.Tasks;
-using ArtifactStore.Models.Reuse;
+﻿using ArtifactStore.Models.Reuse;
 using ArtifactStore.Models.VersionControl;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.VersionControl;
+using System.Collections.Generic;
+using System.Data;
+using System.Threading.Tasks;
 
 namespace ArtifactStore.Repositories.VersionControl
 {
@@ -100,8 +100,6 @@ namespace ArtifactStore.Repositories.VersionControl
         }
     }
 
-    
-
     public class SqlDraftAndLatestItem : SingleArtifactData
     {
         public string DraftName { get; set; }
@@ -133,5 +131,4 @@ namespace ArtifactStore.Repositories.VersionControl
 
         public bool DraftDeleted { get; set; }
     }
-
 }

@@ -1,12 +1,12 @@
-﻿using System.Threading.Tasks;
-using System.Web.Http;
-using ArtifactStore.Models.Review;
+﻿using ArtifactStore.Models.Review;
 using ArtifactStore.Repositories;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace ArtifactStore.Controllers
 {
@@ -14,9 +14,9 @@ namespace ArtifactStore.Controllers
     [BaseExceptionFilter]
     public class ReviewContainersController : LoggableApiController
     {
-        public override string LogSource { get; } = "ArtifactStore.Reviews";
-
         private IReviewsRepository _sqlReviewsRepository;
+
+        public override string LogSource { get; } = "ArtifactStore.Reviews";
 
         public ReviewContainersController(): this(new SqlReviewsRepository())
         {

@@ -1,16 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using ArtifactStore.Models;
+using ArtifactStore.Repositories;
+using ServiceLibrary.Attributes;
+using ServiceLibrary.Controllers;
+using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
+using ServiceLibrary.Repositories;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
-using ArtifactStore.Models;
-using ArtifactStore.Repositories;
-using ServiceLibrary.Attributes;
-using ServiceLibrary.Controllers;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Models;
-using ServiceLibrary.Repositories;
-using ServiceLibrary.Exceptions;
 
 namespace ArtifactStore.Controllers
 {
@@ -18,9 +18,9 @@ namespace ArtifactStore.Controllers
     [BaseExceptionFilter]
     public class AttachmentsController : LoggableApiController
     {
-        internal readonly IAttachmentsRepository AttachmentsRepository;
-        internal readonly IArtifactPermissionsRepository ArtifactPermissionsRepository;
-        internal readonly IArtifactVersionsRepository ArtifactVersionsRepository;
+        private readonly IAttachmentsRepository AttachmentsRepository;
+        private readonly IArtifactPermissionsRepository ArtifactPermissionsRepository;
+        private readonly IArtifactVersionsRepository ArtifactVersionsRepository;
 
         public override string LogSource { get; } = "ArtifactStore.Attachments";
 
@@ -29,6 +29,7 @@ namespace ArtifactStore.Controllers
             new SqlArtifactVersionsRepository())
         {
         }
+
         public AttachmentsController(IAttachmentsRepository attachmentsRepository,
             IArtifactPermissionsRepository artifactPermissionsRepository,
             IArtifactVersionsRepository artifactVersionsRepository) : base()

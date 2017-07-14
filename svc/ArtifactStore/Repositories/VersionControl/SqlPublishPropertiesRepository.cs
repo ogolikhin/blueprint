@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
-using ArtifactStore.Helpers;
+﻿using ArtifactStore.Helpers;
 using ArtifactStore.Models;
 using ArtifactStore.Models.Reuse;
 using ArtifactStore.Models.VersionControl;
@@ -10,6 +6,10 @@ using Dapper;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.VersionControl;
 using ServiceLibrary.Repositories;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ArtifactStore.Repositories.VersionControl
 {
@@ -19,6 +19,7 @@ namespace ArtifactStore.Repositories.VersionControl
         protected override string DeleteVersionsStoredProcedureName { get; } = "RemovePropertyVersions";
         protected override string CloseVersionsStoredProcedureName { get; } = "ClosePropertyVersions";
         protected override string GetDraftAndLatestStoredProcedureName { get; } = "GetDraftAndLatestPropertyVersions";
+
         public async Task Execute(int revisionId, PublishParameters parameters, PublishEnvironment environment, IDbTransaction transaction = null)
         {
             var properties = await GetDraftAndLatest<SqlDraftAndLatestProperty>(parameters.UserId, parameters.AffectedArtifactIds, transaction);

@@ -1,15 +1,15 @@
-﻿using System.Collections.Generic;
-using System.Net;
-using System.Threading.Tasks;
-using System.Web.Http;
-using ArtifactStore.Models;
+﻿using ArtifactStore.Models;
 using ArtifactStore.Repositories;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
-using ServiceLibrary.Exceptions;
+using System.Collections.Generic;
+using System.Net;
+using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace ArtifactStore.Controllers
 {
@@ -18,9 +18,7 @@ namespace ArtifactStore.Controllers
     public class DiscussionController : LoggableApiController
     {
         private readonly IDiscussionsRepository _discussionsRepository;
-
         private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
-
         private readonly IArtifactVersionsRepository _artifactVersionsRepository;
 
         public override string LogSource { get; } = "ArtifactStore.ItemDiscussions";
@@ -28,6 +26,7 @@ namespace ArtifactStore.Controllers
         public DiscussionController() : this(new SqlDiscussionsRepository(), new SqlArtifactPermissionsRepository(), new SqlArtifactVersionsRepository())
         {
         }
+
         public DiscussionController(IDiscussionsRepository discussionsRepository,
                                     IArtifactPermissionsRepository artifactPermissionsRepository,
                                     IArtifactVersionsRepository artifactVersionsRepository) : base()

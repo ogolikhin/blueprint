@@ -9,7 +9,7 @@ namespace ServiceLibrary.Repositories
     public class SqlStatusRepository : IStatusRepository
     {
         private readonly string _dbSchema;
-        internal readonly ISqlConnectionWrapper _connectionWrapper;
+        private readonly ISqlConnectionWrapper _connectionWrapper;
 
         public string Name { get; set; }
 
@@ -38,13 +38,13 @@ namespace ServiceLibrary.Repositories
                 Result = result,
                 NoErrors = true
             };
-            return responseData;
 
+            return responseData;
         }
 
         public async Task<List<StatusResponse>> GetStatuses(int timeout)
         {
-            return new List<StatusResponse>() { await GetStatus(timeout) };
+            return new List<StatusResponse> { await GetStatus(timeout) };
         }
     }
 }

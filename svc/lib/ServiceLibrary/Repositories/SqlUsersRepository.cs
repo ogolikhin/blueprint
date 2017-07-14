@@ -3,15 +3,14 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using System.Collections.Generic;
 using System.Data;
-using System.Threading.Tasks;
 using System.Linq;
-using System;
+using System.Threading.Tasks;
 
 namespace ServiceLibrary.Repositories
 {
     public class SqlUsersRepository : IUsersRepository
     {
-        internal readonly ISqlConnectionWrapper ConnectionWrapper;
+        private readonly ISqlConnectionWrapper ConnectionWrapper;
 
         public SqlUsersRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
@@ -28,6 +27,7 @@ namespace ServiceLibrary.Repositories
             var userInfosPrm = new DynamicParameters();
             var userIdsTable = SqlConnectionWrapper.ToDataTable(userIds, "Int32Collection", "Int32Value");
             userInfosPrm.Add("@userIds", userIdsTable);
+
             return await ConnectionWrapper.QueryAsync<UserInfo>("GetUserInfos", userInfosPrm, commandType: CommandType.StoredProcedure);
         }
 
@@ -56,6 +56,7 @@ namespace ServiceLibrary.Repositories
             var userInfosPrm = new DynamicParameters();
             userInfosPrm.Add("@Email", email);
             userInfosPrm.Add("@GuestsOnly", guestsOnly);
+
             return await ConnectionWrapper.QueryAsync<UserInfo>("GetUsersByEmail", userInfosPrm, commandType: CommandType.StoredProcedure);
         }
 
@@ -64,6 +65,7 @@ namespace ServiceLibrary.Repositories
             var prm = new DynamicParameters();
             prm.Add("@contextUser", contextUser);
             prm.Add("@userId", sessionUserId);
+
             return (await ConnectionWrapper.QueryAsync<bool>("IsInstanceAdmin", prm, commandType: CommandType.StoredProcedure)).SingleOrDefault();            
         }
     }

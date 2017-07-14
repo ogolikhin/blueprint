@@ -1,14 +1,14 @@
-﻿using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using BluePrintSys.RC.Service.Business.Baselines.Impl;
 using Dapper;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
-using ServiceLibrary.Exceptions;
-using BluePrintSys.RC.Service.Business.Baselines.Impl;
 using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlTypes;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ServiceLibrary.Repositories
 {
@@ -22,11 +22,13 @@ namespace ServiceLibrary.Repositories
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {
         }
+
         public SqlItemInfoRepository(ISqlConnectionWrapper connectionWrapper)
         {
             _connectionWrapper = connectionWrapper;
             _artifactPermissionsRepository = new SqlArtifactPermissionsRepository(connectionWrapper);
         }
+
         public async Task<IEnumerable<ItemLabel>> GetItemsLabels(int userId, IEnumerable<int> itemIds, bool addDrafts = true, int revisionId = int.MaxValue)
         {
             var parameters = new DynamicParameters();
@@ -34,6 +36,7 @@ namespace ServiceLibrary.Repositories
             parameters.Add("@userId", userId);
             parameters.Add("@addDrafts", addDrafts);
             parameters.Add("@revisionId", revisionId);
+
             return (await _connectionWrapper.QueryAsync<ItemLabel>("GetItemsLabels", parameters, commandType: CommandType.StoredProcedure));
         }
 
@@ -44,6 +47,7 @@ namespace ServiceLibrary.Repositories
             parameters.Add("@itemIds", SqlConnectionWrapper.ToDataTable(itemIds, "Int32Collection", "Int32Value"));
             parameters.Add("@addDrafts", addDrafts);
             parameters.Add("@revisionId", revisionId);
+
             return await _connectionWrapper.QueryAsync<ItemDetails>("GetItemsDetails", parameters, commandType: CommandType.StoredProcedure);
         }
 
@@ -55,6 +59,7 @@ namespace ServiceLibrary.Repositories
             parameters.Add("@userId", userId);
             parameters.Add("@addDrafts", addDrafts);
             parameters.Add("@revisionId", revisionId);
+
             return (await _connectionWrapper.QueryAsync<string>("GetItemDescription", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
 
@@ -65,6 +70,7 @@ namespace ServiceLibrary.Repositories
             parameters.Add("@userId", userId);
             parameters.Add("@addDrafts", addDrafts);
             parameters.Add("@revisionId", revisionId);
+
             return (await _connectionWrapper.QueryAsync<ItemRawDataCreatedDate>("GetItemsRawDataCreatedDate", parameters, commandType: CommandType.StoredProcedure));
         }
 
@@ -73,6 +79,7 @@ namespace ServiceLibrary.Repositories
             var parameters = new DynamicParameters();
             parameters.Add("@artifactId", artifactId);
             parameters.Add("@versionIndex", versionIndex);
+
             return (await _connectionWrapper.QueryAsync<int>("GetRevisionIdByVersionIndex", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
 
@@ -87,10 +94,12 @@ namespace ServiceLibrary.Repositories
             {
                 revisionId = await GetRevisionIdFromBaselineId(baselineId.Value, userId);
             }
+
             if (revisionId <= 0)
             {
                 throw new ResourceNotFoundException($"Version Index or Baseline Timestamp is not found.", ErrorCodes.ResourceNotFound);
             }
+
             return revisionId;
         }
 
@@ -105,8 +114,10 @@ namespace ServiceLibrary.Repositories
                 {
                     return await GetRevisionIdByTime(snapTime.Value);
                 }
+
                 return int.MaxValue;
             }
+
             return -1;
         }
 
@@ -119,9 +130,11 @@ namespace ServiceLibrary.Repositories
             {
                 return -1;
             }
+
             var prm = new DynamicParameters();
             prm.Add("@time", utcTime);
             var queryText = "SELECT MAX([RevisionId]) FROM [dbo].[Revisions] WHERE ([Timestamp] <= @time) AND ([RevisionId] > 1);";
+
             return (await _connectionWrapper.QueryAsync<int>(queryText, prm)).SingleOrDefault();
         }
 
@@ -145,12 +158,14 @@ namespace ServiceLibrary.Repositories
             prm.Add("@userId", userId);
             prm.Add("@addDrafts", addDrafts);
             prm.Add("@revisionId", revisionId);
+
             return (await _connectionWrapper.QueryAsync<ItemRawData>("GetItemsRawDataCreatedDate", prm, commandType: CommandType.StoredProcedure));
         }
 
         public async Task<int> GetTopRevisionId(int userId)
         {
             var queryText = "SELECT MAX([RevisionId]) FROM [dbo].[Revisions];";
+
             return (await _connectionWrapper.QueryAsync<int>(queryText)).SingleOrDefault();
         }
     }

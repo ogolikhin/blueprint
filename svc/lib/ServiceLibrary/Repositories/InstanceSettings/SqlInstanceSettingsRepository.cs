@@ -8,7 +8,7 @@ namespace ServiceLibrary.Repositories
 {
     public class SqlInstanceSettingsRepository : IInstanceSettingsRepository
     {
-        internal readonly ISqlConnectionWrapper ConnectionWrapper;
+        private readonly ISqlConnectionWrapper ConnectionWrapper;
 
         public SqlInstanceSettingsRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))

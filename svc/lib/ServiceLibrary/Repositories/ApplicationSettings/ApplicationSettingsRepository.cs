@@ -1,17 +1,17 @@
-﻿using System;
+﻿using Dapper;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using ServiceLibrary.Helpers;
-using Dapper;
-using ServiceLibrary.Models;
 
 namespace ServiceLibrary.Repositories
 {
     public class ApplicationSettingsRepository : IApplicationSettingsRepository
     {
-        internal readonly ISqlConnectionWrapper _connectionWrapper;
+        private readonly ISqlConnectionWrapper _connectionWrapper;
 
         public ApplicationSettingsRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
@@ -61,6 +61,7 @@ namespace ServiceLibrary.Repositories
                 {
                     return defaultValue;
                 }
+
                 resultValue = (T)Convert.ChangeType(value, typeof(T));
             }
             else if (typeof (T) == typeof (bool))
@@ -70,6 +71,7 @@ namespace ServiceLibrary.Repositories
                 {
                     return defaultValue;
                 }
+
                 resultValue = (T)Convert.ChangeType(value, typeof(T));
             }
             else

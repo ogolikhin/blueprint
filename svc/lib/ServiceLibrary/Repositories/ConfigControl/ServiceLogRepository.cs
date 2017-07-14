@@ -16,10 +16,10 @@ using System.Threading.Tasks;
 
 namespace ServiceLibrary.Repositories.ConfigControl
 {
-    public partial class ServiceLogRepository : IServiceLogRepository
+    public class ServiceLogRepository : IServiceLogRepository
     {
-        internal readonly IHttpClientProvider _httpClientProvider;
-        internal readonly ILocalLog _localLog;
+        private readonly IHttpClientProvider _httpClientProvider;
+        private readonly ILocalLog _localLog;
 
         public ServiceLogRepository()
             : this(new HttpClientProvider(), new LocalFileLog())
@@ -58,7 +58,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
                 var http = _httpClientProvider.Create(new Uri(uri));
 
                 //create the log entry
-                var logEntry = new ServiceLogModel()
+                var logEntry = new ServiceLogModel
                 {
                     LogLevel = LogLevelEnum.Informational,
                     Source = source,
@@ -110,7 +110,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
                 var http = _httpClientProvider.Create(new Uri(uri));
 
                 //create the log entry
-                var logEntry = new ServiceLogModel()
+                var logEntry = new ServiceLogModel
                 {
                     LogLevel = LogLevelEnum.Verbose,
                     Source = source,
@@ -162,7 +162,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
                 var http = _httpClientProvider.Create(new Uri(uri));
 
                 //create the log entry
-                var logEntry = new ServiceLogModel()
+                var logEntry = new ServiceLogModel
                 {
                     LogLevel = LogLevelEnum.Warning,
                     Source = source,
@@ -248,7 +248,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
                 var http = _httpClientProvider.Create(new Uri(uri));
 
                 //create the log entry
-                var logEntry = new ServiceLogModel()
+                var logEntry = new ServiceLogModel
                 {
                     LogLevel = LogLevelEnum.Error,
                     Source = source,
@@ -300,7 +300,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
                 var http = _httpClientProvider.Create(new Uri(uri));
 
                 //create the log entry
-                var logEntry = new ServiceLogModel()
+                var logEntry = new ServiceLogModel
                 {
                     LogLevel = LogLevelEnum.Error,
                     Source = source,
@@ -414,6 +414,5 @@ namespace ServiceLibrary.Repositories.ConfigControl
                 _localLog.LogErrorFormat("Problem with ConfigControl Log service: {0}", ex.Message);
             }
         }
-
     }
 }

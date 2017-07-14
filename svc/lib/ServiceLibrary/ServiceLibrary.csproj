@@ -257,7 +257,6 @@
     <Compile Include="Helpers\ExceptionHelper.cs" />
     <Compile Include="Repositories\SqlBaseArtifactRepository.cs" />
     <Compile Include="Repositories\SqlConnectionWrapper.cs" />
-    <Compile Include="Repositories\ConfigControl\ServiceConfigRepository.cs" />
     <Compile Include="Repositories\ServiceDependencyStatusRepository.cs" />
     <Compile Include="Repositories\SqlItemInfoRepository.cs" />
     <Compile Include="Repositories\SqlStatusRepository.cs" />

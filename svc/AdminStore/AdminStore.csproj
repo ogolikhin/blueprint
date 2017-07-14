@@ -171,7 +171,10 @@
     <Compile Include="Models\Workflow\IeGenerateAction.cs" />
     <Compile Include="Models\Workflow\IeEmailNotificationAction.cs" />
     <Compile Include="Models\Workflow\IePropertyChangeAction.cs" />
+    <Compile Include="Models\Workflow\IePropertyChangeEvent.cs" />
+    <Compile Include="Models\Workflow\IeEvent.cs" />
     <Compile Include="Models\Workflow\IePropertyChangeTrigger.cs" />
+    <Compile Include="Models\Workflow\IeTransitionTrigger.cs" />
     <Compile Include="Models\Workflow\IeTrigger.cs" />
     <Compile Include="Models\Workflow\WorkflowArtifactTypeDto.cs" />
     <Compile Include="Models\Workflow\SqlProjectPathPair.cs" />
@@ -181,7 +184,7 @@
     <Compile Include="Models\Workflow\IeProject.cs" />
     <Compile Include="Models\Workflow\IeGroup.cs" />
     <Compile Include="Models\Workflow\IeState.cs" />
-    <Compile Include="Models\Workflow\IeTransitionTrigger.cs" />
+    <Compile Include="Models\Workflow\IeTransitionEvent.cs" />
     <Compile Include="Models\Workflow\ImportWorkflowResult.cs" />
     <Compile Include="Models\Workflow\IeWorkflow.cs" />
     <Compile Include="Models\Workflow\SqlWorkflow.cs" />

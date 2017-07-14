@@ -2,16 +2,13 @@
 
 namespace AdminStore.Models.Workflow
 {
-    /// <summary>
-    /// Property Change Trigger
-    /// </summary>
     [XmlType("PropertyChangeTrigger")]
     public class IePropertyChangeTrigger : IeTrigger
     {
         [XmlIgnore]
-        public override TriggerTypes TriggerType => TriggerTypes.PropertyChange;
+        public override TriggerType TriggerType => TriggerType.PropertyChange;
 
-        [XmlElement(IsNullable = false)]
-        public string PropertyName { get; set; }
+        [XmlElement(typeof(IeEmailNotificationAction), ElementName = "EmailNotificationAction")]
+        public IeBaseAction Action { get; set; }
     }
 }

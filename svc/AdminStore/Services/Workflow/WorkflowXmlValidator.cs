@@ -87,7 +87,8 @@ namespace AdminStore.Services.Workflow
             }
 
             var stateTransitions = stateNames.ToDictionary(s => s, s => new List<string>());
-            foreach (var trigger in workflow.Triggers.FindAll(s => s != null))
+            //TODO fix validation
+            /*foreach (var trigger in workflow.Triggers.FindAll(s => s != null))
             {
                 if (!ValidatePropertyNotEmpty(trigger.Name))
                 {
@@ -116,9 +117,9 @@ namespace AdminStore.Services.Workflow
                     });
                 }
 
-                if (trigger.TriggerType == TriggerTypes.Transition)
+                if (trigger.TriggerType == EventType.Transition)
                 {
-                    var transition = trigger as IeTransitionTrigger;
+                    var transition = trigger as IeTransitionEvent;
 
                     var from = ValidatePropertyNotEmpty(transition.FromState) ? transition.FromState : string.Empty;
                     var to = ValidatePropertyNotEmpty(transition.ToState) ? transition.ToState : string.Empty;
@@ -173,9 +174,9 @@ namespace AdminStore.Services.Workflow
                         });
                     }
                 }
-                else if (trigger.TriggerType == TriggerTypes.PropertyChange)
+                else if (trigger.TriggerType == EventType.PropertyChange)
                 {
-                    var pcTrigger = trigger as IePropertyChangeTrigger;
+                    var pcTrigger = trigger as IePropertyChangeEvent;
 
                     if (!ValidatePropertyNotEmpty(pcTrigger.PropertyName))
                     {
@@ -195,7 +196,7 @@ namespace AdminStore.Services.Workflow
                         ErrorCode = WorkflowXmlValidationErrorCodes.ActionsCountOnTriggerExceedsLimit10
                     });
                 }
-            }
+            }*/
 
             foreach (var stateName in stateTransitions.Keys)
             {

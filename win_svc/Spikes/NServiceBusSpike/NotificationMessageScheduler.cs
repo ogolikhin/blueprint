@@ -18,10 +18,10 @@ namespace NServiceBusSpike
 
     public class NotificationMessageScheduler
     {
-        private const string NServiceBusConnectionString = "host=titan.blueprintsys.net;virtualhost=workflowtest;username=admin;password=$admin2011";
-        private const string Handler = "Messaging.Blueprint.WorkflowServer";
+        private static readonly string NServiceBusConnectionString = ConfigurationManager.AppSettings["NServiceBus.ConnectionString"];
+        private static readonly string QueueName = ConfigurationManager.AppSettings["QueueName"];
         public static readonly AsyncLazy<IEndpointInstance> EndPoint =
-            new AsyncLazy<IEndpointInstance>(async () => await EndpointCreator.CreateEndPoint(NServiceBusConnectionString));
+            new AsyncLazy<IEndpointInstance>(async () => await EndpointCreator.CreateEndPoint(NServiceBusConnectionString, QueueName));
         private static int _messageScheduled;
 
         public async void Request(NotificationMessage requestData)
@@ -37,7 +37,7 @@ namespace NServiceBusSpike
                 var endPoint = await EndPoint.Value;
                 
                 var options = new SendOptions();
-                options.SetDestination(Handler);
+                options.SetDestination(QueueName);
 
                 await endPoint.Send(requestData, options);
                 _messageScheduled++;

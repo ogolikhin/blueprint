@@ -1,37 +1,20 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Helpers.Cache;
+using ServiceLibrary.Models;
+using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Models;
-using ServiceLibrary.Helpers.Cache;
-using System.Runtime.Caching;
 
 namespace ServiceLibrary.Attributes
 {
     [TestClass]
     public class SessionAttributeTests
     {
-        #region Constructor
-
-        [TestMethod]
-        public void Constructor_Always_CreatesDefaultDependencies()
-        {
-            // Arrange
-
-            // Act
-            var atrribute = new SessionAttribute();
-
-            // Assert
-            Assert.IsInstanceOfType(atrribute._httpClientProvider, typeof(HttpClientProvider));
-        }
-
-        #endregion Constructor
-
         #region OnActionExecutingAsync
 
         [TestMethod]

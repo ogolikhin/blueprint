@@ -103,7 +103,7 @@ namespace AdminStore.Repositories.Workflow
                 Name = "Use Case"
             });
 
-            // Property Change Triggers
+            // Property Change Events
             //TODO this isn't valid - property change triggers can only have an email notification action
             _workflow.PropertyChangeEvents.Add(new IePropertyChangeEvent
             {
@@ -189,7 +189,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_ValidWorkflow_Success()
         {
             // Arrange
@@ -204,7 +203,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_WorkflowNameEmpty_ReturnsWorkflowNameEmptyError()
         {
             // Arrange
@@ -222,7 +220,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_WorkflowNameMax_Success()
         {
             // Arrange
@@ -238,7 +235,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_WorkflowNameExceedsLimit_ReturnsWorkflowNameExceedsLimit24Error()
         {
             // Arrange
@@ -256,7 +252,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_WorkflowDescriptionMax_Success()
         {
             // Arrange
@@ -272,7 +267,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_WorkflowDescriptionExceedsLimit_ReturnsWorkflowDescriptionExceedsLimit4000Error()
         {
             // Arrange
@@ -309,7 +303,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_NoInitialState_ReturnsNoInitialStateError()
         {
             // Arrange
@@ -327,7 +320,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_MultipleInitialStates_ReturnsMultipleInitialStatesError()
         {
             // Arrange
@@ -345,7 +337,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_WorkflowStatesMax_Success()
         {
             // Arrange
@@ -361,7 +352,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_WorkflowStatesExceedLimit_ReturnsStatesCountExceedsLimit100Error()
         {
             // Arrange
@@ -417,7 +407,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_StateNameMax_Success()
         {
             // Arrange
@@ -434,7 +423,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_StateNameExceedsLimit_ReturnsStateNameExceedsLimit24Error()
         {
             // Arrange
@@ -453,7 +441,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_StateDescriptionMax_Success()
         {
             // Arrange
@@ -469,7 +456,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_StateDescriptionExceedsLimit_ReturnsStateDescriptionExceedsLimit4000Error()
         {
             // Arrange
@@ -487,7 +473,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_TransitionNameEmpty_ReturnsTriggerNameEmptyError()
         {
             // Arrange
@@ -509,7 +494,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_PropertyChangeTriggerNameEmpty_ReturnsTriggerNameEmptyError()
         {
             // Arrange
@@ -525,12 +509,11 @@ namespace AdminStore.Repositories.Workflow
             // Assert
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(WorkflowXmlValidationErrorCodes.TransitionEventNameEmpty, result.Errors[0].ErrorCode);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.PropertyChangeEventNameEmpty, result.Errors[0].ErrorCode);
             Assert.AreSame(_workflow.PropertyChangeEvents.Last(), result.Errors[0].Element);
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_TransitionNameMax_Success()
         {
             // Arrange
@@ -551,7 +534,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_PropertyChangeTriggerNameMax_Success()
         {
             // Arrange
@@ -571,7 +553,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_TransitionNameExceedsLimit_ReturnsTriggerNameExceedsLimit24Error()
         {
             // Arrange
@@ -594,7 +575,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_PropertyChangeTriggerNameExceedsLimit_ReturnsTriggerNameExceedsLimit24Error()
         {
             // Arrange
@@ -611,12 +591,11 @@ namespace AdminStore.Repositories.Workflow
             // Assert
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(WorkflowXmlValidationErrorCodes.TransitionEventNameExceedsLimit24, result.Errors[0].ErrorCode);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.PropertyChangeEventNameExceedsLimit24, result.Errors[0].ErrorCode);
             Assert.AreSame(_workflow.PropertyChangeEvents.Last(), result.Errors[0].Element);
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_TransitionDescriptionMax_Success()
         {
             // Arrange
@@ -638,7 +617,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_PropertyChangeTriggerDescriptionMax_Success()
         {
             // Arrange
@@ -659,7 +637,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_TransitionDescriptionExceedsLimit_ReturnsTriggerDescriptionExceedsLimit4000Error()
         {
             // Arrange
@@ -683,7 +660,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_PropertyChangeTriggerDescriptionExceedsLimit_ReturnsTriggerDescriptionExceedsLimit4000Error()
         {
             // Arrange
@@ -701,12 +677,11 @@ namespace AdminStore.Repositories.Workflow
             // Assert
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(WorkflowXmlValidationErrorCodes.TransitionEventDescriptionExceedsLimit4000, result.Errors[0].ErrorCode);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.PropertyChangeEventDescriptionExceedsLimit4000, result.Errors[0].ErrorCode);
             Assert.AreSame(_workflow.PropertyChangeEvents.Last(), result.Errors[0].Element);
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_TransitionStartStateNotSpecified_ReturnsTransitionStartStateNotSpecifiedError()
         {
             // Arrange
@@ -728,7 +703,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_TransitionEndStateNotSpecified_ReturnsTransitionEndStateNotSpecifiedError()
         {
             // Arrange
@@ -750,7 +724,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_TransitionFromAndToStatesSame_ReturnsTransitionFromAndToStatesSameError()
         {
             // Arrange
@@ -772,7 +745,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_TransitionStateNotFound_ReturnsTransitionStateNotFoundError()
         {
             // Arrange
@@ -795,7 +767,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_StateDoesNotHaveAnyTransitions_ReturnsStateDoesNotHaveAnyTransitionsError()
         {
             // Arrange
@@ -816,7 +787,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_TransitionCountOnStateMax_Success()
         {
             // Arrange
@@ -832,7 +802,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_TransitionCountOnStateExceedsLimit_ReturnsTransitionCountOnStateExceedsLimit10Error()
         {
             // Arrange
@@ -850,7 +819,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_TransitionNameNotUniqueOnState_ReturnsTransitionNameNotUniqueOnStateError()
         {
             // Arrange
@@ -873,7 +841,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_PropertyChangeTriggerPropertyNotSpecified_ReturnsPropertyChangeTriggerPropertyNotSpecifiedError()
         {
             // Arrange
@@ -894,7 +861,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_ActionsCountOnTriggerMax_Success()
         {
             // Arrange
@@ -915,7 +881,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_ActionsCountOnTriggerExceedsLimit_ReturnsActionsCountOnTriggerExceedsLimit10Error()
         {
             // Arrange
@@ -939,7 +904,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_ProjectNoSpecified_ReturnsProjectNoSpecifiedError()
         {
             // Arrange
@@ -957,7 +921,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_ProjectInvalidId_ReturnsProjectInvalidIdError()
         {
             // Arrange
@@ -975,7 +938,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_ArtifactTypeNoSpecified_ReturnsArtifactTypeNoSpecifiedError()
         {
             // Arrange
@@ -993,7 +955,6 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        [Ignore]
         public void Validate_MultipleErrors_ReturnsMultipleErrors()
         {
             // Arrange

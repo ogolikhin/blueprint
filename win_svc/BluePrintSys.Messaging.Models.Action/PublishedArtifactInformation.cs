@@ -9,5 +9,7 @@
         public int ArtifactTypeId { get; set; }
 
         public int ArtifactTypePredefined { get; set; }
+
+        public string ArtifactUrl { get; set; }
     }
 }

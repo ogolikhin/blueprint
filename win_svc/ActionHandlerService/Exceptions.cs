@@ -16,4 +16,18 @@ namespace ActionHandlerService
         {
         }
     }
+
+    public class MessageHeaderValueNotFoundException : ExceptionWithErrorCode
+    {
+        public MessageHeaderValueNotFoundException(string message) : base(message, ErrorCodes.MessageHeaderValueNotFound)
+        {
+        }
+    }
+
+    public class InvalidTenantIdException : ExceptionWithErrorCode
+    {
+        public InvalidTenantIdException(string message) : base(message, ErrorCodes.InvalidTenantId)
+        {
+        }
+    }
 }

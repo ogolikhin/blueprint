@@ -26,6 +26,7 @@ namespace PocService
             endpointConfiguration.UsePersistence<InMemoryPersistence>();
             endpointConfiguration.SendFailedMessagesTo("error");
             endpointConfiguration.EnableInstallers();
+            endpointConfiguration.AddHeaderToAllOutgoingMessages(PocHeaders.TenantId, "1");
             EndpointInstance = await Endpoint.Start(endpointConfiguration).ConfigureAwait(false);
             await RunLoop().ConfigureAwait(false);
             await EndpointInstance.Stop().ConfigureAwait(false);
@@ -56,14 +57,36 @@ namespace PocService
         public int Id { get; set; }
     }
 
+    public class PocHeaders
+    {
+        public const string MessageId = Headers.MessageId;
+        public const string TenantId = "TenantId";
+    }
+
     public class PocMessageHandler : IHandleMessages<PocMessage>
     {
         public Task Handle(PocMessage message, IMessageHandlerContext context)
         {
+            var messageId = GetMessageHeaderValue(PocHeaders.MessageId, context);
+            var tenantId = GetMessageHeaderValue(PocHeaders.TenantId, context);
+            if (string.IsNullOrWhiteSpace(messageId) || string.IsNullOrWhiteSpace(tenantId))
+            {
+                throw new Exception("Invalid Message Header Value");
+            }
             Program.EndpointInstance.SendLocal(new PocSpawnMessage {Id = 1}).ConfigureAwait(false);
             Program.EndpointInstance.SendLocal(new PocAnotherSpawnMessage {Id = 2}).ConfigureAwait(false);
             Program.EndpointInstance.SendLocal(new PocAnotherSpawnMessage {Id = 3}).ConfigureAwait(false);
             return Task.CompletedTask;
+        }
+
+        private string GetMessageHeaderValue(string header, IMessageHandlerContext context)
+        {
+            string headerValue;
+            if (!context.MessageHeaders.TryGetValue(header, out headerValue))
+            {
+                throw new Exception($"Message Header Not Found: {header}");
+            }
+            return headerValue;
         }
     }
 

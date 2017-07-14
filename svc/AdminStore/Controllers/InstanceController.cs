@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Net;
-using System.Threading.Tasks;
-using System.Web.Http;
-using System.Web.Http.Description;
-using AdminStore.Helpers;
+﻿using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Repositories;
 using ServiceLibrary.Attributes;
@@ -11,6 +6,11 @@ using ServiceLibrary.Controllers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using System.Collections.Generic;
+using System.Net;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Description;
 
 namespace AdminStore.Controllers
 {
@@ -19,14 +19,14 @@ namespace AdminStore.Controllers
     [BaseExceptionFilter]
     public class InstanceController : LoggableApiController
     {
-        internal readonly IInstanceRepository _instanceRepository;
-        internal readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
-        internal readonly PrivilegesManager _privilegesManager;
+        private readonly IInstanceRepository _instanceRepository;
+        private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
+        private readonly PrivilegesManager _privilegesManager;
 
         public override string LogSource { get; } = "AdminStore.Instance";
 
         public InstanceController() : this(
-            new SqlInstanceRepository(), new ServiceLogRepository(), 
+            new SqlInstanceRepository(), new ServiceLogRepository(),
             new SqlArtifactPermissionsRepository(), new SqlPrivilegesRepository()
         )
         {
@@ -151,6 +151,7 @@ namespace AdminStore.Controllers
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewUsers);
 
             var result = await _instanceRepository.GetInstanceRolesAsync();
+
             return Ok(result);
         }
     }

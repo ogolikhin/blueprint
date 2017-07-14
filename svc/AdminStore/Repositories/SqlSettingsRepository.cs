@@ -1,16 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using AdminStore.Models;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Repositories;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using AdminStore.Models;
-using ServiceLibrary.Repositories;
-using ServiceLibrary.Helpers;
 
 namespace AdminStore.Repositories
 {
     public class SqlSettingsRepository : ISqlSettingsRepository
     {
-        internal readonly ISqlConnectionWrapper _connectionWrapper;
+        private readonly ISqlConnectionWrapper _connectionWrapper;
 
         public SqlSettingsRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
@@ -34,20 +34,24 @@ namespace AdminStore.Repositories
             {
                 settings.EmailSettingsDeserialized = new EmailConfigInstanceSettings(settings.EmailSettings);
             }
+
             //TODO temporary solution, MaximumInvalidLogonAttempts property should be moved to database
             settings.MaximumInvalidLogonAttempts = WebApiConfig.MaximumInvalidLogonAttempts;
+
             return settings;
         }
 
         public async Task<IFederatedAuthenticationSettings> GetFederatedAuthenticationSettingsAsync()
         {
             var result = (await _connectionWrapper.QueryAsync<dynamic>("GetFederatedAuthentications", commandType: CommandType.StoredProcedure)).FirstOrDefault();
+
             return result == null ? null : new FederatedAuthenticationSettings(result.Settings, result.Certificate);
         }
 
         public async Task<UserManagementSettings> GetUserManagementSettingsAsync()
         {
             var instanceSettings = await GetInstanceSettingsAsync();
+
             return new UserManagementSettings
             {
                 // Assumes no difference between disabled Federated Authentication (FA) and no FA

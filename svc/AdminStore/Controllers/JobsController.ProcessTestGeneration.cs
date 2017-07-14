@@ -1,16 +1,16 @@
-﻿using System;
+﻿using ServiceLibrary.Attributes;
+using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Models.Jobs;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
-using ServiceLibrary.Attributes;
-using ServiceLibrary.Exceptions;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Models.Jobs;
 
 namespace AdminStore.Controllers
 {
-	public partial class JobsController
+    public partial class JobsController
 	{
         /// <summary>
         /// Schedules a job for test generation from the provided processes
@@ -48,6 +48,7 @@ namespace AdminStore.Controllers
 	    }
 
         #region private methods
+
         private IHttpActionResult ConstructHttpResponse(int? jobId)
         {
             if (!jobId.HasValue)
@@ -58,6 +59,7 @@ namespace AdminStore.Controllers
             var requestJobUrl = I18NHelper.FormatInvariant("/svc/adminstore/jobs/{0}", jobId.Value);
             var requestUri = new Uri(requestJobUrl, UriKind.Relative);
             var result = new AddJobResult() { JobId = jobId.Value };
+
             return Created(requestUri, result);
         }
 
@@ -67,19 +69,23 @@ namespace AdminStore.Controllers
             {
                 throw new BadRequestException("Please provide a request body", ErrorCodes.QueueJobEmptyRequest);
             }
+
 	        if (request.ProjectId <= 0)
 	        {
 	            throw new BadRequestException("Please provide a valid project id", ErrorCodes.QueueJobProjectIdInvalid);
             }
-            if (String.IsNullOrEmpty(request.ProjectName))
+
+            if (string.IsNullOrEmpty(request.ProjectName))
             {
                 throw new BadRequestException("Please provide the project name", ErrorCodes.QueueJobProjectNameEmpty);
             }
+
             if (request?.Processes == null || !request.Processes.Any() || request.Processes.Any(a => a.ProcessId <= 0))
             {
                 throw new BadRequestException("Please provide valid processes to generate job", ErrorCodes.QueueJobProcessesInvalid);
             }
 	    }
+
 	    #endregion
     }
 }

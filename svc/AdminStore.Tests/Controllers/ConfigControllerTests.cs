@@ -1,4 +1,13 @@
-﻿using System;
+﻿using AdminStore.Models;
+using AdminStore.Repositories;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
+using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories.ConfigControl;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -7,15 +16,6 @@ using System.Net.Http.Formatting;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
-using AdminStore.Models;
-using AdminStore.Repositories;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using ServiceLibrary.Exceptions;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Models;
-using ServiceLibrary.Repositories.ConfigControl;
-using ServiceLibrary.Repositories;
 
 namespace AdminStore.Controllers
 {
@@ -23,19 +23,6 @@ namespace AdminStore.Controllers
     public class ConfigControllerTests
     {
         #region Constuctor
-
-        [TestMethod]
-        public void Constructor_CreatesDefaultDependencies()
-        {
-            // Arrange
-
-            // Act
-            var controller = new ConfigController();
-
-            // Assert
-            Assert.IsInstanceOfType(controller._applicationSettingsRepository, typeof(ApplicationSettingsRepository));
-            Assert.IsInstanceOfType(controller._httpClientProvider, typeof(HttpClientProvider));
-        }
 
         [TestMethod]
         public void Constructor_CorrectlyInitializesLogSource()
@@ -46,7 +33,6 @@ namespace AdminStore.Controllers
             // Assert
             Assert.AreEqual(controller.LogSource, WebApiConfig.LogSourceConfig);
         }
-
 
         #endregion
 

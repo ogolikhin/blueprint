@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using AdminStore.Models;
+﻿using AdminStore.Models;
 using AdminStore.Models.Enums;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -9,28 +6,15 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Repositories;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace AdminStore.Repositories
 {
     [TestClass]
     public class SqlGroupRepositoryTests
     {
-        #region Constructor
-
-        [TestMethod]
-        public void Constructor_CreatesConnectionToRaptorMain()
-        {
-            // Arrange
-
-            // Act
-            var repository = new SqlGroupRepository();
-
-            // Assert
-            Assert.AreEqual(ServiceConstants.RaptorMain, repository._connectionWrapper.CreateConnection().ConnectionString);
-        }
-
-        #endregion Constructor
-
         #region AddGroupAsync
 
         [TestMethod]

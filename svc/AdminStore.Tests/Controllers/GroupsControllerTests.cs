@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Web.Http;
-using System.Web.Http.Results;
-using AdminStore.Helpers;
-using AdminStore.Models;
+﻿using AdminStore.Models;
 using AdminStore.Models.Enums;
 using AdminStore.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -15,6 +7,13 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Results;
 
 namespace AdminStore.Controllers
 {
@@ -61,23 +60,6 @@ namespace AdminStore.Controllers
                 Members = new List<KeyValuePair<int, UserType>> {new KeyValuePair<int, UserType>(1, UserType.User)}
             };
         }
-
-        #region Constuctor
-
-        [TestMethod]
-        public void Constructor_CreatesDefaultDependencies()
-        {
-            // Arrange
-
-            // Act
-            var controller = new GroupsController();
-
-            // Assert
-            Assert.IsInstanceOfType(controller._privilegesManager, typeof(PrivilegesManager));
-            Assert.IsInstanceOfType(controller._groupRepository, typeof(SqlGroupRepository));
-        }
-
-        #endregion
 
         #region GetGroups
 

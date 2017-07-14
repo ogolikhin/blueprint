@@ -1,17 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Formatting;
-using System.Web.Http;
-using System.Web.Http.Description;
-using AdminStore.Repositories;
+﻿using AdminStore.Repositories;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Description;
 
 namespace AdminStore.Controllers
 {
@@ -19,9 +18,9 @@ namespace AdminStore.Controllers
     [RoutePrefix("licenses")]
     public class LicensesController : ApiController
     {
-        internal readonly IHttpClientProvider _httpClientProvider;
-        internal readonly IUserRepository _userRepository;
-        internal readonly IServiceLogRepository _log;
+        private readonly IHttpClientProvider _httpClientProvider;
+        private readonly IUserRepository _userRepository;
+        private readonly IServiceLogRepository _log;
 
         public LicensesController(): this(new HttpClientProvider(), new SqlUserRepository(), new ServiceLogRepository())
         {
@@ -53,26 +52,32 @@ namespace AdminStore.Controllers
             {
                 var uri = new Uri(WebApiConfig.AccessControl);
                 var http = _httpClientProvider.Create(uri);
+
                 if (!Request.Headers.Contains("Session-Token"))
                 {
                     throw new ArgumentNullException();
                 }
+
                 var request = new HttpRequestMessage
                 {
                     RequestUri = new Uri(uri, "licenses/transactions?days=" + days + "&consumerType=1"), // LicenseConsumerType.Client
                     Method = HttpMethod.Get
                 };
                 request.Headers.Add("Session-Token", Request.Headers.GetValues("Session-Token").First());
+
                 var result = await http.SendAsync(request);
                 var transactions = (await result.Content.ReadAsAsync<IEnumerable<LicenseTransaction>>()).ToArray();
                 var users = (await _userRepository.GetLicenseTransactionUserInfoAsync(transactions.Select(t => t.UserId).Distinct())).ToDictionary(u => u.Id);
+
                 foreach (var transaction in transactions.Where(t => users.ContainsKey(t.UserId)))
                 {
                     var user = users[transaction.UserId];
                     transaction.Username = user.Login;
                     transaction.Department = user.Department;
                 }
+
                 var response = Request.CreateResponse(HttpStatusCode.OK, transactions);
+
                 return ResponseMessage(response);
             }
             catch (ArgumentNullException)
@@ -82,6 +87,7 @@ namespace AdminStore.Controllers
             catch (Exception ex)
             {
                 await _log.LogError(WebApiConfig.LogSourceLicenses, ex);
+
                 return InternalServerError();
             }
         }

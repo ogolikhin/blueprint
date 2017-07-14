@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Web.Http;
-using System.Web.Http.Description;
-using ServiceLibrary.Attributes;
+﻿using ServiceLibrary.Attributes;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Description;
 
 namespace AdminStore.Controllers
 {
@@ -17,21 +17,28 @@ namespace AdminStore.Controllers
     [RoutePrefix("status")]
     public class StatusController : ApiController
     {
-        internal readonly IStatusControllerHelper _statusControllerHelper;
-        internal readonly string _expectedPreAuthorizedKey;
+        private readonly IStatusControllerHelper _statusControllerHelper;
+        private readonly string _expectedPreAuthorizedKey;
 
         public StatusController()
-            : this(new StatusControllerHelper(
-                        new List<IStatusRepository> {   new SqlStatusRepository(WebApiConfig.AdminStorage, "AdminStorageDB"),
-                                                        new SqlStatusRepository(ServiceConstants.RaptorMain, "RaptorDB"),
-                                                        new ServiceDependencyStatusRepository(new Uri(WebApiConfig.AccessControl), "AccessControlEndpoint"),
-                                                        new ServiceDependencyStatusRepository(new Uri(WebApiConfig.ConfigControl), "ConfigControlEndpoint"),
-                                                        new JobExecutorStatusRepository(ServiceConstants.RaptorMain, "JobExecutor")},
-                        "AdminStore",
-                        new ServiceLogRepository(),
-                        WebApiConfig.LogSourceStatus
-                    ), WebApiConfig.StatusCheckPreauthorizedKey
-                  )
+            : this
+            (
+                new StatusControllerHelper
+                (
+                    new List<IStatusRepository>
+                    {
+                        new SqlStatusRepository(WebApiConfig.AdminStorage, "AdminStorageDB"),
+                        new SqlStatusRepository(ServiceConstants.RaptorMain, "RaptorDB"),
+                        new ServiceDependencyStatusRepository(new Uri(WebApiConfig.AccessControl), "AccessControlEndpoint"),
+                        new ServiceDependencyStatusRepository(new Uri(WebApiConfig.ConfigControl), "ConfigControlEndpoint"),
+                        new JobExecutorStatusRepository(ServiceConstants.RaptorMain, "JobExecutor")
+                    },
+                    "AdminStore",
+                    new ServiceLogRepository(),
+                    WebApiConfig.LogSourceStatus
+                ),
+                WebApiConfig.StatusCheckPreauthorizedKey
+            )
         {
         }
 
@@ -58,9 +65,8 @@ namespace AdminStore.Controllers
             // Refactoring for shorter status as per US955
 
             if (preAuthorizedKey != null && preAuthorizedKey != _expectedPreAuthorizedKey)
-            {                
+            {
                 return ResponseMessage(Request.CreateResponse(HttpStatusCode.Unauthorized, "Unauthorized", new MediaTypeHeaderValue("application/json")));
-
             }
 
             ServiceStatus serviceStatus = await _statusControllerHelper.GetStatus();
@@ -73,12 +79,10 @@ namespace AdminStore.Controllers
             {
                 return Ok(serviceStatus);
             }
-            else
-            {
-                var response = Request.CreateResponse(HttpStatusCode.InternalServerError, serviceStatus);
-                return ResponseMessage(response);
-            }
 
+            var response = Request.CreateResponse(HttpStatusCode.InternalServerError, serviceStatus);
+
+            return ResponseMessage(response);
         }
 
         /// <summary>

@@ -1,12 +1,12 @@
-﻿using System.Linq;
+﻿using ServiceLibrary.Attributes;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
+using ServiceLibrary.Repositories.ConfigControl;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
-using ServiceLibrary.Attributes;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Models;
-using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Controllers
 {
@@ -15,12 +15,10 @@ namespace AdminStore.Controllers
     [RoutePrefix("log")]
     public class LogController : ApiController
     {
-
-        internal readonly IServiceLogRepository LogRepository;
+        private readonly IServiceLogRepository LogRepository;
 
         public LogController() : this(new ServiceLogRepository())
         {
-
         }
 
         internal LogController(IServiceLogRepository log)
@@ -53,12 +51,13 @@ namespace AdminStore.Controllers
 
             var response = Request.CreateResponse(HttpStatusCode.OK);
             response.Content = result.Content;
+
             return ResponseMessage(response);
         }
 
         private string GetUserName()
         {
-            object sessionObject = null;            
+            object sessionObject = null;
             if (ActionContext.Request.Properties.TryGetValue(ServiceConstants.SessionProperty, out sessionObject))
             {
                 Session session = sessionObject as Session;

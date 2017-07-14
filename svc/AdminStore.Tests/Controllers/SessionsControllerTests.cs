@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Helpers.Security;
 using ServiceLibrary.Repositories.ConfigControl;
 using System;
 using System.Linq;
@@ -13,31 +14,12 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
-using ServiceLibrary.Helpers.Security;
 
 namespace AdminStore.Controllers
 {
     [TestClass]
     public class SessionsControllerTests
     {
-        #region Constuctor
-
-        [TestMethod]
-        public void Constructor_CreatesDefaultDependencies()
-        {
-            // Arrange
-
-            // Act
-            var controller = new SessionsController();
-
-            // Assert
-            Assert.IsInstanceOfType(controller._authenticationRepository, typeof(AuthenticationRepository));
-            Assert.IsInstanceOfType(controller._httpClientProvider, typeof(HttpClientProvider));
-            Assert.IsInstanceOfType(controller._log, typeof(ServiceLogRepository));
-        }
-
-        #endregion
-
         #region PostSession
 
         [TestMethod]

@@ -1,24 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
-using AdminStore.Helpers;
+﻿using AdminStore.Helpers;
 using AdminStore.Models;
-using AdminStore.Models.Enums;
 using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Repositories;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace AdminStore.Repositories
 {
     public class SqlGroupRepository : IGroupRepository
     {
-        internal readonly ISqlConnectionWrapper _connectionWrapper;
+        private readonly ISqlConnectionWrapper _connectionWrapper;
 
         public SqlGroupRepository() : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {
@@ -36,6 +34,7 @@ namespace AdminStore.Repositories
             {
                 orderField = sort(tabularData.Sorting);
             }
+
             if (tabularData.Search != null)
             {
                 tabularData.Search = UsersHelper.ReplaceWildcardCharacters(tabularData.Search);
@@ -46,6 +45,7 @@ namespace AdminStore.Repositories
             {
                 parameters.Add("@UserId", userId);
             }
+
             parameters.Add("@Offset", tabularData.Pagination.Offset);
             parameters.Add("@Limit", tabularData.Pagination.Limit);
             parameters.Add("@OrderField", orderField);
@@ -67,7 +67,8 @@ namespace AdminStore.Repositories
 
             var mappedGroups = GroupMapper.Map(userGroups);
 
-            var queryDataResult = new QueryResult<GroupDto>() { Items = mappedGroups, Total = total.Value };
+            var queryDataResult = new QueryResult<GroupDto> { Items = mappedGroups, Total = total.Value };
+
             return queryDataResult;
         }
 
@@ -77,14 +78,15 @@ namespace AdminStore.Repositories
             {
                 search = UsersHelper.ReplaceWildcardCharacters(search);
             }
+
             var parameters = new DynamicParameters();
             parameters.Add("@GroupsIds", SqlConnectionWrapper.ToDataTable(body.Ids));
             parameters.Add("@Search", search);
             parameters.Add("@SelectAll", body.SelectAll);
             var result = await _connectionWrapper.ExecuteScalarAsync<int>("DeleteGroups", parameters, commandType: CommandType.StoredProcedure);
+
             return result;
         }
-
 
         public async Task<int> AddGroupAsync(GroupDto group)
         {
@@ -116,6 +118,7 @@ namespace AdminStore.Repositories
                         return groupId;
                 }
             }
+
             return groupId;
         }
 
@@ -169,6 +172,7 @@ namespace AdminStore.Repositories
                         commandType: CommandType.StoredProcedure);
             var enumerable = result as IList<Group> ?? result.ToList();
             var group = enumerable.Any() ? enumerable.First() : new Group();
+
             return GroupMapper.Map(group);
         }
 
@@ -179,10 +183,12 @@ namespace AdminStore.Repositories
             {
                 orderField = sort(tabularData.Sorting);
             }
+
             if (tabularData.Search != null)
             {
                 tabularData.Search = UsersHelper.ReplaceWildcardCharacters(tabularData.Search);
             }
+
             var parameters = new DynamicParameters();
             parameters.Add("@GroupId", groupId);
             parameters.Add("@Offset", tabularData.Pagination.Offset);
@@ -203,9 +209,11 @@ namespace AdminStore.Repositories
                         throw new ResourceNotFoundException(ErrorMessages.GroupNotExist, ErrorCodes.ResourceNotFound);
                 }
             }
+
             var total = parameters.Get<int?>("Total");
 
-            var queryDataResult = new QueryResult<GroupUser>() { Items = userGroups, Total = total.Value };
+            var queryDataResult = new QueryResult<GroupUser> { Items = userGroups, Total = total.Value };
+
             return queryDataResult;
         }
 
@@ -216,6 +224,7 @@ namespace AdminStore.Repositories
             {
                 orderField = sort(tabularData.Sorting);
             }
+
             var parameters = new DynamicParameters();
             parameters.Add("@GroupId", groupId);
             parameters.Add("@Offset", tabularData.Pagination.Offset);
@@ -235,12 +244,13 @@ namespace AdminStore.Repositories
                         throw new ResourceNotFoundException(ErrorMessages.GroupNotExist);
                 }
             }
+
             var total = parameters.Get<int?>("Total");
 
-            var queryDataResult = new QueryResult<GroupUser>() { Items = userGroups, Total = total.Value };
+            var queryDataResult = new QueryResult<GroupUser> { Items = userGroups, Total = total.Value };
+
             return queryDataResult;
         }
-
 
         public async Task<int> DeleteMembersFromGroupAsync(int groupId, AssignScope body)
         {
@@ -265,6 +275,7 @@ namespace AdminStore.Repositories
                         throw new ResourceNotFoundException(ErrorMessages.GroupNotExist, ErrorCodes.ResourceNotFound);
                 }
             }
+
             return result;
         }
 
@@ -274,6 +285,7 @@ namespace AdminStore.Repositories
             {
                 search = UsersHelper.ReplaceWildcardCharacters(search);
             }
+
             var parameters = new DynamicParameters();
             parameters.Add("@GroupId", groupId);
             parameters.Add("@GroupsIds", SqlConnectionWrapper.ToDataTable(GroupsHelper.ParsingTypesToUserTypeArray(scope.Members, UserType.Group)));
@@ -290,12 +302,13 @@ namespace AdminStore.Repositories
                 {
                     case (int)SqlErrorCodes.GroupWithCurrentIdNotExist:
                         throw new ResourceNotFoundException(ErrorMessages.GroupNotExist, ErrorCodes.ResourceNotFound);
+
                     case (int)SqlErrorCodes.GeneralSqlError:
                         throw new Exception(ErrorMessages.GeneralErrorOfUpdatingGroup);
                 }
             }
+
             return result;
         }
-
     }
 }

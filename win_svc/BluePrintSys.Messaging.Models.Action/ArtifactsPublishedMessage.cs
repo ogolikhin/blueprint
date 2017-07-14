@@ -1,4 +1,5 @@
-﻿using NServiceBus;
+﻿using System.Collections.Generic;
+using NServiceBus;
 
 namespace BluePrintSys.Messaging.Models.Actions
 {
@@ -13,17 +14,12 @@ namespace BluePrintSys.Messaging.Models.Actions
         {
         }
 
-        public override MessageActionType ActionType { get; } = MessageActionType.ArtifactsPublished;
+        public override MessageActionType ActionType { get; }
 
-        public PublishedArtifact[] PublishedArtifacts { get; set; }
-    }
-
-    public class PublishedArtifact
-    {
         public int UserId { get; set; }
+
         public int RevisionId { get; set; }
-        public int ArtifactId { get; set; }
-        public int ArtifactTypeId { get; set; }
-        public int PredefinedArtifactTypeId { get; set; }
+
+        public ICollection<PublishedArtifactInformation> Artifacts { get; set; }
     }
 }

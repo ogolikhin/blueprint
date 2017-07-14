@@ -259,7 +259,7 @@ namespace AdminStore.Services.Workflow
             var newStatesArray = newStates.ToArray();
             var importTriggersParams = new List<SqlTrigger>();
 
-            workflow.Triggers.OfType<IeTransitionTrigger>().ForEach(transition =>
+            workflow.TransitionEvents.OfType<IeTransitionEvent>().ForEach(transition =>
             {
                 importTriggersParams.Add(new SqlTrigger
                 {
@@ -273,7 +273,7 @@ namespace AdminStore.Services.Workflow
                         GroupIds = transition.PermissionGroups.Select(pg => validGroups.First(p => p.Name == pg.Name).GroupId).ToList()
                     }),
                     Validations = null,
-                    Actions = SerializationHelper.ToXml(transition.Actions),
+                    Actions = SerializationHelper.ToXml(transition.Triggers),
                     WorkflowState1Id = newStatesArray.FirstOrDefault(s => s.Name.Equals(transition.FromState))?.WorkflowStateId,
                     WorkflowState2Id = newStatesArray.FirstOrDefault(s => s.Name.Equals(transition.ToState))?.WorkflowStateId,
                     PropertyTypeId = null

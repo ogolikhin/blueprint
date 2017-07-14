@@ -1,6 +1,3 @@
-using System;
-using System.Threading.Tasks;
-using System.Web.Http;
 using SearchService.Helpers;
 using SearchService.Models;
 using SearchService.Repositories;
@@ -10,6 +7,9 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
+using System;
+using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace SearchService.Controllers
 {
@@ -18,13 +18,14 @@ namespace SearchService.Controllers
     [RoutePrefix("itemsearch")]
     public class ItemSearchController : LoggableApiController
     {
-        public override string LogSource => "SearchService.ItemSearch";
-        internal const int MaxResultCount = 101;
+        private const int MaxResultCount = 101;
         private const string DefaultSeparator = "/";
 
-        internal readonly IItemSearchRepository ItemSearchRepo;
+        private readonly IItemSearchRepository _itemSearchRepository;
         private readonly ISearchConfigurationProvider _searchConfigurationProvider;
         private readonly CriteriaValidator _criteriaValidator;
+
+        public override string LogSource => "SearchService.ItemSearch";
 
         public ItemSearchController() : this(new SqlItemSearchRepository(), new SearchConfiguration(), new ServiceLogRepository())
         {
@@ -32,7 +33,7 @@ namespace SearchService.Controllers
 
         internal ItemSearchController(IItemSearchRepository itemSearchRepo, ISearchConfiguration configuration, IServiceLogRepository serviceLogRepository) : base(serviceLogRepository)
         {
-            ItemSearchRepo = itemSearchRepo;
+            _itemSearchRepository = itemSearchRepo;
             _searchConfigurationProvider = new SearchConfigurationProvider(configuration);
             _criteriaValidator = new CriteriaValidator();
         }
@@ -67,7 +68,7 @@ namespace SearchService.Controllers
 
             try
             {
-                return await ItemSearchRepo.SearchFullText(userId, searchCriteria, searchPage, searchPageSize);
+                return await _itemSearchRepository.SearchFullText(userId, searchCriteria, searchPage, searchPageSize);
             }
             catch (Exception ex)
             {
@@ -102,7 +103,7 @@ namespace SearchService.Controllers
 
             try
             {
-                var results = await ItemSearchRepo.FullTextMetaData(userId, searchCriteria);
+                var results = await _itemSearchRepository.FullTextMetaData(userId, searchCriteria);
 
                 results.PageSize = searchPageSize;
                 results.TotalPages = results.TotalCount >= 0
@@ -151,7 +152,7 @@ namespace SearchService.Controllers
 
             try
             {
-                var results = await ItemSearchRepo.SearchName(userId, searchCriteria, searchStartOffset, searchPageSize);
+                var results = await _itemSearchRepository.SearchName(userId, searchCriteria, searchStartOffset, searchPageSize);
 
                 foreach (var searchItem in results.Items)
                 {
@@ -181,8 +182,6 @@ namespace SearchService.Controllers
             }
             return ((Session)sessionValue).UserId;
         }
-
-        
 
         private int GetPageSize(ISearchConfigurationProvider searchConfigurationProvider, int? requestedPageSize, int maxPageSize = Int32.MaxValue)
         {

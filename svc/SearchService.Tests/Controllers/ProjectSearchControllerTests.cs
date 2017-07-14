@@ -1,9 +1,3 @@
-using System;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Web.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using SearchService.Models;
@@ -12,28 +6,18 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
+using System;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace SearchService.Controllers
 {
     [TestClass]
     public class ProjectSearchControllerTests
     {
-        #region Constuctor
-
-        [TestMethod]
-        public void Constructor_CreatesDefaultDependencies()
-        {
-            // Arrange
-
-            // Act
-            var controller = new ProjectSearchController();
-
-            // Assert
-            Assert.IsInstanceOfType(controller._projectSearchRepository, typeof(SqlProjectSearchRepository));
-        }
-
-        #endregion Constructor
-
         #region SearchName
 
         [TestMethod]

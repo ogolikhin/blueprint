@@ -1,7 +1,3 @@
-using System;
-using System.Net;
-using System.Threading.Tasks;
-using System.Web.Http;
 using SearchService.Models;
 using SearchService.Repositories;
 using ServiceLibrary.Attributes;
@@ -10,6 +6,10 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
+using System;
+using System.Net;
+using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace SearchService.Controllers
 {
@@ -18,10 +18,11 @@ namespace SearchService.Controllers
     [RoutePrefix("projectsearch")]
     public class ProjectSearchController : LoggableApiController
     {
-        internal readonly IProjectSearchRepository _projectSearchRepository;
         private const int MaxResultCount = 101;
         private const int DefaultResultCount = 20;
         private const string DefaultSeparator = "/";
+
+        private readonly IProjectSearchRepository _projectSearchRepository;
 
         public override string LogSource => "SearchService.ProjectSearch";
 

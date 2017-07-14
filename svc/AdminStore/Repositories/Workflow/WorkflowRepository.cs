@@ -291,7 +291,7 @@ namespace AdminStore.Repositories.Workflow
                 switch (errorCode.Value)
                 {
                     case (int)SqlErrorCodes.GeneralSqlError:
-                        throw new BadRequestException(ErrorMessages.GeneralErrorOfDeletingUsers);
+                        throw new BadRequestException(ErrorMessages.GeneralErrorOfDeletingWorkflows);
                 }
             }
 

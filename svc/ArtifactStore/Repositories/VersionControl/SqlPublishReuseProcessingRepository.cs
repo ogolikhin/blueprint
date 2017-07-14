@@ -1,11 +1,11 @@
-﻿using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
-using ArtifactStore.Helpers;
+﻿using ArtifactStore.Helpers;
 using ArtifactStore.Models.VersionControl;
 using ArtifactStore.Repositories.Reuse;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.VersionControl;
+using System.Data;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ArtifactStore.Repositories.VersionControl
 {
@@ -21,7 +21,6 @@ namespace ArtifactStore.Repositories.VersionControl
 
         public SqlPublishReuseProcessingRepository() : this(new ReuseRepository(), new SensitivityCommonHelper())
         {
-            
         }
 
         public SqlPublishReuseProcessingRepository(IReuseRepository reuseRepository,

@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using SearchService.Helpers;
@@ -11,28 +7,16 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
+using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace SearchService.Controllers
 {
     [TestClass]
     public class ItemSearchControllerTests
     {
-        #region Constuctor
-
-        [TestMethod]
-        public void Constructor_CreatesDefaultDependencies()
-        {
-            // Arrange
-
-            // Act
-            var controller = new ItemSearchController();
-
-            // Assert
-            Assert.IsInstanceOfType(controller.ItemSearchRepo, typeof(SqlItemSearchRepository));
-        }
-
-        #endregion
-
         #region SearchFullText
 
         [TestMethod]

@@ -1,25 +1,23 @@
-﻿using System;
+﻿using AdminStore.Models;
 using AdminStore.Models.Workflow;
-using ServiceLibrary.Helpers;
+using AdminStore.Repositories;
+using AdminStore.Repositories.Workflow;
+using AdminStore.Services.Workflow;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Xml.Serialization;
+using Moq;
+using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Repositories.ConfigControl;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
-using AdminStore.Helpers;
-using AdminStore.Repositories;
-using AdminStore.Repositories.Workflow;
-using AdminStore.Services.Workflow;
-using Moq;
-using ServiceLibrary.Exceptions;
-using ServiceLibrary.Models;
-using ServiceLibrary.Models.Enums;
-using ServiceLibrary.Repositories.ConfigControl;
-using System.Data;
-using AdminStore.Models;
+using System.Xml.Serialization;
 
 namespace AdminStore.Controllers
 {
@@ -38,6 +36,7 @@ namespace AdminStore.Controllers
         public List<IeTrigger> Triggers { get; set; }
        
     }
+
     /// <summary>
     /// Test Actions Container class
     /// </summary>
@@ -55,7 +54,6 @@ namespace AdminStore.Controllers
        
     }
 
- 
     [TestClass]
     public class XmlTriggersActionsTest
     {
@@ -191,11 +189,9 @@ namespace AdminStore.Controllers
         }
     }
 
-
 	[TestClass]
     public class WorkflowControllerTest
     {
-
         private Mock<IWorkflowService> _workflowServiceMock;
         private Mock<IServiceLogRepository> _logMock;
         private Mock<IPrivilegesRepository> _privilegesRepositoryMock;
@@ -223,22 +219,6 @@ namespace AdminStore.Controllers
             _controller.Request.Properties[ServiceConstants.SessionProperty] = session;
             _controller.Request.RequestUri = new Uri("http://localhost");
         }
-
-        #region Constuctor
-
-        [TestMethod]
-        public void Constructor_CreatesDefaultDependencies()
-        {
-            // Arrange
-
-            // Act
-            var controller = new WorkflowController();
-
-            // Assert
-            Assert.IsInstanceOfType(controller._privilegesManager, typeof(PrivilegesManager));
-        }
-
-        #endregion
 
         #region GetWorkflow
 

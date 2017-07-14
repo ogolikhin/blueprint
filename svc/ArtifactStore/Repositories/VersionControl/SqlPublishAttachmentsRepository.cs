@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
-using ArtifactStore.Helpers;
+﻿using ArtifactStore.Helpers;
 using ArtifactStore.Models.Reuse;
 using ArtifactStore.Models.VersionControl;
 using Dapper;
@@ -10,6 +6,10 @@ using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.VersionControl;
 using ServiceLibrary.Repositories;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ArtifactStore.Repositories.VersionControl
 {
@@ -82,6 +82,7 @@ namespace ArtifactStore.Repositories.VersionControl
             await MarkAsLatest(markAsLatestVersionIds, environment.RevisionId, transaction);
             await DeleteVersions(deleteVersionsIds, transaction);
         }
+
         private async Task CloseAttachmentVersions(HashSet<int> closeVersionIds, int revisionId, bool keepLatest, IDbTransaction transaction)
         {
             if (closeVersionIds.Count == 0)

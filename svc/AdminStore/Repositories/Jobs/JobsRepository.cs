@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Threading.Tasks;
-using Dapper;
+﻿using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
@@ -13,15 +7,21 @@ using ServiceLibrary.Models.Jobs;
 using ServiceLibrary.Models.Messaging;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.Files;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace AdminStore.Repositories.Jobs
 {
     public class JobsRepository : IJobsRepository
     {
-        internal readonly ISqlConnectionWrapper ConnectionWrapper;
-        internal readonly ISqlArtifactRepository _sqlArtifactRepository;
-        internal readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
-        internal readonly IUsersRepository _usersRepository;
+        private readonly ISqlConnectionWrapper _connectionWrapper;
+        private readonly ISqlArtifactRepository _sqlArtifactRepository;
+        private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
+        private readonly IUsersRepository _usersRepository;
 
         public JobsRepository() : 
             this
@@ -42,7 +42,7 @@ namespace AdminStore.Repositories.Jobs
             IUsersRepository userRepository
         )
         {
-            ConnectionWrapper = connectionWrapper;
+            _connectionWrapper = connectionWrapper;
             _sqlArtifactRepository = sqlArtifactRepository;
             _artifactPermissionsRepository = artifactPermissionsRepository;
             _usersRepository = userRepository;
@@ -164,7 +164,7 @@ namespace AdminStore.Repositories.Jobs
 
             try
             {
-                return (await ConnectionWrapper.QueryAsync<DJobMessage>("GetJobMessage", param, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+                return (await _connectionWrapper.QueryAsync<DJobMessage>("GetJobMessage", param, commandType: CommandType.StoredProcedure)).SingleOrDefault();
             }
             catch (SqlException sqlException)
             {
@@ -204,7 +204,7 @@ namespace AdminStore.Repositories.Jobs
 
             try
             {
-                return (await ConnectionWrapper.QueryAsync<DJobMessage>("GetJobMessagesNova", param, commandType: CommandType.StoredProcedure)).ToList();
+                return (await _connectionWrapper.QueryAsync<DJobMessage>("GetJobMessagesNova", param, commandType: CommandType.StoredProcedure)).ToList();
             }
             catch (SqlException sqlException)
             {
@@ -317,7 +317,7 @@ namespace AdminStore.Repositories.Jobs
 
             try
             {
-                return (await ConnectionWrapper.QueryAsync<DJobMessage>("AddJobMessage", param, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+                return (await _connectionWrapper.QueryAsync<DJobMessage>("AddJobMessage", param, commandType: CommandType.StoredProcedure)).SingleOrDefault();
             }
             catch (SqlException sqlException)
             {

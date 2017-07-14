@@ -11,21 +11,25 @@ namespace BluePrintSys.RC.Service.Business.Baselines.Impl
         public static bool ExtractIsSelead(string rawData)
         {
             bool isSealed;
+
             if (bool.TryParse(ExtractPropertyValue(rawData, "IsSealed"), out isSealed))
             {
                 return isSealed;
             }
+
             return false;
         }
 
         public static DateTime? ExtractTimestamp(string rawData)
         {
             var snaptimeValue = ExtractPropertyValue(rawData, "Snaptime");
+
             DateTime timestamp;
             if (DateTime.TryParse(snaptimeValue, CultureInfo.InvariantCulture, DateTimeStyles.None, out timestamp))
             {
                 return timestamp.ToUniversalTime();
             }
+
             return null;
         }
 
@@ -40,6 +44,7 @@ namespace BluePrintSys.RC.Service.Business.Baselines.Impl
                     return baselineArtifacts;
                 }
             }
+
             return new HashSet<int>();
         }
 
@@ -54,6 +59,7 @@ namespace BluePrintSys.RC.Service.Business.Baselines.Impl
                     return matches[0].Groups[1].Value;
                 }
             }
+
             return null;
         }
 

@@ -8,7 +8,7 @@ namespace ServiceLibrary.Repositories
 {
     public class SqlInstanceSettingsRepository : IInstanceSettingsRepository
     {
-        internal readonly ISqlConnectionWrapper ConnectionWrapper;
+        private readonly ISqlConnectionWrapper _connectionWrapper;
 
         public SqlInstanceSettingsRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
@@ -17,12 +17,12 @@ namespace ServiceLibrary.Repositories
 
         internal SqlInstanceSettingsRepository(ISqlConnectionWrapper connectionWrapper)
         {
-            ConnectionWrapper = connectionWrapper;
+            _connectionWrapper = connectionWrapper;
         }
 
         public async Task<EmailSettings> GetEmailSettings()
         {
-            var result = (await ConnectionWrapper.QueryAsync<dynamic>("GetInstanceEmailSettings", commandType: CommandType.StoredProcedure)).FirstOrDefault();
+            var result = (await _connectionWrapper.QueryAsync<dynamic>("GetInstanceEmailSettings", commandType: CommandType.StoredProcedure)).FirstOrDefault();
             return result == null ? null : EmailSettings.CreateFromString(result.EmailSettings);
         }
     }

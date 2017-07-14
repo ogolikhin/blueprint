@@ -1,16 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Http;
-using System.Web.Http.Description;
-using System.Web.Http.Results;
-using AdminStore.Helpers;
+﻿using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Models.Workflow;
 using AdminStore.Repositories;
@@ -24,6 +12,17 @@ using ServiceLibrary.Helpers.Files;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
 using ServiceLibrary.Repositories.Files;
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Description;
+using System.Web.Http.Results;
 
 namespace AdminStore.Controllers
 {
@@ -36,7 +35,7 @@ namespace AdminStore.Controllers
 
         private readonly IWorkflowService _workflowService;
         private readonly IWorkflowRepository _workflowRepository;
-        internal readonly PrivilegesManager _privilegesManager;
+        private readonly PrivilegesManager _privilegesManager;
 
         private const string InvalidXmlErrorMessageTemplate = "There was an error uploading {0}. The supplied XML is not valid.  Please edit your file and upload again. \r\n {1}";
 
@@ -104,6 +103,7 @@ namespace AdminStore.Controllers
                     };
 
                     var response = Request.CreateResponse(HttpStatusCode.BadRequest, errorResult);
+
                     return ResponseMessage(response);
                 }
 
@@ -150,6 +150,7 @@ namespace AdminStore.Controllers
 
             _workflowService.FileRepository = GetFileRepository();
             var errors = await _workflowService.GetImportWorkflowErrorsAsync(guid, session.UserId);
+
             return Ok(errors);
         }
 
@@ -176,7 +177,6 @@ namespace AdminStore.Controllers
             return Ok(workflowDetails);
         }
 
-
         /// <summary>
         /// Get workflows list according to the input parameters
         /// </summary>
@@ -196,6 +196,7 @@ namespace AdminStore.Controllers
             pagination.Validate();
 
             var result = await _workflowRepository.GetWorkflows(pagination, sorting, search, SortingHelper.SortWorkflows);
+
             return Ok(result);
         }
 
@@ -216,16 +217,17 @@ namespace AdminStore.Controllers
             {
                 return BadRequest(ErrorMessages.InvalidDeleteWorkflowsParameters);
             }
+
             if (scope.IsEmpty())
             {
                 return Ok(DeleteResult.Empty);
             }
+
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
             var result = await _workflowService.DeleteWorkflows(scope, search, Session.UserId);
 
             return Ok(new DeleteResult { TotalDeleted = result });
         }
-
 
         /// <summary>
         /// Update workflow's status
@@ -251,6 +253,7 @@ namespace AdminStore.Controllers
             {
                 throw new BadRequestException(ErrorMessages.WorkflowModelIsEmpty, ErrorCodes.BadRequest);
             }
+
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
             await _workflowService.UpdateWorkflowStatusAsync(workflowDto, workflowId, Session.UserId);
 
@@ -277,7 +280,7 @@ namespace AdminStore.Controllers
                     Content = new ByteArrayContent(stream.GetBuffer())
                 };
                 result.Content.Headers.ContentDisposition =
-                    new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
+                    new ContentDispositionHeaderValue("attachment")
                     {
                         FileName = "test.xml"
                     };
@@ -295,6 +298,7 @@ namespace AdminStore.Controllers
         {
             var session = ServerHelper.GetSession(Request);
             var baseUri = WebApiConfig.FileStore != null ? new Uri(WebApiConfig.FileStore) : Request.RequestUri;
+
             return new FileRepository(new FileHttpWebClient(baseUri, Session.Convert(session.SessionId)));
         }
 
@@ -311,6 +315,5 @@ namespace AdminStore.Controllers
         }
 
         #endregion
-
     }
 }

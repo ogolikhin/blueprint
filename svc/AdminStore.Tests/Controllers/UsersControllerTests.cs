@@ -1,4 +1,16 @@
-﻿using System;
+﻿using AdminStore.Helpers;
+using AdminStore.Models;
+using AdminStore.Repositories;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Helpers.Security;
+using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories.ConfigControl;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -6,19 +18,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
-using AdminStore.Helpers;
-using AdminStore.Models;
-using AdminStore.Repositories;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using ServiceLibrary.Exceptions;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Models;
-using ServiceLibrary.Repositories.ConfigControl;
-using System.Net.Http.Formatting;
-using ServiceLibrary.Helpers.Security;
-using ServiceLibrary.Models.Enums;
-using ServiceLibrary.Repositories;
 
 namespace AdminStore.Controllers
 {
@@ -104,23 +103,6 @@ namespace AdminStore.Controllers
             _userGoupsQueryDataResult = new QueryResult<GroupDto> { Total = 1, Items = new List<GroupDto>() };
             _operationScope = new OperationScope { Ids = new[] { 3, 4 } };
         }
-
-        #region Constuctor
-
-        [TestMethod]
-        public void Constructor_CreatesDefaultDependencies()
-        {
-            // Arrange
-
-            // Act
-            var controller = new UsersController();
-
-            // Assert
-            Assert.IsInstanceOfType(controller._userRepository, typeof(SqlUserRepository));
-            Assert.IsInstanceOfType(controller._log, typeof(ServiceLogRepository));
-        }
-
-        #endregion
 
         #region GetUserIcon
 

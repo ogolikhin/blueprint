@@ -1,10 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
 using Dapper;
 using SearchService.Helpers;
 using SearchService.Models;
@@ -12,6 +5,13 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Globalization;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SearchService.Repositories
 {
@@ -24,14 +24,15 @@ namespace SearchService.Repositories
             4115,
             16384
         });
+
         private static readonly DataTable PrimitiveItemTypePredefineds = SqlConnectionWrapper.ToDataTable(new[]
         {
             (int)ItemTypePredefined.Project,                // (4097)
-            (int)ItemTypePredefined.Baseline,               // (4098)                  
+            (int)ItemTypePredefined.Baseline,               // (4098)
             (int)ItemTypePredefined.DataObject              // (32769)
         });
 
-        internal readonly ISqlConnectionWrapper ConnectionWrapper;
+        private readonly ISqlConnectionWrapper _connectionWrapper;
         private readonly ISearchConfigurationProvider _searchConfigurationProvider;
         private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
         private readonly ISqlArtifactRepository _artifactRepository;
@@ -40,18 +41,18 @@ namespace SearchService.Repositories
         {
         }
 
-        internal SqlItemSearchRepository(ISqlConnectionWrapper connectionWrapper, ISearchConfiguration configuration):
+        internal SqlItemSearchRepository(ISqlConnectionWrapper connectionWrapper, ISearchConfiguration configuration) :
             this(connectionWrapper, configuration, new SqlArtifactPermissionsRepository(connectionWrapper), new SqlArtifactRepository(connectionWrapper))
         {
         }
 
         internal SqlItemSearchRepository(
-            ISqlConnectionWrapper connectionWrapper, 
-            ISearchConfiguration configuration, 
+            ISqlConnectionWrapper connectionWrapper,
+            ISearchConfiguration configuration,
             IArtifactPermissionsRepository artifactPermissionsRepository,
             ISqlArtifactRepository artifactRepository)
         {
-            ConnectionWrapper = connectionWrapper;
+            _connectionWrapper = connectionWrapper;
             _artifactPermissionsRepository = artifactPermissionsRepository;
             _searchConfigurationProvider = new SearchConfigurationProvider(configuration);
             _artifactRepository = artifactRepository;
@@ -90,7 +91,7 @@ namespace SearchService.Repositories
 
             try
             {
-                var items = (await ConnectionWrapper.QueryAsync<FullTextSearchResult>(sql, param, commandType: CommandType.StoredProcedure, commandTimeout: _searchConfigurationProvider.SearchTimeout)).ToList();
+                var items = (await _connectionWrapper.QueryAsync<FullTextSearchResult>(sql, param, commandType: CommandType.StoredProcedure, commandTimeout: _searchConfigurationProvider.SearchTimeout)).ToList();
                 return new FullTextSearchResultSet
                 {
                     Items = items,
@@ -143,7 +144,7 @@ namespace SearchService.Repositories
             {
                 var result =
                     await
-                        ConnectionWrapper.QueryMultipleAsync<MetaDataSearchResult, int?>(sql, param,
+                        _connectionWrapper.QueryMultipleAsync<MetaDataSearchResult, int?>(sql, param,
                             commandType: CommandType.StoredProcedure,
                             commandTimeout: _searchConfigurationProvider.SearchTimeout);
                 return new MetaDataSearchResultSet
@@ -173,9 +174,9 @@ namespace SearchService.Repositories
         /// <param name="pageSize">Page Size</param>        
         /// <returns></returns>
         public async Task<ItemNameSearchResultSet> SearchName(
-            int userId, 
-            ItemNameSearchCriteria searchCriteria, 
-            int startOffset, 
+            int userId,
+            ItemNameSearchCriteria searchCriteria,
+            int startOffset,
             int pageSize)
         {
             var param = new DynamicParameters();
@@ -195,7 +196,7 @@ namespace SearchService.Repositories
 
             try
             {
-                items = (await ConnectionWrapper.QueryAsync<ItemNameSearchResult>("SearchItemNameByItemTypes",
+                items = (await _connectionWrapper.QueryAsync<ItemNameSearchResult>("SearchItemNameByItemTypes",
                     param,
                     commandType: CommandType.StoredProcedure,
                     commandTimeout: _searchConfigurationProvider.SearchTimeout)).ToList();

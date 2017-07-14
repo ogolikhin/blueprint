@@ -1,5 +1,4 @@
-﻿using ArtifactStore.Helpers;
-using ArtifactStore.Models;
+﻿using ArtifactStore.Models;
 using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
@@ -15,7 +14,7 @@ namespace ArtifactStore.Repositories
 {
     public class SqlArtifactVersionsRepository : IArtifactVersionsRepository
     {
-        internal readonly ISqlConnectionWrapper ConnectionWrapper;
+        private readonly ISqlConnectionWrapper _connectionWrapper;
         private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
         private readonly ISqlItemInfoRepository _itemInfoRepository;
 
@@ -32,7 +31,7 @@ namespace ArtifactStore.Repositories
         internal SqlArtifactVersionsRepository(ISqlConnectionWrapper connectionWrapper,
                 IArtifactPermissionsRepository artifactPermissionsRepository, ISqlItemInfoRepository itemInfoRepository)
         {
-            ConnectionWrapper = connectionWrapper;
+            _connectionWrapper = connectionWrapper;
             _artifactPermissionsRepository = artifactPermissionsRepository;
             _itemInfoRepository = itemInfoRepository;
         }
@@ -45,7 +44,7 @@ namespace ArtifactStore.Repositories
                 var artifactIdsTable = SqlConnectionWrapper.ToDataTable(new List<int> { artifactId }, "Int32Collection", "Int32Value");
                 artifactWithDraftPrm.Add("@userId", sessionUserId);
                 artifactWithDraftPrm.Add("@artifactIds", artifactIdsTable);
-                return (await ConnectionWrapper.QueryAsync<int>("GetArtifactsWithDraft", artifactWithDraftPrm, commandType: CommandType.StoredProcedure)).Count() == 1;
+                return (await _connectionWrapper.QueryAsync<int>("GetArtifactsWithDraft", artifactWithDraftPrm, commandType: CommandType.StoredProcedure)).Count() == 1;
             }
             return false;
         }
@@ -54,21 +53,21 @@ namespace ArtifactStore.Repositories
         {
             var isPublishOrDraftPrm = new DynamicParameters();
             isPublishOrDraftPrm.Add("@artifactId", artifactId);
-            return (await ConnectionWrapper.QueryAsync<bool>("DoesArtifactHavePublishedOrDraftVersion", isPublishOrDraftPrm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+            return (await _connectionWrapper.QueryAsync<bool>("DoesArtifactHavePublishedOrDraftVersion", isPublishOrDraftPrm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
 
         public async Task<bool> IsItemDeleted(int itemId)
         {
             var isDeletedPrm = new DynamicParameters();
             isDeletedPrm.Add("@artifactId", itemId);
-            return (await ConnectionWrapper.QueryAsync<bool>("IsArtifactDeleted", isDeletedPrm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+            return (await _connectionWrapper.QueryAsync<bool>("IsArtifactDeleted", isDeletedPrm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
 
         public async Task<DeletedItemInfo> GetDeletedItemInfo(int itemId)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@itemId", itemId);
-            return (await ConnectionWrapper.QueryAsync<DeletedItemInfo>("GetDeletedItemInfo", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+            return (await _connectionWrapper.QueryAsync<DeletedItemInfo>("GetDeletedItemInfo", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
 
         public async Task<bool> LockArtifactAsync(int artifactId, int userId)
@@ -76,7 +75,7 @@ namespace ArtifactStore.Repositories
             var parameters = new DynamicParameters();
             parameters.Add("@userId", userId);
             parameters.Add("@artifactId", artifactId);
-            var result = (await ConnectionWrapper.QueryAsync<int?>("LockArtifact", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+            var result = (await _connectionWrapper.QueryAsync<int?>("LockArtifact", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
             if (result.HasValue && result.Value > 0)
             {
                 return true;
@@ -88,7 +87,7 @@ namespace ArtifactStore.Repositories
         {
             var parameters = new DynamicParameters();
             parameters.Add("@artifactId", artifactId);
-            var result = (await ConnectionWrapper.QueryAsync<ArtifactHistoryVersion>("GetDeletedVersionInfo", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+            var result = (await _connectionWrapper.QueryAsync<ArtifactHistoryVersion>("GetDeletedVersionInfo", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
             result.VersionId = int.MaxValue;
             result.ArtifactState = ArtifactState.Deleted;
             return result;
@@ -103,7 +102,7 @@ namespace ArtifactStore.Repositories
             if (userId.HasValue) { artifactVersionsPrm.Add("@userId", userId.Value); }
             else { artifactVersionsPrm.Add("@userId", null); }
             artifactVersionsPrm.Add("@ascd", asc);
-            return await ConnectionWrapper.QueryAsync<ArtifactHistoryVersion>("GetArtifactVersions", artifactVersionsPrm, commandType: CommandType.StoredProcedure);
+            return await _connectionWrapper.QueryAsync<ArtifactHistoryVersion>("GetArtifactVersions", artifactVersionsPrm, commandType: CommandType.StoredProcedure);
         }
         
         private async Task<IEnumerable<UserInfo>> GetUserInfos(IEnumerable<int> userIds)
@@ -111,7 +110,7 @@ namespace ArtifactStore.Repositories
             var userInfosPrm = new DynamicParameters();
             var userIdsTable = SqlConnectionWrapper.ToDataTable(userIds, "Int32Collection", "Int32Value");
             userInfosPrm.Add("@userIds", userIdsTable);
-            return await ConnectionWrapper.QueryAsync<UserInfo>("GetUserInfos", userInfosPrm, commandType: CommandType.StoredProcedure);
+            return await _connectionWrapper.QueryAsync<UserInfo>("GetUserInfos", userInfosPrm, commandType: CommandType.StoredProcedure);
         }
 
         private void InsertDraftOrDeletedVersion(int limit, int offset, bool asc, List<ArtifactHistoryVersion> artifactVersions, ArtifactHistoryVersion deletedOrDraftEntry)
@@ -210,7 +209,7 @@ namespace ArtifactStore.Repositories
             DynamicParameters dynamicParameters = new DynamicParameters();
             dynamicParameters.Add("@userId", userId);
             dynamicParameters.Add("@itemId", itemId);
-            ArtifactBasicDetails artifactBasicDetails = (await ConnectionWrapper.QueryAsync<ArtifactBasicDetails>(
+            ArtifactBasicDetails artifactBasicDetails = (await _connectionWrapper.QueryAsync<ArtifactBasicDetails>(
                 "GetArtifactBasicDetails", dynamicParameters, commandType: CommandType.StoredProcedure)).FirstOrDefault();
             if (artifactBasicDetails == null)
             {

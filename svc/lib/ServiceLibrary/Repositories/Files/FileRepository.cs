@@ -1,15 +1,15 @@
-﻿using System;
+﻿using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Models.Files;
+using System;
 using System.IO;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using ServiceLibrary.Exceptions;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Models.Files;
-using File = ServiceLibrary.Models.Files.File;
-using FileInfo = ServiceLibrary.Models.Files.FileInfo;
 using System.Web;
 using System.Xml;
+using File = ServiceLibrary.Models.Files.File;
+using FileInfo = ServiceLibrary.Models.Files.FileInfo;
 
 namespace ServiceLibrary.Repositories.Files
 {
@@ -42,12 +42,12 @@ namespace ServiceLibrary.Repositories.Files
         {
             if (string.IsNullOrWhiteSpace(fileName))
             {
-                throw new ArgumentNullException("fileName");
+                throw new ArgumentNullException(nameof(fileName));
             }
 
             if (content == null)
             {
-                throw new ArgumentNullException("content");
+                throw new ArgumentNullException(nameof(content));
             }
 
             var request = CreateUploadFileRequest(fileName, fileType, content, expired);
@@ -61,7 +61,7 @@ namespace ServiceLibrary.Repositories.Files
 
         private HttpWebRequest CreateUploadFileRequest(string fileName, string fileType, Stream content, DateTime? expired = null)
         {
-            string expireDate = expired == null ? null : 
+            string expireDate = expired == null ? null :
                 "?expired=" + HttpUtility.UrlEncode(expired.Value.ToStringInvariant("o"));
             var requestAddress = I18NHelper.FormatInvariant("/svc/components/filestore/files/{0}/{1}", fileName, expireDate);
 
@@ -79,9 +79,9 @@ namespace ServiceLibrary.Repositories.Files
 
         private string GetFileGuidFromResponse(HttpWebResponse response)
         {
-            string fileGuid = null;            
+            string fileGuid = null;
             string xmlReply;
-            
+
             using (var streamReader = new StreamReader(response.GetResponseStream()))
             {
                 xmlReply = streamReader.ReadToEnd();
@@ -92,7 +92,7 @@ namespace ServiceLibrary.Repositories.Files
                 XmlDocument dox = new XmlDocument();
                 dox.LoadXml(xmlReply);
                 var nodes = dox.GetElementsByTagName("Guid");
-                fileGuid = nodes.Count > 0 ? nodes[0].InnerText : null;                
+                fileGuid = nodes.Count > 0 ? nodes[0].InnerText : null;
             }
             else
             {
@@ -118,7 +118,7 @@ namespace ServiceLibrary.Repositories.Files
 
         private async Task<FileInfo> GetFileInfoAsync(Guid fileId)
         {
-            var requestAddress = $"/svc/filestore/files/{fileId}";  
+            var requestAddress = $"/svc/filestore/files/{fileId}";
             var request = _httpWebClient.CreateHttpWebRequest(requestAddress, "Head");
             var response = await _httpWebClient.GetHttpWebResponseAsync(request);
 

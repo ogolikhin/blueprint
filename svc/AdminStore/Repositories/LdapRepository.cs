@@ -1,14 +1,14 @@
-﻿using System;
+﻿using AdminStore.Helpers;
+using AdminStore.Models;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Repositories.ConfigControl;
+using System;
 using System.DirectoryServices;
 using System.DirectoryServices.Protocols;
 using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using AdminStore.Helpers;
-using AdminStore.Models;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Repositories
 {
@@ -21,13 +21,14 @@ namespace AdminStore.Repositories
 
     public class LdapRepository : ILdapRepository, IAuthenticator
     {
-        internal readonly ISqlSettingsRepository _settingsRepository;
+        private const string LogSourceLdap = "LdapRepository";
+
+        private readonly ISqlSettingsRepository _settingsRepository;
         private readonly IServiceLogRepository _log;
-        internal readonly IAuthenticator _authenticator;
+        private readonly IAuthenticator _authenticator;
 
         internal const int LdapInvalidCredentialsErrorCode = 49;
         internal const int ActiveDirectoryInvalidCredentialsErrorCode = -2147023570;
-        private const string LogSourceLdap = "LdapRepository";
 
         public LdapRepository()
             : this(new SqlSettingsRepository(), new ServiceLogRepository())
@@ -60,8 +61,10 @@ namespace AdminStore.Repositories
                         {
                             continue;
                         }
+
                         loginInfo.LdapUrl = ldapSetting.LdapAuthenticationUrl;
                         authenticationStatus = Authenticate(loginInfo, password, ldapSetting.AuthenticationType);
+
                         if (authenticationStatus == AuthenticationStatus.Success)
                         {
                             break;
@@ -73,12 +76,14 @@ namespace AdminStore.Repositories
                     authenticationStatus = Authenticate(loginInfo, password);
                 }
             }
+
             return authenticationStatus;
         }
 
         private AuthenticationStatus Authenticate(LoginInfo loginInfo, string password, AuthenticationTypes authenticationType = AuthenticationTypes.Secure)
         {
             var authenticationStatus = AuthenticateViaLdap(loginInfo, password, authenticationType);
+
             return authenticationStatus == AuthenticationStatus.Error ? AuthenticateViaDirectory(loginInfo, password) : authenticationStatus;
         }
 
@@ -98,11 +103,13 @@ namespace AdminStore.Repositories
                 {
                     return AuthenticationStatus.InvalidCredentials;
                 }
+
                 return AuthenticationStatus.Error;
             }
             catch (Exception ex)
             {
                 _log.LogError(LogSourceLdap, ex);
+
                 return AuthenticationStatus.Error;
             }
 
@@ -114,6 +121,7 @@ namespace AdminStore.Repositories
             try
             {
                 _authenticator.Bind(loginInfo, password, authenticationType);
+
                 return AuthenticationStatus.Success;
             }
             catch (LdapException ldapException)
@@ -123,11 +131,13 @@ namespace AdminStore.Repositories
                 {
                     return AuthenticationStatus.InvalidCredentials;
                 }
+
                 return AuthenticationStatus.Error;
             }
             catch (Exception ex)
             {
                 _log.LogError(LogSourceLdap, ex);
+
                 return AuthenticationStatus.Error;
             }
         }
@@ -144,13 +154,16 @@ namespace AdminStore.Repositories
                 {
                     return true;
                 }
+
                 _log.LogInformation(LogSourceLdap, I18NHelper.FormatInvariant("User '{0}' is not found in LDAP directory {1}", userName, ldapSettings.LdapAuthenticationUrl));
+
                 return false;
             }
             catch (Exception ex)
             {
                 _log.LogInformation(LogSourceLdap, I18NHelper.FormatInvariant("Error while searching a user in LDAP directory {0}", ldapSettings.LdapAuthenticationUrl));
                 _log.LogError(LogSourceLdap, ex);
+
                 return false;
             }
         }

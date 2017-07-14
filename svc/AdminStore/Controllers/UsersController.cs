@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Web.Http;
-using System.Web.Http.Description;
-using AdminStore.Helpers;
+﻿using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Models.Enums;
 using AdminStore.Repositories;
@@ -18,6 +10,14 @@ using ServiceLibrary.Helpers.Security;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Description;
 
 namespace AdminStore.Controllers
 {
@@ -30,14 +30,14 @@ namespace AdminStore.Controllers
         private const string PasswordResetTokenExpirationInHoursKey = "PasswordResetTokenExpirationInHours";
         private const int DefaultPasswordResetTokenExpirationInHours = 24;
 
-        internal readonly IAuthenticationRepository _authenticationRepository;
-        internal readonly IUserRepository _userRepository;
-        internal readonly ISqlSettingsRepository _settingsRepository;
-        internal readonly IEmailHelper _emailHelper;
-        internal readonly IApplicationSettingsRepository _applicationSettingsRepository;
-        internal readonly IServiceLogRepository _log;
-        internal readonly IHttpClientProvider _httpClientProvider;
-        internal readonly PrivilegesManager _privilegesManager;
+        private readonly IAuthenticationRepository _authenticationRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly ISqlSettingsRepository _settingsRepository;
+        private readonly IEmailHelper _emailHelper;
+        private readonly IApplicationSettingsRepository _applicationSettingsRepository;
+        private readonly IServiceLogRepository _log;
+        private readonly IHttpClientProvider _httpClientProvider;
+        private readonly PrivilegesManager _privilegesManager;
 
         public UsersController()
             : this
@@ -104,6 +104,7 @@ namespace AdminStore.Controllers
             catch (Exception ex)
             {
                 await _log.LogError(WebApiConfig.LogSourceUsers, ex);
+
                 return InternalServerError();
             }
         }
@@ -211,6 +212,7 @@ namespace AdminStore.Controllers
                 {
                     throw new ResourceNotFoundException($"User does not exist with UserId: {userId}", ErrorCodes.ResourceNotFound);
                 }
+
                 if (imageContent.Content == null)
                 {
                     return Request.CreateResponse(HttpStatusCode.NoContent);
@@ -218,6 +220,7 @@ namespace AdminStore.Controllers
 
                 var httpResponseMessage = Request.CreateResponse(HttpStatusCode.OK);
                 httpResponseMessage.Content = ImageHelper.CreateByteArrayContent(imageContent.Content);
+
                 return httpResponseMessage;
             }
             catch (Exception ex)
@@ -248,6 +251,7 @@ namespace AdminStore.Controllers
             var decodedNewPassword = SystemEncryptions.Decode(body.NewPass);
             var user = await _authenticationRepository.AuthenticateUserForResetAsync(decodedLogin, decodedOldPassword);
             await _authenticationRepository.ResetPassword(user, decodedOldPassword, decodedNewPassword);
+
             return Ok();
         }
 
@@ -271,6 +275,7 @@ namespace AdminStore.Controllers
                 if (!matchingSetting)
                 {
                     await _log.LogInformation(WebApiConfig.LogSourceUsersPasswordReset, "Password recovery is disabled");
+
                     return Conflict();
                 }
 
@@ -278,6 +283,7 @@ namespace AdminStore.Controllers
                 if (instanceSettings?.EmailSettingsDeserialized?.HostName == null)
                 {
                     await _log.LogInformation(WebApiConfig.LogSourceUsersPasswordReset, "Invalid instance email settings");
+
                     return Conflict();
                 }
 
@@ -285,6 +291,7 @@ namespace AdminStore.Controllers
                 if (user == null)
                 {
                     await _log.LogInformation(WebApiConfig.LogSourceUsersPasswordReset, "The user doesn't exist");
+
                     return Conflict();
                 }
 
@@ -292,6 +299,7 @@ namespace AdminStore.Controllers
                 if (!passwordResetAllowed)
                 {
                     await _log.LogInformation(WebApiConfig.LogSourceUsersPasswordReset, "The user isn't allowed to reset the password");
+
                     return Conflict();
                 }
 
@@ -299,14 +307,15 @@ namespace AdminStore.Controllers
                 if (passwordRequestLimitExceeded)
                 {
                     await _log.LogInformation(WebApiConfig.LogSourceUsersPasswordReset, "Exceeded requests limit");
+
                     return Conflict();
                 }
-
 
                 bool passwordResetCooldownInEffect = await _authenticationRepository.IsChangePasswordCooldownInEffect(user);
                 if (passwordResetCooldownInEffect)
                 {
                     await _log.LogInformation(WebApiConfig.LogSourceUsersPasswordReset, "Cooldown is in effect");
+
                     return Conflict();
                 }
 
@@ -331,11 +340,13 @@ namespace AdminStore.Controllers
                         </html>");
 
                 await _userRepository.UpdatePasswordRecoveryTokensAsync(login, recoveryToken);
+
                 return Ok();
             }
             catch (Exception ex)
             {
                 await _log.LogError(WebApiConfig.LogSourceUsersPasswordReset, ex);
+
                 return InternalServerError();
             }
         }
@@ -368,11 +379,13 @@ namespace AdminStore.Controllers
                 //user did not request password reset
                 throw new ConflictException("Password reset failed, recovery token not found.", ErrorCodes.PasswordResetTokenNotFound);
             }
+
             if (tokens.First().RecoveryToken != content.Token)
             {
                 //provided token doesn't match last requested
                 throw new ConflictException("Password reset failed, a more recent recovery token exists.", ErrorCodes.PasswordResetTokenNotLatest);
             }
+
             var tokenLifespan = await _applicationSettingsRepository.GetValue(PasswordResetTokenExpirationInHoursKey, DefaultPasswordResetTokenExpirationInHours);
             if (tokens.First().CreationTime.AddHours(tokenLifespan) < DateTime.Now)
             {
@@ -387,6 +400,7 @@ namespace AdminStore.Controllers
                 //user does not exist
                 throw new ConflictException("Password reset failed, the user does not exist.", ErrorCodes.PasswordResetUserNotFound);
             }
+
             if (!user.IsEnabled)
             {
                 //user is disabled
@@ -490,6 +504,7 @@ namespace AdminStore.Controllers
             var databaseUser = await UsersHelper.CreateDbUserFromDtoAsync(user, OperationMode.Create, _settingsRepository);
 
             var userId = await _userRepository.AddUserAsync(databaseUser);
+
             return Request.CreateResponse(HttpStatusCode.Created, userId);
         }
 

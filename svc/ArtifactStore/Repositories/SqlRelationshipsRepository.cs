@@ -1,29 +1,28 @@
-﻿using ArtifactStore.Models;
+﻿using ArtifactStore.Helpers;
+using ArtifactStore.Models;
 using Dapper;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using ServiceLibrary.Exceptions;
-using ServiceLibrary.Models;
-using ArtifactStore.Helpers;
 
 namespace ArtifactStore.Repositories
 {
     public class SqlRelationshipsRepository: IRelationshipsRepository
     {
         private readonly ISqlConnectionWrapper _connectionWrapper;
-
         private readonly ISqlItemInfoRepository _itemInfoRepository;
-
         private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
 
         public SqlRelationshipsRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {
         }
+
         internal SqlRelationshipsRepository(ISqlConnectionWrapper connectionWrapper)
         {
             _connectionWrapper = connectionWrapper;

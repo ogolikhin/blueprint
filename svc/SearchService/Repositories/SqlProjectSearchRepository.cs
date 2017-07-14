@@ -1,18 +1,18 @@
-﻿using System.Threading.Tasks;
-using SearchService.Models;
-using ServiceLibrary.Repositories;
-using System.Data;
-using Dapper;
+﻿using Dapper;
 using SearchService.Helpers;
-using System.Data.SqlClient;
+using SearchService.Models;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Repositories;
+using System.Data;
+using System.Data.SqlClient;
+using System.Threading.Tasks;
 
 namespace SearchService.Repositories
 {
     public class SqlProjectSearchRepository : IProjectSearchRepository
     {
-        internal readonly ISqlConnectionWrapper ConnectionWrapper;
+        private readonly ISqlConnectionWrapper _connectionWrapper;
         private readonly ISearchConfigurationProvider _searchConfigurationProvider;
 
         public SqlProjectSearchRepository() : this(new SqlConnectionWrapper(WebApiConfig.BlueprintConnectionString), new SearchConfiguration())
@@ -21,7 +21,7 @@ namespace SearchService.Repositories
 
         internal SqlProjectSearchRepository(ISqlConnectionWrapper connectionWrapper, ISearchConfiguration configuration)
         {
-            ConnectionWrapper = connectionWrapper;
+            _connectionWrapper = connectionWrapper;
             _searchConfigurationProvider = new SearchConfigurationProvider(configuration);
         }
 
@@ -47,7 +47,7 @@ namespace SearchService.Repositories
 
             try
             {
-                var items = await ConnectionWrapper.QueryAsync<ProjectSearchResult>("GetProjectsByName",
+                var items = await _connectionWrapper.QueryAsync<ProjectSearchResult>("GetProjectsByName",
                 param,
                 commandType: CommandType.StoredProcedure,
                 commandTimeout: _searchConfigurationProvider.SearchTimeout);

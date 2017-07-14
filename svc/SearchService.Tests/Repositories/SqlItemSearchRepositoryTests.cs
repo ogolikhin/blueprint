@@ -1,10 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using SearchService.Helpers;
@@ -13,6 +6,13 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace SearchService.Repositories
 {
@@ -25,22 +25,6 @@ namespace SearchService.Repositories
         private const int PageSize = 10;
         private const int MaxItems = 500;
         private const int MaxSearchableValueStringSize = 250;
-
-        #region Constructor
-
-        [TestMethod]
-        public void Constructor_CreatesConnectionToBlueprint()
-        {
-            // Arrange
-
-            // Act
-            var repository = new SqlItemSearchRepository();
-
-            // Assert
-            Assert.AreEqual(WebApiConfig.BlueprintConnectionString, repository.ConnectionWrapper.CreateConnection().ConnectionString);
-        }
-
-        #endregion Constructor
 
         #region SearchName
 

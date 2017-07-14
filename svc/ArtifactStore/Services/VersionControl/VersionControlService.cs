@@ -27,18 +27,17 @@ namespace ArtifactStore.Services.VersionControl
         private readonly IRevisionRepository _revisionRepository;
         private readonly ISqlHelper _sqlHelper;
 
-
         public VersionControlService() : this(
-            new SqlVersionControlRepository(), 
+            new SqlVersionControlRepository(),
             new SqlPublishRepositoryComposer(),
             new SqlRevisionRepository(),
             new SqlHelper())
         {
-            
+
         }
 
         public VersionControlService(
-            IVersionControlRepository versionControlRepository, 
+            IVersionControlRepository versionControlRepository,
             IPublishRepository publishRepository,
             IRevisionRepository revisionRepository,
             ISqlHelper sqlHelper)
@@ -91,7 +90,7 @@ namespace ArtifactStore.Services.VersionControl
             {
                 revisionId = await TransactionalPublishArtifact(parameters, artifactIdsList, transaction);
             }
-            
+
 
             var discardPublishDetailsResult =
                 await _versionControlRepository.GetDiscardPublishDetails(parameters.UserId, artifactIdsList, true);
@@ -112,7 +111,7 @@ namespace ArtifactStore.Services.VersionControl
             var errorState = discardPublishStates.FirstOrDefault(dps => dps.NotExist);
             if (errorState != null)
             {
-                throw new ResourceNotFoundException(I18NHelper.FormatInvariant("Item with ID {0} is not found.", errorState.ItemId), 
+                throw new ResourceNotFoundException(I18NHelper.FormatInvariant("Item with ID {0} is not found.", errorState.ItemId),
                     ErrorCodes.ItemNotFound);
             }
 
@@ -126,7 +125,7 @@ namespace ArtifactStore.Services.VersionControl
             errorState = discardPublishStates.FirstOrDefault(dps => dps.Deleted);
             if (errorState != null)
             {
-                throw new ResourceNotFoundException(I18NHelper.FormatInvariant("Item with ID {0} is deleted.", errorState.ItemId), 
+                throw new ResourceNotFoundException(I18NHelper.FormatInvariant("Item with ID {0} is deleted.", errorState.ItemId),
                     ErrorCodes.ItemNotFound);
             }
 
@@ -149,14 +148,14 @@ namespace ArtifactStore.Services.VersionControl
 
         private Func<IDbTransaction, Task<int>> GetPublishTransactionAction(PublishParameters parameters, IList<int> artifactIdsList)
         {
-            Func<IDbTransaction, Task<int>> action = async transaction => 
+            Func<IDbTransaction, Task<int>> action = async transaction =>
             await TransactionalPublishArtifact(parameters, artifactIdsList, transaction);
 
             return action;
         }
 
-        private async Task<int> TransactionalPublishArtifact(PublishParameters parameters, 
-            IList<int> artifactIdsList, 
+        private async Task<int> TransactionalPublishArtifact(PublishParameters parameters,
+            IList<int> artifactIdsList,
             IDbTransaction transaction)
         {
             int publishRevision = parameters.RevisionId ?? await

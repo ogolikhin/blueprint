@@ -1,7 +1,7 @@
-﻿using System.Data;
-using System.Threading.Tasks;
-using ArtifactStore.Models.VersionControl;
+﻿using ArtifactStore.Models.VersionControl;
 using ServiceLibrary.Models.VersionControl;
+using System.Data;
+using System.Threading.Tasks;
 
 namespace ArtifactStore.Repositories.VersionControl
 {

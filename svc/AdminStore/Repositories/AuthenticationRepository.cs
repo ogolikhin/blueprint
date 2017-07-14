@@ -17,15 +17,10 @@ namespace AdminStore.Repositories
         private const int DefaultPasswordChangeCooldownInHours = 24;
 
         private readonly IApplicationSettingsRepository _applicationSettingsRepository;
-
         private readonly IUserRepository _userRepository;
-
         private readonly ISqlSettingsRepository _settingsRepository;
-
         private readonly ILdapRepository _ldapRepository;
-
         private readonly ISamlRepository _samlRepository;
-
         private readonly IServiceLogRepository _log;
 
         public AuthenticationRepository() : this(new SqlUserRepository(), new SqlSettingsRepository(), new LdapRepository(), new SamlRepository(), new ServiceLogRepository(), new ApplicationSettingsRepository())
@@ -48,12 +43,14 @@ namespace AdminStore.Repositories
             {
                 throw new AuthenticationException("Username and password cannot be empty", ErrorCodes.EmptyCredentials);
             }
+
             var user = await _userRepository.GetUserByLoginAsync(login);
             if (user == null)
             {
                 await _log.LogInformation(WebApiConfig.LogSourceSessions, I18NHelper.FormatInvariant("Could not get user with login '{0}'", login));
                 throw new AuthenticationException("Invalid username or password", ErrorCodes.InvalidCredentials);
             }
+
             var instanceSettings = await _settingsRepository.GetInstanceSettingsAsync();
             if (instanceSettings.IsSamlEnabled.GetValueOrDefault())
             {
@@ -63,12 +60,14 @@ namespace AdminStore.Repositories
                     throw new AuthenticationException("User must be authenticated via Federated Authentication mechanism", ErrorCodes.FallbackIsDisabled);
                 }
             }
+
             AuthenticationStatus authenticationStatus;
             switch (user.Source)
             {
                 case UserGroupSource.Database:
                     authenticationStatus = AuthenticateDatabaseUser(user, password, instanceSettings.PasswordExpirationInDays);
                     break;
+
                 case UserGroupSource.Windows:
                     if (!instanceSettings.IsLdapIntegrationEnabled)
                     {
@@ -76,9 +75,11 @@ namespace AdminStore.Repositories
                     }
                     authenticationStatus = await _ldapRepository.AuthenticateLdapUserAsync(login, password, instanceSettings.UseDefaultConnection);
                     break;
+
                 default:
                     throw new AuthenticationException(string.Format("Authentication provider could not be found for login: {0}", login));
             }
+
             await ProcessAuthenticationStatus(authenticationStatus, user, instanceSettings);
 
             user.LicenseType = await _userRepository.GetEffectiveUserLicenseAsync(user.Id);
@@ -97,17 +98,22 @@ namespace AdminStore.Repositories
                     }
                     await ResetInvalidLogonAttemptsNumber(user);
                     break;
+
                 case AuthenticationStatus.InvalidCredentials:
                     await LockUserIfApplicable(user, instanceSettings);
                     await _log.LogInformation(WebApiConfig.LogSourceSessions, I18NHelper.FormatInvariant("Invalid password for user '{0}'", user.Login));
                     throw new AuthenticationException("Invalid username or password", ErrorCodes.InvalidCredentials);
+
                 case AuthenticationStatus.PasswordExpired:
                     throw new AuthenticationException(string.Format("User password expired for the login: {0}", user.Login), ErrorCodes.PasswordExpired);
+
                 case AuthenticationStatus.Locked:
                     throw new AuthenticationException(string.Format("User account is locked out for the login: {0}", user.Login), ErrorCodes.AccountIsLocked);
+
                 case AuthenticationStatus.Error:
                     throw new AuthenticationException("Authentication Error");
             }
+
             return user;
         }
 
@@ -117,11 +123,13 @@ namespace AdminStore.Repositories
             {
                 throw new FormatException("Saml response cannot be empty");
             }
+
             var instanceSettings = await _settingsRepository.GetInstanceSettingsAsync();
             if (!instanceSettings.IsSamlEnabled.GetValueOrDefault())
             {
                 throw new AuthenticationException("Federated Authentication mechanism must be enabled");
             }
+
             var fedAuthSettings = await _settingsRepository.GetFederatedAuthenticationSettingsAsync();
             if (fedAuthSettings == null)
             {
@@ -152,6 +160,7 @@ namespace AdminStore.Repositories
                 await _log.LogInformation(WebApiConfig.LogSourceSessions, I18NHelper.FormatInvariant("Could not get user with login '{0}'. NameClaimType '{1}'", principal.Identity.Name, fedAuthSettings.NameClaimType));
                 throw new AuthenticationException("Invalid user name or password", ErrorCodes.InvalidCredentials);
             }
+
             if (!user.IsEnabled)
             {
                 throw new AuthenticationException(I18NHelper.FormatInvariant("Your account '{0}' has been locked out, please contact your Blueprint Instance Administrator.", user.Login), ErrorCodes.AccountIsLocked);
@@ -168,12 +177,14 @@ namespace AdminStore.Repositories
             {
                 throw new AuthenticationException("Username and password cannot be empty", ErrorCodes.EmptyCredentials);
             }
+
             var user = await _userRepository.GetUserByLoginAsync(login);
             if (user == null)
             {
                 await _log.LogInformation(WebApiConfig.LogSourceSessions, I18NHelper.FormatInvariant("Could not get user with login '{0}'", login));
                 throw new AuthenticationException("Invalid username or password", ErrorCodes.InvalidCredentials);
             }
+
             var instanceSettings = await _settingsRepository.GetInstanceSettingsAsync();
             if (instanceSettings.IsSamlEnabled.GetValueOrDefault())
             {
@@ -183,13 +194,16 @@ namespace AdminStore.Repositories
                     throw new AuthenticationException("User must be authenticated via Federated Authentication mechanism", ErrorCodes.FallbackIsDisabled);
                 }
             }
+
             switch (user.Source)
             {
                 case UserGroupSource.Database:
                     var authenticationStatus = AuthenticateDatabaseUser(user, password, 0);
                     return await ProcessAuthenticationStatus(authenticationStatus, user, instanceSettings);
+
                 case UserGroupSource.Windows:
                     throw new AuthenticationException($"Cannot reset password for ldap user {login}", ErrorCodes.LdapIsDisabled);
+
                 default:
                     throw new AuthenticationException($"Authentication provider could not be found for login: {login}");
             }
@@ -264,14 +278,17 @@ namespace AdminStore.Repositories
             {
                 return AuthenticationStatus.InvalidCredentials;
             }
+
             if (!user.IsEnabled)
             {
                 return AuthenticationStatus.Locked;
             }
+
             if (HasExpiredPassword(user, passwordExpirationInDays))
             {
                 return AuthenticationStatus.PasswordExpired;
             }
+
             return AuthenticationStatus.Success;
         }
 

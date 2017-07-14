@@ -1,20 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Text;
-using System.Web.Http;
-using System.Web.Http.Description;
-using AdminStore.Models;
+﻿using AdminStore.Models;
 using AdminStore.Repositories;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
-using ServiceLibrary.Repositories.ConfigControl;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories.ConfigControl;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Description;
 
 namespace AdminStore.Controllers
 {
@@ -23,19 +23,19 @@ namespace AdminStore.Controllers
     [BaseExceptionFilter]
     public class ConfigController : LoggableApiController
     {
-        internal readonly IApplicationSettingsRepository _applicationSettingsRepository;
-        internal readonly ISqlSettingsRepository _settingsRepository;
-        internal readonly IUserRepository _userRepository;
-        internal readonly IHttpClientProvider _httpClientProvider;
+        private readonly IApplicationSettingsRepository _applicationSettingsRepository;
+        private readonly ISqlSettingsRepository _settingsRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IHttpClientProvider _httpClientProvider;
 
         public override string LogSource => WebApiConfig.LogSourceConfig;
 
         public ConfigController() : this
             (
-                new ApplicationSettingsRepository(), 
-                new SqlSettingsRepository(), 
-                new SqlUserRepository(), 
-                new HttpClientProvider(), 
+                new ApplicationSettingsRepository(),
+                new SqlSettingsRepository(),
+                new SqlUserRepository(),
+                new HttpClientProvider(),
                 new ServiceLogRepository()
             )
         {
@@ -43,12 +43,12 @@ namespace AdminStore.Controllers
 
         internal ConfigController
         (
-            IApplicationSettingsRepository applicationSettingsRepository, 
-            ISqlSettingsRepository settingsRepository, 
+            IApplicationSettingsRepository applicationSettingsRepository,
+            ISqlSettingsRepository settingsRepository,
             IUserRepository userRepository,
-            IHttpClientProvider httpClientProvider, 
+            IHttpClientProvider httpClientProvider,
             IServiceLogRepository log
-        ) : base (log)
+        ) : base(log)
         {
             _applicationSettingsRepository = applicationSettingsRepository;
             _settingsRepository = settingsRepository;
@@ -80,6 +80,7 @@ namespace AdminStore.Controllers
             result.EnsureSuccessStatusCode();
             var response = Request.CreateResponse(HttpStatusCode.OK);
             response.Content = result.Content;
+
             return ResponseMessage(response);
         }
 
@@ -97,6 +98,7 @@ namespace AdminStore.Controllers
         public async Task<IHttpActionResult> GetApplicationSettings()
         {
             var settings = (await _applicationSettingsRepository.GetSettingsAsync(true)).ToDictionary(it => it.Key, it => it.Value);
+
             return Ok(settings);
         }
 
@@ -127,6 +129,7 @@ namespace AdminStore.Controllers
             }
 
             var settings = await _settingsRepository.GetUserManagementSettingsAsync();
+
             return Ok(settings);
         }
 
@@ -155,6 +158,7 @@ namespace AdminStore.Controllers
 
             var response = Request.CreateResponse(HttpStatusCode.OK);
             response.Content = new StringContent(script, Encoding.UTF8, "application/javascript");
+
             return ResponseMessage(response);
         }
     }

@@ -1,34 +1,17 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using AdminStore.Models.Workflow;
+﻿using AdminStore.Models.Workflow;
 using AdminStore.Repositories.Workflow;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace AdminStore.Repositories
 {
     [TestClass]
     public class WorkflowRepositoryTest
     {
-        #region Constructor
-
-        [TestMethod]
-        public void Constructor_CreatesConnectionToRaptorMain()
-        {
-            // Arrange
-
-            // Act
-            var repository = new WorkflowRepository();
-
-            // Assert
-            Assert.AreEqual(ServiceConstants.RaptorMain, repository.ConnectionWrapper.CreateConnection().ConnectionString);
-        }
-
-        #endregion Constructor
-
-
         #region GetWorkflowDetailsAsync
 
         [TestMethod]

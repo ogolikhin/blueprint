@@ -1,24 +1,24 @@
-﻿using System;
+﻿using HtmlAgilityPack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Threading.Tasks;
-using HtmlAgilityPack;
+using Moq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Moq;
+using System.Threading.Tasks;
 
 namespace HtmlLibrary.Tests
 {
     [TestClass]
     public class MentionProcessorTests
     {
-        private Mock<IMentionValidator> mentionHelperMock;
-        private MentionProcessor mentionProcessor;
+        private Mock<IMentionValidator> _mentionHelperMock;
+        private MentionProcessor _mentionProcessor;
 
         [TestInitialize]
         public void init()
         {
-            mentionHelperMock = new Mock<IMentionValidator>();
-            mentionProcessor = new MentionProcessor(mentionHelperMock.Object);
+            _mentionHelperMock = new Mock<IMentionValidator>();
+            _mentionProcessor = new MentionProcessor(_mentionHelperMock.Object);
         }
 
         [TestMethod]
@@ -27,10 +27,10 @@ namespace HtmlLibrary.Tests
             // Arrange
             string comment = "<html><a linkassemblyqualifiedname=\"BluePrintSys.RC.Client.SL.RichText.RichTextMentionLink, BluePrintSys.RC.Client.SL.RichText, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\" isvalid=\"True\" mentionid=\"5\" isgroup=\"False\" email=\"user@user.com\" style=\"-c1-editable: false; font-size: 11px; line-height: 1.45000004768372\"><span style=\"font-size: 11px; font-weight: normal; font-family: &#39;Portable User Interface&#39;; line-height: 1.45000004768372\">user@user.com</span></a></html>";
             bool areEmailDiscussionsEnabled = false;
-            mentionHelperMock.Setup(a => a.IsEmailBlocked("user@user.com")).Returns(Task.FromResult(false));
+            _mentionHelperMock.Setup(a => a.IsEmailBlocked("user@user.com")).Returns(Task.FromResult(false));
 
             // Act
-            var result = await mentionProcessor.ProcessComment(comment, areEmailDiscussionsEnabled);
+            var result = await _mentionProcessor.ProcessComment(comment, areEmailDiscussionsEnabled);
             var xDoc = new HtmlDocument();
             xDoc.LoadHtml(result);
             IEnumerable<HtmlNode> mentions =
@@ -41,7 +41,6 @@ namespace HtmlLibrary.Tests
             // Assert
             Assert.AreEqual(1, mentions.Count());
             Assert.AreEqual("Email Discussions have been Disabled", mentions.SingleOrDefault().GetAttributeValue("title", null));
-
         }
 
         [TestMethod]
@@ -49,11 +48,11 @@ namespace HtmlLibrary.Tests
         {
             // Arrange
             string comment = "<html><a linkassemblyqualifiedname=\"BluePrintSys.RC.Client.SL.RichText.RichTextMentionLink, BluePrintSys.RC.Client.SL.RichText, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\" isvalid=\"True\" mentionid=\"5\" isgroup=\"False\" email=\"blocked@blocked.com\" style=\"-c1-editable: false; font-size: 11px; line-height: 1.45000004768372\"><span style=\"font-size: 11px; font-weight: normal; font-family: &#39;Portable User Interface&#39;; line-height: 1.45000004768372\">blocked@blocked.com</span></a></html>";
-            mentionHelperMock.Setup(a => a.IsEmailBlocked("blocked@blocked.com")).Returns(Task.FromResult(true));
+            _mentionHelperMock.Setup(a => a.IsEmailBlocked("blocked@blocked.com")).Returns(Task.FromResult(true));
             bool areEmailDiscussionsEnabled = true;
 
             // Act
-            var result = await mentionProcessor.ProcessComment(comment, areEmailDiscussionsEnabled);
+            var result = await _mentionProcessor.ProcessComment(comment, areEmailDiscussionsEnabled);
             var xDoc = new HtmlDocument();
             xDoc.LoadHtml(result);
             IEnumerable<HtmlNode> mentions =
@@ -72,10 +71,10 @@ namespace HtmlLibrary.Tests
             // Arrange
             string comment = "<html><a linkassemblyqualifiedname=\"BluePrintSys.RC.Client.SL.RichText.RichTextMentionLink, BluePrintSys.RC.Client.SL.RichText, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\" isvalid=\"True\" mentionid=\"5\" isgroup=\"False\" email=\"user@user.com\" style=\"-c1-editable: false; font-size: 11px; line-height: 1.45000004768372\"><span style=\"font-size: 11px; font-weight: normal; font-family: &#39;Portable User Interface&#39;; line-height: 1.45000004768372\">user@user.com</span></a></html>";
             bool areEmailDiscussionsEnabled = true;
-            mentionHelperMock.Setup(a => a.IsEmailBlocked("user@user.com")).Returns(Task.FromResult(false));
+            _mentionHelperMock.Setup(a => a.IsEmailBlocked("user@user.com")).Returns(Task.FromResult(false));
 
             // Act
-            var result = await mentionProcessor.ProcessComment(comment, areEmailDiscussionsEnabled);
+            var result = await _mentionProcessor.ProcessComment(comment, areEmailDiscussionsEnabled);
             var xDoc = new HtmlDocument();
             xDoc.LoadHtml(result);
             IEnumerable<HtmlNode> mentions =

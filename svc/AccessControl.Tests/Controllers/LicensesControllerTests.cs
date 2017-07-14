@@ -16,24 +16,6 @@ namespace AccessControl.Controllers
     [TestClass]
     public class LicensesControllerTests
     {
-        #region Constructor
-
-        [TestMethod]
-        public void Constructor_CreatesDefaultDependencies()
-        {
-            // Arrange
-
-            // Act
-            var controller = new LicensesController();
-
-            // Assert
-            Assert.IsInstanceOfType(controller._repo, typeof(SqlLicensesRepository));
-            Assert.IsInstanceOfType(controller._sessions, typeof(SqlSessionsRepository));
-            Assert.IsInstanceOfType(controller._log, typeof(ServiceLogRepository));
-        }
-
-        #endregion Constructor
-
         #region GetActiveLicenses
 
         [TestMethod]
@@ -194,10 +176,12 @@ namespace AccessControl.Controllers
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()
             };
+
             if (token.HasValue)
             {
                 controller.Request.Headers.Add("Session-Token", Session.Convert(token.Value));
             }
+
             return controller;
         }
     }

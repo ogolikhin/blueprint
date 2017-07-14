@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-using System.Web.Http;
-using ArtifactStore.Models;
+﻿using ArtifactStore.Models;
 using ArtifactStore.Repositories;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
@@ -8,6 +6,8 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace ArtifactStore.Controllers
 {
@@ -15,7 +15,7 @@ namespace ArtifactStore.Controllers
     [BaseExceptionFilter]
     public class ProjectMetaController : LoggableApiController
     {
-        internal readonly ISqlProjectMetaRepository ProjectMetaRepository;
+        private readonly ISqlProjectMetaRepository ProjectMetaRepository;
 
         public override string LogSource { get; } = "ArtifactStore.ProjectMeta";
 

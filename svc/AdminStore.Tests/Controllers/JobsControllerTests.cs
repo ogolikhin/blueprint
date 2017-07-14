@@ -1,35 +1,19 @@
-﻿using System;
-using System.Net.Http;
-using System.Threading.Tasks;
-using AdminStore.Repositories.Jobs;
+﻿using AdminStore.Repositories.Jobs;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
+using System;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace AdminStore.Controllers
 {
     [TestClass]
     public class JobsControllerTests
     {
-        #region Constuctor
-
-        [TestMethod]
-        public void Constructor_CreatesDefaultDependencies()
-        {
-            // Arrange
-
-            // Act
-            var controller = new JobsController();
-
-            // Assert
-            Assert.IsInstanceOfType(controller._jobsRepository, typeof(JobsRepository));
-        }
-
-        #endregion
-
         #region GetLatestJobs
 
         [TestMethod]

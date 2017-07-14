@@ -15,10 +15,8 @@ namespace ArtifactStore.Repositories
 
     public class SqlDiscussionsRepository : IDiscussionsRepository
     {
-        internal readonly ISqlConnectionWrapper ConnectionWrapper;
-
-        internal readonly IUsersRepository SqlUsersRepository;
-
+        private readonly ISqlConnectionWrapper _connectionWrapper;
+        private readonly IUsersRepository _sqlUsersRepository;
         private readonly MentionHelper _mentionHelper;
 
         public SqlDiscussionsRepository()
@@ -34,8 +32,8 @@ namespace ArtifactStore.Repositories
             IInstanceSettingsRepository instanceSettingsRepository,
             IArtifactPermissionsRepository permissionsRepository)
         {
-            ConnectionWrapper = connectionWrapper;
-            SqlUsersRepository = sqlUsersRepository;
+            _connectionWrapper = connectionWrapper;
+            _sqlUsersRepository = sqlUsersRepository;
             _mentionHelper = new MentionHelper(sqlUsersRepository, instanceSettingsRepository, permissionsRepository);
         }
 
@@ -44,7 +42,7 @@ namespace ArtifactStore.Repositories
             var discussionsPrm = new DynamicParameters();
             discussionsPrm.Add("@ItemId", itemId);
 
-            var discussions = (await ConnectionWrapper.QueryAsync<Discussion>("GetItemDiscussions", discussionsPrm, commandType: CommandType.StoredProcedure)).ToList();
+            var discussions = (await _connectionWrapper.QueryAsync<Discussion>("GetItemDiscussions", discussionsPrm, commandType: CommandType.StoredProcedure)).ToList();
             var discussionStates = (await GetItemDiscussionStates(itemId)).ToDictionary(k => k.DiscussionId);
             var areEmailDiscussionsEnabled = await _mentionHelper.AreEmailDiscussionsEnabled(projectId);
 
@@ -67,7 +65,7 @@ namespace ArtifactStore.Repositories
             var repliesPrm = new DynamicParameters();
             repliesPrm.Add("@DiscussionId", discussionId);
 
-            var replies = (await ConnectionWrapper.QueryAsync<Reply>("GetItemReplies", repliesPrm, commandType: CommandType.StoredProcedure)).ToList();
+            var replies = (await _connectionWrapper.QueryAsync<Reply>("GetItemReplies", repliesPrm, commandType: CommandType.StoredProcedure)).ToList();
             var areEmailDiscussionsEnabled = await _mentionHelper.AreEmailDiscussionsEnabled(projectId);
 
             await InitializeCommentsProperties(replies, areEmailDiscussionsEnabled);
@@ -80,7 +78,7 @@ namespace ArtifactStore.Repositories
             var discussionsPrm = new DynamicParameters();
             discussionsPrm.Add("@DiscussionId", discussionId);
 
-            return ConnectionWrapper.ExecuteScalarAsync<bool>("IsDiscussionDeleted", discussionsPrm, commandType: CommandType.StoredProcedure);
+            return _connectionWrapper.ExecuteScalarAsync<bool>("IsDiscussionDeleted", discussionsPrm, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<IEnumerable<DiscussionState>> GetItemDiscussionStates(int itemId)
@@ -88,7 +86,7 @@ namespace ArtifactStore.Repositories
             var discussionsPrm = new DynamicParameters();
             discussionsPrm.Add("@ItemId", itemId);
 
-            return await ConnectionWrapper.QueryAsync<DiscussionState>("GetItemDiscussionStates", discussionsPrm, commandType: CommandType.StoredProcedure);
+            return await _connectionWrapper.QueryAsync<DiscussionState>("GetItemDiscussionStates", discussionsPrm, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<IEnumerable<ThreadStatus>> GetThreadStatusCollection(int projectId)
@@ -97,7 +95,7 @@ namespace ArtifactStore.Repositories
             itemPrm.Add("@projectId", projectId);
             try
             {
-                var result = await ConnectionWrapper.QueryAsync<ThreadStatus>("GetThreadStatusCollection", itemPrm, commandType: CommandType.StoredProcedure);
+                var result = await _connectionWrapper.QueryAsync<ThreadStatus>("GetThreadStatusCollection", itemPrm, commandType: CommandType.StoredProcedure);
 
                 return result;
             }
@@ -116,7 +114,7 @@ namespace ArtifactStore.Repositories
                 return;
             }
             var userIds = new HashSet<int>(comments.Select(d => d.UserId));
-            var userInfos = (await SqlUsersRepository.GetUserInfos(userIds)).ToDictionary(u => u.UserId);
+            var userInfos = (await _sqlUsersRepository.GetUserInfos(userIds)).ToDictionary(u => u.UserId);
             foreach (var comment in comments)
             {
                 var userInfo = (UserInfo)null;

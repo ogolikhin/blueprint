@@ -1,7 +1,5 @@
-﻿using ArtifactStore.Helpers;
-using ArtifactStore.Models;
+﻿using ArtifactStore.Models;
 using Dapper;
-using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
@@ -9,18 +7,15 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
-using System.Web.Http;
 
 namespace ArtifactStore.Repositories
 {
-
     public class SqlAttachmentsRepository : IAttachmentsRepository
     {
-        internal readonly ISqlConnectionWrapper ConnectionWrapper;
-        private readonly IUsersRepository UserRepository;
-        private readonly ISqlItemInfoRepository ItemInfoRepository;
+        private readonly ISqlConnectionWrapper _connectionWrapper;
+        private readonly IUsersRepository _userRepository;
+        private readonly ISqlItemInfoRepository _itemInfoRepository;
 
         public SqlAttachmentsRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain), new SqlUsersRepository())
@@ -29,9 +24,9 @@ namespace ArtifactStore.Repositories
 
         internal SqlAttachmentsRepository(ISqlConnectionWrapper connectionWrapper, IUsersRepository userRepository)
         {
-            ConnectionWrapper = connectionWrapper;
-            UserRepository = userRepository;
-            ItemInfoRepository = new SqlItemInfoRepository(connectionWrapper);
+            _connectionWrapper = connectionWrapper;
+            _userRepository = userRepository;
+            _itemInfoRepository = new SqlItemInfoRepository(connectionWrapper);
         }
 
         private async Task<IEnumerable<Attachment>> GetAttachments(int itemId, int userId, int revisionId = int.MaxValue, bool addDrafts = true)
@@ -41,7 +36,7 @@ namespace ArtifactStore.Repositories
             artifactVersionsPrm.Add("@userId", userId);
             artifactVersionsPrm.Add("@revisionId", revisionId);
             artifactVersionsPrm.Add("@addDrafts", addDrafts);           
-            return await ConnectionWrapper.QueryAsync<Attachment>("GetItemAttachments", artifactVersionsPrm, commandType: CommandType.StoredProcedure);
+            return await _connectionWrapper.QueryAsync<Attachment>("GetItemAttachments", artifactVersionsPrm, commandType: CommandType.StoredProcedure);
         }
 
         private async Task<IEnumerable<DocumentReference>> GetDocumentReferenceArtifacts(int itemId, int userId, int revisionId = int.MaxValue, bool addDrafts = true)
@@ -51,7 +46,7 @@ namespace ArtifactStore.Repositories
             parameters.Add("@userId", userId);
             parameters.Add("@revisionId", revisionId);
             parameters.Add("@addDrafts", addDrafts);
-            return await ConnectionWrapper.QueryAsync<DocumentReference>("GetDocumentReferenceArtifacts", parameters, commandType: CommandType.StoredProcedure);
+            return await _connectionWrapper.QueryAsync<DocumentReference>("GetDocumentReferenceArtifacts", parameters, commandType: CommandType.StoredProcedure);
         }
 
         private async Task<IEnumerable<LinkedArtifactInfo>> GetDocumentArtifactInfos(IEnumerable<int> artifactIds, int userId, int revisionId = int.MaxValue, bool addDrafts = true)
@@ -62,7 +57,7 @@ namespace ArtifactStore.Repositories
             parameters.Add("@userId", userId);
             parameters.Add("@revisionId", revisionId);
             parameters.Add("@addDrafts", addDrafts);
-            return await ConnectionWrapper.QueryAsync<LinkedArtifactInfo>("GetDocumentArtifactInfos", parameters, commandType: CommandType.StoredProcedure);
+            return await _connectionWrapper.QueryAsync<LinkedArtifactInfo>("GetDocumentArtifactInfos", parameters, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<FilesInfo> GetAttachmentsAndDocumentReferences(
@@ -78,7 +73,7 @@ namespace ArtifactStore.Repositories
             {
                 itemId = subArtifactId.Value;
             }
-            var revisionId = await ItemInfoRepository.GetRevisionId(artifactId, userId, versionId, baselineId);
+            var revisionId = await _itemInfoRepository.GetRevisionId(artifactId, userId, versionId, baselineId);
             if (baselineId != null)
             {
                 addDrafts = false;
@@ -92,7 +87,7 @@ namespace ArtifactStore.Repositories
             var documentReferenceArtifactInfoDictionary = documentReferenceArtifactInfos.ToDictionary(a => a.ArtifactId);
 
             var distinctUsers = attachments.Select(a => a.UserId).Union(referencedArtifacts.Select(b=>b.UserId)).Distinct().ToList();
-            var userInfoDictionary = (await UserRepository.GetUserInfos(distinctUsers)).ToDictionary(a => a.UserId);
+            var userInfoDictionary = (await _userRepository.GetUserInfos(distinctUsers)).ToDictionary(a => a.UserId);
 
             var referenceArtifactsToBeRemoved = new List<DocumentReference>();     
 

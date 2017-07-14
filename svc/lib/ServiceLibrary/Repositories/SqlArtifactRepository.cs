@@ -1,15 +1,15 @@
+using BluePrintSys.RC.Service.Business.Baselines.Impl;
+using Dapper;
+using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using ServiceLibrary.Helpers;
-using Dapper;
-using ServiceLibrary.Exceptions;
-using ServiceLibrary.Models;
-using ServiceLibrary.Models.Enums;
-using BluePrintSys.RC.Service.Business.Baselines.Impl;
 
 namespace ServiceLibrary.Repositories
 {
@@ -725,6 +725,7 @@ namespace ServiceLibrary.Repositories
             var artifactsPermissions = await ArtifactPermissionsRepository.GetArtifactPermissions(artifactIds, userId);
             var artifactsWithReadPermissions = artifactsPermissions.Where(p => p.Value.HasFlag(RolePermissions.Read)).Select(p => p.Key);
             var itemsRawData = await _itemInfoRepository.GetItemsRawDataCreatedDate(userId, artifactsWithReadPermissions, addDrafts, revisionId);
+
             return itemsRawData.Select(i => new BaselineInfo
             {
                 ItemId = i.ItemId,

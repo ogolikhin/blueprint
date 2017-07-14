@@ -504,7 +504,7 @@ namespace AdminStore.Repositories.Workflow
             // Assert
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(WorkflowXmlValidationErrorCodes.TriggerNameEmpty, result.Errors[0].ErrorCode);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.TransitionEventNameEmpty, result.Errors[0].ErrorCode);
             Assert.AreSame(_workflow.TransitionEvents.Last(), result.Errors[0].Element);
         }
 
@@ -525,7 +525,7 @@ namespace AdminStore.Repositories.Workflow
             // Assert
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(WorkflowXmlValidationErrorCodes.TriggerNameEmpty, result.Errors[0].ErrorCode);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.TransitionEventNameEmpty, result.Errors[0].ErrorCode);
             Assert.AreSame(_workflow.PropertyChangeEvents.Last(), result.Errors[0].Element);
         }
 
@@ -589,7 +589,7 @@ namespace AdminStore.Repositories.Workflow
             // Assert
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(WorkflowXmlValidationErrorCodes.TriggerNameExceedsLimit24, result.Errors[0].ErrorCode);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.TransitionEventNameExceedsLimit24, result.Errors[0].ErrorCode);
             Assert.AreSame(_workflow.TransitionEvents.Last(), result.Errors[0].Element);
         }
 
@@ -611,7 +611,7 @@ namespace AdminStore.Repositories.Workflow
             // Assert
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(WorkflowXmlValidationErrorCodes.TriggerNameExceedsLimit24, result.Errors[0].ErrorCode);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.TransitionEventNameExceedsLimit24, result.Errors[0].ErrorCode);
             Assert.AreSame(_workflow.PropertyChangeEvents.Last(), result.Errors[0].Element);
         }
 
@@ -678,7 +678,7 @@ namespace AdminStore.Repositories.Workflow
             // Assert
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(WorkflowXmlValidationErrorCodes.TriggerDescriptionExceedsLimit4000, result.Errors[0].ErrorCode);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.TransitionEventDescriptionExceedsLimit4000, result.Errors[0].ErrorCode);
             Assert.AreSame(_workflow.TransitionEvents.Last(), result.Errors[0].Element);
         }
 
@@ -701,7 +701,7 @@ namespace AdminStore.Repositories.Workflow
             // Assert
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(WorkflowXmlValidationErrorCodes.TriggerDescriptionExceedsLimit4000, result.Errors[0].ErrorCode);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.TransitionEventDescriptionExceedsLimit4000, result.Errors[0].ErrorCode);
             Assert.AreSame(_workflow.PropertyChangeEvents.Last(), result.Errors[0].Element);
         }
 
@@ -889,7 +889,7 @@ namespace AdminStore.Repositories.Workflow
             // Assert
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(WorkflowXmlValidationErrorCodes.PropertyChangeTriggerPropertyNotSpecified, result.Errors[0].ErrorCode);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.PropertyChangEventPropertyNotSpecified, result.Errors[0].ErrorCode);
             Assert.AreEqual(_workflow.PropertyChangeEvents.Last(), result.Errors[0].Element);
         }
 
@@ -934,7 +934,7 @@ namespace AdminStore.Repositories.Workflow
             // Assert
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(WorkflowXmlValidationErrorCodes.ActionsCountOnTriggerExceedsLimit10, result.Errors[0].ErrorCode);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.TriggerCountOnEventExceedsLimit10, result.Errors[0].ErrorCode);
             Assert.AreEqual(_workflow.TransitionEvents.Last(), result.Errors[0].Element);
         }
 

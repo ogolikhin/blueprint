@@ -87,116 +87,149 @@ namespace AdminStore.Services.Workflow
             }
 
             var stateTransitions = stateNames.ToDictionary(s => s, s => new List<string>());
-            //TODO fix validation
-            /*foreach (var trigger in workflow.Triggers.FindAll(s => s != null))
+            foreach (var transitionEvent in workflow.TransitionEvents.FindAll(s => s != null))
             {
-                if (!ValidatePropertyNotEmpty(trigger.Name))
+                if (!ValidatePropertyNotEmpty(transitionEvent.Name))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
-                        Element = trigger,
-                        ErrorCode = WorkflowXmlValidationErrorCodes.TriggerNameEmpty
+                        Element = transitionEvent,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.TransitionEventNameEmpty
                     });
                 }
 
-                if (!ValidatePropertyLimit(trigger.Name, 24))
+                if (!ValidatePropertyLimit(transitionEvent.Name, 24))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
-                        Element = trigger,
-                        ErrorCode = WorkflowXmlValidationErrorCodes.TriggerNameExceedsLimit24
+                        Element = transitionEvent,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.TransitionEventNameExceedsLimit24
                     });
                 }
 
-                if (!ValidatePropertyLimit(trigger.Description, 4000))
+                if (!ValidatePropertyLimit(transitionEvent.Description, 4000))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
-                        Element = trigger,
-                        ErrorCode = WorkflowXmlValidationErrorCodes.TriggerDescriptionExceedsLimit4000
+                        Element = transitionEvent,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.TransitionEventDescriptionExceedsLimit4000
                     });
                 }
 
-                if (trigger.TriggerType == EventType.Transition)
+               
+                var transition = transitionEvent as IeTransitionEvent;
+
+                var from = ValidatePropertyNotEmpty(transition.FromState) ? transition.FromState : string.Empty;
+                var to = ValidatePropertyNotEmpty(transition.ToState) ? transition.ToState : string.Empty;
+
+                if (!string.IsNullOrEmpty(from) && stateTransitions.ContainsKey(from))
                 {
-                    var transition = trigger as IeTransitionEvent;
-
-                    var from = ValidatePropertyNotEmpty(transition.FromState) ? transition.FromState : string.Empty;
-                    var to = ValidatePropertyNotEmpty(transition.ToState) ? transition.ToState : string.Empty;
-
-
-                    if (ValidatePropertyNotEmpty(transition.Name))
-                    {
-                        if (!string.IsNullOrEmpty(from) && stateTransitions.ContainsKey(from))
-                        {
-                            stateTransitions[from].Add(transition.Name);
-                        }
-
-                        if (!string.IsNullOrEmpty(to) && stateTransitions.ContainsKey(to))
-                        {
-                            stateTransitions[to].Add(transition.Name);
-                        }
-                    }
-
-                    if (string.IsNullOrEmpty(from))
-                    {
-                        result.Errors.Add(new WorkflowXmlValidationError
-                        {
-                            Element = transition,
-                            ErrorCode = WorkflowXmlValidationErrorCodes.TransitionStartStateNotSpecified
-                        });
-                    }
-                    if (string.IsNullOrEmpty(to))
-                    {
-                        result.Errors.Add(new WorkflowXmlValidationError
-                        {
-                            Element = transition,
-                            ErrorCode = WorkflowXmlValidationErrorCodes.TransitionEndStateNotSpecified
-                        });
-                    }
-
-                    if (from != null && from.EqualsOrdinalIgnoreCase(to))
-                    {
-                        result.Errors.Add(new WorkflowXmlValidationError
-                        {
-                            Element = transition,
-                            ErrorCode = WorkflowXmlValidationErrorCodes.TransitionFromAndToStatesSame
-                        });
-                    }
-
-                    if ((!string.IsNullOrEmpty(from) && !stateNames.Contains(from))
-                        || (!string.IsNullOrEmpty(to) && !stateNames.Contains(to)))
-                    {
-                        result.Errors.Add(new WorkflowXmlValidationError
-                        {
-                            Element = transition,
-                            ErrorCode = WorkflowXmlValidationErrorCodes.TransitionStateNotFound
-                        });
-                    }
-                }
-                else if (trigger.TriggerType == EventType.PropertyChange)
-                {
-                    var pcTrigger = trigger as IePropertyChangeEvent;
-
-                    if (!ValidatePropertyNotEmpty(pcTrigger.PropertyName))
-                    {
-                        result.Errors.Add(new WorkflowXmlValidationError
-                        {
-                            Element = pcTrigger,
-                            ErrorCode = WorkflowXmlValidationErrorCodes.PropertyChangeTriggerPropertyNotSpecified
-                        });
-                    }
+                    stateTransitions[from].Add(transition.Name);
                 }
 
-                if (trigger.Actions?.Count > 10)
+                if (!string.IsNullOrEmpty(to) && stateTransitions.ContainsKey(to))
+                {
+                    stateTransitions[to].Add(transition.Name);
+                }
+            
+
+                if (string.IsNullOrEmpty(from))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
-                        Element = trigger,
-                        ErrorCode = WorkflowXmlValidationErrorCodes.ActionsCountOnTriggerExceedsLimit10
+                        Element = transition,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.TransitionStartStateNotSpecified
                     });
                 }
-            }*/
+                if (string.IsNullOrEmpty(to))
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = transition,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.TransitionEndStateNotSpecified
+                    });
+                }
+
+                if (from != null && from.EqualsOrdinalIgnoreCase(to))
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = transition,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.TransitionFromAndToStatesSame
+                    });
+                }
+
+                if ((!string.IsNullOrEmpty(from) && !stateNames.Contains(from))
+                    || (!string.IsNullOrEmpty(to) && !stateNames.Contains(to)))
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = transition,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.TransitionStateNotFound
+                    });
+                }
+              
+
+                if (transitionEvent.Triggers?.Count > 10)
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = transitionEvent,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.TriggerCountOnEventExceedsLimit10
+                    });
+                }
+            }
+
+            foreach (var propertyChangeEvent in workflow.PropertyChangeEvents.FindAll(s => s != null))
+            {
+                if (!ValidatePropertyNotEmpty(propertyChangeEvent.Name))
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = propertyChangeEvent,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.PropertyChangeEventNameEmpty
+                    });
+                }
+
+                if (!ValidatePropertyLimit(propertyChangeEvent.Name, 24))
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = propertyChangeEvent,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.PropertyChangeEventNameExceedsLimit24
+                    });
+                }
+
+                if (!ValidatePropertyLimit(propertyChangeEvent.Description, 4000))
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = propertyChangeEvent,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.PropertyChangeEventDescriptionExceedsLimit4000
+                    });
+                }
+
+              
+                var pcEvent = propertyChangeEvent as IePropertyChangeEvent;
+
+                if (!ValidatePropertyNotEmpty(pcEvent.PropertyName))
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = pcEvent,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.PropertyChangEventPropertyNotSpecified
+                    });
+                }
+
+                if (pcEvent.Triggers?.Count > 10)
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = propertyChangeEvent,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.TriggerCountOnEventExceedsLimit10
+                    });
+                }
+            }
 
             foreach (var stateName in stateTransitions.Keys)
             {

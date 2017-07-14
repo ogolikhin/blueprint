@@ -90,8 +90,7 @@ namespace AdminStore.Services.Workflow
         {
             result.ValidGroups.Clear();
             HashSet<string> listOfAllGroups = new HashSet<string>();
-            //TODO fix validation
-            /*workflow.Triggers.OfType<IeTransitionEvent>().ForEach(transition =>
+            workflow.TransitionEvents.OfType<IeTransitionEvent>().ForEach(transition =>
             {
                 transition.PermissionGroups.ForEach(group =>
                 {
@@ -100,7 +99,7 @@ namespace AdminStore.Services.Workflow
                         listOfAllGroups.Add(group.Name);
                     }
                 });
-            });*/
+            });
             var existingGroupNames = (await _userRepository.GetExistingInstanceGroupsByNames(listOfAllGroups)).ToArray();
             if (existingGroupNames.Length != listOfAllGroups.Count)
             {

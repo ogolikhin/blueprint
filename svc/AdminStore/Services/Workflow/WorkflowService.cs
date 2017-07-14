@@ -192,6 +192,7 @@ namespace AdminStore.Services.Workflow
             {
                 throw new ConflictException(ErrorMessages.WorkflowVersionsNotEqual, ErrorCodes.Conflict);
             }
+
             var workflows = new List<SqlWorkflow> {new SqlWorkflow {Name = existingWorkflow.Name, Description = existingWorkflow.Description, Active = workflowDto.Status, WorkflowId = workflowId} };
 
             Func<IDbTransaction, Task> action = async transaction =>
@@ -202,14 +203,7 @@ namespace AdminStore.Services.Workflow
                     throw new ArgumentException(I18NHelper.FormatInvariant("{0} is less than 1.", nameof(publishRevision)));
                 }
                
-                var updatedWorkflows = await _workflowRepository.UpdateWorkflows(workflows, publishRevision, transaction);
-
-                var updatedWorkflowsCount = updatedWorkflows.Count();
-
-                if (updatedWorkflowsCount != 1)
-                {
-                    throw new BadRequestException(ErrorMessages.WorkflowWasNotUpdated, ErrorCodes.BadRequest);
-                }
+                await _workflowRepository.UpdateWorkflows(workflows, publishRevision, transaction);
             };
             await _workflowRepository.RunInTransactionAsync(action);
         }

@@ -15,10 +15,5 @@ namespace AdminStore.Models.Workflow
 
         [XmlElement(IsNullable = false)]
         public string PropertyName { get; set; }
-
-        [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
-        [XmlArray("Triggers")]
-        [XmlArrayItem("PropertyChangeTrigger", typeof(IePropertyChangeTrigger))]
-        public List<IeTrigger> Triggers { get; set; }
     }
 }

@@ -22,10 +22,5 @@ namespace AdminStore.Models.Workflow
         [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
         [XmlArray("PermissionGroups"), XmlArrayItem("Group")]
         public List<IeGroup> PermissionGroups { get; set; }
-
-        [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
-        [XmlArray("Triggers")]
-        [XmlArrayItem("TransitionTrigger", typeof(IeTransitionTrigger))]
-        public List<IeTrigger> Triggers { get; set; }
     }
 }

@@ -1,22 +1,20 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 
-namespace AdminStore.Models.Workflow
-{
-    public enum TriggerType { None, Transition, PropertyChange }
+namespace AdminStore.Models.Workflow { 
 
     [XmlType("Trigger")]
-    public abstract class IeTrigger
+    public class IeTrigger
     {
-        // Defines the type of Trigger
-        [XmlIgnore]
-        public abstract TriggerType TriggerType { get; }
 
         [XmlElement(IsNullable = false)]
         public string Name { get; set; }
 
         [XmlElement(IsNullable = false)]
         public string Description { get; set; }
+
+        [XmlElement(typeof(IeEmailNotificationAction), ElementName = "EmailNotificationAction")]
+        [XmlElement(typeof(IeGenerateAction), ElementName = "GenerateAction")]
+        [XmlElement(typeof(IePropertyChangeAction), ElementName = "PropertyChangeAction")]
+        public IeBaseAction Action { get; set; }
     }
 }

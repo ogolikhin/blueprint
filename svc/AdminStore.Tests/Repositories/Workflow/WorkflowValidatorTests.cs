@@ -112,7 +112,7 @@ namespace AdminStore.Repositories.Workflow
                 PropertyName = "My Text Property",
                 Triggers = new EditableList<IeTrigger>
                 {
-                    new IePropertyChangeTrigger { 
+                    new IeTrigger { 
                     Action = new IePropertyChangeAction
                     {
                         Name = "Text Property Change Action",
@@ -120,7 +120,7 @@ namespace AdminStore.Repositories.Workflow
                         PropertyName = "Text Property",
                         PropertyValue = "New text property value"
                     }},
-                    new IePropertyChangeTrigger {
+                    new IeTrigger {
                     Action = new IePropertyChangeAction
                     {
                         Name = "User Property Change Action",
@@ -129,7 +129,7 @@ namespace AdminStore.Repositories.Workflow
                         PropertyValue = "Administrators Group",
                         IsGroup = true
                     }},
-                    new IePropertyChangeTrigger {
+                    new IeTrigger {
                     Action = new IeGenerateAction
                     {
                         GenerateActionType = GenerateActionTypes.Children,
@@ -138,14 +138,14 @@ namespace AdminStore.Repositories.Workflow
                         ArtifactType = "Business Rule",
                         ChildCount = 3
                     }},
-                    new IePropertyChangeTrigger { 
+                    new IeTrigger { 
                     Action = new IeGenerateAction
                     {
                         GenerateActionType = GenerateActionTypes.UserStories,
                         Name = "Generate User Stories Action",
                         Description = "Description of Generate User Stories Action"
                     }},
-                    new IePropertyChangeTrigger {
+                    new IeTrigger {
                     Action = new IeGenerateAction
                     {
                         GenerateActionType = GenerateActionTypes.TestCases,
@@ -1058,12 +1058,12 @@ namespace AdminStore.Repositories.Workflow
         {
             if (anEvent is IePropertyChangeEvent)
             {
-                if (((IePropertyChangeEvent) anEvent).Triggers == null)
+                if (anEvent.Triggers == null)
                 {
-                    ((IePropertyChangeEvent)anEvent).Triggers = new List<IeTrigger>();
+                    anEvent.Triggers = new List<IeTrigger>();
                     for (var i = 0; i < actionsCount; i++)
                     {
-                        ((IePropertyChangeEvent)anEvent).Triggers.Add(new IePropertyChangeTrigger
+                        anEvent.Triggers.Add(new IeTrigger
                         {
                             Action = new IeEmailNotificationAction
                             {
@@ -1075,12 +1075,12 @@ namespace AdminStore.Repositories.Workflow
             }
             else if (anEvent is IeTransitionEvent)
             {
-                if (((IeTransitionEvent)anEvent).Triggers == null)
+                if (anEvent.Triggers == null)
                 {
-                    ((IeTransitionEvent)anEvent).Triggers = new List<IeTrigger>();
+                    anEvent.Triggers = new List<IeTrigger>();
                     for (var i = 0; i < actionsCount; i++)
                     {
-                        ((IeTransitionEvent)anEvent).Triggers.Add(new IeTransitionTrigger
+                        anEvent.Triggers.Add(new IeTrigger
                         {
                             Action = new IeGenerateAction
                             {

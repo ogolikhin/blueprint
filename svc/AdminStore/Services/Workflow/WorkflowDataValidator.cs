@@ -90,7 +90,7 @@ namespace AdminStore.Services.Workflow
         {
             result.ValidGroups.Clear();
             HashSet<string> listOfAllGroups = new HashSet<string>();
-            workflow.Triggers.OfType<IeTransitionTrigger>().ForEach(transition =>
+            workflow.TransitionEvents.OfType<IeTransitionEvent>().ForEach(transition =>
             {
                 transition.PermissionGroups.ForEach(group =>
                 {

@@ -6,14 +6,6 @@ namespace BluePrintSys.Messaging.Models.Actions
     [Express]
     public class ArtifactsPublishedMessage : ActionMessage
     {
-        public ArtifactsPublishedMessage()
-        {
-        }
-
-        public ArtifactsPublishedMessage(int tenantId) : base(tenantId)
-        {
-        }
-
         public override MessageActionType ActionType { get; }
 
         public int UserId { get; set; }

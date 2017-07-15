@@ -1,7 +1,5 @@
 ﻿using System;
-using ActionHandlerService.Helpers;
 using ActionHandlerService.Models;
-using ActionHandlerService.Models.Enums;
 using BluePrintSys.Messaging.CrossCutting.Logging;
 using Topshelf;
 using Log4NetStandardLogListener = ActionHandlerService.Logging.Log4NetStandardLogListener;

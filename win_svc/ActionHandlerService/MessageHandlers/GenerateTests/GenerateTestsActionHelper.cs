@@ -1,4 +1,5 @@
 ﻿using ActionHandlerService.Models;
+using BluePrintSys.Messaging.Models.Actions;
 
 namespace ActionHandlerService.MessageHandlers.GenerateTests
 {
@@ -6,7 +7,7 @@ namespace ActionHandlerService.MessageHandlers.GenerateTests
     //These should be implemented when the actions are impletemented
     public class GenerateTestsActionHelper : IActionHelper
     {
-        public bool HandleAction(TenantInformation tenant)
+        public bool HandleAction(TenantInformation tenantInformation, ActionMessage actionMessage)
         {
             return true;
         }

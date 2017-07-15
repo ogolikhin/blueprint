@@ -8,7 +8,7 @@ namespace ActionHandlerService.Models
     public class RabbitMQTransportHost : IMessageTransportHost
     {
         private static readonly string NServiceBusConnectionString = ConfigHelper.NServiceBusConnectionString;
-        private readonly NServiceBusServer _nServiceBusServer = new NServiceBusServer();
+        private readonly NServiceBusServer _nServiceBusServer = NServiceBusServer.Instance;
         public void Start(Func<bool> errorCallback = null)
         {
             Task.Run(() => _nServiceBusServer.Start(NServiceBusConnectionString))

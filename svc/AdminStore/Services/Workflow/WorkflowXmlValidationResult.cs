@@ -50,7 +50,7 @@ namespace AdminStore.Services.Workflow
         ProjectNoSpecified,
         ProjectInvalidId,
         ArtifactTypeNoSpecified,
-        NoArtifactTypesFound,
-        NoProjectsFound
+        ProjectsProvidedWithoutArifactTypes,
+        ArtifactTypesProvidedWithoutProjects
     }
 }

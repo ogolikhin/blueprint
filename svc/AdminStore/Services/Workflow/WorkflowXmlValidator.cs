@@ -56,11 +56,11 @@ namespace AdminStore.Services.Workflow
 
             if (workflow.Projects.Any() && !workflow.ArtifactTypes.Any())
             {
-                result.Errors.Add(new WorkflowXmlValidationError { Element = workflow, ErrorCode = WorkflowXmlValidationErrorCodes.NoArtifactTypesFound });
+                result.Errors.Add(new WorkflowXmlValidationError { Element = workflow, ErrorCode = WorkflowXmlValidationErrorCodes.ProjectsProvidedWithoutArifactTypes });
             }
             else if (!workflow.Projects.Any() && workflow.ArtifactTypes.Any())
             {
-                result.Errors.Add(new WorkflowXmlValidationError { Element = workflow, ErrorCode = WorkflowXmlValidationErrorCodes.NoProjectsFound });
+                result.Errors.Add(new WorkflowXmlValidationError { Element = workflow, ErrorCode = WorkflowXmlValidationErrorCodes.ArtifactTypesProvidedWithoutProjects });
             }
 
 

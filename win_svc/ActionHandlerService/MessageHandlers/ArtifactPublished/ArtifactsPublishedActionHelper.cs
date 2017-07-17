@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using ActionHandlerService.Models;
+using ActionHandlerService.Repositories;
 using BluePrintSys.Messaging.Models.Actions;
 
 namespace ActionHandlerService.MessageHandlers.ArtifactPublished

@@ -1,7 +1,7 @@
 ﻿using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 
-namespace ActionHandlerService
+namespace ActionHandlerService.Models.Exceptions
 {
     public class TenantInfoNotFoundException : ExceptionWithErrorCode
     {

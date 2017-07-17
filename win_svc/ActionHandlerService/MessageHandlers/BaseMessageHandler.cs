@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using ActionHandlerService.Helpers;
 using ActionHandlerService.Models;
+using ActionHandlerService.Models.Exceptions;
 using BluePrintSys.Messaging.CrossCutting.Logging;
 using BluePrintSys.Messaging.Models.Actions;
 using NServiceBus;

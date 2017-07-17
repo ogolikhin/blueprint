@@ -1,37 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using ActionHandlerService.Models;
 using Dapper;
 using ServiceLibrary.Repositories;
 
-namespace ActionHandlerService
+namespace ActionHandlerService.Repositories
 {
-    public class SqlWorkFlowState
-    {
-        public int? Result { get; set; }
-        public int WorkflowId { get; set; }
-        public string WorkflowStateName { get; set; }
-        public int WorkflowStateId { get; set; }
-    }
-
-    public class SqlModifiedProperty
-    {
-        public int ArtifactId { get; set; }
-        public int ItemId { get; set; }
-        public int ProjectId { get; set; }
-        public int Type { get; set; }
-        public int? TypeId { get; set; }
-        public int VersionId { get; set; }
-        public int StartRevision { get; set; }
-        public int EndRevision { get; set; }
-        public string PropertyName { get; set; }
-        public string NewPropertyValue { get; set; }
-    }
-
     public interface IActionHandlerServiceRepository
     {
-        List<SqlModifiedProperty> GetPropertyModificationsForRevisionId(int revisionId);
-        List<SqlWorkFlowState> GetWorkflowStatesForArtifacts(int userId, IEnumerable<int> artifactIds, int revisionId, bool addDrafts = true);
+        IList<SqlModifiedProperty> GetPropertyModificationsForRevisionId(int revisionId);
+        IList<SqlWorkFlowState> GetWorkflowStatesForArtifacts(int userId, IEnumerable<int> artifactIds, int revisionId, bool addDrafts = true);
     }
 
     public class ActionHandlerServiceRepository : IActionHandlerServiceRepository
@@ -47,14 +26,14 @@ namespace ActionHandlerService
             _connectionWrapper = connectionWrapper;
         }
 
-        public List<SqlModifiedProperty> GetPropertyModificationsForRevisionId(int revisionId)
+        public IList<SqlModifiedProperty> GetPropertyModificationsForRevisionId(int revisionId)
         {
             var param = new DynamicParameters();
             param.Add("@revisionId", revisionId);
             return _connectionWrapper.Query<SqlModifiedProperty>("GetPropertyModificationsForRevisionId", param, commandType: CommandType.StoredProcedure).ToList();
         }
 
-        public List<SqlWorkFlowState> GetWorkflowStatesForArtifacts(int userId, IEnumerable<int> artifactIds, int revisionId, bool addDrafts = true)
+        public IList<SqlWorkFlowState> GetWorkflowStatesForArtifacts(int userId, IEnumerable<int> artifactIds, int revisionId, bool addDrafts = true)
         {
             var param = new DynamicParameters();
             param.Add("@userId", userId);

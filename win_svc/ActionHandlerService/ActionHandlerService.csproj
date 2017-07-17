@@ -98,8 +98,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActionHandlerServiceRepository.cs" />
-    <Compile Include="Exceptions.cs" />
+    <Compile Include="Models\SqlModifiedProperty.cs" />
+    <Compile Include="Models\SqlWorkFlowState.cs" />
+    <Compile Include="Repositories\ActionHandlerRepository.cs" />
+    <Compile Include="Models\Exceptions\Exceptions.cs" />
     <Compile Include="Logging\Log4NetStandardLogListener.cs" />
     <Compile Include="MessageHandlers\ArtifactPublished\ArtifactsPublishedActionHelper.cs" />
     <Compile Include="MessageHandlers\ArtifactPublished\ArtifactsPublishedMessageHandler.cs" />

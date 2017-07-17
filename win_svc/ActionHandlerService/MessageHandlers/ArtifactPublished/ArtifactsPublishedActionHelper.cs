@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using ActionHandlerService.Helpers;
 using ActionHandlerService.Models;
 using ActionHandlerService.Repositories;
 using BluePrintSys.Messaging.Models.Actions;
@@ -7,15 +8,27 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
 {
     public class ArtifactsPublishedActionHelper : IActionHelper
     {
+        private readonly IActionsParser _actionsParser;
+        public ArtifactsPublishedActionHelper()
+        {
+            
+        }
+
+        public ArtifactsPublishedActionHelper(IActionsParser actionsParser)
+        {
+            _actionsParser = actionsParser;
+        }
+
         public bool HandleAction(TenantInformation tenantInformation, ActionMessage actionMessage)
         {
             var message = (ArtifactsPublishedMessage)actionMessage;
             var repository = new ActionHandlerServiceRepository(tenantInformation.ConnectionString);
             var publishedArtifacts = message.Artifacts ?? new PublishedArtifactInformation[] { };
+
             foreach (var artifact in publishedArtifacts)
             {
                 var modifiedProperties = repository.GetPropertyModificationsForRevisionId(message.RevisionId);
-                var artifactChangedProperties = modifiedProperties.Select(p => new ChangedProperty { PropertyId = p.TypeId, PredefinedTypeId = p.Type, PropertyName = p.PropertyName }).ToArray();
+                var artifactChangedProperties = modifiedProperties.Select(p => new ModifiedPropertyInformation { PropertyId = p.TypeId, PredefinedTypeId = p.Type, PropertyName = p.PropertyName }).ToArray();
 
                 repository.GetWorkflowStatesForArtifacts(message.UserId, new[] {artifact.ArtifactId}, message.RevisionId);
                 //TODO: get the Actions from the database
@@ -34,7 +47,7 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
                             ArtifactTypeId = artifact.ArtifactTypeId,
                             ArtifactTypePredefined = artifact.ArtifactTypePredefined,
                             UserId = message.UserId,
-                            ChangedProperties = artifactChangedProperties,
+                            ModifiedPropertiesInformation = artifactChangedProperties,
                             ToEmail = notification.ToEmail,
                             ArtifactUrl = artifact.ArtifactUrl,
                             MessageTemplate = notification.MessageTemplate

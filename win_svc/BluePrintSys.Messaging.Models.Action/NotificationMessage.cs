@@ -14,10 +14,10 @@ namespace BluePrintSys.Messaging.Models.Actions
         public int ArtifactTypeId { get; set; }
         public int ArtifactTypePredefined { get; set; }
         public int UserId { get; set; }
-        public ChangedProperty[] ChangedProperties { get; set; }
+        public ModifiedPropertyInformation[] ModifiedPropertiesInformation { get; set; }
     }
 
-    public class ChangedProperty
+    public class ModifiedPropertyInformation
     {
         public int? PropertyId { get; set; }
         public string PropertyName { get; set; }

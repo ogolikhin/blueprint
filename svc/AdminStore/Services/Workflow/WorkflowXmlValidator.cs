@@ -56,6 +56,7 @@ namespace AdminStore.Services.Workflow
 
 
             var stateNames = new HashSet<string>();
+            var initialStates = new HashSet<string>();
             foreach (var state in workflow.States.FindAll(s => s != null))
             {
 
@@ -84,40 +85,51 @@ namespace AdminStore.Services.Workflow
                 {
                     result.Errors.Add(new WorkflowXmlValidationError { Element = state, ErrorCode = WorkflowXmlValidationErrorCodes.StateDescriptionExceedsLimit4000 });
                 }
+
+                if (state.IsInitial.GetValueOrDefault())
+                {
+                    initialStates.Add(state.Name);
+
+                    if (workflow.TransitionEvents.All(t => t.FromState != state.Name))
+                    {
+                        // TODO: Add a unit test
+                        result.Errors.Add(new WorkflowXmlValidationError { Element = state, ErrorCode = WorkflowXmlValidationErrorCodes.InitialStaeDoesNotHaveOutgoingTransition });
+                    }
+                }
             }
 
             var stateTransitions = stateNames.ToDictionary(s => s, s => new List<string>());
-            foreach (var transitionEvent in workflow.TransitionEvents.FindAll(s => s != null))
+            var statesWithIncomingTransitions = new HashSet<string>();
+            foreach (var transition in workflow.TransitionEvents.FindAll(s => s != null))
             {
-                if (!ValidatePropertyNotEmpty(transitionEvent.Name))
+                statesWithIncomingTransitions.Add(transition.ToState);
+
+                if (!ValidatePropertyNotEmpty(transition.Name))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
-                        Element = transitionEvent,
+                        Element = transition,
                         ErrorCode = WorkflowXmlValidationErrorCodes.TransitionEventNameEmpty
                     });
                 }
 
-                if (!ValidatePropertyLimit(transitionEvent.Name, 24))
+                if (!ValidatePropertyLimit(transition.Name, 24))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
-                        Element = transitionEvent,
+                        Element = transition,
                         ErrorCode = WorkflowXmlValidationErrorCodes.TransitionEventNameExceedsLimit24
                     });
                 }
 
-                if (!ValidatePropertyLimit(transitionEvent.Description, 4000))
+                if (!ValidatePropertyLimit(transition.Description, 4000))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
-                        Element = transitionEvent,
+                        Element = transition,
                         ErrorCode = WorkflowXmlValidationErrorCodes.TransitionEventDescriptionExceedsLimit4000
                     });
                 }
-
-               
-                var transition = transitionEvent as IeTransitionEvent;
 
                 var from = ValidatePropertyNotEmpty(transition.FromState) ? transition.FromState : string.Empty;
                 var to = ValidatePropertyNotEmpty(transition.ToState) ? transition.ToState : string.Empty;
@@ -170,47 +182,44 @@ namespace AdminStore.Services.Workflow
                 }
               
 
-                if (transitionEvent.Triggers?.Count > 10)
+                if (transition.Triggers?.Count > 10)
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
-                        Element = transitionEvent,
+                        Element = transition,
                         ErrorCode = WorkflowXmlValidationErrorCodes.TriggerCountOnEventExceedsLimit10
                     });
                 }
             }
 
-            foreach (var propertyChangeEvent in workflow.PropertyChangeEvents.FindAll(s => s != null))
+            foreach (var pcEvent in workflow.PropertyChangeEvents.FindAll(s => s != null))
             {
-                if (!ValidatePropertyNotEmpty(propertyChangeEvent.Name))
+                if (!ValidatePropertyNotEmpty(pcEvent.Name))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
-                        Element = propertyChangeEvent,
+                        Element = pcEvent,
                         ErrorCode = WorkflowXmlValidationErrorCodes.PropertyChangeEventNameEmpty
                     });
                 }
 
-                if (!ValidatePropertyLimit(propertyChangeEvent.Name, 24))
+                if (!ValidatePropertyLimit(pcEvent.Name, 24))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
-                        Element = propertyChangeEvent,
+                        Element = pcEvent,
                         ErrorCode = WorkflowXmlValidationErrorCodes.PropertyChangeEventNameExceedsLimit24
                     });
                 }
 
-                if (!ValidatePropertyLimit(propertyChangeEvent.Description, 4000))
+                if (!ValidatePropertyLimit(pcEvent.Description, 4000))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
-                        Element = propertyChangeEvent,
+                        Element = pcEvent,
                         ErrorCode = WorkflowXmlValidationErrorCodes.PropertyChangeEventDescriptionExceedsLimit4000
                     });
                 }
-
-              
-                var pcEvent = propertyChangeEvent as IePropertyChangeEvent;
 
                 if (!ValidatePropertyNotEmpty(pcEvent.PropertyName))
                 {
@@ -225,7 +234,7 @@ namespace AdminStore.Services.Workflow
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
-                        Element = propertyChangeEvent,
+                        Element = pcEvent,
                         ErrorCode = WorkflowXmlValidationErrorCodes.TriggerCountOnEventExceedsLimit10
                     });
                 }
@@ -237,6 +246,11 @@ namespace AdminStore.Services.Workflow
                 if (!transitionNames.Any())
                 {
                     result.Errors.Add(new WorkflowXmlValidationError { Element = stateName, ErrorCode = WorkflowXmlValidationErrorCodes.StateDoesNotHaveAnyTransitions });
+                }
+                else if (!initialStates.Contains(stateName) && !statesWithIncomingTransitions.Contains(stateName))
+                {
+                    // TODO: Add a unit test
+                    result.Errors.Add(new WorkflowXmlValidationError { Element = stateName, ErrorCode = WorkflowXmlValidationErrorCodes.NotInitialStateDoesNotHaveIncomingTransitions });
                 }
 
                 if (transitionNames.Count > 10)

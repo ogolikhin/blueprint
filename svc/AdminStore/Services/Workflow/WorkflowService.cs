@@ -249,8 +249,11 @@ namespace AdminStore.Services.Workflow
                 await ImportWorkflowTransitions(workflow, newWorkflow, publishRevision, transaction, newStates, validGroups);
             }
 
-            await _workflowRepository.CreateWorkflowArtifactAssociationsAsync(workflow.ArtifactTypes.Select(at => at.Name),
-                validProjectIds, newWorkflow.WorkflowId, publishRevision, transaction);
+            if (workflow.ArtifactTypes.Any() && workflow.Projects.Any())
+            {
+                await _workflowRepository.CreateWorkflowArtifactAssociationsAsync(workflow.ArtifactTypes.Select(at => at.Name),
+                        validProjectIds, newWorkflow.WorkflowId, publishRevision, transaction);
+            }
         }
 
         private async Task ImportWorkflowTransitions(IeWorkflow workflow, SqlWorkflow newWorkflow, int publishRevision,

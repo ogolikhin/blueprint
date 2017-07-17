@@ -49,6 +49,8 @@ namespace AdminStore.Services.Workflow
         PropertyChangEventPropertyNotSpecified,
         ProjectNoSpecified,
         ProjectInvalidId,
-        ArtifactTypeNoSpecified
+        ArtifactTypeNoSpecified,
+        NoArtifactTypesFound,
+        NoProjectsFound
     }
 }

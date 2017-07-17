@@ -284,6 +284,40 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
+        public void Validate_Projects_NoArtifactTypes_ReturnsProjectsProvidedWithoutArifactTypesError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.ArtifactTypes.Clear();
+
+            // Act
+            var result = workflowValidator.Validate(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.ProjectsProvidedWithoutArifactTypes, result.Errors[0].ErrorCode);
+            Assert.AreSame(_workflow, result.Errors[0].Element);
+        }
+
+        [TestMethod]
+        public void Validate_ArtifactTypes_NoProjects_ReturnsArtifactTypesProvidedWithoutProjectsError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.Projects.Clear();
+
+            // Act
+            var result = workflowValidator.Validate(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.ArtifactTypesProvidedWithoutProjects, result.Errors[0].ErrorCode);
+            Assert.AreSame(_workflow, result.Errors[0].Element);
+        }
+
+        [TestMethod]
         public void Validate_NoStates_ReturnsWorkflowDoesNotContainAnyStatesError()
         {
             // Arrange

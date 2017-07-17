@@ -1,24 +1,19 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using ActionHandlerService.MessageHandlers.ArtifactPublished;
 
 namespace ActionHandlerService.Helpers
 {
     public interface IActionsParser
     {
-        NotificationAction GetNotificationAction(string actionsXmlString);
+        List<NotificationAction> GetNotificationActions(string actionsXmlString, int? propertyIdTest);
     }
 
     public class ActionsParser : IActionsParser
     {
-        public NotificationAction GetNotificationAction(string actionsXmlString)
+        public List<NotificationAction> GetNotificationActions(string actionsXmlString, int? propertyIdTest)
         {
             //Should be replaced with some pattern here
-            return new[] { new NotificationAction
-            {
-
-                PropertyId = artifactChangedProperties.Any() ? artifactChangedProperties.First().PropertyId : 0
-            } };
-
+            return new List<NotificationAction> {new NotificationAction {PropertyId = propertyIdTest}};
         }
     }
 }

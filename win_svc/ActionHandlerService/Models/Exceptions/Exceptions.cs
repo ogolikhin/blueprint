@@ -23,11 +23,4 @@ namespace ActionHandlerService.Models.Exceptions
         {
         }
     }
-
-    public class InvalidTenantIdException : ExceptionWithErrorCode
-    {
-        public InvalidTenantIdException(string message) : base(message, ErrorCodes.InvalidTenantId)
-        {
-        }
-    }
 }

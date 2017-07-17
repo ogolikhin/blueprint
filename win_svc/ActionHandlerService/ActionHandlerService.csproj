@@ -99,6 +99,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helpers\ActionsParser.cs" />
+    <Compile Include="Models\SqlArtifactTriggers.cs" />
     <Compile Include="Models\SqlModifiedProperty.cs" />
     <Compile Include="Models\SqlWorkFlowState.cs" />
     <Compile Include="Repositories\ActionHandlerRepository.cs" />

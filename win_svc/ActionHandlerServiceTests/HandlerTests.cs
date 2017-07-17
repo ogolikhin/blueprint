@@ -23,7 +23,7 @@ namespace ActionHandlerServiceTests
     {
         private Mock<IActionHelper> _actionHelperMock;
         private ISetup<IActionHelper, bool> _handleActionSetup;
-        private const string TenantId = "0";
+        private const string TenantId = "tenant0";
 
         [TestInitialize]
         public void TestInitialize()
@@ -68,16 +68,6 @@ namespace ActionHandlerServiceTests
             var handler = new NotificationMessageHandler(_actionHelperMock.Object);
             var message = new NotificationMessage();
             Test.Handler(handler).OnMessage(message);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(InvalidTenantIdException))]
-        public void NotificationMessageHandler_ThrowsInvalidTenantIdExceptionException_WhenHeaderTenantIdIsNotAnInteger()
-        {
-            _handleActionSetup.Returns(true);
-            var handler = new NotificationMessageHandler(_actionHelperMock.Object);
-            var message = new NotificationMessage();
-            Test.Handler(handler).SetIncomingHeader(ActionMessageHeaders.TenantId, "Not an integer").OnMessage(message);
         }
 
         [TestMethod]

@@ -3,15 +3,15 @@ using ActionHandlerService.Helpers;
 using ActionHandlerService.Models;
 using ActionHandlerService.Repositories;
 using BluePrintSys.Messaging.Models.Actions;
+using ServiceLibrary.Models.Enums;
 
 namespace ActionHandlerService.MessageHandlers.ArtifactPublished
 {
     public class ArtifactsPublishedActionHelper : IActionHelper
     {
         private readonly IActionsParser _actionsParser;
-        public ArtifactsPublishedActionHelper()
+        public ArtifactsPublishedActionHelper() : this(new ActionsParser())
         {
-            
         }
 
         public ArtifactsPublishedActionHelper(IActionsParser actionsParser)
@@ -24,22 +24,24 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
             var message = (ArtifactsPublishedMessage)actionMessage;
             var repository = new ActionHandlerServiceRepository(tenantInformation.ConnectionString);
             var publishedArtifacts = message.Artifacts ?? new PublishedArtifactInformation[] { };
-
-            foreach (var artifact in publishedArtifacts)
+            var publishedArtifactIds = publishedArtifacts.Select(a => a.ArtifactId).ToList();
+            repository.GetWorkflowStatesForArtifacts(message.UserId, publishedArtifactIds, message.RevisionId);
+            var artifactPropertyTriggers = repository.GetWorkflowTriggersForArtifacts(message.UserId, message.RevisionId, (int) TransitionType.Property, publishedArtifactIds).ToList();
+            var artifactsWithTriggers = publishedArtifacts.Where(a => artifactPropertyTriggers.Any(t => t.HolderId == a.ArtifactId)).ToList();
+            foreach (var artifact in artifactsWithTriggers)
             {
                 var modifiedProperties = repository.GetPropertyModificationsForRevisionId(message.RevisionId);
                 var artifactChangedProperties = modifiedProperties.Select(p => new ModifiedPropertyInformation { PropertyId = p.TypeId, PredefinedTypeId = p.Type, PropertyName = p.PropertyName }).ToArray();
 
-                repository.GetWorkflowStatesForArtifacts(message.UserId, new[] {artifact.ArtifactId}, message.RevisionId);
                 //TODO: get the Actions from the database
-                var notifications = new[] {new NotificationAction {PropertyId = artifactChangedProperties.Any() ? artifactChangedProperties.First().PropertyId : 0}};
+                var notifications = _actionsParser.GetNotificationActions(string.Empty, artifactChangedProperties.Any() ? artifactChangedProperties.First().PropertyId : 0);
 
                 //if any of the artifact's changed properties has a Notification action associated with it, then send the NotificationMessage
                 var notificationsToSend = notifications.Where(n => artifactChangedProperties.Any(p => p.PropertyId == n.PropertyId));
                 foreach (var notification in notificationsToSend)
                 {
                     NServiceBusServer.Instance.Send(
-                        tenantInformation.Id.ToString(),
+                        tenantInformation.Id,
                         new NotificationMessage
                         {
                             ArtifactId = artifact.ArtifactId,

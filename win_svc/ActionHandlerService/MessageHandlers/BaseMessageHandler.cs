@@ -27,17 +27,12 @@ namespace ActionHandlerService.MessageHandlers
                 Log.Info($"Received Action Message {message.ActionType.ToString()}");
                 if ((ConfigHelper.SupportedActionTypes & message.ActionType) == message.ActionType)
                 {
-                    var tenantIdString = GetMessageHeaderValue(ActionMessageHeaders.TenantId, context);
-                    int tenantId;
-                    if (!int.TryParse(tenantIdString, out tenantId))
-                    {
-                        throw new InvalidTenantIdException($"Invalid Tenant ID: {tenantIdString}");
-                    }
+                    var tentantId = GetMessageHeaderValue(ActionMessageHeaders.TenantId, context);
                     var tenants = TenantInfoRetriever.GetTenants();
                     TenantInformation tenant;
-                    if (!tenants.TryGetValue(tenantId, out tenant))
+                    if (!tenants.TryGetValue(tentantId, out tenant))
                     {
-                        throw new TenantInfoNotFoundException($"Tentant Info not found for Tenant ID {tenantId}");
+                        throw new TenantInfoNotFoundException($"Tentant Info not found for Tenant ID {tentantId}");
                     }
                     await ProcessAction(tenant, message, context);
                 }

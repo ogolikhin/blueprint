@@ -54,6 +54,15 @@ namespace AdminStore.Services.Workflow
                 result.Errors.Add(new WorkflowXmlValidationError { Element = workflow, ErrorCode = WorkflowXmlValidationErrorCodes.StatesCountExceedsLimit100 });
             }
 
+            if (workflow.Projects.Any() && !workflow.ArtifactTypes.Any())
+            {
+                result.Errors.Add(new WorkflowXmlValidationError { Element = workflow, ErrorCode = WorkflowXmlValidationErrorCodes.ProjectsProvidedWithoutArifactTypes });
+            }
+            else if (!workflow.Projects.Any() && workflow.ArtifactTypes.Any())
+            {
+                result.Errors.Add(new WorkflowXmlValidationError { Element = workflow, ErrorCode = WorkflowXmlValidationErrorCodes.ArtifactTypesProvidedWithoutProjects });
+            }
+
 
             var stateNames = new HashSet<string>();
             var initialStates = new HashSet<string>();
@@ -266,6 +275,8 @@ namespace AdminStore.Services.Workflow
 
             foreach (var project in workflow.Projects.FindAll(p => p != null))
             {
+                
+
                 if (!project.Id.HasValue && !ValidatePropertyNotEmpty(project.Path))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError { Element = project, ErrorCode = WorkflowXmlValidationErrorCodes.ProjectNoSpecified });

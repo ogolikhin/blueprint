@@ -135,8 +135,6 @@ namespace ArtifactStore.Repositories
 
         public async Task<QueryResult<ReviewArtifact>> GetReviewArtifactsContentAsync(int reviewId, int userId, Pagination pagination, int? versionId = null, bool? addDrafts = true)
         {
-
-
             int? revisionId = await _itemInfoRepository.GetRevisionId(reviewId, userId, versionId);
 
             var reviewArtifacts = await GetReviewArtifactsAsync<ReviewArtifact>(reviewId, userId, pagination, revisionId, addDrafts);
@@ -329,22 +327,30 @@ namespace ArtifactStore.Repositories
 
         public async Task<QueryResult<ReviewedArtifact>> GetReviewedArtifacts(int reviewId, int userId, Pagination pagination, int revisionId)
         {
-            var reviewArtifacts = await GetReviewArtifactsAsync<ReviewedArtifact>(reviewId, userId, pagination, revisionId, false);
+            return await GetParticipantReviewedArtifactsAsync(reviewId, userId, userId, pagination, revisionId);
+        }
+
+        private async Task<QueryResult<ReviewedArtifact>> GetParticipantReviewedArtifactsAsync(int reviewId, int userId, int participantId, Pagination pagination, int revisionId = int.MaxValue, bool addDrafts = false)
+        {
+            var reviewArtifacts =
+                await GetReviewArtifactsAsync<ReviewedArtifact>(reviewId, userId, pagination, revisionId, addDrafts);
 
             var reviewArtifactIds = reviewArtifacts.Items.Select(a => a.Id).ToList();
 
             var artifactPermissionsDictionary = await _artifactPermissionsRepository
-                .GetArtifactPermissions(reviewArtifactIds.Union(new[] { reviewId }), userId);
+                .GetArtifactPermissions(reviewArtifactIds.Union(new[] {reviewId}), userId);
 
             if (!SqlArtifactPermissionsRepository.HasPermissions(reviewId, artifactPermissionsDictionary, RolePermissions.Read))
             {
                 ThrowUserCannotAccessReviewException(reviewId);
             }
 
-            var reviewedArtifacts = (await GetReviewArtifactsByParticipant(reviewArtifactIds, userId, reviewId, revisionId)).ToDictionary(k => k.Id);
+            var reviewedArtifacts =
+                (await GetReviewArtifactsByParticipant(reviewArtifactIds, participantId, reviewId, revisionId)).ToDictionary(k => k.Id);
             foreach (var artifact in reviewArtifacts.Items)
             {
-                if (SqlArtifactPermissionsRepository.HasPermissions(artifact.Id, artifactPermissionsDictionary, RolePermissions.Read))
+                if (SqlArtifactPermissionsRepository.HasPermissions(artifact.Id, artifactPermissionsDictionary,
+                    RolePermissions.Read))
                 {
                     ReviewedArtifact reviewedArtifact;
                     if (reviewedArtifacts.TryGetValue(artifact.Id, out reviewedArtifact))
@@ -1130,6 +1136,32 @@ namespace ArtifactStore.Repositories
             parameters.Add("@xmlString", xmlString);
 
             return _connectionWrapper.ExecuteAsync("UpdateReviewUserStatsXml", parameters, commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<QueryResult<ParticipantArtifactStats>> GetReviewParticipantArtifactStatsAsync(int reviewId, int participantId, int userId, Pagination pagination)
+        {
+            pagination.SetDefaultValues(0, 50);
+
+            var reviewedArtifactResult = await GetParticipantReviewedArtifactsAsync(reviewId, userId, participantId, pagination, addDrafts: true);
+
+            return new QueryResult<ParticipantArtifactStats>()
+            {
+                Total = reviewedArtifactResult.Total,
+                Items = reviewedArtifactResult.Items.Select(MapArtifactStats)
+            };
+        }
+
+        private ParticipantArtifactStats MapArtifactStats(ReviewedArtifact reviewedArtifact)
+        {
+            return new ParticipantArtifactStats()
+            {
+                ArtifactId = reviewedArtifact.Prefix + reviewedArtifact.Id,
+                ArtifactName = reviewedArtifact.Name,
+                ArtifactRequiresApproval = reviewedArtifact.IsApprovalRequired,
+                ApprovalStatus = GetApprovalStatus(reviewedArtifact, reviewedArtifact.IsApprovalRequired),
+                Viewed = reviewedArtifact.ViewedArtifactVersion == reviewedArtifact.ArtifactVersion,
+                HasAccess = reviewedArtifact.HasAccess
+            };
         }
 
         private void UnauthorizedItem(ReviewTableOfContentItem item)

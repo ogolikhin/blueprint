@@ -298,5 +298,25 @@ namespace ArtifactStore.Controllers
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             return _sqlReviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, reviewArtifactApprovalParameters, session.UserId);
         }
+
+        /// <summary>
+        /// Gets review artifacts in a hierachy list for given review, offset and limit, also returns total count.
+        /// </summary>
+        /// <param name="reviewId">Review artifact Id</param>
+        /// <param name="participantId">Participant Id</param>
+        /// <param name="pagination"></param>
+        /// <returns></returns>
+        /// <response code="200">OK.</response>
+        /// <response code="400">Bad Request.</response>
+        /// <response code="401">Unauthorized. The session token is invalid.</response>
+        /// <response code="403">Forbidden. The user does not have permissions new the review</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpGet, NoCache]
+        [Route("containers/{reviewId:int:min(1)}/participants/{participantId:int:min(1)}/artifactstats"), SessionRequired]
+        public Task<QueryResult<ParticipantArtifactStats>> GetReviewParticipantArtifactStatsAsync(int reviewId, int participantId, [FromUri] Pagination pagination)
+        {
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            return _sqlReviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, session.UserId, pagination);
+        }
     }
 }

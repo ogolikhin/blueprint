@@ -22,8 +22,8 @@ namespace AdminStore.Repositories.Workflow
                 Description = "This is my workflow.",
                 States = new List<IeState>(),
                 ArtifactTypes = new List<IeArtifactType>(),
-                TransitionEvents = new List<IeEvent>(),
-                PropertyChangeEvents = new List<IeEvent>(),
+                TransitionEvents = new List<IeTransitionEvent>(),
+                PropertyChangeEvents = new List<IePropertyChangeEvent>(),
                 Projects = new List<IeProject>()
             };
 
@@ -308,6 +308,13 @@ namespace AdminStore.Repositories.Workflow
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
             _workflow.States[0].IsInitial = false;
+            _workflow.TransitionEvents.Add(new IeTransitionEvent
+            {
+                Name = "From Active to New",
+                Description = "Description of From Active to New",
+                FromState = "Active",
+                ToState = "New"
+            });
 
             // Act
             var result = workflowValidator.Validate(_workflow);

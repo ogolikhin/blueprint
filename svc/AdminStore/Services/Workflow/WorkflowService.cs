@@ -287,7 +287,28 @@ namespace AdminStore.Services.Workflow
             await _workflowRepository.CreateWorkflowTriggersAsync(importTriggersParams, publishRevision, transaction);
         }
 
-        private async Task VerifyUserRole(int userId)
+        public async Task<IeWorkflow> GetWorkflowExportAsync(int workflowId, int userId)
+        {
+            var workflowDetails = await _workflowRepository.GetWorkflowDetailsAsync(workflowId);
+            if (workflowDetails == null)
+            {
+                throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
+            }
+            var workflowProjectsAndArtifactTypes = (await _workflowRepository.GetWorkflowArtifactTypesAndProjectsAsync(workflowId)).ToList();
+            var workflowStates = (await _workflowRepository.GetWorkflowStatesByWorkflowIdAsync(workflowId, userId)).ToList();
+            IeWorkflow ieWorkflow = new IeWorkflow
+            {
+                Name = workflowDetails.Name,
+                Description     = workflowDetails.Description,
+                Projects        = workflowProjectsAndArtifactTypes.Select(e => new IeProject { Id = e.ProjectId, Path = e.ProjectName }).Distinct().ToList(),
+                ArtifactTypes   = workflowProjectsAndArtifactTypes.Select(e => new IeArtifactType { Name = e.ArtifactName }).Distinct().ToList(),
+                States          = workflowStates.Select(e => new IeState { IsInitial = e.Default, Description = e.Description, Name = e.Name }).Distinct().ToList()
+                //Triggers = new List<IeTrigger>()//when will be stored procedure
+            };
+            return ieWorkflow;
+        }
+
+    private async Task VerifyUserRole(int userId)
         {
             var user = await _userRepository.GetLoginUserByIdAsync(userId);
             // At least for now, all instance administrators can import workflows.

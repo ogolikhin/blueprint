@@ -89,7 +89,6 @@ namespace AdminStore.Controllers
             // The first parameter does not matter, can be workflow, file etc.
             // Required for messages.
             var fileName = Request.Content.Headers?.ContentDisposition?.FileName;
-
             using (var stream = await Request.Content.ReadAsStreamAsync())
             {
                 IeWorkflow workflow;
@@ -277,58 +276,12 @@ namespace AdminStore.Controllers
         public async Task<ResponseMessageResult> ExportWorkflow(int workflowId)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
-            var workflowDto = await _workflowService.GetWorkflowDetailsAsync(workflowId);
-            //var states = await _workflowService.GetWorkflowStatsAsync(workflowId, Session.UserId);//when will be stored procedure
-            
-            using (var stream = new MemoryStream())
-            {
-                XmlWriterSettings settings = new XmlWriterSettings();
-                settings.Indent = true;
-                settings.Encoding = Encoding.UTF8;
-                using (XmlWriter writer = XmlWriter.Create(stream, settings))
-                {
-                    writer.WriteStartDocument();
-                    writer.WriteStartElement("Workflow");
-                    writer.WriteElementString("Name", workflowDto.Name);
-                    writer.WriteElementString("Description", workflowDto.Description);
+            var ieWorkflow = await _workflowService.GetWorkflowExportAsync(workflowId, Session.UserId);
 
-                    writer.WriteStartElement("Projects");
-                    foreach (WorkflowProjectDto item in workflowDto.Projects)
-                    {
-                        writer.WriteStartElement("Project");
-                        writer.WriteAttributeString("Id", item.Id.ToString());
-                        writer.WriteElementString("Name", item.Name);
-                        writer.WriteEndElement();
-                    }
-                    writer.WriteEndElement();
-                    writer.WriteStartElement("ArtifactTypes");
-                    foreach (WorkflowArtifactTypeDto item in workflowDto.ArtifactTypes)
-                    {
-                        writer.WriteStartElement("ArtifactType");
-                        //writer.WriteAttributeString("Id", item..ToString());//there is node Id in model xml 
-                        writer.WriteElementString("Name", item.Name);
-                        writer.WriteEndElement();
-                    }
-                    //writer.WriteEndElement();
-                    //writer.WriteStartElement("States");
-                    //foreach (var item in states)
-                    //{
-                    //    writer.WriteStartElement("State");
-                    //    writer.WriteAttributeString("Id", item.WorkflowStateId.ToString());
-                    //    writer.WriteAttributeString("IsDefault", item.Default.ToString());
-                    //    writer.WriteElementString("Name", item.Name);
-                    //    writer.WriteElementString("Description", item.Description);
-                    //    writer.WriteEndElement();
-                    //}
-                    writer.WriteEndElement();
-                    writer.WriteEndDocument();
-                    writer.Flush();
-                    writer.Close();
-                }
-                
+            var toXml = SerializationHelper.ToXml(ieWorkflow);
                 var result = new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new ByteArrayContent(stream.GetBuffer())
+                {                    
+                    Content = new StringContent(toXml, Encoding.UTF8)
                 };
                 result.Content.Headers.ContentDisposition =
                     new ContentDispositionHeaderValue("attachment")
@@ -336,35 +289,12 @@ namespace AdminStore.Controllers
                         FileName = $"workflow{workflowId}.xml"
                     };
                 result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-
                 var response = ResponseMessage(result);
 
                 return response;
         }
-    }
 
         #region Private methods
-
-        //public static byte[] ReadWholeArray(Stream stream)
-        //{
-        //    //Source
-        //    //http://www.yoda.arachsys.com/csharp/readbinary.html
-        //    //Jon Skeet
-        //    byte[] data = new byte[stream.Length];
-
-        //    int offset = 0;
-        //    int remaining = data.Length;
-        //    while (remaining > 0)
-        //    {
-        //        int read = stream.Read(data, offset, remaining);
-        //        if (read <= 0)
-        //            throw new EndOfStreamException();
-        //                //(String.Format("End of stream reached with {0} bytes left to read", remaining));
-        //        remaining -= read;
-        //        offset += read;
-        //    }
-        //    return data;
-        //}
 
         private IFileRepository GetFileRepository()
         {

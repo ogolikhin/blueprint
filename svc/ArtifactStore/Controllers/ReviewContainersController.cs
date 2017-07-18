@@ -300,7 +300,7 @@ namespace ArtifactStore.Controllers
         }
 
         /// <summary>
-        /// Gets review artifacts in a hierachy list for given review, offset and limit, also returns total count.
+        /// Get participant's review statistics for the given review and participant.
         /// </summary>
         /// <param name="reviewId">Review artifact Id</param>
         /// <param name="participantId">Participant Id</param>
@@ -309,7 +309,7 @@ namespace ArtifactStore.Controllers
         /// <response code="200">OK.</response>
         /// <response code="400">Bad Request.</response>
         /// <response code="401">Unauthorized. The session token is invalid.</response>
-        /// <response code="403">Forbidden. The user does not have permissions new the review</response>
+        /// <response code="403">Forbidden.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("containers/{reviewId:int:min(1)}/participants/{participantId:int:min(1)}/artifactstats"), SessionRequired]

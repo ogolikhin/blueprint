@@ -391,7 +391,7 @@ namespace AdminStore.Repositories.Workflow
         {
             var table = new DataTable { Locale = CultureInfo.InvariantCulture };
             table.SetTypeName("WorkflowTriggersCollection");
-            table.Columns.Add("TriggerId", typeof(int));
+            table.Columns.Add("WorkflowEventId", typeof(int));
             table.Columns.Add("Name", typeof(string));
             table.Columns.Add("Description", typeof(string));
             table.Columns.Add("WorkflowId", typeof(int));

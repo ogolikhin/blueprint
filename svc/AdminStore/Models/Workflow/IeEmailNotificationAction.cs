@@ -16,8 +16,9 @@ namespace AdminStore.Models.Workflow
         [XmlArray("Emails"), XmlArrayItem("Email")]
         public List<string> Emails { get; set; }
 
+        // Contains emails, users/groups
         [XmlElement(IsNullable = false)]
-        public string PropertyName;
+        public string PropertyName { get; set; }
 
         [XmlElement(IsNullable = false)]
         public string Message { get; set; }

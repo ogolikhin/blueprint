@@ -137,5 +137,23 @@ namespace AdminStore.Services
             // Exception
         }
         #endregion
+
+        #region GetWorkflowExportAsync
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task GetWorkflowExportAsync_WorkflowNotExistsInDb_NotFoundResult()
+        {
+            // Arrange
+            var workflowId = 10;
+            _workflowRepositoryMock
+                .Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync((SqlWorkflow)null);
+            // Act
+            await _service.GetWorkflowExportAsync(workflowId, SessionUserId);
+            // Assert
+            // Exception
+        }
+
+        #endregion
     }
 }

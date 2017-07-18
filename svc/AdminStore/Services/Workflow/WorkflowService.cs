@@ -298,12 +298,13 @@ namespace AdminStore.Services.Workflow
             //var workflowStates = (await _workflowRepository.GetWorkflowStatesByWorkflowIdAsync(workflowId, userId)).ToList();
             IeWorkflow ieWorkflow = new IeWorkflow
             {
-                Name = workflowDetails.Name,
+                Name            = workflowDetails.Name,
                 Description     = workflowDetails.Description,
                 Projects        = workflowProjectsAndArtifactTypes.Select(e => new IeProject { Id = e.ProjectId, Path = e.ProjectName }).Distinct().ToList(),
                 ArtifactTypes   = workflowProjectsAndArtifactTypes.Select(e => new IeArtifactType { Name = e.ArtifactName }).Distinct().ToList(),
                 //States          = workflowStates.Select(e => new IeState { IsInitial = e.Default, Description = e.Description, Name = e.Name }).Distinct().ToList()
-                //Triggers = new List<IeTrigger>()//when will be stored procedure
+                States          = new List<IeState>(),
+                Triggers        = new List<IeTrigger>()//when will be stored procedure
             };
             return ieWorkflow;
         }

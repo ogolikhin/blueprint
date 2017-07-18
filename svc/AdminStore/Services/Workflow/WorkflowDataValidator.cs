@@ -29,6 +29,7 @@ namespace AdminStore.Services.Workflow
 
             var result = new WorkflowDataValidationResult();
             await ValidateProjectsData(result, workflow);
+            await ValidateArtifactTypesData(result, workflow);
             await ValidateGroupsData(result, workflow);
             await ValidateTriggersData(result, workflow);
             await ValidateActionsData(result, workflow);
@@ -82,6 +83,62 @@ namespace AdminStore.Services.Workflow
             }
             
             result.ValidProjectIds.AddRange(projectPaths.Select(p => p.Key).ToHashSet());
+
+            return result;
+        }
+
+        private async Task<WorkflowDataValidationResult> ValidateArtifactTypesData(WorkflowDataValidationResult result, IeWorkflow workflow)
+        {
+            if (workflow.ArtifactTypes.Any() && result.ValidProjectIds.Any())
+            {
+                result.ValidArtifactTypeNames.Clear();
+                var artifactTypesInfos = (await _workflowRepository.GetExistingStandardArtifactTypesForWorkflows(
+                    workflow.ArtifactTypes.Select(at => at.Name),
+                    result.ValidProjectIds)).ToArray();
+                //check if all types are valid
+                if (artifactTypesInfos.Length != workflow.ArtifactTypes.Count*result.ValidProjectIds.Count)
+                {
+                    //get all artifact types and project pairs that are missing
+                    var crossJoin = from at in workflow.ArtifactTypes
+                        from pid in result.ValidProjectIds
+                        select new {artifactTypeName = at.Name, projectId = pid};
+                    foreach (var missingArtifactTypeInfo in crossJoin.Where(el => artifactTypesInfos.Any(ati =>
+                        ati.Name == el.artifactTypeName &&
+                        ati.VersionProjectId == el.projectId)))
+                    {
+                        result.Errors.Add(new WorkflowDataValidationError
+                        {
+                            //Element = new Tuple<string, int>(missingArtifactTypeInfo.Name, missingArtifactTypeInfo.VersionProjectId),
+                            ErrorCode = WorkflowDataValidationErrorCodes.ArtifactTypeNotFoundInProject
+                        });
+                    }
+                }
+
+                foreach (var artifactTypesInfo in artifactTypesInfos){
+                    //check if any types are associated with a workflow already
+                    if (artifactTypesInfo.WorkflowId.HasValue)
+                    {
+                        result.Errors.Add(new WorkflowDataValidationError
+                        {
+                            //Element = workflow.ArtifactTypes.FirstOrDefault(at => at.Name == artifactTypesInfo.Name),
+                            ErrorCode = WorkflowDataValidationErrorCodes.ArtifactTypeAlreadyAssociatedWithWorkflow
+                        });
+                    }
+
+                    //check if any types are not used in the provided projects
+                    if (!artifactTypesInfo.UsedInThisProject)
+                    {
+                        result.Errors.Add(new WorkflowDataValidationError
+                        {
+                            //Element = new Tuple<string, int>(artifactTypesInfo.Name, artifactTypesInfo.VersionProjectId),
+                            ErrorCode = WorkflowDataValidationErrorCodes.ArtifactTypeNotUsedInProject
+                        });
+                    }
+
+                }
+            }
+
+            result.ValidArtifactTypeNames.AddRange(workflow.ArtifactTypes.Select(at => at.Name));
 
             return result;
         }

@@ -27,6 +27,8 @@ namespace AdminStore.Repositories.Workflow
 
         Task<IEnumerable<SqlProjectPathPair>> GetProjectIdsByProjectPaths(IEnumerable<string> projectPaths);
 
+        Task<IEnumerable<SqlArtifactTypesWorkflowDetails>> GetExistingStandardArtifactTypesForWorkflows(IEnumerable<string> artifactTypes, IEnumerable<int> projectIds);
+
         Task<int> CreateRevisionInTransactionAsync(IDbTransaction transaction, int userId, string description);
 
         Task<IEnumerable<string>> CheckLiveWorkflowsForNameUniqueness(IDbTransaction transaction,

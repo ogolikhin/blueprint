@@ -146,7 +146,7 @@ namespace AdminStore.Services.Workflow
 
                 if (newWorkflow != null)
                 {
-                    await ImportWorkflowComponentsAsync(workflow, newWorkflow, publishRevision, transaction, dataValidationResult.ValidProjectIds, dataValidationResult.ValidGroups);
+                    await ImportWorkflowComponentsAsync(workflow, newWorkflow, publishRevision, transaction, dataValidationResult);
 
                     importResult.ResultCode = ImportWorkflowResultCodes.Ok;
                 }
@@ -224,7 +224,7 @@ namespace AdminStore.Services.Workflow
             return totalDeleted;
         }
 
-        private async Task ImportWorkflowComponentsAsync(IeWorkflow workflow, SqlWorkflow newWorkflow, int publishRevision, IDbTransaction transaction, HashSet<int> validProjectIds, HashSet<SqlGroup> validGroups)
+        private async Task ImportWorkflowComponentsAsync(IeWorkflow workflow, SqlWorkflow newWorkflow, int publishRevision, IDbTransaction transaction, WorkflowDataValidationResult dataValidationResult)
         {
             var importStateParams = new List<SqlState>();
 
@@ -246,13 +246,13 @@ namespace AdminStore.Services.Workflow
 
             if (newStates != null)
             {
-                await ImportWorkflowTransitions(workflow, newWorkflow, publishRevision, transaction, newStates, validGroups);
+                await ImportWorkflowTransitions(workflow, newWorkflow, publishRevision, transaction, newStates, dataValidationResult.ValidGroups);
             }
 
             if (workflow.ArtifactTypes.Any() && workflow.Projects.Any())
             {
-                await _workflowRepository.CreateWorkflowArtifactAssociationsAsync(workflow.ArtifactTypes.Select(at => at.Name),
-                        validProjectIds, newWorkflow.WorkflowId, publishRevision, transaction);
+                await _workflowRepository.CreateWorkflowArtifactAssociationsAsync(dataValidationResult.ValidArtifactTypeNames,
+                        dataValidationResult.ValidProjectIds, newWorkflow.WorkflowId, publishRevision, transaction);
             }
         }
 

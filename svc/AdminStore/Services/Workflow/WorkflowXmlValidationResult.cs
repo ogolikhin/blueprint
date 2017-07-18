@@ -31,7 +31,7 @@ namespace AdminStore.Services.Workflow
         StateDescriptionExceedsLimit4000,
         StateNameNotUnique,
         NoInitialState,
-        InitialStaeDoesNotHaveOutgoingTransition,
+        InitialStateDoesNotHaveOutgoingTransition,
         MultipleInitialStates,
         StateDoesNotHaveAnyTransitions,
         NotInitialStateDoesNotHaveIncomingTransitions,

@@ -101,8 +101,7 @@ namespace AdminStore.Services.Workflow
 
                     if (workflow.TransitionEvents.All(t => t.FromState != state.Name))
                     {
-                        // TODO: Add a unit test
-                        result.Errors.Add(new WorkflowXmlValidationError { Element = state, ErrorCode = WorkflowXmlValidationErrorCodes.InitialStaeDoesNotHaveOutgoingTransition });
+                        result.Errors.Add(new WorkflowXmlValidationError { Element = state, ErrorCode = WorkflowXmlValidationErrorCodes.InitialStateDoesNotHaveOutgoingTransition });
                     }
                 }
             }
@@ -258,7 +257,6 @@ namespace AdminStore.Services.Workflow
                 }
                 else if (!initialStates.Contains(stateName) && !statesWithIncomingTransitions.Contains(stateName))
                 {
-                    // TODO: Add a unit test
                     result.Errors.Add(new WorkflowXmlValidationError { Element = stateName, ErrorCode = WorkflowXmlValidationErrorCodes.NotInitialStateDoesNotHaveIncomingTransitions });
                 }
 

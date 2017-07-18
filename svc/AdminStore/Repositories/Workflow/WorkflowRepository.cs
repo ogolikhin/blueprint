@@ -206,6 +206,28 @@ namespace AdminStore.Repositories.Workflow
                 commandType: CommandType.StoredProcedure);
         }
 
+        public async Task<IEnumerable<SqlArtifactTypesWorkflowDetails>> GetExistingStandardArtifactTypesForWorkflows(IEnumerable<string> artifactTypes, IEnumerable<int> projectIds)
+        {
+            var dArtifactTypes = artifactTypes.ToList();
+            if (!dArtifactTypes.Any())
+            {
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is empty.", nameof(dArtifactTypes)));
+            }
+
+            var dProjectIds = projectIds.ToList();
+            if (!dProjectIds.Any())
+            {
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is empty.", nameof(dProjectIds)));
+            }
+
+            var prm = new DynamicParameters();
+            prm.Add("@artifactTypes", SqlConnectionWrapper.ToStringDataTable(dArtifactTypes));
+            prm.Add("@projectIds", SqlConnectionWrapper.ToDataTable(dProjectIds));
+
+            return await _connectionWrapper.QueryAsync<SqlArtifactTypesWorkflowDetails>("GetExistingStandardArtifactTypesForWorkflows", prm,
+                commandType: CommandType.StoredProcedure);
+        }
+
         public Task<int> CreateRevisionInTransactionAsync(IDbTransaction transaction, int userId, string description)
         {
             return _sqlHelper.CreateRevisionInTransactionAsync(transaction, userId, description);

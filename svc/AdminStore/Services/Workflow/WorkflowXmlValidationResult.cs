@@ -31,8 +31,10 @@ namespace AdminStore.Services.Workflow
         StateDescriptionExceedsLimit4000,
         StateNameNotUnique,
         NoInitialState,
+        InitialStaeDoesNotHaveOutgoingTransition,
         MultipleInitialStates,
         StateDoesNotHaveAnyTransitions,
+        NotInitialStateDoesNotHaveIncomingTransitions,
         TransitionEventNameEmpty,
         TransitionEventNameExceedsLimit24,
         TransitionEventDescriptionExceedsLimit4000,
@@ -49,6 +51,8 @@ namespace AdminStore.Services.Workflow
         PropertyChangEventPropertyNotSpecified,
         ProjectNoSpecified,
         ProjectInvalidId,
-        ArtifactTypeNoSpecified
+        ArtifactTypeNoSpecified,
+        ProjectsProvidedWithoutArifactTypes,
+        ArtifactTypesProvidedWithoutProjects
     }
 }

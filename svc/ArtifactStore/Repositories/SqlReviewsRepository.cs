@@ -1153,20 +1153,7 @@ namespace ArtifactStore.Repositories
             return new QueryResult<ParticipantArtifactStats>()
             {
                 Total = reviewedArtifactResult.Total,
-                Items = reviewedArtifactResult.Items.Select(MapArtifactStats)
-            };
-        }
-
-        private ParticipantArtifactStats MapArtifactStats(ReviewedArtifact reviewedArtifact)
-        {
-            return new ParticipantArtifactStats()
-            {
-                ArtifactId = reviewedArtifact.Prefix + reviewedArtifact.Id,
-                ArtifactName = reviewedArtifact.Name,
-                ArtifactRequiresApproval = reviewedArtifact.IsApprovalRequired,
-                ApprovalStatus = GetApprovalStatus(reviewedArtifact, reviewedArtifact.IsApprovalRequired),
-                Viewed = reviewedArtifact.ViewedArtifactVersion == reviewedArtifact.ArtifactVersion,
-                HasAccess = reviewedArtifact.HasAccess
+                Items = reviewedArtifactResult.Items.Select(ra => (ParticipantArtifactStats) ra)
             };
         }
 

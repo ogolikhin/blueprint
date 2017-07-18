@@ -96,27 +96,27 @@ namespace ArtifactStore.Repositories.Workflow
              {
                  new SqlWorkflowTransition
                  {
-                    TriggerId = 1,
+                    WorkflowEventId = 1,
                     ToStateId = 2,
                     ToStateName = "A",
                     FromStateId = 1,
-                    TriggerName = "TA"
+                    WorkflowEventName = "TA"
                  },
                  new SqlWorkflowTransition
                  {
-                    TriggerId = 2,
+                    WorkflowEventId = 2,
                     ToStateId = 3,
                     ToStateName = "B",
                     FromStateId = 1,
-                    TriggerName = "TB"
+                    WorkflowEventName = "TB"
                  },
                  new SqlWorkflowTransition
                  {
-                    TriggerId = 3,
+                    WorkflowEventId = 3,
                     ToStateId = 4,
                     ToStateName = "C",
                     FromStateId = 1,
-                    TriggerName = "TC"
+                    WorkflowEventName = "TC"
                  }
              });
             // Act
@@ -199,12 +199,12 @@ namespace ArtifactStore.Repositories.Workflow
             
             var expected = new SqlWorkflowTransition
             {
-                TriggerId = 1,
+                WorkflowEventId = 1,
                 ToStateId = toStateId,
                 ToStateName = "New",
                 FromStateId = fromStateId,
                 FromStateName = "Ready",
-                TriggerName = "New To Redy",
+                WorkflowEventName = "New To Redy",
                 WorkflowId = workflowId
             };
 

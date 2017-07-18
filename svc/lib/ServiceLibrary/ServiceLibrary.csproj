@@ -184,7 +184,7 @@
     <Compile Include="Models\Item.cs" />
     <Compile Include="Models\ItemDetails.cs" />
     <Compile Include="Models\ItemInfo.cs" />
-    <Compile Include="Models\ITrigger.cs" />
+    <Compile Include="Models\IWorkflowEvent.cs" />
     <Compile Include="Models\Jobs\AddJobResult.cs" />
     <Compile Include="Models\Jobs\DJobMessage.cs" />
     <Compile Include="Models\Jobs\JobInfo.cs" />

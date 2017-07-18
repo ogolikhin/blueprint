@@ -2,7 +2,7 @@
 
 namespace ServiceLibrary.Models.Workflow
 {
-    public class WorkflowTransition : ITrigger
+    public class WorkflowTransition : IWorkflowEvent
     {
         public int WorkflowId { get; set; }
 
@@ -23,8 +23,8 @@ namespace ServiceLibrary.Models.Workflow
     public class SqlWorkflowTransition
     {
         public int WorkflowId { get; set; }
-        public int TriggerId { get; set; }
-        public string TriggerName { get; set; }
+        public int WorkflowEventId { get; set; }
+        public string WorkflowEventName { get; set; }
         public int FromStateId { get; set; }
         public string FromStateName { get; set; }
         public int ToStateId { get; set; }

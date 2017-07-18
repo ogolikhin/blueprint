@@ -21,8 +21,9 @@ namespace AdminStore.Models.Workflow
         public GenerateActionTypes GenerateActionType { get; set; }
 
         // Used only for GenerateActionType = Children
-        [XmlElement(IsNullable = false)]
-        public int ChildCount { get; set; }
+        [XmlElement]
+        public int? ChildCount { get; set; }
+        public bool ShouldSerializeChildCount() { return ChildCount.HasValue; }
 
         // Used only for GenerateActionType = Children
         [XmlElement(IsNullable = false)]

@@ -12,7 +12,7 @@ namespace AdminStore.Models.Workflow
     [XmlType("Event")]
     public abstract class IeEvent
     {
-        // Defines the type of Trigger
+        // Defines the type of Event
         [XmlIgnore]
         public abstract EventType EventType { get; }
 

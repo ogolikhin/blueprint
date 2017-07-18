@@ -9,7 +9,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace AdminStore.Repositories.Workflow
 {
     [TestClass]
-    public class WorkflowValidatorTests
+    public class WorkflowXmlValidatorTests
     {
         private IeWorkflow _workflow;
 
@@ -172,6 +172,13 @@ namespace AdminStore.Repositories.Workflow
             //============= Temp ========================================
             //var xml = SerializationHelper.ToXml(_workflow);
             //var objModel = SerializationHelper.FromXml<IeWorkflow>(xml);
+
+            //var xmlTriggers = new XmlWorkflowEventTriggers();
+            //xmlTriggers.Triggers.Add(new XmlWorkflowEventTrigger());
+            //xmlTriggers.Triggers.Add(new XmlWorkflowEventTrigger());
+
+            //var xml = SerializationHelper.ToXml(xmlTriggers);
+            //var objModel = SerializationHelper.FromXml<XmlWorkflowEventTriggers>(xml);
             //===========================================================
         }
 
@@ -453,7 +460,7 @@ namespace AdminStore.Repositories.Workflow
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
             _workflow.States[0].Name = new string('a', 24);
-            ((IeTransitionEvent) _workflow.TransitionEvents[0]).FromState = _workflow.States[0].Name;
+            _workflow.TransitionEvents[0].FromState = _workflow.States[0].Name;
 
             // Act
             var result = workflowValidator.Validate(_workflow);
@@ -469,7 +476,7 @@ namespace AdminStore.Repositories.Workflow
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
             _workflow.States[0].Name = new string('a', 25);
-            ((IeTransitionEvent)_workflow.TransitionEvents[0]).FromState = _workflow.States[0].Name;
+            _workflow.TransitionEvents[0].FromState = _workflow.States[0].Name;
 
             // Act
             var result = workflowValidator.Validate(_workflow);
@@ -1016,6 +1023,64 @@ namespace AdminStore.Repositories.Workflow
             Assert.AreSame(_workflow.Projects[0], error2.Element);
             var error3 = result.Errors.First(e => e.ErrorCode == WorkflowXmlValidationErrorCodes.ArtifactTypeNoSpecified);
             Assert.AreSame(_workflow.ArtifactTypes[0], error3.Element);
+        }
+
+        [TestMethod]
+        public void Validate_InitialStaeDoesNotHaveOutgoingTransition_ReturnsInitialStateDoesNotHaveOutgoingTransitionError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.TransitionEvents.RemoveAll(e => e.FromState == "New" && e.ToState == "Active");
+            _workflow.TransitionEvents.Add(new IeTransitionEvent
+            {
+                Name = "From Active to New",
+                FromState = "Active",
+                ToState = "New",
+            });
+            _workflow.TransitionEvents.Add(new IeTransitionEvent
+            {
+                Name = "From Closed to Active",
+                FromState = "Closed",
+                ToState = "Active",
+            });
+            _workflow.Projects.Clear();
+            _workflow.ArtifactTypes.Clear();
+
+            // Act
+            var result = workflowValidator.Validate(_workflow);
+            
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.InitialStateDoesNotHaveOutgoingTransition, result.Errors[0].ErrorCode);
+            Assert.AreSame(_workflow.States[0], result.Errors[0].Element);
+        }
+
+        [TestMethod]
+        public void Validate_NotInitialStateDoesNotHaveIncomingTransitions_ReturnsNotInitialStateDoesNotHaveIncomingTransitionsError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.TransitionEvents.RemoveAll(e => e.FromState == "Active" && e.ToState == "Closed");
+            _workflow.TransitionEvents.Add(new IeTransitionEvent
+            {
+                Name = "From Closed to Active",
+                FromState = "Closed",
+                ToState = "Active",
+            });
+            _workflow.Projects.Clear();
+            _workflow.ArtifactTypes.Clear();
+
+            // Act
+            var result = workflowValidator.Validate(_workflow);
+
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.NotInitialStateDoesNotHaveIncomingTransitions, result.Errors[0].ErrorCode);
+            Assert.AreSame(_workflow.States.Last().Name, result.Errors[0].Element);
         }
 
         #region Private methods

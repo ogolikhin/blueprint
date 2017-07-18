@@ -189,7 +189,13 @@
     <Compile Include="Models\Workflow\SqlWorkflowArtifactTypesAndProjects.cs" />
     <Compile Include="Models\Workflow\WorkflowDto.cs" />
     <Compile Include="Models\Workflow\WorkflowProjectDto.cs" />
+    <Compile Include="Models\Workflow\XmlAction.cs" />
+    <Compile Include="Models\Workflow\XmlEmailNotificationAction.cs" />
+    <Compile Include="Models\Workflow\XmlGenerateAction.cs" />
+    <Compile Include="Models\Workflow\XmlPropertyChangeAction.cs" />
     <Compile Include="Models\Workflow\XmlTriggerPermissions.cs" />
+    <Compile Include="Models\Workflow\XmlWorkflowEventTrigger.cs" />
+    <Compile Include="Models\Workflow\XmlWorkflowEventTriggers.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\AuthenticationRepository.cs" />
     <Compile Include="Repositories\IAuthenticationRepository.cs" />

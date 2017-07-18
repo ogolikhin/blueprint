@@ -7,6 +7,8 @@ using ActionHandlerService.MessageHandlers.GenerateDescendants;
 using ActionHandlerService.MessageHandlers.GenerateTests;
 using ActionHandlerService.MessageHandlers.GenerateUserStories;
 using ActionHandlerService.MessageHandlers.Notifications;
+using ActionHandlerService.MessageHandlers.PropertyChange;
+using ActionHandlerService.MessageHandlers.StateTransition;
 using BluePrintSys.Messaging.CrossCutting.Logging;
 using BluePrintSys.Messaging.Models.Actions;
 using NServiceBus;
@@ -95,13 +97,8 @@ namespace ActionHandlerService
                 }
                 if ((supportedMessageTypes & value) != value)
                 {
-                    
+                    assemblyScanner.ExcludeTypes(NServiceBusServerHelper.MessageActionToHandlerMapping[value]);
                 }
-            }
-            if ((ConfigHelper.SupportedActionTypes & MessageActionType.ArtifactsPublished) !=
-                MessageActionType.ArtifactsPublished)
-            {
-                assemblyScanner.ExcludeTypes(typeof (ArtifactsPublishedMessageHandler));
             }
         }
 
@@ -135,8 +132,8 @@ namespace ActionHandlerService
             {MessageActionType.GenerateTests, typeof (GenerateTestsMessageHandler)},
             {MessageActionType.GenerateUserStories, typeof (GenerateUserStoriesMessageHandler)},
             {MessageActionType.Notification, typeof (NotificationMessageHandler)},
-            {MessageActionType.Property, typeof (proper)},
-            {MessageActionType.StateChange, typeof (ArtifactsPublishedMessageHandler)}
+            {MessageActionType.Property, typeof (PropertyChangeMessageHandler)},
+            {MessageActionType.StateChange, typeof (StateTransitionMessageHandler)}
         };
     }
 }

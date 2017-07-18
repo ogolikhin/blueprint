@@ -27,7 +27,7 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
             var message = (ArtifactsPublishedMessage)actionMessage;
             var repository = new ActionHandlerServiceRepository(tenantInformation.ConnectionString);
             var publishedArtifacts = message.Artifacts ?? new PublishedArtifactInformation[] { };
-            var publishedArtifactIds = publishedArtifacts.Select(a => a.ArtifactId).ToHashSet();
+            var publishedArtifactIds = publishedArtifacts.Select(a => a.Id).ToHashSet();
             
             //Get property transitions for published artifact ids.
             //TODO: check whether item type id can be relied upon or not for performance reasons

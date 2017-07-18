@@ -73,6 +73,7 @@
     <Compile Include="NotificationMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PublishedArtifactInformation.cs" />
+    <Compile Include="PublishedPropertyInformation.cs" />
     <Compile Include="StateChangeMessage.cs" />
   </ItemGroup>
   <ItemGroup>

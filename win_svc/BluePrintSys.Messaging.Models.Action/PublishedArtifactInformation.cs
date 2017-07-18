@@ -1,15 +1,19 @@
-﻿namespace BluePrintSys.Messaging.Models.Actions
+﻿using System.Collections.Generic;
+
+namespace BluePrintSys.Messaging.Models.Actions
 {
     public class PublishedArtifactInformation
     {
         public int ProjectId { get; set; }
 
-        public int ArtifactId { get; set; }
+        public int Id { get; set; }
 
-        public int ArtifactTypeId { get; set; }
+        public int Predefined { get; set; }
 
-        public int ArtifactTypePredefined { get; set; }
+        public string Url { get; set; }
 
-        public string ArtifactUrl { get; set; }
+        public bool IsFirstTimePublished { get; set; }
+
+        public List<PublishedPropertyInformation> ModifiedProperties { get; set; }
     }
 }

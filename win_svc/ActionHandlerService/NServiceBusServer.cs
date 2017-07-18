@@ -1,6 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using ActionHandlerService.Helpers;
+using ActionHandlerService.MessageHandlers.ArtifactPublished;
+using ActionHandlerService.MessageHandlers.GenerateDescendants;
+using ActionHandlerService.MessageHandlers.GenerateTests;
+using ActionHandlerService.MessageHandlers.GenerateUserStories;
+using ActionHandlerService.MessageHandlers.Notifications;
 using BluePrintSys.Messaging.CrossCutting.Logging;
 using BluePrintSys.Messaging.Models.Actions;
 using NServiceBus;
@@ -59,6 +65,7 @@ namespace ActionHandlerService
                 "NServiceBus.Persistence.Sql.dll",
                 "BluePrintSys.Messaging.CrossCutting.dll", 
                 "Dapper.StrongName.dll");
+            ExcludeMessageHandlers(assemblyScanner);
 
             endpointConfiguration.UsePersistence<InMemoryPersistence>();
             endpointConfiguration.UseSerialization<JsonSerializer>();
@@ -71,6 +78,31 @@ namespace ActionHandlerService
             loggerDefinition.Level(NServiceBus.Logging.LogLevel.Warn);
 
             _endpointInstance = await Endpoint.Start(endpointConfiguration);
+        }
+
+        private void ExcludeMessageHandlers(AssemblyScannerConfiguration assemblyScanner)
+        {
+            var supportedMessageTypes = ConfigHelper.SupportedActionTypes;
+            if (supportedMessageTypes == MessageActionType.All)
+            {
+                return;
+            }
+            foreach (MessageActionType value in Enum.GetValues(typeof(MessageActionType)))
+            {
+                if (value == MessageActionType.All)
+                {
+                    continue;
+                }
+                if ((supportedMessageTypes & value) != value)
+                {
+                    
+                }
+            }
+            if ((ConfigHelper.SupportedActionTypes & MessageActionType.ArtifactsPublished) !=
+                MessageActionType.ArtifactsPublished)
+            {
+                assemblyScanner.ExcludeTypes(typeof (ArtifactsPublishedMessageHandler));
+            }
         }
 
         public async void Send(string tenantId, ActionMessage message)
@@ -91,5 +123,20 @@ namespace ActionHandlerService
                 Log.Error("Exception While Sending Message", exception);
             }
         }
+    }
+
+    class NServiceBusServerHelper
+    {
+        internal static readonly Dictionary<MessageActionType, Type> MessageActionToHandlerMapping = new Dictionary
+            <MessageActionType, Type>()
+        {
+            {MessageActionType.ArtifactsPublished, typeof (ArtifactsPublishedMessageHandler)},
+            {MessageActionType.GenerateDescendants, typeof (GenerateDescendantsMessageHandler)},
+            {MessageActionType.GenerateTests, typeof (GenerateTestsMessageHandler)},
+            {MessageActionType.GenerateUserStories, typeof (GenerateUserStoriesMessageHandler)},
+            {MessageActionType.Notification, typeof (NotificationMessageHandler)},
+            {MessageActionType.Property, typeof (proper)},
+            {MessageActionType.StateChange, typeof (ArtifactsPublishedMessageHandler)}
+        };
     }
 }

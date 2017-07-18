@@ -30,7 +30,6 @@ namespace NServiceBusSpike
 
             Program.NotificationMessageScheduler.Request(new NotificationMessage
             {
-               TenantId = new Random(500).Next(50, 5000)
             });
 
             return task;

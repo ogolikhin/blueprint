@@ -43,16 +43,13 @@ namespace NServiceBusSpike
             {
                 await MessageScheduler.Send(new Actions.ArtifactsPublishedMessage
                 {
-                    TenantId = 1,
-                    PublishedArtifacts = new []
+                    RevisionId = Int32.MaxValue,
+                    Artifacts = new []
                     {
-                        new Actions.PublishedArtifact
+                        new Actions.PublishedArtifactInformation()
                         {
                             ArtifactId = 1,
-                            ArtifactTypeId = 2,
-                            PredefinedArtifactTypeId = 3,
-                            RevisionId = 4,
-                            UserId = 5
+                            ArtifactTypeId = 2
                         }
                     }
                 });

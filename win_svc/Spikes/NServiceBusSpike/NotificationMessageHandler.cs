@@ -27,7 +27,6 @@ namespace NServiceBusSpike
 
             Program.StateChangeMessageScheduler.Request(new StateChangeMessage
             {
-               TenantId = new Random(50).Next(1,100)
             });
 
             return task;

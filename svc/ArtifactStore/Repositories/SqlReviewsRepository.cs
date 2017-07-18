@@ -325,9 +325,9 @@ namespace ArtifactStore.Repositories
             return ReviewRawDataHelper.GetStoreData(rdReviewContents);
         }
 
-        public async Task<QueryResult<ReviewedArtifact>> GetReviewedArtifacts(int reviewId, int userId, Pagination pagination, int revisionId)
+        public Task<QueryResult<ReviewedArtifact>> GetReviewedArtifacts(int reviewId, int userId, Pagination pagination, int revisionId)
         {
-            return await GetParticipantReviewedArtifactsAsync(reviewId, userId, userId, pagination, revisionId);
+            return GetParticipantReviewedArtifactsAsync(reviewId, userId, userId, pagination, revisionId);
         }
 
         private async Task<QueryResult<ReviewedArtifact>> GetParticipantReviewedArtifactsAsync(int reviewId, int userId, int participantId, Pagination pagination, int revisionId = int.MaxValue, bool addDrafts = false)

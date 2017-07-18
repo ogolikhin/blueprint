@@ -1141,7 +1141,7 @@ namespace ArtifactStore.Repositories
         {
             var reviewInfo = await _artifactVersionsRepository.GetVersionControlArtifactInfoAsync(reviewId, null, userId);
 
-            if (reviewInfo.VersionCount == 0) //Never published review
+            if (reviewInfo.VersionCount == 0 || reviewInfo.IsDeleted) //Review never published or deleted
             {
                 ThrowReviewNotFoundException(reviewId);
             }

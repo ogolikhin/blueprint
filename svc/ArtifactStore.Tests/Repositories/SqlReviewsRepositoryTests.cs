@@ -2436,6 +2436,23 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task GetReviewParticipantArtifactStatsAsync_Should_Throw_Not_Found_When_Review_Is_Deleted()
+        {
+            //Arrange
+            var reviewId = 1;
+            var userId = 2;
+
+            _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(new VersionControlArtifactInfo()
+            {
+                IsDeleted = true
+            });
+
+            //Act
+            await _reviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, userId, userId, new Pagination());
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(AuthorizationException))]
         public async Task GetReviewParticipantArtifactStatsAsync_Should_Throw_Unauthorized_When_User_Does_Not_Have_Read_Permission_For_Review()
         {

@@ -332,8 +332,7 @@ namespace ArtifactStore.Repositories
 
         private async Task<QueryResult<ReviewedArtifact>> GetParticipantReviewedArtifactsAsync(int reviewId, int userId, int participantId, Pagination pagination, int revisionId = int.MaxValue, bool addDrafts = false)
         {
-            var reviewArtifacts =
-                await GetReviewArtifactsAsync<ReviewedArtifact>(reviewId, userId, pagination, revisionId, addDrafts);
+            var reviewArtifacts = await GetReviewArtifactsAsync<ReviewedArtifact>(reviewId, userId, pagination, revisionId, addDrafts);
 
             var reviewArtifactIds = reviewArtifacts.Items.Select(a => a.Id).ToList();
 
@@ -345,8 +344,8 @@ namespace ArtifactStore.Repositories
                 ThrowUserCannotAccessReviewException(reviewId);
             }
 
-            var reviewedArtifacts =
-                (await GetReviewArtifactsByParticipant(reviewArtifactIds, participantId, reviewId, revisionId)).ToDictionary(k => k.Id);
+            var reviewedArtifacts = (await GetReviewArtifactsByParticipant(reviewArtifactIds, participantId, reviewId, revisionId)).ToDictionary(k => k.Id);
+
             foreach (var artifact in reviewArtifacts.Items)
             {
                 if (SqlArtifactPermissionsRepository.HasPermissions(artifact.Id, artifactPermissionsDictionary,
@@ -1140,6 +1139,13 @@ namespace ArtifactStore.Repositories
 
         public async Task<QueryResult<ParticipantArtifactStats>> GetReviewParticipantArtifactStatsAsync(int reviewId, int participantId, int userId, Pagination pagination)
         {
+            var reviewInfo = await _artifactVersionsRepository.GetVersionControlArtifactInfoAsync(reviewId, null, userId);
+
+            if (reviewInfo.VersionCount == 0) //Never published review
+            {
+                ThrowReviewNotFoundException(reviewId);
+            }
+
             pagination.SetDefaultValues(0, 50);
 
             var reviewedArtifactResult = await GetParticipantReviewedArtifactsAsync(reviewId, userId, participantId, pagination, addDrafts: true);

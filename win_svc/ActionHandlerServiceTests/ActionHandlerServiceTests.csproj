@@ -121,6 +121,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\svc\lib\ServiceLibrary\ServiceLibrary.csproj">
+      <Project>{42662de2-4604-427c-91f9-5f47af8f1e1b}</Project>
+      <Name>ServiceLibrary</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ActionHandlerService\ActionHandlerService.csproj">
       <Project>{7BC07A52-F604-48CD-ABFD-CF84BFD3C824}</Project>
       <Name>ActionHandlerService</Name>

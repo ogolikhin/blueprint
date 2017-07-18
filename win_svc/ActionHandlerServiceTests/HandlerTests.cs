@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using ActionHandlerService.MessageHandlers;
 using ActionHandlerService.MessageHandlers.ArtifactPublished;
 using ActionHandlerService.MessageHandlers.GenerateDescendants;
@@ -22,7 +23,7 @@ namespace ActionHandlerServiceTests
     public class HandlerTests
     {
         private Mock<IActionHelper> _actionHelperMock;
-        private ISetup<IActionHelper, bool> _handleActionSetup;
+        private ISetup<IActionHelper, Task<bool>> _handleActionSetup;
         private const string TenantId = "tenant0";
 
         [TestInitialize]
@@ -44,7 +45,7 @@ namespace ActionHandlerServiceTests
         [TestMethod]
         public void NotificationMessageHandler_CompletesSuccessfully()
         {
-            _handleActionSetup.Returns(true);
+            _handleActionSetup.Returns(Task.FromResult(true));
             var handler = new NotificationMessageHandler(_actionHelperMock.Object);
             var message = new NotificationMessage();
             TestHandler(handler, message);
@@ -64,7 +65,7 @@ namespace ActionHandlerServiceTests
         [ExpectedException(typeof(MessageHeaderValueNotFoundException))]
         public void NotificationMessageHandler_ThrowsMessageHeaderValueNotFoundException_WhenHeaderValueIsNotFound()
         {
-            _handleActionSetup.Returns(true);
+            _handleActionSetup.Returns(Task.FromResult(true));
             var handler = new NotificationMessageHandler(_actionHelperMock.Object);
             var message = new NotificationMessage();
             Test.Handler(handler).OnMessage(message);
@@ -73,7 +74,7 @@ namespace ActionHandlerServiceTests
         [TestMethod]
         public void GenerateDescendantsMessageHandler_CompletesSuccessfully()
         {
-            _handleActionSetup.Returns(true);
+            _handleActionSetup.Returns(Task.FromResult(true));
             var handler = new GenerateDescendantsMessageHandler(_actionHelperMock.Object);
             var message = new GenerateDescendantsMessage();
             TestHandler(handler, message);
@@ -92,7 +93,7 @@ namespace ActionHandlerServiceTests
         [TestMethod]
         public void GenerateTestsMessageHandler_CompletesSuccessfully()
         {
-            _handleActionSetup.Returns(true);
+            _handleActionSetup.Returns(Task.FromResult(true));
             var handler = new GenerateTestsMessageHandler(_actionHelperMock.Object);
             var message = new GenerateTestsMessage();
             TestHandler(handler, message);
@@ -111,7 +112,7 @@ namespace ActionHandlerServiceTests
         [TestMethod]
         public void GenerateUserStoriesMessageHandler_CompletesSuccessfully()
         {
-            _handleActionSetup.Returns(true);
+            _handleActionSetup.Returns(Task.FromResult(true));
             var handler = new GenerateUserStoriesMessageHandler(_actionHelperMock.Object);
             var message = new GenerateUserStoriesMessage();
             TestHandler(handler, message);
@@ -140,7 +141,7 @@ namespace ActionHandlerServiceTests
         [TestMethod]
         public void ArtifactsPublishedMessageHandler_CompletesSuccessfully()
         {
-            _handleActionSetup.Returns(true);
+            _handleActionSetup.Returns(Task.FromResult(true));
             var handler = new ArtifactsPublishedMessageHandler(_actionHelperMock.Object);
             var message = new ArtifactsPublishedMessage();
             TestHandler(handler, message);

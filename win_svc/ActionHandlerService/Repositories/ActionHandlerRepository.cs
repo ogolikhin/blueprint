@@ -1,50 +1,57 @@
 ﻿using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 using ActionHandlerService.Models;
 using Dapper;
+using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
 
 namespace ActionHandlerService.Repositories
 {
     public interface IActionHandlerServiceRepository
     {
-        IList<SqlModifiedProperty> GetPropertyModificationsForRevisionId(int revisionId);
-        IList<SqlWorkFlowState> GetWorkflowStatesForArtifacts(int userId, IEnumerable<int> artifactIds, int revisionId, bool addDrafts = true);
-        IList<SqlArtifactTriggers> GetWorkflowTriggersForArtifacts(int userId, int revisionId, int eventType, IEnumerable<int> itemIds);
+        Task<IList<SqlModifiedProperty>> GetPropertyModificationsForRevisionIdAsync(int revisionId);
+        Task<IList<SqlWorkFlowStateInformation>> GetWorkflowStatesForArtifactsAsync(int userId, IEnumerable<int> artifactIds, int revisionId, bool addDrafts = true);
+        Task<IList<SqlArtifactTriggers>> GetWorkflowPropertyTransitionsForArtifactsAsync(int userId, int revisionId, int eventType, IEnumerable<int> itemIds);
     }
 
-    public class ActionHandlerServiceRepository : IActionHandlerServiceRepository
+    public class ActionHandlerServiceRepository : SqlBaseArtifactRepository, IActionHandlerServiceRepository
     {
-        private readonly ISqlConnectionWrapper _connectionWrapper;
-
-        public ActionHandlerServiceRepository(string connectionString) : this(new SqlConnectionWrapper(connectionString))
+        public ActionHandlerServiceRepository(string connectionString)
+            : this(new SqlConnectionWrapper(connectionString))
         {
         }
 
         public ActionHandlerServiceRepository(ISqlConnectionWrapper connectionWrapper)
+            : this(connectionWrapper, new SqlArtifactPermissionsRepository(connectionWrapper))
         {
-            _connectionWrapper = connectionWrapper;
         }
 
-        public IList<SqlArtifactTriggers> GetWorkflowTriggersForArtifacts(int userId, int revisionId, int eventType, IEnumerable<int> itemIds)
+        public ActionHandlerServiceRepository(ISqlConnectionWrapper connectionWrapper,
+            IArtifactPermissionsRepository artifactPermissionsRepository) 
+            : base(connectionWrapper,artifactPermissionsRepository)
+        {
+        }
+
+        public async Task<IList<SqlArtifactTriggers>> GetWorkflowPropertyTransitionsForArtifactsAsync(int userId, int revisionId, int eventType, IEnumerable<int> itemIds)
         {
             var param = new DynamicParameters();
             param.Add("@userId", userId);
             param.Add("@revisionId", revisionId);
             param.Add("@eventType", eventType);
             param.Add("@itemIds", SqlConnectionWrapper.ToDataTable(itemIds));
-            return _connectionWrapper.Query<SqlArtifactTriggers>("GetWorkflowTriggersForArtifacts", param, commandType: CommandType.StoredProcedure).ToList();
+            return (await ConnectionWrapper.QueryAsync<SqlArtifactTriggers>("GetWorkflowTriggersForArtifacts", param, commandType: CommandType.StoredProcedure)).ToList();
         }
 
-        public IList<SqlModifiedProperty> GetPropertyModificationsForRevisionId(int revisionId)
+        public async Task<IList<SqlModifiedProperty>> GetPropertyModificationsForRevisionIdAsync(int revisionId)
         {
             var param = new DynamicParameters();
             param.Add("@revisionId", revisionId);
-            return _connectionWrapper.Query<SqlModifiedProperty>("GetPropertyModificationsForRevisionId", param, commandType: CommandType.StoredProcedure).ToList();
+            return (await ConnectionWrapper.QueryAsync<SqlModifiedProperty >("GetPropertyModificationsForRevisionId", param, commandType: CommandType.StoredProcedure)).ToList();
         }
 
-        public IList<SqlWorkFlowState> GetWorkflowStatesForArtifacts(int userId, IEnumerable<int> artifactIds, int revisionId, bool addDrafts = true)
+        public async Task<IList<SqlWorkFlowStateInformation>> GetWorkflowStatesForArtifactsAsync(int userId, IEnumerable<int> artifactIds, int revisionId, bool addDrafts = true)
         {
             var param = new DynamicParameters();
             param.Add("@userId", userId);
@@ -52,7 +59,7 @@ namespace ActionHandlerService.Repositories
             param.Add("@artifactIds", artifactIdsTable);
             param.Add("@revisionId", revisionId);
             param.Add("@addDrafts", addDrafts);
-            return _connectionWrapper.Query<SqlWorkFlowState>("GetWorkflowStatesForArtifacts", param, commandType: CommandType.StoredProcedure).ToList();
+            return (await ConnectionWrapper.QueryAsync<SqlWorkFlowStateInformation>("GetWorkflowStatesForArtifacts", param, commandType: CommandType.StoredProcedure)).ToList();
         }
     }
 }

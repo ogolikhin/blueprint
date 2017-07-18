@@ -55,7 +55,10 @@ namespace ActionHandlerService
             delayedDelivery.DisableTimeoutManager();
 
             var assemblyScanner = endpointConfiguration.AssemblyScanner();
-            assemblyScanner.ExcludeAssemblies("Common.dll", "NServiceBus.Persistence.Sql.dll");
+            assemblyScanner.ExcludeAssemblies("Common.dll", 
+                "NServiceBus.Persistence.Sql.dll",
+                "BluePrintSys.Messaging.CrossCutting.dll", 
+                "Dapper.StrongName.dll");
 
             endpointConfiguration.UsePersistence<InMemoryPersistence>();
             endpointConfiguration.UseSerialization<JsonSerializer>();

@@ -19,7 +19,7 @@ namespace AdminStore.Repositories.Workflow
         Task<IEnumerable<SqlState>> CreateWorkflowStatesAsync(IEnumerable<SqlState> workflowStates, int publishRevision,
             IDbTransaction transaction = null);
 
-        Task<IEnumerable<SqlTrigger>> CreateWorkflowTriggersAsync(IEnumerable<SqlTrigger> workflowTriggers,
+        Task<IEnumerable<SqlWorkflowEvent>> CreateWorkflowEventsAsync(IEnumerable<SqlWorkflowEvent> workflowEvents,
             int publishRevision, IDbTransaction transaction = null);
 
         Task CreateWorkflowArtifactAssociationsAsync(IEnumerable<string> artifactTypeNames,

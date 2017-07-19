@@ -260,29 +260,29 @@ namespace AdminStore.Services.Workflow
             IDbTransaction transaction, IEnumerable<SqlState> newStates, HashSet<SqlGroup> validGroups)
         {
             var newStatesArray = newStates.ToArray();
-            var importTriggersParams = new List<SqlTrigger>();
+            var importTriggersParams = new List<SqlWorkflowEvent>();
 
             workflow.TransitionEvents.OfType<IeTransitionEvent>().ForEach(transition =>
             {
-                importTriggersParams.Add(new SqlTrigger
+                importTriggersParams.Add(new SqlWorkflowEvent
                 {
                     Name = transition.Name,
                     Description = transition.Description,
                     WorkflowId = newWorkflow.WorkflowId,
-                    Type = DTriggerType.Transition,
+                    Type = DWorkflowEventType.Transition,
                     Permissions = SerializationHelper.ToXml(new XmlTriggerPermissions
                     {
                         Skip = "0",
                         GroupIds = transition.PermissionGroups.Select(pg => validGroups.First(p => p.Name == pg.Name).GroupId).ToList()
                     }),
                     Validations = null,
-                    Actions = SerializationHelper.ToXml(transition.Triggers),
+                    Triggers = SerializationHelper.ToXml(transition.Triggers),
                     WorkflowState1Id = newStatesArray.FirstOrDefault(s => s.Name.Equals(transition.FromState))?.WorkflowStateId,
                     WorkflowState2Id = newStatesArray.FirstOrDefault(s => s.Name.Equals(transition.ToState))?.WorkflowStateId,
                     PropertyTypeId = null
                 });
             });
-            await _workflowRepository.CreateWorkflowTriggersAsync(importTriggersParams, publishRevision, transaction);
+            await _workflowRepository.CreateWorkflowEventsAsync(importTriggersParams, publishRevision, transaction);
         }
 
         private async Task VerifyUserRole(int userId)

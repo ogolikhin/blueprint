@@ -20,7 +20,7 @@ namespace AdminStore.Services.Workflow
 
     public class WorkflowDataValidationError
     {
-        public string Info { get; set; }
+        public object Element { get; set; }
         public WorkflowDataValidationErrorCodes ErrorCode { get; set; }
 
     }
@@ -31,6 +31,7 @@ namespace AdminStore.Services.Workflow
         GroupsNotFound,
         ArtifactTypeNotFoundInProject,
         ArtifactTypeAlreadyAssociatedWithWorkflow,
-        ArtifactTypeNotUsedInProject
+        ArtifactTypeNotUsedInProject,
+        PropertyNotFound
     }
 }

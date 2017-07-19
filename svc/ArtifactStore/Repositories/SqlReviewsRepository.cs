@@ -985,8 +985,7 @@ namespace ArtifactStore.Repositories
             }
 
             //Check user is an approver for the review
-            if (!approvalCheck.UserInReview ||
-               approvalCheck.ReviewerRole != ReviewParticipantRole.Approver)
+            if (!approvalCheck.UserInReview)
             {
                 ThrowUserCannotAccessReviewException(reviewId);
             }

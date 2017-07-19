@@ -2242,18 +2242,48 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AuthorizationException))]
-        public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_User_Isnt_Approver()
+        public async Task UpdateReviewArtifactApprovalAsync_Should_Not_Throw_When_User_Isnt_Approver()
         {
             //Arrange
             int reviewId = 1;
             int userId = 2;
+
             var approvalParameter = new List<ReviewArtifactApprovalParameter>()
             {
                 new ReviewArtifactApprovalParameter() { Approval = "Approved", ApprovalFlag = ApprovalType.Approved, ArtifactId = 3 }
             };
-            
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { 3 }, check => check.ReviewerRole = ReviewParticipantRole.Reviewer);
+
+            var artifactIds = new[] { 3 };
+
+            SetupArtifactApprovalCheck(reviewId, userId, artifactIds, check => check.ReviewerRole = ReviewParticipantRole.Reviewer);
+
+            SetupGetVersionNumber(reviewId, artifactIds);
+
+            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            {
+                { 1, RolePermissions.Read },
+                { 3, RolePermissions.Read }
+            });
+
+            var getXmlParameters = new Dictionary<string, object>()
+            {
+                { "reviewId", 1 },
+                { "userId", 2 }
+            };
+
+            _cxn.SetupQueryAsync("GetReviewUserStatsXml", getXmlParameters, new List<string>()
+            {
+                null
+            });
+
+            var updateXmlParameters = new Dictionary<string, object>()
+            {
+                { "reviewId", 1 },
+                { "userId", 2 },
+                { "xmlString", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Approved</A><AF>Approved</AF><Id>3</Id><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>" }
+            };
+
+            _cxn.SetupExecuteAsync("UpdateReviewUserStatsXml", updateXmlParameters, 1);
 
             //Act
             await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);

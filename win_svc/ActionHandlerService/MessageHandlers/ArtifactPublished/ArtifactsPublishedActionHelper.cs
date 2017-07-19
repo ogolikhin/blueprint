@@ -31,39 +31,21 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
             
             //Get property transitions for published artifact ids.
             //TODO: check whether item type id can be relied upon or not for performance reasons
-            var artifactPropertyTriggers = await repository.GetWorkflowPropertyTransitionsForArtifactsAsync(message.UserId, 
-                message.RevisionId, 
-                (int) TransitionType.Property, 
-                publishedArtifactIds);
+            var artifactPropertyEvents = await GetPropertyEventsInformationForArtifactIds(repository, message, publishedArtifactIds);
 
             //if no property transitions found, then call does not need to proceed 
-            if (artifactPropertyTriggers == null || artifactPropertyTriggers.Count == 0)
+            if (artifactPropertyEvents == null || artifactPropertyEvents.Count == 0)
             {
                 return await Task.FromResult(true);
             }
 
             //convert all property transitions to a dictionary with artifact id as key
-            var activePropertyTransitions = new Dictionary<int, IList<SqlArtifactTriggers>>();
-            foreach (var artifactPropertyTrigger in artifactPropertyTriggers.Where(artifactPropertyTrigger => publishedArtifactIds.Contains(artifactPropertyTrigger.HolderId)))
-            {
-                if (activePropertyTransitions.ContainsKey(artifactPropertyTrigger.HolderId))
-                {
-                    activePropertyTransitions[artifactPropertyTrigger.HolderId].Add(artifactPropertyTrigger);
-                }
-                else
-                {
-                    activePropertyTransitions.Add(artifactPropertyTrigger.HolderId, new List<SqlArtifactTriggers>
-                    {
-                        artifactPropertyTrigger
-                    });
-                }
-            }
+            var activePropertyTransitions = BuildArtifactPropertyTransitions(artifactPropertyEvents, publishedArtifactIds);
+
 
             //Get modified properties for all artifacts and create a dictionary with key as artifact ids
             //TODO: Modify this to take in a list of artifact ids to get property modifications for impacted artifacts
-            var modifiedProperties = (await repository.GetPropertyModificationsForRevisionIdAsync(message.RevisionId))
-                .GroupBy(a => a.ArtifactId)
-                .ToDictionary(a => a.Key, v => v.Select(a => a).ToList());
+            var modifiedProperties = publishedArtifacts.ToDictionary(k => k.Id, v => v.ModifiedProperties ?? new List<PublishedPropertyInformation>());
             if (modifiedProperties.Count == 0)
             {
                 return await Task.FromResult(true);
@@ -72,7 +54,9 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
             var workflowStates =
                 (await
                     repository.GetWorkflowStatesForArtifactsAsync(message.UserId, activePropertyTransitions.Keys,
-                        message.RevisionId)).ToDictionary(k => k.ArtifactId);
+                        message.RevisionId))
+                        .Where(w => w.WorkflowStateId > 0)
+                        .ToDictionary(k => k.ArtifactId);
 
             if (workflowStates.Count == 0)
             {
@@ -126,8 +110,8 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
                             ModifiedPropertiesInformation = artifactModifiedProperties.Select(a => new ModifiedPropertyInformation()
                             {
                                 PropertyId = a.TypeId,
-                                PredefinedTypeId = a.Type,
-                                PropertyName = a.PropertyName
+                                PredefinedTypeId = a.PredefinedType,
+                                //PropertyName = a.PropertyName
                             }).ToArray(),
                             ToEmail = notificationActionToProcess.ToEmail,
                             //ArtifactUrl = artifact.ArtifactUrl,
@@ -136,6 +120,35 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
                 }
             }
             return true;
+        }
+
+        private Dictionary<int, IList<SqlArtifactTriggers>> BuildArtifactPropertyTransitions(IList<SqlArtifactTriggers> artifactPropertyEvents, HashSet<int> publishedArtifactIds)
+        {
+            var activePropertyTransitions = new Dictionary<int, IList<SqlArtifactTriggers>>();
+            foreach (
+                var artifactPropertyEvent in artifactPropertyEvents.Where(ape => publishedArtifactIds.Contains(ape.HolderId)))
+            {
+                if (activePropertyTransitions.ContainsKey(artifactPropertyEvent.HolderId))
+                {
+                    activePropertyTransitions[artifactPropertyEvent.HolderId].Add(artifactPropertyEvent);
+                }
+                else
+                {
+                    activePropertyTransitions.Add(artifactPropertyEvent.HolderId, new List<SqlArtifactTriggers>
+                    {
+                        artifactPropertyEvent
+                    });
+                }
+            }
+            return activePropertyTransitions;
+        }
+
+        private async Task<IList<SqlArtifactTriggers>> GetPropertyEventsInformationForArtifactIds(ActionHandlerServiceRepository repository, ArtifactsPublishedMessage message, HashSet<int> publishedArtifactIds)
+        {
+            return await repository.GetWorkflowPropertyTransitionsForArtifactsAsync(message.UserId, 
+                message.RevisionId, 
+                (int) TransitionType.Property, 
+                publishedArtifactIds);
         }
     }
 

@@ -35,6 +35,11 @@ namespace AdminStore.Models.Workflow
         public List<IePropertyChangeEvent> PropertyChangeEvents { get; set; }
 
         [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
+        [XmlArray("NewArtifacts")]
+        [XmlArrayItem("NewArtifact", typeof(IeNewArtifactEvent))]
+        public List<IeNewArtifactEvent> NewArtifactsEvents { get; set; }
+
+        [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
         [XmlArray("Projects"), XmlArrayItem("Project")]
         public List<IeProject> Projects { get; set; }
 

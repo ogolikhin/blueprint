@@ -19,7 +19,7 @@ namespace AdminStore.Repositories.Workflow
         Task<IEnumerable<SqlState>> CreateWorkflowStatesAsync(IEnumerable<SqlState> workflowStates, int publishRevision,
             IDbTransaction transaction = null);
 
-        Task<IEnumerable<SqlTrigger>> CreateWorkflowTriggersAsync(IEnumerable<SqlTrigger> workflowTriggers,
+        Task<IEnumerable<SqlWorkflowEvent>> CreateWorkflowEventsAsync(IEnumerable<SqlWorkflowEvent> workflowEvents,
             int publishRevision, IDbTransaction transaction = null);
 
         Task CreateWorkflowArtifactAssociationsAsync(IEnumerable<string> artifactTypeNames,
@@ -28,6 +28,8 @@ namespace AdminStore.Repositories.Workflow
         Task<IEnumerable<SqlProjectPathPair>> GetProjectIdsByProjectPaths(IEnumerable<string> projectPaths);
 
         Task<IEnumerable<SqlArtifactTypesWorkflowDetails>> GetExistingStandardArtifactTypesForWorkflows(IEnumerable<string> artifactTypes, IEnumerable<int> projectIds);
+
+        Task<IEnumerable<string>> GetExistingPropertyTypesByName(IEnumerable<string> propertyTypeNames);
 
         Task<int> CreateRevisionInTransactionAsync(IDbTransaction transaction, int userId, string description);
 

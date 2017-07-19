@@ -24,6 +24,7 @@ namespace AdminStore.Repositories.Workflow
                 ArtifactTypes = new List<IeArtifactType>(),
                 TransitionEvents = new List<IeTransitionEvent>(),
                 PropertyChangeEvents = new List<IePropertyChangeEvent>(),
+                NewArtifactsEvents = new List<IeNewArtifactEvent>(),
                 Projects = new List<IeProject>()
             };
 
@@ -909,7 +910,7 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        public void Validate_ActionsCountOnTriggerMax_Success()
+        public void Validate_TriggerCountOnEventMax_Success()
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
@@ -929,7 +930,7 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        public void Validate_ActionsCountOnTriggerExceedsLimit_ReturnsActionsCountOnTriggerExceedsLimit10Error()
+        public void Validate_TriggerCountOnEventExceedsLimit10_ReturnsTriggerCountOnEventExceedsLimit10Error()
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
@@ -1140,7 +1141,7 @@ namespace AdminStore.Repositories.Workflow
                     }
                 }
             }
-            else if (anEvent is IeTransitionEvent)
+            else if (anEvent is IeTransitionEvent || anEvent is IeNewArtifactEvent)
             {
                 if (anEvent.Triggers == null)
                 {

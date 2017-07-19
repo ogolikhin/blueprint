@@ -15,5 +15,8 @@ namespace AdminStore.Models.Workflow
         [XmlElement(typeof (XmlGenerateAction), ElementName = "AG")]
         [XmlElement(typeof (XmlPropertyChangeAction), ElementName = "APC")]
         public XmlAction Action { get; set; }
+
+        [XmlElement(typeof(XmlStateCondition), ElementName = "SC")]
+        public XmlCondition Condition { get; set; }
     }
 }

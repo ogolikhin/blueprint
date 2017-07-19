@@ -13,6 +13,7 @@ using ArtifactStore.Helpers;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories.Files;
 using File = ServiceLibrary.Models.Files.File;
 

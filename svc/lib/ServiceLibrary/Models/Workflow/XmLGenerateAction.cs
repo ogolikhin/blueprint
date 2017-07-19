@@ -1,6 +1,7 @@
 ﻿using System.Xml.Serialization;
+using ServiceLibrary.Models.Enums;
 
-namespace AdminStore.Models.Workflow
+namespace ServiceLibrary.Models.Workflow
 {
     [XmlType("AG")]
     public class XmlGenerateAction : XmlAction

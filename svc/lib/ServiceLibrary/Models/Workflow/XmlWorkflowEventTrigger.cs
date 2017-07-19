@@ -1,6 +1,6 @@
 ﻿using System.Xml.Serialization;
 
-namespace AdminStore.Models.Workflow
+namespace ServiceLibrary.Models.Workflow
 {
     [XmlRoot("T")]
     public class XmlWorkflowEventTrigger

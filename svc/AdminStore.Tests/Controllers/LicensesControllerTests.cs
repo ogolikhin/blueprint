@@ -1,4 +1,11 @@
-﻿using System;
+﻿using AdminStore.Models;
+using AdminStore.Repositories;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
+using ServiceLibrary.Repositories.ConfigControl;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -6,39 +13,14 @@ using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Http.Results;
-using AdminStore.Models;
-using AdminStore.Repositories;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Models;
-using ServiceLibrary.Repositories.ConfigControl;
 using System.Web.Http.Hosting;
+using System.Web.Http.Results;
 
 namespace AdminStore.Controllers
 {
     [TestClass]
     public class LicensesControllerTests
     {
-        #region Constructor
-
-        [TestMethod]
-        public void Constructor_CreatesDefaultDependencies()
-        {
-            // Arrange
-
-            // Act
-            var controller = new LicensesController();
-
-            // Assert
-            Assert.IsInstanceOfType(controller._httpClientProvider, typeof(HttpClientProvider));
-            Assert.IsInstanceOfType(controller._userRepository, typeof(SqlUserRepository));
-            Assert.IsInstanceOfType(controller._log, typeof(ServiceLogRepository));
-        }
-
-        #endregion Constructor
-
         #region GetLicenseTransactions
 
         [TestMethod]

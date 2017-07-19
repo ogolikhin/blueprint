@@ -1,31 +1,15 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using ConfigControl.Models;
+﻿using ConfigControl.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Repositories;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ConfigControl.Repositories
 {
     [TestClass]
     public class SqlConfigRepositoryTests
     {
-        #region Constuctor
-
-        [TestMethod]
-        public void Constructor_CreatesConnectionToAdminStorage()
-        {
-            // Arrange
-
-            // Act
-            var repository = new SqlConfigRepository();
-
-            // Assert
-            Assert.AreEqual(WebApiConfig.AdminStorage, repository._connectionWrapper.CreateConnection().ConnectionString);
-        }
-
-        #endregion Constructor
-
         #region GetSettings
 
         [TestMethod]

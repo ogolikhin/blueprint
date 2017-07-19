@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AdminStore.Models.Workflow;
+using AdminStore.Repositories;
+using AdminStore.Repositories.Workflow;
 using ArtifactStore.Helpers;
 
-namespace AdminStore.Repositories.Workflow
+namespace AdminStore.Services.Workflow
 {
     public class WorkflowDataValidator : IWorkflowDataValidator
     {
@@ -27,6 +29,7 @@ namespace AdminStore.Repositories.Workflow
 
             var result = new WorkflowDataValidationResult();
             await ValidateProjectsData(result, workflow);
+            await ValidateArtifactTypesData(result, workflow);
             await ValidateGroupsData(result, workflow);
             await ValidateTriggersData(result, workflow);
             await ValidateActionsData(result, workflow);
@@ -84,11 +87,67 @@ namespace AdminStore.Repositories.Workflow
             return result;
         }
 
+        private async Task<WorkflowDataValidationResult> ValidateArtifactTypesData(WorkflowDataValidationResult result, IeWorkflow workflow)
+        {
+            if (workflow.ArtifactTypes.Any() && result.ValidProjectIds.Any())
+            {
+                result.ValidArtifactTypeNames.Clear();
+                var artifactTypesInfos = (await _workflowRepository.GetExistingStandardArtifactTypesForWorkflows(
+                    workflow.ArtifactTypes.Select(at => at.Name),
+                    result.ValidProjectIds)).ToArray();
+                //check if all types are valid
+                if (artifactTypesInfos.Length != workflow.ArtifactTypes.Count*result.ValidProjectIds.Count)
+                {
+                    //get all artifact types and project pairs that are missing
+                    var crossJoin = from at in workflow.ArtifactTypes
+                        from pid in result.ValidProjectIds
+                        select new {artifactTypeName = at.Name, projectId = pid};
+                    foreach (var missingArtifactTypeInfo in crossJoin.Where(el => artifactTypesInfos.Any(ati =>
+                        ati.Name == el.artifactTypeName &&
+                        ati.VersionProjectId == el.projectId)))
+                    {
+                        result.Errors.Add(new WorkflowDataValidationError
+                        {
+                            //Element = new Tuple<string, int>(missingArtifactTypeInfo.Name, missingArtifactTypeInfo.VersionProjectId),
+                            ErrorCode = WorkflowDataValidationErrorCodes.ArtifactTypeNotFoundInProject
+                        });
+                    }
+                }
+
+                foreach (var artifactTypesInfo in artifactTypesInfos){
+                    //check if any types are associated with a workflow already
+                    if (artifactTypesInfo.WorkflowId.HasValue)
+                    {
+                        result.Errors.Add(new WorkflowDataValidationError
+                        {
+                            //Element = workflow.ArtifactTypes.FirstOrDefault(at => at.Name == artifactTypesInfo.Name),
+                            ErrorCode = WorkflowDataValidationErrorCodes.ArtifactTypeAlreadyAssociatedWithWorkflow
+                        });
+                    }
+
+                    //check if any types are not used in the provided projects
+                    if (!artifactTypesInfo.UsedInThisProject)
+                    {
+                        result.Errors.Add(new WorkflowDataValidationError
+                        {
+                            //Element = new Tuple<string, int>(artifactTypesInfo.Name, artifactTypesInfo.VersionProjectId),
+                            ErrorCode = WorkflowDataValidationErrorCodes.ArtifactTypeNotUsedInProject
+                        });
+                    }
+
+                }
+            }
+
+            result.ValidArtifactTypeNames.AddRange(workflow.ArtifactTypes.Select(at => at.Name));
+
+            return result;
+        }
+
         private async Task<WorkflowDataValidationResult> ValidateGroupsData(WorkflowDataValidationResult result, IeWorkflow workflow)
         {
             result.ValidGroups.Clear();
             HashSet<string> listOfAllGroups = new HashSet<string>();
-            workflow.Triggers.OfType<IeTransitionTrigger>().ForEach(transition =>
+            workflow.TransitionEvents.OfType<IeTransitionEvent>().ForEach(transition =>
             {
                 transition.PermissionGroups.ForEach(group =>
                 {

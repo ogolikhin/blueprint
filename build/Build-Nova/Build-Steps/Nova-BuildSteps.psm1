@@ -113,7 +113,7 @@ function Build-Nova-Html{
 }
 
 <#
-    Builds new windows services (such as ImageRenderService)
+    Builds new windows services
     
     ImageRenderService is dependant on files in the NovaWeb dist folder, so should be run after building that. 
 #>
@@ -130,6 +130,31 @@ function Build-Nova-Windows-Services{
         [Parameter(ValueFromRemainingArguments=$true)] $vars
     )
 
+    $buildParams = @{
+        workspace = $workspace
+        msBuildVerbosity = $msBuildVerbosity
+        configuration = "Release" 
+        visualStudioVersion = $visualStudioVersion 
+        msbuildPath = $msBuildPath
+    }
+
+    Write-Section "Building Nova Windows services"
+    
+    Build-ImageGen-Service @buildParams
+    
+    Build-ActionHandler-Service @buildParams 
+}
+
+function Build-ImageGen-Service{
+    param(
+        [Parameter(Mandatory=$true)][string]$workspace,
+
+        [Parameter(Mandatory=$true)][string]$msBuildPath,
+        [Parameter(Mandatory=$true)][string]$msBuildVerbosity,
+        [Parameter(Mandatory=$true)][string]$visualStudioVersion,
+        [Parameter(Mandatory=$true)][string]$configuration
+    )
+    
     $msBuildArgs = @{
         verbosity = $msBuildVerbosity
         configuration = "Release" 
@@ -137,7 +162,7 @@ function Build-Nova-Windows-Services{
         msbuildPath = $msBuildPath
     }
 
-    Write-Section "Building Nova Windows services"
+    Write-Section "Building Image Render Service"
 
     Invoke-MsBuild @msBuildArgs -project $workspace\win_svc\ImageRenderService\ImageRenderService.csproj -trailingArguments "/p:Platform='x64' /p:OutDir=`"$workspace\win_svc\DeployArtifacts\ImageRenderService`""
 
@@ -157,6 +182,28 @@ function Build-Nova-Windows-Services{
     if(Test-Path -PathType Container $novaImageGenFolder) {
         Remove-Item -Recurse -Force $novaImageGenFolder 
     }
+}
+
+function Build-ActionHandler-Service{
+    param(
+        [Parameter(Mandatory=$true)][string]$workspace,
+
+        [Parameter(Mandatory=$true)][string]$msBuildPath,
+        [Parameter(Mandatory=$true)][string]$msBuildVerbosity,
+        [Parameter(Mandatory=$true)][string]$visualStudioVersion,
+        [Parameter(Mandatory=$true)][string]$configuration
+    )
+    
+    $msBuildArgs = @{
+        verbosity = $msBuildVerbosity
+        configuration = "Release" 
+        visualStudioVersion = $visualStudioVersion 
+        msbuildPath = $msBuildPath
+    }
+
+    Write-Section "Building ActionHandler Service"
+
+    Invoke-MsBuild @msBuildArgs -project $workspace\win_svc\ActionHandlerService\ActionHandlerService.csproj -trailingArguments "/p:Platform='x64' /p:OutDir=`"$workspace\win_svc\DeployArtifacts\ActionHandlerService`""
 }
 
 function Run-Nova-Unit-Tests{

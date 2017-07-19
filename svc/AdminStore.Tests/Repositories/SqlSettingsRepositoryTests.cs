@@ -1,34 +1,18 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using AdminStore.Models;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 using System.Threading.Tasks;
-using AdminStore.Models;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Repositories;
 
 namespace AdminStore.Repositories
 {
     [TestClass]
     public class SqlSettingsRepositoryTests
     {
-        #region Constuctor
-
-        [TestMethod]
-        public void Constructor_CreatesConnectionToRaptorMain()
-        {
-            // Arrange
-
-            // Act
-            var repository = new SqlSettingsRepository();
-
-            // Assert
-            Assert.AreEqual(ServiceConstants.RaptorMain, repository._connectionWrapper.CreateConnection().ConnectionString);
-        }
-
-        #endregion Constructor
-
         #region GetLdapSettingsAsync
 
         [TestMethod]

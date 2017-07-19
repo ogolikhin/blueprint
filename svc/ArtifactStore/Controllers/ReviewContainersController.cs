@@ -1,12 +1,12 @@
-﻿using System.Threading.Tasks;
-using System.Web.Http;
-using ArtifactStore.Models.Review;
+﻿using ArtifactStore.Models.Review;
 using ArtifactStore.Repositories;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace ArtifactStore.Controllers
 {
@@ -14,9 +14,9 @@ namespace ArtifactStore.Controllers
     [BaseExceptionFilter]
     public class ReviewContainersController : LoggableApiController
     {
-        public override string LogSource { get; } = "ArtifactStore.Reviews";
-
         private IReviewsRepository _sqlReviewsRepository;
+
+        public override string LogSource { get; } = "ArtifactStore.Reviews";
 
         public ReviewContainersController(): this(new SqlReviewsRepository())
         {
@@ -297,6 +297,26 @@ namespace ArtifactStore.Controllers
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             return _sqlReviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, reviewArtifactApprovalParameters, session.UserId);
+        }
+
+        /// <summary>
+        /// Get participant's review statistics for the given review and participant.
+        /// </summary>
+        /// <param name="reviewId">Review artifact Id</param>
+        /// <param name="participantId">Participant Id</param>
+        /// <param name="pagination"></param>
+        /// <returns></returns>
+        /// <response code="200">OK.</response>
+        /// <response code="400">Bad Request.</response>
+        /// <response code="401">Unauthorized. The session token is invalid.</response>
+        /// <response code="403">Forbidden.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpGet, NoCache]
+        [Route("containers/{reviewId:int:min(1)}/participants/{participantId:int:min(1)}/artifactstats"), SessionRequired]
+        public Task<QueryResult<ParticipantArtifactStats>> GetReviewParticipantArtifactStatsAsync(int reviewId, int participantId, [FromUri] Pagination pagination)
+        {
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            return _sqlReviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, session.UserId, pagination);
         }
     }
 }

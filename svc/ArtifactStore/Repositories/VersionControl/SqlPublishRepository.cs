@@ -1,12 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
-using ArtifactStore.Helpers;
+﻿using ArtifactStore.Helpers;
 using ArtifactStore.Models.VersionControl;
 using Dapper;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ArtifactStore.Repositories.VersionControl
 {

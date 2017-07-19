@@ -1,12 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Web.Http;
-using System.Web.Http.Description;
-using ArtifactStore.Services.VersionControl;
+﻿using ArtifactStore.Services.VersionControl;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.VersionControl;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Description;
 
 namespace ArtifactStore.Controllers
 {
@@ -20,7 +20,6 @@ namespace ArtifactStore.Controllers
 
         public VersionControlController() : this(new VersionControlService())
         {
-            
         }
 
         public VersionControlController(IVersionControlService versionControlService)

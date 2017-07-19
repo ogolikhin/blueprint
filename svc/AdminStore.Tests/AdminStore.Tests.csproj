@@ -114,7 +114,7 @@
     <Compile Include="Repositories\SqlUserRepositoryTests.cs" />
     <Compile Include="Repositories\LdapRepositoryTests.cs" />
     <Compile Include="Repositories\WorkflowRepositoryTest.cs" />
-    <Compile Include="Repositories\Workflow\WorkflowValidatorTests.cs" />
+    <Compile Include="Repositories\Workflow\WorkflowXmlValidatorTests.cs" />
     <Compile Include="Saml\SamlCertificateValidatorTests.cs" />
     <Compile Include="Saml\SamlIssuerNameRegistryTests.cs" />
     <Compile Include="Services\WorkflowServiceTest.cs" />

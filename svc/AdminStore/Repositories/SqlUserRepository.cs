@@ -1,22 +1,22 @@
-﻿using System;
+﻿using AdminStore.Helpers;
+using AdminStore.Models;
+using Dapper;
+using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
+using ServiceLibrary.Repositories;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using AdminStore.Helpers;
-using AdminStore.Models;
-using Dapper;
-using ServiceLibrary.Exceptions;
-using ServiceLibrary.Repositories;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Models;
 
 namespace AdminStore.Repositories
 {
     public class SqlUserRepository : IUserRepository
     {
-        internal readonly ISqlConnectionWrapper _connectionWrapper;
-        internal readonly ISqlConnectionWrapper _adminStorageConnectionWrapper;
+        private readonly ISqlConnectionWrapper _connectionWrapper;
+        private readonly ISqlConnectionWrapper _adminStorageConnectionWrapper;
 
         public SqlUserRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain), new SqlConnectionWrapper(WebApiConfig.AdminStorage))
@@ -33,6 +33,7 @@ namespace AdminStore.Repositories
         {
             var prm = new DynamicParameters();
             prm.Add("@Login", login);
+
             return (await _connectionWrapper.QueryAsync<AuthenticationUser>("GetUserByLogin", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
 
@@ -49,6 +50,7 @@ namespace AdminStore.Repositories
         {
             var prm = new DynamicParameters();
             prm.Add("@UserIds", SqlConnectionWrapper.ToDataTable(userIds));
+
             return (await _connectionWrapper.QueryAsync<UserLicense>("GetEffectiveUserLicense", prm, commandType: CommandType.StoredProcedure)).ToList();
         }
 
@@ -56,6 +58,7 @@ namespace AdminStore.Repositories
         {
             var prm = new DynamicParameters();
             prm.Add("@UserId", userId);
+
             return (await _connectionWrapper.QueryAsync<LoginUser>("GetLoginUserById", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
 
@@ -63,6 +66,7 @@ namespace AdminStore.Repositories
         {
             var prm = new DynamicParameters();
             prm.Add("@UserId", userId);
+
             return (await _connectionWrapper.QueryAsync<UserIcon>("GetUserIconByUserId", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
 
@@ -70,6 +74,7 @@ namespace AdminStore.Repositories
         {
             var prm = new DynamicParameters();
             prm.Add("@groupNames", SqlConnectionWrapper.ToStringDataTable(groupNames));
+
             return await _connectionWrapper.QueryAsync<SqlGroup>("GetExistingInstanceGroupsByNames", prm, commandType: CommandType.StoredProcedure);
         }
 
@@ -77,6 +82,7 @@ namespace AdminStore.Repositories
         {
             var prm = new DynamicParameters();
             prm.Add("@UserIds", SqlConnectionWrapper.ToDataTable(userIds));
+
             return await _connectionWrapper.QueryAsync<LicenseTransactionUser>("GetLicenseTransactionUser", prm, commandType: CommandType.StoredProcedure);
         }
 
@@ -137,10 +143,12 @@ namespace AdminStore.Repositories
             prm.Add("@recoverytoken", recoveryToken);
             await _adminStorageConnectionWrapper.QueryAsync<int>("SetUserPasswordRecoveryToken", prm, commandType: CommandType.StoredProcedure);
         }
+
         public async Task<IEnumerable<PasswordRecoveryToken>> GetPasswordRecoveryTokensAsync(Guid token)
         {
             var prm = new DynamicParameters();
             prm.Add("@token", token);
+
             return await _adminStorageConnectionWrapper.QueryAsync<PasswordRecoveryToken>("GetUserPasswordRecoveryTokens", prm, commandType: CommandType.StoredProcedure);
         }
 
@@ -151,10 +159,12 @@ namespace AdminStore.Repositories
             {
                 orderField = sort(sorting);
             }
+
             if (search != null)
             {
                 search = UsersHelper.ReplaceWildcardCharacters(search);
             }
+
             var result = await GetUsersInternalAsync(pagination, orderField, search);
 
             return new QueryResult<UserDto>
@@ -174,6 +184,7 @@ namespace AdminStore.Repositories
             parameters.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
             var users = (await _connectionWrapper.QueryAsync<User>("GetUsers", parameters, commandType: CommandType.StoredProcedure)).ToList();
             var total = parameters.Get<int>("Total");
+
             return new QueryResult<User>
             {
                 Items = users,
@@ -186,12 +197,14 @@ namespace AdminStore.Repositories
             var parameters = new DynamicParameters();
             parameters.Add("@UserId", userId);
             var result = (await _connectionWrapper.QueryAsync<User>("GetUserDetails", parameters, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+
             return result;
         }
 
         public async Task<UserDto> GetUserDtoAsync(int userId)
         {
             var user = await GetUserAsync(userId);
+
             return user == null ? null : UserMapper.Map(user);
         }
 
@@ -224,8 +237,12 @@ namespace AdminStore.Repositories
             parameters.Add("@Email", string.IsNullOrWhiteSpace(loginUser.Email) ? string.Empty : loginUser.Email);
             parameters.Add("@Title", string.IsNullOrWhiteSpace(loginUser.Title) ? string.Empty : loginUser.Title);
             parameters.Add("@Department", string.IsNullOrWhiteSpace(loginUser.Department) ? string.Empty : loginUser.Department);
+
             if (loginUser.GroupMembership != null)
+            {
                 parameters.Add("@GroupMembership", SqlConnectionWrapper.ToDataTable(loginUser.GroupMembership));
+            }
+
             parameters.Add("@Guest", loginUser.Guest);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
@@ -246,6 +263,7 @@ namespace AdminStore.Repositories
                         return userId;
                 }
             }
+
             return userId;
         }
 
@@ -255,6 +273,7 @@ namespace AdminStore.Repositories
             {
                 search = UsersHelper.ReplaceWildcardCharacters(search);
             }
+
             var parameters = new DynamicParameters();
             parameters.Add("@UserIds", SqlConnectionWrapper.ToDataTable(scope.Ids));
             parameters.Add("@Search", search);
@@ -271,6 +290,7 @@ namespace AdminStore.Repositories
                         throw new BadRequestException(ErrorMessages.GeneralErrorOfDeletingUsers);
                 }
             }
+
             return result;
         }
 
@@ -335,6 +355,7 @@ namespace AdminStore.Repositories
             {
                 orderField = sort(tabularData.Sorting);
             }
+
             var parameters = new DynamicParameters();
             parameters.Add("@UserId", userId);
             parameters.Add("@Offset", tabularData.Pagination.Offset);
@@ -367,6 +388,7 @@ namespace AdminStore.Repositories
             var mappedGroups = GroupMapper.Map(userGroups);
 
             var queryDataResult = new QueryResult<GroupDto>() { Items = mappedGroups, Total = total.Value };
+
             return queryDataResult;
         }
 
@@ -389,6 +411,7 @@ namespace AdminStore.Repositories
                         throw new ResourceNotFoundException(ErrorMessages.UserNotExist, ErrorCodes.ResourceNotFound);
                 }
             }
+
             return result;
         }
 
@@ -427,6 +450,7 @@ namespace AdminStore.Repositories
         {
             var prm = new DynamicParameters();
             prm.Add("@UserId", sessionUserId);
+
             return await _connectionWrapper.ExecuteScalarAsync<bool>("IsProjectAdminForAnyNonDeletedProject", prm, commandType: CommandType.StoredProcedure);
         }
 

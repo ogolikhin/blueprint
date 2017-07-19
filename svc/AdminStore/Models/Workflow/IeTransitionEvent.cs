@@ -7,11 +7,11 @@ namespace AdminStore.Models.Workflow
     /// <summary>
     /// Transition Trigger
     /// </summary>
-    [XmlType("TransitionTrigger")]
-    public class IeTransitionTrigger : IeTrigger
+    [XmlType("Transition")]
+    public class IeTransitionEvent : IeEvent
     {
         [XmlIgnore]
-        public override TriggerTypes TriggerType => TriggerTypes.Transition;
+        public override EventType EventType => EventType.Transition;
 
         [XmlElement(IsNullable = false)]
         public string FromState { get; set; }

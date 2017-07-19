@@ -33,6 +33,7 @@ namespace ServiceLibrary.Exceptions
         {
             base.GetObjectData(info, context);
             info.AddValue(ServiceConstants.ErrorCodeName, ErrorCode);
+            info.AddValue(ServiceConstants.ErrorContentName, Content);
         }
 
         public HttpError CreateHttpError()

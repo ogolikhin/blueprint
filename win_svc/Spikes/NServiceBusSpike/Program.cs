@@ -24,19 +24,38 @@ namespace NServiceBusSpike
             //    ArtifactId = Guid.NewGuid()
             //});
             //Console.ReadLine();
-            StopQueues();
             Console.WriteLine("Ready to exit");
             Console.ReadLine();
+            StopQueues();
         }
 
         static async void ScheduleMessages()
         {
-            for (int counter = 0; counter < 100; counter++)
-            {
-                Console.WriteLine($"Scheduling new message: {counter + 1}");
+            //for (int counter = 0; counter < 100; counter++)
+            //{
+            //    Console.WriteLine($"Scheduling new message: {counter + 1}");
                 
-                await MessageScheduler.Send(new Actions.NotificationMessage(1, 2));
-                Console.WriteLine($"Scheduled new message: {counter + 1}");
+            //    await MessageScheduler.Send(new Actions.NotificationMessage(1));
+            //    Console.WriteLine($"Scheduled new message: {counter + 1}");
+            //}
+
+            for (int counter = 0; counter < 10; counter++)
+            {
+                await MessageScheduler.Send(new Actions.ArtifactsPublishedMessage
+                {
+                    TenantId = 1,
+                    PublishedArtifacts = new []
+                    {
+                        new Actions.PublishedArtifact
+                        {
+                            ArtifactId = 1,
+                            ArtifactTypeId = 2,
+                            PredefinedArtifactTypeId = 3,
+                            RevisionId = 4,
+                            UserId = 5
+                        }
+                    }
+                });
             }
         }
 

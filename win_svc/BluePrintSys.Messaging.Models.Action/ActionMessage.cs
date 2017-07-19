@@ -2,22 +2,24 @@
 
 namespace BluePrintSys.Messaging.Models.Actions
 {
+    public class ActionMessageHeaders
+    {
+        public const string TenantId = "TenantId";
+    }
+
     [Express]
     public abstract class ActionMessage : IMessage
     {
-        protected ActionMessage() : this(0, 0)
+        protected ActionMessage() : this(0)
         {
-            
         }
 
-        protected ActionMessage(int tenantId, int workflowId)
+        protected ActionMessage(int tenantId)
         {
             TenantId = tenantId;
-            WorkflowId = workflowId;
         }
 
         public abstract MessageActionType ActionType { get; }
         public int TenantId { get; set; }
-        public int WorkflowId { get; set; }
     }
 }

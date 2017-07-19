@@ -1,38 +1,22 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SearchService.Models;
-using ServiceLibrary.Repositories;
-using SearchService.Helpers;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
-using System.Data;
-using System.Data.SqlClient;
+using SearchService.Helpers;
+using SearchService.Models;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Repositories;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SearchService.Repositories
 {
     [TestClass]
     public class SqlProjectSearchRepositoryTests
     {
-        #region Constructor
-
-        [TestMethod]
-        public void Constructor_CreatesConnectionToBlueprint()
-        {
-            // Arrange
-
-            // Act
-            var repository = new SqlProjectSearchRepository();
-
-            // Assert
-            Assert.AreEqual(WebApiConfig.BlueprintConnectionString, repository.ConnectionWrapper.CreateConnection().ConnectionString);
-        }
-
-        #endregion Constructor
-
         #region SearchName
 
         [TestMethod]

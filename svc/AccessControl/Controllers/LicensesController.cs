@@ -1,4 +1,5 @@
 ﻿using AccessControl.Repositories;
+using ServiceLibrary.Attributes;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
 using System;
@@ -9,7 +10,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
-using ServiceLibrary.Attributes;
 
 namespace AccessControl.Controllers
 {
@@ -17,9 +17,9 @@ namespace AccessControl.Controllers
     [RoutePrefix("licenses")]
     public class LicensesController : ApiController
     {
-        internal readonly ILicensesRepository _repo;
-        internal readonly ISessionsRepository _sessions;
-        internal readonly IServiceLogRepository _log;
+        private readonly ILicensesRepository _repo;
+        private readonly ISessionsRepository _sessions;
+        private readonly IServiceLogRepository _log;
 
         private const int minMonth = 1;
         private const int maxMonth = 12;
@@ -40,7 +40,10 @@ namespace AccessControl.Controllers
         private string GetHeaderSessionToken()
         {
             if (Request.Headers.Contains("Session-Token") == false)
+            {
                 throw new ArgumentNullException();
+            }
+
             return Request.Headers.GetValues("Session-Token").FirstOrDefault();
         }
 
@@ -94,10 +97,12 @@ namespace AccessControl.Controllers
                 {
                     return Unauthorized();
                 }
+
                 var licenses = await _repo.GetLockedLicenses(session.UserId, session.LicenseLevel, WebApiConfig.LicenseHoldTime);
 
                 var response = Request.CreateResponse(HttpStatusCode.OK,
                     new LicenseInfo { LicenseLevel = session.LicenseLevel, Count = licenses });
+
                 return ResponseMessage(response);
             }
             catch (ArgumentNullException)
@@ -133,13 +138,14 @@ namespace AccessControl.Controllers
             try
             {
                 var licenses = await _repo.GetLicenseTransactions(DateTime.UtcNow.AddDays(-days), consumerType);
-
                 var response = Request.CreateResponse(HttpStatusCode.OK, licenses);
+
                 return ResponseMessage(response);
             }
             catch (Exception ex)
             {
                 await _log.LogError(WebApiConfig.LogSourceLicenses, ex);
+
                 return InternalServerError();
             }
         }
@@ -164,13 +170,13 @@ namespace AccessControl.Controllers
         {
             try
             {
-                
                 //parameter constrain
                 if (month.HasValue )
                 {
                     if (month < minMonth || month > maxMonth) {
                         return BadRequest("Specified month is invalid");
                     }
+
                     if (!year.HasValue) {
                         return BadRequest("A year must be specified");
                     }
@@ -182,20 +188,23 @@ namespace AccessControl.Controllers
                     {
                         return BadRequest("Specified year is invalid");
                     }
+
                     if (!month.HasValue)
                     {
                         return BadRequest("A month must be specified");
                     }
                 }
+
                 //NOTE: number of month is taken from zero-based array (i.e. 0- jan, 11- dec)
                 var usage = await _repo.GetLicenseUsage(month, year);
-
                 var response = Request.CreateResponse(HttpStatusCode.OK, usage);
+
                 return ResponseMessage(response);
             }
             catch (Exception ex)
             {
                 await _log.LogError(WebApiConfig.LogSourceLicenses, ex);
+
                 return InternalServerError();
             }
         }

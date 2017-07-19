@@ -1,22 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
-using System.Web.Http;
-using System.Web.Http.Description;
-using AdminStore.Helpers;
+﻿using AdminStore.Helpers;
 using AdminStore.Repositories.Jobs;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
-using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Helpers.Files;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Jobs;
 using ServiceLibrary.Repositories.ConfigControl;
 using ServiceLibrary.Repositories.Files;
+using System;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Description;
 
 namespace AdminStore.Controllers
 {
@@ -25,8 +23,8 @@ namespace AdminStore.Controllers
     [BaseExceptionFilter]
     public partial class JobsController : LoggableApiController
     {
-        internal readonly IJobsRepository _jobsRepository;
-        internal readonly IFileRepository _fileRepository;
+        private readonly IJobsRepository _jobsRepository;
+        private readonly IFileRepository _fileRepository;
 
         public JobsController() : this(new JobsRepository(), new ServiceLogRepository())
         {

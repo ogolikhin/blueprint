@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
-using ArtifactStore.Helpers;
+﻿using ArtifactStore.Helpers;
 using ArtifactStore.Models;
+using ArtifactStore.Models.Review;
 using ArtifactStore.Repositories.PropertyXml;
 using ArtifactStore.Repositories.PropertyXml.Models;
 using Dapper;
@@ -14,7 +8,13 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
-using ArtifactStore.Models.Review;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace ArtifactStore.Repositories
 {
@@ -27,7 +27,7 @@ namespace ArtifactStore.Repositories
             ItemTypePredefined.Flow
         };
 
-        internal readonly ISqlConnectionWrapper ConnectionWrapper;
+        private readonly ISqlConnectionWrapper _connectionWrapper;
 
         public SqlProjectMetaRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
@@ -36,7 +36,7 @@ namespace ArtifactStore.Repositories
 
         internal SqlProjectMetaRepository(ISqlConnectionWrapper connectionWrapper)
         {
-            ConnectionWrapper = connectionWrapper;
+            _connectionWrapper = connectionWrapper;
         }
 
         public async Task<ProjectTypes> GetCustomProjectTypesAsync(int projectId, int userId)
@@ -54,7 +54,7 @@ namespace ArtifactStore.Repositories
 
             var typeGrid =
                 (await
-                    ConnectionWrapper.QueryMultipleAsync<PropertyTypeVersion, ItemTypeVersion, ItemTypePropertyTypeMapRecord>("GetProjectCustomTypes", prm,
+                    _connectionWrapper.QueryMultipleAsync<PropertyTypeVersion, ItemTypeVersion, ItemTypePropertyTypeMapRecord>("GetProjectCustomTypes", prm,
                     commandType: CommandType.StoredProcedure));
 
             var ptVersions = typeGrid.Item1.ToList();
@@ -95,7 +95,7 @@ namespace ArtifactStore.Repositories
             parameters.Add("@projectId", projectId);
             parameters.Add("@userId", userId);
 
-            var project = (await ConnectionWrapper.QueryAsync<ProjectVersion>("GetInstanceProjectById", parameters, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
+            var project = (await _connectionWrapper.QueryAsync<ProjectVersion>("GetInstanceProjectById", parameters, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
 
             if (project == null)
             {
@@ -316,7 +316,7 @@ namespace ArtifactStore.Repositories
             parameters.Add("@propertyType", propertyType);
             parameters.Add("@includeDeleted", includeDeleted);
 
-            return ConnectionWrapper.QueryAsync<ProjectSetting>("GetProjectSettings", parameters, commandType: CommandType.StoredProcedure);
+            return _connectionWrapper.QueryAsync<ProjectSetting>("GetProjectSettings", parameters, commandType: CommandType.StoredProcedure);
         }
 
         private ProjectApprovalStatus MapApprovalStatus(ProjectSetting projectSetting)

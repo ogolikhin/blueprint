@@ -1,4 +1,9 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
+using ServiceLibrary.Repositories.ConfigControl;
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -6,33 +11,12 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Hosting;
 using System.Web.Http.Results;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Models;
-using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Controllers
 {
     [TestClass]
     public class LogControllerTests
     {
-        #region Constuctor
-
-        [TestMethod]
-        public void Constructor_CreatesDefaultDependencies()
-        {
-            // Arrange
-
-            // Act
-            var controller = new LogController();
-
-            // Assert
-            Assert.IsInstanceOfType(controller.LogRepository, typeof(ServiceLogRepository));
-        }
-
-        #endregion
-
         #region PostReset
 
         [TestMethod]

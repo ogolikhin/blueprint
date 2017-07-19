@@ -7,10 +7,9 @@ namespace BluePrintSys.Messaging.Models.Actions
     {
         public GenerateUserStoriesMessage()
         {
-            
         }
 
-        public GenerateUserStoriesMessage(int tenantId, int workflowId) : base(tenantId, workflowId)
+        public GenerateUserStoriesMessage(int tenantId) : base(tenantId)
         {
         }
 

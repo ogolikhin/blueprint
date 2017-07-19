@@ -11,7 +11,7 @@ namespace AccessControl.Repositories
 {
     public class SqlSessionsRepository : ISessionsRepository
     {
-        internal readonly ISqlConnectionWrapper _connectionWrapper;
+        private readonly ISqlConnectionWrapper _connectionWrapper;
 
         public SqlSessionsRepository()
             : this(new SqlConnectionWrapper(WebApiConfig.AdminStorage))
@@ -27,6 +27,7 @@ namespace AccessControl.Repositories
         {
             var prm = new DynamicParameters();
             prm.Add("@SessionId", guid);
+
             return (await _connectionWrapper.QueryAsync<Session>("GetSession", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
 
@@ -34,6 +35,7 @@ namespace AccessControl.Repositories
         {
             var prm = new DynamicParameters();
             prm.Add("@UserId", uid);
+
             return (await _connectionWrapper.QueryAsync<Session>("GetUserSession", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
 
@@ -48,6 +50,7 @@ namespace AccessControl.Repositories
             var prm = new DynamicParameters();
             prm.Add("@ps", ps);
             prm.Add("@pn", pn);
+
             return await _connectionWrapper.QueryAsync<Session>("SelectSessions", prm, commandType: CommandType.StoredProcedure);
         }
 
@@ -69,6 +72,7 @@ namespace AccessControl.Repositories
             {
                 oldSessionIdAction(oldSessionId.Value);
             }
+
             return result;
         }
 
@@ -78,6 +82,7 @@ namespace AccessControl.Repositories
             var prm = new DynamicParameters();
             prm.Add("@SessionId", guid);
             prm.Add("@EndTime", now.AddSeconds(WebApiConfig.SessionTimeoutInterval));
+
             return (await _connectionWrapper.QueryAsync<Session>("ExtendSession", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
 
@@ -88,6 +93,7 @@ namespace AccessControl.Repositories
             prm.Add("@EndTime", DateTime.UtcNow);
             prm.Add("@TimeoutTime", timeoutTime);
             prm.Add("@LicenseLockTimeMinutes", WebApiConfig.LicenseHoldTime);
+
             return (await _connectionWrapper.QueryAsync<Session>("EndSession", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
     }

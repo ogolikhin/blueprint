@@ -47,24 +47,6 @@ namespace AccessControl.Controllers
             _sessionsCache.Dispose();
         }
 
-        #region Constructor
-
-        [TestMethod]
-        public void Constructor_Always_CreatesDefaultDependencies()
-        {
-            // Arrange
-
-            // Act
-            var controller = new SessionsController();
-
-            // Assert
-            Assert.IsInstanceOfType(controller._sessions, typeof(TimeoutManager<Guid>));
-            Assert.IsInstanceOfType(controller._repo, typeof(SqlSessionsRepository));
-            Assert.IsInstanceOfType(controller._log, typeof(ServiceLogRepository));
-        }
-
-        #endregion Constructor
-
         #region GetSession
 
         [TestMethod]

@@ -3,15 +3,14 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using System.Collections.Generic;
 using System.Data;
-using System.Threading.Tasks;
 using System.Linq;
-using System;
+using System.Threading.Tasks;
 
 namespace ServiceLibrary.Repositories
 {
     public class SqlUsersRepository : IUsersRepository
     {
-        internal readonly ISqlConnectionWrapper ConnectionWrapper;
+        private readonly ISqlConnectionWrapper _connectionWrapper;
 
         public SqlUsersRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
@@ -20,7 +19,7 @@ namespace ServiceLibrary.Repositories
 
         internal SqlUsersRepository(ISqlConnectionWrapper connectionWrapper)
         {
-            ConnectionWrapper = connectionWrapper;
+            _connectionWrapper = connectionWrapper;
         }
 
         public async Task<IEnumerable<UserInfo>> GetUserInfos(IEnumerable<int> userIds)
@@ -28,7 +27,8 @@ namespace ServiceLibrary.Repositories
             var userInfosPrm = new DynamicParameters();
             var userIdsTable = SqlConnectionWrapper.ToDataTable(userIds, "Int32Collection", "Int32Value");
             userInfosPrm.Add("@userIds", userIdsTable);
-            return await ConnectionWrapper.QueryAsync<UserInfo>("GetUserInfos", userInfosPrm, commandType: CommandType.StoredProcedure);
+
+            return await _connectionWrapper.QueryAsync<UserInfo>("GetUserInfos", userInfosPrm, commandType: CommandType.StoredProcedure);
         }
 
         public Task<IEnumerable<UserInfo>> GetUserInfosFromGroupsAsync(IEnumerable<int> groupIds)
@@ -38,7 +38,7 @@ namespace ServiceLibrary.Repositories
 
             parameters.Add("@groupIds", groupIdsTable);
 
-            return ConnectionWrapper.QueryAsync<UserInfo>("GetUserInfosFromGroups", parameters, commandType: CommandType.StoredProcedure);
+            return _connectionWrapper.QueryAsync<UserInfo>("GetUserInfosFromGroups", parameters, commandType: CommandType.StoredProcedure);
         }
 
         public Task<IEnumerable<int>> FindNonExistentUsersAsync(IEnumerable<int> userIds)
@@ -48,7 +48,7 @@ namespace ServiceLibrary.Repositories
 
             parameters.Add("@userIds", userIdsTable);
 
-            return ConnectionWrapper.QueryAsync<int>("FindNonExistentUsers", parameters, commandType: CommandType.StoredProcedure);
+            return _connectionWrapper.QueryAsync<int>("FindNonExistentUsers", parameters, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<IEnumerable<UserInfo>> GetUsersByEmail(string email, bool? guestsOnly = false)
@@ -56,7 +56,8 @@ namespace ServiceLibrary.Repositories
             var userInfosPrm = new DynamicParameters();
             userInfosPrm.Add("@Email", email);
             userInfosPrm.Add("@GuestsOnly", guestsOnly);
-            return await ConnectionWrapper.QueryAsync<UserInfo>("GetUsersByEmail", userInfosPrm, commandType: CommandType.StoredProcedure);
+
+            return await _connectionWrapper.QueryAsync<UserInfo>("GetUsersByEmail", userInfosPrm, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<bool> IsInstanceAdmin(bool contextUser, int sessionUserId)
@@ -64,7 +65,8 @@ namespace ServiceLibrary.Repositories
             var prm = new DynamicParameters();
             prm.Add("@contextUser", contextUser);
             prm.Add("@userId", sessionUserId);
-            return (await ConnectionWrapper.QueryAsync<bool>("IsInstanceAdmin", prm, commandType: CommandType.StoredProcedure)).SingleOrDefault();            
+
+            return (await _connectionWrapper.QueryAsync<bool>("IsInstanceAdmin", prm, commandType: CommandType.StoredProcedure)).SingleOrDefault();            
         }
     }
 }

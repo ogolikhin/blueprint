@@ -1,9 +1,4 @@
-﻿using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Web.Http;
-using System.Web.Http.Description;
-using AdminStore.Helpers;
+﻿using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Models.Enums;
 using AdminStore.Repositories;
@@ -12,6 +7,11 @@ using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Description;
 
 namespace AdminStore.Controllers
 {
@@ -20,8 +20,8 @@ namespace AdminStore.Controllers
     [BaseExceptionFilter]
     public class GroupsController : BaseApiController
     {
-        internal readonly IGroupRepository _groupRepository;
-        internal readonly PrivilegesManager _privilegesManager;
+        private readonly IGroupRepository _groupRepository;
+        private readonly PrivilegesManager _privilegesManager;
 
         public GroupsController() : this(new SqlGroupRepository(), new SqlPrivilegesRepository())
         {
@@ -147,6 +147,7 @@ namespace AdminStore.Controllers
             GroupValidator.ValidateModel(group, OperationMode.Create);
 
             var groupId = await _groupRepository.AddGroupAsync(group);
+
             return Request.CreateResponse(HttpStatusCode.Created, groupId);
         }
 
@@ -215,7 +216,6 @@ namespace AdminStore.Controllers
 
             return Ok();
         }
-
 
         /// <summary>
         /// Get group's members 
@@ -300,8 +300,10 @@ namespace AdminStore.Controllers
             {
                 throw new BadRequestException(ErrorMessages.AssignMemberScopeEmpty, ErrorCodes.BadRequest);
             }
+
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageGroups);
             var result = await _groupRepository.AssignMembers(groupId, scope, search);
+
             return Ok(new AssignResult() { TotalAssigned = result });
         }
     }

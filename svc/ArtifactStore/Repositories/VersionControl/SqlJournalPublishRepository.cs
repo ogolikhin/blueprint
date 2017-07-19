@@ -1,10 +1,10 @@
-﻿using System;
-using System.Data;
-using System.Threading.Tasks;
-using ArtifactStore.Models.VersionControl;
+﻿using ArtifactStore.Models.VersionControl;
 using Dapper;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.VersionControl;
+using System;
+using System.Data;
+using System.Threading.Tasks;
 
 namespace ArtifactStore.Repositories.VersionControl
 {
@@ -20,7 +20,6 @@ namespace ArtifactStore.Repositories.VersionControl
             await AddArtifactChanges(parameters, environment, transaction);
         }
 
-        
         public async Task AddArtifactChanges(PublishParameters parameters, PublishEnvironment environment, IDbTransaction transaction = null)
         {
             var affectedArtifacts = environment.GetAffectedArtifacts();
@@ -88,7 +87,7 @@ namespace ArtifactStore.Repositories.VersionControl
             catch (Exception)
             {
                 //swallow
-                
+
             }
         }
     }

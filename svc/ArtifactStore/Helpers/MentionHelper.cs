@@ -1,5 +1,4 @@
-﻿using ArtifactStore.Repositories;
-using HtmlLibrary;
+﻿using HtmlLibrary;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 using System;
@@ -12,13 +11,9 @@ namespace ArtifactStore.Helpers
 {
     internal class MentionHelper : IMentionValidator
     {
-
-        internal readonly IUsersRepository UsersRepository;
-
-        internal readonly IInstanceSettingsRepository InstanceSettingsRepository;
-
-        internal readonly IArtifactPermissionsRepository PermissionsRepository;
-
+        private readonly IUsersRepository _usersRepository;
+        private readonly IInstanceSettingsRepository _instanceSettingsRepository;
+        private readonly IArtifactPermissionsRepository _permissionsRepository;
         private readonly MentionProcessor _mentionProcessor;
 
         public MentionHelper() : this(new SqlUsersRepository(), new SqlInstanceSettingsRepository(), new SqlArtifactPermissionsRepository())
@@ -29,9 +24,9 @@ namespace ArtifactStore.Helpers
             IInstanceSettingsRepository instanceSettingsRepository,
             IArtifactPermissionsRepository permissionsRepository)
         {
-            UsersRepository = usersRepository;
-            InstanceSettingsRepository = instanceSettingsRepository;
-            PermissionsRepository = permissionsRepository;
+            _usersRepository = usersRepository;
+            _instanceSettingsRepository = instanceSettingsRepository;
+            _permissionsRepository = permissionsRepository;
             _mentionProcessor = new MentionProcessor(this);
         }
 
@@ -54,7 +49,7 @@ namespace ArtifactStore.Helpers
                 return false;
             }
 
-            var permissions = await PermissionsRepository.GetProjectPermissions(projectId);
+            var permissions = await _permissionsRepository.GetProjectPermissions(projectId);
             return permissions.HasFlag(ProjectPermissions.AreEmailRepliesEnabled);
         }
 
@@ -74,7 +69,7 @@ namespace ArtifactStore.Helpers
             }
             if (!_usersByEmail.TryGetValue(email, out user))
             {
-                user = (await UsersRepository.GetUsersByEmail(email, true)).FirstOrDefault();
+                user = (await _usersRepository.GetUsersByEmail(email, true)).FirstOrDefault();
                 _usersByEmail.Add(email, user);
             }
             return user;
@@ -120,7 +115,7 @@ namespace ArtifactStore.Helpers
         {
             if (_instanceEmailSettings == null)
             {
-                _instanceEmailSettings = await InstanceSettingsRepository.GetEmailSettings();
+                _instanceEmailSettings = await _instanceSettingsRepository.GetEmailSettings();
             }
             return _instanceEmailSettings;
         }

@@ -1,14 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using ServiceLibrary.Attributes;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories.ConfigControl;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
-using ServiceLibrary.Attributes;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Repositories;
-using ServiceLibrary.Repositories.ConfigControl;
-using System.Net.Http.Headers;
 
 namespace AccessControl.Controllers
 {
@@ -16,24 +15,28 @@ namespace AccessControl.Controllers
     [RoutePrefix("status")]
     public class StatusController : ApiController
     {
-        internal readonly IStatusControllerHelper _statusControllerHelper;
-        internal readonly string _preAuthorizedKey;
+        private readonly IStatusControllerHelper _statusControllerHelper;
 
         public StatusController()
-            : this(new StatusControllerHelper(
-                        new List<IStatusRepository> { new SqlStatusRepository(WebApiConfig.AdminStorage, "AdminStorage") },
-                        "AccessControl",
-                        new ServiceLogRepository(),
-                        WebApiConfig.LogSourceStatus
-                    )                 
-                  )
+            : this
+            (
+                new StatusControllerHelper
+                (
+                    new List<IStatusRepository>
+                    {
+                        new SqlStatusRepository(WebApiConfig.AdminStorage, "AdminStorage")
+                    },
+                    "AccessControl",
+                    new ServiceLogRepository(),
+                    WebApiConfig.LogSourceStatus
+                )
+            )
         {
         }
 
         internal StatusController(IStatusControllerHelper scHelper)
         {
             _statusControllerHelper = scHelper;
-            
         }
 
         /// <summary>
@@ -54,16 +57,15 @@ namespace AccessControl.Controllers
             {
                 serviceStatus = _statusControllerHelper.GetShorterStatus(serviceStatus);
             }
+
             if (serviceStatus.NoErrors)
             {
                 return Ok(serviceStatus);
             }
-            else
-            {
-                var response = Request.CreateResponse(HttpStatusCode.InternalServerError, serviceStatus);
-                return ResponseMessage(response);
-            }
-           
+
+            var response = Request.CreateResponse(HttpStatusCode.InternalServerError, serviceStatus);
+
+            return ResponseMessage(response);
         }
 
         /// <summary>

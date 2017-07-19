@@ -1,13 +1,13 @@
-﻿using System.Net;
-using System.Threading.Tasks;
-using System.Web.Http;
-using ArtifactStore.Models;
+﻿using ArtifactStore.Models;
 using ArtifactStore.Repositories;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
+using System.Net;
+using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace ArtifactStore.Controllers
 {
@@ -20,13 +20,15 @@ namespace ArtifactStore.Controllers
         private const int MIN_LIMIT = 1;
         private const int MAX_LIMIT = 100;
 
-        internal readonly IArtifactVersionsRepository ArtifactVersionsRepository;
-        internal readonly IArtifactPermissionsRepository ArtifactPermissionsRepository;
+        private readonly IArtifactVersionsRepository ArtifactVersionsRepository;
+        private readonly IArtifactPermissionsRepository ArtifactPermissionsRepository;
+
         public override string LogSource { get; } = "ArtifactStore.ArtifactVersions";
 
         public ArtifactVersionsController() : this(new SqlArtifactVersionsRepository(), new SqlArtifactPermissionsRepository())
         {
         }
+
         public ArtifactVersionsController(IArtifactVersionsRepository artifactVersionsRepository, IArtifactPermissionsRepository artifactPermissionsRepository) : base()
         {
             ArtifactVersionsRepository = artifactVersionsRepository;

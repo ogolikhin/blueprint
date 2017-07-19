@@ -1,36 +1,19 @@
-﻿using System;
+﻿using ConfigControl.Models;
+using ConfigControl.Repositories;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
-using ConfigControl.Models;
-using ConfigControl.Repositories;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 
 namespace ConfigControl.Controllers
 {
     [TestClass]
     public class ConfigControllerTests
     {
-        #region Constuctor
-
-        [TestMethod]
-        public void Constructor_CreatesDefaultDependencies()
-        {
-            // Arrange
-
-            // Act
-            var controller = new ConfigController();
-
-            // Assert
-            Assert.IsInstanceOfType(controller._configRepo, typeof(SqlConfigRepository));
-        }
-
-        #endregion
-
         #region GetConfig
 
         [TestMethod]

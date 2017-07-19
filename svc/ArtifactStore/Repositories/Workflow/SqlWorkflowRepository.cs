@@ -1,19 +1,17 @@
-﻿using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
-using Dapper;
+﻿using Dapper;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ArtifactStore.Repositories.Workflow
 {
     public class SqlWorkflowRepository : SqlBaseArtifactRepository, IWorkflowRepository
     {
-        
-
         public SqlWorkflowRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {
@@ -129,7 +127,7 @@ namespace ArtifactStore.Repositories.Workflow
         {
             return sqlWorkflowTransitions.Select(wt => new WorkflowTransition
             {
-                Id = wt.TriggerId,
+                Id = wt.WorkflowEventId,
                 ToState = new WorkflowState
                 {
                     WorkflowId = wt.WorkflowId,
@@ -142,7 +140,7 @@ namespace ArtifactStore.Repositories.Workflow
                     Id = wt.FromStateId,
                     Name = wt.FromStateName
                 },
-                Name = wt.TriggerName,
+                Name = wt.WorkflowEventName,
                 WorkflowId = wt.WorkflowId
             }).ToList();
         }

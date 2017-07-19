@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using System.Text;
 
@@ -8,9 +7,10 @@ namespace ServiceLibrary.Helpers
 {
     public sealed class ComplexObjectReader : IDisposable
     {
-        private readonly TextReader _reader;        
-        internal const char FalseChar = '0';
-        internal const char Delimeter = ' ';
+        private const char FalseChar = '0';
+        private const char Delimeter = ' ';
+
+        private readonly TextReader _reader;
 
         public ComplexObjectReader(TextReader reader)
         {

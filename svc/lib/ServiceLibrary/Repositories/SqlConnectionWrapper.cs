@@ -21,7 +21,6 @@ namespace ServiceLibrary.Repositories
         Task<Tuple<IEnumerable<T1>, IEnumerable<T2>>> QueryMultipleAsync<T1, T2>(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null);
         Task<Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>>> QueryMultipleAsync<T1, T2, T3>(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null);
         Task<Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>>> QueryMultipleAsync<T1, T2, T3, T4>(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null);
-
     }
 
     public class SqlConnectionWrapper : ISqlConnectionWrapper
@@ -44,7 +43,6 @@ namespace ServiceLibrary.Repositories
             {
                 connection.Open();
                 return await connection.ExecuteAsync(sql, param, transaction, commandTimeout, commandType);
-              
             }
         }
 
@@ -148,10 +146,12 @@ namespace ServiceLibrary.Repositories
             var table = new DataTable { Locale = CultureInfo.InvariantCulture };
             table.SetTypeName(typeName);
             table.Columns.Add(columnName, typeof(int));
+
             foreach (var value in values)
             {
                 table.Rows.Add(value);
             }
+
             return table;
         }
 
@@ -160,12 +160,13 @@ namespace ServiceLibrary.Repositories
             var table = new DataTable { Locale = CultureInfo.InvariantCulture };
             table.SetTypeName(typeName);
             table.Columns.Add(columnName, typeof(string));
+
             foreach (var value in values)
             {
                 table.Rows.Add(value);
             }
+
             return table;
         }
-
     }
 }

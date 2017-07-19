@@ -25,7 +25,7 @@ namespace NServiceBusSpike
 
             var task = Task.Factory.StartNew(() => { });
 
-            Program.StateChangeMessageScheduler.Request(new StateChangeMessage()
+            Program.StateChangeMessageScheduler.Request(new StateChangeMessage
             {
                TenantId = new Random(50).Next(1,100)
             });

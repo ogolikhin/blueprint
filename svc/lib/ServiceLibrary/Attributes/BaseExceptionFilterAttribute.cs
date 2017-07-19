@@ -37,11 +37,14 @@ namespace ServiceLibrary.Attributes
             }
 
             int? errorCode = null;
+            object errorContent = null;
             var exceptionWithErrorCode = context.Exception as ExceptionWithErrorCode;
             if (exceptionWithErrorCode != null)
             {
                 errorCode = exceptionWithErrorCode.ErrorCode;
+                errorContent = exceptionWithErrorCode.Content;
             }
+            
             
             var loggableController = context.ActionContext?.ControllerContext?.Controller;
             var log = GetLog(loggableController);
@@ -55,6 +58,10 @@ namespace ServiceLibrary.Attributes
             if (errorCode.HasValue)
             {
                 error[ServiceConstants.ErrorCodeName] = errorCode;
+            }
+            if (errorContent != null)
+            {
+                error[ServiceConstants.ErrorContentName] = errorContent;
             }
 
             context.Response = context.Request.CreateErrorResponse(statusCode, error);

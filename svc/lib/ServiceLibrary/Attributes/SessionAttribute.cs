@@ -1,4 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Helpers.Cache;
+using ServiceLibrary.Models;
+using System;
 using System.Configuration;
 using System.Linq;
 using System.Net;
@@ -7,11 +11,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
-using Newtonsoft.Json;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Models;
-using ServiceLibrary.Helpers.Cache;
-using System.Runtime.Caching;
 
 namespace ServiceLibrary.Attributes
 {
@@ -42,8 +41,8 @@ namespace ServiceLibrary.Attributes
 
         private readonly bool _allowCookie;
         private readonly bool _ignoreBadToken;
-        internal readonly IHttpClientProvider _httpClientProvider;
-        internal readonly IAsyncCache _cache;
+        private readonly IHttpClientProvider _httpClientProvider;
+        private readonly IAsyncCache _cache;
 
         protected internal SessionAttribute(bool allowCookie = false, bool ignoreBadToken = false) :
             this(allowCookie, ignoreBadToken, new HttpClientProvider(), SessionsCacheSettings.IsSessionCacheEnabled ? AsyncCache.Default : AsyncCache.NoCache)

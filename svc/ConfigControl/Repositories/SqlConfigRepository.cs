@@ -1,16 +1,16 @@
-﻿using System.Data;
-using System.Threading.Tasks;
+﻿using ConfigControl.Models;
 using Dapper;
-using ConfigControl.Models;
-using System.Collections.Generic;
 using ServiceLibrary.Repositories;
+using System.Collections.Generic;
 using System.Configuration;
+using System.Data;
+using System.Threading.Tasks;
 
 namespace ConfigControl.Repositories
 {
     public class SqlConfigRepository : IConfigRepository
     {
-        internal readonly ISqlConnectionWrapper _connectionWrapper;
+        private readonly ISqlConnectionWrapper _connectionWrapper;
 
         public SqlConfigRepository()
             : this(new SqlConnectionWrapper(WebApiConfig.AdminStorage))

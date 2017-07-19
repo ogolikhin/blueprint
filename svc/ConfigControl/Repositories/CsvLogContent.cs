@@ -1,19 +1,16 @@
-﻿using System;
+﻿using ServiceLibrary.Repositories.ConfigControl;
+using System;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using ServiceLibrary.Repositories.ConfigControl;
+
 namespace ConfigControl.Repositories
 {
-
-
     public class CsvLogContent : HttpContent
     {
-
         private const string dispositionType = "attachment";
         private const string attachmentFileName = "AdminStore.csv";
         private const string mediaType = "text/csv";
@@ -22,7 +19,6 @@ namespace ConfigControl.Repositories
         private readonly ILogRepository _repository;
 
         private readonly MemoryStream _stream = new MemoryStream();
-        
 
         public CsvLogContent() : this(new LogRepository(), new ServiceLogRepository())
         {

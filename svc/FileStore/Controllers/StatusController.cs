@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Web.Http;
-using System.Web.Http.Description;
-using FileStore.Repositories;
+﻿using FileStore.Repositories;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Description;
 
 namespace FileStore.Controllers
 {
@@ -18,8 +18,8 @@ namespace FileStore.Controllers
     [RoutePrefix("status")]
     public class StatusController : ApiController
     {
-        internal readonly IStatusControllerHelper _statusControllerHelper;
-        internal readonly string _expectedPreAuthorizedKey;
+        private readonly IStatusControllerHelper _statusControllerHelper;
+        private readonly string _expectedPreAuthorizedKey;
 
         public StatusController()
             : this

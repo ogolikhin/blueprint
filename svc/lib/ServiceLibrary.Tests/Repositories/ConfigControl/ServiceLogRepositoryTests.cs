@@ -13,22 +13,6 @@ namespace ServiceLibrary.Repositories.ConfigControl
     [TestClass]
     public class ServiceLogRepositoryTests
     {
-        #region Constructor
-
-        [TestMethod]
-        public void Constructor_Always_CreatesDefaultDependencies()
-        {
-            // Arrange
-
-            // Act
-            var controller = new ServiceLogRepository();
-
-            // Assert
-            Assert.IsInstanceOfType(controller._httpClientProvider, typeof(HttpClientProvider));
-        }
-
-        #endregion
-
         [TestMethod]
         public async Task LogInformation_Success()
         {

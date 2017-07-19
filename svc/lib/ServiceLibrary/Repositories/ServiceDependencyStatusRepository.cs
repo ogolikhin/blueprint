@@ -1,21 +1,18 @@
-﻿using System;
-using System.Data;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Web;
-using ServiceLibrary.Helpers;
+﻿using ServiceLibrary.Helpers;
+using System;
 using System.Collections.Generic;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace ServiceLibrary.Repositories
 {
     public class ServiceDependencyStatusRepository : IStatusRepository
     {
-        public string Name { get; set; }
-        public string AccessInfo { get; set; }
-
         private readonly Uri _requestUri;
+
+        public string Name { get; set; }
+
+        public string AccessInfo { get; set; }
 
         public ServiceDependencyStatusRepository(Uri serviceUri, string name)
         {
@@ -29,20 +26,20 @@ namespace ServiceLibrary.Repositories
             var webRequest = WebRequest.CreateHttp(_requestUri);
             webRequest.Timeout = timeout;
             HttpWebResponse result = (HttpWebResponse)await webRequest.GetResponseAsync();
-            var responseData = new StatusResponse()
+            var responseData = new StatusResponse
             {
                 Name = Name,
                 AccessInfo = AccessInfo,
                 Result = ((int)result.StatusCode).ToString(),
                 NoErrors = true
             };
-            return responseData;
 
+            return responseData;
         }
 
         public async Task<List<StatusResponse>> GetStatuses(int timeout)
         {
-            return new List<StatusResponse>() { await GetStatus(timeout) };
+            return new List<StatusResponse> { await GetStatus(timeout) };
         }
     }
 }

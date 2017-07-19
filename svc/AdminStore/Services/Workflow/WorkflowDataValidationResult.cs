@@ -2,7 +2,7 @@
 using System.Linq;
 using AdminStore.Models;
 
-namespace AdminStore.Repositories.Workflow
+namespace AdminStore.Services.Workflow
 {
     public class WorkflowDataValidationResult
     {
@@ -14,7 +14,7 @@ namespace AdminStore.Repositories.Workflow
             => _errors ?? (_errors = new List<WorkflowDataValidationError>());
 
         public HashSet<int> ValidProjectIds { get; } = new HashSet<int>();
-
+        public HashSet<string> ValidArtifactTypeNames { get; } = new HashSet<string>();
         public HashSet<SqlGroup> ValidGroups { get; } = new HashSet<SqlGroup>();
     }
 
@@ -28,6 +28,9 @@ namespace AdminStore.Repositories.Workflow
     public enum WorkflowDataValidationErrorCodes
     {
         ProjectNotFound,
-        GroupsNotFound
+        GroupsNotFound,
+        ArtifactTypeNotFoundInProject,
+        ArtifactTypeAlreadyAssociatedWithWorkflow,
+        ArtifactTypeNotUsedInProject
     }
 }

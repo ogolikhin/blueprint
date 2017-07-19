@@ -1,36 +1,20 @@
-﻿using System;
+﻿using AdminStore.Helpers;
+using AdminStore.Models;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using ServiceLibrary.Repositories.ConfigControl;
+using System;
 using System.Collections.Generic;
 using System.DirectoryServices;
 using System.DirectoryServices.Protocols;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using AdminStore.Helpers;
-using AdminStore.Models;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Repositories
 {
     [TestClass]
     public class LdapRepositoryTests
     {
-        #region Constuctor
-
-        [TestMethod]
-        public void Constructor_CreatesDefaultDependencies()
-        {
-            // Arrange
-
-            // Act
-            var repository = new LdapRepository();
-
-            // Assert
-            Assert.IsInstanceOfType(repository._settingsRepository, typeof(SqlSettingsRepository));
-        }
-
-        #endregion Constructor
-
         #region AuthenticateLdapUserAsync
 
         [TestMethod]

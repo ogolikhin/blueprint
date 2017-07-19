@@ -1,36 +1,19 @@
-﻿using System;
+﻿using AdminStore.Helpers;
+using AdminStore.Models;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using ServiceLibrary.Models;
+using ServiceLibrary.Repositories;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AdminStore.Helpers;
-using AdminStore.Models;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Repositories;
-using Moq;
-using ServiceLibrary.Models;
 
 namespace AdminStore.Repositories
 {
     [TestClass]
     public class SqlUserRepositoryTests
     {
-        #region Constructor
-
-        [TestMethod]
-        public void Constructor_CreatesConnectionToRaptorMain()
-        {
-            // Arrange
-
-            // Act
-            var repository = new SqlUserRepository();
-
-            // Assert
-            Assert.AreEqual(ServiceConstants.RaptorMain, repository._connectionWrapper.CreateConnection().ConnectionString);
-        }
-
-        #endregion Constructor
-
         #region GetUserByLoginAsync
 
         [TestMethod]

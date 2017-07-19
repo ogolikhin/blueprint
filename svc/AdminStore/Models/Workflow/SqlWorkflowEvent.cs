@@ -1,6 +1,6 @@
 ﻿namespace AdminStore.Models.Workflow
 {
-    public class SqlTrigger
+    public class SqlWorkflowEvent
     {
         public int VersionId { get; set; }
 
@@ -16,13 +16,13 @@
 
         public string Description { get; set; }
 
-        public DTriggerType Type { get; set; }
+        public DWorkflowEventType Type { get; set; }
 
         public string Permissions { get; set; }
 
         public string Validations { get; set; }
 
-        public string Actions { get; set; }
+        public string Triggers { get; set; }
 
         public int? WorkflowState1Id { get; set; }
 
@@ -31,9 +31,10 @@
         public int? PropertyTypeId { get; set; }
     }
 
-    public enum DTriggerType
+    public enum DWorkflowEventType
     {
         Transition = 0,
-        PropertyChange = 1
+        PropertyChange = 1,
+        NewArtifacr = 2
     }
 }

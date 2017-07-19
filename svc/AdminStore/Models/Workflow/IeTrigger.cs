@@ -16,5 +16,8 @@ namespace AdminStore.Models.Workflow {
         [XmlElement(typeof(IeGenerateAction), ElementName = "GenerateAction")]
         [XmlElement(typeof(IePropertyChangeAction), ElementName = "PropertyChangeAction")]
         public IeBaseAction Action { get; set; }
+
+        [XmlElement(typeof(IeStateCondition), ElementName = "StateCondition")]
+        public IeCondition Condition { get; set; }
     }
 }

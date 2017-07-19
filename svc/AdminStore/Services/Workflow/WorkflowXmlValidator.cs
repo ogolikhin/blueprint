@@ -248,6 +248,46 @@ namespace AdminStore.Services.Workflow
                 }
             }
 
+            //TODO: add unit tests
+            foreach (var naEvent in workflow.NewArtifactsEvents.FindAll(s => s != null))
+            {
+                if (!ValidatePropertyNotEmpty(naEvent.Name))
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = naEvent,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.PropertyChangeEventNameEmpty
+                    });
+                }
+
+                if (!ValidatePropertyLimit(naEvent.Name, 24))
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = naEvent,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.PropertyChangeEventNameExceedsLimit24
+                    });
+                }
+
+                if (!ValidatePropertyLimit(naEvent.Description, 4000))
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = naEvent,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.PropertyChangeEventDescriptionExceedsLimit4000
+                    });
+                }
+
+                if (naEvent.Triggers?.Count > 10)
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = naEvent,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.TriggerCountOnEventExceedsLimit10
+                    });
+                }
+            }
+
             foreach (var stateName in stateTransitions.Keys)
             {
                 var transitionNames = stateTransitions[stateName];

@@ -14,7 +14,7 @@ namespace AdminStore.Services.Workflow
             => _errors ?? (_errors = new List<WorkflowDataValidationError>());
 
         public HashSet<int> ValidProjectIds { get; } = new HashSet<int>();
-
+        public HashSet<string> ValidArtifactTypeNames { get; } = new HashSet<string>();
         public HashSet<SqlGroup> ValidGroups { get; } = new HashSet<SqlGroup>();
     }
 
@@ -28,6 +28,9 @@ namespace AdminStore.Services.Workflow
     public enum WorkflowDataValidationErrorCodes
     {
         ProjectNotFound,
-        GroupsNotFound
+        GroupsNotFound,
+        ArtifactTypeNotFoundInProject,
+        ArtifactTypeAlreadyAssociatedWithWorkflow,
+        ArtifactTypeNotUsedInProject
     }
 }

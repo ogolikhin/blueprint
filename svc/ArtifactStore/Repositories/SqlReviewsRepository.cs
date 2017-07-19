@@ -113,6 +113,7 @@ namespace ArtifactStore.Repositories
                 {
                     Approved = reviewDetails.Approved,
                     Disapproved = reviewDetails.Disapproved,
+                    Pending = reviewDetails.Pending,
                     Viewed = reviewDetails.Viewed
                 },
                 ReviewType = reviewDetails.BaselineId.HasValue ? ReviewType.Formal : ReviewType.Informal,

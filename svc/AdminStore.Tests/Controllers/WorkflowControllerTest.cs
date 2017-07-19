@@ -467,7 +467,7 @@ namespace AdminStore.Controllers
             // Arrange
             var workflow = new IeWorkflow { Name = "Workflow1", Description = "DescriptionWorkflow1", States = new List<IeState>(),
                                             ArtifactTypes = new List<IeArtifactType>(), Projects = new List<IeProject>(),Triggers = new List<IeTrigger>()};
-            _workflowServiceMock.Setup(repo => repo.GetWorkflowExportAsync(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(workflow);
+            _workflowServiceMock.Setup(repo => repo.GetWorkflowExportAsync(It.IsAny<int>())).ReturnsAsync(workflow);
             _privilegesRepositoryMock
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(AllProjectDataPermissions);

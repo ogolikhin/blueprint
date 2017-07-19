@@ -115,15 +115,23 @@ namespace AdminStore.Repositories.Workflow
             return result;
         }
 
-        //public async Task<IEnumerable<SqlState>> GetWorkflowStatesByWorkflowIdAsync(int workflowId, int userId)
-        //{
-        //    var parameters = new DynamicParameters();
-        //    parameters.Add("WorkflowId", workflowId);
-        //    parameters.Add("userId", userId);
-        //    var result = await _connectionWrapper.QueryAsync<SqlState>("GetWorkflowStatesByWorkflowId", parameters, commandType: CommandType.StoredProcedure);
+        public async Task<IEnumerable<SqlState>> GetWorkflowStatesByWorkflowId(int workflowId)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("WorkflowId", workflowId);
+            var result = await _connectionWrapper.QueryAsync<SqlState>("GetWorkflowStatesById", parameters, commandType: CommandType.StoredProcedure);
 
-        //    return result;
-        //}
+            return result;
+        }
+
+        public async Task<IEnumerable<SqlWorkflowTransitionsAndPropertyChanges>> GetWorkflowTransitionsAndPropertyChangesByWorkflowId(int workflowId)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("WorkflowId", workflowId);
+            var result = await _connectionWrapper.QueryAsync<SqlWorkflowTransitionsAndPropertyChanges>("GetWorkflowTransitionsAndPropertyChangesById", parameters, commandType: CommandType.StoredProcedure);
+
+            return result;
+        }       
 
         public async Task<IEnumerable<SqlTrigger>> CreateWorkflowTriggersAsync(IEnumerable<SqlTrigger> workflowTriggers, int publishRevision, IDbTransaction transaction = null)
         {

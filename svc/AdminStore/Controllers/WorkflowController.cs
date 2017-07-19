@@ -269,6 +269,10 @@ namespace AdminStore.Controllers
         /// Returns Ok result.
         /// </remarks>
         /// <response code="200">Ok. Workflow is exported.</response>
+        /// <response code="400">BadRequest. Parameters are invalid. </response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for updating the workflow.</response>
+        /// <response code="404">NotFound. The workflow with the current id doesn’t exist or removed from the system.</response>
         [SessionRequired]
         [HttpGet, NoCache]
         [ResponseType(typeof(HttpResponseMessage))]
@@ -276,22 +280,23 @@ namespace AdminStore.Controllers
         public async Task<ResponseMessageResult> ExportWorkflow(int workflowId)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
-            var ieWorkflow = await _workflowService.GetWorkflowExportAsync(workflowId, Session.UserId);
+            var ieWorkflow = await _workflowService.GetWorkflowExportAsync(workflowId);
 
             var toXml = SerializationHelper.ToXml(ieWorkflow);
-                var result = new HttpResponseMessage(HttpStatusCode.OK)
-                {                    
-                    Content = new StringContent(toXml, Encoding.UTF8)
-                };
-                result.Content.Headers.ContentDisposition =
-                    new ContentDispositionHeaderValue("attachment")
-                    {
-                        FileName = $"workflow{workflowId}.xml"
-                    };
-                result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-                var response = ResponseMessage(result);
 
-                return response;
+            var result = new HttpResponseMessage(HttpStatusCode.OK)
+            {                    
+                Content = new StringContent(toXml, Encoding.UTF8)
+            };
+            result.Content.Headers.ContentDisposition =
+                new ContentDispositionHeaderValue("attachment")
+                {
+                    FileName = $"workflow{workflowId}.xml"
+                };
+            result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+            var response = ResponseMessage(result);
+
+            return response;
         }
 
         #region Private methods

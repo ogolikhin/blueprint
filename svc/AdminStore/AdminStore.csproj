@@ -173,6 +173,7 @@
     <Compile Include="Models\Workflow\IePropertyChangeAction.cs" />
     <Compile Include="Models\Workflow\IePropertyChangeTrigger.cs" />
     <Compile Include="Models\Workflow\IeTrigger.cs" />
+    <Compile Include="Models\Workflow\SqlWorkflowTransitionsAndPropertyChanges.cs" />
     <Compile Include="Models\Workflow\WorkflowArtifactTypeDto.cs" />
     <Compile Include="Models\Workflow\SqlProjectPathPair.cs" />
     <Compile Include="Models\Workflow\SqlState.cs" />

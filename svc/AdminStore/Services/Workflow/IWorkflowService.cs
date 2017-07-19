@@ -20,6 +20,6 @@ namespace AdminStore.Services.Workflow
 
         Task<int> DeleteWorkflows(OperationScope body, string search, int sessionUserId);
 
-        Task<IeWorkflow> GetWorkflowExportAsync(int workflowId, int userId);
+        Task<IeWorkflow> GetWorkflowExportAsync(int workflowId);
     }
 }

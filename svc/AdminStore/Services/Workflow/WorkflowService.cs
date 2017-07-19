@@ -287,7 +287,7 @@ namespace AdminStore.Services.Workflow
             await _workflowRepository.CreateWorkflowTriggersAsync(importTriggersParams, publishRevision, transaction);
         }
 
-        public async Task<IeWorkflow> GetWorkflowExportAsync(int workflowId, int userId)
+        public async Task<IeWorkflow> GetWorkflowExportAsync(int workflowId)
         {
             var workflowDetails = await _workflowRepository.GetWorkflowDetailsAsync(workflowId);
             if (workflowDetails == null)
@@ -295,17 +295,19 @@ namespace AdminStore.Services.Workflow
                 throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
             }
             var workflowProjectsAndArtifactTypes = (await _workflowRepository.GetWorkflowArtifactTypesAndProjectsAsync(workflowId)).ToList();
-            //var workflowStates = (await _workflowRepository.GetWorkflowStatesByWorkflowIdAsync(workflowId, userId)).ToList();
+            var workflowStates = (await _workflowRepository.GetWorkflowStatesByWorkflowId(workflowId)).ToList();
+            var workflowTriggers = (await _workflowRepository.GetWorkflowTransitionsAndPropertyChangesByWorkflowId(workflowId)).Where(t => t.Type == 1).ToList();//TriggerTypes.Transition
+
             IeWorkflow ieWorkflow = new IeWorkflow
             {
-                Name            = workflowDetails.Name,
-                Description     = workflowDetails.Description,
-                Projects        = workflowProjectsAndArtifactTypes.Select(e => new IeProject { Id = e.ProjectId, Path = e.ProjectName }).Distinct().ToList(),
-                ArtifactTypes   = workflowProjectsAndArtifactTypes.Select(e => new IeArtifactType { Name = e.ArtifactName }).Distinct().ToList(),
-                //States          = workflowStates.Select(e => new IeState { IsInitial = e.Default, Description = e.Description, Name = e.Name }).Distinct().ToList()
-                States          = new List<IeState>(),
-                Triggers        = new List<IeTrigger>()//when will be stored procedure
+                Name = workflowDetails.Name,
+                Description = workflowDetails.Description,
+                Projects = workflowProjectsAndArtifactTypes.Select(e => new IeProject { Id = e.ProjectId, Path = e.ProjectName }).Distinct().ToList(),
+                ArtifactTypes = workflowProjectsAndArtifactTypes.Select(e => new IeArtifactType { Name = e.ArtifactName }).Distinct().ToList(),
+                States = workflowStates.Select(e => new IeState { IsInitial = e.Default, Description = e.Description, Name = e.Name }).Distinct().ToList(),
+                Triggers = workflowTriggers.Select(e => new IeTransitionTrigger {Name = e.Name, Description = e.Description, FromState = e.FromState, ToState = e.ToState}).Distinct().ToList<IeTrigger>()
             };
+
             return ieWorkflow;
         }
 

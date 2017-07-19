@@ -1,6 +1,6 @@
 ﻿namespace ServiceLibrary.Models
 {
-    public interface ITrigger
+    public interface IWorkflowEvent
     {
         int Id { get; set; }
 

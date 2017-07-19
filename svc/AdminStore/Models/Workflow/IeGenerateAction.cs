@@ -1,16 +1,8 @@
 ﻿using System.Xml.Serialization;
+using ServiceLibrary.Models.Enums;
 
 namespace AdminStore.Models.Workflow
 {
-    public enum GenerateActionTypes
-    {
-        None,
-        Children,
-        UserStories,
-        TestCases
-    };
-
-
     /// <summary>
     /// Generate Action 
     /// </summary>
@@ -18,6 +10,7 @@ namespace AdminStore.Models.Workflow
     public class IeGenerateAction : IeBaseAction
     {
         [XmlElement(IsNullable = false)]
+        
         public GenerateActionTypes GenerateActionType { get; set; }
 
         // Used only for GenerateActionType = Children

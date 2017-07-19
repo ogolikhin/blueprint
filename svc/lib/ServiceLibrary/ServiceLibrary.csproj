@@ -165,6 +165,7 @@
     <Compile Include="Models\Enums\FeatureTypes.cs" />
     <Compile Include="Models\Enums\ActionType.cs" />
     <Compile Include="Models\Enums\ElementType.cs" />
+    <Compile Include="Models\Enums\GenerateActionTypes.cs" />
     <Compile Include="Models\InstanceAdminPrivileges.cs" />
     <Compile Include="Models\Enums\ItemTypePredefined.cs" />
     <Compile Include="Models\Enums\ItemTypeReuseTemplateSetting.cs" />
@@ -235,6 +236,15 @@
     <Compile Include="Models\Workflow\WorkflowStateChangeParameter.cs" />
     <Compile Include="Models\Workflow\WorkflowTransition.cs" />
     <Compile Include="Models\Workflow\WorkflowTransitionResult.cs" />
+    <Compile Include="Models\Workflow\XmlAction.cs" />
+    <Compile Include="Models\Workflow\XmlCondition.cs" />
+    <Compile Include="Models\Workflow\XmlEmailNotificationAction.cs" />
+    <Compile Include="Models\Workflow\XmLGenerateAction.cs" />
+    <Compile Include="Models\Workflow\XmlPropertyChangeAction.cs" />
+    <Compile Include="Models\Workflow\XmlStateCondition.cs" />
+    <Compile Include="Models\Workflow\XmlTriggerPermissions.cs" />
+    <Compile Include="Models\Workflow\XmlWorkflowEventTrigger.cs" />
+    <Compile Include="Models\Workflow\XmlWorkflowEventTriggers.cs" />
     <Compile Include="Repositories\ApplicationSettings\ApplicationSettingsRepository.cs" />
     <Compile Include="Repositories\ApplicationSettings\ISettingsRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IServiceLogRepository.cs" />

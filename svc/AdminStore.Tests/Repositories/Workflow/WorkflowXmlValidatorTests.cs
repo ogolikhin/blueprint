@@ -5,6 +5,7 @@ using AdminStore.Models.Workflow;
 using AdminStore.Services.Workflow;
 using Castle.Components.DictionaryAdapter;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ServiceLibrary.Models.Enums;
 
 namespace AdminStore.Repositories.Workflow
 {

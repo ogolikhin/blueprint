@@ -76,6 +76,7 @@ namespace ArtifactStore.Repositories
                 ReviewStatus = reviewStatus,
                 Approved = 5,
                 Disapproved = 3,
+                Pending = 2,
                 RevisionId = revisionId
             };
 
@@ -111,6 +112,7 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(ReviewType.Formal, review.ReviewType);
             Assert.AreEqual(5, review.ArtifactsStatus.Approved);
             Assert.AreEqual(3, review.ArtifactsStatus.Disapproved);
+            Assert.AreEqual(2, review.ArtifactsStatus.Pending);
         }
 
         [TestMethod]

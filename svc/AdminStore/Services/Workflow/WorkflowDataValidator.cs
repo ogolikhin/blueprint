@@ -69,17 +69,18 @@ namespace AdminStore.Services.Workflow
             if (projectPaths.Count != workflow.Projects.Count)
             {
                 //generate a list of all projects in the workflow who are either missing from id list or were not looked up by path
-                var listOfBadProjects = string.Join(",", workflow.Projects
+                foreach (var project in workflow.Projects
                     .Where(proj => projectPaths.All(
                         path => proj.Id.HasValue
                             ? path.Key != proj.Id.Value
-                            : !path.Value.Equals(proj.Path))
-                    ).Select(proj => proj.Id?.ToString() ?? proj.Path));
-                result.Errors.Add(new WorkflowDataValidationError
-                {
-                    Info = $"The following projects could not be found: {listOfBadProjects}",
-                    ErrorCode = WorkflowDataValidationErrorCodes.ProjectNotFound
-                });
+                            : !path.Value.Equals(proj.Path)))
+                        .Select(proj => proj.Id?.ToString() ?? proj.Path)){
+                    result.Errors.Add(new WorkflowDataValidationError
+                    {
+                        Element = project,
+                        ErrorCode = WorkflowDataValidationErrorCodes.ProjectNotFound
+                    });
+                }
             }
             
             result.ValidProjectIds.AddRange(projectPaths.Select(p => p.Key).ToHashSet());
@@ -108,7 +109,7 @@ namespace AdminStore.Services.Workflow
                     {
                         result.Errors.Add(new WorkflowDataValidationError
                         {
-                            //Element = new Tuple<string, int>(missingArtifactTypeInfo.Name, missingArtifactTypeInfo.VersionProjectId),
+                            Element = new Tuple<string, int>(missingArtifactTypeInfo.artifactTypeName, missingArtifactTypeInfo.projectId),
                             ErrorCode = WorkflowDataValidationErrorCodes.ArtifactTypeNotFoundInProject
                         });
                     }
@@ -120,7 +121,7 @@ namespace AdminStore.Services.Workflow
                     {
                         result.Errors.Add(new WorkflowDataValidationError
                         {
-                            //Element = workflow.ArtifactTypes.FirstOrDefault(at => at.Name == artifactTypesInfo.Name),
+                            Element = workflow.ArtifactTypes.FirstOrDefault(at => at.Name == artifactTypesInfo.Name),
                             ErrorCode = WorkflowDataValidationErrorCodes.ArtifactTypeAlreadyAssociatedWithWorkflow
                         });
                     }
@@ -130,7 +131,7 @@ namespace AdminStore.Services.Workflow
                     {
                         result.Errors.Add(new WorkflowDataValidationError
                         {
-                            //Element = new Tuple<string, int>(artifactTypesInfo.Name, artifactTypesInfo.VersionProjectId),
+                            Element = new Tuple<string, int>(artifactTypesInfo.Name, artifactTypesInfo.VersionProjectId),
                             ErrorCode = WorkflowDataValidationErrorCodes.ArtifactTypeNotUsedInProject
                         });
                     }
@@ -149,25 +150,20 @@ namespace AdminStore.Services.Workflow
             HashSet<string> listOfAllGroups = new HashSet<string>();
             workflow.TransitionEvents.OfType<IeTransitionEvent>().ForEach(transition =>
             {
-                transition.PermissionGroups.ForEach(group =>
-                {
-                    if (!listOfAllGroups.Contains(group.Name))
-                    {
-                        listOfAllGroups.Add(group.Name);
-                    }
-                });
+                transition.PermissionGroups.ForEach(group =>listOfAllGroups.Add(group.Name));
             });
             var existingGroupNames = (await _userRepository.GetExistingInstanceGroupsByNames(listOfAllGroups)).ToArray();
             if (existingGroupNames.Length != listOfAllGroups.Count)
             {
-                var listOfBadGroups = string.Join(",", listOfAllGroups.Where(
-                        li => existingGroupNames.All(g => g.Name != li)
-                    ));
-                result.Errors.Add(new WorkflowDataValidationError
-                {
-                    Info = $"The following groups were not found: {listOfBadGroups}",
-                    ErrorCode = WorkflowDataValidationErrorCodes.GroupsNotFound
-                });
+                foreach (var group in listOfAllGroups.Where(
+                    li => existingGroupNames.All(g => g.Name != li)
+                )){
+                    result.Errors.Add(new WorkflowDataValidationError
+                    {
+                        Element = group,
+                        ErrorCode = WorkflowDataValidationErrorCodes.GroupsNotFound
+                    });
+                }
             }
 
             result.ValidGroups.AddRange(existingGroupNames.ToHashSet());
@@ -178,6 +174,20 @@ namespace AdminStore.Services.Workflow
         private async Task<WorkflowDataValidationResult> ValidateTriggersData(WorkflowDataValidationResult result, IeWorkflow workflow)
         {
             //validate property name in property change triggers
+            var listOfPropertyNames = workflow.PropertyChangeEvents.Select(pce => pce.PropertyName).ToHashSet();
+            var existingPropertyNames = (await _workflowRepository.GetExistingPropertyTypesByName(listOfPropertyNames)).ToArray();
+
+            if (existingPropertyNames.Length != listOfPropertyNames.Count)
+            {
+                foreach (var propertyName in listOfPropertyNames.Where(pn => !existingPropertyNames.Contains(pn)))
+                {
+                    result.Errors.Add(new WorkflowDataValidationError
+                    {
+                        Element = propertyName,
+                        ErrorCode = WorkflowDataValidationErrorCodes.PropertyNotFound
+                    });
+                }
+            }
 
             return await Task.FromResult(result);
         }

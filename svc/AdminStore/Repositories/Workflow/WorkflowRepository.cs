@@ -228,6 +228,21 @@ namespace AdminStore.Repositories.Workflow
                 commandType: CommandType.StoredProcedure);
         }
 
+        public async Task<IEnumerable<string>> GetExistingPropertyTypesByName(IEnumerable<string> propertyTypeNames)
+        {
+            var dPropertyTypeNames = propertyTypeNames.ToList();
+            if (!dPropertyTypeNames.Any())
+            {
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is empty.", nameof(dPropertyTypeNames)));
+            }
+
+            var prm = new DynamicParameters();
+            prm.Add("@propertyTypeNames", SqlConnectionWrapper.ToStringDataTable(dPropertyTypeNames));
+
+            return await _connectionWrapper.QueryAsync<string>("GetExistingPropertyTypesByName", prm,
+                commandType: CommandType.StoredProcedure);
+        }
+
         public Task<int> CreateRevisionInTransactionAsync(IDbTransaction transaction, int userId, string description)
         {
             return _sqlHelper.CreateRevisionInTransactionAsync(transaction, userId, description);

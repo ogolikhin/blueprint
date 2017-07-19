@@ -112,6 +112,7 @@
     <Compile Include="Helpers\MentionHelper.cs" />
     <Compile Include="Helpers\PropertyHelper.cs" />
     <Compile Include="Helpers\SensitivityCommonHelper.cs" />
+    <Compile Include="Models\Review\ParticipantArtifactStats.cs" />
     <Compile Include="Models\PropertyTypePredefinedExtension.cs" />
     <Compile Include="Models\Reuse\ItemTypeReuseTemplate.cs" />
     <Compile Include="Models\Reuse\PropertyTypeReuseTemplate.cs" />

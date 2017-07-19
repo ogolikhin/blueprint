@@ -248,15 +248,14 @@ namespace AdminStore.Services.Workflow
                 }
             }
 
-            //TODO: add unit tests
-            foreach (var naEvent in workflow.NewArtifactsEvents.FindAll(s => s != null))
+            foreach (var naEvent in workflow.NewArtifactEvents.FindAll(s => s != null))
             {
                 if (!ValidatePropertyNotEmpty(naEvent.Name))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
                         Element = naEvent,
-                        ErrorCode = WorkflowXmlValidationErrorCodes.PropertyChangeEventNameEmpty
+                        ErrorCode = WorkflowXmlValidationErrorCodes.NewArtifactEventNameEmpty
                     });
                 }
 
@@ -265,7 +264,7 @@ namespace AdminStore.Services.Workflow
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
                         Element = naEvent,
-                        ErrorCode = WorkflowXmlValidationErrorCodes.PropertyChangeEventNameExceedsLimit24
+                        ErrorCode = WorkflowXmlValidationErrorCodes.NewArtifactEventNameExceedsLimit24
                     });
                 }
 
@@ -274,7 +273,7 @@ namespace AdminStore.Services.Workflow
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
                         Element = naEvent,
-                        ErrorCode = WorkflowXmlValidationErrorCodes.PropertyChangeEventDescriptionExceedsLimit4000
+                        ErrorCode = WorkflowXmlValidationErrorCodes.NewArtifactEventDescriptionExceedsLimit4000
                     });
                 }
 

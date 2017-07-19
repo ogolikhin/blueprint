@@ -122,10 +122,10 @@ namespace AdminStore.Repositories.Workflow
                 throw new ArgumentNullException(nameof(workflowEvents));
             }
 
-            var dWorkflowTriggers = workflowEvents.ToList();
-            if (!dWorkflowTriggers.Any())
+            var dWorkflowEvents = workflowEvents.ToList();
+            if (!dWorkflowEvents.Any())
             {
-                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is empty.", nameof(dWorkflowTriggers)));
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is empty.", nameof(dWorkflowEvents)));
             }
 
             if (publishRevision < 1)
@@ -135,7 +135,7 @@ namespace AdminStore.Repositories.Workflow
 
             var prm = new DynamicParameters();
             prm.Add("@publishRevision", publishRevision);
-            prm.Add("@workflowEvents", ToWorkflowTriggersCollectionDataTable(dWorkflowTriggers));
+            prm.Add("@workflowEvents", ToWorkflowEventsCollectionDataTable(dWorkflowEvents));
 
             IEnumerable<SqlWorkflowEvent> result;
             if (transaction == null)
@@ -387,10 +387,10 @@ namespace AdminStore.Repositories.Workflow
             return table;
         }
 
-        private static DataTable ToWorkflowTriggersCollectionDataTable(IEnumerable<SqlWorkflowEvent> workflowTriggers)
+        private static DataTable ToWorkflowEventsCollectionDataTable(IEnumerable<SqlWorkflowEvent> workflowEvents)
         {
             var table = new DataTable { Locale = CultureInfo.InvariantCulture };
-            table.SetTypeName("WorkflowTriggersCollection");
+            table.SetTypeName("WorkflowEventsCollection");
             table.Columns.Add("WorkflowEventId", typeof(int));
             table.Columns.Add("Name", typeof(string));
             table.Columns.Add("Description", typeof(string));
@@ -403,12 +403,12 @@ namespace AdminStore.Repositories.Workflow
             table.Columns.Add("WorkflowState2Id", typeof(int));
             table.Columns.Add("PropertyTypeId", typeof(int));
 
-            foreach (var workflowTrigger in workflowTriggers)
+            foreach (var workfloEvent in workflowEvents)
             {
-                table.Rows.Add(workflowTrigger.TriggerId, workflowTrigger.Name, workflowTrigger.Description,
-                    workflowTrigger.WorkflowId, workflowTrigger.Type, workflowTrigger.Permissions, 
-                    workflowTrigger.Validations, workflowTrigger.Triggers, workflowTrigger.WorkflowState1Id, 
-                    workflowTrigger.WorkflowState2Id, workflowTrigger.PropertyTypeId);
+                table.Rows.Add(workfloEvent.TriggerId, workfloEvent.Name, workfloEvent.Description,
+                    workfloEvent.WorkflowId, workfloEvent.Type, workfloEvent.Permissions, 
+                    workfloEvent.Validations, workfloEvent.Triggers, workfloEvent.WorkflowState1Id, 
+                    workfloEvent.WorkflowState2Id, workfloEvent.PropertyTypeId);
             }
 
             return table;

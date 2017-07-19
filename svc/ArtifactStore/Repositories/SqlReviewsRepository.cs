@@ -355,8 +355,17 @@ namespace ArtifactStore.Repositories
                     ReviewedArtifact reviewedArtifact;
                     if (reviewedArtifacts.TryGetValue(artifact.Id, out reviewedArtifact))
                     {
-                        artifact.Approval = GetApprovalStatus(reviewedArtifact, artifact.IsApprovalRequired);
-                        artifact.ApprovalFlag = reviewedArtifact.ApprovalFlag;
+                        if (artifact.IsApprovalRequired)
+                        {
+                            artifact.Approval = GetApprovalStatus(reviewedArtifact, artifact.IsApprovalRequired);
+                            artifact.ApprovalFlag = reviewedArtifact.ApprovalFlag;
+                        }
+                        else
+                        {
+                            artifact.Approval = null;
+                            artifact.ApprovalFlag = 0;
+                        }
+                        
                         artifact.ArtifactVersion = reviewedArtifact.ArtifactVersion;
                         artifact.PublishedOnTimestamp = reviewedArtifact.PublishedOnTimestamp;
                         artifact.UserDisplayName = reviewedArtifact.UserDisplayName;

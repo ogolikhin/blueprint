@@ -2628,7 +2628,8 @@ namespace ArtifactStore.Repositories
             var participantId = 3;
             var reviewArtifact = new ReviewedArtifact()
             {
-                Id = 4
+                Id = 4,
+                IsApprovalRequired = true
             };
 
             var participantReviewArtifact = new ReviewedArtifact()

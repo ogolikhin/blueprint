@@ -9,9 +9,6 @@ namespace AdminStore.Models.Workflow {
         [XmlElement(IsNullable = false)]
         public string Name { get; set; }
 
-        [XmlElement(IsNullable = false)]
-        public string Description { get; set; }
-
         [XmlElement(typeof(IeEmailNotificationAction), ElementName = "EmailNotificationAction")]
         [XmlElement(typeof(IeGenerateAction), ElementName = "GenerateAction")]
         [XmlElement(typeof(IePropertyChangeAction), ElementName = "PropertyChangeAction")]

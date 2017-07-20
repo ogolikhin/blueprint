@@ -806,7 +806,7 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
+        [ExpectedException(typeof(ConflictException))]
         public async Task AddParticipantsToReviewAsync_Should_Throw_If_Review_Is_Not_Locked_By_User()
         {
             //Arrange
@@ -1366,7 +1366,7 @@ namespace ArtifactStore.Repositories
                 { "@userId", userId }
             };
 
-            var PropertyValueStringResult = new[]
+            var propertyValueStringResult = new[]
             {
                new PropertyValueString
                {
@@ -1378,15 +1378,15 @@ namespace ArtifactStore.Repositories
                 }
             };
 
-            _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters, PropertyValueStringResult);
+            _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters, propertyValueStringResult);
 
             //Act
 
             try
             {
-                var review = await _reviewsRepository.AddArtifactsToReviewAsync(reviewId, userId, content);
+                await _reviewsRepository.AddArtifactsToReviewAsync(reviewId, userId, content);
             }
-            catch (BadRequestException ex)
+            catch (ConflictException ex)
             {
                 isExceptionThrown = true;
 
@@ -1529,7 +1529,7 @@ namespace ArtifactStore.Repositories
 
 
         [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
+        [ExpectedException(typeof(ConflictException))]
         public async Task AssignRolesToReviewers_IsNotLocked_ShouldThrowBadRequestExceptionException()
         {
             var propertyValueStringResult = new List<PropertyValueString>();
@@ -1793,7 +1793,7 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
+        [ExpectedException(typeof(ConflictException))]
         public async Task AssignApprovalRequiredToArtifacts_Review_NotLocked_Should_Throw_BadRequestException()
         {
 
@@ -1821,7 +1821,7 @@ namespace ArtifactStore.Repositories
             };
             var content = new AssignArtifactsApprovalParameter()
             {
-                ArtifactIds = new List<int>(new int[] { 1, 2, 3 }),
+                ArtifactIds = new List<int>(new[] { 1, 2, 3 }),
                 ApprovalRequired = true
             };
             _cxn.SetupQueryAsync("GetReviewArtifactApprovalRequestedInfo", queryParameters, propertyValueStringResult);

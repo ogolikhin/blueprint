@@ -125,17 +125,6 @@ namespace AdminStore.Services.Workflow
                             ErrorCode = WorkflowDataValidationErrorCodes.ArtifactTypeAlreadyAssociatedWithWorkflow
                         });
                     }
-
-                    //check if any types are not used in the provided projects
-                    if (!artifactTypesInfo.UsedInThisProject)
-                    {
-                        result.Errors.Add(new WorkflowDataValidationError
-                        {
-                            Element = new Tuple<string, int>(artifactTypesInfo.Name, artifactTypesInfo.VersionProjectId),
-                            ErrorCode = WorkflowDataValidationErrorCodes.ArtifactTypeNotUsedInProject
-                        });
-                    }
-
                 }
             }
 

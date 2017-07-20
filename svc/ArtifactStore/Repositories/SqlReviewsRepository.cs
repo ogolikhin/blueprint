@@ -355,8 +355,17 @@ namespace ArtifactStore.Repositories
                     ReviewedArtifact reviewedArtifact;
                     if (reviewedArtifacts.TryGetValue(artifact.Id, out reviewedArtifact))
                     {
-                        artifact.Approval = GetApprovalStatus(reviewedArtifact, artifact.IsApprovalRequired);
-                        artifact.ApprovalFlag = reviewedArtifact.ApprovalFlag;
+                        if (artifact.IsApprovalRequired)
+                        {
+                            artifact.Approval = GetApprovalStatus(reviewedArtifact, artifact.IsApprovalRequired);
+                            artifact.ApprovalFlag = reviewedArtifact.ApprovalFlag;
+                        }
+                        else
+                        {
+                            artifact.Approval = null;
+                            artifact.ApprovalFlag = 0;
+                        }
+                        
                         artifact.ArtifactVersion = reviewedArtifact.ArtifactVersion;
                         artifact.PublishedOnTimestamp = reviewedArtifact.PublishedOnTimestamp;
                         artifact.UserDisplayName = reviewedArtifact.UserDisplayName;
@@ -976,8 +985,7 @@ namespace ArtifactStore.Repositories
             }
 
             //Check user is an approver for the review
-            if (!approvalCheck.UserInReview ||
-               approvalCheck.ReviewerRole != ReviewParticipantRole.Approver)
+            if (!approvalCheck.UserInReview)
             {
                 ThrowUserCannotAccessReviewException(reviewId);
             }

@@ -109,8 +109,26 @@ namespace AdminStore.Repositories.Workflow
             else
             {
                 result = await transaction.Connection.QueryAsync<SqlState>("CreateWorkflowStates", prm,
-                    transaction, commandType: CommandType.StoredProcedure); ;
+                    transaction, commandType: CommandType.StoredProcedure);
             }
+
+            return result;
+        }
+
+        public async Task<IEnumerable<SqlState>> GetWorkflowStatesByWorkflowId(int workflowId)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("WorkflowId", workflowId);
+            var result = await _connectionWrapper.QueryAsync<SqlState>("GetWorkflowStatesById", parameters, commandType: CommandType.StoredProcedure);
+
+            return result;
+        }
+
+        public async Task<IEnumerable<SqlWorkflowTransitionsAndPropertyChanges>> GetWorkflowTransitionsAndPropertyChangesByWorkflowId(int workflowId)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("WorkflowId", workflowId);
+            var result = await _connectionWrapper.QueryAsync<SqlWorkflowTransitionsAndPropertyChanges>("GetWorkflowTransitionsAndPropertyChangesById", parameters, commandType: CommandType.StoredProcedure);
 
             return result;
         }
@@ -146,7 +164,7 @@ namespace AdminStore.Repositories.Workflow
             else
             {
                 result = await transaction.Connection.QueryAsync<SqlWorkflowEvent>("CreateWorkflowEvents", prm,
-                    transaction, commandType: CommandType.StoredProcedure); ;
+                    transaction, commandType: CommandType.StoredProcedure);
             }
 
             return result;
@@ -321,7 +339,7 @@ namespace AdminStore.Repositories.Workflow
             parameters.Add("@Search", search);
             parameters.Add("@SelectAll", body.SelectAll);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            var result = await _connectionWrapper.ExecuteScalarAsync<int>("DeleteWorkflowsAll", parameters, commandType: CommandType.StoredProcedure);
+            var result = await _connectionWrapper.ExecuteScalarAsync<int>("DeleteWorkflows", parameters, commandType: CommandType.StoredProcedure);
             var errorCode = parameters.Get<int?>("ErrorCode");
             if (errorCode.HasValue)
             {

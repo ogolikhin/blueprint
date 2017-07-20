@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Xml.Serialization;
 
-namespace AdminStore.Models.Workflow
+namespace ServiceLibrary.Models.Workflow
 {
     [XmlRoot(ElementName = "TS")]
     public class XmlWorkflowEventTriggers

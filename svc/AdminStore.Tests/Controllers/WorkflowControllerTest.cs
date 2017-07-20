@@ -444,5 +444,51 @@ namespace AdminStore.Controllers
         }
 
         #endregion
+
+        #region ExportWorkflow
+
+        [TestMethod]
+        public async Task ExportWorkflow_WorkflowWithInvalidPermissions_ForbiddenResult()
+        {
+            //arrange
+            Exception exception = null;
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewProjects);
+
+            //act
+            try
+            {
+                await _controller.ExportWorkflow(WorkflowId);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            //assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
+        }
+
+        [TestMethod]
+        public async Task ExportWorkflow_AllRequirementsSatisfied_ReturnOkResult()
+        {
+            // Arrange
+            var workflow = new IeWorkflow { Name = "Workflow1", Description = "DescriptionWorkflow1", States = new List<IeState>(),
+                                            ArtifactTypes = new List<IeArtifactType>(), Projects = new List<IeProject>()};
+            _workflowServiceMock.Setup(repo => repo.GetWorkflowExportAsync(It.IsAny<int>())).ReturnsAsync(workflow);
+            _privilegesRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(AllProjectDataPermissions);
+            // Act
+            var result = await _controller.ExportWorkflow(WorkflowId);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(ResponseMessageResult));
+        }
+
+        #endregion
     }
 }

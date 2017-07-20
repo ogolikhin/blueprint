@@ -5,6 +5,7 @@ using AdminStore.Models.Workflow;
 using AdminStore.Services.Workflow;
 using Castle.Components.DictionaryAdapter;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ServiceLibrary.Models.Enums;
 
 namespace AdminStore.Repositories.Workflow
 {
@@ -24,7 +25,7 @@ namespace AdminStore.Repositories.Workflow
                 ArtifactTypes = new List<IeArtifactType>(),
                 TransitionEvents = new List<IeTransitionEvent>(),
                 PropertyChangeEvents = new List<IePropertyChangeEvent>(),
-                NewArtifactsEvents = new List<IeNewArtifactEvent>(),
+                NewArtifactEvents = new List<IeNewArtifactEvent>(),
                 Projects = new List<IeProject>()
             };
 
@@ -46,34 +47,6 @@ namespace AdminStore.Repositories.Workflow
             {
                 Name = "Closed",
                 Description = "Description of Closed state."
-            });
-
-            // Transitions
-            _workflow.TransitionEvents.Add(new IeTransitionEvent
-            {
-                Name = "From New to Active",
-                Description = "Description of From New to Active",
-                FromState = "New",
-                ToState = "Active",
-                PermissionGroups = new List<IeGroup>
-                {
-                    new IeGroup { Name = "Authors"},
-                    new IeGroup { Name = "Group 1" }
-                }
-            });
-
-            _workflow.TransitionEvents.Add(new IeTransitionEvent
-            {
-                Name = "From Active to Close",
-                Description = "Description of From New to Active",
-                FromState = "Active",
-                ToState = "Closed",
-                PermissionGroups = new List<IeGroup>
-                {
-                    new IeGroup { Name = "Authors"},
-                    new IeGroup { Name = "Group 2" }
-                }
-                
             });
 
             // Projects
@@ -104,8 +77,34 @@ namespace AdminStore.Repositories.Workflow
                 Name = "Use Case"
             });
 
+            // State Change Events (Transitions)
+            _workflow.TransitionEvents.Add(new IeTransitionEvent
+            {
+                Name = "From New to Active",
+                Description = "Description of From New to Active",
+                FromState = "New",
+                ToState = "Active",
+                PermissionGroups = new List<IeGroup>
+                {
+                    new IeGroup { Name = "Authors"},
+                    new IeGroup { Name = "Group 1" }
+                }
+            });
+
+            _workflow.TransitionEvents.Add(new IeTransitionEvent
+            {
+                Name = "From Active to Close",
+                Description = "Description of From New to Active",
+                FromState = "Active",
+                ToState = "Closed",
+                PermissionGroups = new List<IeGroup>
+                {
+                    new IeGroup { Name = "Authors"},
+                    new IeGroup { Name = "Group 2" }
+                }
+            });
+
             // Property Change Events
-            //TODO this isn't valid - property change triggers can only have an email notification action
             _workflow.PropertyChangeEvents.Add(new IePropertyChangeEvent
             {
                 Name = "Text Property Changed",
@@ -114,44 +113,24 @@ namespace AdminStore.Repositories.Workflow
                 Triggers = new EditableList<IeTrigger>
                 {
                     new IeTrigger { 
-                    Action = new IePropertyChangeAction
+                    Action = new IeEmailNotificationAction
                     {
-                        Name = "Text Property Change Action",
-                        Description = "Description of Text Property Change Action",
-                        PropertyName = "Text Property",
-                        PropertyValue = "New text property value"
+                        Name = "Email Notification Action 1",
+                        Description = "Description of Email Notification Action 1",
+                        Emails = new List<string>
+                        {
+                            "user1@company.com",
+                            "user2@company.com"
+                        },
+                        Message = "Message 1"
                     }},
                     new IeTrigger {
-                    Action = new IePropertyChangeAction
+                    Action = new IeEmailNotificationAction
                     {
-                        Name = "User Property Change Action",
-                        Description = "Description of User Property Change Action",
-                        PropertyName = "User Property",
-                        PropertyValue = "Administrators Group",
-                        IsGroup = true
-                    }},
-                    new IeTrigger {
-                    Action = new IeGenerateAction
-                    {
-                        GenerateActionType = GenerateActionTypes.Children,
-                        Name = "Generate Children Action",
-                        Description = "Description of Generate Children Action",
-                        ArtifactType = "Business Rule",
-                        ChildCount = 3
-                    }},
-                    new IeTrigger { 
-                    Action = new IeGenerateAction
-                    {
-                        GenerateActionType = GenerateActionTypes.UserStories,
-                        Name = "Generate User Stories Action",
-                        Description = "Description of Generate User Stories Action"
-                    }},
-                    new IeTrigger {
-                    Action = new IeGenerateAction
-                    {
-                        GenerateActionType = GenerateActionTypes.TestCases,
-                        Name = "Generate Test Cases Action",
-                        Description = "Description of Generate Test Cases Action"
+                        Name = "Email Notification Action 2",
+                        Description = "Description of Email Notification Action 2",
+                        PropertyName = "Users",
+                        Message = "Message 2"
                     }}
                 }
             });
@@ -169,6 +148,20 @@ namespace AdminStore.Repositories.Workflow
                 Description = "Description of User Property Changed",
                 PropertyName = "My User Property"
             });
+
+            // New Artifact Events
+            _workflow.NewArtifactEvents.Add(new IeNewArtifactEvent
+            {
+                Name = "New Artifact 1",
+                Description = "Description of New Artifact 1"
+            });
+
+            _workflow.NewArtifactEvents.Add(new IeNewArtifactEvent
+            {
+                Name = "New Artifact 2",
+                Description = "Description of New Artifact 2"
+            });
+
 
             //============= Temp ========================================
             //var xml = SerializationHelper.ToXml(_workflow);
@@ -522,7 +515,7 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        public void Validate_TransitionNameEmpty_ReturnsTriggerNameEmptyError()
+        public void Validate_TransitionEventNameEmpty_ReturnsTransitionEventNameEmptyError()
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
@@ -543,7 +536,7 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        public void Validate_PropertyChangeTriggerNameEmpty_ReturnsTriggerNameEmptyError()
+        public void Validate_PropertyChangeEventNameEmpty_ReturnsPropertyChangeEventNameEmptyError()
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
@@ -563,7 +556,24 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        public void Validate_TransitionNameMax_Success()
+        public void Validate_NewArtifactEventNameEmpty_ReturnsNewArtifactEventNameEmptyError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.NewArtifactEvents.Add(new IeNewArtifactEvent());
+
+            // Act
+            var result = workflowValidator.Validate(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.NewArtifactEventNameEmpty, result.Errors[0].ErrorCode);
+            Assert.AreSame(_workflow.NewArtifactEvents.Last(), result.Errors[0].Element);
+        }
+
+        [TestMethod]
+        public void Validate_TransitionEventNameMax_Success()
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
@@ -583,7 +593,7 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        public void Validate_PropertyChangeTriggerNameMax_Success()
+        public void Validate_PropertyChangeEventNameMax_Success()
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
@@ -602,7 +612,25 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        public void Validate_TransitionNameExceedsLimit_ReturnsTriggerNameExceedsLimit24Error()
+        public void Validate_NewArtifactEventNameMax_Success()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.NewArtifactEvents.Add(new IeNewArtifactEvent
+            {
+                Name = new string('a', 24)
+            });
+
+            // Act
+            var result = workflowValidator.Validate(_workflow);
+
+            // Assert
+            Assert.IsFalse(result.HasErrors);
+            Assert.AreEqual(0, result.Errors.Count);
+        }
+
+        [TestMethod]
+        public void Validate_TransitionEventNameExceedsLimit_ReturnsTransitionEventNameExceedsLimit24Error()
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
@@ -624,7 +652,7 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        public void Validate_PropertyChangeTriggerNameExceedsLimit_ReturnsTriggerNameExceedsLimit24Error()
+        public void Validate_PropertyChangeEventNameExceedsLimit_ReturnsPropertyChangeEventNameExceedsLimit24Error()
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
@@ -645,7 +673,27 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        public void Validate_TransitionDescriptionMax_Success()
+        public void Validate_NewArtifactEventNameExceedsLimit_ReturnsNewArtifactEventNameExceedsLimit24Error()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.NewArtifactEvents.Add(new IeNewArtifactEvent
+            {
+                Name = new string('a', 25)
+            });
+
+            // Act
+            var result = workflowValidator.Validate(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.NewArtifactEventNameExceedsLimit24, result.Errors[0].ErrorCode);
+            Assert.AreSame(_workflow.NewArtifactEvents.Last(), result.Errors[0].Element);
+        }
+
+        [TestMethod]
+        public void Validate_TransitionEventDescriptionMax_Success()
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
@@ -666,13 +714,13 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        public void Validate_PropertyChangeTriggerDescriptionMax_Success()
+        public void Validate_PropertyChangeEventDescriptionMax_Success()
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
             _workflow.PropertyChangeEvents.Add(new IePropertyChangeEvent
             {
-                Name = "Transition",
+                Name = "Property Change",
                 Description = new string('a', 4000),
                 PropertyName = "a"
             });
@@ -686,7 +734,26 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        public void Validate_TransitionDescriptionExceedsLimit_ReturnsTriggerDescriptionExceedsLimit4000Error()
+        public void Validate_NewArtifactEventDescriptionMax_Success()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.NewArtifactEvents.Add(new IeNewArtifactEvent
+            {
+                Name = "New Artifact",
+                Description = new string('a', 4000)
+            });
+
+            // Act
+            var result = workflowValidator.Validate(_workflow);
+
+            // Assert
+            Assert.IsFalse(result.HasErrors);
+            Assert.AreEqual(0, result.Errors.Count);
+        }
+
+        [TestMethod]
+        public void Validate_TransitionEventDescriptionExceedsLimit_ReturnsTransitionEventDescriptionExceedsLimit4000Error()
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
@@ -709,13 +776,13 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
-        public void Validate_PropertyChangeTriggerDescriptionExceedsLimit_ReturnsTriggerDescriptionExceedsLimit4000Error()
+        public void Validate_PropertyChangeEventDescriptionExceedsLimit_ReturnsPropertyChangeEventDescriptionExceedsLimit4000rror()
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
             _workflow.PropertyChangeEvents.Add(new IePropertyChangeEvent
             {
-                Name = "Transition",
+                Name = "Property Change",
                 Description = new string('a', 4001),
                 PropertyName = "a"
             });
@@ -728,6 +795,27 @@ namespace AdminStore.Repositories.Workflow
             Assert.AreEqual(1, result.Errors.Count);
             Assert.AreEqual(WorkflowXmlValidationErrorCodes.PropertyChangeEventDescriptionExceedsLimit4000, result.Errors[0].ErrorCode);
             Assert.AreSame(_workflow.PropertyChangeEvents.Last(), result.Errors[0].Element);
+        }
+
+        [TestMethod]
+        public void Validate_NewArtifactEventDescriptionExceedsLimit_ReturnsNewArtifactEventDescriptionExceedsLimit4000rror()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.NewArtifactEvents.Add(new IeNewArtifactEvent
+            {
+                Name = "New Artifact",
+                Description = new string('a', 4001)
+            });
+
+            // Act
+            var result = workflowValidator.Validate(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.NewArtifactEventDescriptionExceedsLimit4000, result.Errors[0].ErrorCode);
+            Assert.AreSame(_workflow.NewArtifactEvents.Last(), result.Errors[0].Element);
         }
 
         [TestMethod]

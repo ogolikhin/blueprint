@@ -178,6 +178,7 @@
     <Compile Include="Models\Workflow\IeStateCondition.cs" />
     <Compile Include="Models\Workflow\IeTrigger.cs" />
     <Compile Include="Models\Workflow\SqlArtifactTypesWorkflowDetails.cs" />
+    <Compile Include="Models\Workflow\SqlWorkflowTransitionsAndPropertyChanges.cs" />
     <Compile Include="Models\Workflow\WorkflowArtifactTypeDto.cs" />
     <Compile Include="Models\Workflow\SqlProjectPathPair.cs" />
     <Compile Include="Models\Workflow\SqlState.cs" />
@@ -193,15 +194,6 @@
     <Compile Include="Models\Workflow\SqlWorkflowArtifactTypesAndProjects.cs" />
     <Compile Include="Models\Workflow\WorkflowDto.cs" />
     <Compile Include="Models\Workflow\WorkflowProjectDto.cs" />
-    <Compile Include="Models\Workflow\XmlAction.cs" />
-    <Compile Include="Models\Workflow\XmlCondition.cs" />
-    <Compile Include="Models\Workflow\XmlEmailNotificationAction.cs" />
-    <Compile Include="Models\Workflow\XmlGenerateAction.cs" />
-    <Compile Include="Models\Workflow\XmlPropertyChangeAction.cs" />
-    <Compile Include="Models\Workflow\XmlStateCondition.cs" />
-    <Compile Include="Models\Workflow\XmlTriggerPermissions.cs" />
-    <Compile Include="Models\Workflow\XmlWorkflowEventTrigger.cs" />
-    <Compile Include="Models\Workflow\XmlWorkflowEventTriggers.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\AuthenticationRepository.cs" />
     <Compile Include="Repositories\IAuthenticationRepository.cs" />

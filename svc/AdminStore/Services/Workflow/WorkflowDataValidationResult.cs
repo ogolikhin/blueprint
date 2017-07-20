@@ -31,7 +31,6 @@ namespace AdminStore.Services.Workflow
         GroupsNotFound,
         ArtifactTypeNotFoundInProject,
         ArtifactTypeAlreadyAssociatedWithWorkflow,
-        ArtifactTypeNotUsedInProject,
         PropertyNotFound
     }
 }

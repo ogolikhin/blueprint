@@ -13,8 +13,10 @@ using ArtifactStore.Helpers;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories.Files;
 using File = ServiceLibrary.Models.Files.File;
+using System.Collections;
 
 namespace AdminStore.Services.Workflow
 {
@@ -178,8 +180,6 @@ namespace AdminStore.Services.Workflow
 
             return workflowDto;
         }
-
-
         public async Task UpdateWorkflowStatusAsync(WorkflowDto workflowDto, int workflowId, int userId)
         {
             var existingWorkflow = await _workflowRepository.GetWorkflowDetailsAsync(workflowId);
@@ -285,7 +285,30 @@ namespace AdminStore.Services.Workflow
             await _workflowRepository.CreateWorkflowEventsAsync(importTriggersParams, publishRevision, transaction);
         }
 
-        private async Task VerifyUserRole(int userId)
+        public async Task<IeWorkflow> GetWorkflowExportAsync(int workflowId)
+        {
+            var workflowDetails = await _workflowRepository.GetWorkflowDetailsAsync(workflowId);
+            if (workflowDetails == null)
+            {
+                throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
+            }
+            var workflowProjectsAndArtifactTypes = (await _workflowRepository.GetWorkflowArtifactTypesAndProjectsAsync(workflowId)).ToList();
+            var workflowStates = (await _workflowRepository.GetWorkflowStatesByWorkflowId(workflowId)).ToList();
+            var workflowTriggers = (await _workflowRepository.GetWorkflowTransitionsAndPropertyChangesByWorkflowId(workflowId)).Where(t => t.Type == 1).ToList();//TriggerTypes.Transition
+
+            IeWorkflow ieWorkflow = new IeWorkflow
+            {
+                Name = workflowDetails.Name,
+                Description = workflowDetails.Description,
+                Projects = workflowProjectsAndArtifactTypes.Select(e => new IeProject { Id = e.ProjectId, Path = e.ProjectName }).Distinct().ToList(),
+                ArtifactTypes = workflowProjectsAndArtifactTypes.Select(e => new IeArtifactType { Name = e.ArtifactName }).Distinct().ToList(),
+                States = workflowStates.Select(e => new IeState { IsInitial = e.Default, Description = e.Description, Name = e.Name }).Distinct().ToList(),
+            };
+
+            return ieWorkflow;
+        }
+
+    private async Task VerifyUserRole(int userId)
         {
             var user = await _userRepository.GetLoginUserByIdAsync(userId);
             // At least for now, all instance administrators can import workflows.

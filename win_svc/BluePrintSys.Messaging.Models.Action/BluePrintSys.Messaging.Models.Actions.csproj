@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionMessage.cs" />
+    <Compile Include="ArtifactsPublishedMessage.cs" />
     <Compile Include="GenerateDescendantsMessage.cs" />
     <Compile Include="GenerateTestsMessage.cs" />
     <Compile Include="GenerateUserStoriesMessage.cs" />

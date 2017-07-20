@@ -275,28 +275,36 @@ namespace AdminStore.Controllers
         /// <response code="404">NotFound. The workflow with the current id doesn’t exist or removed from the system.</response>
         [SessionRequired]
         [HttpGet, NoCache]
-        [ResponseType(typeof(HttpResponseMessage))]
+        [ResponseType(typeof (HttpResponseMessage))]
         [Route("export/{workflowId:int:min(1)}")]
         public async Task<ResponseMessageResult> ExportWorkflow(int workflowId)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
             var ieWorkflow = await _workflowService.GetWorkflowExportAsync(workflowId);
 
-            var toXml = SerializationHelper.ToXml(ieWorkflow);
+            var workflowToXml = SerializationHelper.ToXml(ieWorkflow);
 
-            var result = new HttpResponseMessage(HttpStatusCode.OK)
-            {                    
-                Content = new StringContent(toXml, Encoding.UTF8)
-            };
-            result.Content.Headers.ContentDisposition =
-                new ContentDispositionHeaderValue("attachment")
+            var uniEncoding = new UnicodeEncoding();
+            var bytes = uniEncoding.GetBytes(workflowToXml);
+
+            using (var stream = new MemoryStream())
+            {
+                stream.Write(bytes, 0, bytes.Length);
+                var result = new HttpResponseMessage(HttpStatusCode.OK)
                 {
-                    FileName = $"workflow{workflowId}.xml"
+                    Content = new ByteArrayContent(stream.GetBuffer())
                 };
-            result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-            var response = ResponseMessage(result);
+                result.Content.Headers.ContentDisposition =
+                    new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
+                    {
+                        FileName = $"workflow{workflowId}.xml"
+                    };
+                result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
 
-            return response;
+                var response = ResponseMessage(result);
+
+                return response;
+            }
         }
 
         #region Private methods

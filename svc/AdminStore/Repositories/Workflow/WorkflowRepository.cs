@@ -109,7 +109,7 @@ namespace AdminStore.Repositories.Workflow
             else
             {
                 result = await transaction.Connection.QueryAsync<SqlState>("CreateWorkflowStates", prm,
-                    transaction, commandType: CommandType.StoredProcedure); ;
+                    transaction, commandType: CommandType.StoredProcedure);
             }
 
             return result;
@@ -131,19 +131,19 @@ namespace AdminStore.Repositories.Workflow
             var result = await _connectionWrapper.QueryAsync<SqlWorkflowTransitionsAndPropertyChanges>("GetWorkflowTransitionsAndPropertyChangesById", parameters, commandType: CommandType.StoredProcedure);
 
             return result;
-        }       
+        }
 
-        public async Task<IEnumerable<SqlTrigger>> CreateWorkflowTriggersAsync(IEnumerable<SqlTrigger> workflowTriggers, int publishRevision, IDbTransaction transaction = null)
+        public async Task<IEnumerable<SqlWorkflowEvent>> CreateWorkflowEventsAsync(IEnumerable<SqlWorkflowEvent> workflowEvents, int publishRevision, IDbTransaction transaction = null)
         {
-            if (workflowTriggers == null)
+            if (workflowEvents == null)
             {
-                throw new ArgumentNullException(nameof(workflowTriggers));
+                throw new ArgumentNullException(nameof(workflowEvents));
             }
 
-            var dWorkflowTriggers = workflowTriggers.ToList();
-            if (!dWorkflowTriggers.Any())
+            var dWorkflowEvents = workflowEvents.ToList();
+            if (!dWorkflowEvents.Any())
             {
-                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is empty.", nameof(dWorkflowTriggers)));
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is empty.", nameof(dWorkflowEvents)));
             }
 
             if (publishRevision < 1)
@@ -153,18 +153,18 @@ namespace AdminStore.Repositories.Workflow
 
             var prm = new DynamicParameters();
             prm.Add("@publishRevision", publishRevision);
-            prm.Add("@workflowTriggers", ToWorkflowTriggersCollectionDataTable(dWorkflowTriggers));
+            prm.Add("@workflowEvents", ToWorkflowEventsCollectionDataTable(dWorkflowEvents));
 
-            IEnumerable<SqlTrigger> result;
+            IEnumerable<SqlWorkflowEvent> result;
             if (transaction == null)
             {
-                result = await _connectionWrapper.QueryAsync<SqlTrigger>("CreateWorkflowTriggers", prm,
+                result = await _connectionWrapper.QueryAsync<SqlWorkflowEvent>("CreateWorkflowEvents", prm,
                     commandType: CommandType.StoredProcedure);
             }
             else
             {
-                result = await transaction.Connection.QueryAsync<SqlTrigger>("CreateWorkflowTriggers", prm,
-                    transaction, commandType: CommandType.StoredProcedure); ;
+                result = await transaction.Connection.QueryAsync<SqlWorkflowEvent>("CreateWorkflowEvents", prm,
+                    transaction, commandType: CommandType.StoredProcedure);
             }
 
             return result;
@@ -221,6 +221,43 @@ namespace AdminStore.Repositories.Workflow
             prm.Add("@projectPaths", SqlConnectionWrapper.ToStringDataTable(dProjectPaths));
 
             return await _connectionWrapper.QueryAsync<SqlProjectPathPair>("GetProjectIdsByProjectPaths", prm,
+                commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<IEnumerable<SqlArtifactTypesWorkflowDetails>> GetExistingStandardArtifactTypesForWorkflows(IEnumerable<string> artifactTypes, IEnumerable<int> projectIds)
+        {
+            var dArtifactTypes = artifactTypes.ToList();
+            if (!dArtifactTypes.Any())
+            {
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is empty.", nameof(dArtifactTypes)));
+            }
+
+            var dProjectIds = projectIds.ToList();
+            if (!dProjectIds.Any())
+            {
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is empty.", nameof(dProjectIds)));
+            }
+
+            var prm = new DynamicParameters();
+            prm.Add("@artifactTypes", SqlConnectionWrapper.ToStringDataTable(dArtifactTypes));
+            prm.Add("@projectIds", SqlConnectionWrapper.ToDataTable(dProjectIds));
+
+            return await _connectionWrapper.QueryAsync<SqlArtifactTypesWorkflowDetails>("GetExistingStandardArtifactTypesForWorkflows", prm,
+                commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<IEnumerable<string>> GetExistingPropertyTypesByName(IEnumerable<string> propertyTypeNames)
+        {
+            var dPropertyTypeNames = propertyTypeNames.ToList();
+            if (!dPropertyTypeNames.Any())
+            {
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is empty.", nameof(dPropertyTypeNames)));
+            }
+
+            var prm = new DynamicParameters();
+            prm.Add("@propertyTypeNames", SqlConnectionWrapper.ToStringDataTable(dPropertyTypeNames));
+
+            return await _connectionWrapper.QueryAsync<string>("GetExistingPropertyTypesByName", prm,
                 commandType: CommandType.StoredProcedure);
         }
 
@@ -302,14 +339,14 @@ namespace AdminStore.Repositories.Workflow
             parameters.Add("@Search", search);
             parameters.Add("@SelectAll", body.SelectAll);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            var result = await _connectionWrapper.ExecuteScalarAsync<int>("DeleteWorkflowsAll", parameters, commandType: CommandType.StoredProcedure);
+            var result = await _connectionWrapper.ExecuteScalarAsync<int>("DeleteWorkflows", parameters, commandType: CommandType.StoredProcedure);
             var errorCode = parameters.Get<int?>("ErrorCode");
             if (errorCode.HasValue)
             {
                 switch (errorCode.Value)
                 {
                     case (int)SqlErrorCodes.GeneralSqlError:
-                        throw new BadRequestException(ErrorMessages.GeneralErrorOfDeletingUsers);
+                        throw new BadRequestException(ErrorMessages.GeneralErrorOfDeletingWorkflows);
                 }
             }
 
@@ -383,28 +420,28 @@ namespace AdminStore.Repositories.Workflow
             return table;
         }
 
-        private static DataTable ToWorkflowTriggersCollectionDataTable(IEnumerable<SqlTrigger> workflowTriggers)
+        private static DataTable ToWorkflowEventsCollectionDataTable(IEnumerable<SqlWorkflowEvent> workflowEvents)
         {
             var table = new DataTable { Locale = CultureInfo.InvariantCulture };
-            table.SetTypeName("WorkflowTriggersCollection");
-            table.Columns.Add("TriggerId", typeof(int));
+            table.SetTypeName("WorkflowEventsCollection");
+            table.Columns.Add("WorkflowEventId", typeof(int));
             table.Columns.Add("Name", typeof(string));
             table.Columns.Add("Description", typeof(string));
             table.Columns.Add("WorkflowId", typeof(int));
             table.Columns.Add("Type", typeof(int));
             table.Columns.Add("Permissions", typeof(string));
             table.Columns.Add("Validations", typeof(string));
-            table.Columns.Add("Actions", typeof(string));
+            table.Columns.Add("Triggers", typeof(string));
             table.Columns.Add("WorkflowState1Id", typeof(int));
             table.Columns.Add("WorkflowState2Id", typeof(int));
             table.Columns.Add("PropertyTypeId", typeof(int));
 
-            foreach (var workflowTrigger in workflowTriggers)
+            foreach (var workfloEvent in workflowEvents)
             {
-                table.Rows.Add(workflowTrigger.TriggerId, workflowTrigger.Name, workflowTrigger.Description,
-                    workflowTrigger.WorkflowId, workflowTrigger.Type, workflowTrigger.Permissions, 
-                    workflowTrigger.Validations, workflowTrigger.Actions, workflowTrigger.WorkflowState1Id, 
-                    workflowTrigger.WorkflowState2Id, workflowTrigger.PropertyTypeId);
+                table.Rows.Add(workfloEvent.TriggerId, workfloEvent.Name, workfloEvent.Description,
+                    workfloEvent.WorkflowId, workfloEvent.Type, workfloEvent.Permissions, 
+                    workfloEvent.Validations, workfloEvent.Triggers, workfloEvent.WorkflowState1Id, 
+                    workfloEvent.WorkflowState2Id, workfloEvent.PropertyTypeId);
             }
 
             return table;

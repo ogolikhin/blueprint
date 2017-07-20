@@ -1,25 +1,21 @@
 ﻿using System.Xml.Serialization;
 using ServiceLibrary.Models.Enums;
 
-namespace AdminStore.Models.Workflow
+namespace ServiceLibrary.Models.Workflow
 {
-    /// <summary>
-    /// Generate Action 
-    /// </summary>
-    [XmlType("GenerateAction")]
-    public class IeGenerateAction : IeBaseAction
+    [XmlType("AG")]
+    public class XmlGenerateAction : XmlAction
     {
-        [XmlElement(IsNullable = false)]
-        
+        [XmlElement("T")]
         public GenerateActionTypes GenerateActionType { get; set; }
 
         // Used only for GenerateActionType = Children
-        [XmlElement]
+        [XmlElement("CC")]
         public int? ChildCount { get; set; }
         public bool ShouldSerializeChildCount() { return ChildCount.HasValue; }
 
         // Used only for GenerateActionType = Children
-        [XmlElement(IsNullable = false)]
-        public string ArtifactType { get; set; }
+        [XmlElement("AID")]
+        public int ArtifactTypeId { get; set; }
     }
 }

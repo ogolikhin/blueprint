@@ -7,10 +7,9 @@ namespace BluePrintSys.Messaging.Models.Actions
     {
         public GenerateTestsMessage()
         {
-            
         }
 
-        public GenerateTestsMessage(int tenantId, int workflowId) : base(tenantId, workflowId)
+        public GenerateTestsMessage(int tenantId) : base(tenantId)
         {
         }
 

@@ -218,7 +218,6 @@ namespace AdminStore.Services
             Assert.AreEqual(2, workflowExport.Projects.Count());
             Assert.AreEqual(2, workflowExport.ArtifactTypes.Count());
             Assert.AreEqual(1, workflowExport.States.Count());
-            Assert.AreEqual(2, workflowExport.Triggers.Count());
         }
 
         #endregion

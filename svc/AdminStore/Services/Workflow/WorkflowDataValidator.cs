@@ -29,6 +29,7 @@ namespace AdminStore.Services.Workflow
 
             var result = new WorkflowDataValidationResult();
             await ValidateProjectsData(result, workflow);
+            await ValidateArtifactTypesData(result, workflow);
             await ValidateGroupsData(result, workflow);
             await ValidateTriggersData(result, workflow);
             await ValidateActionsData(result, workflow);
@@ -68,20 +69,77 @@ namespace AdminStore.Services.Workflow
             if (projectPaths.Count != workflow.Projects.Count)
             {
                 //generate a list of all projects in the workflow who are either missing from id list or were not looked up by path
-                var listOfBadProjects = string.Join(",", workflow.Projects
+                foreach (var project in workflow.Projects
                     .Where(proj => projectPaths.All(
                         path => proj.Id.HasValue
                             ? path.Key != proj.Id.Value
-                            : !path.Value.Equals(proj.Path))
-                    ).Select(proj => proj.Id?.ToString() ?? proj.Path));
-                result.Errors.Add(new WorkflowDataValidationError
-                {
-                    Info = $"The following projects could not be found: {listOfBadProjects}",
-                    ErrorCode = WorkflowDataValidationErrorCodes.ProjectNotFound
-                });
+                            : !path.Value.Equals(proj.Path)))
+                        .Select(proj => proj.Id?.ToString() ?? proj.Path)){
+                    result.Errors.Add(new WorkflowDataValidationError
+                    {
+                        Element = project,
+                        ErrorCode = WorkflowDataValidationErrorCodes.ProjectNotFound
+                    });
+                }
             }
             
             result.ValidProjectIds.AddRange(projectPaths.Select(p => p.Key).ToHashSet());
+
+            return result;
+        }
+
+        private async Task<WorkflowDataValidationResult> ValidateArtifactTypesData(WorkflowDataValidationResult result, IeWorkflow workflow)
+        {
+            if (workflow.ArtifactTypes.Any() && result.ValidProjectIds.Any())
+            {
+                result.ValidArtifactTypeNames.Clear();
+                var artifactTypesInfos = (await _workflowRepository.GetExistingStandardArtifactTypesForWorkflows(
+                    workflow.ArtifactTypes.Select(at => at.Name),
+                    result.ValidProjectIds)).ToArray();
+                //check if all types are valid
+                if (artifactTypesInfos.Length != workflow.ArtifactTypes.Count*result.ValidProjectIds.Count)
+                {
+                    //get all artifact types and project pairs that are missing
+                    var crossJoin = from at in workflow.ArtifactTypes
+                        from pid in result.ValidProjectIds
+                        select new {artifactTypeName = at.Name, projectId = pid};
+                    foreach (var missingArtifactTypeInfo in crossJoin.Where(el => artifactTypesInfos.Any(ati =>
+                        ati.Name == el.artifactTypeName &&
+                        ati.VersionProjectId == el.projectId)))
+                    {
+                        result.Errors.Add(new WorkflowDataValidationError
+                        {
+                            Element = new Tuple<string, int>(missingArtifactTypeInfo.artifactTypeName, missingArtifactTypeInfo.projectId),
+                            ErrorCode = WorkflowDataValidationErrorCodes.ArtifactTypeNotFoundInProject
+                        });
+                    }
+                }
+
+                foreach (var artifactTypesInfo in artifactTypesInfos){
+                    //check if any types are associated with a workflow already
+                    if (artifactTypesInfo.WorkflowId.HasValue)
+                    {
+                        result.Errors.Add(new WorkflowDataValidationError
+                        {
+                            Element = workflow.ArtifactTypes.FirstOrDefault(at => at.Name == artifactTypesInfo.Name),
+                            ErrorCode = WorkflowDataValidationErrorCodes.ArtifactTypeAlreadyAssociatedWithWorkflow
+                        });
+                    }
+
+                    //check if any types are not used in the provided projects
+                    if (!artifactTypesInfo.UsedInThisProject)
+                    {
+                        result.Errors.Add(new WorkflowDataValidationError
+                        {
+                            Element = new Tuple<string, int>(artifactTypesInfo.Name, artifactTypesInfo.VersionProjectId),
+                            ErrorCode = WorkflowDataValidationErrorCodes.ArtifactTypeNotUsedInProject
+                        });
+                    }
+
+                }
+            }
+
+            result.ValidArtifactTypeNames.AddRange(workflow.ArtifactTypes.Select(at => at.Name));
 
             return result;
         }
@@ -90,27 +148,22 @@ namespace AdminStore.Services.Workflow
         {
             result.ValidGroups.Clear();
             HashSet<string> listOfAllGroups = new HashSet<string>();
-            workflow.Triggers.OfType<IeTransitionTrigger>().ForEach(transition =>
+            workflow.TransitionEvents.OfType<IeTransitionEvent>().ForEach(transition =>
             {
-                transition.PermissionGroups.ForEach(group =>
-                {
-                    if (!listOfAllGroups.Contains(group.Name))
-                    {
-                        listOfAllGroups.Add(group.Name);
-                    }
-                });
+                transition.PermissionGroups.ForEach(group =>listOfAllGroups.Add(group.Name));
             });
             var existingGroupNames = (await _userRepository.GetExistingInstanceGroupsByNames(listOfAllGroups)).ToArray();
             if (existingGroupNames.Length != listOfAllGroups.Count)
             {
-                var listOfBadGroups = string.Join(",", listOfAllGroups.Where(
-                        li => existingGroupNames.All(g => g.Name != li)
-                    ));
-                result.Errors.Add(new WorkflowDataValidationError
-                {
-                    Info = $"The following groups were not found: {listOfBadGroups}",
-                    ErrorCode = WorkflowDataValidationErrorCodes.GroupsNotFound
-                });
+                foreach (var group in listOfAllGroups.Where(
+                    li => existingGroupNames.All(g => g.Name != li)
+                )){
+                    result.Errors.Add(new WorkflowDataValidationError
+                    {
+                        Element = group,
+                        ErrorCode = WorkflowDataValidationErrorCodes.GroupsNotFound
+                    });
+                }
             }
 
             result.ValidGroups.AddRange(existingGroupNames.ToHashSet());
@@ -121,6 +174,20 @@ namespace AdminStore.Services.Workflow
         private async Task<WorkflowDataValidationResult> ValidateTriggersData(WorkflowDataValidationResult result, IeWorkflow workflow)
         {
             //validate property name in property change triggers
+            var listOfPropertyNames = workflow.PropertyChangeEvents.Select(pce => pce.PropertyName).ToHashSet();
+            var existingPropertyNames = (await _workflowRepository.GetExistingPropertyTypesByName(listOfPropertyNames)).ToArray();
+
+            if (existingPropertyNames.Length != listOfPropertyNames.Count)
+            {
+                foreach (var propertyName in listOfPropertyNames.Where(pn => !existingPropertyNames.Contains(pn)))
+                {
+                    result.Errors.Add(new WorkflowDataValidationError
+                    {
+                        Element = propertyName,
+                        ErrorCode = WorkflowDataValidationErrorCodes.PropertyNotFound
+                    });
+                }
+            }
 
             return await Task.FromResult(result);
         }

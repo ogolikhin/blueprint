@@ -13,6 +13,7 @@ using ArtifactStore.Helpers;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories.Files;
 using File = ServiceLibrary.Models.Files.File;
 using System.Collections;
@@ -147,7 +148,7 @@ namespace AdminStore.Services.Workflow
 
                 if (newWorkflow != null)
                 {
-                    await ImportWorkflowComponentsAsync(workflow, newWorkflow, publishRevision, transaction, dataValidationResult.ValidProjectIds, dataValidationResult.ValidGroups);
+                    await ImportWorkflowComponentsAsync(workflow, newWorkflow, publishRevision, transaction, dataValidationResult);
 
                     importResult.ResultCode = ImportWorkflowResultCodes.Ok;
                 }
@@ -191,6 +192,7 @@ namespace AdminStore.Services.Workflow
             {
                 throw new ConflictException(ErrorMessages.WorkflowVersionsNotEqual, ErrorCodes.Conflict);
             }
+
             var workflows = new List<SqlWorkflow> {new SqlWorkflow {Name = existingWorkflow.Name, Description = existingWorkflow.Description, Active = workflowDto.Status, WorkflowId = workflowId} };
 
             Func<IDbTransaction, Task> action = async transaction =>
@@ -201,14 +203,7 @@ namespace AdminStore.Services.Workflow
                     throw new ArgumentException(I18NHelper.FormatInvariant("{0} is less than 1.", nameof(publishRevision)));
                 }
                
-                var updatedWorkflows = await _workflowRepository.UpdateWorkflows(workflows, publishRevision, transaction);
-
-                var updatedWorkflowsCount = updatedWorkflows.Count();
-
-                if (updatedWorkflowsCount != 1)
-                {
-                    throw new BadRequestException(ErrorMessages.WorkflowWasNotUpdated, ErrorCodes.BadRequest);
-                }
+                await _workflowRepository.UpdateWorkflows(workflows, publishRevision, transaction);
             };
             await _workflowRepository.RunInTransactionAsync(action);
         }
@@ -229,7 +224,7 @@ namespace AdminStore.Services.Workflow
             return totalDeleted;
         }
 
-        private async Task ImportWorkflowComponentsAsync(IeWorkflow workflow, SqlWorkflow newWorkflow, int publishRevision, IDbTransaction transaction, HashSet<int> validProjectIds, HashSet<SqlGroup> validGroups)
+        private async Task ImportWorkflowComponentsAsync(IeWorkflow workflow, SqlWorkflow newWorkflow, int publishRevision, IDbTransaction transaction, WorkflowDataValidationResult dataValidationResult)
         {
             var importStateParams = new List<SqlState>();
 
@@ -251,40 +246,43 @@ namespace AdminStore.Services.Workflow
 
             if (newStates != null)
             {
-                await ImportWorkflowTransitions(workflow, newWorkflow, publishRevision, transaction, newStates, validGroups);
+                await ImportWorkflowTransitions(workflow, newWorkflow, publishRevision, transaction, newStates, dataValidationResult.ValidGroups);
             }
 
-            await _workflowRepository.CreateWorkflowArtifactAssociationsAsync(workflow.ArtifactTypes.Select(at => at.Name),
-                validProjectIds, newWorkflow.WorkflowId, publishRevision, transaction);
+            if (workflow.ArtifactTypes.Any() && workflow.Projects.Any())
+            {
+                await _workflowRepository.CreateWorkflowArtifactAssociationsAsync(dataValidationResult.ValidArtifactTypeNames,
+                        dataValidationResult.ValidProjectIds, newWorkflow.WorkflowId, publishRevision, transaction);
+            }
         }
 
         private async Task ImportWorkflowTransitions(IeWorkflow workflow, SqlWorkflow newWorkflow, int publishRevision,
             IDbTransaction transaction, IEnumerable<SqlState> newStates, HashSet<SqlGroup> validGroups)
         {
             var newStatesArray = newStates.ToArray();
-            var importTriggersParams = new List<SqlTrigger>();
+            var importTriggersParams = new List<SqlWorkflowEvent>();
 
-            workflow.Triggers.OfType<IeTransitionTrigger>().ForEach(transition =>
+            workflow.TransitionEvents.OfType<IeTransitionEvent>().ForEach(transition =>
             {
-                importTriggersParams.Add(new SqlTrigger
+                importTriggersParams.Add(new SqlWorkflowEvent
                 {
                     Name = transition.Name,
                     Description = transition.Description,
                     WorkflowId = newWorkflow.WorkflowId,
-                    Type = DTriggerType.Transition,
+                    Type = DWorkflowEventType.Transition,
                     Permissions = SerializationHelper.ToXml(new XmlTriggerPermissions
                     {
                         Skip = "0",
                         GroupIds = transition.PermissionGroups.Select(pg => validGroups.First(p => p.Name == pg.Name).GroupId).ToList()
                     }),
                     Validations = null,
-                    Actions = SerializationHelper.ToXml(transition.Actions),
+                    Triggers = SerializationHelper.ToXml(transition.Triggers),
                     WorkflowState1Id = newStatesArray.FirstOrDefault(s => s.Name.Equals(transition.FromState))?.WorkflowStateId,
                     WorkflowState2Id = newStatesArray.FirstOrDefault(s => s.Name.Equals(transition.ToState))?.WorkflowStateId,
                     PropertyTypeId = null
                 });
             });
-            await _workflowRepository.CreateWorkflowTriggersAsync(importTriggersParams, publishRevision, transaction);
+            await _workflowRepository.CreateWorkflowEventsAsync(importTriggersParams, publishRevision, transaction);
         }
 
         public async Task<IeWorkflow> GetWorkflowExportAsync(int workflowId)
@@ -305,7 +303,6 @@ namespace AdminStore.Services.Workflow
                 Projects = workflowProjectsAndArtifactTypes.Select(e => new IeProject { Id = e.ProjectId, Path = e.ProjectName }).Distinct().ToList(),
                 ArtifactTypes = workflowProjectsAndArtifactTypes.Select(e => new IeArtifactType { Name = e.ArtifactName }).Distinct().ToList(),
                 States = workflowStates.Select(e => new IeState { IsInitial = e.Default, Description = e.Description, Name = e.Name }).Distinct().ToList(),
-                Triggers = workflowTriggers.Select(e => new IeTransitionTrigger {Name = e.Name, Description = e.Description, FromState = e.FromState, ToState = e.ToState}).Distinct().ToList<IeTrigger>()
             };
 
             return ieWorkflow;

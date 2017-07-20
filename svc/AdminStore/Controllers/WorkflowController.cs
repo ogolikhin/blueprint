@@ -13,6 +13,7 @@ using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
 using ServiceLibrary.Repositories.Files;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
@@ -23,6 +24,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.Results;
+using System.Xml;
 
 namespace AdminStore.Controllers
 {
@@ -87,7 +89,6 @@ namespace AdminStore.Controllers
             // The first parameter does not matter, can be workflow, file etc.
             // Required for messages.
             var fileName = Request.Content.Headers?.ContentDisposition?.FileName;
-
             using (var stream = await Request.Content.ReadAsStreamAsync())
             {
                 IeWorkflow workflow;
@@ -260,19 +261,33 @@ namespace AdminStore.Controllers
             return Ok();
         }
 
-        //will be removed
+        /// <summary>
+        /// Export Workflow
+        /// </summary>
+        /// <param name="workflowId">Workflow identity</param>
+        /// <remarks>
+        /// Returns Ok result.
+        /// </remarks>
+        /// <response code="200">Ok. Workflow is exported.</response>
+        /// <response code="400">BadRequest. Parameters are invalid. </response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for updating the workflow.</response>
+        /// <response code="404">NotFound. The workflow with the current id doesn’t exist or removed from the system.</response>
         [SessionRequired]
         [HttpGet, NoCache]
-        [ResponseType(typeof(HttpResponseMessage))]
+        [ResponseType(typeof (HttpResponseMessage))]
         [Route("export/{workflowId:int:min(1)}")]
         public async Task<ResponseMessageResult> ExportWorkflow(int workflowId)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
-            var testString = "hello";
-            var uniEncoding = new UnicodeEncoding();
-            var bytes = uniEncoding.GetBytes(testString);
+            var ieWorkflow = await _workflowService.GetWorkflowExportAsync(workflowId);
 
-            using (var stream = new MemoryStream(100))
+            var workflowToXml = SerializationHelper.ToXml(ieWorkflow);
+
+            var uniEncoding = new UnicodeEncoding();
+            var bytes = uniEncoding.GetBytes(workflowToXml);
+
+            using (var stream = new MemoryStream())
             {
                 stream.Write(bytes, 0, bytes.Length);
                 var result = new HttpResponseMessage(HttpStatusCode.OK)
@@ -280,9 +295,9 @@ namespace AdminStore.Controllers
                     Content = new ByteArrayContent(stream.GetBuffer())
                 };
                 result.Content.Headers.ContentDisposition =
-                    new ContentDispositionHeaderValue("attachment")
+                    new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
                     {
-                        FileName = "test.xml"
+                        FileName = $"workflow{workflowId}.xml"
                     };
                 result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
 

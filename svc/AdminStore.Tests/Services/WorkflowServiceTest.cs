@@ -137,5 +137,89 @@ namespace AdminStore.Services
             // Exception
         }
         #endregion
+
+        #region GetWorkflowExportAsync
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task GetWorkflowExportAsync_WorkflowNotExistsInDb_NotFoundResult()
+        {
+            // Arrange
+            var workflowId = 10;
+            _workflowRepositoryMock
+                .Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync((SqlWorkflow)null);
+            // Act
+            await _service.GetWorkflowExportAsync(workflowId);
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
+        public async Task GetWorkflowExportAsync_WorkflowExists_ReturnWorkflow()
+        {
+            //arrange
+            var workflowId = 10;
+            var workflow = new SqlWorkflow { Name = "Workflow1", Description = "Workflow1Description" };
+            var workflowArtifactTypesAndProjects = new List<SqlWorkflowArtifactTypesAndProjects>
+            {
+                new SqlWorkflowArtifactTypesAndProjects
+                {
+                    ProjectId = 1,
+                    ProjectName = "Project1",
+                    ArtifactName = "Artifact1"
+                },
+                new SqlWorkflowArtifactTypesAndProjects
+                {
+                    ProjectId = 2,
+                    ProjectName = "Project2",
+                    ArtifactName = "Artifact2"
+                }
+            };
+
+            var workflowStates = new SqlState {Name = "new", Description = "newState", Default = true };
+            var workflowsList = new List<SqlState> { workflowStates };
+
+            var workflowTransitionsAndPropertyChanges = new List<SqlWorkflowTransitionsAndPropertyChanges>
+            {
+                new SqlWorkflowTransitionsAndPropertyChanges
+                {
+                    WorkflowId = 10,
+                    Name = "FirsTrigger",
+                    Description = "description about trigger",
+                    FromState = "new",
+                    ToState = "Active",
+                    Permissions = "<P S=\"0\"><G>1</G></P>",
+                    Type = 1
+                },
+                new SqlWorkflowTransitionsAndPropertyChanges
+                {
+                    WorkflowId = 10,
+                    Name = "second Trigger",
+                    Description = "description about trigger",
+                    FromState = "Active",
+                    Permissions = "<P S=\"0\"/>",
+                    Type = 1
+                }
+            };
+
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(workflow);
+
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowStatesByWorkflowId(It.IsAny<int>())).ReturnsAsync(workflowsList);
+
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowArtifactTypesAndProjectsAsync(It.IsAny<int>())).ReturnsAsync(workflowArtifactTypesAndProjects);
+
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowTransitionsAndPropertyChangesByWorkflowId(It.IsAny<int>())).ReturnsAsync(workflowTransitionsAndPropertyChanges);
+
+            //act
+            var workflowExport = await _service.GetWorkflowExportAsync(workflowId);
+
+            //assert
+            Assert.IsNotNull(workflowExport);
+            Assert.AreEqual(2, workflowExport.Projects.Count());
+            Assert.AreEqual(2, workflowExport.ArtifactTypes.Count());
+            Assert.AreEqual(1, workflowExport.States.Count());
+        }
+
+        #endregion
     }
 }

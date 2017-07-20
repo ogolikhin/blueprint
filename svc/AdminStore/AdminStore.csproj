@@ -178,6 +178,7 @@
     <Compile Include="Models\Workflow\IeStateCondition.cs" />
     <Compile Include="Models\Workflow\IeTrigger.cs" />
     <Compile Include="Models\Workflow\SqlArtifactTypesWorkflowDetails.cs" />
+    <Compile Include="Models\Workflow\SqlWorkflowTransitionsAndPropertyChanges.cs" />
     <Compile Include="Models\Workflow\WorkflowArtifactTypeDto.cs" />
     <Compile Include="Models\Workflow\SqlProjectPathPair.cs" />
     <Compile Include="Models\Workflow\SqlState.cs" />

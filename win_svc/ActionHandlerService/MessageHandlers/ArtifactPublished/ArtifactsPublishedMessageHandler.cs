@@ -11,7 +11,5 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
         public ArtifactsPublishedMessageHandler(IActionHelper actionHelper) : base(actionHelper)
         {
         }
-
-        protected override MessageActionType ActionType { get; } = MessageActionType.ArtifactsPublished;
     }
 }

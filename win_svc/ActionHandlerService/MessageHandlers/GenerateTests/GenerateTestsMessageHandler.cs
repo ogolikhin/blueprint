@@ -11,7 +11,5 @@ namespace ActionHandlerService.MessageHandlers.GenerateTests
         public GenerateTestsMessageHandler(IActionHelper actionHelper) : base(actionHelper)
         {
         }
-
-        protected override MessageActionType ActionType { get; } = MessageActionType.GenerateTests;
     }
 }

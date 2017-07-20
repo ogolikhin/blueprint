@@ -16,8 +16,6 @@ namespace ActionHandlerService.MessageHandlers
             ActionHelper = actionHelper;
         }
 
-        protected abstract MessageActionType ActionType { get; }
-
         protected IActionHelper ActionHelper { get; }
 
         public async Task Handle(T message, IMessageHandlerContext context)

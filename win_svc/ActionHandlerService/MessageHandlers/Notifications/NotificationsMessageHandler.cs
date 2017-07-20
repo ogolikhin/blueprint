@@ -8,10 +8,8 @@ namespace ActionHandlerService.MessageHandlers.Notifications
         {
         }
 
-        public NotificationMessageHandler(IActionHelper actionHelper):base(actionHelper)
+        public NotificationMessageHandler(IActionHelper actionHelper) : base(actionHelper)
         {
         }
-
-        protected override MessageActionType ActionType { get; } = MessageActionType.Notification;
     }
 }

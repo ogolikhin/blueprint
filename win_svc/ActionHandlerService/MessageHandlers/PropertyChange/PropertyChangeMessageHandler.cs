@@ -11,7 +11,5 @@ namespace ActionHandlerService.MessageHandlers.PropertyChange
         public PropertyChangeMessageHandler(IActionHelper actionHelper) : base(actionHelper)
         {
         }
-
-        protected override MessageActionType ActionType { get; } = MessageActionType.Property;
     }
 }

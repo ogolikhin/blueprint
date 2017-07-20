@@ -11,7 +11,5 @@ namespace ActionHandlerService.MessageHandlers.GenerateDescendants
         public GenerateDescendantsMessageHandler(IActionHelper actionHelper) : base(actionHelper)
         {
         }
-        
-        protected override MessageActionType ActionType { get; } = MessageActionType.GenerateDescendants;
     }
 }

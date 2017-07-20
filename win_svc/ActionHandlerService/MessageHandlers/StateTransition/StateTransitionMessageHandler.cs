@@ -2,7 +2,7 @@
 
 namespace ActionHandlerService.MessageHandlers.StateTransition
 {
-    public class StateTransitionMessageHandler : BaseMessageHandler<GenerateUserStoriesMessage>
+    public class StateTransitionMessageHandler : BaseMessageHandler<StateChangeMessage>
     {
         public StateTransitionMessageHandler() : this(new StateTransitionMessageHelper())
         {
@@ -11,7 +11,5 @@ namespace ActionHandlerService.MessageHandlers.StateTransition
         public StateTransitionMessageHandler(IActionHelper actionHelper) : base(actionHelper)
         {
         }
-
-        protected override MessageActionType ActionType { get; } = MessageActionType.StateChange;
     }
 }

@@ -11,7 +11,5 @@ namespace ActionHandlerService.MessageHandlers.GenerateUserStories
         public GenerateUserStoriesMessageHandler(IActionHelper actionHelper) : base(actionHelper)
         {
         }
-
-        protected override MessageActionType ActionType { get; } = MessageActionType.GenerateUserStories;
     }
 }

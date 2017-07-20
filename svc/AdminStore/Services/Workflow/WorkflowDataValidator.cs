@@ -175,6 +175,10 @@ namespace AdminStore.Services.Workflow
         {
             //validate property name in property change triggers
             var listOfPropertyNames = workflow.PropertyChangeEvents.Select(pce => pce.PropertyName).ToHashSet();
+            if (!listOfPropertyNames.Any())
+            {
+                return result;
+            }
             var existingPropertyNames = (await _workflowRepository.GetExistingPropertyTypesByName(listOfPropertyNames)).ToArray();
 
             if (existingPropertyNames.Length != listOfPropertyNames.Count)

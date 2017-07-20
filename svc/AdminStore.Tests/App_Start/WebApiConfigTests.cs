@@ -74,7 +74,7 @@ namespace AdminStore
             config.AssertAction<WorkflowController>("GetWorkflow", HttpMethod.Get, "workflow/1");
             config.AssertAction<WorkflowController>("GetWorkflows", HttpMethod.Get, "workflow?offset=0&limit=20&sort=name&order=asc");
             config.AssertAction<WorkflowController>("DeleteWorkflows", HttpMethod.Delete, "workflow?SelectAl=false&Ids=2");
-            config.AssertAction<WorkflowController>("UpdateWorkflowStatus", HttpMethod.Put, "workflow/UpdateWorkflowStatus/1");
+            config.AssertAction<WorkflowController>("UpdateStatus", HttpMethod.Put, "workflow/1/status");
             config.AssertAction<WorkflowController>("ExportWorkflow", HttpMethod.Get, "workflow/export/1");
         }
 

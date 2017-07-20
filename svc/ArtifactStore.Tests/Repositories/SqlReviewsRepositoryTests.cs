@@ -2563,6 +2563,9 @@ namespace ArtifactStore.Repositories
                 Id = 4,
                 Name = "Review Artifact",
                 Prefix = "REV",
+                ItemTypeId = 5,
+                ItemTypePredefined = 6,
+                IconImageId = 7,
                 IsApprovalRequired = true
             };
 
@@ -2598,8 +2601,12 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(artifactStatsResult.Total, 1);
             var artifactStats = artifactStatsResult.Items.First();
             Assert.AreEqual(true, artifactStats.HasAccess);
-            Assert.AreEqual("REV4", artifactStats.ArtifactId);
-            Assert.AreEqual("Review Artifact", artifactStats.ArtifactName);
+            Assert.AreEqual(4, artifactStats.Id);
+            Assert.AreEqual("REV", artifactStats.Prefix);
+            Assert.AreEqual("Review Artifact", artifactStats.Name);
+            Assert.AreEqual(5, artifactStats.ItemTypeId);
+            Assert.AreEqual(6, artifactStats.ItemTypePredefined);
+            Assert.AreEqual(7, artifactStats.IconImageId);
             Assert.AreEqual(true, artifactStats.Viewed);
             Assert.AreEqual("Approved", artifactStats.ApprovalStatus);
             Assert.AreEqual(true, artifactStats.ArtifactRequiresApproval);

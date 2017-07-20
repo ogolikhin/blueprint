@@ -46,7 +46,7 @@ namespace ServiceLibrary.Helpers
         {
             var errorMessage = I18NHelper.FormatInvariant("Artifact (Id:{0}) is not locked by user (Id:{1}).",
                                    artifactId, userId);
-            throw new BadRequestException(errorMessage, ErrorCodes.LockedByOtherUser);
+            throw new ConflictException(errorMessage, ErrorCodes.LockedByOtherUser);
         }
 
         public static void ThrowArtifactDoesNotSupportOperation(int artifactId)

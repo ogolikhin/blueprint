@@ -187,7 +187,6 @@ namespace ArtifactStore.Repositories
         {
             reviewArtifact.Name = string.Empty;
             reviewArtifact.ItemTypeId = 0;
-            reviewArtifact.Prefix = null;
             reviewArtifact.HasComments = false;
             reviewArtifact.ItemTypePredefined = 0;
             reviewArtifact.IconImageId = null;

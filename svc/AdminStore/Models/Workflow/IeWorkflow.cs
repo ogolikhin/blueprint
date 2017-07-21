@@ -10,9 +10,23 @@ namespace AdminStore.Models.Workflow
     public class IeWorkflow
     {
         // Optional, not used for the import, will be used for the update
-        [XmlElement]
+        //========================================================
+        // To make xml attribute nullable.
+        [XmlIgnore]
         public int? Id { get; set; }
-        public bool ShouldSerializeId() { return Id.HasValue; }
+
+        [XmlAttribute("Id")]
+        public int IdSerializable
+        {
+            get { return Id.GetValueOrDefault(); }
+            set { Id = value; }
+        }
+
+        public bool ShouldSerializeIdSerializable()
+        {
+            return Id.HasValue;
+        }
+        //========================================================
 
         [XmlElement(IsNullable = false)]
         public string Name { get; set; }

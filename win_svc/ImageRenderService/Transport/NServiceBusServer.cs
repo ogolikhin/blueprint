@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using BluePrintSys.Messaging.CrossCutting.Logging;
@@ -8,6 +10,13 @@ using NServiceBus;
 
 namespace ImageRenderService.Transport
 {
+    public enum NServiceBusTransportType
+    {
+        None,
+        RabbitMq,
+        Sql
+    }
+
     public class NServiceBusServer
     {
         private static string Handler = "ImageGen.ImageGenServer";
@@ -40,6 +49,17 @@ namespace ImageRenderService.Transport
 
         private async Task CreateEndPoint(string name, string connectionString)
         {
+            NServiceBusTransportType transportType = NServiceBusTransportType.None;
+
+            if (connectionString.ToLower().Contains("host=") || connectionString.ToLower().Contains("host ="))
+            {
+                transportType = NServiceBusTransportType.RabbitMq;
+            }
+            else if (connectionString.ToLower().Contains("data source=") || connectionString.ToLower().Contains("data source ="))
+            {
+                transportType = NServiceBusTransportType.Sql;
+            }
+
             var instanceId = NServiceBusInstanceId;
             if (string.IsNullOrEmpty(instanceId))
             {
@@ -48,14 +68,32 @@ namespace ImageRenderService.Transport
             var endpointConfiguration = new EndpointConfiguration(name);
             endpointConfiguration.MakeInstanceUniquelyAddressable(instanceId);
 
-            var transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
-            transport.ConnectionString(connectionString);
-            // for RabbitMQ transport only
-            var delayedDelivery = transport.DelayedDelivery();
-            delayedDelivery.DisableTimeoutManager();
+            object transport;
+            if (transportType == NServiceBusTransportType.RabbitMq)
+            {
+                transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
+                ((TransportExtensions<RabbitMQTransport>)transport).ConnectionString(connectionString);
+                // for RabbitMQ transport only
+                var delayedDelivery = ((TransportExtensions<RabbitMQTransport>)transport).DelayedDelivery();
+                delayedDelivery.DisableTimeoutManager();
+            }
+            else if (transportType == NServiceBusTransportType.Sql)
+            {
+                transport = endpointConfiguration.UseTransport<SqlServerTransport>();
+                ((TransportExtensions<SqlServerTransport>)transport).ConnectionString(connectionString);
+            }
 
             var assemblyScanner = endpointConfiguration.AssemblyScanner();
-            assemblyScanner.ExcludeAssemblies("Common.dll", "NServiceBus.Persistence.Sql.dll");
+            HashSet<string> assembliesToExclude = new HashSet<string> { "Common.dll", "NServiceBus.Persistence.Sql.dll" };
+            if (transportType == NServiceBusTransportType.RabbitMq)
+            {
+                assembliesToExclude.Add("nservicebus.transport.sqlserver.dll");
+            }
+            else if (transportType == NServiceBusTransportType.Sql)
+            {
+                assembliesToExclude.Add("nservicebus.transports.rabbitmq.dll");
+            }
+            assemblyScanner.ExcludeAssemblies(assembliesToExclude.ToArray());
 
             endpointConfiguration.UsePersistence<InMemoryPersistence>();
             endpointConfiguration.UseSerialization<JsonSerializer>();

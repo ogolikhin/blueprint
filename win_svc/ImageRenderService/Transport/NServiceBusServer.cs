@@ -7,6 +7,7 @@ using BluePrintSys.Messaging.CrossCutting.Logging;
 using BluePrintSys.Messaging.Models.ProcessImageGeneration;
 using ImageRenderService.Helpers;
 using NServiceBus;
+using NServiceBus.Transport.SQLServer;
 
 namespace ImageRenderService.Transport
 {
@@ -51,11 +52,11 @@ namespace ImageRenderService.Transport
         {
             NServiceBusTransportType transportType = NServiceBusTransportType.None;
 
-            if (connectionString.ToLower().Contains("host=") || connectionString.ToLower().Contains("host ="))
+            if (connectionString.Replace(" ","").Replace("\t", "").ToLower().Contains("host="))
             {
                 transportType = NServiceBusTransportType.RabbitMq;
             }
-            else if (connectionString.ToLower().Contains("data source=") || connectionString.ToLower().Contains("data source ="))
+            else if (connectionString.Replace(" ", "").Replace("\t", "").ToLower().Contains("datasource="))
             {
                 transportType = NServiceBusTransportType.Sql;
             }
@@ -81,6 +82,7 @@ namespace ImageRenderService.Transport
             {
                 transport = endpointConfiguration.UseTransport<SqlServerTransport>();
                 ((TransportExtensions<SqlServerTransport>)transport).ConnectionString(connectionString);
+                ((TransportExtensions<SqlServerTransport>) transport).DefaultSchema("queue");
             }
 
             var assemblyScanner = endpointConfiguration.AssemblyScanner();

@@ -180,7 +180,7 @@ namespace AdminStore.Services.Workflow
 
             return workflowDto;
         }
-        public async Task UpdateWorkflowStatusAsync(WorkflowDto workflowDto, int workflowId, int userId)
+        public async Task UpdateWorkflowStatusAsync(StatusUpdate statusUpdate, int workflowId, int userId)
         {
             var existingWorkflow = await _workflowRepository.GetWorkflowDetailsAsync(workflowId);
             if (existingWorkflow == null)
@@ -188,12 +188,12 @@ namespace AdminStore.Services.Workflow
                 throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
             }
 
-            if (existingWorkflow.VersionId != workflowDto.VersionId)
+            if (existingWorkflow.VersionId != statusUpdate.VersionId)
             {
                 throw new ConflictException(ErrorMessages.WorkflowVersionsNotEqual, ErrorCodes.Conflict);
             }
 
-            var workflows = new List<SqlWorkflow> {new SqlWorkflow {Name = existingWorkflow.Name, Description = existingWorkflow.Description, Active = workflowDto.Status, WorkflowId = workflowId} };
+            var workflows = new List<SqlWorkflow> {new SqlWorkflow {Name = existingWorkflow.Name, Description = existingWorkflow.Description, Active = statusUpdate.Status, WorkflowId = workflowId} };
 
             Func<IDbTransaction, Task> action = async transaction =>
             {

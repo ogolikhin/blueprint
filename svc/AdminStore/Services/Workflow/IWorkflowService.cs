@@ -16,7 +16,7 @@ namespace AdminStore.Services.Workflow
 
         Task<WorkflowDto> GetWorkflowDetailsAsync(int workflowId);
 
-        Task UpdateWorkflowStatusAsync(WorkflowDto workflowDto, int workflowId, int userId);
+        Task UpdateWorkflowStatusAsync(StatusUpdate statusUpdate, int workflowId, int userId);
 
         Task<int> DeleteWorkflows(OperationScope body, string search, int sessionUserId);
 

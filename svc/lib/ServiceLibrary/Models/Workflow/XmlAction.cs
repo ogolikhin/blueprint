@@ -7,8 +7,5 @@ namespace ServiceLibrary.Models.Workflow
     {
         [XmlElement("N", IsNullable = false)]
         public string Name { get; set; }
-
-        [XmlElement("D", IsNullable = false)]
-        public string Description { get; set; }
     }
 }

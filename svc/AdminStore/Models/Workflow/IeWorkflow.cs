@@ -9,10 +9,10 @@ namespace AdminStore.Models.Workflow
     [XmlType("Workflow")]
     public class IeWorkflow
     {
-        // Optional, not used for the import, can be used for the update
-        //[XmlElement]
-        //public int? Id { get; set; }
-        //public bool ShouldSerializeId() { return Id.HasValue; }
+        // Optional, not used for the import, will be used for the update
+        [XmlElement]
+        public int? Id { get; set; }
+        public bool ShouldSerializeId() { return Id.HasValue; }
 
         [XmlElement(IsNullable = false)]
         public string Name { get; set; }
@@ -25,18 +25,15 @@ namespace AdminStore.Models.Workflow
         public List<IeState> States { get; set; }
 
         [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
-        [XmlArray("Transitions")]
-        [XmlArrayItem("Transition", typeof(IeTransitionEvent))]
+        [XmlArray("Transitions"), XmlArrayItem("Transition")]
         public List<IeTransitionEvent> TransitionEvents { get; set; }
 
         [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
-        [XmlArray("PropertyChanges")]
-        [XmlArrayItem("PropertyChange", typeof(IePropertyChangeEvent))]
+        [XmlArray("PropertyChanges"), XmlArrayItem("PropertyChange")]
         public List<IePropertyChangeEvent> PropertyChangeEvents { get; set; }
 
         [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
-        [XmlArray("NewArtifacts")]
-        [XmlArrayItem("NewArtifact", typeof(IeNewArtifactEvent))]
+        [XmlArray("NewArtifacts"), XmlArrayItem("NewArtifact")]
         public List<IeNewArtifactEvent> NewArtifactEvents { get; set; }
 
         [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]

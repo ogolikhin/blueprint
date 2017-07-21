@@ -90,11 +90,6 @@ namespace AdminStore.Services.Workflow
                     result.Errors.Add(new WorkflowXmlValidationError { Element = state, ErrorCode = WorkflowXmlValidationErrorCodes.StateNameExceedsLimit24 });
                 }
 
-                if (!ValidatePropertyLimit(state.Description, 4000))
-                {
-                    result.Errors.Add(new WorkflowXmlValidationError { Element = state, ErrorCode = WorkflowXmlValidationErrorCodes.StateDescriptionExceedsLimit4000 });
-                }
-
                 if (state.IsInitial.GetValueOrDefault())
                 {
                     initialStates.Add(state.Name);
@@ -108,6 +103,7 @@ namespace AdminStore.Services.Workflow
 
             var stateTransitions = stateNames.ToDictionary(s => s, s => new List<string>());
             var statesWithIncomingTransitions = new HashSet<string>();
+            var workflowEventNames = new HashSet<string>();
             foreach (var transition in workflow.TransitionEvents.FindAll(s => s != null))
             {
                 statesWithIncomingTransitions.Add(transition.ToState);
@@ -120,6 +116,14 @@ namespace AdminStore.Services.Workflow
                         ErrorCode = WorkflowXmlValidationErrorCodes.TransitionEventNameEmpty
                     });
                 }
+                else if (!workflowEventNames.Add(transition.Name))
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = transition,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.WorkflowEventNameNotUniqueInWorkflow
+                    });
+                }
 
                 if (!ValidatePropertyLimit(transition.Name, 24))
                 {
@@ -127,15 +131,6 @@ namespace AdminStore.Services.Workflow
                     {
                         Element = transition,
                         ErrorCode = WorkflowXmlValidationErrorCodes.TransitionEventNameExceedsLimit24
-                    });
-                }
-
-                if (!ValidatePropertyLimit(transition.Description, 4000))
-                {
-                    result.Errors.Add(new WorkflowXmlValidationError
-                    {
-                        Element = transition,
-                        ErrorCode = WorkflowXmlValidationErrorCodes.TransitionEventDescriptionExceedsLimit4000
                     });
                 }
 
@@ -210,6 +205,14 @@ namespace AdminStore.Services.Workflow
                         ErrorCode = WorkflowXmlValidationErrorCodes.PropertyChangeEventNameEmpty
                     });
                 }
+                else if (!workflowEventNames.Add(pcEvent.Name))
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = pcEvent,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.WorkflowEventNameNotUniqueInWorkflow
+                    });
+                }
 
                 if (!ValidatePropertyLimit(pcEvent.Name, 24))
                 {
@@ -217,15 +220,6 @@ namespace AdminStore.Services.Workflow
                     {
                         Element = pcEvent,
                         ErrorCode = WorkflowXmlValidationErrorCodes.PropertyChangeEventNameExceedsLimit24
-                    });
-                }
-
-                if (!ValidatePropertyLimit(pcEvent.Description, 4000))
-                {
-                    result.Errors.Add(new WorkflowXmlValidationError
-                    {
-                        Element = pcEvent,
-                        ErrorCode = WorkflowXmlValidationErrorCodes.PropertyChangeEventDescriptionExceedsLimit4000
                     });
                 }
 
@@ -258,6 +252,14 @@ namespace AdminStore.Services.Workflow
                         ErrorCode = WorkflowXmlValidationErrorCodes.NewArtifactEventNameEmpty
                     });
                 }
+                else if (!workflowEventNames.Add(naEvent.Name))
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = naEvent,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.WorkflowEventNameNotUniqueInWorkflow
+                    });
+                }
 
                 if (!ValidatePropertyLimit(naEvent.Name, 24))
                 {
@@ -265,15 +267,6 @@ namespace AdminStore.Services.Workflow
                     {
                         Element = naEvent,
                         ErrorCode = WorkflowXmlValidationErrorCodes.NewArtifactEventNameExceedsLimit24
-                    });
-                }
-
-                if (!ValidatePropertyLimit(naEvent.Description, 4000))
-                {
-                    result.Errors.Add(new WorkflowXmlValidationError
-                    {
-                        Element = naEvent,
-                        ErrorCode = WorkflowXmlValidationErrorCodes.NewArtifactEventDescriptionExceedsLimit4000
                     });
                 }
 
@@ -302,11 +295,6 @@ namespace AdminStore.Services.Workflow
                 if (transitionNames.Count > 10)
                 {
                     result.Errors.Add(new WorkflowXmlValidationError { Element = stateName, ErrorCode = WorkflowXmlValidationErrorCodes.TransitionCountOnStateExceedsLimit10 });
-                }
-
-                if (transitionNames.Count != transitionNames.Distinct().Count())
-                {
-                    result.Errors.Add(new WorkflowXmlValidationError { Element = stateName, ErrorCode = WorkflowXmlValidationErrorCodes.TransitionNameNotUniqueOnState });
                 }
             }
 

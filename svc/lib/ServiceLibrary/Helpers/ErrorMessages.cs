@@ -77,6 +77,9 @@
         public static readonly string WorkflowVersionsNotEqual = "The current version the workflow from the request doesn’t match the current version in DB.";
         public static readonly string WorkflowWasNotUpdated = "The workflow with current parameters was not updated.";
         public static readonly string InvalidDeleteWorkflowsParameters = "Invalid parameters to delete workflows";
-        public static readonly string GeneralErrorOfDeletingWorkflows = "An error has occurred when performed workflows (s) deletion operation";        
+        public static readonly string GeneralErrorOfDeletingWorkflows = "An error has occurred when performed workflows (s) deletion operation";
+        //Folder
+        public static readonly string GeneralErrorOfDeletingFolder = "An error has occurred when the operation was being performed at SQL level.";
+        public static readonly string FolderNotExist = "The folder with the current folderId doesn’t exist or removed from the system.";
     }
 }

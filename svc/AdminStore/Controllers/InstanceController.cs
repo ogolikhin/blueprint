@@ -154,5 +154,25 @@ namespace AdminStore.Controllers
 
             return Ok(result);
         }
+
+        /// <summary>
+        /// Delete Instance Folder
+        /// </summary>
+        /// <response code="200">OK. An instance folder is deleted.</response>
+        /// <response code="400">BadRequest. Some errors. </response>
+        /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
+        /// <response code="403">Forbidden if used doesn’t have permissions to delete instance folder</response>
+        /// <response code="404">NotFound. if instance folder with instanceFolderId doesn’t exists or removed from the system.</response>
+        [HttpDelete]
+        [Route("folder/{instanceFolderId:int:min(1)}"), SessionRequired]
+        [ResponseType(typeof(DeleteResult))]
+        public async Task<IHttpActionResult> DeleteInstanceFolder(int instanceFolderId)
+        {
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.DeleteProjects);
+
+            var result = await _instanceRepository.DeleteInstanceFolderAsync(instanceFolderId);
+
+            return Ok(new DeleteResult { TotalDeleted = result });
+        }
     }
 }

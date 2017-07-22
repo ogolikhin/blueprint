@@ -15,5 +15,7 @@ namespace AdminStore.Repositories
         Task<List<string>> GetProjectNavigationPathAsync(int userId, int projectId, bool includeProjectItself);
 
         Task<IEnumerable<AdminRole>> GetInstanceRolesAsync();
+
+        Task<int> DeleteInstanceFolderAsync(int instanceFolderId);
     }
 }

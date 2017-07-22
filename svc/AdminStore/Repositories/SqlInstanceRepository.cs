@@ -134,5 +134,30 @@ namespace AdminStore.Repositories
 
             return result;
         }
+
+        public async Task<int> DeleteInstanceFolderAsync(int instanceFolderId)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@InstanceFolderId", instanceFolderId);
+
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var result = await _connectionWrapper.ExecuteScalarAsync<int>("DeleteFolder", parameters, commandType: CommandType.StoredProcedure);
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.GeneralSqlError:
+                        throw new BadRequestException(ErrorMessages.GeneralErrorOfDeletingFolder);
+
+                    case (int)SqlErrorCodes.InstanceFolderNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.FolderNotExist, ErrorCodes.ResourceNotFound);
+                }
+            }
+
+            return result;
+        }
     }
 }

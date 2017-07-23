@@ -92,6 +92,7 @@ namespace ArtifactStore.Repositories.VersionControl
         private bool IsChanged(SqlDraftAndLatestItem item)
         {
             return item.LatestVersionId.HasValue == false // new item
+                || item.DraftVersionId != item.LatestVersionId.Value
                 || item.DraftItemTypeId != item.LatestItemTypeId
                 || item.DraftParentId != item.LatestParentId
                 || item.DraftOrderIndex != item.LatestOrderIndex

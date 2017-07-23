@@ -122,7 +122,6 @@ namespace AdminStore.Repositories
                 {
                     WorkflowId = 10,
                     Name = "FirsTrigger",
-                    Description = "description about trigger",
                     FromState = "new",
                     ToState = "Active",
                     Permissions = "<P S=\"0\"><G>1</G></P>",
@@ -132,7 +131,6 @@ namespace AdminStore.Repositories
                 {
                     WorkflowId = 10,
                     Name = "second Trigger",
-                    Description = "description about trigger",
                     FromState = "Active",
                     Permissions = "<P S=\"0\"/>",
                     Type = 2
@@ -162,7 +160,7 @@ namespace AdminStore.Repositories
             var repository = new WorkflowRepository(cxn.Object, sqlHelperMock.Object);
 
             var workflowId = 10;
-            var workflow = new SqlState { Name = "Workflow1", Description = "Workflow1Description", Default = true };
+            var workflow = new SqlState { Name = "Workflow1", Default = true };
             var workflowsList = new List<SqlState> { workflow };
             cxn.SetupQueryAsync("GetWorkflowStatesById", new Dictionary<string, object> { { "WorkflowId", workflowId } }, workflowsList);
 

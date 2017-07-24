@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 using AdminStore.Models.DTO;
+using AdminStore.Services.Instance;
 
 namespace AdminStore.Controllers
 {
@@ -22,13 +23,14 @@ namespace AdminStore.Controllers
     {
         private readonly IInstanceRepository _instanceRepository;
         private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
+        private readonly IInstanceService _instanceService;
         private readonly PrivilegesManager _privilegesManager;
 
         public override string LogSource { get; } = "AdminStore.Instance";
 
         public InstanceController() : this(
             new SqlInstanceRepository(), new ServiceLogRepository(),
-            new SqlArtifactPermissionsRepository(), new SqlPrivilegesRepository()
+            new SqlArtifactPermissionsRepository(), new SqlPrivilegesRepository(), new InstanceService()
         )
         {
         }
@@ -38,11 +40,13 @@ namespace AdminStore.Controllers
             IInstanceRepository instanceRepository,
             IServiceLogRepository log,
             IArtifactPermissionsRepository artifactPermissionsRepository,
-            IPrivilegesRepository privilegesRepository
+            IPrivilegesRepository privilegesRepository,
+            IInstanceService instanceService
         ) : base(log)
         {
             _instanceRepository = instanceRepository;
             _artifactPermissionsRepository = artifactPermissionsRepository;
+            _instanceService = instanceService;
             _privilegesManager = new PrivilegesManager(privilegesRepository);
         }
 
@@ -85,14 +89,15 @@ namespace AdminStore.Controllers
         }
 
         [HttpGet]
+        [NoCache]
         [Route("foldersearch"), SessionRequired]
         [ResponseType(typeof(IEnumerable<FolderDto>))]
-        public async Task<IHttpActionResult> SearchFolderByName(string search)
+        public async Task<IEnumerable<FolderDto>> SearchFolderByName(string name)
         {
-            
+            return await _instanceService.GetFoldersByName(name);
         }
 
-            /// <summary>
+        /// <summary>
         /// Get Project
         /// </summary>
         /// <remarks>

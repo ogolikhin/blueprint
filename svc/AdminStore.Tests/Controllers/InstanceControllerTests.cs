@@ -5,6 +5,7 @@ using System.Web.Http;
 using System.Web.Http.Results;
 using AdminStore.Models;
 using AdminStore.Repositories;
+using AdminStore.Services.Instance;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Exceptions;
@@ -23,6 +24,7 @@ namespace AdminStore.Controllers
         private Mock<IServiceLogRepository> _logRepositoryMock;
         private Mock<IArtifactPermissionsRepository> _artifactPermissionsRepositoryMock;
         private Mock<IPrivilegesRepository> _privilegeRepositoryMock;
+        private Mock<IInstanceService> _instanceServiceMock;
         private InstanceController _controller;
 
         [TestInitialize]
@@ -32,6 +34,8 @@ namespace AdminStore.Controllers
             _logRepositoryMock = new Mock<IServiceLogRepository>();
             _artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
             _privilegeRepositoryMock = new Mock<IPrivilegesRepository>();
+            _instanceServiceMock = new Mock<IInstanceService>();
+
 
             var request = new HttpRequestMessage();
             request.Properties[ServiceConstants.SessionProperty] = new Session { UserId = UserId };
@@ -41,7 +45,8 @@ namespace AdminStore.Controllers
                 _instanceRepositoryMock.Object,
                 _logRepositoryMock.Object,
                 _artifactPermissionsRepositoryMock.Object,
-                _privilegeRepositoryMock.Object
+                _privilegeRepositoryMock.Object,
+                _instanceServiceMock.Object
             )
             {
                 Request = request

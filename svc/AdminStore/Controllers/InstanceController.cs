@@ -8,9 +8,13 @@ using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using AdminStore.Models.DTO;
+using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
 
 namespace AdminStore.Controllers
 {
@@ -154,5 +158,40 @@ namespace AdminStore.Controllers
 
             return Ok(result);
         }
+
+        #region folders
+
+        /// <summary>
+        /// Creation of instance folder.
+        /// </summary>
+        /// <remarks>
+        /// Returns id of created folder.
+        /// </remarks>
+        /// <returns code="201">OK. Folder is created.</returns>
+        /// <returns code="400">BadRequest. Parameters are invalid.</returns>
+        /// <returns code="401">>Unauthorized. The session token is invalid, missing or malformed.</returns>
+        /// <returns code="403">Forbidden. The user does not have permissions for creating the folder.</returns>
+        /// <returns code="500">Internal server error.</returns>
+        [HttpPost]
+        [SessionRequired]
+        [Route("folder")]
+        [ResponseType(typeof(int))]
+        public async Task<HttpResponseMessage> CreateFolder(FolderDto folder)
+        {
+            if (folder == null)
+            {
+                throw new BadRequestException(ErrorMessages.FolderModelIsEmpty, ErrorCodes.BadRequest);
+            }
+
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageProjects);
+
+            FolderValidator.ValidateModel(folder);
+
+            var folderId = await _instanceRepository.CreateFolderAsync(folder);
+
+            return Request.CreateResponse(HttpStatusCode.Created, folderId);
+        }
+
+        #endregion
     }
 }

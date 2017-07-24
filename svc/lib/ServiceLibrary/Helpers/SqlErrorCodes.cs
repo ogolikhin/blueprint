@@ -14,6 +14,7 @@
         GroupCanNotBeUpdatedWithExistingScope = 50008,
         UserAlreadyAssignedToTheGroup = 50009,
         GroupAlreadyAssignedToTheGroup = 50010,
-        CurrentProjectIsNotExist = 50011
+        CurrentProjectIsNotExist = 50011,
+        FolderWithSuchNameExistsInParentFolder = 50012,
     }
 }

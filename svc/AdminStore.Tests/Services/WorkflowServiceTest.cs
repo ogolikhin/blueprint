@@ -176,7 +176,7 @@ namespace AdminStore.Services
                 }
             };
 
-            var workflowStates = new SqlState {Name = "new", Description = "newState", Default = true };
+            var workflowStates = new SqlState {Name = "new", Default = true };
             var workflowsList = new List<SqlState> { workflowStates };
 
             var workflowTransitionsAndPropertyChanges = new List<SqlWorkflowTransitionsAndPropertyChanges>
@@ -185,7 +185,6 @@ namespace AdminStore.Services
                 {
                     WorkflowId = 10,
                     Name = "FirsTrigger",
-                    Description = "description about trigger",
                     FromState = "new",
                     ToState = "Active",
                     Permissions = "<P S=\"0\"><G>1</G></P>",
@@ -195,7 +194,6 @@ namespace AdminStore.Services
                 {
                     WorkflowId = 10,
                     Name = "second Trigger",
-                    Description = "description about trigger",
                     FromState = "Active",
                     Permissions = "<P S=\"0\"/>",
                     Type = 1

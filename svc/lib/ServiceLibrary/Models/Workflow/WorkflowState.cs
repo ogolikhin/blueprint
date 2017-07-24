@@ -12,9 +12,6 @@ namespace ServiceLibrary.Models.Workflow
         public string Name { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string Description { get; set; }
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public bool? IsDefault { get; set; }
     }
 

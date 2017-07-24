@@ -9,7 +9,6 @@ namespace AdminStore.Models.Workflow
     {
         public int WorkflowId { get; set; }
         public string Name { get; set; }
-        public string Description { get; set; }
         public string Permissions { get; set; }
         public int Type { get; set; }
         public string Actions { get; set; }

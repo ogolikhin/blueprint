@@ -47,7 +47,7 @@ namespace ArtifactStore.Controllers
         [HttpGet, NoCache]
         [Route("artifacts/{artifactId:int:min(1)}/version"), SessionRequired]
         [ActionName("GetArtifactHistory")]
-        public async Task<ArtifactHistoryResultSet> GetArtifactHistory(int artifactId, int limit = DEFAULT_LIMIT, int offset = DEFAULT_OFFSET, int? userId = null, bool asc = false)
+        public async Task<ArtifactHistoryResultSet> GetArtifactHistory(int artifactId, int limit = DEFAULT_LIMIT, int offset = DEFAULT_OFFSET, int? userId = null, bool asc = false, bool includeDrafts = true)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             if (limit < MIN_LIMIT || offset < 0 || userId < 1)
@@ -76,7 +76,7 @@ namespace ArtifactStore.Controllers
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
 
-            var result = await ArtifactVersionsRepository.GetArtifactVersions(artifactId, limit, offset, userId, asc, session.UserId);
+            var result = await ArtifactVersionsRepository.GetArtifactVersions(artifactId, limit, offset, userId, asc, session.UserId, includeDrafts);
             return result;
         }
 

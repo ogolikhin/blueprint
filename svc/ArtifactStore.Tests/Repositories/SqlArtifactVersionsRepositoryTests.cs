@@ -37,7 +37,7 @@ namespace ArtifactStore.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlArtifactVersionsRepository(cxn.Object);
             // Act
-            await repository.GetArtifactVersions(artifactId, limit, offset, userId, asc, sessionUserId);
+            await repository.GetArtifactVersions(artifactId, limit, offset, userId, asc, sessionUserId, true);
         }
 
         [TestMethod]
@@ -54,7 +54,7 @@ namespace ArtifactStore.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlArtifactVersionsRepository(cxn.Object);
             // Act
-            await repository.GetArtifactVersions(artifactId, limit, offset, userId, asc, sessionUserId);
+            await repository.GetArtifactVersions(artifactId, limit, offset, userId, asc, sessionUserId, true);
         }
 
         [TestMethod]
@@ -71,7 +71,7 @@ namespace ArtifactStore.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlArtifactVersionsRepository(cxn.Object);
             // Act
-            await repository.GetArtifactVersions(artifactId, limit, offset, userId, asc, sessionUserId);
+            await repository.GetArtifactVersions(artifactId, limit, offset, userId, asc, sessionUserId, true);
         }
 
         [TestMethod]
@@ -88,7 +88,7 @@ namespace ArtifactStore.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlArtifactVersionsRepository(cxn.Object);
             // Act
-            await repository.GetArtifactVersions(artifactId, limit, offset, userId, asc, sessionUserId);
+            await repository.GetArtifactVersions(artifactId, limit, offset, userId, asc, sessionUserId, true);
         }
 
         [TestMethod]
@@ -105,7 +105,7 @@ namespace ArtifactStore.Repositories
             var repository = new SqlArtifactVersionsRepository(cxn.Object);
             cxn.SetupQueryAsync("DoesArtifactHavePublishedOrDraftVersion", new Dictionary<string, object> { { "artifactId", artifactId } }, new List<bool> { true });
             // Act
-            var actual = await repository.GetArtifactVersions(artifactId, limit, offset, userId, asc, sessionUserId);
+            var actual = await repository.GetArtifactVersions(artifactId, limit, offset, userId, asc, sessionUserId, true);
             // Assert
             cxn.Verify();
             Assert.AreEqual(actual.ArtifactId, 1);
@@ -141,7 +141,7 @@ namespace ArtifactStore.Repositories
             cxn.SetupQueryAsync("GetUserInfos", new Dictionary<string, object> { { "userIds", userIdsTable } }, new List<UserInfo> { new UserInfo { UserId = 1, DisplayName = "David", ImageId = 1 } });
 
             // Act
-            var actual = await repository.GetArtifactVersions(artifactId, limit, offset, userId, asc, sessionUserId);
+            var actual = await repository.GetArtifactVersions(artifactId, limit, offset, userId, asc, sessionUserId, true);
             // Assert
             cxn.Verify();
             Assert.AreEqual(actual.ArtifactId, 1);
@@ -176,7 +176,7 @@ namespace ArtifactStore.Repositories
             var userIdsTable = SqlConnectionWrapper.ToDataTable(new List<int> { sessionUserId }, "Int32Collection", "Int32Value");
             cxn.SetupQueryAsync("GetUserInfos", new Dictionary<string, object> { { "userIds", userIdsTable } }, new List<UserInfo> { new UserInfo { UserId = 1, DisplayName = "David", ImageId = 1 } });
             // Act
-            var actual = await repository.GetArtifactVersions(artifactId, limit, offset, userId, asc, sessionUserId);
+            var actual = await repository.GetArtifactVersions(artifactId, limit, offset, userId, asc, sessionUserId, true);
             // Assert
             cxn.Verify();
             Assert.AreEqual(actual.ArtifactId, 1);
@@ -214,7 +214,7 @@ namespace ArtifactStore.Repositories
             cxn.SetupQueryAsync("GetUserInfos", new Dictionary<string, object> { { "userIds", userIdsTable } }, new List<UserInfo> { new UserInfo { UserId = 1, DisplayName = "David", ImageId = 1 } });
 
             // Act
-            var actual = await repository.GetArtifactVersions(artifactId, limit, offset, userId, asc, sessionUserId);
+            var actual = await repository.GetArtifactVersions(artifactId, limit, offset, userId, asc, sessionUserId, true);
             // Assert
             cxn.Verify();
             Assert.AreEqual(actual.ArtifactId, 1);
@@ -253,12 +253,57 @@ namespace ArtifactStore.Repositories
             cxn.SetupQueryAsync("GetUserInfos", new Dictionary<string, object> { { "userIds", userIdsTable } }, new List<UserInfo> { new UserInfo { UserId = 1, DisplayName = "David", ImageId = 1 } });
 
             // Act
-            var actual = await repository.GetArtifactVersions(artifactId, limit, offset, userId, asc, sessionUserId);
+            var actual = await repository.GetArtifactVersions(artifactId, limit, offset, userId, asc, sessionUserId, true);
             // Assert
             cxn.Verify();
             Assert.AreEqual(actual.ArtifactId, 1);
             Assert.AreEqual(actual.ArtifactHistoryVersions.ToList().Count(), 2);
             Assert.AreEqual(actual.ArtifactHistoryVersions.ToList()[1].VersionId, int.MaxValue);
+            Assert.AreEqual(actual.ArtifactHistoryVersions.ToList()[0].VersionId, 1);
+        }
+
+        [TestMethod]
+        public async Task GetArtifactVersions_Should_Not_Return_Draft_Version_When_includeDrafts_Is_False()
+        {
+            // Arrange
+            int artifactId = 1;
+            int limit = 2;
+            int offset = 0;
+            int? userId = 1;
+            bool asc = true;
+            int sessionUserId = 1;
+            bool includeDrafts = false;
+
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlArtifactVersionsRepository(cxn.Object);
+
+            var artifactVersionParams = new Dictionary<string, object>
+                { { "artifactId", artifactId },
+                  { "lim", limit },
+                  { "offset", offset },
+                  { "userId", userId.Value },
+                  { "ascd", asc }
+            };
+
+            cxn.SetupQueryAsync("DoesArtifactHavePublishedOrDraftVersion", new Dictionary<string, object> { { "artifactId", artifactId } }, new List<bool> { true });
+
+            cxn.SetupQueryAsync("IsArtifactDeleted", new Dictionary<string, object> { { "artifactId", artifactId } }, new List<bool> { false });
+
+            var testResult = new[] { new ArtifactHistoryVersion { VersionId = 1, UserId = 1, Timestamp = new DateTime() } };
+
+            cxn.SetupQueryAsync("GetArtifactVersions", artifactVersionParams, testResult);
+
+            var userIdsTable = SqlConnectionWrapper.ToDataTable(new List<int> { sessionUserId });
+
+            cxn.SetupQueryAsync("GetUserInfos", new Dictionary<string, object> { { "userIds", userIdsTable } }, new List<UserInfo> { new UserInfo { UserId = 1, DisplayName = "David", ImageId = 1 } });
+
+            // Act
+            var actual = await repository.GetArtifactVersions(artifactId, limit, offset, userId, asc, sessionUserId, includeDrafts);
+
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(actual.ArtifactId, 1);
+            Assert.AreEqual(actual.ArtifactHistoryVersions.Count(), 1);
             Assert.AreEqual(actual.ArtifactHistoryVersions.ToList()[0].VersionId, 1);
         }
 

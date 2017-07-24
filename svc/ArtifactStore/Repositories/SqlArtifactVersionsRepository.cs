@@ -36,9 +36,9 @@ namespace ArtifactStore.Repositories
             _itemInfoRepository = itemInfoRepository;
         }
 
-        private async Task<bool> IncludeDraftVersion(int? userId, int sessionUserId, int artifactId)
+        private async Task<bool> IncludeDraftVersion(int? userId, int sessionUserId, int artifactId, bool includeDrafts)
         {
-            if (!userId.HasValue || userId.Value == sessionUserId)
+            if (includeDrafts && (!userId.HasValue || userId.Value == sessionUserId))
             {
                 var artifactWithDraftPrm = new DynamicParameters();
                 var artifactIdsTable = SqlConnectionWrapper.ToDataTable(new List<int> { artifactId }, "Int32Collection", "Int32Value");
@@ -46,6 +46,7 @@ namespace ArtifactStore.Repositories
                 artifactWithDraftPrm.Add("@artifactIds", artifactIdsTable);
                 return (await _connectionWrapper.QueryAsync<int>("GetArtifactsWithDraft", artifactWithDraftPrm, commandType: CommandType.StoredProcedure)).Count() == 1;
             }
+
             return false;
         }
 
@@ -125,7 +126,7 @@ namespace ArtifactStore.Repositories
             }
         }
 
-        public async Task<ArtifactHistoryResultSet> GetArtifactVersions(int artifactId, int limit, int offset, int? userId, bool asc, int sessionUserId)
+        public async Task<ArtifactHistoryResultSet> GetArtifactVersions(int artifactId, int limit, int offset, int? userId, bool asc, int sessionUserId, bool includeDrafts)
         {
             if (artifactId < 1)
                 throw new ArgumentOutOfRangeException(nameof(artifactId));
@@ -148,48 +149,60 @@ namespace ArtifactStore.Repositories
             if (isDeleted)
             {
                 var deletedVersionInfo = await DeletedVersionInfo(artifactId);
+
                 if (userId == null || userId.Value == deletedVersionInfo.UserId)
                 {
                     deletedVersionInfo.ArtifactState = ArtifactState.Deleted;
-                    distinctUserIds = distinctUserIds.Union(new int[] { deletedVersionInfo.UserId });
+                    distinctUserIds = distinctUserIds.Union(new[] { deletedVersionInfo.UserId });
                     InsertDraftOrDeletedVersion(limit, offset, asc, artifactVersions, deletedVersionInfo);
                 }
             }
             else 
             {
-                var includeDraftVersion = (await IncludeDraftVersion(userId, sessionUserId, artifactId));
+                var includeDraftVersion = (await IncludeDraftVersion(userId, sessionUserId, artifactId, includeDrafts));
+
                 if (includeDraftVersion)
-            {
-                distinctUserIds = distinctUserIds.Union(new int[] { sessionUserId });
+                {
+                    distinctUserIds = distinctUserIds.Union(new[] { sessionUserId });
+
                     var draftItem = new ArtifactHistoryVersion
                     {
-                    VersionId = int.MaxValue,
-                    UserId = sessionUserId,
+                        VersionId = int.MaxValue,
+                        UserId = sessionUserId,
                         Timestamp = null,
                         ArtifactState = ArtifactState.Draft
-                };
+                    };
+
                     InsertDraftOrDeletedVersion(limit, offset, asc, artifactVersions, draftItem);
                 }
             }
 
             var userInfoDictionary = (await GetUserInfos(distinctUserIds)).ToDictionary(a => a.UserId);
             var artifactHistoryVersionWithUserInfos = new List<ArtifactHistoryVersionWithUserInfo>();
+
             foreach (var artifactVersion in artifactVersions)
             {
                 UserInfo userInfo;
                 userInfoDictionary.TryGetValue(artifactVersion.UserId, out userInfo);
+
                 artifactHistoryVersionWithUserInfos.Add(
-                    new ArtifactHistoryVersionWithUserInfo {
-                                                             VersionId = artifactVersion.VersionId,
-                                                             UserId = artifactVersion.UserId,
-                                                             Timestamp = DateTime.SpecifyKind(artifactVersion.Timestamp.GetValueOrDefault(), DateTimeKind.Utc),
-                                                             DisplayName = userInfo.DisplayName,
-                                                             HasUserIcon = userInfo.ImageId != null,
-                                                             ArtifactState = artifactVersion.ArtifactState 
-                                                             });
+                    new ArtifactHistoryVersionWithUserInfo
+                    {
+                        VersionId = artifactVersion.VersionId,
+                        UserId = artifactVersion.UserId,
+                        Timestamp = DateTime.SpecifyKind(artifactVersion.Timestamp.GetValueOrDefault(), DateTimeKind.Utc),
+                        DisplayName = userInfo?.DisplayName,
+                        HasUserIcon = userInfo?.ImageId != null,
+                        ArtifactState = artifactVersion.ArtifactState 
+                    }
+                );
             }
-            var result = new ArtifactHistoryResultSet { ArtifactId = artifactId, ArtifactHistoryVersions = artifactHistoryVersionWithUserInfos };
-            return result;
+
+            return new ArtifactHistoryResultSet
+            {
+                ArtifactId = artifactId,
+                ArtifactHistoryVersions = artifactHistoryVersionWithUserInfos
+            };
         }
 
         private async Task<bool> IsArtifactInBaseline(int artifactId, int baselineId, int userId)

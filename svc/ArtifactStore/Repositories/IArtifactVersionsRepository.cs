@@ -6,7 +6,7 @@ namespace ArtifactStore.Repositories
 {
     public interface IArtifactVersionsRepository
     {
-        Task<ArtifactHistoryResultSet> GetArtifactVersions(int artifactId, int limit, int offset, int? userId, bool asc, int sessionUserId);
+        Task<ArtifactHistoryResultSet> GetArtifactVersions(int artifactId, int limit, int offset, int? userId, bool asc, int sessionUserId, bool includeDrafts);
 
         Task<bool> IsItemDeleted(int itemId);
 

@@ -58,7 +58,7 @@ namespace ArtifactStore.Controllers
             permisionDictionary.Add(artifactId, RolePermissions.Read);
             _artifactPermissionsRepositoryMock.Setup(m => m.GetItemInfo(artifactId, _session.UserId, true, int.MaxValue)).ReturnsAsync(itemInfo);
             _artifactPermissionsRepositoryMock.Setup(m => m.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), _session.UserId, false, int.MaxValue, true)).ReturnsAsync(permisionDictionary);
-            _artifactVersionsRepositoryMock.Setup(m => m.GetArtifactVersions(artifactId, DEFAULT_LIMIT, DEFAULT_OFFSET, null, false, _session.UserId)).ReturnsAsync(resultSet);
+            _artifactVersionsRepositoryMock.Setup(m => m.GetArtifactVersions(artifactId, DEFAULT_LIMIT, DEFAULT_OFFSET, null, false, _session.UserId, true)).ReturnsAsync(resultSet);
             var controller = new ArtifactVersionsController(_artifactVersionsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object)
             {
                 Request = new HttpRequestMessage()

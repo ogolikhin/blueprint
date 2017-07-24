@@ -209,10 +209,11 @@ namespace AdminStore.Controllers
         /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
         /// <response code="403">Forbidden if used doesn’t have permissions to delete workflows</response>
         /// <returns></returns>
-        [HttpDelete]
-        [Route(""), SessionRequired]
+        [HttpPost]
+        [SessionRequired]
+        [Route("delete")]
         [ResponseType(typeof(DeleteResult))]
-        public async Task<IHttpActionResult> DeleteWorkflows([FromUri]OperationScope scope, string search = null)
+        public async Task<IHttpActionResult> DeleteWorkflows([FromBody]OperationScope scope, string search = null)
         {
             if (scope == null)
             {

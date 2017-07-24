@@ -22,7 +22,7 @@ namespace AdminStore
             config.EnsureInitialized();
 
             // Assert
-            config.AssertTotalRoutes(51, "Please update asserts in WebApiConfigTests when changing routes.");
+            config.AssertTotalRoutes(52, "Please update asserts in WebApiConfigTests when changing routes.");
             config.AssertAction<ConfigController>("GetConfigSettings", HttpMethod.Get, "config/settings");
             config.AssertAction<ConfigController>("GetConfig", HttpMethod.Get, "config/config.js");
             config.AssertAction<ConfigController>("GetApplicationSettings", HttpMethod.Get, "config");
@@ -42,6 +42,7 @@ namespace AdminStore
             config.AssertAction<InstanceController>("GetInstanceProject", HttpMethod.Get, "instance/projects/1");
             config.AssertAction<InstanceController>("GetProjectNavigationPath", HttpMethod.Get, "instance/projects/1/navigationPath");
             config.AssertAction<InstanceController>("GetInstanceRoles", HttpMethod.Get, "instance/roles");
+            config.AssertAction<InstanceController>("CreateFolder", HttpMethod.Post, "instance/folder");
             config.AssertAction<JobsController>("GetLatestJobs", HttpMethod.Get, "jobs/");
             config.AssertAction<JobsController>("GetJob", HttpMethod.Get, "jobs/1");
             config.AssertAction<JobsController>("GetJobResultFile", HttpMethod.Get, "jobs/1/result/file");

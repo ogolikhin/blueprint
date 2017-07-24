@@ -1,6 +1,7 @@
 ﻿using AdminStore.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using AdminStore.Models.DTO;
 
 namespace AdminStore.Repositories
 {
@@ -15,6 +16,8 @@ namespace AdminStore.Repositories
         Task<List<string>> GetProjectNavigationPathAsync(int userId, int projectId, bool includeProjectItself);
 
         Task<IEnumerable<AdminRole>> GetInstanceRolesAsync();
+
+        Task<int> CreateFolderAsync(FolderDto folder);
 
         Task<int> DeleteInstanceFolderAsync(int instanceFolderId);
     }

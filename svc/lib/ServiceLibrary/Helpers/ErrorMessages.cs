@@ -79,6 +79,9 @@
         public static readonly string InvalidDeleteWorkflowsParameters = "Invalid parameters to delete workflows";
         public static readonly string GeneralErrorOfDeletingWorkflows = "An error has occurred when performed workflows (s) deletion operation";
         //Folder
+        public static readonly string FolderWithSuchNameExistsInParentFolder = "Folder with the same name already exists in the parent folder.";
+        public static readonly string FolderModelIsEmpty = "The folder model is empty.";
+        public static readonly string FolderNameLimitation = "Please enter a name between 1 and 128 characters.";
         public static readonly string GeneralErrorOfDeletingFolder = "An error has occurred when the operation was being performed at SQL level.";
         public static readonly string FolderNotExist = "The folder with the current folderId doesn’t exist or removed from the system.";
     }

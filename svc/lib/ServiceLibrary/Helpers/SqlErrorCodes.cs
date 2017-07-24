@@ -15,6 +15,7 @@
         UserAlreadyAssignedToTheGroup = 50009,
         GroupAlreadyAssignedToTheGroup = 50010,
         CurrentProjectIsNotExist = 50011,
-        InstanceFolderNotExist = 50012
+        FolderWithSuchNameExistsInParentFolder = 50012,
+        InstanceFolderNotExist = 50013
     }
 }

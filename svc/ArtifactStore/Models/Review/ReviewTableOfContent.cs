@@ -14,6 +14,15 @@ namespace ArtifactStore.Models.Review
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public bool Viewed { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int ArtifactVersion { get; set; }
+
+        /// <summary>
+        /// Viewed artifact version
+        /// </summary>
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? ViewedArtifactVersion { get; set; }
+
     }
 
     public class ReviewTableOfContent

@@ -77,6 +77,10 @@
         public static readonly string WorkflowVersionsNotEqual = "The current version the workflow from the request doesn’t match the current version in DB.";
         public static readonly string WorkflowWasNotUpdated = "The workflow with current parameters was not updated.";
         public static readonly string InvalidDeleteWorkflowsParameters = "Invalid parameters to delete workflows";
-        public static readonly string GeneralErrorOfDeletingWorkflows = "An error has occurred when performed workflows (s) deletion operation";        
+        public static readonly string GeneralErrorOfDeletingWorkflows = "An error has occurred when performed workflows (s) deletion operation";
+        //Folder
+        public static readonly string FolderWithSuchNameExistsInParentFolder = "Folder with the same name already exists in the parent folder.";
+        public static readonly string FolderModelIsEmpty = "The folder model is empty.";
+        public static readonly string FolderNameLimitation = "Please enter a name between 1 and 128 characters.";
     }
 }

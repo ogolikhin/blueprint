@@ -4,8 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using AdminStore.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 
 namespace AdminStore.Repositories
@@ -331,5 +333,48 @@ namespace AdminStore.Repositories
         }
 
         #endregion GetInstanceRolesAsync
+
+
+        #region CreateFolderAsync
+
+        [TestMethod]
+        public async Task CreateFolderAsync_SuccessfulCreationOfFolder_ReturnCreatedFolderId()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            var folderId = 1;
+            var folder = new FolderDto {Name = "Folder1", ParentFolderId = 1};
+
+            cxn.SetupExecuteScalarAsync("CreateFolder", It.IsAny<Dictionary<string, object>>(), folderId, new Dictionary<string, object> { { "ErrorCode", 0 } });
+
+            // Act
+            var result = await repository.CreateFolderAsync(folder);
+
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(result, folderId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task CreateFolderAsync_FolderNotFound_ReturnNotFoundError()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            var folderId = 1;
+            var folder = new FolderDto { Name = "Folder1", ParentFolderId = 1 };
+
+            cxn.SetupExecuteScalarAsync("CreateFolder", It.IsAny<Dictionary<string, object>>(), folderId, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.FolderWithSuchNameExistsInParentFolder } });
+
+            // Act
+            await repository.CreateFolderAsync(folder);
+
+            // Assert
+            //Exception
+        }
+
+        #endregion CreateFolderAsync
     }
 }

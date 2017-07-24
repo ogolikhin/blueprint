@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -19,11 +21,13 @@ namespace AdminStore.Controllers
     public class InstanceControllerTests
     {
         private const int UserId = 9;
+        private const int FolderId = 1;
         private Mock<IInstanceRepository> _instanceRepositoryMock;
         private Mock<IServiceLogRepository> _logRepositoryMock;
         private Mock<IArtifactPermissionsRepository> _artifactPermissionsRepositoryMock;
         private Mock<IPrivilegesRepository> _privilegeRepositoryMock;
         private InstanceController _controller;
+        private FolderDto _folder;
 
         [TestInitialize]
         public void Initialize()
@@ -44,8 +48,11 @@ namespace AdminStore.Controllers
                 _privilegeRepositoryMock.Object
             )
             {
-                Request = request
+                Request = request,
+                Configuration = new HttpConfiguration()
             };
+
+            _folder = new FolderDto { Name = "Folder1", ParentFolderId = 1 };
         }
 
         [TestMethod]
@@ -201,6 +208,99 @@ namespace AdminStore.Controllers
 
             // Act
             var result = await _controller.GetInstanceRoles();
+        }
+
+        #endregion
+
+
+        #region CreateFolder
+
+        [TestMethod]
+        public async Task CreateFolder_SuccessfulCreationOfFolder_ReturnCreatedFolderIdResult()
+        {
+            // Arrange
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageProjects);
+            _instanceRepositoryMock.Setup(repo => repo.CreateFolderAsync(It.IsAny<FolderDto>())).ReturnsAsync(FolderId);
+
+            // Act
+            var result = await _controller.CreateFolder(_folder);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task CreateFolder_NoPermissions_ReturnForbiddenErrorResult()
+        {
+            // Arrange
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
+            _instanceRepositoryMock.Setup(repo => repo.CreateFolderAsync(It.IsAny<FolderDto>())).ReturnsAsync(FolderId);
+
+            // Act
+             await _controller.CreateFolder(_folder);
+
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task CreateFolder_FolderNameEmpty_ReturnBadRequestResult()
+        {
+            // Arrange
+            _folder.Name = string.Empty;
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageProjects);
+            _instanceRepositoryMock.Setup(repo => repo.CreateFolderAsync(It.IsAny<FolderDto>())).ReturnsAsync(FolderId);
+
+            // Act
+            await _controller.CreateFolder(_folder);
+
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task CreateFolder_FolderNameOutOfLimit_ReturnBadRequestResult()
+        {
+            // Arrange
+            _folder.Name = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis,.";
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageProjects);
+            _instanceRepositoryMock.Setup(repo => repo.CreateFolderAsync(It.IsAny<FolderDto>())).ReturnsAsync(FolderId);
+
+            // Act
+            await _controller.CreateFolder(_folder);
+
+            // Assert
+            // Exception
+        }
+
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task CreateFolder_ModelIsEmpty_ReturnBadRequestResult()
+        {
+            // Arrange
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageProjects);
+            _instanceRepositoryMock.Setup(repo => repo.CreateFolderAsync(It.IsAny<FolderDto>())).ReturnsAsync(FolderId);
+
+            // Act
+            await _controller.CreateFolder(null);
+
+            // Assert
+            // Exception
         }
 
         #endregion

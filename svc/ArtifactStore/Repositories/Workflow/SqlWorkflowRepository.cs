@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using ArtifactStore.Helpers;
+using ServiceLibrary.Models.Enums;
 
 namespace ArtifactStore.Repositories.Workflow
 {
@@ -66,7 +68,6 @@ namespace ArtifactStore.Repositories.Workflow
             return await ChangeStateForArtifactInternal(
                 userId, 
                 artifactId, 
-                stateChangeParameter.RevisionId, 
                 stateChangeParameter.ToStateId,
                 transaction);
         }
@@ -125,55 +126,140 @@ namespace ArtifactStore.Repositories.Workflow
 
         private IList<WorkflowTransition> ToWorkflowTransitions(IEnumerable<SqlWorkflowTransition> sqlWorkflowTransitions)
         {
-            return sqlWorkflowTransitions.Select(wt => new WorkflowTransition
+            return sqlWorkflowTransitions.Select(wt =>
             {
-                Id = wt.WorkflowEventId,
-                ToState = new WorkflowState
+                var transition = new WorkflowTransition
                 {
-                    WorkflowId = wt.WorkflowId,
-                    Id = wt.ToStateId,
-                    Name = wt.ToStateName
-                },
-                FromState = new WorkflowState
-                {
-                    WorkflowId = wt.WorkflowId,
-                    Id = wt.FromStateId,
-                    Name = wt.FromStateName
-                },
-                Name = wt.WorkflowEventName,
-                WorkflowId = wt.WorkflowId
+                    Id = wt.WorkflowEventId,
+                    ToState = new WorkflowState
+                    {
+                        WorkflowId = wt.WorkflowId,
+                        Id = wt.ToStateId,
+                        Name = wt.ToStateName
+                    },
+                    FromState = new WorkflowState
+                    {
+                        WorkflowId = wt.WorkflowId,
+                        Id = wt.FromStateId,
+                        Name = wt.FromStateName
+                    },
+                    Name = wt.WorkflowEventName,
+                    WorkflowId = wt.WorkflowId
+                };
+                transition.Triggers.AddRange(ToWorkflowTriggers(SerializationHelper.FromXml<XmlWorkflowEventTriggers>(wt.Triggers)));
+                return transition;
             }).ToList();
         }
 
-        private async Task<WorkflowState> ChangeStateForArtifactInternal(int userId, int artifactId, int revisionId, int desiredStateId, IDbTransaction transaction = null)
+        private WorkflowEventTriggers ToWorkflowTriggers(XmlWorkflowEventTriggers xmlWorkflowEventTriggers)
+        {
+            WorkflowEventTriggers triggers = new WorkflowEventTriggers();
+            if (xmlWorkflowEventTriggers == null || xmlWorkflowEventTriggers.Triggers == null)
+            {
+                return triggers;
+            }
+            triggers.AddRange(xmlWorkflowEventTriggers.Triggers.Select(xmlWorkflowEventTrigger => new WorkflowEventTrigger
+            {
+                Name = xmlWorkflowEventTrigger.Name,
+                Description = xmlWorkflowEventTrigger.Description,
+                Condition = new WorkflowEventCondition(),
+                Action = GenerateAction(xmlWorkflowEventTrigger.Action)
+            }));
+            return triggers;
+        }
+
+        private EventAction GenerateAction(XmlAction action)
+        {
+            if (action == null)
+            {
+                return null;
+            }
+            var emailNotification = action as XmlEmailNotificationAction;
+            if (emailNotification != null)
+            {
+                return ToEmailNotificationAction(emailNotification);
+            }
+            var propertyChangeAction = action as XmlPropertyChangeAction;
+            if (propertyChangeAction != null)
+            {
+                return ToPropertyChangeAction(propertyChangeAction);
+            }
+            var generateAction = action as XmlGenerateAction;
+            //TODO: Should we throw an exception if the action is not a known action? Import ahead of handling situation
+            return generateAction != null ? ToGenerateAction(generateAction) : null;
+        }
+
+        private EmailNotificationAction ToEmailNotificationAction(XmlEmailNotificationAction emailNotification)
+        {
+            var action = new EmailNotificationAction
+            {
+                PropertyTypeId = emailNotification.PropertyTypeId,
+                Message = emailNotification.Message
+            };
+            action.Emails.AddRange(emailNotification.Emails);
+            return action;
+        }
+
+        private PropertyChangeAction ToPropertyChangeAction(XmlPropertyChangeAction propertyChangeAction)
+        {
+            if (propertyChangeAction.IsGroup.HasValue)
+            {
+                return new PropertyChangeUserAction
+                {
+                    PropertyTypeId = propertyChangeAction.PropertyTypeId,
+                    IsGroup = propertyChangeAction.IsGroup.Value,
+                    PropertyValue = propertyChangeAction.PropertyValue
+                };
+            }
+            return new PropertyChangeAction
+            {
+                PropertyTypeId = propertyChangeAction.PropertyTypeId,
+                PropertyValue = propertyChangeAction.PropertyValue
+            };
+        }
+
+
+
+        private EventAction ToGenerateAction(XmlGenerateAction generateAction)
+        {
+            switch (generateAction.GenerateActionType)
+            {
+                case GenerateActionTypes.Children:
+                    return new GenerateChildrenAction
+                    {
+                        ArtifactTypeId = generateAction.ArtifactTypeId,
+                        ChildCount = generateAction.ChildCount
+                    };
+                case GenerateActionTypes.UserStories:
+                    return new GenerateUserStoriesAction();
+                case GenerateActionTypes.TestCases:
+                    return new GenerateTestCasesAction();
+            }
+            return null;
+        }
+
+        
+        
+        private async Task<WorkflowState> ChangeStateForArtifactInternal(int userId, int artifactId, int desiredStateId, IDbTransaction transaction = null)
         {
             var param = new DynamicParameters();
             param.Add("@userId", userId);
             param.Add("@artifactId", artifactId);
-            param.Add("@revisionId", revisionId);
             param.Add("@desiredStateId", desiredStateId);
             param.Add("@result");
 
             if (transaction == null)
             {
-                return
-                    ToWorkflowStates(await
-                        ConnectionWrapper.QueryAsync<SqlWorkFlowState>("ChangeStateForArtifact", param,
-                            commandType: CommandType.StoredProcedure)).FirstOrDefault();
+                return ToWorkflowStates(await ConnectionWrapper.QueryAsync<SqlWorkFlowState>("ChangeStateForArtifact", param, commandType: CommandType.StoredProcedure)).FirstOrDefault();
             }
-            return
-                ToWorkflowStates(await
-                    transaction.Connection.QueryAsync<SqlWorkFlowState>("ChangeStateForArtifact", param, transaction,
-                            commandType: CommandType.StoredProcedure)).FirstOrDefault();
+            return ToWorkflowStates(await transaction.Connection.QueryAsync<SqlWorkFlowState>("ChangeStateForArtifact", param, transaction, commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
 
         private IList<WorkflowState> ToWorkflowStates(IEnumerable<SqlWorkFlowState> sqlWorkFlowStates)
         {
             return sqlWorkFlowStates.Select(workflowState => new WorkflowState
             {
-                Id = workflowState.WorkflowStateId,
-                Name = workflowState.WorkflowStateName,
-                WorkflowId = workflowState.WorkflowId
+                Id = workflowState.WorkflowStateId, Name = workflowState.WorkflowStateName, WorkflowId = workflowState.WorkflowId
             }).ToList();
         }
 

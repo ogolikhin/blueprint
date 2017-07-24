@@ -44,7 +44,7 @@ namespace ArtifactStore.Executors
             _artifactVersionsRepository = new Mock<IArtifactVersionsRepository>(MockBehavior.Strict);
             _sqlHelperMock = new SqlHelperMock();
             _versionControlService = new Mock<IVersionControlService>(MockBehavior.Loose);
-            _stateChangeExecutor = new StateChangeExecutor(null, null, ex, UserId,
+            _stateChangeExecutor = new StateChangeExecutor(ex, UserId,
                 _artifactVersionsRepository.Object,
                 _workflowRepository.Object,
                 _sqlHelperMock,

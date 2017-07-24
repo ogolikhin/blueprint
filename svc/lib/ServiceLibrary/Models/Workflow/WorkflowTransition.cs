@@ -15,6 +15,9 @@ namespace ServiceLibrary.Models.Workflow
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public WorkflowState ToState { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public WorkflowEventTriggers Triggers { get; } = new WorkflowEventTriggers();
     }
 
     public class SqlWorkflowTransition
@@ -27,5 +30,6 @@ namespace ServiceLibrary.Models.Workflow
         public int ToStateId { get; set; }
         public string ToStateName { get; set; }
         
+        public string Triggers { get; set; }
     }
 }

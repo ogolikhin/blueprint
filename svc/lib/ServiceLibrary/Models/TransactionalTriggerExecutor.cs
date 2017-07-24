@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using ServiceLibrary.Helpers;
@@ -10,15 +9,11 @@ namespace ServiceLibrary.Models
     {
         protected ISqlHelper SqlHelper { get; }
 
-        protected IEnumerable<IConstraint> PreOps { get; }
-        protected IEnumerable<IAction> PostOps { get; }
         protected T Input { get; }
 
-        protected TransactionalTriggerExecutor(ISqlHelper sqlHelper, IEnumerable<IConstraint> preOps, IEnumerable<IAction> postOps, T input)
+        protected TransactionalTriggerExecutor(ISqlHelper sqlHelper, T input)
         {
             SqlHelper = sqlHelper;
-            PreOps = preOps ?? new List<IConstraint>();
-            PostOps = postOps ?? new List<IAction>();
             Input = input;
         }
 

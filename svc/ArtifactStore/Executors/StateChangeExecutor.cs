@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using ArtifactStore.Repositories;
 using ArtifactStore.Repositories.Workflow;
@@ -14,7 +15,7 @@ using ServiceLibrary.Models.Workflow;
 
 namespace ArtifactStore.Executors
 {
-    public class StateChangeExecutor : TransactionalTriggerExecutor<WorkflowStateChangeParameterEx, QuerySingleResult<WorkflowState>>
+    public sealed class StateChangeExecutor : TransactionalTriggerExecutor<WorkflowStateChangeParameterEx, QuerySingleResult<WorkflowState>>
     {
         private readonly int _userId;
         
@@ -22,9 +23,11 @@ namespace ArtifactStore.Executors
         private readonly IWorkflowRepository _workflowRepository;
         private readonly IVersionControlService _versionControlService;
 
+        private readonly IList<IConstraint> _constraints = new List<IConstraint>();
+        private readonly IList<WorkflowEventTrigger> _preOpTriggers = new List<WorkflowEventTrigger>();
+        private readonly IList<WorkflowEventTrigger> _postOpTriggers = new List<WorkflowEventTrigger>();
+
         public StateChangeExecutor(
-            IEnumerable<IConstraint> preOps,
-            IEnumerable<IAction> postOps,
             WorkflowStateChangeParameterEx input,
             int userId,
             IArtifactVersionsRepository artifactVersionsRepository,
@@ -33,8 +36,6 @@ namespace ArtifactStore.Executors
             IVersionControlService versionControlService
             ) :
             base(sqlHelper,
-                preOps,
-                postOps,
                 input)
         {
             _userId = userId;
@@ -50,42 +51,127 @@ namespace ArtifactStore.Executors
                 var publishRevision =
                     await
                         SqlHelper.CreateRevisionInTransactionAsync(
-                            transaction, 
-                            _userId, 
-                            I18NHelper.FormatInvariant("State Change Publish: publishing changes and changing artifact {0} state to {1}", Input.ArtifactId, Input.ToStateId));
+                            transaction,
+                            _userId,
+                            I18NHelper.FormatInvariant(
+                                "State Change Publish: publishing changes and changing artifact {0} state to {1}",
+                                Input.ArtifactId, Input.ToStateId));
                 Input.RevisionId = publishRevision;
 
-                foreach (var constraint in PreOps)
+
+
+                //Confirm that the artifact is not deleted
+                var isDeleted = await _artifactVersionsRepository.IsItemDeleted(Input.ArtifactId);
+                if (isDeleted)
+                {
+                    throw new ConflictException(
+                        I18NHelper.FormatInvariant(
+                            "Artifact has been deleted and is no longer available for workflow state change. Please refresh your view."));
+                }
+
+                //Get artifact info
+                var artifactInfo =
+                    await _artifactVersionsRepository.GetVersionControlArtifactInfoAsync(Input.ArtifactId,
+                        null,
+                        _userId);
+
+                if (artifactInfo.IsDeleted)
+                {
+                    throw new ConflictException(
+                        I18NHelper.FormatInvariant(
+                            "Artifact has been deleted and is no longer available for workflow state change. Please refresh your view."));
+                }
+
+                if (artifactInfo.VersionCount != Input.CurrentVersionId)
+                {
+                    throw new ConflictException(
+                        I18NHelper.FormatInvariant(
+                            "Artifact has been updated. The current version of the artifact {0} does not match the specified version {1}. Please refresh your view.",
+                            artifactInfo.VersionCount, Input.CurrentVersionId));
+                }
+
+                //Lock is obtained by current user inside the stored procedure itself
+                //Check that it is not locked by some other user
+                if (artifactInfo.LockedByUser != null && artifactInfo.LockedByUser.Id != _userId)
+                {
+                    throw new ConflictException(
+                        I18NHelper.FormatInvariant(
+                            "Artifact has been updated. Artifact is locked by another user. Please refresh your view."));
+                }
+
+                //Get current state and validate current state
+                var currentState =
+                    await _workflowRepository.GetStateForArtifactAsync(_userId, Input.ArtifactId, int.MaxValue, true);
+                if (currentState == null)
+                {
+                    throw new ConflictException(
+                        I18NHelper.FormatInvariant(
+                            "Artifact has been updated. There is no workflow state associated with the artifact. Please refresh your view."));
+                }
+                if (currentState.Id != Input.FromStateId)
+                {
+                    throw new ConflictException(
+                        I18NHelper.FormatInvariant(
+                            "Artifact has been updated. The current workflow state id {0} of the artifact does not match the specified state {1}. Please refresh your view.",
+                            currentState.Id, Input.FromStateId));
+                }
+
+                //Get available transitions and validate the required transition
+                var desiredTransition =
+                    await
+                        _workflowRepository.GetTransitionForAssociatedStatesAsync(_userId, Input.ArtifactId,
+                            currentState.WorkflowId, Input.FromStateId, Input.ToStateId);
+
+                if (desiredTransition == null)
+                {
+                    throw new ConflictException(
+                        I18NHelper.FormatInvariant(
+                            "No transitions available. Workflow could have been updated. Please refresh your view."));
+                }
+
+                foreach (var workflowEventTrigger in desiredTransition.Triggers.Where(t => t?.Action != null))
+                {
+                    if (workflowEventTrigger.Action is ISynchronousAction)
+                    {
+                        _preOpTriggers.Add(workflowEventTrigger);
+                    }
+                    else if (workflowEventTrigger.Action is IASynchronousAction)
+                    {
+                        _postOpTriggers.Add(workflowEventTrigger);
+                    }
+                }
+
+                foreach (var constraint in _constraints)
                 {
                     if (!(await constraint.IsFulfilled()))
                     {
                         throw new ConflictException("State cannot be modified as the constrating is not fulfilled");
                     }
                 }
+
                 var result = await ExecuteInternal(Input, transaction);
 
-                try
+
+                foreach (var triggerExecutor in _preOpTriggers)
                 {
-                    await _versionControlService.PublishArtifacts(new PublishParameters
+                    if (!await triggerExecutor.Action.Execute())
                     {
-                        All = false,
-                        ArtifactIds = new[] { Input.ArtifactId },
-                        UserId = _userId,
-                        RevisionId = publishRevision
-                    }, transaction);
-                }
-                catch (ConflictException ex)
-                {
-                    // We ignore this error code when there are no saved changes to be published. The publish call throws this exception when it detects no saved changes.
-                    if (ex.ErrorCode != ErrorCodes.CannotPublish)
-                    {
-                        throw;
+                        throw new ConflictException("State cannot be modified as the trigger cannot be executed");
                     }
                 }
 
-                foreach (var triggerExecutor in PostOps)
+                await _versionControlService.PublishArtifacts(new PublishParameters
+
                 {
-                    if (!await triggerExecutor.Execute())
+                    All = false,
+                    ArtifactIds = new[] {Input.ArtifactId},
+                    UserId = _userId,
+                    RevisionId = publishRevision
+                }, transaction);
+
+                foreach (var triggerExecutor in _postOpTriggers)
+                {
+                    if (!await triggerExecutor.Action.Execute())
                     {
                         throw new ConflictException("State cannot be modified as the trigger cannot be executed");
                     }
@@ -97,56 +183,6 @@ namespace ArtifactStore.Executors
 
         protected override async Task<QuerySingleResult<WorkflowState>> ExecuteInternal(WorkflowStateChangeParameterEx input, IDbTransaction transaction = null)
         {
-            //Confirm that the artifact is not deleted
-            var isDeleted = await _artifactVersionsRepository.IsItemDeleted(input.ArtifactId);
-            if (isDeleted)
-            {
-                throw new ConflictException(I18NHelper.FormatInvariant("Artifact has been deleted and is no longer available for workflow state change. Please refresh your view."));
-            }
-
-            //Get artifact info
-            var artifactInfo =
-                await _artifactVersionsRepository.GetVersionControlArtifactInfoAsync(input.ArtifactId,
-                    null,
-                    _userId);
-
-            if (artifactInfo.IsDeleted)
-            {
-                throw new ConflictException(I18NHelper.FormatInvariant("Artifact has been deleted and is no longer available for workflow state change. Please refresh your view."));
-            }
-
-            if (artifactInfo.VersionCount != input.CurrentVersionId)
-            {
-                throw new ConflictException(I18NHelper.FormatInvariant("Artifact has been updated. The current version of the artifact {0} does not match the specified version {1}. Please refresh your view.", artifactInfo.VersionCount, input.CurrentVersionId));
-            }
-
-            //Lock is obtained by current user inside the stored procedure itself
-            //Check that it is not locked by some other user
-            if (artifactInfo.LockedByUser != null && artifactInfo.LockedByUser.Id != _userId)
-            {
-                throw new ConflictException(I18NHelper.FormatInvariant("Artifact has been updated. Artifact is locked by another user. Please refresh your view."));
-            }
-
-            //Get current state and validate current state
-            var currentState = await _workflowRepository.GetStateForArtifactAsync(_userId, input.ArtifactId, int.MaxValue, true);
-            if (currentState == null)
-            {
-                throw new ConflictException(I18NHelper.FormatInvariant("Artifact has been updated. There is no workflow state associated with the artifact. Please refresh your view."));
-            }
-            if (currentState.Id != input.FromStateId)
-            {
-                throw new ConflictException(I18NHelper.FormatInvariant("Artifact has been updated. The current workflow state id {0} of the artifact does not match the specified state {1}. Please refresh your view.", currentState.Id, input.FromStateId));
-            }
-
-            //Get available transitions and validate the required transition
-            var desiredTransition =
-                await _workflowRepository.GetTransitionForAssociatedStatesAsync(_userId, input.ArtifactId, currentState.WorkflowId, input.FromStateId, input.ToStateId);
-
-            if (desiredTransition == null)
-            {
-                throw new ConflictException(I18NHelper.FormatInvariant("No transitions available. Workflow could have been updated. Please refresh your view."));
-            }
-
             var newState = await _workflowRepository.ChangeStateForArtifactAsync(_userId, input.ArtifactId, input, transaction);
 
             if (newState == null)

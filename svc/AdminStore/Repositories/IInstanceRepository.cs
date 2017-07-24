@@ -16,6 +16,8 @@ namespace AdminStore.Repositories
         Task<List<string>> GetProjectNavigationPathAsync(int userId, int projectId, bool includeProjectItself);
 
         Task<IEnumerable<AdminRole>> GetInstanceRolesAsync();
+
+        Task<int> CreateFolderAsync(FolderDto folder);
         Task<IEnumerable<FolderDto>> GetFoldersByName(string name);
     }
 }

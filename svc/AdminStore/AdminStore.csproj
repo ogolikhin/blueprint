@@ -109,6 +109,7 @@
     <Compile Include="Controllers\InstanceController.cs" />
     <Compile Include="Controllers\JobsController.cs" />
     <Compile Include="Controllers\LogController.cs" />
+    <Compile Include="Helpers\FolderValidator.cs" />
     <Compile Include="Helpers\GroupMapper.cs" />
     <Compile Include="Helpers\GroupsHelper.cs" />
     <Compile Include="Helpers\GroupValidator.cs" />

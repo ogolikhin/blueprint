@@ -137,6 +137,30 @@ namespace AdminStore.Repositories
             return result;
         }
 
+        public async Task<int> CreateFolderAsync(FolderDto folder)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@Name", folder.Name);
+            parameters.Add("@ParentFolderId", folder.ParentFolderId);
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var folderId = await _connectionWrapper.ExecuteScalarAsync<int>("CreateFolder", parameters, commandType: CommandType.StoredProcedure);
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int) SqlErrorCodes.FolderWithSuchNameExistsInParentFolder:
+                        throw new ResourceNotFoundException(ErrorMessages.FolderWithSuchNameExistsInParentFolder, ErrorCodes.ResourceNotFound);
+
+                    default:
+                        return folderId;
+                }
+            }
+            return folderId;
+        }
+
         public async Task<IEnumerable<FolderDto>> GetFoldersByName(string name)
         {
             if (name != null)
@@ -151,7 +175,6 @@ namespace AdminStore.Repositories
                     _connectionWrapper.QueryAsync<FolderDto>("GetFoldersByName", parameters,
                         commandType: CommandType.StoredProcedure);
             return result;
-
         }
     }
 }

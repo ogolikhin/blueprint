@@ -11,6 +11,7 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using AdminStore.Models.DTO;
 
 namespace AdminStore.Controllers
 {
@@ -83,7 +84,15 @@ namespace AdminStore.Controllers
             return await _instanceRepository.GetInstanceFolderChildrenAsync(id, Session.UserId);
         }
 
-        /// <summary>
+        [HttpGet]
+        [Route("foldersearch"), SessionRequired]
+        [ResponseType(typeof(IEnumerable<FolderDto>))]
+        public async Task<IHttpActionResult> SearchFolderByName(string search)
+        {
+            
+        }
+
+            /// <summary>
         /// Get Project
         /// </summary>
         /// <remarks>

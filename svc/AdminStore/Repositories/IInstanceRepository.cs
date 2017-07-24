@@ -1,6 +1,7 @@
 ﻿using AdminStore.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using AdminStore.Models.DTO;
 
 namespace AdminStore.Repositories
 {

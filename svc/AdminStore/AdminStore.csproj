@@ -124,7 +124,7 @@
     <Compile Include="Models\DTO\User.cs" />
     <Compile Include="Models\Enums\LicenseType.cs" />
     <Compile Include="Models\Enums\OperationMode.cs" />
-    <Compile Include="Models\FolderDto.cs" />
+    <Compile Include="Models\DTO\FolderDto.cs" />
     <Compile Include="Models\Group.cs" />
     <Compile Include="Models\GroupDto.cs" />
     <Compile Include="Models\DeleteResult.cs" />

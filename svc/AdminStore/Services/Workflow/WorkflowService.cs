@@ -180,7 +180,7 @@ namespace AdminStore.Services.Workflow
 
             return workflowDto;
         }
-        public async Task UpdateWorkflowStatusAsync(WorkflowDto workflowDto, int workflowId, int userId)
+        public async Task UpdateWorkflowStatusAsync(StatusUpdate statusUpdate, int workflowId, int userId)
         {
             var existingWorkflow = await _workflowRepository.GetWorkflowDetailsAsync(workflowId);
             if (existingWorkflow == null)
@@ -188,12 +188,12 @@ namespace AdminStore.Services.Workflow
                 throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
             }
 
-            if (existingWorkflow.VersionId != workflowDto.VersionId)
+            if (existingWorkflow.VersionId != statusUpdate.VersionId)
             {
                 throw new ConflictException(ErrorMessages.WorkflowVersionsNotEqual, ErrorCodes.Conflict);
             }
 
-            var workflows = new List<SqlWorkflow> {new SqlWorkflow {Name = existingWorkflow.Name, Description = existingWorkflow.Description, Active = workflowDto.Status, WorkflowId = workflowId} };
+            var workflows = new List<SqlWorkflow> {new SqlWorkflow {Name = existingWorkflow.Name, Description = existingWorkflow.Description, Active = statusUpdate.Status, WorkflowId = workflowId} };
 
             Func<IDbTransaction, Task> action = async transaction =>
             {
@@ -235,7 +235,6 @@ namespace AdminStore.Services.Workflow
                 importStateParams.Add(new SqlState
                 {
                     Name = state.Name,
-                    Description = state.Description,
                     WorkflowId = newWorkflow.WorkflowId,
                     Default = state.IsInitial.HasValue && state.IsInitial.Value,
                     OrderIndex = orderIndex
@@ -267,7 +266,6 @@ namespace AdminStore.Services.Workflow
                 importTriggersParams.Add(new SqlWorkflowEvent
                 {
                     Name = transition.Name,
-                    Description = transition.Description,
                     WorkflowId = newWorkflow.WorkflowId,
                     Type = DWorkflowEventType.Transition,
                     Permissions = SerializationHelper.ToXml(new XmlTriggerPermissions
@@ -302,7 +300,7 @@ namespace AdminStore.Services.Workflow
                 Description = workflowDetails.Description,
                 Projects = workflowProjectsAndArtifactTypes.Select(e => new IeProject { Id = e.ProjectId, Path = e.ProjectName }).Distinct().ToList(),
                 ArtifactTypes = workflowProjectsAndArtifactTypes.Select(e => new IeArtifactType { Name = e.ArtifactName }).Distinct().ToList(),
-                States = workflowStates.Select(e => new IeState { IsInitial = e.Default, Description = e.Description, Name = e.Name }).Distinct().ToList(),
+                States = workflowStates.Select(e => new IeState { IsInitial = e.Default, Name = e.Name }).Distinct().ToList(),
             };
 
             return ieWorkflow;
@@ -311,8 +309,9 @@ namespace AdminStore.Services.Workflow
     private async Task VerifyUserRole(int userId)
         {
             var user = await _userRepository.GetLoginUserByIdAsync(userId);
-            // At least for now, all instance administrators can import workflows.
-            if (user.InstanceAdminRoleId == null)
+            // For now, all instance administrators with AccessAllProjectData privilege can import workflows.
+            if (user.InstanceAdminRoleId == null
+                && ((InstanceAdminPrivileges) user.InstanceAdminPrivileges).HasFlag(InstanceAdminPrivileges.AccessAllProjectData))
             {
                 throw new AuthorizationException(
                     "The user is not an instance administrator and therefore does not have permissions to import workflows.",

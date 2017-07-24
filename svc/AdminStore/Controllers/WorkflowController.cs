@@ -234,7 +234,7 @@ namespace AdminStore.Controllers
         /// Update workflow's status
         /// </summary>
         /// <param name="workflowId">Workflow identity</param>
-        /// <param name="workflowDto">WorkflowDto model</param>
+        /// <param name="statusUpdate">StatusUpdate model</param>
         /// <remarks>
         /// Returns Ok result.
         /// </remarks>
@@ -247,16 +247,16 @@ namespace AdminStore.Controllers
         [HttpPut]
         [SessionRequired]
         [ResponseType(typeof(HttpResponseMessage))]
-        [Route("UpdateWorkflowStatus/{workflowId:int:min(1)}")]
-        public async Task<IHttpActionResult> UpdateWorkflowStatus(int workflowId, [FromBody] WorkflowDto workflowDto)
+        [Route("{workflowId:int:min(1)}/status")]
+        public async Task<IHttpActionResult> UpdateStatus(int workflowId, [FromBody] StatusUpdate statusUpdate)
         {
-            if (workflowDto == null)
+            if (statusUpdate == null)
             {
                 throw new BadRequestException(ErrorMessages.WorkflowModelIsEmpty, ErrorCodes.BadRequest);
             }
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
-            await _workflowService.UpdateWorkflowStatusAsync(workflowDto, workflowId, Session.UserId);
+            await _workflowService.UpdateWorkflowStatusAsync(statusUpdate, workflowId, Session.UserId);
 
             return Ok();
         }

@@ -10,9 +10,6 @@ namespace AdminStore.Models.Workflow
     {
         [XmlElement(IsNullable = false)]
         public string Name { get; set; }
-
-        [XmlElement(IsNullable = false)]
-        public string Description { get; set; }
     }
 
 }

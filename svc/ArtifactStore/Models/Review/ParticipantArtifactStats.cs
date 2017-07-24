@@ -2,8 +2,12 @@
 {
     public class ParticipantArtifactStats
     {
-        public string ArtifactId { get; set; }
-        public string ArtifactName { get; set; }
+        public int Id { get; set; }
+        public string Prefix { get; set; }
+        public string Name { get; set; }
+        public int ItemTypeId { get; set; }
+        public int ItemTypePredefined { get; set; }
+        public int? IconImageId { get; set; }
         public bool ArtifactRequiresApproval { get; set; }
         public bool Viewed { get; set; }
         public string ApprovalStatus { get; set; }
@@ -13,8 +17,12 @@
         {
             return new ParticipantArtifactStats()
             {
-                ArtifactId = reviewedArtifact.Prefix + reviewedArtifact.Id,
-                ArtifactName = reviewedArtifact.Name,
+                Id = reviewedArtifact.Id,
+                Prefix = reviewedArtifact.Prefix,
+                Name = reviewedArtifact.Name,
+                ItemTypeId = reviewedArtifact.ItemTypeId,
+                ItemTypePredefined = reviewedArtifact.ItemTypePredefined,
+                IconImageId = reviewedArtifact.IconImageId,
                 ArtifactRequiresApproval = reviewedArtifact.IsApprovalRequired,
                 ApprovalStatus = reviewedArtifact.Approval,
                 Viewed = reviewedArtifact.ViewedArtifactVersion == reviewedArtifact.ArtifactVersion,

@@ -362,7 +362,7 @@ namespace ArtifactStore.Repositories
             if (approvalType == ApprovalType.NotSpecified && projectSetting.ReadOnly
                && statusText.Equals("Not Specified", StringComparison.OrdinalIgnoreCase))
             {
-                statusText = "Pending Approval";
+                statusText = "Pending";
             }
 
             return new ProjectApprovalStatus()

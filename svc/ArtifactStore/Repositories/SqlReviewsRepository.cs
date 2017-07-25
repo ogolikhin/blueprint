@@ -724,8 +724,10 @@ namespace ArtifactStore.Repositories
                     tocItem.HasAccess = true;
 
                     var artifact = reviewedArtifacts.First(it => it.Id == tocItem.Id);
+                    tocItem.ArtifactVersion = artifact.ArtifactVersion;
                     tocItem.ApprovalStatus = (ApprovalType)artifact?.ApprovalFlag;
                     tocItem.Viewed = artifact?.ViewedArtifactVersion != null;
+                    tocItem.ViewedArtifactVersion = artifact?.ViewedArtifactVersion;
                 }
                 else
                 {

@@ -269,7 +269,7 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowDataValidationErrorCodes.ArtifactTypeAlreadyAssociatedWithWorkflow:
                     template = TemplateXmlArtifactTypeAlreadyAssociatedWithWorkflow;
-                    errParams = new object[] { (string)error.Element };
+                    errParams = new object[] { ((IeArtifactType) error.Element).Name };
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyNotFound:
                     template = TemplateXmlPropertyNotFound;

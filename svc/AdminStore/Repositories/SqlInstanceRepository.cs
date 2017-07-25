@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using AdminStore.Helpers;
 using AdminStore.Models.DTO;
 
 namespace AdminStore.Repositories
@@ -158,6 +159,22 @@ namespace AdminStore.Repositories
                 }
             }
             return folderId;
+        }
+
+        public async Task<IEnumerable<FolderDto>> GetFoldersByName(string name)
+        {
+            if (name != null)
+            {
+                name = UsersHelper.ReplaceWildcardCharacters(name);
+            }
+            var parameters = new DynamicParameters();
+            parameters.Add("@name", name);
+
+            var result =
+                await
+                    _connectionWrapper.QueryAsync<FolderDto>("GetFoldersByName", parameters,
+                        commandType: CommandType.StoredProcedure);
+            return result;
         }
     }
 }

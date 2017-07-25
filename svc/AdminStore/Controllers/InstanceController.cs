@@ -1,20 +1,21 @@
-﻿using AdminStore.Helpers;
-using AdminStore.Models;
-using AdminStore.Repositories;
-using ServiceLibrary.Attributes;
-using ServiceLibrary.Controllers;
-using ServiceLibrary.Models;
-using ServiceLibrary.Repositories;
-using ServiceLibrary.Repositories.ConfigControl;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using AdminStore.Helpers;
+using AdminStore.Models;
 using AdminStore.Models.DTO;
+using AdminStore.Repositories;
+using AdminStore.Services.Instance;
+using ServiceLibrary.Attributes;
+using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
+using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Controllers
 {
@@ -25,13 +26,14 @@ namespace AdminStore.Controllers
     {
         private readonly IInstanceRepository _instanceRepository;
         private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
+        private readonly IInstanceService _instanceService;
         private readonly PrivilegesManager _privilegesManager;
 
         public override string LogSource { get; } = "AdminStore.Instance";
 
         public InstanceController() : this(
             new SqlInstanceRepository(), new ServiceLogRepository(),
-            new SqlArtifactPermissionsRepository(), new SqlPrivilegesRepository()
+            new SqlArtifactPermissionsRepository(), new SqlPrivilegesRepository(), new InstanceService()
         )
         {
         }
@@ -41,11 +43,13 @@ namespace AdminStore.Controllers
             IInstanceRepository instanceRepository,
             IServiceLogRepository log,
             IArtifactPermissionsRepository artifactPermissionsRepository,
-            IPrivilegesRepository privilegesRepository
+            IPrivilegesRepository privilegesRepository,
+            IInstanceService instanceService
         ) : base(log)
         {
             _instanceRepository = instanceRepository;
             _artifactPermissionsRepository = artifactPermissionsRepository;
+            _instanceService = instanceService;
             _privilegesManager = new PrivilegesManager(privilegesRepository);
         }
 
@@ -85,6 +89,17 @@ namespace AdminStore.Controllers
         public async Task<List<InstanceItem>> GetInstanceFolderChildrenAsync(int id)
         {
             return await _instanceRepository.GetInstanceFolderChildrenAsync(id, Session.UserId);
+        }
+
+        [HttpGet]
+        [NoCache]
+        [Route("foldersearch"), SessionRequired]
+        [ResponseType(typeof(IEnumerable<FolderDto>))]
+        public async Task<IEnumerable<FolderDto>> SearchFolderByName(string name)
+        {
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageProjects);
+
+            return await _instanceService.GetFoldersByName(name);
         }
 
         /// <summary>

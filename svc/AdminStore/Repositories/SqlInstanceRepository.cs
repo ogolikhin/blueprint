@@ -181,7 +181,6 @@ namespace AdminStore.Repositories
         {
             var parameters = new DynamicParameters();
             parameters.Add("@InstanceFolderId", instanceFolderId);
-
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
             var result = await _connectionWrapper.ExecuteScalarAsync<int>("DeleteFolder", parameters, commandType: CommandType.StoredProcedure);
@@ -194,8 +193,8 @@ namespace AdminStore.Repositories
                     case (int)SqlErrorCodes.GeneralSqlError:
                         throw new BadRequestException(ErrorMessages.GeneralErrorOfDeletingFolder);
 
-                    case (int)SqlErrorCodes.InstanceFolderNotExist:
-                        throw new ResourceNotFoundException(ErrorMessages.FolderNotExist, ErrorCodes.ResourceNotFound);
+                    case (int)SqlErrorCodes.InstanceFolderContainsChildrenItems:
+                        throw new BadRequestException(ErrorMessages.ErrorOfDeletingFolderThatContainsChildrenItems);
                 }
             }
 

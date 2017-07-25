@@ -199,7 +199,7 @@ namespace AdminStore.Services.Workflow
 
             //validate propertyName and propertyValue type in property change actions
 
-            // TODO: Temp
+            // TODO: Temporary place holder for async method, will be removed.
             await Task.Delay(1);
         }
     }

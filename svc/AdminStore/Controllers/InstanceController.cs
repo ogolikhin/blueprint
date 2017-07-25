@@ -210,6 +210,9 @@ namespace AdminStore.Controllers
         /// <summary>
         /// Delete Instance Folder
         /// </summary>
+        /// <remarks>
+        /// Returns count of deleted folders.
+        /// </remarks>
         /// <response code="200">OK. An instance folder is deleted.</response>
         /// <response code="400">BadRequest. Some errors. </response>
         /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>

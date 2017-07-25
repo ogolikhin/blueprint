@@ -190,13 +190,15 @@ namespace AdminStore.Repositories
             {
                 switch (errorCode.Value)
                 {
-                    case (int)SqlErrorCodes.GeneralSqlError:
-                        throw new BadRequestException(ErrorMessages.GeneralErrorOfDeletingFolder);
-
                     case (int)SqlErrorCodes.InstanceFolderContainsChildrenItems:
                         throw new BadRequestException(ErrorMessages.ErrorOfDeletingFolderThatContainsChildrenItems);
                 }
             }
+
+            if (result == 0)
+            {
+                throw new ResourceNotFoundException(ErrorMessages.FolderNotExist, ErrorCodes.ResourceNotFound);
+            }            
 
             return result;
         }

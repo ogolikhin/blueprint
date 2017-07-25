@@ -84,5 +84,6 @@
         public static readonly string FolderNameLimitation = "Please enter a name between 1 and 128 characters.";
         public static readonly string GeneralErrorOfDeletingFolder = "An error has occurred when the operation was being performed at SQL level.";
         public static readonly string ErrorOfDeletingFolderThatContainsChildrenItems = "The Folder cannot be deleted as it contains Projects and/or Folders.";
+        public static readonly string FolderNotExist = "The folder with current folderId doesn't exist or removed from the system.";
     }
 }

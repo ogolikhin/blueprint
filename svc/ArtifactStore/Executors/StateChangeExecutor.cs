@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using ArtifactStore.Helpers;
 using ArtifactStore.Repositories;
 using ArtifactStore.Repositories.Workflow;
 using ArtifactStore.Services.VersionControl;
@@ -46,7 +47,7 @@ namespace ArtifactStore.Executors
             return await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, GetTransactionAction());
         }
 
-        Func<IDbTransaction, Task<QuerySingleResult<WorkflowState>>> GetTransactionAction()
+        private Func<IDbTransaction, Task<QuerySingleResult<WorkflowState>>> GetTransactionAction()
         {
             Func<IDbTransaction, Task<QuerySingleResult<WorkflowState>>> action = async transaction =>
             {
@@ -69,11 +70,21 @@ namespace ArtifactStore.Executors
 
                 var result = await ChangeStateForArtifactAsync(_input, transaction);
 
-                await ProcessEventTriggers(preOpTriggers);
+                var errors = (await ProcessEventTriggers(preOpTriggers)).ToDictionary(entry => entry.Key, entry => entry.Value);
 
                 await PublishArtifacts(publishRevision, transaction);
 
-                await ProcessEventTriggers(postOpTriggers);
+                //These should be converted to messages and sent as a part of state change event to handler service
+                foreach (var entry in await ProcessEventTriggers(postOpTriggers))
+                {
+                    errors.Add(entry.Key, entry.Value);
+                }
+
+                //Collecting all errors so that we can distinguish between errors at a later stage.
+                if (errors.Count > 0)
+                {
+                    throw new ConflictException("State cannot be modified as the trigger cannot be executed");
+                }
 
                 return result;
             };
@@ -191,7 +202,7 @@ namespace ArtifactStore.Executors
             return new Tuple<WorkflowEventTriggers, WorkflowEventTriggers>(preOpTriggers, postOpTriggers);
         }
 
-        private static async Task ProcessConstraints(List<IConstraint> constraints)
+        private async Task ProcessConstraints(List<IConstraint> constraints)
         {
             foreach (var constraint in constraints)
             {
@@ -236,15 +247,17 @@ namespace ArtifactStore.Executors
             }, transaction);
         }
 
-        private async Task ProcessEventTriggers(WorkflowEventTriggers triggers)
+        private async Task<IDictionary<string, string>> ProcessEventTriggers(WorkflowEventTriggers triggers)
         {
+            var result = new Dictionary<string, string>();
             foreach (var triggerExecutor in triggers)
             {
                 if (!await triggerExecutor.Action.Execute())
                 {
-                    throw new ConflictException("State cannot be modified as the trigger cannot be executed");
+                    result.Add(triggerExecutor.Name, "State cannot be modified as the trigger cannot be executed");
                 }
             }
+            return result;
         }
     }
 }

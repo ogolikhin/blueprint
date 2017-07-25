@@ -6,7 +6,7 @@ namespace BluePrintSys.Messaging.Models.Actions
     [Express]
     public class ArtifactsPublishedMessage : ActionMessage
     {
-        public override MessageActionType ActionType { get; }
+        public override MessageActionType ActionType { get; } = MessageActionType.ArtifactsPublished;
 
         public int UserId { get; set; }
 

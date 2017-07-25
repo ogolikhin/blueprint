@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 
 namespace AdminStore.Models.Workflow
 {
@@ -15,5 +13,10 @@ namespace AdminStore.Models.Workflow
 
         [XmlElement(IsNullable = false)]
         public string PropertyName { get; set; }
+
+        // Optional, not used for the import, will be used for the update
+        [XmlElement]
+        public int? PropertyId { get; set; }
+        public bool ShouldSerializePropertyId() { return PropertyId.HasValue; }
     }
 }

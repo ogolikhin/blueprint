@@ -28,6 +28,7 @@ namespace AdminStore.Services.Workflow
             }
 
             var result = new WorkflowDataValidationResult();
+            await ValidateWorkflowNameForUniqueness(result, workflow);
             await ValidateProjectsData(result, workflow);
             await ValidateArtifactTypesData(result, workflow);
             await ValidateGroupsData(result, workflow);
@@ -37,7 +38,20 @@ namespace AdminStore.Services.Workflow
             return result;
         }
 
-        private async Task<WorkflowDataValidationResult> ValidateProjectsData(WorkflowDataValidationResult result, IeWorkflow workflow)
+        private async Task ValidateWorkflowNameForUniqueness(WorkflowDataValidationResult result, IeWorkflow workflow)
+        {
+            var duplicateNames = await _workflowRepository.CheckLiveWorkflowsForNameUniqueness(new[] { workflow.Name });
+            if (duplicateNames.Any())
+            {
+                result.Errors.Add(new WorkflowDataValidationError
+                {
+                    Element = workflow,
+                    ErrorCode = WorkflowDataValidationErrorCodes.WorkflowNameNotUnique
+                });
+            }
+        }
+
+        private async Task ValidateProjectsData(WorkflowDataValidationResult result, IeWorkflow workflow)
         {
             result.ValidProjectIds.Clear();
             Dictionary<int, string> projectPaths = new Dictionary<int, string>();
@@ -84,11 +98,9 @@ namespace AdminStore.Services.Workflow
             }
             
             result.ValidProjectIds.AddRange(projectPaths.Select(p => p.Key).ToHashSet());
-
-            return result;
         }
 
-        private async Task<WorkflowDataValidationResult> ValidateArtifactTypesData(WorkflowDataValidationResult result, IeWorkflow workflow)
+        private async Task ValidateArtifactTypesData(WorkflowDataValidationResult result, IeWorkflow workflow)
         {
             if (workflow.ArtifactTypes.Any() && result.ValidProjectIds.Any())
             {
@@ -129,11 +141,9 @@ namespace AdminStore.Services.Workflow
             }
 
             result.ValidArtifactTypeNames.AddRange(workflow.ArtifactTypes.Select(at => at.Name));
-
-            return result;
         }
 
-        private async Task<WorkflowDataValidationResult> ValidateGroupsData(WorkflowDataValidationResult result, IeWorkflow workflow)
+        private async Task ValidateGroupsData(WorkflowDataValidationResult result, IeWorkflow workflow)
         {
             result.ValidGroups.Clear();
             HashSet<string> listOfAllGroups = new HashSet<string>();
@@ -156,17 +166,15 @@ namespace AdminStore.Services.Workflow
             }
 
             result.ValidGroups.AddRange(existingGroupNames.ToHashSet());
-
-            return result;
         }
 
-        private async Task<WorkflowDataValidationResult> ValidateTriggersData(WorkflowDataValidationResult result, IeWorkflow workflow)
+        private async Task ValidateTriggersData(WorkflowDataValidationResult result, IeWorkflow workflow)
         {
-            //validate property name in property change triggers
+            //validate property name in property change events
             var listOfPropertyNames = workflow.PropertyChangeEvents.Select(pce => pce.PropertyName).ToHashSet();
             if (!listOfPropertyNames.Any())
             {
-                return result;
+                return;
             }
             var existingPropertyNames = (await _workflowRepository.GetExistingPropertyTypesByName(listOfPropertyNames)).ToArray();
 
@@ -181,19 +189,18 @@ namespace AdminStore.Services.Workflow
                     });
                 }
             }
-
-            return await Task.FromResult(result);
         }
 
-        private async Task<WorkflowDataValidationResult> ValidateActionsData(WorkflowDataValidationResult result, IeWorkflow workflow)
+        private async Task ValidateActionsData(WorkflowDataValidationResult result, IeWorkflow workflow)
         {
             //validate artifact type for generate actions of type Children
 
             //validate propertyName in email notification actions if one is provided
 
-            //validadate propertyName and propertyValue type in property change actions
+            //validate propertyName and propertyValue type in property change actions
 
-            return await Task.FromResult(result);
+            // TODO: Temp
+            await Task.Delay(1);
         }
     }
 }

@@ -95,11 +95,11 @@ namespace AdminStore.Controllers
         [NoCache]
         [Route("foldersearch"), SessionRequired]
         [ResponseType(typeof(IEnumerable<FolderDto>))]
-        public async Task<IEnumerable<FolderDto>> SearchFolderByName(string name)
+        public async Task<IHttpActionResult> SearchFolderByName(string name)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageProjects);
-
-            return await _instanceService.GetFoldersByName(name);
+            var result = await _instanceService.GetFoldersByName(name);
+            return Ok(result);
         }
 
         /// <summary>

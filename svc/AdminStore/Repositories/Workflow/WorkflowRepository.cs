@@ -406,14 +406,13 @@ namespace AdminStore.Repositories.Workflow
             table.SetTypeName("WorkflowStatesCollection");
             table.Columns.Add("WorkflowStateId", typeof(int));
             table.Columns.Add("Name", typeof(string));
-            table.Columns.Add("Description", typeof(string));
             table.Columns.Add("WorkflowId", typeof(int));
             table.Columns.Add("Default", typeof(bool));
             table.Columns.Add("OrderIndex", typeof(float));
 
             foreach (var workflowState in workflowStates)
             {
-                table.Rows.Add(workflowState.WorkflowStateId, workflowState.Name, workflowState.Description,
+                table.Rows.Add(workflowState.WorkflowStateId, workflowState.Name,
                     workflowState.WorkflowId, workflowState.Default, workflowState.OrderIndex);
             }
 
@@ -426,7 +425,6 @@ namespace AdminStore.Repositories.Workflow
             table.SetTypeName("WorkflowEventsCollection");
             table.Columns.Add("WorkflowEventId", typeof(int));
             table.Columns.Add("Name", typeof(string));
-            table.Columns.Add("Description", typeof(string));
             table.Columns.Add("WorkflowId", typeof(int));
             table.Columns.Add("Type", typeof(int));
             table.Columns.Add("Permissions", typeof(string));
@@ -438,7 +436,7 @@ namespace AdminStore.Repositories.Workflow
 
             foreach (var workfloEvent in workflowEvents)
             {
-                table.Rows.Add(workfloEvent.TriggerId, workfloEvent.Name, workfloEvent.Description,
+                table.Rows.Add(workfloEvent.TriggerId, workfloEvent.Name,
                     workfloEvent.WorkflowId, workfloEvent.Type, workfloEvent.Permissions, 
                     workfloEvent.Validations, workfloEvent.Triggers, workfloEvent.WorkflowState1Id, 
                     workfloEvent.WorkflowState2Id, workfloEvent.PropertyTypeId);

@@ -121,10 +121,10 @@
     <Compile Include="Models\AssignResult.cs" />
     <Compile Include="Models\AssignScope.cs" />
     <Compile Include="Models\CreateResult.cs" />
+    <Compile Include="Models\DTO\FolderDto.cs" />
     <Compile Include="Models\DTO\User.cs" />
     <Compile Include="Models\Enums\LicenseType.cs" />
     <Compile Include="Models\Enums\OperationMode.cs" />
-    <Compile Include="Models\DTO\FolderDto.cs" />
     <Compile Include="Models\Group.cs" />
     <Compile Include="Models\GroupDto.cs" />
     <Compile Include="Models\DeleteResult.cs" />
@@ -223,6 +223,8 @@
     <Compile Include="Saml\SamlCertificateValidator.cs" />
     <Compile Include="Saml\SamlRepository.cs" />
     <Compile Include="Saml\SamlIssuerNameRegistry.cs" />
+    <Compile Include="Services\Instance\IInstanceService.cs" />
+    <Compile Include="Services\Instance\InstanceService.cs" />
     <Compile Include="Services\Workflow\IWorkflowDataValidator.cs" />
     <Compile Include="Services\Workflow\IWorkflowService.cs" />
     <Compile Include="Services\Workflow\IWorkflowXmlValidator.cs" />

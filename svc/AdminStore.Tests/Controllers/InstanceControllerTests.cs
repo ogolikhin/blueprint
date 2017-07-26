@@ -310,5 +310,79 @@ namespace AdminStore.Controllers
         }
 
         #endregion
+
+        #region DeleteFolder
+
+        [TestMethod]
+        public async Task DeleteFolder_SuccessfulDeletionOfFolder_ReturnCountOfDeletedFolderResult()
+        {
+            // Arrange
+            var totalDeletedItems = 1;
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.DeleteProjects);
+            _instanceRepositoryMock.Setup(repo => repo.DeleteInstanceFolderAsync(It.IsAny<int>())).ReturnsAsync(totalDeletedItems);
+
+            // Act
+            var result = await _controller.DeleteInstanceFolder(1) as OkNegotiatedContentResult<DeleteResult>;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(totalDeletedItems, result.Content.TotalDeleted);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task DeleteFolder_NoPermissions_ReturnForbiddenErrorResult()
+        {
+            // Arrange
+            var totalDeletedItems = 1;
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewProjects);
+            _instanceRepositoryMock.Setup(repo => repo.DeleteInstanceFolderAsync(It.IsAny<int>())).ReturnsAsync(totalDeletedItems);
+
+            // Act
+            var result = await _controller.DeleteInstanceFolder(1) as OkNegotiatedContentResult<DeleteResult>;
+
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task DeleteFolder_FolderContainsChildrenItems_ReturnBadRequestResult()
+        {
+            // Arrange
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.DeleteProjects);
+            _instanceRepositoryMock.Setup(repo => repo.DeleteInstanceFolderAsync(It.IsAny<int>())).Throws<BadRequestException>();
+
+            // Act
+            await _controller.DeleteInstanceFolder(1);
+
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task DeleteFolder_FolderNotFound_ReturnBadRequestResult()
+        {
+            // Arrange
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.DeleteProjects);
+            _instanceRepositoryMock.Setup(repo => repo.DeleteInstanceFolderAsync(It.IsAny<int>())).Throws<ResourceNotFoundException>();
+
+            // Act
+            await _controller.DeleteInstanceFolder(1);
+
+            // Assert
+            // Exception
+        }
+
+        #endregion
     }
 }

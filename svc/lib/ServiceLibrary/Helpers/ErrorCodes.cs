@@ -84,6 +84,7 @@
 
         //User Review Errors
         public const int UserDisabled = 11001;
+        public const int UserNotInReview = 11002;
         
         //Action Handler Service Errors
         public const int TenantInfoNotFound = 12000;

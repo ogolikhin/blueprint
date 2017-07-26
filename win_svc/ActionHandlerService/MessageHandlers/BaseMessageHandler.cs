@@ -61,13 +61,11 @@ namespace ActionHandlerService.MessageHandlers
             return headerValue;
         }
 
-        protected virtual Task ProcessAction(TenantInformation tenant, T message, IMessageHandlerContext context)
+        protected virtual async Task<bool> ProcessAction(TenantInformation tenant, T message, IMessageHandlerContext context)
         {
             Log.Info($"Action handling started for {message.ActionType.ToString()}");
             var repository = new ActionHandlerServiceRepository(tenant.ConnectionString);
-            ActionHelper.HandleAction(tenant, message, repository);
-            Log.Info($"Action handling finished for {message.ActionType.ToString()}");
-            return Task.Factory.StartNew(() => { });
+            return await ActionHelper.HandleAction(tenant, message, repository);
         }
     }
 }

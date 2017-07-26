@@ -11,13 +11,14 @@ namespace ActionHandlerServiceTests
     [TestClass]
     public class ConfigHelperTests
     {
-        private readonly ConfigHelper _configHelper;
+        private ConfigHelper _configHelper;
 
-        public ConfigHelperTests()
+        [TestInitialize]
+        public void TestInitialize()
         {
             _configHelper = new ConfigHelper();
         }
-        
+
         [TestMethod]
         public void ConfigHelper_ReturnsDefault_WhenGettingCacheExpirationMinutes()
         {

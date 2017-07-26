@@ -358,8 +358,8 @@ namespace AdminStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ResourceNotFoundException))]
-        public async Task CreateFolderAsync_FolderNotFound_ReturnNotFoundError()
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task CreateFolderAsync_FolderWithSuchNameExists_ReturnBadrequestError()
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();

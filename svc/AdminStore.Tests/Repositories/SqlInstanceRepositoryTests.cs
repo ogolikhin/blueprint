@@ -377,5 +377,47 @@ namespace AdminStore.Repositories
         }
 
         #endregion CreateFolderAsync
+
+        #region SearchFolder
+
+        [TestMethod]
+        public async Task GetFoldersByName_WeHaveFoldersWithSimilarName_ReturnFolders()
+        {
+            //arrange
+            var name = "folderName";
+            var result = new List<FolderDto>() {new FolderDto() {Id = 1} };
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            cxn.SetupQueryAsync("GetFoldersByName", new Dictionary<string, object> { { "name", name } }, result);
+
+            //act
+            var response = await repository.GetFoldersByName(name);
+
+            //assert
+            cxn.Verify();
+            Assert.AreEqual(response.ToList().Count, result.Count);
+            Assert.AreEqual(result.Last().Id, result.Last().Id);
+
+        }
+
+        [TestMethod]
+        public async Task GetFoldersByName_ThereIsNoFoldersWithSuchAName_ReturnEmptyResult()
+        {
+            //arrange
+            var name = "someName";
+            var result = new List<FolderDto>();
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            cxn.SetupQueryAsync("GetFoldersByName", new Dictionary<string, object> { { "name", name } }, result);
+
+            //act
+            var response = await repository.GetFoldersByName(name);
+
+            //assert
+            cxn.Verify();
+            Assert.AreEqual(response.ToList().Count, result.Count);
+        }
+
+        #endregion
     }
 }

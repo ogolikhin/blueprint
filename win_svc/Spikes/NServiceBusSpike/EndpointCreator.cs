@@ -22,6 +22,7 @@ namespace NServiceBusSpike
 
             var assemblyScanner = endpointConfiguration.AssemblyScanner();
             assemblyScanner.ExcludeAssemblies("Common.dll", "NServiceBus.Persistence.Sql.dll");
+            assemblyScanner.ExcludeTypes(typeof(ArtifactsPublishedMessageHandler));
 
             endpointConfiguration.UsePersistence<InMemoryPersistence>();
             endpointConfiguration.UseSerialization<JsonSerializer>();
@@ -29,6 +30,7 @@ namespace NServiceBusSpike
             endpointConfiguration.LimitMessageProcessingConcurrencyTo(1);
             endpointConfiguration.SendFailedMessagesTo("errors");
             endpointConfiguration.License(LicenseInfo);
+            endpointConfiguration.SendOnly();
 
             return await Endpoint.Start(endpointConfiguration);
         }

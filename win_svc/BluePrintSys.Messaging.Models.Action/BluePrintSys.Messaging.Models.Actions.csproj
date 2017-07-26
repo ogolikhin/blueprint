@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionMessage.cs" />
+    <Compile Include="ActionMessageHeaders.cs" />
     <Compile Include="ArtifactsPublishedMessage.cs" />
     <Compile Include="GenerateDescendantsMessage.cs" />
     <Compile Include="GenerateTestsMessage.cs" />
@@ -71,6 +72,8 @@
     <Compile Include="MessageActionType.cs" />
     <Compile Include="NotificationMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PublishedArtifactInformation.cs" />
+    <Compile Include="PublishedPropertyInformation.cs" />
     <Compile Include="StateChangeMessage.cs" />
   </ItemGroup>
   <ItemGroup>

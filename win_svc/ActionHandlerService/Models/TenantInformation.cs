@@ -2,7 +2,7 @@
 {
     public class TenantInformation
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         public string ConnectionString { get; set; }
 

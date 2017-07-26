@@ -6,26 +6,42 @@ using ServiceLibrary.Helpers;
 
 namespace ActionHandlerService.Helpers
 {
-    public static class TenantInfoRetriever
+    public interface ITenantInfoRetriever
     {
-        private static readonly CacheHelper<Dictionary<int, TenantInformation>> TenantInfoCache = new CacheHelper<Dictionary<int, TenantInformation>>(TimeSpan.FromMinutes(ConfigHelper.CacheExpirationMinutes), GetTenantInfoForCache);
+        Dictionary<string, TenantInformation> GetTenants();
+    }
 
-        public static Dictionary<int, TenantInformation> GetTenants()
+    public class TenantInfoRetriever : ITenantInfoRetriever
+    {
+        public TenantInfoRetriever(IConfigHelper configHelper = null)
+        {
+            ConfigHelper = configHelper ?? new ConfigHelper();
+            var expirationTime = TimeSpan.FromMinutes(ConfigHelper.CacheExpirationMinutes);
+            TenantInfoCache = new CacheHelper<Dictionary<string, TenantInformation>>(expirationTime, GetTenantInfoForCache);
+        }
+
+        private IConfigHelper ConfigHelper { get; }
+        private CacheHelper<Dictionary<string, TenantInformation>> TenantInfoCache { get; }
+        private const string DefaultTentantId = "tenant0";
+        private const string DefaultTenantSettings = "settings";
+
+        public Dictionary<string, TenantInformation> GetTenants()
         {
             return TenantInfoCache.Get();
         }
 
-        private static Dictionary<int, TenantInformation> GetTenantInfoForCache()
+        private Dictionary<string, TenantInformation> GetTenantInfoForCache()
         {
-            var tenants = new Dictionary<int, TenantInformation>();
+            var tenants = new Dictionary<string, TenantInformation>();
             var tenancy = ConfigHelper.Tenancy;
             switch (tenancy)
             {
                 case Tenancy.Single:
-                    var tenant = new TenantInformation {Id = 0, ConnectionString = ConfigHelper.SingleTenancyConnectionString, Settings = string.Empty};
+                    var tenant = new TenantInformation {Id = DefaultTentantId, ConnectionString = ConfigHelper.SingleTenancyConnectionString, Settings = DefaultTenantSettings};
                     tenants.Add(tenant.Id, tenant);
                     break;
                 case Tenancy.Multiple:
+                    //TODO: get multiple tenants
                     break;
             }
             return tenants;

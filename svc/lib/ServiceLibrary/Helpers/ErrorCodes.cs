@@ -89,5 +89,6 @@
         //Action Handler Service Errors
         public const int TenantInfoNotFound = 12000;
         public const int UnsupportedActionType = 12001;
+        public const int MessageHeaderValueNotFound = 12002;
     }
 }

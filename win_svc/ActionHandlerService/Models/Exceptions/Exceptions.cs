@@ -1,7 +1,7 @@
 ﻿using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 
-namespace ActionHandlerService
+namespace ActionHandlerService.Models.Exceptions
 {
     public class TenantInfoNotFoundException : ExceptionWithErrorCode
     {
@@ -13,6 +13,13 @@ namespace ActionHandlerService
     public class UnsupportedActionTypeException : ExceptionWithErrorCode
     {
         public UnsupportedActionTypeException(string message) : base(message, ErrorCodes.UnsupportedActionType)
+        {
+        }
+    }
+
+    public class MessageHeaderValueNotFoundException : ExceptionWithErrorCode
+    {
+        public MessageHeaderValueNotFoundException(string message) : base(message, ErrorCodes.MessageHeaderValueNotFound)
         {
         }
     }

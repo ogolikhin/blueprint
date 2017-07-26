@@ -5,21 +5,27 @@ using BluePrintSys.Messaging.CrossCutting.Logging;
 
 namespace ActionHandlerService.Models
 {
-    public class RabbitMQTransportHost : IMessageTransportHost
+    public class RabbitMqTransportHost : IMessageTransportHost
     {
-        private static readonly string NServiceBusConnectionString = ConfigHelper.NServiceBusConnectionString;
-        private readonly NServiceBusServer _nServiceBusServer = new NServiceBusServer();
+        private readonly IConfigHelper _configHelper;
+        private readonly INServiceBusServer _nServiceBusServer;
+
+        public RabbitMqTransportHost(IConfigHelper configHelper = null, INServiceBusServer nServiceBusServer = null)
+        {
+            _configHelper = configHelper ?? new ConfigHelper();
+            _nServiceBusServer = nServiceBusServer ?? NServiceBusServer.Instance;
+        }
+
         public void Start(Func<bool> errorCallback = null)
         {
-            Task.Run(() => _nServiceBusServer.Start(NServiceBusConnectionString))
-                    .ContinueWith(startTask =>
-                    {
-                        if (!string.IsNullOrEmpty(startTask.Result))
-                        {
-                            Log.Error(startTask.Result);
-                            errorCallback?.Invoke();
-                        }
-                    });
+            Task.Run(() => _nServiceBusServer.Start(_configHelper.NServiceBusConnectionString)).ContinueWith(startTask =>
+            {
+                if (!string.IsNullOrEmpty(startTask.Result))
+                {
+                    Log.Error(startTask.Result);
+                    errorCallback?.Invoke();
+                }
+            });
         }
 
         public void Stop()

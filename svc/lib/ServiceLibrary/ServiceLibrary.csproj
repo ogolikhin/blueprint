@@ -166,6 +166,7 @@
     <Compile Include="Models\Enums\ActionType.cs" />
     <Compile Include="Models\Enums\ElementType.cs" />
     <Compile Include="Models\Enums\GenerateActionTypes.cs" />
+    <Compile Include="Models\Enums\TransitionType.cs" />
     <Compile Include="Models\InstanceAdminPrivileges.cs" />
     <Compile Include="Models\Enums\ItemTypePredefined.cs" />
     <Compile Include="Models\Enums\ItemTypeReuseTemplateSetting.cs" />

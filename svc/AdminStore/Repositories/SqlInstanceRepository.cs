@@ -152,7 +152,7 @@ namespace AdminStore.Repositories
                 switch (errorCode.Value)
                 {
                     case (int) SqlErrorCodes.FolderWithSuchNameExistsInParentFolder:
-                        throw new ResourceNotFoundException(ErrorMessages.FolderWithSuchNameExistsInParentFolder, ErrorCodes.ResourceNotFound);
+                        throw new BadRequestException(ErrorMessages.FolderWithSuchNameExistsInParentFolder, ErrorCodes.BadRequest);
 
                     default:
                         return folderId;

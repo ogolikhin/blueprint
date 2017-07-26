@@ -22,24 +22,30 @@ namespace AdminStore.Services.Workflow
     public class WorkflowService : IWorkflowService
     {
         private readonly IWorkflowRepository _workflowRepository;
-        private readonly IWorkflowXmlValidator _workflowValidator;
         private readonly IUserRepository _userRepository;
+
+        private readonly IWorkflowXmlValidator _workflowXmlValidator;
         private readonly IWorkflowDataValidator _workflowDataValidator;
+        private readonly IWorkflowValidationErrorBuilder _workflowValidationErrorBuilder;
 
         private const string WorkflowImportErrorsFile = "$workflow_import_errors$.txt";
 
         public WorkflowService()
-            : this(new WorkflowRepository(), new WorkflowXmlValidator(), new SqlUserRepository())
+            : this(new WorkflowRepository(), new WorkflowXmlValidator(), new SqlUserRepository(), new WorkflowValidationErrorBuilder())
         {
             _workflowDataValidator = new WorkflowDataValidator(_workflowRepository, _userRepository);
         }
 
-        public WorkflowService(IWorkflowRepository workflowRepository, IWorkflowXmlValidator workflowValidator, IUserRepository userRepository)
+        public WorkflowService(IWorkflowRepository workflowRepository,
+            IWorkflowXmlValidator workflowXmlValidator,
+            IUserRepository userRepository,
+            IWorkflowValidationErrorBuilder workflowValidationErrorBuilder)
         {
             _workflowRepository = workflowRepository;
-            _workflowValidator = workflowValidator;
+            _workflowXmlValidator = workflowXmlValidator;
             _userRepository = userRepository;
-            
+            _workflowValidationErrorBuilder = workflowValidationErrorBuilder;
+
         }
 
         public IFileRepository FileRepository
@@ -50,7 +56,6 @@ namespace AdminStore.Services.Workflow
 
         public async Task<string> GetImportWorkflowErrorsAsync(string guid, int userId)
         {
-            await VerifyUserRole(userId);
             VerifyWorkflowFeature();
 
             File errorsFile = null;
@@ -70,7 +75,7 @@ namespace AdminStore.Services.Workflow
             if (errorsFile == null || !WorkflowImportErrorsFile.Equals(errorsFile.Info.Name))
             {
                 throw new ResourceNotFoundException(I18NHelper.FormatInvariant(
-                    "The workflow import errors for GUID={0} are not found.", guid),
+                    ErrorMessages.WorkflowImportErrorsNotFound, guid),
                     ErrorCodes.ResourceNotFound);
             }
             using (var reader = new StreamReader(errorsFile.ContentStream))
@@ -86,20 +91,14 @@ namespace AdminStore.Services.Workflow
                 throw new NullReferenceException(nameof(workflow));
             }
 
-            await VerifyUserRole(userId);
             VerifyWorkflowFeature();
 
             var importResult = new ImportWorkflowResult();
 
-            var validationResult = _workflowValidator.Validate(workflow);
-            if (validationResult.HasErrors)
+            var xmlValidationResult = _workflowXmlValidator.ValidateXml(workflow);
+            if (xmlValidationResult.HasErrors)
             {
-                // TODO: Create a text file and save it to the file store.
-                // TODO: The name convention for the error file "$workflow_import_errors$.txt".
-                // TODO: The name convention should be checked when the errors are requested by the client. 
-                // TODO: Return guid of the errors file.
-
-                var textErrors = GetValidationErrorsText(validationResult.Errors);
+                var textErrors = _workflowValidationErrorBuilder.BuildTextXmlErrors(xmlValidationResult.Errors, fileName);
                 var guid = await UploadErrorsToFileStore(textErrors);
 
                 importResult.ErrorsGuid = guid;
@@ -107,35 +106,22 @@ namespace AdminStore.Services.Workflow
                 return importResult;
             }
 
+            var dataValidationResult = await _workflowDataValidator.ValidateData(workflow);
+            if (dataValidationResult.HasErrors)
+            {
+                var textErrors = _workflowValidationErrorBuilder.BuildTextDataErrors(dataValidationResult.Errors, fileName);
+                var guid = await UploadErrorsToFileStore(textErrors);
+
+                importResult.ErrorsGuid = guid;
+                importResult.ResultCode = ImportWorkflowResultCodes.Conflict;
+                return importResult;
+            }
+
             SqlWorkflow newWorkflow = null;
 
             Func<IDbTransaction, Task> action = async transaction =>
             {
-                var dataValidationResult = await _workflowDataValidator.ValidateData(workflow);
-                if (dataValidationResult.HasErrors)
-                {
-                    // TODO: Create a text file and save it to the file store.
-                    // TODO: The name convention for the error file "$workflow_import_errors$.txt".
-                    // TODO: The name convention should be checked when the errors are requested by the client. 
-                    // TODO: Return guid of the errors file.
-
-                    var textErrors = GetValidationErrorsText(dataValidationResult.Errors);
-                    var guid = await UploadErrorsToFileStore(textErrors);
-
-                    importResult.ErrorsGuid = guid;
-                    importResult.ResultCode = ImportWorkflowResultCodes.InvalidModel;
-                    return;
-                }
-
                 var publishRevision = await _workflowRepository.CreateRevisionInTransactionAsync(transaction, userId, "Workflow import.");
-                var duplicateNames = await _workflowRepository.CheckLiveWorkflowsForNameUniqueness(transaction, new[] { workflow.Name });
-                if (duplicateNames.Any())
-                {
-                    // TODO: Create a text file and save it to the file store, see TODO above.
-                    importResult.ErrorsGuid = "temp_guid";
-                    importResult.ResultCode = ImportWorkflowResultCodes.Conflict;
-                    return;
-                }
 
                 var importParams = new SqlWorkflow
                 {
@@ -151,7 +137,6 @@ namespace AdminStore.Services.Workflow
 
                     importResult.ResultCode = ImportWorkflowResultCodes.Ok;
                 }
-
             };
 
             await _workflowRepository.RunInTransactionAsync(action);
@@ -305,19 +290,6 @@ namespace AdminStore.Services.Workflow
             return ieWorkflow;
         }
 
-    private async Task VerifyUserRole(int userId)
-        {
-            var user = await _userRepository.GetLoginUserByIdAsync(userId);
-            // For now, all instance administrators with AccessAllProjectData privilege can import workflows.
-            if (user.InstanceAdminRoleId == null
-                && ((InstanceAdminPrivileges) user.InstanceAdminPrivileges).HasFlag(InstanceAdminPrivileges.AccessAllProjectData))
-            {
-                throw new AuthorizationException(
-                    "The user is not an instance administrator and therefore does not have permissions to import workflows.",
-                    ErrorCodes.UnauthorizedAccess);
-            }
-        }
-
         private void VerifyWorkflowFeature()
         {
             if (!IsWorkflowFeatureEnabled())
@@ -332,33 +304,7 @@ namespace AdminStore.Services.Workflow
             // TODO: after NW made information about Workflow feature available for the services.
             return true;
         }
-
-        private static string GetValidationErrorsText(List<WorkflowXmlValidationError> validationErrors)
-        {
-            // TODO: create a validation errors builder
-            var sb = new StringBuilder();
-            sb.AppendLine(I18NHelper.FormatInvariant("Uploaded workflow contains {0} error(s):", validationErrors.Count));
-            foreach (var error in validationErrors)
-            {
-                sb.AppendLine(I18NHelper.FormatInvariant("    - {0}", error.ErrorCode));
-            }
-
-            return sb.ToString();
-        }
-
-        private static string GetValidationErrorsText(List<WorkflowDataValidationError> dataValidationErrors)
-        {
-            // TODO: create a validation errors builder
-            var sb = new StringBuilder();
-            sb.AppendLine(I18NHelper.FormatInvariant("Uploaded workflow contains {0} error(s):", dataValidationErrors.Count));
-            foreach (var error in dataValidationErrors)
-            {
-                sb.AppendLine(I18NHelper.FormatInvariant("    - {0}", error.ErrorCode));
-            }
-
-            return sb.ToString();
-        }
-
+        
         private async Task<string> UploadErrorsToFileStore(string errors)
         {
             using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(errors ?? string.Empty)))

@@ -64,24 +64,13 @@ namespace ArtifactStore.Executors
                 }
                 var result = await ExecuteInternal(Input, transaction);
 
-                try
+                await _versionControlService.PublishArtifacts(new PublishParameters
                 {
-                    await _versionControlService.PublishArtifacts(new PublishParameters
-                    {
-                        All = false,
-                        ArtifactIds = new[] { Input.ArtifactId },
-                        UserId = _userId,
-                        RevisionId = publishRevision
-                    }, transaction);
-                }
-                catch (ConflictException ex)
-                {
-                    // We ignore this error code when there are no saved changes to be published. The publish call throws this exception when it detects no saved changes.
-                    if (ex.ErrorCode != ErrorCodes.CannotPublish)
-                    {
-                        throw;
-                    }
-                }
+                    All = false,
+                    ArtifactIds = new[] {Input.ArtifactId},
+                    UserId = _userId,
+                    RevisionId = publishRevision
+                }, transaction);
 
                 foreach (var triggerExecutor in PostOps)
                 {
@@ -146,6 +135,8 @@ namespace ArtifactStore.Executors
             {
                 throw new ConflictException(I18NHelper.FormatInvariant("No transitions available. Workflow could have been updated. Please refresh your view."));
             }
+
+            input.Triggers = desiredTransition.Triggers;
 
             var newState = await _workflowRepository.ChangeStateForArtifactAsync(_userId, input.ArtifactId, input, transaction);
 

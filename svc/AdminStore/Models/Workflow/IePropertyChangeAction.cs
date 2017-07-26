@@ -10,6 +10,11 @@ namespace AdminStore.Models.Workflow
         [XmlElement(IsNullable = false)]
         public string PropertyName { get; set; }
 
+        // Optional, not used for the import, will be used for the update
+        [XmlElement]
+        public int? PropertyId { get; set; }
+        public bool ShouldSerializePropertyId() { return PropertyId.HasValue; }
+
         [XmlElement(IsNullable = false)]
         public string PropertyValue { get; set; }
 

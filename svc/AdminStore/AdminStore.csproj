@@ -109,6 +109,7 @@
     <Compile Include="Controllers\InstanceController.cs" />
     <Compile Include="Controllers\JobsController.cs" />
     <Compile Include="Controllers\LogController.cs" />
+    <Compile Include="Helpers\FolderValidator.cs" />
     <Compile Include="Helpers\GroupMapper.cs" />
     <Compile Include="Helpers\GroupsHelper.cs" />
     <Compile Include="Helpers\GroupValidator.cs" />
@@ -120,6 +121,7 @@
     <Compile Include="Models\AssignResult.cs" />
     <Compile Include="Models\AssignScope.cs" />
     <Compile Include="Models\CreateResult.cs" />
+    <Compile Include="Models\DTO\FolderDto.cs" />
     <Compile Include="Models\DTO\User.cs" />
     <Compile Include="Models\Enums\LicenseType.cs" />
     <Compile Include="Models\Enums\OperationMode.cs" />
@@ -179,6 +181,7 @@
     <Compile Include="Models\Workflow\IeTrigger.cs" />
     <Compile Include="Models\Workflow\SqlArtifactTypesWorkflowDetails.cs" />
     <Compile Include="Models\Workflow\SqlWorkflowTransitionsAndPropertyChanges.cs" />
+    <Compile Include="Models\Workflow\StatusUpdate.cs" />
     <Compile Include="Models\Workflow\WorkflowArtifactTypeDto.cs" />
     <Compile Include="Models\Workflow\SqlProjectPathPair.cs" />
     <Compile Include="Models\Workflow\SqlState.cs" />
@@ -220,12 +223,16 @@
     <Compile Include="Saml\SamlCertificateValidator.cs" />
     <Compile Include="Saml\SamlRepository.cs" />
     <Compile Include="Saml\SamlIssuerNameRegistry.cs" />
+    <Compile Include="Services\Instance\IInstanceService.cs" />
+    <Compile Include="Services\Instance\InstanceService.cs" />
     <Compile Include="Services\Workflow\IWorkflowDataValidator.cs" />
     <Compile Include="Services\Workflow\IWorkflowService.cs" />
+    <Compile Include="Services\Workflow\IWorkflowValidationErrorBuilder.cs" />
     <Compile Include="Services\Workflow\IWorkflowXmlValidator.cs" />
     <Compile Include="Services\Workflow\WorkflowDataValidationResult.cs" />
     <Compile Include="Services\Workflow\WorkflowDataValidator.cs" />
     <Compile Include="Services\Workflow\WorkflowService.cs" />
+    <Compile Include="Services\Workflow\WorkflowValidationErrorBuilder.cs" />
     <Compile Include="Services\Workflow\WorkflowXmlValidationResult.cs" />
     <Compile Include="Services\Workflow\WorkflowXmlValidator.cs" />
   </ItemGroup>

@@ -33,8 +33,7 @@ namespace AdminStore.Repositories.Workflow
 
         Task<int> CreateRevisionInTransactionAsync(IDbTransaction transaction, int userId, string description);
 
-        Task<IEnumerable<string>> CheckLiveWorkflowsForNameUniqueness(IDbTransaction transaction,
-            IEnumerable<string> names);
+        Task<IEnumerable<string>> CheckLiveWorkflowsForNameUniqueness(IEnumerable<string> names);
 
         Task RunInTransactionAsync(Func<IDbTransaction, Task> action);
 
@@ -45,7 +44,7 @@ namespace AdminStore.Repositories.Workflow
 
         Task<IEnumerable<SqlWorkflowArtifactTypesAndProjects>> GetWorkflowArtifactTypesAndProjectsAsync(int workflowId);
 
-        Task<int> DeleteWorkflows(OperationScope body, string search, int revision);
+        Task<int> DeleteWorkflows(OperationScope body, string search, int revision, IDbTransaction transaction = null);
 
         Task<IEnumerable<SqlWorkflow>> UpdateWorkflows(IEnumerable<SqlWorkflow> workflows, int revision,
             IDbTransaction transaction = null);

@@ -806,7 +806,7 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
+        [ExpectedException(typeof(ConflictException))]
         public async Task AddParticipantsToReviewAsync_Should_Throw_If_Review_Is_Not_Locked_By_User()
         {
             //Arrange
@@ -1366,7 +1366,7 @@ namespace ArtifactStore.Repositories
                 { "@userId", userId }
             };
 
-            var PropertyValueStringResult = new[]
+            var propertyValueStringResult = new[]
             {
                new PropertyValueString
                {
@@ -1378,15 +1378,15 @@ namespace ArtifactStore.Repositories
                 }
             };
 
-            _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters, PropertyValueStringResult);
+            _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters, propertyValueStringResult);
 
             //Act
 
             try
             {
-                var review = await _reviewsRepository.AddArtifactsToReviewAsync(reviewId, userId, content);
+                await _reviewsRepository.AddArtifactsToReviewAsync(reviewId, userId, content);
             }
-            catch (BadRequestException ex)
+            catch (ConflictException ex)
             {
                 isExceptionThrown = true;
 
@@ -1529,7 +1529,7 @@ namespace ArtifactStore.Repositories
 
 
         [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
+        [ExpectedException(typeof(ConflictException))]
         public async Task AssignRolesToReviewers_IsNotLocked_ShouldThrowBadRequestExceptionException()
         {
             var propertyValueStringResult = new List<PropertyValueString>();
@@ -1793,7 +1793,7 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
+        [ExpectedException(typeof(ConflictException))]
         public async Task AssignApprovalRequiredToArtifacts_Review_NotLocked_Should_Throw_BadRequestException()
         {
 
@@ -1821,7 +1821,7 @@ namespace ArtifactStore.Repositories
             };
             var content = new AssignArtifactsApprovalParameter()
             {
-                ArtifactIds = new List<int>(new int[] { 1, 2, 3 }),
+                ArtifactIds = new List<int>(new[] { 1, 2, 3 }),
                 ApprovalRequired = true
             };
             _cxn.SetupQueryAsync("GetReviewArtifactApprovalRequestedInfo", queryParameters, propertyValueStringResult);
@@ -2563,6 +2563,9 @@ namespace ArtifactStore.Repositories
                 Id = 4,
                 Name = "Review Artifact",
                 Prefix = "REV",
+                ItemTypeId = 5,
+                ItemTypePredefined = 6,
+                IconImageId = 7,
                 IsApprovalRequired = true
             };
 
@@ -2598,8 +2601,12 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(artifactStatsResult.Total, 1);
             var artifactStats = artifactStatsResult.Items.First();
             Assert.AreEqual(true, artifactStats.HasAccess);
-            Assert.AreEqual("REV4", artifactStats.ArtifactId);
-            Assert.AreEqual("Review Artifact", artifactStats.ArtifactName);
+            Assert.AreEqual(4, artifactStats.Id);
+            Assert.AreEqual("REV", artifactStats.Prefix);
+            Assert.AreEqual("Review Artifact", artifactStats.Name);
+            Assert.AreEqual(5, artifactStats.ItemTypeId);
+            Assert.AreEqual(6, artifactStats.ItemTypePredefined);
+            Assert.AreEqual(7, artifactStats.IconImageId);
             Assert.AreEqual(true, artifactStats.Viewed);
             Assert.AreEqual("Approved", artifactStats.ApprovalStatus);
             Assert.AreEqual(true, artifactStats.ArtifactRequiresApproval);

@@ -8,11 +8,9 @@ namespace AdminStore.Models.Workflow
     [XmlType("BaseAction")]
     public abstract class IeBaseAction
     {
+        // Not used, but we keep it for now
         [XmlElement(IsNullable = false)]
         public string Name { get; set; }
-
-        [XmlElement(IsNullable = false)]
-        public string Description { get; set; }
     }
 
 }

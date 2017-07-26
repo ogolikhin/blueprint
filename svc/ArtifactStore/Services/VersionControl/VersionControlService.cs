@@ -65,7 +65,7 @@ namespace ArtifactStore.Services.VersionControl
                 {
                     throw new BadRequestException("The list of artifact Ids is empty.", ErrorCodes.IncorrectInputParameters);
                 }
-                discardPublishStates = await _versionControlRepository.GetDiscardPublishStates(parameters.UserId, artifactIdsList);
+                discardPublishStates = await _versionControlRepository.GetDiscardPublishStates(parameters.UserId, artifactIdsList, transaction);
             }
             HandleErrorStates(artifactIdsList, discardPublishStates);
 
@@ -93,7 +93,7 @@ namespace ArtifactStore.Services.VersionControl
 
 
             var discardPublishDetailsResult =
-                await _versionControlRepository.GetDiscardPublishDetails(parameters.UserId, artifactIdsList, true);
+                await _versionControlRepository.GetDiscardPublishDetails(parameters.UserId, artifactIdsList, true, transaction);
             var discardPublishDetails = discardPublishDetailsResult.Details;
             projectsNames = discardPublishDetailsResult.ProjectInfos;
             var artifactResultSet = ToNovaArtifactResultSet(discardPublishDetails, projectsNames);
@@ -166,7 +166,7 @@ namespace ArtifactStore.Services.VersionControl
             parameters.AffectedArtifactIds.AddRange(artifactIdsList);
             var publishResults = new List<SqlPublishResult>(parameters.AffectedArtifactIds.Count);
             var artifactStates =
-                await _versionControlRepository.GetPublishStates(parameters.UserId, parameters.AffectedArtifactIds);
+                await _versionControlRepository.GetPublishStates(parameters.UserId, parameters.AffectedArtifactIds, transaction: transaction);
 
             var artifactsCannotBePublished = _versionControlRepository.CanPublish(artifactStates);
 
@@ -202,7 +202,7 @@ namespace ArtifactStore.Services.VersionControl
             env.DeletedArtifactIds.AddRange(
                 await _versionControlRepository.DetectAndPublishDeletedArtifacts(parameters.UserId,
                     parameters.AffectedArtifactIds,
-                    env));
+                    env, transaction));
             parameters.AffectedArtifactIds.ExceptWith(env.DeletedArtifactIds);
 
             //Release lock

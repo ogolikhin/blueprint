@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AdminStore.Models;
+using AdminStore.Models.DTO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 
 namespace AdminStore.Repositories
@@ -331,5 +334,90 @@ namespace AdminStore.Repositories
         }
 
         #endregion GetInstanceRolesAsync
+
+
+        #region CreateFolderAsync
+
+        [TestMethod]
+        public async Task CreateFolderAsync_SuccessfulCreationOfFolder_ReturnCreatedFolderId()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            var folderId = 1;
+            var folder = new FolderDto {Name = "Folder1", ParentFolderId = 1};
+
+            cxn.SetupExecuteScalarAsync("CreateFolder", It.IsAny<Dictionary<string, object>>(), folderId, new Dictionary<string, object> { { "ErrorCode", 0 } });
+
+            // Act
+            var result = await repository.CreateFolderAsync(folder);
+
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(result, folderId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task CreateFolderAsync_FolderWithSuchNameExists_ReturnBadrequestError()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            var folderId = 1;
+            var folder = new FolderDto { Name = "Folder1", ParentFolderId = 1 };
+
+            cxn.SetupExecuteScalarAsync("CreateFolder", It.IsAny<Dictionary<string, object>>(), folderId, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.FolderWithSuchNameExistsInParentFolder } });
+
+            // Act
+            await repository.CreateFolderAsync(folder);
+
+            // Assert
+            //Exception
+        }
+
+        #endregion CreateFolderAsync
+
+        #region SearchFolder
+
+        [TestMethod]
+        public async Task GetFoldersByName_WeHaveFoldersWithSimilarName_ReturnFolders()
+        {
+            //arrange
+            var name = "folderName";
+            var result = new List<FolderDto>() {new FolderDto() {Id = 1} };
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            cxn.SetupQueryAsync("GetFoldersByName", new Dictionary<string, object> { { "name", name } }, result);
+
+            //act
+            var response = await repository.GetFoldersByName(name);
+
+            //assert
+            cxn.Verify();
+            Assert.AreEqual(response.ToList().Count, result.Count);
+            Assert.AreEqual(result.Last().Id, result.Last().Id);
+
+        }
+
+        [TestMethod]
+        public async Task GetFoldersByName_ThereIsNoFoldersWithSuchAName_ReturnEmptyResult()
+        {
+            //arrange
+            var name = "someName";
+            var result = new List<FolderDto>();
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            cxn.SetupQueryAsync("GetFoldersByName", new Dictionary<string, object> { { "name", name } }, result);
+
+            //act
+            var response = await repository.GetFoldersByName(name);
+
+            //assert
+            cxn.Verify();
+            Assert.AreEqual(response.ToList().Count, result.Count);
+        }
+
+        #endregion
     }
 }

@@ -266,11 +266,11 @@ namespace AdminStore.Repositories.Workflow
             return _sqlHelper.CreateRevisionInTransactionAsync(transaction, userId, description);
         }
 
-        public async Task<IEnumerable<string>> CheckLiveWorkflowsForNameUniqueness(IDbTransaction transaction, IEnumerable<string> names)
+        public async Task<IEnumerable<string>> CheckLiveWorkflowsForNameUniqueness(IEnumerable<string> names)
         {
             var prm = new DynamicParameters();
             prm.Add("@names", SqlConnectionWrapper.ToStringDataTable(names));
-            var duplicateNames = await transaction.Connection.QueryAsync<string>("CheckLiveWorkflowsForNameUniqueness", prm, transaction, commandType: CommandType.StoredProcedure);
+            var duplicateNames = await _connectionWrapper.QueryAsync<string>("CheckLiveWorkflowsForNameUniqueness", prm, commandType: CommandType.StoredProcedure);
             return duplicateNames;
         }
 
@@ -326,12 +326,13 @@ namespace AdminStore.Repositories.Workflow
             return result;
         }
 
-        public async Task<int> DeleteWorkflows(OperationScope body, string search, int revision)
+        public async Task<int> DeleteWorkflows(OperationScope body, string search, int revision, IDbTransaction transaction = null)
         {
             if (search != null)
             {
                 search = UsersHelper.ReplaceWildcardCharacters(search);
             }
+            var result = 0;
 
             var parameters = new DynamicParameters();
             parameters.Add("@PublishRevision", revision);
@@ -339,7 +340,21 @@ namespace AdminStore.Repositories.Workflow
             parameters.Add("@Search", search);
             parameters.Add("@SelectAll", body.SelectAll);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            var result = await _connectionWrapper.ExecuteScalarAsync<int>("DeleteWorkflows", parameters, commandType: CommandType.StoredProcedure);
+            if (transaction != null)
+            {
+                result =
+                    await
+                        _connectionWrapper.ExecuteScalarAsync<int>("DeleteWorkflows", parameters, transaction,
+                            commandType: CommandType.StoredProcedure);
+            }
+            else
+            {
+                result =
+                    await
+                        _connectionWrapper.ExecuteScalarAsync<int>("DeleteWorkflows", parameters,
+                            commandType: CommandType.StoredProcedure);
+            }
+            
             var errorCode = parameters.Get<int?>("ErrorCode");
             if (errorCode.HasValue)
             {
@@ -406,14 +421,13 @@ namespace AdminStore.Repositories.Workflow
             table.SetTypeName("WorkflowStatesCollection");
             table.Columns.Add("WorkflowStateId", typeof(int));
             table.Columns.Add("Name", typeof(string));
-            table.Columns.Add("Description", typeof(string));
             table.Columns.Add("WorkflowId", typeof(int));
             table.Columns.Add("Default", typeof(bool));
             table.Columns.Add("OrderIndex", typeof(float));
 
             foreach (var workflowState in workflowStates)
             {
-                table.Rows.Add(workflowState.WorkflowStateId, workflowState.Name, workflowState.Description,
+                table.Rows.Add(workflowState.WorkflowStateId, workflowState.Name,
                     workflowState.WorkflowId, workflowState.Default, workflowState.OrderIndex);
             }
 
@@ -426,7 +440,6 @@ namespace AdminStore.Repositories.Workflow
             table.SetTypeName("WorkflowEventsCollection");
             table.Columns.Add("WorkflowEventId", typeof(int));
             table.Columns.Add("Name", typeof(string));
-            table.Columns.Add("Description", typeof(string));
             table.Columns.Add("WorkflowId", typeof(int));
             table.Columns.Add("Type", typeof(int));
             table.Columns.Add("Permissions", typeof(string));
@@ -438,7 +451,7 @@ namespace AdminStore.Repositories.Workflow
 
             foreach (var workfloEvent in workflowEvents)
             {
-                table.Rows.Add(workfloEvent.TriggerId, workfloEvent.Name, workfloEvent.Description,
+                table.Rows.Add(workfloEvent.TriggerId, workfloEvent.Name,
                     workfloEvent.WorkflowId, workfloEvent.Type, workfloEvent.Permissions, 
                     workfloEvent.Validations, workfloEvent.Triggers, workfloEvent.WorkflowState1Id, 
                     workfloEvent.WorkflowState2Id, workfloEvent.PropertyTypeId);

@@ -850,7 +850,7 @@ namespace ArtifactStore.Repositories
             var approvalStatus = (await _repository.GetApprovalStatusesAsync(projectId, userId)).FirstOrDefault();
 
             //Assert
-            Assert.AreEqual("Pending Approval", approvalStatus.StatusText);
+            Assert.AreEqual("Pending", approvalStatus.StatusText);
         }
 
         #endregion

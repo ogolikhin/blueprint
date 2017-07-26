@@ -27,6 +27,7 @@ namespace AdminStore.Services.Workflow
 
     public enum WorkflowDataValidationErrorCodes
     {
+        WorkflowNameNotUnique,
         ProjectNotFound,
         GroupsNotFound,
         ArtifactTypeNotFoundInProject,

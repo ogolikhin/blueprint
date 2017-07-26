@@ -1,4 +1,15 @@
-﻿using AdminStore.Helpers;
+﻿using System;
+using System.Diagnostics;
+using System.IO;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Description;
+using System.Web.Http.Results;
+using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Models.Workflow;
 using AdminStore.Repositories;
@@ -12,19 +23,6 @@ using ServiceLibrary.Helpers.Files;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
 using ServiceLibrary.Repositories.Files;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Http;
-using System.Web.Http.Description;
-using System.Web.Http.Results;
-using System.Xml;
 
 namespace AdminStore.Controllers
 {
@@ -81,8 +79,10 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(ImportWorkflowResult))]
         public async Task<IHttpActionResult> ImportWorkflowAsync()
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            var session = Session;
             Debug.Assert(session != null, "The session is null.");
+
+            await _privilegesManager.Demand(session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
 
             // The file name is specified in Content-Disposition header,
             // for example, Content-Disposition: workflow;filename=workflow.xml
@@ -146,8 +146,10 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(string))]
         public async Task<IHttpActionResult> GetImportWorkflowErrorsAsync(string guid)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            var session = Session;
             Debug.Assert(session != null, "The session is null.");
+
+            await _privilegesManager.Demand(session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
 
             _workflowService.FileRepository = GetFileRepository();
             var errors = await _workflowService.GetImportWorkflowErrorsAsync(guid, session.UserId);
@@ -209,10 +211,11 @@ namespace AdminStore.Controllers
         /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
         /// <response code="403">Forbidden if used doesn’t have permissions to delete workflows</response>
         /// <returns></returns>
-        [HttpDelete]
-        [Route(""), SessionRequired]
+        [HttpPost]
+        [SessionRequired]
+        [Route("delete")]
         [ResponseType(typeof(DeleteResult))]
-        public async Task<IHttpActionResult> DeleteWorkflows([FromUri]OperationScope scope, string search = null)
+        public async Task<IHttpActionResult> DeleteWorkflows([FromBody]OperationScope scope, string search = null)
         {
             if (scope == null)
             {
@@ -234,7 +237,7 @@ namespace AdminStore.Controllers
         /// Update workflow's status
         /// </summary>
         /// <param name="workflowId">Workflow identity</param>
-        /// <param name="workflowDto">WorkflowDto model</param>
+        /// <param name="statusUpdate">StatusUpdate model</param>
         /// <remarks>
         /// Returns Ok result.
         /// </remarks>
@@ -247,16 +250,16 @@ namespace AdminStore.Controllers
         [HttpPut]
         [SessionRequired]
         [ResponseType(typeof(HttpResponseMessage))]
-        [Route("UpdateWorkflowStatus/{workflowId:int:min(1)}")]
-        public async Task<IHttpActionResult> UpdateWorkflowStatus(int workflowId, [FromBody] WorkflowDto workflowDto)
+        [Route("{workflowId:int:min(1)}/status")]
+        public async Task<IHttpActionResult> UpdateStatus(int workflowId, [FromBody] StatusUpdate statusUpdate)
         {
-            if (workflowDto == null)
+            if (statusUpdate == null)
             {
                 throw new BadRequestException(ErrorMessages.WorkflowModelIsEmpty, ErrorCodes.BadRequest);
             }
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
-            await _workflowService.UpdateWorkflowStatusAsync(workflowDto, workflowId, Session.UserId);
+            await _workflowService.UpdateWorkflowStatusAsync(statusUpdate, workflowId, Session.UserId);
 
             return Ok();
         }
@@ -295,7 +298,7 @@ namespace AdminStore.Controllers
                     Content = new ByteArrayContent(stream.GetBuffer())
                 };
                 result.Content.Headers.ContentDisposition =
-                    new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
+                    new ContentDispositionHeaderValue("attachment")
                     {
                         FileName = $"workflow{workflowId}.xml"
                     };

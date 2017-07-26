@@ -187,7 +187,6 @@ namespace ArtifactStore.Repositories
         {
             reviewArtifact.Name = string.Empty;
             reviewArtifact.ItemTypeId = 0;
-            reviewArtifact.Prefix = null;
             reviewArtifact.HasComments = false;
             reviewArtifact.ItemTypePredefined = 0;
             reviewArtifact.IconImageId = null;
@@ -725,8 +724,10 @@ namespace ArtifactStore.Repositories
                     tocItem.HasAccess = true;
 
                     var artifact = reviewedArtifacts.First(it => it.Id == tocItem.Id);
+                    tocItem.ArtifactVersion = artifact.ArtifactVersion;
                     tocItem.ApprovalStatus = (ApprovalType)artifact?.ApprovalFlag;
                     tocItem.Viewed = artifact?.ViewedArtifactVersion != null;
+                    tocItem.ViewedArtifactVersion = artifact?.ViewedArtifactVersion;
                 }
                 else
                 {
@@ -1019,8 +1020,10 @@ namespace ArtifactStore.Repositories
 
                 if (reviewArtifactApproval == null)
                 {
-                    reviewArtifactApproval = new ReviewArtifactXml();
-                    reviewArtifactApproval.ArtifactId = artifact.ArtifactId;
+                    reviewArtifactApproval = new ReviewArtifactXml
+                    {
+                        ArtifactId = artifact.ArtifactId
+                    };
 
                     rdReviewedArtifacts.ReviewedArtifacts.Add(reviewArtifactApproval);
                 }
@@ -1030,7 +1033,8 @@ namespace ArtifactStore.Repositories
                     reviewArtifactApproval.ViewState = ViewStateType.Viewed;
                 }
 
-                if (artifact.ApprovalFlag == ApprovalType.NotSpecified)
+                if (artifact.ApprovalFlag == ApprovalType.NotSpecified &&
+                    artifact.Approval.Equals(PENDING, StringComparison.InvariantCultureIgnoreCase))
                 {
                     reviewArtifactApproval.ESignedOn = null;
                 }
@@ -1073,12 +1077,9 @@ namespace ArtifactStore.Repositories
                 ThrowUserCannotAccessReviewException(reviewId);
             }
 
-            foreach (var artifactId in artifactIds)
+            if (artifactIds.Any(artifactId => !SqlArtifactPermissionsRepository.HasPermissions(artifactId, artifactPermissionsDictionary, RolePermissions.Read)))
             {
-                if (!SqlArtifactPermissionsRepository.HasPermissions(artifactId, artifactPermissionsDictionary, RolePermissions.Read))
-                {
-                    throw new ResourceNotFoundException("Artifacts could not be updated because they are no longer accessible.", ErrorCodes.ArtifactNotFound);
-                }
+                throw new ResourceNotFoundException("Artifacts could not be updated because they are no longer accessible.", ErrorCodes.ArtifactNotFound);
             }
         }
 

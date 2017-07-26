@@ -29,6 +29,8 @@ namespace ActionHandlerServiceTests
     {
         private Mock<IActionHelper> _actionHelperMock;
         private ISetup<IActionHelper, Task<bool>> _handleActionSetup;
+        private TenantInfoRetriever _tenantInfoRetriever;
+        private ConfigHelper _configHelper;
         private const string TenantId = "tenant0";
 
         [TestInitialize]
@@ -36,6 +38,8 @@ namespace ActionHandlerServiceTests
         {
             _actionHelperMock = new Mock<IActionHelper>();
             _handleActionSetup = _actionHelperMock.Setup(m => m.HandleAction(It.IsAny<TenantInformation>(), It.IsAny<ActionMessage>(), It.IsAny<ActionHandlerServiceRepository>()));
+            _tenantInfoRetriever = new TenantInfoRetriever();
+            _configHelper = new ConfigHelper();
         }
 
         private static void TestHandlerAndMessageWithHeader<T>(BaseMessageHandler<T> handler, T message, string tenantId = TenantId) where T : ActionMessage
@@ -67,7 +71,7 @@ namespace ActionHandlerServiceTests
         {
             var tenantInfoRetrieverMock = new Mock<ITenantInfoRetriever>();
             tenantInfoRetrieverMock.Setup(m => m.GetTenants()).Returns(new Dictionary<string, TenantInformation>());
-            var handler = new NotificationMessageHandler(null, tenantInfoRetrieverMock.Object);
+            var handler = new NotificationMessageHandler(null, tenantInfoRetrieverMock.Object, _configHelper);
             var message = new NotificationMessage();
             TestHandlerAndMessageWithHeader(handler, message);
         }
@@ -77,7 +81,7 @@ namespace ActionHandlerServiceTests
         public void BaseMessageHandler_ThrowsMessageHeaderValueNotFoundException_WhenHeaderValueIsNotFound()
         {
             _handleActionSetup.Returns(Task.FromResult(true));
-            var handler = new NotificationMessageHandler(_actionHelperMock.Object);
+            var handler = new NotificationMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
             var message = new NotificationMessage();
             Test.Handler(handler).OnMessage(message);
         }
@@ -93,7 +97,7 @@ namespace ActionHandlerServiceTests
         public void ArtifactsPublishedMessageHandler_HandlesMessageSuccessfully()
         {
             _handleActionSetup.Returns(Task.FromResult(true));
-            var handler = new ArtifactsPublishedMessageHandler(_actionHelperMock.Object);
+            var handler = new ArtifactsPublishedMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
             var message = new ArtifactsPublishedMessage();
             TestHandlerAndMessageWithHeader(handler, message);
         }
@@ -103,7 +107,7 @@ namespace ActionHandlerServiceTests
         public void ArtifactsPublishedMessageHandler_RethrowsException()
         {
             _handleActionSetup.Throws(new TestException());
-            var handler = new ArtifactsPublishedMessageHandler(_actionHelperMock.Object);
+            var handler = new ArtifactsPublishedMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
             var message = new ArtifactsPublishedMessage();
             TestHandlerAndMessageWithHeader(handler, message);
         }
@@ -119,7 +123,7 @@ namespace ActionHandlerServiceTests
         public void NotificationMessageHandler_HandlesMessageSuccessfully()
         {
             _handleActionSetup.Returns(Task.FromResult(true));
-            var handler = new NotificationMessageHandler(_actionHelperMock.Object);
+            var handler = new NotificationMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
             var message = new NotificationMessage();
             TestHandlerAndMessageWithHeader(handler, message);
         }
@@ -129,7 +133,7 @@ namespace ActionHandlerServiceTests
         public void NotificationMessageHandler_RethrowsException()
         {
             _handleActionSetup.Throws(new TestException());
-            var handler = new NotificationMessageHandler(_actionHelperMock.Object);
+            var handler = new NotificationMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
             var message = new NotificationMessage();
             TestHandlerAndMessageWithHeader(handler, message);
         }
@@ -145,7 +149,7 @@ namespace ActionHandlerServiceTests
         public void GenerateDescendantsMessageHandler_HandlesMessageSuccessfully()
         {
             _handleActionSetup.Returns(Task.FromResult(true));
-            var handler = new GenerateDescendantsMessageHandler(_actionHelperMock.Object);
+            var handler = new GenerateDescendantsMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
             var message = new GenerateDescendantsMessage();
             TestHandlerAndMessageWithHeader(handler, message);
         }
@@ -155,7 +159,7 @@ namespace ActionHandlerServiceTests
         public void GenerateDescendantsMessageHandler_RethrowsException()
         {
             _handleActionSetup.Throws(new TestException());
-            var handler = new GenerateDescendantsMessageHandler(_actionHelperMock.Object);
+            var handler = new GenerateDescendantsMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
             var message = new GenerateDescendantsMessage();
             TestHandlerAndMessageWithHeader(handler, message);
         }
@@ -171,7 +175,7 @@ namespace ActionHandlerServiceTests
         public void GenerateTestsMessageHandler_HandlesMessageSuccessfully()
         {
             _handleActionSetup.Returns(Task.FromResult(true));
-            var handler = new GenerateTestsMessageHandler(_actionHelperMock.Object);
+            var handler = new GenerateTestsMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
             var message = new GenerateTestsMessage();
             TestHandlerAndMessageWithHeader(handler, message);
         }
@@ -181,7 +185,7 @@ namespace ActionHandlerServiceTests
         public void GenerateTestsMessageHandler_RethrowsException()
         {
             _handleActionSetup.Throws(new TestException());
-            var handler = new GenerateTestsMessageHandler(_actionHelperMock.Object);
+            var handler = new GenerateTestsMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
             var message = new GenerateTestsMessage();
             TestHandlerAndMessageWithHeader(handler, message);
         }
@@ -197,7 +201,7 @@ namespace ActionHandlerServiceTests
         public void GenerateUserStoriesMessageHandler_HandlesMessageSuccessfully()
         {
             _handleActionSetup.Returns(Task.FromResult(true));
-            var handler = new GenerateUserStoriesMessageHandler(_actionHelperMock.Object);
+            var handler = new GenerateUserStoriesMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
             var message = new GenerateUserStoriesMessage();
             TestHandlerAndMessageWithHeader(handler, message);
         }
@@ -207,7 +211,7 @@ namespace ActionHandlerServiceTests
         public void GenerateUserStoriesMessageHandler_RethrowsException()
         {
             _handleActionSetup.Throws(new TestException());
-            var handler = new GenerateUserStoriesMessageHandler(_actionHelperMock.Object);
+            var handler = new GenerateUserStoriesMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
             var message = new GenerateUserStoriesMessage();
             TestHandlerAndMessageWithHeader(handler, message);
         }
@@ -223,7 +227,7 @@ namespace ActionHandlerServiceTests
         public void StateTransitionMessageHandler_HandlesMessageSuccessfully()
         {
             _handleActionSetup.Returns(Task.FromResult(true));
-            var handler = new StateTransitionMessageHandler(_actionHelperMock.Object);
+            var handler = new StateTransitionMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
             var message = new StateChangeMessage();
             TestHandlerAndMessageWithHeader(handler, message);
         }
@@ -233,7 +237,7 @@ namespace ActionHandlerServiceTests
         public void StateTransitionMessageHandler_RethrowsException()
         {
             _handleActionSetup.Throws(new TestException());
-            var handler = new StateTransitionMessageHandler(_actionHelperMock.Object);
+            var handler = new StateTransitionMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
             var message = new StateChangeMessage();
             TestHandlerAndMessageWithHeader(handler, message);
         }
@@ -249,7 +253,7 @@ namespace ActionHandlerServiceTests
         public void PropertyChangeMessageHandler_HandlesMessageSuccessfully()
         {
             _handleActionSetup.Returns(Task.FromResult(true));
-            var handler = new PropertyChangeMessageHandler(_actionHelperMock.Object);
+            var handler = new PropertyChangeMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
             var message = new GenerateUserStoriesMessage();
             TestHandlerAndMessageWithHeader(handler, message);
         }
@@ -259,7 +263,7 @@ namespace ActionHandlerServiceTests
         public void PropertyChangeMessageHandler_RethrowsException()
         {
             _handleActionSetup.Throws(new TestException());
-            var handler = new PropertyChangeMessageHandler(_actionHelperMock.Object);
+            var handler = new PropertyChangeMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
             var message = new GenerateUserStoriesMessage();
             TestHandlerAndMessageWithHeader(handler, message);
         }

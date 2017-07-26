@@ -16,11 +16,11 @@ namespace ActionHandlerService.MessageHandlers
         private ITenantInfoRetriever TenantInfoRetriever { get; }
         private IConfigHelper ConfigHelper { get; }
 
-        protected BaseMessageHandler(IActionHelper actionHelper, ITenantInfoRetriever tenantInfoRetriever = null, IConfigHelper configHelper = null)
+        protected BaseMessageHandler(IActionHelper actionHelper, ITenantInfoRetriever tenantInfoRetriever, IConfigHelper configHelper)
         {
             ActionHelper = actionHelper;
-            TenantInfoRetriever = tenantInfoRetriever ?? new TenantInfoRetriever();
-            ConfigHelper = configHelper ?? new ConfigHelper();
+            TenantInfoRetriever = tenantInfoRetriever;
+            ConfigHelper = configHelper;
         }
 
         public async Task Handle(T message, IMessageHandlerContext context)

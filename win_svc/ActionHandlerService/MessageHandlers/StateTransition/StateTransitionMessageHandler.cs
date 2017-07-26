@@ -4,7 +4,7 @@ namespace ActionHandlerService.MessageHandlers.StateTransition
 {
     public class StateTransitionMessageHandler : BaseMessageHandler<StateChangeMessage>
     {
-        public StateTransitionMessageHandler() : this(new StateTransitionMessageHelper())
+        public StateTransitionMessageHandler() : this(new StateTransitionActionHelper())
         {
         }
 

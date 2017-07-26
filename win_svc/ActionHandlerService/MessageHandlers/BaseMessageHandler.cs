@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using ActionHandlerService.Helpers;
 using ActionHandlerService.Models;
 using ActionHandlerService.Models.Exceptions;
+using ActionHandlerService.Repositories;
 using BluePrintSys.Messaging.CrossCutting.Logging;
 using BluePrintSys.Messaging.Models.Actions;
 using NServiceBus;
@@ -11,12 +12,16 @@ namespace ActionHandlerService.MessageHandlers
 {
     public abstract class BaseMessageHandler<T> : IHandleMessages<T> where T : ActionMessage
     {
-        protected BaseMessageHandler(IActionHelper actionHelper)
+        private IActionHelper ActionHelper { get; }
+        private ITenantInfoRetriever TenantInfoRetriever { get; }
+        private IConfigHelper ConfigHelper { get; }
+
+        protected BaseMessageHandler(IActionHelper actionHelper, ITenantInfoRetriever tenantInfoRetriever = null, IConfigHelper configHelper = null)
         {
             ActionHelper = actionHelper;
+            TenantInfoRetriever = tenantInfoRetriever ?? new TenantInfoRetriever();
+            ConfigHelper = configHelper ?? new ConfigHelper();
         }
-
-        protected IActionHelper ActionHelper { get; }
 
         public async Task Handle(T message, IMessageHandlerContext context)
         {
@@ -59,7 +64,8 @@ namespace ActionHandlerService.MessageHandlers
         protected virtual Task ProcessAction(TenantInformation tenant, T message, IMessageHandlerContext context)
         {
             Log.Info($"Action handling started for {message.ActionType.ToString()}");
-            ActionHelper.HandleAction(tenant, message);
+            var repository = new ActionHandlerServiceRepository(tenant.ConnectionString);
+            ActionHelper.HandleAction(tenant, message, repository);
             Log.Info($"Action handling finished for {message.ActionType.ToString()}");
             return Task.Factory.StartNew(() => { });
         }

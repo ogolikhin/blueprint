@@ -6,19 +6,31 @@ using ServiceLibrary.Helpers;
 
 namespace ActionHandlerService.Helpers
 {
-    public static class TenantInfoRetriever
+    public interface ITenantInfoRetriever
     {
+        Dictionary<string, TenantInformation> GetTenants();
+    }
+
+    public class TenantInfoRetriever : ITenantInfoRetriever
+    {
+        public TenantInfoRetriever(IConfigHelper configHelper = null)
+        {
+            ConfigHelper = configHelper ?? new ConfigHelper();
+            var expirationTime = TimeSpan.FromMinutes(ConfigHelper.CacheExpirationMinutes);
+            TenantInfoCache = new CacheHelper<Dictionary<string, TenantInformation>>(expirationTime, GetTenantInfoForCache);
+        }
+
+        private IConfigHelper ConfigHelper { get; }
+        private CacheHelper<Dictionary<string, TenantInformation>> TenantInfoCache { get; }
         private const string DefaultTentantId = "tenant0";
         private const string DefaultTenantSettings = "settings";
 
-        private static readonly CacheHelper<Dictionary<string, TenantInformation>> TenantInfoCache = new CacheHelper<Dictionary<string, TenantInformation>>(TimeSpan.FromMinutes(ConfigHelper.CacheExpirationMinutes), GetTenantInfoForCache);
-
-        public static Dictionary<string, TenantInformation> GetTenants()
+        public Dictionary<string, TenantInformation> GetTenants()
         {
             return TenantInfoCache.Get();
         }
 
-        private static Dictionary<string, TenantInformation> GetTenantInfoForCache()
+        private Dictionary<string, TenantInformation> GetTenantInfoForCache()
         {
             var tenants = new Dictionary<string, TenantInformation>();
             var tenancy = ConfigHelper.Tenancy;
@@ -29,6 +41,7 @@ namespace ActionHandlerService.Helpers
                     tenants.Add(tenant.Id, tenant);
                     break;
                 case Tenancy.Multiple:
+                    //TODO: get multiple tenants
                     break;
             }
             return tenants;

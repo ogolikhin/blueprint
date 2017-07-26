@@ -100,9 +100,9 @@
   <ItemGroup>
     <Compile Include="Helpers\ActionsParser.cs" />
     <Compile Include="MessageHandlers\PropertyChange\PropertyChangeMessageHandler.cs" />
-    <Compile Include="MessageHandlers\PropertyChange\PropertyChangeMessageHelper.cs" />
+    <Compile Include="MessageHandlers\PropertyChange\PropertyChangeActionHelper.cs" />
     <Compile Include="MessageHandlers\StateTransition\StateTransitionMessageHandler.cs" />
-    <Compile Include="MessageHandlers\StateTransition\StateTransitionMessageHelper.cs" />
+    <Compile Include="MessageHandlers\StateTransition\StateTransitionActionHelper.cs" />
     <Compile Include="Models\SqlArtifactTriggers.cs" />
     <Compile Include="Models\SqlModifiedProperty.cs" />
     <Compile Include="Repositories\ActionHandlerRepository.cs" />

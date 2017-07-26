@@ -4,7 +4,7 @@ namespace ActionHandlerService.MessageHandlers.PropertyChange
 {
     public class PropertyChangeMessageHandler : BaseMessageHandler<GenerateUserStoriesMessage>
     {
-        public PropertyChangeMessageHandler() : this(new PropertyChangeMessageHelper())
+        public PropertyChangeMessageHandler() : this(new PropertyChangeActionHelper())
         {
         }
 

@@ -11,30 +11,26 @@ namespace ActionHandlerService.Repositories
 {
     public interface IActionHandlerServiceRepository
     {
-        Task<IList<SqlModifiedProperty>> GetPropertyModificationsForRevisionIdAsync(int revisionId);
-        Task<IList<SqlWorkFlowStateInformation>> GetWorkflowStatesForArtifactsAsync(int userId, IEnumerable<int> artifactIds, int revisionId, bool addDrafts = true);
-        Task<IList<SqlArtifactTriggers>> GetWorkflowPropertyTransitionsForArtifactsAsync(int userId, int revisionId, int eventType, IEnumerable<int> itemIds);
+        Task<List<SqlModifiedProperty>> GetPropertyModificationsForRevisionIdAsync(int revisionId);
+        Task<List<SqlWorkFlowStateInformation>> GetWorkflowStatesForArtifactsAsync(int userId, IEnumerable<int> artifactIds, int revisionId, bool addDrafts = true);
+        Task<List<SqlArtifactTriggers>> GetWorkflowPropertyTransitionsForArtifactsAsync(int userId, int revisionId, int eventType, IEnumerable<int> itemIds);
     }
 
     public class ActionHandlerServiceRepository : SqlBaseArtifactRepository, IActionHandlerServiceRepository
     {
-        public ActionHandlerServiceRepository(string connectionString)
-            : this(new SqlConnectionWrapper(connectionString))
+        public ActionHandlerServiceRepository(string connectionString) : this(new SqlConnectionWrapper(connectionString))
         {
         }
 
-        public ActionHandlerServiceRepository(ISqlConnectionWrapper connectionWrapper)
-            : this(connectionWrapper, new SqlArtifactPermissionsRepository(connectionWrapper))
+        public ActionHandlerServiceRepository(ISqlConnectionWrapper connectionWrapper) : this(connectionWrapper, new SqlArtifactPermissionsRepository(connectionWrapper))
         {
         }
 
-        public ActionHandlerServiceRepository(ISqlConnectionWrapper connectionWrapper,
-            IArtifactPermissionsRepository artifactPermissionsRepository) 
-            : base(connectionWrapper,artifactPermissionsRepository)
+        public ActionHandlerServiceRepository(ISqlConnectionWrapper connectionWrapper, IArtifactPermissionsRepository artifactPermissionsRepository) : base(connectionWrapper, artifactPermissionsRepository)
         {
         }
 
-        public async Task<IList<SqlArtifactTriggers>> GetWorkflowPropertyTransitionsForArtifactsAsync(int userId, int revisionId, int eventType, IEnumerable<int> itemIds)
+        public async Task<List<SqlArtifactTriggers>> GetWorkflowPropertyTransitionsForArtifactsAsync(int userId, int revisionId, int eventType, IEnumerable<int> itemIds)
         {
             var param = new DynamicParameters();
             param.Add("@userId", userId);
@@ -44,14 +40,14 @@ namespace ActionHandlerService.Repositories
             return (await ConnectionWrapper.QueryAsync<SqlArtifactTriggers>("GetWorkflowTriggersForArtifacts", param, commandType: CommandType.StoredProcedure)).ToList();
         }
 
-        public async Task<IList<SqlModifiedProperty>> GetPropertyModificationsForRevisionIdAsync(int revisionId)
+        public async Task<List<SqlModifiedProperty>> GetPropertyModificationsForRevisionIdAsync(int revisionId)
         {
             var param = new DynamicParameters();
             param.Add("@revisionId", revisionId);
-            return (await ConnectionWrapper.QueryAsync<SqlModifiedProperty >("GetPropertyModificationsForRevisionId", param, commandType: CommandType.StoredProcedure)).ToList();
+            return (await ConnectionWrapper.QueryAsync<SqlModifiedProperty>("GetPropertyModificationsForRevisionId", param, commandType: CommandType.StoredProcedure)).ToList();
         }
 
-        public async Task<IList<SqlWorkFlowStateInformation>> GetWorkflowStatesForArtifactsAsync(int userId, IEnumerable<int> artifactIds, int revisionId, bool addDrafts = true)
+        public async Task<List<SqlWorkFlowStateInformation>> GetWorkflowStatesForArtifactsAsync(int userId, IEnumerable<int> artifactIds, int revisionId, bool addDrafts = true)
         {
             var param = new DynamicParameters();
             param.Add("@userId", userId);

@@ -20,7 +20,7 @@ namespace ActionHandlerService
             LogManager.Manager.AddListener(Log4NetStandardLogListener.Instance);
 
             Log.Info("Action Handler Service is starting.");
-            _messageTransportHost = MessageTransportHostFactory.GetMessageTransportHost();
+            _messageTransportHost = new MessageTransportHostFactory().GetMessageTransportHost();
             _messageTransportHost.Start(() => Stop(null));
             Log.Info("Action Handler Service started.");
 

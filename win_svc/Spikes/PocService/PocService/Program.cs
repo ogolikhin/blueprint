@@ -59,34 +59,23 @@ namespace PocService
 
     public class PocHeaders
     {
-        public const string MessageId = Headers.MessageId;
         public const string TenantId = "TenantId";
+        public const string MessageId = Headers.MessageId;
+        public const string TimeSent = Headers.TimeSent;
     }
 
     public class PocMessageHandler : IHandleMessages<PocMessage>
     {
         public Task Handle(PocMessage message, IMessageHandlerContext context)
         {
-            var messageId = GetMessageHeaderValue(PocHeaders.MessageId, context);
-            var tenantId = GetMessageHeaderValue(PocHeaders.TenantId, context);
-            if (string.IsNullOrWhiteSpace(messageId) || string.IsNullOrWhiteSpace(tenantId))
-            {
-                throw new Exception("Invalid Message Header Value");
-            }
+            string tenantId;
+            if (!context.MessageHeaders.TryGetValue(PocHeaders.TenantId, out tenantId)) throw new Exception("Message Header Not Found");
+
             Program.EndpointInstance.SendLocal(new PocSpawnMessage {Id = 1}).ConfigureAwait(false);
             Program.EndpointInstance.SendLocal(new PocAnotherSpawnMessage {Id = 2}).ConfigureAwait(false);
             Program.EndpointInstance.SendLocal(new PocAnotherSpawnMessage {Id = 3}).ConfigureAwait(false);
-            return Task.CompletedTask;
-        }
 
-        private string GetMessageHeaderValue(string header, IMessageHandlerContext context)
-        {
-            string headerValue;
-            if (!context.MessageHeaders.TryGetValue(header, out headerValue))
-            {
-                throw new Exception($"Message Header Not Found: {header}");
-            }
-            return headerValue;
+            return Task.CompletedTask;
         }
     }
 

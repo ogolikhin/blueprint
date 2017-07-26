@@ -1,4 +1,5 @@
-﻿using BluePrintSys.Messaging.Models.Actions;
+﻿using ActionHandlerService.Helpers;
+using BluePrintSys.Messaging.Models.Actions;
 
 namespace ActionHandlerService.MessageHandlers.Notifications
 {
@@ -8,7 +9,7 @@ namespace ActionHandlerService.MessageHandlers.Notifications
         {
         }
 
-        public NotificationMessageHandler(IActionHelper actionHelper) : base(actionHelper)
+        public NotificationMessageHandler(IActionHelper actionHelper, ITenantInfoRetriever tenantInfoRetriever = null, IConfigHelper configHelper = null) : base(actionHelper, tenantInfoRetriever, configHelper)
         {
         }
     }

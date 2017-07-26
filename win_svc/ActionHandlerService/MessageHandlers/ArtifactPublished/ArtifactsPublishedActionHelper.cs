@@ -13,19 +13,17 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
     public class ArtifactsPublishedActionHelper : IActionHelper
     {
         private readonly IActionsParser _actionsParser;
-        public ArtifactsPublishedActionHelper() : this(new ActionsParser())
+        private readonly INServiceBusServer _nServiceBusServer;
+
+        public ArtifactsPublishedActionHelper(IActionsParser actionsParser = null, INServiceBusServer nServiceBusServer = null)
         {
+            _actionsParser = actionsParser ?? new ActionsParser();
+            _nServiceBusServer = nServiceBusServer ?? NServiceBusServer.Instance;
         }
 
-        public ArtifactsPublishedActionHelper(IActionsParser actionsParser)
-        {
-            _actionsParser = actionsParser;
-        }
-
-        public async Task<bool> HandleAction(TenantInformation tenantInformation, ActionMessage actionMessage)
+        public async Task<bool> HandleAction(TenantInformation tenantInformation, ActionMessage actionMessage, IActionHandlerServiceRepository repository)
         {
             var message = (ArtifactsPublishedMessage)actionMessage;
-            var repository = new ActionHandlerServiceRepository(tenantInformation.ConnectionString);
             var publishedArtifacts = message.Artifacts ?? new PublishedArtifactInformation[] { };
             var publishedArtifactIds = publishedArtifacts.Select(a => a.Id).ToHashSet();
             
@@ -98,7 +96,7 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
                     {
                         return await Task.FromResult(true);
                     }
-                    NServiceBusServer.Instance.Send(
+                    _nServiceBusServer.Send(
                         tenantInformation.Id,
                         new NotificationMessage
                         {
@@ -143,7 +141,7 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
             return activePropertyTransitions;
         }
 
-        private async Task<IList<SqlArtifactTriggers>> GetPropertyEventsInformationForArtifactIds(ActionHandlerServiceRepository repository, ArtifactsPublishedMessage message, HashSet<int> publishedArtifactIds)
+        private async Task<IList<SqlArtifactTriggers>> GetPropertyEventsInformationForArtifactIds(IActionHandlerServiceRepository repository, ArtifactsPublishedMessage message, HashSet<int> publishedArtifactIds)
         {
             return await repository.GetWorkflowPropertyTransitionsForArtifactsAsync(message.UserId, 
                 message.RevisionId, 

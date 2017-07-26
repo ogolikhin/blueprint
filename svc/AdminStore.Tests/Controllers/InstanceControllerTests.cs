@@ -218,7 +218,6 @@ namespace AdminStore.Controllers
 
         #endregion
 
-
         #region CreateFolder
 
         [TestMethod]
@@ -308,6 +307,49 @@ namespace AdminStore.Controllers
             // Assert
             // Exception
         }
+
+        #endregion
+
+        #region SearchFolder
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task SearchFolderByName_NoPermissions_ReturnForbiddenErrorResult()
+        {
+            // Arrange
+            var response = new List<FolderDto>();
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
+            _instanceServiceMock.Setup(repo => repo.GetFoldersByName(It.IsAny<string>())).ReturnsAsync(response);
+
+            // Act
+            await _controller.SearchFolderByName("test");
+
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
+        public async Task SearchFolderByName_PermissionaAreOkAndFolderIsExists_RenurnListOfFolders()
+        {
+            //arrange
+            var response = new List<FolderDto>() {new FolderDto() {Id = 1} };
+            var name = "folder";
+            _privilegeRepositoryMock
+              .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+              .ReturnsAsync(InstanceAdminPrivileges.ManageProjects);
+            _instanceServiceMock.Setup(repo => repo.GetFoldersByName(It.IsAny<string>())).ReturnsAsync(response);
+
+            //act
+            var result = await _controller.SearchFolderByName(name) as OkNegotiatedContentResult<IEnumerable<FolderDto>>;
+
+            //assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(response, result.Content);
+
+        }
+
 
         #endregion
     }

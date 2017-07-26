@@ -21,5 +21,11 @@ namespace AdminStore.Models.Workflow
         // Used only for GenerateActionType = Children
         [XmlElement(IsNullable = false)]
         public string ArtifactType { get; set; }
+
+        // Used only for GenerateActionType = Children
+        // Optional, not used for the import, will be used for the update
+        [XmlElement]
+        public int? ArtifactId { get; set; }
+        public bool ShouldSerializeArtifactId() { return ArtifactId.HasValue; }
     }
 }

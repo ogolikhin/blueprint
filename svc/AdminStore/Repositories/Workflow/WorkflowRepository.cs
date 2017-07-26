@@ -266,11 +266,11 @@ namespace AdminStore.Repositories.Workflow
             return _sqlHelper.CreateRevisionInTransactionAsync(transaction, userId, description);
         }
 
-        public async Task<IEnumerable<string>> CheckLiveWorkflowsForNameUniqueness(IDbTransaction transaction, IEnumerable<string> names)
+        public async Task<IEnumerable<string>> CheckLiveWorkflowsForNameUniqueness(IEnumerable<string> names)
         {
             var prm = new DynamicParameters();
             prm.Add("@names", SqlConnectionWrapper.ToStringDataTable(names));
-            var duplicateNames = await transaction.Connection.QueryAsync<string>("CheckLiveWorkflowsForNameUniqueness", prm, transaction, commandType: CommandType.StoredProcedure);
+            var duplicateNames = await _connectionWrapper.QueryAsync<string>("CheckLiveWorkflowsForNameUniqueness", prm, commandType: CommandType.StoredProcedure);
             return duplicateNames;
         }
 

@@ -81,8 +81,10 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(ImportWorkflowResult))]
         public async Task<IHttpActionResult> ImportWorkflowAsync()
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            var session = Session;
             Debug.Assert(session != null, "The session is null.");
+
+            await _privilegesManager.Demand(session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
 
             // The file name is specified in Content-Disposition header,
             // for example, Content-Disposition: workflow;filename=workflow.xml
@@ -146,8 +148,10 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(string))]
         public async Task<IHttpActionResult> GetImportWorkflowErrorsAsync(string guid)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            var session = Session;
             Debug.Assert(session != null, "The session is null.");
+
+            await _privilegesManager.Demand(session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
 
             _workflowService.FileRepository = GetFileRepository();
             var errors = await _workflowService.GetImportWorkflowErrorsAsync(guid, session.UserId);

@@ -29,6 +29,9 @@ namespace AdminStore.Models
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public RolePermissions? Permissions { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string Path { get; set; }
     }
 
     public enum InstanceItemTypeEnum

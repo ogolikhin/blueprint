@@ -82,5 +82,8 @@
         public static readonly string FolderWithSuchNameExistsInParentFolder = "Folder with the same name already exists in the parent folder.";
         public static readonly string FolderModelIsEmpty = "The folder model is empty.";
         public static readonly string FolderNameLimitation = "Please enter a name between 1 and 128 characters.";
+        public static readonly string ErrorOfDeletingFolderThatContainsChildrenItems = "The Folder cannot be deleted as it contains Projects and/or Folders.";
+        public static readonly string FolderNotExist = "The folder with current folderId doesn't exist or removed from the system.";
+        public static readonly string WorkflowImportErrorsNotFound = "The workflow import errors for GUID={0} are not found.";
     }
 }

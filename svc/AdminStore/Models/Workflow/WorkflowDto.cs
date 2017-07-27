@@ -12,8 +12,6 @@ namespace AdminStore.Models.Workflow
         public string CreatedBy { get; set; }
         public bool Status { get; set; }
         public int VersionId { get; set; }
-        public int StartRevision { get; set; }
-        public int EndRevision { get; set; }
         public string Description { get; set; }
         public IEnumerable<WorkflowProjectDto> Projects{ get; set; }
         public IEnumerable<WorkflowArtifactTypeDto> ArtifactTypes { get; set; }

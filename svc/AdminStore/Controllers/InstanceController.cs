@@ -91,15 +91,21 @@ namespace AdminStore.Controllers
             return await _instanceRepository.GetInstanceFolderChildrenAsync(id, Session.UserId);
         }
 
-        [HttpGet]
-        [NoCache]
+        /// <summary>
+        /// Search folder by name
+        /// </summary>
+        /// <param name="name">name of folder.</param>
+        /// <response code="200">OK.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpGet,NoCache]
         [Route("foldersearch"), SessionRequired]
         [ResponseType(typeof(IEnumerable<FolderDto>))]
-        public async Task<IEnumerable<FolderDto>> SearchFolderByName(string name)
+        public async Task<IHttpActionResult> SearchFolderByName(string name)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageProjects);
-
-            return await _instanceService.GetFoldersByName(name);
+            var result = await _instanceService.GetFoldersByName(name);
+            return Ok(result);
         }
 
         /// <summary>
@@ -205,6 +211,29 @@ namespace AdminStore.Controllers
             var folderId = await _instanceRepository.CreateFolderAsync(folder);
 
             return Request.CreateResponse(HttpStatusCode.Created, folderId);
+        }
+
+        /// <summary>
+        /// Delete Instance Folder
+        /// </summary>
+        /// <remarks>
+        /// Returns count of deleted folders.
+        /// </remarks>
+        /// <response code="200">OK. An instance folder is deleted.</response>
+        /// <response code="400">BadRequest. Some errors. </response>
+        /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
+        /// <response code="403">Forbidden if used doesn’t have permissions to delete instance folder</response>
+        /// <response code="404">NotFound. if instance folder with instanceFolderId doesn’t exists or removed from the system.</response>
+        [HttpDelete]
+        [Route("folder/{instanceFolderId:int:min(1)}"), SessionRequired]
+        [ResponseType(typeof(DeleteResult))]
+        public async Task<IHttpActionResult> DeleteInstanceFolder(int instanceFolderId)
+        {
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.DeleteProjects);
+
+            var result = await _instanceRepository.DeleteInstanceFolderAsync(instanceFolderId);
+
+            return Ok(new DeleteResult { TotalDeleted = result });
         }
 
         #endregion

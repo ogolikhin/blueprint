@@ -358,8 +358,8 @@ namespace AdminStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ResourceNotFoundException))]
-        public async Task CreateFolderAsync_FolderNotFound_ReturnNotFoundError()
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task CreateFolderAsync_FolderWithSuchNameExists_ReturnBadrequestError()
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
@@ -377,5 +377,105 @@ namespace AdminStore.Repositories
         }
 
         #endregion CreateFolderAsync
+
+        #region SearchFolder
+
+        [TestMethod]
+        public async Task GetFoldersByName_WeHaveFoldersWithSimilarName_ReturnFolders()
+        {
+            //arrange
+            var name = "folderName";
+            var result = new List<FolderDto>() {new FolderDto() {Id = 1} };
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            cxn.SetupQueryAsync("GetFoldersByName", new Dictionary<string, object> { { "name", name } }, result);
+
+            //act
+            var response = await repository.GetFoldersByName(name);
+
+            //assert
+            cxn.Verify();
+            Assert.AreEqual(response.ToList().Count, result.Count);
+            Assert.AreEqual(result.Last().Id, result.Last().Id);
+
+        }
+
+        [TestMethod]
+        public async Task GetFoldersByName_ThereIsNoFoldersWithSuchAName_ReturnEmptyResult()
+        {
+            //arrange
+            var name = "someName";
+            var result = new List<FolderDto>();
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            cxn.SetupQueryAsync("GetFoldersByName", new Dictionary<string, object> { { "name", name } }, result);
+
+            //act
+            var response = await repository.GetFoldersByName(name);
+
+            //assert
+            cxn.Verify();
+            Assert.AreEqual(response.ToList().Count, result.Count);
+        }
+
+        #endregion
+
+        #region DeleteFolderAsync
+
+        [TestMethod]
+        public async Task DeleteFolderAsync_SuccessfulDeletionOfFolder_ReturnCountOfDeletedFolder()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            var deletedFolderCount = 1;            
+
+            cxn.SetupExecuteScalarAsync("DeleteFolder", It.IsAny<Dictionary<string, object>>(), deletedFolderCount, new Dictionary<string, object> { { "ErrorCode", 0 } });
+
+            // Act
+            var result = await repository.DeleteInstanceFolderAsync(instanceFolderId: 1);
+
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(result, deletedFolderCount);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task DeleteFolderAsync_FolderContainsChildrenItems_ReturnBadrequestError()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            var deletedFolderCount = 0;
+
+            cxn.SetupExecuteScalarAsync("DeleteFolder", It.IsAny<Dictionary<string, object>>(), deletedFolderCount, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.InstanceFolderContainsChildrenItems } });
+
+            // Act
+            await repository.DeleteInstanceFolderAsync(instanceFolderId: 1);
+
+            // Assert
+            //Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task DeleteFolderAsync_FolderNotExist_ReturnResourceNotFoundError()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            var deletedFolderCount = 0;
+
+            cxn.SetupExecuteScalarAsync("DeleteFolder", It.IsAny<Dictionary<string, object>>(), deletedFolderCount, new Dictionary<string, object> { { "ErrorCode", 0 } });
+
+            // Act
+            await repository.DeleteInstanceFolderAsync(instanceFolderId: 1);
+
+            // Assert
+            //Exception
+        }
+
+        #endregion
     }
 }

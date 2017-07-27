@@ -1,13 +1,22 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using ActionHandlerService.Helpers;
 using ActionHandlerService.MessageHandlers;
+using ActionHandlerService.MessageHandlers.ArtifactPublished;
 using ActionHandlerService.MessageHandlers.GenerateDescendants;
 using ActionHandlerService.MessageHandlers.GenerateTests;
 using ActionHandlerService.MessageHandlers.GenerateUserStories;
 using ActionHandlerService.MessageHandlers.Notifications;
+using ActionHandlerService.MessageHandlers.PropertyChange;
+using ActionHandlerService.MessageHandlers.StateTransition;
 using ActionHandlerService.Models;
+using ActionHandlerService.Models.Exceptions;
+using ActionHandlerService.Repositories;
 using BluePrintSys.Messaging.Models.Actions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Moq.Language.Flow;
 using NServiceBus.Testing;
 
 namespace ActionHandlerServiceTests
@@ -18,124 +27,245 @@ namespace ActionHandlerServiceTests
     [TestClass]
     public class HandlerTests
     {
-        [TestMethod]
-        public void NotificationMessageHandler_CompletesSuccessfully()
+        private Mock<IActionHelper> _actionHelperMock;
+        private ISetup<IActionHelper, Task<bool>> _handleActionSetup;
+        private TenantInfoRetriever _tenantInfoRetriever;
+        private ConfigHelper _configHelper;
+        private const string TenantId = "tenant0";
+
+        [TestInitialize]
+        public void TestInitialize()
         {
-            var actionHandlerHelperMock = new Mock<IActionHelper>();
-            actionHandlerHelperMock.Setup(m => m.HandleAction(It.IsAny<TenantInformation>())).Returns(true);
-            var handler = new NotificationMessageHandler(actionHandlerHelperMock.Object);
-            var message = new NotificationMessage(0, 0);
+            _actionHelperMock = new Mock<IActionHelper>();
+            _handleActionSetup = _actionHelperMock.Setup(m => m.HandleAction(It.IsAny<TenantInformation>(), It.IsAny<ActionMessage>(), It.IsAny<ActionHandlerServiceRepository>()));
+            _tenantInfoRetriever = new TenantInfoRetriever();
+            _configHelper = new ConfigHelper();
+        }
+
+        private static void TestHandlerAndMessageWithHeader<T>(BaseMessageHandler<T> handler, T message, string tenantId = TenantId) where T : ActionMessage
+        {
+            Test.Handler(handler).SetIncomingHeader(ActionMessageHeaders.TenantId, tenantId).OnMessage(message);
+        }
+
+        public class TestException : Exception
+        {
+            public TestException(string message = "An exception used for testing the Action Handler Service") : base(message)
+            {
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UnsupportedActionTypeException))]
+        public void BaseMessageHandler_ThrowsUnsupportedActionTypeException_WhenActionTypeIsNotSupported()
+        {
+            var configHelperMock = new Mock<IConfigHelper>();
+            configHelperMock.Setup(m => m.SupportedActionTypes).Returns(MessageActionType.None);
+            var handler = new NotificationMessageHandler(null, null, configHelperMock.Object);
+            var message = new NotificationMessage();
+            TestHandlerAndMessageWithHeader(handler, message);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TenantInfoNotFoundException))]
+        public void BaseMessageHandler_ThrowsTenantInfoNotFoundException_WhenTenantIsNotFound()
+        {
+            var tenantInfoRetrieverMock = new Mock<ITenantInfoRetriever>();
+            tenantInfoRetrieverMock.Setup(m => m.GetTenants()).Returns(new Dictionary<string, TenantInformation>());
+            var handler = new NotificationMessageHandler(null, tenantInfoRetrieverMock.Object, _configHelper);
+            var message = new NotificationMessage();
+            TestHandlerAndMessageWithHeader(handler, message);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(MessageHeaderValueNotFoundException))]
+        public void BaseMessageHandler_ThrowsMessageHeaderValueNotFoundException_WhenHeaderValueIsNotFound()
+        {
+            _handleActionSetup.Returns(Task.FromResult(true));
+            var handler = new NotificationMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
+            var message = new NotificationMessage();
             Test.Handler(handler).OnMessage(message);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        public void ArtifactsPublishedMessageHandler_InstantiatesSuccessfully()
+        {
+            var handler = new ArtifactsPublishedMessageHandler();
+            Assert.IsNotNull(handler);
+        }
+
+        [TestMethod]
+        public void ArtifactsPublishedMessageHandler_HandlesMessageSuccessfully()
+        {
+            _handleActionSetup.Returns(Task.FromResult(true));
+            var handler = new ArtifactsPublishedMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
+            var message = new ArtifactsPublishedMessage();
+            TestHandlerAndMessageWithHeader(handler, message);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void ArtifactsPublishedMessageHandler_RethrowsException()
+        {
+            _handleActionSetup.Throws(new TestException());
+            var handler = new ArtifactsPublishedMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
+            var message = new ArtifactsPublishedMessage();
+            TestHandlerAndMessageWithHeader(handler, message);
+        }
+
+        [TestMethod]
+        public void NotificationMessageHandler_InstantiatesSuccessfully()
+        {
+            var handler = new NotificationMessageHandler();
+            Assert.IsNotNull(handler);
+        }
+
+        [TestMethod]
+        public void NotificationMessageHandler_HandlesMessageSuccessfully()
+        {
+            _handleActionSetup.Returns(Task.FromResult(true));
+            var handler = new NotificationMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
+            var message = new NotificationMessage();
+            TestHandlerAndMessageWithHeader(handler, message);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
         public void NotificationMessageHandler_RethrowsException()
         {
-            const string exceptionMessage = "test exception";
-            var actionHandlerHelperMock = new Mock<IActionHelper>();
-            actionHandlerHelperMock.Setup(m => m.HandleAction(It.IsAny<TenantInformation>())).Throws(new Exception(exceptionMessage));
-            var handler = new NotificationMessageHandler(actionHandlerHelperMock.Object);
-            var message = new NotificationMessage(0, 0);
-            try
-            {
-                Test.Handler(handler).OnMessage(message);
-            }
-            catch (Exception ex)
-            {
-                Assert.AreEqual(exceptionMessage, ex.Message);
-                throw;
-            }
+            _handleActionSetup.Throws(new TestException());
+            var handler = new NotificationMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
+            var message = new NotificationMessage();
+            TestHandlerAndMessageWithHeader(handler, message);
         }
 
         [TestMethod]
-        public void GenerateDescendantsMessageHandler_CompletesSuccessfully()
+        public void GenerateDescendantsMessageHandler_InstantiatesSuccessfully()
         {
-            var actionHandlerHelperMock = new Mock<IActionHelper>();
-            actionHandlerHelperMock.Setup(m => m.HandleAction(It.IsAny<TenantInformation>())).Returns(true);
-            var handler = new GenerateDescendantsMessageHandler(actionHandlerHelperMock.Object);
-            var message = new GenerateDescendantsMessage(0, 0);
-            Test.Handler(handler).OnMessage(message);
+            var handler = new GenerateDescendantsMessageHandler();
+            Assert.IsNotNull(handler);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        public void GenerateDescendantsMessageHandler_HandlesMessageSuccessfully()
+        {
+            _handleActionSetup.Returns(Task.FromResult(true));
+            var handler = new GenerateDescendantsMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
+            var message = new GenerateDescendantsMessage();
+            TestHandlerAndMessageWithHeader(handler, message);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
         public void GenerateDescendantsMessageHandler_RethrowsException()
         {
-            const string exceptionMessage = "test exception";
-            var actionHandlerHelperMock = new Mock<IActionHelper>();
-            actionHandlerHelperMock.Setup(m => m.HandleAction(It.IsAny<TenantInformation>())).Throws(new Exception(exceptionMessage));
-            var handler = new GenerateDescendantsMessageHandler(actionHandlerHelperMock.Object);
-            var message = new GenerateDescendantsMessage(0, 0);
-            try
-            {
-                Test.Handler(handler).OnMessage(message);
-            }
-            catch (Exception ex)
-            {
-                Assert.AreEqual(exceptionMessage, ex.Message);
-                throw;
-            }
+            _handleActionSetup.Throws(new TestException());
+            var handler = new GenerateDescendantsMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
+            var message = new GenerateDescendantsMessage();
+            TestHandlerAndMessageWithHeader(handler, message);
         }
 
         [TestMethod]
-        public void GenerateTestsMessageHandler_CompletesSuccessfully()
+        public void GenerateTestsMessageHandler_InstantiatesSuccessfully()
         {
-            var actionHandlerHelperMock = new Mock<IActionHelper>();
-            actionHandlerHelperMock.Setup(m => m.HandleAction(It.IsAny<TenantInformation>())).Returns(true);
-            var handler = new GenerateTestsMessageHandler(actionHandlerHelperMock.Object);
-            var message = new GenerateTestsMessage(0, 0);
-            Test.Handler(handler).OnMessage(message);
+            var handler = new GenerateTestsMessageHandler();
+            Assert.IsNotNull(handler);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        public void GenerateTestsMessageHandler_HandlesMessageSuccessfully()
+        {
+            _handleActionSetup.Returns(Task.FromResult(true));
+            var handler = new GenerateTestsMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
+            var message = new GenerateTestsMessage();
+            TestHandlerAndMessageWithHeader(handler, message);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
         public void GenerateTestsMessageHandler_RethrowsException()
         {
-            const string exceptionMessage = "test exception";
-            var actionHandlerHelperMock = new Mock<IActionHelper>();
-            actionHandlerHelperMock.Setup(m => m.HandleAction(It.IsAny<TenantInformation>())).Throws(new Exception(exceptionMessage));
-            var handler = new GenerateTestsMessageHandler(actionHandlerHelperMock.Object);
-            var message = new GenerateTestsMessage(0, 0);
-            try
-            {
-                Test.Handler(handler).OnMessage(message);
-            }
-            catch (Exception ex)
-            {
-                Assert.AreEqual(exceptionMessage, ex.Message);
-                throw;
-            }
+            _handleActionSetup.Throws(new TestException());
+            var handler = new GenerateTestsMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
+            var message = new GenerateTestsMessage();
+            TestHandlerAndMessageWithHeader(handler, message);
         }
 
         [TestMethod]
-        public void GenerateUserStoriesMessageHandler_CompletesSuccessfully()
+        public void GenerateUserStoriesMessageHandler_InstantiatesSuccessfully()
         {
-            var actionHandlerHelperMock = new Mock<IActionHelper>();
-            actionHandlerHelperMock.Setup(m => m.HandleAction(It.IsAny<TenantInformation>())).Returns(true);
-            var handler = new GenerateUserStoriesMessageHandler(actionHandlerHelperMock.Object);
-            var message = new GenerateUserStoriesMessage(0, 0);
-            Test.Handler(handler).OnMessage(message);
+            var handler = new GenerateUserStoriesMessageHandler();
+            Assert.IsNotNull(handler);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        public void GenerateUserStoriesMessageHandler_HandlesMessageSuccessfully()
+        {
+            _handleActionSetup.Returns(Task.FromResult(true));
+            var handler = new GenerateUserStoriesMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
+            var message = new GenerateUserStoriesMessage();
+            TestHandlerAndMessageWithHeader(handler, message);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
         public void GenerateUserStoriesMessageHandler_RethrowsException()
         {
-            const string exceptionMessage = "test exception";
-            var actionHandlerHelperMock = new Mock<IActionHelper>();
-            actionHandlerHelperMock.Setup(m => m.HandleAction(It.IsAny<TenantInformation>())).Throws(new Exception(exceptionMessage));
-            var handler = new GenerateUserStoriesMessageHandler(actionHandlerHelperMock.Object);
-            var message = new GenerateUserStoriesMessage(0, 0);
-            try
-            {
-                Test.Handler(handler).OnMessage(message);
-            }
-            catch (Exception ex)
-            {
-                Assert.AreEqual(exceptionMessage, ex.Message);
-                throw;
-            }
+            _handleActionSetup.Throws(new TestException());
+            var handler = new GenerateUserStoriesMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
+            var message = new GenerateUserStoriesMessage();
+            TestHandlerAndMessageWithHeader(handler, message);
+        }
+
+        [TestMethod]
+        public void StateTransitionMessageHandler_InstantiatesSuccessfully()
+        {
+            var handler = new StateTransitionMessageHandler();
+            Assert.IsNotNull(handler);
+        }
+
+        [TestMethod]
+        public void StateTransitionMessageHandler_HandlesMessageSuccessfully()
+        {
+            _handleActionSetup.Returns(Task.FromResult(true));
+            var handler = new StateTransitionMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
+            var message = new StateChangeMessage();
+            TestHandlerAndMessageWithHeader(handler, message);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void StateTransitionMessageHandler_RethrowsException()
+        {
+            _handleActionSetup.Throws(new TestException());
+            var handler = new StateTransitionMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
+            var message = new StateChangeMessage();
+            TestHandlerAndMessageWithHeader(handler, message);
+        }
+
+        [TestMethod]
+        public void PropertyChangeMessageHandler_InstantiatesSuccessfully()
+        {
+            var handler = new PropertyChangeMessageHandler();
+            Assert.IsNotNull(handler);
+        }
+
+        [TestMethod]
+        public void PropertyChangeMessageHandler_HandlesMessageSuccessfully()
+        {
+            _handleActionSetup.Returns(Task.FromResult(true));
+            var handler = new PropertyChangeMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
+            var message = new GenerateUserStoriesMessage();
+            TestHandlerAndMessageWithHeader(handler, message);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void PropertyChangeMessageHandler_RethrowsException()
+        {
+            _handleActionSetup.Throws(new TestException());
+            var handler = new PropertyChangeMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
+            var message = new GenerateUserStoriesMessage();
+            TestHandlerAndMessageWithHeader(handler, message);
         }
     }
 }

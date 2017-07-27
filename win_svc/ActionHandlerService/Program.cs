@@ -7,6 +7,7 @@ namespace ActionHandlerService
     {
         static void Main()
         {
+            var serviceName = new ConfigHelper().ServiceName;
             HostFactory.Run(x =>
             {
                 x.Service<ActionHandlerService>(s =>
@@ -18,8 +19,8 @@ namespace ActionHandlerService
                 x.RunAsLocalSystem();
 
                 x.SetDescription("Action Handler");
-                x.SetDisplayName($"{ConfigHelper.ServiceName} service");
-                x.SetServiceName(ConfigHelper.ServiceName);
+                x.SetDisplayName($"{serviceName} service");
+                x.SetServiceName(serviceName);
 
                 x.StartAutomatically();
                 x.EnableServiceRecovery(rc =>

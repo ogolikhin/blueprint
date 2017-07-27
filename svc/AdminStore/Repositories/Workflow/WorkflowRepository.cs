@@ -266,11 +266,11 @@ namespace AdminStore.Repositories.Workflow
             return _sqlHelper.CreateRevisionInTransactionAsync(transaction, userId, description);
         }
 
-        public async Task<IEnumerable<string>> CheckLiveWorkflowsForNameUniqueness(IDbTransaction transaction, IEnumerable<string> names)
+        public async Task<IEnumerable<string>> CheckLiveWorkflowsForNameUniqueness(IEnumerable<string> names)
         {
             var prm = new DynamicParameters();
             prm.Add("@names", SqlConnectionWrapper.ToStringDataTable(names));
-            var duplicateNames = await transaction.Connection.QueryAsync<string>("CheckLiveWorkflowsForNameUniqueness", prm, transaction, commandType: CommandType.StoredProcedure);
+            var duplicateNames = await _connectionWrapper.QueryAsync<string>("CheckLiveWorkflowsForNameUniqueness", prm, commandType: CommandType.StoredProcedure);
             return duplicateNames;
         }
 
@@ -326,12 +326,13 @@ namespace AdminStore.Repositories.Workflow
             return result;
         }
 
-        public async Task<int> DeleteWorkflows(OperationScope body, string search, int revision)
+        public async Task<int> DeleteWorkflows(OperationScope body, string search, int revision, IDbTransaction transaction = null)
         {
             if (search != null)
             {
                 search = UsersHelper.ReplaceWildcardCharacters(search);
             }
+            var result = 0;
 
             var parameters = new DynamicParameters();
             parameters.Add("@PublishRevision", revision);
@@ -339,7 +340,21 @@ namespace AdminStore.Repositories.Workflow
             parameters.Add("@Search", search);
             parameters.Add("@SelectAll", body.SelectAll);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            var result = await _connectionWrapper.ExecuteScalarAsync<int>("DeleteWorkflows", parameters, commandType: CommandType.StoredProcedure);
+            if (transaction != null)
+            {
+                result =
+                    await
+                        _connectionWrapper.ExecuteScalarAsync<int>("DeleteWorkflows", parameters, transaction,
+                            commandType: CommandType.StoredProcedure);
+            }
+            else
+            {
+                result =
+                    await
+                        _connectionWrapper.ExecuteScalarAsync<int>("DeleteWorkflows", parameters,
+                            commandType: CommandType.StoredProcedure);
+            }
+            
             var errorCode = parameters.Get<int?>("ErrorCode");
             if (errorCode.HasValue)
             {

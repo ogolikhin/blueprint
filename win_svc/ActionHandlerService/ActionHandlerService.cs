@@ -1,7 +1,5 @@
 ﻿using System;
-using ActionHandlerService.Helpers;
 using ActionHandlerService.Models;
-using ActionHandlerService.Models.Enums;
 using BluePrintSys.Messaging.CrossCutting.Logging;
 using Topshelf;
 using Log4NetStandardLogListener = ActionHandlerService.Logging.Log4NetStandardLogListener;
@@ -22,7 +20,7 @@ namespace ActionHandlerService
             LogManager.Manager.AddListener(Log4NetStandardLogListener.Instance);
 
             Log.Info("Action Handler Service is starting.");
-            _messageTransportHost = MessageTransportHostFactory.GetMessageTransportHost();
+            _messageTransportHost = new MessageTransportHostFactory().GetMessageTransportHost();
             _messageTransportHost.Start(() => Stop(null));
             Log.Info("Action Handler Service started.");
 

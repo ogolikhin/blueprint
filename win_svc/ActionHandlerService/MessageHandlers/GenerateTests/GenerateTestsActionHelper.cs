@@ -1,4 +1,7 @@
-﻿using ActionHandlerService.Models;
+﻿using System.Threading.Tasks;
+using ActionHandlerService.Models;
+using ActionHandlerService.Repositories;
+using BluePrintSys.Messaging.Models.Actions;
 
 namespace ActionHandlerService.MessageHandlers.GenerateTests
 {
@@ -6,9 +9,9 @@ namespace ActionHandlerService.MessageHandlers.GenerateTests
     //These should be implemented when the actions are impletemented
     public class GenerateTestsActionHelper : IActionHelper
     {
-        public bool HandleAction(TenantInformation tenant)
+        public async Task<bool> HandleAction(TenantInformation tenantInformation, ActionMessage actionMessage, IActionHandlerServiceRepository repository)
         {
-            return true;
+            return await Task.FromResult(true);
         }
     }
 }

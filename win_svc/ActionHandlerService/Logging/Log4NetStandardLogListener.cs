@@ -131,7 +131,7 @@ namespace ActionHandlerService.Logging
             : base
         (
             "Server",
-            "ImageGenServiceLogger",
+            "ActionHandlerServiceLogger",
             new LogEntryLevelFilter(),
             new Log4NetStandardLogEntryFormatter("Server")
         )

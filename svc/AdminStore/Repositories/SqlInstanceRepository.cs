@@ -152,7 +152,7 @@ namespace AdminStore.Repositories
                 switch (errorCode.Value)
                 {
                     case (int) SqlErrorCodes.FolderWithSuchNameExistsInParentFolder:
-                        throw new ResourceNotFoundException(ErrorMessages.FolderWithSuchNameExistsInParentFolder, ErrorCodes.ResourceNotFound);
+                        throw new BadRequestException(ErrorMessages.FolderWithSuchNameExistsInParentFolder, ErrorCodes.BadRequest);
 
                     default:
                         return folderId;
@@ -174,6 +174,32 @@ namespace AdminStore.Repositories
                 await
                     _connectionWrapper.QueryAsync<FolderDto>("GetFoldersByName", parameters,
                         commandType: CommandType.StoredProcedure);
+            return result;
+        }
+
+        public async Task<int> DeleteInstanceFolderAsync(int instanceFolderId)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@InstanceFolderId", instanceFolderId);
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var result = await _connectionWrapper.ExecuteScalarAsync<int>("DeleteFolder", parameters, commandType: CommandType.StoredProcedure);
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.InstanceFolderContainsChildrenItems:
+                        throw new BadRequestException(ErrorMessages.ErrorOfDeletingFolderThatContainsChildrenItems);
+                }
+            }
+
+            if (result == 0)
+            {
+                throw new ResourceNotFoundException(ErrorMessages.FolderNotExist, ErrorCodes.ResourceNotFound);
+            }            
+
             return result;
         }
     }

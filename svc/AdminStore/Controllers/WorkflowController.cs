@@ -1,4 +1,13 @@
-﻿using AdminStore.Helpers;
+﻿using System;
+using System.Diagnostics;
+using System.IO;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Description;
+using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Models.Workflow;
 using AdminStore.Repositories;
@@ -12,19 +21,6 @@ using ServiceLibrary.Helpers.Files;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
 using ServiceLibrary.Repositories.Files;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Http;
-using System.Web.Http.Description;
-using System.Web.Http.Results;
-using System.Xml;
 
 namespace AdminStore.Controllers
 {
@@ -81,8 +77,10 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(ImportWorkflowResult))]
         public async Task<IHttpActionResult> ImportWorkflowAsync()
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            var session = Session;
             Debug.Assert(session != null, "The session is null.");
+
+            await _privilegesManager.Demand(session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
 
             // The file name is specified in Content-Disposition header,
             // for example, Content-Disposition: workflow;filename=workflow.xml
@@ -146,8 +144,10 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(string))]
         public async Task<IHttpActionResult> GetImportWorkflowErrorsAsync(string guid)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            var session = Session;
             Debug.Assert(session != null, "The session is null.");
+
+            await _privilegesManager.Demand(session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
 
             _workflowService.FileRepository = GetFileRepository();
             var errors = await _workflowService.GetImportWorkflowErrorsAsync(guid, session.UserId);
@@ -276,36 +276,25 @@ namespace AdminStore.Controllers
         /// <response code="404">NotFound. The workflow with the current id doesn’t exist or removed from the system.</response>
         [SessionRequired]
         [HttpGet, NoCache]
-        [ResponseType(typeof (HttpResponseMessage))]
+        [ResponseType(typeof (string))]
         [Route("export/{workflowId:int:min(1)}")]
-        public async Task<ResponseMessageResult> ExportWorkflow(int workflowId)
+        public async Task<IHttpActionResult> ExportWorkflow(int workflowId)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
             var ieWorkflow = await _workflowService.GetWorkflowExportAsync(workflowId);
+            var workflowXml = SerializationHelper.ToXml(ieWorkflow);
+            var response = Request.CreateResponse(HttpStatusCode.OK);
 
-            var workflowToXml = SerializationHelper.ToXml(ieWorkflow);
+            response.Content = new StringContent(workflowXml);
 
-            var uniEncoding = new UnicodeEncoding();
-            var bytes = uniEncoding.GetBytes(workflowToXml);
-
-            using (var stream = new MemoryStream())
-            {
-                stream.Write(bytes, 0, bytes.Length);
-                var result = new HttpResponseMessage(HttpStatusCode.OK)
+            response.Content.Headers.ContentDisposition =
+                new ContentDispositionHeaderValue("attachment")
                 {
-                    Content = new ByteArrayContent(stream.GetBuffer())
+                    FileName = $"workflow{workflowId}.xml"
                 };
-                result.Content.Headers.ContentDisposition =
-                    new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
-                    {
-                        FileName = $"workflow{workflowId}.xml"
-                    };
-                result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+            response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/xml");
 
-                var response = ResponseMessage(result);
-
-                return response;
-            }
+            return ResponseMessage(response);
         }
 
         #region Private methods

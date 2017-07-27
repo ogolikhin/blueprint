@@ -16,5 +16,6 @@
         GroupAlreadyAssignedToTheGroup = 50010,
         CurrentProjectIsNotExist = 50011,
         FolderWithSuchNameExistsInParentFolder = 50012,
+        InstanceFolderContainsChildrenItems = 50013
     }
 }

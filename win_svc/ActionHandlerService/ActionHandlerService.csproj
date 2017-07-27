@@ -52,6 +52,10 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Dapper.StrongName, Version=1.50.2.0, Culture=neutral, PublicKeyToken=e3e8412083d25dd3, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Dapper.StrongName.1.50.2\lib\net451\Dapper.StrongName.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
       <Private>True</Private>
@@ -98,8 +102,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Exceptions.cs" />
+    <Compile Include="Helpers\ActionsParser.cs" />
+    <Compile Include="MessageHandlers\PropertyChange\PropertyChangeMessageHandler.cs" />
+    <Compile Include="MessageHandlers\PropertyChange\PropertyChangeActionHelper.cs" />
+    <Compile Include="MessageHandlers\StateTransition\StateTransitionMessageHandler.cs" />
+    <Compile Include="MessageHandlers\StateTransition\StateTransitionActionHelper.cs" />
+    <Compile Include="Models\SqlArtifactTriggers.cs" />
+    <Compile Include="Models\SqlModifiedProperty.cs" />
+    <Compile Include="Repositories\ActionHandlerRepository.cs" />
+    <Compile Include="Models\Exceptions\Exceptions.cs" />
     <Compile Include="Logging\Log4NetStandardLogListener.cs" />
+    <Compile Include="MessageHandlers\ArtifactPublished\ArtifactsPublishedActionHelper.cs" />
+    <Compile Include="MessageHandlers\ArtifactPublished\ArtifactsPublishedMessageHandler.cs" />
     <Compile Include="MessageHandlers\BaseMessageHandler.cs" />
     <Compile Include="MessageHandlers\GenerateDescendants\GenerateDescendantsActionHelper.cs" />
     <Compile Include="MessageHandlers\GenerateTests\GenerateTestsActionHelper.cs" />

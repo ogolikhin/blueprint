@@ -93,7 +93,7 @@ namespace ArtifactStore.Repositories.Workflow
 
             return ToWorkflowStates(
                 await 
-                    ConnectionWrapper.QueryAsync<SqlWorkFlowState>("GetWorkflowStatesForArtifacts", param, 
+                    ConnectionWrapper.QueryAsync<SqlWorkFlowStateInformation>("GetWorkflowStatesForArtifacts", param, 
                         commandType: CommandType.StoredProcedure));
         }
 

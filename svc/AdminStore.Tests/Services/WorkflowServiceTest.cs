@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using AdminStore.Models.Workflow;
 using AdminStore.Repositories;
@@ -10,8 +8,6 @@ using AdminStore.Services.Workflow;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Exceptions;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Repositories;
 using ServiceLibrary.Models;
 
 namespace AdminStore.Services
@@ -21,9 +17,10 @@ namespace AdminStore.Services
     {
         #region Vars
 
-        private Mock<IWorkflowXmlValidator> _workflowValidatorMock;
+        private Mock<IWorkflowXmlValidator> _workflowXmlValidatorMock;
         private Mock<IWorkflowRepository> _workflowRepositoryMock;
         private Mock<IUserRepository> _userRepositoryMock;
+        private Mock<IWorkflowValidationErrorBuilder> _workflowValidationErrorBuilder ;
 
         private WorkflowService _service;
         private const int SessionUserId = 1;
@@ -35,9 +32,13 @@ namespace AdminStore.Services
         public void Initialize()
         {
             _workflowRepositoryMock = new Mock<IWorkflowRepository>();
-            _workflowValidatorMock = new Mock<IWorkflowXmlValidator>();
+            _workflowXmlValidatorMock = new Mock<IWorkflowXmlValidator>();
             _userRepositoryMock = new Mock<IUserRepository>();
-            _service = new WorkflowService(_workflowRepositoryMock.Object, _workflowValidatorMock.Object, _userRepositoryMock.Object);
+            _workflowValidationErrorBuilder = new Mock<IWorkflowValidationErrorBuilder>();
+            _service = new WorkflowService(_workflowRepositoryMock.Object,
+                _workflowXmlValidatorMock.Object,
+                _userRepositoryMock.Object,
+                _workflowValidationErrorBuilder.Object);
         }
 
         #region GetWorkflowDetailsAsync
@@ -49,8 +50,9 @@ namespace AdminStore.Services
             var workflowRepositoryMock = new Mock<IWorkflowRepository>();
             var workflowValidatorMock = new Mock<IWorkflowXmlValidator>();
             var userRepositoryMock = new Mock<IUserRepository>();
+            var workflowValidationErrorBuilder = new Mock<IWorkflowValidationErrorBuilder>();
             var workflowService = new WorkflowService(workflowRepositoryMock.Object, workflowValidatorMock.Object,
-                userRepositoryMock.Object);
+                userRepositoryMock.Object, workflowValidationErrorBuilder.Object);
             var workflowId = 10;
             var workflow = new SqlWorkflow { Name = "Workflow1", Description = "Workflow1Description" };
             var workflowArtifactTypesAndProjects = new List<SqlWorkflowArtifactTypesAndProjects>
@@ -96,8 +98,9 @@ namespace AdminStore.Services
             var workflowRepositoryMock = new Mock<IWorkflowRepository>();
             var workflowValidatorMock = new Mock<IWorkflowXmlValidator>();
             var userRepositoryMock = new Mock<IUserRepository>();
+            var workflowValidationErrorBuilder = new Mock<IWorkflowValidationErrorBuilder>();
             var workflowService = new WorkflowService(workflowRepositoryMock.Object, workflowValidatorMock.Object,
-                userRepositoryMock.Object);
+                userRepositoryMock.Object, workflowValidationErrorBuilder.Object);
             var workflowId = 10;
 
             workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync((SqlWorkflow)null);
@@ -213,9 +216,9 @@ namespace AdminStore.Services
 
             //assert
             Assert.IsNotNull(workflowExport);
-            Assert.AreEqual(2, workflowExport.Projects.Count());
-            Assert.AreEqual(2, workflowExport.ArtifactTypes.Count());
-            Assert.AreEqual(1, workflowExport.States.Count());
+            Assert.AreEqual(2, workflowExport.Projects.Count);
+            Assert.AreEqual(2, workflowExport.ArtifactTypes.Count);
+            Assert.AreEqual(1, workflowExport.States.Count);
         }
 
         #endregion

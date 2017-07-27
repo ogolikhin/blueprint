@@ -66,7 +66,6 @@ namespace ArtifactStore.Repositories.Workflow
             return await ChangeStateForArtifactInternal(
                 userId, 
                 artifactId, 
-                stateChangeParameter.RevisionId, 
                 stateChangeParameter.ToStateId,
                 transaction);
         }
@@ -92,7 +91,7 @@ namespace ArtifactStore.Repositories.Workflow
 
             return ToWorkflowStates(
                 await 
-                    ConnectionWrapper.QueryAsync<SqlWorkFlowState>("GetWorkflowStatesForArtifacts", param, 
+                    ConnectionWrapper.QueryAsync<SqlWorkFlowStateInformation>("GetWorkflowStatesForArtifacts", param, 
                         commandType: CommandType.StoredProcedure));
         }
 
@@ -145,12 +144,11 @@ namespace ArtifactStore.Repositories.Workflow
             }).ToList();
         }
 
-        private async Task<WorkflowState> ChangeStateForArtifactInternal(int userId, int artifactId, int revisionId, int desiredStateId, IDbTransaction transaction = null)
+        private async Task<WorkflowState> ChangeStateForArtifactInternal(int userId, int artifactId, int desiredStateId, IDbTransaction transaction = null)
         {
             var param = new DynamicParameters();
             param.Add("@userId", userId);
             param.Add("@artifactId", artifactId);
-            param.Add("@revisionId", revisionId);
             param.Add("@desiredStateId", desiredStateId);
             param.Add("@result");
 

@@ -988,7 +988,7 @@ namespace ArtifactStore.Repositories
             //Check user is an approver for the review
             if (!approvalCheck.UserInReview)
             {
-                ThrowUserCannotAccessReviewException(reviewId);
+                throw new AuthorizationException("User is not assigned for review", ErrorCodes.UserNotInReview);
             }
 
             //Check artifacts are part of the review and require approval

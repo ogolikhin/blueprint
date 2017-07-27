@@ -1,4 +1,13 @@
-﻿using AdminStore.Helpers;
+﻿using System;
+using System.Diagnostics;
+using System.IO;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Description;
+using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Models.Workflow;
 using AdminStore.Repositories;
@@ -12,15 +21,6 @@ using ServiceLibrary.Helpers.Files;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
 using ServiceLibrary.Repositories.Files;
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
-using System.Web.Http;
-using System.Web.Http.Description;
 
 namespace AdminStore.Controllers
 {

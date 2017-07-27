@@ -4,49 +4,64 @@ using BluePrintSys.Messaging.Models.Actions;
 
 namespace ActionHandlerService.Helpers
 {
-    public static class ConfigHelper
+    public interface IConfigHelper
     {
-        private const string ServiceNameKey = "Service.Name";
-        private const string ServiceNameDefault = "BlueprintActionHandler";
-        public static string ServiceName => AppSettingsHelper.GetConfigStringValue(ServiceNameKey, ServiceNameDefault);
+        MessageActionType SupportedActionTypes { get; }
+        string MessageQueue { get; }
+        string ErrorQueue { get; }
+        int MessageProcessingMaxConcurrency { get; }
+        MessageBroker MessageBroker { get; }
+        Tenancy Tenancy { get; }
+        int CacheExpirationMinutes { get; }
+        string SingleTenancyConnectionString { get; }
+        string NServiceBusConnectionString { get; }
+        string NServiceBusInstanceId { get; }
+        string ServiceName { get; }
+    }
 
-        private const string MessageProcessingMaxConcurrencyKey = "MessageProcessing.MaxConcurrency";
-        private const int MessageProcessingMaxConcurrencyDefault = 1;
-        public static int MessageProcessingMaxConcurrency => AppSettingsHelper.GetConfigIntValue(MessageProcessingMaxConcurrencyKey, MessageProcessingMaxConcurrencyDefault);
+    public class ConfigHelper : IConfigHelper
+    {
+        public const string ServiceNameKey = "Service.Name";
+        public const string ServiceNameDefault = "BlueprintActionHandler";
+        public string ServiceName => AppSettingsHelper.GetConfigStringValue(ServiceNameKey, ServiceNameDefault);
 
-        private const string NServiceBusConnectionStringKey = "NServiceBus.ConnectionString";
-        private const string NServiceBusConnectionStringDefault = "";
-        public static string NServiceBusConnectionString => AppSettingsHelper.GetConfigStringValue(NServiceBusConnectionStringKey, NServiceBusConnectionStringDefault);
+        public const string MessageProcessingMaxConcurrencyKey = "MessageProcessing.MaxConcurrency";
+        public const int MessageProcessingMaxConcurrencyDefault = 1;
+        public int MessageProcessingMaxConcurrency => AppSettingsHelper.GetConfigIntValue(MessageProcessingMaxConcurrencyKey, MessageProcessingMaxConcurrencyDefault);
 
-        private const string NServiceBusInstanceIdKey = "NServiceBus.InstanceId";
-        private const string NServiceBusInstanceIdDefault = "";
-        public static string NServiceBusInstanceId => AppSettingsHelper.GetConfigStringValue(NServiceBusInstanceIdKey, NServiceBusInstanceIdDefault);
+        public const string NServiceBusConnectionStringKey = "NServiceBus.ConnectionString";
+        public const string NServiceBusConnectionStringDefault = "";
+        public string NServiceBusConnectionString => AppSettingsHelper.GetConfigStringValue(NServiceBusConnectionStringKey, NServiceBusConnectionStringDefault);
 
-        private const string SingleTenancyConnectionStringKey = "TenantsDatabase";
-        public static string SingleTenancyConnectionString => AppSettingsHelper.GetConnectionStringValue(SingleTenancyConnectionStringKey);
+        public const string NServiceBusInstanceIdKey = "NServiceBus.InstanceId";
+        public const string NServiceBusInstanceIdDefault = "";
+        public string NServiceBusInstanceId => AppSettingsHelper.GetConfigStringValue(NServiceBusInstanceIdKey, NServiceBusInstanceIdDefault);
 
-        private const string CacheExpirationMinutesKey = "CacheExpirationMinutes";
-        private const int CacheExpirationMinutesDefault = 1440;
-        public static int CacheExpirationMinutes => AppSettingsHelper.GetConfigIntValue(CacheExpirationMinutesKey, CacheExpirationMinutesDefault);
+        public const string SingleTenancyConnectionStringKey = "TenantsDatabase";
+        public string SingleTenancyConnectionString => AppSettingsHelper.GetConnectionStringValue(SingleTenancyConnectionStringKey);
 
-        private const string TenancyKey = nameof(Tenancy);
-        private const Tenancy TenancyDefault = Tenancy.Single;
-        public static Tenancy Tenancy => AppSettingsHelper.GetConfigEnum(TenancyKey, TenancyDefault);
+        public const string CacheExpirationMinutesKey = "CacheExpirationMinutes";
+        public const int CacheExpirationMinutesDefault = 1440;
+        public int CacheExpirationMinutes => AppSettingsHelper.GetConfigIntValue(CacheExpirationMinutesKey, CacheExpirationMinutesDefault);
 
-        private const string TransportKey = nameof(Broker);
-        private const MessageBroker TransportDefault = MessageBroker.RabbitMQ;
-        public static MessageBroker Broker => AppSettingsHelper.GetConfigEnum(TransportKey, TransportDefault);
+        public const string TenancyKey = "Tenancy";
+        public const Tenancy TenancyDefault = Tenancy.Single;
+        public Tenancy Tenancy => AppSettingsHelper.GetConfigEnum(TenancyKey, TenancyDefault);
 
-        private const string SupportedActionTypesKey = "SupportedActionTypes";
-        private const MessageActionType SupportedActionTypesDefault = MessageActionType.All;
-        public static MessageActionType SupportedActionTypes => AppSettingsHelper.GetConfigEnum(SupportedActionTypesKey, SupportedActionTypesDefault);
+        public const string MessageBrokerKey = "MessageBroker";
+        public const MessageBroker MessageBrokerDefault = MessageBroker.RabbitMQ;
+        public MessageBroker MessageBroker => AppSettingsHelper.GetConfigEnum(MessageBrokerKey, MessageBrokerDefault);
 
-        private const string MessageQueueKey = "MessageQueue";
-        private const string MessageQueueKeyDefault = "Cloud.MessageServer";
-        public static string MessageQueue => AppSettingsHelper.GetConfigStringValue(MessageQueueKey, MessageQueueKeyDefault);
+        public const string SupportedActionTypesKey = "SupportedActionTypes";
+        public const MessageActionType SupportedActionTypesDefault = MessageActionType.All;
+        public MessageActionType SupportedActionTypes => AppSettingsHelper.GetConfigEnum(SupportedActionTypesKey, SupportedActionTypesDefault);
 
-        private const string ErrorQueueKey = "ErrorQueue";
-        private const string ErrorQueueDefault = "errors";
-        public static string ErrorQueue => AppSettingsHelper.GetConfigStringValue(ErrorQueueKey, ErrorQueueDefault);
+        public const string MessageQueueKey = "MessageQueue";
+        public const string MessageQueueDefault = "Cloud.MessageServer";
+        public string MessageQueue => AppSettingsHelper.GetConfigStringValue(MessageQueueKey, MessageQueueDefault);
+
+        public const string ErrorQueueKey = "ErrorQueue";
+        public const string ErrorQueueDefault = "errors";
+        public string ErrorQueue => AppSettingsHelper.GetConfigStringValue(ErrorQueueKey, ErrorQueueDefault);
     }
 }

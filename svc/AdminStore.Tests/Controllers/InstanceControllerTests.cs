@@ -218,7 +218,6 @@ namespace AdminStore.Controllers
 
         #endregion
 
-
         #region CreateFolder
 
         [TestMethod]
@@ -304,6 +303,89 @@ namespace AdminStore.Controllers
 
             // Act
             await _controller.CreateFolder(null);
+
+            // Assert
+            // Exception
+        }
+
+        #endregion
+
+        #region SearchFolder
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task SearchFolderByName_NoPermissions_ReturnForbiddenErrorResult()
+        {
+            // Arrange
+            var response = new List<FolderDto>();
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
+            _instanceServiceMock.Setup(repo => repo.GetFoldersByName(It.IsAny<string>())).ReturnsAsync(response);
+
+            // Act
+            await _controller.SearchFolderByName("test");
+
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
+        public async Task SearchFolderByName_PermissionaAreOkAndFolderIsExists_RenurnListOfFolders()
+        {
+            //arrange
+            var response = new List<FolderDto>() {new FolderDto() {Id = 1} };
+            var name = "folder";
+            _privilegeRepositoryMock
+              .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+              .ReturnsAsync(InstanceAdminPrivileges.ManageProjects);
+            _instanceServiceMock.Setup(repo => repo.GetFoldersByName(It.IsAny<string>())).ReturnsAsync(response);
+
+            //act
+            var result = await _controller.SearchFolderByName(name) as OkNegotiatedContentResult<IEnumerable<FolderDto>>;
+
+            //assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(response, result.Content);
+
+        }
+
+
+        #endregion
+
+        #region DeleteFolder
+
+        [TestMethod]
+        public async Task DeleteFolder_SuccessfulDeletionOfFolder_ReturnCountOfDeletedFolderResult()
+        {
+            // Arrange
+            var totalDeletedItems = 1;
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.DeleteProjects);
+            _instanceRepositoryMock.Setup(repo => repo.DeleteInstanceFolderAsync(It.IsAny<int>())).ReturnsAsync(totalDeletedItems);
+
+            // Act
+            var result = await _controller.DeleteInstanceFolder(1) as OkNegotiatedContentResult<DeleteResult>;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(totalDeletedItems, result.Content.TotalDeleted);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task DeleteFolder_NoPermissions_ReturnForbiddenErrorResult()
+        {
+            // Arrange
+            var totalDeletedItems = 1;
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewProjects);
+            _instanceRepositoryMock.Setup(repo => repo.DeleteInstanceFolderAsync(It.IsAny<int>())).ReturnsAsync(totalDeletedItems);
+
+            // Act
+            var result = await _controller.DeleteInstanceFolder(1) as OkNegotiatedContentResult<DeleteResult>;
 
             // Assert
             // Exception

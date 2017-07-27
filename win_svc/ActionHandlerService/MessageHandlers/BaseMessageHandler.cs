@@ -2,36 +2,40 @@
 using System.Threading.Tasks;
 using ActionHandlerService.Helpers;
 using ActionHandlerService.Models;
+using ActionHandlerService.Models.Exceptions;
+using ActionHandlerService.Repositories;
 using BluePrintSys.Messaging.CrossCutting.Logging;
 using BluePrintSys.Messaging.Models.Actions;
 using NServiceBus;
 
 namespace ActionHandlerService.MessageHandlers
 {
-    public abstract class BaseMessageHandler<T> : IHandleMessages<T> where T: ActionMessage
+    public abstract class BaseMessageHandler<T> : IHandleMessages<T> where T : ActionMessage
     {
-        protected BaseMessageHandler(IActionHelper actionHelper)
+        private IActionHelper ActionHelper { get; }
+        private ITenantInfoRetriever TenantInfoRetriever { get; }
+        private IConfigHelper ConfigHelper { get; }
+
+        protected BaseMessageHandler(IActionHelper actionHelper, ITenantInfoRetriever tenantInfoRetriever, IConfigHelper configHelper)
         {
             ActionHelper = actionHelper;
+            TenantInfoRetriever = tenantInfoRetriever;
+            ConfigHelper = configHelper;
         }
 
-        protected abstract MessageActionType ActionType { get; }
-
-        protected IActionHelper ActionHelper { get; }
-
-        public async Task Handle(T message, IMessageHandlerContext context) 
+        public async Task Handle(T message, IMessageHandlerContext context)
         {
             try
             {
                 Log.Info($"Received Action Message {message.ActionType.ToString()}");
                 if ((ConfigHelper.SupportedActionTypes & message.ActionType) == message.ActionType)
                 {
-                    var tenantId = message.TenantId;
+                    var tentantId = GetMessageHeaderValue(ActionMessageHeaders.TenantId, context);
                     var tenants = TenantInfoRetriever.GetTenants();
                     TenantInformation tenant;
-                    if (!tenants.TryGetValue(tenantId, out tenant))
+                    if (!tenants.TryGetValue(tentantId, out tenant))
                     {
-                        throw new TenantInfoNotFoundException($"Tentant Info not found for Tenant ID {tenantId}");
+                        throw new TenantInfoNotFoundException($"Tentant Info not found for Tenant ID {tentantId}");
                     }
                     await ProcessAction(tenant, message, context);
                 }
@@ -47,12 +51,21 @@ namespace ActionHandlerService.MessageHandlers
             }
         }
 
-        protected virtual Task ProcessAction(TenantInformation tenant, T message, IMessageHandlerContext context)
+        private string GetMessageHeaderValue(string header, IMessageHandlerContext context)
+        {
+            string headerValue;
+            if (!context.MessageHeaders.TryGetValue(header, out headerValue))
+            {
+                throw new MessageHeaderValueNotFoundException($"Message Header Value Not Found: {header}");
+            }
+            return headerValue;
+        }
+
+        protected virtual async Task<bool> ProcessAction(TenantInformation tenant, T message, IMessageHandlerContext context)
         {
             Log.Info($"Action handling started for {message.ActionType.ToString()}");
-            ActionHelper.HandleAction(tenant);
-            Log.Info($"Action handling finished for {message.ActionType.ToString()}");
-            return Task.Factory.StartNew(() => {});
+            var repository = new ActionHandlerServiceRepository(tenant.ConnectionString);
+            return await ActionHelper.HandleAction(tenant, message, repository);
         }
     }
 }

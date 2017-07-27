@@ -5,13 +5,20 @@ namespace ActionHandlerService.Models
 {
     public class MessageTransportHostFactory
     {
-        public static IMessageTransportHost GetMessageTransportHost()
+        private IConfigHelper ConfigHelper { get; }
+
+        public MessageTransportHostFactory(IConfigHelper configHelper = null)
         {
-            if (ConfigHelper.Broker == MessageBroker.SQL)
+            ConfigHelper = configHelper ?? new ConfigHelper();
+        }
+
+        public IMessageTransportHost GetMessageTransportHost()
+        {
+            if (ConfigHelper.MessageBroker == MessageBroker.SQL)
             {
                 return new SqlTransportHost();
             }
-            return new RabbitMQTransportHost();
+            return new RabbitMqTransportHost(ConfigHelper);
         }
     }
 }

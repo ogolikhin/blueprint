@@ -26,6 +26,7 @@ namespace PocService
             endpointConfiguration.UsePersistence<InMemoryPersistence>();
             endpointConfiguration.SendFailedMessagesTo("error");
             endpointConfiguration.EnableInstallers();
+            endpointConfiguration.AddHeaderToAllOutgoingMessages(PocHeaders.TenantId, "1");
             EndpointInstance = await Endpoint.Start(endpointConfiguration).ConfigureAwait(false);
             await RunLoop().ConfigureAwait(false);
             await EndpointInstance.Stop().ConfigureAwait(false);
@@ -56,13 +57,24 @@ namespace PocService
         public int Id { get; set; }
     }
 
+    public class PocHeaders
+    {
+        public const string TenantId = "TenantId";
+        public const string MessageId = Headers.MessageId;
+        public const string TimeSent = Headers.TimeSent;
+    }
+
     public class PocMessageHandler : IHandleMessages<PocMessage>
     {
         public Task Handle(PocMessage message, IMessageHandlerContext context)
         {
+            string tenantId;
+            if (!context.MessageHeaders.TryGetValue(PocHeaders.TenantId, out tenantId)) throw new Exception("Message Header Not Found");
+
             Program.EndpointInstance.SendLocal(new PocSpawnMessage {Id = 1}).ConfigureAwait(false);
             Program.EndpointInstance.SendLocal(new PocAnotherSpawnMessage {Id = 2}).ConfigureAwait(false);
             Program.EndpointInstance.SendLocal(new PocAnotherSpawnMessage {Id = 3}).ConfigureAwait(false);
+
             return Task.CompletedTask;
         }
     }

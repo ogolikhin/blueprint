@@ -391,40 +391,6 @@ namespace AdminStore.Controllers
             // Exception
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
-        public async Task DeleteFolder_FolderContainsChildrenItems_ReturnBadRequestResult()
-        {
-            // Arrange
-            _privilegeRepositoryMock
-                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
-                .ReturnsAsync(InstanceAdminPrivileges.DeleteProjects);
-            _instanceRepositoryMock.Setup(repo => repo.DeleteInstanceFolderAsync(It.IsAny<int>())).Throws<BadRequestException>();
-
-            // Act
-            await _controller.DeleteInstanceFolder(1);
-
-            // Assert
-            // Exception
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ResourceNotFoundException))]
-        public async Task DeleteFolder_FolderNotFound_ReturnBadRequestResult()
-        {
-            // Arrange
-            _privilegeRepositoryMock
-                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
-                .ReturnsAsync(InstanceAdminPrivileges.DeleteProjects);
-            _instanceRepositoryMock.Setup(repo => repo.DeleteInstanceFolderAsync(It.IsAny<int>())).Throws<ResourceNotFoundException>();
-
-            // Act
-            await _controller.DeleteInstanceFolder(1);
-
-            // Assert
-            // Exception
-        }
-
         #endregion
     }
 }

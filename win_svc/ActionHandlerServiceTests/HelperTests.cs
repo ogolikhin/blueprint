@@ -1,4 +1,6 @@
-﻿using ActionHandlerService.Helpers;
+﻿using System.Threading.Tasks;
+using ActionHandlerService;
+using ActionHandlerService.Helpers;
 using ActionHandlerService.Models.Enums;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -31,6 +33,13 @@ namespace ActionHandlerServiceTests
             var tenantInfoRetriever = new TenantInfoRetriever(configHelperMock.Object);
             var tenants = tenantInfoRetriever.GetTenants();
             Assert.IsNotNull(tenants);
+        }
+
+        [TestMethod]
+        public async Task NServiceBus_ReturnsArgumentNullExceptionMessage_WhenConnectionStringIsNull()
+        {
+            var exceptionMessage = await NServiceBusServer.Instance.Start(null);
+            Assert.IsTrue(exceptionMessage.Contains("connectionString"));
         }
     }
 }

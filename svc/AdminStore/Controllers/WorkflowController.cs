@@ -4,11 +4,9 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
-using System.Web.Http.Results;
 using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Models.Workflow;
@@ -278,36 +276,25 @@ namespace AdminStore.Controllers
         /// <response code="404">NotFound. The workflow with the current id doesn’t exist or removed from the system.</response>
         [SessionRequired]
         [HttpGet, NoCache]
-        [ResponseType(typeof (HttpResponseMessage))]
+        [ResponseType(typeof (string))]
         [Route("export/{workflowId:int:min(1)}")]
-        public async Task<ResponseMessageResult> ExportWorkflow(int workflowId)
+        public async Task<IHttpActionResult> ExportWorkflow(int workflowId)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
             var ieWorkflow = await _workflowService.GetWorkflowExportAsync(workflowId);
+            var workflowXml = SerializationHelper.ToXml(ieWorkflow);
+            var response = Request.CreateResponse(HttpStatusCode.OK);
 
-            var workflowToXml = SerializationHelper.ToXml(ieWorkflow);
+            response.Content = new StringContent(workflowXml);
 
-            var uniEncoding = new UnicodeEncoding();
-            var bytes = uniEncoding.GetBytes(workflowToXml);
-
-            using (var stream = new MemoryStream())
-            {
-                stream.Write(bytes, 0, bytes.Length);
-                var result = new HttpResponseMessage(HttpStatusCode.OK)
+            response.Content.Headers.ContentDisposition =
+                new ContentDispositionHeaderValue("attachment")
                 {
-                    Content = new ByteArrayContent(stream.GetBuffer())
+                    FileName = $"workflow{workflowId}.xml"
                 };
-                result.Content.Headers.ContentDisposition =
-                    new ContentDispositionHeaderValue("attachment")
-                    {
-                        FileName = $"workflow{workflowId}.xml"
-                    };
-                result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+            response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/xml");
 
-                var response = ResponseMessage(result);
-
-                return response;
-            }
+            return ResponseMessage(response);
         }
 
         #region Private methods

@@ -11,6 +11,7 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Models.VersionControl;
 using ServiceLibrary.Models.Workflow;
 
 namespace ArtifactStore.Executors
@@ -332,5 +333,61 @@ namespace ArtifactStore.Executors
             Assert.AreEqual(QueryResultCode.Failure, result.ResultCode);
         }
 
+        [TestMethod]
+        public async Task ExecuteInternal_StateChangeAndPublish_CallsBoth()
+        {
+            //Arrange
+            _artifactVersionsRepository.Setup(t => t.IsItemDeleted(ArtifactId))
+                .ReturnsAsync(false);
+
+            var vcArtifactInfo = new VersionControlArtifactInfo
+            {
+                Id = ArtifactId,
+                VersionCount = CurrentVersionId,
+                LockedByUser = new UserGroup
+                {
+                    Id = UserId
+                }
+            };
+            _artifactVersionsRepository.Setup(t => t.GetVersionControlArtifactInfoAsync(ArtifactId, null, UserId))
+                .ReturnsAsync(vcArtifactInfo);
+
+            var fromState = new WorkflowState
+            {
+                Id = FromStateId,
+                WorkflowId = WorkflowId,
+                Name = "Ready"
+            };
+            _workflowRepository.Setup(t => t.GetStateForArtifactAsync(UserId, ArtifactId, int.MaxValue, true))
+                .ReturnsAsync(fromState);
+
+            var toState = new WorkflowState
+            {
+                Id = ToStateId,
+                Name = "Close",
+                WorkflowId = WorkflowId
+            };
+            var transition = new WorkflowTransition()
+            {
+                FromState = fromState,
+                Id = 10,
+                ToState = toState,
+                WorkflowId = WorkflowId,
+                Name = "Ready to Closed"
+            };
+            _workflowRepository.Setup(
+                t => t.GetTransitionForAssociatedStatesAsync(UserId, ArtifactId, WorkflowId, FromStateId, ToStateId))
+                .ReturnsAsync(transition);
+
+            _workflowRepository.Setup(t => t.ChangeStateForArtifactAsync(UserId, ArtifactId, It.IsAny<WorkflowStateChangeParameterEx>(), It.IsAny<IDbTransaction>()))
+                .ReturnsAsync((WorkflowState)null);
+
+            //Act
+            await _stateChangeExecutor.Execute();
+
+            //Assert
+            _workflowRepository.Verify(t => t.GetStateForArtifactAsync(UserId, ArtifactId, int.MaxValue, true));
+            _versionControlService.Verify(t => t.PublishArtifacts(It.IsAny<PublishParameters>(), It.IsAny<IDbTransaction>()));
+        }
     }
 }

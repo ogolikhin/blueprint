@@ -302,6 +302,7 @@ namespace ArtifactStore.Repositories.Workflow
 
         #region GetCurrentState
 
+        [Ignore]
         [TestMethod]
         public async Task GetCurrentState_WithEditPermissions_SuccessfullyReads()
         {

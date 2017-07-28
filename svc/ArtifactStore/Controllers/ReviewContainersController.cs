@@ -318,5 +318,13 @@ namespace ArtifactStore.Controllers
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             return _sqlReviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, session.UserId, pagination);
         }
+
+        [HttpPut, SessionRequired]
+        [Route("containers/{reviewId:int:min(1)}/activate")]
+        public Task ActivateReviewAsync(int reviewId)
+        {
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            return _sqlReviewsRepository.ActivateReview(reviewId, session.UserId);
+        }
     }
 }

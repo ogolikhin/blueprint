@@ -24,7 +24,7 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException (typeof(ArgumentOutOfRangeException))]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.ExpectedException(typeof(ArgumentOutOfRangeException))]
         public async Task GetArtifactVersions_ArtifactIdOutOfRange_ArgumentOutOfBoundsException()
         {
             // Arrange
@@ -41,7 +41,7 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.ExpectedException(typeof(ArgumentOutOfRangeException))]
         public async Task GetArtifactVersions_LimitOutOfRange_ArgumentOutOfBoundsException()
         {
             // Arrange
@@ -58,7 +58,7 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.ExpectedException(typeof(ArgumentOutOfRangeException))]
         public async Task GetArtifactVersions_OffSetOutOfRange_ArgumentOutOfBoundsException()
         {
             // Arrange
@@ -75,7 +75,7 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.ExpectedException(typeof(ArgumentOutOfRangeException))]
         public async Task GetArtifactVersions_UserIdOutOfRange_ArgumentOutOfBoundsException()
         {
             // Arrange
@@ -263,7 +263,7 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ResourceNotFoundException))]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.ExpectedException(typeof(ResourceNotFoundException))]
         public async Task GetVersionControlArtifactInfoAsync_ResourceNotFoundException()
         {
             // Arrange
@@ -287,7 +287,7 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AuthorizationException))]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.ExpectedException(typeof(AuthorizationException))]
         public async Task GetVersionControlArtifactInfoAsync_AuthorizationException_EmptyPermissions()
         {
             // Arrange
@@ -315,7 +315,7 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AuthorizationException))]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.ExpectedException(typeof(AuthorizationException))]
         public async Task GetVersionControlArtifactInfoAsync_AuthorizationException_SubArtifactRead()
         {
             // Arrange
@@ -343,7 +343,7 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AuthorizationException))]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.ExpectedException(typeof(AuthorizationException))]
         public async Task GetVersionControlArtifactInfoAsync_AuthorizationException_SubArtifactReadArtifactNone()
         {
             // Arrange

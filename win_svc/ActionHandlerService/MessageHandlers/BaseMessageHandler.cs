@@ -44,9 +44,9 @@ namespace ActionHandlerService.MessageHandlers
                     throw new UnsupportedActionTypeException($"Unsupported Action Type: {message.ActionType.ToString()}");
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Log.Error($"Action handling failed for {message.ActionType.ToString()} with an exception: {e.Message}", e);
+                Log.Error($"Failed to handle {message.ActionType.ToString()} message due to an exception: {ex.Message}", ex);
                 throw;
             }
         }
@@ -63,7 +63,7 @@ namespace ActionHandlerService.MessageHandlers
 
         protected virtual async Task<bool> ProcessAction(TenantInformation tenant, T message, IMessageHandlerContext context)
         {
-            Log.Info($"Action handling started for {message.ActionType.ToString()}");
+            Log.Info($"{message.ActionType.ToString()} action handling started for tenant {tenant.Id}");
             var repository = new ActionHandlerServiceRepository(tenant.ConnectionString);
             return await ActionHelper.HandleAction(tenant, message, repository);
         }

@@ -121,12 +121,12 @@ namespace ActionHandlerService
                 var options = new SendOptions();
                 options.SetDestination(MessageQueue);
                 options.SetHeader(ActionMessageHeaders.TenantId, tenantId);
-                Log.Info($"Sending message of type {message.ActionType.ToString()}");
+                Log.Info($"Sending {message.ActionType.ToString()} message for tenant {tenantId}");
                 await _endpointInstance.Send(message, options);
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                Log.Error("Exception While Sending Message", exception);
+                Log.Error($"Failed to send {message.ActionType.ToString()} message for tenant {tenantId} due to an exception: {ex.Message}", ex);
             }
         }
     }

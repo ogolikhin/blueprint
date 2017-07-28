@@ -154,12 +154,12 @@ namespace ArtifactStore.Repositories
             var numApprovers = reviewArtifactStatuses.NumApprovers;
             var artifactStatusDictionary = reviewArtifactStatuses.ItemStatuses.ToDictionary(a => a.ArtifactId);
 
-            ReviewArtifactStatus reviewArtifactStatus;
-
             foreach (var reviewArtifact in reviewArtifacts.Items)
             {
-                if (SqlArtifactPermissionsRepository.HasPermissions(reviewArtifact.Id, artifactPermissionsDictionary, RolePermissions.Read))
+                if (reviewArtifacts.IsFormal ||
+                    SqlArtifactPermissionsRepository.HasPermissions(reviewArtifact.Id, artifactPermissionsDictionary, RolePermissions.Read))
                 {
+                    ReviewArtifactStatus reviewArtifactStatus;
                     if (artifactStatusDictionary.TryGetValue(reviewArtifact.Id, out reviewArtifactStatus))
                     {
                         reviewArtifact.Pending = reviewArtifactStatus.Pending;
@@ -327,10 +327,10 @@ namespace ArtifactStore.Repositories
 
         public Task<QueryResult<ReviewedArtifact>> GetReviewedArtifacts(int reviewId, int userId, Pagination pagination, int revisionId)
         {
-            return GetParticipantReviewedArtifactsAsync(reviewId, userId, userId, pagination, revisionId);
+            return GetParticipantReviewedArtifactsAsync(reviewId, userId, userId, pagination, false, revisionId);
         }
 
-        private async Task<QueryResult<ReviewedArtifact>> GetParticipantReviewedArtifactsAsync(int reviewId, int userId, int participantId, Pagination pagination, int revisionId = int.MaxValue, bool addDrafts = false)
+        private async Task<QueryResult<ReviewedArtifact>> GetParticipantReviewedArtifactsAsync(int reviewId, int userId, int participantId, Pagination pagination, bool showArtifactsIfFormal, int revisionId = int.MaxValue, bool addDrafts = false)
         {
             var reviewArtifacts = await GetReviewArtifactsAsync<ReviewedArtifact>(reviewId, userId, pagination, revisionId, addDrafts);
 
@@ -346,10 +346,12 @@ namespace ArtifactStore.Repositories
 
             var reviewedArtifacts = (await GetReviewArtifactsByParticipant(reviewArtifactIds, participantId, reviewId, revisionId)).ToDictionary(k => k.Id);
 
+            var ignorePermissionCheck = showArtifactsIfFormal && reviewArtifacts.IsFormal;
+
             foreach (var artifact in reviewArtifacts.Items)
             {
-                if (SqlArtifactPermissionsRepository.HasPermissions(artifact.Id, artifactPermissionsDictionary,
-                    RolePermissions.Read))
+                if (ignorePermissionCheck 
+                    || SqlArtifactPermissionsRepository.HasPermissions(artifact.Id, artifactPermissionsDictionary, RolePermissions.Read))
                 {
                     ReviewedArtifact reviewedArtifact;
                     if (reviewedArtifacts.TryGetValue(artifact.Id, out reviewedArtifact))
@@ -412,7 +414,7 @@ namespace ArtifactStore.Repositories
             return _connectionWrapper.QueryAsync<ReviewedArtifact>("GetReviewArtifactsByParticipant", param, commandType: CommandType.StoredProcedure);
         }
 
-        private async Task<QueryResult<T>> GetReviewArtifactsAsync<T>(int reviewId, int userId, Pagination pagination, int? revisionId = null, bool? addDrafts = true)
+        private async Task<ReviewArtifactsQueryResult<T>> GetReviewArtifactsAsync<T>(int reviewId, int userId, Pagination pagination, int? revisionId = null, bool? addDrafts = true)
             where T : BaseReviewArtifact
         {
             int refreshInterval = await GetRebuildReviewArtifactHierarchyInterval();
@@ -425,12 +427,14 @@ namespace ArtifactStore.Repositories
             param.Add("@userId", userId);
             param.Add("@refreshInterval", refreshInterval);
             param.Add("@numResult", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            param.Add("@isFormal", dbType: DbType.Boolean, direction: ParameterDirection.Output);
 
             var result = await _connectionWrapper.QueryAsync<T>("GetReviewArtifacts", param, commandType: CommandType.StoredProcedure);
-            return new QueryResult<T>()
+            return new ReviewArtifactsQueryResult<T>()
             {
                 Items = result.ToList(),
-                Total = param.Get<int>("@numResult")
+                Total = param.Get<int>("@numResult"),
+                IsFormal = param.Get<bool>("@isFormal")
             };
         }
 
@@ -1207,7 +1211,7 @@ namespace ArtifactStore.Repositories
 
             pagination.SetDefaultValues(0, 50);
 
-            var reviewedArtifactResult = await GetParticipantReviewedArtifactsAsync(reviewId, userId, participantId, pagination, addDrafts: true);
+            var reviewedArtifactResult = await GetParticipantReviewedArtifactsAsync(reviewId, userId, participantId, pagination, true, addDrafts: true);
 
             return new QueryResult<ParticipantArtifactStats>()
             {

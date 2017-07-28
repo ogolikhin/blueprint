@@ -2807,7 +2807,7 @@ namespace ArtifactStore.Repositories
             _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(1, null, 2)).Throws<ResourceNotFoundException>();
 
             //Act
-            await _reviewsRepository.ActivateReview(reviewId, userId);
+            await _reviewsRepository.ActivateReviewAsync(reviewId, userId);
         }
 
         [TestMethod]
@@ -2821,7 +2821,7 @@ namespace ArtifactStore.Repositories
             _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(1, null, 2)).Throws<AuthorizationException>();
 
             //Act
-            await _reviewsRepository.ActivateReview(reviewId, userId);
+            await _reviewsRepository.ActivateReviewAsync(reviewId, userId);
         }
 
         [TestMethod]
@@ -2838,7 +2838,7 @@ namespace ArtifactStore.Repositories
             });
 
             //Act
-            await _reviewsRepository.ActivateReview(reviewId, userId);
+            await _reviewsRepository.ActivateReviewAsync(reviewId, userId);
         }
 
         [TestMethod]
@@ -2856,7 +2856,7 @@ namespace ArtifactStore.Repositories
             //Act
             try
             {
-                await _reviewsRepository.ActivateReview(reviewId, userId);
+                await _reviewsRepository.ActivateReviewAsync(reviewId, userId);
             }
             //Assert
             catch (ConflictException ex)
@@ -2886,7 +2886,7 @@ namespace ArtifactStore.Repositories
             //Act
             try
             {
-                await _reviewsRepository.ActivateReview(reviewId, userId);
+                await _reviewsRepository.ActivateReviewAsync(reviewId, userId);
             }
             //Assert
             catch (ConflictException ex)
@@ -2916,7 +2916,7 @@ namespace ArtifactStore.Repositories
             //Act
             try
             {
-                await _reviewsRepository.ActivateReview(reviewId, userId);
+                await _reviewsRepository.ActivateReviewAsync(reviewId, userId);
             }
             //Assert
             catch (BadRequestException ex)
@@ -2947,7 +2947,7 @@ namespace ArtifactStore.Repositories
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Status>Active</Status></ReviewPackageRawData>");
 
             //Act
-            await _reviewsRepository.ActivateReview(reviewId, userId);
+            await _reviewsRepository.ActivateReviewAsync(reviewId, userId);
             
             //Assert
             _cxn.Verify();

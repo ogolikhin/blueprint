@@ -276,15 +276,38 @@ namespace AdminStore.Services.Workflow
             }
             var workflowProjectsAndArtifactTypes = (await _workflowRepository.GetWorkflowArtifactTypesAndProjectsAsync(workflowId)).ToList();
             var workflowStates = (await _workflowRepository.GetWorkflowStatesByWorkflowId(workflowId)).ToList();
-            var workflowTriggers = (await _workflowRepository.GetWorkflowTransitionsAndPropertyChangesByWorkflowId(workflowId)).Where(t => t.Type == 1).ToList();//TriggerTypes.Transition
+            var workflowEvents = (await _workflowRepository.GetWorkflowTransitionsAndPropertyChangesByWorkflowId(workflowId)).ToList();
 
             IeWorkflow ieWorkflow = new IeWorkflow
             {
+                Id = workflowDetails.WorkflowId,
                 Name = workflowDetails.Name,
                 Description = workflowDetails.Description,
+                States = workflowStates.Select(e => new IeState { Id = e.WorkflowStateId, IsInitial = e.Default, Name = e.Name }).Distinct().ToList(),
+                TransitionEvents = workflowEvents.Where(e => e.Type == (int)EventType.Transition).
+                    Select(e => new IeTransitionEvent {
+                        Id = e.WorkflowEventId,
+                        Name = e.Name,
+                        FromState = e.FromState,
+                        ToState = e.ToState,
+                        Triggers = SerializationHelper.FromXml<List<IeTrigger>>(e.Triggers)
+                    }).Distinct().ToList(),
+                PropertyChangeEvents = workflowEvents.Where(e => e.Type == (int)EventType.PropertyChange).
+                    Select(e => new IePropertyChangeEvent
+                    {
+                        Id = e.WorkflowEventId,
+                        Name = e.Name,
+                        Triggers = SerializationHelper.FromXml<List<IeTrigger>>(e.Triggers)
+                    }).Distinct().ToList(),
+                NewArtifactEvents = workflowEvents.Where(e => e.Type == (int)EventType.NewArtifact).
+                    Select(e => new IeNewArtifactEvent
+                    {
+                        Id = e.WorkflowEventId,
+                        Name = e.Name,
+                        Triggers = SerializationHelper.FromXml<List<IeTrigger>>(e.Triggers)
+                    }).Distinct().ToList(),
                 Projects = workflowProjectsAndArtifactTypes.Select(e => new IeProject { Id = e.ProjectId, Path = e.ProjectName }).Distinct().ToList(),
                 ArtifactTypes = workflowProjectsAndArtifactTypes.Select(e => new IeArtifactType { Name = e.ArtifactName }).Distinct().ToList(),
-                States = workflowStates.Select(e => new IeState { IsInitial = e.Default, Name = e.Name }).Distinct().ToList(),
             };
 
             return ieWorkflow;

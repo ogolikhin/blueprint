@@ -739,7 +739,7 @@ namespace ArtifactStore.Repositories
         }
 
 
-        public async Task RemoveArtifactsFromReview(int reviewId, ReviewArtifactsRemovalParams removeParams, int userId)
+        public async Task RemoveArtifactsFromReviewAsync(int reviewId, ReviewArtifactsRemovalParams removeParams, int userId)
         {
             if (!((removeParams.artifactIds == null || removeParams.artifactIds.Count() == 0) && removeParams.SelectionType == SelectionType.Selected))
             {
@@ -760,31 +760,28 @@ namespace ArtifactStore.Repositories
                     ExceptionHelper.ThrowArtifactNotLockedException(reviewId, userId);
                 }
 
-                if (!string.IsNullOrEmpty(propertyResult.ArtifactXml))
-                {
-                    var rdReviewContents = ReviewRawDataHelper.RestoreData<RDReviewContents>(propertyResult.ArtifactXml);
-                    var currentArtifactIds = rdReviewContents.Artifacts.Select(a => a.Id);
-                    if (removeParams.SelectionType == SelectionType.Selected && removeParams.artifactIds != null)
-                    {
-                        rdReviewContents.Artifacts.RemoveAll(a => removeParams.artifactIds.Contains(a.Id));
-                    }
-                    else
-                    {
-                        if (removeParams.artifactIds != null && removeParams.artifactIds.Count() > 0)
-                        {
-                            rdReviewContents.Artifacts.RemoveAll(a => !removeParams.artifactIds.Contains(a.Id));
-                        }
-                        else
-                            if (removeParams.artifactIds == null || removeParams.artifactIds.Count() == 0)
-                            rdReviewContents.Artifacts.RemoveAll((a) => true);
-                    }
-                    var artifactXmlResult = ReviewRawDataHelper.GetStoreData(rdReviewContents);
-                    await UpdateReviewArtifacts(reviewId, userId, artifactXmlResult);
-                }
-                else
+                if (string.IsNullOrEmpty(propertyResult.ArtifactXml))
                 {
                     ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);
                 }
+                var rdReviewContents = ReviewRawDataHelper.RestoreData<RDReviewContents>(propertyResult.ArtifactXml);
+                var currentArtifactIds = rdReviewContents.Artifacts.Select(a => a.Id);
+                if (removeParams.SelectionType == SelectionType.Selected && removeParams.artifactIds != null)
+                {
+                    rdReviewContents.Artifacts.RemoveAll(a => removeParams.artifactIds.Contains(a.Id));
+                }
+                else
+                {
+                    if (removeParams.artifactIds != null && removeParams.artifactIds.Count() > 0)
+                    {
+                        rdReviewContents.Artifacts.RemoveAll(a => !removeParams.artifactIds.Contains(a.Id));
+                    }
+                    else
+                        if (removeParams.artifactIds == null || removeParams.artifactIds.Count() == 0)
+                        rdReviewContents.Artifacts.RemoveAll((a) => true);
+                }
+                var artifactXmlResult = ReviewRawDataHelper.GetStoreData(rdReviewContents);
+                await UpdateReviewArtifacts(reviewId, userId, artifactXmlResult);
             }
         }
 

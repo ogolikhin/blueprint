@@ -333,10 +333,10 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost, SessionRequired]
         [Route("containers/{reviewId:int:min(1)}/artifacts/remove")]
-        public Task RemoveArtifactsFromReview(int reviewId, [FromBody] ReviewArtifactsRemovalParams removeParams)
+        public Task RemoveArtifactsFromReviewAsync(int reviewId, [FromBody] ReviewArtifactsRemovalParams removeParams)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return _sqlReviewsRepository.RemoveArtifactsFromReview(reviewId, removeParams, session.UserId);
+            return _sqlReviewsRepository.RemoveArtifactsFromReviewAsync(reviewId, removeParams, session.UserId);
         }
     }
 }

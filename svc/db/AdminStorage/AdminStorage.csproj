@@ -155,6 +155,7 @@
       <LastGenOutput>8.0.0.0.sql</LastGenOutput>
     </Content>
     <Content Include="Migration\8.1.0.0\CreatePasswordRecoveryTokens.sql" />
+    <Content Include="Migration\8.2.0.0\RemoveDboAssociations.sql" />
     <Content Include="Procedures.sql">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -186,8 +187,10 @@
     <Content Include="Procedures\GetSession.sql" />
     <Content Include="Procedures\SelectSessions.sql" />
     <Content Include="Scripts\CompatibilityLevel.sql" />
+    <Content Include="Scripts\CreateSchemas.sql" />
     <Content Include="Scripts\DatabaseRoles.sql" />
     <Content Include="Scripts\IsolationLevel.sql" />
+    <Content Include="Scripts\MigrateSchema.sql" />
     <Content Include="Tables\LicenseActivityDetails.sql" />
     <Content Include="Tables\PasswordRecoveryTokens.sql" />
     <Content Include="Tables\Logs.sql" />

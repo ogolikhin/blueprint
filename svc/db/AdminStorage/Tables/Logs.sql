@@ -7,11 +7,11 @@ Change History:
 Date			Name					Change
 2015/12/17		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Logs]') AND type in (N'U'))
-DROP TABLE [dbo].[Logs]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[AdminStore].[Logs]') AND type in (N'U'))
+DROP TABLE [AdminStore].[Logs]
 GO
 
-CREATE TABLE [dbo].[Logs](
+CREATE TABLE [AdminStore].[Logs](
 	[id] [bigint] IDENTITY(1,1) NOT NULL,
 	[IpAddress] [nvarchar](45),
 	[Source] [nvarchar](100),

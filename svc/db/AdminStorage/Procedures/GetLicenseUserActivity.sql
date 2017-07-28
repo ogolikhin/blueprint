@@ -5,11 +5,11 @@ Description:	Returns license usage information
 
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetLicenseUserActivity]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetLicenseUserActivity]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[AdminStore].[GetLicenseUserActivity]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [AdminStore].[GetLicenseUserActivity]
 GO
 
-CREATE PROCEDURE [dbo].[GetLicenseUserActivity]
+CREATE PROCEDURE [AdminStore].[GetLicenseUserActivity]
 (
 	@month int = null,
 	@year int = null
@@ -29,7 +29,7 @@ SELECT
 	MAX(la.UserLicenseType) as LicenseType,  
 	YEAR(la.[TimeStamp])* 100 + MONTH(la.[TimeStamp]) AS [YearMonth]
 FROM 
-	[dbo].[LicenseActivities] la  WITH (NOLOCK) 
+	[AdminStore].[LicenseActivities] la  WITH (NOLOCK) 
 WHERE 
 	@startMonth < @currentMonth AND
 	la.ConsumerType = 1 AND 

@@ -853,7 +853,7 @@ namespace ArtifactStore.Repositories
 
             SetupGetReviewXmlQuery(reviewId, userId, null);
 
-            SetupUpdateParticipantsXmlQuery(reviewId, userId, 1,
+            SetupUpdateReviewXmlQuery(reviewId, userId, 1,
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>"
             );
 
@@ -932,7 +932,7 @@ namespace ArtifactStore.Repositories
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>"
             );
 
-            SetupUpdateParticipantsXmlQuery(reviewId, userId, 1,
+            SetupUpdateReviewXmlQuery(reviewId, userId, 1,
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>3</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>"
             );
 
@@ -961,7 +961,7 @@ namespace ArtifactStore.Repositories
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>"
             );
 
-            SetupUpdateParticipantsXmlQuery(reviewId, userId, 1,
+            SetupUpdateReviewXmlQuery(reviewId, userId, 1,
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>3</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>4</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>5</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>"
             );
 
@@ -997,7 +997,7 @@ namespace ArtifactStore.Repositories
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>"
             );
 
-            SetupUpdateParticipantsXmlQuery(reviewId, userId, 1,
+            SetupUpdateReviewXmlQuery(reviewId, userId, 1,
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>"
             );
 
@@ -1055,7 +1055,7 @@ namespace ArtifactStore.Repositories
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>"
             );
 
-            SetupUpdateParticipantsXmlQuery(reviewId, userId, 1,
+            SetupUpdateReviewXmlQuery(reviewId, userId, 1,
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>4</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>5</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>"
             );
 
@@ -1090,7 +1090,7 @@ namespace ArtifactStore.Repositories
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>"
             );
 
-            SetupUpdateParticipantsXmlQuery(reviewId, userId, 1,
+            SetupUpdateReviewXmlQuery(reviewId, userId, 1,
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>"
             );
 
@@ -1122,7 +1122,7 @@ namespace ArtifactStore.Repositories
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>"
             );
 
-            SetupUpdateParticipantsXmlQuery(reviewId, userId, -1,
+            SetupUpdateReviewXmlQuery(reviewId, userId, -1,
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>"
             );
 
@@ -1145,7 +1145,7 @@ namespace ArtifactStore.Repositories
             _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
         }
 
-        private void SetupUpdateParticipantsXmlQuery(int reviewId, int userId, int returnValue, string xmlString)
+        private void SetupUpdateReviewXmlQuery(int reviewId, int userId, int returnValue, string xmlString)
         {
             var updateParameters = new Dictionary<string, object> {
                 { "reviewId", reviewId },
@@ -2790,6 +2790,167 @@ namespace ArtifactStore.Repositories
             };
 
             _cxn.SetupQueryAsync("GetReviewArtifactsByParticipant", participantParam, participantArtifacts);
+        }
+
+        #endregion
+
+        #region ActivateReviewAsync
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task ActivateReviewAsync_Should_Throw_ResourceNotFoundException_When_Review_Doesnt_Exist()
+        {
+            //Arrange
+            var reviewId = 1;
+            var userId = 2;
+
+            _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(1, null, 2)).Throws<ResourceNotFoundException>();
+
+            //Act
+            await _reviewsRepository.ActivateReviewAsync(reviewId, userId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task ActivateReviewAsync_Should_Throw_AuthorizationException_When_User_Doesnt_Have_Permissions_To_Access_Review()
+        {
+            //Arrange
+            var reviewId = 1;
+            var userId = 2;
+
+            _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(1, null, 2)).Throws<AuthorizationException>();
+
+            //Act
+            await _reviewsRepository.ActivateReviewAsync(reviewId, userId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task ActivateReviewAsync_Should_Throw_ResourceNotFoundException_When_Review_Has_Been_Deleted()
+        {
+            //Arrange
+            var reviewId = 1;
+            var userId = 2;
+
+            _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(1, null, 2)).ReturnsAsync(new VersionControlArtifactInfo()
+            {
+                IsDeleted = true
+            });
+
+            //Act
+            await _reviewsRepository.ActivateReviewAsync(reviewId, userId);
+        }
+
+        [TestMethod]
+        public async Task ActivateReviewAsync_Should_Throw_ConflictException_When_Review_Is_Not_Locked_By_User()
+        {
+            //Arrange
+            var reviewId = 1;
+            var userId = 2;
+
+            _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(1, null, 2)).ReturnsAsync(new VersionControlArtifactInfo()
+            {
+                LockedByUser = new UserGroup() { Id = null }
+            });
+
+            //Act
+            try
+            {
+                await _reviewsRepository.ActivateReviewAsync(reviewId, userId);
+            }
+            //Assert
+            catch (ConflictException ex)
+            {
+                Assert.AreEqual(ErrorCodes.LockedByOtherUser, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("A Conflict Exception was not thrown.");
+        }
+
+        [TestMethod]
+        public async Task ActivateReviewAsync_Should_Throw_ConflictException_When_Review_Is_Active()
+        {
+            //Arrange
+            var reviewId = 1;
+            var userId = 2;
+
+            _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(1, null, 2)).ReturnsAsync(new VersionControlArtifactInfo()
+            {
+                LockedByUser = new UserGroup() { Id = 2 }
+            });
+
+            SetupGetReviewXmlQuery(reviewId, userId, "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Status>Active</Status></ReviewPackageRawData>");
+
+            //Act
+            try
+            {
+                await _reviewsRepository.ActivateReviewAsync(reviewId, userId);
+            }
+            //Assert
+            catch (ConflictException ex)
+            {
+                Assert.AreEqual(ErrorCodes.ReviewActive, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("A Conflict Exception was not thrown.");
+        }
+
+        [TestMethod]
+        public async Task ActivateReviewAsync_Should_Throw_BadRequestException_When_Review_Is_Closed()
+        {
+            //Arrange
+            var reviewId = 1;
+            var userId = 2;
+
+            _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(1, null, 2)).ReturnsAsync(new VersionControlArtifactInfo()
+            {
+                LockedByUser = new UserGroup() { Id = 2 }
+            });
+
+            SetupGetReviewXmlQuery(reviewId, userId, "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Status>Closed</Status></ReviewPackageRawData>");
+
+            //Act
+            try
+            {
+                await _reviewsRepository.ActivateReviewAsync(reviewId, userId);
+            }
+            //Assert
+            catch (BadRequestException ex)
+            {
+                Assert.AreEqual(ErrorCodes.ReviewClosed, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("A Conflict Exception was not thrown.");
+        }
+
+        [TestMethod]
+        public async Task ActivateReviewAsync_Should_Change_Review_Status_To_Active()
+        {
+            //Arrange
+            var reviewId = 1;
+            var userId = 2;
+
+            _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(1, null, 2)).ReturnsAsync(new VersionControlArtifactInfo()
+            {
+                LockedByUser = new UserGroup() { Id = 2 }
+            });
+
+            SetupGetReviewXmlQuery(reviewId, userId, "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Status>Draft</Status></ReviewPackageRawData>");
+
+            SetupUpdateReviewXmlQuery(reviewId, userId, 1,
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Status>Active</Status></ReviewPackageRawData>");
+
+            //Act
+            await _reviewsRepository.ActivateReviewAsync(reviewId, userId);
+            
+            //Assert
+            _cxn.Verify();
         }
 
         #endregion

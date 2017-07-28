@@ -1216,6 +1216,48 @@ namespace ArtifactStore.Repositories
             };
         }
 
+        public async Task ActivateReviewAsync(int reviewId, int userId)
+        {
+            var reviewInfo = await _artifactVersionsRepository.GetVersionControlArtifactInfoAsync(reviewId, null, userId);
+
+            if (reviewInfo.IsDeleted)
+            {
+                ThrowReviewNotFoundException(reviewId);
+            }
+
+            if (reviewInfo.LockedByUser?.Id != userId)
+            {
+                ExceptionHelper.ThrowArtifactNotLockedException(reviewId, userId);
+            }
+
+            var reviewXmlResult = await GetReviewXmlAsync(reviewId, userId);
+
+            ReviewPackageRawData reviewPackageRawData;
+
+            if (reviewXmlResult.XmlString != null)
+            {
+                reviewPackageRawData = ReviewRawDataHelper.RestoreData<ReviewPackageRawData>(reviewXmlResult.XmlString);
+            }
+            else
+            {
+                reviewPackageRawData = new ReviewPackageRawData();
+            }
+
+            if (reviewPackageRawData.Status == ReviewPackageStatus.Active)
+            {
+                throw new ConflictException("Review cannot be activated because it has already been activated.", ErrorCodes.ReviewActive);
+            }
+
+            if (reviewPackageRawData.Status == ReviewPackageStatus.Closed)
+            {
+                ThrowReviewClosedException();
+            }
+
+            reviewPackageRawData.Status = ReviewPackageStatus.Active;
+
+            await UpdateReviewXmlAsync(reviewId, userId, ReviewRawDataHelper.GetStoreData(reviewPackageRawData));
+        }
+
         private void UnauthorizedItem(ReviewTableOfContentItem item)
         {
             item.Name = UNATHORIZED; // unauthorize

@@ -109,6 +109,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\Validators\IPropertyValidator.cs" />
     <Compile Include="Helpers\MentionHelper.cs" />
     <Compile Include="Helpers\PropertyHelper.cs" />
     <Compile Include="Helpers\SensitivityCommonHelper.cs" />

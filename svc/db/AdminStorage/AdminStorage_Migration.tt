@@ -18,6 +18,8 @@ GO
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Scripts\CreateSchemas.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Scripts\MigrateSchema.sql" ) ) #>
 
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Types\LogsType.sql" ) ) #>
+
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Functions\IsSchemaVersionLessOrEqual.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\SetSchemaVersion.sql" ) ) #>
 

@@ -271,7 +271,7 @@ IF  EXISTS (SELECT * FROM sys.types st JOIN sys.schemas ss ON st.schema_id = ss.
 DROP TYPE [AdminStore].[LogsType]
 GO
 
-CREATE TYPE LogsType AS TABLE
+CREATE TYPE [AdminStore].[LogsType] AS TABLE
 (
 	[InstanceName] [nvarchar](1000),
 	[ProviderId] [uniqueidentifier],

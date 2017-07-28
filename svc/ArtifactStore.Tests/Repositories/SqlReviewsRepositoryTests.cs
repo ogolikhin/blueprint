@@ -2619,7 +2619,7 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(5, artifactStats.ItemTypeId);
             Assert.AreEqual(6, artifactStats.ItemTypePredefined);
             Assert.AreEqual(7, artifactStats.IconImageId);
-            Assert.AreEqual(true, artifactStats.Viewed);
+            Assert.AreEqual(ViewStateType.Viewed, artifactStats.ViewState);
             Assert.AreEqual("Approved", artifactStats.ApprovalStatus);
             Assert.AreEqual(true, artifactStats.ArtifactRequiresApproval);
         }

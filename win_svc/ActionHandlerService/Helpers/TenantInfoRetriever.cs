@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using ActionHandlerService.Models;
 using ActionHandlerService.Models.Enums;
+using ActionHandlerService.Repositories;
 using ServiceLibrary.Helpers;
 
 namespace ActionHandlerService.Helpers
@@ -18,11 +20,17 @@ namespace ActionHandlerService.Helpers
             ConfigHelper = configHelper ?? new ConfigHelper();
             var expirationTime = TimeSpan.FromMinutes(ConfigHelper.CacheExpirationMinutes);
             TenantInfoCache = new CacheHelper<Dictionary<string, TenantInformation>>(expirationTime, GetTenantInfoForCache);
+
+            //TODO: remove once we get the tenant db ready
+            actionHandlerServiceRepository = new ActionHandlerServiceRepository(ConfigHelper.SingleTenancyConnectionString);
+            var task = Task.Run(async () => { DefaultTentantId = await actionHandlerServiceRepository.GetTenantId(); });
+            task.Wait();
         }
 
+        private IActionHandlerServiceRepository actionHandlerServiceRepository;
         private IConfigHelper ConfigHelper { get; }
         private CacheHelper<Dictionary<string, TenantInformation>> TenantInfoCache { get; }
-        private const string DefaultTentantId = "tenant0";
+        private string DefaultTentantId;
         private const string DefaultTenantSettings = "settings";
 
         public Dictionary<string, TenantInformation> GetTenants()

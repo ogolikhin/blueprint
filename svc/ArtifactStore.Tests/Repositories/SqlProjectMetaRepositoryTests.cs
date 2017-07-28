@@ -29,7 +29,7 @@ namespace ArtifactStore.Repositories
 
         #region GetCustomProjectTypesAsync
         [TestMethod]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.ExpectedException(typeof(ArgumentOutOfRangeException))]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public async Task GetCustomProjectTypesAsync_InvalidProjectId()
         {
             // Arrange
@@ -43,7 +43,7 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.ExpectedException(typeof(ArgumentOutOfRangeException))]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public async Task GetCustomProjectTypesAsync_InvalidUserId()
         {
             // Arrange
@@ -57,7 +57,7 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.ExpectedException(typeof(ResourceNotFoundException))]
+        [ExpectedException(typeof(ResourceNotFoundException))]
         public async Task GetCustomProjectTypesAsync_ProjectNotFound()
         {
             // Arrange
@@ -75,7 +75,7 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.ExpectedException(typeof(AuthorizationException))]
+        [ExpectedException(typeof(AuthorizationException))]
         public async Task GetCustomProjectTypesAsync_Unauthorized()
         {
             // Arrange
@@ -508,7 +508,7 @@ namespace ArtifactStore.Repositories
         #region GetApprovalStatusesAsync
 
         [TestMethod]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.ExpectedException(typeof(ArgumentOutOfRangeException))]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public async Task GetApprovalStatusesAsync_Should_Throw_If_ProjectId_Isnt_Valid()
         {   
             //Arrange
@@ -520,7 +520,7 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.ExpectedException(typeof(ResourceNotFoundException))]
+        [ExpectedException(typeof(ResourceNotFoundException))]
         public async Task GetApprovalStatusesAsync_Should_Throw_If_Project_Doesnt_Exist()
         {
             //Arrange
@@ -540,7 +540,7 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.ExpectedException(typeof(AuthorizationException))]
+        [ExpectedException(typeof(AuthorizationException))]
         public async Task GetApprovalStatusesAsync_Should_Throw_If_User_Has_No_Permissions_For_Project()
         {
             //Arrange

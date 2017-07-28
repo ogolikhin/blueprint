@@ -31,7 +31,7 @@ namespace ActionHandlerService.MessageHandlers
                 if ((ConfigHelper.SupportedActionTypes & message.ActionType) == message.ActionType)
                 {
                     var tentantId = GetMessageHeaderValue(ActionMessageHeaders.TenantId, context);
-                    var tenants = TenantInfoRetriever.GetTenants();
+                    var tenants = await TenantInfoRetriever.GetTenants();
                     TenantInformation tenant;
                     if (!tenants.TryGetValue(tentantId, out tenant))
                     {

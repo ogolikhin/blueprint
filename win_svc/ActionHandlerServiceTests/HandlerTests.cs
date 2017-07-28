@@ -28,6 +28,7 @@ namespace ActionHandlerServiceTests
     public class HandlerTests
     {
         private Mock<IActionHelper> _actionHelperMock;
+        private Mock<IActionHandlerServiceRepository> _actionHandlerServiceRepositoryMock;
         private ISetup<IActionHelper, Task<bool>> _handleActionSetup;
         private TenantInfoRetriever _tenantInfoRetriever;
         private ConfigHelper _configHelper;
@@ -38,8 +39,10 @@ namespace ActionHandlerServiceTests
         {
             _actionHelperMock = new Mock<IActionHelper>();
             _handleActionSetup = _actionHelperMock.Setup(m => m.HandleAction(It.IsAny<TenantInformation>(), It.IsAny<ActionMessage>(), It.IsAny<ActionHandlerServiceRepository>()));
-            _tenantInfoRetriever = new TenantInfoRetriever();
+            _actionHandlerServiceRepositoryMock = new Mock<IActionHandlerServiceRepository>();
+            _actionHandlerServiceRepositoryMock.Setup(a => a.GetTenantId()).ReturnsAsync(TenantId);
             _configHelper = new ConfigHelper();
+            _tenantInfoRetriever = new TenantInfoRetriever(_actionHandlerServiceRepositoryMock.Object, _configHelper);
         }
 
         private static void TestHandlerAndMessageWithHeader<T>(BaseMessageHandler<T> handler, T message, string tenantId = TenantId) where T : ActionMessage
@@ -70,7 +73,7 @@ namespace ActionHandlerServiceTests
         public void BaseMessageHandler_ThrowsTenantInfoNotFoundException_WhenTenantIsNotFound()
         {
             var tenantInfoRetrieverMock = new Mock<ITenantInfoRetriever>();
-            tenantInfoRetrieverMock.Setup(m => m.GetTenants()).Returns(new Dictionary<string, TenantInformation>());
+            tenantInfoRetrieverMock.Setup(m => m.GetTenants()).ReturnsAsync(new Dictionary<string, TenantInformation>());
             var handler = new NotificationMessageHandler(null, tenantInfoRetrieverMock.Object, _configHelper);
             var message = new NotificationMessage();
             TestHandlerAndMessageWithHeader(handler, message);

@@ -10,31 +10,36 @@ namespace ActionHandlerService.Helpers
 {
     public interface ITenantInfoRetriever
     {
-        Dictionary<string, TenantInformation> GetTenants();
+        Task<Dictionary<string, TenantInformation>> GetTenants();
     }
 
     public class TenantInfoRetriever : ITenantInfoRetriever
     {
-        public TenantInfoRetriever(IConfigHelper configHelper = null)
+        public TenantInfoRetriever(IActionHandlerServiceRepository actionHandlerServiceRepository, IConfigHelper configHelper)
         {
-            ConfigHelper = configHelper ?? new ConfigHelper();
+            ConfigHelper = configHelper;
             var expirationTime = TimeSpan.FromMinutes(ConfigHelper.CacheExpirationMinutes);
             TenantInfoCache = new CacheHelper<Dictionary<string, TenantInformation>>(expirationTime, GetTenantInfoForCache);
-
-            //TODO: remove once we get the tenant db ready
-            actionHandlerServiceRepository = new ActionHandlerServiceRepository(ConfigHelper.SingleTenancyConnectionString);
-            var task = Task.Run(async () => { DefaultTentantId = await actionHandlerServiceRepository.GetTenantId(); });
-            task.Wait();
+            _actionHandlerServiceRepository = actionHandlerServiceRepository;
         }
 
-        private IActionHandlerServiceRepository actionHandlerServiceRepository;
+        public TenantInfoRetriever() : this(new ActionHandlerServiceRepository(new ConfigHelper().SingleTenancyConnectionString), new ConfigHelper())
+        {
+        }
+
+        private readonly IActionHandlerServiceRepository _actionHandlerServiceRepository;
         private IConfigHelper ConfigHelper { get; }
         private CacheHelper<Dictionary<string, TenantInformation>> TenantInfoCache { get; }
-        private string DefaultTentantId;
+        private string _defaultTentantId;
         private const string DefaultTenantSettings = "settings";
 
-        public Dictionary<string, TenantInformation> GetTenants()
+        public async Task<Dictionary<string, TenantInformation>> GetTenants()
         {
+            if (string.IsNullOrEmpty(_defaultTentantId))
+            {
+                //TODO: remove once we get the tenant db ready
+                _defaultTentantId = await _actionHandlerServiceRepository.GetTenantId();
+            }
             return TenantInfoCache.Get();
         }
 
@@ -45,7 +50,7 @@ namespace ActionHandlerService.Helpers
             switch (tenancy)
             {
                 case Tenancy.Single:
-                    var tenant = new TenantInformation {Id = DefaultTentantId, ConnectionString = ConfigHelper.SingleTenancyConnectionString, Settings = DefaultTenantSettings};
+                    var tenant = new TenantInformation {Id = _defaultTentantId, ConnectionString = ConfigHelper.SingleTenancyConnectionString, Settings = DefaultTenantSettings};
                     tenants.Add(tenant.Id, tenant);
                     break;
                 case Tenancy.Multiple:

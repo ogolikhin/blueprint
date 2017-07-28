@@ -14,24 +14,24 @@ namespace ActionHandlerServiceTests
     public class HelperTests
     {
         [TestMethod]
-        public void TenantInfoRetriever_ReturnsTenants_WhenUsingSingleTenancy()
+        public async void TenantInfoRetriever_ReturnsTenants_WhenUsingSingleTenancy()
         {
             var configHelperMock = new Mock<IConfigHelper>();
             configHelperMock.Setup(m => m.Tenancy).Returns(Tenancy.Single);
             configHelperMock.Setup(m => m.CacheExpirationMinutes).Returns(1);
-            var tenantInfoRetriever = new TenantInfoRetriever(configHelperMock.Object);
-            var tenants = tenantInfoRetriever.GetTenants();
+            var tenantInfoRetriever = new TenantInfoRetriever(null, configHelperMock.Object);
+            var tenants = await tenantInfoRetriever.GetTenants();
             Assert.IsNotNull(tenants);
         }
 
         [TestMethod]
-        public void TenantInfoRetriever_ReturnsTenants_WhenUsingMultipleTenancy()
+        public async void TenantInfoRetriever_ReturnsTenants_WhenUsingMultipleTenancy()
         {
             var configHelperMock = new Mock<IConfigHelper>();
             configHelperMock.Setup(m => m.Tenancy).Returns(Tenancy.Multiple);
             configHelperMock.Setup(m => m.CacheExpirationMinutes).Returns(1);
-            var tenantInfoRetriever = new TenantInfoRetriever(configHelperMock.Object);
-            var tenants = tenantInfoRetriever.GetTenants();
+            var tenantInfoRetriever = new TenantInfoRetriever(null, configHelperMock.Object);
+            var tenants = await tenantInfoRetriever.GetTenants();
             Assert.IsNotNull(tenants);
         }
 

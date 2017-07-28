@@ -764,6 +764,11 @@ namespace ArtifactStore.Repositories
                 ExceptionHelper.ThrowArtifactNotLockedException(reviewId, userId);
             }
 
+            if(propertyResult.BaselineId != null && propertyResult.BaselineId.Value > 0)
+            {
+                throw new BadRequestException("Review status changed", ErrorCodes.ReviewStatusChanged);
+            }
+
             if (string.IsNullOrEmpty(propertyResult.ArtifactXml))
             {
                 ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);

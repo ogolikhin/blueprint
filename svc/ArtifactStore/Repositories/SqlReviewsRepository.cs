@@ -788,27 +788,6 @@ namespace ArtifactStore.Repositories
             }
         }
 
-        private string RemoveArtifactsToXML(string xmlArtifacts, ISet<int> artifactsToRemove)
-        {
-            //    alreadyIncluded = 0;
-            RDReviewContents rdReviewContents;
-            if (string.IsNullOrEmpty(xmlArtifacts))
-            {
-                rdReviewContents = new RDReviewContents();
-                rdReviewContents.Artifacts = new List<RDArtifact>();
-            }
-            else
-            {
-                rdReviewContents = ReviewRawDataHelper.RestoreData<RDReviewContents>(xmlArtifacts);
-            }
-
-            var currentArtifactIds = rdReviewContents.Artifacts.Select(a => a.Id);
-            rdReviewContents.Artifacts.RemoveAll(a => artifactsToRemove.Contains(a.Id));
-  
-            return ReviewRawDataHelper.GetStoreData(rdReviewContents);
-        }
-
-
         public async Task AssignApprovalRequiredToArtifacts(int reviewId, int userId, AssignArtifactsApprovalParameter content)
         {
             if (content.ArtifactIds == null || content.ArtifactIds.Count() == 0)

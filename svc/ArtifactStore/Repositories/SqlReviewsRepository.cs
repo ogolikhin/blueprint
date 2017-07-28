@@ -1167,7 +1167,7 @@ namespace ArtifactStore.Repositories
             };
         }
 
-        public async Task ActivateReview(int reviewId, int userId)
+        public async Task ActivateReviewAsync(int reviewId, int userId)
         {
             var reviewInfo = await _artifactVersionsRepository.GetVersionControlArtifactInfoAsync(reviewId, null, userId);
 

@@ -3,22 +3,15 @@ using ActionHandlerService.Models.Enums;
 
 namespace ActionHandlerService.Models
 {
-    public class MessageTransportHostFactory
+    public static class MessageTransportHostFactory
     {
-        private IConfigHelper ConfigHelper { get; }
-
-        public MessageTransportHostFactory(IConfigHelper configHelper = null)
+        public static IMessageTransportHost GetMessageTransportHost(IConfigHelper configHelper)
         {
-            ConfigHelper = configHelper ?? new ConfigHelper();
-        }
-
-        public IMessageTransportHost GetMessageTransportHost()
-        {
-            if (ConfigHelper.MessageBroker == MessageBroker.SQL)
+            if (configHelper.MessageBroker == MessageBroker.SQL)
             {
                 return new SqlTransportHost();
             }
-            return new RabbitMqTransportHost(ConfigHelper);
+            return new RabbitMqTransportHost(configHelper);
         }
     }
 }

@@ -2,9 +2,9 @@
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
-using ArtifactStore.Repositories.PropertyXml.Models;
+using ServiceLibrary.Repositories.ProjectMeta.PropertyXml.Models;
 
-namespace ArtifactStore.Repositories.PropertyXml
+namespace ServiceLibrary.Repositories.ProjectMeta.PropertyXml
 {
     // Originates from Raptor solution with some modifications
     public static class XmlModelSerializer

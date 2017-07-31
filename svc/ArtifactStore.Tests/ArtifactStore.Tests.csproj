@@ -97,7 +97,6 @@
     <Compile Include="Repositories\SqlDiscussionsRepositoryTests.cs" />
     <Compile Include="Repositories\SqlArtifactVersionsRepositoryTests.cs" />
     <Compile Include="Repositories\SqlAttachmentsRepositoryTests.cs" />
-    <Compile Include="Repositories\SqlProjectMetaRepositoryTests.cs" />
     <Compile Include="Repositories\SqlReviewsRepositoryTests.cs" />
     <Compile Include="Repositories\Workflow\SqlWorkflowRepositoryTests.cs" />
     <Compile Include="Services\VersionControlServiceTests.cs" />

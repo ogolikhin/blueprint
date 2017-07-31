@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace ArtifactStore.Helpers
+namespace ServiceLibrary.Helpers
 {
-    internal static class PropertyHelper
+    public static class PropertyHelper
     {
         // Convert the byte array of the number property stored in the database to decimal.
         internal static decimal? ToDecimal(byte[] value)

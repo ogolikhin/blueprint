@@ -10,6 +10,7 @@ using ServiceLibrary.Repositories;
 using ServiceLibrary.Models;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Services;
 
 namespace ArtifactStore.Repositories

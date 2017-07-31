@@ -80,10 +80,12 @@
         public static readonly string GeneralErrorOfDeletingWorkflows = "An error has occurred when performed workflows (s) deletion operation";
         //Folder
         public static readonly string FolderWithSuchNameExistsInParentFolder = "Folder with the same name already exists in the parent folder.";
-        public static readonly string FolderModelIsEmpty = "The folder model is empty.";
+        public static readonly string FolderModelIsEmpty = "The body of the call is malformed or has invalid parameter.";
         public static readonly string FolderNameLimitation = "Please enter a name between 1 and 128 characters.";
         public static readonly string ErrorOfDeletingFolderThatContainsChildrenItems = "The Folder cannot be deleted as it contains Projects and/or Folders.";
         public static readonly string FolderNotExist = "The folder with current folderId doesn't exist or removed from the system.";
         public static readonly string WorkflowImportErrorsNotFound = "The workflow import errors for GUID={0} are not found.";
+        public static readonly string ParentFolderNotExists = "The parent folder with current id does not exist.";
+        public static readonly string GeneralErrorOfCreatingFolder = "An error has occurred when the operation was being performed at SQL level.";
     }
 }

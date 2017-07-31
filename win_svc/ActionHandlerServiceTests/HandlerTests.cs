@@ -67,18 +67,7 @@ namespace ActionHandlerServiceTests
             var message = new NotificationMessage();
             TestHandlerAndMessageWithHeader(handler, message);
         }
-
-        [TestMethod]
-        [ExpectedException(typeof(TenantInfoNotFoundException))]
-        public void BaseMessageHandler_ThrowsTenantInfoNotFoundException_WhenTenantIsNotFound()
-        {
-            var tenantInfoRetrieverMock = new Mock<ITenantInfoRetriever>();
-            tenantInfoRetrieverMock.Setup(m => m.GetTenants()).ReturnsAsync(new Dictionary<string, TenantInformation>());
-            var handler = new NotificationMessageHandler(null, tenantInfoRetrieverMock.Object, _configHelper);
-            var message = new NotificationMessage();
-            TestHandlerAndMessageWithHeader(handler, message);
-        }
-
+        
         [TestMethod]
         [ExpectedException(typeof(MessageHeaderValueNotFoundException))]
         public void BaseMessageHandler_ThrowsMessageHeaderValueNotFoundException_WhenHeaderValueIsNotFound()

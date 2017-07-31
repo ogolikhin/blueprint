@@ -35,7 +35,8 @@ namespace ActionHandlerService.MessageHandlers
                     TenantInformation tenant;
                     if (!tenants.TryGetValue(tentantId, out tenant))
                     {
-                        throw new TenantInfoNotFoundException($"Tenant Info not found for Tenant ID {tentantId}");
+                        Log.Error($"Tenant Info not found for Tenant ID {tentantId}. Message is not processed.");
+                        return;
                     }
                     await ProcessAction(tenant, message, context);
                 }

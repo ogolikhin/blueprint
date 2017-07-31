@@ -45,6 +45,18 @@ namespace AdminStore.Services.Workflow
         private const string TemplateXmlArtifactTypeNoSpecified = "One or more Artifact Types are not specified. A Artifact Types must be specified.";
         private const string TemplateXmlProjectsProvidedWithoutArifactTypes = "The Project or Projects are specified without any Artifact Types in the Workflow.";
         private const string TemplateXmlArtifactTypesProvidedWithoutProjects = "The Artifact Type or Artifact Types are specified without any Projects in the Workflow.";
+        private const string TemplateXmlPropertyChangeEventNoAnyTriggersSpecified = "One or more Property Change Events do not have any triggers. A Property Change Event must have at least one Trigger.";
+        private const string TemplateXmlNewArtifactEventNoAnyTriggersSpecified = "One or more New Artifact Events do not have any triggers. A New Artifact Event must have at least one Trigger.";
+        private const string TemplateXmlActionTriggerNotSpecified = "One or more Triggers do not have an Action. A Trigger must have an Action.";
+        private const string TemplateXmlRecipientsEmailNotificationActionNotSpecitied = "One or more Email Notification Actions do not have specified recipients. Recipients can be specified as a list of emails or a Property that contains recipients.";
+        private const string TemplateXmlAmbiguousRecipientsSourcesEmailNotificationAction = "One or more Email Notification Actions have ambiguous recipients. Recipients must be specified either as a list of emails or a Property that contains recipients.";
+        private const string TemplateXmlEmailInvalidEmailNotificationAction = "'{0}' is not a valid email.";
+        private const string TemplateXmlMessageEmailNotificationActionNotSpecitied = "One or more Email Notification Actions do not have a specified message. A Email Notification Action must have a message.";
+        private const string TemplateXmlPropertyNamePropertyChangeActionNotSpecitied = "One or more Property Change Actions do not have a specified Property Name. A Property Change Action must have a Property Name.";
+        private const string TemplateXmlPropertyValuePropertyChangeActionNotSpecitied = "One or more Property Change Actions do not have a specified Property Value. A Property Change Action must have a Property Value.";
+        private const string TemplateXmlArtifactTypeGenerateChildrenActionNotSpecitied = "One or more Generate Children Actions do not have a specified Artifact Type. A Generate Children Action must have an Artifact Type.";
+        private const string TemplateXmlChildCountGenerateChildrenActionNotSpecitied = "One or more Generate Children Actions do not have a specified Child Count. A Generate Children Action must have a Child Count.";
+
 
         // Messages for the Data validation.
         private const string TemplateXmlWorkflowNameNotUnique = "A Workflow with Name '{0}' already exists. Workflows in Blueprint must have unique names.";
@@ -53,7 +65,7 @@ namespace AdminStore.Services.Workflow
         private const string TemplateXmlArtifactTypeNotFoundInProject = "Artifact Type '{0}' is not found in Project '{1}'."; // TODO: Test for Standard Types
         private const string TemplateXmlArtifactTypeAlreadyAssociatedWithWorkflow = "Artifact Type '{0}' is already is associated with a Workflow."; // TODO: Artifact Type in a Project
         private const string TemplateXmlPropertyNotFound = "Property '{0}' of a Property Change Event is not found in Blueprint.";
-
+        
         #region Interface Implementation
 
         public string BuildTextXmlErrors(IEnumerable<WorkflowXmlValidationError> errors, string fileName)
@@ -106,7 +118,7 @@ namespace AdminStore.Services.Workflow
 
         #region Private Methods
 
-        private object[] GetXmlErrorMessageTemaplateAndParams(WorkflowXmlValidationError error, out string template)
+        private static object[] GetXmlErrorMessageTemaplateAndParams(WorkflowXmlValidationError error, out string template)
         {
             object[] errParams;
 
@@ -212,7 +224,7 @@ namespace AdminStore.Services.Workflow
                     template = TemplateXmlTriggerCountOnEventExceedsLimit10;
                     errParams = new object[] {((IeEvent) error.Element).Name};
                     break;
-                case WorkflowXmlValidationErrorCodes.PropertyChangEventPropertyNotSpecified:
+                case WorkflowXmlValidationErrorCodes.PropertyChangeEventPropertyNotSpecified:
                     template = TemplateXmlPropertyChangEventPropertyNotSpecified;
                     errParams = new object[] {((IePropertyChangeEvent) error.Element).Name};
                     break;
@@ -236,6 +248,50 @@ namespace AdminStore.Services.Workflow
                     template = TemplateXmlArtifactTypesProvidedWithoutProjects;
                     errParams = new object[] {};
                     break;
+                case WorkflowXmlValidationErrorCodes.PropertyChangeEventNoAnyTriggersNotSpecified:
+                    template = TemplateXmlPropertyChangeEventNoAnyTriggersSpecified;
+                    errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.NewArtifactEventNoAnyTriggersNotSpecified:
+                    template = TemplateXmlNewArtifactEventNoAnyTriggersSpecified;
+                    errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.ActionTriggerNotSpecified:
+                    template = TemplateXmlActionTriggerNotSpecified;
+                    errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.RecipientsEmailNotificationActionNotSpecitied:
+                    template = TemplateXmlRecipientsEmailNotificationActionNotSpecitied;
+                    errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.AmbiguousRecipientsSourcesEmailNotificationAction:
+                    template = TemplateXmlAmbiguousRecipientsSourcesEmailNotificationAction;
+                    errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.EmailInvalidEmailNotificationAction:
+                    template = TemplateXmlEmailInvalidEmailNotificationAction;
+                    errParams = new object[] { (string)error.Element };
+                    break;
+                case WorkflowXmlValidationErrorCodes.MessageEmailNotificationActionNotSpecitied:
+                    template = TemplateXmlMessageEmailNotificationActionNotSpecitied;
+                    errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.PropertyNamePropertyChangeActionNotSpecitied:
+                    template = TemplateXmlPropertyNamePropertyChangeActionNotSpecitied;
+                    errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.PropertyValuePropertyChangeActionNotSpecitied:
+                    template = TemplateXmlPropertyValuePropertyChangeActionNotSpecitied;
+                    errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.ArtifactTypeGenerateChildrenActionNotSpecitied:
+                    template = TemplateXmlArtifactTypeGenerateChildrenActionNotSpecitied;
+                    errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.ChildCountGenerateChildrenActionNotSpecitied:
+                    template = TemplateXmlChildCountGenerateChildrenActionNotSpecitied;
+                    errParams = new object[] { };
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(error.ErrorCode));
             }
@@ -243,10 +299,9 @@ namespace AdminStore.Services.Workflow
             return errParams;
         }
 
-        private object[] GetDataErrorMessageTemaplateAndParams(WorkflowDataValidationError error, out string template)
+        private static object[] GetDataErrorMessageTemaplateAndParams(WorkflowDataValidationError error, out string template)
         {
-            object[] errParams = null;
-            template = null; // TODO: Remove
+            object[] errParams;
 
             switch (error.ErrorCode)
             {

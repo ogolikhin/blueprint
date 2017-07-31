@@ -115,7 +115,7 @@ namespace AdminStore.Repositories.Workflow
             return result;
         }
 
-        public async Task<IEnumerable<SqlState>> GetWorkflowStatesByWorkflowId(int workflowId)
+        public async Task<IEnumerable<SqlState>> GetWorkflowStatesAsync(int workflowId)
         {
             var parameters = new DynamicParameters();
             parameters.Add("WorkflowId", workflowId);
@@ -124,7 +124,7 @@ namespace AdminStore.Repositories.Workflow
             return result;
         }
 
-        public async Task<IEnumerable<SqlWorkflowTransitionsAndPropertyChanges>> GetWorkflowTransitionsAndPropertyChangesByWorkflowId(int workflowId)
+        public async Task<IEnumerable<SqlWorkflowTransitionsAndPropertyChanges>> GetWorkflowEventsAsync(int workflowId)
         {
             var parameters = new DynamicParameters();
             parameters.Add("WorkflowId", workflowId);
@@ -316,7 +316,7 @@ namespace AdminStore.Repositories.Workflow
             return result;           
         }
 
-        public async Task<IEnumerable<SqlWorkflowArtifactTypesAndProjects>> GetWorkflowArtifactTypesAndProjectsAsync(int workflowId)
+        public async Task<IEnumerable<SqlWorkflowArtifactTypesAndProjects>> GetWorkflowProjectsAndArtifactTypesAsync(int workflowId)
         {
             var parameters = new DynamicParameters();
             parameters.Add("WorkflowId", workflowId);

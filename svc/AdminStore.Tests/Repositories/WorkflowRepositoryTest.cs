@@ -73,7 +73,7 @@ namespace AdminStore.Repositories
             cxn.SetupQueryAsync("GetWorkflowProjectsAndArtifactTypes", It.IsAny<Dictionary<string, object>>(), workflowArtifactTypesAndProjects);
 
             //act
-            var workflowDetails = await repository.GetWorkflowArtifactTypesAndProjectsAsync(workflowId);
+            var workflowDetails = await repository.GetWorkflowProjectsAndArtifactTypesAsync(workflowId);
 
             //assert
             Assert.IsNotNull(workflowDetails);
@@ -140,7 +140,7 @@ namespace AdminStore.Repositories
             cxn.SetupQueryAsync("GetWorkflowTransitionsAndPropertyChangesById", It.IsAny<Dictionary<string, object>>(), workflowTransitionsAndPropertyChanges);
 
             //act
-            var workflowDetails = await repository.GetWorkflowTransitionsAndPropertyChangesByWorkflowId(workflowId);
+            var workflowDetails = await repository.GetWorkflowEventsAsync(workflowId);
 
             //assert
             Assert.IsNotNull(workflowDetails);
@@ -165,7 +165,7 @@ namespace AdminStore.Repositories
             cxn.SetupQueryAsync("GetWorkflowStatesById", new Dictionary<string, object> { { "WorkflowId", workflowId } }, workflowsList);
 
             //act
-            var workflowStates = await repository.GetWorkflowStatesByWorkflowId(workflowId);
+            var workflowStates = await repository.GetWorkflowStatesAsync(workflowId);
 
             //assert
             Assert.IsNotNull(workflowStates);

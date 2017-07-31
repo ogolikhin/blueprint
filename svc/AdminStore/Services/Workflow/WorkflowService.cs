@@ -157,7 +157,7 @@ namespace AdminStore.Services.Workflow
             var workflowDto = new WorkflowDto {Name = workflowDetails.Name, Description = workflowDetails.Description, Status = workflowDetails.Active, WorkflowId = workflowDetails.WorkflowId,
                 VersionId = workflowDetails.VersionId}; 
 
-            var workflowProjectsAndArtifactTypes = (await _workflowRepository.GetWorkflowArtifactTypesAndProjectsAsync(workflowId)).ToList();
+            var workflowProjectsAndArtifactTypes = (await _workflowRepository.GetWorkflowProjectsAndArtifactTypesAsync(workflowId)).ToList();
 
             workflowDto.Projects = workflowProjectsAndArtifactTypes.Select(e => new WorkflowProjectDto {Id = e.ProjectId, Name = e.ProjectName}).Distinct().ToList();
             workflowDto.ArtifactTypes = workflowProjectsAndArtifactTypes.Select(e => new WorkflowArtifactTypeDto {Name = e.ArtifactName}).Distinct().ToList();
@@ -274,9 +274,9 @@ namespace AdminStore.Services.Workflow
             {
                 throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
             }
-            var workflowProjectsAndArtifactTypes = (await _workflowRepository.GetWorkflowArtifactTypesAndProjectsAsync(workflowId)).ToList();
-            var workflowStates = (await _workflowRepository.GetWorkflowStatesByWorkflowId(workflowId)).ToList();
-            var workflowEvents = (await _workflowRepository.GetWorkflowTransitionsAndPropertyChangesByWorkflowId(workflowId)).ToList();
+            var workflowProjectsAndArtifactTypes = (await _workflowRepository.GetWorkflowProjectsAndArtifactTypesAsync(workflowId)).ToList();
+            var workflowStates = (await _workflowRepository.GetWorkflowStatesAsync(workflowId)).ToList();
+            var workflowEvents = (await _workflowRepository.GetWorkflowEventsAsync(workflowId)).ToList();
 
             IeWorkflow ieWorkflow = new IeWorkflow
             {
@@ -284,22 +284,23 @@ namespace AdminStore.Services.Workflow
                 Name = workflowDetails.Name,
                 Description = workflowDetails.Description,
                 States = workflowStates.Select(e => new IeState { Id = e.WorkflowStateId, IsInitial = e.Default, Name = e.Name }).Distinct().ToList(),
-                TransitionEvents = workflowEvents.Where(e => e.Type == (int)EventType.Transition).
+                TransitionEvents = workflowEvents.Where(e => e.Type == (int)DWorkflowEventType.Transition).
                     Select(e => new IeTransitionEvent {
                         Id = e.WorkflowEventId,
                         Name = e.Name,
+                        //FromStateId = e.FromStateId,
                         FromState = e.FromState,
                         ToState = e.ToState,
                         Triggers = SerializationHelper.FromXml<List<IeTrigger>>(e.Triggers)
                     }).Distinct().ToList(),
-                PropertyChangeEvents = workflowEvents.Where(e => e.Type == (int)EventType.PropertyChange).
+                PropertyChangeEvents = workflowEvents.Where(e => e.Type == (int)DWorkflowEventType.PropertyChange).
                     Select(e => new IePropertyChangeEvent
                     {
                         Id = e.WorkflowEventId,
                         Name = e.Name,
                         Triggers = SerializationHelper.FromXml<List<IeTrigger>>(e.Triggers)
                     }).Distinct().ToList(),
-                NewArtifactEvents = workflowEvents.Where(e => e.Type == (int)EventType.NewArtifact).
+                NewArtifactEvents = workflowEvents.Where(e => e.Type == (int)DWorkflowEventType.NewArtifact).
                     Select(e => new IeNewArtifactEvent
                     {
                         Id = e.WorkflowEventId,

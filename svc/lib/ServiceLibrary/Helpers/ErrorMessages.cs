@@ -85,5 +85,6 @@
         public static readonly string ErrorOfDeletingFolderThatContainsChildrenItems = "The Folder cannot be deleted as it contains Projects and/or Folders.";
         public static readonly string FolderNotExist = "The folder with current folderId doesn't exist or removed from the system.";
         public static readonly string WorkflowImportErrorsNotFound = "The workflow import errors for GUID={0} are not found.";
+        public static readonly string ParentFolderNotExist = "The parent folder with current ParentFolderId doesn't exist or removed from the system.";
     }
 }

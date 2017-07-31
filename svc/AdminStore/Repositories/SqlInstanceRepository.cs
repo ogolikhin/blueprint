@@ -202,5 +202,35 @@ namespace AdminStore.Repositories
 
             return result;
         }
+
+        public async Task UpdateFolderAsync(int folderId, FolderDto folderDto)
+        {
+            if (!folderDto.ParentFolderId.HasValue)
+            {
+                throw new ResourceNotFoundException(ErrorMessages.ParentFolderNotExist, ErrorCodes.ResourceNotFound);
+            }
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@newFolderName", folderDto.Name);
+            parameters.Add("@folderId", folderId);
+            parameters.Add("@newParentFolderId", folderDto.ParentFolderId);
+
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            await _connectionWrapper.ExecuteScalarAsync<int>("UpdateFolder", parameters, commandType: CommandType.StoredProcedure);
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.InstanceFolderNameIsNullOrEmpty:
+                        throw new BadRequestException(ErrorMessages.GeneralErrorOfUpdatingGroup);
+
+                    case (int)SqlErrorCodes.InstanceFolderIsNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.ParentFolderNotExist, ErrorCodes.ResourceNotFound);
+                }
+            }
+        }
     }
 }

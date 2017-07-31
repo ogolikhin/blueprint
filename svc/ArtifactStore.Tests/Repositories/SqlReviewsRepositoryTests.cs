@@ -2619,7 +2619,7 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(5, artifactStats.ItemTypeId);
             Assert.AreEqual(6, artifactStats.ItemTypePredefined);
             Assert.AreEqual(7, artifactStats.IconImageId);
-            Assert.AreEqual(true, artifactStats.Viewed);
+            Assert.AreEqual(ViewStateType.Viewed, artifactStats.ViewState);
             Assert.AreEqual("Approved", artifactStats.ApprovalStatus);
             Assert.AreEqual(true, artifactStats.ArtifactRequiresApproval);
         }
@@ -2680,13 +2680,57 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(5, artifactStats.ItemTypeId);
             Assert.AreEqual(6, artifactStats.ItemTypePredefined);
             Assert.AreEqual(7, artifactStats.IconImageId);
-            Assert.AreEqual(true, artifactStats.Viewed);
+            Assert.AreEqual(ViewStateType.Viewed, artifactStats.ViewState);
             Assert.AreEqual("Approved", artifactStats.ApprovalStatus);
             Assert.AreEqual(true, artifactStats.ArtifactRequiresApproval);
         }
 
         [TestMethod]
-        public async Task GetReviewParticipantArtifactStatsAsync_Viewed_Should_Be_False_When_ArtifactVersion_And_ViewedArtifactVersion_Are_Different()
+        public async Task GetReviewParticipantArtifactStatsAsync_ViewState_Should_Be_Not_Viewed_When_ViewedArtifactVersion_Is_Null()
+        {
+            //Arrange
+            var reviewId = 1;
+            var userId = 2;
+            var participantId = 3;
+            var reviewArtifact = new ReviewedArtifact()
+            {
+                Id = 4
+            };
+
+            var participantReviewArtifact = new ReviewedArtifact()
+            {
+                ArtifactVersion = 3,
+                ViewedArtifactVersion = null
+            };
+
+            _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(new VersionControlArtifactInfo()
+            {
+                VersionCount = 1
+            });
+
+            SetupReviewArtifactsQuery(reviewId, userId, reviewArtifact);
+
+            _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
+
+            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(new[] { reviewArtifact.Id, reviewId }, userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            {
+                {reviewId, RolePermissions.Read},
+                {reviewArtifact.Id, RolePermissions.Read}
+            });
+
+            SetupParticipantReviewArtifactsQuery(reviewId, participantId, reviewArtifact.Id, participantReviewArtifact);
+
+            //Act
+            var artifactStatsResult = await _reviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, userId, new Pagination());
+
+            //Assert
+            _cxn.Verify();
+            Assert.AreEqual(artifactStatsResult.Total, 1);
+            Assert.AreEqual(ViewStateType.NotViewed, artifactStatsResult.Items.First().ViewState);
+        }
+
+        [TestMethod]
+        public async Task GetReviewParticipantArtifactStatsAsync_ViewState_Should_Be_Changed_When_ArtifactVersion_And_ViewedArtifactVersion_Are_Different()
         {
             //Arrange
             var reviewId = 1;
@@ -2726,7 +2770,7 @@ namespace ArtifactStore.Repositories
             //Assert
             _cxn.Verify();
             Assert.AreEqual(artifactStatsResult.Total, 1);
-            Assert.AreEqual(false, artifactStatsResult.Items.First().Viewed);
+            Assert.AreEqual(ViewStateType.Changed, artifactStatsResult.Items.First().ViewState);
         }
 
         [TestMethod]

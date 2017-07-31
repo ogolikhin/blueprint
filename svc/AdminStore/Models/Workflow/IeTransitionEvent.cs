@@ -11,7 +11,7 @@ namespace AdminStore.Models.Workflow
     public class IeTransitionEvent : IeEvent
     {
         [XmlIgnore]
-        public override EventType EventType => EventType.Transition;
+        public override EventTypes EventType => EventTypes.Transition;
 
         [XmlElement(IsNullable = false)]
         public string FromState { get; set; }

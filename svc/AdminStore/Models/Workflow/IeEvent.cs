@@ -4,7 +4,7 @@ using System.Xml.Serialization;
 
 namespace AdminStore.Models.Workflow
 {
-    public enum EventType { None, Transition, PropertyChange, NewArtifact }
+    public enum EventTypes { None, Transition, PropertyChange, NewArtifact }
 
     /// <summary>
     /// Base class for Triggers of specific type
@@ -33,7 +33,7 @@ namespace AdminStore.Models.Workflow
 
         // Defines the type of Event
         [XmlIgnore]
-        public abstract EventType EventType { get; }
+        public abstract EventTypes EventType { get; }
 
         [XmlElement(IsNullable = false)]
         public string Name { get; set; }

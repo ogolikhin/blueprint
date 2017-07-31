@@ -2,8 +2,12 @@
 
 namespace ServiceLibrary.Models.Workflow
 {
+    public enum ConditionTypes { State }
+
     [XmlType("C")]
-    public class XmlCondition
-    {    
+    public abstract class XmlCondition
+    {
+        [XmlIgnore]
+        public abstract ConditionTypes ConditionType { get; }
     }
 }

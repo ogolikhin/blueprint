@@ -6,6 +6,9 @@ namespace ServiceLibrary.Models.Workflow
     [XmlType("AG")]
     public class XmlGenerateAction : XmlAction
     {
+        [XmlIgnore]
+        public override ActionTypes ActionType => ActionTypes.Generate;
+
         [XmlElement("T")]
         public GenerateActionTypes GenerateActionType { get; set; }
 

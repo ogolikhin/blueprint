@@ -149,6 +149,7 @@
     <Compile Include="Helpers\LogHelper.cs" />
     <Compile Include="Helpers\I18NHelper.cs" />
     <Compile Include="Helpers\TimeProvider.cs" />
+    <Compile Include="Helpers\UserManagementHelper.cs" />
     <Compile Include="LocalLog\ILocalLog.cs" />
     <Compile Include="LocalLog\LocalEventLog.cs" />
     <Compile Include="LocalLog\LocalFileLog.cs" />

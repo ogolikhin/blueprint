@@ -14,6 +14,7 @@ namespace ActionHandlerService.Repositories
         Task<List<SqlModifiedProperty>> GetPropertyModificationsForRevisionIdAsync(int revisionId);
         Task<List<SqlWorkFlowStateInformation>> GetWorkflowStatesForArtifactsAsync(int userId, IEnumerable<int> artifactIds, int revisionId, bool addDrafts = true);
         Task<List<SqlArtifactTriggers>> GetWorkflowPropertyTransitionsForArtifactsAsync(int userId, int revisionId, int eventType, IEnumerable<int> itemIds);
+        Task<string> GetTenantId();
     }
 
     public class ActionHandlerServiceRepository : SqlBaseArtifactRepository, IActionHandlerServiceRepository
@@ -56,6 +57,12 @@ namespace ActionHandlerService.Repositories
             param.Add("@revisionId", revisionId);
             param.Add("@addDrafts", addDrafts);
             return (await ConnectionWrapper.QueryAsync<SqlWorkFlowStateInformation>("GetWorkflowStatesForArtifacts", param, commandType: CommandType.StoredProcedure)).ToList();
+        }
+
+        //TODO: remove once we get the tenant db ready
+        public async Task<string> GetTenantId()
+        {
+            return (await ConnectionWrapper.QueryAsync<string>("SELECT TenantId FROM dbo.Instances", commandType: CommandType.Text)).FirstOrDefault();
         }
     }
 }

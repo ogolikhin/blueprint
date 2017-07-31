@@ -9,7 +9,7 @@ namespace AdminStore.Models.Workflow
     public class IePropertyChangeEvent : IeEvent
     {
         [XmlIgnore]
-        public override EventType EventType => EventType.PropertyChange;
+        public override EventTypes EventType => EventTypes.PropertyChange;
 
         [XmlElement(IsNullable = false)]
         public string PropertyName { get; set; }

@@ -154,12 +154,12 @@ namespace ArtifactStore.Repositories
             var numApprovers = reviewArtifactStatuses.NumApprovers;
             var artifactStatusDictionary = reviewArtifactStatuses.ItemStatuses.ToDictionary(a => a.ArtifactId);
 
-            ReviewArtifactStatus reviewArtifactStatus;
-
             foreach (var reviewArtifact in reviewArtifacts.Items)
             {
-                if (SqlArtifactPermissionsRepository.HasPermissions(reviewArtifact.Id, artifactPermissionsDictionary, RolePermissions.Read))
+                if (reviewArtifacts.IsFormal ||
+                    SqlArtifactPermissionsRepository.HasPermissions(reviewArtifact.Id, artifactPermissionsDictionary, RolePermissions.Read))
                 {
+                    ReviewArtifactStatus reviewArtifactStatus;
                     if (artifactStatusDictionary.TryGetValue(reviewArtifact.Id, out reviewArtifactStatus))
                     {
                         reviewArtifact.Pending = reviewArtifactStatus.Pending;
@@ -327,10 +327,10 @@ namespace ArtifactStore.Repositories
 
         public Task<QueryResult<ReviewedArtifact>> GetReviewedArtifacts(int reviewId, int userId, Pagination pagination, int revisionId)
         {
-            return GetParticipantReviewedArtifactsAsync(reviewId, userId, userId, pagination, revisionId);
+            return GetParticipantReviewedArtifactsAsync(reviewId, userId, userId, pagination, false, revisionId);
         }
 
-        private async Task<QueryResult<ReviewedArtifact>> GetParticipantReviewedArtifactsAsync(int reviewId, int userId, int participantId, Pagination pagination, int revisionId = int.MaxValue, bool addDrafts = false)
+        private async Task<QueryResult<ReviewedArtifact>> GetParticipantReviewedArtifactsAsync(int reviewId, int userId, int participantId, Pagination pagination, bool showArtifactsIfFormal, int revisionId = int.MaxValue, bool addDrafts = false)
         {
             var reviewArtifacts = await GetReviewArtifactsAsync<ReviewedArtifact>(reviewId, userId, pagination, revisionId, addDrafts);
 
@@ -346,10 +346,12 @@ namespace ArtifactStore.Repositories
 
             var reviewedArtifacts = (await GetReviewArtifactsByParticipant(reviewArtifactIds, participantId, reviewId, revisionId)).ToDictionary(k => k.Id);
 
+            var ignorePermissionCheck = showArtifactsIfFormal && reviewArtifacts.IsFormal;
+
             foreach (var artifact in reviewArtifacts.Items)
             {
-                if (SqlArtifactPermissionsRepository.HasPermissions(artifact.Id, artifactPermissionsDictionary,
-                    RolePermissions.Read))
+                if (ignorePermissionCheck 
+                    || SqlArtifactPermissionsRepository.HasPermissions(artifact.Id, artifactPermissionsDictionary, RolePermissions.Read))
                 {
                     ReviewedArtifact reviewedArtifact;
                     if (reviewedArtifacts.TryGetValue(artifact.Id, out reviewedArtifact))
@@ -412,7 +414,7 @@ namespace ArtifactStore.Repositories
             return _connectionWrapper.QueryAsync<ReviewedArtifact>("GetReviewArtifactsByParticipant", param, commandType: CommandType.StoredProcedure);
         }
 
-        private async Task<QueryResult<T>> GetReviewArtifactsAsync<T>(int reviewId, int userId, Pagination pagination, int? revisionId = null, bool? addDrafts = true)
+        private async Task<ReviewArtifactsQueryResult<T>> GetReviewArtifactsAsync<T>(int reviewId, int userId, Pagination pagination, int? revisionId = null, bool? addDrafts = true)
             where T : BaseReviewArtifact
         {
             int refreshInterval = await GetRebuildReviewArtifactHierarchyInterval();
@@ -425,12 +427,14 @@ namespace ArtifactStore.Repositories
             param.Add("@userId", userId);
             param.Add("@refreshInterval", refreshInterval);
             param.Add("@numResult", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            param.Add("@isFormal", dbType: DbType.Boolean, direction: ParameterDirection.Output);
 
             var result = await _connectionWrapper.QueryAsync<T>("GetReviewArtifacts", param, commandType: CommandType.StoredProcedure);
-            return new QueryResult<T>()
+            return new ReviewArtifactsQueryResult<T>()
             {
                 Items = result.ToList(),
-                Total = param.Get<int>("@numResult")
+                Total = param.Get<int>("@numResult"),
+                IsFormal = param.Get<bool>("@isFormal")
             };
         }
 
@@ -738,6 +742,55 @@ namespace ArtifactStore.Repositories
             }
 
             return toc;
+        }
+
+
+        public async Task RemoveArtifactsFromReviewAsync(int reviewId, ReviewArtifactsRemovalParams removeParams, int userId)
+        {
+            if ((removeParams.artifactIds == null || removeParams.artifactIds.Count() == 0) && removeParams.SelectionType == SelectionType.Selected)
+            {
+                throw new BadRequestException("Incorrect input parameters", ErrorCodes.OutOfRangeParameter);
+            }
+            var propertyResult = await GetReviewPropertyString(reviewId, userId);
+
+            if (propertyResult.IsReviewReadOnly)
+            {
+                ThrowReviewClosedException();
+            }
+
+            if (propertyResult.ProjectId == null || propertyResult.ProjectId < 1)
+            {
+                ThrowReviewNotFoundException(reviewId);
+            }
+
+            if (propertyResult.IsReviewLocked == false)
+            {
+                ExceptionHelper.ThrowArtifactNotLockedException(reviewId, userId);
+            }
+
+            if (string.IsNullOrEmpty(propertyResult.ArtifactXml))
+            {
+                ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);
+            }
+            var rdReviewContents = ReviewRawDataHelper.RestoreData<RDReviewContents>(propertyResult.ArtifactXml);
+            var currentArtifactIds = rdReviewContents.Artifacts.Select(a => a.Id);
+            if (removeParams.SelectionType == SelectionType.Selected && removeParams.artifactIds != null)
+            {
+                rdReviewContents.Artifacts.RemoveAll(a => removeParams.artifactIds.Contains(a.Id));
+            }
+            else
+            {
+                if (removeParams.artifactIds != null && removeParams.artifactIds.Count() > 0)
+                {
+                    rdReviewContents.Artifacts.RemoveAll(a => !removeParams.artifactIds.Contains(a.Id));
+                }
+                else if (removeParams.artifactIds == null || removeParams.artifactIds.Count() == 0)
+                {
+                    rdReviewContents.Artifacts = new List<RDArtifact>();
+                }
+            }
+            var artifactXmlResult = ReviewRawDataHelper.GetStoreData(rdReviewContents);
+            await UpdateReviewArtifacts(reviewId, userId, artifactXmlResult);
         }
 
         public async Task AssignApprovalRequiredToArtifacts(int reviewId, int userId, AssignArtifactsApprovalParameter content)
@@ -1158,13 +1211,55 @@ namespace ArtifactStore.Repositories
 
             pagination.SetDefaultValues(0, 50);
 
-            var reviewedArtifactResult = await GetParticipantReviewedArtifactsAsync(reviewId, userId, participantId, pagination, addDrafts: true);
+            var reviewedArtifactResult = await GetParticipantReviewedArtifactsAsync(reviewId, userId, participantId, pagination, true, addDrafts: true);
 
             return new QueryResult<ParticipantArtifactStats>()
             {
                 Total = reviewedArtifactResult.Total,
                 Items = reviewedArtifactResult.Items.Select(ra => (ParticipantArtifactStats) ra)
             };
+        }
+
+        public async Task ActivateReviewAsync(int reviewId, int userId)
+        {
+            var reviewInfo = await _artifactVersionsRepository.GetVersionControlArtifactInfoAsync(reviewId, null, userId);
+
+            if (reviewInfo.IsDeleted)
+            {
+                ThrowReviewNotFoundException(reviewId);
+            }
+
+            if (reviewInfo.LockedByUser?.Id != userId)
+            {
+                ExceptionHelper.ThrowArtifactNotLockedException(reviewId, userId);
+            }
+
+            var reviewXmlResult = await GetReviewXmlAsync(reviewId, userId);
+
+            ReviewPackageRawData reviewPackageRawData;
+
+            if (reviewXmlResult.XmlString != null)
+            {
+                reviewPackageRawData = ReviewRawDataHelper.RestoreData<ReviewPackageRawData>(reviewXmlResult.XmlString);
+            }
+            else
+            {
+                reviewPackageRawData = new ReviewPackageRawData();
+            }
+
+            if (reviewPackageRawData.Status == ReviewPackageStatus.Active)
+            {
+                throw new ConflictException("Review cannot be activated because it has already been activated.", ErrorCodes.ReviewActive);
+            }
+
+            if (reviewPackageRawData.Status == ReviewPackageStatus.Closed)
+            {
+                ThrowReviewClosedException();
+            }
+
+            reviewPackageRawData.Status = ReviewPackageStatus.Active;
+
+            await UpdateReviewXmlAsync(reviewId, userId, ReviewRawDataHelper.GetStoreData(reviewPackageRawData));
         }
 
         private void UnauthorizedItem(ReviewTableOfContentItem item)

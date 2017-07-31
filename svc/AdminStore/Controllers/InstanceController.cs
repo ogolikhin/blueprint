@@ -193,6 +193,8 @@ namespace AdminStore.Controllers
         /// <returns code="400">BadRequest. Parameters are invalid.</returns>
         /// <returns code="401">>Unauthorized. The session token is invalid, missing or malformed.</returns>
         /// <returns code="403">Forbidden. The user does not have permissions for creating the folder.</returns>
+        /// <returns code="404">NotFound. The parent folder with current id does not exist.</returns>
+        /// <returns code="409">Conflict. Folder with the same name already exists in the parent folder.</returns>
         /// <returns code="500">Internal server error.</returns>
         [HttpPost]
         [SessionRequired]

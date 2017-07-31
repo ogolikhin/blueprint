@@ -151,8 +151,14 @@ namespace AdminStore.Repositories
             {
                 switch (errorCode.Value)
                 {
+                    case (int)SqlErrorCodes.GeneralSqlError:
+                        throw new Exception(ErrorMessages.GeneralErrorOfCreatingFolder);
+
                     case (int) SqlErrorCodes.FolderWithSuchNameExistsInParentFolder:
-                        throw new BadRequestException(ErrorMessages.FolderWithSuchNameExistsInParentFolder, ErrorCodes.BadRequest);
+                        throw new ConflictException(ErrorMessages.FolderWithSuchNameExistsInParentFolder, ErrorCodes.Conflict);
+
+                    case (int)SqlErrorCodes.ParentFolderNotExists:
+                        throw new ResourceNotFoundException(ErrorMessages.ParentFolderNotExists, ErrorCodes.ResourceNotFound);
 
                     default:
                         return folderId;
@@ -207,7 +213,7 @@ namespace AdminStore.Repositories
         {
             if (!folderDto.ParentFolderId.HasValue)
             {
-                throw new ResourceNotFoundException(ErrorMessages.ParentFolderNotExist, ErrorCodes.ResourceNotFound);
+                throw new ResourceNotFoundException(ErrorMessages.ParentFolderNotExists, ErrorCodes.ResourceNotFound);
             }
 
             var parameters = new DynamicParameters();
@@ -227,8 +233,8 @@ namespace AdminStore.Repositories
                     case (int)SqlErrorCodes.InstanceFolderNameIsNullOrEmpty:
                         throw new BadRequestException(ErrorMessages.GeneralErrorOfUpdatingGroup);
 
-                    case (int)SqlErrorCodes.InstanceFolderIsNotExist:
-                        throw new ResourceNotFoundException(ErrorMessages.ParentFolderNotExist, ErrorCodes.ResourceNotFound);
+                    case (int)SqlErrorCodes.ParentFolderNotExists:
+                        throw new ResourceNotFoundException(ErrorMessages.ParentFolderNotExists, ErrorCodes.ResourceNotFound);
                 }
             }
         }

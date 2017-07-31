@@ -132,6 +132,7 @@
     <Compile Include="Helpers\ImageHelper.cs" />
     <Compile Include="Helpers\ISqlHelper.cs" />
     <Compile Include="Helpers\ItemTypePredefinedExtension.cs" />
+    <Compile Include="Helpers\PropertyHelper.cs" />
     <Compile Include="Helpers\RemoveSecurityRelatedHeadersHttpModule.cs" />
     <Compile Include="Helpers\Security\SystemEncryptions.cs" />
     <Compile Include="Helpers\SerializationHelper.cs" />
@@ -204,6 +205,15 @@
     <Compile Include="Models\Pagination.cs" />
     <Compile Include="Models\PaginationExtensions.cs" />
     <Compile Include="Models\PermissionsItem.cs" />
+    <Compile Include="Models\ProjectMeta\ApprovalType.cs" />
+    <Compile Include="Models\ProjectMeta\ItemType.cs" />
+    <Compile Include="Models\ProjectMeta\ProjectApprovalStatus.cs" />
+    <Compile Include="Models\ProjectMeta\ProjectSetting.cs" />
+    <Compile Include="Models\ProjectMeta\ProjectTypes.cs" />
+    <Compile Include="Models\ProjectMeta\PropertyPrimitiveType.cs" />
+    <Compile Include="Models\ProjectMeta\PropertyType.cs" />
+    <Compile Include="Models\ProjectMeta\PropertyTypePredefined.cs" />
+    <Compile Include="Models\ProjectMeta\PropertyTypePredefinedExtension.cs" />
     <Compile Include="Models\ProjectNameIdPair.cs" />
     <Compile Include="Models\ProjectPermissions.cs" />
     <Compile Include="Models\QueryResult.cs" />
@@ -264,6 +274,12 @@
     <Compile Include="Repositories\JobExecutorStatusRepository.cs" />
     <Compile Include="Repositories\Licenses\ILicenseRepository.cs" />
     <Compile Include="Repositories\Licenses\LicenseRepository.cs" />
+    <Compile Include="Repositories\ProjectMeta\ISqlProjectMetaRepository.cs" />
+    <Compile Include="Repositories\ProjectMeta\PropertyXml\Models\XmlCustomProperties.cs" />
+    <Compile Include="Repositories\ProjectMeta\PropertyXml\Models\XmlCustomProperty.cs" />
+    <Compile Include="Repositories\ProjectMeta\PropertyXml\Models\XmlCustomPropertyValidValue.cs" />
+    <Compile Include="Repositories\ProjectMeta\PropertyXml\XmlModelSerializer.cs" />
+    <Compile Include="Repositories\ProjectMeta\SqlProjectMetaRepository.cs" />
     <Compile Include="Repositories\SqlArtifactPermissionsRepository.cs" />
     <Compile Include="Repositories\SqlArtifactRepository.cs" />
     <Compile Include="Helpers\ExceptionHelper.cs" />
@@ -290,7 +306,9 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Models\NewFolder1\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

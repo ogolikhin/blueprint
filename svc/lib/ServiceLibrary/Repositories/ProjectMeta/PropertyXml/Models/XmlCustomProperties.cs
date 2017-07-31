@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Xml.Serialization;
 
-namespace ArtifactStore.Repositories.PropertyXml.Models
+namespace ServiceLibrary.Repositories.ProjectMeta.PropertyXml.Models
 {
     // Originates from Raptor solution with some modifications
     [XmlRoot(ElementName = "CPS")]

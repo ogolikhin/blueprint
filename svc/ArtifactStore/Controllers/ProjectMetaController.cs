@@ -1,6 +1,4 @@
-﻿using ArtifactStore.Models;
-using ArtifactStore.Repositories;
-using ServiceLibrary.Attributes;
+﻿using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
@@ -8,6 +6,8 @@ using ServiceLibrary.Repositories.ConfigControl;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
+using ServiceLibrary.Models.ProjectMeta;
+using ServiceLibrary.Repositories.ProjectMeta;
 
 namespace ArtifactStore.Controllers
 {

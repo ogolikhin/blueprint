@@ -1,12 +1,15 @@
-﻿using System.Threading.Tasks;
-using ArtifactStore.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using ServiceLibrary.Models.ProjectMeta;
 
-namespace ArtifactStore.Repositories
+namespace ServiceLibrary.Repositories.ProjectMeta
 {
     public interface ISqlProjectMetaRepository
     {
         Task<ProjectTypes> GetCustomProjectTypesAsync(int projectId, int userId);
+
+        Task<ProjectTypes> GetStandardProjectTypesAsync();
+
         Task<IEnumerable<ProjectApprovalStatus>> GetApprovalStatusesAsync(int projectId, int userId);
     }
 }

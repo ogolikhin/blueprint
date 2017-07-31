@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Net.Http;
 using System.Web.Http.Controllers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -29,7 +30,7 @@ namespace ServiceLibrary.Attributes
             var validLicense = FeatureTypes.Storyteller;
             _featureLicenseHelperMock.Setup(i => i.GetValidBlueprintLicenseFeatures()).Returns(validLicense);
             var attribute = new FeatureActivationAttribute(requiredLicense, _featureLicenseHelperMock.Object);
-            var context = new HttpActionContext();
+            var context = HttpFilterHelper.CreateHttpActionContext(new HttpRequestMessage(HttpMethod.Get, ""));
             //Act
             attribute.OnActionExecuting(context);
             //Assert
@@ -45,7 +46,7 @@ namespace ServiceLibrary.Attributes
             var validLicenses = FeatureTypes.Workflow | FeatureTypes.Blueprint;
             _featureLicenseHelperMock.Setup(i => i.GetValidBlueprintLicenseFeatures()).Returns(validLicenses);
             var attribute = new FeatureActivationAttribute(requiredLicenses, _featureLicenseHelperMock.Object);
-            var context = new HttpActionContext();
+            var context = HttpFilterHelper.CreateHttpActionContext(new HttpRequestMessage(HttpMethod.Get, ""));
             //Act
             attribute.OnActionExecuting(context);
             //Assert
@@ -61,7 +62,7 @@ namespace ServiceLibrary.Attributes
             var validLicenses = FeatureTypes.BlueprintOpenApi | FeatureTypes.Blueprint;
             _featureLicenseHelperMock.Setup(i => i.GetValidBlueprintLicenseFeatures()).Returns(validLicenses);
             var attribute = new FeatureActivationAttribute(requiredLicenses, _featureLicenseHelperMock.Object);
-            var context = new HttpActionContext();
+            var context = HttpFilterHelper.CreateHttpActionContext(new HttpRequestMessage(HttpMethod.Get, ""));
             //Act
             attribute.OnActionExecuting(context);
             //Assert

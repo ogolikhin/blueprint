@@ -68,6 +68,7 @@ namespace ActionHandlerServiceTests
             TestHandlerAndMessageWithHeader(handler, message);
         }
 
+        [Ignore]
         [TestMethod]
         [ExpectedException(typeof(TenantInfoNotFoundException))]
         public void BaseMessageHandler_ThrowsTenantInfoNotFoundException_WhenTenantIsNotFound()

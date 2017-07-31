@@ -151,8 +151,14 @@ namespace AdminStore.Repositories
             {
                 switch (errorCode.Value)
                 {
+                    case (int)SqlErrorCodes.GeneralSqlError:
+                        throw new Exception(ErrorMessages.GeneralErrorOfCreatingFolder);
+
                     case (int) SqlErrorCodes.FolderWithSuchNameExistsInParentFolder:
-                        throw new BadRequestException(ErrorMessages.FolderWithSuchNameExistsInParentFolder, ErrorCodes.BadRequest);
+                        throw new ConflictException(ErrorMessages.FolderWithSuchNameExistsInParentFolder, ErrorCodes.Conflict);
+
+                    case (int)SqlErrorCodes.ParentFolderNotExists:
+                        throw new ResourceNotFoundException(ErrorMessages.ParentFolderNotExists, ErrorCodes.ResourceNotFound);
 
                     default:
                         return folderId;

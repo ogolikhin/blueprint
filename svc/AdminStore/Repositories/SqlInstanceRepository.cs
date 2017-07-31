@@ -50,7 +50,7 @@ namespace AdminStore.Repositories
             return folder;
         }
 
-        public async Task<List<InstanceItem>> GetInstanceFolderChildrenAsync(int folderId, int userId)
+        public async Task<List<InstanceItem>> GetInstanceFolderChildrenAsync(int folderId, int userId, bool isAdminPortal = false)
         {
             if (folderId < 1)
             {
@@ -65,6 +65,7 @@ namespace AdminStore.Repositories
             var prm = new DynamicParameters();
             prm.Add("@folderId", folderId);
             prm.Add("@userId", userId);
+            prm.Add("@isAdminPortal", isAdminPortal);
 
             return ((await _connectionWrapper.QueryAsync<InstanceItem>("GetInstanceFolderChildren", prm, commandType: CommandType.StoredProcedure))
                 ?? Enumerable.Empty<InstanceItem>()).OrderBy(i => i.Type).ThenBy(i => i.Name).ToList();

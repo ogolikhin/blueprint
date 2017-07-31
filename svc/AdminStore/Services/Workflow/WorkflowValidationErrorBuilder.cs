@@ -56,7 +56,10 @@ namespace AdminStore.Services.Workflow
         private const string TemplateXmlPropertyValuePropertyChangeActionNotSpecitied = "One or more Property Change Actions do not have a specified Property Value. A Property Change Action must have a Property Value.";
         private const string TemplateXmlArtifactTypeGenerateChildrenActionNotSpecitied = "One or more Generate Children Actions do not have a specified Artifact Type. A Generate Children Action must have an Artifact Type.";
         private const string TemplateXmlChildCountGenerateChildrenActionNotSpecitied = "One or more Generate Children Actions do not have a specified Child Count. A Generate Children Action must have a Child Count.";
-
+        private const string TemplateXmlStateConditionNotOnTriggerOfPropertyChangeEvent = "One or more Triggers of Transitions or New Artifact Events have a State Condition. Only Triggers of Property Change Events can have a State Condition.";
+        private const string TemplateXmlStateStateConditionNotSpecified = "One or more States missing on State Conditions of Triggers. The State must be specified on a State Condition.";
+        private const string TemplateXmlStateStateConditionNotFound = "State '{0}' of a State Condition is not found. The State of a State Condition must be in the Workflow.";
+        // Message sent to Chris for review.
 
         // Messages for the Data validation.
         private const string TemplateXmlWorkflowNameNotUnique = "A Workflow with Name '{0}' already exists. Workflows in Blueprint must have unique names.";
@@ -291,6 +294,18 @@ namespace AdminStore.Services.Workflow
                 case WorkflowXmlValidationErrorCodes.ChildCountGenerateChildrenActionNotSpecitied:
                     template = TemplateXmlChildCountGenerateChildrenActionNotSpecitied;
                     errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.StateConditionNotOnTriggerOfPropertyChangeEvent:
+                    template = TemplateXmlStateConditionNotOnTriggerOfPropertyChangeEvent;
+                    errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.StateStateConditionNotSpecified:
+                    template = TemplateXmlStateStateConditionNotSpecified;
+                    errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.StateStateConditionNotFound:
+                    template = TemplateXmlStateStateConditionNotFound;
+                    errParams = new object[] { (string)error.Element };
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(error.ErrorCode));

@@ -1,5 +1,6 @@
 ﻿using System.Xml.Serialization;
 using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Models.Workflow;
 
 namespace AdminStore.Models.Workflow
 {
@@ -9,6 +10,9 @@ namespace AdminStore.Models.Workflow
     [XmlType("GenerateAction")]
     public class IeGenerateAction : IeBaseAction
     {
+        [XmlIgnore]
+        public override ActionTypes ActionType => ActionTypes.Generate;
+
         [XmlElement(IsNullable = false)]
         
         public GenerateActionTypes GenerateActionType { get; set; }

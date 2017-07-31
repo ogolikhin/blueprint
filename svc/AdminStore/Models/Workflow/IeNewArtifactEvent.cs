@@ -6,6 +6,6 @@ namespace AdminStore.Models.Workflow
     public class IeNewArtifactEvent : IeEvent
     {
         [XmlIgnore]
-        public override EventType EventType => EventType.NewArtifact;
+        public override EventTypes EventType => EventTypes.NewArtifact;
     }
 }

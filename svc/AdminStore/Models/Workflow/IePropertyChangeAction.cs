@@ -1,4 +1,5 @@
 ﻿using System.Xml.Serialization;
+using ServiceLibrary.Models.Workflow;
 
 namespace AdminStore.Models.Workflow
 {
@@ -6,6 +7,9 @@ namespace AdminStore.Models.Workflow
     public class IePropertyChangeAction : IeBaseAction
     {
         #region Properties
+
+        [XmlIgnore]
+        public override ActionTypes ActionType => ActionTypes.PropertyChange;
 
         [XmlElement(IsNullable = false)]
         public string PropertyName { get; set; }

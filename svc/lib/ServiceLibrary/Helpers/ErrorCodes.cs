@@ -82,6 +82,7 @@
         public const int ApprovalRequiredArtifactNotInReview = 10002;
         public const int ReviewClosed = 10003;
         public const int ReviewActive = 10004;
+        public const int ReviewStatusChanged = 10005;
 
         //User Review Errors
         public const int UserDisabled = 11001;
@@ -91,5 +92,8 @@
         public const int TenantInfoNotFound = 12000;
         public const int UnsupportedActionType = 12001;
         public const int MessageHeaderValueNotFound = 12002;
+
+        // Unexpected Errors
+        public const int UnexpectedError = 13001;
     }
 }

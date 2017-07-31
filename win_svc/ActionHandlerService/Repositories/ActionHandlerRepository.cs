@@ -62,7 +62,7 @@ namespace ActionHandlerService.Repositories
         //TODO: remove once we get the tenant db ready
         public async Task<string> GetTenantId()
         {
-            return (await ConnectionWrapper.QueryAsync<string>("SELECT TenantId FROM Instances", commandType: CommandType.Text)).FirstOrDefault();
+            return (await ConnectionWrapper.QueryAsync<string>("SELECT TenantId FROM dbo.Instances", commandType: CommandType.Text)).FirstOrDefault();
         }
     }
 }

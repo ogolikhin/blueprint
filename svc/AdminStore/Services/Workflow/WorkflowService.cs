@@ -301,9 +301,10 @@ namespace AdminStore.Services.Workflow
                     Select(e => new IeTransitionEvent {
                         Id = e.WorkflowEventId,
                         Name = e.Name,
-                        //FromStateId = e.FromStateId,
+                        FromStateId = e.FromStateId,
                         FromState = e.FromState,
                         ToState = e.ToState,
+                        ToStateId = e.ToStateId,
                         Triggers = SerializationHelper.FromXml<List<IeTrigger>>(e.Triggers)
                     }).Distinct().ToList(),
                 PropertyChangeEvents = workflowEvents.Where(e => e.Type == (int)DWorkflowEventType.PropertyChange).

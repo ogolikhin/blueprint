@@ -8,6 +8,7 @@ namespace ServiceLibrary.Models.Workflow
     public class XmlWorkflowEventTriggers
     {
         private List<XmlWorkflowEventTrigger> _triggers;
+
         [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
         [XmlElement(ElementName = "T")]
         public List<XmlWorkflowEventTrigger> Triggers

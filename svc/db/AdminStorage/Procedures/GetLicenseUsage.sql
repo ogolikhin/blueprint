@@ -5,11 +5,11 @@ Description:	Returns license usage information
 
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetLicenseUsage]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetLicenseUsage]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[AdminStore].[GetLicenseUsage]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [AdminStore].[GetLicenseUsage]
 GO
 
-CREATE PROCEDURE [dbo].[GetLicenseUsage]
+CREATE PROCEDURE [AdminStore].[GetLicenseUsage]
 (
 	@month int = null,
 	@year int = null

@@ -21,7 +21,7 @@ namespace AccessControl.Repositories
             var repository = new SqlSessionsRepository(cxn.Object);
             var guid = new Guid("12345678901234567890123456789012");
             Session[] result = { new Session {SessionId = guid } };
-            cxn.SetupQueryAsync("GetSession", new Dictionary<string, object> { { "SessionId", guid } }, result);
+            cxn.SetupQueryAsync("[AdminStore].GetSession", new Dictionary<string, object> { { "SessionId", guid } }, result);
 
             // Act
             Session session = await repository.GetSession(guid);
@@ -39,7 +39,7 @@ namespace AccessControl.Repositories
             var repository = new SqlSessionsRepository(cxn.Object);
             var guid = new Guid("12345678901234567890123456789012");
             Session[] result = {};
-            cxn.SetupQueryAsync("GetSession", new Dictionary<string, object> { { "SessionId", guid } }, result);
+            cxn.SetupQueryAsync("[AdminStore].GetSession", new Dictionary<string, object> { { "SessionId", guid } }, result);
 
             // Act
             Session session = await repository.GetSession(guid);
@@ -61,7 +61,7 @@ namespace AccessControl.Repositories
             var repository = new SqlSessionsRepository(cxn.Object);
             int uid = 1;
             Session[] result = { new Session { UserId = uid } };
-            cxn.SetupQueryAsync("GetUserSession", new Dictionary<string, object> { { "UserId", uid } }, result);
+            cxn.SetupQueryAsync("[AdminStore].GetUserSession", new Dictionary<string, object> { { "UserId", uid } }, result);
 
             // Act
             Session session = await repository.GetUserSession(uid);
@@ -79,7 +79,7 @@ namespace AccessControl.Repositories
             var repository = new SqlSessionsRepository(cxn.Object);
             int uid = 5;
             Session[] result = { };
-            cxn.SetupQueryAsync("GetUserSession", new Dictionary<string, object> { { "UserId", uid } }, result);
+            cxn.SetupQueryAsync("[AdminStore].GetUserSession", new Dictionary<string, object> { { "UserId", uid } }, result);
 
             // Act
             Session session = await repository.GetUserSession(uid);
@@ -106,7 +106,7 @@ namespace AccessControl.Repositories
                 new Session {SessionId = new Guid("12345678901234567890123456789012")},
                 new Session {SessionId = new Guid("11111111111111111111111111111111")}
             };
-            cxn.SetupQueryAsync("SelectSessions", new Dictionary<string, object> { { "ps", ps }, { "pn", pn } }, result);
+            cxn.SetupQueryAsync("[AdminStore].SelectSessions", new Dictionary<string, object> { { "ps", ps }, { "pn", pn } }, result);
 
             // Act
             IEnumerable<Session> sessions = await repository.SelectSessions(ps, pn);
@@ -125,7 +125,7 @@ namespace AccessControl.Repositories
             int ps = 100;
             int pn = 1;
             Session[] result = {};
-            cxn.SetupQueryAsync("SelectSessions", new Dictionary<string, object> { { "ps", ps }, { "pn", pn } }, result);
+            cxn.SetupQueryAsync("[AdminStore].SelectSessions", new Dictionary<string, object> { { "ps", ps }, { "pn", pn } }, result);
 
             // Act
             IEnumerable<Session> sessions = await repository.SelectSessions(ps, pn);
@@ -152,7 +152,7 @@ namespace AccessControl.Repositories
             Guid oldSessionId = new Guid("11111111111111111111111111111111");
             Session[] result = { new Session { SessionId = newSessionId } };
             cxn.SetupQueryAsync(
-                "BeginSession",
+                "[AdminStore].BeginSession",
                 new Dictionary<string, object> { { "UserId", userId }, { "UserName", userName }, { "LicenseLevel", licenseLevel }, { "IsSso", false }, { "LicenseLockTimeMinutes", WebApiConfig.LicenseHoldTime }, { "OldSessionId", null } },
                 result,
                 new Dictionary<string, object> { { "OldSessionId", oldSessionId } });
@@ -179,7 +179,7 @@ namespace AccessControl.Repositories
             Guid newSessionId = new Guid("12345678901234567890123456789012");
             Session[] result = { new Session { SessionId = newSessionId } };
             cxn.SetupQueryAsync(
-                "BeginSession",
+                "[AdminStore].BeginSession",
                 new Dictionary<string, object> { { "UserId", userId }, { "UserName", userName }, { "LicenseLevel", licenseLevel }, { "IsSso", true }, { "LicenseLockTimeMinutes", WebApiConfig.LicenseHoldTime }, { "OldSessionId", null } },
                 result,
                 new Dictionary<string, object> { { "OldSessionId", null } });
@@ -206,7 +206,7 @@ namespace AccessControl.Repositories
             var repository = new SqlSessionsRepository(cxn.Object);
             var guid = new Guid("12345678901234567890123456789012");
             Session[] result = { new Session { SessionId = guid } };
-            cxn.SetupQueryAsync("ExtendSession", new Dictionary<string, object> { { "SessionId", guid } }, result);
+            cxn.SetupQueryAsync("[AdminStore].ExtendSession", new Dictionary<string, object> { { "SessionId", guid } }, result);
 
             // Act
             Session session = await repository.ExtendSession(guid);
@@ -224,7 +224,7 @@ namespace AccessControl.Repositories
             var repository = new SqlSessionsRepository(cxn.Object);
             var guid = new Guid("12345678901234567890123456789012");
             Session[] result = { };
-            cxn.SetupQueryAsync("ExtendSession", new Dictionary<string, object> { { "SessionId", guid } }, result);
+            cxn.SetupQueryAsync("[AdminStore].ExtendSession", new Dictionary<string, object> { { "SessionId", guid } }, result);
 
             // Act
             Session session = await repository.ExtendSession(guid);
@@ -246,7 +246,7 @@ namespace AccessControl.Repositories
             var repository = new SqlSessionsRepository(cxn.Object);
             var guid = new Guid("12345678901234567890123456789012");
             var sessions = new[] { new Session { SessionId = guid } };
-            cxn.SetupQueryAsync("EndSession", new Dictionary<string, object> { { "SessionId", guid }, { "TimeoutTime", null } }, sessions);
+            cxn.SetupQueryAsync("[AdminStore].EndSession", new Dictionary<string, object> { { "SessionId", guid }, { "TimeoutTime", null } }, sessions);
 
             // Act
             Session result = await repository.EndSession(guid);
@@ -265,7 +265,7 @@ namespace AccessControl.Repositories
             var guid = new Guid("00000000000000000000000000000000");
             DateTime? timeoutTime = DateTime.UtcNow;
             var sessions = new Session[] {};
-            cxn.SetupQueryAsync("EndSession", new Dictionary<string, object> { { "SessionId", guid }, { "TimeoutTime", timeoutTime } }, sessions);
+            cxn.SetupQueryAsync("[AdminStore].EndSession", new Dictionary<string, object> { { "SessionId", guid }, { "TimeoutTime", timeoutTime } }, sessions);
 
             // Act
             Session result = await repository.EndSession(guid, timeoutTime);

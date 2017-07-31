@@ -1,8 +1,8 @@
-﻿IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[PasswordRecoveryTokens]') AND type in (N'U'))
-DROP TABLE [dbo].[PasswordRecoveryTokens]
+﻿IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[AdminStore].[PasswordRecoveryTokens]') AND type in (N'U'))
+DROP TABLE [AdminStore].[PasswordRecoveryTokens]
 GO
 
-CREATE TABLE [dbo].[PasswordRecoveryTokens](
+CREATE TABLE [AdminStore].[PasswordRecoveryTokens](
     [Login] [nvarchar](max),
     [CreationTime] [datetime] NOT NULL,
     [RecoveryToken] [uniqueidentifier] NOT NULL,

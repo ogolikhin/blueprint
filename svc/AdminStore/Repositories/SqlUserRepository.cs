@@ -141,7 +141,7 @@ namespace AdminStore.Repositories
             var prm = new DynamicParameters();
             prm.Add("@login", login);
             prm.Add("@recoverytoken", recoveryToken);
-            await _adminStorageConnectionWrapper.QueryAsync<int>("SetUserPasswordRecoveryToken", prm, commandType: CommandType.StoredProcedure);
+            await _adminStorageConnectionWrapper.QueryAsync<int>("[AdminStore].SetUserPasswordRecoveryToken", prm, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<IEnumerable<PasswordRecoveryToken>> GetPasswordRecoveryTokensAsync(Guid token)
@@ -149,7 +149,7 @@ namespace AdminStore.Repositories
             var prm = new DynamicParameters();
             prm.Add("@token", token);
 
-            return await _adminStorageConnectionWrapper.QueryAsync<PasswordRecoveryToken>("GetUserPasswordRecoveryTokens", prm, commandType: CommandType.StoredProcedure);
+            return await _adminStorageConnectionWrapper.QueryAsync<PasswordRecoveryToken>("[AdminStore].GetUserPasswordRecoveryTokens", prm, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<QueryResult<UserDto>> GetUsersAsync(Pagination pagination, Sorting sorting = null, string search = null, Func<Sorting, string> sort = null)
@@ -214,7 +214,7 @@ namespace AdminStore.Repositories
 
             var prm = new DynamicParameters();
             prm.Add("@login", login);
-            var result = (await _adminStorageConnectionWrapper.QueryAsync<int>("GetUserPasswordRecoveryRequestCount", prm, commandType: CommandType.StoredProcedure));
+            var result = (await _adminStorageConnectionWrapper.QueryAsync<int>("[AdminStore].GetUserPasswordRecoveryRequestCount", prm, commandType: CommandType.StoredProcedure));
 
             return result.FirstOrDefault() >= passwordRequestLimit;
         }

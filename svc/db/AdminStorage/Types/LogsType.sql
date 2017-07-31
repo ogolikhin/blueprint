@@ -7,15 +7,15 @@ Change History:
 Date			Name					Change
 2015/12/17		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[WriteLogs]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[WriteLogs]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[AdminStore].[WriteLogs]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [AdminStore].[WriteLogs]
 GO
 
-IF  EXISTS (SELECT * FROM sys.types st JOIN sys.schemas ss ON st.schema_id = ss.schema_id WHERE st.name = N'LogsType' AND ss.name = N'dbo')
-DROP TYPE [dbo].[LogsType]
+IF  EXISTS (SELECT * FROM sys.types st JOIN sys.schemas ss ON st.schema_id = ss.schema_id WHERE st.name = N'LogsType' AND ss.name = N'AdminStore')
+DROP TYPE [AdminStore].[LogsType]
 GO
 
-CREATE TYPE LogsType AS TABLE
+CREATE TYPE [AdminStore].[LogsType] AS TABLE
 (
 	[InstanceName] [nvarchar](1000),
 	[ProviderId] [uniqueidentifier],

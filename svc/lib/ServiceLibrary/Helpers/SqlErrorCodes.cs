@@ -17,6 +17,7 @@
         CurrentProjectIsNotExist = 50011,
         FolderWithSuchNameExistsInParentFolder = 50012,
         InstanceFolderContainsChildrenItems = 50013,
-        ParentFolderNotExists = 50014
+        ParentFolderNotExists = 50014,
+        FolderWithCurrentIdNotExist = 50015
     }
 }

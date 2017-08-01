@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -236,6 +237,42 @@ namespace AdminStore.Controllers
             var result = await _instanceRepository.DeleteInstanceFolderAsync(instanceFolderId);
 
             return Ok(new DeleteResult { TotalDeleted = result });
+        }
+
+        /// <summary>
+        /// Update folder
+        /// </summary>
+        /// <param name="folderId">Folder's identity</param>
+        /// <param name="folderDto">Folder's model</param>
+        /// <remarks>
+        /// Returns Ok result.
+        /// </remarks>
+        /// <response code="200">OK. The folder is updated.</response>
+        /// <response code="400">BadRequest. Parameters are invalid. </response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for updating the folder.</response>
+        /// <response code="404">NotFound. The folder with the current folderId doesn’t exist or removed from the system.</response>
+        /// <response code="404">NotFound. The parent folder with current id does not exist.</response>
+        /// <response code="409">Conflict. The folder with the same name already exists in the parent folder.</response>
+        /// <response code="500">Internal server error.</response>
+        [HttpPut]
+        [SessionRequired]
+        [ResponseType(typeof(HttpResponseMessage))]
+        [Route("folder/{folderId:int:min(1)}")]
+        public async Task<IHttpActionResult> UpdateInstanceFolder(int folderId, [FromBody] FolderDto folderDto)
+        {
+            if (folderDto == null)
+            {
+                throw new BadRequestException(ErrorMessages.FolderModelIsEmpty, ErrorCodes.BadRequest);
+            }
+
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageProjects);
+
+            FolderValidator.ValidateModel(folderDto);
+            
+            await _instanceRepository.UpdateFolderAsync(folderId, folderDto);
+
+            return Ok();
         }
 
         #endregion

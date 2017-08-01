@@ -22,5 +22,7 @@ namespace AdminStore.Repositories
         Task<IEnumerable<FolderDto>> GetFoldersByName(string name);
 
         Task<int> DeleteInstanceFolderAsync(int instanceFolderId);
+
+        Task UpdateFolderAsync(int folderId, FolderDto folderDto);
     }
 }

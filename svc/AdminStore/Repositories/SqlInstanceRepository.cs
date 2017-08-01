@@ -208,5 +208,36 @@ namespace AdminStore.Repositories
 
             return result;
         }
+
+        public async Task UpdateFolderAsync(int folderId, FolderDto folderDto)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@newFolderName", folderDto.Name);
+            parameters.Add("@folderId", folderId);
+            parameters.Add("@newParentFolderId", folderDto.ParentFolderId);
+
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            await _connectionWrapper.ExecuteScalarAsync<int>("UpdateFolder", parameters, commandType: CommandType.StoredProcedure);
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.GeneralSqlError:
+                        throw new Exception(ErrorMessages.GeneralErrorOfUpdatingFolder);
+
+                    case (int)SqlErrorCodes.FolderWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.FolderNotExist, ErrorCodes.ResourceNotFound);
+
+                    case (int)SqlErrorCodes.FolderWithSuchNameExistsInParentFolder:
+                        throw new ConflictException(ErrorMessages.FolderWithSuchNameExistsInParentFolder, ErrorCodes.Conflict);
+
+                    case (int)SqlErrorCodes.ParentFolderNotExists:
+                        throw new ResourceNotFoundException(ErrorMessages.ParentFolderNotExists, ErrorCodes.ResourceNotFound);
+                }
+            }
+        }
     }
 }

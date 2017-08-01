@@ -730,7 +730,6 @@ namespace ArtifactStore.Repositories
                     var artifact = reviewedArtifacts.First(it => it.Id == tocItem.Id);
                     tocItem.ArtifactVersion = artifact.ArtifactVersion;
                     tocItem.ApprovalStatus = (ApprovalType)artifact?.ApprovalFlag;
-                    tocItem.Viewed = artifact?.ViewedArtifactVersion != null;
                     tocItem.ViewedArtifactVersion = artifact?.ViewedArtifactVersion;
                 }
                 else
@@ -1271,7 +1270,6 @@ namespace ArtifactStore.Repositories
         {
             item.Name = UNATHORIZED; // unauthorize
             item.Included = false;
-            item.Viewed = false;
             item.HasAccess = false;
             item.IsApprovalRequired = false;
         }

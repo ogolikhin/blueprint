@@ -255,6 +255,7 @@
     <Compile Include="Models\Workflow\XmlPropertyChangeAction.cs" />
     <Compile Include="Models\Workflow\XmlStateCondition.cs" />
     <Compile Include="Models\Workflow\XmlTriggerPermissions.cs" />
+    <Compile Include="Models\Workflow\XmlUserGroup.cs" />
     <Compile Include="Models\Workflow\XmlWorkflowEventTrigger.cs" />
     <Compile Include="Models\Workflow\XmlWorkflowEventTriggers.cs" />
     <Compile Include="Repositories\ApplicationSettings\ApplicationSettingsRepository.cs" />

@@ -2,7 +2,7 @@
 
 namespace ServiceLibrary.Models.Workflow
 {
-    [XmlRoot("T")]
+    [XmlType("T")]
     public class XmlWorkflowEventTrigger
     {
         [XmlElement("N", IsNullable = false)]

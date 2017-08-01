@@ -5,7 +5,7 @@ using System.Xml.Serialization;
 namespace ServiceLibrary.Models.Workflow
 {
 
-    [XmlRoot(ElementName = "P")]
+    [XmlType("P")]
     public class XmlTriggerPermissions
     {
         [XmlAttribute(AttributeName = "S")]

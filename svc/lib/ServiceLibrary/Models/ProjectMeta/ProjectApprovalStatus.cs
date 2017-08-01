@@ -1,6 +1,4 @@
-﻿using ArtifactStore.Models.Review;
-
-namespace ArtifactStore.Models
+﻿namespace ServiceLibrary.Models.ProjectMeta
 {
     public class ProjectApprovalStatus
     {

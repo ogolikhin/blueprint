@@ -24,7 +24,7 @@ namespace AccessControl.Controllers
                 (
                     new List<IStatusRepository>
                     {
-                        new SqlStatusRepository(WebApiConfig.AdminStorage, "AdminStorage")
+                        new SqlStatusRepository(WebApiConfig.AdminStorage, "AdminStorage", ServiceConstants.AdminStoreDBSchema)
                     },
                     "AccessControl",
                     new ServiceLogRepository(),

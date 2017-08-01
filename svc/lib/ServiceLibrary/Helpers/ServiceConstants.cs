@@ -19,6 +19,7 @@ namespace ServiceLibrary.Helpers
         public const int VersionDraftDeleted = -1;
 
         public const string DefaultDBSchema = "[dbo]";
+        public const string AdminStoreDBSchema = "[AdminStore]";
         public const string FileStoreDBSchema = "[FileStore]";
 
         public const int MaxSearchItems = 500;

@@ -1,4 +1,4 @@
-﻿namespace ArtifactStore.Models
+﻿namespace ServiceLibrary.Models.ProjectMeta
 {
     // The content is copied from the Raptor solution, and Display attributes are removed.
     // KEEP IN SYNC!

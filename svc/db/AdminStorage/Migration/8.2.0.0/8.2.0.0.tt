@@ -4,17 +4,19 @@
 -- -----------------------------------------------------------------------------------------------
 -- Migration 8.2.0.0
 -- -----------------------------------------------------------------------------------------------
-IF NOT ([dbo].[IsSchemaVersionLessOrEqual](N'8.2.0') <> 0) 
+IF NOT ([AdminStore].[IsSchemaVersionLessOrEqual](N'8.2.0') <> 0) 
 	set noexec on
 Print 'Migrating 8.2.0.0 ...'
 -- -----------------------------------------------------------------------------------------------
 
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"RemoveDboAssociations.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Jobs\Blueprint_AdminStorage_Maintenance.sql" ) ) #>
 
 -- -----------------------------------------------------------------------------------------------
 -- Always add your code just above this comment block
 -- -----------------------------------------------------------------------------------------------
-IF ([dbo].[IsSchemaVersionLessOrEqual](N'8.2.0') <> 0)
-	EXEC [dbo].[SetSchemaVersion] @value = N'8.2.0';
+IF ([AdminStore].[IsSchemaVersionLessOrEqual](N'8.2.0') <> 0)
+	EXEC [AdminStore].[SetSchemaVersion] @value = N'8.2.0';
 GO
 set noexec off
 -- -----------------------------------------------------------------------------------------------

@@ -9,7 +9,7 @@ namespace AdminStore.Repositories
     {
         Task<InstanceItem> GetInstanceFolderAsync(int folderId, int userId);
 
-        Task<List<InstanceItem>> GetInstanceFolderChildrenAsync(int folderId, int userId);
+        Task<List<InstanceItem>> GetInstanceFolderChildrenAsync(int folderId, int userId, bool checkViewProjectsPermissions = false);
 
         Task<InstanceItem> GetInstanceProjectAsync(int projectId, int userId);
 
@@ -22,5 +22,7 @@ namespace AdminStore.Repositories
         Task<IEnumerable<FolderDto>> GetFoldersByName(string name);
 
         Task<int> DeleteInstanceFolderAsync(int instanceFolderId);
+
+        Task UpdateFolderAsync(int folderId, FolderDto folderDto);
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace ArtifactStore.Models
+﻿namespace ServiceLibrary.Models.ProjectMeta
 {
     public enum PropertyPrimitiveType
     {

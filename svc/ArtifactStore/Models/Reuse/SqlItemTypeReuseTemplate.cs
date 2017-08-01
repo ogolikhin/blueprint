@@ -1,5 +1,6 @@
 ﻿using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Models.ProjectMeta;
 
 namespace ArtifactStore.Models.Reuse
 {

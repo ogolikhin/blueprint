@@ -76,7 +76,7 @@ namespace AdminStore.Controllers
         /// Get Instance Folder Children
         /// </summary>
         /// <param name="id"></param>
-        /// <param name="isViewProjectsPermissions"></param>
+        /// <param name="checkViewProjectsPermissions"></param>
         /// <remarks>
         /// Returns child instance folders and live projects that the user has the read permission.
         /// If an instance folder for the specified id is not found, the empty collection is returned.
@@ -88,9 +88,9 @@ namespace AdminStore.Controllers
         [Route("folders/{id:int:min(1)}/children"), SessionRequired]
         [ResponseType(typeof(List<InstanceItem>))]
         [ActionName("GetInstanceFolderChildren")]
-        public async Task<List<InstanceItem>> GetInstanceFolderChildrenAsync(int id, bool isViewProjectsPermissions = false)
+        public async Task<List<InstanceItem>> GetInstanceFolderChildrenAsync(int id, bool checkViewProjectsPermissions = false)
         {
-            return await _instanceRepository.GetInstanceFolderChildrenAsync(id, Session.UserId, isViewProjectsPermissions);
+            return await _instanceRepository.GetInstanceFolderChildrenAsync(id, Session.UserId, checkViewProjectsPermissions);
         }
 
         /// <summary>

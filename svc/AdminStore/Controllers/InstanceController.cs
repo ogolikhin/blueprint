@@ -265,31 +265,12 @@ namespace AdminStore.Controllers
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageProjects);
 
-            var existingFolder = await _instanceRepository.GetInstanceFolderAsync(folderId, Session.UserId);
-            if (existingFolder == null)
-            {
-                throw new ResourceNotFoundException(ErrorMessages.FolderNotExist, ErrorCodes.ResourceNotFound);
-            }
-
-            if (folderDto.ParentFolderId.HasValue && existingFolder.ParentFolderId != folderDto.ParentFolderId)
-            {
-                var instanceItems = await _instanceRepository.GetInstanceFolderChildrenAsync(folderDto.ParentFolderId.Value, Session.UserId);
-                if (!IsFolderNameUnique(instanceItems, folderDto.Name))
-                {
-                    throw new BadRequestException(ErrorMessages.FolderWithSuchNameExistsInParentFolder);
-                }
-            }
-
+            FolderValidator.ValidateModel(folderDto);
+            
             await _instanceRepository.UpdateFolderAsync(folderId, folderDto);
 
             return Ok();
         }
-
-        private bool IsFolderNameUnique(IEnumerable<InstanceItem> entityCollection, string name)
-        {
-            return entityCollection.Any(f => f.Name == name) == false;
-        }
-
 
         #endregion
     }

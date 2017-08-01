@@ -211,11 +211,6 @@ namespace AdminStore.Repositories
 
         public async Task UpdateFolderAsync(int folderId, FolderDto folderDto)
         {
-            if (!folderDto.ParentFolderId.HasValue)
-            {
-                throw new ResourceNotFoundException(ErrorMessages.ParentFolderNotExists, ErrorCodes.ResourceNotFound);
-            }
-
             var parameters = new DynamicParameters();
             parameters.Add("@newFolderName", folderDto.Name);
             parameters.Add("@folderId", folderId);
@@ -230,8 +225,14 @@ namespace AdminStore.Repositories
             {
                 switch (errorCode.Value)
                 {
-                    case (int)SqlErrorCodes.InstanceFolderNameIsNullOrEmpty:
-                        throw new BadRequestException(ErrorMessages.GeneralErrorOfUpdatingGroup);
+                    case (int)SqlErrorCodes.GeneralSqlError:
+                        throw new Exception(ErrorMessages.GeneralErrorOfUpdatingFolder);
+
+                    case (int)SqlErrorCodes.FolderWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.FolderNotExist, ErrorCodes.ResourceNotFound);
+
+                    case (int)SqlErrorCodes.FolderWithSuchNameExistsInParentFolder:
+                        throw new ConflictException(ErrorMessages.FolderWithSuchNameExistsInParentFolder, ErrorCodes.Conflict);
 
                     case (int)SqlErrorCodes.ParentFolderNotExists:
                         throw new ResourceNotFoundException(ErrorMessages.ParentFolderNotExists, ErrorCodes.ResourceNotFound);

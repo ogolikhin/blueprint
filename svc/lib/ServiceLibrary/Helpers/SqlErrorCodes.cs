@@ -18,6 +18,6 @@
         FolderWithSuchNameExistsInParentFolder = 50012,
         InstanceFolderContainsChildrenItems = 50013,
         ParentFolderNotExists = 50014,
-        InstanceFolderNameIsNullOrEmpty = 50015
+        FolderWithCurrentIdNotExist = 50015
     }
 }

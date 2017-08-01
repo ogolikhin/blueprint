@@ -83,10 +83,10 @@ namespace AdminStore.Controllers
         {
             //Arrange
             var folderId = 99;
-            var isAdminPortal = false;
+            var isViewProjectsPermissions = false;
             var children = new List<InstanceItem>();
             _instanceRepositoryMock
-                .Setup(r => r.GetInstanceFolderChildrenAsync(folderId, UserId, isAdminPortal))
+                .Setup(r => r.GetInstanceFolderChildrenAsync(folderId, UserId, isViewProjectsPermissions))
                 .ReturnsAsync(children);
             var mockServiceLogRepository = new Mock<IServiceLogRepository>();
 

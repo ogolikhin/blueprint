@@ -111,10 +111,8 @@
     </Compile>
     <Compile Include="Helpers\Validators\IPropertyValidator.cs" />
     <Compile Include="Helpers\MentionHelper.cs" />
-    <Compile Include="Helpers\PropertyHelper.cs" />
     <Compile Include="Helpers\SensitivityCommonHelper.cs" />
     <Compile Include="Models\Review\ParticipantArtifactStats.cs" />
-    <Compile Include="Models\PropertyTypePredefinedExtension.cs" />
     <Compile Include="Models\Reuse\ItemTypeReuseTemplate.cs" />
     <Compile Include="Models\Reuse\PropertyTypeReuseTemplate.cs" />
     <Compile Include="Models\Reuse\ReconcileProperty.cs" />
@@ -133,13 +131,6 @@
     <Compile Include="Models\ArtifactDetailsResultSet.cs" />
     <Compile Include="Models\FilesInfo.cs" />
     <Compile Include="Models\DiscussionResultSet.cs" />
-    <Compile Include="Models\ItemType.cs" />
-    <Compile Include="Models\ProjectApprovalStatus.cs" />
-    <Compile Include="Models\ProjectSetting.cs" />
-    <Compile Include="Models\ProjectTypes.cs" />
-    <Compile Include="Models\PropertyPrimitiveType.cs" />
-    <Compile Include="Models\PropertyType.cs" />
-    <Compile Include="Models\PropertyTypePredefined.cs" />
     <Compile Include="Models\RelationshipResultSet.cs" />
     <Compile Include="Models\ReviewRelationshipResultSet.cs" />
     <Compile Include="Models\Review\AssignArtifactsApprovalParameter.cs" />
@@ -154,7 +145,6 @@
     <Compile Include="Models\Review\ReviewArtifactApprovalParameter.cs" />
     <Compile Include="Models\Review\ReviewArtifactIndex.cs" />
     <Compile Include="Models\Review\ReviewArtifactDetails.cs" />
-    <Compile Include="Models\Review\ApprovalType.cs" />
     <Compile Include="Models\Review\BaseReviewArtifact.cs" />
     <Compile Include="Models\Review\ReviewArtifactVersionNumber.cs" />
     <Compile Include="Models\Review\ReviewedArtifact.cs" />
@@ -179,11 +169,6 @@
     <Compile Include="Repositories\IDiscussionsRepository.cs" />
     <Compile Include="Repositories\IArtifactVersionsRepository.cs" />
     <Compile Include="Repositories\IReviewsRepository.cs" />
-    <Compile Include="Repositories\ISqlProjectMetaRepository.cs" />
-    <Compile Include="Repositories\PropertyXml\Models\XmlCustomProperties.cs" />
-    <Compile Include="Repositories\PropertyXml\Models\XmlCustomProperty.cs" />
-    <Compile Include="Repositories\PropertyXml\Models\XmlCustomPropertyValidValue.cs" />
-    <Compile Include="Repositories\PropertyXml\XmlModelSerializer.cs" />
     <Compile Include="Models\Reuse\SqlItemTypeInfo.cs" />
     <Compile Include="Models\Reuse\SqlPropertyTypeInfo.cs" />
     <Compile Include="Repositories\Reuse\SqlReuseRepository.cs" />
@@ -191,7 +176,6 @@
     <Compile Include="Repositories\SqlAttachmentsRepository.cs" />
     <Compile Include="Repositories\SqlArtifactVersionsRepository.cs" />
     <Compile Include="Repositories\SqlDiscussionsRepository.cs" />
-    <Compile Include="Repositories\SqlProjectMetaRepository.cs" />
     <Compile Include="Repositories\SqlRelationshipsRepository.cs" />
     <Compile Include="Repositories\SqlReviewsRepository.cs" />
     <Compile Include="Repositories\VersionControl\ArtifactsHierarchyValidator.cs" />

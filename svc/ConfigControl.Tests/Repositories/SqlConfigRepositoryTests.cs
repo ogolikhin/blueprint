@@ -24,7 +24,7 @@ namespace ConfigControl.Repositories
                 new ConfigSetting { Group = "group", IsRestricted = true, Key = "key2", Value = "value2" }
             };
             cxn.SetupQueryAsync(
-                "GetConfigSettings",
+                "[AdminStore].GetConfigSettings",
                 new Dictionary<string, object> { { "AllowRestricted", true } },
                 result);
 

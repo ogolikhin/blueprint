@@ -110,6 +110,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\ArtifactPermissionsRepositoryTests.cs" />
     <Compile Include="Repositories\FileRepositoryTests.cs" />
+    <Compile Include="Repositories\ProjectMeta\SqlProjectMetaRepositoryTests.cs" />
     <Compile Include="Repositories\SqlArtifactRepositoryTests.cs" />
     <Compile Include="Repositories\SqlConnectionWrapperMock.cs" />
     <Compile Include="Repositories\ConfigControl\ServiceLogRepositoryTests.cs" />

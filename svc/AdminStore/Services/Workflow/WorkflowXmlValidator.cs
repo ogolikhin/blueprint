@@ -289,6 +289,8 @@ namespace AdminStore.Services.Workflow
                     hasActionTriggerNotSpecifiedError = true;
                 }
 
+                ValidateTriggerConditions(transition, stateNames, result);
+
                 transition.Triggers?.ForEach(t => ValidateAction(t?.Action, result));
             }
 
@@ -373,6 +375,9 @@ namespace AdminStore.Services.Workflow
                     hasActionTriggerNotSpecifiedError = true;
                 }
 
+                ValidateTriggerConditions(pcEvent, stateNames, result);
+                ValidatePermittedActions(pcEvent, result);
+
                 pcEvent.Triggers?.ForEach(t => ValidateAction(t?.Action, result));
             }
 
@@ -447,6 +452,8 @@ namespace AdminStore.Services.Workflow
                     });
                     hasActionTriggerNotSpecifiedError = true;
                 }
+
+                ValidateTriggerConditions(naEvent, stateNames, result);
 
                 naEvent.Triggers?.ForEach(t => ValidateAction(t?.Action, result));
             }
@@ -552,6 +559,9 @@ namespace AdminStore.Services.Workflow
         private bool _hasPropertyValuePropertyChangeActionNotSpecitiedError;
         private bool _hasArtifactTypeGenerateChildrenActionNotSpecitiedError;
         private bool _hasChildCountGenerateChildrenActionNotSpecitiedError;
+        private bool _hasStateConditionNotOnTriggerOfPropertyChangeEventError;
+        private bool _stateStateConditionNotSpecifiedError;
+        private bool _propertyNamePropertyChangeActionNotSpecitied;
 
         private void ResetErrorFlags()
         {
@@ -562,6 +572,27 @@ namespace AdminStore.Services.Workflow
             _hasPropertyValuePropertyChangeActionNotSpecitiedError = false;
             _hasArtifactTypeGenerateChildrenActionNotSpecitiedError = false;
             _hasChildCountGenerateChildrenActionNotSpecitiedError = false;
+            _hasStateConditionNotOnTriggerOfPropertyChangeEventError = false;
+            _stateStateConditionNotSpecifiedError = false;
+            _propertyNamePropertyChangeActionNotSpecitied = false;
+        }
+
+        private void ValidatePermittedActions(IeEvent wEvent, WorkflowXmlValidationResult result)
+        {
+            // Currently the only action constrain is that
+            // Property Change Event can have only Email Notification Action.
+            if (!_propertyNamePropertyChangeActionNotSpecitied
+                && wEvent.EventType == EventTypes.PropertyChange
+                && wEvent.Triggers != null
+                && wEvent.Triggers.Any(t => t?.Action != null && t.Action.ActionType != ActionTypes.EmailNotification))
+            {
+                result.Errors.Add(new WorkflowXmlValidationError
+                {
+                    Element = wEvent,
+                    ErrorCode = WorkflowXmlValidationErrorCodes.PropertyChangeEventActionNotSupported
+                });
+                _propertyNamePropertyChangeActionNotSpecitied = true;
+            }
         }
 
         private void ValidateAction(IeBaseAction action, WorkflowXmlValidationResult result)
@@ -580,18 +611,19 @@ namespace AdminStore.Services.Workflow
                     ValidatePropertyChangeAction((IePropertyChangeAction) action, result);
                     break;
                 case ActionTypes.Generate:
-                    ValidateGenerateAction((IeGenerateAction)action, result);
+                    ValidateGenerateAction((IeGenerateAction) action, result);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(action.ActionType));
             }
         }
 
-        private void ValidateEmailNotificationAction(IeEmailNotificationAction action, WorkflowXmlValidationResult result)
+        private void ValidateEmailNotificationAction(IeEmailNotificationAction action,
+            WorkflowXmlValidationResult result)
         {
             if (!_hasRecipientsEmailNotificationActionNotSpecitiedError
-                        && ((action.Emails == null || !action.Emails.Any())
-                        && string.IsNullOrWhiteSpace(action.PropertyName)))
+                && ((action.Emails == null || !action.Emails.Any())
+                    && string.IsNullOrWhiteSpace(action.PropertyName)))
             {
                 result.Errors.Add(new WorkflowXmlValidationError
                 {
@@ -688,6 +720,61 @@ namespace AdminStore.Services.Workflow
                     _hasChildCountGenerateChildrenActionNotSpecitiedError = true;
                 }
             }
+        }
+
+        private void ValidateTriggerConditions(IeEvent wEvent, ICollection<string> states, WorkflowXmlValidationResult result)
+        {
+            ValidateConditionTriggerConditions(wEvent, states, result);
+        }
+
+        private void ValidateConditionTriggerConditions(IeEvent wEvent, ICollection<string> states, WorkflowXmlValidationResult result)
+        {
+            if (wEvent.Triggers == null || !wEvent.Triggers.Any())
+            {
+                return;
+            }
+
+            if (!_hasStateConditionNotOnTriggerOfPropertyChangeEventError
+                && wEvent.EventType != EventTypes.PropertyChange
+                && wEvent.Triggers.Any(t => t?.Condition?.ConditionType == ConditionTypes.State))
+            {
+                result.Errors.Add(new WorkflowXmlValidationError
+                {
+                    Element = wEvent,
+                    ErrorCode = WorkflowXmlValidationErrorCodes.StateConditionNotOnTriggerOfPropertyChangeEvent
+                });
+                _hasStateConditionNotOnTriggerOfPropertyChangeEventError = true;
+            }
+
+            if (wEvent.EventType == EventTypes.PropertyChange)
+            {
+                if (!_stateStateConditionNotSpecifiedError
+                && wEvent.Triggers.Any(t => t?.Condition?.ConditionType == ConditionTypes.State
+                                        && !ValidatePropertyNotEmpty(((IeStateCondition)t.Condition).State)))
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = wEvent,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.StateStateConditionNotSpecified
+                    });
+                    _stateStateConditionNotSpecifiedError = true;
+                }
+
+
+                foreach (var trigger in wEvent.Triggers.Where(t => t?.Condition?.ConditionType == ConditionTypes.State))
+                {
+                    var stateCondition = (IeStateCondition) trigger.Condition;
+                    if (ValidatePropertyNotEmpty(stateCondition.State) && !states.Contains(stateCondition.State))
+                    {
+                        result.Errors.Add(new WorkflowXmlValidationError
+                        {
+                            Element = stateCondition.State,
+                            ErrorCode = WorkflowXmlValidationErrorCodes.StateStateConditionNotFound
+                        });
+                    }
+                }
+            }
+
         }
 
         #endregion

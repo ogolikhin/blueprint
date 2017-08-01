@@ -1,8 +1,8 @@
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[EndSession]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[EndSession]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[AdminStore].[EndSession]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [AdminStore].[EndSession]
 GO
 
-CREATE PROCEDURE [dbo].[EndSession] 
+CREATE PROCEDURE [AdminStore].[EndSession] 
 (
 	@SessionId uniqueidentifier,
 	@EndTime datetime,
@@ -16,7 +16,7 @@ BEGIN
 		BEGIN TRANSACTION;
 
 		-- [Sessions]
-		UPDATE [dbo].[Sessions] SET [BeginTime] = NULL, [EndTime] = @EndTime
+		UPDATE [AdminStore].[Sessions] SET [BeginTime] = NULL, [EndTime] = @EndTime
 		OUTPUT Inserted.[UserId], Inserted.[SessionId], Inserted.[BeginTime], Inserted.[EndTime], Inserted.[UserName], Inserted.[LicenseLevel], Inserted.[IsSso]
 		WHERE [SessionId] = @SessionId AND [BeginTime] IS NOT NULL
 		AND (@TimeoutTime IS NULL OR @TimeoutTime = [EndTime]);
@@ -25,8 +25,8 @@ BEGIN
 			-- [LicenseActivities]
 			DECLARE @UserId int
 			DECLARE @LicenseLevel int
-			SELECT @UserId = [UserId], @LicenseLevel = [LicenseLevel] FROM [dbo].[Sessions] WHERE [SessionId] = @SessionId;
-			INSERT INTO [dbo].[LicenseActivities] ([UserId], [UserLicenseType], [TransactionType], [ActionType], [ConsumerType], [TimeStamp])
+			SELECT @UserId = [UserId], @LicenseLevel = [LicenseLevel] FROM [AdminStore].[Sessions] WHERE [SessionId] = @SessionId;
+			INSERT INTO [AdminStore].[LicenseActivities] ([UserId], [UserLicenseType], [TransactionType], [ActionType], [ConsumerType], [TimeStamp])
 			VALUES
 				(@UserId
 				,@LicenseLevel
@@ -38,8 +38,8 @@ BEGIN
 			-- [LicenseActivityDetails]
 			DECLARE @LicenseActivityId int = SCOPE_IDENTITY()
 			DECLARE @ActiveLicenses table ( LicenseLevel int, Count int )
-			INSERT INTO @ActiveLicenses EXEC [dbo].[GetActiveLicenses] @EndTime, @LicenseLockTimeMinutes
-			INSERT INTO [dbo].[LicenseActivityDetails] ([LicenseActivityId], [LicenseType], [Count])
+			INSERT INTO @ActiveLicenses EXEC [AdminStore].[GetActiveLicenses] @EndTime, @LicenseLockTimeMinutes
+			INSERT INTO [AdminStore].[LicenseActivityDetails] ([LicenseActivityId], [LicenseType], [Count])
 			SELECT @LicenseActivityId, [LicenseLevel], [Count]
 			FROM @ActiveLicenses
 		END

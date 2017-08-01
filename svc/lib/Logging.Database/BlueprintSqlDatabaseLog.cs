@@ -20,7 +20,7 @@ namespace Logging.Database
         /// <summary>
         /// Default stored procedure name used to write logs.
         /// </summary>
-        public const string DefaultStoredProcedureName = "WriteLogs";
+        public const string DefaultStoredProcedureName = "[AdminStore].WriteLogs";
 
         /// <summary>
         /// Subscribes to an <see cref="IObservable{EventEntry}"/> using a <see cref="BlueprintSqlDatabaseSink"/>.

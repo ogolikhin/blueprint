@@ -1,8 +1,8 @@
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[BeginSession]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[BeginSession]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[AdminStore].[BeginSession]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [AdminStore].[BeginSession]
 GO
 
-CREATE PROCEDURE [dbo].[BeginSession] 
+CREATE PROCEDURE [AdminStore].[BeginSession] 
 (
 	@UserId int,
 	@BeginTime datetime,
@@ -20,24 +20,24 @@ BEGIN
 		BEGIN TRANSACTION;
 
 		-- [Sessions]
-		SELECT @OldSessionId = SessionId FROM [dbo].[Sessions] WHERE UserId = @UserId;
+		SELECT @OldSessionId = SessionId FROM [AdminStore].[Sessions] WHERE UserId = @UserId;
 		DECLARE @NewSessionId uniqueidentifier = NEWID();
 		IF @OldSessionId IS NULL
 		BEGIN
-			INSERT [dbo].[Sessions] (UserId, SessionId, BeginTime, EndTime, UserName, LicenseLevel, IsSso)
+			INSERT [AdminStore].[Sessions] (UserId, SessionId, BeginTime, EndTime, UserName, LicenseLevel, IsSso)
 			OUTPUT Inserted.[UserId], Inserted.[SessionId], Inserted.[BeginTime], Inserted.[EndTime], Inserted.[UserName], Inserted.[LicenseLevel], Inserted.[IsSso]
 			VALUES (@UserId, @NewSessionId, @BeginTime, @EndTime, @UserName, @LicenseLevel, @IsSso);
 		END
 		ELSE
 		BEGIN
-			UPDATE [dbo].[Sessions]
+			UPDATE [AdminStore].[Sessions]
 			SET [SessionId] = @NewSessionId, [BeginTime] = @BeginTime, [EndTime] = @EndTime, [UserName] = @UserName, [LicenseLevel] = @LicenseLevel, [IsSso] = @IsSso 
 			OUTPUT Inserted.[UserId], Inserted.[SessionId], Inserted.[BeginTime], Inserted.[EndTime], Inserted.[UserName], Inserted.[LicenseLevel], Inserted.[IsSso]
 			WHERE [SessionId] = @OldSessionId;
 		END
 
 		-- [LicenseActivities]
-		INSERT INTO [dbo].[LicenseActivities] ([UserId], [UserLicenseType], [TransactionType], [ActionType], [ConsumerType], [TimeStamp])
+		INSERT INTO [AdminStore].[LicenseActivities] ([UserId], [UserLicenseType], [TransactionType], [ActionType], [ConsumerType], [TimeStamp])
 		VALUES
 			(@UserId
 			,@LicenseLevel
@@ -49,8 +49,8 @@ BEGIN
 		-- [LicenseActivityDetails]
 		DECLARE @LicenseActivityId int = SCOPE_IDENTITY()
 		DECLARE @ActiveLicenses table ( LicenseLevel int, Count int )
-		INSERT INTO @ActiveLicenses EXEC [dbo].[GetActiveLicenses] @BeginTime, @LicenseLockTimeMinutes
-		INSERT INTO [dbo].[LicenseActivityDetails] ([LicenseActivityId], [LicenseType], [Count])
+		INSERT INTO @ActiveLicenses EXEC [AdminStore].[GetActiveLicenses] @BeginTime, @LicenseLockTimeMinutes
+		INSERT INTO [AdminStore].[LicenseActivityDetails] ([LicenseActivityId], [LicenseType], [Count])
 		SELECT @LicenseActivityId, [LicenseLevel], [Count]
 		FROM @ActiveLicenses
 

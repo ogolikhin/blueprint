@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace ArtifactStore.Models
+namespace ServiceLibrary.Models.ProjectMeta
 {
     [JsonObject]
     public class ProjectTypes

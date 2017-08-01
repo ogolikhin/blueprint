@@ -179,8 +179,7 @@ namespace AdminStore.Repositories.Workflow
                         Action = new IePropertyChangeAction
                         {
                             PropertyName = "User Property",
-                            PropertyValue = "Group 1",
-                            IsGroup = true
+                            PropertyValue = "Group 1"
                         }
                     }
                 }
@@ -320,8 +319,7 @@ namespace AdminStore.Repositories.Workflow
                         Action = new IePropertyChangeAction
                         {
                             PropertyName = "User Property",
-                            PropertyValue = "Group 1",
-                            IsGroup = true
+                            PropertyValue = "Group 1"
                         }
                     }
                 }
@@ -1583,7 +1581,7 @@ namespace AdminStore.Repositories.Workflow
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
-            _workflow.TransitionEvents?.ForEach(e => e.Triggers?.ForEach(t =>
+            _workflow.TransitionEvents.ForEach(e => e.Triggers?.ForEach(t =>
             {
                 if (t?.Action?.ActionType == ActionTypes.Generate)
                 {
@@ -1615,6 +1613,93 @@ namespace AdminStore.Repositories.Workflow
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
             Assert.AreEqual(WorkflowXmlValidationErrorCodes.ChildCountGenerateChildrenActionNotSpecitied, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
+        public void Validate_StateConditionNotOnTriggerOfPropertyChangeEvent_ReturnsStateConditionNotOnTriggerOfPropertyChangeEventError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.TransitionEvents.ForEach(e => e.Triggers?.ForEach(t =>
+            {
+                t.Condition = new IeStateCondition { State = "Active" };
+            }));
+            _workflow.NewArtifactEvents.ForEach(e => e.Triggers?.ForEach(t =>
+            {
+                t.Condition = new IeStateCondition { State = "Active" };
+            }));
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.StateConditionNotOnTriggerOfPropertyChangeEvent, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
+        public void Validate_StateStateConditionNotSpecified_ReturnsStateStateConditionNotSpecifiedError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.PropertyChangeEvents.ForEach(e => e?.Triggers?.ForEach(t =>
+            {
+                if (t?.Condition?.ConditionType == ConditionTypes.State)
+                {
+                    ((IeStateCondition) t.Condition).State = string.Empty;
+                }
+            }));
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.StateStateConditionNotSpecified, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
+        public void Validate_StateStateConditionNotFound_ReturnsStateStateConditionNotFoundError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            var stateCondition = (IeStateCondition) _workflow.PropertyChangeEvents[0].Triggers[0].Condition;
+            stateCondition.State = "Missing State";
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.StateStateConditionNotFound, result.Errors[0].ErrorCode);
+            Assert.AreSame(stateCondition.State, result.Errors[0].Element);
+        }
+
+        [TestMethod]
+        public void Validate_PropertyChangeEventActionNotSupported_ReturnsPropertyChangeEventActionNotSupportedError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.PropertyChangeEvents[0].Triggers.Add(new IeTrigger
+            {
+                Action = new IeGenerateAction
+                {
+                    GenerateActionType = GenerateActionTypes.TestCases
+
+                }
+            });
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.PropertyChangeEventActionNotSupported, result.Errors[0].ErrorCode);
+            Assert.AreSame(_workflow.PropertyChangeEvents[0], result.Errors[0].Element);
         }
 
         #region Private methods

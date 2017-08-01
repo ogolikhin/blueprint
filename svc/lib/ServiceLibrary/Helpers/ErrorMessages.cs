@@ -87,5 +87,6 @@
         public static readonly string WorkflowImportErrorsNotFound = "The workflow import errors for GUID={0} are not found.";
         public static readonly string ParentFolderNotExists = "The parent folder with current id does not exist.";
         public static readonly string GeneralErrorOfCreatingFolder = "An error has occurred when the operation was being performed at SQL level.";
+        public static readonly string GeneralErrorOfUpdatingFolder = "An error has occurred when the operation was being performed at SQL level.";
     }
 }

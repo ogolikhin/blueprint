@@ -2,7 +2,7 @@
 using System.Xml.Serialization;
 
 // Originates from Raptor solution with some modifications
-namespace ArtifactStore.Repositories.PropertyXml.Models
+namespace ServiceLibrary.Repositories.ProjectMeta.PropertyXml.Models
 {
     [XmlType]
     public class XmlCustomProperty

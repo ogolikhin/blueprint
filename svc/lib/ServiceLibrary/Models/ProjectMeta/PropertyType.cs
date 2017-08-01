@@ -4,9 +4,8 @@ using System.Globalization;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using ServiceLibrary.Helpers;
-using ServiceLibrary.Models;
 
-namespace ArtifactStore.Models
+namespace ServiceLibrary.Models.ProjectMeta
 {
     [JsonObject]
     public class PropertyType

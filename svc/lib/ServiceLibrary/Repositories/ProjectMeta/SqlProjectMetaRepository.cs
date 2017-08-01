@@ -1,22 +1,19 @@
-﻿using ArtifactStore.Helpers;
-using ArtifactStore.Models;
-using ArtifactStore.Models.Review;
-using ArtifactStore.Repositories.PropertyXml;
-using ArtifactStore.Repositories.PropertyXml.Models;
-using Dapper;
-using ServiceLibrary.Exceptions;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Models;
-using ServiceLibrary.Repositories;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using Dapper;
+using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
+using ServiceLibrary.Models.ProjectMeta;
+using ServiceLibrary.Repositories.ProjectMeta.PropertyXml;
+using ServiceLibrary.Repositories.ProjectMeta.PropertyXml.Models;
 
-namespace ArtifactStore.Repositories
+namespace ServiceLibrary.Repositories.ProjectMeta
 {
     public class SqlProjectMetaRepository : ISqlProjectMetaRepository
     {
@@ -41,12 +38,15 @@ namespace ArtifactStore.Repositories
 
         public async Task<ProjectTypes> GetCustomProjectTypesAsync(int projectId, int userId)
         {
-            if (projectId < 1)
+            if (projectId < 0)
                 throw new ArgumentOutOfRangeException(nameof(projectId));
             if (userId < 1)
                 throw new ArgumentOutOfRangeException(nameof(userId));
 
-            await CheckProjectIsAccessible(projectId, userId);
+            if(projectId > 0)
+            {
+                await CheckProjectIsAccessible(projectId, userId);
+            }
 
             var prm = new DynamicParameters();
             prm.Add("@projectId", projectId);
@@ -87,6 +87,12 @@ namespace ArtifactStore.Repositories
             }
 
             return projectTypes;
+        }
+
+        public async Task<ProjectTypes> GetStandardProjectTypesAsync()
+        {
+            // userId does not matter here as it's used only for projects with id greater than zero.
+            return await GetCustomProjectTypesAsync(0, 1);
         }
 
         private async Task CheckProjectIsAccessible(int projectId, int userId)
@@ -378,7 +384,7 @@ namespace ArtifactStore.Repositories
             internal bool? IsAccesible { get; set; }
         }
 
-        internal class PropertyTypeVersion
+        public class PropertyTypeVersion
         {
             internal int PropertyTypeId { get; set; }
             internal int VersionId { get; set; }
@@ -403,7 +409,7 @@ namespace ArtifactStore.Repositories
 
         }
 
-        internal class ItemTypeVersion
+        public class ItemTypeVersion
         {
             internal int ItemTypeId { get; set; }
             internal int VersionId { get; set; }
@@ -418,7 +424,7 @@ namespace ArtifactStore.Repositories
             internal string AdvancedSettings { get; set; }
         }
 
-        internal class ItemTypePropertyTypeMapRecord
+        public class ItemTypePropertyTypeMapRecord
         {
             internal int ItemTypeId { get; set; }
             internal int PropertyTypeId { get; set; }

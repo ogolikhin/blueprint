@@ -314,7 +314,7 @@ namespace ArtifactStore.Repositories
                     var addedArtifact = new RDArtifact()
                     {
                         Id = artifactToAdd,
-                        ApprovalNotRequested = false
+                        ApprovalNotRequested = true
 
                     };
                     rdReviewContents.Artifacts.Add(addedArtifact);

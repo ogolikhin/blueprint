@@ -2,20 +2,16 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
-using ArtifactStore.Helpers;
-using ArtifactStore.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
-using ServiceLibrary.Repositories;
-using static ArtifactStore.Repositories.SqlProjectMetaRepository;
-using System.Linq;
-using ArtifactStore.Models.Review;
+using ServiceLibrary.Models.ProjectMeta;
 
-namespace ArtifactStore.Repositories
+namespace ServiceLibrary.Repositories.ProjectMeta
 {
     [TestClass]
     public class SqlProjectMetaRepositoryTests
@@ -37,7 +33,7 @@ namespace ArtifactStore.Repositories
             var repository = new SqlProjectMetaRepository(cxn.Object);
 
             // Act
-            await repository.GetCustomProjectTypesAsync(0, 2);
+            await repository.GetCustomProjectTypesAsync(-1, 2);
 
             // Assert
         }
@@ -63,10 +59,10 @@ namespace ArtifactStore.Repositories
             // Arrange
             var projectId = 1;
             var userId = 2;
-            ProjectVersion[] result = { };
+            SqlProjectMetaRepository.ProjectVersion[] result = { };
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlProjectMetaRepository(cxn.Object);
-            cxn.SetupQueryAsync("GetInstanceProjectById", new Dictionary<string, object> { { "projectId", projectId }, { "userId", userId } }, result);
+            cxn.SetupQueryAsync<SqlProjectMetaRepository.ProjectVersion>("GetInstanceProjectById", new Dictionary<string, object> { { "projectId", projectId }, { "userId", userId } }, result);
 
             // Act
             await repository.GetCustomProjectTypesAsync(projectId, userId);
@@ -81,10 +77,10 @@ namespace ArtifactStore.Repositories
             // Arrange
             var projectId = 1;
             var userId = 2;
-            ProjectVersion[] result = { new ProjectVersion { IsAccesible = false } };
+            SqlProjectMetaRepository.ProjectVersion[] result = { new SqlProjectMetaRepository.ProjectVersion { IsAccesible = false } };
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlProjectMetaRepository(cxn.Object);
-            cxn.SetupQueryAsync("GetInstanceProjectById", new Dictionary<string, object> { { "projectId", projectId }, { "userId", userId } }, result);
+            cxn.SetupQueryAsync<SqlProjectMetaRepository.ProjectVersion>("GetInstanceProjectById", new Dictionary<string, object> { { "projectId", projectId }, { "userId", userId } }, result);
 
             // Act
             await repository.GetCustomProjectTypesAsync(projectId, userId);
@@ -96,17 +92,17 @@ namespace ArtifactStore.Repositories
         public async Task GetCustomProjectTypesAsync_RemoveHiddenSubartifactTypes()
         {
             // Arrange
-            var ptVersions = new List<PropertyTypeVersion>();
-            var itVersions = new List<ItemTypeVersion>
+            var ptVersions = new List<SqlProjectMetaRepository.PropertyTypeVersion>();
+            var itVersions = new List<SqlProjectMetaRepository.ItemTypeVersion>
             {
-                new ItemTypeVersion { ItemTypeId = 10, Predefined = ItemTypePredefined.Content },
-                new ItemTypeVersion { ItemTypeId = 11, Predefined = ItemTypePredefined.BaselinedArtifactSubscribe },
-                new ItemTypeVersion { ItemTypeId = 12, Predefined = ItemTypePredefined.Extension },
-                new ItemTypeVersion { ItemTypeId = 13, Predefined = ItemTypePredefined.Flow },
+                new SqlProjectMetaRepository.ItemTypeVersion { ItemTypeId = 10, Predefined = ItemTypePredefined.Content },
+                new SqlProjectMetaRepository.ItemTypeVersion { ItemTypeId = 11, Predefined = ItemTypePredefined.BaselinedArtifactSubscribe },
+                new SqlProjectMetaRepository.ItemTypeVersion { ItemTypeId = 12, Predefined = ItemTypePredefined.Extension },
+                new SqlProjectMetaRepository.ItemTypeVersion { ItemTypeId = 13, Predefined = ItemTypePredefined.Flow },
                 // Not hidden
-                new ItemTypeVersion { ItemTypeId = 13, Predefined = ItemTypePredefined.Step}
+                new SqlProjectMetaRepository.ItemTypeVersion { ItemTypeId = 13, Predefined = ItemTypePredefined.Step}
             };
-            var itptMap = new List<ItemTypePropertyTypeMapRecord>();
+            var itptMap = new List<SqlProjectMetaRepository.ItemTypePropertyTypeMapRecord>();
 
             InitRepository(ptVersions, itVersions, itptMap);
 
@@ -128,15 +124,15 @@ namespace ArtifactStore.Repositories
         public async Task GetCustomProjectTypesAsync_ArtifactTypes()
         {
             // Arrange
-            var ptVersions = new List<PropertyTypeVersion>
+            var ptVersions = new List<SqlProjectMetaRepository.PropertyTypeVersion>
             {
-                new PropertyTypeVersion { PropertyTypeId = 66 },
-                new PropertyTypeVersion { PropertyTypeId = 77 },
-                new PropertyTypeVersion { PropertyTypeId = 88 }
+                new SqlProjectMetaRepository.PropertyTypeVersion { PropertyTypeId = 66 },
+                new SqlProjectMetaRepository.PropertyTypeVersion { PropertyTypeId = 77 },
+                new SqlProjectMetaRepository.PropertyTypeVersion { PropertyTypeId = 88 }
             };
-            var itVersions = new List<ItemTypeVersion>
+            var itVersions = new List<SqlProjectMetaRepository.ItemTypeVersion>
             {
-                new ItemTypeVersion
+                new SqlProjectMetaRepository.ItemTypeVersion
                 {
                     ItemTypeId = 10,
                     Predefined = ItemTypePredefined.CustomArtifactGroup,
@@ -150,12 +146,12 @@ namespace ArtifactStore.Repositories
                     ItemTypeGroupId = 66
                 }
             };
-            var itptMap = new List<ItemTypePropertyTypeMapRecord>
+            var itptMap = new List<SqlProjectMetaRepository.ItemTypePropertyTypeMapRecord>
             {
-                new ItemTypePropertyTypeMapRecord { ItemTypeId = 10, PropertyTypeId = 66 },
-                new ItemTypePropertyTypeMapRecord { ItemTypeId = 10, PropertyTypeId = 77 },
-                new ItemTypePropertyTypeMapRecord { ItemTypeId = 20, PropertyTypeId = 77 },
-                new ItemTypePropertyTypeMapRecord { ItemTypeId = 30, PropertyTypeId = 88 }
+                new SqlProjectMetaRepository.ItemTypePropertyTypeMapRecord { ItemTypeId = 10, PropertyTypeId = 66 },
+                new SqlProjectMetaRepository.ItemTypePropertyTypeMapRecord { ItemTypeId = 10, PropertyTypeId = 77 },
+                new SqlProjectMetaRepository.ItemTypePropertyTypeMapRecord { ItemTypeId = 20, PropertyTypeId = 77 },
+                new SqlProjectMetaRepository.ItemTypePropertyTypeMapRecord { ItemTypeId = 30, PropertyTypeId = 88 }
             };
 
             InitRepository(ptVersions, itVersions, itptMap);
@@ -190,15 +186,15 @@ namespace ArtifactStore.Repositories
         public async Task GetCustomProjectTypesAsync_SubartifactsTypes()
         {
             // Arrange
-            var ptVersions = new List<PropertyTypeVersion>
+            var ptVersions = new List<SqlProjectMetaRepository.PropertyTypeVersion>
             {
-                new PropertyTypeVersion { PropertyTypeId = 66 },
-                new PropertyTypeVersion { PropertyTypeId = 77 },
-                new PropertyTypeVersion { PropertyTypeId = 88 }
+                new SqlProjectMetaRepository.PropertyTypeVersion { PropertyTypeId = 66 },
+                new SqlProjectMetaRepository.PropertyTypeVersion { PropertyTypeId = 77 },
+                new SqlProjectMetaRepository.PropertyTypeVersion { PropertyTypeId = 88 }
             };
-            var itVersions = new List<ItemTypeVersion>
+            var itVersions = new List<SqlProjectMetaRepository.ItemTypeVersion>
             {
-                new ItemTypeVersion
+                new SqlProjectMetaRepository.ItemTypeVersion
                 {
                     ItemTypeId = 20,
                     Name = "My Shape",
@@ -208,12 +204,12 @@ namespace ArtifactStore.Repositories
                     UsedInThisProject = true
                 }
             };
-            var itptMap = new List<ItemTypePropertyTypeMapRecord>
+            var itptMap = new List<SqlProjectMetaRepository.ItemTypePropertyTypeMapRecord>
             {
-                new ItemTypePropertyTypeMapRecord { ItemTypeId = 10, PropertyTypeId = 66 },
-                new ItemTypePropertyTypeMapRecord { ItemTypeId = 10, PropertyTypeId = 77 },
-                new ItemTypePropertyTypeMapRecord { ItemTypeId = 20, PropertyTypeId = 77 },
-                new ItemTypePropertyTypeMapRecord { ItemTypeId = 30, PropertyTypeId = 88 }
+                new SqlProjectMetaRepository.ItemTypePropertyTypeMapRecord { ItemTypeId = 10, PropertyTypeId = 66 },
+                new SqlProjectMetaRepository.ItemTypePropertyTypeMapRecord { ItemTypeId = 10, PropertyTypeId = 77 },
+                new SqlProjectMetaRepository.ItemTypePropertyTypeMapRecord { ItemTypeId = 20, PropertyTypeId = 77 },
+                new SqlProjectMetaRepository.ItemTypePropertyTypeMapRecord { ItemTypeId = 30, PropertyTypeId = 88 }
             };
 
             InitRepository(ptVersions, itVersions, itptMap);
@@ -246,9 +242,9 @@ namespace ArtifactStore.Repositories
         public async Task GetCustomProjectTypesAsync_TextPropertyType()
         {
             // Arrange
-            var ptVersions = new List<PropertyTypeVersion>
+            var ptVersions = new List<SqlProjectMetaRepository.PropertyTypeVersion>
             {
-                new PropertyTypeVersion
+                new SqlProjectMetaRepository.PropertyTypeVersion
                 {
                     PropertyTypeId = 66,
                     InstancePropertyTypeId = 77,
@@ -262,8 +258,8 @@ namespace ArtifactStore.Repositories
                     XmlInfo = "<CPS><CP Id=\"2269\" T=\"0\" N=\"ST-Non-Functional Requirements\" R=\"0\" AM=\"1\" AC=\"1\" SId=\"337\"><VVS/></CP></CPS>"
                 }
             };
-            var itVersions = new List<ItemTypeVersion>();
-            var itptMap = new List<ItemTypePropertyTypeMapRecord>();
+            var itVersions = new List<SqlProjectMetaRepository.ItemTypeVersion>();
+            var itptMap = new List<SqlProjectMetaRepository.ItemTypePropertyTypeMapRecord>();
 
             InitRepository(ptVersions, itVersions, itptMap);
 
@@ -296,9 +292,9 @@ namespace ArtifactStore.Repositories
         public async Task GetCustomProjectTypesAsync_NumberPropertyType()
         {
             // Arrange
-            var ptVersions = new List<PropertyTypeVersion>
+            var ptVersions = new List<SqlProjectMetaRepository.PropertyTypeVersion>
             {
-                new PropertyTypeVersion
+                new SqlProjectMetaRepository.PropertyTypeVersion
                 {
                     PropertyTypeId = 66,
                     InstancePropertyTypeId = 77,
@@ -314,8 +310,8 @@ namespace ArtifactStore.Repositories
                     XmlInfo = "<CPS><CP Id=\"2269\" T=\"0\" N=\"ST-Non-Functional Requirements\" R=\"0\" AM=\"1\" AC=\"1\" SId=\"337\"><VVS/></CP></CPS>"
                 }
             };
-            var itVersions = new List<ItemTypeVersion>();
-            var itptMap = new List<ItemTypePropertyTypeMapRecord>();
+            var itVersions = new List<SqlProjectMetaRepository.ItemTypeVersion>();
+            var itptMap = new List<SqlProjectMetaRepository.ItemTypePropertyTypeMapRecord>();
 
             InitRepository(ptVersions, itVersions, itptMap);
 
@@ -350,9 +346,9 @@ namespace ArtifactStore.Repositories
         public async Task GetCustomProjectTypesAsync_DatePropertyType()
         {
             // Arrange
-            var ptVersions = new List<PropertyTypeVersion>
+            var ptVersions = new List<SqlProjectMetaRepository.PropertyTypeVersion>
             {
-                new PropertyTypeVersion
+                new SqlProjectMetaRepository.PropertyTypeVersion
                 {
                     PropertyTypeId = 66,
                     InstancePropertyTypeId = 77,
@@ -367,8 +363,8 @@ namespace ArtifactStore.Repositories
                     XmlInfo = "<CPS><CP Id=\"2269\" T=\"0\" N=\"ST-Non-Functional Requirements\" R=\"0\" AM=\"1\" AC=\"1\" SId=\"337\"><VVS/></CP></CPS>"
                 }
             };
-            var itVersions = new List<ItemTypeVersion>();
-            var itptMap = new List<ItemTypePropertyTypeMapRecord>();
+            var itVersions = new List<SqlProjectMetaRepository.ItemTypeVersion>();
+            var itptMap = new List<SqlProjectMetaRepository.ItemTypePropertyTypeMapRecord>();
 
             InitRepository(ptVersions, itVersions, itptMap);
 
@@ -402,9 +398,9 @@ namespace ArtifactStore.Repositories
         public async Task GetCustomProjectTypesAsync_ChoicePropertyType()
         {
             // Arrange
-            var ptVersions = new List<PropertyTypeVersion>
+            var ptVersions = new List<SqlProjectMetaRepository.PropertyTypeVersion>
             {
-                new PropertyTypeVersion
+                new SqlProjectMetaRepository.PropertyTypeVersion
                 {
                     PropertyTypeId = 66,
                     InstancePropertyTypeId = 77,
@@ -417,8 +413,8 @@ namespace ArtifactStore.Repositories
                     XmlInfo = "<CPS><CP Id=\"66\" T=\"4\" N=\"Choice Property\" R=\"1\" AC=\"0\" AM=\"1\"><VVS><VV Id=\"6447\" S=\"0\" V=\"Low\" O=\"0\" /><VV Id=\"6448\" S=\"1\" V=\"Medium\" O=\"1\" /><VV Id=\"6449\" S=\"0\" V=\"High\" O=\"2\" /></VVS></CP></CPS>"
                 }
             };
-            var itVersions = new List<ItemTypeVersion>();
-            var itptMap = new List<ItemTypePropertyTypeMapRecord>();
+            var itVersions = new List<SqlProjectMetaRepository.ItemTypeVersion>();
+            var itptMap = new List<SqlProjectMetaRepository.ItemTypePropertyTypeMapRecord>();
 
             InitRepository(ptVersions, itVersions, itptMap);
 
@@ -457,9 +453,9 @@ namespace ArtifactStore.Repositories
         public async Task GetCustomProjectTypesAsync_UserPropertyType()
         {
             // Arrange
-            var ptVersions = new List<PropertyTypeVersion>
+            var ptVersions = new List<SqlProjectMetaRepository.PropertyTypeVersion>
             {
-                new PropertyTypeVersion
+                new SqlProjectMetaRepository.PropertyTypeVersion
                 {
                     PropertyTypeId = 66,
                     InstancePropertyTypeId = 77,
@@ -471,8 +467,8 @@ namespace ArtifactStore.Repositories
                     XmlInfo = "<CPS><CP Id=\"5619\" T=\"3\" N=\"User Property\" R=\"1\" AC=\"1\" AM=\"0\"><VVS /></CP></CPS>"
                 }
             };
-            var itVersions = new List<ItemTypeVersion>();
-            var itptMap = new List<ItemTypePropertyTypeMapRecord>();
+            var itVersions = new List<SqlProjectMetaRepository.ItemTypeVersion>();
+            var itptMap = new List<SqlProjectMetaRepository.ItemTypePropertyTypeMapRecord>();
 
             InitRepository(ptVersions, itVersions, itptMap);
 
@@ -533,7 +529,7 @@ namespace ArtifactStore.Repositories
                 { "@userId", userId }
             };
 
-            _cxn.SetupQueryAsync("GetInstanceProjectById", projectVersionParams, new List<ProjectVersion>() { null });
+            _cxn.SetupQueryAsync("GetInstanceProjectById", projectVersionParams, new List<SqlProjectMetaRepository.ProjectVersion>() { null });
 
             //Act
             await _repository.GetApprovalStatusesAsync(projectId, userId);
@@ -553,7 +549,7 @@ namespace ArtifactStore.Repositories
                 { "@userId", userId }
             };
 
-            _cxn.SetupQueryAsync("GetInstanceProjectById", projectVersionParams, new[] { new ProjectVersion() { IsAccesible = false } });
+            _cxn.SetupQueryAsync<SqlProjectMetaRepository.ProjectVersion>("GetInstanceProjectById", projectVersionParams, new[] { new SqlProjectMetaRepository.ProjectVersion() { IsAccesible = false } });
 
             //Act
             await _repository.GetApprovalStatusesAsync(projectId, userId);
@@ -572,7 +568,7 @@ namespace ArtifactStore.Repositories
                 { "@userId", userId }
             };
 
-            _cxn.SetupQueryAsync("GetInstanceProjectById", projectVersionParams, new[] { new ProjectVersion() { IsAccesible = true } });
+            _cxn.SetupQueryAsync<SqlProjectMetaRepository.ProjectVersion>("GetInstanceProjectById", projectVersionParams, new[] { new SqlProjectMetaRepository.ProjectVersion() { IsAccesible = true } });
 
             var projectSettingsParams = new Dictionary<string, object>
             {
@@ -614,7 +610,7 @@ namespace ArtifactStore.Repositories
                 { "@userId", userId }
             };
 
-            _cxn.SetupQueryAsync("GetInstanceProjectById", projectVersionParams, new[] { new ProjectVersion() { IsAccesible = true } });
+            _cxn.SetupQueryAsync<SqlProjectMetaRepository.ProjectVersion>("GetInstanceProjectById", projectVersionParams, new[] { new SqlProjectMetaRepository.ProjectVersion() { IsAccesible = true } });
 
             var projectSettingsParams = new Dictionary<string, object>
             {
@@ -656,7 +652,7 @@ namespace ArtifactStore.Repositories
                 { "@userId", userId }
             };
 
-            _cxn.SetupQueryAsync("GetInstanceProjectById", projectVersionParams, new[] { new ProjectVersion() { IsAccesible = true } });
+            _cxn.SetupQueryAsync<SqlProjectMetaRepository.ProjectVersion>("GetInstanceProjectById", projectVersionParams, new[] { new SqlProjectMetaRepository.ProjectVersion() { IsAccesible = true } });
 
             var projectSettingsParams = new Dictionary<string, object>
             {
@@ -698,7 +694,7 @@ namespace ArtifactStore.Repositories
                 { "@userId", userId }
             };
 
-            _cxn.SetupQueryAsync("GetInstanceProjectById", projectVersionParams, new[] { new ProjectVersion() { IsAccesible = true } });
+            _cxn.SetupQueryAsync<SqlProjectMetaRepository.ProjectVersion>("GetInstanceProjectById", projectVersionParams, new[] { new SqlProjectMetaRepository.ProjectVersion() { IsAccesible = true } });
 
             var projectSettingsParams = new Dictionary<string, object>
             {
@@ -740,7 +736,7 @@ namespace ArtifactStore.Repositories
                 { "@userId", userId }
             };
 
-            _cxn.SetupQueryAsync("GetInstanceProjectById", projectVersionParams, new[] { new ProjectVersion() { IsAccesible = true } });
+            _cxn.SetupQueryAsync<SqlProjectMetaRepository.ProjectVersion>("GetInstanceProjectById", projectVersionParams, new[] { new SqlProjectMetaRepository.ProjectVersion() { IsAccesible = true } });
 
             var projectSettingsParams = new Dictionary<string, object>
             {
@@ -782,7 +778,7 @@ namespace ArtifactStore.Repositories
                 { "@userId", userId }
             };
 
-            _cxn.SetupQueryAsync("GetInstanceProjectById", projectVersionParams, new[] { new ProjectVersion() { IsAccesible = true } });
+            _cxn.SetupQueryAsync<SqlProjectMetaRepository.ProjectVersion>("GetInstanceProjectById", projectVersionParams, new[] { new SqlProjectMetaRepository.ProjectVersion() { IsAccesible = true } });
 
             var projectSettingsParams = new Dictionary<string, object>
             {
@@ -824,7 +820,7 @@ namespace ArtifactStore.Repositories
                 { "@userId", userId }
             };
 
-            _cxn.SetupQueryAsync("GetInstanceProjectById", projectVersionParams, new[] { new ProjectVersion() { IsAccesible = true } });
+            _cxn.SetupQueryAsync<SqlProjectMetaRepository.ProjectVersion>("GetInstanceProjectById", projectVersionParams, new[] { new SqlProjectMetaRepository.ProjectVersion() { IsAccesible = true } });
 
             var projectSettingsParams = new Dictionary<string, object>
             {
@@ -862,12 +858,12 @@ namespace ArtifactStore.Repositories
         private SqlConnectionWrapperMock _cxn;
         private SqlProjectMetaRepository _repository;
 
-        private void InitRepository(IEnumerable<PropertyTypeVersion> ptVersions,
-            IEnumerable<ItemTypeVersion> itVersions,
-            IEnumerable<ItemTypePropertyTypeMapRecord> itptMap)
+        private void InitRepository(IEnumerable<SqlProjectMetaRepository.PropertyTypeVersion> ptVersions,
+            IEnumerable<SqlProjectMetaRepository.ItemTypeVersion> itVersions,
+            IEnumerable<SqlProjectMetaRepository.ItemTypePropertyTypeMapRecord> itptMap)
         {
-            ProjectVersion[] project = {new ProjectVersion {IsAccesible = true}};
-            _cxn.SetupQueryAsync("GetInstanceProjectById",
+            SqlProjectMetaRepository.ProjectVersion[] project = {new SqlProjectMetaRepository.ProjectVersion {IsAccesible = true}};
+            _cxn.SetupQueryAsync<SqlProjectMetaRepository.ProjectVersion>("GetInstanceProjectById",
                 new Dictionary<string, object> {{"projectId", _projectId}, {"userId", _userId}}, project);
 
             var mockResult = Tuple.Create(ptVersions, itVersions, itptMap);
@@ -918,31 +914,31 @@ namespace ArtifactStore.Repositories
         public void OrderProperties_AdvancedSettingsNotNull_Success()
         {
             // Arrange
-            var advancedSettings = new AdvancedSettings
+            var advancedSettings = new SqlProjectMetaRepository.AdvancedSettings
             {
-                LayoutGroups = new List<PropertyLayoutGroup>
+                LayoutGroups = new List<SqlProjectMetaRepository.PropertyLayoutGroup>
                 {
-                    new PropertyLayoutGroup
+                    new SqlProjectMetaRepository.PropertyLayoutGroup
                     {
-                        Type = GroupType.General,
-                        Properties = new List<PropertyLayout>
+                        Type = SqlProjectMetaRepository.GroupType.General,
+                        Properties = new List<SqlProjectMetaRepository.PropertyLayout>
                         {
-                            new PropertyLayout {PropertyTypeId = 17, OrderIndex = 0},
-                            new PropertyLayout {PropertyTypeId = 16, OrderIndex = 1},
-                            new PropertyLayout {PropertyTypeId = 20, OrderIndex = 2},
-                            new PropertyLayout {PropertyTypeId = 14, OrderIndex = 3},
-                            new PropertyLayout {PropertyTypeId = 11, OrderIndex = 3},
-                            new PropertyLayout {PropertyTypeId = 3, OrderIndex = 4}
+                            new SqlProjectMetaRepository.PropertyLayout {PropertyTypeId = 17, OrderIndex = 0},
+                            new SqlProjectMetaRepository.PropertyLayout {PropertyTypeId = 16, OrderIndex = 1},
+                            new SqlProjectMetaRepository.PropertyLayout {PropertyTypeId = 20, OrderIndex = 2},
+                            new SqlProjectMetaRepository.PropertyLayout {PropertyTypeId = 14, OrderIndex = 3},
+                            new SqlProjectMetaRepository.PropertyLayout {PropertyTypeId = 11, OrderIndex = 3},
+                            new SqlProjectMetaRepository.PropertyLayout {PropertyTypeId = 3, OrderIndex = 4}
                         }
                     },
-                    new PropertyLayoutGroup
+                    new SqlProjectMetaRepository.PropertyLayoutGroup
                     {
-                        Type = GroupType.Details,
-                        Properties = new List<PropertyLayout>
+                        Type = SqlProjectMetaRepository.GroupType.Details,
+                        Properties = new List<SqlProjectMetaRepository.PropertyLayout>
                         {
-                            new PropertyLayout {PropertyTypeId = 7, OrderIndex = 0},
-                            new PropertyLayout {PropertyTypeId = 6, OrderIndex = 1},
-                            new PropertyLayout {PropertyTypeId = 12, OrderIndex = 2}
+                            new SqlProjectMetaRepository.PropertyLayout {PropertyTypeId = 7, OrderIndex = 0},
+                            new SqlProjectMetaRepository.PropertyLayout {PropertyTypeId = 6, OrderIndex = 1},
+                            new SqlProjectMetaRepository.PropertyLayout {PropertyTypeId = 12, OrderIndex = 2}
                         }
                     }
                 }
@@ -953,7 +949,7 @@ namespace ArtifactStore.Repositories
             TestOrderProperties(advancedSettings, expectedOrder);
         }
 
-        private void TestOrderProperties(AdvancedSettings advancedSettings, List<int> expectedOrder)
+        private void TestOrderProperties(SqlProjectMetaRepository.AdvancedSettings advancedSettings, List<int> expectedOrder)
         {
             //Arrange
             var propertyTypes = new List<PropertyType>
@@ -986,7 +982,7 @@ namespace ArtifactStore.Repositories
             };
 
             // Act
-            var actualOrder = OrderProperties(propertyTypeIds,
+            var actualOrder = SqlProjectMetaRepository.OrderProperties(propertyTypeIds,
                 propertyTypes, advancedSettings);
 
             // Assert

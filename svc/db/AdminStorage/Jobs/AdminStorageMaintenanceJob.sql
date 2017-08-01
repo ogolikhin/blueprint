@@ -47,7 +47,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 
 /****** Object:  Step [Delete old logs from AdminStorage]    Script Date: 3/15/2017 9:41:29 AM ******/
-DECLARE @cmd nvarchar(max) = N'[dbo].[DeleteLogs]';
+DECLARE @cmd nvarchar(max) = N'[AdminStore].[DeleteLogs]';
 
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep 
 		@job_id=@jobId, 

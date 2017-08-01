@@ -1,4 +1,5 @@
 ﻿using System;
+using ServiceLibrary.Models.ProjectMeta;
 
 namespace ArtifactStore.Models.Review
 {

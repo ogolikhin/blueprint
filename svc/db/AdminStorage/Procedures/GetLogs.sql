@@ -8,12 +8,12 @@ Date			Name					Change
 Feb 25 2016		Dmitry Lopyrev			Initial Version
 Jun 7 2016		Dmitry Lopyrev			Updated
 ******************************************************************************************************************************/
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetLogs]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetLogs]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[AdminStore].[GetLogs]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [AdminStore].[GetLogs]
 GO
 
 
-CREATE PROCEDURE [dbo].[GetLogs]  
+CREATE PROCEDURE [AdminStore].[GetLogs]  
 (
   @recordlimit int,
   @recordid int = null

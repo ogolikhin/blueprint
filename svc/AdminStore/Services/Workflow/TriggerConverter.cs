@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using AdminStore.Models.Workflow;
 using ArtifactStore.Helpers;
 using ServiceLibrary.Exceptions;
@@ -14,15 +15,18 @@ namespace AdminStore.Services.Workflow
         #region Interface Implementation
 
         public XmlWorkflowEventTriggers ToXmlModel(IEnumerable<IeTrigger> ieTriggers, IDictionary<string, int> artifactTypeMap,
-            IDictionary<string, int> propertyTypeMap, IDictionary<string, int> stateMap)
+            IDictionary<string, int> propertyTypeMap, IDictionary<string, int> stateMap,
+            IDictionary<string, int> userMap, IDictionary<string, int> groupMap, int currentUserId)
         {
             var xmlTriggers = new XmlWorkflowEventTriggers();
-            ieTriggers?.ForEach(t => xmlTriggers.Triggers.Add(ToXmlModel(t, artifactTypeMap, propertyTypeMap, stateMap)));
+            ieTriggers?.ForEach(t => xmlTriggers.Triggers.Add(ToXmlModel(t, artifactTypeMap, propertyTypeMap, stateMap,
+                userMap, groupMap, currentUserId)));
             return xmlTriggers;
         }
 
         public XmlWorkflowEventTrigger ToXmlModel(IeTrigger ieTrigger, IDictionary<string, int> artifactTypeMap,
-            IDictionary<string, int> propertyTypeMap, IDictionary<string, int> stateMap)
+            IDictionary<string, int> propertyTypeMap, IDictionary<string, int> stateMap,
+            IDictionary<string, int> userMap, IDictionary<string, int> groupMap, int currentUserId)
         {
             if (ieTrigger == null)
             {
@@ -40,7 +44,7 @@ namespace AdminStore.Services.Workflow
             }
 
             // Triggers must have an action.
-            xmlTrigger.Action = ToXmlModel(ieTrigger.Action, artifactTypeMap, propertyTypeMap);
+            xmlTrigger.Action = ToXmlModel(ieTrigger.Action, artifactTypeMap, propertyTypeMap, userMap, groupMap, currentUserId);
 
             return xmlTrigger;
         }
@@ -50,7 +54,8 @@ namespace AdminStore.Services.Workflow
         #region Private Methods
 
         private XmlAction ToXmlModel(IeBaseAction ieAction, IDictionary<string, int> artifactTypeMap,
-            IDictionary<string, int> propertyTypeMap)
+            IDictionary<string, int> propertyTypeMap, IDictionary<string, int> userMap, IDictionary<string, int> groupMap,
+            int currentUserId)
         {
             if (ieAction == null)
             {
@@ -62,7 +67,8 @@ namespace AdminStore.Services.Workflow
                 case ActionTypes.EmailNotification:
                     return ToXmlModel(ieAction as IeEmailNotificationAction, propertyTypeMap);
                 case ActionTypes.PropertyChange:
-                    return ToXmlModel(ieAction as IePropertyChangeAction, propertyTypeMap);
+                    return ToXmlModel(ieAction as IePropertyChangeAction, propertyTypeMap,
+                        userMap, groupMap, currentUserId);
                 case ActionTypes.Generate:
                     return ToXmlModel(ieAction as IeGenerateAction, artifactTypeMap);
                 default:
@@ -89,13 +95,17 @@ namespace AdminStore.Services.Workflow
             return xmlAction;
         }
 
-        private static XmlPropertyChangeAction ToXmlModel(IePropertyChangeAction ieAction, IDictionary<string, int> propertyTypeMap)
+        private static XmlPropertyChangeAction ToXmlModel(IePropertyChangeAction ieAction, IDictionary<string, int> propertyTypeMap,
+            IDictionary<string, int> userMap, IDictionary<string, int> groupMap, int currentUserId)
         {
             var xmlAction = new XmlPropertyChangeAction
             {
                 Name = ieAction.Name,
                 PropertyValue = ieAction.PropertyValue,
-                IsGroup = ieAction.IsGroup
+                ValidValues = ieAction.ValidValues,
+                CurrentUserId = currentUserId,
+                UsersGroups = ieAction.UsersGroups != null && ieAction.UsersGroups.Any()
+                    ? new List<XmlUserGroup>() : null
             };
 
             int propertyTypeId;
@@ -105,6 +115,25 @@ namespace AdminStore.Services.Workflow
                     ErrorCodes.UnexpectedError);
             }
             xmlAction.PropertyTypeId = propertyTypeId;
+
+            ieAction.UsersGroups?.ForEach(ug =>
+            {
+                var isGroup = ug.IsGroup.GetValueOrDefault();
+                var ugMap = isGroup ? groupMap : userMap;
+                int ugId;
+                if (!ugMap.TryGetValue(ug.Name, out ugId))
+                {
+                    throw new ExceptionWithErrorCode(I18NHelper.FormatInvariant("Id of {0} '{1}' is not found.",
+                        isGroup ? "group" : "user", ieAction.PropertyName), ErrorCodes.UnexpectedError);
+                }
+
+                xmlAction.UsersGroups.Add(new XmlUserGroup
+                {
+                    IsGroup = isGroup,
+                    Id = ugId
+                });
+            });
+
             return xmlAction;
         }
 

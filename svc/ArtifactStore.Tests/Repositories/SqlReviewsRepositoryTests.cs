@@ -10,6 +10,7 @@ using ServiceLibrary.Repositories;
 using ServiceLibrary.Models;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Services;
 
 namespace ArtifactStore.Repositories
@@ -3072,5 +3073,185 @@ namespace ArtifactStore.Repositories
         }
 
         #endregion
+
+        #region RemoveArtifactFromReview
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task RemoveArtifactsFromReviewAsync_ShouldThrow_BadRequestException()
+        {
+            // Arrange
+            var prms = new ReviewArtifactsRemovalParams
+            {
+                artifactIds = new List<int>(),
+                SelectionType = SelectionType.Selected
+            };
+            //Act
+            await _reviewsRepository.RemoveArtifactsFromReviewAsync(1, prms, 2);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task RemoveArtifactsFromReviewAsync_ShouldThrow_BadRequestException_WhenReviewClosed()
+        {
+            // Arrange
+            int reviewId = 1;
+            int userId = 2;
+            int projectId = 3;
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+
+            var PropertyValueStringResult = new[]
+            {
+               new PropertyValueString
+               {
+                   IsReviewReadOnly = true,
+                   IsDraftRevisionExists = true,
+                   ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>",
+                   RevewSubartifactId = 3,
+                   ProjectId = projectId,
+                   IsReviewLocked = true
+               }
+            };
+
+            _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters, PropertyValueStringResult);
+            var prms = new ReviewArtifactsRemovalParams
+            {
+                artifactIds = new List<int>() { 1, 2, 3 },
+                
+                SelectionType = SelectionType.Selected
+            };
+             
+            //Act
+            await _reviewsRepository.RemoveArtifactsFromReviewAsync(reviewId, prms, userId);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task RemoveArtifactsFromReviewAsync_ShouldThrow_ResourceNotFoundException_WhenProjectNull()
+        {
+            // Arrange
+            int reviewId = 1;
+            int userId = 2;
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+            var PropertyValueStringResult = new[]
+            {
+               new PropertyValueString
+               {
+                   IsReviewReadOnly = false,
+                   IsDraftRevisionExists = true,
+                   ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>",
+                   RevewSubartifactId = 3,
+                   ProjectId = 0,
+                   IsReviewLocked = true
+               }
+            };
+
+            _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters, PropertyValueStringResult);
+            var prms = new ReviewArtifactsRemovalParams
+            {
+                artifactIds = new List<int>() { 1, 2, 3 },
+                SelectionType = SelectionType.Selected
+            };
+
+            //Act
+            await _reviewsRepository.RemoveArtifactsFromReviewAsync(reviewId, prms, userId);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ConflictException))]
+        public async Task RemoveArtifactsFromReviewAsync_ShouldThrow_ConflictException_WhenReviewNotLocked()
+        {
+            // Arrange
+            int reviewId = 1;
+            int userId = 2;
+            int projectId = 2;
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+
+            var PropertyValueStringResult = new[]
+            {
+               new PropertyValueString
+               {
+                   IsReviewReadOnly = false,
+                   IsDraftRevisionExists = true,
+                   ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>",
+                   RevewSubartifactId = 3,
+                   ProjectId = projectId,
+                   IsReviewLocked = false
+               }
+            };
+
+            _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters, PropertyValueStringResult);
+            var prms = new ReviewArtifactsRemovalParams
+            {
+                artifactIds = new List<int>() { 1, 2, 3 },
+                SelectionType = SelectionType.Selected
+            };
+
+            //Act
+            await _reviewsRepository.RemoveArtifactsFromReviewAsync(reviewId, prms, userId);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task RemoveArtifactsFromReviewAsync_ShouldThrow_ConflictException_WhenReviewBaseLined()
+        {
+            // Arrange
+            int reviewId = 1;
+            int userId = 2;
+            int projectId = 2;
+            int baselineId = 1;
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+
+            var PropertyValueStringResult = new[]
+            {
+               new PropertyValueString
+               {
+                   IsReviewReadOnly = false,
+                   IsDraftRevisionExists = true,
+                   ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>",
+                   RevewSubartifactId = 3,
+                   ProjectId = projectId,
+                   IsReviewLocked = true,
+                   BaselineId = baselineId
+               }
+            };
+
+            _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters, PropertyValueStringResult);
+            var prms = new ReviewArtifactsRemovalParams
+            {
+                artifactIds = new List<int>() { 1, 2, 3 },
+                SelectionType = SelectionType.Selected
+            };
+
+            //Act
+            await _reviewsRepository.RemoveArtifactsFromReviewAsync(reviewId, prms, userId);
+
+            // Assert
+        }
+        #endregion RemoveArtifactFromReview
     }
 }

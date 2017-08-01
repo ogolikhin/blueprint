@@ -6,6 +6,7 @@ using AdminStore.Models.Workflow;
 using AdminStore.Repositories;
 using AdminStore.Repositories.Workflow;
 using ArtifactStore.Helpers;
+using ServiceLibrary.Repositories.ProjectMeta;
 
 namespace AdminStore.Services.Workflow
 {
@@ -13,11 +14,14 @@ namespace AdminStore.Services.Workflow
     {
         private readonly IWorkflowRepository _workflowRepository;
         private readonly IUserRepository _userRepository;
+        private readonly ISqlProjectMetaRepository _projectMetaRepository;
 
-        public WorkflowDataValidator(IWorkflowRepository workflowRepository, IUserRepository userRepository)
+        public WorkflowDataValidator(IWorkflowRepository workflowRepository, IUserRepository userRepository,
+            ISqlProjectMetaRepository projectMetaRepository)
         {
             _workflowRepository = workflowRepository;
             _userRepository = userRepository;
+            _projectMetaRepository = projectMetaRepository;
         }
 
         public async Task<WorkflowDataValidationResult> ValidateData(IeWorkflow workflow)
@@ -29,6 +33,9 @@ namespace AdminStore.Services.Workflow
 
             var result = new WorkflowDataValidationResult();
             await ValidateWorkflowNameForUniqueness(result, workflow);
+
+            result.StandardTypes = await _projectMetaRepository.GetStandardProjectTypesAsync();
+
             await ValidateProjectsData(result, workflow);
             await ValidateArtifactTypesData(result, workflow);
             await ValidateGroupsData(result, workflow);
@@ -151,11 +158,11 @@ namespace AdminStore.Services.Workflow
             {
                 transition.PermissionGroups.ForEach(group =>listOfAllGroups.Add(group.Name));
             });
-            var existingGroupNames = (await _userRepository.GetExistingInstanceGroupsByNames(listOfAllGroups)).ToArray();
-            if (existingGroupNames.Length != listOfAllGroups.Count)
+            var existingInstanceGroupNames = (await _userRepository.GetExistingGroupsByNames(listOfAllGroups, true)).ToArray();
+            if (existingInstanceGroupNames.Length != listOfAllGroups.Count)
             {
                 foreach (var group in listOfAllGroups.Where(
-                    li => existingGroupNames.All(g => g.Name != li)
+                    li => existingInstanceGroupNames.All(g => g.Name != li)
                 )){
                     result.Errors.Add(new WorkflowDataValidationError
                     {
@@ -165,7 +172,7 @@ namespace AdminStore.Services.Workflow
                 }
             }
 
-            result.ValidGroups.AddRange(existingGroupNames.ToHashSet());
+            result.ValidGroups.AddRange(existingInstanceGroupNames.ToHashSet());
         }
 
         private async Task ValidateTriggersData(WorkflowDataValidationResult result, IeWorkflow workflow)

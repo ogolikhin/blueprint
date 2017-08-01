@@ -8,8 +8,23 @@ namespace ServiceLibrary.Models.Workflow
     [XmlType("P")]
     public class XmlTriggerPermissions
     {
-        [XmlAttribute(AttributeName = "S")]
-        public string Skip { get; set; } // bool
+        //========================================================
+        // To make xml attribute nullable.
+        [XmlIgnore]
+        public bool? Skip { get; set; }
+
+        [XmlAttribute("S")]
+        public bool SkipSerializable
+        {
+            get { return Skip.GetValueOrDefault(); }
+            set { Skip = value; }
+        }
+
+        public bool ShouldSerializeSkipSerializable()
+        {
+            return Skip.HasValue;
+        }
+        //========================================================
 
         private List<int> _groupIds;
         [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]

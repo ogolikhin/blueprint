@@ -95,6 +95,8 @@ namespace AdminStore.Services.Workflow
 
             var importResult = new ImportWorkflowResult();
 
+            ReplaceNewLinesInNames(workflow);
+
             var xmlValidationResult = _workflowXmlValidator.ValidateXml(workflow);
             if (xmlValidationResult.HasErrors)
             {
@@ -103,6 +105,11 @@ namespace AdminStore.Services.Workflow
 
                 importResult.ErrorsGuid = guid;
                 importResult.ResultCode = ImportWorkflowResultCodes.InvalidModel;
+
+#if DEBUG
+                importResult.ErrorMessage = textErrors;
+#endif
+
                 return importResult;
             }
 
@@ -114,6 +121,11 @@ namespace AdminStore.Services.Workflow
 
                 importResult.ErrorsGuid = guid;
                 importResult.ResultCode = ImportWorkflowResultCodes.Conflict;
+
+#if DEBUG
+                importResult.ErrorMessage = textErrors;
+#endif
+
                 return importResult;
             }
 
@@ -258,7 +270,8 @@ namespace AdminStore.Services.Workflow
                         GroupIds = transition.PermissionGroups.Select(pg => validGroups.First(p => p.Name == pg.Name).GroupId).ToList()
                     }),
                     Validations = null,
-                    Triggers = SerializationHelper.ToXml(transition.Triggers),
+                    // TODO: Triggers will contain serialized XmlWorkflowEventTriggers object.
+                    //Triggers = SerializationHelper.ToXml(transition.Triggers),
                     WorkflowState1Id = newStatesArray.FirstOrDefault(s => s.Name.Equals(transition.FromState))?.WorkflowStateId,
                     WorkflowState2Id = newStatesArray.FirstOrDefault(s => s.Name.Equals(transition.ToState))?.WorkflowStateId,
                     PropertyTypeId = null
@@ -311,6 +324,25 @@ namespace AdminStore.Services.Workflow
             {
                 return await FileRepository.UploadFileAsync(WorkflowImportErrorsFile, null, stream, DateTime.UtcNow + TimeSpan.FromDays(1));
             }
+        }
+
+        private static void ReplaceNewLinesInNames(IeWorkflow workflow)
+        {
+            if (workflow == null)
+            {
+                return;
+            }
+
+            workflow.Name = ReplaceNewLines(workflow.Name);
+            workflow.States?.ForEach(s => s.Name = ReplaceNewLines(s.Name));
+            workflow.TransitionEvents?.ForEach(e => e.Name = ReplaceNewLines(e.Name));
+            workflow.PropertyChangeEvents?.ForEach(e => e.Name = ReplaceNewLines(e.Name));
+            workflow.NewArtifactEvents?.ForEach(e => e.Name = ReplaceNewLines(e.Name));
+        }
+
+        private static string ReplaceNewLines(string text)
+        {
+            return text?.Replace("\n", string.Empty).Replace("\r", string.Empty);
         }
 
     }

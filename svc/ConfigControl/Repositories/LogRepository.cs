@@ -9,7 +9,7 @@ namespace ConfigControl.Repositories
 {
     public class LogRepository : ILogRepository
     {
-        private const string defaultStoredProcedure = "GetLogs";
+        private const string defaultStoredProcedure = "[AdminStore].GetLogs";
         private const string csvDelemiter = ",";
 
         private readonly ISqlConnectionWrapper _connectionWrapper;

@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using ServiceLibrary.Models.ProjectMeta;
 
 namespace ArtifactStore.Repositories
 {
@@ -730,7 +731,6 @@ namespace ArtifactStore.Repositories
                     var artifact = reviewedArtifacts.First(it => it.Id == tocItem.Id);
                     tocItem.ArtifactVersion = artifact.ArtifactVersion;
                     tocItem.ApprovalStatus = (ApprovalType)artifact?.ApprovalFlag;
-                    tocItem.Viewed = artifact?.ViewedArtifactVersion != null;
                     tocItem.ViewedArtifactVersion = artifact?.ViewedArtifactVersion;
                 }
                 else
@@ -766,6 +766,11 @@ namespace ArtifactStore.Repositories
             if (propertyResult.IsReviewLocked == false)
             {
                 ExceptionHelper.ThrowArtifactNotLockedException(reviewId, userId);
+            }
+
+            if(propertyResult.BaselineId != null && propertyResult.BaselineId.Value > 0)
+            {
+                throw new BadRequestException("Review status changed", ErrorCodes.ReviewStatusChanged);
             }
 
             if (string.IsNullOrEmpty(propertyResult.ArtifactXml))
@@ -1266,7 +1271,6 @@ namespace ArtifactStore.Repositories
         {
             item.Name = UNATHORIZED; // unauthorize
             item.Included = false;
-            item.Viewed = false;
             item.HasAccess = false;
             item.IsApprovalRequired = false;
         }

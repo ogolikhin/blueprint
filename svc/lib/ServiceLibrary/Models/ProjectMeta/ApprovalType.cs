@@ -1,4 +1,4 @@
-﻿namespace ArtifactStore.Models.Review
+﻿namespace ServiceLibrary.Models.ProjectMeta
 {
     public enum ApprovalType : byte
     {

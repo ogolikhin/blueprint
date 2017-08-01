@@ -1,4 +1,6 @@
-﻿namespace ArtifactStore.Models.Reuse
+﻿using ServiceLibrary.Models.ProjectMeta;
+
+namespace ArtifactStore.Models.Reuse
 {
     public class SqlPropertyTypeInfo
     {

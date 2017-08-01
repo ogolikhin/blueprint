@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using ActionHandlerService.Models;
 using ActionHandlerService.Models.Enums;
 using ActionHandlerService.Repositories;
+using BluePrintSys.Messaging.CrossCutting.Logging;
 using ServiceLibrary.Helpers;
 
 namespace ActionHandlerService.Helpers
@@ -39,6 +40,7 @@ namespace ActionHandlerService.Helpers
             {
                 //TODO: remove once we get the tenant db ready
                 _defaultTentantId = await _actionHandlerServiceRepository.GetTenantId();
+                Log.Debug($"Retrieved default tenant id: {_defaultTentantId}");
             }
             return TenantInfoCache.Get();
         }

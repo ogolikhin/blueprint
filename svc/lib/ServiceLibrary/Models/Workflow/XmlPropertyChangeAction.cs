@@ -5,6 +5,9 @@ namespace ServiceLibrary.Models.Workflow
     [XmlType("APC")]
     public class XmlPropertyChangeAction : XmlAction
     {
+        [XmlIgnore]
+        public override ActionTypes ActionType => ActionTypes.PropertyChange;
+
         [XmlElement("PID")]
         public int? PropertyTypeId { get; set; }
         public bool ShouldSerializePropertyTypeId() { return PropertyTypeId.HasValue; }

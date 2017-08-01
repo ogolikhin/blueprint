@@ -1,7 +1,6 @@
 ﻿<#@ template debug="false" hostspecific="true" language="C#" #>
 <#@ output extension=".sql" encoding="utf-8" #>
 
-<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\SetSchemaVersion.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\GetStatus.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\BeginSession.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\ExtendSession.sql" ) ) #>

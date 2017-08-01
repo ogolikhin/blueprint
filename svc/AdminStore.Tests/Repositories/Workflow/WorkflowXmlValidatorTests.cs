@@ -6,6 +6,7 @@ using AdminStore.Services.Workflow;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Models.Workflow;
 
 namespace AdminStore.Repositories.Workflow
 {
@@ -689,12 +690,34 @@ namespace AdminStore.Repositories.Workflow
             var workflowValidator = new WorkflowXmlValidator();
             _workflow.PropertyChangeEvents.Add(new IePropertyChangeEvent
             {
-                PropertyName = "a"
+                PropertyName = "a",
+                Triggers = new List<IeTrigger>
+                {
+                    new IeTrigger
+                    {
+                        Action = new IeEmailNotificationAction
+                        {
+                            PropertyName = "Assignee",
+                            Message = "some message"
+                        }
+                    }
+                }
             });
 
             _workflow.PropertyChangeEvents.Add(new IePropertyChangeEvent
             {
-                PropertyName = "b"
+                PropertyName = "b",
+                Triggers = new List<IeTrigger>
+                {
+                    new IeTrigger
+                    {
+                        Action = new IeEmailNotificationAction
+                        {
+                            PropertyName = "Assignee",
+                            Message = "some message"
+                        }
+                    }
+                }
             });
 
             // Act
@@ -712,8 +735,32 @@ namespace AdminStore.Repositories.Workflow
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
-            _workflow.NewArtifactEvents.Add(new IeNewArtifactEvent());
-            _workflow.NewArtifactEvents.Add(new IeNewArtifactEvent());
+            _workflow.NewArtifactEvents.Add(new IeNewArtifactEvent
+            {
+                Triggers = new List<IeTrigger>
+                {
+                    new IeTrigger
+                    {
+                        Action = new IeGenerateAction
+                        {
+                            GenerateActionType =GenerateActionTypes.UserStories
+                        }
+                    }
+                }
+            });
+            _workflow.NewArtifactEvents.Add(new IeNewArtifactEvent
+            {
+                Triggers = new List<IeTrigger>
+                {
+                    new IeTrigger
+                    {
+                        Action = new IeGenerateAction
+                        {
+                            GenerateActionType =GenerateActionTypes.UserStories
+                        }
+                    }
+                }
+            });
 
             // Act
             var result = workflowValidator.ValidateXml(_workflow);
@@ -753,7 +800,18 @@ namespace AdminStore.Repositories.Workflow
             _workflow.PropertyChangeEvents.Add(new IePropertyChangeEvent
             {
                 Name = new string('a', 24),
-                PropertyName = "a"
+                PropertyName = "a",
+                Triggers = new List<IeTrigger>
+                {
+                    new IeTrigger
+                    {
+                        Action = new IeEmailNotificationAction
+                        {
+                            PropertyName = "Assignee",
+                            Message = "some message"
+                        }
+                    }
+                }
             });
 
             // Act
@@ -771,7 +829,17 @@ namespace AdminStore.Repositories.Workflow
             var workflowValidator = new WorkflowXmlValidator();
             _workflow.NewArtifactEvents.Add(new IeNewArtifactEvent
             {
-                Name = new string('a', 24)
+                Name = new string('a', 24),
+                Triggers = new List<IeTrigger>
+                {
+                    new IeTrigger
+                    {
+                        Action = new IeGenerateAction
+                        {
+                            GenerateActionType =GenerateActionTypes.UserStories
+                        }
+                    }
+                }
             });
 
             // Act
@@ -812,7 +880,18 @@ namespace AdminStore.Repositories.Workflow
             _workflow.PropertyChangeEvents.Add(new IePropertyChangeEvent
             {
                 Name = new string('a', 25),
-                PropertyName = "a"
+                PropertyName = "a",
+                Triggers = new List<IeTrigger>
+                {
+                    new IeTrigger
+                    {
+                        Action = new IeEmailNotificationAction
+                        {
+                            PropertyName = "Assignee",
+                            Message = "some message"
+                        }
+                    }
+                }
             });
 
             // Act
@@ -832,7 +911,17 @@ namespace AdminStore.Repositories.Workflow
             var workflowValidator = new WorkflowXmlValidator();
             _workflow.NewArtifactEvents.Add(new IeNewArtifactEvent
             {
-                Name = new string('a', 25)
+                Name = new string('a', 25),
+                Triggers = new List<IeTrigger>
+                {
+                    new IeTrigger
+                    {
+                        Action = new IeGenerateAction
+                        {
+                            GenerateActionType =GenerateActionTypes.UserStories
+                        }
+                    }
+                }
             });
 
             // Act
@@ -1003,11 +1092,33 @@ namespace AdminStore.Repositories.Workflow
             _workflow.PropertyChangeEvents.Add(new IePropertyChangeEvent
             {
                 Name = duplicateName,
-                PropertyName = "prop"
+                PropertyName = "prop",
+                Triggers = new List<IeTrigger>
+                {
+                    new IeTrigger
+                    {
+                        Action = new IeEmailNotificationAction
+                        {
+                            PropertyName = "Assignee",
+                            Message = "some message"
+                        }
+                    }
+                }
             });
             _workflow.NewArtifactEvents.Add(new IeNewArtifactEvent
             {
-                Name = duplicateName
+                Name = duplicateName,
+                Triggers = new List<IeTrigger>
+                {
+                    new IeTrigger
+                    {
+                        Action = new IeEmailNotificationAction
+                        {
+                            PropertyName = "Assignee",
+                            Message = "some message"
+                        }
+                    }
+                }
             });
 
             // Act
@@ -1027,7 +1138,18 @@ namespace AdminStore.Repositories.Workflow
             var workflowValidator = new WorkflowXmlValidator();
             _workflow.PropertyChangeEvents.Add(new IePropertyChangeEvent
             {
-                Name = "a"
+                Name = "a",
+                Triggers = new List<IeTrigger>
+                {
+                    new IeTrigger
+                    {
+                        Action = new IeEmailNotificationAction
+                        {
+                            PropertyName = "Assignee",
+                            Message = "some message"
+                        }
+                    }
+                }
             });
 
             // Act
@@ -1036,7 +1158,7 @@ namespace AdminStore.Repositories.Workflow
             // Assert
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(WorkflowXmlValidationErrorCodes.PropertyChangEventPropertyNotSpecified, result.Errors[0].ErrorCode);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.PropertyChangeEventPropertyNotSpecified, result.Errors[0].ErrorCode);
             Assert.AreEqual(_workflow.PropertyChangeEvents.Last(), result.Errors[0].Element);
         }
 
@@ -1081,6 +1203,58 @@ namespace AdminStore.Repositories.Workflow
             Assert.AreEqual(1, result.Errors.Count);
             Assert.AreEqual(WorkflowXmlValidationErrorCodes.TriggerCountOnEventExceedsLimit10, result.Errors[0].ErrorCode);
             Assert.AreEqual(_workflow.TransitionEvents.Last(), result.Errors[0].Element);
+        }
+
+        [TestMethod]
+        public void Validate_PropertyChangeEventNoAnyTriggersSpecified_ReturnsPropertyChangeEventNoAnyTriggersNotSpecifiedError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.PropertyChangeEvents[0].Triggers.Clear();
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.PropertyChangeEventNoAnyTriggersNotSpecified, result.Errors[0].ErrorCode);
+            Assert.AreEqual(_workflow.PropertyChangeEvents[0], result.Errors[0].Element);
+        }
+
+        [TestMethod]
+        public void Validate_NewArtifactEventNoAnyTriggersSpecified_NewArtifactEventNoAnyTriggersNotSpecifiedError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.NewArtifactEvents[0].Triggers = null;
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.NewArtifactEventNoAnyTriggersNotSpecified, result.Errors[0].ErrorCode);
+            Assert.AreEqual(_workflow.NewArtifactEvents[0], result.Errors[0].Element);
+        }
+
+        [TestMethod]
+        public void Validate_ActionTriggerNotSpecified_ActionTriggerNotSpecifiedError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.TransitionEvents[0].Triggers[0].Action = null;
+            _workflow.PropertyChangeEvents[0].Triggers[0].Action = null;
+            _workflow.NewArtifactEvents[0].Triggers[0].Action = null;
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.ActionTriggerNotSpecified, result.Errors[0].ErrorCode);
         }
 
         [TestMethod]
@@ -1187,6 +1361,323 @@ namespace AdminStore.Repositories.Workflow
             Assert.AreEqual(1, result.Errors.Count);
             Assert.AreEqual(WorkflowXmlValidationErrorCodes.InitialStateDoesNotHaveOutgoingTransition, result.Errors[0].ErrorCode);
             Assert.AreSame(_workflow.States[0], result.Errors[0].Element);
+        }
+
+        [TestMethod]
+        public void Validate_RecipientsEmailNotificationActionNotSpecitied_ReturnsRecipientsEmailNotificationActionNotSpecitiedError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.TransitionEvents?.ForEach(e => e.Triggers?.ForEach(t =>
+            {
+                if (t?.Action?.ActionType == ActionTypes.EmailNotification)
+                {
+                    ((IeEmailNotificationAction) t.Action).Emails = null;
+                    ((IeEmailNotificationAction) t.Action).PropertyName = null;
+                }
+            }));
+            _workflow.PropertyChangeEvents?.ForEach(e => e.Triggers?.ForEach(t =>
+            {
+                if (t?.Action?.ActionType == ActionTypes.EmailNotification)
+                {
+                    ((IeEmailNotificationAction)t.Action).Emails = null;
+                    ((IeEmailNotificationAction)t.Action).PropertyName = null;
+                }
+            }));
+            _workflow.NewArtifactEvents?.ForEach(e => e.Triggers?.ForEach(t =>
+            {
+                if (t?.Action?.ActionType == ActionTypes.EmailNotification)
+                {
+                    ((IeEmailNotificationAction)t.Action).Emails = null;
+                    ((IeEmailNotificationAction)t.Action).PropertyName = null;
+                }
+            }));
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.RecipientsEmailNotificationActionNotSpecitied, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
+        public void Validate_AmbiguousRecipientsSourcesEmailNotificationAction_ReturnsAmbiguousRecipientsSourcesEmailNotificationActionError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.TransitionEvents?.ForEach(e => e.Triggers?.ForEach(t =>
+            {
+                if (t?.Action?.ActionType == ActionTypes.EmailNotification)
+                {
+                    ((IeEmailNotificationAction)t.Action).Emails = new List<string> {"user@comapany.com"};
+                    ((IeEmailNotificationAction)t.Action).PropertyName = "a";
+                }
+            }));
+            _workflow.PropertyChangeEvents?.ForEach(e => e.Triggers?.ForEach(t =>
+            {
+                if (t?.Action?.ActionType == ActionTypes.EmailNotification)
+                {
+                    ((IeEmailNotificationAction)t.Action).Emails = new List<string> { "user@comapany.com" }; ;
+                    ((IeEmailNotificationAction)t.Action).PropertyName = "a";
+                }
+            }));
+            _workflow.NewArtifactEvents?.ForEach(e => e.Triggers?.ForEach(t =>
+            {
+                if (t?.Action?.ActionType == ActionTypes.EmailNotification)
+                {
+                    ((IeEmailNotificationAction)t.Action).Emails = new List<string> { "user@comapany.com" };;
+                    ((IeEmailNotificationAction)t.Action).PropertyName = "a";
+                }
+            }));
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.AmbiguousRecipientsSourcesEmailNotificationAction, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
+        public void Validate_EmailInvalidEmailNotificationAction_ReturnsEmailInvalidEmailNotificationActionError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            var action = (IeEmailNotificationAction) _workflow.PropertyChangeEvents[0].Triggers[0].Action;
+            action.Emails[0] = "a";
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.EmailInvalidEmailNotificationAction, result.Errors[0].ErrorCode);
+            Assert.AreSame(action.Emails[0], result.Errors[0].Element);
+        }
+
+        [TestMethod]
+        public void Validate_MessageEmailNotificationActionNotSpecitied_ReturnsMessageEmailNotificationActionNotSpecitiedError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            var action = (IeEmailNotificationAction)_workflow.PropertyChangeEvents[0].Triggers[0].Action;
+            action.Message = " ";
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.MessageEmailNotificationActionNotSpecitied, result.Errors[0].ErrorCode);
+            Assert.AreSame(action, result.Errors[0].Element);
+        }
+
+        [TestMethod]
+        public void Validate_PropertyNamePropertyChangeActionNotSpecitied_ReturnsPropertyNamePropertyChangeActionNotSpecitiedError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.TransitionEvents?.ForEach(e => e.Triggers?.ForEach(t =>
+            {
+                if (t?.Action?.ActionType == ActionTypes.PropertyChange)
+                {
+                    ((IePropertyChangeAction)t.Action).PropertyName = null;
+                    ((IePropertyChangeAction)t.Action).PropertyValue = "a";
+                }
+            }));
+            _workflow.NewArtifactEvents?.ForEach(e => e.Triggers?.ForEach(t =>
+            {
+                if (t?.Action?.ActionType == ActionTypes.PropertyChange)
+                {
+                    ((IePropertyChangeAction)t.Action).PropertyName = " ";
+                    ((IePropertyChangeAction)t.Action).PropertyValue = "a";
+                }
+            }));
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.PropertyNamePropertyChangeActionNotSpecitied, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
+        public void Validate_PropertyValuePropertyChangeActionNotSpecitied_ReturnsPropertyValuePropertyChangeActionNotSpecitiedError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.TransitionEvents?.ForEach(e => e.Triggers?.ForEach(t =>
+            {
+                if (t?.Action?.ActionType == ActionTypes.PropertyChange)
+                {
+                    ((IePropertyChangeAction)t.Action).PropertyName = "a";
+                    ((IePropertyChangeAction)t.Action).PropertyValue = null;
+                }
+            }));
+            _workflow.NewArtifactEvents?.ForEach(e => e.Triggers?.ForEach(t =>
+            {
+                if (t?.Action?.ActionType == ActionTypes.PropertyChange)
+                {
+                    ((IePropertyChangeAction)t.Action).PropertyName = "a";
+                    ((IePropertyChangeAction)t.Action).PropertyValue = " ";
+                }
+            }));
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.PropertyValuePropertyChangeActionNotSpecitied, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
+        public void Validate_ArtifactTypeGenerateChildrenActionNotSpecitied_ReturnsArtifactTypeGenerateChildrenActionNotSpecitiedError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.TransitionEvents?.ForEach(e => e.Triggers?.ForEach(t =>
+            {
+                if (t?.Action?.ActionType == ActionTypes.Generate)
+                {
+                    var action = (IeGenerateAction) t.Action;
+                    if (action.GenerateActionType == GenerateActionTypes.Children)
+                    {
+                        action.ArtifactType = null;
+                        action.ChildCount = 1;
+                    }
+                }
+            }));
+            _workflow.NewArtifactEvents?.ForEach(e => e.Triggers?.ForEach(t =>
+            {
+                if (t?.Action?.ActionType == ActionTypes.Generate)
+                {
+                    var action = (IeGenerateAction)t.Action;
+                    if (action.GenerateActionType == GenerateActionTypes.Children)
+                    {
+                        action.ArtifactType = " ";
+                        action.ChildCount = 2;
+                    }
+                }
+            }));
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.ArtifactTypeGenerateChildrenActionNotSpecitied, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
+        public void Validate_ChildCountGenerateChildrenActionNotSpecitied_ReturnsChildCountGenerateChildrenActionNotSpecitiedError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.TransitionEvents.ForEach(e => e.Triggers?.ForEach(t =>
+            {
+                if (t?.Action?.ActionType == ActionTypes.Generate)
+                {
+                    var action = (IeGenerateAction)t.Action;
+                    if (action.GenerateActionType == GenerateActionTypes.Children)
+                    {
+                        action.ArtifactType = "a";
+                        action.ChildCount = null;
+                    }
+                }
+            }));
+            _workflow.NewArtifactEvents?.ForEach(e => e.Triggers?.ForEach(t =>
+            {
+                if (t?.Action?.ActionType == ActionTypes.Generate)
+                {
+                    var action = (IeGenerateAction)t.Action;
+                    if (action.GenerateActionType == GenerateActionTypes.Children)
+                    {
+                        action.ArtifactType = "a";
+                        action.ChildCount = 0;
+                    }
+                }
+            }));
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.ChildCountGenerateChildrenActionNotSpecitied, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
+        public void Validate_StateConditionNotOnTriggerOfPropertyChangeEvent_ReturnsStateConditionNotOnTriggerOfPropertyChangeEventError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.TransitionEvents.ForEach(e => e.Triggers?.ForEach(t =>
+            {
+                t.Condition = new IeStateCondition { State = "Active" };
+            }));
+            _workflow.NewArtifactEvents.ForEach(e => e.Triggers?.ForEach(t =>
+            {
+                t.Condition = new IeStateCondition { State = "Active" };
+            }));
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.StateConditionNotOnTriggerOfPropertyChangeEvent, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
+        public void Validate_StateStateConditionNotSpecified_ReturnsStateStateConditionNotSpecifiedError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.PropertyChangeEvents.ForEach(e => e?.Triggers?.ForEach(t =>
+            {
+                if (t?.Condition?.ConditionType == ConditionTypes.State)
+                {
+                    ((IeStateCondition) t.Condition).State = string.Empty;
+                }
+            }));
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.StateStateConditionNotSpecified, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
+        public void Validate_StateStateConditionNotFound_ReturnsStateStateConditionNotFoundError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            var stateCondition = (IeStateCondition) _workflow.PropertyChangeEvents[0].Triggers[0].Condition;
+            stateCondition.State = "Missing State";
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.StateStateConditionNotFound, result.Errors[0].ErrorCode);
+            Assert.AreSame(stateCondition.State, result.Errors[0].Element);
         }
 
         #region Private methods

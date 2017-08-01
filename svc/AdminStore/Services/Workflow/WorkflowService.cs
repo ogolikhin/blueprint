@@ -15,6 +15,7 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories.Files;
+using ServiceLibrary.Repositories.ProjectMeta;
 using File = ServiceLibrary.Models.Files.File;
 
 namespace AdminStore.Services.Workflow
@@ -27,25 +28,28 @@ namespace AdminStore.Services.Workflow
         private readonly IWorkflowXmlValidator _workflowXmlValidator;
         private readonly IWorkflowDataValidator _workflowDataValidator;
         private readonly IWorkflowValidationErrorBuilder _workflowValidationErrorBuilder;
+        private readonly ISqlProjectMetaRepository _projectMetaRepository;
 
         private const string WorkflowImportErrorsFile = "$workflow_import_errors$.txt";
 
         public WorkflowService()
-            : this(new WorkflowRepository(), new WorkflowXmlValidator(), new SqlUserRepository(), new WorkflowValidationErrorBuilder())
+            : this(new WorkflowRepository(), new WorkflowXmlValidator(), new SqlUserRepository(),
+                  new WorkflowValidationErrorBuilder(), new SqlProjectMetaRepository())
         {
-            _workflowDataValidator = new WorkflowDataValidator(_workflowRepository, _userRepository);
+            _workflowDataValidator = new WorkflowDataValidator(_workflowRepository, _userRepository, _projectMetaRepository);
         }
 
         public WorkflowService(IWorkflowRepository workflowRepository,
             IWorkflowXmlValidator workflowXmlValidator,
             IUserRepository userRepository,
-            IWorkflowValidationErrorBuilder workflowValidationErrorBuilder)
+            IWorkflowValidationErrorBuilder workflowValidationErrorBuilder,
+            ISqlProjectMetaRepository projectMetaRepository)
         {
             _workflowRepository = workflowRepository;
             _workflowXmlValidator = workflowXmlValidator;
             _userRepository = userRepository;
             _workflowValidationErrorBuilder = workflowValidationErrorBuilder;
-
+            _projectMetaRepository = projectMetaRepository;
         }
 
         public IFileRepository FileRepository
@@ -266,7 +270,7 @@ namespace AdminStore.Services.Workflow
                     Type = DWorkflowEventType.Transition,
                     Permissions = SerializationHelper.ToXml(new XmlTriggerPermissions
                     {
-                        Skip = "0",
+                        Skip = transition.SkipPermissionGroups,
                         GroupIds = transition.PermissionGroups.Select(pg => validGroups.First(p => p.Name == pg.Name).GroupId).ToList()
                     }),
                     Validations = null,

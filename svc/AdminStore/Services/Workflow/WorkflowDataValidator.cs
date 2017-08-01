@@ -6,6 +6,7 @@ using AdminStore.Models.Workflow;
 using AdminStore.Repositories;
 using AdminStore.Repositories.Workflow;
 using ArtifactStore.Helpers;
+using ServiceLibrary.Repositories.ProjectMeta;
 
 namespace AdminStore.Services.Workflow
 {
@@ -13,11 +14,14 @@ namespace AdminStore.Services.Workflow
     {
         private readonly IWorkflowRepository _workflowRepository;
         private readonly IUserRepository _userRepository;
+        private readonly ISqlProjectMetaRepository _projectMetaRepository;
 
-        public WorkflowDataValidator(IWorkflowRepository workflowRepository, IUserRepository userRepository)
+        public WorkflowDataValidator(IWorkflowRepository workflowRepository, IUserRepository userRepository,
+            ISqlProjectMetaRepository projectMetaRepository)
         {
             _workflowRepository = workflowRepository;
             _userRepository = userRepository;
+            _projectMetaRepository = projectMetaRepository;
         }
 
         public async Task<WorkflowDataValidationResult> ValidateData(IeWorkflow workflow)

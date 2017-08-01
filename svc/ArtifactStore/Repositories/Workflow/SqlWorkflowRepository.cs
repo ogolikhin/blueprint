@@ -161,7 +161,6 @@ namespace ArtifactStore.Repositories.Workflow
             triggers.AddRange(xmlWorkflowEventTriggers.Triggers.Select(xmlWorkflowEventTrigger => new WorkflowEventTrigger
             {
                 Name = xmlWorkflowEventTrigger.Name,
-                Description = xmlWorkflowEventTrigger.Description,
                 Condition = new WorkflowEventCondition(),
                 Action = GenerateAction(xmlWorkflowEventTrigger.Action)
             }));
@@ -202,24 +201,23 @@ namespace ArtifactStore.Repositories.Workflow
 
         private PropertyChangeAction ToPropertyChangeAction(XmlPropertyChangeAction propertyChangeAction)
         {
-            if (propertyChangeAction.IsGroup.HasValue)
+            if (propertyChangeAction.UsersGroups.Any())
             {
-                return new PropertyChangeUserAction
+                return new PropertyChangeUserGroupsAction
                 {
-                    PropertyTypeId = propertyChangeAction.PropertyTypeId,
-                    IsGroup = propertyChangeAction.IsGroup.Value,
+                    InstancePropertyTypeId = propertyChangeAction.PropertyTypeId,
+                    UserGroups = propertyChangeAction.UsersGroups.Select(
+                        u => new ActionUserGroups() {Id = u.Id, IsGroup = u.IsGroup}).ToList(),
                     PropertyValue = propertyChangeAction.PropertyValue
                 };
             }
             return new PropertyChangeAction
             {
-                PropertyTypeId = propertyChangeAction.PropertyTypeId,
+                InstancePropertyTypeId = propertyChangeAction.PropertyTypeId,
                 PropertyValue = propertyChangeAction.PropertyValue
             };
         }
-
-
-
+        
         private EventAction ToGenerateAction(XmlGenerateAction generateAction)
         {
             switch (generateAction.GenerateActionType)
@@ -238,8 +236,6 @@ namespace ArtifactStore.Repositories.Workflow
             return null;
         }
 
-        
-        
         private async Task<WorkflowState> ChangeStateForArtifactInternal(int userId, int artifactId, int desiredStateId, IDbTransaction transaction = null)
         {
             var param = new DynamicParameters();
@@ -261,6 +257,21 @@ namespace ArtifactStore.Repositories.Workflow
             {
                 Id = workflowState.WorkflowStateId, Name = workflowState.WorkflowStateName, WorkflowId = workflowState.WorkflowId
             }).ToList();
+        }
+
+        private async Task<object> GetCustomPropertiesFromInstancePropertyIds(IEnumerable<int> instancePropertyTypeIds, int projectId, IDbTransaction transaction = null)
+        {
+            //var param = new DynamicParameters();
+            //param.Add("@userId", userId);
+            //param.Add("@artifactId", artifactId);
+            //param.Add("@desiredStateId", desiredStateId);
+            //param.Add("@result");
+
+            //if (transaction == null)
+            //{
+            //    return ToWorkflowStates(await ConnectionWrapper.QueryAsync<SqlWorkFlowState>("ChangeStateForArtifact", param, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+            //}
+            //return ToWorkflowStates(await transaction.Connection.QueryAsync<SqlWorkFlowState>("ChangeStateForArtifact", param, transaction, commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
 
         #endregion

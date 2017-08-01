@@ -4,7 +4,10 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using ArtifactStore.Helpers;
+using ArtifactStore.Models;
+using ArtifactStore.Models.Reuse;
 using ArtifactStore.Repositories;
+using ArtifactStore.Repositories.Reuse;
 using ArtifactStore.Repositories.Workflow;
 using ArtifactStore.Services.VersionControl;
 using ServiceLibrary.Exceptions;
@@ -24,6 +27,8 @@ namespace ArtifactStore.Executors
         private readonly IArtifactVersionsRepository _artifactVersionsRepository;
         private readonly IWorkflowRepository _workflowRepository;
         private readonly IVersionControlService _versionControlService;
+        private readonly IReuseRepository _reuseRepository;
+        private ItemTypeReuseTemplate _reuseTemplateSettings;
 
         public StateChangeExecutor(
             WorkflowStateChangeParameterEx input,
@@ -31,7 +36,8 @@ namespace ArtifactStore.Executors
             IArtifactVersionsRepository artifactVersionsRepository,
             IWorkflowRepository workflowRepository,
             ISqlHelper sqlHelper,
-            IVersionControlService versionControlService
+            IVersionControlService versionControlService,
+            IReuseRepository reuseRepository
             )
         {
             _input = input;
@@ -40,6 +46,7 @@ namespace ArtifactStore.Executors
             _workflowRepository = workflowRepository;
             _sqlHelper = sqlHelper;
             _versionControlService = versionControlService;
+            _reuseRepository = reuseRepository;
         }
 
         public async Task<QuerySingleResult<WorkflowState>> Execute()
@@ -54,17 +61,25 @@ namespace ArtifactStore.Executors
                 var publishRevision = await CreateRevision(transaction);
                 _input.RevisionId = publishRevision;
 
-                await ValidateArtifact();
+                var artifactInfo =
+                await _artifactVersionsRepository.GetVersionControlArtifactInfoAsync(_input.ArtifactId,
+                    null,
+                    _userId);
+
+                await ValidateArtifact(artifactInfo);
 
                 var currentState = await ValidateCurrentState();
 
                 var desiredTransition = await GetDesiredTransition(currentState);
 
+                var triggers = GetTransitionTriggers(desiredTransition);
+
                 var constraints = new List<IConstraint>();
 
-                var triggers = GetTransitionTriggers(desiredTransition);
                 var preOpTriggers = triggers.Item1;
                 var postOpTriggers = triggers.Item2;
+
+                LoadPropertyInformation(artifactInfo.ItemTypeId, preOpTriggers);
 
                 await ProcessConstraints(constraints);
 
@@ -104,7 +119,7 @@ namespace ArtifactStore.Executors
             return publishRevision;
         }
         
-        private async Task ValidateArtifact()
+        private async Task ValidateArtifact(VersionControlArtifactInfo artifactInfo)
         {
             //Confirm that the artifact is not deleted
             var isDeleted = await _artifactVersionsRepository.IsItemDeleted(_input.ArtifactId);
@@ -114,12 +129,6 @@ namespace ArtifactStore.Executors
                     I18NHelper.FormatInvariant(
                         "Artifact has been deleted and is no longer available for workflow state change. Please refresh your view."));
             }
-
-            //Get artifact info
-            var artifactInfo =
-                await _artifactVersionsRepository.GetVersionControlArtifactInfoAsync(_input.ArtifactId,
-                    null,
-                    _userId);
 
             if (artifactInfo.IsDeleted)
             {
@@ -258,6 +267,36 @@ namespace ArtifactStore.Executors
                 }
             }
             return result;
+        }
+
+        private async void LoadPropertyInformation(int itemTypeId, WorkflowEventTriggers triggers)
+        {
+            var propertyChangeActions = triggers.Select(t => t.Action).OfType<PropertyChangeAction>().ToList();
+            if (propertyChangeActions.IsEmpty())
+            {
+                return;
+            }
+            var reuseSettingsDictionary = await _reuseRepository.GetReuseItemTypeTemplatesAsyc(new[] {itemTypeId});
+
+            if (reuseSettingsDictionary.Any())
+            {
+                _reuseTemplateSettings = reuseSettingsDictionary.FirstOrDefault().Value;
+
+                //TODO: need to check if triggers contain a Name/Description property change
+
+                var instancePropertyTypeIds =
+                    propertyChangeActions.Where(a => a.InstancePropertyTypeId.HasValue).Select(b => b.InstancePropertyTypeId.Value);
+
+                //var propertyTypeReuseIds = propertyTypeIds.Intersect(template.PropertyTypeReuseTemplates.Keys);
+                //if (
+                //    propertyTypeReuseIds.Select(propertyId => template.PropertyTypeReuseTemplates[propertyId])
+                //        .Any(
+                //            propertyTypeReuseTemplate =>
+                //                propertyTypeReuseTemplate.Settings == PropertyTypeReuseTemplateSettings.ReadOnly))
+                //{
+                //    throw new ConflictException("Property type is readonly.", ErrorCodes.CannotSaveDueToReadOnly);
+                //}
+            }
         }
     }
 }

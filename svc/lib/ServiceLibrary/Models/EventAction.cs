@@ -26,17 +26,22 @@ namespace ServiceLibrary.Models
 
     public class PropertyChangeAction : EventAction, ISynchronousAction
     {
-        public int? PropertyTypeId { get; set; }
+        public int? InstancePropertyTypeId { get; set; }
 
         public string PropertyValue { get; set; }
     }
 
-    public class PropertyChangeUserAction : PropertyChangeAction
+    public class PropertyChangeUserGroupsAction : PropertyChangeAction
     {
         // Used for User properties and indicates that PropertyValue contains the group name.
-        public bool IsGroup { get; set; }
+        public List<ActionUserGroups> UserGroups { get; set; }
     }
 
+    public class ActionUserGroups
+    {
+        public int Id;
+        public bool? IsGroup;
+    }
     public abstract class GenerateAction : EventAction, IASynchronousAction
     {
         public abstract GenerateActionTypes GenerateActionType { get; }

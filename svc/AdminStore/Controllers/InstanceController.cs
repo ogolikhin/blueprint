@@ -252,6 +252,9 @@ namespace AdminStore.Controllers
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. The user does not have permissions for updating the folder.</response>
         /// <response code="404">NotFound. The folder with the current folderId doesn’t exist or removed from the system.</response>
+        /// <response code="404">NotFound. The parent folder with current id does not exist.</response>
+        /// <response code="409">Conflict. The folder with the same name already exists in the parent folder.</response>
+        /// <response code="500">Internal server error.</response>
         [HttpPut]
         [SessionRequired]
         [ResponseType(typeof(HttpResponseMessage))]

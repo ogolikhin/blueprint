@@ -61,6 +61,7 @@ namespace AdminStore.Services.Workflow
         StateConditionNotOnTriggerOfPropertyChangeEvent,
         StateStateConditionNotSpecified,
         StateStateConditionNotFound,
+        PropertyChangeEventActionNotSupported,
         ProjectNoSpecified,
         ProjectInvalidId,
         ArtifactTypeNoSpecified,

@@ -376,6 +376,7 @@ namespace AdminStore.Services.Workflow
                 }
 
                 ValidateTriggerConditions(pcEvent, stateNames, result);
+                ValidatePermittedActions(pcEvent, result);
 
                 pcEvent.Triggers?.ForEach(t => ValidateAction(t?.Action, result));
             }
@@ -560,6 +561,7 @@ namespace AdminStore.Services.Workflow
         private bool _hasChildCountGenerateChildrenActionNotSpecitiedError;
         private bool _hasStateConditionNotOnTriggerOfPropertyChangeEventError;
         private bool _stateStateConditionNotSpecifiedError;
+        private bool _propertyNamePropertyChangeActionNotSpecitied;
 
         private void ResetErrorFlags()
         {
@@ -572,6 +574,25 @@ namespace AdminStore.Services.Workflow
             _hasChildCountGenerateChildrenActionNotSpecitiedError = false;
             _hasStateConditionNotOnTriggerOfPropertyChangeEventError = false;
             _stateStateConditionNotSpecifiedError = false;
+            _propertyNamePropertyChangeActionNotSpecitied = false;
+        }
+
+        private void ValidatePermittedActions(IeEvent wEvent, WorkflowXmlValidationResult result)
+        {
+            // Currently the only action constrain is that
+            // Property Change Event can have only Email Notification Action.
+            if (!_propertyNamePropertyChangeActionNotSpecitied
+                && wEvent.EventType == EventTypes.PropertyChange
+                && wEvent.Triggers != null
+                && wEvent.Triggers.Any(t => t?.Action != null && t.Action.ActionType != ActionTypes.EmailNotification))
+            {
+                result.Errors.Add(new WorkflowXmlValidationError
+                {
+                    Element = wEvent,
+                    ErrorCode = WorkflowXmlValidationErrorCodes.PropertyChangeEventActionNotSupported
+                });
+                _propertyNamePropertyChangeActionNotSpecitied = true;
+            }
         }
 
         private void ValidateAction(IeBaseAction action, WorkflowXmlValidationResult result)

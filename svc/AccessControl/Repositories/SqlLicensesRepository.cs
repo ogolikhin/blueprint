@@ -40,7 +40,7 @@ namespace AccessControl.Repositories
             prm.Add("@TimeDiff", -licenseLockTimeMinutes);
 
             return _connectionWrapper.ExecuteScalarAsync<int>(
-                @"SELECT COUNT(*) FROM [AdminStore].[dbo].[Sessions] 
+                @"SELECT COUNT(*) FROM [AdminStore].[Sessions] 
                 WHERE LicenseLevel = @LicenseLevel AND UserId <> @UserId AND 
                 (EndTime IS NULL OR EndTime > DATEADD(MINUTE, @TimeDiff, @TimeUtc) )",
                 prm);

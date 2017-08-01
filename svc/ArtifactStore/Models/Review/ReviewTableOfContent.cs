@@ -22,10 +22,4 @@ namespace ArtifactStore.Models.Review
         public int? ViewedArtifactVersion { get; set; }
 
     }
-
-    public class ReviewTableOfContent
-    {
-        public IEnumerable<ReviewTableOfContentItem> Items { get; set; }
-        public int Total { get; set; }
-    }
 }

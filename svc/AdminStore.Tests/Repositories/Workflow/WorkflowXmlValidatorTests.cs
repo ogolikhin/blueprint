@@ -1678,6 +1678,30 @@ namespace AdminStore.Repositories.Workflow
             Assert.AreSame(stateCondition.State, result.Errors[0].Element);
         }
 
+        [TestMethod]
+        public void Validate_PropertyChangeEventActionNotSupported_ReturnsPropertyChangeEventActionNotSupportedError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.PropertyChangeEvents[0].Triggers.Add(new IeTrigger
+            {
+                Action = new IeGenerateAction
+                {
+                    GenerateActionType = GenerateActionTypes.TestCases
+
+                }
+            });
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.PropertyChangeEventActionNotSupported, result.Errors[0].ErrorCode);
+            Assert.AreSame(_workflow.PropertyChangeEvents[0], result.Errors[0].Element);
+        }
+
         #region Private methods
 
         private static void AddStates(IeWorkflow workflow, int statesCount)

@@ -305,27 +305,44 @@ namespace AdminStore.Services.Workflow
                         FromState = e.FromState,
                         ToState = e.ToState,
                         ToStateId = e.ToStateId,
-                        Triggers = SerializationHelper.FromXml<List<IeTrigger>>(e.Triggers)
+                        Triggers = DeserializeTriggers(e.Triggers)
                     }).Distinct().ToList(),
                 PropertyChangeEvents = workflowEvents.Where(e => e.Type == (int)DWorkflowEventType.PropertyChange).
                     Select(e => new IePropertyChangeEvent
                     {
                         Id = e.WorkflowEventId,
                         Name = e.Name,
-                        Triggers = SerializationHelper.FromXml<List<IeTrigger>>(e.Triggers)
+                        Triggers = DeserializeTriggers(e.Triggers)
                     }).Distinct().ToList(),
                 NewArtifactEvents = workflowEvents.Where(e => e.Type == (int)DWorkflowEventType.NewArtifact).
                     Select(e => new IeNewArtifactEvent
                     {
                         Id = e.WorkflowEventId,
                         Name = e.Name,
-                        Triggers = SerializationHelper.FromXml<List<IeTrigger>>(e.Triggers)
+                        Triggers = DeserializeTriggers(e.Triggers)
                     }).Distinct().ToList(),
                 Projects = workflowProjectsAndArtifactTypes.Select(e => new IeProject { Id = e.ProjectId, Path = e.ProjectName }).Distinct().ToList(),
                 ArtifactTypes = workflowProjectsAndArtifactTypes.Select(e => new IeArtifactType { Name = e.ArtifactName }).Distinct().ToList(),
             };
 
             return ieWorkflow;
+        }
+
+        private List<IeTrigger> DeserializeTriggers(string triggers)
+        {
+            // Initialize Maps here for now...
+            IDictionary<string, int> artifactTypeMap = new Dictionary<string, int>();
+            IDictionary<string, int> propertyTypeMap = new Dictionary<string, int>();
+            IDictionary<string, int> stateMap = new Dictionary<string, int>();
+            IDictionary<string, int> userMap = new Dictionary<string, int>();
+            IDictionary<string, int> groupMap = new Dictionary<string, int>();
+
+            var xmlTriggers = SerializationHelper.FromXml<XmlWorkflowEventTriggers>(triggers);
+
+            // Would be nice to have TriggerConverter as a Static Tool Class with initialized Maps in it. At least as a Singleton!
+            var ieTriggers = new TriggerConverter().FromXmlModel(xmlTriggers, artifactTypeMap, propertyTypeMap, groupMap, stateMap);
+
+            return (List<IeTrigger>)ieTriggers;
         }
 
         private void VerifyWorkflowFeature()

@@ -12,7 +12,18 @@ namespace AdminStore.Services.Workflow
 
         XmlWorkflowEventTrigger ToXmlModel(IeTrigger ieTrigger, IDictionary<string, int> artifactTypeMap,
             IDictionary<string, int> propertyTypeMap, IDictionary<string, int> stateMap,
-            IDictionary<string, int> userMap, IDictionary<string, int> groupMap, int currentUserId);
+            IDictionary<string, int> userMap, IDictionary<string, int> groupMap, int currentUserId);       
 
+        IEnumerable<IeTrigger> FromXmlModel(XmlWorkflowEventTriggers xmlTriggers,
+            IDictionary<string, int> artifactTypeMap,
+            IDictionary<string, int> propertyTypeMap, 
+            IDictionary<string, int> groupMap,
+            IDictionary<string, int> stateMap);
+
+        IeTrigger FromXmlModel(XmlWorkflowEventTrigger xmlTrigger,
+           IDictionary<string, int> artifactTypeMap,
+           IDictionary<string, int> propertyTypeMap, 
+           IDictionary<string, int> groupMap,
+           IDictionary<string, int> stateMap);
     }
 }

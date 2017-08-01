@@ -179,8 +179,7 @@ namespace AdminStore.Repositories.Workflow
                         Action = new IePropertyChangeAction
                         {
                             PropertyName = "User Property",
-                            PropertyValue = "Group 1",
-                            IsGroup = true
+                            PropertyValue = "Group 1"
                         }
                     }
                 }
@@ -320,8 +319,7 @@ namespace AdminStore.Repositories.Workflow
                         Action = new IePropertyChangeAction
                         {
                             PropertyName = "User Property",
-                            PropertyValue = "Group 1",
-                            IsGroup = true
+                            PropertyValue = "Group 1"
                         }
                     }
                 }

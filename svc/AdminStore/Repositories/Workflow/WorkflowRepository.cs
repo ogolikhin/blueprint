@@ -261,6 +261,21 @@ namespace AdminStore.Repositories.Workflow
                 commandType: CommandType.StoredProcedure);
         }
 
+        public async Task<IEnumerable<int>> GetExistingProjectsByIds(IEnumerable<int> projectIds)
+        {
+            var dProjectIds = projectIds.ToList();
+            if (!dProjectIds.Any())
+            {
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is empty.", nameof(dProjectIds)));
+            }
+
+            var prm = new DynamicParameters();
+            prm.Add("@projectIds", SqlConnectionWrapper.ToDataTable(dProjectIds));
+
+            return await _connectionWrapper.QueryAsync<int>("GetExistingProjectsByIds", prm,
+                commandType: CommandType.StoredProcedure);
+        }
+
         public Task<int> CreateRevisionInTransactionAsync(IDbTransaction transaction, int userId, string description)
         {
             return _sqlHelper.CreateRevisionInTransactionAsync(transaction, userId, description);

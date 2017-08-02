@@ -35,6 +35,7 @@ namespace AdminStore.Services.Workflow
     {
         WorkflowNameNotUnique,
         ProjectNotFound,
+        ProjectIdNotFound,
         GroupsNotFound,
         ArtifactTypeNotFoundInProject,
         ArtifactTypeAlreadyAssociatedWithWorkflow,

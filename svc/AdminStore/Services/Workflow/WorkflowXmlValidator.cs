@@ -569,7 +569,7 @@ namespace AdminStore.Services.Workflow
             _hasMessageEmailNotificationActionNotSpecitiedError = false;
             _hasPropertyNamePropertyChangeActionNotSpecitiedError = false;
             _hasAmbiguousPropertyValuePropertyChangeActionError = false;
-            //_hasPropertyValuePropertyChangeActionNotSpecitiedError = false;
+            _hasPropertyValuePropertyChangeActionNotSpecitiedError = false;
             _hasArtifactTypeGenerateChildrenActionNotSpecitiedError = false;
             _hasChildCountGenerateChildrenActionNotSpecitiedError = false;
             _hasStateConditionNotOnTriggerOfPropertyChangeEventError = false;
@@ -687,11 +687,11 @@ namespace AdminStore.Services.Workflow
             {
                 pvCount++;
             }
-            if (action.ValidValues != null)
+            if (action.ValidValues?.Count > 0)
             {
                 pvCount++;
             }
-            if (action.UsersGroups != null)
+            if (action.UsersGroups?.Count > 0)
             {
                 pvCount++;
             }

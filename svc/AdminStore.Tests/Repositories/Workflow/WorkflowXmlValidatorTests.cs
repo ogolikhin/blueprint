@@ -1525,8 +1525,14 @@ namespace AdminStore.Repositories.Workflow
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
-            ((IePropertyChangeAction)_workflow.TransitionEvents[1].Triggers[0].Action).ValidValues = new List<IeValidValue>();
-            ((IePropertyChangeAction)_workflow.TransitionEvents[1].Triggers[1].Action).UsersGroups = new List<IeUserGroup>();
+            ((IePropertyChangeAction)_workflow.TransitionEvents[1].Triggers[0].Action).ValidValues = new List<IeValidValue>
+            {
+                new IeValidValue { Value = "a"}
+            };
+            ((IePropertyChangeAction)_workflow.TransitionEvents[1].Triggers[1].Action).UsersGroups = new List<IeUserGroup>
+            {
+                new IeUserGroup { Name = "user1"}
+            };
 
             // Act
             var result = workflowValidator.ValidateXml(_workflow);

@@ -7,5 +7,7 @@ namespace AdminStore.Models
         public int GroupId { get; set; }
 
         public string Name { get; set; }
+
+        public bool IsInstance { get; set; }
     }
 }

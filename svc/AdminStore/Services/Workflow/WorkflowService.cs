@@ -13,8 +13,10 @@ using ArtifactStore.Helpers;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories.Files;
+using ServiceLibrary.Repositories.ProjectMeta;
 using File = ServiceLibrary.Models.Files.File;
 
 namespace AdminStore.Services.Workflow
@@ -27,25 +29,32 @@ namespace AdminStore.Services.Workflow
         private readonly IWorkflowXmlValidator _workflowXmlValidator;
         private readonly IWorkflowDataValidator _workflowDataValidator;
         private readonly IWorkflowValidationErrorBuilder _workflowValidationErrorBuilder;
+        private readonly ISqlProjectMetaRepository _projectMetaRepository;
+        private readonly ITriggerConverter _triggerConverter;
 
         private const string WorkflowImportErrorsFile = "$workflow_import_errors$.txt";
 
         public WorkflowService()
-            : this(new WorkflowRepository(), new WorkflowXmlValidator(), new SqlUserRepository(), new WorkflowValidationErrorBuilder())
+            : this(new WorkflowRepository(), new WorkflowXmlValidator(), new SqlUserRepository(),
+                  new WorkflowValidationErrorBuilder(), new SqlProjectMetaRepository(),
+                  new TriggerConverter())
         {
-            _workflowDataValidator = new WorkflowDataValidator(_workflowRepository, _userRepository);
+            _workflowDataValidator = new WorkflowDataValidator(_workflowRepository, _userRepository, _projectMetaRepository);
         }
 
         public WorkflowService(IWorkflowRepository workflowRepository,
             IWorkflowXmlValidator workflowXmlValidator,
             IUserRepository userRepository,
-            IWorkflowValidationErrorBuilder workflowValidationErrorBuilder)
+            IWorkflowValidationErrorBuilder workflowValidationErrorBuilder,
+            ISqlProjectMetaRepository projectMetaRepository,
+            ITriggerConverter triggerConverter)
         {
             _workflowRepository = workflowRepository;
             _workflowXmlValidator = workflowXmlValidator;
             _userRepository = userRepository;
             _workflowValidationErrorBuilder = workflowValidationErrorBuilder;
-
+            _projectMetaRepository = projectMetaRepository;
+            _triggerConverter = triggerConverter;
         }
 
         public IFileRepository FileRepository
@@ -145,7 +154,7 @@ namespace AdminStore.Services.Workflow
 
                 if (newWorkflow != null)
                 {
-                    await ImportWorkflowComponentsAsync(workflow, newWorkflow, publishRevision, transaction, dataValidationResult);
+                    await ImportWorkflowComponentsAsync(workflow, newWorkflow, publishRevision, transaction, dataValidationResult, userId);
 
                     importResult.ResultCode = ImportWorkflowResultCodes.Ok;
                 }
@@ -220,7 +229,8 @@ namespace AdminStore.Services.Workflow
             return totalDeleted;
         }
 
-        private async Task ImportWorkflowComponentsAsync(IeWorkflow workflow, SqlWorkflow newWorkflow, int publishRevision, IDbTransaction transaction, WorkflowDataValidationResult dataValidationResult)
+        private async Task ImportWorkflowComponentsAsync(IeWorkflow workflow, SqlWorkflow newWorkflow, int publishRevision, 
+            IDbTransaction transaction, WorkflowDataValidationResult dataValidationResult, int userId)
         {
             var importStateParams = new List<SqlState>();
 
@@ -237,11 +247,14 @@ namespace AdminStore.Services.Workflow
                 });
                 orderIndex += 10;
             });
-            var newStates = await _workflowRepository.CreateWorkflowStatesAsync(importStateParams, publishRevision, transaction);
+            var newStates = (await _workflowRepository.CreateWorkflowStatesAsync(importStateParams, publishRevision, transaction)).ToList();
+
+            var dataMaps = CreateDataMap(dataValidationResult, newStates);
 
             if (newStates != null)
             {
-                await ImportWorkflowTransitions(workflow, newWorkflow, publishRevision, transaction, newStates, dataValidationResult.ValidGroups);
+                await ImportWorkflowTransitions(workflow, newWorkflow, publishRevision, transaction, newStates,
+                    dataValidationResult.ValidGroups, dataMaps, userId);
             }
 
             if (workflow.ArtifactTypes.Any() && workflow.Projects.Any())
@@ -251,8 +264,37 @@ namespace AdminStore.Services.Workflow
             }
         }
 
+        private WorkflowDataMaps CreateDataMap(WorkflowDataValidationResult dataValidationResult, List<SqlState> newStates)
+        {
+            var dataMaps = new WorkflowDataMaps();
+            dataMaps.UserMap.AddRange(dataValidationResult.Users.ToDictionary(u => u.Login, u => u.UserId));
+            dataMaps.GroupMap.AddRange(dataValidationResult.Groups.ToDictionary(u => u.Name, u => u.GroupId));
+            dataMaps.StateMap.AddRange(newStates.ToDictionary(s => s.Name, s => s.WorkflowStateId));
+            dataMaps.ArtifactTypeMap.AddRange(dataValidationResult.StandardTypes.ArtifactTypes.ToDictionary(at => at.Name, at => at.Id));
+            dataValidationResult.StandardTypes.PropertyTypes.ForEach(pt =>
+            {
+                dataMaps.PropertyTypeMap.Add(pt.Name, pt.Id);
+
+                if (pt.PrimitiveType == PropertyPrimitiveType.Choice)
+                {
+                    var vvMap = new Dictionary<string, int>();
+                    pt.ValidValues?.ForEach(vv =>
+                    {
+                        if (!vvMap.ContainsKey(vv.Value))
+                        {
+                            vvMap.Add(vv.Value, vv.Id.GetValueOrDefault());
+                        }
+                    });
+                    dataMaps.ValidValueMap.Add(pt.Id, vvMap);
+                }
+            });
+
+            return dataMaps;
+        }
+
         private async Task ImportWorkflowTransitions(IeWorkflow workflow, SqlWorkflow newWorkflow, int publishRevision,
-            IDbTransaction transaction, IEnumerable<SqlState> newStates, HashSet<SqlGroup> validGroups)
+            IDbTransaction transaction, IEnumerable<SqlState> newStates, HashSet<SqlGroup> validGroups,
+            WorkflowDataMaps dataMaps, int userId)
         {
             var newStatesArray = newStates.ToArray();
             var importTriggersParams = new List<SqlWorkflowEvent>();
@@ -266,12 +308,12 @@ namespace AdminStore.Services.Workflow
                     Type = DWorkflowEventType.Transition,
                     Permissions = SerializationHelper.ToXml(new XmlTriggerPermissions
                     {
-                        Skip = "0",
+                        Skip = transition.SkipPermissionGroups,
                         GroupIds = transition.PermissionGroups.Select(pg => validGroups.First(p => p.Name == pg.Name).GroupId).ToList()
                     }),
                     Validations = null,
                     // TODO: Triggers will contain serialized XmlWorkflowEventTriggers object.
-                    //Triggers = SerializationHelper.ToXml(transition.Triggers),
+                    Triggers = SerializationHelper.ToXml(_triggerConverter.ToXmlModel(transition.Triggers, dataMaps, userId)),
                     WorkflowState1Id = newStatesArray.FirstOrDefault(s => s.Name.Equals(transition.FromState))?.WorkflowStateId,
                     WorkflowState2Id = newStatesArray.FirstOrDefault(s => s.Name.Equals(transition.ToState))?.WorkflowStateId,
                     PropertyTypeId = null

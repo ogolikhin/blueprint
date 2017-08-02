@@ -198,7 +198,7 @@ namespace AdminStore.Repositories
                 switch (errorCode.Value)
                 {
                     case (int)SqlErrorCodes.InstanceFolderContainsChildrenItems:
-                        throw new BadRequestException(ErrorMessages.ErrorOfDeletingFolderThatContainsChildrenItems);
+                        throw new ConflictException(ErrorMessages.ErrorOfDeletingFolderThatContainsChildrenItems);
                 }
             }
 

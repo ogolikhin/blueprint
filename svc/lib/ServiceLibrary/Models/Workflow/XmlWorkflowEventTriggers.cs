@@ -4,7 +4,7 @@ using System.Xml.Serialization;
 
 namespace ServiceLibrary.Models.Workflow
 {
-    [XmlRoot(ElementName = "TS")]
+    [XmlRoot(ElementName = "TSR")]
     public class XmlWorkflowEventTriggers
     {
         private List<XmlWorkflowEventTrigger> _triggers;

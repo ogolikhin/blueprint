@@ -63,88 +63,6 @@ IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = N'AdminStore')
 EXEC sys.sp_executesql N'CREATE SCHEMA [AdminStore]'
 GO
 
-
--- Create the AdminStore Schema
-IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = N'AdminStore')
-EXEC sys.sp_executesql N'CREATE SCHEMA [AdminStore]'
-GO
-
--- Migrate tables to the AdminStore schema
-IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DbVersionInfo]') AND type in (N'U'))
-ALTER SCHEMA AdminStore TRANSFER [dbo].[DbVersionInfo]
-GO
-
-IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ApplicationLabels]') AND type in (N'U'))
-ALTER SCHEMA AdminStore TRANSFER [dbo].[ApplicationLabels]
-GO
-
-IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ConfigSettings]') AND type in (N'U'))
-ALTER SCHEMA AdminStore TRANSFER [dbo].[ConfigSettings]
-GO
-
-IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Sessions]') AND type in (N'U'))
-ALTER SCHEMA AdminStore TRANSFER [dbo].[Sessions]
-GO
-
-IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[LicenseActivityDetails]') AND type in (N'U'))
-ALTER SCHEMA AdminStore TRANSFER [dbo].[LicenseActivityDetails]
-GO
-
-IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[LicenseActivities]') AND type in (N'U'))
-ALTER SCHEMA AdminStore TRANSFER [dbo].[LicenseActivities]
-GO
-
-IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Logs]') AND type in (N'U'))
-ALTER SCHEMA AdminStore TRANSFER [dbo].[Logs]
-GO
-
-IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[PasswordRecoveryTokens]') AND type in (N'U'))
-ALTER SCHEMA AdminStore TRANSFER [dbo].[PasswordRecoveryTokens]
-GO
-
-
-/******************************************************************************************************************************
-Name:			LogsType
-
-Description: 
-			
-Change History:
-Date			Name					Change
-2015/12/17		Chris Dufour			Initial Version
-******************************************************************************************************************************/
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[AdminStore].[WriteLogs]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [AdminStore].[WriteLogs]
-GO
-
-IF  EXISTS (SELECT * FROM sys.types st JOIN sys.schemas ss ON st.schema_id = ss.schema_id WHERE st.name = N'LogsType' AND ss.name = N'AdminStore')
-DROP TYPE [AdminStore].[LogsType]
-GO
-
-CREATE TYPE [AdminStore].[LogsType] AS TABLE
-(
-	[InstanceName] [nvarchar](1000),
-	[ProviderId] [uniqueidentifier],
-	[ProviderName] [nvarchar](500),
-	[EventId] [int],
-	[EventKeywords] [bigint],
-	[Level] [int],
-	[Opcode] [int],
-	[Task] [int],
-	[Timestamp] [datetimeoffset](7),
-	[Version] [int],
-	[FormattedMessage] [nvarchar](4000),
-	[Payload] [xml],
-	[IpAddress] [nvarchar](45),
-	[Source] [nvarchar](100),
-	[UserName] [nvarchar](Max),
-	[SessionId] [nvarchar](40),
-	[OccurredAt] [datetimeoffset](7) NOT NULL,
-	[ActionName] [nvarchar](200),
-	[CorrelationId] [uniqueidentifier],
-	[Duration] [float]
-);
-GO
-
 /******************************************************************************************************************************
 Name:			IsSchemaVersionLessOrEqual
 
@@ -154,6 +72,12 @@ Change History:
 Date			Name					Change
 
 ******************************************************************************************************************************/
+
+-- Migrate table to the AdminStore schema
+IF (OBJECT_ID(N'[dbo].[DbVersionInfo]', 'U') IS NOT NULL) AND (OBJECT_ID(N'[AdminStore].[DbVersionInfo]', 'U') IS NULL)
+	ALTER SCHEMA [AdminStore] TRANSFER [dbo].[DbVersionInfo];
+GO
+
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[AdminStore].[IsSchemaVersionLessOrEqual]') AND type in (N'FN', N'IF', N'TF', N'FS', N'FT'))
 DROP FUNCTION [AdminStore].[IsSchemaVersionLessOrEqual]
 GO
@@ -236,6 +160,86 @@ ELSE
 		INSERT INTO [AdminStore].[DbVersionInfo] SELECT 1, @value;
 	END 
 
+GO
+
+
+-- Migrate tables to the AdminStore schema
+IF ([AdminStore].[IsSchemaVersionLessOrEqual](N'8.2.0') <> 0)
+	AND (OBJECT_ID(N'[dbo].[ApplicationLabels]', 'U') IS NOT NULL) AND (OBJECT_ID(N'[AdminStore].[ApplicationLabels]', 'U') IS NULL)
+	ALTER SCHEMA [AdminStore] TRANSFER [dbo].[ApplicationLabels];
+GO
+
+IF ([AdminStore].[IsSchemaVersionLessOrEqual](N'8.2.0') <> 0)
+	AND (OBJECT_ID(N'[dbo].[ConfigSettings]', 'U') IS NOT NULL) AND (OBJECT_ID(N'[AdminStore].[ConfigSettings]', 'U') IS NULL)
+	ALTER SCHEMA [AdminStore] TRANSFER [dbo].[ConfigSettings];
+GO
+
+IF ([AdminStore].[IsSchemaVersionLessOrEqual](N'8.2.0') <> 0)
+	AND (OBJECT_ID(N'[dbo].[Sessions]', 'U') IS NOT NULL) AND (OBJECT_ID(N'[AdminStore].[Sessions]', 'U') IS NULL)
+	ALTER SCHEMA [AdminStore] TRANSFER [dbo].[Sessions];
+GO
+
+IF ([AdminStore].[IsSchemaVersionLessOrEqual](N'8.2.0') <> 0)
+	AND (OBJECT_ID(N'[dbo].[LicenseActivityDetails]', 'U') IS NOT NULL) AND (OBJECT_ID(N'[AdminStore].[LicenseActivityDetails]', 'U') IS NULL)
+	ALTER SCHEMA [AdminStore] TRANSFER [dbo].[LicenseActivityDetails];
+GO
+
+IF ([AdminStore].[IsSchemaVersionLessOrEqual](N'8.2.0') <> 0)
+	AND (OBJECT_ID(N'[dbo].[LicenseActivities]', 'U') IS NOT NULL) AND (OBJECT_ID(N'[AdminStore].[LicenseActivities]', 'U') IS NULL)
+	ALTER SCHEMA [AdminStore] TRANSFER [dbo].[LicenseActivities];
+GO
+
+IF ([AdminStore].[IsSchemaVersionLessOrEqual](N'8.2.0') <> 0)
+	AND (OBJECT_ID(N'[dbo].[Logs]', 'U') IS NOT NULL) AND (OBJECT_ID(N'[AdminStore].[Logs]', 'U') IS NULL)
+	ALTER SCHEMA [AdminStore] TRANSFER [dbo].[Logs];
+GO
+
+IF ([AdminStore].[IsSchemaVersionLessOrEqual](N'8.2.0') <> 0)
+	AND (OBJECT_ID(N'[dbo].[PasswordRecoveryTokens]', 'U') IS NOT NULL) AND (OBJECT_ID(N'[AdminStore].[PasswordRecoveryTokens]', 'U') IS NULL)
+	ALTER SCHEMA [AdminStore] TRANSFER [dbo].[PasswordRecoveryTokens];
+GO
+
+
+/******************************************************************************************************************************
+Name:			LogsType
+
+Description: 
+			
+Change History:
+Date			Name					Change
+2015/12/17		Chris Dufour			Initial Version
+******************************************************************************************************************************/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[AdminStore].[WriteLogs]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [AdminStore].[WriteLogs]
+GO
+
+IF  EXISTS (SELECT * FROM sys.types st JOIN sys.schemas ss ON st.schema_id = ss.schema_id WHERE st.name = N'LogsType' AND ss.name = N'AdminStore')
+DROP TYPE [AdminStore].[LogsType]
+GO
+
+CREATE TYPE [AdminStore].[LogsType] AS TABLE
+(
+	[InstanceName] [nvarchar](1000),
+	[ProviderId] [uniqueidentifier],
+	[ProviderName] [nvarchar](500),
+	[EventId] [int],
+	[EventKeywords] [bigint],
+	[Level] [int],
+	[Opcode] [int],
+	[Task] [int],
+	[Timestamp] [datetimeoffset](7),
+	[Version] [int],
+	[FormattedMessage] [nvarchar](4000),
+	[Payload] [xml],
+	[IpAddress] [nvarchar](45),
+	[Source] [nvarchar](100),
+	[UserName] [nvarchar](Max),
+	[SessionId] [nvarchar](40),
+	[OccurredAt] [datetimeoffset](7) NOT NULL,
+	[ActionName] [nvarchar](200),
+	[CorrelationId] [uniqueidentifier],
+	[Duration] [float]
+);
 GO
 
 
@@ -346,6 +350,12 @@ Change History:
 Date			Name					Change
 
 ******************************************************************************************************************************/
+
+-- Migrate table to the AdminStore schema
+IF (OBJECT_ID(N'[dbo].[DbVersionInfo]', 'U') IS NOT NULL) AND (OBJECT_ID(N'[AdminStore].[DbVersionInfo]', 'U') IS NULL)
+	ALTER SCHEMA [AdminStore] TRANSFER [dbo].[DbVersionInfo];
+GO
+
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[AdminStore].[IsSchemaVersionLessOrEqual]') AND type in (N'FN', N'IF', N'TF', N'FS', N'FT'))
 DROP FUNCTION [AdminStore].[IsSchemaVersionLessOrEqual]
 GO
@@ -430,6 +440,7 @@ ELSE
 	END 
 
 GO
+
 /******************************************************************************************************************************
 Name:			GetStatus
 

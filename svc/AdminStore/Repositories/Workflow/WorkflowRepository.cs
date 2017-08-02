@@ -140,7 +140,7 @@ namespace AdminStore.Repositories.Workflow
                 throw new ArgumentOutOfRangeException(nameof(workflowId));
             }
 
-            if (revisionId < 1)
+            if (revisionId <= 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(revisionId));
             }

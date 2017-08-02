@@ -62,14 +62,20 @@ namespace AdminStore.Controllers
         /// </remarks>
         /// <response code="200">OK.</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for the folder.</response>
         /// <response code="404">Not found. An instance folder for the specified id is not found, does not exist or is deleted.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("folders/{id:int:min(1)}"), SessionRequired]
         [ResponseType(typeof(InstanceItem))]
         [ActionName("GetInstanceFolder")]
-        public async Task<InstanceItem> GetInstanceFolderAsync(int id)
+        public async Task<InstanceItem> GetInstanceFolderAsync(int id, bool checkViewProjectsPermissions = false)
         {
+            if (checkViewProjectsPermissions)
+            {
+                await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewProjects);
+            }
+
             return await _instanceRepository.GetInstanceFolderAsync(id, Session.UserId);
         }
 

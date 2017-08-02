@@ -31,6 +31,8 @@ namespace AdminStore.Repositories.Workflow
 
         Task<IEnumerable<string>> GetExistingPropertyTypesByName(IEnumerable<string> propertyTypeNames);
 
+        Task<IEnumerable<int>> GetExistingProjectsByIds(IEnumerable<int> projectIds);
+
         Task<int> CreateRevisionInTransactionAsync(IDbTransaction transaction, int userId, string description);
 
         Task<IEnumerable<string>> CheckLiveWorkflowsForNameUniqueness(IEnumerable<string> names);

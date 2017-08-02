@@ -68,6 +68,7 @@ namespace AdminStore.Services.Workflow
         // Messages for the Data validation.
         private const string TemplateXmlWorkflowNameNotUnique = "A Workflow with Name '{0}' already exists. Workflows in Blueprint must have unique names.";
         private const string TemplateXmlProjectNotFound = "Project '{0}' is not found in Blueprint.";
+        // New
         private const string TemplateXmlProjectIdNotFound = "Project ID '{0}' is not found in Blueprint.";
         private const string TemplateXmlGroupsNotFound = "Group '{0}' is not found in Blueprint.";
         private const string TemplateXmlArtifactTypeNotFoundInProject = "Artifact Type '{0}' is not found in Project '{1}'."; // TODO: Test for Standard Types

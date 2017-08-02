@@ -7,6 +7,12 @@ Change History:
 Date			Name					Change
 
 ******************************************************************************************************************************/
+
+-- Migrate table to the FileStore schema
+IF (OBJECT_ID(N'[dbo].[DbVersionInfo]', 'U') IS NOT NULL) AND (OBJECT_ID(N'[FileStore].[DbVersionInfo]', 'U') IS NULL)
+	ALTER SCHEMA [FileStore] TRANSFER [dbo].[DbVersionInfo];
+GO
+
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[FileStore].[IsSchemaVersionLessOrEqual]') AND type in (N'FN', N'IF', N'TF', N'FS', N'FT'))
 DROP FUNCTION [FileStore].[IsSchemaVersionLessOrEqual]
 GO

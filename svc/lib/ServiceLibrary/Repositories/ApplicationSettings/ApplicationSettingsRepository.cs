@@ -36,7 +36,7 @@ namespace ServiceLibrary.Repositories
             if (licenseInfo != null)
             {
                 var licenses = FeatureLicenseHelper.DecryptLicenses(licenseInfo.Value);
-                var workflowLicense = licenses.FirstOrDefault(f => f.GetFeatureType() == FeatureTypes.Workflow);
+                var workflowLicense = licenses?.FirstOrDefault(f => f.GetFeatureType() == FeatureTypes.Workflow);
                 if (workflowLicense?.GetStatus() == FeatureLicenseStatus.Active)
                 {
                     workflowFeatureEnabled = true;

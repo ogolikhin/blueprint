@@ -17,7 +17,7 @@ CREATE PROCEDURE [AdminStore].[WriteLogs]
 )
 AS
 BEGIN
-  INSERT INTO [Logs] (
+  INSERT INTO [AdminStore].[Logs] (
 		[InstanceName],
 		[ProviderId],
 		[ProviderName],

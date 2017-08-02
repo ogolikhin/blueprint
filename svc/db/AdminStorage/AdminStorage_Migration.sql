@@ -1652,7 +1652,7 @@ CREATE PROCEDURE [AdminStore].[WriteLogs]
 )
 AS
 BEGIN
-  INSERT INTO [Logs] (
+  INSERT INTO [AdminStore].[Logs] (
 		[InstanceName],
 		[ProviderId],
 		[ProviderName],
@@ -1688,11 +1688,11 @@ AS
 BEGIN
   -- Get the number of days to keep from config settings - DEFAULT 7
   DECLARE @days int
-  SELECT @days=c.[Value] FROM ConfigSettings c WHERE c.[Key] = N'DaysToKeepInLogs'
+  SELECT @days=c.[Value] FROM [AdminStore].ConfigSettings c WHERE c.[Key] = N'DaysToKeepInLogs'
   SELECT @days=COALESCE(@days, 7) 
 
   -- Delete old log records
-  DELETE FROM [Logs] WHERE [Timestamp] <= DATEADD(DAY, @days*-1, SYSDATETIMEOFFSET()) 
+  DELETE FROM [AdminStore].[Logs] WHERE [Timestamp] <= DATEADD(DAY, @days*-1, SYSDATETIMEOFFSET()) 
 END
 
 GO
@@ -1726,7 +1726,7 @@ BEGIN
 
 	SET @id = IsNULL(@recordid, 0);
 
-	SELECT @total = COUNT(*) FROM [Logs] where @id = 0 OR ID <= @id 	
+	SELECT @total = COUNT(*) FROM [AdminStore].[Logs] where @id = 0 OR ID <= @id 	
 
 	SET @fetch = IIF(@recordlimit < 0, @total, @recordlimit)
 
@@ -1829,7 +1829,7 @@ AS (
 		ISNULL(da.LicenseType, 0) AS 'CountLicense',
 		ISNULL(da.[Count], 0) AS 'Count'
 	FROM 
-		LicenseActivities AS la WITH (NOLOCK) LEFT JOIN LicenseActivityDetails AS da WITH (NOLOCK) 
+		[AdminStore].LicenseActivities AS la WITH (NOLOCK) LEFT JOIN [AdminStore].LicenseActivityDetails AS da WITH (NOLOCK) 
 			ON la.LicenseActivityId = da.LicenseActivityId
 	WHERE 
 		(@year IS NULL OR @month IS NULL OR la.[TimeStamp] > @startMonth) AND la.[TimeStamp] < @currentMonth

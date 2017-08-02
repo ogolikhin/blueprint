@@ -26,7 +26,7 @@ BEGIN
 
 	SET @id = IsNULL(@recordid, 0);
 
-	SELECT @total = COUNT(*) FROM [Logs] where @id = 0 OR ID <= @id 	
+	SELECT @total = COUNT(*) FROM [AdminStore].[Logs] where @id = 0 OR ID <= @id 	
 
 	SET @fetch = IIF(@recordlimit < 0, @total, @recordlimit)
 

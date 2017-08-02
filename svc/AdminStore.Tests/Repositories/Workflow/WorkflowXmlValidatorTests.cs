@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Web.Configuration;
 using AdminStore.Models.Workflow;
 using AdminStore.Services.Workflow;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -86,6 +87,7 @@ namespace AdminStore.Repositories.Workflow
                 Name = "From New to Active",
                 FromState = "New",
                 ToState = "Active",
+                SkipPermissionGroups = true,
                 PermissionGroups = new List<IeGroup>
                 {
                     new IeGroup { Name = "Authors"},
@@ -135,6 +137,7 @@ namespace AdminStore.Repositories.Workflow
                 Name = "From Active to Closed",
                 FromState = "Active",
                 ToState = "Closed",
+                SkipPermissionGroups = true,
                 PermissionGroups = new List<IeGroup>
                 {
                     new IeGroup { Name = "Authors"},
@@ -171,7 +174,11 @@ namespace AdminStore.Repositories.Workflow
                         Action = new IePropertyChangeAction
                         {
                             PropertyName = "Choice Property",
-                            PropertyValue = "Low"
+                            ValidValues = new List<IeValidValue>
+                            {
+                                new IeValidValue { Value = "Canada" },
+                                new IeValidValue { Value = "Russia"}
+                            }
                         }
                     },
                     new IeTrigger {
@@ -179,7 +186,11 @@ namespace AdminStore.Repositories.Workflow
                         Action = new IePropertyChangeAction
                         {
                             PropertyName = "User Property",
-                            PropertyValue = "Group 1"
+                            UsersGroups = new List<IeUserGroup>
+                            {
+                                new IeUserGroup { Name = "user1"},
+                                new IeUserGroup { Name = "group2", IsGroup = true}
+                            }
                         }
                     }
                 }
@@ -1480,22 +1491,8 @@ namespace AdminStore.Repositories.Workflow
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
-            _workflow.TransitionEvents?.ForEach(e => e.Triggers?.ForEach(t =>
-            {
-                if (t?.Action?.ActionType == ActionTypes.PropertyChange)
-                {
-                    ((IePropertyChangeAction)t.Action).PropertyName = null;
-                    ((IePropertyChangeAction)t.Action).PropertyValue = "a";
-                }
-            }));
-            _workflow.NewArtifactEvents?.ForEach(e => e.Triggers?.ForEach(t =>
-            {
-                if (t?.Action?.ActionType == ActionTypes.PropertyChange)
-                {
-                    ((IePropertyChangeAction)t.Action).PropertyName = " ";
-                    ((IePropertyChangeAction)t.Action).PropertyValue = "a";
-                }
-            }));
+            ((IePropertyChangeAction)_workflow.TransitionEvents[1].Triggers[0].Action).PropertyName = null;
+            ((IePropertyChangeAction)_workflow.TransitionEvents[1].Triggers[1].Action).PropertyName = "";
 
             // Act
             var result = workflowValidator.ValidateXml(_workflow);
@@ -1511,22 +1508,8 @@ namespace AdminStore.Repositories.Workflow
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
-            _workflow.TransitionEvents?.ForEach(e => e.Triggers?.ForEach(t =>
-            {
-                if (t?.Action?.ActionType == ActionTypes.PropertyChange)
-                {
-                    ((IePropertyChangeAction)t.Action).PropertyName = "a";
-                    ((IePropertyChangeAction)t.Action).PropertyValue = null;
-                }
-            }));
-            _workflow.NewArtifactEvents?.ForEach(e => e.Triggers?.ForEach(t =>
-            {
-                if (t?.Action?.ActionType == ActionTypes.PropertyChange)
-                {
-                    ((IePropertyChangeAction)t.Action).PropertyName = "a";
-                    ((IePropertyChangeAction)t.Action).PropertyValue = " ";
-                }
-            }));
+            ((IePropertyChangeAction) _workflow.TransitionEvents[1].Triggers[0].Action).PropertyValue = null;
+            ((IePropertyChangeAction)_workflow.TransitionEvents[1].Triggers[1].Action).PropertyValue = null;
 
             // Act
             var result = workflowValidator.ValidateXml(_workflow);
@@ -1535,6 +1518,23 @@ namespace AdminStore.Repositories.Workflow
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
             Assert.AreEqual(WorkflowXmlValidationErrorCodes.PropertyValuePropertyChangeActionNotSpecitied, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
+        public void Validate_AmbiguousPropertyValuePropertyChangeAction_ReturnsAmbiguousPropertyValuePropertyChangeActionError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            ((IePropertyChangeAction)_workflow.TransitionEvents[1].Triggers[0].Action).ValidValues = new List<IeValidValue>();
+            ((IePropertyChangeAction)_workflow.TransitionEvents[1].Triggers[1].Action).UsersGroups = new List<IeUserGroup>();
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.AmbiguousPropertyValuePropertyChangeAction, result.Errors[0].ErrorCode);
         }
 
         [TestMethod]

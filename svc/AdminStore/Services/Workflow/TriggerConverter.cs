@@ -14,19 +14,14 @@ namespace AdminStore.Services.Workflow
     {
         #region Interface Implementation
 
-        public XmlWorkflowEventTriggers ToXmlModel(IEnumerable<IeTrigger> ieTriggers, IDictionary<string, int> artifactTypeMap,
-            IDictionary<string, int> propertyTypeMap, IDictionary<string, int> stateMap,
-            IDictionary<string, int> userMap, IDictionary<string, int> groupMap, int currentUserId)
+        public XmlWorkflowEventTriggers ToXmlModel(IEnumerable<IeTrigger> ieTriggers, WorkflowDataMaps dataMaps, int currentUserId)
         {
             var xmlTriggers = new XmlWorkflowEventTriggers();
-            ieTriggers?.ForEach(t => xmlTriggers.Triggers.Add(ToXmlModel(t, artifactTypeMap, propertyTypeMap, stateMap,
-                userMap, groupMap, currentUserId)));
+            ieTriggers?.ForEach(t => xmlTriggers.Triggers.Add(ToXmlModel(t, dataMaps, currentUserId)));
             return xmlTriggers;
         }
 
-        public XmlWorkflowEventTrigger ToXmlModel(IeTrigger ieTrigger, IDictionary<string, int> artifactTypeMap,
-            IDictionary<string, int> propertyTypeMap, IDictionary<string, int> stateMap,
-            IDictionary<string, int> userMap, IDictionary<string, int> groupMap, int currentUserId)
+        public XmlWorkflowEventTrigger ToXmlModel(IeTrigger ieTrigger, WorkflowDataMaps dataMaps, int currentUserId)
         {
             if (ieTrigger == null)
             {
@@ -40,11 +35,11 @@ namespace AdminStore.Services.Workflow
 
             if (ieTrigger.Condition != null)
             {
-                xmlTrigger.Condition = ToXmlModel(ieTrigger.Condition, stateMap);
+                xmlTrigger.Condition = ToXmlModel(ieTrigger.Condition, dataMaps.StateMap);
             }
 
             // Triggers must have an action.
-            xmlTrigger.Action = ToXmlModel(ieTrigger.Action, artifactTypeMap, propertyTypeMap, userMap, groupMap, currentUserId);
+            xmlTrigger.Action = ToXmlModel(ieTrigger.Action, dataMaps, currentUserId);
 
             return xmlTrigger;
         }
@@ -53,9 +48,7 @@ namespace AdminStore.Services.Workflow
 
         #region Private Methods
 
-        private XmlAction ToXmlModel(IeBaseAction ieAction, IDictionary<string, int> artifactTypeMap,
-            IDictionary<string, int> propertyTypeMap, IDictionary<string, int> userMap, IDictionary<string, int> groupMap,
-            int currentUserId)
+        private XmlAction ToXmlModel(IeBaseAction ieAction, WorkflowDataMaps dataMaps, int currentUserId)
         {
             if (ieAction == null)
             {
@@ -65,12 +58,11 @@ namespace AdminStore.Services.Workflow
             switch (ieAction.ActionType)
             {
                 case ActionTypes.EmailNotification:
-                    return ToXmlModel(ieAction as IeEmailNotificationAction, propertyTypeMap);
+                    return ToXmlModel(ieAction as IeEmailNotificationAction, dataMaps.PropertyTypeMap);
                 case ActionTypes.PropertyChange:
-                    return ToXmlModel(ieAction as IePropertyChangeAction, propertyTypeMap,
-                        userMap, groupMap, currentUserId);
+                    return ToXmlModel(ieAction as IePropertyChangeAction, dataMaps, currentUserId);
                 case ActionTypes.Generate:
-                    return ToXmlModel(ieAction as IeGenerateAction, artifactTypeMap);
+                    return ToXmlModel(ieAction as IeGenerateAction, dataMaps.ArtifactTypeMap);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(ieAction.ActionType));
             }
@@ -85,31 +77,34 @@ namespace AdminStore.Services.Workflow
                 Message = ieAction.Message
             };
 
-            int propertyTypeId;
-            if (!propertyTypeMap.TryGetValue(ieAction.PropertyName, out propertyTypeId))
+            if (ieAction.PropertyName != null)
             {
-                throw new ExceptionWithErrorCode(I18NHelper.FormatInvariant("Id of Standard Property Type '{0}' is not found.", ieAction.PropertyName),
-                    ErrorCodes.UnexpectedError);
+                int propertyTypeId;
+                if (!propertyTypeMap.TryGetValue(ieAction.PropertyName, out propertyTypeId))
+                {
+                    throw new ExceptionWithErrorCode(
+                        I18NHelper.FormatInvariant("Id of Standard Property Type '{0}' is not found.",
+                            ieAction.PropertyName),
+                        ErrorCodes.UnexpectedError);
+                }
+                xmlAction.PropertyTypeId = propertyTypeId;
             }
-            xmlAction.PropertyTypeId = propertyTypeId;
             return xmlAction;
         }
 
-        private static XmlPropertyChangeAction ToXmlModel(IePropertyChangeAction ieAction, IDictionary<string, int> propertyTypeMap,
-            IDictionary<string, int> userMap, IDictionary<string, int> groupMap, int currentUserId)
+        private static XmlPropertyChangeAction ToXmlModel(IePropertyChangeAction ieAction, WorkflowDataMaps dataMaps, int currentUserId)
         {
             var xmlAction = new XmlPropertyChangeAction
             {
                 Name = ieAction.Name,
                 PropertyValue = ieAction.PropertyValue,
-                ValidValues = ieAction.ValidValues,
                 CurrentUserId = currentUserId,
                 UsersGroups = ieAction.UsersGroups != null && ieAction.UsersGroups.Any()
                     ? new List<XmlUserGroup>() : null
             };
 
             int propertyTypeId;
-            if (!propertyTypeMap.TryGetValue(ieAction.PropertyName, out propertyTypeId))
+            if (!dataMaps.PropertyTypeMap.TryGetValue(ieAction.PropertyName, out propertyTypeId))
             {
                 throw new ExceptionWithErrorCode(I18NHelper.FormatInvariant("Id of Standard Property Type '{0}' is not found.", ieAction.PropertyName),
                     ErrorCodes.UnexpectedError);
@@ -119,7 +114,7 @@ namespace AdminStore.Services.Workflow
             ieAction.UsersGroups?.ForEach(ug =>
             {
                 var isGroup = ug.IsGroup.GetValueOrDefault();
-                var ugMap = isGroup ? groupMap : userMap;
+                var ugMap = isGroup ? dataMaps.GroupMap : dataMaps.UserMap;
                 int ugId;
                 if (!ugMap.TryGetValue(ug.Name, out ugId))
                 {
@@ -132,6 +127,34 @@ namespace AdminStore.Services.Workflow
                     IsGroup = isGroup,
                     Id = ugId
                 });
+            });
+
+            IDictionary<string, int> vvMap = null;
+            ieAction.ValidValues?.ForEach(vv =>
+            {
+                if (vvMap == null)
+                {
+                    if (!dataMaps.ValidValueMap.TryGetValue(propertyTypeId, out vvMap))
+                    {
+                        throw new ExceptionWithErrorCode(
+                            I18NHelper.FormatInvariant(
+                                "Valid Values of Choice Standard Property Type '{0}' are not found.",
+                                ieAction.PropertyName),
+                            ErrorCodes.UnexpectedError);
+                    }
+                }
+
+                int vvId;
+                if (!vvMap.TryGetValue(vv.Value, out vvId))
+                {
+                    throw new ExceptionWithErrorCode(
+                        I18NHelper.FormatInvariant(
+                            "Valid Value '{0}' of Choice Standard Property Type '{1}' is not found.",
+                            vv.Value, ieAction.PropertyName),
+                        ErrorCodes.UnexpectedError);
+                }
+
+                (xmlAction.ValidValues ?? (xmlAction.ValidValues = new List<int>())).Add(vvId);
             });
 
             return xmlAction;

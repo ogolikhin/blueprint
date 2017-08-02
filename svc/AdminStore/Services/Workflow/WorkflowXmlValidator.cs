@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IdentityModel.Protocols.WSTrust;
 using System.Linq;
-using System.Security.Cryptography.Pkcs;
 using AdminStore.Models.Workflow;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
@@ -557,6 +555,7 @@ namespace AdminStore.Services.Workflow
         private bool _hasMessageEmailNotificationActionNotSpecitiedError;
         private bool _hasPropertyNamePropertyChangeActionNotSpecitiedError;
         private bool _hasPropertyValuePropertyChangeActionNotSpecitiedError;
+        private bool _hasAmbiguousPropertyValuePropertyChangeActionError;
         private bool _hasArtifactTypeGenerateChildrenActionNotSpecitiedError;
         private bool _hasChildCountGenerateChildrenActionNotSpecitiedError;
         private bool _hasStateConditionNotOnTriggerOfPropertyChangeEventError;
@@ -569,7 +568,8 @@ namespace AdminStore.Services.Workflow
             _hasAmbiguousRecipientsSourcesEmailNotificationActionError = false;
             _hasMessageEmailNotificationActionNotSpecitiedError = false;
             _hasPropertyNamePropertyChangeActionNotSpecitiedError = false;
-            _hasPropertyValuePropertyChangeActionNotSpecitiedError = false;
+            _hasAmbiguousPropertyValuePropertyChangeActionError = false;
+            //_hasPropertyValuePropertyChangeActionNotSpecitiedError = false;
             _hasArtifactTypeGenerateChildrenActionNotSpecitiedError = false;
             _hasChildCountGenerateChildrenActionNotSpecitiedError = false;
             _hasStateConditionNotOnTriggerOfPropertyChangeEventError = false;
@@ -682,8 +682,22 @@ namespace AdminStore.Services.Workflow
                 _hasPropertyNamePropertyChangeActionNotSpecitiedError = true;
             }
 
+            var pvCount = 0;
+            if (action.PropertyValue != null)
+            {
+                pvCount++;
+            }
+            if (action.ValidValues != null)
+            {
+                pvCount++;
+            }
+            if (action.UsersGroups != null)
+            {
+                pvCount++;
+            }
+
             if (!_hasPropertyValuePropertyChangeActionNotSpecitiedError
-                && !ValidatePropertyNotEmpty(action.PropertyValue))
+                && pvCount == 0)
             {
                 result.Errors.Add(new WorkflowXmlValidationError
                 {
@@ -691,6 +705,16 @@ namespace AdminStore.Services.Workflow
                     ErrorCode = WorkflowXmlValidationErrorCodes.PropertyValuePropertyChangeActionNotSpecitied
                 });
                 _hasPropertyValuePropertyChangeActionNotSpecitiedError = true;
+            }
+            else if(!_hasAmbiguousPropertyValuePropertyChangeActionError
+                && pvCount > 1)
+            {
+                result.Errors.Add(new WorkflowXmlValidationError
+                {
+                    Element = action,
+                    ErrorCode = WorkflowXmlValidationErrorCodes.AmbiguousPropertyValuePropertyChangeAction
+                });
+                _hasAmbiguousPropertyValuePropertyChangeActionError = true;
             }
         }
 

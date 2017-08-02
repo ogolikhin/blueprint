@@ -16,9 +16,12 @@ namespace AdminStore.Services.Workflow
 
         public HashSet<int> ValidProjectIds { get; } = new HashSet<int>();
         public HashSet<string> ValidArtifactTypeNames { get; } = new HashSet<string>();
+        //TODO: Use Groups property below
         public HashSet<SqlGroup> ValidGroups { get; } = new HashSet<SqlGroup>();
 
         public ProjectTypes StandardTypes { get; set; }
+        public HashSet<SqlUser> Users { get; } = new HashSet<SqlUser>();
+        public HashSet<SqlGroup> Groups { get; } = new HashSet<SqlGroup>();
     }
 
     public class WorkflowDataValidationError

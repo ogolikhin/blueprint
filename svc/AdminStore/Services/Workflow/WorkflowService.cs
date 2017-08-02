@@ -155,6 +155,7 @@ namespace AdminStore.Services.Workflow
                 if (newWorkflow != null)
                 {
                     await ImportWorkflowComponentsAsync(workflow, newWorkflow, publishRevision, transaction, dataValidationResult, userId);
+                    await _workflowRepository.UpdateWorkflowsChangedWithRevisions(newWorkflow.WorkflowId, publishRevision, transaction);
 
                     importResult.ResultCode = ImportWorkflowResultCodes.Ok;
                 }

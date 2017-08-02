@@ -133,6 +133,27 @@ namespace AdminStore.Repositories.Workflow
             return result;
         }
 
+        public async Task UpdateWorkflowsChangedWithRevisions(int workflowId, int revisionId, IDbTransaction transaction = null)
+        {
+            if (workflowId < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(workflowId));
+            }
+
+            if (revisionId < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(revisionId));
+            }
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@workflowId", workflowId);
+            parameters.Add("@revisionId", revisionId);
+
+            var connection = transaction == null ? (IDbConnection) _connectionWrapper: transaction.Connection;
+            await connection.ExecuteAsync("UpdateWorkflowsChangedWithRevisions", parameters,
+                transaction, commandType: CommandType.StoredProcedure);
+        }
+
         public async Task<IEnumerable<SqlWorkflowEvent>> CreateWorkflowEventsAsync(IEnumerable<SqlWorkflowEvent> workflowEvents, int publishRevision, IDbTransaction transaction = null)
         {
             if (workflowEvents == null)

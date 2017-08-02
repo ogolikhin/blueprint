@@ -33,6 +33,6 @@
     {
         Transition = 0,
         PropertyChange = 1,
-        NewArtifacr = 2
+        NewArtifact = 2
     }
 }

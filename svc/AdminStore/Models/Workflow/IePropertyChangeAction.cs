@@ -24,15 +24,18 @@ namespace AdminStore.Models.Workflow
         [XmlElement(IsNullable = false)]
         public string PropertyValue { get; set; }
 
+        // To specify an empty choice property value use PropertyValue property with the empty string.
+        // An empty list is treated as not specified.
         [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
         [XmlArray("ValidValues"), XmlArrayItem("ValidValue")]
         public List<IeValidValue> ValidValues { get; set; }
 
+        // To specify an empty user property value use PropertyValue property with the empty string.
+        // An empty list is treated as not specified.
         [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
         [XmlArray("UsersGroups"), XmlArrayItem("UserGroup")]
         public List<IeUserGroup> UsersGroups { get; set; }
 
-        // Used for User properties and indicates that PropertyValue contains the group name.
         [XmlElement]
         public bool? IncludeCurrentUser { get; set; }
         public bool ShouldSerializeIncludeCurrentUser() { return IncludeCurrentUser.HasValue; }

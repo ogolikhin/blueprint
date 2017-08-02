@@ -56,6 +56,7 @@ namespace AdminStore.Services.Workflow
         MessageEmailNotificationActionNotSpecitied,
         PropertyNamePropertyChangeActionNotSpecitied,
         PropertyValuePropertyChangeActionNotSpecitied,
+        AmbiguousPropertyValuePropertyChangeAction,
         ArtifactTypeGenerateChildrenActionNotSpecitied,
         ChildCountGenerateChildrenActionNotSpecitied,
         StateConditionNotOnTriggerOfPropertyChangeEvent,

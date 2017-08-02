@@ -812,7 +812,7 @@ BEGIN
 
 	SET @fetch = IIF(@recordlimit < 0, @total, @recordlimit)
 
-	SELECT TOP (@fetch) * FROM [Logs] WHERE @id = 0 OR ID <= @id ORDER BY Id DESC
+	SELECT TOP (@fetch) * FROM [AdminStore].[Logs] WHERE @id = 0 OR ID <= @id ORDER BY Id DESC
 
 END
 

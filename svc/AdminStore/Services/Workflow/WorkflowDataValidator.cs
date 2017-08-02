@@ -169,7 +169,7 @@ namespace AdminStore.Services.Workflow
                     var crossJoin = from at in workflow.ArtifactTypes
                         from pid in result.ValidProjectIds
                         select new {artifactTypeName = at.Name, projectId = pid};
-                    foreach (var missingArtifactTypeInfo in crossJoin.Where(el => artifactTypesInfos.Any(ati =>
+                    foreach (var missingArtifactTypeInfo in crossJoin.Where(el => !artifactTypesInfos.Any(ati =>
                         ati.Name == el.artifactTypeName &&
                         ati.VersionProjectId == el.projectId)))
                     {

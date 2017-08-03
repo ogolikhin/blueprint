@@ -76,7 +76,9 @@ namespace ServiceLibrary.Helpers
                 return new Dictionary<FeatureTypes, FeatureInformation>();
             }
             var licenses = DecryptLicenses(licenseSettings.Single().Value);
-            return licenses.ToDictionary(f => f.GetFeatureType(), f => f);
+            return licenses
+                .Where(f => f.GetFeatureType() != FeatureTypes.None)
+                .ToDictionary(f => f.GetFeatureType());
         }
 
         private static Dictionary<FeatureTypes, FeatureInformation> GetVirtualLicenses()

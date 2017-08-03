@@ -79,6 +79,28 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task GetInstanceFolderAsync_CheckViewProjectsPermissionsWithoutPermissions_ReturnForbiddenErrorResult()
+        {
+            // Arrange
+            var folderId = 99;
+            var folder = new InstanceItem { Id = folderId };
+            var fromAdminPortal = true;
+            _instanceRepositoryMock
+                .Setup(r => r.GetInstanceFolderAsync(folderId, UserId))
+                .ReturnsAsync(folder);
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewAdminRoles);
+
+            // Act
+            await _controller.GetInstanceFolderAsync(folderId, fromAdminPortal);
+
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
         public async Task GetInstanceFolderChildrenAsync_Success()
         {
             //Arrange

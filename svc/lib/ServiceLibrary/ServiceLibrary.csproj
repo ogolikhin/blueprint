@@ -169,6 +169,7 @@
     <Compile Include="Models\Enums\ElementType.cs" />
     <Compile Include="Models\Enums\GenerateActionTypes.cs" />
     <Compile Include="Models\Enums\TransitionType.cs" />
+    <Compile Include="Models\Enums\WorkflowActionType.cs" />
     <Compile Include="Models\EventCondition.cs" />
     <Compile Include="Models\InstanceAdminPrivileges.cs" />
     <Compile Include="Models\Enums\ItemTypePredefined.cs" />
@@ -242,7 +243,7 @@
     <Compile Include="Models\VersionControl\SqlJournalEntry.cs" />
     <Compile Include="Models\VersionControl\SqlPublishResult.cs" />
     <Compile Include="Models\Workflow\Workflow.cs" />
-    <Compile Include="Models\EventAction.cs" />
+    <Compile Include="Models\Workflow\WorkflowEventAction.cs" />
     <Compile Include="Models\Workflow\WorkflowEventCondition.cs" />
     <Compile Include="Models\Workflow\WorkflowConstants.cs" />
     <Compile Include="Models\Workflow\WorkflowEventTrigger.cs" />

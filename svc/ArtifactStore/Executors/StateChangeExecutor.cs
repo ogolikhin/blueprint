@@ -79,12 +79,11 @@ namespace ArtifactStore.Executors
                 var preOpTriggers = triggers.Item1;
                 var postOpTriggers = triggers.Item2;
 
-                LoadPropertyInformation(artifactInfo.ItemTypeId, preOpTriggers);
-
                 await ProcessConstraints(constraints);
 
                 var result = await ChangeStateForArtifactAsync(_input, transaction);
 
+                LoadPropertyInformation(artifactInfo.ItemTypeId, preOpTriggers);
                 var errors = (await ProcessEventTriggers(preOpTriggers)).ToDictionary(entry => entry.Key, entry => entry.Value);
 
                 await PublishArtifacts(publishRevision, transaction);
@@ -272,7 +271,7 @@ namespace ArtifactStore.Executors
         private async void LoadPropertyInformation(int itemTypeId, WorkflowEventTriggers triggers)
         {
             var propertyChangeActions = triggers.Select(t => t.Action).OfType<PropertyChangeAction>().ToList();
-            if (propertyChangeActions.IsEmpty())
+            if (propertyChangeActions.Count == 0)
             {
                 return;
             }

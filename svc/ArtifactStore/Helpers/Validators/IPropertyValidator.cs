@@ -34,12 +34,12 @@ namespace ArtifactStore.Helpers.Validators
         /// <summary>
         /// Gets or sets the users and groups.
         /// </summary>
-        public List<UserGroup> UsersAndGroups { get; set; }
+        public List<UserGroup> UsersAndGroups { get; } = new List<UserGroup>();
 
         /// <summary>
         /// Gets or sets the choices.
         /// </summary>
-        public List<string> Choices { get; set; }
+        public List<string> Choices { get; } = new List<string>();
     }
 
     /// <summary>

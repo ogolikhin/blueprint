@@ -1,11 +1,13 @@
-﻿using ServiceLibrary.Models.Enums;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using ServiceLibrary.Models.Enums;
 
-namespace ServiceLibrary.Models
+namespace ServiceLibrary.Models.Workflow
 {
-    public class EventAction
+    public abstract class WorkflowEventAction
     {
+        public abstract WorkflowActionType ActionType { get; }
+
         public virtual async Task<bool> Execute()
         {
             return await Task.FromResult(true);
@@ -15,26 +17,30 @@ namespace ServiceLibrary.Models
     public interface ISynchronousAction { }
     public interface IASynchronousAction { }
 
-    public class EmailNotificationAction : EventAction, IASynchronousAction
+    public class EmailNotificationAction : WorkflowEventAction, IASynchronousAction
     {
         public IList<string> Emails { get; } = new List<string>();
 
         public int? PropertyTypeId { get; set; }
         
         public string Message { get; set; }
+
+        public override WorkflowActionType ActionType { get; } = WorkflowActionType.Notification;
     }
 
-    public class PropertyChangeAction : EventAction, ISynchronousAction
+    public class PropertyChangeAction : WorkflowEventAction, ISynchronousAction
     {
         public int? InstancePropertyTypeId { get; set; }
 
         public string PropertyValue { get; set; }
+
+        public override WorkflowActionType ActionType { get; } = WorkflowActionType.Notification;
     }
 
     public class PropertyChangeUserGroupsAction : PropertyChangeAction
     {
         // Used for User properties and indicates that PropertyValue contains the group name.
-        public List<ActionUserGroups> UserGroups { get; set; }
+        public List<ActionUserGroups> UserGroups { get; } = new List<ActionUserGroups>();
     }
 
     public class ActionUserGroups
@@ -42,27 +48,27 @@ namespace ServiceLibrary.Models
         public int Id;
         public bool? IsGroup;
     }
-    public abstract class GenerateAction : EventAction, IASynchronousAction
+
+    public abstract class GenerateAction : WorkflowEventAction, IASynchronousAction
     {
-        public abstract GenerateActionTypes GenerateActionType { get; }
     }
 
     public class GenerateChildrenAction : GenerateAction
     {
-        public override GenerateActionTypes GenerateActionType { get; } = GenerateActionTypes.Children;
-
         public int? ChildCount { get; set; }
 
         public int ArtifactTypeId { get; set; }
+
+        public override WorkflowActionType ActionType { get; } = WorkflowActionType.GenerateChildren;
     }
 
     public class GenerateUserStoriesAction : GenerateAction
     {
-        public override GenerateActionTypes GenerateActionType { get; } = GenerateActionTypes.UserStories;
+        public override WorkflowActionType ActionType { get; } = WorkflowActionType.GenerateUserStories;
     }
 
     public class GenerateTestCasesAction : GenerateAction
     {
-        public override GenerateActionTypes GenerateActionType { get; } = GenerateActionTypes.TestCases;
+        public override WorkflowActionType ActionType { get; } = WorkflowActionType.GenerateTests;
     }
 }

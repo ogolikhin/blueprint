@@ -167,7 +167,7 @@ namespace ArtifactStore.Repositories.Workflow
             return triggers;
         }
 
-        private EventAction GenerateAction(XmlAction action)
+        private WorkflowEventAction GenerateAction(XmlAction action)
         {
             if (action == null)
             {
@@ -203,13 +203,17 @@ namespace ArtifactStore.Repositories.Workflow
         {
             if (propertyChangeAction.UsersGroups.Any())
             {
-                return new PropertyChangeUserGroupsAction
+                var action = new PropertyChangeUserGroupsAction
                 {
                     InstancePropertyTypeId = propertyChangeAction.PropertyTypeId,
-                    UserGroups = propertyChangeAction.UsersGroups.Select(
-                        u => new ActionUserGroups() {Id = u.Id, IsGroup = u.IsGroup}).ToList(),
                     PropertyValue = propertyChangeAction.PropertyValue
                 };
+                action.UserGroups.AddRange(propertyChangeAction.UsersGroups.Select(
+                        u => new ActionUserGroups
+                        {
+                            Id = u.Id,
+                            IsGroup = u.IsGroup
+                        }).ToList());
             }
             return new PropertyChangeAction
             {
@@ -218,7 +222,7 @@ namespace ArtifactStore.Repositories.Workflow
             };
         }
         
-        private EventAction ToGenerateAction(XmlGenerateAction generateAction)
+        private WorkflowEventAction ToGenerateAction(XmlGenerateAction generateAction)
         {
             switch (generateAction.GenerateActionType)
             {
@@ -272,6 +276,8 @@ namespace ArtifactStore.Repositories.Workflow
             //    return ToWorkflowStates(await ConnectionWrapper.QueryAsync<SqlWorkFlowState>("ChangeStateForArtifact", param, commandType: CommandType.StoredProcedure)).FirstOrDefault();
             //}
             //return ToWorkflowStates(await transaction.Connection.QueryAsync<SqlWorkFlowState>("ChangeStateForArtifact", param, transaction, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+
+            return await Task.FromResult(true);
         }
 
         #endregion

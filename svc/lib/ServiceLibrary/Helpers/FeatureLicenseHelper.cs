@@ -54,7 +54,7 @@ namespace ServiceLibrary.Helpers
 
         private static Dictionary<FeatureTypes, FeatureInformation> GetValidLicenses()
         {
-#if !DEBUG
+#if DEBUG
             return GetVirtualLicenses();
 #else
             return GetLicensesFromDatabase();

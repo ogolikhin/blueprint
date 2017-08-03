@@ -125,8 +125,9 @@ namespace AdminStore.Controllers
             //Arrange
             var projectId = 99;
             var project = new InstanceItem { Id = projectId };
+            var fromAdminPortal = false;
             _instanceRepositoryMock
-                .Setup(r => r.GetInstanceProjectAsync(projectId, UserId))
+                .Setup(r => r.GetInstanceProjectAsync(projectId, UserId, fromAdminPortal))
                 .ReturnsAsync(project);
 
             //Act

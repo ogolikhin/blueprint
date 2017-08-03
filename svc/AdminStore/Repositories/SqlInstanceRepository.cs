@@ -71,7 +71,7 @@ namespace AdminStore.Repositories
                 ?? Enumerable.Empty<InstanceItem>()).OrderBy(i => i.Type).ThenBy(i => i.Name).ToList();
         }
 
-        public async Task<InstanceItem> GetInstanceProjectAsync(int projectId, int userId)
+        public async Task<InstanceItem> GetInstanceProjectAsync(int projectId, int userId, bool fromAdminPortal = false)
         {
             if (projectId < 1)
             {
@@ -86,6 +86,7 @@ namespace AdminStore.Repositories
             var prm = new DynamicParameters();
             prm.Add("@projectId", projectId);
             prm.Add("@userId", userId);
+            prm.Add("@fromAdminPortal", fromAdminPortal);
 
             var project = (await _connectionWrapper.QueryAsync<InstanceItem>("GetInstanceProjectById", prm, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
             if (project == null)

@@ -9,7 +9,7 @@ namespace AdminStore.Repositories
     {
         Task<InstanceItem> GetInstanceFolderAsync(int folderId, int userId);
 
-        Task<List<InstanceItem>> GetInstanceFolderChildrenAsync(int folderId, int userId, bool checkViewProjectsPermissions = false);
+        Task<List<InstanceItem>> GetInstanceFolderChildrenAsync(int folderId, int userId, bool fromAdminPortal = false);
 
         Task<InstanceItem> GetInstanceProjectAsync(int projectId, int userId);
 

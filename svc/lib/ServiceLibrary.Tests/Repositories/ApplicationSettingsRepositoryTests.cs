@@ -61,6 +61,78 @@ namespace ServiceLibrary.Repositories
         }
 
         [TestMethod]
+        public async Task ApplicationSettingsRepository_ReturnsWorkflowFalse_WhenLicenseInfoSettingValueIsNull()
+        {
+            //Arrange
+            string licenseInfoValue = null;
+            var dbSettings = new List<ApplicationSetting> {new ApplicationSetting {Value = licenseInfoValue, Key = ServiceConstants.LicenseInfoApplicationSettingKey, Restricted = false}};
+            _sqlConnectionWrapperMock.Setup(m => m.QueryAsync<ApplicationSetting>(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), It.IsAny<CommandType?>())).ReturnsAsync(dbSettings);
+
+            //Act
+            var settings = await _applicationSettingsRepository.GetSettingsAsync(true);
+
+            //Assert
+            var workflowSetting = settings.Single(s => s.Key == ServiceConstants.WorkflowFeatureKey);
+            Assert.AreEqual(false.ToString(), workflowSetting.Value);
+        }
+
+        [TestMethod]
+        public async Task ApplicationSettingsRepository_ReturnsWorkflowFalse_WhenLicenseInfoSettingValueIsInvalid()
+        {
+            //Arrange
+            var licenseInfoValue = "invalid encrypted value";
+            var dbSettings = new List<ApplicationSetting> {new ApplicationSetting {Value = licenseInfoValue, Key = ServiceConstants.LicenseInfoApplicationSettingKey, Restricted = false}};
+            _sqlConnectionWrapperMock.Setup(m => m.QueryAsync<ApplicationSetting>(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), It.IsAny<CommandType?>())).ReturnsAsync(dbSettings);
+
+            //Act
+            var settings = await _applicationSettingsRepository.GetSettingsAsync(true);
+
+            //Assert
+            var workflowSetting = settings.Single(s => s.Key == ServiceConstants.WorkflowFeatureKey);
+            Assert.AreEqual(false.ToString(), workflowSetting.Value);
+        }
+
+        [TestMethod]
+        public async Task ApplicationSettingsRepository_ReturnsWorkflowFalse_WhenLicenseFeatureNameIsInvalid()
+        {
+            //Arrange
+            var license = new[] {new FeatureInformation("invalid feature name", DateTime.MaxValue)};
+            var xml = SerializationHelper.ToXml(license);
+            var encryptedXml = SystemEncryptions.Encrypt(xml);
+            var licenseInfoValue = encryptedXml;
+
+            var dbSettings = new List<ApplicationSetting> {new ApplicationSetting {Value = licenseInfoValue, Key = ServiceConstants.LicenseInfoApplicationSettingKey, Restricted = false}};
+            _sqlConnectionWrapperMock.Setup(m => m.QueryAsync<ApplicationSetting>(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), It.IsAny<CommandType?>())).ReturnsAsync(dbSettings);
+
+            //Act
+            var settings = await _applicationSettingsRepository.GetSettingsAsync(true);
+
+            //Assert
+            var workflowSetting = settings.Single(s => s.Key == ServiceConstants.WorkflowFeatureKey);
+            Assert.AreEqual(false.ToString(), workflowSetting.Value);
+        }
+
+        [TestMethod]
+        public async Task ApplicationSettingsRepository_ReturnsWorkflowFalse_WhenLicensesAreNotAnArrayOfFeatureInformationObjects()
+        {
+            //Arrange
+            var license = new[] {"this is not an array of FeatureInformation objects"};
+            var xml = SerializationHelper.ToXml(license);
+            var encryptedXml = SystemEncryptions.Encrypt(xml);
+            var licenseInfoValue = encryptedXml;
+
+            var dbSettings = new List<ApplicationSetting> {new ApplicationSetting {Value = licenseInfoValue, Key = ServiceConstants.LicenseInfoApplicationSettingKey, Restricted = false}};
+            _sqlConnectionWrapperMock.Setup(m => m.QueryAsync<ApplicationSetting>(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), It.IsAny<CommandType?>())).ReturnsAsync(dbSettings);
+
+            //Act
+            var settings = await _applicationSettingsRepository.GetSettingsAsync(true);
+
+            //Assert
+            var workflowSetting = settings.Single(s => s.Key == ServiceConstants.WorkflowFeatureKey);
+            Assert.AreEqual(false.ToString(), workflowSetting.Value);
+        }
+
+        [TestMethod]
         public async Task ApplicationSettingsRepository_ReturnsWorkflowFalse_WhenWorkflowLicenseIsNotFound()
         {
             //Arrange

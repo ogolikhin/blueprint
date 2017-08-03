@@ -57,6 +57,8 @@ namespace AdminStore.Controllers
         /// <summary>
         /// Get Instance Folder
         /// </summary>
+        /// <param name="id"></param>
+        /// <param name="fromAdminPortal"></param>
         /// <remarks>
         /// Returns an instance folder for the specified id.
         /// </remarks>
@@ -69,9 +71,9 @@ namespace AdminStore.Controllers
         [Route("folders/{id:int:min(1)}"), SessionRequired]
         [ResponseType(typeof(InstanceItem))]
         [ActionName("GetInstanceFolder")]
-        public async Task<InstanceItem> GetInstanceFolderAsync(int id, bool checkViewProjectsPermissions = false)
+        public async Task<InstanceItem> GetInstanceFolderAsync(int id, bool fromAdminPortal = false)
         {
-            if (checkViewProjectsPermissions)
+            if (fromAdminPortal)
             {
                 await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewProjects);
             }

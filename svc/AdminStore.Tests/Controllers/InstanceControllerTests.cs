@@ -85,7 +85,7 @@ namespace AdminStore.Controllers
             // Arrange
             var folderId = 99;
             var folder = new InstanceItem { Id = folderId };
-            var checkViewProjectsPermissions = true;
+            var fromAdminPortal = true;
             _instanceRepositoryMock
                 .Setup(r => r.GetInstanceFolderAsync(folderId, UserId))
                 .ReturnsAsync(folder);
@@ -94,7 +94,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(InstanceAdminPrivileges.ViewAdminRoles);
 
             // Act
-            await _controller.GetInstanceFolderAsync(folderId, checkViewProjectsPermissions);
+            await _controller.GetInstanceFolderAsync(folderId, fromAdminPortal);
 
             // Assert
             // Exception

@@ -39,7 +39,7 @@ AS (
 		ISNULL(da.LicenseType, 0) AS 'CountLicense',
 		ISNULL(da.[Count], 0) AS 'Count'
 	FROM 
-		LicenseActivities AS la WITH (NOLOCK) LEFT JOIN LicenseActivityDetails AS da WITH (NOLOCK) 
+		[AdminStore].LicenseActivities AS la WITH (NOLOCK) LEFT JOIN [AdminStore].LicenseActivityDetails AS da WITH (NOLOCK) 
 			ON la.LicenseActivityId = da.LicenseActivityId
 	WHERE 
 		(@year IS NULL OR @month IS NULL OR la.[TimeStamp] > @startMonth) AND la.[TimeStamp] < @currentMonth

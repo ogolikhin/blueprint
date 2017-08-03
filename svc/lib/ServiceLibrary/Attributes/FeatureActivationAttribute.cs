@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http;
+using System.Web.Http;
 using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
 using ServiceLibrary.Helpers;
@@ -28,7 +29,15 @@ namespace ServiceLibrary.Attributes
             if ((licenses & _requiredFeatureTypes) != _requiredFeatureTypes)
             {
                 //required license not found
-                actionContext.Response = new HttpResponseMessage(HttpStatusCode.Forbidden);
+                var errorMessage = "License is not available";
+                var errorCode = ErrorCodes.LicenseUnavailable;
+                if (_requiredFeatureTypes == FeatureTypes.Workflow)
+                {
+                    errorMessage = "Workflow license is not available";
+                    errorCode = ErrorCodes.WorkflowLicenseUnavailable;
+                }
+                var error = new HttpError(errorMessage) {[ServiceConstants.ErrorCodeName] = errorCode};
+                actionContext.Response = actionContext.Request.CreateErrorResponse(HttpStatusCode.Forbidden, error);
             }
         }
     }

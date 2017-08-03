@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web.Configuration;
 using AdminStore.Models.Workflow;
 using AdminStore.Services.Workflow;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -56,13 +55,13 @@ namespace AdminStore.Repositories.Workflow
 
             _workflow.Projects.Add(new IeProject
             {
-                Path = @"Blueprint\folder\project1"
+                Path = @"Blueprint/folder/project1"
             });
 
             _workflow.Projects.Add(new IeProject
             {
                 Id = 20,
-                Path = @"Blueprint\folder\project2"
+                Path = @"Blueprint/folder/project2"
             });
 
             // Artifact Types

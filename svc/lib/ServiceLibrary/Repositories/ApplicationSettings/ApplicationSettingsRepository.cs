@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using ServiceLibrary.Models.Enums;
 
 namespace ServiceLibrary.Repositories
 {
@@ -29,14 +30,33 @@ namespace ServiceLibrary.Repositories
             prm.Add("@returnNonRestrictedOnly", returnNonRestrictedOnly);
             var settings = (await _connectionWrapper.QueryAsync<ApplicationSetting>("GetApplicationSettings", prm, commandType: CommandType.StoredProcedure)).ToList();
 
-            settings.Add
-            (
+            //decrypt the license information
+            bool workflowFeatureEnabled = false;
+            var licenseInfo = settings.FirstOrDefault(s => s.Key == ServiceConstants.LicenseInfoApplicationSettingKey);
+            if (licenseInfo != null)
+            {
+                var licenses = FeatureLicenseHelper.DecryptLicenses(licenseInfo.Value);
+                var workflowLicense = licenses?.FirstOrDefault(f => f.GetFeatureType() == FeatureTypes.Workflow);
+                if (workflowLicense?.GetStatus() == FeatureLicenseStatus.Active)
+                {
+                    workflowFeatureEnabled = true;
+                }
+                settings.Remove(licenseInfo);
+            }
+
+            settings.AddRange(new[]
+            {
                 new ApplicationSetting
                 {
                     Key = ServiceConstants.ForgotPasswordUrlConfigKey,
                     Value = ServiceConstants.ForgotPasswordUrl
+                },
+                new ApplicationSetting
+                {
+                    Key = ServiceConstants.WorkflowFeatureKey,
+                    Value = workflowFeatureEnabled.ToString()
                 }
-            );
+            });
 
             return settings;
         }

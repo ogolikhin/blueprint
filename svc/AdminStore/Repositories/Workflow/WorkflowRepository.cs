@@ -133,6 +133,27 @@ namespace AdminStore.Repositories.Workflow
             return result;
         }
 
+        public async Task UpdateWorkflowsChangedWithRevisions(int workflowId, int revisionId, IDbTransaction transaction = null)
+        {
+            if (workflowId < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(workflowId));
+            }
+
+            if (revisionId <= 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(revisionId));
+            }
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@workflowId", workflowId);
+            parameters.Add("@revisionId", revisionId);
+
+            var connection = transaction == null ? (IDbConnection) _connectionWrapper: transaction.Connection;
+            await connection.ExecuteAsync("UpdateWorkflowsChangedWithRevisions", parameters,
+                transaction, commandType: CommandType.StoredProcedure);
+        }
+
         public async Task<IEnumerable<SqlWorkflowEvent>> CreateWorkflowEventsAsync(IEnumerable<SqlWorkflowEvent> workflowEvents, int publishRevision, IDbTransaction transaction = null)
         {
             if (workflowEvents == null)
@@ -258,6 +279,21 @@ namespace AdminStore.Repositories.Workflow
             prm.Add("@propertyTypeNames", SqlConnectionWrapper.ToStringDataTable(dPropertyTypeNames));
 
             return await _connectionWrapper.QueryAsync<string>("GetExistingPropertyTypesByName", prm,
+                commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<IEnumerable<int>> GetExistingProjectsByIds(IEnumerable<int> projectIds)
+        {
+            var dProjectIds = projectIds.ToList();
+            if (!dProjectIds.Any())
+            {
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is empty.", nameof(dProjectIds)));
+            }
+
+            var prm = new DynamicParameters();
+            prm.Add("@projectIds", SqlConnectionWrapper.ToDataTable(dProjectIds));
+
+            return await _connectionWrapper.QueryAsync<int>("GetExistingProjectsByIds", prm,
                 commandType: CommandType.StoredProcedure);
         }
 

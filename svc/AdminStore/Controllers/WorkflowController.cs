@@ -19,6 +19,7 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Helpers.Files;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Repositories.ConfigControl;
 using ServiceLibrary.Repositories.Files;
 
@@ -73,6 +74,7 @@ namespace AdminStore.Controllers
         ///   by the GUID returned in the response of this call.
         /// </response>
         [HttpPost]
+        [FeatureActivation(FeatureTypes.Workflow)]
         [Route("import"), SessionRequired]
         [ResponseType(typeof(ImportWorkflowResult))]
         public async Task<IHttpActionResult> ImportWorkflowAsync()
@@ -140,6 +142,7 @@ namespace AdminStore.Controllers
         /// * The product does not have a license for the Workflow feature.</response>
         /// <response code="404">Not Found. The workflow import errors are not found for the specified GUID.</response>
         [HttpGet, NoCache]
+        [FeatureActivation(FeatureTypes.Workflow)]
         [Route("import/errors"), SessionRequired]
         [ResponseType(typeof(string))]
         public async Task<IHttpActionResult> GetImportWorkflowErrorsAsync(string guid)
@@ -167,6 +170,7 @@ namespace AdminStore.Controllers
         /// <response code="404">Not Found. The workflow with the provided Id was not found.</response>
         /// </returns>
         [SessionRequired]
+        [FeatureActivation(FeatureTypes.Workflow)]
         [Route("{workflowId:int:min(1)}")]
         [ResponseType(typeof(WorkflowDto))]
         public async Task<IHttpActionResult> GetWorkflow(int workflowId)
@@ -189,6 +193,7 @@ namespace AdminStore.Controllers
         /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
         /// <response code="403">Forbidden if used doesn’t have permissions to get workflows list</response>
         [SessionRequired]
+        [FeatureActivation(FeatureTypes.Workflow)]
         [Route("")]
         [ResponseType(typeof(QueryResult<WorkflowDto>))]
         public async Task<IHttpActionResult> GetWorkflows([FromUri] Pagination pagination, [FromUri] Sorting sorting = null, string search = null)
@@ -210,6 +215,7 @@ namespace AdminStore.Controllers
         /// <response code="403">Forbidden if used doesn’t have permissions to delete workflows</response>
         /// <returns></returns>
         [HttpPost]
+        [FeatureActivation(FeatureTypes.Workflow)]
         [SessionRequired]
         [Route("delete")]
         [ResponseType(typeof(DeleteResult))]
@@ -246,6 +252,7 @@ namespace AdminStore.Controllers
         /// <response code="404">NotFound. The workflow with the current id doesn’t exist or removed from the system.</response>
         /// <response code="409">Conflict. The current version of the workflow from the request doesn’t match the current version in DB.</response>
         [HttpPut]
+        [FeatureActivation(FeatureTypes.Workflow)]
         [SessionRequired]
         [ResponseType(typeof(HttpResponseMessage))]
         [Route("{workflowId:int:min(1)}/status")]
@@ -275,6 +282,7 @@ namespace AdminStore.Controllers
         /// <response code="403">Forbidden. The user does not have permissions for updating the workflow.</response>
         /// <response code="404">NotFound. The workflow with the current id doesn’t exist or removed from the system.</response>
         [SessionRequired]
+        [FeatureActivation(FeatureTypes.Workflow)]
         [HttpGet, NoCache]
         [ResponseType(typeof (string))]
         [Route("export/{workflowId:int:min(1)}")]

@@ -150,8 +150,22 @@ namespace AdminStore.Services.Workflow
                     });
                 }
             }
-            
-            result.ValidProjectIds.AddRange(projectPaths.Select(p => p.Key).ToHashSet());
+
+            var projectIds = projectPaths.Select(p => p.Key).ToHashSet();
+            var validProjectIds = (await _workflowRepository.GetExistingProjectsByIds(projectIds)).ToArray();
+            if (validProjectIds.Length != projectIds.Count)
+            {
+                foreach (var invalidId in projectIds.Where(pid => !validProjectIds.Contains(pid)))
+                {
+                    result.Errors.Add(new WorkflowDataValidationError
+                    {
+                        Element = invalidId,
+                        ErrorCode = WorkflowDataValidationErrorCodes.ProjectIdNotFound
+                    });
+                }
+            }
+
+            result.ValidProjectIds.AddRange(validProjectIds);
         }
 
         private async Task ValidateArtifactTypesData(WorkflowDataValidationResult result, IeWorkflow workflow)
@@ -169,7 +183,7 @@ namespace AdminStore.Services.Workflow
                     var crossJoin = from at in workflow.ArtifactTypes
                         from pid in result.ValidProjectIds
                         select new {artifactTypeName = at.Name, projectId = pid};
-                    foreach (var missingArtifactTypeInfo in crossJoin.Where(el => artifactTypesInfos.Any(ati =>
+                    foreach (var missingArtifactTypeInfo in crossJoin.Where(el => !artifactTypesInfos.Any(ati =>
                         ati.Name == el.artifactTypeName &&
                         ati.VersionProjectId == el.projectId)))
                     {

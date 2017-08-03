@@ -19,6 +19,7 @@ namespace ServiceLibrary.Models.Workflow
 
         // Used only for GenerateActionType = Children
         [XmlElement("AID")]
-        public int ArtifactTypeId { get; set; }
+        public int? ArtifactTypeId { get; set; }
+        public bool ShouldSerializeArtifactTypeId() { return ArtifactTypeId.HasValue; }
     }
 }

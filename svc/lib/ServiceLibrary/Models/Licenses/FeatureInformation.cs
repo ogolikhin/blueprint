@@ -38,7 +38,11 @@ namespace ServiceLibrary.Models.Licenses
 
         public FeatureTypes GetFeatureType()
         {
-            return Features[FeatureName];
+            if (Features.ContainsKey(FeatureName))
+            {
+                return Features[FeatureName];
+            }
+            return FeatureTypes.None;
         }
 
         public FeatureLicenseStatus GetStatus()

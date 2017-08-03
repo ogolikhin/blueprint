@@ -117,7 +117,7 @@ namespace ArtifactStore.Executors
                             _input.ArtifactId, _input.ToStateId));
             return publishRevision;
         }
-        
+
         private async Task ValidateArtifact(VersionControlArtifactInfo artifactInfo)
         {
             //Confirm that the artifact is not deleted
@@ -156,7 +156,7 @@ namespace ArtifactStore.Executors
 
         private async Task<WorkflowState> ValidateCurrentState()
         {
-//Get current state and validate current state
+            //Get current state and validate current state
             var currentState =
                 await _workflowRepository.GetStateForArtifactAsync(_userId, _input.ArtifactId, int.MaxValue, true);
             if (currentState == null)
@@ -249,7 +249,7 @@ namespace ArtifactStore.Executors
 
             {
                 All = false,
-                ArtifactIds = new[] {_input.ArtifactId},
+                ArtifactIds = new[] { _input.ArtifactId },
                 UserId = _userId,
                 RevisionId = publishRevision
             }, transaction);
@@ -275,27 +275,27 @@ namespace ArtifactStore.Executors
             {
                 return;
             }
-            var reuseSettingsDictionary = await _reuseRepository.GetReuseItemTypeTemplatesAsyc(new[] {itemTypeId});
+            var reuseSettingsDictionary = await _reuseRepository.GetReuseItemTypeTemplatesAsyc(new[] { itemTypeId });
 
-            if (reuseSettingsDictionary.Any())
+            if (reuseSettingsDictionary.Count == 0 || !reuseSettingsDictionary.TryGetValue(itemTypeId, out _reuseTemplateSettings))
             {
-                _reuseTemplateSettings = reuseSettingsDictionary.FirstOrDefault().Value;
-
-                //TODO: need to check if triggers contain a Name/Description property change
-
-                var instancePropertyTypeIds =
-                    propertyChangeActions.Where(a => a.InstancePropertyTypeId.HasValue).Select(b => b.InstancePropertyTypeId.Value);
-
-                //var propertyTypeReuseIds = propertyTypeIds.Intersect(template.PropertyTypeReuseTemplates.Keys);
-                //if (
-                //    propertyTypeReuseIds.Select(propertyId => template.PropertyTypeReuseTemplates[propertyId])
-                //        .Any(
-                //            propertyTypeReuseTemplate =>
-                //                propertyTypeReuseTemplate.Settings == PropertyTypeReuseTemplateSettings.ReadOnly))
-                //{
-                //    throw new ConflictException("Property type is readonly.", ErrorCodes.CannotSaveDueToReadOnly);
-                //}
+                return;
             }
+
+            //TODO: need to check if triggers contain a Name/Description property change - asynchronous trigger actions can never contain name/description as these are based on standard properties
+
+            var instancePropertyTypeIds =
+                propertyChangeActions.Where(a => a.InstancePropertyTypeId.HasValue).Select(b => b.InstancePropertyTypeId.Value);
+
+            //var propertyTypeReuseIds = propertyTypeIds.Intersect(template.PropertyTypeReuseTemplates.Keys);
+            //if (
+            //    propertyTypeReuseIds.Select(propertyId => template.PropertyTypeReuseTemplates[propertyId])
+            //        .Any(
+            //            propertyTypeReuseTemplate =>
+            //                propertyTypeReuseTemplate.Settings == PropertyTypeReuseTemplateSettings.ReadOnly))
+            //{
+            //    throw new ConflictException("Property type is readonly.", ErrorCodes.CannotSaveDueToReadOnly);
+            //}
         }
     }
 }

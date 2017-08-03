@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IdentityModel.Protocols.WSTrust;
 using System.Linq;
-using System.Security.Cryptography.Pkcs;
 using AdminStore.Models.Workflow;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
@@ -376,6 +374,7 @@ namespace AdminStore.Services.Workflow
                 }
 
                 ValidateTriggerConditions(pcEvent, stateNames, result);
+                ValidatePermittedActions(pcEvent, result);
 
                 pcEvent.Triggers?.ForEach(t => ValidateAction(t?.Action, result));
             }
@@ -556,10 +555,12 @@ namespace AdminStore.Services.Workflow
         private bool _hasMessageEmailNotificationActionNotSpecitiedError;
         private bool _hasPropertyNamePropertyChangeActionNotSpecitiedError;
         private bool _hasPropertyValuePropertyChangeActionNotSpecitiedError;
+        private bool _hasAmbiguousPropertyValuePropertyChangeActionError;
         private bool _hasArtifactTypeGenerateChildrenActionNotSpecitiedError;
         private bool _hasChildCountGenerateChildrenActionNotSpecitiedError;
         private bool _hasStateConditionNotOnTriggerOfPropertyChangeEventError;
         private bool _stateStateConditionNotSpecifiedError;
+        private bool _propertyNamePropertyChangeActionNotSpecitied;
 
         private void ResetErrorFlags()
         {
@@ -567,11 +568,31 @@ namespace AdminStore.Services.Workflow
             _hasAmbiguousRecipientsSourcesEmailNotificationActionError = false;
             _hasMessageEmailNotificationActionNotSpecitiedError = false;
             _hasPropertyNamePropertyChangeActionNotSpecitiedError = false;
+            _hasAmbiguousPropertyValuePropertyChangeActionError = false;
             _hasPropertyValuePropertyChangeActionNotSpecitiedError = false;
             _hasArtifactTypeGenerateChildrenActionNotSpecitiedError = false;
             _hasChildCountGenerateChildrenActionNotSpecitiedError = false;
             _hasStateConditionNotOnTriggerOfPropertyChangeEventError = false;
             _stateStateConditionNotSpecifiedError = false;
+            _propertyNamePropertyChangeActionNotSpecitied = false;
+        }
+
+        private void ValidatePermittedActions(IeEvent wEvent, WorkflowXmlValidationResult result)
+        {
+            // Currently the only action constrain is that
+            // Property Change Event can have only Email Notification Action.
+            if (!_propertyNamePropertyChangeActionNotSpecitied
+                && wEvent.EventType == EventTypes.PropertyChange
+                && wEvent.Triggers != null
+                && wEvent.Triggers.Any(t => t?.Action != null && t.Action.ActionType != ActionTypes.EmailNotification))
+            {
+                result.Errors.Add(new WorkflowXmlValidationError
+                {
+                    Element = wEvent,
+                    ErrorCode = WorkflowXmlValidationErrorCodes.PropertyChangeEventActionNotSupported
+                });
+                _propertyNamePropertyChangeActionNotSpecitied = true;
+            }
         }
 
         private void ValidateAction(IeBaseAction action, WorkflowXmlValidationResult result)
@@ -661,8 +682,22 @@ namespace AdminStore.Services.Workflow
                 _hasPropertyNamePropertyChangeActionNotSpecitiedError = true;
             }
 
+            var pvCount = 0;
+            if (action.PropertyValue != null)
+            {
+                pvCount++;
+            }
+            if (action.ValidValues?.Count > 0)
+            {
+                pvCount++;
+            }
+            if (action.UsersGroups?.Count > 0)
+            {
+                pvCount++;
+            }
+
             if (!_hasPropertyValuePropertyChangeActionNotSpecitiedError
-                && !ValidatePropertyNotEmpty(action.PropertyValue))
+                && pvCount == 0)
             {
                 result.Errors.Add(new WorkflowXmlValidationError
                 {
@@ -670,6 +705,16 @@ namespace AdminStore.Services.Workflow
                     ErrorCode = WorkflowXmlValidationErrorCodes.PropertyValuePropertyChangeActionNotSpecitied
                 });
                 _hasPropertyValuePropertyChangeActionNotSpecitiedError = true;
+            }
+            else if(!_hasAmbiguousPropertyValuePropertyChangeActionError
+                && pvCount > 1)
+            {
+                result.Errors.Add(new WorkflowXmlValidationError
+                {
+                    Element = action,
+                    ErrorCode = WorkflowXmlValidationErrorCodes.AmbiguousPropertyValuePropertyChangeAction
+                });
+                _hasAmbiguousPropertyValuePropertyChangeActionError = true;
             }
         }
 

@@ -314,7 +314,7 @@ namespace ArtifactStore.Repositories
                     var addedArtifact = new RDArtifact()
                     {
                         Id = artifactToAdd,
-                        ApprovalNotRequested = false
+                        ApprovalNotRequested = true
 
                     };
                     rdReviewContents.Artifacts.Add(addedArtifact);
@@ -664,7 +664,7 @@ namespace ArtifactStore.Repositories
             }
         }
 
-        private async Task<ReviewTableOfContent> GetTableOfContentAsync(int reviewId, int revisionId, int userId, Pagination pagination)
+        private async Task<QueryResult<ReviewTableOfContentItem>> GetTableOfContentAsync(int reviewId, int revisionId, int userId, Pagination pagination)
         {
             int refreshInterval = await GetRebuildReviewArtifactHierarchyInterval();
             var param = new DynamicParameters();
@@ -692,7 +692,7 @@ namespace ArtifactStore.Repositories
                 ThrowUserCannotAccessReviewException(reviewId);
             }
 
-            return new ReviewTableOfContent
+            return new QueryResult<ReviewTableOfContentItem>()
             {
                 Items = result.ToList(),
                 Total = param.Get<int>("@total")
@@ -701,7 +701,7 @@ namespace ArtifactStore.Repositories
 
 
 
-        public async Task<ReviewTableOfContent> GetReviewTableOfContent(int reviewId, int revisionId, int userId, Pagination pagination)
+        public async Task<QueryResult<ReviewTableOfContentItem>> GetReviewTableOfContent(int reviewId, int revisionId, int userId, Pagination pagination)
         {
 
             //get all review content item in a hierarchy list

@@ -460,8 +460,8 @@ namespace AdminStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
-        public async Task DeleteFolderAsync_FolderContainsChildrenItems_ReturnBadrequestError()
+        [ExpectedException(typeof(ConflictException))]
+        public async Task DeleteFolderAsync_FolderContainsChildrenItems_ReturnConflictError()
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();

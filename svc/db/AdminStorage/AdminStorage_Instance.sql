@@ -305,6 +305,12 @@ Change History:
 Date			Name					Change
 
 ******************************************************************************************************************************/
+
+-- Migrate table to the AdminStore schema
+IF (OBJECT_ID(N'[dbo].[DbVersionInfo]', 'U') IS NOT NULL) AND (OBJECT_ID(N'[AdminStore].[DbVersionInfo]', 'U') IS NULL)
+	ALTER SCHEMA [AdminStore] TRANSFER [dbo].[DbVersionInfo];
+GO
+
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[AdminStore].[IsSchemaVersionLessOrEqual]') AND type in (N'FN', N'IF', N'TF', N'FS', N'FT'))
 DROP FUNCTION [AdminStore].[IsSchemaVersionLessOrEqual]
 GO
@@ -388,6 +394,7 @@ ELSE
 	END 
 
 GO
+
 
 
 /******************************************************************************************************************************
@@ -727,7 +734,7 @@ CREATE PROCEDURE [AdminStore].[WriteLogs]
 )
 AS
 BEGIN
-  INSERT INTO [Logs] (
+  INSERT INTO [AdminStore].[Logs] (
 		[InstanceName],
 		[ProviderId],
 		[ProviderName],
@@ -763,11 +770,11 @@ AS
 BEGIN
   -- Get the number of days to keep from config settings - DEFAULT 7
   DECLARE @days int
-  SELECT @days=c.[Value] FROM ConfigSettings c WHERE c.[Key] = N'DaysToKeepInLogs'
+  SELECT @days=c.[Value] FROM [AdminStore].ConfigSettings c WHERE c.[Key] = N'DaysToKeepInLogs'
   SELECT @days=COALESCE(@days, 7) 
 
   -- Delete old log records
-  DELETE FROM [Logs] WHERE [Timestamp] <= DATEADD(DAY, @days*-1, SYSDATETIMEOFFSET()) 
+  DELETE FROM [AdminStore].[Logs] WHERE [Timestamp] <= DATEADD(DAY, @days*-1, SYSDATETIMEOFFSET()) 
 END
 
 GO
@@ -801,11 +808,11 @@ BEGIN
 
 	SET @id = IsNULL(@recordid, 0);
 
-	SELECT @total = COUNT(*) FROM [Logs] where @id = 0 OR ID <= @id 	
+	SELECT @total = COUNT(*) FROM [AdminStore].[Logs] where @id = 0 OR ID <= @id 	
 
 	SET @fetch = IIF(@recordlimit < 0, @total, @recordlimit)
 
-	SELECT TOP (@fetch) * FROM [Logs] WHERE @id = 0 OR ID <= @id ORDER BY Id DESC
+	SELECT TOP (@fetch) * FROM [AdminStore].[Logs] WHERE @id = 0 OR ID <= @id ORDER BY Id DESC
 
 END
 
@@ -904,7 +911,7 @@ AS (
 		ISNULL(da.LicenseType, 0) AS 'CountLicense',
 		ISNULL(da.[Count], 0) AS 'Count'
 	FROM 
-		LicenseActivities AS la WITH (NOLOCK) LEFT JOIN LicenseActivityDetails AS da WITH (NOLOCK) 
+		[AdminStore].LicenseActivities AS la WITH (NOLOCK) LEFT JOIN [AdminStore].LicenseActivityDetails AS da WITH (NOLOCK) 
 			ON la.LicenseActivityId = da.LicenseActivityId
 	WHERE 
 		(@year IS NULL OR @month IS NULL OR la.[TimeStamp] > @startMonth) AND la.[TimeStamp] < @currentMonth

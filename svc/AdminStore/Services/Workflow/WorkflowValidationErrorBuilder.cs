@@ -53,17 +53,23 @@ namespace AdminStore.Services.Workflow
         private const string TemplateXmlEmailInvalidEmailNotificationAction = "'{0}' is not a valid email.";
         private const string TemplateXmlMessageEmailNotificationActionNotSpecitied = "One or more Email Notification Actions do not have a specified message. A Email Notification Action must have a message.";
         private const string TemplateXmlPropertyNamePropertyChangeActionNotSpecitied = "One or more Property Change Actions do not have a specified Property Name. A Property Change Action must have a Property Name.";
-        private const string TemplateXmlPropertyValuePropertyChangeActionNotSpecitied = "One or more Property Change Actions do not have a specified Property Value. A Property Change Action must have a Property Value.";
+        // Updated
+        private const string TemplateXmlPropertyValuePropertyChangeActionNotSpecitied = "One or more Property Change Actions do not have a specified Property Value. A Property Change Action must have one of the following values, a Property Value or Valid Values or Users and Groups.";
+        // New
+        private const string TemplateXmlAmbiguousPropertyValuePropertyChangeAction = "One or more Property Change Actions have ambiguous Property Values. A Property Change Action must have only one of the following values, a Property Value or Valid Values or Users and Groups.";
         private const string TemplateXmlArtifactTypeGenerateChildrenActionNotSpecitied = "One or more Generate Children Actions do not have a specified Artifact Type. A Generate Children Action must have an Artifact Type.";
         private const string TemplateXmlChildCountGenerateChildrenActionNotSpecitied = "One or more Generate Children Actions do not have a specified Child Count. A Generate Children Action must have a Child Count.";
         private const string TemplateXmlStateConditionNotOnTriggerOfPropertyChangeEvent = "One or more Triggers of Transitions or New Artifact Events have a State Condition. Only Triggers of Property Change Events can have a State Condition.";
         private const string TemplateXmlStateStateConditionNotSpecified = "One or more States missing on State Conditions of Triggers. The State must be specified on a State Condition.";
         private const string TemplateXmlStateStateConditionNotFound = "State '{0}' of a State Condition is not found. The State of a State Condition must be in the Workflow.";
-        // Message sent to Chris for review.
+        // New
+        private const string TemplateXmlPropertyChangeEventActionNotSupported = "One or more Property Change Events have unsupported Actions. A Property Change Event supports only Email Notification Action";
 
         // Messages for the Data validation.
         private const string TemplateXmlWorkflowNameNotUnique = "A Workflow with Name '{0}' already exists. Workflows in Blueprint must have unique names.";
-        private const string TemplateXmlProjectNotFound = "Project '{0}' is not found in Blueprint.";// TODO: Id vs. Path
+        private const string TemplateXmlProjectNotFound = "Project '{0}' is not found in Blueprint.";
+        // New
+        private const string TemplateXmlProjectIdNotFound = "Project ID '{0}' is not found in Blueprint.";
         private const string TemplateXmlGroupsNotFound = "Group '{0}' is not found in Blueprint.";
         private const string TemplateXmlArtifactTypeNotFoundInProject = "Artifact Type '{0}' is not found in Project '{1}'."; // TODO: Test for Standard Types
         private const string TemplateXmlArtifactTypeAlreadyAssociatedWithWorkflow = "Artifact Type '{0}' is already is associated with a Workflow."; // TODO: Artifact Type in a Project
@@ -287,6 +293,10 @@ namespace AdminStore.Services.Workflow
                     template = TemplateXmlPropertyValuePropertyChangeActionNotSpecitied;
                     errParams = new object[] { };
                     break;
+                case WorkflowXmlValidationErrorCodes.AmbiguousPropertyValuePropertyChangeAction:
+                    template = TemplateXmlAmbiguousPropertyValuePropertyChangeAction;
+                    errParams = new object[] { };
+                    break;
                 case WorkflowXmlValidationErrorCodes.ArtifactTypeGenerateChildrenActionNotSpecitied:
                     template = TemplateXmlArtifactTypeGenerateChildrenActionNotSpecitied;
                     errParams = new object[] { };
@@ -306,6 +316,10 @@ namespace AdminStore.Services.Workflow
                 case WorkflowXmlValidationErrorCodes.StateStateConditionNotFound:
                     template = TemplateXmlStateStateConditionNotFound;
                     errParams = new object[] { (string)error.Element };
+                    break;
+                case WorkflowXmlValidationErrorCodes.PropertyChangeEventActionNotSupported:
+                    template = TemplateXmlPropertyChangeEventActionNotSupported;
+                    errParams = new object[] { };
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(error.ErrorCode));
@@ -327,6 +341,10 @@ namespace AdminStore.Services.Workflow
                 case WorkflowDataValidationErrorCodes.ProjectNotFound:
                     template = TemplateXmlProjectNotFound;
                     errParams = new object[] { (string) error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.ProjectIdNotFound:
+                    template = TemplateXmlProjectIdNotFound;
+                    errParams = new object[] { (int)error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.GroupsNotFound:
                     template = TemplateXmlGroupsNotFound;

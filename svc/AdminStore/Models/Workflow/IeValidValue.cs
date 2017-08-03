@@ -2,8 +2,8 @@
 
 namespace AdminStore.Models.Workflow
 {
-    [XmlType("Group")]
-    public class IeGroup
+    [XmlType("ValidValue")]
+    public class IeValidValue
     {
         // Optional, not used for the import, will be used for the update
         //========================================================
@@ -25,6 +25,6 @@ namespace AdminStore.Models.Workflow
         //========================================================
 
         [XmlElement(IsNullable = false)]
-        public string Name { get; set; }
+        public string Value { get; set; }
     }
 }

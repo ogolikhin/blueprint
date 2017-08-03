@@ -29,7 +29,7 @@ namespace AdminStore.Models.Workflow
         // Used only for GenerateActionType = Children
         // Optional, not used for the import, will be used for the update
         [XmlElement]
-        public int? ArtifactId { get; set; }
-        public bool ShouldSerializeArtifactId() { return ArtifactId.HasValue; }
+        public int? ArtifactTypeId { get; set; }
+        public bool ShouldSerializeArtifactTypeId() { return ArtifactTypeId.HasValue; }
     }
 }

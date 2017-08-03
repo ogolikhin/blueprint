@@ -7,6 +7,7 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
+using System.Globalization;
 
 namespace AdminStore.Services.Workflow
 {
@@ -44,9 +45,132 @@ namespace AdminStore.Services.Workflow
             return xmlTrigger;
         }
 
+        public IEnumerable<IeTrigger> FromXmlModel(XmlWorkflowEventTriggers xmlTriggers,
+            IDictionary<string, int> artifactTypeMap, 
+            IDictionary<string, int> propertyTypeMap, 
+            IDictionary<string, int> groupMap, 
+            IDictionary<string, int> stateMap)
+        {
+            var triggers = new List<IeTrigger>();
+
+            foreach (var t in xmlTriggers.Triggers)
+            {
+                var trigger = FromXmlModel(t, artifactTypeMap, propertyTypeMap, groupMap, stateMap);
+                if (trigger != null)
+                {
+                    triggers.Add(trigger);
+                }
+            }
+
+            return triggers;
+        }
+
+        public IeTrigger FromXmlModel(XmlWorkflowEventTrigger xmlTrigger, 
+            IDictionary<string, int> artifactTypeMap, 
+            IDictionary<string, int> propertyTypeMap, 
+            IDictionary<string, int> groupMap, 
+            IDictionary<string, int> stateMap)
+        {
+            IeTrigger ieTrigger = new IeTrigger
+            {
+                Name = xmlTrigger.Name,
+                Action = FromXmlModel(xmlTrigger.Action, artifactTypeMap, propertyTypeMap, groupMap),
+                Condition = FromXmlModel(xmlTrigger.Condition, stateMap)
+            };
+
+            return ieTrigger;
+        }
+
         #endregion
 
         #region Private Methods
+
+        private IeBaseAction FromXmlModel(XmlAction xmlAction, 
+            IDictionary<string, int> artifactTypeMap, 
+            IDictionary<string, int> propertyTypeMap, 
+            IDictionary<string, int> groupMap)
+        {
+            IeBaseAction action = null;
+
+            switch (xmlAction.ActionType)
+            {
+                case ActionTypes.EmailNotification:
+                    var xeAction = xmlAction as XmlEmailNotificationAction;
+                    action = new IeEmailNotificationAction
+                    {
+                        Name = xeAction.Name,
+                        Emails = xeAction.Emails,
+                        PropertyId = xeAction.PropertyTypeId,
+                        PropertyName = propertyTypeMap.FirstOrDefault(x => x.Value == xeAction.PropertyTypeId).Key,
+                        Message = xeAction.Message
+                    };
+                    break;
+                case ActionTypes.PropertyChange:
+                    var xpAction = xmlAction as XmlPropertyChangeAction;
+                    action = new IePropertyChangeAction
+                    {
+                        Name = xpAction.Name,
+                        PropertyId = xpAction.PropertyTypeId,
+                        PropertyName = propertyTypeMap.FirstOrDefault(x => x.Value == xpAction.PropertyTypeId).Key,
+                        PropertyValue = xpAction.PropertyValue,
+                        ValidValues = xpAction.ValidValues.ConvertAll(x => new IeValidValue { Value = x.ToString(CultureInfo.InvariantCulture) }),
+                        UsersGroups = FromXmlModel(xpAction.UsersGroups, groupMap),
+                        IncludeCurrentUser = xpAction.CurrentUserId != null
+                    };
+                    break;
+                case ActionTypes.Generate:
+                    var xgAction = xmlAction as XmlGenerateAction;
+                    action = new IeGenerateAction
+                    {
+                        Name = xgAction.Name,
+                        ChildCount = xgAction.ChildCount,
+                        ArtifactTypeId = xgAction.ArtifactTypeId,
+                        ArtifactType = artifactTypeMap.FirstOrDefault(x => x.Value == xgAction.ArtifactTypeId).Key
+                    };
+                    break;
+                default:
+                    break;
+            }
+
+            if(action == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(xmlAction.ActionType));
+            }
+
+            return action;
+        }
+
+        private List<IeUserGroup> FromXmlModel(List<XmlUserGroup> xmlUserGroups, IDictionary<string, int> groupMap)
+        {
+            var userGroups = new List<IeUserGroup>();
+            foreach(var g in xmlUserGroups)
+            {
+                var group = new IeUserGroup
+                {
+                   Id = g.Id,
+                   Name = groupMap.FirstOrDefault(x => x.Value == g.Id).Key,
+                   IsGroup = g.IsGroup
+                };
+            }
+
+            return userGroups;
+        }
+
+        private IeCondition FromXmlModel(XmlCondition xmlCondition, IDictionary<string, int> stateMap)
+        {
+            IeCondition ieCondition = null;
+            switch (xmlCondition.ConditionType)
+            {
+                case ConditionTypes.State:
+                    ieCondition = new IeStateCondition
+                    {
+                        State = stateMap.FirstOrDefault(x => x.Value == (xmlCondition as XmlStateCondition).StateId).Key
+                    };
+                    return ieCondition;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(xmlCondition.ConditionType));
+            }
+        }
 
         private XmlAction ToXmlModel(IeBaseAction ieAction, WorkflowDataMaps dataMaps, int currentUserId)
         {

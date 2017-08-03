@@ -44,16 +44,16 @@ namespace AdminStore.Repositories.Workflow
 
         Task<SqlWorkflow> GetWorkflowDetailsAsync(int workflowId);
 
-        Task<IEnumerable<SqlWorkflowArtifactTypesAndProjects>> GetWorkflowArtifactTypesAndProjectsAsync(int workflowId);
+        Task<IEnumerable<SqlWorkflowArtifactTypesAndProjects>> GetWorkflowProjectsAndArtifactTypesAsync(int workflowId);
 
         Task<int> DeleteWorkflows(OperationScope body, string search, int revision, IDbTransaction transaction = null);
 
         Task<IEnumerable<SqlWorkflow>> UpdateWorkflows(IEnumerable<SqlWorkflow> workflows, int revision,
             IDbTransaction transaction = null);
 
-        Task<IEnumerable<SqlState>> GetWorkflowStatesByWorkflowId(int workflowId);
+        Task<IEnumerable<SqlState>> GetWorkflowStatesAsync(int workflowId);
 
-        Task<IEnumerable<SqlWorkflowTransitionsAndPropertyChanges>> GetWorkflowTransitionsAndPropertyChangesByWorkflowId(int workflowId);
+        Task<IEnumerable<SqlWorkflowTransitionsAndPropertyChanges>> GetWorkflowEventsAsync(int workflowId);       
 
         Task UpdateWorkflowsChangedWithRevisions(int workflowId, int revisionId, IDbTransaction transaction = null);
     }

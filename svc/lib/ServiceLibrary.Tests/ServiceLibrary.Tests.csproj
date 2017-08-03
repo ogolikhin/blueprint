@@ -108,6 +108,7 @@
     <Compile Include="Models\LicenseTransactionTests.cs" />
     <Compile Include="Models\PaginationExtensionsTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repositories\ApplicationSettingsRepositoryTests.cs" />
     <Compile Include="Repositories\ArtifactPermissionsRepositoryTests.cs" />
     <Compile Include="Repositories\FileRepositoryTests.cs" />
     <Compile Include="Repositories\ProjectMeta\SqlProjectMetaRepositoryTests.cs" />

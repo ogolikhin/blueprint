@@ -63,8 +63,20 @@ namespace ServiceLibrary.Helpers
 
         internal static FeatureInformation[] DecryptLicenses(string encryptedLicenses)
         {
-            var decryptedXml = SystemEncryptions.Decrypt(encryptedLicenses);
-            return SerializationHelper.FromXml<FeatureInformation[]>(decryptedXml);
+            try
+            {
+                var decryptedXml = SystemEncryptions.Decrypt(encryptedLicenses);
+                var licenses = SerializationHelper.FromXml<FeatureInformation[]>(decryptedXml);
+                if (licenses != null)
+                {
+                    return licenses;
+                }
+            }
+            catch (Exception)
+            {
+                //if decryption fails, return no licenses
+            }
+            return new FeatureInformation[0];
         }
 
         private static Dictionary<FeatureTypes, FeatureInformation> GetLicensesFromDatabase()

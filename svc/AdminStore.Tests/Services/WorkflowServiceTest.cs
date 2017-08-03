@@ -191,7 +191,8 @@ namespace AdminStore.Services
                     FromState = "new",
                     ToState = "Active",
                     Permissions = "<P S=\"0\"><G>1</G></P>",
-                    Type = 1
+                    Type = 1,
+                    Triggers = "<Triggers><Trigger><Name>Trigger 1</Name><EmailNotificationAction></EmailNotificationAction></Trigger></Triggers>"
                 },
                 new SqlWorkflowTransitionsAndPropertyChanges
                 {
@@ -199,7 +200,8 @@ namespace AdminStore.Services
                     Name = "second Trigger",
                     FromState = "Active",
                     Permissions = "<P S=\"0\"/>",
-                    Type = 1
+                    Type = 1,
+                     Triggers = "<Triggers><Trigger><Name>Trigger 2</Name><EmailNotificationAction></EmailNotificationAction></Trigger></Triggers>"
                 }
             };
 

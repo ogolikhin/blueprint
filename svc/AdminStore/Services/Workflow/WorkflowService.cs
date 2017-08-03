@@ -419,14 +419,24 @@ namespace AdminStore.Services.Workflow
             // Initialize Maps here for now...
             IDictionary<string, int> artifactTypeMap = new Dictionary<string, int>();
             IDictionary<string, int> propertyTypeMap = new Dictionary<string, int>();
-            IDictionary<string, int> stateMap = new Dictionary<string, int>();
-            IDictionary<string, int> userMap = new Dictionary<string, int>();
             IDictionary<string, int> groupMap = new Dictionary<string, int>();
+            IDictionary<string, int> stateMap = new Dictionary<string, int>();
+            //IDictionary<string, int> userMap = new Dictionary<string, int>();
+            
 
             var xmlTriggers = SerializationHelper.FromXml<XmlWorkflowEventTriggers>(triggers);
 
             // Would be nice to have TriggerConverter as a Static Tool Class with initialized Maps in it. At least as a Singleton!
-            var ieTriggers = new TriggerConverter().FromXmlModel(xmlTriggers, artifactTypeMap, propertyTypeMap, groupMap, stateMap);
+            List<IeTrigger> ieTriggers = null;
+            try
+            {
+               ieTriggers = new TriggerConverter().FromXmlModel(xmlTriggers, artifactTypeMap, propertyTypeMap, groupMap, stateMap) as List<IeTrigger>;
+            }
+            catch(ArgumentNullException ex)
+            {
+                string msg = ex.Message;
+                return null;
+            }
 
             return (List<IeTrigger>)ieTriggers;
         }

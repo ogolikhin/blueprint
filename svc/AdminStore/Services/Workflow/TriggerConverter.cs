@@ -51,14 +51,22 @@ namespace AdminStore.Services.Workflow
             IDictionary<string, int> groupMap, 
             IDictionary<string, int> stateMap)
         {
+            if(xmlTriggers == null)
+            {
+                throw new ArgumentNullException(nameof(xmlTriggers));
+            }
+
             var triggers = new List<IeTrigger>();
 
-            foreach (var t in xmlTriggers.Triggers)
+            if (xmlTriggers != null)
             {
-                var trigger = FromXmlModel(t, artifactTypeMap, propertyTypeMap, groupMap, stateMap);
-                if (trigger != null)
+                foreach (var t in xmlTriggers.Triggers)
                 {
-                    triggers.Add(trigger);
+                    var trigger = FromXmlModel(t, artifactTypeMap, propertyTypeMap, groupMap, stateMap);
+                    if (trigger != null)
+                    {
+                        triggers.Add(trigger);
+                    }
                 }
             }
 
@@ -71,6 +79,11 @@ namespace AdminStore.Services.Workflow
             IDictionary<string, int> groupMap, 
             IDictionary<string, int> stateMap)
         {
+            if(xmlTrigger == null)
+            {
+                throw new ArgumentNullException(nameof(xmlTrigger));
+            }
+
             IeTrigger ieTrigger = new IeTrigger
             {
                 Name = xmlTrigger.Name,
@@ -90,6 +103,11 @@ namespace AdminStore.Services.Workflow
             IDictionary<string, int> propertyTypeMap, 
             IDictionary<string, int> groupMap)
         {
+            if(xmlAction == null)
+            {
+                throw new ArgumentNullException(nameof(xmlAction));
+            }
+
             IeBaseAction action = null;
 
             switch (xmlAction.ActionType)
@@ -132,7 +150,7 @@ namespace AdminStore.Services.Workflow
                     break;
             }
 
-            if(action == null)
+            if (action == null)
             {
                 throw new ArgumentOutOfRangeException(nameof(xmlAction.ActionType));
             }
@@ -142,15 +160,23 @@ namespace AdminStore.Services.Workflow
 
         private List<IeUserGroup> FromXmlModel(List<XmlUserGroup> xmlUserGroups, IDictionary<string, int> groupMap)
         {
-            var userGroups = new List<IeUserGroup>();
-            foreach(var g in xmlUserGroups)
+            if(xmlUserGroups == null)
             {
-                var group = new IeUserGroup
+                throw new ArgumentNullException(nameof(xmlUserGroups));
+            }
+            var userGroups = new List<IeUserGroup>();
+
+            if (xmlUserGroups != null)
+            {
+                foreach (var g in xmlUserGroups)
                 {
-                   Id = g.Id,
-                   Name = groupMap.FirstOrDefault(x => x.Value == g.Id).Key,
-                   IsGroup = g.IsGroup
-                };
+                    var group = new IeUserGroup
+                    {
+                        Id = g.Id,
+                        Name = groupMap.FirstOrDefault(x => x.Value == g.Id).Key,
+                        IsGroup = g.IsGroup
+                    };
+                }
             }
 
             return userGroups;
@@ -158,11 +184,15 @@ namespace AdminStore.Services.Workflow
 
         private IeCondition FromXmlModel(XmlCondition xmlCondition, IDictionary<string, int> stateMap)
         {
-            IeCondition ieCondition = null;
+            if(xmlCondition == null)
+            {
+                throw new ArgumentNullException(nameof(xmlCondition));
+            }
+
             switch (xmlCondition.ConditionType)
             {
                 case ConditionTypes.State:
-                    ieCondition = new IeStateCondition
+                    var ieCondition = new IeStateCondition
                     {
                         State = stateMap.FirstOrDefault(x => x.Value == (xmlCondition as XmlStateCondition).StateId).Key
                     };

@@ -6,6 +6,8 @@ using AdminStore.Models.Workflow;
 using AdminStore.Repositories;
 using AdminStore.Repositories.Workflow;
 using ArtifactStore.Helpers;
+using ServiceLibrary.Models.Workflow;
+using ServiceLibrary.Repositories.ProjectMeta;
 
 namespace AdminStore.Services.Workflow
 {
@@ -13,11 +15,14 @@ namespace AdminStore.Services.Workflow
     {
         private readonly IWorkflowRepository _workflowRepository;
         private readonly IUserRepository _userRepository;
+        private readonly ISqlProjectMetaRepository _projectMetaRepository;
 
-        public WorkflowDataValidator(IWorkflowRepository workflowRepository, IUserRepository userRepository)
+        public WorkflowDataValidator(IWorkflowRepository workflowRepository, IUserRepository userRepository,
+            ISqlProjectMetaRepository projectMetaRepository)
         {
             _workflowRepository = workflowRepository;
             _userRepository = userRepository;
+            _projectMetaRepository = projectMetaRepository;
         }
 
         public async Task<WorkflowDataValidationResult> ValidateData(IeWorkflow workflow)
@@ -29,6 +34,14 @@ namespace AdminStore.Services.Workflow
 
             var result = new WorkflowDataValidationResult();
             await ValidateWorkflowNameForUniqueness(result, workflow);
+
+            result.StandardTypes = await _projectMetaRepository.GetStandardProjectTypesAsync();
+            ISet<string> groupsToLookup;
+            ISet<string> usersToLookup;
+            CollectUsersAndGroupsToLookup(workflow, out usersToLookup, out groupsToLookup);
+            result.Users.AddRange(await _userRepository.GetExistingUsersByNames(usersToLookup));
+            result.Groups.AddRange(await _userRepository.GetExistingGroupsByNames(groupsToLookup, false));
+
             await ValidateProjectsData(result, workflow);
             await ValidateArtifactTypesData(result, workflow);
             await ValidateGroupsData(result, workflow);
@@ -36,6 +49,47 @@ namespace AdminStore.Services.Workflow
             await ValidateActionsData(result, workflow);
 
             return result;
+        }
+
+        private void CollectUsersAndGroupsToLookup(IeWorkflow workflow, out ISet<string> usersToLookup,
+            out ISet<string> groupsToLookup)
+        {
+            var users = new HashSet<string>();
+            var groups = new HashSet<string>();
+
+            workflow.TransitionEvents?.ForEach(t =>
+            {
+                t?.PermissionGroups?.ForEach(g => groups.Add(g.Name));
+            });
+
+            workflow.TransitionEvents?.ForEach(te => CollectUsersAndGroupsToLookup(te, users, groups));
+            workflow.PropertyChangeEvents?.ForEach(pce => CollectUsersAndGroupsToLookup(pce, users, groups));
+            workflow.NewArtifactEvents?.ForEach(nae => CollectUsersAndGroupsToLookup(nae, users, groups));
+
+            usersToLookup = new HashSet<string>(users);
+            groupsToLookup = new HashSet<string>(groups);
+        }
+
+        private void CollectUsersAndGroupsToLookup(IeEvent wEvent, ISet<string> users, ISet<string> groups)
+        {
+            wEvent?.Triggers?.ForEach(t =>
+            {
+                if (t?.Action?.ActionType == ActionTypes.PropertyChange)
+                {
+                    var action = (IePropertyChangeAction)t.Action;
+                    action.UsersGroups?.ForEach(ug =>
+                    {
+                        if (ug.IsGroup.GetValueOrDefault())
+                        {
+                            groups.Add(ug.Name);
+                        }
+                        else
+                        {
+                            users.Add(ug.Name);
+                        }
+                    });
+                }
+            });
         }
 
         private async Task ValidateWorkflowNameForUniqueness(WorkflowDataValidationResult result, IeWorkflow workflow)
@@ -56,48 +110,68 @@ namespace AdminStore.Services.Workflow
             result.ValidProjectIds.Clear();
             Dictionary<int, string> projectPaths = new Dictionary<int, string>();
             HashSet<string> projectPathsToLookup = new HashSet<string>();
-            workflow.Projects.ForEach(project =>
+            if (workflow.Projects.Any())
             {
-                if (project.Id.HasValue)
+                workflow.Projects.ForEach(project =>
                 {
-                    projectPaths[project.Id.Value] = project.Path;
-                }
-                else
-                {
-                    if (!string.IsNullOrEmpty(project.Path))
+                    if (project.Id.HasValue)
                     {
-                        projectPathsToLookup.Add(project.Path);
+                        projectPaths[project.Id.Value] = project.Path;
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrEmpty(project.Path))
+                        {
+                            projectPathsToLookup.Add(project.Path);
+                        }
+                    }
+                });
+
+                if (projectPathsToLookup.Any())
+                {
+                    //look up ID of projects that have no ID provided
+                    foreach (
+                        var sqlProjectPathPair in
+                            await _workflowRepository.GetProjectIdsByProjectPaths(projectPathsToLookup))
+                    {
+                        projectPaths[sqlProjectPathPair.ProjectId] = sqlProjectPathPair.ProjectPath;
                     }
                 }
-            });
 
-            if (projectPathsToLookup.Any())
-            {
-                //look up ID of projects that have no ID provided
-                foreach (var sqlProjectPathPair in await _workflowRepository.GetProjectIdsByProjectPaths(projectPathsToLookup))
+                if (projectPaths.Count != workflow.Projects.Count)
                 {
-                    projectPaths[sqlProjectPathPair.ProjectId] = sqlProjectPathPair.ProjectPath;
-                }
-            }
-
-            if (projectPaths.Count != workflow.Projects.Count)
-            {
-                //generate a list of all projects in the workflow who are either missing from id list or were not looked up by path
-                foreach (var project in workflow.Projects
-                    .Where(proj => projectPaths.All(
-                        path => proj.Id.HasValue
-                            ? path.Key != proj.Id.Value
-                            : !path.Value.Equals(proj.Path)))
-                        .Select(proj => proj.Id?.ToString() ?? proj.Path)){
-                    result.Errors.Add(new WorkflowDataValidationError
+                    //generate a list of all projects in the workflow who are either missing from id list or were not looked up by path
+                    foreach (var project in workflow.Projects
+                        .Where(proj => projectPaths.All(
+                            path => proj.Id.HasValue
+                                ? path.Key != proj.Id.Value
+                                : !path.Value.Equals(proj.Path)))
+                        .Select(proj => proj.Id?.ToString() ?? proj.Path))
                     {
-                        Element = project,
-                        ErrorCode = WorkflowDataValidationErrorCodes.ProjectNotFound
-                    });
+                        result.Errors.Add(new WorkflowDataValidationError
+                        {
+                            Element = project,
+                            ErrorCode = WorkflowDataValidationErrorCodes.ProjectNotFound
+                        });
+                    }
                 }
+
+                var projectIds = projectPaths.Select(p => p.Key).ToHashSet();
+                var validProjectIds = (await _workflowRepository.GetExistingProjectsByIds(projectIds)).ToArray();
+                if (validProjectIds.Length != projectIds.Count)
+                {
+                    foreach (var invalidId in projectIds.Where(pid => !validProjectIds.Contains(pid)))
+                    {
+                        result.Errors.Add(new WorkflowDataValidationError
+                        {
+                            Element = invalidId,
+                            ErrorCode = WorkflowDataValidationErrorCodes.ProjectIdNotFound
+                        });
+                    }
+                }
+
+                result.ValidProjectIds.AddRange(validProjectIds);
             }
-            
-            result.ValidProjectIds.AddRange(projectPaths.Select(p => p.Key).ToHashSet());
         }
 
         private async Task ValidateArtifactTypesData(WorkflowDataValidationResult result, IeWorkflow workflow)
@@ -115,7 +189,7 @@ namespace AdminStore.Services.Workflow
                     var crossJoin = from at in workflow.ArtifactTypes
                         from pid in result.ValidProjectIds
                         select new {artifactTypeName = at.Name, projectId = pid};
-                    foreach (var missingArtifactTypeInfo in crossJoin.Where(el => artifactTypesInfos.Any(ati =>
+                    foreach (var missingArtifactTypeInfo in crossJoin.Where(el => !artifactTypesInfos.Any(ati =>
                         ati.Name == el.artifactTypeName &&
                         ati.VersionProjectId == el.projectId)))
                     {
@@ -151,11 +225,11 @@ namespace AdminStore.Services.Workflow
             {
                 transition.PermissionGroups.ForEach(group =>listOfAllGroups.Add(group.Name));
             });
-            var existingGroupNames = (await _userRepository.GetExistingInstanceGroupsByNames(listOfAllGroups)).ToArray();
-            if (existingGroupNames.Length != listOfAllGroups.Count)
+            var existingInstanceGroupNames = (await _userRepository.GetExistingGroupsByNames(listOfAllGroups, true)).ToArray();
+            if (existingInstanceGroupNames.Length != listOfAllGroups.Count)
             {
                 foreach (var group in listOfAllGroups.Where(
-                    li => existingGroupNames.All(g => g.Name != li)
+                    li => existingInstanceGroupNames.All(g => g.Name != li)
                 )){
                     result.Errors.Add(new WorkflowDataValidationError
                     {
@@ -165,7 +239,7 @@ namespace AdminStore.Services.Workflow
                 }
             }
 
-            result.ValidGroups.AddRange(existingGroupNames.ToHashSet());
+            result.ValidGroups.AddRange(existingInstanceGroupNames.ToHashSet());
         }
 
         private async Task ValidateTriggersData(WorkflowDataValidationResult result, IeWorkflow workflow)

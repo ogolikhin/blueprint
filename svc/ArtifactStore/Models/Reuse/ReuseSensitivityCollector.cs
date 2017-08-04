@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using ServiceLibrary.Models.Enums;
-using PropertyTypeInfo = System.Tuple<int, ArtifactStore.Models.PropertyTypePredefined>;
+using ServiceLibrary.Models.ProjectMeta;
+using PropertyTypeInfo = System.Tuple<int, ServiceLibrary.Models.ProjectMeta.PropertyTypePredefined>;
 
 namespace ArtifactStore.Models.Reuse
 {

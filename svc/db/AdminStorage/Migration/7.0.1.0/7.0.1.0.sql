@@ -2,7 +2,7 @@
 -- --------------------------------------------------
 -- Migration 7.0.1.0
 -- --------------------------------------------------
-IF NOT ([dbo].[IsSchemaVersionLessOrEqual](N'7.0.1') <> 0) 
+IF NOT ([AdminStore].[IsSchemaVersionLessOrEqual](N'7.0.1') <> 0) 
 	set noexec on
 Print 'Migrating 7.0.1.0 ...'
 -- --------------------------------------------------
@@ -64,15 +64,15 @@ Change History:
 Date			Name					Change
 2015/12/17		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[WriteLogs]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[WriteLogs]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[AdminStore].[WriteLogs]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [AdminStore].[WriteLogs]
 GO
 
-IF  EXISTS (SELECT * FROM sys.types st JOIN sys.schemas ss ON st.schema_id = ss.schema_id WHERE st.name = N'LogsType' AND ss.name = N'dbo')
-DROP TYPE [dbo].[LogsType]
+IF  EXISTS (SELECT * FROM sys.types st JOIN sys.schemas ss ON st.schema_id = ss.schema_id WHERE st.name = N'LogsType' AND ss.name = N'AdminStore')
+DROP TYPE [AdminStore].[LogsType]
 GO
 
-CREATE TYPE LogsType AS TABLE
+CREATE TYPE [AdminStore].[LogsType] AS TABLE
 (
 	[InstanceName] [nvarchar](1000),
 	[ProviderId] [uniqueidentifier],
@@ -106,11 +106,17 @@ Change History:
 Date			Name					Change
 
 ******************************************************************************************************************************/
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[IsSchemaVersionLessOrEqual]') AND type in (N'FN', N'IF', N'TF', N'FS', N'FT'))
-DROP FUNCTION [dbo].[IsSchemaVersionLessOrEqual]
+
+-- Migrate table to the AdminStore schema
+IF (OBJECT_ID(N'[dbo].[DbVersionInfo]', 'U') IS NOT NULL) AND (OBJECT_ID(N'[AdminStore].[DbVersionInfo]', 'U') IS NULL)
+	ALTER SCHEMA [AdminStore] TRANSFER [dbo].[DbVersionInfo];
 GO
 
-CREATE FUNCTION [dbo].[IsSchemaVersionLessOrEqual]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[AdminStore].[IsSchemaVersionLessOrEqual]') AND type in (N'FN', N'IF', N'TF', N'FS', N'FT'))
+DROP FUNCTION [AdminStore].[IsSchemaVersionLessOrEqual]
+GO
+
+CREATE FUNCTION [AdminStore].[IsSchemaVersionLessOrEqual]
 (
 	@value AS nvarchar(max)
 )
@@ -130,7 +136,7 @@ BEGIN
 END;
 
 DECLARE @schemaVersion AS nvarchar(max);
-SELECT TOP(1) @schemaVersion = [SchemaVersion] FROM [dbo].[DbVersionInfo] WHERE ([SchemaVersion] IS NOT NULL);
+SELECT TOP(1) @schemaVersion = [SchemaVersion] FROM [AdminStore].[DbVersionInfo] WHERE ([SchemaVersion] IS NOT NULL);
 DECLARE @schemaVersion1 AS int = CAST(PARSENAME(@schemaVersion, 1) AS int);
 DECLARE @schemaVersion2 AS int = CAST(PARSENAME(@schemaVersion, 2) AS int);
 DECLARE @schemaVersion3 AS int = CAST(PARSENAME(@schemaVersion, 3) AS int);
@@ -164,11 +170,11 @@ Date			Name					Change
 2015/10/28		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[SetSchemaVersion]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[SetSchemaVersion]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[AdminStore].[SetSchemaVersion]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [AdminStore].[SetSchemaVersion]
 GO
 
-CREATE PROCEDURE [dbo].[SetSchemaVersion]
+CREATE PROCEDURE [AdminStore].[SetSchemaVersion]
 (
 	@value AS nvarchar(max)
 )
@@ -180,16 +186,17 @@ DECLARE @value2 AS int = CAST(PARSENAME(@value, 2) AS int);
 DECLARE @value3 AS int = CAST(PARSENAME(@value, 3) AS int);
 DECLARE @value4 AS int = CAST(PARSENAME(@value, 4) AS int);
 
-IF EXISTS (SELECT * FROM [dbo].[DbVersionInfo])
+IF EXISTS (SELECT * FROM [AdminStore].[DbVersionInfo])
 	BEGIN 
-		UPDATE [dbo].[DbVersionInfo] SET [SchemaVersion] = @value FROM [dbo].[DbVersionInfo];
+		UPDATE [AdminStore].[DbVersionInfo] SET [SchemaVersion] = @value FROM [AdminStore].[DbVersionInfo];
 	END
 ELSE
 	BEGIN 
-		INSERT INTO [dbo].[DbVersionInfo] SELECT 1, @value;
+		INSERT INTO [AdminStore].[DbVersionInfo] SELECT 1, @value;
 	END 
 
 GO
+
 /******************************************************************************************************************************
 Name:			GetStatus
 
@@ -197,23 +204,23 @@ Description:	Returns the version of the database.
 
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetStatus]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetStatus]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[AdminStore].[GetStatus]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [AdminStore].[GetStatus]
 GO
 
-CREATE PROCEDURE [dbo].[GetStatus] 
+CREATE PROCEDURE [AdminStore].[GetStatus] 
 AS
 BEGIN
-	SELECT [SchemaVersion] FROM [dbo].[DbVersionInfo] WHERE [Id] = 1;
+	SELECT [SchemaVersion] FROM [AdminStore].[DbVersionInfo] WHERE [Id] = 1;
 END
 GO 
 
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[BeginSession]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[BeginSession]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[AdminStore].[BeginSession]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [AdminStore].[BeginSession]
 GO
 
-CREATE PROCEDURE [dbo].[BeginSession] 
+CREATE PROCEDURE [AdminStore].[BeginSession] 
 (
 	@UserId int,
 	@BeginTime datetime,
@@ -231,24 +238,24 @@ BEGIN
 		BEGIN TRANSACTION;
 
 		-- [Sessions]
-		SELECT @OldSessionId = SessionId FROM [dbo].[Sessions] WHERE UserId = @UserId;
+		SELECT @OldSessionId = SessionId FROM [AdminStore].[Sessions] WHERE UserId = @UserId;
 		DECLARE @NewSessionId uniqueidentifier = NEWID();
 		IF @OldSessionId IS NULL
 		BEGIN
-			INSERT [dbo].[Sessions] (UserId, SessionId, BeginTime, EndTime, UserName, LicenseLevel, IsSso)
+			INSERT [AdminStore].[Sessions] (UserId, SessionId, BeginTime, EndTime, UserName, LicenseLevel, IsSso)
 			OUTPUT Inserted.[UserId], Inserted.[SessionId], Inserted.[BeginTime], Inserted.[EndTime], Inserted.[UserName], Inserted.[LicenseLevel], Inserted.[IsSso]
 			VALUES (@UserId, @NewSessionId, @BeginTime, @EndTime, @UserName, @LicenseLevel, @IsSso);
 		END
 		ELSE
 		BEGIN
-			UPDATE [dbo].[Sessions]
+			UPDATE [AdminStore].[Sessions]
 			SET [SessionId] = @NewSessionId, [BeginTime] = @BeginTime, [EndTime] = @EndTime, [UserName] = @UserName, [LicenseLevel] = @LicenseLevel, [IsSso] = @IsSso 
 			OUTPUT Inserted.[UserId], Inserted.[SessionId], Inserted.[BeginTime], Inserted.[EndTime], Inserted.[UserName], Inserted.[LicenseLevel], Inserted.[IsSso]
 			WHERE [SessionId] = @OldSessionId;
 		END
 
 		-- [LicenseActivities]
-		INSERT INTO [dbo].[LicenseActivities] ([UserId], [UserLicenseType], [TransactionType], [ActionType], [ConsumerType], [TimeStamp])
+		INSERT INTO [AdminStore].[LicenseActivities] ([UserId], [UserLicenseType], [TransactionType], [ActionType], [ConsumerType], [TimeStamp])
 		VALUES
 			(@UserId
 			,@LicenseLevel
@@ -260,8 +267,8 @@ BEGIN
 		-- [LicenseActivityDetails]
 		DECLARE @LicenseActivityId int = SCOPE_IDENTITY()
 		DECLARE @ActiveLicenses table ( LicenseLevel int, Count int )
-		INSERT INTO @ActiveLicenses EXEC [dbo].[GetActiveLicenses] @BeginTime, @LicenseLockTimeMinutes
-		INSERT INTO [dbo].[LicenseActivityDetails] ([LicenseActivityId], [LicenseType], [Count])
+		INSERT INTO @ActiveLicenses EXEC [AdminStore].[GetActiveLicenses] @BeginTime, @LicenseLockTimeMinutes
+		INSERT INTO [AdminStore].[LicenseActivityDetails] ([LicenseActivityId], [LicenseType], [Count])
 		SELECT @LicenseActivityId, [LicenseLevel], [Count]
 		FROM @ActiveLicenses
 
@@ -280,28 +287,28 @@ BEGIN
 END
 GO
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ExtendSession]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[ExtendSession]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[AdminStore].[ExtendSession]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [AdminStore].[ExtendSession]
 GO
 
-CREATE PROCEDURE [dbo].[ExtendSession] 
+CREATE PROCEDURE [AdminStore].[ExtendSession] 
 (
 	@SessionId uniqueidentifier,
 	@EndTime datetime
 )
 AS
 BEGIN
-	UPDATE [dbo].[Sessions] SET EndTime = @EndTime
+	UPDATE [AdminStore].[Sessions] SET EndTime = @EndTime
 	OUTPUT Inserted.[UserId], Inserted.[SessionId], Inserted.[BeginTime], Inserted.[EndTime], Inserted.[UserName], Inserted.[LicenseLevel], Inserted.[IsSso]
 	WHERE SessionId = @SessionId AND BeginTime IS NOT NULL;
 END
 GO
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[EndSession]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[EndSession]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[AdminStore].[EndSession]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [AdminStore].[EndSession]
 GO
 
-CREATE PROCEDURE [dbo].[EndSession] 
+CREATE PROCEDURE [AdminStore].[EndSession] 
 (
 	@SessionId uniqueidentifier,
 	@EndTime datetime,
@@ -315,7 +322,7 @@ BEGIN
 		BEGIN TRANSACTION;
 
 		-- [Sessions]
-		UPDATE [dbo].[Sessions] SET [BeginTime] = NULL, [EndTime] = @EndTime
+		UPDATE [AdminStore].[Sessions] SET [BeginTime] = NULL, [EndTime] = @EndTime
 		OUTPUT Inserted.[UserId], Inserted.[SessionId], Inserted.[BeginTime], Inserted.[EndTime], Inserted.[UserName], Inserted.[LicenseLevel], Inserted.[IsSso]
 		WHERE [SessionId] = @SessionId AND [BeginTime] IS NOT NULL
 		AND (@TimeoutTime IS NULL OR @TimeoutTime = [EndTime]);
@@ -324,8 +331,8 @@ BEGIN
 			-- [LicenseActivities]
 			DECLARE @UserId int
 			DECLARE @LicenseLevel int
-			SELECT @UserId = [UserId], @LicenseLevel = [LicenseLevel] FROM [dbo].[Sessions] WHERE [SessionId] = @SessionId;
-			INSERT INTO [dbo].[LicenseActivities] ([UserId], [UserLicenseType], [TransactionType], [ActionType], [ConsumerType], [TimeStamp])
+			SELECT @UserId = [UserId], @LicenseLevel = [LicenseLevel] FROM [AdminStore].[Sessions] WHERE [SessionId] = @SessionId;
+			INSERT INTO [AdminStore].[LicenseActivities] ([UserId], [UserLicenseType], [TransactionType], [ActionType], [ConsumerType], [TimeStamp])
 			VALUES
 				(@UserId
 				,@LicenseLevel
@@ -337,8 +344,8 @@ BEGIN
 			-- [LicenseActivityDetails]
 			DECLARE @LicenseActivityId int = SCOPE_IDENTITY()
 			DECLARE @ActiveLicenses table ( LicenseLevel int, Count int )
-			INSERT INTO @ActiveLicenses EXEC [dbo].[GetActiveLicenses] @EndTime, @LicenseLockTimeMinutes
-			INSERT INTO [dbo].[LicenseActivityDetails] ([LicenseActivityId], [LicenseType], [Count])
+			INSERT INTO @ActiveLicenses EXEC [AdminStore].[GetActiveLicenses] @EndTime, @LicenseLockTimeMinutes
+			INSERT INTO [AdminStore].[LicenseActivityDetails] ([LicenseActivityId], [LicenseType], [Count])
 			SELECT @LicenseActivityId, [LicenseLevel], [Count]
 			FROM @ActiveLicenses
 		END
@@ -368,15 +375,15 @@ Date			Name					Change
 2015/11/03		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetApplicationLabels]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetApplicationLabels]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[AdminStore].[GetApplicationLabels]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [AdminStore].[GetApplicationLabels]
 GO
 
-CREATE PROCEDURE [dbo].[GetApplicationLabels] 
+CREATE PROCEDURE [AdminStore].[GetApplicationLabels] 
 	@Locale nvarchar(32)
 AS
 BEGIN
-	SELECT [Key], [Text] FROM [dbo].ApplicationLabels WHERE Locale = @Locale;
+	SELECT [Key], [Text] FROM [AdminStore].ApplicationLabels WHERE Locale = @Locale;
 END
 GO
 /******************************************************************************************************************************
@@ -389,15 +396,15 @@ Date			Name					Change
 2015/11/03		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetConfigSettings]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetConfigSettings]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[AdminStore].[GetConfigSettings]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [AdminStore].[GetConfigSettings]
 GO
 
-CREATE PROCEDURE [dbo].[GetConfigSettings] 
+CREATE PROCEDURE [AdminStore].[GetConfigSettings] 
 	@AllowRestricted bit
 AS
 BEGIN
-	SELECT [Key], [Value], [Group], IsRestricted FROM [dbo].ConfigSettings WHERE IsRestricted = @AllowRestricted OR @AllowRestricted = 1;
+	SELECT [Key], [Value], [Group], IsRestricted FROM [AdminStore].ConfigSettings WHERE IsRestricted = @AllowRestricted OR @AllowRestricted = 1;
 END
 GO
 /******************************************************************************************************************************
@@ -410,17 +417,17 @@ Date			Name					Change
 2015/11/03		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetSession]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetSession]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[AdminStore].[GetSession]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [AdminStore].[GetSession]
 GO
 
-CREATE PROCEDURE [dbo].[GetSession] 
+CREATE PROCEDURE [AdminStore].[GetSession] 
 (
 	@SessionId uniqueidentifier
 )
 AS
 BEGIN
-	SELECT UserId, SessionId, BeginTime, EndTime, UserName, LicenseLevel, IsSso from [dbo].[Sessions] where SessionId = @SessionId;
+	SELECT UserId, SessionId, BeginTime, EndTime, UserName, LicenseLevel, IsSso from [AdminStore].[Sessions] where SessionId = @SessionId;
 END
 GO 
 /******************************************************************************************************************************
@@ -433,24 +440,24 @@ Date			Name					Change
 2015/11/17		Anton Trinkunas			Initial Version
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetUserSession]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetUserSession]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[AdminStore].[GetUserSession]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [AdminStore].[GetUserSession]
 GO
 
-CREATE PROCEDURE [dbo].[GetUserSession] 
+CREATE PROCEDURE [AdminStore].[GetUserSession] 
 (
 	@UserId int
 )
 AS
 BEGIN
-	SELECT UserId, SessionId, BeginTime, EndTime, UserName, LicenseLevel, IsSso from [dbo].[Sessions] where UserId = @UserId;
+	SELECT UserId, SessionId, BeginTime, EndTime, UserName, LicenseLevel, IsSso from [AdminStore].[Sessions] where UserId = @UserId;
 END
 GO 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[SelectSessions]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[SelectSessions]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[AdminStore].[SelectSessions]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [AdminStore].[SelectSessions]
 GO
 
-CREATE PROCEDURE [dbo].[SelectSessions] 
+CREATE PROCEDURE [AdminStore].[SelectSessions] 
 (
 	@ps int,
 	@pn int
@@ -460,18 +467,18 @@ BEGIN
 	WITH SessionsRN AS
 	(
 		SELECT ROW_NUMBER() OVER(ORDER BY BeginTime DESC) AS RN, UserId, SessionId, BeginTime, EndTime, UserName, LicenseLevel, IsSso 
-		FROM [dbo].[Sessions] WHERE BeginTime IS NOT NULL
+		FROM [AdminStore].[Sessions] WHERE BeginTime IS NOT NULL
 	)
 	SELECT * FROM SessionsRN
 	WHERE RN BETWEEN(@pn - 1)*@ps + 1 AND @pn * @ps
 	ORDER BY BeginTime DESC;
 END
 GO
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetActiveLicenses]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetActiveLicenses]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[AdminStore].[GetActiveLicenses]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [AdminStore].[GetActiveLicenses]
 GO
 
-CREATE PROCEDURE [dbo].[GetActiveLicenses] 
+CREATE PROCEDURE [AdminStore].[GetActiveLicenses] 
 (
 	@Now datetime,
 	@LicenseLockTimeMinutes int
@@ -480,17 +487,17 @@ AS
 BEGIN
 	DECLARE @EndTime datetime = DATEADD(MINUTE, -@LicenseLockTimeMinutes, @Now)
 	SELECT [LicenseLevel], COUNT(*) as [Count]
-	FROM [dbo].[Sessions] 
+	FROM [AdminStore].[Sessions] 
 	WHERE [EndTime] IS NULL OR [EndTime] > @EndTime
 	GROUP BY [LicenseLevel]
 END
 GO
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetLicenseTransactions]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetLicenseTransactions]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[AdminStore].[GetLicenseTransactions]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [AdminStore].[GetLicenseTransactions]
 GO
 
-CREATE PROCEDURE [dbo].[GetLicenseTransactions] 
+CREATE PROCEDURE [AdminStore].[GetLicenseTransactions] 
 (
 	@StartTime datetime,
 	@ConsumerType int
@@ -499,10 +506,10 @@ AS
 BEGIN
 	SELECT [UserId], [UserLicenseType] AS [LicenseType], [TransactionType], [ActionType], [TimeStamp] AS [Date],
 		ISNULL(STUFF((SELECT ';' + CAST([LicenseType] AS VARCHAR(10)) + ':' + CAST([Count] AS VARCHAR(10))
-		FROM [dbo].[LicenseActivityDetails] D
+		FROM [AdminStore].[LicenseActivityDetails] D
 		WHERE D.[LicenseActivityId] = A.[LicenseActivityId]
 		FOR XML PATH('')), 1, 1, ''), '') AS [Details]
-	FROM [dbo].[LicenseActivities] A
+	FROM [AdminStore].[LicenseActivities] A
 	WHERE [TimeStamp] >= @StartTime
 	AND [ConsumerType] = @ConsumerType
 END
@@ -517,11 +524,11 @@ Change History:
 Date			Name					Change
 2015/12/17		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[WriteLogs]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[WriteLogs]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[AdminStore].[WriteLogs]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [AdminStore].[WriteLogs]
 GO
 
-CREATE PROCEDURE [dbo].[WriteLogs]  
+CREATE PROCEDURE [AdminStore].[WriteLogs]  
 (
   @InsertLogs LogsType READONLY
 )
@@ -554,11 +561,11 @@ END
 
 GO
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DeleteLogs]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[DeleteLogs]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[AdminStore].[DeleteLogs]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [AdminStore].[DeleteLogs]
 GO
 
-CREATE PROCEDURE [dbo].[DeleteLogs] 
+CREATE PROCEDURE [AdminStore].[DeleteLogs] 
 AS
 BEGIN
   -- Get the number of days to keep from config settings - DEFAULT 7
@@ -583,12 +590,12 @@ Date			Name					Change
 Feb 25 2016		Dmitry Lopyrev			Initial Version
 Jun 7 2016		Dmitry Lopyrev			Updated
 ******************************************************************************************************************************/
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetLogs]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetLogs]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[AdminStore].[GetLogs]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [AdminStore].[GetLogs]
 GO
 
 
-CREATE PROCEDURE [dbo].[GetLogs]  
+CREATE PROCEDURE [AdminStore].[GetLogs]  
 (
   @recordlimit int,
   @recordid int = null
@@ -649,7 +656,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=@jobname,
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 
 -- Add Step 1 - Delete old logs from AdminStorage
-SET @cmd = N'[dbo].[DeleteLogs]'
+SET @cmd = N'[AdminStore].[DeleteLogs]'
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Delete old logs from AdminStorage', 
 		@step_id=1, 
 		@cmdexec_success_code=0, 
@@ -692,17 +699,17 @@ EndSave:
 
 GO
 
-IF NOT EXISTS(SELECT [KEY] FROM [dbo].[ConfigSettings] WHERE [Key]=N'DaysToKeepInLogs')
+IF NOT EXISTS(SELECT [KEY] FROM [AdminStore].[ConfigSettings] WHERE [Key]=N'DaysToKeepInLogs')
 BEGIN
-	INSERT INTO [dbo].[ConfigSettings] ([Key], [Value], [Group], [IsRestricted])
+	INSERT INTO [AdminStore].[ConfigSettings] ([Key], [Value], [Group], [IsRestricted])
 		 VALUES (N'DaysToKeepInLogs', N'7', N'Maintenance', 0)
 END
 
 -- --------------------------------------------------
 -- Always add your code just above this comment block
 -- --------------------------------------------------
-IF ([dbo].[IsSchemaVersionLessOrEqual](N'7.0.1') <> 0)
-	EXEC [dbo].[SetSchemaVersion] @value = N'7.0.1';
+IF ([AdminStore].[IsSchemaVersionLessOrEqual](N'7.0.1') <> 0)
+	EXEC [AdminStore].[SetSchemaVersion] @value = N'7.0.1';
 GO
 set noexec off
 -- --------------------------------------------------

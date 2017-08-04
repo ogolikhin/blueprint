@@ -63,35 +63,6 @@ IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = N'FileStore')
 EXEC sys.sp_executesql N'CREATE SCHEMA [FileStore]'
 GO
 
-
--- Create the FileStore Schema
-IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = N'FileStore')
-EXEC sys.sp_executesql N'CREATE SCHEMA [FileStore]'
-GO
-
--- Migrate tables to the FileStore schema
-IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DbVersionInfo]') AND type in (N'U'))
-ALTER SCHEMA FileStore TRANSFER [dbo].[DbVersionInfo]
-GO
-
-IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Files]') AND type in (N'U'))
-ALTER SCHEMA FileStore TRANSFER [dbo].[Files]
-GO
-
-IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[FileChunks]') AND type in (N'U'))
-ALTER SCHEMA FileStore TRANSFER [dbo].[FileChunks]
-GO
-
-IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[MigrationLog]') AND type in (N'U'))
-ALTER SCHEMA FileStore TRANSFER [dbo].[MigrationLog]
-GO
-
-IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DeleteFile]') AND type in (N'P'))
-ALTER SCHEMA FileStore TRANSFER [dbo].[DeleteFile]
-GO
-
-
-
 /******************************************************************************************************************************
 Name:			IsSchemaVersionLessOrEqual
 
@@ -101,6 +72,12 @@ Change History:
 Date			Name					Change
 
 ******************************************************************************************************************************/
+
+-- Migrate table to the FileStore schema
+IF (OBJECT_ID(N'[dbo].[DbVersionInfo]', 'U') IS NOT NULL) AND (OBJECT_ID(N'[FileStore].[DbVersionInfo]', 'U') IS NULL)
+	ALTER SCHEMA [FileStore] TRANSFER [dbo].[DbVersionInfo];
+GO
+
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[FileStore].[IsSchemaVersionLessOrEqual]') AND type in (N'FN', N'IF', N'TF', N'FS', N'FT'))
 DROP FUNCTION [FileStore].[IsSchemaVersionLessOrEqual]
 GO
@@ -147,6 +124,7 @@ THEN CAST(0 AS bit) ELSE CAST(1 AS bit) END;
 END
 
 GO
+
 /******************************************************************************************************************************
 Name:			SetSchemaVersion
 
@@ -183,6 +161,29 @@ ELSE
 	END 
 
 GO
+
+
+-- Migrate tables to the FileStore schema
+IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0)
+	AND (OBJECT_ID(N'[dbo].[Files]', 'U') IS NOT NULL) AND (OBJECT_ID(N'[FileStore].[Files]', 'U') IS NULL)
+	ALTER SCHEMA [FileStore] TRANSFER [dbo].[Files];
+GO
+
+IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0)
+	AND (OBJECT_ID(N'[dbo].[FileChunks]', 'U') IS NOT NULL) AND (OBJECT_ID(N'[FileStore].[FileChunks]', 'U') IS NULL)
+	ALTER SCHEMA [FileStore] TRANSFER [dbo].[FileChunks];
+GO
+
+IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0)
+	AND (OBJECT_ID(N'[dbo].[MigrationLog]', 'U') IS NOT NULL) AND (OBJECT_ID(N'[FileStore].[MigrationLog]', 'U') IS NULL)
+	ALTER SCHEMA [FileStore] TRANSFER [dbo].[MigrationLog];
+GO
+
+IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0)
+	AND (OBJECT_ID(N'[dbo].[DeleteFile]', 'U') IS NOT NULL) AND (OBJECT_ID(N'[FileStore].[DeleteFile]', 'U') IS NULL)
+	ALTER SCHEMA [FileStore] TRANSFER [dbo].[DeleteFile];
+GO
+
 
 
 -- --------------------------------------------------
@@ -229,6 +230,7 @@ ELSE
 	END 
 
 GO
+
 /******************************************************************************************************************************
 Name:			DeleteFile
 
@@ -609,9 +611,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=@jobname,
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 
 -- Add Step 1 - Delete expired files from FileStorage
-SET @cmd = N'
--- Delete files
-DELETE FROM [FileStore].[Files] Where ExpiredTime <= GETDATE()'
+SET @cmd = N'[FileStore].DeleteExpiredFiles'
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Delete expired files from FileStorage', 
 		@step_id=1, 
 		@cmdexec_success_code=0, 
@@ -844,9 +844,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=@jobname,
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 
 -- Add Step 1 - Delete expired files from FileStorage
-SET @cmd = N'
--- Delete files
-DELETE FROM [FileStore].[Files] Where ExpiredTime <= GETDATE()'
+SET @cmd = N'[FileStore].DeleteExpiredFiles'
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Delete expired files from FileStorage', 
 		@step_id=1, 
 		@cmdexec_success_code=0, 

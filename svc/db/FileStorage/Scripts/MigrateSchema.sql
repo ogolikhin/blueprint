@@ -1,27 +1,21 @@
 ﻿
--- Create the FileStore Schema
-IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = N'FileStore')
-EXEC sys.sp_executesql N'CREATE SCHEMA [FileStore]'
-GO
-
 -- Migrate tables to the FileStore schema
-IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DbVersionInfo]') AND type in (N'U'))
-ALTER SCHEMA FileStore TRANSFER [dbo].[DbVersionInfo]
+IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0)
+	AND (OBJECT_ID(N'[dbo].[Files]', 'U') IS NOT NULL) AND (OBJECT_ID(N'[FileStore].[Files]', 'U') IS NULL)
+	ALTER SCHEMA [FileStore] TRANSFER [dbo].[Files];
 GO
 
-IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Files]') AND type in (N'U'))
-ALTER SCHEMA FileStore TRANSFER [dbo].[Files]
+IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0)
+	AND (OBJECT_ID(N'[dbo].[FileChunks]', 'U') IS NOT NULL) AND (OBJECT_ID(N'[FileStore].[FileChunks]', 'U') IS NULL)
+	ALTER SCHEMA [FileStore] TRANSFER [dbo].[FileChunks];
 GO
 
-IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[FileChunks]') AND type in (N'U'))
-ALTER SCHEMA FileStore TRANSFER [dbo].[FileChunks]
+IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0)
+	AND (OBJECT_ID(N'[dbo].[MigrationLog]', 'U') IS NOT NULL) AND (OBJECT_ID(N'[FileStore].[MigrationLog]', 'U') IS NULL)
+	ALTER SCHEMA [FileStore] TRANSFER [dbo].[MigrationLog];
 GO
 
-IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[MigrationLog]') AND type in (N'U'))
-ALTER SCHEMA FileStore TRANSFER [dbo].[MigrationLog]
+IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0)
+	AND (OBJECT_ID(N'[dbo].[DeleteFile]', 'U') IS NOT NULL) AND (OBJECT_ID(N'[FileStore].[DeleteFile]', 'U') IS NULL)
+	ALTER SCHEMA [FileStore] TRANSFER [dbo].[DeleteFile];
 GO
-
-IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DeleteFile]') AND type in (N'P'))
-ALTER SCHEMA FileStore TRANSFER [dbo].[DeleteFile]
-GO
-

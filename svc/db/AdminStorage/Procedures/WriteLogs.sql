@@ -7,17 +7,17 @@ Change History:
 Date			Name					Change
 2015/12/17		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[WriteLogs]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[WriteLogs]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[AdminStore].[WriteLogs]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [AdminStore].[WriteLogs]
 GO
 
-CREATE PROCEDURE [dbo].[WriteLogs]  
+CREATE PROCEDURE [AdminStore].[WriteLogs]  
 (
   @InsertLogs LogsType READONLY
 )
 AS
 BEGIN
-  INSERT INTO [Logs] (
+  INSERT INTO [AdminStore].[Logs] (
 		[InstanceName],
 		[ProviderId],
 		[ProviderName],

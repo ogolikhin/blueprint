@@ -38,7 +38,7 @@ namespace AdminStore.Services
             _service = new WorkflowService(_workflowRepositoryMock.Object,
                 _workflowXmlValidatorMock.Object,
                 _userRepositoryMock.Object,
-                _workflowValidationErrorBuilder.Object);
+                _workflowValidationErrorBuilder.Object, null, null);
         }
 
         #region GetWorkflowDetailsAsync
@@ -52,7 +52,7 @@ namespace AdminStore.Services
             var userRepositoryMock = new Mock<IUserRepository>();
             var workflowValidationErrorBuilder = new Mock<IWorkflowValidationErrorBuilder>();
             var workflowService = new WorkflowService(workflowRepositoryMock.Object, workflowValidatorMock.Object,
-                userRepositoryMock.Object, workflowValidationErrorBuilder.Object);
+                userRepositoryMock.Object, workflowValidationErrorBuilder.Object, null, null);
             var workflowId = 10;
             var workflow = new SqlWorkflow { Name = "Workflow1", Description = "Workflow1Description" };
             var workflowArtifactTypesAndProjects = new List<SqlWorkflowArtifactTypesAndProjects>
@@ -79,7 +79,7 @@ namespace AdminStore.Services
 
             workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(workflow);
 
-            workflowRepositoryMock.Setup(repo => repo.GetWorkflowArtifactTypesAndProjectsAsync(It.IsAny<int>())).ReturnsAsync(workflowArtifactTypesAndProjects);
+            workflowRepositoryMock.Setup(repo => repo.GetWorkflowProjectsAndArtifactTypesAsync(It.IsAny<int>())).ReturnsAsync(workflowArtifactTypesAndProjects);
 
             //act
             var workflowDetails = await workflowService.GetWorkflowDetailsAsync(workflowId);
@@ -100,7 +100,7 @@ namespace AdminStore.Services
             var userRepositoryMock = new Mock<IUserRepository>();
             var workflowValidationErrorBuilder = new Mock<IWorkflowValidationErrorBuilder>();
             var workflowService = new WorkflowService(workflowRepositoryMock.Object, workflowValidatorMock.Object,
-                userRepositoryMock.Object, workflowValidationErrorBuilder.Object);
+                userRepositoryMock.Object, workflowValidationErrorBuilder.Object, null, null);
             var workflowId = 10;
 
             workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync((SqlWorkflow)null);
@@ -191,7 +191,8 @@ namespace AdminStore.Services
                     FromState = "new",
                     ToState = "Active",
                     Permissions = "<P S=\"0\"><G>1</G></P>",
-                    Type = 1
+                    Type = 1,
+                    Triggers = "<Triggers><Trigger><Name>Trigger 1</Name><EmailNotificationAction></EmailNotificationAction></Trigger></Triggers>"
                 },
                 new SqlWorkflowTransitionsAndPropertyChanges
                 {
@@ -199,17 +200,18 @@ namespace AdminStore.Services
                     Name = "second Trigger",
                     FromState = "Active",
                     Permissions = "<P S=\"0\"/>",
-                    Type = 1
+                    Type = 1,
+                     Triggers = "<Triggers><Trigger><Name>Trigger 2</Name><EmailNotificationAction></EmailNotificationAction></Trigger></Triggers>"
                 }
             };
 
             _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(workflow);
 
-            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowStatesByWorkflowId(It.IsAny<int>())).ReturnsAsync(workflowsList);
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowStatesAsync(It.IsAny<int>())).ReturnsAsync(workflowsList);
 
-            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowArtifactTypesAndProjectsAsync(It.IsAny<int>())).ReturnsAsync(workflowArtifactTypesAndProjects);
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowProjectsAndArtifactTypesAsync(It.IsAny<int>())).ReturnsAsync(workflowArtifactTypesAndProjects);
 
-            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowTransitionsAndPropertyChangesByWorkflowId(It.IsAny<int>())).ReturnsAsync(workflowTransitionsAndPropertyChanges);
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowEventsAsync(It.IsAny<int>())).ReturnsAsync(workflowTransitionsAndPropertyChanges);
 
             //act
             var workflowExport = await _service.GetWorkflowExportAsync(workflowId);

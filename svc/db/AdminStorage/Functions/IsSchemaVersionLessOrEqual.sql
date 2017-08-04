@@ -7,11 +7,17 @@ Change History:
 Date			Name					Change
 
 ******************************************************************************************************************************/
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[IsSchemaVersionLessOrEqual]') AND type in (N'FN', N'IF', N'TF', N'FS', N'FT'))
-DROP FUNCTION [dbo].[IsSchemaVersionLessOrEqual]
+
+-- Migrate table to the AdminStore schema
+IF (OBJECT_ID(N'[dbo].[DbVersionInfo]', 'U') IS NOT NULL) AND (OBJECT_ID(N'[AdminStore].[DbVersionInfo]', 'U') IS NULL)
+	ALTER SCHEMA [AdminStore] TRANSFER [dbo].[DbVersionInfo];
 GO
 
-CREATE FUNCTION [dbo].[IsSchemaVersionLessOrEqual]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[AdminStore].[IsSchemaVersionLessOrEqual]') AND type in (N'FN', N'IF', N'TF', N'FS', N'FT'))
+DROP FUNCTION [AdminStore].[IsSchemaVersionLessOrEqual]
+GO
+
+CREATE FUNCTION [AdminStore].[IsSchemaVersionLessOrEqual]
 (
 	@value AS nvarchar(max)
 )
@@ -31,7 +37,7 @@ BEGIN
 END;
 
 DECLARE @schemaVersion AS nvarchar(max);
-SELECT TOP(1) @schemaVersion = [SchemaVersion] FROM [dbo].[DbVersionInfo] WHERE ([SchemaVersion] IS NOT NULL);
+SELECT TOP(1) @schemaVersion = [SchemaVersion] FROM [AdminStore].[DbVersionInfo] WHERE ([SchemaVersion] IS NOT NULL);
 DECLARE @schemaVersion1 AS int = CAST(PARSENAME(@schemaVersion, 1) AS int);
 DECLARE @schemaVersion2 AS int = CAST(PARSENAME(@schemaVersion, 2) AS int);
 DECLARE @schemaVersion3 AS int = CAST(PARSENAME(@schemaVersion, 3) AS int);

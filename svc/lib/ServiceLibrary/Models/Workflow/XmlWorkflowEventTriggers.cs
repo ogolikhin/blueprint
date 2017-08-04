@@ -4,12 +4,13 @@ using System.Xml.Serialization;
 
 namespace ServiceLibrary.Models.Workflow
 {
-    [XmlRoot(ElementName = "TS")]
+    [XmlRoot(ElementName = "TSR")]
     public class XmlWorkflowEventTriggers
     {
         private List<XmlWorkflowEventTrigger> _triggers;
+
         [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
-        [XmlElement(ElementName = "T")]
+        [XmlArray("TS"), XmlArrayItem("T")]
         public List<XmlWorkflowEventTrigger> Triggers
         {
             get

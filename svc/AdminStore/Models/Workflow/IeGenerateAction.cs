@@ -1,5 +1,6 @@
 ﻿using System.Xml.Serialization;
 using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Models.Workflow;
 
 namespace AdminStore.Models.Workflow
 {
@@ -9,6 +10,9 @@ namespace AdminStore.Models.Workflow
     [XmlType("GenerateAction")]
     public class IeGenerateAction : IeBaseAction
     {
+        [XmlIgnore]
+        public override ActionTypes ActionType => ActionTypes.Generate;
+
         [XmlElement(IsNullable = false)]
         
         public GenerateActionTypes GenerateActionType { get; set; }
@@ -25,7 +29,7 @@ namespace AdminStore.Models.Workflow
         // Used only for GenerateActionType = Children
         // Optional, not used for the import, will be used for the update
         [XmlElement]
-        public int? ArtifactId { get; set; }
-        public bool ShouldSerializeArtifactId() { return ArtifactId.HasValue; }
+        public int? ArtifactTypeId { get; set; }
+        public bool ShouldSerializeArtifactTypeId() { return ArtifactTypeId.HasValue; }
     }
 }

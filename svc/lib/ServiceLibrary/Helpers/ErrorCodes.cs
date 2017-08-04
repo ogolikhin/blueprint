@@ -23,6 +23,8 @@
         public const int LdapIsDisabled = 1000;
         public const int FallbackIsDisabled = 1001;
         public const int WorkflowDisabled = 1002;
+        public const int WorkflowLicenseUnavailable = 1003;
+        public const int LicenseUnavailable = 1004;
 
         //Authentication errors
         public const int InvalidCredentials = 2000;
@@ -82,6 +84,7 @@
         public const int ApprovalRequiredArtifactNotInReview = 10002;
         public const int ReviewClosed = 10003;
         public const int ReviewActive = 10004;
+        public const int ReviewStatusChanged = 10005;
 
         //User Review Errors
         public const int UserDisabled = 11001;
@@ -91,5 +94,8 @@
         public const int TenantInfoNotFound = 12000;
         public const int UnsupportedActionType = 12001;
         public const int MessageHeaderValueNotFound = 12002;
+
+        // Unexpected Errors
+        public const int UnexpectedError = 13001;
     }
 }

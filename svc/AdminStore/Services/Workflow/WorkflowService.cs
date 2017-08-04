@@ -13,8 +13,10 @@ using ArtifactStore.Helpers;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories.Files;
+using ServiceLibrary.Repositories.ProjectMeta;
 using File = ServiceLibrary.Models.Files.File;
 
 namespace AdminStore.Services.Workflow
@@ -27,25 +29,32 @@ namespace AdminStore.Services.Workflow
         private readonly IWorkflowXmlValidator _workflowXmlValidator;
         private readonly IWorkflowDataValidator _workflowDataValidator;
         private readonly IWorkflowValidationErrorBuilder _workflowValidationErrorBuilder;
+        private readonly ISqlProjectMetaRepository _projectMetaRepository;
+        private readonly ITriggerConverter _triggerConverter;
 
         private const string WorkflowImportErrorsFile = "$workflow_import_errors$.txt";
 
         public WorkflowService()
-            : this(new WorkflowRepository(), new WorkflowXmlValidator(), new SqlUserRepository(), new WorkflowValidationErrorBuilder())
+            : this(new WorkflowRepository(), new WorkflowXmlValidator(), new SqlUserRepository(),
+                  new WorkflowValidationErrorBuilder(), new SqlProjectMetaRepository(),
+                  new TriggerConverter())
         {
-            _workflowDataValidator = new WorkflowDataValidator(_workflowRepository, _userRepository);
+            _workflowDataValidator = new WorkflowDataValidator(_workflowRepository, _userRepository, _projectMetaRepository);
         }
 
         public WorkflowService(IWorkflowRepository workflowRepository,
             IWorkflowXmlValidator workflowXmlValidator,
             IUserRepository userRepository,
-            IWorkflowValidationErrorBuilder workflowValidationErrorBuilder)
+            IWorkflowValidationErrorBuilder workflowValidationErrorBuilder,
+            ISqlProjectMetaRepository projectMetaRepository,
+            ITriggerConverter triggerConverter)
         {
             _workflowRepository = workflowRepository;
             _workflowXmlValidator = workflowXmlValidator;
             _userRepository = userRepository;
             _workflowValidationErrorBuilder = workflowValidationErrorBuilder;
-
+            _projectMetaRepository = projectMetaRepository;
+            _triggerConverter = triggerConverter;
         }
 
         public IFileRepository FileRepository
@@ -95,6 +104,8 @@ namespace AdminStore.Services.Workflow
 
             var importResult = new ImportWorkflowResult();
 
+            ReplaceNewLinesInNames(workflow);
+
             var xmlValidationResult = _workflowXmlValidator.ValidateXml(workflow);
             if (xmlValidationResult.HasErrors)
             {
@@ -103,6 +114,11 @@ namespace AdminStore.Services.Workflow
 
                 importResult.ErrorsGuid = guid;
                 importResult.ResultCode = ImportWorkflowResultCodes.InvalidModel;
+
+#if DEBUG
+                importResult.ErrorMessage = textErrors;
+#endif
+
                 return importResult;
             }
 
@@ -114,6 +130,11 @@ namespace AdminStore.Services.Workflow
 
                 importResult.ErrorsGuid = guid;
                 importResult.ResultCode = ImportWorkflowResultCodes.Conflict;
+
+#if DEBUG
+                importResult.ErrorMessage = textErrors;
+#endif
+
                 return importResult;
             }
 
@@ -133,7 +154,8 @@ namespace AdminStore.Services.Workflow
 
                 if (newWorkflow != null)
                 {
-                    await ImportWorkflowComponentsAsync(workflow, newWorkflow, publishRevision, transaction, dataValidationResult);
+                    await ImportWorkflowComponentsAsync(workflow, newWorkflow, publishRevision, transaction, dataValidationResult, userId);
+                    await _workflowRepository.UpdateWorkflowsChangedWithRevisions(newWorkflow.WorkflowId, publishRevision, transaction);
 
                     importResult.ResultCode = ImportWorkflowResultCodes.Ok;
                 }
@@ -157,7 +179,7 @@ namespace AdminStore.Services.Workflow
             var workflowDto = new WorkflowDto {Name = workflowDetails.Name, Description = workflowDetails.Description, Status = workflowDetails.Active, WorkflowId = workflowDetails.WorkflowId,
                 VersionId = workflowDetails.VersionId}; 
 
-            var workflowProjectsAndArtifactTypes = (await _workflowRepository.GetWorkflowArtifactTypesAndProjectsAsync(workflowId)).ToList();
+            var workflowProjectsAndArtifactTypes = (await _workflowRepository.GetWorkflowProjectsAndArtifactTypesAsync(workflowId)).ToList();
 
             workflowDto.Projects = workflowProjectsAndArtifactTypes.Select(e => new WorkflowProjectDto {Id = e.ProjectId, Name = e.ProjectName}).Distinct().ToList();
             workflowDto.ArtifactTypes = workflowProjectsAndArtifactTypes.Select(e => new WorkflowArtifactTypeDto {Name = e.ArtifactName}).Distinct().ToList();
@@ -208,7 +230,8 @@ namespace AdminStore.Services.Workflow
             return totalDeleted;
         }
 
-        private async Task ImportWorkflowComponentsAsync(IeWorkflow workflow, SqlWorkflow newWorkflow, int publishRevision, IDbTransaction transaction, WorkflowDataValidationResult dataValidationResult)
+        private async Task ImportWorkflowComponentsAsync(IeWorkflow workflow, SqlWorkflow newWorkflow, int publishRevision, 
+            IDbTransaction transaction, WorkflowDataValidationResult dataValidationResult, int userId)
         {
             var importStateParams = new List<SqlState>();
 
@@ -225,12 +248,12 @@ namespace AdminStore.Services.Workflow
                 });
                 orderIndex += 10;
             });
-            var newStates = await _workflowRepository.CreateWorkflowStatesAsync(importStateParams, publishRevision, transaction);
+            var newStates = (await _workflowRepository.CreateWorkflowStatesAsync(importStateParams, publishRevision, transaction)).ToList();
 
-            if (newStates != null)
-            {
-                await ImportWorkflowTransitions(workflow, newWorkflow, publishRevision, transaction, newStates, dataValidationResult.ValidGroups);
-            }
+            var dataMaps = CreateDataMap(dataValidationResult, newStates);
+
+            await ImportWorkflowEvents(workflow, newWorkflow.WorkflowId, publishRevision, transaction, newStates,
+                dataValidationResult.ValidGroups, dataMaps, userId);
 
             if (workflow.ArtifactTypes.Any() && workflow.Projects.Any())
             {
@@ -239,32 +262,110 @@ namespace AdminStore.Services.Workflow
             }
         }
 
-        private async Task ImportWorkflowTransitions(IeWorkflow workflow, SqlWorkflow newWorkflow, int publishRevision,
-            IDbTransaction transaction, IEnumerable<SqlState> newStates, HashSet<SqlGroup> validGroups)
+        private static WorkflowDataMaps CreateDataMap(WorkflowDataValidationResult dataValidationResult, List<SqlState> newStates)
+        {
+            var dataMaps = new WorkflowDataMaps();
+            dataMaps.UserMap.AddRange(dataValidationResult.Users.ToDictionary(u => u.Login, u => u.UserId));
+            dataMaps.GroupMap.AddRange(dataValidationResult.Groups.ToDictionary(u => u.Name, u => u.GroupId));
+            dataMaps.StateMap.AddRange(newStates.ToDictionary(s => s.Name, s => s.WorkflowStateId));
+            dataMaps.ArtifactTypeMap.AddRange(dataValidationResult.StandardTypes.ArtifactTypes.ToDictionary(at => at.Name, at => at.Id));
+            dataValidationResult.StandardTypes.PropertyTypes.ForEach(pt =>
+            {
+                dataMaps.PropertyTypeMap.Add(pt.Name, pt.Id);
+
+                if (pt.PrimitiveType == PropertyPrimitiveType.Choice)
+                {
+                    var vvMap = new Dictionary<string, int>();
+                    pt.ValidValues?.ForEach(vv =>
+                    {
+                        if (!vvMap.ContainsKey(vv.Value))
+                        {
+                            vvMap.Add(vv.Value, vv.Id.GetValueOrDefault());
+                        }
+                    });
+                    dataMaps.ValidValueMap.Add(pt.Id, vvMap);
+                }
+            });
+            dataMaps.PropertyTypeMap.Add(WorkflowConstants.PropertyNameName, WorkflowConstants.PropertyTypeFakeIdName);
+            dataMaps.PropertyTypeMap.Add(WorkflowConstants.PropertyNameDescription, WorkflowConstants.PropertyTypeFakeIdDescription);
+
+            return dataMaps;
+        }
+
+        private async Task ImportWorkflowEvents(IeWorkflow workflow, int newWorkflowId, int publishRevision,
+            IDbTransaction transaction, IEnumerable<SqlState> newStates, HashSet<SqlGroup> validGroups,
+            WorkflowDataMaps dataMaps, int userId)
         {
             var newStatesArray = newStates.ToArray();
             var importTriggersParams = new List<SqlWorkflowEvent>();
 
-            workflow.TransitionEvents.OfType<IeTransitionEvent>().ForEach(transition =>
+            workflow.TransitionEvents.OfType<IeTransitionEvent>().ForEach(e =>
             {
-                importTriggersParams.Add(new SqlWorkflowEvent
-                {
-                    Name = transition.Name,
-                    WorkflowId = newWorkflow.WorkflowId,
-                    Type = DWorkflowEventType.Transition,
-                    Permissions = SerializationHelper.ToXml(new XmlTriggerPermissions
-                    {
-                        Skip = "0",
-                        GroupIds = transition.PermissionGroups.Select(pg => validGroups.First(p => p.Name == pg.Name).GroupId).ToList()
-                    }),
-                    Validations = null,
-                    Triggers = SerializationHelper.ToXml(transition.Triggers),
-                    WorkflowState1Id = newStatesArray.FirstOrDefault(s => s.Name.Equals(transition.FromState))?.WorkflowStateId,
-                    WorkflowState2Id = newStatesArray.FirstOrDefault(s => s.Name.Equals(transition.ToState))?.WorkflowStateId,
-                    PropertyTypeId = null
-                });
+                importTriggersParams.Add(ToSqlWorkflowEvent(e, newWorkflowId, newStatesArray,
+                    validGroups, dataMaps, userId));
             });
+            workflow.PropertyChangeEvents.OfType<IePropertyChangeEvent>().ForEach(e =>
+            {
+                importTriggersParams.Add(ToSqlWorkflowEvent(e, newWorkflowId, newStatesArray,
+                    validGroups, dataMaps, userId));
+            });
+            workflow.NewArtifactEvents.OfType<IeNewArtifactEvent>().ForEach(e =>
+            {
+                importTriggersParams.Add(ToSqlWorkflowEvent(e, newWorkflowId, newStatesArray,
+                    validGroups, dataMaps, userId));
+            });
+
             await _workflowRepository.CreateWorkflowEventsAsync(importTriggersParams, publishRevision, transaction);
+        }
+
+        private SqlWorkflowEvent ToSqlWorkflowEvent(IeEvent wEvent, int newWorkflowId, ICollection<SqlState> newStates,
+            HashSet<SqlGroup> validGroups, WorkflowDataMaps dataMaps, int userId)
+        {
+            var sqlEvent = new SqlWorkflowEvent
+            {
+                Name = wEvent.Name,
+                WorkflowId = newWorkflowId,
+                Validations = null,
+                Triggers =
+                    SerializationHelper.ToXml(_triggerConverter.ToXmlModel(wEvent.Triggers, dataMaps, userId))
+            };
+
+            switch (wEvent.EventType)
+            {
+                case EventTypes.Transition:
+                    sqlEvent.Type = DWorkflowEventType.Transition;
+                    var transition = (IeTransitionEvent) wEvent;
+                    sqlEvent.Permissions = SerializationHelper.ToXml(new XmlTriggerPermissions
+                    {
+                        Skip = transition.SkipPermissionGroups,
+                        GroupIds = transition.PermissionGroups.Select(pg => validGroups.First(p => p.Name == pg.Name).GroupId).ToList()
+                    });
+                    sqlEvent.WorkflowState1Id =
+                        newStates.FirstOrDefault(s => s.Name.Equals(transition.FromState))?.WorkflowStateId;
+                    sqlEvent.WorkflowState2Id =
+                        newStates.FirstOrDefault(s => s.Name.Equals(transition.ToState))?.WorkflowStateId;
+                    break;
+                case EventTypes.PropertyChange:
+                    sqlEvent.Type = DWorkflowEventType.PropertyChange;
+                    var pcEvent = (IePropertyChangeEvent) wEvent;
+                    int propertyTypeId;
+                    if (!dataMaps.PropertyTypeMap.TryGetValue(pcEvent.PropertyName, out propertyTypeId))
+                    {
+                        throw new ExceptionWithErrorCode(
+                            I18NHelper.FormatInvariant("Id of Standard Property Type '{0}' is not found.",
+                                pcEvent.PropertyName),
+                            ErrorCodes.UnexpectedError);
+                    }
+                    sqlEvent.PropertyTypeId = propertyTypeId;
+                    break;
+                case EventTypes.NewArtifact:
+                    sqlEvent.Type = DWorkflowEventType.NewArtifact;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(wEvent.EventType));
+            }
+
+            return sqlEvent;
         }
 
         public async Task<IeWorkflow> GetWorkflowExportAsync(int workflowId)
@@ -274,20 +375,72 @@ namespace AdminStore.Services.Workflow
             {
                 throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
             }
-            var workflowProjectsAndArtifactTypes = (await _workflowRepository.GetWorkflowArtifactTypesAndProjectsAsync(workflowId)).ToList();
-            var workflowStates = (await _workflowRepository.GetWorkflowStatesByWorkflowId(workflowId)).ToList();
-            var workflowTriggers = (await _workflowRepository.GetWorkflowTransitionsAndPropertyChangesByWorkflowId(workflowId)).Where(t => t.Type == 1).ToList();//TriggerTypes.Transition
+            var workflowProjectsAndArtifactTypes = (await _workflowRepository.GetWorkflowProjectsAndArtifactTypesAsync(workflowId)).ToList();
+            var workflowStates = (await _workflowRepository.GetWorkflowStatesAsync(workflowId)).ToList();
+            var workflowEvents = (await _workflowRepository.GetWorkflowEventsAsync(workflowId)).ToList();
 
             IeWorkflow ieWorkflow = new IeWorkflow
             {
+                Id = workflowDetails.WorkflowId,
                 Name = workflowDetails.Name,
                 Description = workflowDetails.Description,
+                States = workflowStates.Select(e => new IeState { Id = e.WorkflowStateId, IsInitial = e.Default, Name = e.Name }).Distinct().ToList(),
+                TransitionEvents = workflowEvents.Where(e => e.Type == (int)DWorkflowEventType.Transition).
+                    Select(e => new IeTransitionEvent {
+                        Id = e.WorkflowEventId,
+                        Name = e.Name,
+                        FromStateId = e.FromStateId,
+                        FromState = e.FromState,
+                        ToState = e.ToState,
+                        ToStateId = e.ToStateId,
+                        Triggers = DeserializeTriggers(e.Triggers)
+                    }).Distinct().ToList(),
+                PropertyChangeEvents = workflowEvents.Where(e => e.Type == (int)DWorkflowEventType.PropertyChange).
+                    Select(e => new IePropertyChangeEvent
+                    {
+                        Id = e.WorkflowEventId,
+                        Name = e.Name,
+                        Triggers = DeserializeTriggers(e.Triggers)
+                    }).Distinct().ToList(),
+                NewArtifactEvents = workflowEvents.Where(e => e.Type == (int)DWorkflowEventType.NewArtifact).
+                    Select(e => new IeNewArtifactEvent
+                    {
+                        Id = e.WorkflowEventId,
+                        Name = e.Name,
+                        Triggers = DeserializeTriggers(e.Triggers)
+                    }).Distinct().ToList(),
                 Projects = workflowProjectsAndArtifactTypes.Select(e => new IeProject { Id = e.ProjectId, Path = e.ProjectName }).Distinct().ToList(),
-                ArtifactTypes = workflowProjectsAndArtifactTypes.Select(e => new IeArtifactType { Name = e.ArtifactName }).Distinct().ToList(),
-                States = workflowStates.Select(e => new IeState { IsInitial = e.Default, Name = e.Name }).Distinct().ToList(),
+                ArtifactTypes = workflowProjectsAndArtifactTypes.Select(e => new IeArtifactType { Name = e.ArtifactName }).Distinct().ToList()
             };
 
             return ieWorkflow;
+        }
+
+        private List<IeTrigger> DeserializeTriggers(string triggers)
+        {
+            // Initialize Maps here for now...
+            IDictionary<string, int> artifactTypeMap = new Dictionary<string, int>();
+            IDictionary<string, int> propertyTypeMap = new Dictionary<string, int>();
+            IDictionary<string, int> groupMap = new Dictionary<string, int>();
+            IDictionary<string, int> stateMap = new Dictionary<string, int>();
+            //IDictionary<string, int> userMap = new Dictionary<string, int>();
+            
+
+            var xmlTriggers = SerializationHelper.FromXml<XmlWorkflowEventTriggers>(triggers);
+
+            // Would be nice to have TriggerConverter as a Static Tool Class with initialized Maps in it. At least as a Singleton!
+            List<IeTrigger> ieTriggers = null;
+            try
+            {
+               ieTriggers = new TriggerConverter().FromXmlModel(xmlTriggers, artifactTypeMap, propertyTypeMap, groupMap, stateMap) as List<IeTrigger>;
+            }
+            catch(ArgumentNullException ex)
+            {
+                string msg = ex.Message;
+                return null;
+            }
+
+            return (List<IeTrigger>)ieTriggers;
         }
 
         private void VerifyWorkflowFeature()
@@ -299,12 +452,13 @@ namespace AdminStore.Services.Workflow
         }
 
 
-        private bool IsWorkflowFeatureEnabled()
+        private static bool IsWorkflowFeatureEnabled()
         {
             // TODO: after NW made information about Workflow feature available for the services.
+            //return FeatureLicenseHelper.Instance.GetValidBlueprintLicenseFeatures().HasFlag(FeatureTypes.Workflow);
             return true;
         }
-        
+
         private async Task<string> UploadErrorsToFileStore(string errors)
         {
             using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(errors ?? string.Empty)))
@@ -313,5 +467,23 @@ namespace AdminStore.Services.Workflow
             }
         }
 
+        private static void ReplaceNewLinesInNames(IeWorkflow workflow)
+        {
+            if (workflow == null)
+            {
+                return;
+            }
+
+            workflow.Name = ReplaceNewLines(workflow.Name);
+            workflow.States?.ForEach(s => s.Name = ReplaceNewLines(s.Name));
+            workflow.TransitionEvents?.ForEach(e => e.Name = ReplaceNewLines(e.Name));
+            workflow.PropertyChangeEvents?.ForEach(e => e.Name = ReplaceNewLines(e.Name));
+            workflow.NewArtifactEvents?.ForEach(e => e.Name = ReplaceNewLines(e.Name));
+        }
+
+        private static string ReplaceNewLines(string text)
+        {
+            return text?.Replace("\n", string.Empty).Replace("\r", string.Empty);
+        }
     }
 }

@@ -16,6 +16,7 @@ GO
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Scripts\DatabaseRoles.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Scripts\IsolationLevel.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Scripts\CompatibilityLevel.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Scripts\CreateSchemas.sql" ) ) #>
 
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\DbVersionInfo.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\ConfigSettings.sql" ) ) #>
@@ -28,6 +29,7 @@ GO
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Types\LogsType.sql" ) ) #>
 
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Functions\IsSchemaVersionLessOrEqual.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\SetSchemaVersion.sql" ) ) #>
 
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures.sql" ) ) #>
 
@@ -38,7 +40,7 @@ GO
 -- --------------------------------------------------
 -- Always add your code just above this comment block
 -- --------------------------------------------------
-EXEC [dbo].[SetSchemaVersion] @value = N'8.2.0';
+EXEC [AdminStore].[SetSchemaVersion] @value = N'8.2.0';
 GO
 -- --------------------------------------------------
 

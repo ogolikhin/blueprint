@@ -50,7 +50,7 @@ namespace AdminStore.Repositories
             return folder;
         }
 
-        public async Task<List<InstanceItem>> GetInstanceFolderChildrenAsync(int folderId, int userId)
+        public async Task<List<InstanceItem>> GetInstanceFolderChildrenAsync(int folderId, int userId, bool fromAdminPortal = false)
         {
             if (folderId < 1)
             {
@@ -65,6 +65,7 @@ namespace AdminStore.Repositories
             var prm = new DynamicParameters();
             prm.Add("@folderId", folderId);
             prm.Add("@userId", userId);
+            prm.Add("@fromAdminPortal", fromAdminPortal);
 
             return ((await _connectionWrapper.QueryAsync<InstanceItem>("GetInstanceFolderChildren", prm, commandType: CommandType.StoredProcedure))
                 ?? Enumerable.Empty<InstanceItem>()).OrderBy(i => i.Type).ThenBy(i => i.Name).ToList();
@@ -151,8 +152,14 @@ namespace AdminStore.Repositories
             {
                 switch (errorCode.Value)
                 {
+                    case (int)SqlErrorCodes.GeneralSqlError:
+                        throw new Exception(ErrorMessages.GeneralErrorOfCreatingFolder);
+
                     case (int) SqlErrorCodes.FolderWithSuchNameExistsInParentFolder:
-                        throw new BadRequestException(ErrorMessages.FolderWithSuchNameExistsInParentFolder, ErrorCodes.BadRequest);
+                        throw new ConflictException(ErrorMessages.FolderWithSuchNameExistsInParentFolder, ErrorCodes.Conflict);
+
+                    case (int)SqlErrorCodes.ParentFolderNotExists:
+                        throw new ResourceNotFoundException(ErrorMessages.ParentFolderNotExists, ErrorCodes.ResourceNotFound);
 
                     default:
                         return folderId;
@@ -191,7 +198,7 @@ namespace AdminStore.Repositories
                 switch (errorCode.Value)
                 {
                     case (int)SqlErrorCodes.InstanceFolderContainsChildrenItems:
-                        throw new BadRequestException(ErrorMessages.ErrorOfDeletingFolderThatContainsChildrenItems);
+                        throw new ConflictException(ErrorMessages.ErrorOfDeletingFolderThatContainsChildrenItems);
                 }
             }
 
@@ -201,6 +208,37 @@ namespace AdminStore.Repositories
             }            
 
             return result;
+        }
+
+        public async Task UpdateFolderAsync(int folderId, FolderDto folderDto)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@newFolderName", folderDto.Name);
+            parameters.Add("@folderId", folderId);
+            parameters.Add("@newParentFolderId", folderDto.ParentFolderId);
+
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            await _connectionWrapper.ExecuteScalarAsync<int>("UpdateFolder", parameters, commandType: CommandType.StoredProcedure);
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.GeneralSqlError:
+                        throw new Exception(ErrorMessages.GeneralErrorOfUpdatingFolder);
+
+                    case (int)SqlErrorCodes.FolderWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.FolderNotExist, ErrorCodes.ResourceNotFound);
+
+                    case (int)SqlErrorCodes.FolderWithSuchNameExistsInParentFolder:
+                        throw new ConflictException(ErrorMessages.FolderWithSuchNameExistsInParentFolder, ErrorCodes.Conflict);
+
+                    case (int)SqlErrorCodes.ParentFolderNotExists:
+                        throw new ResourceNotFoundException(ErrorMessages.ParentFolderNotExists, ErrorCodes.ResourceNotFound);
+                }
+            }
         }
     }
 }

@@ -358,8 +358,8 @@ namespace AdminStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
-        public async Task CreateFolderAsync_FolderWithSuchNameExists_ReturnBadrequestError()
+        [ExpectedException(typeof(ConflictException))]
+        public async Task CreateFolderAsync_FolderWithSuchNameExists_ReturnConflictError()
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
@@ -368,6 +368,25 @@ namespace AdminStore.Repositories
             var folder = new FolderDto { Name = "Folder1", ParentFolderId = 1 };
 
             cxn.SetupExecuteScalarAsync("CreateFolder", It.IsAny<Dictionary<string, object>>(), folderId, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.FolderWithSuchNameExistsInParentFolder } });
+
+            // Act
+            await repository.CreateFolderAsync(folder);
+
+            // Assert
+            //Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task CreateFolderAsync_ParentFolderNotExists_ReturnResourceNotFoundError()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            var folderId = 1;
+            var folder = new FolderDto { Name = "Folder1", ParentFolderId = 1 };
+
+            cxn.SetupExecuteScalarAsync("CreateFolder", It.IsAny<Dictionary<string, object>>(), folderId, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.ParentFolderNotExists } });
 
             // Act
             await repository.CreateFolderAsync(folder);
@@ -441,8 +460,8 @@ namespace AdminStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
-        public async Task DeleteFolderAsync_FolderContainsChildrenItems_ReturnBadrequestError()
+        [ExpectedException(typeof(ConflictException))]
+        public async Task DeleteFolderAsync_FolderContainsChildrenItems_ReturnConflictError()
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
@@ -471,6 +490,85 @@ namespace AdminStore.Repositories
 
             // Act
             await repository.DeleteInstanceFolderAsync(instanceFolderId: 1);
+
+            // Assert
+            //Exception
+        }
+
+        #endregion
+
+        #region UpdateFolder
+
+        [TestMethod]
+        public async Task UpdateFolderAsync_SuccessfulUpdationOfFolder_ReturnNoError()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            var folderId = 1;
+            var folder = new FolderDto { Name = "Folder1", ParentFolderId = 1 };
+
+            cxn.SetupExecuteScalarAsync("UpdateFolder", It.IsAny<Dictionary<string, object>>(), folderId, new Dictionary<string, object> { { "ErrorCode", 0 } });
+
+            // Act
+            await repository.UpdateFolderAsync(folderId, folder);
+
+            // Assert
+            cxn.Verify();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ConflictException))]
+        public async Task UpdateFolderAsync_FolderWithSuchNameExistsInParentFolder_ReturnConflictError()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            var folderId = 1;
+            var folder = new FolderDto { Name = "Folder1", ParentFolderId = 1 };
+
+            cxn.SetupExecuteScalarAsync("UpdateFolder", It.IsAny<Dictionary<string, object>>(), folderId, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.FolderWithSuchNameExistsInParentFolder } });
+
+            // Act
+            await repository.UpdateFolderAsync(folderId, folder);
+
+            // Assert
+            //Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task UpdateFolderAsync_ParentFolderNotExists_ReturnResourceNotFoundError()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            var folderId = 1;
+            var folder = new FolderDto { Name = "Folder1", ParentFolderId = 1 };
+
+            cxn.SetupExecuteScalarAsync("UpdateFolder", It.IsAny<Dictionary<string, object>>(), folderId, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.ParentFolderNotExists } });
+
+            // Act
+            await repository.UpdateFolderAsync(folderId, folder);
+
+            // Assert
+            //Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task UpdateFolderAsync_FolderWithCurrentIdNotExist_ReturnResourceNotFoundError()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            var folderId = 1;
+            var folder = new FolderDto { Name = "Folder1", ParentFolderId = 1 };
+
+            cxn.SetupExecuteScalarAsync("UpdateFolder", It.IsAny<Dictionary<string, object>>(), folderId, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.FolderWithCurrentIdNotExist } });
+
+            // Act
+            await repository.UpdateFolderAsync(folderId, folder);
 
             // Assert
             //Exception

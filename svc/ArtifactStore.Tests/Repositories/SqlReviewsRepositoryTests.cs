@@ -10,6 +10,7 @@ using ServiceLibrary.Repositories;
 using ServiceLibrary.Models;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Services;
 
 namespace ArtifactStore.Repositories
@@ -1205,7 +1206,7 @@ namespace ArtifactStore.Repositories
             var param = new Dictionary<string, object> {
                 { "reviewId", reviewId },
                 { "userId", userId },
-                { "xmlArtifacts", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA><CA><Id>1</Id></CA><CA><Id>2</Id></CA></Artifacts></RDReviewContents>" }
+                { "xmlArtifacts", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA><CA><ANR>true</ANR><Id>1</Id></CA><CA><ANR>true</ANR><Id>2</Id></CA></Artifacts></RDReviewContents>" }
             };
             _cxn.SetupExecuteAsync("UpdateReviewArtifacts", param, 0);
 
@@ -2619,7 +2620,7 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(5, artifactStats.ItemTypeId);
             Assert.AreEqual(6, artifactStats.ItemTypePredefined);
             Assert.AreEqual(7, artifactStats.IconImageId);
-            Assert.AreEqual(true, artifactStats.Viewed);
+            Assert.AreEqual(ViewStateType.Viewed, artifactStats.ViewState);
             Assert.AreEqual("Approved", artifactStats.ApprovalStatus);
             Assert.AreEqual(true, artifactStats.ArtifactRequiresApproval);
         }
@@ -2680,13 +2681,57 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(5, artifactStats.ItemTypeId);
             Assert.AreEqual(6, artifactStats.ItemTypePredefined);
             Assert.AreEqual(7, artifactStats.IconImageId);
-            Assert.AreEqual(true, artifactStats.Viewed);
+            Assert.AreEqual(ViewStateType.Viewed, artifactStats.ViewState);
             Assert.AreEqual("Approved", artifactStats.ApprovalStatus);
             Assert.AreEqual(true, artifactStats.ArtifactRequiresApproval);
         }
 
         [TestMethod]
-        public async Task GetReviewParticipantArtifactStatsAsync_Viewed_Should_Be_False_When_ArtifactVersion_And_ViewedArtifactVersion_Are_Different()
+        public async Task GetReviewParticipantArtifactStatsAsync_ViewState_Should_Be_Not_Viewed_When_ViewedArtifactVersion_Is_Null()
+        {
+            //Arrange
+            var reviewId = 1;
+            var userId = 2;
+            var participantId = 3;
+            var reviewArtifact = new ReviewedArtifact()
+            {
+                Id = 4
+            };
+
+            var participantReviewArtifact = new ReviewedArtifact()
+            {
+                ArtifactVersion = 3,
+                ViewedArtifactVersion = null
+            };
+
+            _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(new VersionControlArtifactInfo()
+            {
+                VersionCount = 1
+            });
+
+            SetupReviewArtifactsQuery(reviewId, userId, reviewArtifact);
+
+            _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
+
+            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(new[] { reviewArtifact.Id, reviewId }, userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            {
+                {reviewId, RolePermissions.Read},
+                {reviewArtifact.Id, RolePermissions.Read}
+            });
+
+            SetupParticipantReviewArtifactsQuery(reviewId, participantId, reviewArtifact.Id, participantReviewArtifact);
+
+            //Act
+            var artifactStatsResult = await _reviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, userId, new Pagination());
+
+            //Assert
+            _cxn.Verify();
+            Assert.AreEqual(artifactStatsResult.Total, 1);
+            Assert.AreEqual(ViewStateType.NotViewed, artifactStatsResult.Items.First().ViewState);
+        }
+
+        [TestMethod]
+        public async Task GetReviewParticipantArtifactStatsAsync_ViewState_Should_Be_Changed_When_ArtifactVersion_And_ViewedArtifactVersion_Are_Different()
         {
             //Arrange
             var reviewId = 1;
@@ -2726,7 +2771,7 @@ namespace ArtifactStore.Repositories
             //Assert
             _cxn.Verify();
             Assert.AreEqual(artifactStatsResult.Total, 1);
-            Assert.AreEqual(false, artifactStatsResult.Items.First().Viewed);
+            Assert.AreEqual(ViewStateType.Changed, artifactStatsResult.Items.First().ViewState);
         }
 
         [TestMethod]
@@ -3028,5 +3073,185 @@ namespace ArtifactStore.Repositories
         }
 
         #endregion
+
+        #region RemoveArtifactFromReview
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task RemoveArtifactsFromReviewAsync_ShouldThrow_BadRequestException()
+        {
+            // Arrange
+            var prms = new ReviewArtifactsRemovalParams
+            {
+                artifactIds = new List<int>(),
+                SelectionType = SelectionType.Selected
+            };
+            //Act
+            await _reviewsRepository.RemoveArtifactsFromReviewAsync(1, prms, 2);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task RemoveArtifactsFromReviewAsync_ShouldThrow_BadRequestException_WhenReviewClosed()
+        {
+            // Arrange
+            int reviewId = 1;
+            int userId = 2;
+            int projectId = 3;
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+
+            var PropertyValueStringResult = new[]
+            {
+               new PropertyValueString
+               {
+                   IsReviewReadOnly = true,
+                   IsDraftRevisionExists = true,
+                   ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>",
+                   RevewSubartifactId = 3,
+                   ProjectId = projectId,
+                   IsReviewLocked = true
+               }
+            };
+
+            _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters, PropertyValueStringResult);
+            var prms = new ReviewArtifactsRemovalParams
+            {
+                artifactIds = new List<int>() { 1, 2, 3 },
+                
+                SelectionType = SelectionType.Selected
+            };
+             
+            //Act
+            await _reviewsRepository.RemoveArtifactsFromReviewAsync(reviewId, prms, userId);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task RemoveArtifactsFromReviewAsync_ShouldThrow_ResourceNotFoundException_WhenProjectNull()
+        {
+            // Arrange
+            int reviewId = 1;
+            int userId = 2;
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+            var PropertyValueStringResult = new[]
+            {
+               new PropertyValueString
+               {
+                   IsReviewReadOnly = false,
+                   IsDraftRevisionExists = true,
+                   ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>",
+                   RevewSubartifactId = 3,
+                   ProjectId = 0,
+                   IsReviewLocked = true
+               }
+            };
+
+            _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters, PropertyValueStringResult);
+            var prms = new ReviewArtifactsRemovalParams
+            {
+                artifactIds = new List<int>() { 1, 2, 3 },
+                SelectionType = SelectionType.Selected
+            };
+
+            //Act
+            await _reviewsRepository.RemoveArtifactsFromReviewAsync(reviewId, prms, userId);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ConflictException))]
+        public async Task RemoveArtifactsFromReviewAsync_ShouldThrow_ConflictException_WhenReviewNotLocked()
+        {
+            // Arrange
+            int reviewId = 1;
+            int userId = 2;
+            int projectId = 2;
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+
+            var PropertyValueStringResult = new[]
+            {
+               new PropertyValueString
+               {
+                   IsReviewReadOnly = false,
+                   IsDraftRevisionExists = true,
+                   ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>",
+                   RevewSubartifactId = 3,
+                   ProjectId = projectId,
+                   IsReviewLocked = false
+               }
+            };
+
+            _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters, PropertyValueStringResult);
+            var prms = new ReviewArtifactsRemovalParams
+            {
+                artifactIds = new List<int>() { 1, 2, 3 },
+                SelectionType = SelectionType.Selected
+            };
+
+            //Act
+            await _reviewsRepository.RemoveArtifactsFromReviewAsync(reviewId, prms, userId);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task RemoveArtifactsFromReviewAsync_ShouldThrow_ConflictException_WhenReviewBaseLined()
+        {
+            // Arrange
+            int reviewId = 1;
+            int userId = 2;
+            int projectId = 2;
+            int baselineId = 1;
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+
+            var PropertyValueStringResult = new[]
+            {
+               new PropertyValueString
+               {
+                   IsReviewReadOnly = false,
+                   IsDraftRevisionExists = true,
+                   ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>",
+                   RevewSubartifactId = 3,
+                   ProjectId = projectId,
+                   IsReviewLocked = true,
+                   BaselineId = baselineId
+               }
+            };
+
+            _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters, PropertyValueStringResult);
+            var prms = new ReviewArtifactsRemovalParams
+            {
+                artifactIds = new List<int>() { 1, 2, 3 },
+                SelectionType = SelectionType.Selected
+            };
+
+            //Act
+            await _reviewsRepository.RemoveArtifactsFromReviewAsync(reviewId, prms, userId);
+
+            // Assert
+        }
+        #endregion RemoveArtifactFromReview
     }
 }

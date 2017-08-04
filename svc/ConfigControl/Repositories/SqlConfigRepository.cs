@@ -26,7 +26,7 @@ namespace ConfigControl.Repositories
         {
             var prm = new DynamicParameters();
             prm.Add("@AllowRestricted", allowRestricted);
-            return await _connectionWrapper.QueryAsync<ConfigSetting>("GetConfigSettings", prm, commandType: CommandType.StoredProcedure);
+            return await _connectionWrapper.QueryAsync<ConfigSetting>("[AdminStore].GetConfigSettings", prm, commandType: CommandType.StoredProcedure);
         }
 
         public static string AdminStorageDatabase

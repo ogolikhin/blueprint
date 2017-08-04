@@ -70,12 +70,21 @@ namespace AdminStore.Repositories
             return (await _connectionWrapper.QueryAsync<UserIcon>("GetUserIconByUserId", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
 
-        public async Task<IEnumerable<SqlGroup>> GetExistingInstanceGroupsByNames(IEnumerable<string> groupNames)
+        public async Task<IEnumerable<SqlGroup>> GetExistingGroupsByNames(IEnumerable<string> groupNames, bool instanceOnly)
         {
             var prm = new DynamicParameters();
             prm.Add("@groupNames", SqlConnectionWrapper.ToStringDataTable(groupNames));
+            prm.Add("@instanceOnly", instanceOnly);
 
-            return await _connectionWrapper.QueryAsync<SqlGroup>("GetExistingInstanceGroupsByNames", prm, commandType: CommandType.StoredProcedure);
+            return await _connectionWrapper.QueryAsync<SqlGroup>("GetExistingGroupsByNames", prm, commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<IEnumerable<SqlUser>> GetExistingUsersByNames(IEnumerable<string> userNames)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@userNames", SqlConnectionWrapper.ToStringDataTable(userNames));
+
+            return await _connectionWrapper.QueryAsync<SqlUser>("GetExistingUsersByNames", prm, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<IEnumerable<LicenseTransactionUser>> GetLicenseTransactionUserInfoAsync(IEnumerable<int> userIds)
@@ -141,7 +150,7 @@ namespace AdminStore.Repositories
             var prm = new DynamicParameters();
             prm.Add("@login", login);
             prm.Add("@recoverytoken", recoveryToken);
-            await _adminStorageConnectionWrapper.QueryAsync<int>("SetUserPasswordRecoveryToken", prm, commandType: CommandType.StoredProcedure);
+            await _adminStorageConnectionWrapper.QueryAsync<int>("[AdminStore].SetUserPasswordRecoveryToken", prm, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<IEnumerable<PasswordRecoveryToken>> GetPasswordRecoveryTokensAsync(Guid token)
@@ -149,7 +158,7 @@ namespace AdminStore.Repositories
             var prm = new DynamicParameters();
             prm.Add("@token", token);
 
-            return await _adminStorageConnectionWrapper.QueryAsync<PasswordRecoveryToken>("GetUserPasswordRecoveryTokens", prm, commandType: CommandType.StoredProcedure);
+            return await _adminStorageConnectionWrapper.QueryAsync<PasswordRecoveryToken>("[AdminStore].GetUserPasswordRecoveryTokens", prm, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<QueryResult<UserDto>> GetUsersAsync(Pagination pagination, Sorting sorting = null, string search = null, Func<Sorting, string> sort = null)
@@ -214,7 +223,7 @@ namespace AdminStore.Repositories
 
             var prm = new DynamicParameters();
             prm.Add("@login", login);
-            var result = (await _adminStorageConnectionWrapper.QueryAsync<int>("GetUserPasswordRecoveryRequestCount", prm, commandType: CommandType.StoredProcedure));
+            var result = (await _adminStorageConnectionWrapper.QueryAsync<int>("[AdminStore].GetUserPasswordRecoveryRequestCount", prm, commandType: CommandType.StoredProcedure));
 
             return result.FirstOrDefault() >= passwordRequestLimit;
         }

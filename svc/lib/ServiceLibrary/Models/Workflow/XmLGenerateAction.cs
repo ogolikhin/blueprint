@@ -6,6 +6,9 @@ namespace ServiceLibrary.Models.Workflow
     [XmlType("AG")]
     public class XmlGenerateAction : XmlAction
     {
+        [XmlIgnore]
+        public override ActionTypes ActionType => ActionTypes.Generate;
+
         [XmlElement("T")]
         public GenerateActionTypes GenerateActionType { get; set; }
 
@@ -16,6 +19,7 @@ namespace ServiceLibrary.Models.Workflow
 
         // Used only for GenerateActionType = Children
         [XmlElement("AID")]
-        public int ArtifactTypeId { get; set; }
+        public int? ArtifactTypeId { get; set; }
+        public bool ShouldSerializeArtifactTypeId() { return ArtifactTypeId.HasValue; }
     }
 }

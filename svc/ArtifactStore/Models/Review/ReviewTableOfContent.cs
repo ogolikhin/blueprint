@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
+using ServiceLibrary.Models.ProjectMeta;
 
 namespace ArtifactStore.Models.Review
 {
@@ -12,9 +13,6 @@ namespace ArtifactStore.Models.Review
         public bool Included { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public bool Viewed { get; set; }
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int ArtifactVersion { get; set; }
 
         /// <summary>
@@ -23,11 +21,5 @@ namespace ArtifactStore.Models.Review
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? ViewedArtifactVersion { get; set; }
 
-    }
-
-    public class ReviewTableOfContent
-    {
-        public IEnumerable<ReviewTableOfContentItem> Items { get; set; }
-        public int Total { get; set; }
     }
 }

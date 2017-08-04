@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -56,25 +57,35 @@ namespace AdminStore.Controllers
         /// <summary>
         /// Get Instance Folder
         /// </summary>
+        /// <param name="id"></param>
+        /// <param name="fromAdminPortal"></param>
         /// <remarks>
         /// Returns an instance folder for the specified id.
         /// </remarks>
         /// <response code="200">OK.</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for the folder.</response>
         /// <response code="404">Not found. An instance folder for the specified id is not found, does not exist or is deleted.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("folders/{id:int:min(1)}"), SessionRequired]
         [ResponseType(typeof(InstanceItem))]
         [ActionName("GetInstanceFolder")]
-        public async Task<InstanceItem> GetInstanceFolderAsync(int id)
+        public async Task<InstanceItem> GetInstanceFolderAsync(int id, bool fromAdminPortal = false)
         {
+            if (fromAdminPortal)
+            {
+                await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewProjects);
+            }
+
             return await _instanceRepository.GetInstanceFolderAsync(id, Session.UserId);
         }
 
         /// <summary>
         /// Get Instance Folder Children
         /// </summary>
+        /// <param name="id"></param>
+        /// <param name="fromAdminPortal"></param>
         /// <remarks>
         /// Returns child instance folders and live projects that the user has the read permission.
         /// If an instance folder for the specified id is not found, the empty collection is returned.
@@ -86,9 +97,9 @@ namespace AdminStore.Controllers
         [Route("folders/{id:int:min(1)}/children"), SessionRequired]
         [ResponseType(typeof(List<InstanceItem>))]
         [ActionName("GetInstanceFolderChildren")]
-        public async Task<List<InstanceItem>> GetInstanceFolderChildrenAsync(int id)
+        public async Task<List<InstanceItem>> GetInstanceFolderChildrenAsync(int id, bool fromAdminPortal = false)
         {
-            return await _instanceRepository.GetInstanceFolderChildrenAsync(id, Session.UserId);
+            return await _instanceRepository.GetInstanceFolderChildrenAsync(id, Session.UserId, fromAdminPortal);
         }
 
         /// <summary>
@@ -192,6 +203,8 @@ namespace AdminStore.Controllers
         /// <returns code="400">BadRequest. Parameters are invalid.</returns>
         /// <returns code="401">>Unauthorized. The session token is invalid, missing or malformed.</returns>
         /// <returns code="403">Forbidden. The user does not have permissions for creating the folder.</returns>
+        /// <returns code="404">NotFound. The parent folder with current id does not exist.</returns>
+        /// <returns code="409">Conflict. Folder with the same name already exists in the parent folder.</returns>
         /// <returns code="500">Internal server error.</returns>
         [HttpPost]
         [SessionRequired]
@@ -224,8 +237,9 @@ namespace AdminStore.Controllers
         /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
         /// <response code="403">Forbidden if used doesn’t have permissions to delete instance folder</response>
         /// <response code="404">NotFound. if instance folder with instanceFolderId doesn’t exists or removed from the system.</response>
+        /// <response code="409">Conflict. The Folder cannot be deleted as it contains Projects and/or Folders.</response>
         [HttpDelete]
-        [Route("folder/{instanceFolderId:int:min(1)}"), SessionRequired]
+        [Route("folders/{instanceFolderId:int:min(1)}"), SessionRequired]
         [ResponseType(typeof(DeleteResult))]
         public async Task<IHttpActionResult> DeleteInstanceFolder(int instanceFolderId)
         {
@@ -234,6 +248,42 @@ namespace AdminStore.Controllers
             var result = await _instanceRepository.DeleteInstanceFolderAsync(instanceFolderId);
 
             return Ok(new DeleteResult { TotalDeleted = result });
+        }
+
+        /// <summary>
+        /// Update folder
+        /// </summary>
+        /// <param name="folderId">Folder's identity</param>
+        /// <param name="folderDto">Folder's model</param>
+        /// <remarks>
+        /// Returns Ok result.
+        /// </remarks>
+        /// <response code="200">OK. The folder is updated.</response>
+        /// <response code="400">BadRequest. Parameters are invalid. </response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for updating the folder.</response>
+        /// <response code="404">NotFound. The folder with the current folderId doesn’t exist or removed from the system.</response>
+        /// <response code="404">NotFound. The parent folder with current id does not exist.</response>
+        /// <response code="409">Conflict. The folder with the same name already exists in the parent folder.</response>
+        /// <response code="500">Internal server error.</response>
+        [HttpPut]
+        [SessionRequired]
+        [ResponseType(typeof(HttpResponseMessage))]
+        [Route("folders/{folderId:int:min(1)}")]
+        public async Task<IHttpActionResult> UpdateInstanceFolder(int folderId, [FromBody] FolderDto folderDto)
+        {
+            if (folderDto == null)
+            {
+                throw new BadRequestException(ErrorMessages.FolderModelIsEmpty, ErrorCodes.BadRequest);
+            }
+
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageProjects);
+
+            FolderValidator.ValidateModel(folderDto);
+            
+            await _instanceRepository.UpdateFolderAsync(folderId, folderDto);
+
+            return Ok();
         }
 
         #endregion

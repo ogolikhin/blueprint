@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Helpers;
@@ -12,13 +13,14 @@ namespace ServiceLibrary.Models.Licenses
     [TestClass]
     public class FeatureInformationTests
     {
-        private const string WorkflowFeatureName = "Workflow";
+        private string _workflowFeatureName;
         private Mock<ITimeProvider> _timeProviderMock;
 
         [TestInitialize]
         public void TestInitialize()
         {
             _timeProviderMock = new Mock<ITimeProvider>(MockBehavior.Strict);
+            _workflowFeatureName = FeatureInformation.Features.Single(f => f.Value == FeatureTypes.Workflow).Key;
         }
 
         [TestMethod]
@@ -26,7 +28,7 @@ namespace ServiceLibrary.Models.Licenses
         {
             //Arrange
             var expirationDate = DateTime.MaxValue;
-            var featureInformation = new FeatureInformation(WorkflowFeatureName, expirationDate);
+            var featureInformation = new FeatureInformation(_workflowFeatureName, expirationDate);
             //Act
             var status = featureInformation.GetStatus();
             //Assert
@@ -39,7 +41,7 @@ namespace ServiceLibrary.Models.Licenses
             //Arrange
             var expirationDate = new DateTime(2000, 1, 1);
             _timeProviderMock.Setup(i => i.CurrentUniversalTime).Returns(expirationDate);
-            var featureInformation = new FeatureInformation(WorkflowFeatureName, expirationDate, _timeProviderMock.Object);
+            var featureInformation = new FeatureInformation(_workflowFeatureName, expirationDate, _timeProviderMock.Object);
             //Act
             var status = featureInformation.GetStatus();
             //Assert
@@ -51,7 +53,7 @@ namespace ServiceLibrary.Models.Licenses
         {
             //Arrange
             var expirationDate = DateTime.MinValue;
-            var featureInformation = new FeatureInformation(WorkflowFeatureName, expirationDate);
+            var featureInformation = new FeatureInformation(_workflowFeatureName, expirationDate);
             //Act
             var status = featureInformation.GetStatus();
             //Assert
@@ -62,7 +64,7 @@ namespace ServiceLibrary.Models.Licenses
         public void GetFeatureType_WhenFeatureNameIsWorkflow_FeatureTypeIsWorkflow()
         {
             //Arrange
-            var featureInformation = new FeatureInformation(WorkflowFeatureName, DateTime.UtcNow);
+            var featureInformation = new FeatureInformation(_workflowFeatureName, DateTime.UtcNow);
             //Act
             var featureType = featureInformation.GetFeatureType();
             //Assert

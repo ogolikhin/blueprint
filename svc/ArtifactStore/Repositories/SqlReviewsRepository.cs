@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using ServiceLibrary.Models.ProjectMeta;
 
 namespace ArtifactStore.Repositories
 {
@@ -313,7 +314,7 @@ namespace ArtifactStore.Repositories
                     var addedArtifact = new RDArtifact()
                     {
                         Id = artifactToAdd,
-                        ApprovalNotRequested = false
+                        ApprovalNotRequested = true
 
                     };
                     rdReviewContents.Artifacts.Add(addedArtifact);
@@ -663,7 +664,7 @@ namespace ArtifactStore.Repositories
             }
         }
 
-        private async Task<ReviewTableOfContent> GetTableOfContentAsync(int reviewId, int revisionId, int userId, Pagination pagination)
+        private async Task<QueryResult<ReviewTableOfContentItem>> GetTableOfContentAsync(int reviewId, int revisionId, int userId, Pagination pagination)
         {
             int refreshInterval = await GetRebuildReviewArtifactHierarchyInterval();
             var param = new DynamicParameters();
@@ -691,7 +692,7 @@ namespace ArtifactStore.Repositories
                 ThrowUserCannotAccessReviewException(reviewId);
             }
 
-            return new ReviewTableOfContent
+            return new QueryResult<ReviewTableOfContentItem>()
             {
                 Items = result.ToList(),
                 Total = param.Get<int>("@total")
@@ -700,7 +701,7 @@ namespace ArtifactStore.Repositories
 
 
 
-        public async Task<ReviewTableOfContent> GetReviewTableOfContent(int reviewId, int revisionId, int userId, Pagination pagination)
+        public async Task<QueryResult<ReviewTableOfContentItem>> GetReviewTableOfContent(int reviewId, int revisionId, int userId, Pagination pagination)
         {
 
             //get all review content item in a hierarchy list
@@ -730,7 +731,6 @@ namespace ArtifactStore.Repositories
                     var artifact = reviewedArtifacts.First(it => it.Id == tocItem.Id);
                     tocItem.ArtifactVersion = artifact.ArtifactVersion;
                     tocItem.ApprovalStatus = (ApprovalType)artifact?.ApprovalFlag;
-                    tocItem.Viewed = artifact?.ViewedArtifactVersion != null;
                     tocItem.ViewedArtifactVersion = artifact?.ViewedArtifactVersion;
                 }
                 else
@@ -766,6 +766,11 @@ namespace ArtifactStore.Repositories
             if (propertyResult.IsReviewLocked == false)
             {
                 ExceptionHelper.ThrowArtifactNotLockedException(reviewId, userId);
+            }
+
+            if(propertyResult.BaselineId != null && propertyResult.BaselineId.Value > 0)
+            {
+                throw new BadRequestException("Review status changed", ErrorCodes.ReviewStatusChanged);
             }
 
             if (string.IsNullOrEmpty(propertyResult.ArtifactXml))
@@ -1266,7 +1271,6 @@ namespace ArtifactStore.Repositories
         {
             item.Name = UNATHORIZED; // unauthorize
             item.Included = false;
-            item.Viewed = false;
             item.HasAccess = false;
             item.IsApprovalRequired = false;
         }

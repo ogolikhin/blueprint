@@ -130,6 +130,7 @@
     <Compile Include="Models\DeleteResult.cs" />
     <Compile Include="Models\GroupUser.cs" />
     <Compile Include="Models\QueryDataResult.cs" />
+    <Compile Include="Models\SqlUser.cs" />
     <Compile Include="Models\TabularData.cs" />
     <Compile Include="Models\TabularPagination.cs" />
     <Compile Include="Models\UpdateUserPassword.cs" />
@@ -179,6 +180,8 @@
     <Compile Include="Models\Workflow\IeEvent.cs" />
     <Compile Include="Models\Workflow\IeStateCondition.cs" />
     <Compile Include="Models\Workflow\IeTrigger.cs" />
+    <Compile Include="Models\Workflow\IeUserGroup.cs" />
+    <Compile Include="Models\Workflow\IeValidValue.cs" />
     <Compile Include="Models\Workflow\SqlArtifactTypesWorkflowDetails.cs" />
     <Compile Include="Models\Workflow\SqlWorkflowTransitionsAndPropertyChanges.cs" />
     <Compile Include="Models\Workflow\StatusUpdate.cs" />
@@ -225,10 +228,12 @@
     <Compile Include="Saml\SamlIssuerNameRegistry.cs" />
     <Compile Include="Services\Instance\IInstanceService.cs" />
     <Compile Include="Services\Instance\InstanceService.cs" />
+    <Compile Include="Services\Workflow\ITriggerConverter.cs" />
     <Compile Include="Services\Workflow\IWorkflowDataValidator.cs" />
     <Compile Include="Services\Workflow\IWorkflowService.cs" />
     <Compile Include="Services\Workflow\IWorkflowValidationErrorBuilder.cs" />
     <Compile Include="Services\Workflow\IWorkflowXmlValidator.cs" />
+    <Compile Include="Services\Workflow\TriggerConverter.cs" />
     <Compile Include="Services\Workflow\WorkflowDataValidationResult.cs" />
     <Compile Include="Services\Workflow\WorkflowDataValidator.cs" />
     <Compile Include="Services\Workflow\WorkflowService.cs" />

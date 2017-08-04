@@ -111,7 +111,7 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
                             PredefinedTypeId = a.PredefinedType,
                             //PropertyName = a.PropertyName
                         }).ToArray(),
-                        ToEmail = notificationActionToProcess.ToEmail,
+                        To = new []{ notificationActionToProcess.ToEmail},
                         //ArtifactUrl = artifact.ArtifactUrl,
                         MessageTemplate = notificationActionToProcess.MessageTemplate
                     });

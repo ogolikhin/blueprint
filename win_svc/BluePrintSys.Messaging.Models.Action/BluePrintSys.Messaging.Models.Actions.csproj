@@ -66,6 +66,7 @@
     <Compile Include="ActionMessage.cs" />
     <Compile Include="ActionMessageHeaders.cs" />
     <Compile Include="ArtifactsPublishedMessage.cs" />
+    <Compile Include="EmailSettings.cs" />
     <Compile Include="GenerateDescendantsMessage.cs" />
     <Compile Include="GenerateTestsMessage.cs" />
     <Compile Include="GenerateUserStoriesMessage.cs" />

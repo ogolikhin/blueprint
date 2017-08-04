@@ -1,0 +1,46 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".txt" #>
+
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Email</title>
+
+</head>
+
+<body style="margin:0; padding:0;">
+
+	<p><#= Email.Content.Body #></p>
+
+	<table>
+		<tr>
+			<th>Property</th>
+			<th>Value</th>
+		</tr>
+
+		<tr>
+			<td>Project Name</td>
+			<td><#= Email.Content.ProjectName #></td>
+		</tr>
+
+		<tr>
+			<td>Artifact Name</td>
+			<td><#= Email.Content.ArtifactName #></td>
+		</tr>
+
+		<tr>
+			<td>URL</td>
+			<td style="color:#1b1b1b; font-family:Arial; font-size: 12px;"> Having trouble with the link above? Just copy and paste the URL below into your browser.<br> 
+				<a href="<#= Email.Content.ArtifactUrl #>"><#= Email.Content.ArtifactUrl #></a>
+			</td>
+		</tr>
+
+	</table>
+
+</body>
+</html>

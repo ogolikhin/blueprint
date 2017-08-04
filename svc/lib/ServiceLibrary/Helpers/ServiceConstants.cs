@@ -54,9 +54,12 @@ namespace ServiceLibrary.Helpers
         public const string FileSizeHeader = "File-Size";
         public const string FileChunkCountHeader = "File-Chunk-Count";
 
-        public static string ForgotPasswordUrlConfigKey = "ForgotPasswordURL";
-        public static string ForgotPasswordUrl = "/index.html#/passwordrecovery";
-        public static string ForgotPasswordResetUrl = "/index.html#/passwordrecovery/reset";
+        public const string ForgotPasswordUrlConfigKey = "ForgotPasswordURL";
+        public const string ForgotPasswordUrl = "/index.html#/passwordrecovery";
+        public const string ForgotPasswordResetUrl = "/index.html#/passwordrecovery/reset";
+
+        public const string LicenseInfoApplicationSettingKey = "LicenseInfo";
+        public const string WorkflowFeatureKey = "Workflow";
 
         public const string ExpiredUserKey = "Raptor_RC_ExpiredUser";
         public const string UserLogout = "Raptor_RC_UserLogout";

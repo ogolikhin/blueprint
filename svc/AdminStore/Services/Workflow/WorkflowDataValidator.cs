@@ -110,62 +110,68 @@ namespace AdminStore.Services.Workflow
             result.ValidProjectIds.Clear();
             Dictionary<int, string> projectPaths = new Dictionary<int, string>();
             HashSet<string> projectPathsToLookup = new HashSet<string>();
-            workflow.Projects.ForEach(project =>
+            if (workflow.Projects.Any())
             {
-                if (project.Id.HasValue)
+                workflow.Projects.ForEach(project =>
                 {
-                    projectPaths[project.Id.Value] = project.Path;
-                }
-                else
-                {
-                    if (!string.IsNullOrEmpty(project.Path))
+                    if (project.Id.HasValue)
                     {
-                        projectPathsToLookup.Add(project.Path);
+                        projectPaths[project.Id.Value] = project.Path;
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrEmpty(project.Path))
+                        {
+                            projectPathsToLookup.Add(project.Path);
+                        }
+                    }
+                });
+
+                if (projectPathsToLookup.Any())
+                {
+                    //look up ID of projects that have no ID provided
+                    foreach (
+                        var sqlProjectPathPair in
+                            await _workflowRepository.GetProjectIdsByProjectPaths(projectPathsToLookup))
+                    {
+                        projectPaths[sqlProjectPathPair.ProjectId] = sqlProjectPathPair.ProjectPath;
                     }
                 }
-            });
 
-            if (projectPathsToLookup.Any())
-            {
-                //look up ID of projects that have no ID provided
-                foreach (var sqlProjectPathPair in await _workflowRepository.GetProjectIdsByProjectPaths(projectPathsToLookup))
+                if (projectPaths.Count != workflow.Projects.Count)
                 {
-                    projectPaths[sqlProjectPathPair.ProjectId] = sqlProjectPathPair.ProjectPath;
-                }
-            }
-
-            if (projectPaths.Count != workflow.Projects.Count)
-            {
-                //generate a list of all projects in the workflow who are either missing from id list or were not looked up by path
-                foreach (var project in workflow.Projects
-                    .Where(proj => projectPaths.All(
-                        path => proj.Id.HasValue
-                            ? path.Key != proj.Id.Value
-                            : !path.Value.Equals(proj.Path)))
-                        .Select(proj => proj.Id?.ToString() ?? proj.Path)){
-                    result.Errors.Add(new WorkflowDataValidationError
+                    //generate a list of all projects in the workflow who are either missing from id list or were not looked up by path
+                    foreach (var project in workflow.Projects
+                        .Where(proj => projectPaths.All(
+                            path => proj.Id.HasValue
+                                ? path.Key != proj.Id.Value
+                                : !path.Value.Equals(proj.Path)))
+                        .Select(proj => proj.Id?.ToString() ?? proj.Path))
                     {
-                        Element = project,
-                        ErrorCode = WorkflowDataValidationErrorCodes.ProjectNotFound
-                    });
+                        result.Errors.Add(new WorkflowDataValidationError
+                        {
+                            Element = project,
+                            ErrorCode = WorkflowDataValidationErrorCodes.ProjectNotFound
+                        });
+                    }
                 }
-            }
 
-            var projectIds = projectPaths.Select(p => p.Key).ToHashSet();
-            var validProjectIds = (await _workflowRepository.GetExistingProjectsByIds(projectIds)).ToArray();
-            if (validProjectIds.Length != projectIds.Count)
-            {
-                foreach (var invalidId in projectIds.Where(pid => !validProjectIds.Contains(pid)))
+                var projectIds = projectPaths.Select(p => p.Key).ToHashSet();
+                var validProjectIds = (await _workflowRepository.GetExistingProjectsByIds(projectIds)).ToArray();
+                if (validProjectIds.Length != projectIds.Count)
                 {
-                    result.Errors.Add(new WorkflowDataValidationError
+                    foreach (var invalidId in projectIds.Where(pid => !validProjectIds.Contains(pid)))
                     {
-                        Element = invalidId,
-                        ErrorCode = WorkflowDataValidationErrorCodes.ProjectIdNotFound
-                    });
+                        result.Errors.Add(new WorkflowDataValidationError
+                        {
+                            Element = invalidId,
+                            ErrorCode = WorkflowDataValidationErrorCodes.ProjectIdNotFound
+                        });
+                    }
                 }
-            }
 
-            result.ValidProjectIds.AddRange(validProjectIds);
+                result.ValidProjectIds.AddRange(validProjectIds);
+            }
         }
 
         private async Task ValidateArtifactTypesData(WorkflowDataValidationResult result, IeWorkflow workflow)

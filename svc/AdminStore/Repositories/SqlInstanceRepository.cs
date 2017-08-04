@@ -86,9 +86,10 @@ namespace AdminStore.Repositories
             var prm = new DynamicParameters();
             prm.Add("@projectId", projectId);
             prm.Add("@userId", userId);
-            prm.Add("@fromAdminPortal", fromAdminPortal);
 
-            var project = (await _connectionWrapper.QueryAsync<InstanceItem>("GetInstanceProjectById", prm, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
+            var sqlQueryProcedure = fromAdminPortal ? "GetProjectDetails" : "GetInstanceProjectById";
+
+            var project = (await _connectionWrapper.QueryAsync<InstanceItem>(sqlQueryProcedure, prm, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
             if (project == null)
             {
                 throw new ResourceNotFoundException(string.Format("Project (Id:{0}) is not found.", projectId), ErrorCodes.ResourceNotFound);

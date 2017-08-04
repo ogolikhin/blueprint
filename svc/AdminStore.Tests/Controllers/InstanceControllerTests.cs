@@ -415,5 +415,90 @@ namespace AdminStore.Controllers
         }
 
         #endregion
+
+        #region UpdateFolder
+
+        [TestMethod]
+        public async Task UpdateStatus_AllRequirementsSatisfied_ReturnOkResult()
+        {
+            // Arrange
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageProjects);
+            // Act
+            var result = await _controller.UpdateInstanceFolder(FolderId, _folder);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(OkResult));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task UpdateFolder_FolderModelEmpty_ReturnBadRequestResult()
+        {
+            // Arrange
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageProjects);
+
+            // Act
+            await _controller.UpdateInstanceFolder(FolderId, null);
+
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task UpdateFolder_NoPermissions_ForbiddenResult()
+        {
+            //arrange
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
+
+            //act
+            await _controller.UpdateInstanceFolder(FolderId, _folder);
+
+            //assert
+            //Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task UpdateFolder_FolderNameOutOfLimit_ReturnBadRequestResult()
+        {
+            // Arrange
+            _folder.Name = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis,.";
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageProjects);
+
+            // Act
+            await _controller.UpdateInstanceFolder(FolderId, _folder);
+
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task UpdateFolder_EmptyFolderName_ReturnBadRequestResult()
+        {
+            // Arrange
+            _folder.Name = string.Empty;
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageProjects);
+
+            // Act
+            await _controller.UpdateInstanceFolder(FolderId, _folder);
+
+            // Assert
+            // Exception
+        }
+
+        #endregion
     }
 }

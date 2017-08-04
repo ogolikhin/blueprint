@@ -262,7 +262,7 @@ namespace AdminStore.Services.Workflow
             }
         }
 
-        private WorkflowDataMaps CreateDataMap(WorkflowDataValidationResult dataValidationResult, List<SqlState> newStates)
+        private static WorkflowDataMaps CreateDataMap(WorkflowDataValidationResult dataValidationResult, List<SqlState> newStates)
         {
             var dataMaps = new WorkflowDataMaps();
             dataMaps.UserMap.AddRange(dataValidationResult.Users.ToDictionary(u => u.Login, u => u.UserId));
@@ -286,6 +286,8 @@ namespace AdminStore.Services.Workflow
                     dataMaps.ValidValueMap.Add(pt.Id, vvMap);
                 }
             });
+            dataMaps.PropertyTypeMap.Add(WorkflowConstants.PropertyNameName, WorkflowConstants.PropertyTypeFakeIdName);
+            dataMaps.PropertyTypeMap.Add(WorkflowConstants.PropertyNameDescription, WorkflowConstants.PropertyTypeFakeIdDescription);
 
             return dataMaps;
         }

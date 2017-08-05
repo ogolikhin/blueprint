@@ -302,8 +302,7 @@ namespace AdminStore.Controllers
         /// <response code="400">BadRequest. Parameters are invalid. </response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. The user does not have permissions for creating the project.</response>
-        /// <response code="404">NotFound. The project with the current id doesn't exist or removed from the system.</response>
-        /// <response code="404">NotFound. The parent folder with the current id doesn’t exist or removed from the system.</response>
+        /// <response code="404">NotFound. The project or the parent folder with the current id doesn't exist or removed from the system.</response>
         /// <response code="409">Conflict. The project with the same name already exists in the parent folder.</response>
         /// <response code="500">Internal server error.</response>
         [HttpPut]

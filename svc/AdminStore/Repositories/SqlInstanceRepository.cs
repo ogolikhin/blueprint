@@ -245,7 +245,7 @@ namespace AdminStore.Repositories
         {
             var parameters = new DynamicParameters();
             parameters.Add("@newProjectName", projectDto.Name);
-            parameters.Add("@newProjectDescription", projectDto.Name);
+            parameters.Add("@newProjectDescription", projectDto.Description);
             parameters.Add("@projectId", projectId);
             parameters.Add("@newParentFolderId", projectDto.ParentFolderId);
 
@@ -269,8 +269,6 @@ namespace AdminStore.Repositories
 
                     case (int)SqlErrorCodes.ParentFolderNotExists:
                         throw new ResourceNotFoundException(ErrorMessages.ParentFolderNotExists, ErrorCodes.ResourceNotFound);
-                    default:
-                        throw new Exception(ErrorMessages.GeneralErrorOfUpdatingProject);
                 }
             }
         }

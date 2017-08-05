@@ -24,5 +24,7 @@ namespace AdminStore.Repositories
         Task<int> DeleteInstanceFolderAsync(int instanceFolderId);
 
         Task UpdateFolderAsync(int folderId, FolderDto folderDto);
+
+        Task UpdateProjectAsync(int projectId, ProjectDto projectDto);
     }
 }

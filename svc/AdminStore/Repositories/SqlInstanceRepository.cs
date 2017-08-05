@@ -240,5 +240,37 @@ namespace AdminStore.Repositories
                 }
             }
         }
+
+        public async Task UpdateProjectAsync(int projectId, ProjectDto projectDto)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@newProjectName", projectDto.Name);
+            parameters.Add("@newProjectDescription", projectDto.Description);
+            parameters.Add("@projectId", projectId);
+            parameters.Add("@newParentFolderId", projectDto.ParentFolderId);
+
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            await _connectionWrapper.ExecuteScalarAsync<int>("UpdateProject", parameters, commandType: CommandType.StoredProcedure);
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.GeneralSqlError:
+                        throw new Exception(ErrorMessages.GeneralErrorOfUpdatingProject);
+
+                    case (int)SqlErrorCodes.ProjectWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.ProjectNotExist, ErrorCodes.ResourceNotFound);
+
+                    case (int)SqlErrorCodes.ProjectWithSuchNameExistsInParentFolder:
+                        throw new ConflictException(ErrorMessages.ProjectWithSuchNameExistsInParentFolder, ErrorCodes.Conflict);
+
+                    case (int)SqlErrorCodes.ParentFolderNotExists:
+                        throw new ResourceNotFoundException(ErrorMessages.ParentFolderNotExists, ErrorCodes.ResourceNotFound);
+                }
+            }
+        }
     }
 }

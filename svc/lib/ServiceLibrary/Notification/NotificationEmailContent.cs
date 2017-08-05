@@ -1,4 +1,6 @@
-﻿namespace ServiceLibrary.Notification.Templates
+﻿using ServiceLibrary.Models.Email;
+
+namespace ServiceLibrary.Notification.Templates
 {
     public partial class NotificationEmailContent
     {

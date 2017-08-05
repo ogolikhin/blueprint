@@ -8,7 +8,6 @@ using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers.Security;
 using ServiceLibrary.Models.Email;
 using ServiceLibrary.Models.Enums;
-using ServiceLibrary.Notification;
 using ServiceLibrary.Notification.Templates;
 
 namespace ActionHandlerService.MessageHandlers.Notifications
@@ -32,7 +31,7 @@ namespace ActionHandlerService.MessageHandlers.Notifications
                 var smtpClientConfiguration = new SMTPClientConfiguration
                 {
                     Authenticated = details.EmailSettings.Authenticated,
-                    EnableSsl = details.EmailSettings.EnableSsl,
+                    EnableSsl = details.EmailSettings.EnableSSL,
                     HostName = details.EmailSettings.HostName,
 
                     // Bug 61312: Password must be decrypted before saving in configuration

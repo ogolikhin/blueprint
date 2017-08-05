@@ -66,7 +66,6 @@
     <Compile Include="ActionMessage.cs" />
     <Compile Include="ActionMessageHeaders.cs" />
     <Compile Include="ArtifactsPublishedMessage.cs" />
-    <Compile Include="EmailSettings.cs" />
     <Compile Include="GenerateDescendantsMessage.cs" />
     <Compile Include="GenerateTestsMessage.cs" />
     <Compile Include="GenerateUserStoriesMessage.cs" />
@@ -79,6 +78,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\svc\lib\ServiceLibrary\ServiceLibrary.csproj">
+      <Project>{42662DE2-4604-427C-91F9-5F47AF8F1E1B}</Project>
+      <Name>ServiceLibrary</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

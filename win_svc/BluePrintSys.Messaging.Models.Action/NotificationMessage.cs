@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using NServiceBus;
+using ServiceLibrary.Models;
 
 namespace BluePrintSys.Messaging.Models.Actions
 {

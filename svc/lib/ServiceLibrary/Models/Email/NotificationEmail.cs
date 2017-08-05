@@ -1,4 +1,4 @@
-﻿namespace ServiceLibrary.Notification
+﻿namespace ServiceLibrary.Models.Email
 {
     public interface INotificationEmail
     {

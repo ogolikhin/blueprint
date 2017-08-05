@@ -144,7 +144,6 @@
     <Compile Include="Helpers\PasswordValidationHelper.cs" />
     <Compile Include="Helpers\UserMapper.cs" />
     <Compile Include="Helpers\UsersHelper.cs" />
-    <Compile Include="Models\EmailConfigInstanceSettings.cs" />
     <Compile Include="Models\InstanceItem.cs" />
     <Compile Include="Models\SqlGroup.cs" />
     <Compile Include="Models\UserManagementSettings.cs" />
@@ -165,7 +164,6 @@
     <Compile Include="Helpers\AuthenticationStatus.cs" />
     <Compile Include="Models\AuthenticationUser.cs" />
     <Compile Include="Models\FederatedAuthenticationSettings.cs" />
-    <Compile Include="Models\InstanceSettings.cs" />
     <Compile Include="Models\LdapSettings.cs" />
     <Compile Include="Models\LicenseTransactionUser.cs" />
     <Compile Include="Models\LoginUser.cs" />

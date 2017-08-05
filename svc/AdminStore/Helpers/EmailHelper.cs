@@ -4,6 +4,7 @@ using MailBee.Mime;
 using MailBee.Security;
 using MailBee.SmtpMail;
 using ServiceLibrary.Helpers.Security;
+using ServiceLibrary.Models;
 
 namespace AdminStore.Helpers
 {

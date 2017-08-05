@@ -1,11 +1,13 @@
-﻿namespace ServiceLibrary.Models.Email
+﻿using System.Collections.Generic;
+
+namespace ServiceLibrary.Models.Email
 {
     public class Message
     {
         /// <summary>
         /// 
         /// </summary>
-        public string[] To { get; set; }
+        public IEnumerable<string> To { get; set; }
         /// <summary>
         /// 
         /// </summary>

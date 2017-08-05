@@ -161,6 +161,7 @@
     <Compile Include="Models\ArtifactsNavigationPath.cs" />
     <Compile Include="Models\ArtifactVersion.cs" />
     <Compile Include="Models\AuthorHistory.cs" />
+    <Compile Include="Models\EmailConfigInstanceSettings.cs" />
     <Compile Include="Models\Email\BaseEmailServerConfiguration.cs" />
     <Compile Include="Models\BaselineInfo.cs" />
     <Compile Include="Models\ClientLogModel.cs" />
@@ -186,6 +187,7 @@
     <Compile Include="Models\Files\FileInfo.cs" />
     <Compile Include="Models\IAction.cs" />
     <Compile Include="Models\IConstraint.cs" />
+    <Compile Include="Models\InstanceSettings.cs" />
     <Compile Include="Models\InstanceSettings\EmailSettings.cs" />
     <Compile Include="Models\Interfaces\IArtifact.cs" />
     <Compile Include="Models\Item.cs" />
@@ -262,7 +264,7 @@
     <Compile Include="Models\Workflow\XmlUserGroup.cs" />
     <Compile Include="Models\Workflow\XmlWorkflowEventTrigger.cs" />
     <Compile Include="Models\Workflow\XmlWorkflowEventTriggers.cs" />
-    <Compile Include="Notification\NotificationEmail.cs" />
+    <Compile Include="Models\Email\NotificationEmail.cs" />
     <Compile Include="Repositories\ApplicationSettings\ApplicationSettingsRepository.cs" />
     <Compile Include="Repositories\ApplicationSettings\ISettingsRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IServiceLogRepository.cs" />

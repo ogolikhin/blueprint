@@ -122,6 +122,8 @@ namespace AdminStore.Controllers
         /// <summary>
         /// Get Project
         /// </summary>
+        /// <param name="id"></param>
+        /// <param name="fromAdminPortal"></param>
         /// <remarks>
         /// Returns an instance folder for the specified id.
         /// </remarks>
@@ -134,9 +136,9 @@ namespace AdminStore.Controllers
         [Route("projects/{id:int:min(1)}"), SessionRequired]
         [ResponseType(typeof(InstanceItem))]
         [ActionName("GetInstanceProject")]
-        public async Task<InstanceItem> GetInstanceProjectAsync(int id)
+        public async Task<InstanceItem> GetInstanceProjectAsync(int id, bool fromAdminPortal = false)
         {
-            return await _instanceRepository.GetInstanceProjectAsync(id, Session.UserId);
+            return await _instanceRepository.GetInstanceProjectAsync(id, Session.UserId, fromAdminPortal);
         }
 
         /// <summary>

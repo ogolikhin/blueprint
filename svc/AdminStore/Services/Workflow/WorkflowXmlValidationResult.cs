@@ -65,8 +65,9 @@ namespace AdminStore.Services.Workflow
         PropertyChangeEventActionNotSupported,
         ProjectNoSpecified,
         ProjectInvalidId,
+        ProjectDuplicateId,
+        ProjectDuplicatePath,
         ArtifactTypeNoSpecified,
-        ProjectsProvidedWithoutArifactTypes,
-        ArtifactTypesProvidedWithoutProjects
+        DuplicateArtifactTypesInProject
     }
 }

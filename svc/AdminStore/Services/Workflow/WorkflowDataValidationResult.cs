@@ -15,11 +15,10 @@ namespace AdminStore.Services.Workflow
             => _errors ?? (_errors = new List<WorkflowDataValidationError>());
 
         public HashSet<int> ValidProjectIds { get; } = new HashSet<int>();
-        public HashSet<string> ValidArtifactTypeNames { get; } = new HashSet<string>();
-        //TODO: Use Groups property below
-        public HashSet<SqlGroup> ValidGroups { get; } = new HashSet<SqlGroup>();
 
         public ProjectTypes StandardTypes { get; set; }
+        public Dictionary<string, ItemType> StandardArtifactTypeMap { get; } = new Dictionary<string, ItemType>();
+        public Dictionary<string, PropertyType> StandardPropertyTypeMap { get; } = new Dictionary<string, PropertyType>();
         public HashSet<SqlUser> Users { get; } = new HashSet<SqlUser>();
         public HashSet<SqlGroup> Groups { get; } = new HashSet<SqlGroup>();
     }
@@ -34,11 +33,15 @@ namespace AdminStore.Services.Workflow
     public enum WorkflowDataValidationErrorCodes
     {
         WorkflowNameNotUnique,
-        ProjectNotFound,
-        ProjectIdNotFound,
-        GroupsNotFound,
-        ArtifactTypeNotFoundInProject,
-        ArtifactTypeAlreadyAssociatedWithWorkflow,
-        PropertyNotFound
+        ProjectByPathNotFound,
+        ProjectByIdNotFound,
+        ProjectDuplicate,
+        InstanceGroupNotFound,
+        StandardArtifactTypeNotFound,
+        ArtifactTypeInProjectAlreadyAssociatedWithWorkflow,
+        PropertyNotFound,
+        GenerateChildArtifactsActionArtifactTypeNotFound,
+        EmailNotificationActionPropertyTypeNotFound,
+        PropertyChangeActionPropertyTypeNotFound
     }
 }

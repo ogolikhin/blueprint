@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AdminStore.Models.Workflow;
+using ArtifactStore.Helpers;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
@@ -87,24 +88,6 @@ namespace AdminStore.Services.Workflow
                     ErrorCode = WorkflowXmlValidationErrorCodes.StatesCountExceedsLimit100
                 });
             }
-
-            if (workflow.Projects.Any() && !workflow.ArtifactTypes.Any())
-            {
-                result.Errors.Add(new WorkflowXmlValidationError
-                {
-                    Element = workflow,
-                    ErrorCode = WorkflowXmlValidationErrorCodes.ProjectsProvidedWithoutArifactTypes
-                });
-            }
-            else if (!workflow.Projects.Any() && workflow.ArtifactTypes.Any())
-            {
-                result.Errors.Add(new WorkflowXmlValidationError
-                {
-                    Element = workflow,
-                    ErrorCode = WorkflowXmlValidationErrorCodes.ArtifactTypesProvidedWithoutProjects
-                });
-            }
-
 
             var stateNames = new HashSet<string>();
             var duplicateStateNames = new HashSet<string>();
@@ -340,7 +323,7 @@ namespace AdminStore.Services.Workflow
                     });
                 }
 
-                if (pcEvent.Triggers == null || !pcEvent.Triggers.Any())
+                if (pcEvent.Triggers.IsEmpty())
                 {
                     if (!hasPcEventNoAnyTriggersError)
                     {
@@ -418,7 +401,7 @@ namespace AdminStore.Services.Workflow
                     });
                 }
 
-                if (naEvent.Triggers == null || !naEvent.Triggers.Any())
+                if (naEvent.Triggers.IsEmpty())
                 {
                     if (!hasNaEventNoAnyTriggersError)
                     {
@@ -459,7 +442,7 @@ namespace AdminStore.Services.Workflow
             foreach (var stateName in stateTransitions.Keys)
             {
                 var transitionNames = stateTransitions[stateName];
-                if (!transitionNames.Any())
+                if (transitionNames.IsEmpty())
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
@@ -479,6 +462,10 @@ namespace AdminStore.Services.Workflow
             }
 
             var hasProjectNoSpecifieError = false;
+            var hasDuplicateProjectIdError = false;
+            var hasDuplicateProjectPathError = false;
+            var projectIds = new HashSet<int>();
+            var projectPaths = new HashSet<string>();
             foreach (var project in workflow.Projects.FindAll(p => p != null))
             {
                 if (!project.Id.HasValue && !ValidatePropertyNotEmpty(project.Path))
@@ -503,22 +490,81 @@ namespace AdminStore.Services.Workflow
                         ErrorCode = WorkflowXmlValidationErrorCodes.ProjectInvalidId
                     });
                 }
-            }
 
-            var hasArtifactTypeNoSpecifiedError = false;
-            foreach (var artifactType in workflow.ArtifactTypes.FindAll(at => at != null))
-            {
-                if (!ValidatePropertyNotEmpty(artifactType.Name))
+                if (project.Id.HasValue)
                 {
-                    // There should be only one such an error.
-                    if (!hasArtifactTypeNoSpecifiedError)
+
+                    if (!hasDuplicateProjectIdError && projectIds.Contains(project.Id.Value))
                     {
                         result.Errors.Add(new WorkflowXmlValidationError
                         {
-                            Element = artifactType,
-                            ErrorCode = WorkflowXmlValidationErrorCodes.ArtifactTypeNoSpecified
+                            Element = project,
+                            ErrorCode = WorkflowXmlValidationErrorCodes.ProjectDuplicateId
                         });
-                        hasArtifactTypeNoSpecifiedError = true;
+                        hasDuplicateProjectIdError = true;
+                    }
+
+                    projectIds.Add(project.Id.Value);
+                }
+                else
+                {
+                    if (!hasDuplicateProjectPathError
+                    && ValidatePropertyNotEmpty(project.Path)
+                    && projectPaths.Contains(project.Path))
+                    {
+                        result.Errors.Add(new WorkflowXmlValidationError
+                        {
+                            Element = project,
+                            ErrorCode = WorkflowXmlValidationErrorCodes.ProjectDuplicatePath
+                        });
+                        hasDuplicateProjectPathError = true;
+                    }
+
+                    if(ValidatePropertyNotEmpty(project.Path))
+                    {
+                        projectPaths.Add(project.Path);
+                    }
+                }
+            }
+
+            var hasArtifactTypeNoSpecifiedError = false;
+            var hasDuplicateArtifactTypesInProjectError = false;
+            foreach (var project in workflow.Projects)
+            {
+                if (project?.ArtifactTypes == null)
+                {
+                    continue;
+                }
+
+                var projectArtifactTypes = new HashSet<string>();
+                foreach (var artifactType in project?.ArtifactTypes?.FindAll(at => at != null))
+                {
+                    if (!ValidatePropertyNotEmpty(artifactType.Name))
+                    {
+                        // There should be only one such an error.
+                        if (!hasArtifactTypeNoSpecifiedError)
+                        {
+                            result.Errors.Add(new WorkflowXmlValidationError
+                            {
+                                Element = artifactType,
+                                ErrorCode = WorkflowXmlValidationErrorCodes.ArtifactTypeNoSpecified
+                            });
+                            hasArtifactTypeNoSpecifiedError = true;
+                        }
+                    }
+                    else
+                    {
+                        if(!hasDuplicateArtifactTypesInProjectError
+                            && projectArtifactTypes.Contains(artifactType.Name))
+                        {
+                            result.Errors.Add(new WorkflowXmlValidationError
+                            {
+                                Element = project,
+                                ErrorCode = WorkflowXmlValidationErrorCodes.DuplicateArtifactTypesInProject
+                            });
+                            hasDuplicateArtifactTypesInProjectError = true;
+                        }
+                        projectArtifactTypes.Add(artifactType.Name);
                     }
                 }
             }
@@ -542,7 +588,7 @@ namespace AdminStore.Services.Workflow
 
         private static bool ValidateWorkflowContainsStates(IEnumerable<IeState> states)
         {
-            return (states?.Any()).GetValueOrDefault();
+            return !states.IsEmpty();
         }
 
         private static bool ValidateStatesCount(IEnumerable<IeState> states)
@@ -622,8 +668,8 @@ namespace AdminStore.Services.Workflow
             WorkflowXmlValidationResult result)
         {
             if (!_hasRecipientsEmailNotificationActionNotSpecitiedError
-                && ((action.Emails == null || !action.Emails.Any())
-                    && string.IsNullOrWhiteSpace(action.PropertyName)))
+                && ((action.Emails.IsEmpty())
+                && string.IsNullOrWhiteSpace(action.PropertyName)))
             {
                 result.Errors.Add(new WorkflowXmlValidationError
                 {
@@ -634,7 +680,7 @@ namespace AdminStore.Services.Workflow
             }
 
             if (!_hasAmbiguousRecipientsSourcesEmailNotificationActionError
-                && action.Emails != null && action.Emails.Any()
+                && !action.Emails.IsEmpty()
                 && !string.IsNullOrWhiteSpace(action.PropertyName))
             {
                 result.Errors.Add(new WorkflowXmlValidationError
@@ -753,7 +799,7 @@ namespace AdminStore.Services.Workflow
 
         private void ValidateConditionTriggerConditions(IeEvent wEvent, ICollection<string> states, WorkflowXmlValidationResult result)
         {
-            if (wEvent.Triggers == null || !wEvent.Triggers.Any())
+            if (wEvent.Triggers.IsEmpty())
             {
                 return;
             }

@@ -22,8 +22,8 @@ namespace AdminStore.Repositories.Workflow
         Task<IEnumerable<SqlWorkflowEvent>> CreateWorkflowEventsAsync(IEnumerable<SqlWorkflowEvent> workflowEvents,
             int publishRevision, IDbTransaction transaction = null);
 
-        Task CreateWorkflowArtifactAssociationsAsync(IEnumerable<string> artifactTypeNames,
-            IEnumerable<int> projectIds, int workflowId, int publishRevision, IDbTransaction transaction = null);
+        Task CreateWorkflowArtifactAssociationsAsync(IEnumerable<KeyValuePair<int, string>> projectArtifactTypePair,
+            int workflowId, int publishRevision, IDbTransaction transaction = null);
 
         Task<IEnumerable<SqlProjectPathPair>> GetProjectIdsByProjectPaths(IEnumerable<string> projectPaths);
 

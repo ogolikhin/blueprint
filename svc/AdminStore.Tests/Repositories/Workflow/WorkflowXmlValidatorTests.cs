@@ -4,7 +4,6 @@ using System.Linq;
 using AdminStore.Models.Workflow;
 using AdminStore.Services.Workflow;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
 
@@ -23,7 +22,6 @@ namespace AdminStore.Repositories.Workflow
                 Name = "My Workflow",
                 Description = "This is my workflow.",
                 States = new List<IeState>(),
-                ArtifactTypes = new List<IeArtifactType>(),
                 TransitionEvents = new List<IeTransitionEvent>(),
                 PropertyChangeEvents = new List<IePropertyChangeEvent>(),
                 NewArtifactEvents = new List<IeNewArtifactEvent>(),
@@ -50,34 +48,29 @@ namespace AdminStore.Repositories.Workflow
             // Projects
             _workflow.Projects.Add(new IeProject
             {
-                Id = 10
+                Id = 10,
+                ArtifactTypes = new List<IeArtifactType>
+                {
+                    new IeArtifactType { Name = "Actor" },
+                    new IeArtifactType { Name = "Use Case" }
+                }
+
             });
 
             _workflow.Projects.Add(new IeProject
             {
-                Path = @"Blueprint/folder/project1"
+                Path = @"Blueprint/folder/project1",
+                ArtifactTypes = new List<IeArtifactType>
+                {
+                    new IeArtifactType { Name = "Actor" },
+                    new IeArtifactType { Name = "Process" }
+                }
             });
 
             _workflow.Projects.Add(new IeProject
             {
                 Id = 20,
                 Path = @"Blueprint/folder/project2"
-            });
-
-            // Artifact Types
-            _workflow.ArtifactTypes.Add(new IeArtifactType
-            {
-                Name = "Actor"
-            });
-
-            _workflow.ArtifactTypes.Add(new IeArtifactType
-            {
-                Name = "Use Case"
-            });
-
-            _workflow.ArtifactTypes.Add(new IeArtifactType
-            {
-                Name = "Process"
             });
 
             // State Change Events (Transitions)
@@ -454,40 +447,6 @@ namespace AdminStore.Repositories.Workflow
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
             Assert.AreEqual(WorkflowXmlValidationErrorCodes.WorkflowDescriptionExceedsLimit4000, result.Errors[0].ErrorCode);
-            Assert.AreSame(_workflow, result.Errors[0].Element);
-        }
-
-        [TestMethod]
-        public void Validate_Projects_NoArtifactTypes_ReturnsProjectsProvidedWithoutArifactTypesError()
-        {
-            // Arrange
-            var workflowValidator = new WorkflowXmlValidator();
-            _workflow.ArtifactTypes.Clear();
-
-            // Act
-            var result = workflowValidator.ValidateXml(_workflow);
-
-            // Assert
-            Assert.IsTrue(result.HasErrors);
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(WorkflowXmlValidationErrorCodes.ProjectsProvidedWithoutArifactTypes, result.Errors[0].ErrorCode);
-            Assert.AreSame(_workflow, result.Errors[0].Element);
-        }
-
-        [TestMethod]
-        public void Validate_ArtifactTypes_NoProjects_ReturnsArtifactTypesProvidedWithoutProjectsError()
-        {
-            // Arrange
-            var workflowValidator = new WorkflowXmlValidator();
-            _workflow.Projects.Clear();
-
-            // Act
-            var result = workflowValidator.ValidateXml(_workflow);
-
-            // Assert
-            Assert.IsTrue(result.HasErrors);
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(WorkflowXmlValidationErrorCodes.ArtifactTypesProvidedWithoutProjects, result.Errors[0].ErrorCode);
             Assert.AreSame(_workflow, result.Errors[0].Element);
         }
 
@@ -1300,11 +1259,46 @@ namespace AdminStore.Repositories.Workflow
         }
 
         [TestMethod]
+        public void Validate_ProjectInvalidId_ReturnsProjectDuplicateIdError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.Projects[1].Id = _workflow.Projects[0].Id;
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.ProjectDuplicateId, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
+        public void Validate_ProjectInvalidId_ReturnsProjectDuplicatePathError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.Projects[0].Id = null;
+            _workflow.Projects[0].Path = "path";
+            _workflow.Projects[1].Id = null;
+            _workflow.Projects[1].Path = "path";
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.ProjectDuplicatePath, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
         public void Validate_ArtifactTypeNoSpecified_ReturnsArtifactTypeNoSpecifiedError()
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
-            _workflow.ArtifactTypes[0].Name = null;
+            _workflow.Projects[0].ArtifactTypes[0].Name = null;
 
             // Act
             var result = workflowValidator.ValidateXml(_workflow);
@@ -1313,7 +1307,7 @@ namespace AdminStore.Repositories.Workflow
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
             Assert.AreEqual(WorkflowXmlValidationErrorCodes.ArtifactTypeNoSpecified, result.Errors[0].ErrorCode);
-            Assert.AreSame(_workflow.ArtifactTypes[0], result.Errors[0].Element);
+            Assert.AreSame(_workflow.Projects[0].ArtifactTypes[0], result.Errors[0].Element);
         }
 
         [TestMethod]
@@ -1323,7 +1317,7 @@ namespace AdminStore.Repositories.Workflow
             var workflowValidator = new WorkflowXmlValidator();
             _workflow.Name = null;
             _workflow.Projects[0].Id = -1;
-            _workflow.ArtifactTypes[0].Name = null;
+            _workflow.Projects[0].ArtifactTypes[0].Name = null;
 
             // Act
             var result = workflowValidator.ValidateXml(_workflow);
@@ -1336,11 +1330,11 @@ namespace AdminStore.Repositories.Workflow
             var error2 = result.Errors.First(e => e.ErrorCode == WorkflowXmlValidationErrorCodes.ProjectInvalidId);
             Assert.AreSame(_workflow.Projects[0], error2.Element);
             var error3 = result.Errors.First(e => e.ErrorCode == WorkflowXmlValidationErrorCodes.ArtifactTypeNoSpecified);
-            Assert.AreSame(_workflow.ArtifactTypes[0], error3.Element);
+            Assert.AreSame(_workflow.Projects[0].ArtifactTypes[0], error3.Element);
         }
 
         [TestMethod]
-        public void Validate_InitialStaeDoesNotHaveOutgoingTransition_ReturnsInitialStateDoesNotHaveOutgoingTransitionError()
+        public void Validate_InitialStateDoesNotHaveOutgoingTransition_ReturnsInitialStateDoesNotHaveOutgoingTransitionError()
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
@@ -1358,7 +1352,6 @@ namespace AdminStore.Repositories.Workflow
                 ToState = "Active",
             });
             _workflow.Projects.Clear();
-            _workflow.ArtifactTypes.Clear();
 
             // Act
             var result = workflowValidator.ValidateXml(_workflow);
@@ -1705,6 +1698,29 @@ namespace AdminStore.Repositories.Workflow
             Assert.AreEqual(1, result.Errors.Count);
             Assert.AreEqual(WorkflowXmlValidationErrorCodes.PropertyChangeEventActionNotSupported, result.Errors[0].ErrorCode);
             Assert.AreSame(_workflow.PropertyChangeEvents[0], result.Errors[0].Element);
+        }
+
+        [TestMethod]
+        public void Validate_SDuplicateArtifactTypesInProject_ReturnsDuplicateArtifactTypesInProjectError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.Projects[0].ArtifactTypes.Add(new IeArtifactType
+            {
+                Name = _workflow.Projects[0].ArtifactTypes[0].Name
+            });
+            _workflow.Projects[1].ArtifactTypes.Add(new IeArtifactType
+            {
+                Name = _workflow.Projects[1].ArtifactTypes[0].Name
+            });
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.DuplicateArtifactTypesInProject, result.Errors[0].ErrorCode);
         }
 
         #region Private methods

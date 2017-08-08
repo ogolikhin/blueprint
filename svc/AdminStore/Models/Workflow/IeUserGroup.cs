@@ -41,7 +41,7 @@ namespace AdminStore.Models.Workflow
 
         public bool ShouldSerializeIsGroupSerializable()
         {
-            return Id.HasValue;
+            return IsGroup.HasValue;
         }
         //========================================================
     }

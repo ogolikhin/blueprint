@@ -17,6 +17,11 @@ namespace AdminStore.Services.Workflow
 
         public XmlWorkflowEventTriggers ToXmlModel(IEnumerable<IeTrigger> ieTriggers, WorkflowDataMaps dataMaps, int currentUserId)
         {
+            if (ieTriggers == null)
+            {
+                return null;
+            }
+
             var xmlTriggers = new XmlWorkflowEventTriggers();
             ieTriggers?.ForEach(t => xmlTriggers.Triggers.Add(ToXmlModel(t, dataMaps, currentUserId)));
             return xmlTriggers;
@@ -206,7 +211,7 @@ namespace AdminStore.Services.Workflow
         {
             if (ieAction == null)
             {
-                throw new ArgumentNullException(nameof(ieAction));
+                return null;
             }
 
             switch (ieAction.ActionType)
@@ -224,6 +229,11 @@ namespace AdminStore.Services.Workflow
 
         private static XmlEmailNotificationAction ToXmlModel(IeEmailNotificationAction ieAction, IDictionary<string, int> propertyTypeMap)
         {
+            if (ieAction == null)
+            {
+                return null;
+            }
+
             var xmlAction = new XmlEmailNotificationAction
             {
                 Name = ieAction.Name,
@@ -248,13 +258,17 @@ namespace AdminStore.Services.Workflow
 
         private static XmlPropertyChangeAction ToXmlModel(IePropertyChangeAction ieAction, WorkflowDataMaps dataMaps, int currentUserId)
         {
+            if (ieAction == null)
+            {
+                return null;
+            }
+
             var xmlAction = new XmlPropertyChangeAction
             {
                 Name = ieAction.Name,
                 PropertyValue = ieAction.PropertyValue,
-                CurrentUserId = currentUserId,
-                UsersGroups = ieAction.UsersGroups != null && ieAction.UsersGroups.Any()
-                    ? new List<XmlUserGroup>() : null
+                CurrentUserId = ieAction.IncludeCurrentUser.GetValueOrDefault() ? currentUserId : (int?) null,
+                UsersGroups = !ieAction.UsersGroups.IsEmpty() ? new List<XmlUserGroup>() : null
             };
 
             int propertyTypeId;
@@ -273,7 +287,7 @@ namespace AdminStore.Services.Workflow
                 if (!ugMap.TryGetValue(ug.Name, out ugId))
                 {
                     throw new ExceptionWithErrorCode(I18NHelper.FormatInvariant("Id of {0} '{1}' is not found.",
-                        isGroup ? "group" : "user", ieAction.PropertyName), ErrorCodes.UnexpectedError);
+                        isGroup ? "group" : "user", ug.Name), ErrorCodes.UnexpectedError);
                 }
 
                 xmlAction.UsersGroups.Add(new XmlUserGroup
@@ -316,6 +330,11 @@ namespace AdminStore.Services.Workflow
 
         private static XmlGenerateAction ToXmlModel(IeGenerateAction ieAction, IDictionary<string, int> artifactTypeMap)
         {
+            if (ieAction == null)
+            {
+                return null;
+            }
+
             var xmlAction = new XmlGenerateAction
             {
                 Name = ieAction.Name,
@@ -347,7 +366,7 @@ namespace AdminStore.Services.Workflow
         {
             if (ieCondition == null)
             {
-                throw new ArgumentNullException(nameof(ieCondition));
+                return null;
             }
 
             switch (ieCondition.ConditionType)

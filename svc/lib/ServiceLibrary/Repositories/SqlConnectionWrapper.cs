@@ -168,5 +168,20 @@ namespace ServiceLibrary.Repositories
 
             return table;
         }
+
+        public static DataTable ToIdStringMapDataTable(IEnumerable<KeyValuePair<int, string>> values)
+        {
+            var table = new DataTable { Locale = CultureInfo.InvariantCulture };
+            table.SetTypeName("IdStringMap");
+            table.Columns.Add("Id", typeof(string));
+            table.Columns.Add("StringValue", typeof(string));
+
+            foreach (var value in values)
+            {
+                table.Rows.Add(value.Key, value.Value);
+            }
+
+            return table;
+        }
     }
 }

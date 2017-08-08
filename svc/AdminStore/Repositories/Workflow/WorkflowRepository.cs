@@ -191,20 +191,14 @@ namespace AdminStore.Repositories.Workflow
             return result;
         }
 
-        public async Task CreateWorkflowArtifactAssociationsAsync(IEnumerable<string> artifactTypeNames,
-            IEnumerable<int> projectIds, int workflowId, int publishRevision, IDbTransaction transaction = null)
+        public async Task CreateWorkflowArtifactAssociationsAsync(IEnumerable<KeyValuePair<int, string>> projectArtifactTypePair,
+            int workflowId, int publishRevision, IDbTransaction transaction = null)
         {
 
-            var dArtifactTypeNames = artifactTypeNames.ToList();
-            if (!dArtifactTypeNames.Any())
+            var projectArtifactTypePairList = projectArtifactTypePair.ToList();
+            if (!projectArtifactTypePairList.Any())
             {
-                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is empty.", nameof(dArtifactTypeNames)));
-            }
-
-            var dProjectIds = projectIds.ToList();
-            if (!dProjectIds.Any())
-            {
-                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is empty.", nameof(dProjectIds)));
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is empty.", nameof(projectArtifactTypePair)));
             }
 
             if (publishRevision < 1)
@@ -213,21 +207,13 @@ namespace AdminStore.Repositories.Workflow
             }
 
             var prm = new DynamicParameters();
-            prm.Add("@names", SqlConnectionWrapper.ToStringDataTable(dArtifactTypeNames));
+            prm.Add("@projectArtifactTypePairs", SqlConnectionWrapper.ToIdStringMapDataTable(projectArtifactTypePairList));
             prm.Add("@revisionId", publishRevision);
             prm.Add("@workflowId", workflowId);
-            prm.Add("@projectIds", SqlConnectionWrapper.ToDataTable(dProjectIds));
 
-            if (transaction == null)
-            {
-                await _connectionWrapper.ExecuteAsync("UpdateItemTypeVersionsWithWorkflowId", prm,
-                    commandType: CommandType.StoredProcedure);
-            }
-            else
-            {
-                await transaction.Connection.ExecuteAsync("UpdateItemTypeVersionsWithWorkflowId", prm,
-                    transaction, commandType: CommandType.StoredProcedure);
-            }
+            var connection = transaction == null ? (IDbConnection)_connectionWrapper : transaction.Connection;
+            await connection.ExecuteAsync("UpdateItemTypeVersionsWithWorkflowId", prm,
+                transaction, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<IEnumerable<SqlProjectPathPair>> GetProjectIdsByProjectPaths(IEnumerable<string> projectPaths)

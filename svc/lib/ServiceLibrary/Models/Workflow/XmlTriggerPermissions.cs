@@ -11,10 +11,10 @@ namespace ServiceLibrary.Models.Workflow
         //========================================================
         // To make xml attribute nullable.
         [XmlIgnore]
-        public bool? Skip { get; set; }
+        public int? Skip { get; set; } // Should be 0 or 1
 
         [XmlAttribute("S")]
-        public bool SkipSerializable
+        public int SkipSerializable
         {
             get { return Skip.GetValueOrDefault(); }
             set { Skip = value; }

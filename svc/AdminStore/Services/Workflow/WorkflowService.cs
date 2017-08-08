@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AdminStore.Models;
 using AdminStore.Models.Workflow;
 using AdminStore.Repositories;
 using AdminStore.Repositories.Workflow;
@@ -31,15 +30,17 @@ namespace AdminStore.Services.Workflow
         private readonly IWorkflowValidationErrorBuilder _workflowValidationErrorBuilder;
         private readonly ISqlProjectMetaRepository _projectMetaRepository;
         private readonly ITriggerConverter _triggerConverter;
+        private readonly IWorkflowActionPropertyValueValidator _propertyValueValidator;
 
         private const string WorkflowImportErrorsFile = "$workflow_import_errors$.txt";
 
         public WorkflowService()
             : this(new WorkflowRepository(), new WorkflowXmlValidator(), new SqlUserRepository(),
                   new WorkflowValidationErrorBuilder(), new SqlProjectMetaRepository(),
-                  new TriggerConverter())
+                  new TriggerConverter(), new WorkflowActionPropertyValueValidator())
         {
-            _workflowDataValidator = new WorkflowDataValidator(_workflowRepository, _userRepository, _projectMetaRepository);
+            _workflowDataValidator = new WorkflowDataValidator(_workflowRepository, _userRepository,
+                _projectMetaRepository, _propertyValueValidator);
         }
 
         public WorkflowService(IWorkflowRepository workflowRepository,
@@ -47,7 +48,8 @@ namespace AdminStore.Services.Workflow
             IUserRepository userRepository,
             IWorkflowValidationErrorBuilder workflowValidationErrorBuilder,
             ISqlProjectMetaRepository projectMetaRepository,
-            ITriggerConverter triggerConverter)
+            ITriggerConverter triggerConverter,
+            IWorkflowActionPropertyValueValidator propertyValueValidator)
         {
             _workflowRepository = workflowRepository;
             _workflowXmlValidator = workflowXmlValidator;
@@ -55,6 +57,7 @@ namespace AdminStore.Services.Workflow
             _workflowValidationErrorBuilder = workflowValidationErrorBuilder;
             _projectMetaRepository = projectMetaRepository;
             _triggerConverter = triggerConverter;
+            _propertyValueValidator = propertyValueValidator;
         }
 
         public IFileRepository FileRepository
@@ -253,12 +256,23 @@ namespace AdminStore.Services.Workflow
             var dataMaps = CreateDataMap(dataValidationResult, newStates);
 
             await ImportWorkflowEvents(workflow, newWorkflow.WorkflowId, publishRevision, transaction, newStates,
-                dataValidationResult.ValidGroups, dataMaps, userId);
+                dataMaps, userId);
 
-            if (workflow.ArtifactTypes.Any() && workflow.Projects.Any())
+            // TODO: IeWorkflow changed, now the list of artifacts types moved to IeProject
+            var kvPairs = new List<KeyValuePair<int, string>>();
+            if (!workflow.Projects.IsEmpty())
             {
-                await _workflowRepository.CreateWorkflowArtifactAssociationsAsync(dataValidationResult.ValidArtifactTypeNames,
-                        dataValidationResult.ValidProjectIds, newWorkflow.WorkflowId, publishRevision, transaction);
+                workflow.Projects.ForEach(p => p.ArtifactTypes?.ForEach(at =>
+                {
+                    // All Project Ids should be assigned.
+                    kvPairs.Add(new KeyValuePair<int, string>(p.Id.Value, at.Name));
+                }));
+            }
+
+            if (!kvPairs.IsEmpty())
+            {
+                await _workflowRepository.CreateWorkflowArtifactAssociationsAsync(kvPairs,
+                    newWorkflow.WorkflowId, publishRevision, transaction);
             }
         }
 
@@ -293,8 +307,7 @@ namespace AdminStore.Services.Workflow
         }
 
         private async Task ImportWorkflowEvents(IeWorkflow workflow, int newWorkflowId, int publishRevision,
-            IDbTransaction transaction, IEnumerable<SqlState> newStates, HashSet<SqlGroup> validGroups,
-            WorkflowDataMaps dataMaps, int userId)
+            IDbTransaction transaction, IEnumerable<SqlState> newStates, WorkflowDataMaps dataMaps, int userId)
         {
             var newStatesArray = newStates.ToArray();
             var importTriggersParams = new List<SqlWorkflowEvent>();
@@ -302,32 +315,32 @@ namespace AdminStore.Services.Workflow
             workflow.TransitionEvents.OfType<IeTransitionEvent>().ForEach(e =>
             {
                 importTriggersParams.Add(ToSqlWorkflowEvent(e, newWorkflowId, newStatesArray,
-                    validGroups, dataMaps, userId));
+                    dataMaps, userId));
             });
             workflow.PropertyChangeEvents.OfType<IePropertyChangeEvent>().ForEach(e =>
             {
                 importTriggersParams.Add(ToSqlWorkflowEvent(e, newWorkflowId, newStatesArray,
-                    validGroups, dataMaps, userId));
+                    dataMaps, userId));
             });
             workflow.NewArtifactEvents.OfType<IeNewArtifactEvent>().ForEach(e =>
             {
                 importTriggersParams.Add(ToSqlWorkflowEvent(e, newWorkflowId, newStatesArray,
-                    validGroups, dataMaps, userId));
+                    dataMaps, userId));
             });
 
             await _workflowRepository.CreateWorkflowEventsAsync(importTriggersParams, publishRevision, transaction);
         }
 
         private SqlWorkflowEvent ToSqlWorkflowEvent(IeEvent wEvent, int newWorkflowId, ICollection<SqlState> newStates,
-            HashSet<SqlGroup> validGroups, WorkflowDataMaps dataMaps, int userId)
+            WorkflowDataMaps dataMaps, int userId)
         {
             var sqlEvent = new SqlWorkflowEvent
             {
                 Name = wEvent.Name,
                 WorkflowId = newWorkflowId,
                 Validations = null,
-                Triggers =
-                    SerializationHelper.ToXml(_triggerConverter.ToXmlModel(wEvent.Triggers, dataMaps, userId))
+                Triggers = wEvent.Triggers == null ? null
+                    : SerializationHelper.ToXml(_triggerConverter.ToXmlModel(wEvent.Triggers, dataMaps, userId))
             };
 
             switch (wEvent.EventType)
@@ -335,11 +348,15 @@ namespace AdminStore.Services.Workflow
                 case EventTypes.Transition:
                     sqlEvent.Type = DWorkflowEventType.Transition;
                     var transition = (IeTransitionEvent) wEvent;
-                    sqlEvent.Permissions = SerializationHelper.ToXml(new XmlTriggerPermissions
-                    {
-                        Skip = transition.SkipPermissionGroups,
-                        GroupIds = transition.PermissionGroups.Select(pg => validGroups.First(p => p.Name == pg.Name).GroupId).ToList()
-                    });
+                    var skipPermissionGroups = transition.SkipPermissionGroups.GetValueOrDefault();
+                    sqlEvent.Permissions = skipPermissionGroups || !transition.PermissionGroups.IsEmpty()
+                        ? sqlEvent.Permissions = SerializationHelper.ToXml(new XmlTriggerPermissions
+                        {
+                            Skip = skipPermissionGroups ? 1 : (int?)null,
+                            GroupIds = transition.PermissionGroups.Select(pg => dataMaps.GroupMap[pg.Name]).ToList()
+                        }) : null;
+
+
                     sqlEvent.WorkflowState1Id =
                         newStates.FirstOrDefault(s => s.Name.Equals(transition.FromState))?.WorkflowStateId;
                     sqlEvent.WorkflowState2Id =
@@ -410,7 +427,8 @@ namespace AdminStore.Services.Workflow
                         Triggers = DeserializeTriggers(e.Triggers)
                     }).Distinct().ToList(),
                 Projects = workflowProjectsAndArtifactTypes.Select(e => new IeProject { Id = e.ProjectId, Path = e.ProjectName }).Distinct().ToList(),
-                ArtifactTypes = workflowProjectsAndArtifactTypes.Select(e => new IeArtifactType { Name = e.ArtifactName }).Distinct().ToList()
+                // TODO: Alex T, IeWorkflow changed, now the list of artifacts types are moved to IeProject, please see this PR.
+                //ArtifactTypes = workflowProjectsAndArtifactTypes.Select(e => new IeArtifactType { Name = e.ArtifactName }).Distinct().ToList()
             };
 
             return ieWorkflow;

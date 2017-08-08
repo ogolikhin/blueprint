@@ -246,9 +246,35 @@ namespace AdminStore.Controllers
         [BaseExceptionFilter]
         public async Task<IHttpActionResult> PostReset(string login, [FromBody]ResetPostContent body)
         {
-            var decodedLogin = SystemEncryptions.Decode(login);
-            var decodedOldPassword = SystemEncryptions.Decode(body.OldPass);
-            var decodedNewPassword = SystemEncryptions.Decode(body.NewPass);
+            string decodedLogin;
+            string decodedOldPassword;
+            string decodedNewPassword;
+
+            try
+            {
+                decodedLogin = SystemEncryptions.Decode(login);
+            }
+            catch (Exception)
+            {
+                throw new BadRequestException("provided login is invalid");
+            }
+            try
+            {
+                decodedOldPassword = SystemEncryptions.Decode(body.OldPass);
+            }
+            catch (Exception)
+            {
+                throw new BadRequestException("provided old password is invalid");
+            }
+            try
+            {
+                decodedNewPassword = SystemEncryptions.Decode(body.NewPass);
+            }
+            catch (Exception)
+            {
+                throw new BadRequestException("provided new password is invalid");
+            }
+
             var user = await _authenticationRepository.AuthenticateUserForResetAsync(decodedLogin, decodedOldPassword);
             await _authenticationRepository.ResetPassword(user, decodedOldPassword, decodedNewPassword);
 

@@ -2,14 +2,17 @@
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using ActionHandlerService.MessageHandlers.Notifications;
 using ActionHandlerService.Models;
 using Dapper;
+using ServiceLibrary.Models.Email;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories.InstanceSettings;
 
 namespace ActionHandlerService.Repositories
 {
-    public interface IActionHandlerServiceRepository
+    public interface IActionHandlerServiceRepository : IInstanceSettingsRepository
     {
         Task<List<SqlModifiedProperty>> GetPropertyModificationsForRevisionIdAsync(int revisionId);
         Task<List<SqlWorkFlowStateInformation>> GetWorkflowStatesForArtifactsAsync(int userId, IEnumerable<int> artifactIds, int revisionId, bool addDrafts = true);
@@ -17,7 +20,7 @@ namespace ActionHandlerService.Repositories
         Task<string> GetTenantId();
     }
 
-    public class ActionHandlerServiceRepository : SqlBaseArtifactRepository, IActionHandlerServiceRepository
+    public class ActionHandlerServiceRepository : SqlInstanceSettingsRepository, IActionHandlerServiceRepository
     {
         public ActionHandlerServiceRepository(string connectionString) : this(new SqlConnectionWrapper(connectionString))
         {
@@ -27,7 +30,8 @@ namespace ActionHandlerService.Repositories
         {
         }
 
-        public ActionHandlerServiceRepository(ISqlConnectionWrapper connectionWrapper, IArtifactPermissionsRepository artifactPermissionsRepository) : base(connectionWrapper, artifactPermissionsRepository)
+        public ActionHandlerServiceRepository(ISqlConnectionWrapper connectionWrapper, IArtifactPermissionsRepository artifactPermissionsRepository) : 
+            base(connectionWrapper, artifactPermissionsRepository)
         {
         }
 
@@ -63,6 +67,31 @@ namespace ActionHandlerService.Repositories
         public async Task<string> GetTenantId()
         {
             return (await ConnectionWrapper.QueryAsync<string>("SELECT TenantId FROM dbo.Instances", commandType: CommandType.Text)).FirstOrDefault();
+        }
+    }
+
+    public interface INotificationActionHandlerServiceRepository : IActionHandlerServiceRepository
+    {
+        void SendEmail(SMTPClientConfiguration smtpClientConfiguration, Message message);
+    }
+
+    public class NotificationActionHandlerServiceRepository : ActionHandlerServiceRepository, INotificationActionHandlerServiceRepository
+    {
+        public NotificationActionHandlerServiceRepository(string connectionString) : base(connectionString)
+        {
+        }
+
+        public NotificationActionHandlerServiceRepository(ISqlConnectionWrapper connectionWrapper) : base(connectionWrapper)
+        {
+        }
+
+        public NotificationActionHandlerServiceRepository(ISqlConnectionWrapper connectionWrapper, IArtifactPermissionsRepository artifactPermissionsRepository) : base(connectionWrapper, artifactPermissionsRepository)
+        {
+        }
+
+        public void SendEmail(SMTPClientConfiguration smtpClientConfiguration, Message message)
+        {
+            new SmtpClient(smtpClientConfiguration).SendEmail(message);
         }
     }
 }

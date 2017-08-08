@@ -17,18 +17,18 @@ namespace ActionHandlerService.MessageHandlers.Notifications
     {
         public async Task<bool> HandleAction(TenantInformation tenantInformation, ActionMessage actionMessage, IActionHandlerServiceRepository repository)
         {
-            var result = await SendNotificationEmail(tenantInformation, (NotificationMessage) actionMessage);
+            var result = await SendNotificationEmail(tenantInformation, (NotificationMessage) actionMessage, repository);
             return await Task.FromResult(result == SendEmailResult.Success);
         }
 
-        private async Task<SendEmailResult> SendNotificationEmail(TenantInformation tenantInformation, NotificationMessage details)
+        private async Task<SendEmailResult> SendNotificationEmail(TenantInformation tenantInformation, NotificationMessage details, IActionHandlerServiceRepository repository)
         {
             var result = SendEmailResult.Success;
             try
             {
                 //It should be responsibility of notification handler to recieve information about email settings
                 //Maybe this information can be cached for tenant ids???
-                var emailSettings = await (new EmailSettingsRetriever(tenantInformation.ConnectionString)).GetEmailSettings();
+                var emailSettings = await (new EmailSettingsRetriever()).GetEmailSettings(repository);
                 if (emailSettings == null)
                 {
                     Log.Error($"No email settings provided for tenant {tenantInformation.Id} ");
@@ -51,7 +51,7 @@ namespace ActionHandlerService.MessageHandlers.Notifications
                     UserName = emailSettings.UserName
                 };
 
-                InternalSendEmail(smtpClientConfiguration, message);
+                InternalSendEmail(smtpClientConfiguration, message, repository);
             }
             catch (Exception e)
             {
@@ -89,9 +89,9 @@ namespace ActionHandlerService.MessageHandlers.Notifications
         }
 
         //for unit testing
-        private void InternalSendEmail(SMTPClientConfiguration smtpClientConfiguration, Message message)
+        private void InternalSendEmail(SMTPClientConfiguration smtpClientConfiguration, Message message, IActionHandlerServiceRepository repository)
         {
-            new SmtpClient(smtpClientConfiguration).SendEmail(message);
+            ((INotificationActionHandlerServiceRepository) repository).SendEmail(smtpClientConfiguration, message);
         }
     }
 }

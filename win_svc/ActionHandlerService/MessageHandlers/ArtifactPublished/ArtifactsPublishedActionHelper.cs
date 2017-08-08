@@ -125,15 +125,15 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
         private Dictionary<int, IList<SqlArtifactTriggers>> BuildArtifactPropertyTransitions(IList<SqlArtifactTriggers> artifactPropertyEvents, HashSet<int> publishedArtifactIds)
         {
             var activePropertyTransitions = new Dictionary<int, IList<SqlArtifactTriggers>>();
-            foreach (var artifactPropertyEvent in artifactPropertyEvents.Where(ape => publishedArtifactIds.Contains(ape.HolderId)))
+            foreach (var artifactPropertyEvent in artifactPropertyEvents.Where(ape => publishedArtifactIds.Contains(ape.VersionItemId)))
             {
-                if (activePropertyTransitions.ContainsKey(artifactPropertyEvent.HolderId))
+                if (activePropertyTransitions.ContainsKey(artifactPropertyEvent.VersionItemId))
                 {
-                    activePropertyTransitions[artifactPropertyEvent.HolderId].Add(artifactPropertyEvent);
+                    activePropertyTransitions[artifactPropertyEvent.VersionItemId].Add(artifactPropertyEvent);
                 }
                 else
                 {
-                    activePropertyTransitions.Add(artifactPropertyEvent.HolderId, new List<SqlArtifactTriggers> {artifactPropertyEvent});
+                    activePropertyTransitions.Add(artifactPropertyEvent.VersionItemId, new List<SqlArtifactTriggers> {artifactPropertyEvent});
                 }
             }
             return activePropertyTransitions;

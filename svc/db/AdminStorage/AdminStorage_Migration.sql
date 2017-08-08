@@ -164,7 +164,7 @@ GO
 
 
 -- Migrate tables to the AdminStore schema
-IF ([AdminStore].[IsSchemaVersionLessOrEqual](N'8.2.0') <> 0)
+IF ([AdminStore].[IsSchemaVersionLessOrEqual](N'8.1.0') <> 0)
 	AND (OBJECT_ID(N'[dbo].[ApplicationLabels]', 'U') IS NOT NULL) AND (OBJECT_ID(N'[AdminStore].[ApplicationLabels]', 'U') IS NULL)
 	ALTER SCHEMA [AdminStore] TRANSFER [dbo].[ApplicationLabels];
 GO

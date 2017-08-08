@@ -271,7 +271,7 @@ namespace Logging.Database.Sinks
                             cmd.CommandType = CommandType.StoredProcedure;
                             cmd.Parameters.Add(new SqlParameter("@InsertLogs", SqlDbType.Structured));
                             cmd.Parameters[0].Value = reader;
-                            cmd.Parameters[0].TypeName = "dbo.LogsType";
+                            cmd.Parameters[0].TypeName = "[AdminStore].LogsType";
 
                             return await cmd.ExecuteNonQueryAsync(token).ConfigureAwait(false);
                         }

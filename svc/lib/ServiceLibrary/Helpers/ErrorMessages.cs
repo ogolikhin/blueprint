@@ -79,8 +79,8 @@
         public static readonly string InvalidDeleteWorkflowsParameters = "Invalid parameters to delete workflows";
         public static readonly string GeneralErrorOfDeletingWorkflows = "An error has occurred when performed workflows (s) deletion operation";
         //Folder
-        public static readonly string FolderWithSuchNameExistsInParentFolder = "A folder with the same name already exists in the parent folder. Please use a different name";
-        public static readonly string FolderModelIsEmpty = "The body of the call is malformed or has invalid parameter.";
+        public static readonly string FolderWithSuchNameExistsInParentFolder = "A folder with the same name already exists in the parent folder. Please use a different name.";
+        public static readonly string ModelIsEmpty = "The body of the call is malformed or has invalid parameter.";
         public static readonly string FolderNameLimitation = "Please enter a name between 1 and 128 characters.";
         public static readonly string ErrorOfDeletingFolderThatContainsChildrenItems = "The Folder cannot be deleted as it contains Projects and/or Folders.";
         public static readonly string FolderNotExist = "The folder with current folderId doesn't exist or removed from the system.";
@@ -88,5 +88,12 @@
         public static readonly string ParentFolderNotExists = "The parent folder with current id does not exist.";
         public static readonly string GeneralErrorOfCreatingFolder = "An error has occurred when the operation was being performed at SQL level.";
         public static readonly string GeneralErrorOfUpdatingFolder = "An error has occurred when the operation was being performed at SQL level.";
+        public static readonly string FolderReferenceToItself = "The folder cannot be placed into itself. Please select a different location.";
+        //Project
+        public static readonly string ProjectNameLimitation = "Please enter a name between 1 and 128 characters.";
+        public static readonly string LocationIsRequired = "Please select a location.";
+        public static readonly string GeneralErrorOfUpdatingProject = "An error has occurred when the operation was being performed at SQL level.";
+        public static readonly string ProjectNotExist = "The project with the current id doesn't exist or removed from the system.";
+        public static readonly string ProjectWithSuchNameExistsInParentFolder = "A project with the same name already exists in the parent folder. Please use a different name.";
     }
 }

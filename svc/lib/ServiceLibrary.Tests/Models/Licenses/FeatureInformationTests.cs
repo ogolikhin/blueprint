@@ -3,7 +3,6 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Helpers;
-using ServiceLibrary.Helpers.Security;
 using ServiceLibrary.Models.Enums;
 
 namespace ServiceLibrary.Models.Licenses
@@ -70,27 +69,6 @@ namespace ServiceLibrary.Models.Licenses
             var featureType = featureInformation.GetFeatureType();
             //Assert
             Assert.AreEqual(FeatureTypes.Workflow, featureType);
-        }
-
-        [TestMethod]
-        public void FeatureLicenseHelper_DecryptsAllLicensesSuccessfully()
-        {
-            //Arrange
-            var expirationDate = DateTime.MaxValue;
-            var allFeatures = FeatureInformation.Features.Select(p => new FeatureInformation(p.Key, expirationDate)).ToArray();
-            var xml = SerializationHelper.ToXml(allFeatures);
-            var encryptedXml = SystemEncryptions.Encrypt(xml);
-
-            //Act
-            var decryptedLicenses = FeatureLicenseHelper.DecryptLicenses(encryptedXml);
-
-            //Assert
-            Assert.AreEqual(allFeatures.Length, decryptedLicenses.Length);
-            foreach (var feature in allFeatures)
-            {
-                var decryptedLicense = decryptedLicenses.Single(l => l.FeatureName == feature.FeatureName && l.ExpirationDate == feature.ExpirationDate);
-                Assert.IsNotNull(decryptedLicense);
-            }
         }
     }
 }

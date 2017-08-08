@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using ActionHandlerService.Models;
 using ActionHandlerService.Models.Enums;
@@ -40,7 +41,7 @@ namespace ActionHandlerService.Helpers
             {
                 //TODO: remove once we get the tenant db ready
                 _defaultTentantId = await _actionHandlerServiceRepository.GetTenantId();
-                Log.Debug($"Retrieved default tenant id: {_defaultTentantId}");
+                Log.Info($"Retrieved default tenant id: {_defaultTentantId}");
             }
             return TenantInfoCache.Get();
         }
@@ -52,13 +53,16 @@ namespace ActionHandlerService.Helpers
             switch (tenancy)
             {
                 case Tenancy.Single:
+                    Log.Info("Retrieving single tenant.");
                     var tenant = new TenantInformation {Id = _defaultTentantId, ConnectionString = ConfigHelper.SingleTenancyConnectionString, Settings = DefaultTenantSettings};
                     tenants.Add(tenant.Id, tenant);
                     break;
                 case Tenancy.Multiple:
+                    Log.Info("Retrieving multiple tenants.");
                     //TODO: get multiple tenants
                     break;
             }
+            Log.Info($"Retrieved {tenants.Count} tenants: {string.Join(", ", tenants.Select(p => p.Key))}");
             return tenants;
         }
     }

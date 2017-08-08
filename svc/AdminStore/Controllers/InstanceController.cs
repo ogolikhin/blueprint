@@ -122,6 +122,8 @@ namespace AdminStore.Controllers
         /// <summary>
         /// Get Project
         /// </summary>
+        /// <param name="id"></param>
+        /// <param name="fromAdminPortal"></param>
         /// <remarks>
         /// Returns an instance folder for the specified id.
         /// </remarks>
@@ -134,9 +136,9 @@ namespace AdminStore.Controllers
         [Route("projects/{id:int:min(1)}"), SessionRequired]
         [ResponseType(typeof(InstanceItem))]
         [ActionName("GetInstanceProject")]
-        public async Task<InstanceItem> GetInstanceProjectAsync(int id)
+        public async Task<InstanceItem> GetInstanceProjectAsync(int id, bool fromAdminPortal = false)
         {
-            return await _instanceRepository.GetInstanceProjectAsync(id, Session.UserId);
+            return await _instanceRepository.GetInstanceProjectAsync(id, Session.UserId, fromAdminPortal);
         }
 
         /// <summary>
@@ -214,7 +216,7 @@ namespace AdminStore.Controllers
         {
             if (folder == null)
             {
-                throw new BadRequestException(ErrorMessages.FolderModelIsEmpty, ErrorCodes.BadRequest);
+                throw new BadRequestException(ErrorMessages.ModelIsEmpty, ErrorCodes.BadRequest);
             }
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageProjects);
@@ -274,14 +276,53 @@ namespace AdminStore.Controllers
         {
             if (folderDto == null)
             {
-                throw new BadRequestException(ErrorMessages.FolderModelIsEmpty, ErrorCodes.BadRequest);
+                throw new BadRequestException(ErrorMessages.ModelIsEmpty, ErrorCodes.BadRequest);
             }
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageProjects);
 
             FolderValidator.ValidateModel(folderDto);
-            
+
             await _instanceRepository.UpdateFolderAsync(folderId, folderDto);
+
+            return Ok();
+        }
+
+        #endregion
+
+        #region projects
+
+        /// <summary>
+        /// Update project
+        /// </summary>
+        /// <param name="projectId">Project's identity</param>
+        /// <param name="projectDto">Project's model</param>
+        /// <remarks>
+        /// Returns Ok result.
+        /// </remarks>
+        /// <response code="200">OK. The project is updated.</response>
+        /// <response code="400">BadRequest. Parameters are invalid. </response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for creating the project.</response>
+        /// <response code="404">NotFound. The project or the parent folder with the current id doesn't exist or removed from the system.</response>
+        /// <response code="409">Conflict. The project with the same name already exists in the parent folder.</response>
+        /// <response code="500">Internal server error.</response>
+        [HttpPut]
+        [SessionRequired]
+        [ResponseType(typeof(HttpResponseMessage))]
+        [Route("projects/{projectId:int:min(1)}")]
+        public async Task<IHttpActionResult> UpdateProject(int projectId, [FromBody] ProjectDto projectDto)
+        {
+            if (projectDto == null)
+            {
+                throw new BadRequestException(ErrorMessages.ModelIsEmpty, ErrorCodes.BadRequest);
+            }
+
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageProjects);
+
+            ProjectValidator.ValidateModel(projectDto);
+
+            await _instanceRepository.UpdateProjectAsync(projectId, projectDto);
 
             return Ok();
         }

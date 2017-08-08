@@ -71,7 +71,7 @@ namespace AdminStore.Repositories
                 ?? Enumerable.Empty<InstanceItem>()).OrderBy(i => i.Type).ThenBy(i => i.Name).ToList();
         }
 
-        public async Task<InstanceItem> GetInstanceProjectAsync(int projectId, int userId)
+        public async Task<InstanceItem> GetInstanceProjectAsync(int projectId, int userId, bool fromAdminPortal = false)
         {
             if (projectId < 1)
             {
@@ -87,7 +87,9 @@ namespace AdminStore.Repositories
             prm.Add("@projectId", projectId);
             prm.Add("@userId", userId);
 
-            var project = (await _connectionWrapper.QueryAsync<InstanceItem>("GetInstanceProjectById", prm, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
+            var sqlQueryProcedure = fromAdminPortal ? "GetProjectDetails" : "GetInstanceProjectById";
+
+            var project = (await _connectionWrapper.QueryAsync<InstanceItem>(sqlQueryProcedure, prm, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
             if (project == null)
             {
                 throw new ResourceNotFoundException(string.Format("Project (Id:{0}) is not found.", projectId), ErrorCodes.ResourceNotFound);
@@ -234,6 +236,38 @@ namespace AdminStore.Repositories
 
                     case (int)SqlErrorCodes.FolderWithSuchNameExistsInParentFolder:
                         throw new ConflictException(ErrorMessages.FolderWithSuchNameExistsInParentFolder, ErrorCodes.Conflict);
+
+                    case (int)SqlErrorCodes.ParentFolderNotExists:
+                        throw new ResourceNotFoundException(ErrorMessages.ParentFolderNotExists, ErrorCodes.ResourceNotFound);
+                }
+            }
+        }
+
+        public async Task UpdateProjectAsync(int projectId, ProjectDto projectDto)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@newProjectName", projectDto.Name);
+            parameters.Add("@newProjectDescription", projectDto.Description);
+            parameters.Add("@projectId", projectId);
+            parameters.Add("@newParentFolderId", projectDto.ParentFolderId);
+
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            await _connectionWrapper.ExecuteScalarAsync<int>("UpdateProject", parameters, commandType: CommandType.StoredProcedure);
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.GeneralSqlError:
+                        throw new Exception(ErrorMessages.GeneralErrorOfUpdatingProject);
+
+                    case (int)SqlErrorCodes.ProjectWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.ProjectNotExist, ErrorCodes.ResourceNotFound);
+
+                    case (int)SqlErrorCodes.ProjectWithSuchNameExistsInParentFolder:
+                        throw new ConflictException(ErrorMessages.ProjectWithSuchNameExistsInParentFolder, ErrorCodes.Conflict);
 
                     case (int)SqlErrorCodes.ParentFolderNotExists:
                         throw new ResourceNotFoundException(ErrorMessages.ParentFolderNotExists, ErrorCodes.ResourceNotFound);

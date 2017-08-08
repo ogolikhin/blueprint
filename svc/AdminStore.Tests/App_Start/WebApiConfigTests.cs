@@ -22,7 +22,7 @@ namespace AdminStore
             config.EnsureInitialized();
 
             // Assert
-            config.AssertTotalRoutes(55, "Please update asserts in WebApiConfigTests when changing routes.");
+            config.AssertTotalRoutes(56, "Please update asserts in WebApiConfigTests when changing routes.");
             config.AssertAction<ConfigController>("GetConfigSettings", HttpMethod.Get, "config/settings");
             config.AssertAction<ConfigController>("GetConfig", HttpMethod.Get, "config/config.js");
             config.AssertAction<ConfigController>("GetApplicationSettings", HttpMethod.Get, "config");
@@ -80,6 +80,7 @@ namespace AdminStore
             config.AssertAction<InstanceController>("SearchFolderByName", HttpMethod.Get, "instance/foldersearch?name=test");
             config.AssertAction<InstanceController>("DeleteInstanceFolder", HttpMethod.Delete, "instance/folders/1");
             config.AssertAction<InstanceController>("UpdateInstanceFolder", HttpMethod.Put, "instance/folders/1");
+            config.AssertAction<InstanceController>("UpdateProject", HttpMethod.Put, "instance/projects/1");
         }
 
         [TestMethod]

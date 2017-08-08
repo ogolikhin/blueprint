@@ -38,7 +38,7 @@ namespace AdminStore.Services
             _service = new WorkflowService(_workflowRepositoryMock.Object,
                 _workflowXmlValidatorMock.Object,
                 _userRepositoryMock.Object,
-                _workflowValidationErrorBuilder.Object, null, null);
+                _workflowValidationErrorBuilder.Object, null, null, null);
         }
 
         #region GetWorkflowDetailsAsync
@@ -52,7 +52,7 @@ namespace AdminStore.Services
             var userRepositoryMock = new Mock<IUserRepository>();
             var workflowValidationErrorBuilder = new Mock<IWorkflowValidationErrorBuilder>();
             var workflowService = new WorkflowService(workflowRepositoryMock.Object, workflowValidatorMock.Object,
-                userRepositoryMock.Object, workflowValidationErrorBuilder.Object, null, null);
+                userRepositoryMock.Object, workflowValidationErrorBuilder.Object, null, null, null);
             var workflowId = 10;
             var workflow = new SqlWorkflow { Name = "Workflow1", Description = "Workflow1Description" };
             var workflowArtifactTypesAndProjects = new List<SqlWorkflowArtifactTypesAndProjects>
@@ -100,7 +100,7 @@ namespace AdminStore.Services
             var userRepositoryMock = new Mock<IUserRepository>();
             var workflowValidationErrorBuilder = new Mock<IWorkflowValidationErrorBuilder>();
             var workflowService = new WorkflowService(workflowRepositoryMock.Object, workflowValidatorMock.Object,
-                userRepositoryMock.Object, workflowValidationErrorBuilder.Object, null, null);
+                userRepositoryMock.Object, workflowValidationErrorBuilder.Object, null, null, null);
             var workflowId = 10;
 
             workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync((SqlWorkflow)null);
@@ -201,7 +201,7 @@ namespace AdminStore.Services
                     FromState = "Active",
                     Permissions = "<P S=\"0\"/>",
                     Type = 1,
-                     Triggers = "<Triggers><Trigger><Name>Trigger 2</Name><EmailNotificationAction></EmailNotificationAction></Trigger></Triggers>"
+                    Triggers = "<Triggers><Trigger><Name>Trigger 2</Name><EmailNotificationAction></EmailNotificationAction></Trigger></Triggers>"
                 }
             };
 
@@ -219,7 +219,8 @@ namespace AdminStore.Services
             //assert
             Assert.IsNotNull(workflowExport);
             Assert.AreEqual(2, workflowExport.Projects.Count);
-            Assert.AreEqual(2, workflowExport.ArtifactTypes.Count);
+            // TODO: Alex T, IeWorkflow changed, now the list of artifacts types are moved to IeProject, please see this PR.
+            //Assert.AreEqual(2, workflowExport.ArtifactTypes.Count);
             Assert.AreEqual(1, workflowExport.States.Count);
         }
 

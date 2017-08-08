@@ -17,7 +17,7 @@ namespace ImageRenderService.ImageGen
             _browser = new ChromiumWebBrowser();
             _asyncBoundObject = new AsyncBoundObject();
 
-            _browser.RegisterAsyncJsObject("cefSharp", AsyncBoundObject);
+            _browser.RegisterJsObject("cefSharp", AsyncBoundObject);
         }
 
         public bool IsBrowserInitialized => _browser.IsBrowserInitialized;

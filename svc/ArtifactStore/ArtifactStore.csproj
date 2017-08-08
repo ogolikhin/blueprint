@@ -113,8 +113,6 @@
     <Compile Include="Helpers\MentionHelper.cs" />
     <Compile Include="Helpers\SensitivityCommonHelper.cs" />
     <Compile Include="Models\Review\ParticipantArtifactStats.cs" />
-    <Compile Include="Models\Reuse\ItemTypeReuseTemplate.cs" />
-    <Compile Include="Models\Reuse\PropertyTypeReuseTemplate.cs" />
     <Compile Include="Models\Reuse\ReconcileProperty.cs" />
     <Compile Include="Models\Reuse\ReuseSensitivityCollector.cs" />
     <Compile Include="Helpers\ReuseSystemPropertiesMap.cs" />

@@ -219,6 +219,8 @@
     <Compile Include="Models\ProjectPermissions.cs" />
     <Compile Include="Models\QueryResult.cs" />
     <Compile Include="Models\QuerySingleResult.cs" />
+    <Compile Include="Models\Reuse\ItemTypeReuseTemplate.cs" />
+    <Compile Include="Models\Reuse\PropertyTypeReuseTemplate.cs" />
     <Compile Include="Models\RolePermissions.cs" />
     <Compile Include="Models\Sorting.cs" />
     <Compile Include="Models\SQLTraceLogModel.cs" />
@@ -242,6 +244,7 @@
     <Compile Include="Models\VersionControl\SqlItemInfo.cs" />
     <Compile Include="Models\VersionControl\SqlJournalEntry.cs" />
     <Compile Include="Models\VersionControl\SqlPublishResult.cs" />
+    <Compile Include="Models\Workflow\ExecutionParameters.cs" />
     <Compile Include="Models\Workflow\Workflow.cs" />
     <Compile Include="Models\Workflow\WorkflowEventAction.cs" />
     <Compile Include="Models\Workflow\WorkflowEventCondition.cs" />

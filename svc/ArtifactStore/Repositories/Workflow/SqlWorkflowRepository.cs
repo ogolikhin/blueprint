@@ -72,6 +72,19 @@ namespace ArtifactStore.Repositories.Workflow
                 transaction);
         }
 
+        public async Task<Dictionary<int, CustomProperties>> GetCustomPropertiesForInstancePropertyIdsAsync(
+            int userId,
+            int artifactId,
+            int projectId, 
+            IEnumerable<int> instancePropertyIds)
+        {
+            //Need to access code for artifact permissions for revision
+            await CheckForArtifactPermissions(userId, artifactId, permissions: RolePermissions.Edit);
+
+            return await GetCustomPropertiesForInstancePropertyIds(
+                instancePropertyIds,
+                projectId);
+        }
         #endregion
 
         #region Private methods
@@ -263,23 +276,21 @@ namespace ArtifactStore.Repositories.Workflow
             }).ToList();
         }
 
-        private async Task<object> GetCustomPropertiesFromInstancePropertyIds(IEnumerable<int> instancePropertyTypeIds, int projectId, IDbTransaction transaction = null)
+        private async Task<Dictionary<int, CustomProperties>> GetCustomPropertiesForInstancePropertyIds(IEnumerable<int> instancePropertyTypeIds, int projectId, IDbTransaction transaction = null)
         {
-            //var param = new DynamicParameters();
-            //param.Add("@userId", userId);
-            //param.Add("@artifactId", artifactId);
-            //param.Add("@desiredStateId", desiredStateId);
-            //param.Add("@result");
+            var param = new DynamicParameters();
+            var instancePropertyTypeIdsTable = SqlConnectionWrapper.ToDataTable(instancePropertyTypeIds);
+            param.Add("@projectId", projectId);
+            param.Add("@instancePropertyIds", instancePropertyTypeIdsTable);
 
-            //if (transaction == null)
-            //{
-            //    return ToWorkflowStates(await ConnectionWrapper.QueryAsync<SqlWorkFlowState>("ChangeStateForArtifact", param, commandType: CommandType.StoredProcedure)).FirstOrDefault();
-            //}
-            //return ToWorkflowStates(await transaction.Connection.QueryAsync<SqlWorkFlowState>("ChangeStateForArtifact", param, transaction, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+            const string storedProcedure = "GetCustomPropertiesForInstancePropertyIds";
+            if (transaction == null)
+            {
+                return (await ConnectionWrapper.QueryAsync<CustomProperties>(storedProcedure, param, commandType: CommandType.StoredProcedure)).ToDictionary(c => c.InstancePropertyTypeId);
+            }
+            return (await transaction.Connection.QueryAsync<CustomProperties>(storedProcedure, param, transaction, commandType: CommandType.StoredProcedure)).ToDictionary(c => c.InstancePropertyTypeId);
 
-            return await Task.FromResult(true);
         }
-
         #endregion
     }
 }

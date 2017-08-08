@@ -14,6 +14,7 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Models.Reuse;
 using ServiceLibrary.Models.VersionControl;
 using ServiceLibrary.Models.Workflow;
 
@@ -28,7 +29,6 @@ namespace ArtifactStore.Executors
         private readonly IWorkflowRepository _workflowRepository;
         private readonly IVersionControlService _versionControlService;
         private readonly IReuseRepository _reuseRepository;
-        private ItemTypeReuseTemplate _reuseTemplateSettings;
 
         public StateChangeExecutor(
             WorkflowStateChangeParameterEx input,
@@ -83,13 +83,15 @@ namespace ArtifactStore.Executors
 
                 var result = await ChangeStateForArtifactAsync(_input, transaction);
 
-                LoadPropertyInformation(artifactInfo.ItemTypeId, preOpTriggers);
-                var errors = (await ProcessEventTriggers(preOpTriggers)).ToDictionary(entry => entry.Key, entry => entry.Value);
+
+                var executionParameters = await BuildTriggerExecutionParameters(artifactInfo, preOpTriggers, transaction);
+
+                var errors = (await ProcessEventTriggers(preOpTriggers, executionParameters)).ToDictionary(entry => entry.Key, entry => entry.Value);
 
                 await PublishArtifacts(publishRevision, transaction);
 
                 //These should be converted to messages and sent as a part of state change event to handler service
-                foreach (var entry in await ProcessEventTriggers(postOpTriggers))
+                foreach (var entry in await ProcessEventTriggers(postOpTriggers, executionParameters))
                 {
                     errors.Add(entry.Key, entry.Value);
                 }
@@ -103,6 +105,22 @@ namespace ArtifactStore.Executors
                 return result;
             };
             return action;
+        }
+
+        private async Task<ExecutionParameters> BuildTriggerExecutionParameters(VersionControlArtifactInfo artifactInfo,
+            WorkflowEventTriggers preOpTriggers, IDbTransaction transaction = null)
+        {
+            //TODO: detect if artifact has readonly reuse
+            var isArtifactReadOnlyReuse = await _reuseRepository.DoesItemContainReadonlyReuse(_input.ArtifactId, transaction);
+
+            ItemTypeReuseTemplate reuseTemplate = null;
+            if (isArtifactReadOnlyReuse)
+            {
+                reuseTemplate = await LoadReuseSettings(artifactInfo.ItemTypeId);
+            }
+            var customProperties = await LoadCustomPropertyInformation(artifactInfo.ProjectId, preOpTriggers);
+
+            return new ExecutionParameters(reuseTemplate, customProperties);
         }
 
         private async Task<int> CreateRevision(IDbTransaction transaction)
@@ -198,11 +216,11 @@ namespace ArtifactStore.Executors
             var postOpTriggers = new WorkflowEventTriggers();
             foreach (var workflowEventTrigger in desiredTransition.Triggers.Where(t => t?.Action != null))
             {
-                if (workflowEventTrigger.Action is ISynchronousAction)
+                if (workflowEventTrigger.Action is IWorkflowEventSynchronousAction)
                 {
                     preOpTriggers.Add(workflowEventTrigger);
                 }
-                else if (workflowEventTrigger.Action is IASynchronousAction)
+                else if (workflowEventTrigger.Action is IWorkflowEventASynchronousAction)
                 {
                     postOpTriggers.Add(workflowEventTrigger);
                 }
@@ -255,12 +273,12 @@ namespace ArtifactStore.Executors
             }, transaction);
         }
 
-        private async Task<IDictionary<string, string>> ProcessEventTriggers(WorkflowEventTriggers triggers)
+        private async Task<IDictionary<string, string>> ProcessEventTriggers(WorkflowEventTriggers triggers, ExecutionParameters executionParameters)
         {
             var result = new Dictionary<string, string>();
             foreach (var triggerExecutor in triggers)
             {
-                if (!await triggerExecutor.Action.Execute())
+                if (!await triggerExecutor.Action.Execute(executionParameters))
                 {
                     result.Add(triggerExecutor.Name, "State cannot be modified as the trigger cannot be executed");
                 }
@@ -268,34 +286,35 @@ namespace ArtifactStore.Executors
             return result;
         }
 
-        private async void LoadPropertyInformation(int itemTypeId, WorkflowEventTriggers triggers)
+        private async Task<ItemTypeReuseTemplate> LoadReuseSettings(int itemTypeId, IDbTransaction transaction = null)
+        {
+
+            var reuseSettingsDictionary = await _reuseRepository.GetReuseItemTypeTemplatesAsyc(new[] { itemTypeId }, transaction);
+            
+            ItemTypeReuseTemplate reuseTemplateSettings;
+
+            if (reuseSettingsDictionary.Count == 0 ||
+                !reuseSettingsDictionary.TryGetValue(itemTypeId, out reuseTemplateSettings))
+            {
+                return null;
+            }
+
+            return reuseTemplateSettings;
+        }
+        private async Task<Dictionary<int, CustomProperties>> LoadCustomPropertyInformation(int projectId, WorkflowEventTriggers triggers)
         {
             var propertyChangeActions = triggers.Select(t => t.Action).OfType<PropertyChangeAction>().ToList();
             if (propertyChangeActions.Count == 0)
             {
-                return;
+                return new Dictionary<int, CustomProperties>();
             }
-            var reuseSettingsDictionary = await _reuseRepository.GetReuseItemTypeTemplatesAsyc(new[] { itemTypeId });
-
-            if (reuseSettingsDictionary.Count == 0 || !reuseSettingsDictionary.TryGetValue(itemTypeId, out _reuseTemplateSettings))
-            {
-                return;
-            }
-
-            //TODO: need to check if triggers contain a Name/Description property change - asynchronous trigger actions can never contain name/description as these are based on standard properties
 
             var instancePropertyTypeIds =
                 propertyChangeActions.Where(a => a.InstancePropertyTypeId.HasValue).Select(b => b.InstancePropertyTypeId.Value);
 
-            //var propertyTypeReuseIds = propertyTypeIds.Intersect(template.PropertyTypeReuseTemplates.Keys);
-            //if (
-            //    propertyTypeReuseIds.Select(propertyId => template.PropertyTypeReuseTemplates[propertyId])
-            //        .Any(
-            //            propertyTypeReuseTemplate =>
-            //                propertyTypeReuseTemplate.Settings == PropertyTypeReuseTemplateSettings.ReadOnly))
-            //{
-            //    throw new ConflictException("Property type is readonly.", ErrorCodes.CannotSaveDueToReadOnly);
-            //}
+            return await
+                _workflowRepository.GetCustomPropertiesForInstancePropertyIdsAsync(_userId, _input.ArtifactId, projectId,
+                    instancePropertyTypeIds);
         }
     }
 }

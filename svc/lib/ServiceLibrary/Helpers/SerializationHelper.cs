@@ -68,8 +68,12 @@ namespace ServiceLibrary.Helpers
                     return obj as T;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                if (string.IsNullOrEmpty(ex.Message))
+                {
+                    return null;
+                }
                 return null;
             }
         }

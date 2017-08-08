@@ -16,5 +16,11 @@ namespace ArtifactStore.Repositories.Workflow
 
         Task<WorkflowState> ChangeStateForArtifactAsync(int userId, int artifactId,
             WorkflowStateChangeParameterEx stateChangeParameter, IDbTransaction transaction = null);
+
+        Task<Dictionary<int, CustomProperties>> GetCustomPropertiesForInstancePropertyIdsAsync(
+            int userId,
+            int artifactId,
+            int projectId,
+            IEnumerable<int> instancePropertyIds);
     }
 }

@@ -16,17 +16,16 @@ namespace ActionHandlerService.Helpers
             //Should be replaced with some pattern here
             foreach (var sqlArtifactTrigger in sqlArtifactTriggers)
             {
-                //foreach (var trigger in sqlArtifactTrigger.Triggers)
-                //{
-                    if (sqlArtifactTrigger.EventPropertyTypeId != null)
+                foreach (var trigger in sqlArtifactTrigger.Triggers)
+                {
                         yield return new NotificationAction
                         {
-                            PropertyTypeId = sqlArtifactTrigger.EventPropertyTypeId.Value,
+                            PropertyTypeId = sqlArtifactTrigger.EventPropertyTypeId.HasValue ? sqlArtifactTrigger.EventPropertyTypeId.Value : 0,
                             ConditionalStateId = sqlArtifactTrigger.RequiredPreviousStateId,
                             ToEmail = "munish.saini@blueprintsys.com",
                             MessageTemplate = "Artifact has been published."
                         };
-                //}
+                }
             }
         }
     }

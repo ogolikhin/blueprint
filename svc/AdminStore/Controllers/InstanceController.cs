@@ -281,8 +281,6 @@ namespace AdminStore.Controllers
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageProjects);
 
-            folderDto.Id = folderId;
-
             FolderValidator.ValidateModel(folderDto);
 
             await _instanceRepository.UpdateFolderAsync(folderId, folderDto);

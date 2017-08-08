@@ -256,7 +256,7 @@ namespace AdminStore.Controllers
             }
             catch (Exception)
             {
-                return BadRequest("provided login is invalid");
+                throw new BadRequestException("provided login is invalid");
             }
             try
             {
@@ -264,7 +264,7 @@ namespace AdminStore.Controllers
             }
             catch (Exception)
             {
-                return BadRequest("provided old password is invalid");
+                throw new BadRequestException("provided old password is invalid");
             }
             try
             {
@@ -272,7 +272,7 @@ namespace AdminStore.Controllers
             }
             catch (Exception)
             {
-                return BadRequest("provided new password is invalid");
+                throw new BadRequestException("provided new password is invalid");
             }
 
             var user = await _authenticationRepository.AuthenticateUserForResetAsync(decodedLogin, decodedOldPassword);

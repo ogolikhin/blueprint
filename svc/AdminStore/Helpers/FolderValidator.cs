@@ -27,6 +27,11 @@ namespace AdminStore.Helpers
             {
                 throw new BadRequestException(ErrorMessages.FolderNameLimitation, ErrorCodes.BadRequest);
             }
+
+            if (folder.ParentFolderId.HasValue && folder.Id == folder.ParentFolderId.Value)
+            {
+                throw new BadRequestException(ErrorMessages.FolderReferenceToItself, ErrorCodes.BadRequest);
+            }
         }
     }
 }

@@ -6,6 +6,7 @@ using ActionHandlerService.Repositories;
 using BluePrintSys.Messaging.CrossCutting.Logging;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers.Security;
+using ServiceLibrary.Models;
 using ServiceLibrary.Models.Email;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Notification.Templates;
@@ -16,48 +17,57 @@ namespace ActionHandlerService.MessageHandlers.Notifications
     {
         public async Task<bool> HandleAction(TenantInformation tenantInformation, ActionMessage actionMessage, IActionHandlerServiceRepository repository)
         {
-            var result = await SendNotificationEmail((NotificationMessage) actionMessage);
+            var result = await SendNotificationEmail(tenantInformation, (NotificationMessage) actionMessage);
             return await Task.FromResult(result == SendEmailResult.Success);
         }
 
-        private Task<SendEmailResult> SendNotificationEmail(NotificationMessage details)
+        private async Task<SendEmailResult> SendNotificationEmail(TenantInformation tenantInformation, NotificationMessage details)
         {
             var result = SendEmailResult.Success;
             try
             {
-                var message = BuildMessage(details);
+                //It should be responsibility of notification handler to recieve information about email settings
+                //Maybe this information can be cached for tenant ids???
+                var emailSettings = await (new EmailSettingsRetriever(tenantInformation.ConnectionString)).GetEmailSettings();
+                if (emailSettings == null)
+                {
+                    Log.Error($"No email settings provided for tenant {tenantInformation.Id} ");
+                    return await Task.FromResult(SendEmailResult.Error);
+                }
+
+                var message = BuildMessage(emailSettings, details);
                 message.To = details.To.ToArray();
 
                 var smtpClientConfiguration = new SMTPClientConfiguration
                 {
-                    Authenticated = details.EmailSettings.Authenticated,
-                    EnableSsl = details.EmailSettings.EnableSSL,
-                    HostName = details.EmailSettings.HostName,
+                    Authenticated = emailSettings.Authenticated,
+                    EnableSsl = emailSettings.EnableSSL,
+                    HostName = emailSettings.HostName,
 
                     // Bug 61312: Password must be decrypted before saving in configuration
-                    Password = SystemEncryptions.Decrypt(details.EmailSettings.Password),
+                    Password = SystemEncryptions.Decrypt(emailSettings.Password),
 
-                    Port = details.EmailSettings.Port,
-                    UserName = details.EmailSettings.UserName
+                    Port = emailSettings.Port,
+                    UserName = emailSettings.UserName
                 };
 
                 InternalSendEmail(smtpClientConfiguration, message);
             }
             catch (Exception e)
             {
-                Log.ErrorFormat("RapidReviewNotification failed. Exception details {0}", e);
-                result = SendEmailResult.Error;
+                Log.ErrorFormat("Notification failed. Exception details {0}", e);
+                throw;
             }
-            return Task.FromResult(result);
+            return await Task.FromResult(result);
         }
 
-        private Message BuildMessage(NotificationMessage details)
+        private Message BuildMessage(EmailSettings emailSettings, NotificationMessage details)
         {
             var message = new Message
             {
                 Subject = details.Subject,
                 IsBodyHtml = true,
-                From = details.EmailSettings.SenderEmailAddress,
+                From = emailSettings.SenderEmailAddress,
                 Body = GetEmailBody(
                     new NotificationEmail(
                         details.ProjectId,

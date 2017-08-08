@@ -15,7 +15,7 @@ namespace ServiceLibrary.Repositories.InstanceSettings
         {
         }
 
-        protected SqlInstanceSettingsRepository(ISqlConnectionWrapper connectionWrapper)
+        public SqlInstanceSettingsRepository(ISqlConnectionWrapper connectionWrapper)
         {
             _connectionWrapper = connectionWrapper;
         }

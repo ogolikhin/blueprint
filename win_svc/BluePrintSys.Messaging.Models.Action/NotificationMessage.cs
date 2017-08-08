@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using NServiceBus;
-using ServiceLibrary.Models;
 
 namespace BluePrintSys.Messaging.Models.Actions
 {
@@ -8,8 +7,6 @@ namespace BluePrintSys.Messaging.Models.Actions
     public class NotificationMessage : ActionMessage
     {
         public override MessageActionType ActionType { get; } = MessageActionType.Notification;
-
-        public EmailSettings EmailSettings { get; set; }
 
         public IEnumerable<string> To { get; set; }
 

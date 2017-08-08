@@ -82,14 +82,17 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
                 {
                     continue;
                 }
+                   
 
                 var artifactModifiedPropertiesSet = artifactModifiedProperties.Select(a => a.TypeId).ToHashSet();
+
+                var dict = await repository.GetInstancePropertyTypeIdsMap(artifactModifiedPropertiesSet);
 
                 var currentStateInfo = workflowStates[artifactId];
 
                 foreach (var notificationActionToProcess in notifications)
                 {
-                    if (!artifactModifiedPropertiesSet.Contains(notificationActionToProcess.PropertyTypeId))
+                    if (!dict.ContainsKey(notificationActionToProcess.PropertyTypeId) || dict[notificationActionToProcess.PropertyTypeId].IsEmpty())
                     {
                         continue;
                     }

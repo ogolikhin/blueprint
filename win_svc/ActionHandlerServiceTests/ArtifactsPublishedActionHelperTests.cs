@@ -131,6 +131,8 @@ namespace ActionHandlerServiceTests
             var repositoryMock = new Mock<IActionHandlerServiceRepository>();
             repositoryMock.Setup(m => m.GetWorkflowPropertyTransitionsForArtifactsAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<IEnumerable<int>>())).Returns(_triggers);
             repositoryMock.Setup(m => m.GetWorkflowStatesForArtifactsAsync(It.IsAny<int>(), It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>())).Returns(_states);
+            repositoryMock.Setup(m => m.GetInstancePropertyTypeIdsMap(It.IsAny<IEnumerable<int>>()))
+               .ReturnsAsync(new Dictionary<int, List<int>>());
 
             var actionsParserMock = new Mock<IActionsParser>();
             actionsParserMock.Setup(m => m.GetNotificationActions(It.IsAny<IEnumerable<SqlArtifactTriggers>>())).Returns(_notificationActions);
@@ -151,7 +153,8 @@ namespace ActionHandlerServiceTests
             var repositoryMock = new Mock<IActionHandlerServiceRepository>();
             repositoryMock.Setup(m => m.GetWorkflowPropertyTransitionsForArtifactsAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<IEnumerable<int>>())).Returns(_triggers);
             repositoryMock.Setup(m => m.GetWorkflowStatesForArtifactsAsync(It.IsAny<int>(), It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>())).Returns(_states);
-
+            repositoryMock.Setup(m => m.GetInstancePropertyTypeIdsMap(It.IsAny<IEnumerable<int>>()))
+                .ReturnsAsync(new Dictionary<int, List<int>>());
             var actionsParserMock = new Mock<IActionsParser>();
             actionsParserMock.Setup(m => m.GetNotificationActions(It.IsAny<IEnumerable<SqlArtifactTriggers>>())).Returns(notificationActions);
             var actionHelper = new ArtifactsPublishedActionHelper(actionsParserMock.Object, new Mock<INServiceBusServer>().Object);
@@ -171,6 +174,8 @@ namespace ActionHandlerServiceTests
             var repositoryMock = new Mock<IActionHandlerServiceRepository>();
             repositoryMock.Setup(m => m.GetWorkflowPropertyTransitionsForArtifactsAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<IEnumerable<int>>())).Returns(_triggers);
             repositoryMock.Setup(m => m.GetWorkflowStatesForArtifactsAsync(It.IsAny<int>(), It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>())).Returns(states);
+            repositoryMock.Setup(m => m.GetInstancePropertyTypeIdsMap(It.IsAny<IEnumerable<int>>()))
+               .ReturnsAsync(new Dictionary<int, List<int>>());
 
             var actionsParserMock = new Mock<IActionsParser>();
             actionsParserMock.Setup(m => m.GetNotificationActions(It.IsAny<IEnumerable<SqlArtifactTriggers>>())).Returns(notificationActions);

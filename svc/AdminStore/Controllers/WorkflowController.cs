@@ -35,18 +35,22 @@ namespace AdminStore.Controllers
         private readonly IWorkflowService _workflowService;
         private readonly IWorkflowRepository _workflowRepository;
         private readonly PrivilegesManager _privilegesManager;
+        private readonly IFeatureLicenseHelper _featureLicenseHelper;
 
         private const string InvalidXmlErrorMessageTemplate = "There was an error uploading {0}. The supplied XML is not valid.  Please edit your file and upload again. \r\n {1}";
 
-        public WorkflowController() : this(new WorkflowRepository(), new WorkflowService(), new ServiceLogRepository(), new SqlPrivilegesRepository())
+        public WorkflowController() : this(new WorkflowRepository(), new WorkflowService(), new ServiceLogRepository(),
+            new SqlPrivilegesRepository(), FeatureLicenseHelper.Instance)
         {
         }
 
-        public WorkflowController(IWorkflowRepository workflowRepository, IWorkflowService workflowService, IServiceLogRepository log, IPrivilegesRepository privilegesRepository) : base(log)
+        public WorkflowController(IWorkflowRepository workflowRepository, IWorkflowService workflowService, IServiceLogRepository log,
+            IPrivilegesRepository privilegesRepository, IFeatureLicenseHelper featureLicenseHelper) : base(log)
         {
             _workflowService = workflowService;
             _workflowRepository = workflowRepository;
             _privilegesManager = new PrivilegesManager(privilegesRepository);
+            _featureLicenseHelper = featureLicenseHelper;
         }
 
         /// <summary>
@@ -83,6 +87,7 @@ namespace AdminStore.Controllers
             Debug.Assert(session != null, "The session is null.");
 
             await _privilegesManager.Demand(session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+            VerifyWorkflowFeature();
 
             // The file name is specified in Content-Disposition header,
             // for example, Content-Disposition: workflow;filename=workflow.xml
@@ -151,6 +156,7 @@ namespace AdminStore.Controllers
             Debug.Assert(session != null, "The session is null.");
 
             await _privilegesManager.Demand(session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+            VerifyWorkflowFeature();
 
             _workflowService.FileRepository = GetFileRepository();
             var errors = await _workflowService.GetImportWorkflowErrorsAsync(guid, session.UserId);
@@ -176,6 +182,7 @@ namespace AdminStore.Controllers
         public async Task<IHttpActionResult> GetWorkflow(int workflowId)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+            VerifyWorkflowFeature();
 
             var workflowDetails = await _workflowService.GetWorkflowDetailsAsync(workflowId);
 
@@ -199,6 +206,7 @@ namespace AdminStore.Controllers
         public async Task<IHttpActionResult> GetWorkflows([FromUri] Pagination pagination, [FromUri] Sorting sorting = null, string search = null)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+            VerifyWorkflowFeature();
             pagination.Validate();
 
             var result = await _workflowRepository.GetWorkflows(pagination, sorting, search, SortingHelper.SortWorkflows);
@@ -232,6 +240,7 @@ namespace AdminStore.Controllers
             }
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+            VerifyWorkflowFeature();
             var result = await _workflowService.DeleteWorkflows(scope, search, Session.UserId);
 
             return Ok(new DeleteResult { TotalDeleted = result });
@@ -264,6 +273,7 @@ namespace AdminStore.Controllers
             }
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+            VerifyWorkflowFeature();
             await _workflowService.UpdateWorkflowStatusAsync(statusUpdate, workflowId, Session.UserId);
 
             return Ok();
@@ -289,6 +299,7 @@ namespace AdminStore.Controllers
         public async Task<IHttpActionResult> ExportWorkflow(int workflowId)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+            VerifyWorkflowFeature();
             var ieWorkflow = await _workflowService.GetWorkflowExportAsync(workflowId);
             var workflowXml = SerializationHelper.ToXml(ieWorkflow);
             var response = Request.CreateResponse(HttpStatusCode.OK);
@@ -306,6 +317,20 @@ namespace AdminStore.Controllers
         }
 
         #region Private methods
+
+        private void VerifyWorkflowFeature()
+        {
+            if (!IsWorkflowFeatureEnabled())
+            {
+                throw new AuthorizationException("The Workflow feature is disabled.", ErrorCodes.WorkflowDisabled);
+            }
+        }
+
+
+        private bool IsWorkflowFeatureEnabled()
+        {
+            return _featureLicenseHelper.GetValidBlueprintLicenseFeatures().HasFlag(FeatureTypes.Workflow);
+        }
 
         private IFileRepository GetFileRepository()
         {

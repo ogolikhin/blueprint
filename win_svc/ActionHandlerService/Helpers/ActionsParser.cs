@@ -14,19 +14,38 @@ namespace ActionHandlerService.Helpers
         public IEnumerable<NotificationAction> GetNotificationActions(IEnumerable<SqlArtifactTriggers> sqlArtifactTriggers)
         {
             //Should be replaced with some pattern here
-            foreach (var sqlArtifactTrigger in sqlArtifactTriggers)
+            foreach (var workflowEvent in sqlArtifactTriggers)
             {
-                foreach (var trigger in sqlArtifactTrigger.Triggers)
+                var triggers = GetTriggers(workflowEvent.Triggers);
+                foreach (var trigger in triggers)
                 {
-                        yield return new NotificationAction
-                        {
-                            PropertyTypeId = sqlArtifactTrigger.EventPropertyTypeId.HasValue ? sqlArtifactTrigger.EventPropertyTypeId.Value : 0,
-                            ConditionalStateId = sqlArtifactTrigger.RequiredPreviousStateId,
-                            ToEmail = "munish.saini@blueprintsys.com",
-                            MessageTemplate = "Artifact has been published."
-                        };
+                    yield return new NotificationAction
+                    {
+                        PropertyTypeId = workflowEvent.EventPropertyTypeId ?? 0,
+                        ConditionalStateId = workflowEvent.RequiredPreviousStateId,
+                        ToEmail = trigger.ToEmail,
+                        MessageTemplate = trigger.MessageTemplate
+                    };
                 }
             }
         }
+
+        private List<Trigger> GetTriggers(string triggersXml)
+        {
+            var triggers = new List<Trigger>();
+            if (!string.IsNullOrWhiteSpace(triggersXml))
+            {
+                //TODO parse the XML
+                var testTrigger = new Trigger {ToEmail = "munish.saini@blueprintsys.com", MessageTemplate = "Artifact has been published."};
+                triggers.Add(testTrigger);
+            }
+            return triggers;
+        }
+    }
+
+    public class Trigger
+    {
+        public string ToEmail { get; set; }
+        public string MessageTemplate { get; set; }
     }
 }

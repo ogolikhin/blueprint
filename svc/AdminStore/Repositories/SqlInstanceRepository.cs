@@ -239,6 +239,9 @@ namespace AdminStore.Repositories
 
                     case (int)SqlErrorCodes.ParentFolderNotExists:
                         throw new ResourceNotFoundException(ErrorMessages.ParentFolderNotExists, ErrorCodes.ResourceNotFound);
+
+                    case (int)SqlErrorCodes.ParentFolderIdReferenceToChildItem:
+                        throw new ConflictException(ErrorMessages.FolderWithSuchNameExistsInParentFolder, ErrorCodes.Conflict);
                 }
             }
         }

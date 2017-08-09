@@ -70,7 +70,11 @@ namespace AdminStore.Repositories.Workflow
             _workflow.Projects.Add(new IeProject
             {
                 Id = 20,
-                Path = @"Blueprint/folder/project2"
+                Path = @"Blueprint/folder/project2",
+                ArtifactTypes = new List<IeArtifactType>
+                {
+                    new IeArtifactType { Name = "Business Rules" }
+                }
             });
 
             // State Change Events (Transitions)
@@ -1291,6 +1295,22 @@ namespace AdminStore.Repositories.Workflow
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
             Assert.AreEqual(WorkflowXmlValidationErrorCodes.ProjectDuplicatePath, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
+        public void Validate_ProjectDoesNotHaveAnyArtfactTypes_ReturnsProjectDoesNotHaveAnyArtfactTypesError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.Projects[0].ArtifactTypes.Clear();
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.ProjectDoesNotHaveAnyArtfactTypes, result.Errors[0].ErrorCode);
         }
 
         [TestMethod]

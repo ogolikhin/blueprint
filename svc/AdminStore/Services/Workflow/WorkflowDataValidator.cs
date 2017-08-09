@@ -6,6 +6,7 @@ using AdminStore.Models.Workflow;
 using AdminStore.Repositories;
 using AdminStore.Repositories.Workflow;
 using ArtifactStore.Helpers;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.Workflow;
@@ -40,6 +41,8 @@ namespace AdminStore.Services.Workflow
             await ValidateWorkflowNameForUniqueness(result, workflow);
 
             result.StandardTypes = await _projectMetaRepository.GetStandardProjectTypesAsync();
+            result.StandardTypes.ArtifactTypes?.RemoveAll(at => at.PredefinedType != null
+                && !at.PredefinedType.Value.IsRegularArtifactType());
             result.StandardArtifactTypeMap.AddRange(result.StandardTypes.ArtifactTypes.ToDictionary(pt => pt.Name));
             result.StandardPropertyTypeMap.AddRange(result.StandardTypes.PropertyTypes.ToDictionary(pt => pt.Name));
             ISet<string> groupsToLookup;

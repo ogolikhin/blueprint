@@ -69,8 +69,6 @@ namespace AdminStore.Services.Workflow
 
         public async Task<string> GetImportWorkflowErrorsAsync(string guid, int userId)
         {
-            VerifyWorkflowFeature();
-
             File errorsFile = null;
             try
             {
@@ -103,8 +101,6 @@ namespace AdminStore.Services.Workflow
             {
                 throw new NullReferenceException(nameof(workflow));
             }
-
-            VerifyWorkflowFeature();
 
             var importResult = new ImportWorkflowResult();
 

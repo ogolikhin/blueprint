@@ -464,6 +464,9 @@ namespace AdminStore.Services.Workflow
             var hasProjectNoSpecifieError = false;
             var hasDuplicateProjectIdError = false;
             var hasDuplicateProjectPathError = false;
+            var hasProjectDoesNotHaveAnyArtfactTypesError = false;
+            var hasArtifactTypeNoSpecifiedError = false;
+            var hasDuplicateArtifactTypesInProjectError = false;
             var projectIds = new HashSet<int>();
             var projectPaths = new HashSet<string>();
             foreach (var project in workflow.Projects.FindAll(p => p != null))
@@ -525,19 +528,24 @@ namespace AdminStore.Services.Workflow
                         projectPaths.Add(project.Path);
                     }
                 }
-            }
 
-            var hasArtifactTypeNoSpecifiedError = false;
-            var hasDuplicateArtifactTypesInProjectError = false;
-            foreach (var project in workflow.Projects)
-            {
-                if (project?.ArtifactTypes == null)
+                if (project.ArtifactTypes.IsEmpty())
                 {
+                    if (!hasProjectDoesNotHaveAnyArtfactTypesError)
+                    {
+                        result.Errors.Add(new WorkflowXmlValidationError
+                        {
+                            Element = project,
+                            ErrorCode = WorkflowXmlValidationErrorCodes.ProjectDoesNotHaveAnyArtfactTypes
+                        });
+                        hasProjectDoesNotHaveAnyArtfactTypesError = true;
+                    }
+
                     continue;
                 }
 
                 var projectArtifactTypes = new HashSet<string>();
-                foreach (var artifactType in project?.ArtifactTypes?.FindAll(at => at != null))
+                foreach (var artifactType in project.ArtifactTypes.FindAll(at => at != null))
                 {
                     if (!ValidatePropertyNotEmpty(artifactType.Name))
                     {

@@ -520,22 +520,6 @@ namespace AdminStore.Services.Workflow
             return map;
         }
 
-        private void VerifyWorkflowFeature()
-        {
-            if (!IsWorkflowFeatureEnabled())
-            {
-                throw new AuthorizationException("The Workflow feature is disabled.", ErrorCodes.WorkflowDisabled);
-            }
-        }
-
-
-        private static bool IsWorkflowFeatureEnabled()
-        {
-            // TODO: after NW made information about Workflow feature available for the services.
-            //return FeatureLicenseHelper.Instance.GetValidBlueprintLicenseFeatures().HasFlag(FeatureTypes.Workflow);
-            return true;
-        }
-
         private async Task<string> UploadErrorsToFileStore(string errors)
         {
             using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(errors ?? string.Empty)))

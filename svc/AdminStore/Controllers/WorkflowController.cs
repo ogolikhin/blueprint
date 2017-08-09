@@ -35,18 +35,22 @@ namespace AdminStore.Controllers
         private readonly IWorkflowService _workflowService;
         private readonly IWorkflowRepository _workflowRepository;
         private readonly PrivilegesManager _privilegesManager;
+        private readonly IFeatureLicenseHelper _featureLicenseHelper;
 
         private const string InvalidXmlErrorMessageTemplate = "There was an error uploading {0}. The supplied XML is not valid.  Please edit your file and upload again. \r\n {1}";
 
-        public WorkflowController() : this(new WorkflowRepository(), new WorkflowService(), new ServiceLogRepository(), new SqlPrivilegesRepository())
+        public WorkflowController() : this(new WorkflowRepository(), new WorkflowService(), new ServiceLogRepository(),
+            new SqlPrivilegesRepository(), FeatureLicenseHelper.Instance)
         {
         }
 
-        public WorkflowController(IWorkflowRepository workflowRepository, IWorkflowService workflowService, IServiceLogRepository log, IPrivilegesRepository privilegesRepository) : base(log)
+        public WorkflowController(IWorkflowRepository workflowRepository, IWorkflowService workflowService, IServiceLogRepository log,
+            IPrivilegesRepository privilegesRepository, IFeatureLicenseHelper featureLicenseHelper) : base(log)
         {
             _workflowService = workflowService;
             _workflowRepository = workflowRepository;
             _privilegesManager = new PrivilegesManager(privilegesRepository);
+            _featureLicenseHelper = featureLicenseHelper;
         }
 
         /// <summary>
@@ -314,7 +318,7 @@ namespace AdminStore.Controllers
 
         #region Private methods
 
-        private static void VerifyWorkflowFeature()
+        private void VerifyWorkflowFeature()
         {
             if (!IsWorkflowFeatureEnabled())
             {
@@ -323,9 +327,9 @@ namespace AdminStore.Controllers
         }
 
 
-        private static bool IsWorkflowFeatureEnabled()
+        private bool IsWorkflowFeatureEnabled()
         {
-            return FeatureLicenseHelper.Instance.GetValidBlueprintLicenseFeatures().HasFlag(FeatureTypes.Workflow);
+            return _featureLicenseHelper.GetValidBlueprintLicenseFeatures().HasFlag(FeatureTypes.Workflow);
         }
 
         private IFileRepository GetFileRepository()

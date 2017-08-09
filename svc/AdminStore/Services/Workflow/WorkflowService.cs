@@ -68,8 +68,6 @@ namespace AdminStore.Services.Workflow
 
         public async Task<string> GetImportWorkflowErrorsAsync(string guid, int userId)
         {
-            VerifyWorkflowFeature();
-
             File errorsFile = null;
             try
             {
@@ -102,8 +100,6 @@ namespace AdminStore.Services.Workflow
             {
                 throw new NullReferenceException(nameof(workflow));
             }
-
-            VerifyWorkflowFeature();
 
             var importResult = new ImportWorkflowResult();
 
@@ -458,23 +454,7 @@ namespace AdminStore.Services.Workflow
                 return null;
             }
 
-            return (List<IeTrigger>)ieTriggers;
-        }
-
-        private void VerifyWorkflowFeature()
-        {
-            if (!IsWorkflowFeatureEnabled())
-            {
-                throw new AuthorizationException("The Workflow feature is disabled.", ErrorCodes.WorkflowDisabled);
-            }
-        }
-
-
-        private static bool IsWorkflowFeatureEnabled()
-        {
-            // TODO: after NW made information about Workflow feature available for the services.
-            //return FeatureLicenseHelper.Instance.GetValidBlueprintLicenseFeatures().HasFlag(FeatureTypes.Workflow);
-            return true;
+            return ieTriggers;
         }
 
         private async Task<string> UploadErrorsToFileStore(string errors)

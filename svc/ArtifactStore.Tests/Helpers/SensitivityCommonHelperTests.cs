@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using ArtifactStore.Models.Reuse;
@@ -49,7 +50,7 @@ namespace ArtifactStore.Helpers
                         }
                     }
                 });
-            _reuseRepository.Setup(t => t.GetReuseItemTypeTemplatesAsyc(It.IsAny<IEnumerable<int>>()))
+            _reuseRepository.Setup(t => t.GetReuseItemTypeTemplatesAsyc(It.IsAny<IEnumerable<int>>(), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync(new Dictionary<int, ItemTypeReuseTemplate>()
                 {
                     {
@@ -91,7 +92,7 @@ namespace ArtifactStore.Helpers
                         }
                     }
                 });
-            _reuseRepository.Setup(t => t.GetReuseItemTypeTemplatesAsyc(It.IsAny<IEnumerable<int>>()))
+            _reuseRepository.Setup(t => t.GetReuseItemTypeTemplatesAsyc(It.IsAny<IEnumerable<int>>(), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync(new Dictionary<int, ItemTypeReuseTemplate>()
                 {
                     {
@@ -132,7 +133,7 @@ namespace ArtifactStore.Helpers
                         }
                     }
                 });
-            _reuseRepository.Setup(t => t.GetReuseItemTypeTemplatesAsyc(It.IsAny<IEnumerable<int>>()))
+            _reuseRepository.Setup(t => t.GetReuseItemTypeTemplatesAsyc(It.IsAny<IEnumerable<int>>(), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync(new Dictionary<int, ItemTypeReuseTemplate>()
                 {
                     {

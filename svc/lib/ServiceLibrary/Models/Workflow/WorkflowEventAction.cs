@@ -83,14 +83,14 @@ namespace ServiceLibrary.Models.Workflow
             }
 
             if (reuseTemplate.ReadOnlySettings.HasFlag(ItemTypeReuseTemplateSetting.Name) &&
-                InstancePropertyTypeId == -1)
+                InstancePropertyTypeId == WorkflowConstants.PropertyTypeFakeIdName)
             {
                 throw new Exception("Cannot modify name ");
             }
             if (reuseTemplate.ReadOnlySettings.HasFlag(ItemTypeReuseTemplateSetting.Description) &&
-                InstancePropertyTypeId == -2)
+                InstancePropertyTypeId == WorkflowConstants.PropertyTypeFakeIdDescription)
             {
-                throw new Exception("Cannot modify name ");
+                throw new Exception("Cannot modify description ");
             }
 
             var customProperty = reuseTemplate.PropertyTypeReuseTemplates[InstancePropertyTypeId.Value];

@@ -237,12 +237,14 @@ namespace ArtifactStore.Repositories.Workflow
         
         private WorkflowEventAction ToGenerateAction(XmlGenerateAction generateAction)
         {
+            if (!generateAction.ArtifactTypeId.HasValue)
+                return null;
             switch (generateAction.GenerateActionType)
             {
                 case GenerateActionTypes.Children:
                     return new GenerateChildrenAction
                     {
-                        ArtifactTypeId = generateAction.ArtifactTypeId,
+                        ArtifactTypeId = generateAction.ArtifactTypeId.Value,
                         ChildCount = generateAction.ChildCount
                     };
                 case GenerateActionTypes.UserStories:

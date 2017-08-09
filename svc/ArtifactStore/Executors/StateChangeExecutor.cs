@@ -111,10 +111,10 @@ namespace ArtifactStore.Executors
             WorkflowEventTriggers preOpTriggers, IDbTransaction transaction = null)
         {
             //TODO: detect if artifact has readonly reuse
-            var isArtifactReadOnlyReuse = await _reuseRepository.DoesItemContainReadonlyReuse(_input.ArtifactId, transaction);
+            var isArtifactReadOnlyReuse = await _reuseRepository.DoItemsContainReadonlyReuse(new [] {_input.ArtifactId}, transaction);
 
             ItemTypeReuseTemplate reuseTemplate = null;
-            if (isArtifactReadOnlyReuse)
+            if (isArtifactReadOnlyReuse.ContainsKey(_input.ArtifactId) && isArtifactReadOnlyReuse[_input.ArtifactId])
             {
                 reuseTemplate = await LoadReuseSettings(artifactInfo.ItemTypeId);
             }

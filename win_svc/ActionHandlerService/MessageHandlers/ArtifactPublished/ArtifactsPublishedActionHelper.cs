@@ -39,9 +39,9 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
             var artifactPropertyEvents = await GetPropertyEventsInformationForArtifactIds(repository, message, publishedArtifactIds);
 
             //if no property transitions found, then call does not need to proceed 
+            LogInfo($"Property events found: {artifactPropertyEvents?.Count ?? 0}", message, tenantInformation);
             if (artifactPropertyEvents == null || artifactPropertyEvents.Count == 0)
             {
-                LogInfo("No property events found.", message, tenantInformation);
                 return await Task.FromResult(true);
             }
 
@@ -51,33 +51,36 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
             //Get modified properties for all artifacts and create a dictionary with key as artifact ids
             //TODO: Modify this to take in a list of artifact ids to get property modifications for impacted artifacts
             var modifiedProperties = publishedArtifacts.ToDictionary(k => k.Id, v => v.ModifiedProperties ?? new List<PublishedPropertyInformation>());
+            LogInfo($"Modified properties found: {modifiedProperties.Count}", message, tenantInformation);
             if (modifiedProperties.Count == 0)
             {
-                LogInfo("No modified properties found.", message, tenantInformation);
                 return await Task.FromResult(true);
             }
 
             var workflowStates = (await repository.GetWorkflowStatesForArtifactsAsync(message.UserId, activePropertyTransitions.Keys, message.RevisionId)).Where(w => w.WorkflowStateId > 0).ToDictionary(k => k.ArtifactId);
 
+            LogInfo($"Workflow states found: {workflowStates.Count}", message, tenantInformation);
             if (workflowStates.Count == 0)
             {
-                LogInfo("No workflow states found.", message, tenantInformation);
                 return await Task.FromResult(true);
             }
 
             //for artifacts in active property transitions
             foreach (var artifactId in activePropertyTransitions.Keys)
             {
+                LogInfo($"Processing artifact with ID: {artifactId}", message, tenantInformation);
                 var artifactTransitionInfo = activePropertyTransitions[artifactId];
 
                 //TODO: get the Actions from the triggers that were retrieved from the database
                 var notifications = _actionsParser.GetNotificationActions(artifactTransitionInfo).ToList();
+                LogInfo($"Notification actions found: {notifications.Count}", message, tenantInformation);
                 if (notifications.Count == 0)
                 {
                     continue;
                 }
 
                 var artifactModifiedProperties = modifiedProperties[artifactId];
+                LogInfo($"Artifact modified properties found: {artifactModifiedProperties?.Count ?? 0}", message, tenantInformation);
                 if (artifactModifiedProperties == null || !artifactModifiedProperties.Any())
                 {
                     continue;
@@ -91,12 +94,13 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
                 {
                     if (!artifactModifiedPropertiesSet.Contains(notificationActionToProcess.PropertyTypeId))
                     {
+                        LogInfo($"Artifact modified properties set ({string.Join(", ", artifactModifiedPropertiesSet)}) does not contain the notification action property type ID {notificationActionToProcess.PropertyTypeId}.", message, tenantInformation);
                         continue;
                     }
                     //if conditional state id should be present and either the current state info is not present or the current state is not same as conditional state
                     if (notificationActionToProcess.ConditionalStateId.HasValue && (currentStateInfo == null || currentStateInfo.WorkflowStateId != notificationActionToProcess.ConditionalStateId.Value))
                     {
-                        LogInfo("Workflow state ID does not match conditional state ID.", message, tenantInformation);
+                        LogInfo($"Workflow state ID does not match conditional state ID {notificationActionToProcess.ConditionalStateId.Value}.", message, tenantInformation);
                         return await Task.FromResult(true);
                     }
                     _nServiceBusServer.Send(tenantInformation.Id, new NotificationMessage

@@ -157,10 +157,11 @@ namespace ArtifactStore.Repositories
 
             foreach (var reviewArtifact in reviewArtifacts.Items)
             {
-                if (reviewArtifacts.IsFormal ||
+                if ((reviewArtifacts.IsFormal && reviewArtifact.HasMovedProject) ||
                     SqlArtifactPermissionsRepository.HasPermissions(reviewArtifact.Id, artifactPermissionsDictionary, RolePermissions.Read))
                 {
                     ReviewArtifactStatus reviewArtifactStatus;
+
                     if (artifactStatusDictionary.TryGetValue(reviewArtifact.Id, out reviewArtifactStatus))
                     {
                         reviewArtifact.Pending = reviewArtifactStatus.Pending;
@@ -174,6 +175,7 @@ namespace ArtifactStore.Repositories
                         reviewArtifact.Pending = numApprovers;
                         reviewArtifact.Unviewed = numUsers;
                     }
+
                     reviewArtifact.HasAccess = true;
                 }
                 else
@@ -347,10 +349,10 @@ namespace ArtifactStore.Repositories
 
             var reviewedArtifacts = (await GetReviewArtifactsByParticipant(reviewArtifactIds, participantId, reviewId, revisionId)).ToDictionary(k => k.Id);
 
-            var ignorePermissionCheck = showArtifactsIfFormal && reviewArtifacts.IsFormal;
-
             foreach (var artifact in reviewArtifacts.Items)
             {
+                var ignorePermissionCheck = showArtifactsIfFormal && reviewArtifacts.IsFormal && artifact.HasMovedProject;
+
                 if (ignorePermissionCheck 
                     || SqlArtifactPermissionsRepository.HasPermissions(artifact.Id, artifactPermissionsDictionary, RolePermissions.Read))
                 {

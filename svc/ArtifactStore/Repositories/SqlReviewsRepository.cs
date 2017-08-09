@@ -759,7 +759,11 @@ namespace ArtifactStore.Repositories
             {
                 ThrowReviewClosedException();
             }
-
+            if (propertyResult.BaselineId != null && propertyResult.BaselineId.Value > 0)
+            {
+                throw new BadRequestException("Review status changed", ErrorCodes.ReviewStatusChanged);
+            }
+        
             if (propertyResult.ProjectId == null || propertyResult.ProjectId < 1)
             {
                 ThrowReviewNotFoundException(reviewId);
@@ -768,11 +772,6 @@ namespace ArtifactStore.Repositories
             if (propertyResult.IsReviewLocked == false)
             {
                 ExceptionHelper.ThrowArtifactNotLockedException(reviewId, userId);
-            }
-
-            if(propertyResult.BaselineId != null && propertyResult.BaselineId.Value > 0)
-            {
-                throw new BadRequestException("Review status changed", ErrorCodes.ReviewStatusChanged);
             }
 
             if (string.IsNullOrEmpty(propertyResult.ArtifactXml))

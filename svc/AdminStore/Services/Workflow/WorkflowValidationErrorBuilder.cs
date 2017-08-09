@@ -46,6 +46,8 @@ namespace AdminStore.Services.Workflow
         private const string TemplateXmlProjectDuplicateId = "One or more Projects have a duplicate Id. Projects in a Workflow must be unique.";
         // New
         private const string TemplateXmlProjectInvalidPath = "One or more Projects have a duplicate Project Path. Projects in a Workflow must be unique.";
+        // New
+        private const string TemplateXmlProjectDoesNotHaveAnyArtfactTypes = "One or more Projects do not have ant Artifact Types. A Project must have at least one Artifact Type.";
         private const string TemplateXmlArtifactTypeNoSpecified = "One or more Artifact Types are not specified. A Artifact Types must be specified.";
         private const string TemplateXmlPropertyChangeEventNoAnyTriggersSpecified = "One or more Property Change Events do not have any triggers. A Property Change Event must have at least one Trigger.";
         private const string TemplateXmlNewArtifactEventNoAnyTriggersSpecified = "One or more New Artifact Events do not have any triggers. A New Artifact Event must have at least one Trigger.";
@@ -258,6 +260,10 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowXmlValidationErrorCodes.ProjectDuplicatePath:
                     template = TemplateXmlProjectInvalidPath;
+                    errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.ProjectDoesNotHaveAnyArtfactTypes:
+                    template = TemplateXmlProjectDoesNotHaveAnyArtfactTypes;
                     errParams = new object[] { };
                     break;
                 case WorkflowXmlValidationErrorCodes.ArtifactTypeNoSpecified:

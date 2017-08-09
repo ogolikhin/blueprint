@@ -50,15 +50,11 @@ namespace AdminStore.Services.Workflow
             return xmlTrigger;
         }
 
-        public IEnumerable<IeTrigger> FromXmlModel(XmlWorkflowEventTriggers xmlTriggers,
-            IDictionary<string, int> artifactTypeMap, 
-            IDictionary<string, int> propertyTypeMap, 
-            IDictionary<string, int> groupMap, 
-            IDictionary<string, int> stateMap)
+        public IEnumerable<IeTrigger> FromXmlModel(XmlWorkflowEventTriggers xmlTriggers, WorkflowDataNameMaps dataMaps)
         {
-            if(xmlTriggers == null)
+            if (xmlTriggers == null)
             {
-                throw new ArgumentNullException(nameof(xmlTriggers));
+                return null;
             }
 
             var triggers = new List<IeTrigger>();
@@ -67,7 +63,7 @@ namespace AdminStore.Services.Workflow
             {
                 foreach (var t in xmlTriggers.Triggers)
                 {
-                    var trigger = FromXmlModel(t, artifactTypeMap, propertyTypeMap, groupMap, stateMap);
+                    var trigger = FromXmlModel(t, dataMaps);
                     if (trigger != null)
                     {
                         triggers.Add(trigger);
@@ -78,22 +74,18 @@ namespace AdminStore.Services.Workflow
             return triggers;
         }
 
-        public IeTrigger FromXmlModel(XmlWorkflowEventTrigger xmlTrigger, 
-            IDictionary<string, int> artifactTypeMap, 
-            IDictionary<string, int> propertyTypeMap, 
-            IDictionary<string, int> groupMap, 
-            IDictionary<string, int> stateMap)
+        public IeTrigger FromXmlModel(XmlWorkflowEventTrigger xmlTrigger, WorkflowDataNameMaps dataMaps)
         {
-            if(xmlTrigger == null)
+            if (xmlTrigger == null)
             {
-                throw new ArgumentNullException(nameof(xmlTrigger));
+                return null;
             }
 
             IeTrigger ieTrigger = new IeTrigger
             {
                 Name = xmlTrigger.Name,
-                Action = FromXmlModel(xmlTrigger.Action, artifactTypeMap, propertyTypeMap, groupMap),
-                Condition = FromXmlModel(xmlTrigger.Condition, stateMap)
+                Action = FromXmlModel(xmlTrigger.Action, dataMaps),
+                Condition = FromXmlModel(xmlTrigger.Condition, dataMaps)
             };
 
             return ieTrigger;
@@ -103,16 +95,14 @@ namespace AdminStore.Services.Workflow
 
         #region Private Methods
 
-        private IeBaseAction FromXmlModel(XmlAction xmlAction, 
-            IDictionary<string, int> artifactTypeMap, 
-            IDictionary<string, int> propertyTypeMap, 
-            IDictionary<string, int> groupMap)
+        private IeBaseAction FromXmlModel(XmlAction xmlAction, WorkflowDataNameMaps dataMaps)
         {
-            if(xmlAction == null)
+            if (xmlAction == null)
             {
-                throw new ArgumentNullException(nameof(xmlAction));
+                return null;
             }
 
+            string name;
             IeBaseAction action = null;
 
             switch (xmlAction.ActionType)
@@ -124,7 +114,7 @@ namespace AdminStore.Services.Workflow
                         Name = xeAction.Name,
                         Emails = xeAction.Emails,
                         PropertyId = xeAction.PropertyTypeId,
-                        PropertyName = propertyTypeMap.FirstOrDefault(x => x.Value == xeAction.PropertyTypeId).Key,
+                        PropertyName = dataMaps.PropertyTypeMap.TryGetValue((int)xeAction.PropertyTypeId, out name) ? name : null,
                         Message = xeAction.Message
                     };
                     break;
@@ -134,10 +124,10 @@ namespace AdminStore.Services.Workflow
                     {
                         Name = xpAction.Name,
                         PropertyId = xpAction.PropertyTypeId,
-                        PropertyName = propertyTypeMap.FirstOrDefault(x => x.Value == xpAction.PropertyTypeId).Key,
+                        PropertyName = dataMaps.PropertyTypeMap.TryGetValue(xpAction.PropertyTypeId, out name) ? name : null,
                         PropertyValue = xpAction.PropertyValue,
                         ValidValues = xpAction.ValidValues.ConvertAll(x => new IeValidValue { Value = x.ToString(CultureInfo.InvariantCulture) }),
-                        UsersGroups = FromXmlModel(xpAction.UsersGroups, groupMap),
+                        UsersGroups = FromXmlModel(xpAction.UsersGroups, dataMaps),
                         IncludeCurrentUser = xpAction.CurrentUserId != null
                     };
                     break;
@@ -148,7 +138,7 @@ namespace AdminStore.Services.Workflow
                         Name = xgAction.Name,
                         ChildCount = xgAction.ChildCount,
                         ArtifactTypeId = xgAction.ArtifactTypeId,
-                        ArtifactType = artifactTypeMap.FirstOrDefault(x => x.Value == xgAction.ArtifactTypeId).Key
+                        ArtifactType = dataMaps.ArtifactTypeMap.TryGetValue((int)xgAction.ArtifactTypeId, out name) ? name : null
                     };
                     break;
                 default:
@@ -163,22 +153,23 @@ namespace AdminStore.Services.Workflow
             return action;
         }
 
-        private List<IeUserGroup> FromXmlModel(List<XmlUserGroup> xmlUserGroups, IDictionary<string, int> groupMap)
+        private List<IeUserGroup> FromXmlModel(List<XmlUserGroup> xmlUserGroups, WorkflowDataNameMaps dataMaps)
         {
-            if(xmlUserGroups == null)
+            if (xmlUserGroups == null)
             {
-                throw new ArgumentNullException(nameof(xmlUserGroups));
+                return null;
             }
             var userGroups = new List<IeUserGroup>();
 
             if (xmlUserGroups != null)
             {
+                string name;
                 foreach (var g in xmlUserGroups)
                 {
                     var group = new IeUserGroup
                     {
                         Id = g.Id,
-                        Name = groupMap.FirstOrDefault(x => x.Value == g.Id).Key,
+                        Name = dataMaps.GroupMap.TryGetValue(g.Id, out name) ? name : null,
                         IsGroup = g.IsGroup
                     };
                 }
@@ -187,19 +178,20 @@ namespace AdminStore.Services.Workflow
             return userGroups;
         }
 
-        private IeCondition FromXmlModel(XmlCondition xmlCondition, IDictionary<string, int> stateMap)
+        private IeCondition FromXmlModel(XmlCondition xmlCondition, WorkflowDataNameMaps dataMaps)
         {
-            if(xmlCondition == null)
+            if (xmlCondition == null)
             {
-                throw new ArgumentNullException(nameof(xmlCondition));
+                return null;
             }
 
+            string name;
             switch (xmlCondition.ConditionType)
             {
                 case ConditionTypes.State:
                     var ieCondition = new IeStateCondition
                     {
-                        State = stateMap.FirstOrDefault(x => x.Value == (xmlCondition as XmlStateCondition).StateId).Key
+                        State = dataMaps.StateMap.TryGetValue((xmlCondition as XmlStateCondition).StateId, out name) ? name : null
                     };
                     return ieCondition;
                 default:

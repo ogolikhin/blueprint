@@ -10,17 +10,9 @@ namespace AdminStore.Services.Workflow
 
         XmlWorkflowEventTrigger ToXmlModel(IeTrigger ieTrigger, WorkflowDataMaps dataMaps, int currentUserId);
 
-        IEnumerable<IeTrigger> FromXmlModel(XmlWorkflowEventTriggers xmlTriggers,
-            IDictionary<string, int> artifactTypeMap,
-            IDictionary<string, int> propertyTypeMap, 
-            IDictionary<string, int> groupMap,
-            IDictionary<string, int> stateMap);
+        IEnumerable<IeTrigger> FromXmlModel(XmlWorkflowEventTriggers xmlTriggers, WorkflowDataNameMaps dataMaps);
 
-        IeTrigger FromXmlModel(XmlWorkflowEventTrigger xmlTrigger,
-           IDictionary<string, int> artifactTypeMap,
-           IDictionary<string, int> propertyTypeMap, 
-           IDictionary<string, int> groupMap,
-           IDictionary<string, int> stateMap);
+        IeTrigger FromXmlModel(XmlWorkflowEventTrigger xmlTrigger, WorkflowDataNameMaps dataMaps);
     }
 
     public class WorkflowDataMaps
@@ -43,5 +35,21 @@ namespace AdminStore.Services.Workflow
         // Key - Choice Property Type Id, Value - (Key - Valid Value, Valid Value Id)
         private IDictionary<int, IDictionary<string, int>> _validValueMap;
         public IDictionary<int, IDictionary<string, int>> ValidValueMap => _validValueMap ?? (_validValueMap = new Dictionary<int, IDictionary<string, int>>());
+    }
+
+    public class WorkflowDataNameMaps
+    {
+        private IDictionary<int, string> _artifactTypeMap;
+        public IDictionary<int, string> ArtifactTypeMap => _artifactTypeMap ?? (_artifactTypeMap = new Dictionary<int, string>());
+
+        private IDictionary<int, string> _propertyTypeMap;
+        public IDictionary<int, string> PropertyTypeMap => _propertyTypeMap ?? (_propertyTypeMap = new Dictionary<int, string>());
+
+        private IDictionary<int, string> _stateMap;
+        public IDictionary<int, string> StateMap => _stateMap ?? (_stateMap = new Dictionary<int, string>());
+
+        private IDictionary<int, string> _groupMap;
+        public IDictionary<int, string> GroupMap => _groupMap ?? (_groupMap = new Dictionary<int, string>());
+
     }
 }

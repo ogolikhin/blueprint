@@ -21,6 +21,8 @@ namespace ArtifactStore.Models.Review
         /// </summary>
         public string UserDisplayName { get; set; }
 
+        public bool HasMovedProject { get; set; }
+
         private DateTime _publishedOnTimestamp;
         public DateTime PublishedOnTimestamp
         {

@@ -219,14 +219,10 @@ namespace AdminStore.Controllers
             _logMock = new Mock<IServiceLogRepository>();
             _workflowServiceMock = new Mock<IWorkflowService>();
             _workflowRepositoryMock = new Mock<IWorkflowRepository>();
-            var featureLicenseHelperMock = new Mock<IFeatureLicenseHelper>();
-
-            featureLicenseHelperMock.Setup(h => h.GetValidBlueprintLicenseFeatures())
-                .Returns(FeatureTypes.Workflow);
 
             var session = new Session { UserId = SessionUserId };
             _controller = new WorkflowController(_workflowRepositoryMock.Object, _workflowServiceMock.Object, _logMock.Object,
-                _privilegesRepositoryMock.Object, featureLicenseHelperMock.Object)
+                _privilegesRepositoryMock.Object)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()

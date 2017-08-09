@@ -139,7 +139,7 @@ namespace AdminStore.Repositories.Workflow
             var parameters = new DynamicParameters();
             parameters.Add("WorkflowId", workflowId);
 
-            var result = await _connectionWrapper.QueryAsync<SqlWorkflowMapItem>("GetWorkflowArtifactTypesMap", parameters, commandType: CommandType.StoredProcedure);
+            var result = await _connectionWrapper.QueryAsync<SqlWorkflowMapItem>("GetWorkflowArtifactTypeNames", parameters, commandType: CommandType.StoredProcedure);
 
             return result;
         }
@@ -152,7 +152,7 @@ namespace AdminStore.Repositories.Workflow
                 prm.Add("@propertyIds", SqlConnectionWrapper.ToDataTable(propertyIds));
             }
 
-            return await _connectionWrapper.QueryAsync<SqlWorkflowMapItem>("GetPropertyTypesMap", prm,
+            return await _connectionWrapper.QueryAsync<SqlWorkflowMapItem>("GetPropertyTypeNames", prm,
                 commandType: CommandType.StoredProcedure);
         }
 

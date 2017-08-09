@@ -393,7 +393,6 @@ namespace AdminStore.Services.Workflow
             var workflowStates = (await _workflowRepository.GetWorkflowStatesAsync(workflowId)).ToList();
             var workflowEvents = (await _workflowRepository.GetWorkflowEventsAsync(workflowId)).ToList();
 
-            // Initialize Maps here for now...
             WorkflowDataNameMaps dataMaps = LoadDataMaps(workflowDetails.WorkflowId);
 
             IeWorkflow ieWorkflow = new IeWorkflow
@@ -432,7 +431,12 @@ namespace AdminStore.Services.Workflow
                 {
                     Id = e.ProjectId,
                     Path = e.ProjectName,
-                    ArtifactTypes = workflowProjectsAndArtifactTypes.Select(a => new IeArtifactType { Name = e.ArtifactName }).Distinct().ToList()
+                    ArtifactTypes = workflowProjectsAndArtifactTypes.
+                    Select(a => new IeArtifactType
+                    {
+                        Id = e.ArtifactId,
+                        Name = e.ArtifactName
+                    }).Distinct().ToList()
                 }).Distinct().ToList()
             };
 

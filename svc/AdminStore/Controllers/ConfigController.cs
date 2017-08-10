@@ -1,5 +1,6 @@
 ﻿using AdminStore.Models;
 using AdminStore.Repositories;
+using Newtonsoft.Json;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
@@ -158,7 +159,7 @@ namespace AdminStore.Controllers
         {
             var settings = (await _applicationSettingsRepository.GetSettingsAsync(true)).ToDictionary(it => it.Key, it => it.Value);
             var features = await _featuresService.GetFeaturesAsync();
-            settings["Features"] = features.ToJSON();
+            settings["Features"] = JsonConvert.SerializeObject(features, Formatting.None);
 
             var script = "(function (window) {\n" +
                 "    if (!window.config) {\n" +

@@ -205,7 +205,7 @@ namespace AdminStore.Controllers
                 "    if (!window.config) {\n" +
                 "        window.config = {};\n" +
                 "    }\n" +
-                "    window.config.settings = {'Key':'Value','Features':'{\\'Workflow\\':true}'}\n" +
+                "    window.config.settings = {'Key':'Value','Features':'{\"Workflow\":true}'}\n" +
                 "}(window));", content);
         }
 

@@ -2,11 +2,17 @@
 using System.Linq;
 using System.Threading.Tasks;
 using ServiceLibrary.Models;
+using ServiceLibrary.Helpers;
 
 namespace ServiceLibrary.Repositories.InstanceSettings
 {
     public class SqlInstanceSettingsRepository : SqlBaseArtifactRepository, IInstanceSettingsRepository
     {
+        public SqlInstanceSettingsRepository()
+            : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
+        {
+        }
+
         public SqlInstanceSettingsRepository(string connectionString) : this(new SqlConnectionWrapper(connectionString))
         {
         }

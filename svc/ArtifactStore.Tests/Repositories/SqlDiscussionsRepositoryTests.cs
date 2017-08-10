@@ -1,29 +1,30 @@
 ﻿using ArtifactStore.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ServiceLibrary.Repositories.InstanceSettings;
 
 namespace ArtifactStore.Repositories
 {
     [TestClass]
     public class SqlDiscussionsRepositoryTests
     {
-        private IUsersRepository userRepository;
-        private IInstanceSettingsRepository instanceSettingsRepository;
-        private IArtifactPermissionsRepository artifactPermissionsRepository;
-        private IDiscussionsRepository discussionsRepository;
-        private SqlConnectionWrapperMock cxn;
-        private EmailSettings fakeEmailSettings;
+        private IUsersRepository _userRepository;
+        private IInstanceSettingsRepository _instanceSettingsRepository;
+        private IArtifactPermissionsRepository _artifactPermissionsRepository;
+        private IDiscussionsRepository _discussionsRepository;
+        private SqlConnectionWrapperMock _cxn;
+        private EmailSettings _fakeEmailSettings;
+        private InstanceSettings _instanceSettings;
 
 
         [TestInitialize]
         public void Initialize()
         {
-            fakeEmailSettings = new EmailSettings
+            _fakeEmailSettings = new EmailSettings
             {
                 Id = "Fake",
                 Authenticated = false,
@@ -46,11 +47,12 @@ namespace ArtifactStore.Repositories
                 SenderEmailAddress = "FakeSenderAddress",
                 UserName = "FakeUserName"
             };
-            cxn = new SqlConnectionWrapperMock();
-            userRepository = new SqlUserRepositoryMock();
-            instanceSettingsRepository = new SqlInstanceSettingsRepositoryMock(fakeEmailSettings);
-            artifactPermissionsRepository = new SqlArtifactPermissionsRepository(cxn.Object);
-            discussionsRepository = new SqlDiscussionsRepository(cxn.Object, userRepository, instanceSettingsRepository, artifactPermissionsRepository);
+            _instanceSettings = new InstanceSettings();
+            _cxn = new SqlConnectionWrapperMock();
+            _userRepository = new SqlUserRepositoryMock();
+            _instanceSettingsRepository = new SqlInstanceSettingsRepositoryMock(_fakeEmailSettings, _instanceSettings);
+            _artifactPermissionsRepository = new SqlArtifactPermissionsRepository(_cxn.Object);
+            _discussionsRepository = new SqlDiscussionsRepository(_cxn.Object, _userRepository, _instanceSettingsRepository, _artifactPermissionsRepository);
         }
         [TestMethod]
         public async Task GetDiscussions_CommentReturned_NoCommentReturned()
@@ -58,10 +60,10 @@ namespace ArtifactStore.Repositories
             // Arrange
             int itemId = 1;
             int projectId = 1;
-            cxn.SetupQueryAsync("GetItemDiscussions", new Dictionary<string, object> { { "ItemId", itemId }}, new List<Discussion>());
-            cxn.SetupQueryAsync("GetItemDiscussionStates", new Dictionary<string, object> { { "ItemId", itemId }}, new List<DiscussionState>());
+            _cxn.SetupQueryAsync("GetItemDiscussions", new Dictionary<string, object> { { "ItemId", itemId }}, new List<Discussion>());
+            _cxn.SetupQueryAsync("GetItemDiscussionStates", new Dictionary<string, object> { { "ItemId", itemId }}, new List<DiscussionState>());
             // Act
-            var result = (await discussionsRepository.GetDiscussions(itemId, projectId)).ToList();
+            var result = (await _discussionsRepository.GetDiscussions(itemId, projectId)).ToList();
             Assert.AreEqual(0, result.Count);
         }
         [TestMethod]
@@ -70,10 +72,10 @@ namespace ArtifactStore.Repositories
             // Arrange
             int itemId = 1;
             int projectId = 1;
-            cxn.SetupQueryAsync("GetItemDiscussions", new Dictionary<string, object> { { "ItemId", itemId} }, new List<Discussion> { new Discussion { ItemId = itemId, DiscussionId = 1, UserId = 1, Comment = "<html></html>"} });
-            cxn.SetupQueryAsync("GetItemDiscussionStates", new Dictionary<string, object> { { "ItemId", itemId }}, new List<DiscussionState> { new DiscussionState { DiscussionId = 1, IsClosed = false, Status = "Test Status" } });
+            _cxn.SetupQueryAsync("GetItemDiscussions", new Dictionary<string, object> { { "ItemId", itemId} }, new List<Discussion> { new Discussion { ItemId = itemId, DiscussionId = 1, UserId = 1, Comment = "<html></html>"} });
+            _cxn.SetupQueryAsync("GetItemDiscussionStates", new Dictionary<string, object> { { "ItemId", itemId }}, new List<DiscussionState> { new DiscussionState { DiscussionId = 1, IsClosed = false, Status = "Test Status" } });
             // Act
-            var result = (await discussionsRepository.GetDiscussions(itemId, projectId)).ToList();
+            var result = (await _discussionsRepository.GetDiscussions(itemId, projectId)).ToList();
 
             Assert.AreEqual(1, result.Count);
             Assert.AreEqual(1, result[0].UserId);
@@ -87,9 +89,9 @@ namespace ArtifactStore.Repositories
             // Arrange
             int discussionId = 1;
             int projectId = 1;
-            cxn.SetupQueryAsync("GetItemReplies", new Dictionary<string, object> { { "DiscussionId", discussionId } }, new List<Reply>());
+            _cxn.SetupQueryAsync("GetItemReplies", new Dictionary<string, object> { { "DiscussionId", discussionId } }, new List<Reply>());
             // Act
-            var result = (await discussionsRepository.GetReplies(discussionId, projectId)).ToList();
+            var result = (await _discussionsRepository.GetReplies(discussionId, projectId)).ToList();
             Assert.AreEqual(0, result.Count);
         }
         [TestMethod]
@@ -98,9 +100,9 @@ namespace ArtifactStore.Repositories
             // Arrange
             int discussionId = 1;
             int projectId = 1;
-            cxn.SetupQueryAsync("GetItemReplies", new Dictionary<string, object> { { "DiscussionId", discussionId }}, new List<Reply> { new Reply { ItemId = 1, DiscussionId = 1, ReplyId = 2, UserId = 1, Comment = "<html></html>" } });
+            _cxn.SetupQueryAsync("GetItemReplies", new Dictionary<string, object> { { "DiscussionId", discussionId }}, new List<Reply> { new Reply { ItemId = 1, DiscussionId = 1, ReplyId = 2, UserId = 1, Comment = "<html></html>" } });
             // Act
-            var result = (await discussionsRepository.GetReplies(discussionId, projectId)).ToList();
+            var result = (await _discussionsRepository.GetReplies(discussionId, projectId)).ToList();
 
             Assert.AreEqual(1, result.Count);
             Assert.AreEqual(1, result[0].UserId);

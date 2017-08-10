@@ -1,7 +1,7 @@
 ﻿using System.Runtime.Serialization;
 using ServiceLibrary.Helpers;
 
-namespace AdminStore.Models
+namespace ServiceLibrary.Models
 {
     public interface IEmailConfigInstanceSettings
     {

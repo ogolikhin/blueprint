@@ -161,13 +161,17 @@
     <Compile Include="Models\ArtifactsNavigationPath.cs" />
     <Compile Include="Models\ArtifactVersion.cs" />
     <Compile Include="Models\AuthorHistory.cs" />
+    <Compile Include="Models\EmailConfigInstanceSettings.cs" />
+    <Compile Include="Models\Email\BaseEmailServerConfiguration.cs" />
     <Compile Include="Models\BaselineInfo.cs" />
     <Compile Include="Models\ClientLogModel.cs" />
+    <Compile Include="Models\Email\Message.cs" />
     <Compile Include="Models\Enums\FeatureLicenseStatus.cs" />
     <Compile Include="Models\Enums\FeatureTypes.cs" />
     <Compile Include="Models\Enums\ActionType.cs" />
     <Compile Include="Models\Enums\ElementType.cs" />
     <Compile Include="Models\Enums\GenerateActionTypes.cs" />
+    <Compile Include="Models\Enums\SendEmailResult.cs" />
     <Compile Include="Models\Enums\TransitionType.cs" />
     <Compile Include="Models\InstanceAdminPrivileges.cs" />
     <Compile Include="Models\Enums\ItemTypePredefined.cs" />
@@ -183,6 +187,7 @@
     <Compile Include="Models\Files\FileInfo.cs" />
     <Compile Include="Models\IAction.cs" />
     <Compile Include="Models\IConstraint.cs" />
+    <Compile Include="Models\InstanceSettings.cs" />
     <Compile Include="Models\InstanceSettings\EmailSettings.cs" />
     <Compile Include="Models\Interfaces\IArtifact.cs" />
     <Compile Include="Models\Item.cs" />
@@ -219,6 +224,7 @@
     <Compile Include="Models\QueryResult.cs" />
     <Compile Include="Models\QuerySingleResult.cs" />
     <Compile Include="Models\RolePermissions.cs" />
+    <Compile Include="Models\Email\SMTPClientConfiguration.cs" />
     <Compile Include="Models\Sorting.cs" />
     <Compile Include="Models\SQLTraceLogModel.cs" />
     <Compile Include="Models\PerformanceLogModel.cs" />
@@ -258,6 +264,7 @@
     <Compile Include="Models\Workflow\XmlUserGroup.cs" />
     <Compile Include="Models\Workflow\XmlWorkflowEventTrigger.cs" />
     <Compile Include="Models\Workflow\XmlWorkflowEventTriggers.cs" />
+    <Compile Include="Models\Email\NotificationEmail.cs" />
     <Compile Include="Repositories\ApplicationSettings\ApplicationSettingsRepository.cs" />
     <Compile Include="Repositories\ApplicationSettings\ISettingsRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IServiceLogRepository.cs" />
@@ -299,6 +306,12 @@
     <Compile Include="Swagger\SwaggerConfig.cs" />
     <Compile Include="Models\Files\NetworkContentStream.cs" />
     <Compile Include="Helpers\WebHeaderCollectionExtensions.cs" />
+    <Compile Include="Notification\NotificationEmailContent.cs" />
+    <Compile Include="Notification\Templates\NotificationEmailContent.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>NotificationEmailContent.tt</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Swagger\swagger-config.js" />
   </ItemGroup>
   <ItemGroup>
@@ -306,6 +319,15 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Notification\Templates\NotificationEmailContent.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>NotificationEmailContent.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

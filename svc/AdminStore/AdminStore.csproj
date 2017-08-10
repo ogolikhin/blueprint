@@ -251,6 +251,9 @@
     <Content Include="doc\AdminStore Web Service API - Swagger.URL" />
     <Content Include="doc\AdminStore Web Service API.docx" />
     <Compile Include="Controllers\JobsController.ProcessTestGeneration.cs" />
+    <EmbeddedResource Include="Models\Workflow\IeWorkflow.xsd">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

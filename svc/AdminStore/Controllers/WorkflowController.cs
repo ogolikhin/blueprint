@@ -4,9 +4,11 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using System.Xml;
 using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Models.Workflow;
@@ -95,6 +97,7 @@ namespace AdminStore.Controllers
                 IeWorkflow workflow;
                 try
                 {
+                    ValidateWorkflowXmlAgainstXsd(stream);
                     workflow = DeserializeWorkflow(stream);
                 }
                 catch (Exception ex)
@@ -350,6 +353,7 @@ namespace AdminStore.Controllers
                 IeWorkflow workflow;
                 try
                 {
+                    ValidateWorkflowXmlAgainstXsd(stream);
                     workflow = DeserializeWorkflow(stream);
                 }
                 catch (Exception ex)
@@ -387,6 +391,18 @@ namespace AdminStore.Controllers
         }
 
         #region Private methods
+
+        // Validate xml of IeWorkflow against xml schema.
+        // To generate xml schema use: xsd.exe AdminStore.dll /t:IeWorkflow
+        internal static void ValidateWorkflowXmlAgainstXsd(Stream stream)
+        {
+            var xml = new XmlDocument();
+            xml.Load(stream);
+            var xsdStream = Assembly.GetExecutingAssembly().
+                GetManifestResourceStream("AdminStore.Models.Workflow.IeWorkflow.xsd");
+            xml.Schemas.Add(null, XmlReader.Create(xsdStream));
+            xml.Validate(null);
+        }
 
         private IFileRepository GetFileRepository()
         {

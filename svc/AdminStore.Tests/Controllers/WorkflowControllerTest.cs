@@ -12,10 +12,13 @@ using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Repositories.ConfigControl;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
+using System.Xml.Schema;
 
 namespace AdminStore.Controllers
 {
@@ -491,5 +494,224 @@ namespace AdminStore.Controllers
         }
 
         #endregion
+
+        #region ValidateWorkflowXmlAgainstXsd_Success
+
+        // A failure of this test means that the IeWorkflow model has changed
+        // and regenerating of the xml schema IeWorkflow.xsd is required, see below:
+        // xsd.exe AdminStore.dll /t:IeWorkflow
+        // Note that an extending of the IeWorkflow will not fail the test.
+        [TestMethod]
+	    public void ValidateWorkflowXmlAgainstXsd_Success()
+	    {
+            // Arrange
+            var workflow = GetTestWorkflow();
+
+            var xml = SerializationHelper.ToXml(workflow);
+            var stream = new MemoryStream(Encoding.UTF8.GetBytes(xml));
+
+            // Act
+            WorkflowController.ValidateWorkflowXmlAgainstXsd(stream);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(XmlSchemaValidationException))]
+        public void ValidateWorkflowXmlAgainstXsd_Failure()
+        {
+            // Arrange
+            var workflow = GetTestWorkflow();
+
+            var xml = SerializationHelper.ToXml(workflow);
+            xml = xml.Replace("<Workflow Id=\"99\">", "<Workflow Id=\"99\"><aaa>bbb</aaa>");
+            var stream = new MemoryStream(Encoding.UTF8.GetBytes(xml));
+
+            // Act
+            WorkflowController.ValidateWorkflowXmlAgainstXsd(stream);
+
+            // Assert
+        }
+
+
+        private static IeWorkflow GetTestWorkflow()
+	    {
+            var workflow = new IeWorkflow
+            {
+                Id = 99,
+                Name = "name",
+                Description = "description",
+                States = new List<IeState>
+                {
+                    new IeState
+                    {
+                        Id = 11,
+                        Name = "name1",
+                        IsInitial = true
+                    },
+                    new IeState
+                    {
+                        Id = 11,
+                        Name = "name2",
+                        IsInitial = false
+                    }
+                },
+                TransitionEvents = new List<IeTransitionEvent>
+                {
+                    new IeTransitionEvent
+                    {
+                        Id = 22,
+                        Name = "name",
+                        FromState = "aaa",
+                        FromStateId = 33,
+                        ToState = "bbb",
+                        ToStateId = 44,
+                        SkipPermissionGroups = true,
+                        Triggers = new List<IeTrigger>
+                        {
+                            new IeTrigger
+                            {
+                                Name = "name",
+                                Condition = new IeStateCondition
+                                {
+                                    State = "ccc"
+                                },
+                                Action = new IeEmailNotificationAction
+                                {
+                                    Name = "name",
+                                    PropertyName = "property name",
+                                    PropertyId = 11,
+                                    Emails = new List<string> { "aaa", "bbb" },
+                                    Message = "message"
+                                }
+                            }
+                        },
+                        PermissionGroups = new List<IeGroup>
+                        {
+                            new IeGroup
+                            {
+                                Id = 11,
+                                Name = "name"
+                            }
+                        }
+                    }
+                },
+                PropertyChangeEvents = new List<IePropertyChangeEvent>
+                {
+                    new IePropertyChangeEvent
+                    {
+                        Id = 11,
+                        Name = "name",
+                        PropertyName = "property name",
+                        PropertyId = 11,
+                        Triggers = new List<IeTrigger>
+                        {
+                            new IeTrigger
+                            {
+                                Name = "name1",
+                                Action = new IeGenerateAction
+                                {
+                                    Name = "name 2",
+                                    GenerateActionType = GenerateActionTypes.Children,
+                                    ArtifactType = "artifact type",
+                                    ArtifactTypeId = 11,
+                                    ChildCount = 3
+                                }
+                            },
+                            new IeTrigger
+                            {
+                                Name = "name3",
+                                Action = new IeGenerateAction
+                                {
+                                    Name = "name 4",
+                                    GenerateActionType = GenerateActionTypes.TestCases
+                                }
+                            },
+                            new IeTrigger
+                            {
+                                Name = "name5",
+                                Action = new IeGenerateAction
+                                {
+                                    Name = "name 6",
+                                    GenerateActionType = GenerateActionTypes.UserStories
+                                }
+                            }
+                        }
+                    }
+                },
+                NewArtifactEvents = new List<IeNewArtifactEvent>
+                {
+                    new IeNewArtifactEvent
+                    {
+                        Id = 11,
+                        Name = "name1",
+                        Triggers = new List<IeTrigger>
+                        {
+                            new IeTrigger
+                            {
+                                Name = "name",
+                                Action = new IePropertyChangeAction
+                                {
+                                    Name = "name2",
+                                    PropertyName = "property name",
+                                    PropertyValue = "property value",
+                                    PropertyId = 11,
+                                    ValidValues = new List<IeValidValue>
+                                    {
+                                        new IeValidValue
+                                        {
+                                            Id = 22,
+                                            Value = "value1"
+                                        },
+                                        new IeValidValue
+                                        {
+                                            Id = 33,
+                                            Value = "value2"
+                                        }
+                                    },
+                                    UsersGroups = new List<IeUserGroup>
+                                    {
+                                        new IeUserGroup
+                                        {
+                                            Id = 11,
+                                            Name = "user",
+                                            IsGroup = false
+                                        },
+                                        new IeUserGroup
+                                        {
+                                            Id = 22,
+                                            Name = "group",
+                                            IsGroup = true
+                                        }
+                                    },
+                                    IncludeCurrentUser = true
+                                }
+                            }
+                        }
+                    }
+                },
+                Projects = new List<IeProject>
+                {
+                    new IeProject
+                    {
+                        Id = 11,
+                        Path = "path",
+                        ArtifactTypes = new List<IeArtifactType>
+                        {
+                            new IeArtifactType
+                            {
+                                Id = 11,
+                                Name = "name"
+                            }
+                        }
+                    }
+                }
+            };
+
+	        return workflow;
+	    }
+
+        #endregion
+
     }
 }

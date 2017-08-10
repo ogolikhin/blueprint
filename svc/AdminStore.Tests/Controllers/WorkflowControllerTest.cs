@@ -221,7 +221,8 @@ namespace AdminStore.Controllers
             _workflowRepositoryMock = new Mock<IWorkflowRepository>();
 
             var session = new Session { UserId = SessionUserId };
-            _controller = new WorkflowController(_workflowRepositoryMock.Object, _workflowServiceMock.Object, _logMock.Object, _privilegesRepositoryMock.Object)
+            _controller = new WorkflowController(_workflowRepositoryMock.Object, _workflowServiceMock.Object, _logMock.Object,
+                _privilegesRepositoryMock.Object)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()
@@ -476,7 +477,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             var workflow = new IeWorkflow { Name = "Workflow1", Description = "DescriptionWorkflow1", States = new List<IeState>(),
-                                            ArtifactTypes = new List<IeArtifactType>(), Projects = new List<IeProject>()};
+                                            Projects = new List<IeProject>()};
             _workflowServiceMock.Setup(repo => repo.GetWorkflowExportAsync(It.IsAny<int>())).ReturnsAsync(workflow);
             _privilegesRepositoryMock
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))

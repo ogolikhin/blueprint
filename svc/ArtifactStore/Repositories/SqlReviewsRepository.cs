@@ -157,10 +157,11 @@ namespace ArtifactStore.Repositories
 
             foreach (var reviewArtifact in reviewArtifacts.Items)
             {
-                if (reviewArtifacts.IsFormal ||
+                if ((reviewArtifacts.IsFormal && reviewArtifact.HasMovedProject) ||
                     SqlArtifactPermissionsRepository.HasPermissions(reviewArtifact.Id, artifactPermissionsDictionary, RolePermissions.Read))
                 {
                     ReviewArtifactStatus reviewArtifactStatus;
+
                     if (artifactStatusDictionary.TryGetValue(reviewArtifact.Id, out reviewArtifactStatus))
                     {
                         reviewArtifact.Pending = reviewArtifactStatus.Pending;
@@ -174,6 +175,7 @@ namespace ArtifactStore.Repositories
                         reviewArtifact.Pending = numApprovers;
                         reviewArtifact.Unviewed = numUsers;
                     }
+
                     reviewArtifact.HasAccess = true;
                 }
                 else
@@ -347,10 +349,10 @@ namespace ArtifactStore.Repositories
 
             var reviewedArtifacts = (await GetReviewArtifactsByParticipant(reviewArtifactIds, participantId, reviewId, revisionId)).ToDictionary(k => k.Id);
 
-            var ignorePermissionCheck = showArtifactsIfFormal && reviewArtifacts.IsFormal;
-
             foreach (var artifact in reviewArtifacts.Items)
             {
+                var ignorePermissionCheck = showArtifactsIfFormal && reviewArtifacts.IsFormal && artifact.HasMovedProject;
+
                 if (ignorePermissionCheck 
                     || SqlArtifactPermissionsRepository.HasPermissions(artifact.Id, artifactPermissionsDictionary, RolePermissions.Read))
                 {
@@ -757,7 +759,11 @@ namespace ArtifactStore.Repositories
             {
                 ThrowReviewClosedException();
             }
-
+            if (propertyResult.BaselineId != null && propertyResult.BaselineId.Value > 0)
+            {
+                throw new BadRequestException("Review status changed", ErrorCodes.ReviewStatusChanged);
+            }
+        
             if (propertyResult.ProjectId == null || propertyResult.ProjectId < 1)
             {
                 ThrowReviewNotFoundException(reviewId);
@@ -766,11 +772,6 @@ namespace ArtifactStore.Repositories
             if (propertyResult.IsReviewLocked == false)
             {
                 ExceptionHelper.ThrowArtifactNotLockedException(reviewId, userId);
-            }
-
-            if(propertyResult.BaselineId != null && propertyResult.BaselineId.Value > 0)
-            {
-                throw new BadRequestException("Review status changed", ErrorCodes.ReviewStatusChanged);
             }
 
             if (string.IsNullOrEmpty(propertyResult.ArtifactXml))

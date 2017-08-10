@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ActionHandlerService.MessageHandlers.Notifications;
 using ActionHandlerService.Models;
+using BluePrintSys.Messaging.Models.Actions;
 using Dapper;
 using ServiceLibrary.Models.Email;
 using ServiceLibrary.Models.Workflow;
@@ -18,6 +19,7 @@ namespace ActionHandlerService.Repositories
         Task<List<SqlWorkFlowStateInformation>> GetWorkflowStatesForArtifactsAsync(int userId, IEnumerable<int> artifactIds, int revisionId, bool addDrafts = true);
         Task<List<SqlArtifactTriggers>> GetWorkflowPropertyTransitionsForArtifactsAsync(int userId, int revisionId, int eventType, IEnumerable<int> itemIds);
         Task<string> GetTenantId();
+        Task<Dictionary<int, List<int>>> GetInstancePropertyTypeIdsMap(IEnumerable<int> customPropertyTypeIds);
     }
 
     public class ActionHandlerServiceRepository : SqlInstanceSettingsRepository, IActionHandlerServiceRepository
@@ -67,6 +69,23 @@ namespace ActionHandlerService.Repositories
         public async Task<string> GetTenantId()
         {
             return (await ConnectionWrapper.QueryAsync<string>("SELECT TenantId FROM dbo.Instances", commandType: CommandType.Text)).FirstOrDefault();
+        }
+
+        public async Task<Dictionary<int, List<int>>> GetInstancePropertyTypeIdsMap(IEnumerable<int> customPropertyTypeIds)
+        {
+            var param = new DynamicParameters();
+            var customPropertyTypeIdsTable = SqlConnectionWrapper.ToDataTable(customPropertyTypeIds);
+            param.Add("@customPropertyTypeIds", customPropertyTypeIdsTable);
+            var result =
+                (await
+                    ConnectionWrapper.QueryAsync<SqlCustomToInstancePropertyTypeIds>(
+                        "[dbo].[GetInstancePropertyTypeIdsFromCustomIds]",
+                        param, commandType: CommandType.StoredProcedure)).ToList();
+
+            return result.ToDictionary(a => a.InstancePropertyTypeId,
+                b =>
+                    result.Where(c => c.InstancePropertyTypeId == b.InstancePropertyTypeId)
+                        .Select(d => d.PropertyTypeId).ToList());
         }
     }
 

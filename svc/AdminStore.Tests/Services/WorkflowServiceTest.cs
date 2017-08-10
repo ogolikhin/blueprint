@@ -21,6 +21,7 @@ namespace AdminStore.Services
         private Mock<IWorkflowRepository> _workflowRepositoryMock;
         private Mock<IUserRepository> _userRepositoryMock;
         private Mock<IWorkflowValidationErrorBuilder> _workflowValidationErrorBuilder ;
+        private Mock<ITriggerConverter> _triggerConverter;
 
         private WorkflowService _service;
         private const int SessionUserId = 1;
@@ -35,10 +36,13 @@ namespace AdminStore.Services
             _workflowXmlValidatorMock = new Mock<IWorkflowXmlValidator>();
             _userRepositoryMock = new Mock<IUserRepository>();
             _workflowValidationErrorBuilder = new Mock<IWorkflowValidationErrorBuilder>();
+            _triggerConverter = new Mock<ITriggerConverter>();
+
             _service = new WorkflowService(_workflowRepositoryMock.Object,
                 _workflowXmlValidatorMock.Object,
                 _userRepositoryMock.Object,
-                _workflowValidationErrorBuilder.Object, null, null);
+                _workflowValidationErrorBuilder.Object, null,
+                _triggerConverter.Object, null);
         }
 
         #region GetWorkflowDetailsAsync
@@ -52,7 +56,7 @@ namespace AdminStore.Services
             var userRepositoryMock = new Mock<IUserRepository>();
             var workflowValidationErrorBuilder = new Mock<IWorkflowValidationErrorBuilder>();
             var workflowService = new WorkflowService(workflowRepositoryMock.Object, workflowValidatorMock.Object,
-                userRepositoryMock.Object, workflowValidationErrorBuilder.Object, null, null);
+                userRepositoryMock.Object, workflowValidationErrorBuilder.Object, null, null, null);
             var workflowId = 10;
             var workflow = new SqlWorkflow { Name = "Workflow1", Description = "Workflow1Description" };
             var workflowArtifactTypesAndProjects = new List<SqlWorkflowArtifactTypesAndProjects>
@@ -100,7 +104,7 @@ namespace AdminStore.Services
             var userRepositoryMock = new Mock<IUserRepository>();
             var workflowValidationErrorBuilder = new Mock<IWorkflowValidationErrorBuilder>();
             var workflowService = new WorkflowService(workflowRepositoryMock.Object, workflowValidatorMock.Object,
-                userRepositoryMock.Object, workflowValidationErrorBuilder.Object, null, null);
+                userRepositoryMock.Object, workflowValidationErrorBuilder.Object, null, null, null);
             var workflowId = 10;
 
             workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync((SqlWorkflow)null);
@@ -201,7 +205,7 @@ namespace AdminStore.Services
                     FromState = "Active",
                     Permissions = "<P S=\"0\"/>",
                     Type = 1,
-                     Triggers = "<Triggers><Trigger><Name>Trigger 2</Name><EmailNotificationAction></EmailNotificationAction></Trigger></Triggers>"
+                    Triggers = "<Triggers><Trigger><Name>Trigger 2</Name><EmailNotificationAction></EmailNotificationAction></Trigger></Triggers>"
                 }
             };
 
@@ -219,7 +223,6 @@ namespace AdminStore.Services
             //assert
             Assert.IsNotNull(workflowExport);
             Assert.AreEqual(2, workflowExport.Projects.Count);
-            Assert.AreEqual(2, workflowExport.ArtifactTypes.Count);
             Assert.AreEqual(1, workflowExport.States.Count);
         }
 

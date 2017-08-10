@@ -60,7 +60,7 @@ namespace AdminStore.Controllers
                 Configuration = new HttpConfiguration()
             };
 
-            _folder = new FolderDto { Name = "Folder1", ParentFolderId = 1 };
+            _folder = new FolderDto { Name = "Folder1", ParentFolderId = 2 };
             _project = new ProjectDto {Name = "Project1", Description = "Project1Description", ParentFolderId = 1};
         }
 

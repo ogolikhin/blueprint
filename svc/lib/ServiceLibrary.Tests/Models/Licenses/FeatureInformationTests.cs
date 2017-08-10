@@ -70,5 +70,35 @@ namespace ServiceLibrary.Models.Licenses
             //Assert
             Assert.AreEqual(FeatureTypes.Workflow, featureType);
         }
+
+        [TestMethod]
+        public void GetFeatureType_DoesNotReturnNone_WhenFeatureNameIsValid()
+        {
+            var validFeatureNames = FeatureInformation.Features.Where(f => f.Value != FeatureTypes.None).Select(f => f.Key);
+            foreach (var name in validFeatureNames)
+            {
+                //Arrange
+                var featureInformation = new FeatureInformation(name, DateTime.MaxValue);
+                //Act
+                var featureType = featureInformation.GetFeatureType();
+                //Assert
+                Assert.AreNotEqual(FeatureTypes.None, featureType);
+            }
+        }
+
+        [TestMethod]
+        public void GetFeatureType_ReturnsNone_WhenFeatureNameIsInvalid()
+        {
+            var invalidFeatureNames = new[] {"invalid feature name", "Author", "Collaborate", "View", "None"};
+            foreach (var name in invalidFeatureNames)
+            {
+                //Arrange
+                var featureInformation = new FeatureInformation(name, DateTime.MaxValue);
+                //Act
+                var featureType = featureInformation.GetFeatureType();
+                //Assert
+                Assert.AreEqual(FeatureTypes.None, featureType);
+            }
+        }
     }
 }

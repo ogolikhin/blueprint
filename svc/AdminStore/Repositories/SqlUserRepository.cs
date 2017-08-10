@@ -70,6 +70,16 @@ namespace AdminStore.Repositories
             return (await _connectionWrapper.QueryAsync<UserIcon>("GetUserIconByUserId", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
 
+        public async Task<IEnumerable<SqlGroup>> GetUserGroupsMapAsync(IEnumerable<int> groupIds = null)
+        {
+            var prm = new DynamicParameters();
+            if (groupIds != null)
+            {
+                prm.Add("@groupIds", SqlConnectionWrapper.ToDataTable(groupIds));
+            }
+            return await _connectionWrapper.QueryAsync<SqlGroup>("GetGroupsMap", prm, commandType: CommandType.StoredProcedure);
+        }
+
         public async Task<IEnumerable<SqlGroup>> GetExistingGroupsByNames(IEnumerable<string> groupNames, bool instanceOnly)
         {
             var prm = new DynamicParameters();
@@ -78,7 +88,7 @@ namespace AdminStore.Repositories
 
             return await _connectionWrapper.QueryAsync<SqlGroup>("GetExistingGroupsByNames", prm, commandType: CommandType.StoredProcedure);
         }
-
+        
         public async Task<IEnumerable<SqlUser>> GetExistingUsersByNames(IEnumerable<string> userNames)
         {
             var prm = new DynamicParameters();

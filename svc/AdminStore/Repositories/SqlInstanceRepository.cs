@@ -172,7 +172,7 @@ namespace AdminStore.Repositories
 
         public async Task<IEnumerable<FolderDto>> GetFoldersByName(string name)
         {
-            if (name != null)
+            if (string.IsNullOrWhiteSpace(name))
             {
                 name = UsersHelper.ReplaceWildcardCharacters(name);
             }

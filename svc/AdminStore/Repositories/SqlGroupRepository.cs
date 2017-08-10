@@ -35,7 +35,7 @@ namespace AdminStore.Repositories
                 orderField = sort(tabularData.Sorting);
             }
 
-            if (tabularData.Search != null)
+            if (!string.IsNullOrWhiteSpace(tabularData.Search))
             {
                 tabularData.Search = UsersHelper.ReplaceWildcardCharacters(tabularData.Search);
             }
@@ -74,7 +74,7 @@ namespace AdminStore.Repositories
 
         public async Task<int> DeleteGroupsAsync(OperationScope body, string search)
         {
-            if (search != null)
+            if (!string.IsNullOrWhiteSpace(search))
             {
                 search = UsersHelper.ReplaceWildcardCharacters(search);
             }
@@ -184,7 +184,7 @@ namespace AdminStore.Repositories
                 orderField = sort(tabularData.Sorting);
             }
 
-            if (tabularData.Search != null)
+            if (!string.IsNullOrWhiteSpace(tabularData.Search))
             {
                 tabularData.Search = UsersHelper.ReplaceWildcardCharacters(tabularData.Search);
             }
@@ -281,7 +281,7 @@ namespace AdminStore.Repositories
 
         public async Task<int> AssignMembers(int groupId, AssignScope scope, string search = null)
         {
-            if (search != null)
+            if (!string.IsNullOrWhiteSpace(search))
             {
                 search = UsersHelper.ReplaceWildcardCharacters(search);
             }

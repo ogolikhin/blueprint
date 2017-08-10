@@ -20,7 +20,8 @@ namespace AdminStore.Helpers
             var data = new[]
             {
                 new {key = "_", value = "[_]"},
-                new {key = "%", value = "[%]"}
+                new {key = "%", value = "[%]"},
+                new {key = "[", value = "[[]"}
             };
 
             return data.Aggregate(search, (current, row) => current.Replace(row.key, row.value));

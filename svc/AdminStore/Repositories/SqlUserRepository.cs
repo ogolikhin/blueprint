@@ -179,7 +179,7 @@ namespace AdminStore.Repositories
                 orderField = sort(sorting);
             }
 
-            if (search != null)
+            if (!string.IsNullOrWhiteSpace(search))
             {
                 search = UsersHelper.ReplaceWildcardCharacters(search);
             }
@@ -288,7 +288,7 @@ namespace AdminStore.Repositories
 
         public async Task<int> DeleteUsers(OperationScope scope, string search, int sessionUserId)
         {
-            if (search != null)
+            if (!string.IsNullOrWhiteSpace(search))
             {
                 search = UsersHelper.ReplaceWildcardCharacters(search);
             }
@@ -375,6 +375,11 @@ namespace AdminStore.Repositories
                 orderField = sort(tabularData.Sorting);
             }
 
+            if (!string.IsNullOrWhiteSpace(tabularData.Search))
+            {
+                tabularData.Search = UsersHelper.ReplaceWildcardCharacters(tabularData.Search);
+            }
+
             var parameters = new DynamicParameters();
             parameters.Add("@UserId", userId);
             parameters.Add("@Offset", tabularData.Pagination.Offset);
@@ -413,6 +418,11 @@ namespace AdminStore.Repositories
 
         public async Task<int> AddUserToGroupsAsync(int userId, OperationScope body, string search)
         {
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                search = UsersHelper.ReplaceWildcardCharacters(search);
+            }
+
             var parameters = new DynamicParameters();
             parameters.Add("@UserId", userId);
             parameters.Add("@GroupMembership", SqlConnectionWrapper.ToDataTable(body.Ids, "Int32Collection", "Int32Value"));

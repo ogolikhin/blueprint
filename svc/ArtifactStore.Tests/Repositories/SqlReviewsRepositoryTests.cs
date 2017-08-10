@@ -74,6 +74,7 @@ namespace ArtifactStore.Repositories
                 ReviewPackageStatus = ReviewPackageStatus.Active,
                 ReviewParticipantRole = ReviewParticipantRole.Approver,
                 TotalArtifacts = totalArtifacts,
+                TotalReviewers = 5,
                 ReviewStatus = reviewStatus,
                 Approved = 5,
                 Disapproved = 3,
@@ -114,6 +115,42 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(5, review.ArtifactsStatus.Approved);
             Assert.AreEqual(3, review.ArtifactsStatus.Disapproved);
             Assert.AreEqual(2, review.ArtifactsStatus.Pending);
+        }
+
+        [TestMethod]
+        public async Task GetReviewContainerAsync_Should_Return_ReviewType_Public_When_No_Reviewers()
+        {
+            //Arange
+            int reviewId = 1;
+            string reviewName = "My Review";
+            string reviewDescription = "My Description";
+            int userId = 2;
+
+            _itemInfoRepositoryMock.Setup(i => i.GetItemDescription(reviewId, userId, true, int.MaxValue)).ReturnsAsync(reviewDescription);
+            var reviewDetails = new ReviewSummaryDetails
+            {
+                ReviewPackageStatus = ReviewPackageStatus.Active,
+                TotalReviewers = 0
+            };
+
+            var param = new Dictionary<string, object> { { "reviewId", reviewId }, { "userId", userId } };
+            _cxn.SetupQueryAsync("GetReviewDetails", param, Enumerable.Repeat(reviewDetails, 1));
+
+            var reviewInfo = new VersionControlArtifactInfo
+            {
+                Name = reviewName,
+                PredefinedType = ItemTypePredefined.ArtifactReviewPackage
+            };
+
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
+
+            //Act
+            var review = await _reviewsRepository.GetReviewSummary(reviewId, userId);
+
+            //Assert
+            _cxn.Verify();
+
+            Assert.AreEqual(ReviewType.Public, review.ReviewType);
         }
 
         [TestMethod]

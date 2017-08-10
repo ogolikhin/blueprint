@@ -117,11 +117,21 @@ namespace ArtifactStore.Repositories
                     Pending = reviewDetails.Pending,
                     Viewed = reviewDetails.Viewed
                 },
-                ReviewType = reviewDetails.BaselineId.HasValue ? ReviewType.Formal : ReviewType.Informal,
+                ReviewType = GetReviewType(reviewDetails),
                 RevisionId = reviewDetails.RevisionId,
                 ProjectId = reviewInfo.ProjectId
             };
             return reviewContainer;
+        }
+
+        private ReviewType GetReviewType(ReviewSummaryDetails reviewDetails)
+        {
+            if (reviewDetails.TotalReviewers == 0)
+            {
+                return ReviewType.Public;
+            }
+
+            return reviewDetails.BaselineId.HasValue ? ReviewType.Formal : ReviewType.Informal;
         }
 
         private async Task<ReviewSummaryDetails> GetReviewSummaryDetails(int reviewId, int userId)

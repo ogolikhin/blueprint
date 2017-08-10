@@ -77,7 +77,7 @@ namespace AdminStore.Repositories
             {
                 prm.Add("@groupIds", SqlConnectionWrapper.ToDataTable(groupIds));
             }
-            return await _connectionWrapper.QueryAsync<SqlGroup>("GetGroupsMap", prm, commandType: CommandType.StoredProcedure);
+            return await _connectionWrapper.QueryAsync<SqlGroup>("GetGroupNames", prm, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<IEnumerable<SqlGroup>> GetExistingGroupsByNames(IEnumerable<string> groupNames, bool instanceOnly)

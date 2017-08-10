@@ -21,6 +21,6 @@
         FolderWithCurrentIdNotExist = 50015,
         ProjectWithCurrentIdNotExist = 50016,
         ProjectWithSuchNameExistsInParentFolder = 50017,
-        ParentFolderIdReferenceToChildItem = 50018
+        ParentFolderIdReferenceToDescendantItem = 50018
     }
 }

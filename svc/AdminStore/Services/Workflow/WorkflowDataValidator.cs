@@ -281,7 +281,7 @@ namespace AdminStore.Services.Workflow
             naEvent.Triggers?.ForEach(t => ValidateTriggerData(result, t));
         }
 
-        private void ValidatePermissionGroupsData(WorkflowDataValidationResult result, List<IeGroup> groups)
+        private static void ValidatePermissionGroupsData(WorkflowDataValidationResult result, List<IeGroup> groups)
         {
             if (groups.IsEmpty())
             {
@@ -324,7 +324,7 @@ namespace AdminStore.Services.Workflow
             // For now the only condition IeStateCondition does not require data validation.
         }
 
-        private void ValidateActionData(WorkflowDataValidationResult result, IeBaseAction action)
+        public virtual void ValidateActionData(WorkflowDataValidationResult result, IeBaseAction action)
         {
             if (action == null)
             {
@@ -334,20 +334,20 @@ namespace AdminStore.Services.Workflow
             switch (action.ActionType)
             {
                 case ActionTypes.EmailNotification:
-                    ValidateEmailNotificationAction(result, (IeEmailNotificationAction) action);
+                    ValidateEmailNotificationActionData(result, (IeEmailNotificationAction) action);
                     break;
                 case ActionTypes.PropertyChange:
-                    ValidatePropertyChangeAction(result, (IePropertyChangeAction) action);
+                    ValidatePropertyChangeActionData(result, (IePropertyChangeAction) action);
                     break;
                 case ActionTypes.Generate:
-                    ValidateGenerateAction(result, (IeGenerateAction) action);
+                    ValidateGenerateActionData(result, (IeGenerateAction) action);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(action.ActionType));
             }
         }
 
-        private void ValidateEmailNotificationAction(WorkflowDataValidationResult result, IeEmailNotificationAction action)
+        public virtual void ValidateEmailNotificationActionData(WorkflowDataValidationResult result, IeEmailNotificationAction action)
         {
             if (action?.PropertyName != null
                 && !result.StandardPropertyTypeMap.ContainsKey(action.PropertyName)
@@ -362,7 +362,7 @@ namespace AdminStore.Services.Workflow
             }
         }
 
-        private void ValidatePropertyChangeAction(WorkflowDataValidationResult result, IePropertyChangeAction action)
+        public virtual void ValidatePropertyChangeActionData(WorkflowDataValidationResult result, IePropertyChangeAction action)
         {
             if (action == null)
             {
@@ -395,7 +395,7 @@ namespace AdminStore.Services.Workflow
         }
 
 
-        private void ValidateGenerateAction(WorkflowDataValidationResult result, IeGenerateAction action)
+        public virtual void ValidateGenerateActionData(WorkflowDataValidationResult result, IeGenerateAction action)
         {
             if (action == null)
             {
@@ -405,7 +405,7 @@ namespace AdminStore.Services.Workflow
             switch (action.GenerateActionType)
             {
                 case GenerateActionTypes.Children:
-                    ValidateGenerateChildArtifactsAction(result, action);
+                    ValidateGenerateChildArtifactsActionData(result, action);
                     break;
                 case GenerateActionTypes.UserStories:
                 case GenerateActionTypes.TestCases:
@@ -416,7 +416,7 @@ namespace AdminStore.Services.Workflow
             }
         }
 
-        private void ValidateGenerateChildArtifactsAction(WorkflowDataValidationResult result, IeGenerateAction action)
+        public virtual void ValidateGenerateChildArtifactsActionData(WorkflowDataValidationResult result, IeGenerateAction action)
         {
             if (action == null)
             {

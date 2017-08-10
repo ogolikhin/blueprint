@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using AdminStore.Models.Workflow;
-using AdminStore.Services.Workflow;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
 
-namespace AdminStore.Repositories.Workflow
+namespace AdminStore.Services.Workflow
 {
     [TestClass]
     public class WorkflowXmlValidatorTests

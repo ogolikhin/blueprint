@@ -537,6 +537,25 @@ namespace AdminStore.Repositories
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ConflictException))]
+        public async Task UpdateFolderAsync_ParentFolderIdReferenceToDescendantItem_ReturnConflictError()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            var folderId = 1;
+            var folder = new FolderDto { Name = "Folder1", ParentFolderId = 1 };
+
+            cxn.SetupExecuteScalarAsync("UpdateFolder", It.IsAny<Dictionary<string, object>>(), folderId, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.ParentFolderIdReferenceToDescendantItem } });
+
+            // Act
+            await repository.UpdateFolderAsync(folderId, folder);
+
+            // Assert
+            //Exception
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(ResourceNotFoundException))]
         public async Task UpdateFolderAsync_ParentFolderNotExists_ReturnResourceNotFoundError()
         {

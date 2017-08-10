@@ -497,6 +497,10 @@ namespace AdminStore.Controllers
 
         #region ValidateWorkflowXmlAgainstXsd_Success
 
+        // A failure of this test means that the IeWorkflow model has changed
+        // and regenerating of the xml schema IeWorkflow.xsd is required, see below:
+        // xsd.exe AdminStore.dll /t:IeWorkflow
+        // Note that an extending of the IeWorkflow will not fail the test.
         [TestMethod]
 	    public void ValidateWorkflowXmlAgainstXsd_Success()
 	    {
@@ -580,6 +584,14 @@ namespace AdminStore.Controllers
                                     Emails = new List<string> { "aaa", "bbb" },
                                     Message = "message"
                                 }
+                            }
+                        },
+                        PermissionGroups = new List<IeGroup>
+                        {
+                            new IeGroup
+                            {
+                                Id = 11,
+                                Name = "name"
                             }
                         }
                     }

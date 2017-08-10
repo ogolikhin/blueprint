@@ -115,6 +115,7 @@ namespace ServiceLibrary.Services
             Assert.IsNotNull(service);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId = "ServiceLibrary.Services.FeaturesService")]
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void FeaturesService_Constructor_NullFeaturesRepository_ArgumentNullExceptionIsExpected()
@@ -122,6 +123,7 @@ namespace ServiceLibrary.Services
             var dummy = new FeaturesService(null, _licenseHelperMock.Object, AsyncCache.NoCache);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId = "ServiceLibrary.Services.FeaturesService")]
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void FeaturesService_Constructor_NullLicenseHelper_ArgumentNullExceptionIsExpected()
@@ -129,6 +131,7 @@ namespace ServiceLibrary.Services
             var dummy = new FeaturesService(_featuresRepositoryMock.Object, null, AsyncCache.NoCache);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId = "ServiceLibrary.Services.FeaturesService")]
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void FeaturesService_Constructor_NullAsyncCache_ArgumentNullExceptionIsExpected()

@@ -325,7 +325,30 @@ namespace AdminStore.Services.Workflow
                         Action = new IePropertyChangeAction
                         {
                             PropertyName = "User Property",
-                            PropertyValue = "Group 1"
+                            UsersGroups = new List<IeUserGroup>
+                            {
+                                new IeUserGroup
+                                {
+                                    Name = "user"
+                                },
+                                new IeUserGroup
+                                {
+                                    Name = "instance group",
+                                    IsGroup = true
+                                },
+                                new IeUserGroup
+                                {
+                                    Name = "project group by id",
+                                    IsGroup = true,
+                                    GroupProjectId = 99
+                                },
+                                new IeUserGroup
+                                {
+                                    Name = "project group by path",
+                                    IsGroup = true,
+                                    GroupProjectPath = "path"
+                                },
+                            }
                         }
                     }
                 }

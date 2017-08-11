@@ -8,6 +8,6 @@ namespace AdminStore.Models
 
         public string Name { get; set; }
 
-        public bool IsInstance { get; set; }
+        public int? ProjectId { get; set; }
     }
 }

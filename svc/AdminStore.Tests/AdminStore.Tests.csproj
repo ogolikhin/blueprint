@@ -116,7 +116,8 @@
     <Compile Include="Repositories\WorkflowRepositoryTest.cs" />
     <Compile Include="Saml\SamlCertificateValidatorTests.cs" />
     <Compile Include="Saml\SamlIssuerNameRegistryTests.cs" />
-    <Compile Include="Services\WorkflowServiceTest.cs" />
+    <Compile Include="Services\Workflow\WorkflowServiceTest.cs" />
+    <Compile Include="Services\Workflow\WorkflowActionPropertyValueValidatorTests.cs" />
     <Compile Include="Services\Workflow\WorkflowDataValidatorTests.cs" />
     <Compile Include="Services\Workflow\WorkflowXmlValidatorTests.cs" />
     <Compile Include="Utilities\SamlUtilities.cs" />

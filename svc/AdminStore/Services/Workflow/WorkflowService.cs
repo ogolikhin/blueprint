@@ -277,7 +277,17 @@ namespace AdminStore.Services.Workflow
         {
             var dataMaps = new WorkflowDataMaps();
             dataMaps.UserMap.AddRange(dataValidationResult.Users.ToDictionary(u => u.Login, u => u.UserId));
-            dataMaps.GroupMap.AddRange(dataValidationResult.Groups.ToDictionary(u => u.Name, u => u.GroupId));
+            //TODO: group names are not unique, take into account the project they belongs to
+            //dataMaps.GroupMap.AddRange(dataValidationResult.Groups.ToDictionary(u => u.Name, u => u.GroupId));
+            // TODO: Temp
+            dataValidationResult.Groups.ForEach(g =>
+            {
+                if (!dataMaps.GroupMap.ContainsKey(g.Name))
+                {
+                    dataMaps.GroupMap.Add(g.Name, g.GroupId);
+                }
+            });
+
             dataMaps.StateMap.AddRange(newStates.ToDictionary(s => s.Name, s => s.WorkflowStateId));
             dataMaps.ArtifactTypeMap.AddRange(dataValidationResult.StandardTypes.ArtifactTypes.ToDictionary(at => at.Name, at => at.Id));
             dataValidationResult.StandardTypes.PropertyTypes.ForEach(pt =>

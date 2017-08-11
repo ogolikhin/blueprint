@@ -117,6 +117,8 @@
   <xs:complexType name="UserGroup">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="Name" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="GroupProjectPath" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="GroupProjectId" nillable="true" type="xs:int" />
     </xs:sequence>
     <xs:attribute name="Id" type="xs:int" />
     <xs:attribute name="IsGroup" type="xs:boolean" />

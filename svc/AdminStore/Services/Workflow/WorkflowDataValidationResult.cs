@@ -42,6 +42,8 @@ namespace AdminStore.Services.Workflow
         PropertyNotFound,
         GenerateChildArtifactsActionArtifactTypeNotFound,
         EmailNotificationActionPropertyTypeNotFound,
-        PropertyChangeActionPropertyTypeNotFound
+        PropertyChangeActionPropertyTypeNotFound,
+        // Property Value Validation error codes
+        PropertyValueEmpty
     }
 }

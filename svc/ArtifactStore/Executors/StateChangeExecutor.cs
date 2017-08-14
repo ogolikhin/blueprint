@@ -116,7 +116,12 @@ namespace ArtifactStore.Executors
             ItemTypeReuseTemplate reuseTemplate = null;
             if (isArtifactReadOnlyReuse.ContainsKey(_input.ArtifactId) && isArtifactReadOnlyReuse[_input.ArtifactId])
             {
-                reuseTemplate = await LoadReuseSettings(artifactInfo.ItemTypeId);
+                var artifactId2StandardTypeId =
+                    await
+                        _reuseRepository.GetStandardTypeIdsForArtifactsIdsAsync(new HashSet<int>{_input.ArtifactId});
+                var instanceTypeId = artifactId2StandardTypeId[_input.ArtifactId].InstanceTypeId;
+                if (instanceTypeId != null)
+                    reuseTemplate = await LoadReuseSettings(instanceTypeId.Value);
             }
             var customProperties = await LoadCustomPropertyInformation(artifactInfo.ProjectId, preOpTriggers);
 
@@ -301,6 +306,7 @@ namespace ArtifactStore.Executors
 
             return reuseTemplateSettings;
         }
+
         private async Task<Dictionary<int, CustomProperties>> LoadCustomPropertyInformation(int projectId, WorkflowEventTriggers triggers)
         {
             var propertyChangeActions = triggers.Select(t => t.Action).OfType<PropertyChangeAction>().ToList();

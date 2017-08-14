@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Reuse;
 
@@ -85,12 +86,12 @@ namespace ServiceLibrary.Models.Workflow
             if (reuseTemplate.ReadOnlySettings.HasFlag(ItemTypeReuseTemplateSetting.Name) &&
                 InstancePropertyTypeId == WorkflowConstants.PropertyTypeFakeIdName)
             {
-                throw new Exception("Cannot modify name ");
+                throw new ConflictException("Cannot modify name from workflow event action. Property is readonly.");
             }
             if (reuseTemplate.ReadOnlySettings.HasFlag(ItemTypeReuseTemplateSetting.Description) &&
                 InstancePropertyTypeId == WorkflowConstants.PropertyTypeFakeIdDescription)
             {
-                throw new Exception("Cannot modify description ");
+                throw new ConflictException("Cannot modify description from workflow event action. Property is readonly.");
             }
 
             var customProperty = reuseTemplate.PropertyTypeReuseTemplates[InstancePropertyTypeId.Value];
@@ -98,7 +99,7 @@ namespace ServiceLibrary.Models.Workflow
             var propertyReusetemplate = reuseTemplate.PropertyTypeReuseTemplates[customProperty.PropertyTypeId];
             if (propertyReusetemplate.Settings == PropertyTypeReuseTemplateSettings.ReadOnly)
             {
-                throw new Exception("Cannot modify property");
+                throw new ConflictException("Cannot modify property from workflow event action. Property is readonly.");
             }
         }
     }

@@ -593,6 +593,25 @@ namespace AdminStore.Repositories
             //Exception
         }
 
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task UpdateFolderAsync_EditRootFolderIsForbidden_ReturnBadRequestError()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            var folderId = 1;
+            var folder = new FolderDto { Name = "Folder1" };
+
+            cxn.SetupExecuteScalarAsync("UpdateFolder", It.IsAny<Dictionary<string, object>>(), folderId, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.EditRootFolderIsForbidden } });
+
+            // Act
+            await repository.UpdateFolderAsync(folderId, folder);
+
+            // Assert
+            //Exception
+        }
+
         #endregion
 
         #region UpdateProject

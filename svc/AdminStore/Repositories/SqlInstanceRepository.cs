@@ -231,6 +231,9 @@ namespace AdminStore.Repositories
                     case (int)SqlErrorCodes.GeneralSqlError:
                         throw new Exception(ErrorMessages.GeneralErrorOfUpdatingFolder);
 
+                    case (int)SqlErrorCodes.EditRootFolderIsForbidden:
+                        throw new BadRequestException(ErrorMessages.EditRootFolderIsForbidden, ErrorCodes.BadRequest);
+
                     case (int)SqlErrorCodes.FolderWithCurrentIdNotExist:
                         throw new ResourceNotFoundException(ErrorMessages.FolderNotExist, ErrorCodes.ResourceNotFound);
 

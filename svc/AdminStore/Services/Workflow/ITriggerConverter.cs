@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using AdminStore.Models.Workflow;
 using ServiceLibrary.Models.Workflow;
 
@@ -29,8 +30,9 @@ namespace AdminStore.Services.Workflow
         private IDictionary<string, int> _userMap;
         public IDictionary<string, int> UserMap => _userMap ?? (_userMap = new Dictionary<string, int>());
 
-        private IDictionary<string, int> _groupMap;
-        public IDictionary<string, int> GroupMap => _groupMap ?? (_groupMap = new Dictionary<string, int>());
+        // Key - Tuple where Item1 - Group Name, Item2 - Project Id, Value - Group Id
+        private IDictionary<Tuple<string,int?>, int> _groupMap;
+        public IDictionary<Tuple<string, int?>, int> GroupMap => _groupMap ?? (_groupMap = new Dictionary<Tuple<string, int?>, int>());
 
         // Key - Choice Property Type Id, Value - (Key - Valid Value, Valid Value Id)
         private IDictionary<int, IDictionary<string, int>> _validValueMap;

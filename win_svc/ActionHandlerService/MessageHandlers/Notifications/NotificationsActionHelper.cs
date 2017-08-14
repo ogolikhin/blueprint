@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using ActionHandlerService.Helpers;
 using ActionHandlerService.Models;
 using ActionHandlerService.Repositories;
-using BluePrintSys.Messaging.CrossCutting.Logging;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers.Security;
 using ServiceLibrary.Models.Email;

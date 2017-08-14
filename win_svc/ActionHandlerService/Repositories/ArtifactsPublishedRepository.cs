@@ -2,14 +2,11 @@
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using ActionHandlerService.MessageHandlers.Notifications;
 using ActionHandlerService.Models;
 using BluePrintSys.Messaging.Models.Actions;
 using Dapper;
-using ServiceLibrary.Models.Email;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
-using ServiceLibrary.Repositories.InstanceSettings;
 
 namespace ActionHandlerService.Repositories
 {
@@ -96,31 +93,6 @@ namespace ActionHandlerService.Repositories
             var param = new DynamicParameters();
             param.Add("@revisionId", revisionId);
             return (await ConnectionWrapper.QueryAsync<SqlModifiedProperty>("GetPropertyModificationsForRevisionId", param, commandType: CommandType.StoredProcedure)).ToList();
-        }
-    }
-
-    public interface INotificationActionHandlerServiceRepository : IActionHandlerServiceRepository
-    {
-        void SendEmail(SMTPClientConfiguration smtpClientConfiguration, Message message);
-    }
-
-    public class NotificationActionHandlerServiceRepository : ActionHandlerServiceRepository, INotificationActionHandlerServiceRepository
-    {
-        public NotificationActionHandlerServiceRepository(string connectionString) : base(connectionString)
-        {
-        }
-
-        public NotificationActionHandlerServiceRepository(ISqlConnectionWrapper connectionWrapper) : base(connectionWrapper)
-        {
-        }
-
-        public NotificationActionHandlerServiceRepository(ISqlConnectionWrapper connectionWrapper, IArtifactPermissionsRepository artifactPermissionsRepository) : base(connectionWrapper, artifactPermissionsRepository)
-        {
-        }
-
-        public void SendEmail(SMTPClientConfiguration smtpClientConfiguration, Message message)
-        {
-            new SmtpClient(smtpClientConfiguration).SendEmail(message);
         }
     }
 }

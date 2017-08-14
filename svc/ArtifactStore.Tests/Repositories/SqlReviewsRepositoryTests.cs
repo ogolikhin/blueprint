@@ -1277,8 +1277,7 @@ namespace ArtifactStore.Repositories
             {
                {"ArtifactIds",  ids},
                 { "Unpublished", 0},
-            {"Nonexistent", 0},
-            {"ProjectMoved", 0}
+            {"Nonexistent", 0}
         };
 
             var mockResult = new Tuple<IEnumerable<int>, IEnumerable<int>,IEnumerable <int>> (ArtifactIds, Unpublished, Nonexistent);

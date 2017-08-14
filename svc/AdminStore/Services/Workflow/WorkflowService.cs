@@ -403,7 +403,7 @@ namespace AdminStore.Services.Workflow
             var workflowStates = (await _workflowRepository.GetWorkflowStatesAsync(workflowId)).ToList();
             var workflowEvents = (await _workflowRepository.GetWorkflowEventsAsync(workflowId)).ToList();
 
-            WorkflowDataNameMaps dataMaps = LoadDataMaps(workflowDetails.WorkflowId);
+            WorkflowDataNameMaps dataMaps = await LoadDataMaps(workflowDetails.WorkflowId);
 
             IeWorkflow ieWorkflow = new IeWorkflow
             {
@@ -462,24 +462,23 @@ namespace AdminStore.Services.Workflow
             return ieTriggers;
         }
 
-        private WorkflowDataNameMaps LoadDataMaps(int workflowId)
+        private async Task<WorkflowDataNameMaps> LoadDataMaps(int workflowId)
         {
             var dataMaps = new WorkflowDataNameMaps();
 
-            dataMaps.GroupMap.AddRange(GetUserGroupsMap());
-            dataMaps.StateMap.AddRange(GetStatesMap(workflowId));
-            dataMaps.ArtifactTypeMap.AddRange(GetArtifactTypesMap(workflowId));
-            dataMaps.PropertyTypeMap.AddRange(GetPropertyTypesMap());
+            dataMaps.GroupMap.AddRange(await GetUserGroupsMap());
+            dataMaps.StateMap.AddRange(await GetStatesMap(workflowId));
+            dataMaps.ArtifactTypeMap.AddRange(await GetArtifactTypesMap(workflowId));
+            dataMaps.PropertyTypeMap.AddRange(await GetPropertyTypesMap());
 
             return dataMaps;
         }
 
-        private Dictionary<int, string> GetUserGroupsMap()
+        private async Task<Dictionary<int, string>> GetUserGroupsMap()
         {
             var map = new Dictionary<int, string>();
 
-            var result = _userRepository.GetUserGroupsMapAsync();
-            var groups = result.Result;
+            var groups = await _userRepository.GetUserGroupsMapAsync();
             if (groups != null)
             {
                 groups.ForEach(g => map.Add(g.GroupId, g.Name));
@@ -488,12 +487,11 @@ namespace AdminStore.Services.Workflow
             return map;
         }
 
-        private Dictionary<int, string> GetStatesMap(int workflowId)
+        private async Task<Dictionary<int, string>> GetStatesMap(int workflowId)
         {
             var map = new Dictionary<int, string>();
 
-            var result = _workflowRepository.GetWorkflowStatesMapAsync(workflowId);
-            var states = result.Result;
+            var states = await _workflowRepository.GetWorkflowStatesMapAsync(workflowId);
             if (states != null)
             {
                 states.ForEach(s => map.Add(s.Id, s.Name));
@@ -502,12 +500,11 @@ namespace AdminStore.Services.Workflow
             return map;
         }
 
-        private Dictionary<int, string> GetArtifactTypesMap(int workflowId)
+        private async Task<Dictionary<int, string>> GetArtifactTypesMap(int workflowId)
         {
             var map = new Dictionary<int, string>();
 
-            var result = _workflowRepository.GetWorkflowArtifactTypesMapAsync(workflowId);
-            var artifacts = result.Result;
+            var artifacts = await _workflowRepository.GetWorkflowArtifactTypesMapAsync(workflowId);
             if (artifacts != null)
             {
                 artifacts.ForEach(a => map.Add(a.Id, a.Name));
@@ -516,12 +513,11 @@ namespace AdminStore.Services.Workflow
             return map;
         }
 
-        private Dictionary<int, string> GetPropertyTypesMap()
+        private async Task<Dictionary<int, string>> GetPropertyTypesMap()
         {
             var map = new Dictionary<int, string>();
 
-            var result = _workflowRepository.GetPropertyTypesMapAsync();
-            var properties = result.Result;
+            var properties = await _workflowRepository.GetPropertyTypesMapAsync();
             if (properties != null)
             {
                 properties.ForEach(p => map.Add(p.Id, p.Name));

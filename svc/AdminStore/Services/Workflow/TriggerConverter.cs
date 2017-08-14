@@ -114,7 +114,8 @@ namespace AdminStore.Services.Workflow
                         Name = xeAction.Name,
                         Emails = xeAction.Emails,
                         PropertyId = xeAction.PropertyTypeId,
-                        PropertyName = dataMaps.PropertyTypeMap.TryGetValue((int)xeAction.PropertyTypeId, out name) ? name : null,
+                        PropertyName = xeAction.PropertyTypeId == null ? null : 
+                            dataMaps.PropertyTypeMap.TryGetValue((int)xeAction.PropertyTypeId, out name) ? name : null,
                         Message = xeAction.Message
                     };
                     break;

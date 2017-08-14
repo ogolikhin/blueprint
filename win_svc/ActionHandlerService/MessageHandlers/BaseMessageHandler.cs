@@ -65,8 +65,17 @@ namespace ActionHandlerService.MessageHandlers
         protected virtual async Task<bool> ProcessAction(TenantInformation tenant, T message, IMessageHandlerContext context)
         {
             Log.Info($"{message.ActionType.ToString()} action handling started for tenant {tenant.Id}");
-            var repository = new ActionHandlerServiceRepository(tenant.ConnectionString);
-            return await ActionHelper.HandleAction(tenant, message, repository);
+            IActionHandlerServiceRepository serviceRepository;
+            if (message is NotificationMessage)
+            {
+                serviceRepository = new NotificationActionHandlerServiceRepository(tenant.ConnectionString);
+            }
+            else
+            {
+                serviceRepository = new ActionHandlerServiceRepository(tenant.ConnectionString);
+            }
+            
+            return await ActionHelper.HandleAction(tenant, message, serviceRepository);
         }
     }
 }

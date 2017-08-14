@@ -19,6 +19,7 @@ namespace AdminStore.Helpers
         {
             var data = new[]
             {
+                new {key = "[", value = "[[]"},
                 new {key = "_", value = "[_]"},
                 new {key = "%", value = "[%]"}
             };

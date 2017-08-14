@@ -1,7 +1,9 @@
 ﻿using System.Xml.Serialization;
 
-namespace AdminStore.Models.Workflow { 
+namespace AdminStore.Models.Workflow {
 
+    // !!! Updating of this class requires regenerating of the xml schema IeWorkflow.xsd is required, see below:
+    // !!! xsd.exe AdminStore.dll /t:IeWorkflow
     [XmlType("Trigger")]
     public class IeTrigger
     {

@@ -1,0 +1,219 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="Workflow" nillable="true" type="Workflow" />
+  <xs:complexType name="Workflow">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Name" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Description" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="States" type="ArrayOfState" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Transitions" type="ArrayOfTransition" />
+      <xs:element minOccurs="0" maxOccurs="1" name="PropertyChanges" type="ArrayOfPropertyChange" />
+      <xs:element minOccurs="0" maxOccurs="1" name="NewArtifacts" type="ArrayOfNewArtifact" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Projects" type="ArrayOfProject" />
+    </xs:sequence>
+    <xs:attribute name="Id" type="xs:int" />
+  </xs:complexType>
+  <xs:complexType name="ArrayOfState">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="State" nillable="true" type="State" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="State">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Name" type="xs:string" />
+    </xs:sequence>
+    <xs:attribute name="Id" type="xs:int" />
+    <xs:attribute name="IsInitial" type="xs:boolean" />
+  </xs:complexType>
+  <xs:complexType name="ArrayOfTransition">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Transition" nillable="true" type="Transition" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Transition">
+    <xs:complexContent mixed="false">
+      <xs:extension base="Event">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="FromState" type="xs:string" />
+          <xs:element minOccurs="0" maxOccurs="1" name="FromStateId" nillable="true" type="xs:int" />
+          <xs:element minOccurs="0" maxOccurs="1" name="ToState" type="xs:string" />
+          <xs:element minOccurs="0" maxOccurs="1" name="ToStateId" nillable="true" type="xs:int" />
+          <xs:element minOccurs="0" maxOccurs="1" name="PermissionGroups" type="ArrayOfGroup" />
+          <xs:element minOccurs="0" maxOccurs="1" name="SkipPermissionGroups" nillable="true" type="xs:boolean" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="Event" abstract="true">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Name" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Triggers" type="ArrayOfTrigger" />
+    </xs:sequence>
+    <xs:attribute name="Id" type="xs:int" />
+  </xs:complexType>
+  <xs:complexType name="ArrayOfTrigger">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Trigger" nillable="true" type="Trigger" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Trigger">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Name" type="xs:string" />
+      <xs:choice minOccurs="1" maxOccurs="1">
+        <xs:element minOccurs="0" maxOccurs="1" name="EmailNotificationAction" type="NotificationAction" />
+        <xs:element minOccurs="0" maxOccurs="1" name="GenerateAction" type="GenerateAction" />
+        <xs:element minOccurs="0" maxOccurs="1" name="PropertyChangeAction" type="PropertyChangeAction" />
+      </xs:choice>
+      <xs:element minOccurs="0" maxOccurs="1" name="StateCondition" type="StateCondition" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="NotificationAction">
+    <xs:complexContent mixed="false">
+      <xs:extension base="BaseAction">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Emails" type="ArrayOfString" />
+          <xs:element minOccurs="0" maxOccurs="1" name="PropertyName" type="xs:string" />
+          <xs:element minOccurs="0" maxOccurs="1" name="PropertyId" nillable="true" type="xs:int" />
+          <xs:element minOccurs="0" maxOccurs="1" name="Message" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="BaseAction" abstract="true">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Name" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PropertyChangeAction">
+    <xs:complexContent mixed="false">
+      <xs:extension base="BaseAction">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="PropertyName" type="xs:string" />
+          <xs:element minOccurs="0" maxOccurs="1" name="PropertyId" nillable="true" type="xs:int" />
+          <xs:element minOccurs="0" maxOccurs="1" name="PropertyValue" type="xs:string" />
+          <xs:element minOccurs="0" maxOccurs="1" name="ValidValues" type="ArrayOfValidValue" />
+          <xs:element minOccurs="0" maxOccurs="1" name="UsersGroups" type="ArrayOfUserGroup" />
+          <xs:element minOccurs="0" maxOccurs="1" name="IncludeCurrentUser" nillable="true" type="xs:boolean" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfValidValue">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="ValidValue" nillable="true" type="ValidValue" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ValidValue">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Value" type="xs:string" />
+    </xs:sequence>
+    <xs:attribute name="Id" type="xs:int" />
+  </xs:complexType>
+  <xs:complexType name="ArrayOfUserGroup">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="UserGroup" nillable="true" type="UserGroup" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="UserGroup">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Name" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="GroupProjectPath" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="GroupProjectId" nillable="true" type="xs:int" />
+    </xs:sequence>
+    <xs:attribute name="Id" type="xs:int" />
+    <xs:attribute name="IsGroup" type="xs:boolean" />
+  </xs:complexType>
+  <xs:complexType name="GenerateAction">
+    <xs:complexContent mixed="false">
+      <xs:extension base="BaseAction">
+        <xs:sequence>
+          <xs:element minOccurs="1" maxOccurs="1" name="GenerateActionType" type="GenerateActionTypes" />
+          <xs:element minOccurs="0" maxOccurs="1" name="ChildCount" nillable="true" type="xs:int" />
+          <xs:element minOccurs="0" maxOccurs="1" name="ArtifactType" type="xs:string" />
+          <xs:element minOccurs="0" maxOccurs="1" name="ArtifactTypeId" nillable="true" type="xs:int" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:simpleType name="GenerateActionTypes">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Children" />
+      <xs:enumeration value="UserStories" />
+      <xs:enumeration value="TestCases" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="ArrayOfString">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Email" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="StateCondition">
+    <xs:complexContent mixed="false">
+      <xs:extension base="Condition">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="State" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="Condition" abstract="true" />
+  <xs:complexType name="NewArtifact">
+    <xs:complexContent mixed="false">
+      <xs:extension base="Event" />
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="PropertyChange">
+    <xs:complexContent mixed="false">
+      <xs:extension base="Event">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="PropertyName" type="xs:string" />
+          <xs:element minOccurs="0" maxOccurs="1" name="PropertyId" nillable="true" type="xs:int" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfGroup">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Group" nillable="true" type="Group" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Group">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Name" type="xs:string" />
+    </xs:sequence>
+    <xs:attribute name="Id" type="xs:int" />
+  </xs:complexType>
+  <xs:complexType name="ArrayOfPropertyChange">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="PropertyChange" nillable="true" type="PropertyChange" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfNewArtifact">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="NewArtifact" nillable="true" type="NewArtifact" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfProject">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Project" nillable="true" type="Project" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Project">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Path" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ArtifactTypes" type="ArrayOfArtifactType" />
+    </xs:sequence>
+    <xs:attribute name="Id" type="xs:int" />
+  </xs:complexType>
+  <xs:complexType name="ArrayOfArtifactType">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="ArtifactType" nillable="true" type="ArtifactType" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ArtifactType">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Name" type="xs:string" />
+    </xs:sequence>
+    <xs:attribute name="Id" type="xs:int" />
+  </xs:complexType>
+</xs:schema>

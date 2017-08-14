@@ -118,6 +118,8 @@
     <Compile Include="Repositories\ConfigControl\ServiceLogRepositoryTests.cs" />
     <Compile Include="Repositories\SqlInstanceSettingsRepositoryMock.cs" />
     <Compile Include="Repositories\SqlUserRepositoryMock.cs" />
+    <Compile Include="Repositories\SqlFeaturesRepositoryTests.cs" />
+    <Compile Include="Services\FeaturesServiceTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ServiceLibrary\ServiceLibrary.csproj">

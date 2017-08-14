@@ -172,7 +172,7 @@ namespace AdminStore.Repositories
 
         public async Task<IEnumerable<FolderDto>> GetFoldersByName(string name)
         {
-            if (name != null)
+            if (string.IsNullOrWhiteSpace(name))
             {
                 name = UsersHelper.ReplaceWildcardCharacters(name);
             }
@@ -231,6 +231,9 @@ namespace AdminStore.Repositories
                     case (int)SqlErrorCodes.GeneralSqlError:
                         throw new Exception(ErrorMessages.GeneralErrorOfUpdatingFolder);
 
+                    case (int)SqlErrorCodes.EditRootFolderIsForbidden:
+                        throw new BadRequestException(ErrorMessages.EditRootFolderIsForbidden, ErrorCodes.BadRequest);
+
                     case (int)SqlErrorCodes.FolderWithCurrentIdNotExist:
                         throw new ResourceNotFoundException(ErrorMessages.FolderNotExist, ErrorCodes.ResourceNotFound);
 
@@ -240,8 +243,8 @@ namespace AdminStore.Repositories
                     case (int)SqlErrorCodes.ParentFolderNotExists:
                         throw new ResourceNotFoundException(ErrorMessages.ParentFolderNotExists, ErrorCodes.ResourceNotFound);
 
-                    case (int)SqlErrorCodes.ParentFolderIdReferenceToChildItem:
-                        throw new ConflictException(ErrorMessages.FolderWithSuchNameExistsInParentFolder, ErrorCodes.Conflict);
+                    case (int)SqlErrorCodes.ParentFolderIdReferenceToDescendantItem:
+                        throw new ConflictException(ErrorMessages.ParentFolderIdReferenceToDescendantItem, ErrorCodes.Conflict);
                 }
             }
         }

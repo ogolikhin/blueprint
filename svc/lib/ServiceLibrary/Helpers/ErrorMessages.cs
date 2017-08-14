@@ -89,7 +89,8 @@
         public static readonly string GeneralErrorOfCreatingFolder = "An error has occurred when the operation was being performed at SQL level.";
         public static readonly string GeneralErrorOfUpdatingFolder = "An error has occurred when the operation was being performed at SQL level.";
         public static readonly string FolderReferenceToItself = "The folder cannot be placed into itself. Please select a different location.";
-        public static readonly string ParentFolderIdReferenceToChildItem = "The parent folder cannot be placed into its descendant. Please select a different location.";
+        public static readonly string ParentFolderIdReferenceToDescendantItem = "The parent folder cannot be placed into its descendant. Please select a different location.";
+        public static readonly string EditRootFolderIsForbidden = "Root folder cannot be edit.";
         //Project
         public static readonly string ProjectNameLimitation = "Please enter a name between 1 and 128 characters.";
         public static readonly string LocationIsRequired = "Please select a location.";

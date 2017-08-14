@@ -114,10 +114,12 @@
     <Compile Include="Repositories\SqlUserRepositoryTests.cs" />
     <Compile Include="Repositories\LdapRepositoryTests.cs" />
     <Compile Include="Repositories\WorkflowRepositoryTest.cs" />
-    <Compile Include="Repositories\Workflow\WorkflowXmlValidatorTests.cs" />
     <Compile Include="Saml\SamlCertificateValidatorTests.cs" />
     <Compile Include="Saml\SamlIssuerNameRegistryTests.cs" />
-    <Compile Include="Services\WorkflowServiceTest.cs" />
+    <Compile Include="Services\Workflow\WorkflowServiceTest.cs" />
+    <Compile Include="Services\Workflow\WorkflowActionPropertyValueValidatorTests.cs" />
+    <Compile Include="Services\Workflow\WorkflowDataValidatorTests.cs" />
+    <Compile Include="Services\Workflow\WorkflowXmlValidatorTests.cs" />
     <Compile Include="Utilities\SamlUtilities.cs" />
   </ItemGroup>
   <ItemGroup>

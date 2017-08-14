@@ -267,6 +267,7 @@ namespace AdminStore.Controllers
         /// <response code="404">NotFound. The folder with the current folderId doesn’t exist or removed from the system.</response>
         /// <response code="404">NotFound. The parent folder with current id does not exist.</response>
         /// <response code="409">Conflict. The folder with the same name already exists in the parent folder.</response>
+        /// <response code="409">Conflict. The parent folder cannot be placed into its descendant. Please select a different location.</response>
         /// <response code="500">Internal server error.</response>
         [HttpPut]
         [SessionRequired]
@@ -277,6 +278,11 @@ namespace AdminStore.Controllers
             if (folderDto == null)
             {
                 throw new BadRequestException(ErrorMessages.ModelIsEmpty, ErrorCodes.BadRequest);
+            }
+
+            if (!folderDto.ParentFolderId.HasValue)
+            {
+                throw new BadRequestException(ErrorMessages.EditRootFolderIsForbidden, ErrorCodes.BadRequest);
             }
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageProjects);

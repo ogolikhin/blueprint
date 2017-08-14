@@ -1,30 +1,28 @@
-﻿using ArtifactStore.Repositories;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using ServiceLibrary.Repositories.InstanceSettings;
 
 namespace ArtifactStore.Helpers
 {
     [TestClass]
     public class MentionHelperTests
     {
-        private IUsersRepository userRepository;
-        private IInstanceSettingsRepository instanceSettingsRepository;
-        private IArtifactPermissionsRepository artifactPermissionsRepository;
-        private EmailSettings fakeEmailSettings;
-        private MentionHelper mentionHelper;
-        private SqlConnectionWrapperMock cxn;
+        private IUsersRepository _userRepository;
+        private IInstanceSettingsRepository _instanceSettingsRepository;
+        private IArtifactPermissionsRepository _artifactPermissionsRepository;
+        private EmailSettings _fakeEmailSettings;
+        private InstanceSettings _instanceSettings;
+        private MentionHelper _mentionHelper;
+        private SqlConnectionWrapperMock _cxn;
 
         [TestInitialize]
         public void init()
         {
 
-            fakeEmailSettings =  new EmailSettings
+            _fakeEmailSettings =  new EmailSettings
             {
                 Id = "Fake",
                 Authenticated = false,
@@ -47,11 +45,12 @@ namespace ArtifactStore.Helpers
                 SenderEmailAddress = "FakeSenderAddress",
                 UserName = "FakeUserName"
             };
-            cxn = new SqlConnectionWrapperMock();
-            userRepository = new SqlUserRepositoryMock();
-            instanceSettingsRepository = new SqlInstanceSettingsRepositoryMock(fakeEmailSettings);
-            artifactPermissionsRepository = new SqlArtifactPermissionsRepository(cxn.Object);
-            mentionHelper = new MentionHelper(userRepository, instanceSettingsRepository, artifactPermissionsRepository);
+            _instanceSettings = new InstanceSettings();
+            _cxn = new SqlConnectionWrapperMock();
+            _userRepository = new SqlUserRepositoryMock();
+            _instanceSettingsRepository = new SqlInstanceSettingsRepositoryMock(_fakeEmailSettings, _instanceSettings);
+            _artifactPermissionsRepository = new SqlArtifactPermissionsRepository(_cxn.Object);
+            _mentionHelper = new MentionHelper(_userRepository, _instanceSettingsRepository, _artifactPermissionsRepository);
         }
 
         [TestMethod]
@@ -64,7 +63,7 @@ namespace ArtifactStore.Helpers
             var emailSettings = new EmailSettings();
 
             // Act
-            var result = mentionHelper.CheckUsersEmailDomain(email, isUserEnabled, isGuest, emailSettings);
+            var result = _mentionHelper.CheckUsersEmailDomain(email, isUserEnabled, isGuest, emailSettings);
             Assert.IsTrue(result);
         }
         [TestMethod]
@@ -77,7 +76,7 @@ namespace ArtifactStore.Helpers
             var emailSettings = new EmailSettings();
 
             // Act
-            var result = mentionHelper.CheckUsersEmailDomain(email, isUserEnabled, isGuest, emailSettings);
+            var result = _mentionHelper.CheckUsersEmailDomain(email, isUserEnabled, isGuest, emailSettings);
             Assert.IsFalse(result);
         }
         [TestMethod]
@@ -89,7 +88,7 @@ namespace ArtifactStore.Helpers
             var isGuest = true;
 
             // Act
-            var result = mentionHelper.CheckUsersEmailDomain(email, isUserEnabled, isGuest, null);
+            var result = _mentionHelper.CheckUsersEmailDomain(email, isUserEnabled, isGuest, null);
             Assert.IsFalse(result);
         }
         [TestMethod]
@@ -103,7 +102,7 @@ namespace ArtifactStore.Helpers
             emailSettings.Domains = "MyDomain;MyOtherDomain;";
             emailSettings.EnableAllUsers = false;
             // Act
-            var result = mentionHelper.CheckUsersEmailDomain(email, isUserEnabled, isGuest, emailSettings);
+            var result = _mentionHelper.CheckUsersEmailDomain(email, isUserEnabled, isGuest, emailSettings);
             Assert.IsFalse(result);
         }
         [TestMethod]
@@ -118,7 +117,7 @@ namespace ArtifactStore.Helpers
             emailSettings.EnableAllUsers = true;
             emailSettings.EnableDomains = false;
             // Act
-            var result = mentionHelper.CheckUsersEmailDomain(email, isUserEnabled, isGuest, emailSettings);
+            var result = _mentionHelper.CheckUsersEmailDomain(email, isUserEnabled, isGuest, emailSettings);
             Assert.IsTrue(result);
         }
         [TestMethod]
@@ -134,7 +133,7 @@ namespace ArtifactStore.Helpers
             emailSettings.EnableDomains = true;
 
             // Act
-            var result = mentionHelper.CheckUsersEmailDomain(email, isUserEnabled, isGuest, emailSettings);
+            var result = _mentionHelper.CheckUsersEmailDomain(email, isUserEnabled, isGuest, emailSettings);
             Assert.IsTrue(result);
         }
 
@@ -144,7 +143,7 @@ namespace ArtifactStore.Helpers
             // Arrange
             var email = "DisabledUser@MyDomain";
             // Act
-            var result = await mentionHelper.IsEmailBlocked(email);
+            var result = await _mentionHelper.IsEmailBlocked(email);
             // Assert
             Assert.IsTrue(result);
         }
@@ -155,7 +154,7 @@ namespace ArtifactStore.Helpers
             // Arrange
             var email = "User@MyDomain";
             // Act
-            var result = await mentionHelper.IsEmailBlocked(email);
+            var result = await _mentionHelper.IsEmailBlocked(email);
             // Assert
             Assert.IsFalse(result);
         }
@@ -164,10 +163,10 @@ namespace ArtifactStore.Helpers
         {
             // Arrange
             var projectId = 1;
-            fakeEmailSettings.EnableEmailReplies = false;
-            instanceSettingsRepository = new SqlInstanceSettingsRepositoryMock(fakeEmailSettings);
+            _fakeEmailSettings.EnableEmailReplies = false;
+            _instanceSettingsRepository = new SqlInstanceSettingsRepositoryMock(_fakeEmailSettings, _instanceSettings);
             // Act
-            var result = await mentionHelper.AreEmailDiscussionsEnabled(projectId);
+            var result = await _mentionHelper.AreEmailDiscussionsEnabled(projectId);
             // Assert
             Assert.IsFalse(result);
         }
@@ -177,11 +176,11 @@ namespace ArtifactStore.Helpers
         {
             // Arrange
             var projectId = 1;
-            fakeEmailSettings.EnableEmailReplies = true;
-            instanceSettingsRepository = new SqlInstanceSettingsRepositoryMock(fakeEmailSettings);
-            cxn.SetupExecuteScalarAsync("GetProjectPermissions", new Dictionary<string, object> { { "ProjectId", projectId} },  ProjectPermissions.AreEmailRepliesEnabled);
+            _fakeEmailSettings.EnableEmailReplies = true;
+            _instanceSettingsRepository = new SqlInstanceSettingsRepositoryMock(_fakeEmailSettings, _instanceSettings);
+            _cxn.SetupExecuteScalarAsync("GetProjectPermissions", new Dictionary<string, object> { { "ProjectId", projectId} },  ProjectPermissions.AreEmailRepliesEnabled);
             // Act
-            var result = await mentionHelper.AreEmailDiscussionsEnabled(projectId);
+            var result = await _mentionHelper.AreEmailDiscussionsEnabled(projectId);
             // Assert
             Assert.IsTrue(result);
         }

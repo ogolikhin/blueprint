@@ -21,6 +21,7 @@ namespace AdminStore.Services
         private Mock<IWorkflowRepository> _workflowRepositoryMock;
         private Mock<IUserRepository> _userRepositoryMock;
         private Mock<IWorkflowValidationErrorBuilder> _workflowValidationErrorBuilder ;
+        private Mock<ITriggerConverter> _triggerConverter;
 
         private WorkflowService _service;
         private const int SessionUserId = 1;
@@ -35,10 +36,13 @@ namespace AdminStore.Services
             _workflowXmlValidatorMock = new Mock<IWorkflowXmlValidator>();
             _userRepositoryMock = new Mock<IUserRepository>();
             _workflowValidationErrorBuilder = new Mock<IWorkflowValidationErrorBuilder>();
+            _triggerConverter = new Mock<ITriggerConverter>();
+
             _service = new WorkflowService(_workflowRepositoryMock.Object,
                 _workflowXmlValidatorMock.Object,
                 _userRepositoryMock.Object,
-                _workflowValidationErrorBuilder.Object, null, null, null);
+                _workflowValidationErrorBuilder.Object, null,
+                _triggerConverter.Object, null);
         }
 
         #region GetWorkflowDetailsAsync
@@ -219,8 +223,6 @@ namespace AdminStore.Services
             //assert
             Assert.IsNotNull(workflowExport);
             Assert.AreEqual(2, workflowExport.Projects.Count);
-            // TODO: Alex T, IeWorkflow changed, now the list of artifacts types are moved to IeProject, please see this PR.
-            //Assert.AreEqual(2, workflowExport.ArtifactTypes.Count);
             Assert.AreEqual(1, workflowExport.States.Count);
         }
 

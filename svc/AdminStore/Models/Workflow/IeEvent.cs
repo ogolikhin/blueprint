@@ -6,6 +6,8 @@ namespace AdminStore.Models.Workflow
 {
     public enum EventTypes { None, Transition, PropertyChange, NewArtifact }
 
+    // !!! Updating of this class requires regenerating of the xml schema IeWorkflow.xsd is required, see below:
+    // !!! xsd.exe AdminStore.dll /t:IeWorkflow
     /// <summary>
     /// Base class for Triggers of specific type
     /// </summary>

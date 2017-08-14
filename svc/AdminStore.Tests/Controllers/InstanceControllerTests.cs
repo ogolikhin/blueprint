@@ -454,6 +454,24 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task UpdateFolder_EditRootFolderIsForbidden_ReturnBadRequestResult()
+        {
+            // Arrange
+            var folder = new FolderDto { Name = "Folder1", ParentFolderId = null };
+
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageProjects);
+
+            // Act
+            await _controller.UpdateInstanceFolder(FolderId, folder);
+
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(AuthorizationException))]
         public async Task UpdateFolder_NoPermissions_ForbiddenResult()
         {

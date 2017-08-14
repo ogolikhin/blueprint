@@ -2,6 +2,8 @@
 
 namespace AdminStore.Models.Workflow
 {
+    // !!! Updating of this class requires regenerating of the xml schema IeWorkflow.xsd is required, see below:
+    // !!! xsd.exe AdminStore.dll /t:IeWorkflow
     [XmlType("UserGroup")]
     public class IeUserGroup
     {
@@ -43,6 +45,16 @@ namespace AdminStore.Models.Workflow
         {
             return IsGroup.HasValue;
         }
+        //========================================================
+
+        //========================================================
+        // GroupProjectId or GroupProjectPath can be specified, GroupProjectId has precedence over GroupProjectPath.
+        [XmlElement(IsNullable = false)]
+        public string GroupProjectPath { get; set; }
+
+        [XmlElement("GroupProjectId")]
+        public int? GroupProjectId { get; set; }
+        public bool ShouldSerializeGroupProjectId() { return GroupProjectId.HasValue; }
         //========================================================
     }
 }

@@ -72,17 +72,18 @@ namespace AdminStore.Services.Workflow
         private const string TemplateXmlDuplicateArtifactTypesInProject = "One or more Propojects contains duplicate Artifact Types. Artifact Types in a Project must be unique.";
 
         // Messages for the Data validation.
-        private const string TemplateXmlWorkflowNameNotUnique = "A Workflow with Name '{0}' already exists. Workflows in Blueprint must have unique names.";
-        private const string TemplateXmlProjectByPathNotFound = "Project by Path '{0}' is not found in Blueprint.";
-        private const string TemplateXmlProjectByIdNotFound = "Project by ID '{0}' is not found in Blueprint.";
-        private const string TemplateXmlProjectIdDuplicate = "The Workflow contains duplicate projects.";
-        private const string TemplateXmlInstanceGroupNotFound = "Instance Group '{0}' is not found in Blueprint.";
-        private const string TemplateXmlStandardArtifactTypeNotFound = "Standard Artifact Type '{0}' is not found.";
-        private const string TemplateXmlArtifactTypeInProjectAlreadyAssociatedWithWorkflow = "Artifact Type '{0}' in Project '{1}' is already is associated with a Workflow.";
-        private const string TemplateXmlPropertyNotFound = "Property '{0}' of a Property Change Event is not found in Blueprint.";
-        private const string TemplateXmlGenerateChildArtifactsActionArtifactTypeNotFound = "Artifact Type '{0}' of a Generate Child Artifacts Action is not found in Blueprint.";
-        private const string TemplateXmlEmailNotificationActionPropertyTypeNotFound = "Property Type '{0}' of a Email Notification Action is not found in Blueprint.";
-        private const string TemplateXmlPropertyChangeActionPropertyTypeNotFound = "Property Type '{0}' of a Property Change Action is not found in Blueprint.";
+        private const string TemplateDataWorkflowNameNotUnique = "A Workflow with Name '{0}' already exists. Workflows in Blueprint must have unique names.";
+        private const string TemplateDataProjectByPathNotFound = "Project by Path '{0}' is not found in Blueprint.";
+        private const string TemplateDataProjectByIdNotFound = "Project by ID '{0}' is not found in Blueprint.";
+        private const string TemplateDataProjectIdDuplicate = "The Workflow contains duplicate projects.";
+        private const string TemplateDataInstanceGroupNotFound = "Instance Group '{0}' is not found in Blueprint.";
+        private const string TemplateDataStandardArtifactTypeNotFound = "Standard Artifact Type '{0}' is not found.";
+        private const string TemplateDataArtifactTypeInProjectAlreadyAssociatedWithWorkflow = "Artifact Type '{0}' in Project '{1}' is already is associated with a Workflow.";
+        private const string TemplateDataPropertyNotFound = "Property '{0}' of a Property Change Event is not found in Blueprint.";
+        private const string TemplateDataGenerateChildArtifactsActionArtifactTypeNotFound = "Artifact Type '{0}' of a Generate Child Artifacts Action is not found in Blueprint.";
+        private const string TemplateDataEmailNotificationActionPropertyTypeNotFound = "Property Type '{0}' of a Email Notification Action is not found in Blueprint.";
+        private const string TemplateDataPropertyChangeActionPropertyTypeNotFound = "Property Type '{0}' of a Property Change Action is not found in Blueprint.";
+        private const string TemplateDataPropertyValueEmpty = "The Property Value of required Property '{0}' in a Property Change Action is empty.";
 
         #region Interface Implementation
 
@@ -352,49 +353,53 @@ namespace AdminStore.Services.Workflow
             switch (error.ErrorCode)
             {
                 case WorkflowDataValidationErrorCodes.WorkflowNameNotUnique:
-                    template = TemplateXmlWorkflowNameNotUnique;
+                    template = TemplateDataWorkflowNameNotUnique;
                     errParams = new object[] { ((IeWorkflow)error.Element).Name };
                     break;
                 case WorkflowDataValidationErrorCodes.ProjectByPathNotFound:
-                    template = TemplateXmlProjectByPathNotFound;
+                    template = TemplateDataProjectByPathNotFound;
                     errParams = new object[] { (string) error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.ProjectByIdNotFound:
-                    template = TemplateXmlProjectByIdNotFound;
+                    template = TemplateDataProjectByIdNotFound;
                     errParams = new object[] { (int)error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.ProjectDuplicate:
-                    template = TemplateXmlProjectIdDuplicate;
+                    template = TemplateDataProjectIdDuplicate;
                     errParams = new object[] {};
                     break;
                 case WorkflowDataValidationErrorCodes.InstanceGroupNotFound:
-                    template = TemplateXmlInstanceGroupNotFound;
+                    template = TemplateDataInstanceGroupNotFound;
                     errParams = new object[] { (string) error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.StandardArtifactTypeNotFound:
-                    template = TemplateXmlStandardArtifactTypeNotFound;
+                    template = TemplateDataStandardArtifactTypeNotFound;
                     errParams = new object[] { (string) error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.ArtifactTypeInProjectAlreadyAssociatedWithWorkflow:
-                    template = TemplateXmlArtifactTypeInProjectAlreadyAssociatedWithWorkflow;
+                    template = TemplateDataArtifactTypeInProjectAlreadyAssociatedWithWorkflow;
                     var t = (Tuple<int, string>) error.Element;
                     errParams = new object[] { t?.Item2, t?.Item1 };
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyNotFound:
-                    template = TemplateXmlPropertyNotFound;
+                    template = TemplateDataPropertyNotFound;
                     errParams = new object[] { (string) error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.GenerateChildArtifactsActionArtifactTypeNotFound:
-                    template = TemplateXmlGenerateChildArtifactsActionArtifactTypeNotFound;
+                    template = TemplateDataGenerateChildArtifactsActionArtifactTypeNotFound;
                     errParams = new object[] { (string) error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.EmailNotificationActionPropertyTypeNotFound:
-                    template = TemplateXmlEmailNotificationActionPropertyTypeNotFound;
+                    template = TemplateDataEmailNotificationActionPropertyTypeNotFound;
                     errParams = new object[] { (string) error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotFound:
-                    template = TemplateXmlPropertyChangeActionPropertyTypeNotFound;
+                    template = TemplateDataPropertyChangeActionPropertyTypeNotFound;
                     errParams = new object[] { (string) error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyValueEmpty:
+                    template = TemplateDataPropertyValueEmpty;
+                    errParams = new object[] { (string)error.Element };
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

@@ -294,10 +294,10 @@ namespace AdminStore.Repositories
             prm.Add("@projectId", projectId);
             prm.Add("@userId", userId);
 
-            var result = (await _connectionWrapper.QueryAsync<int>("GetUserPrivilegesOfProject", prm, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
+            var result = (await _connectionWrapper.QueryAsync<int?>("GetUserPrivilegesOfProject", prm, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
             if (result == null)
             {
-                throw new ResourceNotFoundException($"User privileges for project (Id:{projectId}) is not found.", ErrorCodes.ResourceNotFound);
+                throw new ResourceNotFoundException(I18NHelper.FormatInvariant(ErrorMessages.PrivilegeForProjectNotExist, projectId), ErrorCodes.ResourceNotFound);
             }
 
             return result.Value;

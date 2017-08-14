@@ -333,14 +333,14 @@ namespace AdminStore.Controllers
         /// </summary>
         /// <param name="projectId"></param>
         /// <remarks>
-        /// Returns privileges for the specified instance folder id.
+        /// Returns privileges for the specified instance project id.
         /// </remarks>
         /// <response code="200">OK.</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
-        /// <response code="404">Not found. A project for the specified id is not found, does not exist or is deleted.</response>
+        /// <response code="404">Not found. User privilege for project (Id:{0}) is not found.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
-        [Route("projects/{id:int:min(1)}/privileges"), SessionRequired]
+        [Route("projects/{projectId:int:min(1)}/privileges"), SessionRequired]
         [ResponseType(typeof(int))]
         [ActionName("GetInstanceProjectPrivileges")]
         public async Task<int> GetInstanceProjectPrivilegesAsync(int projectId)

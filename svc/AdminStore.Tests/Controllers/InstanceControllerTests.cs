@@ -606,5 +606,26 @@ namespace AdminStore.Controllers
         }
 
         #endregion
+
+        #region Project privileges
+
+        [TestMethod]
+        public async Task GetInstanceProjectPrivilegesAsync_Success()
+        {
+            //Arrange
+            var projectId = 99;
+            var projectAdminRolesPermission = 64;
+            _instanceRepositoryMock
+                .Setup(r => r.GetInstanceProjectPrivilegesAsync(projectId, UserId))
+                .ReturnsAsync(projectAdminRolesPermission);
+
+            //Act
+            var result = await _controller.GetInstanceProjectPrivilegesAsync(projectId);
+
+            //Assert
+            Assert.AreEqual(projectAdminRolesPermission, result);
+        }
+
+        #endregion
     }
 }

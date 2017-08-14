@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using AdminStore.Models.Workflow;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -83,7 +84,7 @@ namespace AdminStore.Services.Workflow
             WorkflowDataValidationErrorCodes? errorCode = null;
 
             pvValidatorMock.Setup(m => m.ValidatePropertyValue(action, pt, It.IsAny<ISet<string>>(),
-                It.IsAny<ISet<string>>(), out errorCode)).Returns(true);
+                It.IsAny<ISet<Tuple<string, int?>>>(), out errorCode)).Returns(true);
 
             //Act
             wdvMock.Object.ValidatePropertyChangeActionData(result, action);
@@ -109,7 +110,7 @@ namespace AdminStore.Services.Workflow
             WorkflowDataValidationErrorCodes? errorCode = WorkflowDataValidationErrorCodes.ProjectByIdNotFound;
 
             pvValidatorMock.Setup(m => m.ValidatePropertyValue(action, pt, It.IsAny<ISet<string>>(),
-                It.IsAny<ISet<string>>(), out errorCode)).Returns(false);
+                It.IsAny<ISet<Tuple<string, int?>>>(), out errorCode)).Returns(false);
 
             //Act
             wdvMock.Object.ValidatePropertyChangeActionData(result, action);

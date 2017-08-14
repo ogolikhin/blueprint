@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using AdminStore.Models.Workflow;
 using ArtifactStore.Helpers;
 using ServiceLibrary.Exceptions;
@@ -275,12 +274,22 @@ namespace AdminStore.Services.Workflow
             ieAction.UsersGroups?.ForEach(ug =>
             {
                 var isGroup = ug.IsGroup.GetValueOrDefault();
-                var ugMap = isGroup ? dataMaps.GroupMap : dataMaps.UserMap;
                 int ugId;
-                if (!ugMap.TryGetValue(ug.Name, out ugId))
+                if (isGroup)
                 {
-                    throw new ExceptionWithErrorCode(I18NHelper.FormatInvariant("Id of {0} '{1}' is not found.",
-                        isGroup ? "group" : "user", ug.Name), ErrorCodes.UnexpectedError);
+                    if (!dataMaps.GroupMap.TryGetValue(Tuple.Create(ug.Name, ug.GroupProjectId), out ugId))
+                    {
+                        throw new ExceptionWithErrorCode(I18NHelper.FormatInvariant("Id of Group '{1}' is not found.", ug.Name),
+                            ErrorCodes.UnexpectedError);
+                    }
+                }
+                else
+                {
+                    if (!dataMaps.UserMap.TryGetValue(ug.Name, out ugId))
+                    {
+                        throw new ExceptionWithErrorCode(I18NHelper.FormatInvariant("Id of User '{0}' is not found.", ug.Name),
+                            ErrorCodes.UnexpectedError);
+                    }
                 }
 
                 xmlAction.UsersGroups.Add(new XmlUserGroup

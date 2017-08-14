@@ -1,10 +1,14 @@
 ﻿using ServiceLibrary.Attributes;
+using ServiceLibrary.Controllers;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -13,7 +17,7 @@ namespace AdminStore.Controllers
     [ApiControllerJsonConfig]
     [BaseExceptionFilter]
     [RoutePrefix("log")]
-    public class LogController : ApiController
+    public class LogController : BaseApiController
     {
         private readonly IServiceLogRepository LogRepository;
 
@@ -43,8 +47,7 @@ namespace AdminStore.Controllers
                 return BadRequest("Log entry not provided or malformed");
             }
 
-            var sessionToken = Request.Headers.GetValues("Session-Token").FirstOrDefault();
-            var sessionId = string.IsNullOrEmpty(sessionToken) ? "" : sessionToken.Substring(0, 8);
+            var sessionId = ExtractSessionId(Request.Headers);
             string userName = GetUserName();
 
             var result = await LogRepository.LogClientMessage(logEntry, sessionId, userName);
@@ -55,19 +58,26 @@ namespace AdminStore.Controllers
             return ResponseMessage(response);
         }
 
-        private string GetUserName()
+        internal static string ExtractSessionId(HttpHeaders headers)
         {
-            object sessionObject = null;
-            if (ActionContext.Request.Properties.TryGetValue(ServiceConstants.SessionProperty, out sessionObject))
+            IEnumerable<string> values = null;
+            if (headers == null || !headers.TryGetValues(ServiceConstants.BlueprintSessionTokenKey, out values))
             {
-                Session session = sessionObject as Session;
-                if (session != null)
-                {
-                    return session.UserName;
-                }
+                return string.Empty;
             }
 
-            return string.Empty;
+            var sessionToken = values.FirstOrDefault();
+            if (string.IsNullOrEmpty(sessionToken))
+            {
+                return string.Empty;
+            }
+
+            return sessionToken.Substring(0, Math.Min(8, sessionToken.Length));
+        }
+
+        private string GetUserName()
+        {
+            return Session?.UserName ?? string.Empty;
         }
     }
 }

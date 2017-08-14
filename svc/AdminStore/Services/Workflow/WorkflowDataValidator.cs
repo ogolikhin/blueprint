@@ -431,7 +431,8 @@ namespace AdminStore.Services.Workflow
 
             WorkflowDataValidationErrorCodes? errorCode;
             if (!_propertyValueValidator.ValidatePropertyValue(action, propertyType,
-                result.Users.Select(u => u.Login).ToHashSet(), result.Groups.Select(g => g.Name).ToHashSet(),
+                result.Users.Select(u => u.Login).ToHashSet(),
+                result.Groups.Select(g => Tuple.Create(g.Name, g.ProjectId)).ToHashSet(),
                 out errorCode))
             {
                 result.Errors.Add(new WorkflowDataValidationError

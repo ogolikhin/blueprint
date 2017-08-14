@@ -348,6 +348,13 @@ namespace AdminStore.Services.Workflow
                                     IsGroup = true,
                                     GroupProjectPath = "path"
                                 },
+                                new IeUserGroup
+                                {
+                                    Name = "project group by id and path",
+                                    IsGroup = true,
+                                    GroupProjectId = 99,
+                                    GroupProjectPath = "path"
+                                }
                             }
                         }
                     }

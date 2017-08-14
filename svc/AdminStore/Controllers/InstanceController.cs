@@ -280,11 +280,6 @@ namespace AdminStore.Controllers
                 throw new BadRequestException(ErrorMessages.ModelIsEmpty, ErrorCodes.BadRequest);
             }
 
-            if (!folderDto.ParentFolderId.HasValue)
-            {
-                throw new BadRequestException(ErrorMessages.EditRootFolderIsForbidden, ErrorCodes.BadRequest);
-            }
-
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageProjects);
 
             FolderValidator.ValidateModel(folderDto);

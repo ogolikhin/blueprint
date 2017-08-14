@@ -1,8 +1,8 @@
 ﻿using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Helpers;
 
 namespace ServiceLibrary.Repositories.InstanceSettings
 {

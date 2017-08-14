@@ -83,7 +83,18 @@ namespace AdminStore.Services.Workflow
         private const string TemplateDataGenerateChildArtifactsActionArtifactTypeNotFound = "Artifact Type '{0}' of a Generate Child Artifacts Action is not found in Blueprint.";
         private const string TemplateDataEmailNotificationActionPropertyTypeNotFound = "Property Type '{0}' of a Email Notification Action is not found in Blueprint.";
         private const string TemplateDataPropertyChangeActionPropertyTypeNotFound = "Property Type '{0}' of a Property Change Action is not found in Blueprint.";
-        private const string TemplateDataPropertyValueEmpty = "The Property Value of required Property '{0}' in a Property Change Action is empty.";
+        private const string TemplateDataPropertyChangeActionRequiredPropertyValueEmpty = "The Value of required Property '{0}' in a Property Change Action is empty.";
+        private const string TemplateDataPropertyChangeActionUserOrGroupNotSpecified = "One or more Users or Groups in Value of User Property '{0}' in a Property Change Action are not specified.";
+        private const string TemplateDataPropertyChangeActionUserNotFound = "One or more Users in Value of User Property '{0}' in a Property Change Action are not found.";
+        private const string TemplateDataPropertyChangeActionGroupNotFound = "One or more Groups in Value of User Property '{0}' in a Property Change Action are not found.";
+        private const string TemplateDataPropertyChangeActionChoiceValueSpecifiedAsNotValidated = "The Value of Validated Choice Property '{0}' in a Property Change Action is specified as not validated.";
+        private const string TemplateDataPropertyChangeActionValidValueNotSpecified = "One or more Valid Values in Value of Choice Property '{0}' in a Property Change Action are not specified.";
+        private const string TemplateDataPropertyChangeActionValidValueNotFound = "One or more Valid Values in Value of Choice Property '{0}' in a Property Change Action are not found.";
+        private const string TemplateDataPropertyChangeActionInvalidNumberFormat = "The Value of Number Property '{0}' in a Property Change Action has an invalid number format.";
+        private const string TemplateDataPropertyChangeActionInvalidNumberDecimalPlaces = "The Value of Number Property '{0}' in a Property Change Action has an invalid decimal places.";
+        private const string TemplateDataPropertyChangeActionNumberOutOfRange = "The Value of Number Property '{0}' in a Property Change Action is out of the range.";
+        private const string TemplateDataPropertyChangeActionInvalidDateFormat = "The Value of Date Property '{0}' in a Property Change Action has an invalid date format.";
+        private const string TemplateDataPropertyChangeActionDateOutOfRange = "The Value of Date Property '{0}' in a Property Change Action is out of the range.";
 
         #region Interface Implementation
 
@@ -397,8 +408,52 @@ namespace AdminStore.Services.Workflow
                     template = TemplateDataPropertyChangeActionPropertyTypeNotFound;
                     errParams = new object[] { (string) error.Element };
                     break;
-                case WorkflowDataValidationErrorCodes.PropertyValueEmpty:
-                    template = TemplateDataPropertyValueEmpty;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredPropertyValueEmpty:
+                    template = TemplateDataPropertyChangeActionRequiredPropertyValueEmpty;
+                    errParams = new object[] { (string)error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionUserOrGroupNotSpecified:
+                    template = TemplateDataPropertyChangeActionUserOrGroupNotSpecified;
+                    errParams = new object[] { (string)error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionUserNotFound:
+                    template = TemplateDataPropertyChangeActionUserNotFound;
+                    errParams = new object[] { (string)error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionGroupNotFound:
+                    template = TemplateDataPropertyChangeActionGroupNotFound;
+                    errParams = new object[] { (string)error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionChoiceValueSpecifiedAsNotValidated:
+                    template = TemplateDataPropertyChangeActionChoiceValueSpecifiedAsNotValidated;
+                    errParams = new object[] { (string)error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionValidValueNotSpecified:
+                    template = TemplateDataPropertyChangeActionValidValueNotSpecified;
+                    errParams = new object[] { (string)error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionValidValueNotFound:
+                    template = TemplateDataPropertyChangeActionValidValueNotFound;
+                    errParams = new object[] { (string)error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionInvalidNumberFormat:
+                    template = TemplateDataPropertyChangeActionInvalidNumberFormat;
+                    errParams = new object[] { (string)error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionInvalidNumberDecimalPlaces:
+                    template = TemplateDataPropertyChangeActionInvalidNumberDecimalPlaces;
+                    errParams = new object[] { (string)error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionNumberOutOfRange:
+                    template = TemplateDataPropertyChangeActionNumberOutOfRange;
+                    errParams = new object[] { (string)error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionInvalidDateFormat:
+                    template = TemplateDataPropertyChangeActionInvalidDateFormat;
+                    errParams = new object[] { (string)error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionDateOutOfRange:
+                    template = TemplateDataPropertyChangeActionDateOutOfRange;
                     errParams = new object[] { (string)error.Element };
                     break;
                 default:

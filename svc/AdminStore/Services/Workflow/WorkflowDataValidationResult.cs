@@ -44,6 +44,17 @@ namespace AdminStore.Services.Workflow
         EmailNotificationActionPropertyTypeNotFound,
         PropertyChangeActionPropertyTypeNotFound,
         // Property Value Validation error codes
-        PropertyValueEmpty
+        PropertyChangeActionRequiredPropertyValueEmpty,
+        PropertyChangeActionUserOrGroupNotSpecified,
+        PropertyChangeActionUserNotFound,
+        PropertyChangeActionGroupNotFound,
+        PropertyChangeActionChoiceValueSpecifiedAsNotValidated,
+        PropertyChangeActionValidValueNotSpecified,
+        PropertyChangeActionValidValueNotFound,
+        PropertyChangeActionInvalidNumberFormat,
+        PropertyChangeActionInvalidNumberDecimalPlaces,
+        PropertyChangeActionNumberOutOfRange,
+        PropertyChangeActionInvalidDateFormat,
+        PropertyChangeActionDateOutOfRange
     }
 }

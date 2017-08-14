@@ -17,7 +17,6 @@ using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories.Files;
 using ServiceLibrary.Repositories.ProjectMeta;
 using File = ServiceLibrary.Models.Files.File;
-using AdminStore.Models;
 
 namespace AdminStore.Services.Workflow
 {
@@ -255,7 +254,6 @@ namespace AdminStore.Services.Workflow
             await ImportWorkflowEvents(workflow, newWorkflow.WorkflowId, publishRevision, transaction, newStates,
                 dataMaps, userId);
 
-            // TODO: IeWorkflow changed, now the list of artifacts types moved to IeProject
             var kvPairs = new List<KeyValuePair<int, string>>();
             if (!workflow.Projects.IsEmpty())
             {
@@ -277,17 +275,7 @@ namespace AdminStore.Services.Workflow
         {
             var dataMaps = new WorkflowDataMaps();
             dataMaps.UserMap.AddRange(dataValidationResult.Users.ToDictionary(u => u.Login, u => u.UserId));
-            //TODO: group names are not unique, take into account the project they belongs to
-            //dataMaps.GroupMap.AddRange(dataValidationResult.Groups.ToDictionary(u => u.Name, u => u.GroupId));
-            // TODO: Temp
-            dataValidationResult.Groups.ForEach(g =>
-            {
-                if (!dataMaps.GroupMap.ContainsKey(g.Name))
-                {
-                    dataMaps.GroupMap.Add(g.Name, g.GroupId);
-                }
-            });
-
+            dataMaps.GroupMap.AddRange(dataValidationResult.Groups.ToDictionary(u => Tuple.Create(u.Name, u.ProjectId), u => u.GroupId));
             dataMaps.StateMap.AddRange(newStates.ToDictionary(s => s.Name, s => s.WorkflowStateId));
             dataMaps.ArtifactTypeMap.AddRange(dataValidationResult.StandardTypes.ArtifactTypes.ToDictionary(at => at.Name, at => at.Id));
             dataValidationResult.StandardTypes.PropertyTypes.ForEach(pt =>
@@ -360,7 +348,8 @@ namespace AdminStore.Services.Workflow
                         ? sqlEvent.Permissions = SerializationHelper.ToXml(new XmlTriggerPermissions
                         {
                             Skip = skipPermissionGroups ? 1 : (int?)null,
-                            GroupIds = transition.PermissionGroups.Select(pg => dataMaps.GroupMap[pg.Name]).ToList()
+                            GroupIds = transition.PermissionGroups.Select(pg =>
+                                dataMaps.GroupMap[Tuple.Create(pg.Name, (int?) null)]).ToList()
                         }) : null;
 
 

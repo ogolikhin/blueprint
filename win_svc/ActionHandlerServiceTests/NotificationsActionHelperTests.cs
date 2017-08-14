@@ -26,7 +26,7 @@ namespace ActionHandlerServiceTests
                 Settings = "",
                 ConnectionString = ""
             };
-            var message = new NotificationMessage()
+            var message = new NotificationMessage
             {
                 ArtifactId = 1,
                 ArtifactName = "MyArtifact",
@@ -36,15 +36,14 @@ namespace ActionHandlerServiceTests
                 From = "nw@blueprintsys.com",
                 To = new[] { "nw@gmail.com"},
                 MessageTemplate = "",
-                ModifiedPropertiesInformation = new ModifiedPropertyInformation[0],
                 ProjectId = 3,
                 ProjectName = "MyProject",
                 RevisionId = 5,
                 Subject = "Test Email",
                 UserId = 1
             };
-            var actionHandlerServiceRepoMock = new Mock<INotificationActionHandlerServiceRepository>();
-            actionHandlerServiceRepoMock.Setup(t => t.GetEmailSettings()).ReturnsAsync(new EmailSettings
+            var notificationRepositoryMock = new Mock<INotificationRepository>();
+            notificationRepositoryMock.Setup(t => t.GetEmailSettings()).ReturnsAsync(new EmailSettings
             {
                 Id = "1",
                 EnableSSL = true,
@@ -60,7 +59,7 @@ namespace ActionHandlerServiceTests
             var actionHelper = new NotificationsActionHelper();
 
             //Act
-            var result = await actionHelper.HandleAction(tenantInformation, message, actionHandlerServiceRepoMock.Object);
+            var result = await actionHelper.HandleAction(tenantInformation, message, notificationRepositoryMock.Object);
 
             //Assert
             Assert.IsTrue(result);

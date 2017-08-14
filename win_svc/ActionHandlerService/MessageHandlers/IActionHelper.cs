@@ -7,6 +7,6 @@ namespace ActionHandlerService.MessageHandlers
 {
     public interface IActionHelper
     {
-        Task<bool> HandleAction(TenantInformation tenantInformation, ActionMessage actionMessage, IActionHandlerServiceRepository repository);
+        Task<bool> HandleAction(TenantInformation tenant, ActionMessage actionMessage, IActionHandlerServiceRepository actionHandlerServiceRepository);
     }
 }

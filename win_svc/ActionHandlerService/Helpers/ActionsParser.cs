@@ -23,7 +23,9 @@ namespace ActionHandlerService.Helpers
                     {
                         PropertyTypeId = workflowEvent.EventPropertyTypeId ?? 0,
                         ConditionalStateId = workflowEvent.RequiredPreviousStateId,
+                        FromEmail = trigger.FromEmail,
                         ToEmail = trigger.ToEmail,
+                        Subject = trigger.Subject,
                         MessageTemplate = trigger.MessageTemplate
                     };
                 }
@@ -36,7 +38,13 @@ namespace ActionHandlerService.Helpers
             if (!string.IsNullOrWhiteSpace(triggersXml))
             {
                 //TODO parse the XML
-                var testTrigger = new Trigger {ToEmail = "munish.saini@blueprintsys.com", MessageTemplate = "Artifact has been published."};
+                var testTrigger = new Trigger
+                {
+                    FromEmail = "munish.saini@blueprintsys.com",
+                    ToEmail = "munish.saini@blueprintsys.com",
+                    Subject = "Artifact has been published.",
+                    MessageTemplate = "Artifact has been published."
+                };
                 triggers.Add(testTrigger);
             }
             return triggers;
@@ -45,7 +53,9 @@ namespace ActionHandlerService.Helpers
 
     public class Trigger
     {
+        public string FromEmail { get; set; }
         public string ToEmail { get; set; }
+        public string Subject { get; set; }
         public string MessageTemplate { get; set; }
     }
 }

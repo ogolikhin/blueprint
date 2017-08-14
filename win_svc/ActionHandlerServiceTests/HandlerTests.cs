@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using ActionHandlerService.Helpers;
 using ActionHandlerService.MessageHandlers;
@@ -17,6 +16,7 @@ using BluePrintSys.Messaging.Models.Actions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Moq.Language.Flow;
+using NServiceBus;
 using NServiceBus.Testing;
 
 namespace ActionHandlerServiceTests
@@ -47,7 +47,7 @@ namespace ActionHandlerServiceTests
 
         private static void TestHandlerAndMessageWithHeader<T>(BaseMessageHandler<T> handler, T message, string tenantId = TenantId) where T : ActionMessage
         {
-            Test.Handler(handler).SetIncomingHeader(ActionMessageHeaders.TenantId, tenantId).OnMessage(message);
+            Test.Handler(handler).SetIncomingHeader(ActionMessageHeaders.TenantId, tenantId).SetIncomingHeader(Headers.MessageId, "0").SetIncomingHeader(Headers.TimeSent, "0").OnMessage(message);
         }
 
         public class TestException : Exception

@@ -97,5 +97,6 @@
         public static readonly string GeneralErrorOfUpdatingProject = "An error has occurred when the operation was being performed at SQL level.";
         public static readonly string ProjectNotExist = "The project with the current id doesn't exist or removed from the system.";
         public static readonly string ProjectWithSuchNameExistsInParentFolder = "A project with the same name already exists in the parent folder. Please use a different name.";
+        public static readonly string PrivilegesForProjectNotExist = "User privileges for project (Id:{0}) is not found.";
     }
 }

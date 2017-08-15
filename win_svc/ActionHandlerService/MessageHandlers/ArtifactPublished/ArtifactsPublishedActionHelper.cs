@@ -5,7 +5,6 @@ using ActionHandlerService.Helpers;
 using ActionHandlerService.Models;
 using ActionHandlerService.Repositories;
 using ArtifactStore.Helpers;
-using BluePrintSys.Messaging.CrossCutting.Logging;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Models.Enums;
 
@@ -22,117 +21,37 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
             _nServiceBusServer = nServiceBusServer ?? NServiceBusServer.Instance;
         }
 
-        private void LogInfo(string text, ArtifactsPublishedMessage message, TenantInformation tenant)
-        {
-            Log.Info($"{text} Message: {message.ActionType.ToString()}. Tenant ID: {tenant.Id}");
-        }
-
-        public async Task<bool> HandleAction(TenantInformation tenantInformation, ActionMessage actionMessage, IActionHandlerServiceRepository repository)
+        public async Task<bool> HandleAction(TenantInformation tenant, ActionMessage actionMessage, IActionHandlerServiceRepository actionHandlerServiceRepository)
         {
             var message = (ArtifactsPublishedMessage) actionMessage;
+            Logger.Log($"Handling started for user ID {message.UserId}, revision ID {message.RevisionId}", message, tenant, LogLevel.Info);
+            var repository = (IArtifactsPublishedRepository) actionHandlerServiceRepository;
+
+            //Get modified properties for all artifacts and create a dictionary with key as artifact ids
+            //TODO: Modify this to take in a list of artifact ids to get property modifications for impacted artifacts
             var publishedArtifacts = message.Artifacts ?? new PublishedArtifactInformation[] { };
-            var publishedArtifactIds = publishedArtifacts.Select(a => a.Id).ToHashSet();
-            LogInfo($"Handling started for user ID {message.UserId}, revision ID {message.RevisionId}, artifact IDs {string.Join(", ", publishedArtifactIds)}", message, tenantInformation);
+            var allArtifactsModifiedProperties = publishedArtifacts.ToDictionary(k => k.Id, v => v.ModifiedProperties ?? new List<PublishedPropertyInformation>());
+            Logger.Log($"{allArtifactsModifiedProperties.Count} artifacts found: {string.Join(", ", allArtifactsModifiedProperties.Select(k => k.Key))}", message, tenant, LogLevel.Info);
+            if (allArtifactsModifiedProperties.Count == 0)
+            {
+                return await Task.FromResult(true);
+            }
 
             //Get property transitions for published artifact ids.
             //TODO: check whether item type id can be relied upon or not for performance reasons
-            var artifactPropertyEvents = await GetPropertyEventsInformationForArtifactIds(repository, message, publishedArtifactIds);
-
-            //if no property transitions found, then call does not need to proceed 
-            LogInfo($"Property events found: {artifactPropertyEvents?.Count ?? 0}", message, tenantInformation);
+            var publishedArtifactIds = publishedArtifacts.Select(a => a.Id).ToHashSet();
+            var artifactPropertyEvents = await repository.GetWorkflowPropertyTransitionsForArtifactsAsync(message.UserId, message.RevisionId, (int) TransitionType.Property, publishedArtifactIds);
+            //if no property transitions found, then call does not need to proceed
+            Logger.Log($"{artifactPropertyEvents?.Count ?? 0} workflow property events found", message, tenant, LogLevel.Info);
             if (artifactPropertyEvents == null || artifactPropertyEvents.Count == 0)
             {
                 return await Task.FromResult(true);
             }
 
             //convert all property transitions to a dictionary with artifact id as key
-            var activePropertyTransitions = BuildArtifactPropertyTransitions(artifactPropertyEvents, publishedArtifactIds);
-
-            //Get modified properties for all artifacts and create a dictionary with key as artifact ids
-            //TODO: Modify this to take in a list of artifact ids to get property modifications for impacted artifacts
-            var modifiedProperties = publishedArtifacts.ToDictionary(k => k.Id, v => v.ModifiedProperties ?? new List<PublishedPropertyInformation>());
-            LogInfo($"Modified properties found: {modifiedProperties.Count}", message, tenantInformation);
-            if (modifiedProperties.Count == 0)
-            {
-                return await Task.FromResult(true);
-            }
-
-            var workflowStates = (await repository.GetWorkflowStatesForArtifactsAsync(message.UserId, activePropertyTransitions.Keys, message.RevisionId)).Where(w => w.WorkflowStateId > 0).ToDictionary(k => k.ArtifactId);
-
-            LogInfo($"Workflow states found: {workflowStates.Count}", message, tenantInformation);
-            if (workflowStates.Count == 0)
-            {
-                return await Task.FromResult(true);
-            }
-
-            //for artifacts in active property transitions
-            foreach (var artifactId in activePropertyTransitions.Keys)
-            {
-                LogInfo($"Processing artifact with ID: {artifactId}", message, tenantInformation);
-                var artifactTransitionInfo = activePropertyTransitions[artifactId];
-
-                //TODO: get the Actions from the triggers that were retrieved from the database
-                var notifications = _actionsParser.GetNotificationActions(artifactTransitionInfo).ToList();
-                LogInfo($"Notification actions found: {notifications.Count}", message, tenantInformation);
-                if (notifications.Count == 0)
-                {
-                    continue;
-                }
-
-                var artifactModifiedProperties = modifiedProperties[artifactId];
-                LogInfo($"Artifact modified properties found: {artifactModifiedProperties?.Count ?? 0}", message, tenantInformation);
-                if (artifactModifiedProperties == null || !artifactModifiedProperties.Any())
-                {
-                    continue;
-                }
-                   
-
-                var artifactModifiedPropertiesSet = artifactModifiedProperties.Select(a => a.TypeId).ToHashSet();
-
-                var dict = await repository.GetInstancePropertyTypeIdsMap(artifactModifiedPropertiesSet);
-
-                var currentStateInfo = workflowStates[artifactId];
-
-                foreach (var notificationActionToProcess in notifications)
-                {
-                    if (!dict.ContainsKey(notificationActionToProcess.PropertyTypeId) || dict[notificationActionToProcess.PropertyTypeId].IsEmpty())
-                    {
-                        LogInfo($"Artifact modified properties set ({string.Join(", ", artifactModifiedPropertiesSet)}) does not contain the notification action property type ID {notificationActionToProcess.PropertyTypeId}.", message, tenantInformation);
-                        continue;
-                    }
-                    //if conditional state id should be present and either the current state info is not present or the current state is not same as conditional state
-                    if (notificationActionToProcess.ConditionalStateId.HasValue && (currentStateInfo == null || currentStateInfo.WorkflowStateId != notificationActionToProcess.ConditionalStateId.Value))
-                    {
-                        LogInfo($"Workflow state ID does not match conditional state ID {notificationActionToProcess.ConditionalStateId.Value}.", message, tenantInformation);
-                        return await Task.FromResult(true);
-                    }
-                    _nServiceBusServer.Send(tenantInformation.Id, new NotificationMessage
-                    {
-                        ArtifactId = artifactId,
-                        RevisionId = message.RevisionId,
-                        ArtifactTypeId = currentStateInfo.ItemTypeId,
-                        //ArtifactTypePredefined = currentStateInfo. artifact.ArtifactTypePredefined,
-                        UserId = message.UserId,
-                        ModifiedPropertiesInformation = artifactModifiedProperties.Select(a => new ModifiedPropertyInformation
-                        {
-                            PropertyId = a.TypeId,
-                            PredefinedTypeId = a.PredefinedType,
-                            //PropertyName = a.PropertyName
-                        }).ToArray(),
-                        To = new []{ notificationActionToProcess.ToEmail},
-                        //ArtifactUrl = artifact.ArtifactUrl,
-                        MessageTemplate = notificationActionToProcess.MessageTemplate
-                    });
-                }
-            }
-            LogInfo("Action handling complete.", message, tenantInformation);
-            return true;
-        }
-
-        private Dictionary<int, IList<SqlArtifactTriggers>> BuildArtifactPropertyTransitions(IList<SqlArtifactTriggers> artifactPropertyEvents, HashSet<int> publishedArtifactIds)
-        {
             var activePropertyTransitions = new Dictionary<int, IList<SqlArtifactTriggers>>();
-            foreach (var artifactPropertyEvent in artifactPropertyEvents.Where(ape => publishedArtifactIds.Contains(ape.VersionItemId)))
+            var publishedArtifactEvents = artifactPropertyEvents.Where(ape => publishedArtifactIds.Contains(ape.VersionItemId));
+            foreach (var artifactPropertyEvent in publishedArtifactEvents)
             {
                 if (activePropertyTransitions.ContainsKey(artifactPropertyEvent.VersionItemId))
                 {
@@ -143,12 +62,86 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
                     activePropertyTransitions.Add(artifactPropertyEvent.VersionItemId, new List<SqlArtifactTriggers> {artifactPropertyEvent});
                 }
             }
-            return activePropertyTransitions;
-        }
 
-        private async Task<IList<SqlArtifactTriggers>> GetPropertyEventsInformationForArtifactIds(IActionHandlerServiceRepository repository, ArtifactsPublishedMessage message, HashSet<int> publishedArtifactIds)
-        {
-            return await repository.GetWorkflowPropertyTransitionsForArtifactsAsync(message.UserId, message.RevisionId, (int) TransitionType.Property, publishedArtifactIds);
+            var sqlWorkflowStates = await repository.GetWorkflowStatesForArtifactsAsync(message.UserId, activePropertyTransitions.Keys, message.RevisionId);
+            var workflowStates = sqlWorkflowStates.Where(w => w.WorkflowStateId > 0).ToDictionary(k => k.ArtifactId);
+            Logger.Log($"{workflowStates.Count} workflow states found for artifacts: {string.Join(", ", workflowStates.Select(k => k.Key))}", message, tenant, LogLevel.Info);
+            if (workflowStates.Count == 0)
+            {
+                return await Task.FromResult(true);
+            }
+
+            var projectIds = publishedArtifacts.Select(a => a.ProjectId).ToList();
+            var projects = await repository.GetProjectNameByIdsAsync(projectIds);
+            Logger.Log($"{projects.Count} project names found for project IDs: {string.Join(", ", projectIds)}", message, tenant, LogLevel.Info);
+
+            //for artifacts in active property transitions
+            foreach (var artifactId in activePropertyTransitions.Keys)
+            {
+                Logger.Log($"Processing artifact with ID: {artifactId}", message, tenant, LogLevel.Info);
+
+                var artifactTransitionInfo = activePropertyTransitions[artifactId];
+                //TODO: get the Actions from the triggers that were retrieved from the database
+                var notifications = _actionsParser.GetNotificationActions(artifactTransitionInfo).ToList();
+                Logger.Log($"{notifications.Count} Notification actions found", message, tenant, LogLevel.Info);
+                if (notifications.Count == 0)
+                {
+                    continue;
+                }
+
+                var artifactModifiedProperties = allArtifactsModifiedProperties[artifactId];
+                Logger.Log($"{artifactModifiedProperties?.Count ?? 0} modified properties found", message, tenant, LogLevel.Info);
+                if (artifactModifiedProperties == null || !artifactModifiedProperties.Any())
+                {
+                    continue;
+                }
+
+                var artifactModifiedPropertiesSet = artifactModifiedProperties.Select(a => a.TypeId).ToHashSet();
+                var instancePropertyTypeIds = await repository.GetInstancePropertyTypeIdsMap(artifactModifiedPropertiesSet);
+                Logger.Log($"{instancePropertyTypeIds.Count} instance property type IDs found: {string.Join(", ", instancePropertyTypeIds.Select(k => k.Key))}", message, tenant, LogLevel.Info);
+
+                var currentStateInfo = workflowStates[artifactId];
+
+                foreach (var notificationAction in notifications)
+                {
+                    Logger.Log("Processing notification action", message, tenant, LogLevel.Info);
+
+                    if (!instancePropertyTypeIds.ContainsKey(notificationAction.PropertyTypeId) || instancePropertyTypeIds[notificationAction.PropertyTypeId].IsEmpty())
+                    {
+                        Logger.Log($"The property type ID {notificationAction.PropertyTypeId} was not found in the dictionary of instance property type IDs.", message, tenant, LogLevel.Info);
+                        continue;
+                    }
+
+                    if (notificationAction.ConditionalStateId.HasValue && (currentStateInfo == null || currentStateInfo.WorkflowStateId != notificationAction.ConditionalStateId.Value))
+                    {
+                        //the conditional state id is present, but either the current state info is not present or the current state is not same as conditional state
+                        var currentStateId = currentStateInfo?.WorkflowStateId.ToString() ?? "none";
+                        Logger.Log($"Conditional state ID {notificationAction.ConditionalStateId.Value} does not match current state ID: {currentStateId}", message, tenant, LogLevel.Info);
+                        return await Task.FromResult(true);
+                    }
+
+                    var artifact = publishedArtifacts.First(a => a.Id == artifactId);
+                    var notificationMessage = new NotificationMessage
+                    {
+                        ArtifactName = workflowStates[artifactId].Name,
+                        ProjectName = projects.First(p => p.ItemId == artifact.ProjectId).Name,
+                        Subject = notificationAction.Subject,
+                        From = notificationAction.FromEmail,
+                        To = new[] {notificationAction.ToEmail},
+                        MessageTemplate = notificationAction.MessageTemplate,
+                        RevisionId = message.RevisionId,
+                        UserId = message.UserId,
+                        ArtifactTypeId = currentStateInfo.ItemTypeId,
+                        ArtifactId = artifactId,
+                        ArtifactUrl = artifact.Url,
+                        ArtifactTypePredefined = artifact.Predefined,
+                        ProjectId = artifact.ProjectId
+                    };
+                    _nServiceBusServer.Send(tenant.Id, notificationMessage);
+                }
+            }
+            Logger.Log("Finished processing message", message, tenant, LogLevel.Info);
+            return await Task.FromResult(true);
         }
     }
 
@@ -156,8 +149,10 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
     public class NotificationAction
     {
         public int PropertyTypeId { get; set; }
+        public int? ConditionalStateId { get; set; }
+        public string Subject { get; set; }
+        public string FromEmail { get; set; }
         public string ToEmail { get; set; }
         public string MessageTemplate { get; set; }
-        public int? ConditionalStateId { get; set; }
     }
 }

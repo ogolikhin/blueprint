@@ -106,6 +106,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helpers\ActionsParser.cs" />
+    <Compile Include="Helpers\Logger.cs" />
     <Compile Include="MessageHandlers\Notifications\EmailSettingsRetriever.cs" />
     <Compile Include="MessageHandlers\Notifications\SmtpClient.cs" />
     <Compile Include="MessageHandlers\PropertyChange\PropertyChangeMessageHandler.cs" />
@@ -114,7 +115,8 @@
     <Compile Include="MessageHandlers\StateTransition\StateTransitionActionHelper.cs" />
     <Compile Include="Models\SqlArtifactTriggers.cs" />
     <Compile Include="Models\SqlModifiedProperty.cs" />
-    <Compile Include="Repositories\ActionHandlerRepository.cs" />
+    <Compile Include="Models\SqlProject.cs" />
+    <Compile Include="Repositories\ActionHandlerServiceRepository.cs" />
     <Compile Include="Models\Exceptions\Exceptions.cs" />
     <Compile Include="Logging\Log4NetStandardLogListener.cs" />
     <Compile Include="MessageHandlers\ArtifactPublished\ArtifactsPublishedActionHelper.cs" />
@@ -128,7 +130,7 @@
     <Compile Include="MessageHandlers\GenerateDescendants\GenerateDescendantsMessageHandler.cs" />
     <Compile Include="MessageHandlers\Notifications\NotificationsActionHelper.cs" />
     <Compile Include="MessageHandlers\Notifications\NotificationsMessageHandler.cs" />
-    <Compile Include="MessageHandlers\ActionHandlerHelper.cs" />
+    <Compile Include="MessageHandlers\IActionHelper.cs" />
     <Compile Include="ActionHandlerService.cs" />
     <Compile Include="Models\Enums\MessageBroker.cs" />
     <Compile Include="Models\Enums\Tenancy.cs" />
@@ -142,6 +144,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Helpers\ConfigHelper.cs" />
     <Compile Include="Helpers\TenantInfoRetriever.cs" />
+    <Compile Include="Repositories\ArtifactsPublishedRepository.cs" />
+    <Compile Include="Repositories\NotificationRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

@@ -27,27 +27,32 @@ namespace ActionHandlerService.MessageHandlers
         {
             try
             {
-                Log.Info($"Received Action Message {message.ActionType.ToString()}");
+                var actionType = message.ActionType.ToString();
+                Log.Info($"Received Message: {actionType}");
                 if ((ConfigHelper.SupportedActionTypes & message.ActionType) == message.ActionType)
                 {
-                    var tentantId = GetMessageHeaderValue(ActionMessageHeaders.TenantId, context);
+                    var tenantId = GetMessageHeaderValue(ActionMessageHeaders.TenantId, context);
                     var tenants = await TenantInfoRetriever.GetTenants();
                     TenantInformation tenant;
-                    if (!tenants.TryGetValue(tentantId, out tenant))
+                    if (!tenants.TryGetValue(tenantId, out tenant))
                     {
-                        Log.Error($"Tenant Info not found for Tenant ID {tentantId}. Message is not processed.");
+                        Log.Error($"Tenant Info not found for Tenant ID {tenantId}. Message is not processed.");
                         return;
                     }
-                    await ProcessAction(tenant, message, context);
+                    var messageId = GetMessageHeaderValue(Headers.MessageId, context);
+                    var timeSent = GetMessageHeaderValue(Headers.TimeSent, context);
+                    Log.Info($"Action handling started. Message: {actionType}. Tenant ID: {tenantId}. Message ID: {messageId}. Time Sent: {timeSent}");
+                    await ProcessAction(tenant, message);
+                    Log.Info($"Action handling completed. Message: {actionType}. Tenant ID: {tenantId}. Message ID: {messageId}. Time Sent: {timeSent}");
                 }
                 else
                 {
-                    throw new UnsupportedActionTypeException($"Unsupported Action Type: {message.ActionType.ToString()}");
+                    throw new UnsupportedActionTypeException($"Unsupported Action Type: {actionType}");
                 }
             }
             catch (Exception ex)
             {
-                Log.Error($"Failed to handle {message.ActionType.ToString()} message due to an exception: {ex.Message}", ex);
+                Log.Error($"Message handling failed due to an exception: {ex.Message}", ex);
                 throw;
             }
         }
@@ -62,19 +67,21 @@ namespace ActionHandlerService.MessageHandlers
             return headerValue;
         }
 
-        protected virtual async Task<bool> ProcessAction(TenantInformation tenant, T message, IMessageHandlerContext context)
+        protected virtual async Task<bool> ProcessAction(TenantInformation tenant, T message)
         {
-            Log.Info($"{message.ActionType.ToString()} action handling started for tenant {tenant.Id}");
             IActionHandlerServiceRepository serviceRepository;
-            if (message is NotificationMessage)
+            switch (message.ActionType)
             {
-                serviceRepository = new NotificationActionHandlerServiceRepository(tenant.ConnectionString);
+                case MessageActionType.Notification:
+                    serviceRepository = new NotificationRepository(tenant.ConnectionString);
+                    break;
+                case MessageActionType.ArtifactsPublished:
+                    serviceRepository = new ArtifactsPublishedRepository(tenant.ConnectionString);
+                    break;
+                default:
+                    serviceRepository = new ActionHandlerServiceRepository(tenant.ConnectionString);
+                    break;
             }
-            else
-            {
-                serviceRepository = new ActionHandlerServiceRepository(tenant.ConnectionString);
-            }
-            
             return await ActionHelper.HandleAction(tenant, message, serviceRepository);
         }
     }

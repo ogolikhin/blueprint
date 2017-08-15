@@ -13,5 +13,10 @@ namespace AdminStore.Models.Workflow
 
         [XmlElement(IsNullable = false)]
         public string State { get; set; }
+
+        // Optional, not used for the import, will be used for the update
+        [XmlElement]
+        public int? StateId { get; set; }
+        public bool ShouldSerializeStateId() { return StateId.HasValue; }
     }
 }

@@ -46,14 +46,14 @@ namespace AdminStore.Services.Workflow
         private const string TemplateXmlProjectInvalidPath = "One or more Projects have a duplicate Project Path. Projects in a Workflow must be unique.";
         // Updated - just removed an unnecessary word
         private const string TemplateXmlProjectDoesNotHaveAnyArtfactTypes = "One or more Projects do not have Artifact Types. A Project must have at least one Artifact Type.";
-        private const string TemplateXmlArtifactTypeNoSpecified = "One or more Artifact Types are not specified. A Artifact Types must be specified.";
+        private const string TemplateXmlArtifactTypeNoSpecified = "One or more Artifact Types are not specified. An Artifact Types must be specified.";
         private const string TemplateXmlPropertyChangeEventNoAnyTriggersSpecified = "One or more Property Change Events do not have any triggers. A Property Change Event must have at least one Trigger.";
         private const string TemplateXmlNewArtifactEventNoAnyTriggersSpecified = "One or more New Artifact Events do not have any triggers. A New Artifact Event must have at least one Trigger.";
         private const string TemplateXmlActionTriggerNotSpecified = "One or more Triggers do not have an Action. A Trigger must have an Action.";
         private const string TemplateXmlRecipientsEmailNotificationActionNotSpecitied = "One or more Email Notification Actions do not have specified recipients. Recipients can be specified as a list of emails or a Property that contains recipients.";
         private const string TemplateXmlAmbiguousRecipientsSourcesEmailNotificationAction = "One or more Email Notification Actions have ambiguous recipients. Recipients must be specified either as a list of emails or a Property that contains recipients.";
         private const string TemplateXmlEmailInvalidEmailNotificationAction = "'{0}' is not a valid email.";
-        private const string TemplateXmlMessageEmailNotificationActionNotSpecitied = "One or more Email Notification Actions do not have a specified message. A Email Notification Action must have a message.";
+        private const string TemplateXmlMessageEmailNotificationActionNotSpecitied = "One or more Email Notification Actions do not have a specified message. An Email Notification Action must have a message.";
         private const string TemplateXmlPropertyNamePropertyChangeActionNotSpecitied = "One or more Property Change Actions do not have a specified Property Name. A Property Change Action must have a Property Name.";
         private const string TemplateXmlPropertyValuePropertyChangeActionNotSpecitied = "One or more Property Change Actions do not have a specified Property Value. A Property Change Action must have one of the following values, a Property Value or Valid Values or Users and Groups.";
         private const string TemplateXmlAmbiguousPropertyValuePropertyChangeAction = "One or more Property Change Actions have ambiguous Property Values. A Property Change Action must have only one of the following values, a Property Value or Valid Values or Users and Groups.";
@@ -78,7 +78,7 @@ namespace AdminStore.Services.Workflow
         private const string TemplateDataArtifactTypeInProjectAlreadyAssociatedWithWorkflow = "Artifact Type '{0}' in Project '{1}' is already is associated with a Workflow.";
         private const string TemplateDataPropertyNotFound = "Property '{0}' of a Property Change Event is not found in Blueprint.";
         private const string TemplateDataGenerateChildArtifactsActionArtifactTypeNotFound = "Artifact Type '{0}' of a Generate Child Artifacts Action is not found in Blueprint.";
-        private const string TemplateDataEmailNotificationActionPropertyTypeNotFound = "Property Type '{0}' of a Email Notification Action is not found in Blueprint.";
+        private const string TemplateDataEmailNotificationActionPropertyTypeNotFound = "Property Type '{0}' of an Email Notification Action is not found in Blueprint.";
         private const string TemplateDataPropertyChangeActionPropertyTypeNotFound = "Property Type '{0}' of a Property Change Action is not found in Blueprint.";
         private const string TemplateDataPropertyChangeActionRequiredPropertyValueEmpty = "The Value of required Property '{0}' in a Property Change Action is empty.";
         private const string TemplateDataPropertyChangeActionUserOrGroupNotSpecified = "One or more Users or Groups in Value of User Property '{0}' in a Property Change Action are not specified.";

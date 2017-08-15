@@ -426,6 +426,7 @@ namespace AdminStore.Services.Workflow
                 Id = workflowDetails.WorkflowId,
                 Name = workflowDetails.Name,
                 Description = workflowDetails.Description,
+                IsActive = workflowDetails.Active,
                 States = workflowStates.Select(e => new IeState { Id = e.WorkflowStateId, IsInitial = e.Default, Name = e.Name }).Distinct().ToList(),
                 TransitionEvents = workflowEvents.Where(e => e.Type == (int)DWorkflowEventType.Transition).
                     Select(e => new IeTransitionEvent

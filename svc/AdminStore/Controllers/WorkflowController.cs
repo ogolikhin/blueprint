@@ -82,52 +82,7 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(ImportWorkflowResult))]
         public async Task<IHttpActionResult> ImportWorkflowAsync()
         {
-            var session = Session;
-            Debug.Assert(session != null, "The session is null.");
-
-            await _privilegesManager.Demand(session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
-
-            // The file name is specified in Content-Disposition header,
-            // for example, Content-Disposition: workflow;filename=workflow.xml
-            // The first parameter does not matter, can be workflow, file etc.
-            // Required for messages.
-            var fileName = Request.Content.Headers?.ContentDisposition?.FileName;
-            using (var stream = await Request.Content.ReadAsStreamAsync())
-            {
-                IeWorkflow workflow;
-                try
-                {
-                    ValidateWorkflowXmlAgainstXsd(stream);
-                    workflow = DeserializeWorkflow(stream);
-                }
-                catch (Exception ex)
-                {
-                    var errorResult = new ImportWorkflowResult
-                    {
-                        ErrorMessage = I18NHelper.FormatInvariant(InvalidXmlErrorMessageTemplate, fileName, ex.Message)
-                    };
-
-                    var response = Request.CreateResponse(HttpStatusCode.BadRequest, errorResult);
-
-                    return ResponseMessage(response);
-                }
-
-                _workflowService.FileRepository = GetFileRepository();
-                var result = await _workflowService.ImportWorkflowAsync(workflow, fileName, session.UserId);
-
-                switch (result.ResultCode)
-                {
-                    case ImportWorkflowResultCodes.Ok:
-                        return Ok(result);
-                    case ImportWorkflowResultCodes.InvalidModel:
-                        return ResponseMessage(Request.CreateResponse(HttpStatusCode.BadRequest, result));
-                    case ImportWorkflowResultCodes.Conflict:
-                        return ResponseMessage(Request.CreateResponse(HttpStatusCode.Conflict, result));
-                    default:
-                        // Should never happen.
-                        return InternalServerError(new Exception("Unknown error."));
-                }
-            }
+            return await UploadWorkflowAsync();
         }
 
         /// <summary>
@@ -338,6 +293,14 @@ namespace AdminStore.Controllers
         [Route("update/{workflowId:int:min(1)}")]
         public async Task<IHttpActionResult> UpdateWorkflowViaImport(int workflowId)
         {
+            return await UploadWorkflowAsync(workflowId);
+        }
+
+        #region Private methods
+
+        // Upload means Import (Create) or Update
+        private async Task<IHttpActionResult> UploadWorkflowAsync(int? workflowId = null)
+        {
             var session = Session;
             Debug.Assert(session != null, "The session is null.");
 
@@ -370,10 +333,9 @@ namespace AdminStore.Controllers
 
                 _workflowService.FileRepository = GetFileRepository();
 
-                // TODO: Implement the workflow update and do refactoring in this controller.
-                // TODO: A lot of common with the workflow import.
-                var result = new ImportWorkflowResult { ResultCode = ImportWorkflowResultCodes.Ok };
-                //var result = await _workflowService.ImportWorkflowAsync(workflow, fileName, session.UserId);
+                var result = workflowId == null
+                    ? await _workflowService.ImportWorkflowAsync(workflow, fileName, session.UserId)
+                    : await _workflowService.UpdateWorkflowViaImport(workflowId.Value, workflow, fileName, session.UserId);
 
                 switch (result.ResultCode)
                 {
@@ -389,8 +351,6 @@ namespace AdminStore.Controllers
                 }
             }
         }
-
-        #region Private methods
 
         // Validate xml of IeWorkflow against xml schema.
         // To generate xml schema use: xsd.exe AdminStore.dll /t:IeWorkflow

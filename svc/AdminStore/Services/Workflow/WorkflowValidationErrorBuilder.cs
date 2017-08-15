@@ -65,6 +65,8 @@ namespace AdminStore.Services.Workflow
         private const string TemplateXmlPropertyChangeEventActionNotSupported = "One or more Property Change Events have unsupported Actions. A Property Change Event supports only Email Notification Action";
         // Updated - just fixed a misspelling
         private const string TemplateXmlDuplicateArtifactTypesInProject = "One or more Projects contains duplicate Artifact Types. Artifact Types in a Project must be unique.";
+        // Workflow Update specific messages
+        private const string TemplateXmlWorkflowIdDoesNotMatchIdInUrl = "The Workflow Id in XML does not match the Workflow to update, Id in URL. You probably supplied a wrong Workflow XML file.";
 
         // Messages for the Data validation.
         private const string TemplateDataWorkflowNameNotUnique = "A Workflow with Name '{0}' already exists. Workflows in Blueprint must have unique names.";
@@ -343,6 +345,10 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowXmlValidationErrorCodes.DuplicateArtifactTypesInProject:
                     template = TemplateXmlDuplicateArtifactTypesInProject;
+                    errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.WorkflowIdDoesNotMatchIdInUrl:
+                    template = TemplateXmlWorkflowIdDoesNotMatchIdInUrl;
                     errParams = new object[] { };
                     break;
                 default:

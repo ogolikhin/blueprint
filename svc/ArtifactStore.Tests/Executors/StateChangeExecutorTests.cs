@@ -65,6 +65,9 @@ namespace ArtifactStore.Executors
             _artifactVersionsRepository.Setup(t => t.IsItemDeleted(ArtifactId))
                 .ReturnsAsync(true);
 
+            _artifactVersionsRepository.Setup(t => t.GetVersionControlArtifactInfoAsync(It.IsAny<int>(), It.IsAny<int?>(), It.IsAny<int>()))
+                .ReturnsAsync(new VersionControlArtifactInfo() {Id = ArtifactId});
+
             //Act
             try
             {

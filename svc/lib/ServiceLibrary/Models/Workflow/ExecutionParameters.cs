@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using ServiceLibrary.Helpers.Validators;
+using ServiceLibrary.Models.PropertyType;
 using ServiceLibrary.Models.Reuse;
 
 namespace ServiceLibrary.Models.Workflow
@@ -7,13 +9,20 @@ namespace ServiceLibrary.Models.Workflow
     {
         public ItemTypeReuseTemplate ReuseItemTemplate { get; private set; }
 
-        public Dictionary<int, CustomProperties> StandardToCustomPropertyMap { get; private set; }
+        public List<DPropertyType> InstancePropertyTypes { get; private set; }
+        
+        public IPropertyValidator[] Validators;
 
-        public ExecutionParameters(ItemTypeReuseTemplate reuseTemplate,
-            Dictionary<int, CustomProperties> standardToCustomPropertyMap)
+        public ExecutionParameters(
+            ItemTypeReuseTemplate reuseTemplate,
+            List<DPropertyType> instancePropertyTypes)
         {
             ReuseItemTemplate = reuseTemplate;
-            StandardToCustomPropertyMap = standardToCustomPropertyMap;
+            InstancePropertyTypes = instancePropertyTypes;
+            Validators  = new IPropertyValidator[]
+            {
+                new NumberPropertyValidator()
+            }; 
         }
     }
 }

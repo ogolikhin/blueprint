@@ -151,6 +151,9 @@
     <Compile Include="Helpers\I18NHelper.cs" />
     <Compile Include="Helpers\TimeProvider.cs" />
     <Compile Include="Helpers\UserManagementHelper.cs" />
+    <Compile Include="Helpers\Validators\PropertyLite.cs" />
+    <Compile Include="Helpers\Validators\PropertyValidator.cs" />
+    <Compile Include="Helpers\Validators\NumberPropertyValidator.cs" />
     <Compile Include="LocalLog\ILocalLog.cs" />
     <Compile Include="LocalLog\LocalEventLog.cs" />
     <Compile Include="LocalLog\LocalFileLog.cs" />
@@ -222,8 +225,13 @@
     <Compile Include="Models\ProjectMeta\PropertyTypePredefinedExtension.cs" />
     <Compile Include="Models\ProjectNameIdPair.cs" />
     <Compile Include="Models\ProjectPermissions.cs" />
+    <Compile Include="Models\PropertyType\DNumberPropertyType.cs" />
+    <Compile Include="Models\PropertyType\DPropertyType.cs" />
+    <Compile Include="Models\PropertyType\PropertySetResult.cs" />
+    <Compile Include="Models\PropertyType\SqlPropertyType.cs" />
     <Compile Include="Models\QueryResult.cs" />
     <Compile Include="Models\QuerySingleResult.cs" />
+    <Compile Include="Models\Range.cs" />
     <Compile Include="Models\Reuse\ItemTypeReuseTemplate.cs" />
     <Compile Include="Models\Reuse\PropertyTypeReuseTemplate.cs" />
     <Compile Include="Models\RolePermissions.cs" />
@@ -250,9 +258,10 @@
     <Compile Include="Models\VersionControl\SqlItemInfo.cs" />
     <Compile Include="Models\VersionControl\SqlJournalEntry.cs" />
     <Compile Include="Models\VersionControl\SqlPublishResult.cs" />
+    <Compile Include="Models\Workflow\Actions\PropertyChangeAction.cs" />
     <Compile Include="Models\Workflow\ExecutionParameters.cs" />
     <Compile Include="Models\Workflow\Workflow.cs" />
-    <Compile Include="Models\Workflow\WorkflowEventAction.cs" />
+    <Compile Include="Models\Workflow\Actions\WorkflowEventAction.cs" />
     <Compile Include="Models\Workflow\WorkflowEventCondition.cs" />
     <Compile Include="Models\Workflow\WorkflowConstants.cs" />
     <Compile Include="Models\Workflow\WorkflowEventTrigger.cs" />

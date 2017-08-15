@@ -9,6 +9,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using ArtifactStore.Helpers;
 using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Models.ProjectMeta;
+using ServiceLibrary.Models.PropertyType;
+using ServiceLibrary.Models.Workflow.Actions;
 
 namespace ArtifactStore.Repositories.Workflow
 {
@@ -72,18 +75,16 @@ namespace ArtifactStore.Repositories.Workflow
                 transaction);
         }
 
-        public async Task<Dictionary<int, CustomProperties>> GetCustomPropertiesForInstancePropertyIdsAsync(
+        public async Task<Dictionary<int, List<DPropertyType>>> GetPropertyTypesFromItemTypeIds(
             int userId,
             int artifactId,
-            int projectId, 
+            IEnumerable<int> instanceItemTypeIds,
             IEnumerable<int> instancePropertyIds)
         {
             //Need to access code for artifact permissions for revision
             await CheckForArtifactPermissions(userId, artifactId, permissions: RolePermissions.Edit);
 
-            return await GetCustomPropertiesForInstancePropertyIds(
-                instancePropertyIds,
-                projectId);
+            return await GetPropertyTypesForItemTypes(instanceItemTypeIds, instancePropertyIds);
         }
         #endregion
 
@@ -278,20 +279,89 @@ namespace ArtifactStore.Repositories.Workflow
             }).ToList();
         }
 
-        private async Task<Dictionary<int, CustomProperties>> GetCustomPropertiesForInstancePropertyIds(IEnumerable<int> instancePropertyTypeIds, int projectId, IDbTransaction transaction = null)
+        private async Task<Dictionary<int, List<DPropertyType>>> GetPropertyTypesForItemTypes(
+            IEnumerable<int> itemTypeIds, 
+            IEnumerable<int> instancePropertyTypeIds, 
+            IDbTransaction transaction = null)
         {
             var param = new DynamicParameters();
-            var instancePropertyTypeIdsTable = SqlConnectionWrapper.ToDataTable(instancePropertyTypeIds);
-            param.Add("@projectId", projectId);
-            param.Add("@instancePropertyIds", instancePropertyTypeIdsTable);
+            param.Add("@itemTypeIds", SqlConnectionWrapper.ToDataTable(itemTypeIds));
+            param.Add("@propertyIds", SqlConnectionWrapper.ToDataTable(instancePropertyTypeIds));
 
-            const string storedProcedure = "GetCustomPropertiesForInstancePropertyIds";
+            const string storedProcedure = "GetPropertyTypesFromItemTypeIds";
             if (transaction == null)
             {
-                return (await ConnectionWrapper.QueryAsync<CustomProperties>(storedProcedure, param, commandType: CommandType.StoredProcedure)).ToDictionary(c => c.InstancePropertyTypeId);
+                return ToItemTypePropertyTypesDictionary(await ConnectionWrapper.QueryAsync<SqlPropertyType>(storedProcedure, param, commandType: CommandType.StoredProcedure));
             }
-            return (await transaction.Connection.QueryAsync<CustomProperties>(storedProcedure, param, transaction, commandType: CommandType.StoredProcedure)).ToDictionary(c => c.InstancePropertyTypeId);
+            return ToItemTypePropertyTypesDictionary(await transaction.Connection.QueryAsync<SqlPropertyType>(storedProcedure, param, transaction, commandType: CommandType.StoredProcedure));
 
+        }
+
+        private Dictionary<int, List<DPropertyType>> ToItemTypePropertyTypesDictionary(IEnumerable<SqlPropertyType> sqlPropertyTypes)
+        {
+            var dictionary = new Dictionary<int, List<DPropertyType>>();
+            foreach (var sqlPropertyType in sqlPropertyTypes)
+            {
+                DPropertyType dProperty;
+                switch (sqlPropertyType.PrimitiveType)
+                {
+                    case PropertyPrimitiveType.Number:
+                    {
+                        dProperty = new DNumberPropertyType
+                        {
+                            AllowMultiple = sqlPropertyType.AllowMultiple,
+                            DefaultValue = DecimalHelper.ToDecimal((byte[])sqlPropertyType.DecimalDefaultValue),
+                            DecimalPlaces = sqlPropertyType.DecimalPlaces.GetValueOrDefault(0),
+                            DefaultValidValueId = sqlPropertyType.DefaultValidValueId,
+                            InstancePropertyTypeId = sqlPropertyType.InstancePropertyTypeId,
+                            Name = sqlPropertyType.Name,
+                            PropertyTypeId = sqlPropertyType.PropertyTypeId,
+                            Range = new Range<decimal>
+                            {
+                                End = DecimalHelper.ToDecimal((byte[])sqlPropertyType.NumberRange_End).GetValueOrDefault(0),
+                                Start = DecimalHelper.ToDecimal((byte[])sqlPropertyType.NumberRange_Start).GetValueOrDefault(0)
+                            },
+                            PrimitiveType = sqlPropertyType.PrimitiveType,
+                            IsRequired = sqlPropertyType.Required != null && sqlPropertyType.Required.Value,
+                            Validate = sqlPropertyType.Validate,
+                            VersionId = sqlPropertyType.VersionId
+                        };
+                        break;
+                    }
+                    //TODO: add other DPropertyTypes
+                    default:
+                        {
+                            dProperty = new DPropertyType
+                            {
+                                AllowMultiple = sqlPropertyType.AllowMultiple,
+                                DateDefaultValue = sqlPropertyType.DateDefaultValue,
+                                DateRange_End = sqlPropertyType.DateRange_End,
+                                DateRange_Start = sqlPropertyType.DateRange_Start,
+                                DefaultValidValueId = sqlPropertyType.DefaultValidValueId,
+                                InstancePropertyTypeId = sqlPropertyType.InstancePropertyTypeId,
+                                IsRichText = sqlPropertyType.IsRichText,
+                                Name = sqlPropertyType.Name,
+                                PropertyTypeId = sqlPropertyType.PropertyTypeId,
+                                PrimitiveType = sqlPropertyType.PrimitiveType,
+                                IsRequired = sqlPropertyType.Required != null && sqlPropertyType.Required.Value,
+                                StringDefaultValue = sqlPropertyType.StringDefaultValue,
+                                Validate = sqlPropertyType.Validate,
+                                VersionId = sqlPropertyType.VersionId
+                            };
+                            break;
+                    }
+                }
+               
+                if (dictionary.ContainsKey(sqlPropertyType.ItemTypeId))
+                {
+                    dictionary[sqlPropertyType.ItemTypeId].Add(dProperty);
+                }
+                else
+                {
+                    dictionary.Add(sqlPropertyType.ItemTypeId, new List<DPropertyType> { dProperty});
+                }
+            }
+            return dictionary;
         }
         #endregion
     }

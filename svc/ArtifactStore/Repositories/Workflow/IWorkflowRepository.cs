@@ -2,6 +2,7 @@
 using System.Data;
 using System.Threading.Tasks;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.PropertyType;
 using ServiceLibrary.Models.Workflow;
 
 namespace ArtifactStore.Repositories.Workflow
@@ -17,10 +18,6 @@ namespace ArtifactStore.Repositories.Workflow
         Task<WorkflowState> ChangeStateForArtifactAsync(int userId, int artifactId,
             WorkflowStateChangeParameterEx stateChangeParameter, IDbTransaction transaction = null);
 
-        Task<Dictionary<int, CustomProperties>> GetCustomPropertiesForInstancePropertyIdsAsync(
-            int userId,
-            int artifactId,
-            int projectId,
-            IEnumerable<int> instancePropertyIds);
+        Task<Dictionary<int, List<DPropertyType>>> GetPropertyTypesFromItemTypeIds(int userId, int artifactId, IEnumerable<int> instanceItemTypeIds, IEnumerable<int> instancePropertyIds);
     }
 }

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using ArtifactStore.Helpers;
 using ArtifactStore.Models;
-using ArtifactStore.Models.Reuse;
 using ArtifactStore.Repositories;
 using ArtifactStore.Repositories.Reuse;
 using ArtifactStore.Repositories.Workflow;
@@ -14,9 +13,11 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Models.PropertyType;
 using ServiceLibrary.Models.Reuse;
 using ServiceLibrary.Models.VersionControl;
 using ServiceLibrary.Models.Workflow;
+using ServiceLibrary.Models.Workflow.Actions;
 
 namespace ArtifactStore.Executors
 {
@@ -108,24 +109,37 @@ namespace ArtifactStore.Executors
         }
 
         private async Task<ExecutionParameters> BuildTriggerExecutionParameters(VersionControlArtifactInfo artifactInfo,
-            WorkflowEventTriggers preOpTriggers, IDbTransaction transaction = null)
+            WorkflowEventTriggers triggers, IDbTransaction transaction = null)
         {
+            if (triggers.IsEmpty())
+            {
+                return null;
+            }
             //TODO: detect if artifact has readonly reuse
             var isArtifactReadOnlyReuse = await _reuseRepository.DoItemsContainReadonlyReuse(new [] {_input.ArtifactId}, transaction);
 
             ItemTypeReuseTemplate reuseTemplate = null;
+            var artifactId2StandardTypeId =
+                await
+                    _reuseRepository.GetStandardTypeIdsForArtifactsIdsAsync(new HashSet<int> { _input.ArtifactId });
+            var instanceTypeTypeId = artifactId2StandardTypeId[_input.ArtifactId].InstanceTypeId;
+            if (instanceTypeTypeId == null)
+            {
+                throw new BadRequestException("Artifact is not a standard artifact type");
+            }
             if (isArtifactReadOnlyReuse.ContainsKey(_input.ArtifactId) && isArtifactReadOnlyReuse[_input.ArtifactId])
             {
-                var artifactId2StandardTypeId =
-                    await
-                        _reuseRepository.GetStandardTypeIdsForArtifactsIdsAsync(new HashSet<int>{_input.ArtifactId});
-                var instanceTypeId = artifactId2StandardTypeId[_input.ArtifactId].InstanceTypeId;
-                if (instanceTypeId != null)
-                    reuseTemplate = await LoadReuseSettings(instanceTypeId.Value);
+                reuseTemplate = await LoadReuseSettings(instanceTypeTypeId.Value);
             }
-            var customProperties = await LoadCustomPropertyInformation(artifactInfo.ProjectId, preOpTriggers);
+            var itemTypetoPropertyTypesMap = await LoadPropertyInformation(new [] { instanceTypeTypeId.Value }, triggers);
 
-            return new ExecutionParameters(reuseTemplate, customProperties);
+            var propertyTypes = new List<DPropertyType>();
+            if (itemTypetoPropertyTypesMap.ContainsKey(instanceTypeTypeId.Value))
+            {
+                propertyTypes = itemTypetoPropertyTypesMap[instanceTypeTypeId.Value];
+            }
+
+            return new ExecutionParameters(reuseTemplate, propertyTypes);
         }
 
         private async Task<int> CreateRevision(IDbTransaction transaction)
@@ -307,19 +321,19 @@ namespace ArtifactStore.Executors
             return reuseTemplateSettings;
         }
 
-        private async Task<Dictionary<int, CustomProperties>> LoadCustomPropertyInformation(int projectId, WorkflowEventTriggers triggers)
+        private async Task<Dictionary<int, List<DPropertyType>>> LoadPropertyInformation(IEnumerable<int> instanceItemTypeIds, WorkflowEventTriggers triggers)
         {
             var propertyChangeActions = triggers.Select(t => t.Action).OfType<PropertyChangeAction>().ToList();
             if (propertyChangeActions.Count == 0)
             {
-                return new Dictionary<int, CustomProperties>();
+                return new Dictionary<int, List<DPropertyType>>();
             }
 
             var instancePropertyTypeIds =
-                propertyChangeActions.Where(a => a.InstancePropertyTypeId.HasValue).Select(b => b.InstancePropertyTypeId.Value);
+                propertyChangeActions.Select(b => b.InstancePropertyTypeId);
 
             return await
-                _workflowRepository.GetCustomPropertiesForInstancePropertyIdsAsync(_userId, _input.ArtifactId, projectId,
+                _workflowRepository.GetPropertyTypesFromItemTypeIds(_userId, _input.ArtifactId, instanceItemTypeIds,
                     instancePropertyTypeIds);
         }
     }

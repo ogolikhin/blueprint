@@ -505,7 +505,7 @@ namespace AdminStore.Repositories.Workflow
 
             foreach (var workfloEvent in workflowEvents)
             {
-                table.Rows.Add(workfloEvent.TriggerId, workfloEvent.Name,
+                table.Rows.Add(workfloEvent.WorkflowEventId, workfloEvent.Name,
                     workfloEvent.WorkflowId, workfloEvent.Type, workfloEvent.Permissions, 
                     workfloEvent.Validations, workfloEvent.Triggers, workfloEvent.WorkflowState1Id, 
                     workfloEvent.WorkflowState2Id, workfloEvent.PropertyTypeId);

@@ -151,22 +151,14 @@ namespace AdminStore.Services.Workflow
                     }
                 }
 
-                if (projectPaths.Count != workflow.Projects.Count)
+                foreach(var project in workflow.Projects
+                    .Where(p => !string.IsNullOrEmpty(p.Path) && !p.Id.HasValue))
                 {
-                    //generate a list of all projects in the workflow that are either missing from id list or were not looked up by path
-                    foreach (var project in workflow.Projects
-                        .Where(proj => projectPaths.All(
-                            path => proj.Id.HasValue
-                                ? path.Key != proj.Id.Value
-                                : !path.Value.Equals(proj.Path)))
-                        .Select(proj => proj.Id?.ToString() ?? proj.Path))
+                    result.Errors.Add(new WorkflowDataValidationError
                     {
-                        result.Errors.Add(new WorkflowDataValidationError
-                        {
-                            Element = project,
-                            ErrorCode = WorkflowDataValidationErrorCodes.ProjectByPathNotFound
-                        });
-                    }
+                        Element = project.Path,
+                        ErrorCode = WorkflowDataValidationErrorCodes.ProjectByPathNotFound
+                    });
                 }
 
                 var projectIds = projectPaths.Select(p => p.Key).ToHashSet();

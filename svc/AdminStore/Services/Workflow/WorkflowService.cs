@@ -167,6 +167,33 @@ namespace AdminStore.Services.Workflow
 
         }
 
+        public async Task<ImportWorkflowResult> UpdateWorkflowViaImport(int workflowId, IeWorkflow workflow, string fileName, int userId)
+        {
+            var importResult = new ImportWorkflowResult();
+
+            var xmlValidationResult = ValidateWorkflowId(workflow, workflowId);
+            if (xmlValidationResult.HasErrors)
+            {
+                var textErrors = _workflowValidationErrorBuilder.BuildTextXmlErrors(xmlValidationResult.Errors, fileName);
+                var guid = await UploadErrorsToFileStore(textErrors);
+
+                importResult.ErrorsGuid = guid;
+                importResult.ResultCode = ImportWorkflowResultCodes.InvalidModel;
+
+#if DEBUG
+                importResult.ErrorMessage = textErrors;
+#endif
+
+                return importResult;
+            }
+
+            // TODO: temp
+            await Task.Delay(1);
+
+            importResult.ResultCode = ImportWorkflowResultCodes.Ok;
+            return importResult;
+        }
+
         public async Task<WorkflowDto> GetWorkflowDetailsAsync(int workflowId)
         {
             var workflowDetails = await _workflowRepository.GetWorkflowDetailsAsync(workflowId);
@@ -399,6 +426,7 @@ namespace AdminStore.Services.Workflow
                 Id = workflowDetails.WorkflowId,
                 Name = workflowDetails.Name,
                 Description = workflowDetails.Description,
+                IsActive = workflowDetails.Active,
                 States = workflowStates.Select(e => new IeState { Id = e.WorkflowStateId, IsInitial = e.Default, Name = e.Name }).Distinct().ToList(),
                 TransitionEvents = workflowEvents.Where(e => e.Type == (int)DWorkflowEventType.Transition).
                     Select(e => new IeTransitionEvent
@@ -551,6 +579,26 @@ namespace AdminStore.Services.Workflow
         private static string ReplaceNewLines(string text)
         {
             return text?.Replace("\n", string.Empty).Replace("\r", string.Empty);
+        }
+
+        private static WorkflowXmlValidationResult ValidateWorkflowId(IeWorkflow workflow, int workflowId)
+        {
+            if (workflow == null)
+            {
+                throw new ArgumentNullException(nameof(workflow));
+            }
+
+            var result = new WorkflowXmlValidationResult();
+
+            if (workflowId != workflow.Id)
+            {
+                result.Errors.Add(new WorkflowXmlValidationError
+                {
+                    ErrorCode = WorkflowXmlValidationErrorCodes.WorkflowIdDoesNotMatchIdInUrl
+                });
+            }
+
+            return result;
         }
     }
 }

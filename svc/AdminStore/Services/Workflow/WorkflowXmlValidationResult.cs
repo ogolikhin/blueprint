@@ -69,6 +69,9 @@ namespace AdminStore.Services.Workflow
         ProjectDuplicatePath,
         ProjectDoesNotHaveAnyArtfactTypes,
         ArtifactTypeNoSpecified,
-        DuplicateArtifactTypesInProject
+        DuplicateArtifactTypesInProject,
+
+        // Update specific errors
+        WorkflowIdDoesNotMatchIdInUrl
     }
 }

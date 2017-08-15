@@ -36,6 +36,9 @@ namespace AdminStore.Models.Workflow
         [XmlElement(IsNullable = false)]
         public string Description { get; set; }
 
+        [XmlIgnore]
+        public bool IsActive { get; set; }
+
         [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
         [XmlArray("States"), XmlArrayItem("State")]
         public List<IeState> States { get; set; }

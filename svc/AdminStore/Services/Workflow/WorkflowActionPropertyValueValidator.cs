@@ -1,17 +1,253 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using AdminStore.Models.Workflow;
+using ArtifactStore.Helpers;
 using ServiceLibrary.Models.ProjectMeta;
 
 namespace AdminStore.Services.Workflow
 {
     public class WorkflowActionPropertyValueValidator : IWorkflowActionPropertyValueValidator
     {
+        #region Interface Implementation
+
         public bool ValidatePropertyValue(IePropertyChangeAction action, PropertyType propertyType,
-            ISet<string> validUsers, ISet<string> validGroups, out WorkflowDataValidationErrorCodes? errorCode)
+            ISet<string> validUsers, ISet<Tuple<string, int?>> validGroups, out WorkflowDataValidationErrorCodes? errorCode)
         {
-            // TODO:
+            if (action == null)
+            {
+                throw new ArgumentNullException(nameof(action));
+            }
+
+            if (propertyType == null)
+            {
+                throw new ArgumentNullException(nameof(propertyType));
+            }
+
+            bool result;
+            switch (propertyType.PrimitiveType)
+            {
+                case PropertyPrimitiveType.Text:
+                    result = ValidateTextPropertyValue(action, propertyType, out errorCode);
+                    break;
+                case PropertyPrimitiveType.Number:
+                    result = ValidateNumberPropertyValue(action, propertyType, out errorCode);
+                    break;
+                case PropertyPrimitiveType.Date:
+                    result = ValidateDatePropertyValue(action, propertyType, out errorCode);
+                    break;
+                case PropertyPrimitiveType.User:
+                    result = ValidateUserPropertyValue(action, propertyType, validUsers, validGroups, out errorCode);
+                    break;
+                case PropertyPrimitiveType.Choice:
+                    result = ValidateChoicePropertyValue(action, propertyType, out errorCode);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(propertyType.PrimitiveType));
+            }
+
+            return result;
+        }
+        
+        #endregion
+
+        #region Private Methods
+
+        private static bool ValidateTextPropertyValue(IePropertyChangeAction action, PropertyType propertyType,
+            out WorkflowDataValidationErrorCodes? errorCode)
+        {
             errorCode = null;
+            if (!ValidateIsPropertyRequired(propertyType.IsRequired.GetValueOrDefault(),
+                action.PropertyValue, true, true))
+            {
+                errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredPropertyValueEmpty;
+                return false;
+            }
+
             return true;
         }
+
+        private static bool ValidateNumberPropertyValue(IePropertyChangeAction action, PropertyType propertyType,
+            out WorkflowDataValidationErrorCodes? errorCode)
+        {
+            errorCode = null;
+            if (!ValidateIsPropertyRequired(propertyType.IsRequired.GetValueOrDefault(),
+                action.PropertyValue, true, true))
+            {
+                errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredPropertyValueEmpty;
+                return false;
+            }
+
+            decimal numberValue;
+            if (!decimal.TryParse(action.PropertyValue, out numberValue))
+            {
+                if(!string.IsNullOrWhiteSpace(action.PropertyValue))
+                {
+                    errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionInvalidNumberFormat;
+                    return false;
+                }
+            }
+
+            if (!propertyType.IsValidated.GetValueOrDefault()
+                || string.IsNullOrWhiteSpace(action.PropertyValue))
+            {
+                return true;
+            }
+
+            var index = action.PropertyValue.IndexOf(CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator, StringComparison.Ordinal);
+            var decimalPlaces = (index == -1) ? 0 : action.PropertyValue.Length - index - 1;
+            if (decimalPlaces > propertyType.DecimalPlaces.GetValueOrDefault())
+            {
+                errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionInvalidNumberDecimalPlaces;
+                return false;
+            }
+
+            if (numberValue < propertyType.MinNumber.Value
+                || numberValue > propertyType.MaxNumber.Value)
+            {
+                errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionNumberOutOfRange;
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool ValidateDatePropertyValue(IePropertyChangeAction action, PropertyType propertyType,
+            out WorkflowDataValidationErrorCodes? errorCode)
+        {
+            errorCode = null;
+            if (!ValidateIsPropertyRequired(propertyType.IsRequired.GetValueOrDefault(),
+                action.PropertyValue, true, true))
+            {
+                errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredPropertyValueEmpty;
+                return false;
+            }
+
+            DateTime dateValue;
+            if (!DateTime.TryParseExact(action.PropertyValue, "yyyy-MM-dd",
+                CultureInfo.InvariantCulture, DateTimeStyles.None, out dateValue))
+            {
+                if (!string.IsNullOrWhiteSpace(action.PropertyValue))
+                {
+                    errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionInvalidDateFormat;
+                    return false;
+                }
+            }
+
+            if (!propertyType.IsValidated.GetValueOrDefault()
+                || string.IsNullOrWhiteSpace(action.PropertyValue))
+            {
+                return true;
+            }
+
+            if (dateValue.Date < propertyType.MinDate.Value.Date
+                || dateValue.Date > propertyType.MaxDate.Value.Date)
+            {
+                errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionDateOutOfRange;
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool ValidateChoicePropertyValue(IePropertyChangeAction action, PropertyType propertyType,
+            out WorkflowDataValidationErrorCodes? errorCode)
+        {
+            errorCode = null;
+            if (!ValidateIsPropertyRequired(propertyType.IsRequired.GetValueOrDefault(),
+                action.PropertyValue, action.ValidValues.IsEmpty(), true))
+            {
+                errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredPropertyValueEmpty;
+                return false;
+            }
+
+            if (propertyType.IsValidated.GetValueOrDefault()
+                && propertyType.IsRequired.GetValueOrDefault()
+                && action.ValidValues.IsEmpty())
+            {
+                errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionChoiceValueSpecifiedAsNotValidated;
+                return false;
+            }
+
+            if (action.ValidValues.IsEmpty())
+            {
+                return true;
+            }
+
+            var validValidValues = propertyType.ValidValues.Select(vv => vv.Value).ToHashSet();
+            foreach (var validValue in action.ValidValues)
+            {
+                if (string.IsNullOrWhiteSpace(validValue.Value))
+                {
+                    errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionValidValueNotSpecified;
+                    return false;
+                }
+
+                if (!validValidValues.Contains(validValue.Value))
+                {
+                    errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionValidValueNotFound;
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static bool ValidateUserPropertyValue(IePropertyChangeAction action, PropertyType propertyType,
+            ISet<string> validUsers, ISet<Tuple<string, int?>> validGroups, out WorkflowDataValidationErrorCodes? errorCode)
+        {
+            errorCode = null;
+            if (!ValidateIsPropertyRequired(propertyType.IsRequired.GetValueOrDefault(),
+                action.PropertyValue, true, action.UsersGroups.IsEmpty()))
+            {
+                errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredPropertyValueEmpty;
+                return false;
+            }
+
+            if (action.UsersGroups.IsEmpty())
+            {
+                return true;
+            }
+
+            foreach (var userGroup in action.UsersGroups)
+            {
+                if (string.IsNullOrWhiteSpace(userGroup.Name))
+                {
+                    errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionUserOrGroupNotSpecified;
+                    return false;
+                }
+
+                if (userGroup.IsGroup.GetValueOrDefault())
+                {
+                    if (!validGroups.Contains(Tuple.Create(userGroup.Name, userGroup.GroupProjectId)))
+                    {
+                        errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionGroupNotFound;
+                        return false;
+                    }
+                }
+                else
+                {
+                    if (!validUsers.Contains(userGroup.Name))
+                    {
+                        errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionUserNotFound;
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        private static bool ValidateIsPropertyRequired(bool isRequired, string value, bool isChoicesEmpty,
+            bool isUsersGroupsEmpty)
+        {
+            return !(isRequired && string.IsNullOrWhiteSpace(value) && isChoicesEmpty && isUsersGroupsEmpty);
+        }
+
+        #endregion
+
+
+
     }
 }

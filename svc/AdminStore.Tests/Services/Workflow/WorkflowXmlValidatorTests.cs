@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using AdminStore.Models.Workflow;
-using AdminStore.Services.Workflow;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
 
-namespace AdminStore.Repositories.Workflow
+namespace AdminStore.Services.Workflow
 {
     [TestClass]
     public class WorkflowXmlValidatorTests
@@ -326,7 +325,37 @@ namespace AdminStore.Repositories.Workflow
                         Action = new IePropertyChangeAction
                         {
                             PropertyName = "User Property",
-                            PropertyValue = "Group 1"
+                            UsersGroups = new List<IeUserGroup>
+                            {
+                                new IeUserGroup
+                                {
+                                    Name = "user"
+                                },
+                                new IeUserGroup
+                                {
+                                    Name = "instance group",
+                                    IsGroup = true
+                                },
+                                new IeUserGroup
+                                {
+                                    Name = "project group by id",
+                                    IsGroup = true,
+                                    GroupProjectId = 99
+                                },
+                                new IeUserGroup
+                                {
+                                    Name = "project group by path",
+                                    IsGroup = true,
+                                    GroupProjectPath = "path"
+                                },
+                                new IeUserGroup
+                                {
+                                    Name = "project group by id and path",
+                                    IsGroup = true,
+                                    GroupProjectId = 99,
+                                    GroupProjectPath = "path"
+                                }
+                            }
                         }
                     }
                 }

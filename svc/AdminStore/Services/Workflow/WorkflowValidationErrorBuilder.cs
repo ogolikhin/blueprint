@@ -42,12 +42,10 @@ namespace AdminStore.Services.Workflow
         private const string TemplateXmlPropertyChangEventPropertyNotSpecified = "Property of Property Change Event '{0}' is not specified.";
         private const string TemplateXmlProjectNoSpecified = "One or more Projects are not specified. A Project must be specified with Id or Path.";
         private const string TemplateXmlProjectInvalidId = "The Project Id '{0}' is invalid. The Project Id must be greater than zero.";
-        // New
         private const string TemplateXmlProjectDuplicateId = "One or more Projects have a duplicate Id. Projects in a Workflow must be unique.";
-        // New
         private const string TemplateXmlProjectInvalidPath = "One or more Projects have a duplicate Project Path. Projects in a Workflow must be unique.";
-        // New
-        private const string TemplateXmlProjectDoesNotHaveAnyArtfactTypes = "One or more Projects do not have ant Artifact Types. A Project must have at least one Artifact Type.";
+        // Updated - just removed an unnecessary word
+        private const string TemplateXmlProjectDoesNotHaveAnyArtfactTypes = "One or more Projects do not have Artifact Types. A Project must have at least one Artifact Type.";
         private const string TemplateXmlArtifactTypeNoSpecified = "One or more Artifact Types are not specified. A Artifact Types must be specified.";
         private const string TemplateXmlPropertyChangeEventNoAnyTriggersSpecified = "One or more Property Change Events do not have any triggers. A Property Change Event must have at least one Trigger.";
         private const string TemplateXmlNewArtifactEventNoAnyTriggersSpecified = "One or more New Artifact Events do not have any triggers. A New Artifact Event must have at least one Trigger.";
@@ -57,32 +55,41 @@ namespace AdminStore.Services.Workflow
         private const string TemplateXmlEmailInvalidEmailNotificationAction = "'{0}' is not a valid email.";
         private const string TemplateXmlMessageEmailNotificationActionNotSpecitied = "One or more Email Notification Actions do not have a specified message. A Email Notification Action must have a message.";
         private const string TemplateXmlPropertyNamePropertyChangeActionNotSpecitied = "One or more Property Change Actions do not have a specified Property Name. A Property Change Action must have a Property Name.";
-        // Updated
         private const string TemplateXmlPropertyValuePropertyChangeActionNotSpecitied = "One or more Property Change Actions do not have a specified Property Value. A Property Change Action must have one of the following values, a Property Value or Valid Values or Users and Groups.";
-        // New
         private const string TemplateXmlAmbiguousPropertyValuePropertyChangeAction = "One or more Property Change Actions have ambiguous Property Values. A Property Change Action must have only one of the following values, a Property Value or Valid Values or Users and Groups.";
         private const string TemplateXmlArtifactTypeGenerateChildrenActionNotSpecitied = "One or more Generate Children Actions do not have a specified Artifact Type. A Generate Children Action must have an Artifact Type.";
         private const string TemplateXmlChildCountGenerateChildrenActionNotSpecitied = "One or more Generate Children Actions do not have a specified Child Count. A Generate Children Action must have a Child Count.";
         private const string TemplateXmlStateConditionNotOnTriggerOfPropertyChangeEvent = "One or more Triggers of Transitions or New Artifact Events have a State Condition. Only Triggers of Property Change Events can have a State Condition.";
         private const string TemplateXmlStateStateConditionNotSpecified = "One or more States missing on State Conditions of Triggers. The State must be specified on a State Condition.";
         private const string TemplateXmlStateStateConditionNotFound = "State '{0}' of a State Condition is not found. The State of a State Condition must be in the Workflow.";
-        // New
         private const string TemplateXmlPropertyChangeEventActionNotSupported = "One or more Property Change Events have unsupported Actions. A Property Change Event supports only Email Notification Action";
-        // New
-        private const string TemplateXmlDuplicateArtifactTypesInProject = "One or more Propojects contains duplicate Artifact Types. Artifact Types in a Project must be unique.";
+        // Updated - just fixed a misspelling
+        private const string TemplateXmlDuplicateArtifactTypesInProject = "One or more Projects contains duplicate Artifact Types. Artifact Types in a Project must be unique.";
 
         // Messages for the Data validation.
-        private const string TemplateXmlWorkflowNameNotUnique = "A Workflow with Name '{0}' already exists. Workflows in Blueprint must have unique names.";
-        private const string TemplateXmlProjectByPathNotFound = "Project by Path '{0}' is not found in Blueprint.";
-        private const string TemplateXmlProjectByIdNotFound = "Project by ID '{0}' is not found in Blueprint.";
-        private const string TemplateXmlProjectIdDuplicate = "The Workflow contains duplicate projects.";
-        private const string TemplateXmlInstanceGroupNotFound = "Instance Group '{0}' is not found in Blueprint.";
-        private const string TemplateXmlStandardArtifactTypeNotFound = "Standard Artifact Type '{0}' is not found.";
-        private const string TemplateXmlArtifactTypeInProjectAlreadyAssociatedWithWorkflow = "Artifact Type '{0}' in Project '{1}' is already is associated with a Workflow.";
-        private const string TemplateXmlPropertyNotFound = "Property '{0}' of a Property Change Event is not found in Blueprint.";
-        private const string TemplateXmlGenerateChildArtifactsActionArtifactTypeNotFound = "Artifact Type '{0}' of a Generate Child Artifacts Action is not found in Blueprint.";
-        private const string TemplateXmlEmailNotificationActionPropertyTypeNotFound = "Property Type '{0}' of a Email Notification Action is not found in Blueprint.";
-        private const string TemplateXmlPropertyChangeActionPropertyTypeNotFound = "Property Type '{0}' of a Property Change Action is not found in Blueprint.";
+        private const string TemplateDataWorkflowNameNotUnique = "A Workflow with Name '{0}' already exists. Workflows in Blueprint must have unique names.";
+        private const string TemplateDataProjectByPathNotFound = "Project by Path '{0}' is not found in Blueprint.";
+        private const string TemplateDataProjectByIdNotFound = "Project by ID '{0}' is not found in Blueprint.";
+        private const string TemplateDataProjectIdDuplicate = "The Workflow contains duplicate projects.";
+        private const string TemplateDataInstanceGroupNotFound = "Instance Group '{0}' is not found in Blueprint.";
+        private const string TemplateDataStandardArtifactTypeNotFound = "Standard Artifact Type '{0}' is not found.";
+        private const string TemplateDataArtifactTypeInProjectAlreadyAssociatedWithWorkflow = "Artifact Type '{0}' in Project '{1}' is already is associated with a Workflow.";
+        private const string TemplateDataPropertyNotFound = "Property '{0}' of a Property Change Event is not found in Blueprint.";
+        private const string TemplateDataGenerateChildArtifactsActionArtifactTypeNotFound = "Artifact Type '{0}' of a Generate Child Artifacts Action is not found in Blueprint.";
+        private const string TemplateDataEmailNotificationActionPropertyTypeNotFound = "Property Type '{0}' of a Email Notification Action is not found in Blueprint.";
+        private const string TemplateDataPropertyChangeActionPropertyTypeNotFound = "Property Type '{0}' of a Property Change Action is not found in Blueprint.";
+        private const string TemplateDataPropertyChangeActionRequiredPropertyValueEmpty = "The Value of required Property '{0}' in a Property Change Action is empty.";
+        private const string TemplateDataPropertyChangeActionUserOrGroupNotSpecified = "One or more Users or Groups in Value of User Property '{0}' in a Property Change Action are not specified.";
+        private const string TemplateDataPropertyChangeActionUserNotFound = "One or more Users in Value of User Property '{0}' in a Property Change Action are not found.";
+        private const string TemplateDataPropertyChangeActionGroupNotFound = "One or more Groups in Value of User Property '{0}' in a Property Change Action are not found.";
+        private const string TemplateDataPropertyChangeActionChoiceValueSpecifiedAsNotValidated = "The Value of Validated Choice Property '{0}' in a Property Change Action is specified as not validated.";
+        private const string TemplateDataPropertyChangeActionValidValueNotSpecified = "One or more Valid Values in Value of Choice Property '{0}' in a Property Change Action are not specified.";
+        private const string TemplateDataPropertyChangeActionValidValueNotFound = "One or more Valid Values in Value of Choice Property '{0}' in a Property Change Action are not found.";
+        private const string TemplateDataPropertyChangeActionInvalidNumberFormat = "The Value of Number Property '{0}' in a Property Change Action has an invalid number format.";
+        private const string TemplateDataPropertyChangeActionInvalidNumberDecimalPlaces = "The Value of Number Property '{0}' in a Property Change Action has an invalid decimal places.";
+        private const string TemplateDataPropertyChangeActionNumberOutOfRange = "The Value of Number Property '{0}' in a Property Change Action is out of the range.";
+        private const string TemplateDataPropertyChangeActionInvalidDateFormat = "The Value of Date Property '{0}' in a Property Change Action has an invalid date format.";
+        private const string TemplateDataPropertyChangeActionDateOutOfRange = "The Value of Date Property '{0}' in a Property Change Action is out of the range.";
 
         #region Interface Implementation
 
@@ -352,49 +359,97 @@ namespace AdminStore.Services.Workflow
             switch (error.ErrorCode)
             {
                 case WorkflowDataValidationErrorCodes.WorkflowNameNotUnique:
-                    template = TemplateXmlWorkflowNameNotUnique;
+                    template = TemplateDataWorkflowNameNotUnique;
                     errParams = new object[] { ((IeWorkflow)error.Element).Name };
                     break;
                 case WorkflowDataValidationErrorCodes.ProjectByPathNotFound:
-                    template = TemplateXmlProjectByPathNotFound;
+                    template = TemplateDataProjectByPathNotFound;
                     errParams = new object[] { (string) error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.ProjectByIdNotFound:
-                    template = TemplateXmlProjectByIdNotFound;
+                    template = TemplateDataProjectByIdNotFound;
                     errParams = new object[] { (int)error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.ProjectDuplicate:
-                    template = TemplateXmlProjectIdDuplicate;
+                    template = TemplateDataProjectIdDuplicate;
                     errParams = new object[] {};
                     break;
                 case WorkflowDataValidationErrorCodes.InstanceGroupNotFound:
-                    template = TemplateXmlInstanceGroupNotFound;
+                    template = TemplateDataInstanceGroupNotFound;
                     errParams = new object[] { (string) error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.StandardArtifactTypeNotFound:
-                    template = TemplateXmlStandardArtifactTypeNotFound;
+                    template = TemplateDataStandardArtifactTypeNotFound;
                     errParams = new object[] { (string) error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.ArtifactTypeInProjectAlreadyAssociatedWithWorkflow:
-                    template = TemplateXmlArtifactTypeInProjectAlreadyAssociatedWithWorkflow;
+                    template = TemplateDataArtifactTypeInProjectAlreadyAssociatedWithWorkflow;
                     var t = (Tuple<int, string>) error.Element;
                     errParams = new object[] { t?.Item2, t?.Item1 };
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyNotFound:
-                    template = TemplateXmlPropertyNotFound;
+                    template = TemplateDataPropertyNotFound;
                     errParams = new object[] { (string) error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.GenerateChildArtifactsActionArtifactTypeNotFound:
-                    template = TemplateXmlGenerateChildArtifactsActionArtifactTypeNotFound;
+                    template = TemplateDataGenerateChildArtifactsActionArtifactTypeNotFound;
                     errParams = new object[] { (string) error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.EmailNotificationActionPropertyTypeNotFound:
-                    template = TemplateXmlEmailNotificationActionPropertyTypeNotFound;
+                    template = TemplateDataEmailNotificationActionPropertyTypeNotFound;
                     errParams = new object[] { (string) error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotFound:
-                    template = TemplateXmlPropertyChangeActionPropertyTypeNotFound;
+                    template = TemplateDataPropertyChangeActionPropertyTypeNotFound;
                     errParams = new object[] { (string) error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredPropertyValueEmpty:
+                    template = TemplateDataPropertyChangeActionRequiredPropertyValueEmpty;
+                    errParams = new object[] { (string)error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionUserOrGroupNotSpecified:
+                    template = TemplateDataPropertyChangeActionUserOrGroupNotSpecified;
+                    errParams = new object[] { (string)error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionUserNotFound:
+                    template = TemplateDataPropertyChangeActionUserNotFound;
+                    errParams = new object[] { (string)error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionGroupNotFound:
+                    template = TemplateDataPropertyChangeActionGroupNotFound;
+                    errParams = new object[] { (string)error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionChoiceValueSpecifiedAsNotValidated:
+                    template = TemplateDataPropertyChangeActionChoiceValueSpecifiedAsNotValidated;
+                    errParams = new object[] { (string)error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionValidValueNotSpecified:
+                    template = TemplateDataPropertyChangeActionValidValueNotSpecified;
+                    errParams = new object[] { (string)error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionValidValueNotFound:
+                    template = TemplateDataPropertyChangeActionValidValueNotFound;
+                    errParams = new object[] { (string)error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionInvalidNumberFormat:
+                    template = TemplateDataPropertyChangeActionInvalidNumberFormat;
+                    errParams = new object[] { (string)error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionInvalidNumberDecimalPlaces:
+                    template = TemplateDataPropertyChangeActionInvalidNumberDecimalPlaces;
+                    errParams = new object[] { (string)error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionNumberOutOfRange:
+                    template = TemplateDataPropertyChangeActionNumberOutOfRange;
+                    errParams = new object[] { (string)error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionInvalidDateFormat:
+                    template = TemplateDataPropertyChangeActionInvalidDateFormat;
+                    errParams = new object[] { (string)error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionDateOutOfRange:
+                    template = TemplateDataPropertyChangeActionDateOutOfRange;
+                    errParams = new object[] { (string)error.Element };
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

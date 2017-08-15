@@ -260,7 +260,7 @@ namespace AdminStore.Controllers
         /// <remarks>
         /// Returns Ok result.
         /// </remarks>
-        /// <response code="200">OK. The folder is updated.</response>
+        /// <response code="204">OK. The folder is updated.</response>
         /// <response code="400">BadRequest. Parameters are invalid. </response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. The user does not have permissions for updating the folder.</response>
@@ -273,7 +273,7 @@ namespace AdminStore.Controllers
         [SessionRequired]
         [ResponseType(typeof(HttpResponseMessage))]
         [Route("folders/{folderId:int:min(1)}")]
-        public async Task<IHttpActionResult> UpdateInstanceFolder(int folderId, [FromBody] FolderDto folderDto)
+        public async Task<HttpResponseMessage> UpdateInstanceFolder(int folderId, [FromBody] FolderDto folderDto)
         {
             if (folderDto == null)
             {
@@ -286,7 +286,7 @@ namespace AdminStore.Controllers
 
             await _instanceRepository.UpdateFolderAsync(folderId, folderDto);
 
-            return Ok();
+            return Request.CreateResponse(HttpStatusCode.NoContent);
         }
 
         #endregion

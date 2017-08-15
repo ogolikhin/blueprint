@@ -7,7 +7,7 @@ namespace ActionHandlerService.MessageHandlers.GenerateDescendants
 {
     public class GenerateDescendantsActionHelper : IActionHelper
     {
-        public async Task<bool> HandleAction(TenantInformation tenantInformation, ActionMessage actionMessage, IActionHandlerServiceRepository repository)
+        public async Task<bool> HandleAction(TenantInformation tenant, ActionMessage actionMessage, IActionHandlerServiceRepository actionHandlerServiceRepository)
         {
             return await Task.FromResult(true);
         }

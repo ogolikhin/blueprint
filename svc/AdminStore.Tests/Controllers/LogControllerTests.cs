@@ -99,7 +99,6 @@ namespace AdminStore.Controllers
                 Source = "testClass",
                 StackTrace = ""
             };
-            var session = new Session { UserName = "admin" };
 
             var logMock = new Mock<IServiceLogRepository>();
 
@@ -107,8 +106,6 @@ namespace AdminStore.Controllers
             {
                 Request = new HttpRequestMessage()
             };
-            controller.Request.Headers.Add("Session-Token", "");
-            controller.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             logMock.Setup(
                 repo => repo.LogClientMessage(logModel, It.IsAny<string>(), It.IsAny<string>()))
@@ -150,6 +147,52 @@ namespace AdminStore.Controllers
 
             // Assert
             Assert.AreEqual(HttpStatusCode.OK, result.Response.StatusCode);
+        }
+
+        [TestMethod]
+        public void LogController_ExtractSessionId_SessionTokenToShort_SessionIdReturnsWholeToken()
+        {
+            var token = "token";
+            var headers = new HttpRequestMessage().Headers;
+            headers.Add(ServiceConstants.BlueprintSessionTokenKey, token);
+
+            var sessionId = LogController.ExtractSessionId(headers);
+
+            Assert.AreEqual(token, sessionId);
+        }
+
+        [TestMethod]
+        public void LogController_ExtractSessionId_SessionTokenMoreThen8Chars_SessionIdReturnsFirst8Chars()
+        {
+            var token = "1E6207CE-6AB4-438F-8F87-9C76BEB95FB8";
+            var headers = new HttpRequestMessage().Headers;
+            headers.Add(ServiceConstants.BlueprintSessionTokenKey, token);
+
+            var sessionId = LogController.ExtractSessionId(headers);
+
+            Assert.AreEqual("1E6207CE", sessionId);
+        }
+
+        [TestMethod]
+        public void LogController_ExtractSessionId_SessionTokenHeaderNotDefined_SessionIdReturnsEmptyString()
+        {
+            var headers = new HttpRequestMessage().Headers;
+
+            var sessionId = LogController.ExtractSessionId(headers);
+
+            Assert.AreEqual(string.Empty, sessionId);
+        }
+
+        [TestMethod]
+        public void LogController_ExtractSessionId_EmptySessionToken_SessionIdReturnsEmptyString()
+        {
+            var token = "";
+            var headers = new HttpRequestMessage().Headers;
+            headers.Add(ServiceConstants.BlueprintSessionTokenKey, token);
+
+            var sessionId = LogController.ExtractSessionId(headers);
+
+            Assert.AreEqual(string.Empty, sessionId);
         }
 
         [TestMethod]

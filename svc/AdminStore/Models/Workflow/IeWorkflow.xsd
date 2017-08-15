@@ -152,6 +152,7 @@
       <xs:extension base="Condition">
         <xs:sequence>
           <xs:element minOccurs="0" maxOccurs="1" name="State" type="xs:string" />
+          <xs:element minOccurs="0" maxOccurs="1" name="StateId" nillable="true" type="xs:int" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>

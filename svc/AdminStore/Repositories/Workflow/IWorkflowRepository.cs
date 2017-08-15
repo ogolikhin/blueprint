@@ -44,7 +44,8 @@ namespace AdminStore.Repositories.Workflow
 
         Task<SqlWorkflow> GetWorkflowDetailsAsync(int workflowId);
 
-        Task<IEnumerable<SqlWorkflowArtifactTypesAndProjects>> GetWorkflowProjectsAndArtifactTypesAsync(int workflowId);
+        Task<IEnumerable<SqlWorkflowArtifactTypes>> GetWorkflowArtifactTypesAsync(int workflowId);
+
         Task<IEnumerable<SqlWorkflowMapItem>> GetWorkflowArtifactTypesMapAsync(int workflowId);
 
         Task<IEnumerable<SqlWorkflowMapItem>> GetPropertyTypesMapAsync(IEnumerable<int> propertyIds = null);

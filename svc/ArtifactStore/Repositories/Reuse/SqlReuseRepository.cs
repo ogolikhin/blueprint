@@ -6,6 +6,7 @@ using ArtifactStore.Models.Reuse;
 using Dapper;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Models.Reuse;
 using ServiceLibrary.Repositories;
 
 namespace ArtifactStore.Repositories.Reuse
@@ -30,8 +31,9 @@ namespace ArtifactStore.Repositories.Reuse
         /// 
         /// </summary>
         /// <param name="instanceItemTypeIds"></param>
+        /// <param name="transaction"></param>
         /// <returns>Dictionary with Type Id as Key</returns>
-        Task<IDictionary<int, ItemTypeReuseTemplate>> GetReuseItemTypeTemplatesAsyc(IEnumerable<int> instanceItemTypeIds);
+        Task<IDictionary<int, ItemTypeReuseTemplate>> GetReuseItemTypeTemplatesAsyc(IEnumerable<int> instanceItemTypeIds, IDbTransaction transaction = null);
 
         /// <summary>
         /// 
@@ -40,6 +42,14 @@ namespace ArtifactStore.Repositories.Reuse
         /// <param name="transaction"></param>
         /// <returns>Dictionary with Type Id as Key</returns>
         Task<IEnumerable<SqlModifiedItems>> GetModificationsForRevisionIdAsyc(int revisionId, IDbTransaction transaction = null);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="itemIds"></param>
+        /// <param name="transaction"></param>
+        /// <returns></returns>
+        Task<Dictionary<int, bool>> DoItemsContainReadonlyReuse(IEnumerable<int> itemIds, IDbTransaction transaction = null);
     }
 
     public class ReuseRepository : SqlBaseArtifactRepository, IReuseRepository
@@ -96,14 +106,28 @@ namespace ArtifactStore.Repositories.Reuse
         /// 
         /// </summary>
         /// <param name="instanceItemTypeIds"></param>
+        /// <param name="transaction"></param>
         /// <returns>Dictionary with Type Id as Key</returns>
-        public async Task<IDictionary<int, ItemTypeReuseTemplate>> GetReuseItemTypeTemplatesAsyc(IEnumerable<int> instanceItemTypeIds)
+        public async Task<IDictionary<int, ItemTypeReuseTemplate>> GetReuseItemTypeTemplatesAsyc(
+            IEnumerable<int> instanceItemTypeIds, 
+            IDbTransaction transaction = null)
         {
             var param = new DynamicParameters();
             param.Add("@instanceItemTypeIds", SqlConnectionWrapper.ToDataTable(instanceItemTypeIds));
-            var result =
-                (await ConnectionWrapper.QueryAsync<SqlItemTypeReuseTemplate>("GetReuseItemTypeTemplates", param,
-                    commandType: CommandType.StoredProcedure)).GroupBy(v => v.TypeId);
+            IEnumerable<IGrouping<int, SqlItemTypeReuseTemplate>> result = null;
+            if (transaction == null)
+            {
+                result = (await
+                    ConnectionWrapper.QueryAsync<SqlItemTypeReuseTemplate>("GetReuseItemTypeTemplates", param,
+                        commandType: CommandType.StoredProcedure)).GroupBy(v => v.TypeId);
+            }
+            else
+            {
+                result = (await
+                    transaction.Connection.QueryAsync<SqlItemTypeReuseTemplate>("GetReuseItemTypeTemplates", param,
+                        commandType: CommandType.StoredProcedure)).GroupBy(v => v.TypeId);
+            }
+
             var templates = new Dictionary<int, ItemTypeReuseTemplate>();
             foreach (var templateInfo in result)
             {
@@ -155,5 +179,21 @@ namespace ArtifactStore.Repositories.Reuse
             return await transaction.Connection.QueryAsync<SqlModifiedItems>("GetModificationsForRevisionId", param, transaction,
                             commandType: CommandType.StoredProcedure);
         }
+
+        public async Task<Dictionary<int, bool>> DoItemsContainReadonlyReuse(IEnumerable<int> itemIds, IDbTransaction transaction = null)
+        {
+            var param = new DynamicParameters();
+            param.Add("@itemIds", SqlConnectionWrapper.ToDataTable(itemIds));
+
+            if (transaction == null)
+            {
+                return (await ConnectionWrapper.QueryAsync<dynamic>("DoItemsContainReadonlyReuse", param,
+                            commandType: CommandType.StoredProcedure)).ToDictionary(a=> (int)a.ItemId, b=> (bool)b.IsReadOnlyReuse);
+            }
+            return (await transaction.Connection.QueryAsync<dynamic> ("DoItemsContainReadonlyReuse", param, transaction,
+                            commandType: CommandType.StoredProcedure)).ToDictionary(a => (int)a.ItemId, b => (bool)b.IsReadOnlyReuse);
+        }
+
     }
+
 }

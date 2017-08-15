@@ -27,6 +27,8 @@ namespace ServiceLibrary.Repositories
         {
             _sqlConnectionWrapperMock = new Mock<ISqlConnectionWrapper>(MockBehavior.Strict);
             _applicationSettingsRepository = new ApplicationSettingsRepository(_sqlConnectionWrapperMock.Object);
+
+            SetUpGetTenantInfo(_sqlConnectionWrapperMock, "Blueprint_D29B49C10EC54646A9F03B77B9C51C26_20170722");
         }
 
         [TestMethod]
@@ -185,6 +187,13 @@ namespace ServiceLibrary.Repositories
             //Assert
             var workflowSetting = settings.Single(s => s.Key == ServiceConstants.WorkflowFeatureKey);
             Assert.AreEqual(true.ToString(), workflowSetting.Value);
+        }
+
+        private void SetUpGetTenantInfo(Mock<ISqlConnectionWrapper> sqlConnectionWrapperMock, string tenantId, string tenantName = "Blueprint")
+        {
+            sqlConnectionWrapperMock
+                .Setup(m => m.QueryAsync<TenantInfo>("[dbo].[GetTenantInfo]", null, It.IsAny<IDbTransaction>(), It.IsAny<int?>(), CommandType.StoredProcedure))
+                .ReturnsAsync(new[] { new TenantInfo { TenantId = tenantId, TenantName = tenantName } });
         }
     }
 }

@@ -167,6 +167,33 @@ namespace AdminStore.Services.Workflow
 
         }
 
+        public async Task<ImportWorkflowResult> UpdateWorkflowViaImport(int workflowId, IeWorkflow workflow, string fileName, int userId)
+        {
+            var importResult = new ImportWorkflowResult();
+
+            var xmlValidationResult = ValidateWorkflowId(workflow, workflowId);
+            if (xmlValidationResult.HasErrors)
+            {
+                var textErrors = _workflowValidationErrorBuilder.BuildTextXmlErrors(xmlValidationResult.Errors, fileName);
+                var guid = await UploadErrorsToFileStore(textErrors);
+
+                importResult.ErrorsGuid = guid;
+                importResult.ResultCode = ImportWorkflowResultCodes.InvalidModel;
+
+#if DEBUG
+                importResult.ErrorMessage = textErrors;
+#endif
+
+                return importResult;
+            }
+
+            // TODO: temp
+            await Task.Delay(1);
+
+            importResult.ResultCode = ImportWorkflowResultCodes.Ok;
+            return importResult;
+        }
+
         public async Task<WorkflowDto> GetWorkflowDetailsAsync(int workflowId)
         {
             var workflowDetails = await _workflowRepository.GetWorkflowDetailsAsync(workflowId);
@@ -178,10 +205,10 @@ namespace AdminStore.Services.Workflow
             var workflowDto = new WorkflowDto {Name = workflowDetails.Name, Description = workflowDetails.Description, Status = workflowDetails.Active, WorkflowId = workflowDetails.WorkflowId,
                 VersionId = workflowDetails.VersionId}; 
 
-            var workflowProjectsAndArtifactTypes = (await _workflowRepository.GetWorkflowProjectsAndArtifactTypesAsync(workflowId)).ToList();
+            var workflowProjectsAndArtifactTypes = (await _workflowRepository.GetWorkflowArtifactTypesAsync(workflowId)).ToList();
 
-            workflowDto.Projects = workflowProjectsAndArtifactTypes.Select(e => new WorkflowProjectDto {Id = e.ProjectId, Name = e.ProjectName}).Distinct().ToList();
-            workflowDto.ArtifactTypes = workflowProjectsAndArtifactTypes.Select(e => new WorkflowArtifactTypeDto {Name = e.ArtifactName}).Distinct().ToList();
+            workflowDto.Projects = workflowProjectsAndArtifactTypes.Select(e => new WorkflowProjectDto {Id = e.ProjectId, Name = e.ProjectPath}).Distinct().ToList();
+            workflowDto.ArtifactTypes = workflowProjectsAndArtifactTypes.Select(e => new WorkflowArtifactTypeDto {Name = e.ArtifactTypeName}).Distinct().ToList();
 
             return workflowDto;
         }
@@ -388,7 +415,7 @@ namespace AdminStore.Services.Workflow
             {
                 throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
             }
-            var workflowProjectsAndArtifactTypes = (await _workflowRepository.GetWorkflowProjectsAndArtifactTypesAsync(workflowId)).ToList();
+            var workflowArtifactTypes = (await _workflowRepository.GetWorkflowArtifactTypesAsync(workflowId)).ToList();
             var workflowStates = (await _workflowRepository.GetWorkflowStatesAsync(workflowId)).ToList();
             var workflowEvents = (await _workflowRepository.GetWorkflowEventsAsync(workflowId)).ToList();
 
@@ -399,6 +426,7 @@ namespace AdminStore.Services.Workflow
                 Id = workflowDetails.WorkflowId,
                 Name = workflowDetails.Name,
                 Description = workflowDetails.Description,
+                IsActive = workflowDetails.Active,
                 States = workflowStates.Select(e => new IeState { Id = e.WorkflowStateId, IsInitial = e.Default, Name = e.Name }).Distinct().ToList(),
                 TransitionEvents = workflowEvents.Where(e => e.Type == (int)DWorkflowEventType.Transition).
                     Select(e => new IeTransitionEvent
@@ -425,23 +453,34 @@ namespace AdminStore.Services.Workflow
                         Name = e.Name,
                         Triggers = DeserializeTriggers(e.Triggers, dataMaps)
                     }).Distinct().ToList(),
-                Projects = workflowProjectsAndArtifactTypes.
-                Select(e => new IeProject
-                {
-                    Id = e.ProjectId,
-                    Path = e.ProjectName,
-                    ArtifactTypes = workflowProjectsAndArtifactTypes.
-                    Select(a => new IeArtifactType
-                    {
-                        Id = e.ArtifactId,
-                        Name = e.ArtifactName
-                    }).Distinct().ToList()
-                }).Distinct().ToList()
+                Projects = GetProjects(workflowArtifactTypes)
             };
 
             return ieWorkflow;
         }
        
+        private List<IeProject> GetProjects(IEnumerable<SqlWorkflowArtifactTypes> wpa)
+        {
+            var wprojects = wpa.GroupBy(g => g.ProjectId).Select(w => w).ToList(); 
+
+            List<IeProject> projects = new List<IeProject>();
+            foreach (var w in wprojects)
+            {
+                var project = new IeProject
+                {
+                    Id = w.Key,
+                    ArtifactTypes = wpa.Where(p => p.ProjectId == w.Key).
+                    Select(a => new IeArtifactType
+                    {
+                        Id = a.ArtifactTypeId,
+                        Name = a.ArtifactTypeName
+                    }).Distinct().ToList()
+                };
+                projects.Add(project);
+            };
+            return projects;
+        }                                                                                                        
+
         private List<IeTrigger> DeserializeTriggers(string triggers, WorkflowDataNameMaps dataMaps)
         {
             var xmlTriggers = SerializationHelper.FromXml<XmlWorkflowEventTriggers>(triggers);
@@ -540,6 +579,26 @@ namespace AdminStore.Services.Workflow
         private static string ReplaceNewLines(string text)
         {
             return text?.Replace("\n", string.Empty).Replace("\r", string.Empty);
+        }
+
+        private static WorkflowXmlValidationResult ValidateWorkflowId(IeWorkflow workflow, int workflowId)
+        {
+            if (workflow == null)
+            {
+                throw new ArgumentNullException(nameof(workflow));
+            }
+
+            var result = new WorkflowXmlValidationResult();
+
+            if (workflowId != workflow.Id)
+            {
+                result.Errors.Add(new WorkflowXmlValidationError
+                {
+                    ErrorCode = WorkflowXmlValidationErrorCodes.WorkflowIdDoesNotMatchIdInUrl
+                });
+            }
+
+            return result;
         }
     }
 }

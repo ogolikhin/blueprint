@@ -3,6 +3,7 @@ using System.Data;
 using System.Threading.Tasks;
 using ArtifactStore.Models;
 using ArtifactStore.Repositories;
+using ArtifactStore.Repositories.Reuse;
 using ArtifactStore.Repositories.Workflow;
 using ArtifactStore.Services.VersionControl;
 using ArtifactStore.Services.Workflow;
@@ -25,6 +26,7 @@ namespace ArtifactStore.Services
         private WorkflowService _workflowServiceMock;
         private ISqlHelper _sqlHelperMock;
         private Mock<IVersionControlService> _versionControlServiceMock;
+        private Mock<IReuseRepository> _reuseRepository;
 
         [TestInitialize]
         public void TestInitialize()
@@ -34,11 +36,13 @@ namespace ArtifactStore.Services
             _itemInfoRepositoryMock = new Mock<ISqlItemInfoRepository>(MockBehavior.Strict);
             _sqlHelperMock = new SqlHelperMock();
             _versionControlServiceMock = new Mock<IVersionControlService>();
+            _reuseRepository = new Mock<IReuseRepository>(MockBehavior.Loose);
             _workflowServiceMock = new WorkflowService(_workflowRepositoryMock.Object, 
                 _artifactVersionsRepositoryMock.Object, 
                 _itemInfoRepositoryMock.Object, 
                 _sqlHelperMock,
-                _versionControlServiceMock.Object);
+                _versionControlServiceMock.Object,
+                _reuseRepository.Object);
         }
 
         [TestMethod]

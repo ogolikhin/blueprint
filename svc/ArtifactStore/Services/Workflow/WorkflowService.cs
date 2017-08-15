@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using ArtifactStore.Executors;
 using ArtifactStore.Repositories;
+using ArtifactStore.Repositories.Reuse;
 using ArtifactStore.Repositories.Workflow;
 using ArtifactStore.Services.VersionControl;
 using ServiceLibrary.Helpers;
@@ -29,18 +30,21 @@ namespace ArtifactStore.Services.Workflow
         private readonly ISqlItemInfoRepository _itemInfoRepository;
         private readonly ISqlHelper _sqlHelper;
         private readonly IVersionControlService _versionControlService;
+        private readonly IReuseRepository _reuseRepository;
 
         public WorkflowService(IWorkflowRepository workflowRepository,
             IArtifactVersionsRepository artifactVersionsRepository,
             ISqlItemInfoRepository itemInfoRepository,
             ISqlHelper sqlHelper,
-            IVersionControlService versionControlService)
+            IVersionControlService versionControlService,
+            IReuseRepository reuseRepository)
         {
             _workflowRepository = workflowRepository;
             _artifactVersionsRepository = artifactVersionsRepository;
             _itemInfoRepository = itemInfoRepository;
             _sqlHelper = sqlHelper;
             _versionControlService = versionControlService;
+            _reuseRepository = reuseRepository;
         }
 
         public async Task<WorkflowTransitionResult> GetTransitionsAsync(int userId, int artifactId, int workflowId, int stateId)
@@ -78,8 +82,7 @@ namespace ArtifactStore.Services.Workflow
         public async Task<QuerySingleResult<WorkflowState>> ChangeStateForArtifactAsync(int userId, int artifactId, WorkflowStateChangeParameter stateChangeParameter)
         {
             //We will be getting state information and then will construct the property constraints and post operation actions over here
-            var stateChangeExecutor = new StateChangeExecutor(null,
-                null,
+            var stateChangeExecutor = new StateChangeExecutor(
                 new WorkflowStateChangeParameterEx(stateChangeParameter)
                 {
                     ArtifactId = artifactId
@@ -88,7 +91,9 @@ namespace ArtifactStore.Services.Workflow
                 _artifactVersionsRepository,
                 _workflowRepository,
                 _sqlHelper,
-                _versionControlService);
+                _versionControlService,
+                _reuseRepository
+                );
 
             return await stateChangeExecutor.Execute();
         }

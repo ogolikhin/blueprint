@@ -7,6 +7,11 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using ArtifactStore.Helpers;
+using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Models.ProjectMeta;
+using ServiceLibrary.Models.PropertyType;
+using ServiceLibrary.Models.Workflow.Actions;
 
 namespace ArtifactStore.Repositories.Workflow
 {
@@ -70,6 +75,17 @@ namespace ArtifactStore.Repositories.Workflow
                 transaction);
         }
 
+        public async Task<Dictionary<int, List<DPropertyType>>> GetPropertyTypesFromItemTypeIds(
+            int userId,
+            int artifactId,
+            IEnumerable<int> instanceItemTypeIds,
+            IEnumerable<int> instancePropertyIds)
+        {
+            //Need to access code for artifact permissions for revision
+            await CheckForArtifactPermissions(userId, artifactId, permissions: RolePermissions.Edit);
+
+            return await GetPropertyTypesForItemTypes(instanceItemTypeIds, instancePropertyIds);
+        }
         #endregion
 
         #region Private methods
@@ -124,24 +140,120 @@ namespace ArtifactStore.Repositories.Workflow
 
         private IList<WorkflowTransition> ToWorkflowTransitions(IEnumerable<SqlWorkflowTransition> sqlWorkflowTransitions)
         {
-            return sqlWorkflowTransitions.Select(wt => new WorkflowTransition
+            return sqlWorkflowTransitions.Select(wt =>
             {
-                Id = wt.WorkflowEventId,
-                ToState = new WorkflowState
+                var transition = new WorkflowTransition
                 {
-                    WorkflowId = wt.WorkflowId,
-                    Id = wt.ToStateId,
-                    Name = wt.ToStateName
-                },
-                FromState = new WorkflowState
-                {
-                    WorkflowId = wt.WorkflowId,
-                    Id = wt.FromStateId,
-                    Name = wt.FromStateName
-                },
-                Name = wt.WorkflowEventName,
-                WorkflowId = wt.WorkflowId
+                    Id = wt.WorkflowEventId,
+                    ToState = new WorkflowState
+                    {
+                        WorkflowId = wt.WorkflowId,
+                        Id = wt.ToStateId,
+                        Name = wt.ToStateName
+                    },
+                    FromState = new WorkflowState
+                    {
+                        WorkflowId = wt.WorkflowId,
+                        Id = wt.FromStateId,
+                        Name = wt.FromStateName
+                    },
+                    Name = wt.WorkflowEventName,
+                    WorkflowId = wt.WorkflowId
+                };
+                transition.Triggers.AddRange(ToWorkflowTriggers(SerializationHelper.FromXml<XmlWorkflowEventTriggers>(wt.Triggers)));
+                return transition;
             }).ToList();
+        }
+
+        private WorkflowEventTriggers ToWorkflowTriggers(XmlWorkflowEventTriggers xmlWorkflowEventTriggers)
+        {
+            WorkflowEventTriggers triggers = new WorkflowEventTriggers();
+            if (xmlWorkflowEventTriggers == null || xmlWorkflowEventTriggers.Triggers == null)
+            {
+                return triggers;
+            }
+            triggers.AddRange(xmlWorkflowEventTriggers.Triggers.Select(xmlWorkflowEventTrigger => new WorkflowEventTrigger
+            {
+                Name = xmlWorkflowEventTrigger.Name,
+                Condition = new WorkflowEventCondition(),
+                Action = GenerateAction(xmlWorkflowEventTrigger.Action)
+            }));
+            return triggers;
+        }
+
+        private WorkflowEventAction GenerateAction(XmlAction action)
+        {
+            if (action == null)
+            {
+                return null;
+            }
+            var emailNotification = action as XmlEmailNotificationAction;
+            if (emailNotification != null)
+            {
+                return ToEmailNotificationAction(emailNotification);
+            }
+            var propertyChangeAction = action as XmlPropertyChangeAction;
+            if (propertyChangeAction != null)
+            {
+                return ToPropertyChangeAction(propertyChangeAction);
+            }
+            var generateAction = action as XmlGenerateAction;
+            //TODO: Should we throw an exception if the action is not a known action? Import ahead of handling situation
+            return generateAction != null ? ToGenerateAction(generateAction) : null;
+        }
+
+        private EmailNotificationAction ToEmailNotificationAction(XmlEmailNotificationAction emailNotification)
+        {
+            var action = new EmailNotificationAction
+            {
+                PropertyTypeId = emailNotification.PropertyTypeId,
+                Message = emailNotification.Message
+            };
+            action.Emails.AddRange(emailNotification.Emails);
+            return action;
+        }
+
+        private PropertyChangeAction ToPropertyChangeAction(XmlPropertyChangeAction propertyChangeAction)
+        {
+            if (propertyChangeAction.UsersGroups.Any())
+            {
+                var action = new PropertyChangeUserGroupsAction
+                {
+                    InstancePropertyTypeId = propertyChangeAction.PropertyTypeId,
+                    PropertyValue = propertyChangeAction.PropertyValue
+                };
+                action.UserGroups.AddRange(propertyChangeAction.UsersGroups.Select(
+                        u => new ActionUserGroups
+                        {
+                            Id = u.Id,
+                            IsGroup = u.IsGroup
+                        }).ToList());
+            }
+            return new PropertyChangeAction
+            {
+                InstancePropertyTypeId = propertyChangeAction.PropertyTypeId,
+                PropertyValue = propertyChangeAction.PropertyValue
+            };
+        }
+        
+        private WorkflowEventAction ToGenerateAction(XmlGenerateAction generateAction)
+        {
+            if (!generateAction.ArtifactTypeId.HasValue)
+                return null;
+            switch (generateAction.GenerateActionType)
+            {
+                case GenerateActionTypes.Children:
+                    return new GenerateChildrenAction
+                    {
+                        ArtifactTypeId = generateAction.ArtifactTypeId.Value,
+                        ChildCount = generateAction.ChildCount
+                    };
+                case GenerateActionTypes.UserStories:
+                    return new GenerateUserStoriesAction();
+                case GenerateActionTypes.TestCases:
+                    return new GenerateTestCasesAction();
+            }
+            return null;
         }
 
         private async Task<WorkflowState> ChangeStateForArtifactInternal(int userId, int artifactId, int desiredStateId, IDbTransaction transaction = null)
@@ -154,27 +266,103 @@ namespace ArtifactStore.Repositories.Workflow
 
             if (transaction == null)
             {
-                return
-                    ToWorkflowStates(await
-                        ConnectionWrapper.QueryAsync<SqlWorkFlowState>("ChangeStateForArtifact", param,
-                            commandType: CommandType.StoredProcedure)).FirstOrDefault();
+                return ToWorkflowStates(await ConnectionWrapper.QueryAsync<SqlWorkFlowState>("ChangeStateForArtifact", param, commandType: CommandType.StoredProcedure)).FirstOrDefault();
             }
-            return
-                ToWorkflowStates(await
-                    transaction.Connection.QueryAsync<SqlWorkFlowState>("ChangeStateForArtifact", param, transaction,
-                            commandType: CommandType.StoredProcedure)).FirstOrDefault();
+            return ToWorkflowStates(await transaction.Connection.QueryAsync<SqlWorkFlowState>("ChangeStateForArtifact", param, transaction, commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
 
         private IList<WorkflowState> ToWorkflowStates(IEnumerable<SqlWorkFlowState> sqlWorkFlowStates)
         {
             return sqlWorkFlowStates.Select(workflowState => new WorkflowState
             {
-                Id = workflowState.WorkflowStateId,
-                Name = workflowState.WorkflowStateName,
-                WorkflowId = workflowState.WorkflowId
+                Id = workflowState.WorkflowStateId, Name = workflowState.WorkflowStateName, WorkflowId = workflowState.WorkflowId
             }).ToList();
         }
 
+        private async Task<Dictionary<int, List<DPropertyType>>> GetPropertyTypesForItemTypes(
+            IEnumerable<int> itemTypeIds, 
+            IEnumerable<int> instancePropertyTypeIds, 
+            IDbTransaction transaction = null)
+        {
+            var param = new DynamicParameters();
+            param.Add("@itemTypeIds", SqlConnectionWrapper.ToDataTable(itemTypeIds));
+            param.Add("@propertyIds", SqlConnectionWrapper.ToDataTable(instancePropertyTypeIds));
+
+            const string storedProcedure = "GetPropertyTypesFromItemTypeIds";
+            if (transaction == null)
+            {
+                return ToItemTypePropertyTypesDictionary(await ConnectionWrapper.QueryAsync<SqlPropertyType>(storedProcedure, param, commandType: CommandType.StoredProcedure));
+            }
+            return ToItemTypePropertyTypesDictionary(await transaction.Connection.QueryAsync<SqlPropertyType>(storedProcedure, param, transaction, commandType: CommandType.StoredProcedure));
+
+        }
+
+        private Dictionary<int, List<DPropertyType>> ToItemTypePropertyTypesDictionary(IEnumerable<SqlPropertyType> sqlPropertyTypes)
+        {
+            var dictionary = new Dictionary<int, List<DPropertyType>>();
+            foreach (var sqlPropertyType in sqlPropertyTypes)
+            {
+                DPropertyType dProperty;
+                switch (sqlPropertyType.PrimitiveType)
+                {
+                    case PropertyPrimitiveType.Number:
+                    {
+                        dProperty = new DNumberPropertyType
+                        {
+                            AllowMultiple = sqlPropertyType.AllowMultiple,
+                            DefaultValue = DecimalHelper.ToDecimal((byte[])sqlPropertyType.DecimalDefaultValue),
+                            DecimalPlaces = sqlPropertyType.DecimalPlaces.GetValueOrDefault(0),
+                            DefaultValidValueId = sqlPropertyType.DefaultValidValueId,
+                            InstancePropertyTypeId = sqlPropertyType.InstancePropertyTypeId,
+                            Name = sqlPropertyType.Name,
+                            PropertyTypeId = sqlPropertyType.PropertyTypeId,
+                            Range = new Range<decimal>
+                            {
+                                End = DecimalHelper.ToDecimal((byte[])sqlPropertyType.NumberRange_End).GetValueOrDefault(0),
+                                Start = DecimalHelper.ToDecimal((byte[])sqlPropertyType.NumberRange_Start).GetValueOrDefault(0)
+                            },
+                            PrimitiveType = sqlPropertyType.PrimitiveType,
+                            IsRequired = sqlPropertyType.Required != null && sqlPropertyType.Required.Value,
+                            Validate = sqlPropertyType.Validate,
+                            VersionId = sqlPropertyType.VersionId
+                        };
+                        break;
+                    }
+                    //TODO: add other DPropertyTypes
+                    default:
+                        {
+                            dProperty = new DPropertyType
+                            {
+                                AllowMultiple = sqlPropertyType.AllowMultiple,
+                                DateDefaultValue = sqlPropertyType.DateDefaultValue,
+                                DateRange_End = sqlPropertyType.DateRange_End,
+                                DateRange_Start = sqlPropertyType.DateRange_Start,
+                                DefaultValidValueId = sqlPropertyType.DefaultValidValueId,
+                                InstancePropertyTypeId = sqlPropertyType.InstancePropertyTypeId,
+                                IsRichText = sqlPropertyType.IsRichText,
+                                Name = sqlPropertyType.Name,
+                                PropertyTypeId = sqlPropertyType.PropertyTypeId,
+                                PrimitiveType = sqlPropertyType.PrimitiveType,
+                                IsRequired = sqlPropertyType.Required != null && sqlPropertyType.Required.Value,
+                                StringDefaultValue = sqlPropertyType.StringDefaultValue,
+                                Validate = sqlPropertyType.Validate,
+                                VersionId = sqlPropertyType.VersionId
+                            };
+                            break;
+                    }
+                }
+               
+                if (dictionary.ContainsKey(sqlPropertyType.ItemTypeId))
+                {
+                    dictionary[sqlPropertyType.ItemTypeId].Add(dProperty);
+                }
+                else
+                {
+                    dictionary.Add(sqlPropertyType.ItemTypeId, new List<DPropertyType> { dProperty});
+                }
+            }
+            return dictionary;
+        }
         #endregion
     }
 }

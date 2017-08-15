@@ -379,17 +379,7 @@ namespace AdminStore.Repositories.Workflow
 
             return result;
         }
-
-        public async Task<IEnumerable<SqlWorkflowArtifactTypesAndProjects>> GetWorkflowProjectsAndArtifactTypesAsync(int workflowId)
-        {
-            var parameters = new DynamicParameters();
-            parameters.Add("WorkflowId", workflowId);
-
-            var result = await _connectionWrapper.QueryAsync<SqlWorkflowArtifactTypesAndProjects>("GetWorkflowProjectsAndArtifactTypes", parameters, commandType: CommandType.StoredProcedure);
-
-            return result;
-        }
-
+        
         public async Task<int> DeleteWorkflows(OperationScope body, string search, int revision, IDbTransaction transaction = null)
         {
             if (search != null)

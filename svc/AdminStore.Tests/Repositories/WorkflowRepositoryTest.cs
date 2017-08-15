@@ -48,32 +48,35 @@ namespace AdminStore.Repositories
 
             var repository = new WorkflowRepository(cxn.Object, sqlHelperMock.Object);
             var workflowId = 10;
-            var workflowArtifactTypesAndProjects = new List<SqlWorkflowArtifactTypesAndProjects>
+            var workflowArtifactTypesAndProjects = new List<SqlWorkflowArtifactTypes>
             {
-                new SqlWorkflowArtifactTypesAndProjects
+                new SqlWorkflowArtifactTypes
                 {
                     ProjectId = 1,
-                    ProjectName = "Project1",
-                    ArtifactName = "Artifact1"
+                    ProjectPath = "Project1",
+                    ArtifactTypeName = "Artifact1",
+                    ArtifactTypeId = 205
                 },
-                new SqlWorkflowArtifactTypesAndProjects
+                new SqlWorkflowArtifactTypes
                 {
                     ProjectId = 1,
-                    ProjectName = "Project1",
-                    ArtifactName = "Artifact2"
+                    ProjectPath = "Project1",
+                    ArtifactTypeName = "Artifact2",
+                    ArtifactTypeId = 206
                 },
-                new SqlWorkflowArtifactTypesAndProjects
+                new SqlWorkflowArtifactTypes
                 {
                     ProjectId = 2,
-                    ProjectName = "Project2",
-                    ArtifactName = "Artifact2"
+                    ProjectPath = "Project1",
+                    ArtifactTypeName = "Artifact2",
+                    ArtifactTypeId = 206
                 }
             };
 
-            cxn.SetupQueryAsync("GetWorkflowProjectsAndArtifactTypes", It.IsAny<Dictionary<string, object>>(), workflowArtifactTypesAndProjects);
+            cxn.SetupQueryAsync("GetWorkflowArtifactTypesAsync", It.IsAny<Dictionary<string, object>>(), workflowArtifactTypesAndProjects);
 
             //act
-            var workflowDetails = await repository.GetWorkflowProjectsAndArtifactTypesAsync(workflowId);
+            var workflowDetails = await repository.GetWorkflowArtifactTypesAsync(workflowId);
 
             //assert
             Assert.IsNotNull(workflowDetails);

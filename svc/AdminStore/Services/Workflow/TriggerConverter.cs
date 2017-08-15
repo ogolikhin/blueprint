@@ -138,7 +138,8 @@ namespace AdminStore.Services.Workflow
                         Name = xgAction.Name,
                         ChildCount = xgAction.ChildCount,
                         ArtifactTypeId = xgAction.ArtifactTypeId,
-                        ArtifactType = dataMaps.ArtifactTypeMap.TryGetValue((int)xgAction.ArtifactTypeId, out name) ? name : null
+                        ArtifactType = xgAction.ArtifactTypeId == null ? null : 
+                            dataMaps.ArtifactTypeMap.TryGetValue((int)xgAction.ArtifactTypeId, out name) ? name : null
                     };
                     break;
                 default:

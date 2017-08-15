@@ -434,7 +434,7 @@ namespace AdminStore.Controllers
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result, typeof(OkResult));
+            Assert.AreEqual(HttpStatusCode.NoContent, result.StatusCode);
         }
 
         [TestMethod]
@@ -448,24 +448,6 @@ namespace AdminStore.Controllers
 
             // Act
             await _controller.UpdateInstanceFolder(FolderId, null);
-
-            // Assert
-            // Exception
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
-        public async Task UpdateFolder_EditRootFolderIsForbidden_ReturnBadRequestResult()
-        {
-            // Arrange
-            var folder = new FolderDto { Name = "Folder1", ParentFolderId = null };
-
-            _privilegeRepositoryMock
-                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
-                .ReturnsAsync(InstanceAdminPrivileges.ManageProjects);
-
-            // Act
-            await _controller.UpdateInstanceFolder(FolderId, folder);
 
             // Assert
             // Exception

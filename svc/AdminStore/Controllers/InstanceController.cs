@@ -328,6 +328,31 @@ namespace AdminStore.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Delete Project
+        /// </summary>
+        /// <remarks>
+        /// Returns count of deleted projects.
+        /// </remarks>
+        /// <response code="200">OK. Project is deleted.</response>
+        /// <response code="400">BadRequest. Some errors. </response>
+        /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
+        /// <response code="403">Forbidden if used doesn’t have permissions to delete project</response>
+        /// <response code="404">NotFound. if project with projectId doesn’t exists or removed from the system.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpDelete]
+        [SessionRequired]
+        [ResponseType(typeof(DeleteResult))]
+        [Route("projects/{projectId:int:min(1)}")]
+        public async Task<IHttpActionResult> DeleteProject(int projectId)
+        {
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.DeleteProjects);
+
+            var result = await _instanceRepository.DeleteProject(Session.UserId, projectId);
+
+            return Ok(new DeleteResult { TotalDeleted = result });
+        }
+
         #endregion
     }
 }

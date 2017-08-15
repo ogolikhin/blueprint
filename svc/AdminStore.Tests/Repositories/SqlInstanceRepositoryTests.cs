@@ -718,34 +718,7 @@ namespace AdminStore.Repositories
             cxn.Verify();
             Assert.AreEqual(expectedResult.First(), actualResult);
         }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public async Task GetInstanceProjectPrivilegesAsync_InvalidProjectId()
-        {
-            // Arrange
-            var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
-
-            // Act
-            await repository.GetInstanceProjectPrivilegesAsync(0, 10);
-
-            // Assert
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public async Task GetInstanceProjectPrivilegesAsync_InvalidUserId()
-        {
-            // Arrange
-            var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
-
-            // Act
-            await repository.GetInstanceProjectPrivilegesAsync(10, 0);
-
-            // Assert
-        }
+        
 
         [TestMethod]
         [ExpectedException(typeof(ResourceNotFoundException))]

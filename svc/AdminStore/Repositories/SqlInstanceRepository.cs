@@ -280,16 +280,6 @@ namespace AdminStore.Repositories
 
         public async Task<int> GetInstanceProjectPrivilegesAsync(int projectId, int userId)
         {
-            if (projectId < 1)
-            {
-                throw new ArgumentOutOfRangeException(nameof(projectId));
-            }
-
-            if (userId < 1)
-            {
-                throw new ArgumentOutOfRangeException(nameof(userId));
-            }
-
             var prm = new DynamicParameters();
             prm.Add("@projectId", projectId);
             prm.Add("@userId", userId);
@@ -297,7 +287,7 @@ namespace AdminStore.Repositories
             var result = (await _connectionWrapper.QueryAsync<int?>("GetUserPrivilegesOfProject", prm, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
             if (result == null)
             {
-                throw new ResourceNotFoundException(I18NHelper.FormatInvariant(ErrorMessages.PrivilegeForProjectNotExist, projectId), ErrorCodes.ResourceNotFound);
+                throw new ResourceNotFoundException(I18NHelper.FormatInvariant(ErrorMessages.PrivilegesForProjectNotExist, projectId), ErrorCodes.ResourceNotFound);
             }
 
             return result.Value;

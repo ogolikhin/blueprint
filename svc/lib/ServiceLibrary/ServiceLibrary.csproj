@@ -154,6 +154,7 @@
     <Compile Include="LocalLog\ILocalLog.cs" />
     <Compile Include="LocalLog\LocalEventLog.cs" />
     <Compile Include="LocalLog\LocalFileLog.cs" />
+    <Compile Include="Models\ApplicationSettings\TenantInfo.cs" />
     <Compile Include="Models\ApplicationSettings\ApplicationSettings.cs" />
     <Compile Include="Models\Artifact.cs" />
     <Compile Include="Models\ArtifactBasicDetails.cs" />

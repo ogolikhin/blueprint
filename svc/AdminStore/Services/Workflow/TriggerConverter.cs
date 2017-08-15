@@ -138,7 +138,8 @@ namespace AdminStore.Services.Workflow
                         Name = xgAction.Name,
                         ChildCount = xgAction.ChildCount,
                         ArtifactTypeId = xgAction.ArtifactTypeId,
-                        ArtifactType = dataMaps.ArtifactTypeMap.TryGetValue((int)xgAction.ArtifactTypeId, out name) ? name : null
+                        ArtifactType = xgAction.ArtifactTypeId == null ? null : 
+                            dataMaps.ArtifactTypeMap.TryGetValue((int)xgAction.ArtifactTypeId, out name) ? name : null
                     };
                     break;
                 default:
@@ -185,13 +186,15 @@ namespace AdminStore.Services.Workflow
                 return null;
             }
 
-            string name;
             switch (xmlCondition.ConditionType)
             {
                 case ConditionTypes.State:
+                    string name;
+                    int stateId = (xmlCondition as XmlStateCondition).StateId;
                     var ieCondition = new IeStateCondition
                     {
-                        State = dataMaps.StateMap.TryGetValue((xmlCondition as XmlStateCondition).StateId, out name) ? name : null
+                        StateId = stateId,
+                        State = dataMaps.StateMap.TryGetValue(stateId, out name) ? name : null
                     };
                     return ieCondition;
                 default:

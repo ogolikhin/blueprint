@@ -370,6 +370,16 @@ namespace AdminStore.Repositories.Workflow
             return result;           
         }
 
+        public async Task<IEnumerable<SqlWorkflowArtifactTypes>> GetWorkflowArtifactTypesAsync(int workflowId)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("WorkflowId", workflowId);
+
+            var result = await _connectionWrapper.QueryAsync<SqlWorkflowArtifactTypes>("GetWorkflowArtifactTypes", parameters, commandType: CommandType.StoredProcedure);
+
+            return result;
+        }
+
         public async Task<IEnumerable<SqlWorkflowArtifactTypesAndProjects>> GetWorkflowProjectsAndArtifactTypesAsync(int workflowId)
         {
             var parameters = new DynamicParameters();

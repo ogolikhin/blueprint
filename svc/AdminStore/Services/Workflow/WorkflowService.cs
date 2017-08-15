@@ -389,7 +389,7 @@ namespace AdminStore.Services.Workflow
             {
                 throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
             }
-            var workflowProjectsAndArtifactTypes = (await _workflowRepository.GetWorkflowProjectsAndArtifactTypesAsync(workflowId)).ToList();
+            var workflowArtifactTypes = (await _workflowRepository.GetWorkflowArtifactTypesAsync(workflowId)).ToList();
             var workflowStates = (await _workflowRepository.GetWorkflowStatesAsync(workflowId)).ToList();
             var workflowEvents = (await _workflowRepository.GetWorkflowEventsAsync(workflowId)).ToList();
 
@@ -426,23 +426,34 @@ namespace AdminStore.Services.Workflow
                         Name = e.Name,
                         Triggers = DeserializeTriggers(e.Triggers, dataMaps)
                     }).Distinct().ToList(),
-                Projects = workflowProjectsAndArtifactTypes.
-                Select(e => new IeProject
-                {
-                    Id = e.ProjectId,
-                    Path = e.ProjectName,
-                    ArtifactTypes = workflowProjectsAndArtifactTypes.
-                    Select(a => new IeArtifactType
-                    {
-                        Id = e.ArtifactId,
-                        Name = e.ArtifactName
-                    }).Distinct().ToList()
-                }).Distinct().ToList()
+                Projects = GetProjects(workflowArtifactTypes)
             };
 
             return ieWorkflow;
         }
        
+        private List<IeProject> GetProjects(IEnumerable<SqlWorkflowArtifactTypes> wpa)
+        {
+            var wprojects = wpa.GroupBy(g => g.ProjectId).Select(w => w).ToList(); 
+
+            List<IeProject> projects = new List<IeProject>();
+            foreach (var w in wprojects)
+            {
+                var project = new IeProject
+                {
+                    Id = w.Key,
+                    ArtifactTypes = wpa.Where(p => p.ProjectId == w.Key).
+                    Select(a => new IeArtifactType
+                    {
+                        Id = a.ArtifactTypeId,
+                        Name = a.ArtifactTypeName
+                    }).Distinct().ToList()
+                };
+                projects.Add(project);
+            };
+            return projects;
+        }                                                                                                        
+
         private List<IeTrigger> DeserializeTriggers(string triggers, WorkflowDataNameMaps dataMaps)
         {
             var xmlTriggers = SerializationHelper.FromXml<XmlWorkflowEventTriggers>(triggers);

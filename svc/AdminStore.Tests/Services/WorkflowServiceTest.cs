@@ -167,19 +167,19 @@ namespace AdminStore.Services
             //arrange
             var workflowId = 10;
             var workflow = new SqlWorkflow { Name = "Workflow1", Description = "Workflow1Description" };
-            var workflowArtifactTypesAndProjects = new List<SqlWorkflowArtifactTypesAndProjects>
+            var workflowArtifactTypesAndProjects = new List<SqlWorkflowArtifactTypes>
             {
-                new SqlWorkflowArtifactTypesAndProjects
+                new SqlWorkflowArtifactTypes
                 {
                     ProjectId = 1,
-                    ProjectName = "Project1",
-                    ArtifactName = "Artifact1"
+                    ArtifactTypeId = 204,
+                    ArtifactTypeName = "Artifact1"
                 },
-                new SqlWorkflowArtifactTypesAndProjects
+                new SqlWorkflowArtifactTypes
                 {
                     ProjectId = 2,
-                    ProjectName = "Project2",
-                    ArtifactName = "Artifact2"
+                    ArtifactTypeId = 205,
+                    ArtifactTypeName = "Artifact2"
                 }
             };
 
@@ -213,7 +213,7 @@ namespace AdminStore.Services
 
             _workflowRepositoryMock.Setup(repo => repo.GetWorkflowStatesAsync(It.IsAny<int>())).ReturnsAsync(workflowsList);
 
-            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowProjectsAndArtifactTypesAsync(It.IsAny<int>())).ReturnsAsync(workflowArtifactTypesAndProjects);
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowArtifactTypesAsync(It.IsAny<int>())).ReturnsAsync(workflowArtifactTypesAndProjects);
 
             _workflowRepositoryMock.Setup(repo => repo.GetWorkflowEventsAsync(It.IsAny<int>())).ReturnsAsync(workflowTransitionsAndPropertyChanges);
 

@@ -7,9 +7,15 @@ namespace AdminStore.Models.Workflow
 {
     public class SqlWorkflowArtifactTypesAndProjects
     {
-        public int ArtifactId { get; set; }
         public string ArtifactName { get; set; }
         public int ProjectId { get; set; }
         public string ProjectName { get; set; }
+    }
+
+    public class SqlWorkflowArtifactTypes
+    {
+        public int ArtifactTypeId { get; set; }
+        public string ArtifactTypeName { get; set; }
+        public int ProjectId { get; set; }
     }
 }

@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 using ServiceLibrary.Models.Enums;
+using ArtifactStore.Repositories.Reuse;
 
 namespace ArtifactStore.Controllers
 {
@@ -30,7 +31,8 @@ namespace ArtifactStore.Controllers
                 new SqlArtifactVersionsRepository(),
                 new SqlItemInfoRepository(),
                 new SqlHelper(),
-                new VersionControlService()))
+                new VersionControlService(),
+                new ReuseRepository()))
         {
         }
 

@@ -109,11 +109,10 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\DecimalHelper.cs" />
     <Compile Include="Helpers\MentionHelper.cs" />
     <Compile Include="Helpers\SensitivityCommonHelper.cs" />
     <Compile Include="Models\Review\ParticipantArtifactStats.cs" />
-    <Compile Include="Models\Reuse\ItemTypeReuseTemplate.cs" />
-    <Compile Include="Models\Reuse\PropertyTypeReuseTemplate.cs" />
     <Compile Include="Models\Reuse\ReconcileProperty.cs" />
     <Compile Include="Models\Reuse\ReuseSensitivityCollector.cs" />
     <Compile Include="Helpers\ReuseSystemPropertiesMap.cs" />
@@ -210,7 +209,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Models\Workflow\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\lib\HtmlLibrary\HtmlLibrary.csproj">

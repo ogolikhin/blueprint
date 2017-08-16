@@ -50,7 +50,7 @@ namespace ServiceLibrary.Repositories
                 settings.Remove(licenseInfo);
             }
 
-            var tenantId = (await GetTenantInfo())?.TenantId;
+            var tenantInfo = await GetTenantInfo();
 
             settings.AddRange(new[]
             {
@@ -67,7 +67,12 @@ namespace ServiceLibrary.Repositories
                 new ApplicationSetting
                 {
                     Key = ServiceConstants.TenantIdKey,
-                    Value = tenantId
+                    Value = tenantInfo?.TenantId
+                },
+                new ApplicationSetting
+                {
+                    Key = ServiceConstants.PackageNameKey,
+                    Value = tenantInfo?.PackageName
                 }
             });
 

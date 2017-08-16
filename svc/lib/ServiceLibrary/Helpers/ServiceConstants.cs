@@ -62,6 +62,7 @@ namespace ServiceLibrary.Helpers
         public const string WorkflowFeatureKey = "Workflow";
 
         public const string TenantIdKey = "TenantId";
+        public const string PackageNameKey = "PackageName";
 
         public const string ExpiredUserKey = "Raptor_RC_ExpiredUser";
         public const string UserLogout = "Raptor_RC_UserLogout";

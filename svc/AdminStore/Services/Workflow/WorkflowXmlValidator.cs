@@ -592,6 +592,7 @@ namespace AdminStore.Services.Workflow
             var clone = WorkflowHelper.CloneViaXmlSerialization(workflow);
             UpdateToConventionNames(clone);
             var result = ValidateXml(clone);
+            ValidateDuplicateIds(clone, result);
             _isConventionNamesInUse = false;
             return result;
         }
@@ -1059,6 +1060,90 @@ namespace AdminStore.Services.Workflow
         {
             var prefix = name == null ? string.Empty : I18NHelper.FormatInvariant("{0} ", name);
             return I18NHelper.FormatInvariant(ConventionNamePattern, prefix, id);
+        }
+
+        #endregion
+
+        #region Validate Duplicate Ids
+
+        private static void ValidateDuplicateIds(IeWorkflow workflow, WorkflowXmlValidationResult result)
+        {
+            ValidateDuplicateStateIds(workflow, result);
+            ValidateDuplicateWorkflowEventIds(workflow, result);
+            ValidateDuplicateProjectIds(workflow, result);
+        }
+
+        private static void ValidateDuplicateStateIds(IeWorkflow workflow, WorkflowXmlValidationResult result)
+        {
+            var stateIds = workflow?.States?.Where(s => s.Id.HasValue).Select(s => s.Id.Value).ToList();
+            if (stateIds?.Count != stateIds?.Distinct().Count())
+            {
+                result.Errors.Add(new WorkflowXmlValidationError
+                {
+                    Element = workflow,
+                    ErrorCode = WorkflowXmlValidationErrorCodes.DuplicateStateIds
+                });
+            }
+        }
+
+        private static void ValidateDuplicateWorkflowEventIds(IeWorkflow workflow, WorkflowXmlValidationResult result)
+        {
+            var weIds = new List<int>();
+
+            var tIds = workflow?.TransitionEvents?.Where(te => te.Id.HasValue).Select(te => te.Id.Value);
+            if (tIds != null)
+            {
+                weIds.AddRange(tIds);
+            }
+
+            var pcIds = workflow?.PropertyChangeEvents?.Where(pce => pce.Id.HasValue).Select(pce => pce.Id.Value);
+            if (pcIds != null)
+            {
+                weIds.AddRange(pcIds);
+            }
+
+            var naIds = workflow?.NewArtifactEvents?.Where(nae => nae.Id.HasValue).Select(nae => nae.Id.Value);
+            if (naIds != null)
+            {
+                weIds.AddRange(naIds);
+            }
+
+            if (weIds.Count != weIds.Distinct().Count())
+            {
+                result.Errors.Add(new WorkflowXmlValidationError
+                {
+                    Element = workflow,
+                    ErrorCode = WorkflowXmlValidationErrorCodes.DuplicateWorkflowEventIds
+                });
+            }
+        }
+
+        private static void ValidateDuplicateProjectIds(IeWorkflow workflow, WorkflowXmlValidationResult result)
+        {
+            var projectIds = workflow?.Projects?.Where(p => p.Id.HasValue).Select(p => p.Id.Value).ToList();
+            if (projectIds?.Count != projectIds?.Distinct().Count())
+            {
+                result.Errors.Add(new WorkflowXmlValidationError
+                {
+                    Element = workflow,
+                    ErrorCode = WorkflowXmlValidationErrorCodes.DuplicateProjectIds
+                });
+            }
+
+            workflow?.Projects?.ForEach(p => ValidateDuplicateArtifactTypeIdsInProject(p, result));
+        }
+
+        private static void ValidateDuplicateArtifactTypeIdsInProject(IeProject project, WorkflowXmlValidationResult result)
+        {
+            var atIds = project?.ArtifactTypes?.Where(at => at.Id.HasValue).Select(at => at.Id.Value).ToList();
+            if (atIds?.Count != atIds?.Distinct().Count())
+            {
+                result.Errors.Add(new WorkflowXmlValidationError
+                {
+                    Element = project,
+                    ErrorCode = WorkflowXmlValidationErrorCodes.DuplicateArtifactTypeIdsInProject
+                });
+            }
         }
 
         #endregion

@@ -72,6 +72,10 @@ namespace AdminStore.Services.Workflow
         DuplicateArtifactTypesInProject,
 
         // Update specific errors
-        WorkflowIdDoesNotMatchIdInUrl
+        WorkflowIdDoesNotMatchIdInUrl,
+        DuplicateStateIds,
+        DuplicateWorkflowEventIds,
+        DuplicateProjectIds,
+        DuplicateArtifactTypeIdsInProject
     }
 }

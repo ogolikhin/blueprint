@@ -1,4 +1,5 @@
-﻿using ActionHandlerService.Models.Enums;
+﻿using System;
+using ActionHandlerService.Models.Enums;
 using BluePrintSys.Messaging.CrossCutting;
 using BluePrintSys.Messaging.Models.Actions;
 
@@ -33,6 +34,27 @@ namespace ActionHandlerService.Helpers
         public const string NServiceBusConnectionStringDefault = "";
         public string NServiceBusConnectionString => AppSettingsHelper.GetConfigStringValue(NServiceBusConnectionStringKey, NServiceBusConnectionStringDefault);
 
+        public MessageBroker MessageBroker
+        {
+            get
+            {
+                //Message Broker is determined by parsing the Connection String
+                var connectionString = NServiceBusConnectionString;
+                var connectionStringLower = connectionString.Replace(" ", "").Replace("\t", "").ToLower();
+                const string host = "host=";
+                if (connectionStringLower.Contains(host))
+                {
+                    return MessageBroker.RabbitMQ;
+                }
+                const string datasource = "datasource=";
+                if (connectionStringLower.Contains(datasource))
+                {
+                    return MessageBroker.SQL;
+                }
+                throw new Exception($"Invalid Connection String. It must contain {host} or {datasource}");
+            }
+        }
+
         public const string NServiceBusInstanceIdKey = "NServiceBus.InstanceId";
         public const string NServiceBusInstanceIdDefault = "";
         public string NServiceBusInstanceId => AppSettingsHelper.GetConfigStringValue(NServiceBusInstanceIdKey, NServiceBusInstanceIdDefault);
@@ -47,10 +69,6 @@ namespace ActionHandlerService.Helpers
         public const string TenancyKey = "Tenancy";
         public const Tenancy TenancyDefault = Tenancy.Single;
         public Tenancy Tenancy => AppSettingsHelper.GetConfigEnum(TenancyKey, TenancyDefault);
-
-        public const string MessageBrokerKey = "MessageBroker";
-        public const MessageBroker MessageBrokerDefault = MessageBroker.RabbitMQ;
-        public MessageBroker MessageBroker => AppSettingsHelper.GetConfigEnum(MessageBrokerKey, MessageBrokerDefault);
 
         public const string SupportedActionTypesKey = "SupportedActionTypes";
         public const MessageActionType SupportedActionTypesDefault = MessageActionType.All;

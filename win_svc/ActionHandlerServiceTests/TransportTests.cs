@@ -76,21 +76,5 @@ namespace ActionHandlerServiceTests
             var rabbitMqTransportHost = new RabbitMqTransportHost(null, nServiceBusServerMock.Object);
             rabbitMqTransportHost.Stop();
         }
-
-        [TestMethod]
-        [ExpectedException(typeof(NotImplementedException))]
-        public void SqlTransportHost_StartThrowsNotImplementedExceptionForNow()
-        {
-            var sqlTransportHost = new SqlTransportHost();
-            sqlTransportHost.Start();
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(NotImplementedException))]
-        public void SqlTransportHost_StopThrowsNotImplementedExceptionForNow()
-        {
-            var sqlTransportHost = new SqlTransportHost();
-            sqlTransportHost.Stop();
-        }
     }
 }

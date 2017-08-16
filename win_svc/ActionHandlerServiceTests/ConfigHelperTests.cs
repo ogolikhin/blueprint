@@ -52,14 +52,6 @@ namespace ActionHandlerServiceTests
         }
 
         [TestMethod]
-        public void ConfigHelper_ReturnsDefault_WhenGettingMessageBroker()
-        {
-            var configValue = _configHelper.MessageBroker;
-            const MessageBroker defaultValue = ConfigHelper.MessageBrokerDefault;
-            Assert.AreEqual(defaultValue, configValue);
-        }
-
-        [TestMethod]
         public void ConfigHelper_ReturnsDefault_WhenGettingMessageProcessingMaxConcurrency()
         {
             var configValue = _configHelper.MessageProcessingMaxConcurrency;

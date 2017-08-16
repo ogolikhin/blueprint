@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
-using NServiceBus;
 
 namespace BluePrintSys.Messaging.Models.Actions
 {
-    [Express]
     public class NotificationMessage : ActionMessage
     {
         public override MessageActionType ActionType { get; } = MessageActionType.Notification;

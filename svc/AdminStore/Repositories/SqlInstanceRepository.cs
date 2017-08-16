@@ -282,7 +282,7 @@ namespace AdminStore.Repositories
             }
         }
 
-        public async Task<int> DeleteProject(int userId, int projectId)
+        public async Task DeleteProject(int userId, int projectId)
         {
             //We need to check if project is still exist in database and not makred as deleted
             //Also we need to get the latest projectstatus to apply the right delete method
@@ -290,45 +290,27 @@ namespace AdminStore.Repositories
 
             InstanceItem project = await GetInstanceProjectAsync(projectId, userId, fromAdminPortal: true);
 
-            if (!TryGetProjectStatusIfProjectExist(userId, project, out projectStatus))
+            if (!TryGetProjectStatusIfProjectExist(project, out projectStatus))
             {
-                //Log.Warn(string.Format("Project with ID:{0}({1}) was deleted by another user!", project.Id, project.Name));
-                //return;
+                throw new ResourceNotFoundException(I18NHelper.FormatInvariant(ErrorMessages.ProjectWasDeletedByAnotherUser, project.Id, project.Name), ErrorCodes.ResourceNotFound);
             }
 
             if (projectStatus == ProjectStatus.Live)
             {
-                //_dataAccess.PerformanceService.RemoveProject(project.Id);
-
                 var parameters = new DynamicParameters();
                 parameters.Add("@userId", userId);
                 parameters.Add("@projectId", projectId);
-                parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-                var result = await _connectionWrapper.ExecuteScalarAsync<int>("RemoveProject", parameters,
-                    commandType: CommandType.StoredProcedure);
-                var errorCode = parameters.Get<int?>("ErrorCode");
-
-                if (errorCode.HasValue)
-                {
-                    //switch (errorCode.Value)
-                    //{
-                    //    case (int)SqlErrorCodes.InstanceFolderContainsChildrenItems:
-                    //        throw new ConflictException(ErrorMessages.ErrorOfDeletingFolderThatContainsChildrenItems);
-                    //}
-                }
-
-                return result;
+                await _connectionWrapper.ExecuteAsync("RemoveProject", parameters,
+                    commandType: CommandType.StoredProcedure);                
             }
             else
             {
-                //_dataAccess.ProjectService.PurgeProject(project.Id);
-
                 var parameters = new DynamicParameters();
                 parameters.Add("@projectId", projectId);
                 parameters.Add("@result", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-                var result = await _connectionWrapper.ExecuteScalarAsync<int>("PurgeProject", parameters,
+                await _connectionWrapper.ExecuteScalarAsync<int>("PurgeProject", parameters,
                     commandType: CommandType.StoredProcedure);
                 var errorCode = parameters.Get<int?>("result");
 
@@ -337,31 +319,26 @@ namespace AdminStore.Repositories
                     switch (errorCode.Value)
                     {
                         case -2: // Instance project issue
-                            //Log.Error("Could not purge project because it is a system instance project for internal use only and without it database is corrupted. PurgeProject aborted for projectId " + projectId);
-                            break;
+                            throw new BadRequestException(I18NHelper.FormatInvariant(ErrorMessages.ForbidToPurgeSystemInstanceProjectForInternalUseOnly, project.Id), ErrorCodes.BadRequest);
                         case -1: // Cross project move issue
-                            //Log.Error("Could not purge project because an artifact was moved to another project and we cannot reliably purge it without corrupting the other project.  PurgeProject aborted for projectId " + projectId);
-                            break;
+                            throw new BadRequestException(I18NHelper.FormatInvariant(ErrorMessages.ArtifactWasMovedToAnotherProject, project.Id), ErrorCodes.BadRequest);
                         case 0:
-                            // Success, commit the transaction
+                            // Success
                             break;
                         default:
-                            //throw new ApplicationException("PurgeProject unhandled case: " + retVal);
-                            break;
+                            throw new Exception(ErrorMessages.GeneralErrorOfUpdatingProject);
                     }
                 }
-                return result;
             }
         }
 
         /// <summary>
         ///  This method takes the projectId and checks if the project is still exist in the database and not marked as deleted
         /// </summary>
-        /// <param name="userId">UserId</param>
         /// <param name="project">Project</param>
         /// <param name="projectStatus">If the project exists it returns ProjectStatus as output If the Project does not exists projectstatus = null</param>
         /// <returns>Returns true if project exists in the database and not marked as deleted for that specific revision</returns>
-        private bool TryGetProjectStatusIfProjectExist(int userId, InstanceItem project, out ProjectStatus? projectStatus)
+        private bool TryGetProjectStatusIfProjectExist(InstanceItem project, out ProjectStatus? projectStatus)
         {                        
             if (project == null)
             {
@@ -379,7 +356,7 @@ namespace AdminStore.Repositories
         }
 
         /// <summary>
-        /// Maps the project status string to enum.l
+        /// Maps the project status string to enum.
         /// </summary>
         private static ProjectStatus GetProjectStatus(string status)
         {
@@ -395,7 +372,7 @@ namespace AdminStore.Repositories
                 case null:
                     return ProjectStatus.Live;
                 default:
-                    throw new NotImplementedException("Unhandled case for ProjectStatus: " + status);
+                    throw new Exception(I18NHelper.FormatInvariant(ErrorMessages.UnhandledStatusOfProject, status));
             }
         }
     }

@@ -332,25 +332,26 @@ namespace AdminStore.Controllers
         /// Delete Project
         /// </summary>
         /// <remarks>
-        /// Returns count of deleted projects.
+        /// Returns Ok result.
         /// </remarks>
-        /// <response code="200">OK. Project is deleted.</response>
-        /// <response code="400">BadRequest. Some errors. </response>
-        /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
-        /// <response code="403">Forbidden if used doesn’t have permissions to delete project</response>
-        /// <response code="404">NotFound. if project with projectId doesn’t exists or removed from the system.</response>
-        /// <response code="500">Internal Server Error. An error occurred.</response>
+        /// <response code="204">OK. The project is deleted.</response>
+        /// <response code="400">BadRequest. Parameters are invalid.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden The user does not have permissions to delete project</response>
+        /// <response code="404">NotFound. The project with projectId doesn’t exists or removed from the system.</response>
+        /// <response code="404">NotFound. Project with ID:{0}({1}) was deleted by another user!</response>
+        /// <response code="500">Internal Server Error.</response>
         [HttpDelete]
         [SessionRequired]
-        [ResponseType(typeof(DeleteResult))]
+        [ResponseType(typeof(HttpResponseMessage))]
         [Route("projects/{projectId:int:min(1)}")]
-        public async Task<IHttpActionResult> DeleteProject(int projectId)
+        public async Task<HttpResponseMessage> DeleteProject(int projectId)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.DeleteProjects);
 
-            var result = await _instanceRepository.DeleteProject(Session.UserId, projectId);
+            await _instanceRepository.DeleteProject(Session.UserId, projectId);
 
-            return Ok(new DeleteResult { TotalDeleted = result });
+            return Request.CreateResponse(HttpStatusCode.NoContent);
         }
 
         #endregion

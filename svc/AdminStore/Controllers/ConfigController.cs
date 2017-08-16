@@ -104,7 +104,8 @@ namespace AdminStore.Controllers
         public async Task<IHttpActionResult> GetApplicationSettings()
         {
             var settings = (await _applicationSettingsRepository.GetSettingsAsync(true)).ToDictionary(it => it.Key, it => it.Value);
-            settings["Features"] = (await _featuresService.GetFeaturesAsync())?.ToJSON();
+            var features = await _featuresService.GetFeaturesAsync();
+            settings["Features"] = JsonConvert.SerializeObject(features, Formatting.None);
 
             var response = Request.CreateResponse(HttpStatusCode.OK, settings, Configuration.Formatters.JsonFormatter);
             return ResponseMessage(response);

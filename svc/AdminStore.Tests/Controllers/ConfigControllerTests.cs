@@ -2,6 +2,7 @@
 using AdminStore.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Newtonsoft.Json;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
@@ -93,7 +94,7 @@ namespace AdminStore.Controllers
             var actualSettings = (Dictionary<string, string>)content.Value;
             Assert.IsTrue(actualSettings.ContainsKey("Features"), "Cannot find 'Features'");
             var actualFeatures = actualSettings["Features"];
-            Assert.AreEqual(features.ToJSON(), actualFeatures);
+            Assert.AreEqual(JsonConvert.SerializeObject(features, Formatting.None), actualFeatures);
         }
 
         #endregion

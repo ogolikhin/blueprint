@@ -103,6 +103,8 @@
     <Compile Include="Helpers\PrivilegesManagerTests.cs" />
     <Compile Include="Helpers\SystemEncryptionsTests.cs" />
     <Compile Include="Helpers\LoginInfoTests.cs" />
+    <Compile Include="Helpers\Workflow\WorkflowHelperTests.cs" />
+    <Compile Include="Models\Workflow\IeWorkflowTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\AuthenticationRepositoryTests.cs" />
     <Compile Include="Repositories\Jobs\JobsRepositoryTests.cs" />
@@ -119,6 +121,7 @@
     <Compile Include="Services\Workflow\WorkflowServiceTest.cs" />
     <Compile Include="Services\Workflow\WorkflowActionPropertyValueValidatorTests.cs" />
     <Compile Include="Services\Workflow\WorkflowDataValidatorTests.cs" />
+    <Compile Include="Services\Workflow\WorkflowTestHelper.cs" />
     <Compile Include="Services\Workflow\WorkflowXmlValidatorTests.cs" />
     <Compile Include="Utilities\SamlUtilities.cs" />
   </ItemGroup>

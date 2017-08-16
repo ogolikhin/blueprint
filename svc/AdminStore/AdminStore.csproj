@@ -118,6 +118,7 @@
     <Compile Include="Helpers\UserConverter.cs" />
     <Compile Include="Helpers\PrivilegesManager.cs" />
     <Compile Include="Helpers\UserValidator.cs" />
+    <Compile Include="Helpers\Workflow\WorkflowHelper.cs" />
     <Compile Include="Models\AdminRole.cs" />
     <Compile Include="Models\AssignResult.cs" />
     <Compile Include="Models\AssignScope.cs" />

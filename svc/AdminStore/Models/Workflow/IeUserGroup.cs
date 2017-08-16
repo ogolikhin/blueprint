@@ -56,5 +56,35 @@ namespace AdminStore.Models.Workflow
         public int? GroupProjectId { get; set; }
         public bool ShouldSerializeGroupProjectId() { return GroupProjectId.HasValue; }
         //========================================================
+
+        #region Generated and modified Equals and GetHashCode methods
+
+        protected bool Equals(IeUserGroup other)
+        {
+            return Id.GetValueOrDefault() == other.Id.GetValueOrDefault() && string.Equals(Name, other.Name) && IsGroup.GetValueOrDefault() == other.IsGroup.GetValueOrDefault() && string.Equals(GroupProjectPath, other.GroupProjectPath) && GroupProjectId.GetValueOrDefault() == other.GroupProjectId.GetValueOrDefault();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((IeUserGroup) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = Id.GetHashCode();
+                hashCode = (hashCode*397) ^ (Name != null ? Name.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ IsGroup.GetHashCode();
+                hashCode = (hashCode*397) ^ (GroupProjectPath != null ? GroupProjectPath.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ GroupProjectId.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        #endregion
     }
 }

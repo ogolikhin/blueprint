@@ -27,5 +27,16 @@ namespace AdminStore.Repositories
 
             return await _connectionWrapper.ExecuteScalarAsync<InstanceAdminPrivileges>("GetInstancePermissionsForUser", parameters, commandType: CommandType.StoredProcedure);
         }
+
+        public async Task<bool> HasUserInstanceOrProjectPermissionsForProject(int userId, int projectId, InstanceAdminPrivileges instancePrivileges, ProjectAdminPrivileges projectPrivileges)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@UserId", userId);
+            parameters.Add("@ProjectId", projectId);
+            parameters.Add("@InstancePermissions", (int)instancePrivileges);
+            parameters.Add("@ProjectPermissions", (int)projectPrivileges);
+
+            return await _connectionWrapper.ExecuteScalarAsync<bool>("HasUserInstanceOrProjectPermissionsForProject", parameters, commandType: CommandType.StoredProcedure);
+        }
     }
 }

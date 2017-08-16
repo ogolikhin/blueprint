@@ -24,6 +24,12 @@ namespace ServiceLibrary.Repositories
             _connectionWrapper = connectionWrapper;
         }
 
+        public async Task<TenantInfo> GetTenantInfo()
+        {
+            return (await _connectionWrapper.QueryAsync<TenantInfo>("[dbo].[GetTenantInfo]", commandType: CommandType.StoredProcedure))
+                .FirstOrDefault();
+        }
+
         public virtual async Task<IEnumerable<ApplicationSetting>> GetSettingsAsync(bool returnNonRestrictedOnly)
         {
             var prm = new DynamicParameters();
@@ -44,6 +50,8 @@ namespace ServiceLibrary.Repositories
                 settings.Remove(licenseInfo);
             }
 
+            var tenantId = (await GetTenantInfo())?.TenantId;
+
             settings.AddRange(new[]
             {
                 new ApplicationSetting
@@ -55,6 +63,11 @@ namespace ServiceLibrary.Repositories
                 {
                     Key = ServiceConstants.WorkflowFeatureKey,
                     Value = workflowFeatureEnabled.ToString()
+                },
+                new ApplicationSetting
+                {
+                    Key = ServiceConstants.TenantIdKey,
+                    Value = tenantId
                 }
             });
 

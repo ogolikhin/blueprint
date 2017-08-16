@@ -375,5 +375,20 @@ namespace AdminStore.Repositories
                     throw new Exception(I18NHelper.FormatInvariant(ErrorMessages.UnhandledStatusOfProject, status));
             }
         }
+
+        public async Task<int> GetInstanceProjectPrivilegesAsync(int projectId, int userId)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@projectId", projectId);
+            prm.Add("@userId", userId);
+
+            var result = (await _connectionWrapper.QueryAsync<int?>("GetUserPrivilegesOfProject", prm, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
+            if (result == null)
+            {
+                throw new ResourceNotFoundException(I18NHelper.FormatInvariant(ErrorMessages.PrivilegesForProjectNotExist, projectId), ErrorCodes.ResourceNotFound);
+            }
+
+            return result.Value;
+        }
     }
 }

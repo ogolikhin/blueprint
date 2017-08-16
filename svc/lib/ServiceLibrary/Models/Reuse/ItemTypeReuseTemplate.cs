@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using ServiceLibrary.Models.Enums;
 
-namespace ArtifactStore.Models.Reuse
+namespace ServiceLibrary.Models.Reuse
 {
     public class ItemTypeReuseTemplate
     {

@@ -4,7 +4,7 @@
     {
         public int VersionId { get; set; }
 
-        public int TriggerId { get; set; }
+        public int WorkflowEventId { get; set; }
 
         public int? WorkflowId { get; set; }
 

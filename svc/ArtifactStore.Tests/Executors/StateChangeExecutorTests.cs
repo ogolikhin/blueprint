@@ -3,6 +3,7 @@ using System.Data;
 using System.Threading.Tasks;
 using ArtifactStore.Models;
 using ArtifactStore.Repositories;
+using ArtifactStore.Repositories.Reuse;
 using ArtifactStore.Repositories.Workflow;
 using ArtifactStore.Services.VersionControl;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -30,6 +31,7 @@ namespace ArtifactStore.Executors
         private Mock<IArtifactVersionsRepository> _artifactVersionsRepository;
         private ISqlHelper _sqlHelperMock;
         private Mock<IVersionControlService> _versionControlService;
+        private Mock<IReuseRepository> _reuseRepository;
 
         [TestInitialize]
         public void TestInitialize()
@@ -45,11 +47,13 @@ namespace ArtifactStore.Executors
             _artifactVersionsRepository = new Mock<IArtifactVersionsRepository>(MockBehavior.Strict);
             _sqlHelperMock = new SqlHelperMock();
             _versionControlService = new Mock<IVersionControlService>(MockBehavior.Loose);
-            _stateChangeExecutor = new StateChangeExecutor(null, null, ex, UserId,
+            _reuseRepository = new Mock<IReuseRepository>(MockBehavior.Loose);
+            _stateChangeExecutor = new StateChangeExecutor(ex, UserId,
                 _artifactVersionsRepository.Object,
                 _workflowRepository.Object,
                 _sqlHelperMock,
-                _versionControlService.Object
+                _versionControlService.Object,
+                _reuseRepository.Object
                 );
         }
 
@@ -60,6 +64,9 @@ namespace ArtifactStore.Executors
             ConflictException conflictException = null;
             _artifactVersionsRepository.Setup(t => t.IsItemDeleted(ArtifactId))
                 .ReturnsAsync(true);
+
+            _artifactVersionsRepository.Setup(t => t.GetVersionControlArtifactInfoAsync(It.IsAny<int>(), It.IsAny<int?>(), It.IsAny<int>()))
+                .ReturnsAsync(new VersionControlArtifactInfo() {Id = ArtifactId});
 
             //Act
             try

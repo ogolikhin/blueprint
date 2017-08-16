@@ -1,12 +1,10 @@
-using System;
 using System.Linq;
 using System.Threading.Tasks;
+using ActionHandlerService.Helpers;
 using ActionHandlerService.Models;
 using ActionHandlerService.Repositories;
-using BluePrintSys.Messaging.CrossCutting.Logging;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers.Security;
-using ServiceLibrary.Models;
 using ServiceLibrary.Models.Email;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Notification.Templates;
@@ -15,83 +13,71 @@ namespace ActionHandlerService.MessageHandlers.Notifications
 {
     public class NotificationsActionHelper : IActionHelper
     {
-        public async Task<bool> HandleAction(TenantInformation tenantInformation, ActionMessage actionMessage, IActionHandlerServiceRepository repository)
+        public async Task<bool> HandleAction(TenantInformation tenant, ActionMessage actionMessage, IActionHandlerServiceRepository actionHandlerServiceRepository)
         {
-            var result = await SendNotificationEmail(tenantInformation, (NotificationMessage) actionMessage, repository);
+            var message = (NotificationMessage) actionMessage;
+            var result = await SendNotificationEmail(tenant, message, (INotificationRepository) actionHandlerServiceRepository);
+            Logger.Log($"Finished processing message with result: {result}", message, tenant, LogLevel.Info);
             return await Task.FromResult(result == SendEmailResult.Success);
         }
 
-        private async Task<SendEmailResult> SendNotificationEmail(TenantInformation tenantInformation, NotificationMessage details, IActionHandlerServiceRepository repository)
+        private async Task<SendEmailResult> SendNotificationEmail(TenantInformation tenant, NotificationMessage message, INotificationRepository repository)
         {
-            var result = SendEmailResult.Success;
-            try
+            Logger.Log($"Handling started for user ID {message.UserId}", message, tenant, LogLevel.Info);
+            //It should be responsibility of notification handler to recieve information about email settings
+            //Maybe this information can be cached for tenant ids???
+            var emailSettings = await new EmailSettingsRetriever().GetEmailSettings(repository);
+            if (emailSettings == null)
             {
-                //It should be responsibility of notification handler to recieve information about email settings
-                //Maybe this information can be cached for tenant ids???
-                var emailSettings = await (new EmailSettingsRetriever()).GetEmailSettings(repository);
-                if (emailSettings == null)
-                {
-                    Log.Error($"No email settings provided for tenant {tenantInformation.Id} ");
-                    return await Task.FromResult(SendEmailResult.Error);
-                }
-
-                var message = BuildMessage(emailSettings, details);
-                message.To = details.To.ToArray();
-
-                var smtpClientConfiguration = new SMTPClientConfiguration
-                {
-                    Authenticated = emailSettings.Authenticated,
-                    EnableSsl = emailSettings.EnableSSL,
-                    HostName = emailSettings.HostName,
-
-                    // Bug 61312: Password must be decrypted before saving in configuration
-                    Password = SystemEncryptions.Decrypt(emailSettings.Password),
-
-                    Port = emailSettings.Port,
-                    UserName = emailSettings.UserName
-                };
-
-                InternalSendEmail(smtpClientConfiguration, message, repository);
+                Logger.Log($"No email settings provided for tenant {tenant.Id}", message, tenant, LogLevel.Error);
+                return await Task.FromResult(SendEmailResult.Error);
             }
-            catch (Exception e)
-            {
-                Log.ErrorFormat("Notification failed. Exception details {0}", e);
-                throw;
-            }
-            return await Task.FromResult(result);
-        }
 
-        private Message BuildMessage(EmailSettings emailSettings, NotificationMessage details)
-        {
-            var message = new Message
+            //don't pass null values to the template
+            var notificationEmail = new NotificationEmail(
+                message.ProjectId,
+                message.ProjectName ?? string.Empty,
+                message.ArtifactId,
+                message.ArtifactName ?? string.Empty,
+                message.ArtifactUrl ?? string.Empty,
+                message.MessageTemplate ?? string.Empty);
+
+            var emailMessage = new Message
             {
-                Subject = details.Subject,
-                IsBodyHtml = true,
+                Subject = message.Subject,
+                FromDisplayName = message.From,
+                To = message.To.ToArray(),
                 From = emailSettings.SenderEmailAddress,
-                Body = GetEmailBody(
-                    new NotificationEmail(
-                        details.ProjectId,
-                        details.ProjectName,
-                        details.ArtifactId,
-                        details.ArtifactName,
-                        details.ArtifactUrl,
-                        details.MessageTemplate)),
-                FromDisplayName = details.From,
-                To = details.To.ToArray()
+                IsBodyHtml = true,
+                Body = new NotificationEmailContent(notificationEmail).TransformText()
             };
-            return message;
-        }
 
-        private string GetEmailBody(INotificationEmail details)
-        {
-            var emailBody = new NotificationEmailContent(details).TransformText();
-            return emailBody;
+            var smtpClientConfiguration = new SMTPClientConfiguration
+            {
+                Authenticated = emailSettings.Authenticated,
+                EnableSsl = emailSettings.EnableSSL,
+                HostName = emailSettings.HostName,
+                // Bug 61312: Password must be decrypted before saving in configuration
+                Password = SystemEncryptions.Decrypt(emailSettings.Password),
+                Port = emailSettings.Port,
+                UserName = emailSettings.UserName
+            };
+
+            if (string.IsNullOrWhiteSpace(smtpClientConfiguration.HostName))
+            {
+                Logger.Log("No Host Name", message, tenant, LogLevel.Error);
+                return await Task.FromResult(SendEmailResult.Error);
+            }
+
+            Logger.Log("Sending Email", message, tenant, LogLevel.Info);
+            InternalSendEmail(smtpClientConfiguration, emailMessage, repository);
+            return await Task.FromResult(SendEmailResult.Success);
         }
 
         //for unit testing
-        private void InternalSendEmail(SMTPClientConfiguration smtpClientConfiguration, Message message, IActionHandlerServiceRepository repository)
+        private void InternalSendEmail(SMTPClientConfiguration smtpClientConfiguration, Message emailMessage, INotificationRepository repository)
         {
-            ((INotificationActionHandlerServiceRepository) repository).SendEmail(smtpClientConfiguration, message);
+            repository.SendEmail(smtpClientConfiguration, emailMessage);
         }
     }
 }

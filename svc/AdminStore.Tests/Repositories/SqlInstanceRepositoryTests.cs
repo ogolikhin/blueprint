@@ -716,5 +716,47 @@ namespace AdminStore.Repositories
         }
 
         #endregion
+
+        #region Project privileges
+
+        [TestMethod]
+        public async Task GetInstanceProjectPrivilegesAsync_Found()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            int projectId = 99;
+            int userId = 10;
+            int?[] expectedResult = {64};
+            cxn.SetupQueryAsync("GetUserPrivilegesOfProject", new Dictionary<string, object> { { "projectId", projectId }, { "userId", userId } }, expectedResult);
+
+            // Act
+            var actualResult = await repository.GetInstanceProjectPrivilegesAsync(projectId, userId);
+
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(expectedResult.First(), actualResult);
+        }
+        
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task GetInstanceProjectPrivilegesAsync_NotFound()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            int projectId = 99;
+            int userId = 10;
+            int?[] expectedResult = {};
+            cxn.SetupQueryAsync("GetUserPrivilegesOfProject", new Dictionary<string, object> { { "projectId", projectId }, { "userId", userId } }, expectedResult);
+
+            // Act
+            await repository.GetInstanceProjectPrivilegesAsync(projectId, userId);
+
+            // Assert
+        }
+
+        #endregion
     }
 }

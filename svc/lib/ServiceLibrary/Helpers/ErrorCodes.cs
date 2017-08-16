@@ -8,6 +8,7 @@
         public const int CannotPublish = 113;
         public const int CannotPublishOverValidationErrors = 121;
         public const int CannotDiscardOverDependencies = 122;
+        public const int CannotSaveDueToReadOnly = 116;
 
         // Common error codes for blueprint and blueprint-current repositories
         public const int LockedByOtherUser = 111;
@@ -97,5 +98,9 @@
 
         // Unexpected Errors
         public const int UnexpectedError = 13001;
+    
+        //Property Type errors
+        public const int InvalidArtifactProperty = 14001;
+
     }
 }

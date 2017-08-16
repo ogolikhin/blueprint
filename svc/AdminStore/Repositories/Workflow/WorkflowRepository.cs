@@ -370,16 +370,16 @@ namespace AdminStore.Repositories.Workflow
             return result;           
         }
 
-        public async Task<IEnumerable<SqlWorkflowArtifactTypesAndProjects>> GetWorkflowProjectsAndArtifactTypesAsync(int workflowId)
+        public async Task<IEnumerable<SqlWorkflowArtifactTypes>> GetWorkflowArtifactTypesAsync(int workflowId)
         {
             var parameters = new DynamicParameters();
             parameters.Add("WorkflowId", workflowId);
 
-            var result = await _connectionWrapper.QueryAsync<SqlWorkflowArtifactTypesAndProjects>("GetWorkflowProjectsAndArtifactTypes", parameters, commandType: CommandType.StoredProcedure);
+            var result = await _connectionWrapper.QueryAsync<SqlWorkflowArtifactTypes>("GetWorkflowArtifactTypes", parameters, commandType: CommandType.StoredProcedure);
 
             return result;
         }
-
+        
         public async Task<int> DeleteWorkflows(OperationScope body, string search, int revision, IDbTransaction transaction = null)
         {
             if (search != null)
@@ -505,7 +505,7 @@ namespace AdminStore.Repositories.Workflow
 
             foreach (var workfloEvent in workflowEvents)
             {
-                table.Rows.Add(workfloEvent.TriggerId, workfloEvent.Name,
+                table.Rows.Add(workfloEvent.WorkflowEventId, workfloEvent.Name,
                     workfloEvent.WorkflowId, workfloEvent.Type, workfloEvent.Permissions, 
                     workfloEvent.Validations, workfloEvent.Triggers, workfloEvent.WorkflowState1Id, 
                     workfloEvent.WorkflowState2Id, workfloEvent.PropertyTypeId);

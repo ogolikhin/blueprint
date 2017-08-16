@@ -6,6 +6,7 @@ using ArtifactStore.Repositories.Reuse;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.ProjectMeta;
+using ServiceLibrary.Models.Reuse;
 
 namespace ArtifactStore.Helpers
 {

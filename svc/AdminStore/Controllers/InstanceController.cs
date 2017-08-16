@@ -354,6 +354,25 @@ namespace AdminStore.Controllers
             return Request.CreateResponse(HttpStatusCode.NoContent);
         }
 
+        /// <summary>
+        /// Get Project privileges
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <remarks>
+        /// Returns privileges for the specified instance project id.
+        /// </remarks>
+        /// <response code="200">OK. The user's project privileges for the project is returned</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="404">Not found. User privileges for project (Id:{0}) is not found.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpGet, NoCache]
+        [Route("projects/{projectId:int:min(1)}/privileges"), SessionRequired]
+        [ResponseType(typeof(int))]
+        public async Task<int> GetInstanceProjectPrivilegesAsync(int projectId)
+        {
+            return await _instanceRepository.GetInstanceProjectPrivilegesAsync(projectId, Session.UserId);
+        }
+
         #endregion
     }
 }

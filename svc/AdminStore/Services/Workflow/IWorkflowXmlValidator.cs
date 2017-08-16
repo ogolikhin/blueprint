@@ -5,5 +5,7 @@ namespace AdminStore.Services.Workflow
     public interface IWorkflowXmlValidator
     {
         WorkflowXmlValidationResult ValidateXml(IeWorkflow workflow);
+
+        WorkflowXmlValidationResult ValidateUpdateXml(IeWorkflow workflow);
     }
 }

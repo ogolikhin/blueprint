@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Xml.Serialization;
+using AdminStore.Helpers.Workflow;
 using ServiceLibrary.Models.Workflow;
 
 namespace AdminStore.Models.Workflow
@@ -33,6 +34,36 @@ namespace AdminStore.Models.Workflow
 
         [XmlElement(IsNullable = false)]
         public string Message { get; set; }
+
+        #endregion
+
+        #region Generated and modified Equals and GetHashCode methods
+
+        protected bool Equals(IeEmailNotificationAction other)
+        {
+            return base.Equals(other) && WorkflowHelper.CollectionEquals(Emails, other.Emails) && string.Equals(PropertyName, other.PropertyName) && PropertyId.GetValueOrDefault() == other.PropertyId.GetValueOrDefault() && string.Equals(Message, other.Message);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((IeEmailNotificationAction) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = base.GetHashCode();
+                hashCode = (hashCode*397) ^ (Emails != null ? Emails.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (PropertyName != null ? PropertyName.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ PropertyId.GetHashCode();
+                hashCode = (hashCode*397) ^ (Message != null ? Message.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
 
         #endregion
 

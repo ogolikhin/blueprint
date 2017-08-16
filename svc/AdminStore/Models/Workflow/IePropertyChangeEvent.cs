@@ -20,5 +20,33 @@ namespace AdminStore.Models.Workflow
         [XmlElement]
         public int? PropertyId { get; set; }
         public bool ShouldSerializePropertyId() { return PropertyId.HasValue; }
+
+        #region Generated and modified Equals and GetHashCode methods
+
+        protected bool Equals(IePropertyChangeEvent other)
+        {
+            return base.Equals(other) && string.Equals(PropertyName, other.PropertyName) && PropertyId.GetValueOrDefault() == other.PropertyId.GetValueOrDefault();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((IePropertyChangeEvent) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = base.GetHashCode();
+                hashCode = (hashCode*397) ^ (PropertyName != null ? PropertyName.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ PropertyId.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        #endregion
     }
 }

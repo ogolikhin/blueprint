@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Xml.Serialization;
+using AdminStore.Helpers.Workflow;
 
 namespace AdminStore.Models.Workflow
 {
@@ -44,5 +45,33 @@ namespace AdminStore.Models.Workflow
         [XmlArray("Triggers")]
         [XmlArrayItem("Trigger", typeof(IeTrigger))]
         public List<IeTrigger> Triggers { get; set; }
+
+        #region Generated and modified Equals and GetHashCode methods
+
+        protected bool Equals(IeEvent other)
+        {
+            return Id.GetValueOrDefault() == other.Id.GetValueOrDefault() && string.Equals(Name, other.Name) && WorkflowHelper.CollectionEquals(Triggers, other.Triggers);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((IeEvent) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = Id.GetHashCode();
+                hashCode = (hashCode*397) ^ (Name != null ? Name.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Triggers != null ? Triggers.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
+
+        #endregion
     }
 }

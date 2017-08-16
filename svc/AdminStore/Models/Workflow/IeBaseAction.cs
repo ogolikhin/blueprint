@@ -17,6 +17,28 @@ namespace AdminStore.Models.Workflow
         // Not used, but we keep it for now
         [XmlElement(IsNullable = false)]
         public string Name { get; set; }
+
+        #region Generated and modified Equals and GetHashCode methods
+
+        protected bool Equals(IeBaseAction other)
+        {
+            return string.Equals(Name, other.Name);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((IeBaseAction) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return (Name != null ? Name.GetHashCode() : 0);
+        }
+
+        #endregion
     }
 
 }

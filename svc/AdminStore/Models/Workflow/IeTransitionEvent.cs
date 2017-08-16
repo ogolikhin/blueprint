@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Xml.Serialization;
+using AdminStore.Helpers.Workflow;
 
 namespace AdminStore.Models.Workflow
 {
@@ -38,5 +39,37 @@ namespace AdminStore.Models.Workflow
         [XmlElement]
         public bool? SkipPermissionGroups { get; set; }
         public bool ShouldSerializeSkipPermissionGroups() { return SkipPermissionGroups.HasValue; }
+
+        #region Generated and modified Equals and GetHashCode methods
+
+        protected bool Equals(IeTransitionEvent other)
+        {
+            return base.Equals(other) && string.Equals(FromState, other.FromState) && FromStateId.GetValueOrDefault() == other.FromStateId.GetValueOrDefault() && string.Equals(ToState, other.ToState) && ToStateId.GetValueOrDefault() == other.ToStateId.GetValueOrDefault() && WorkflowHelper.CollectionEquals(PermissionGroups, other.PermissionGroups) && SkipPermissionGroups.GetValueOrDefault() == other.SkipPermissionGroups.GetValueOrDefault();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((IeTransitionEvent) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = base.GetHashCode();
+                hashCode = (hashCode*397) ^ (FromState != null ? FromState.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ FromStateId.GetHashCode();
+                hashCode = (hashCode*397) ^ (ToState != null ? ToState.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ ToStateId.GetHashCode();
+                hashCode = (hashCode*397) ^ (PermissionGroups != null ? PermissionGroups.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ SkipPermissionGroups.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        #endregion
     }
 }

@@ -41,7 +41,7 @@ namespace AdminStore.Services.Workflow
         private const string TemplateXmlTriggerCountOnEventExceedsLimit10 = "Event (Transition, Property Change, New Artifact) '{0}' exceeded the limit of permitted Triggers per Event of 10.";
         private const string TemplateXmlPropertyChangEventPropertyNotSpecified = "Property of Property Change Event '{0}' is not specified.";
         private const string TemplateXmlProjectNoSpecified = "One or more Projects are not specified. A Project must be specified with Id or Path.";
-        private const string TemplateXmlProjectInvalidId = "The Project Id '{0}' is invalid. The Project Id must be greater than zero.";
+        private const string TemplateXmlInvalidId = "One or Ids are invalid. The Id must be greater than zero.";
         private const string TemplateXmlProjectDuplicateId = "One or more Projects have a duplicate Id. Projects in a Workflow must be unique.";
         private const string TemplateXmlProjectInvalidPath = "One or more Projects have a duplicate Project Path. Projects in a Workflow must be unique.";
         // Updated - just removed an unnecessary word
@@ -264,8 +264,8 @@ namespace AdminStore.Services.Workflow
                     template = TemplateXmlProjectNoSpecified;
                     errParams = new object[] {};
                     break;
-                case WorkflowXmlValidationErrorCodes.ProjectInvalidId:
-                    template = TemplateXmlProjectInvalidId;
+                case WorkflowXmlValidationErrorCodes.InvalidId:
+                    template = TemplateXmlInvalidId;
                     errParams = new object[] {};
                     break;
                 case WorkflowXmlValidationErrorCodes.ProjectDuplicateId:

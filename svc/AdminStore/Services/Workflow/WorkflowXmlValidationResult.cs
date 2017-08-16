@@ -64,7 +64,7 @@ namespace AdminStore.Services.Workflow
         StateStateConditionNotFound,
         PropertyChangeEventActionNotSupported,
         ProjectNoSpecified,
-        ProjectInvalidId,
+        InvalidId,
         ProjectDuplicateId,
         ProjectDuplicatePath,
         ProjectDoesNotHaveAnyArtfactTypes,

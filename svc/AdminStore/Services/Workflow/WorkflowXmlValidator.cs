@@ -588,11 +588,21 @@ namespace AdminStore.Services.Workflow
 
         public WorkflowXmlValidationResult ValidateUpdateXml(IeWorkflow workflow)
         {
+            ResetUpdateErrorFlags();
             _isConventionNamesInUse = true;
             var clone = WorkflowHelper.CloneViaXmlSerialization(workflow);
             UpdateToConventionNames(clone);
             var result = ValidateXml(clone);
             ValidateDuplicateIds(clone, result);
+
+            if (_hasUpdateInvalidIdError && result.Errors.All(e => e.ErrorCode != WorkflowXmlValidationErrorCodes.InvalidId))
+            {
+                result.Errors.Add(new WorkflowXmlValidationError
+                {
+                    ErrorCode = WorkflowXmlValidationErrorCodes.InvalidId
+                });
+            }
+
             _isConventionNamesInUse = false;
             return result;
         }
@@ -897,9 +907,23 @@ namespace AdminStore.Services.Workflow
             }
         }
 
+        private bool _hasUpdateInvalidIdError;
+        private void ResetUpdateErrorFlags()
+        {
+            _hasUpdateInvalidIdError = false;
+        }
+
+        private void ValidateUpdateId(int id)
+        {
+            if (id < 1)
+            {
+                _hasUpdateInvalidIdError = true;
+            }
+        }
+
         #region Update To Convention Names
 
-        private static void UpdateToConventionNames(IeWorkflow workflow)
+        private void UpdateToConventionNames(IeWorkflow workflow)
         {
             workflow?.States?.ForEach(UpdateStateToConventionNames);
             workflow?.TransitionEvents?.ForEach(UpdateTransitionEventToConventionNames);
@@ -908,7 +932,7 @@ namespace AdminStore.Services.Workflow
             workflow?.Projects?.ForEach(UpdateProjectToConventionNames);
         }
 
-        private static void UpdateStateToConventionNames(IeState state)
+        private void UpdateStateToConventionNames(IeState state)
         {
             if (state?.Id.HasValue ?? false)
             {
@@ -916,7 +940,7 @@ namespace AdminStore.Services.Workflow
             }
         }
 
-        private static void UpdateTransitionEventToConventionNames(IeTransitionEvent tEvent)
+        private void UpdateTransitionEventToConventionNames(IeTransitionEvent tEvent)
         {
             if (tEvent?.Id.HasValue ?? false)
             {
@@ -937,7 +961,7 @@ namespace AdminStore.Services.Workflow
             tEvent?.Triggers?.ForEach(UpdateTriggerToConventionNames);
         }
 
-        private static void UpdatePermissionGroupToConventionNames(IeGroup group)
+        private void UpdatePermissionGroupToConventionNames(IeGroup group)
         {
             if (group?.Id.HasValue ?? false)
             {
@@ -945,7 +969,7 @@ namespace AdminStore.Services.Workflow
             }
         }
 
-        private static void UpdatePropertyChangeEventToConventionNames(IePropertyChangeEvent pcEvent)
+        private void UpdatePropertyChangeEventToConventionNames(IePropertyChangeEvent pcEvent)
         {
             if (pcEvent?.Id.HasValue ?? false)
             {
@@ -960,7 +984,7 @@ namespace AdminStore.Services.Workflow
             pcEvent?.Triggers?.ForEach(UpdateTriggerToConventionNames);
         }
 
-        private static void UpdateNewArtifactEventToConventionNames(IeNewArtifactEvent naEvent)
+        private void UpdateNewArtifactEventToConventionNames(IeNewArtifactEvent naEvent)
         {
             if (naEvent?.Id.HasValue ?? false)
             {
@@ -970,12 +994,12 @@ namespace AdminStore.Services.Workflow
             naEvent?.Triggers?.ForEach(UpdateTriggerToConventionNames);
         }
 
-        private static void UpdateProjectToConventionNames(IeProject project)
+        private void UpdateProjectToConventionNames(IeProject project)
         {
             project?.ArtifactTypes?.ForEach(UpdateArtifactTypeToConventionNames);
         }
 
-        private static void UpdateArtifactTypeToConventionNames(IeArtifactType artifactType)
+        private void UpdateArtifactTypeToConventionNames(IeArtifactType artifactType)
         {
             if (artifactType?.Id.HasValue ?? false)
             {
@@ -983,13 +1007,13 @@ namespace AdminStore.Services.Workflow
             }
         }
 
-        private static void UpdateTriggerToConventionNames(IeTrigger trigger)
+        private void UpdateTriggerToConventionNames(IeTrigger trigger)
         {
             UpdateConditionToConventionNames(trigger?.Condition);
             UpdateActionToConventionNames(trigger?.Action);
         }
 
-        private static void UpdateConditionToConventionNames(IeCondition condition)
+        private void UpdateConditionToConventionNames(IeCondition condition)
         {
             switch (condition?.ConditionType)
             {
@@ -1007,7 +1031,7 @@ namespace AdminStore.Services.Workflow
             }
         }
 
-        private static void UpdateActionToConventionNames(IeBaseAction action)
+        private void UpdateActionToConventionNames(IeBaseAction action)
         {
             switch (action?.ActionType)
             {
@@ -1027,7 +1051,7 @@ namespace AdminStore.Services.Workflow
             }
         }
 
-        private static void UpdateEmailNotificationActionToConventionNames(IeEmailNotificationAction enAction)
+        private void UpdateEmailNotificationActionToConventionNames(IeEmailNotificationAction enAction)
         {
             if (enAction?.PropertyId.HasValue ?? false)
             {
@@ -1035,7 +1059,7 @@ namespace AdminStore.Services.Workflow
             }
         }
 
-        private static void UpdatePropertyChangeActionToConventionNames(IePropertyChangeAction pcAction)
+        private void UpdatePropertyChangeActionToConventionNames(IePropertyChangeAction pcAction)
         {
             if (pcAction?.PropertyId.HasValue ?? false)
             {
@@ -1046,7 +1070,7 @@ namespace AdminStore.Services.Workflow
             pcAction?.UsersGroups?.ForEach(UpdateUserGroupToConventionNames);
         }
 
-        private static void UpdateValidValueToConventionNames(IeValidValue validValue)
+        private void UpdateValidValueToConventionNames(IeValidValue validValue)
         {
             if (validValue?.Id.HasValue ?? false)
             {
@@ -1054,7 +1078,7 @@ namespace AdminStore.Services.Workflow
             }
         }
 
-        private static void UpdateUserGroupToConventionNames(IeUserGroup userGroup)
+        private void UpdateUserGroupToConventionNames(IeUserGroup userGroup)
         {
             if (userGroup?.Id.HasValue ?? false)
             {
@@ -1062,7 +1086,7 @@ namespace AdminStore.Services.Workflow
             }
         }
 
-        private static void UpdateGenerateActionToConventionNames(IeGenerateAction gAction)
+        private void UpdateGenerateActionToConventionNames(IeGenerateAction gAction)
         {
             if (gAction?.ArtifactTypeId.HasValue ?? false)
             {
@@ -1070,8 +1094,10 @@ namespace AdminStore.Services.Workflow
             }
         }
 
-        private static string GetConventionName(string name, int id)
+        private string GetConventionName(string name, int id)
         {
+            ValidateUpdateId(id);
+
             var prefix = name == null ? string.Empty : I18NHelper.FormatInvariant("{0} ", name);
             return I18NHelper.FormatInvariant(ConventionNamePattern, prefix, id);
         }

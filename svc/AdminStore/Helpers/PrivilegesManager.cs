@@ -32,12 +32,12 @@ namespace AdminStore.Helpers
             }
         }
 
-        public async Task Demand(int userId, int projectId, InstanceAdminPrivileges instancePrivileges, ProjectAdminPrivileges projectPrivileges)
+        public async Task DemandAny(int userId, int projectId, InstanceAdminPrivileges instancePrivileges, ProjectAdminPrivileges projectPrivileges)
         {
             var instancePermissions = await _privilegeRepository.GetInstanceAdminPrivilegesAsync(userId);
             if (!instancePermissions.HasFlag(instancePrivileges))
             {
-                var projectPermissions = await _privilegeRepository.GetProjectAdminPermissions(userId, projectId);
+                var projectPermissions = await _privilegeRepository.GetProjectAdminPermissionsAsync(userId, projectId);
                 if (!projectPermissions.HasFlag(projectPrivileges))
                 {
                     throw new AuthorizationException(ErrorMessages.UserDoesNotHavePermissions, ErrorCodes.Forbidden);

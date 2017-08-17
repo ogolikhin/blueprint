@@ -8,6 +8,6 @@ namespace AdminStore.Repositories
     {
         Task<InstanceAdminPrivileges> GetInstanceAdminPrivilegesAsync(int userId);
 
-        Task<ProjectAdminPrivileges> GetProjectAdminPermissions(int userId, int projectId);
+        Task<ProjectAdminPrivileges> GetProjectAdminPermissionsAsync(int userId, int projectId);
     }
 }

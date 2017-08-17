@@ -280,24 +280,5 @@ namespace AdminStore.Repositories
                 }
             }
         }
-
-        public async Task<int> GetInstanceProjectPrivilegesAsync(int projectId, int userId)
-        {
-            var prm = new DynamicParameters();
-            prm.Add("@projectId", projectId);
-            prm.Add("@userId", userId);
-            prm.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-
-            var result = (await _connectionWrapper.QueryAsync<int>("GetProjectAdminPermissions", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
-
-            var errorCode = prm.Get<int?>("ErrorCode");
-
-            if (errorCode.HasValue && errorCode.Value == (int)SqlErrorCodes.ProjectWithCurrentIdNotExist)
-            {
-                throw new ResourceNotFoundException(ErrorMessages.TheProjectDoesNotExist, ErrorCodes.ResourceNotFound);
-            }
-
-            return result;
-        }
     }
 }

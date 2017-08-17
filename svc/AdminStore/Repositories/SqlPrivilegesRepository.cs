@@ -29,7 +29,7 @@ namespace AdminStore.Repositories
             return await _connectionWrapper.ExecuteScalarAsync<InstanceAdminPrivileges>("GetInstancePermissionsForUser", parameters, commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<ProjectAdminPrivileges> GetProjectAdminPermissions(int userId, int projectId)
+        public async Task<ProjectAdminPrivileges> GetProjectAdminPermissionsAsync(int userId, int projectId)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@UserId", userId);
@@ -45,7 +45,7 @@ namespace AdminStore.Repositories
 
             if (errorCode.HasValue && errorCode.Value == (int)SqlErrorCodes.ProjectWithCurrentIdNotExist)
             {
-                throw new ResourceNotFoundException(ErrorMessages.TheProjectDoesNotExist, ErrorCodes.ResourceNotFound);
+                throw new ResourceNotFoundException(ErrorMessages.ProjectNotExist, ErrorCodes.ResourceNotFound);
             }
             return permissions;
         }

@@ -610,20 +610,19 @@ namespace AdminStore.Controllers
         #region Project privileges
 
         [TestMethod]
-        public async Task GetInstanceProjectPrivilegesAsync_Success()
+        public async Task GetInstanceProjectPrivilegesAsync_AllParamsCorrect_ReturnPermissions()
         {
             //Arrange
-            var projectId = 99;
-            var projectAdminRolesPermission = 64;
-            _instanceRepositoryMock
-                .Setup(r => r.GetInstanceProjectPrivilegesAsync(projectId, UserId))
-                .ReturnsAsync(projectAdminRolesPermission);
+            _privilegeRepositoryMock
+                .Setup(r => r.GetProjectAdminPermissionsAsync(ProjectId, UserId))
+                .ReturnsAsync(It.IsAny<ProjectAdminPrivileges>());
 
             //Act
-            var result = await _controller.GetInstanceProjectPrivilegesAsync(projectId);
+            var result = await _controller.GetProjectAdminPermissions(ProjectId);
 
             //Assert
-            Assert.AreEqual(projectAdminRolesPermission, result);
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(OkNegotiatedContentResult<ProjectAdminPrivileges>));
         }
 
         #endregion

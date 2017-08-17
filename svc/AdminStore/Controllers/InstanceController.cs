@@ -29,7 +29,8 @@ namespace AdminStore.Controllers
         private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
         private readonly IInstanceService _instanceService;
         private readonly PrivilegesManager _privilegesManager;
-
+        private readonly IPrivilegesRepository _privilegesRepository;
+       
         public override string LogSource { get; } = "AdminStore.Instance";
 
         public InstanceController() : this(
@@ -52,6 +53,7 @@ namespace AdminStore.Controllers
             _artifactPermissionsRepository = artifactPermissionsRepository;
             _instanceService = instanceService;
             _privilegesManager = new PrivilegesManager(privilegesRepository);
+            _privilegesRepository = privilegesRepository;
         }
 
         /// <summary>
@@ -342,9 +344,9 @@ namespace AdminStore.Controllers
         [HttpGet, NoCache]
         [Route("projects/{projectId:int:min(1)}/privileges"), SessionRequired]
         [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<IHttpActionResult> GetInstanceProjectPrivilegesAsync(int projectId)
+        public async Task<IHttpActionResult> GetProjectAdminPermissions(int projectId)
         {
-            var permissions = await _instanceRepository.GetInstanceProjectPrivilegesAsync(projectId, Session.UserId);
+            var permissions = await _privilegesRepository.GetProjectAdminPermissionsAsync(projectId, Session.UserId);
             return Ok(permissions);
         }
 

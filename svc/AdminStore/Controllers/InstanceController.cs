@@ -346,7 +346,7 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetProjectAdminPermissions(int projectId)
         {
-            var permissions = await _privilegesRepository.GetProjectAdminPermissionsAsync(projectId, Session.UserId);
+            var permissions = await _privilegesRepository.GetProjectAdminPermissionsAsync(Session.UserId , projectId );
             return Ok(permissions);
         }
 

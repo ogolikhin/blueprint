@@ -614,7 +614,7 @@ namespace AdminStore.Controllers
         {
             //Arrange
             _privilegeRepositoryMock
-                .Setup(r => r.GetProjectAdminPermissionsAsync(ProjectId, UserId))
+                .Setup(r => r.GetProjectAdminPermissionsAsync(UserId, ProjectId))
                 .ReturnsAsync(It.IsAny<ProjectAdminPrivileges>());
 
             //Act

@@ -286,14 +286,18 @@ namespace AdminStore.Repositories
             var prm = new DynamicParameters();
             prm.Add("@projectId", projectId);
             prm.Add("@userId", userId);
+            prm.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-            var result = (await _connectionWrapper.QueryAsync<int?>("GetUserPrivilegesOfProject", prm, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
-            if (result == null)
+            var result = (await _connectionWrapper.QueryAsync<int>("GetProjectAdminPermissions", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+
+            var errorCode = prm.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue && errorCode.Value == (int)SqlErrorCodes.ProjectWithCurrentIdNotExist)
             {
-                throw new ResourceNotFoundException(I18NHelper.FormatInvariant(ErrorMessages.PrivilegesForProjectNotExist, projectId), ErrorCodes.ResourceNotFound);
+                throw new ResourceNotFoundException(ErrorMessages.TheProjectDoesNotExist, ErrorCodes.ResourceNotFound);
             }
 
-            return result.Value;
+            return result;
         }
     }
 }

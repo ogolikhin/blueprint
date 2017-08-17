@@ -34,11 +34,15 @@ namespace AdminStore.Helpers
 
         public async Task Demand(int userId, int projectId, InstanceAdminPrivileges instancePrivileges, ProjectAdminPrivileges projectPrivileges)
         {
-            var existPermissions = await _privilegeRepository.HasUserInstanceOrProjectPermissionsForProject(userId, projectId, instancePrivileges, projectPrivileges);
-            if (!existPermissions)
+            var instancePermissions = await _privilegeRepository.GetInstanceAdminPrivilegesAsync(userId);
+            if (!instancePermissions.HasFlag(instancePrivileges))
             {
-                throw new AuthorizationException(ErrorMessages.UserDoesNotHavePermissions, ErrorCodes.Forbidden);
-            }
+                var projectPermissions = await _privilegeRepository.GetProjectAdminPermissions(userId, projectId);
+                if (!projectPermissions.HasFlag(projectPrivileges))
+                {
+                    throw new AuthorizationException(ErrorMessages.UserDoesNotHavePermissions, ErrorCodes.Forbidden);
+                }
+            }          
         }
     }
 }

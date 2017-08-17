@@ -4,6 +4,7 @@ using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 using System.Data;
 using System.Threading.Tasks;
+using ServiceLibrary.Exceptions;
 
 namespace AdminStore.Repositories
 {
@@ -28,15 +29,25 @@ namespace AdminStore.Repositories
             return await _connectionWrapper.ExecuteScalarAsync<InstanceAdminPrivileges>("GetInstancePermissionsForUser", parameters, commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<bool> HasUserInstanceOrProjectPermissionsForProject(int userId, int projectId, InstanceAdminPrivileges instancePrivileges, ProjectAdminPrivileges projectPrivileges)
+        public async Task<ProjectAdminPrivileges> GetProjectAdminPermissions(int userId, int projectId)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@UserId", userId);
             parameters.Add("@ProjectId", projectId);
-            parameters.Add("@InstancePermissions", (int)instancePrivileges);
-            parameters.Add("@ProjectPermissions", (int)projectPrivileges);
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-            return await _connectionWrapper.ExecuteScalarAsync<bool>("HasUserInstanceOrProjectPermissionsForProject", parameters, commandType: CommandType.StoredProcedure);
+            var permissions =
+                await
+                    _connectionWrapper.ExecuteScalarAsync<ProjectAdminPrivileges>("GetProjectAdminPermissions",
+                        parameters, commandType: CommandType.StoredProcedure);
+
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue && errorCode.Value == (int)SqlErrorCodes.ProjectWithCurrentIdNotExist)
+            {
+                throw new ResourceNotFoundException(ErrorMessages.TheProjectDoesNotExist, ErrorCodes.ResourceNotFound);
+            }
+            return permissions;
         }
     }
 }

@@ -1,0 +1,18 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AdminStore.Models.Emails
+{
+    public class EmailOutgoingSettings
+    {
+        public string ServerAddress { get; set; }
+        public int Port { get; set; }
+        public bool EnableSsl { get; set; }
+        public bool AuthenticatedSmtp { get; set; }
+        public string AuthenticatedSmtpUsername { get; set; }
+        public string AuthenticatedSmtpPassword { get; set; }
+    }
+}

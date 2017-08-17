@@ -8,10 +8,6 @@ namespace ServiceLibrary.Helpers.Validators
     {
         protected override PropertySetResult Validate(PropertyLite property, DNumberPropertyType propertyType)
         {
-            if (!property.NumberValue.HasValue)
-            {
-                throw new Exception();
-            }
             decimal value = property.NumberValue.Value;
             if (IsPropertyValueEmpty(property, propertyType))
                 return null;

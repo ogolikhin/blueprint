@@ -9,6 +9,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models;
+using ServiceLibrary.Repositories.ProjectMeta;
 
 namespace AdminStore.Services
 {
@@ -22,7 +23,7 @@ namespace AdminStore.Services
         private Mock<IUserRepository> _userRepositoryMock;
         private Mock<IWorkflowValidationErrorBuilder> _workflowValidationErrorBuilder ;
         private Mock<ITriggerConverter> _triggerConverter;
-
+        private Mock<ISqlProjectMetaRepository> _projectMetaRepository;
         private WorkflowService _service;
         private const int SessionUserId = 1;
         private const int WorkflowId = 1;
@@ -37,11 +38,12 @@ namespace AdminStore.Services
             _userRepositoryMock = new Mock<IUserRepository>();
             _workflowValidationErrorBuilder = new Mock<IWorkflowValidationErrorBuilder>();
             _triggerConverter = new Mock<ITriggerConverter>();
+            _projectMetaRepository = new Mock<ISqlProjectMetaRepository>();
 
             _service = new WorkflowService(_workflowRepositoryMock.Object,
                 _workflowXmlValidatorMock.Object,
                 _userRepositoryMock.Object,
-                _workflowValidationErrorBuilder.Object, null,
+                _workflowValidationErrorBuilder.Object, _projectMetaRepository.Object,
                 _triggerConverter.Object, null);
         }
 
@@ -170,7 +172,7 @@ namespace AdminStore.Services
             //arrange
             var workflowId = 10;
             var workflow = new SqlWorkflow { Name = "Workflow1", Description = "Workflow1Description" };
-            var workflowArtifactTypesAndProjects = new List<SqlWorkflowArtifactTypes>
+            var workflowArtifactTypes = new List<SqlWorkflowArtifactTypes>
             {
                 new SqlWorkflowArtifactTypes
                 {
@@ -189,9 +191,9 @@ namespace AdminStore.Services
             var workflowStates = new SqlState {Name = "new", Default = true };
             var workflowsList = new List<SqlState> { workflowStates };
 
-            var workflowTransitionsAndPropertyChanges = new List<SqlWorkflowTransitionsAndPropertyChanges>
+            var workflowEvents = new List<SqlWorkflowEventData>
             {
-                new SqlWorkflowTransitionsAndPropertyChanges
+                new SqlWorkflowEventData
                 {
                     WorkflowId = 10,
                     Name = "FirsTrigger",
@@ -201,7 +203,7 @@ namespace AdminStore.Services
                     Type = 1,
                     Triggers = "<Triggers><Trigger><Name>Trigger 1</Name><EmailNotificationAction></EmailNotificationAction></Trigger></Triggers>"
                 },
-                new SqlWorkflowTransitionsAndPropertyChanges
+                new SqlWorkflowEventData
                 {
                     WorkflowId = 10,
                     Name = "second Trigger",
@@ -216,9 +218,9 @@ namespace AdminStore.Services
 
             _workflowRepositoryMock.Setup(repo => repo.GetWorkflowStatesAsync(It.IsAny<int>())).ReturnsAsync(workflowsList);
 
-            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowArtifactTypesAsync(It.IsAny<int>())).ReturnsAsync(workflowArtifactTypesAndProjects);
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowArtifactTypesAsync(It.IsAny<int>())).ReturnsAsync(workflowArtifactTypes);
 
-            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowEventsAsync(It.IsAny<int>())).ReturnsAsync(workflowTransitionsAndPropertyChanges);
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowEventsAsync(It.IsAny<int>())).ReturnsAsync(workflowEvents);
 
             //act
             var workflowExport = await _service.GetWorkflowExportAsync(workflowId);

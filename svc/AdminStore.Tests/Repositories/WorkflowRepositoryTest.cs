@@ -119,9 +119,9 @@ namespace AdminStore.Repositories
 
             var repository = new WorkflowRepository(cxn.Object, sqlHelperMock.Object);
             var workflowId = 10;
-            var workflowTransitionsAndPropertyChanges = new List<SqlWorkflowTransitionsAndPropertyChanges>
+            var workflowTransitionsAndPropertyChanges = new List<SqlWorkflowEventData>
             {
-                new SqlWorkflowTransitionsAndPropertyChanges
+                new SqlWorkflowEventData
                 {
                     WorkflowId = 10,
                     Name = "FirsTrigger",
@@ -130,7 +130,7 @@ namespace AdminStore.Repositories
                     Permissions = "<P S=\"0\"><G>1</G></P>",
                     Type = 1
                 },
-                new SqlWorkflowTransitionsAndPropertyChanges
+                new SqlWorkflowEventData
                 {
                     WorkflowId = 10,
                     Name = "second Trigger",
@@ -140,7 +140,7 @@ namespace AdminStore.Repositories
                 }
             };
 
-            cxn.SetupQueryAsync("GetWorkflowTransitionsAndPropertyChangesById", It.IsAny<Dictionary<string, object>>(), workflowTransitionsAndPropertyChanges);
+            cxn.SetupQueryAsync("GetWorkflowStatesById", It.IsAny<Dictionary<string, object>>(), workflowTransitionsAndPropertyChanges);
 
             //act
             var workflowDetails = await repository.GetWorkflowEventsAsync(workflowId);

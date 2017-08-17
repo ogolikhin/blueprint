@@ -9,9 +9,9 @@ namespace AdminStore.Services.Workflow
 {
     public class WorkflowValidationErrorBuilder : IWorkflowValidationErrorBuilder
     {
-        
         private const string TemplateWorkflowImportFailedSingular = "There was an error uploading {0}. The supplied XML is not valid. Please edit your file and upload again.";
         private const string TemplateWorkflowImportFailedPlural = "There were errors uploading {0}. The supplied XML is not valid. Please edit your file and upload again.";
+        private const string ReplacementNotSpecifiedFileName = "the XML";
 
         // Messages for the XML validation.
         private const string TemplateXmlWorkflowNameEmpty = "The required field 'Name' of the Workflow is missing.";
@@ -104,7 +104,8 @@ namespace AdminStore.Services.Workflow
         {
             var errorList = errors.ToList();
             var sb = new StringBuilder();
-            AppendLine(sb, errorList.Count > 1 ? TemplateWorkflowImportFailedPlural : TemplateWorkflowImportFailedSingular, fileName);
+            AppendLine(sb, errorList.Count > 1 ? TemplateWorkflowImportFailedPlural : TemplateWorkflowImportFailedSingular,
+                string.IsNullOrWhiteSpace(fileName) ? ReplacementNotSpecifiedFileName : fileName);
 
             foreach (var error in errorList)
             {
@@ -122,7 +123,8 @@ namespace AdminStore.Services.Workflow
             var errorList = errors.ToList();
             var sb = new StringBuilder();
 
-            AppendLine(sb, errorList.Count > 1 ? TemplateWorkflowImportFailedPlural : TemplateWorkflowImportFailedSingular, fileName);
+            AppendLine(sb, errorList.Count > 1 ? TemplateWorkflowImportFailedPlural : TemplateWorkflowImportFailedSingular,
+                string.IsNullOrWhiteSpace(fileName) ? ReplacementNotSpecifiedFileName : fileName);
 
             foreach (var error in errorList)
             {

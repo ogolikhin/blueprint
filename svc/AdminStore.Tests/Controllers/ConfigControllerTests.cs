@@ -2,6 +2,7 @@
 using AdminStore.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Newtonsoft.Json;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
@@ -70,10 +71,10 @@ namespace AdminStore.Controllers
 
             // Assert
             Assert.IsNotNull(result);
-            var content = (ObjectContent<Dictionary<string, object>>)result.Response.Content;
-            var actualSettings = (Dictionary<string, object>)content.Value;
+            var content = (ObjectContent<Dictionary<string, string>>)result.Response.Content;
+            var actualSettings = (Dictionary<string, string>)content.Value;
             Assert.IsTrue(actualSettings.ContainsKey("Key"), "Cannot find 'Key' setting");
-            Assert.AreEqual("Value", actualSettings["Key"]);     
+            Assert.AreEqual("Value", actualSettings["Key"]);
         }
 
         [TestMethod]
@@ -81,7 +82,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             var settings = new Dictionary<string, string> { };
-            var features = new Dictionary<string, bool> { { "MyFeature", true} };
+            var features = new Dictionary<string, bool> { { "MyFeature", true } };
             var controller = CreateController(appSettings: settings, features: features);
 
             // Act
@@ -89,11 +90,11 @@ namespace AdminStore.Controllers
 
             // Assert
             Assert.IsNotNull(result);
-            var content = (ObjectContent<Dictionary<string, object>>)result.Response.Content;
-            var actualSettings = (Dictionary<string, object>)content.Value;
+            var content = (ObjectContent<Dictionary<string, string>>)result.Response.Content;
+            var actualSettings = (Dictionary<string, string>)content.Value;
             Assert.IsTrue(actualSettings.ContainsKey("Features"), "Cannot find 'Features'");
-            var actualFeatures = (Dictionary<string,bool>)actualSettings["Features"];
-            CollectionAssert.AreEquivalent(features, actualFeatures);
+            var actualFeatures = actualSettings["Features"];
+            Assert.AreEqual(JsonConvert.SerializeObject(features, Formatting.None), actualFeatures);
         }
 
         #endregion
@@ -106,7 +107,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             const int userId = 1;
-            var user = new LoginUser {InstanceAdminRoleId = null};
+            var user = new LoginUser { InstanceAdminRoleId = null };
             var settings = new UserManagementSettings
             {
                 IsPasswordExpirationEnabled = false,
@@ -123,8 +124,8 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(user);
             var controller = new ConfigController
             (
-                null, 
-                settingsRepositoryMock.Object, 
+                null,
+                settingsRepositoryMock.Object,
                 userRepositoryMock.Object,
                 null,
                 null,
@@ -162,11 +163,11 @@ namespace AdminStore.Controllers
 
             var controller = new ConfigController
             (
-                null, 
-                settingsRepositoryMock.Object, 
-                userRepositoryMock.Object, 
                 null,
-                null, 
+                settingsRepositoryMock.Object,
+                userRepositoryMock.Object,
+                null,
+                null,
                 null
             )
             {
@@ -232,7 +233,7 @@ namespace AdminStore.Controllers
 
         #endregion GetConfig
 
-        private static ConfigController CreateController(Dictionary<string, Dictionary<string, string>> globalSettings = null, Dictionary<string, string> appSettings=null, Dictionary<string,bool> features = null)
+        private static ConfigController CreateController(Dictionary<string, Dictionary<string, string>> globalSettings = null, Dictionary<string, string> appSettings = null, Dictionary<string, bool> features = null)
         {
             var appSettingsRepo = new Mock<IApplicationSettingsRepository>();
             var featuresService = new Mock<IFeaturesService>();
@@ -259,7 +260,7 @@ namespace AdminStore.Controllers
             {
                 appSettingsRepo
                     .Setup(it => it.GetSettingsAsync(true))
-                    .ReturnsAsync(appSettings.Select(i => new ApplicationSetting {Key = i.Key, Value = i.Value, Restricted = true}));
+                    .ReturnsAsync(appSettings.Select(i => new ApplicationSetting { Key = i.Key, Value = i.Value, Restricted = true }));
             }
 
             featuresService

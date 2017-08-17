@@ -118,6 +118,7 @@
     <Compile Include="Helpers\UserConverter.cs" />
     <Compile Include="Helpers\PrivilegesManager.cs" />
     <Compile Include="Helpers\UserValidator.cs" />
+    <Compile Include="Helpers\Workflow\WorkflowHelper.cs" />
     <Compile Include="Models\AdminRole.cs" />
     <Compile Include="Models\AssignResult.cs" />
     <Compile Include="Models\AssignScope.cs" />
@@ -126,6 +127,7 @@
     <Compile Include="Models\DTO\User.cs" />
     <Compile Include="Models\Enums\LicenseType.cs" />
     <Compile Include="Models\Enums\OperationMode.cs" />
+    <Compile Include="Models\Enums\ProjectStatus.cs" />
     <Compile Include="Models\Group.cs" />
     <Compile Include="Models\GroupDto.cs" />
     <Compile Include="Models\DeleteResult.cs" />

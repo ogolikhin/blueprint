@@ -141,6 +141,24 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
+        public async Task GetInstanceProjectAsyncFromAdminPortal_Success()
+        {
+            //Arrange
+            var projectId = 99;
+            var project = new InstanceItem { Id = projectId };
+            var fromAdminPortal = true;
+            _instanceRepositoryMock
+                .Setup(r => r.GetInstanceProjectAsync(projectId, UserId, fromAdminPortal))
+                .ReturnsAsync(project);
+
+            //Act
+            var result = await _controller.GetInstanceProjectAsync(projectId, fromAdminPortal);
+
+            //Assert
+            Assert.AreSame(project, result);
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(HttpResponseException))]
         public async Task GetProjectNavigationPathAsync_InvalidPermission()
         {

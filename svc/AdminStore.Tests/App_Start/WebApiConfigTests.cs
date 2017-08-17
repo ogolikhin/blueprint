@@ -83,7 +83,7 @@ namespace AdminStore
             config.AssertAction<InstanceController>("UpdateProject", HttpMethod.Put, "instance/projects/1");
             config.AssertAction<WorkflowController>("UpdateWorkflowViaImport", HttpMethod.Put, "workflow/update/1");
             config.AssertAction<InstanceController>("DeleteProject", HttpMethod.Delete, "instance/projects/1");
-            config.AssertAction<InstanceController>("GetInstanceProjectPrivilegesAsync", HttpMethod.Get, "instance/projects/1/privileges");
+            config.AssertAction<InstanceController>("GetProjectAdminPermissions", HttpMethod.Get, "instance/projects/1/privileges");
         }
 
         [TestMethod]

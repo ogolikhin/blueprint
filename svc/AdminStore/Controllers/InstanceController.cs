@@ -29,7 +29,8 @@ namespace AdminStore.Controllers
         private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
         private readonly IInstanceService _instanceService;
         private readonly PrivilegesManager _privilegesManager;
-
+        private readonly IPrivilegesRepository _privilegesRepository;
+       
         public override string LogSource { get; } = "AdminStore.Instance";
 
         public InstanceController() : this(
@@ -52,6 +53,7 @@ namespace AdminStore.Controllers
             _artifactPermissionsRepository = artifactPermissionsRepository;
             _instanceService = instanceService;
             _privilegesManager = new PrivilegesManager(privilegesRepository);
+            _privilegesRepository = privilegesRepository;
         }
 
         /// <summary>
@@ -363,14 +365,15 @@ namespace AdminStore.Controllers
         /// </remarks>
         /// <response code="200">OK. The user's project privileges for the project is returned</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
-        /// <response code="404">Not found. User privileges for project (Id:{0}) is not found.</response>
+        /// <response code="404">Not found. The project with the current id does not exist.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("projects/{projectId:int:min(1)}/privileges"), SessionRequired]
-        [ResponseType(typeof(int))]
-        public async Task<int> GetInstanceProjectPrivilegesAsync(int projectId)
+        [ResponseType(typeof(HttpResponseMessage))]
+        public async Task<IHttpActionResult> GetProjectAdminPermissions(int projectId)
         {
-            return await _instanceRepository.GetInstanceProjectPrivilegesAsync(projectId, Session.UserId);
+            var permissions = await _privilegesRepository.GetProjectAdminPermissionsAsync(Session.UserId , projectId );
+            return Ok(permissions);
         }
 
         #endregion

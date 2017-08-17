@@ -1,4 +1,5 @@
-﻿using ActionHandlerService.Helpers;
+﻿using System;
+using ActionHandlerService.Helpers;
 using ActionHandlerService.Models.Enums;
 using BluePrintSys.Messaging.Models.Actions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -73,6 +74,14 @@ namespace ActionHandlerServiceTests
             var configValue = _configHelper.NServiceBusConnectionString;
             const string defaultValue = ConfigHelper.NServiceBusConnectionStringDefault;
             Assert.AreEqual(defaultValue, configValue);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void ConfigHelper_ThrowsException_WhenGettingMessageBrokerForEmptyConnectionString()
+        {
+            var configValue = _configHelper.MessageBroker;
+            Assert.IsTrue(configValue != MessageBroker.SQL);
         }
 
         [TestMethod]

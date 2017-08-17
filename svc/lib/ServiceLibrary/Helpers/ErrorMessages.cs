@@ -97,6 +97,10 @@
         public static readonly string GeneralErrorOfUpdatingProject = "An error has occurred when the operation was being performed at SQL level.";
         public static readonly string ProjectNotExist = "The project with the current id doesn't exist or removed from the system.";
         public static readonly string ProjectWithSuchNameExistsInParentFolder = "A project with the same name already exists in the parent folder. Please use a different name.";
+        public static readonly string ProjectWasDeletedByAnotherUser = "Project with ID:{0}({1}) was deleted by another user!";
+        public static readonly string ForbidToPurgeSystemInstanceProjectForInternalUseOnly = "Could not purge project because it is a system instance project for internal use only and without it database is corrupted. Purge project aborted for projectId {0}.";
+        public static readonly string ArtifactWasMovedToAnotherProject = "Could not purge project because an artifact was moved to another project and we cannot reliably purge it without corrupting the other project.  PurgeProject aborted for projectId  {0}.";
+        public static readonly string UnhandledStatusOfProject = "Unhandled case for ProjectStatus: {0}";
         public static readonly string PrivilegesForProjectNotExist = "User privileges for project (Id:{0}) is not found.";
     }
 }

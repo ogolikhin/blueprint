@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using ActionHandlerService.Helpers;
 using ActionHandlerService.MessageHandlers.ArtifactPublished;
@@ -9,9 +10,11 @@ using ActionHandlerService.MessageHandlers.GenerateUserStories;
 using ActionHandlerService.MessageHandlers.Notifications;
 using ActionHandlerService.MessageHandlers.PropertyChange;
 using ActionHandlerService.MessageHandlers.StateTransition;
+using ActionHandlerService.Models.Enums;
 using BluePrintSys.Messaging.CrossCutting.Logging;
 using BluePrintSys.Messaging.Models.Actions;
 using NServiceBus;
+using NServiceBus.Transport.SQLServer;
 
 namespace ActionHandlerService
 {
@@ -63,18 +66,30 @@ namespace ActionHandlerService
         private async Task CreateEndPoint(string name, string connectionString)
         {
             var endpointConfiguration = new EndpointConfiguration(name);
+            var assembliesToExclude = new HashSet<string> {"Common.dll", "NServiceBus.Persistence.Sql.dll", "BluePrintSys.Messaging.CrossCutting.dll", "Dapper.StrongName.dll"};
 
-            var transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
-            transport.ConnectionString(connectionString);
-            // for RabbitMQ transport only
-            var delayedDelivery = transport.DelayedDelivery();
-            delayedDelivery.DisableTimeoutManager();
+            var messageBroker = ConfigHelper.MessageBroker;
+            if (messageBroker == MessageBroker.RabbitMQ)
+            {
+                Log.Info("Configuring RabbitMQ Transport");
+                var transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
+                transport.ConnectionString(connectionString);
+                // for RabbitMQ transport only
+                var delayedDelivery = transport.DelayedDelivery();
+                delayedDelivery.DisableTimeoutManager();
+                assembliesToExclude.Add("nservicebus.transport.sqlserver.dll");
+            }
+            else if (messageBroker == MessageBroker.SQL)
+            {
+                Log.Info("Configuring SQL Server Transport");
+                var transport = endpointConfiguration.UseTransport<SqlServerTransport>();
+                transport.ConnectionString(connectionString);
+                transport.DefaultSchema("queue");
+                assembliesToExclude.Add("nservicebus.transports.rabbitmq.dll");
+            }
 
             var assemblyScanner = endpointConfiguration.AssemblyScanner();
-            assemblyScanner.ExcludeAssemblies("Common.dll", 
-                "NServiceBus.Persistence.Sql.dll",
-                "BluePrintSys.Messaging.CrossCutting.dll", 
-                "Dapper.StrongName.dll");
+            assemblyScanner.ExcludeAssemblies(assembliesToExclude.ToArray());
             ExcludeMessageHandlers(assemblyScanner);
 
             endpointConfiguration.UsePersistence<InMemoryPersistence>();

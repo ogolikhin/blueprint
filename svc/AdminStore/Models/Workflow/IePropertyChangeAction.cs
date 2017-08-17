@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Xml.Serialization;
+using AdminStore.Helpers.Workflow;
 using ServiceLibrary.Models.Workflow;
 
 namespace AdminStore.Models.Workflow
@@ -43,6 +44,38 @@ namespace AdminStore.Models.Workflow
         public bool ShouldSerializeIncludeCurrentUser() { return IncludeCurrentUser.HasValue; }
 
         #endregion 
+
+        #region Generated and modified Equals and GetHashCode methods
+
+        protected bool Equals(IePropertyChangeAction other)
+        {
+            return base.Equals(other) && string.Equals(PropertyName, other.PropertyName) && PropertyId.GetValueOrDefault() == other.PropertyId.GetValueOrDefault() && string.Equals(PropertyValue, other.PropertyValue) && WorkflowHelper.CollectionEquals(ValidValues, other.ValidValues) && WorkflowHelper.CollectionEquals(UsersGroups, other.UsersGroups) && IncludeCurrentUser.GetValueOrDefault() == other.IncludeCurrentUser.GetValueOrDefault();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((IePropertyChangeAction) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = base.GetHashCode();
+                hashCode = (hashCode*397) ^ (PropertyName != null ? PropertyName.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ PropertyId.GetHashCode();
+                hashCode = (hashCode*397) ^ (PropertyValue != null ? PropertyValue.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (ValidValues != null ? ValidValues.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (UsersGroups != null ? UsersGroups.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ IncludeCurrentUser.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        #endregion
     }
 
 }

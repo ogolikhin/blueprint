@@ -26,7 +26,6 @@ namespace AdminStore.Repositories
         Task UpdateFolderAsync(int folderId, FolderDto folderDto);
 
         Task UpdateProjectAsync(int projectId, ProjectDto projectDto);
-
-        Task<int> GetInstanceProjectPrivilegesAsync(int projectId, int userId);
+        Task DeleteProject(int userId, int projectId);
     }
 }

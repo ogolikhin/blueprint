@@ -9,9 +9,9 @@ namespace AdminStore.Services.Workflow
 {
     public class WorkflowValidationErrorBuilder : IWorkflowValidationErrorBuilder
     {
-        
         private const string TemplateWorkflowImportFailedSingular = "There was an error uploading {0}. The supplied XML is not valid. Please edit your file and upload again.";
         private const string TemplateWorkflowImportFailedPlural = "There were errors uploading {0}. The supplied XML is not valid. Please edit your file and upload again.";
+        private const string ReplacementNotSpecifiedFileName = "the XML";
 
         // Messages for the XML validation.
         private const string TemplateXmlWorkflowNameEmpty = "The required field 'Name' of the Workflow is missing.";
@@ -41,7 +41,7 @@ namespace AdminStore.Services.Workflow
         private const string TemplateXmlTriggerCountOnEventExceedsLimit10 = "Event (Transition, Property Change, New Artifact) '{0}' exceeded the limit of permitted Triggers per Event of 10.";
         private const string TemplateXmlPropertyChangEventPropertyNotSpecified = "Property of Property Change Event '{0}' is not specified.";
         private const string TemplateXmlProjectNoSpecified = "One or more Projects are not specified. A Project must be specified with Id or Path.";
-        private const string TemplateXmlProjectInvalidId = "The Project Id '{0}' is invalid. The Project Id must be greater than zero.";
+        private const string TemplateXmlInvalidId = "One or more Ids are invalid. The Id must be greater than zero.";
         private const string TemplateXmlProjectDuplicateId = "One or more Projects have a duplicate Id. Projects in a Workflow must be unique.";
         private const string TemplateXmlProjectInvalidPath = "One or more Projects have a duplicate Project Path. Projects in a Workflow must be unique.";
         // Updated - just removed an unnecessary word
@@ -64,9 +64,14 @@ namespace AdminStore.Services.Workflow
         private const string TemplateXmlStateStateConditionNotFound = "State '{0}' of a State Condition is not found. The State of a State Condition must be in the Workflow.";
         private const string TemplateXmlPropertyChangeEventActionNotSupported = "One or more Property Change Events have unsupported Actions. A Property Change Event supports only Email Notification Action";
         // Updated - just fixed a misspelling
-        private const string TemplateXmlDuplicateArtifactTypesInProject = "One or more Projects contains duplicate Artifact Types. Artifact Types in a Project must be unique.";
+        private const string TemplateXmlDuplicateArtifactTypesInProject = "One or more Projects contain duplicate Artifact Types. Artifact Types in a Project must be unique.";
         // Workflow Update specific messages
         private const string TemplateXmlWorkflowIdDoesNotMatchIdInUrl = "The Workflow Id in XML does not match the Workflow to update, Id in URL. You probably supplied a wrong Workflow XML file.";
+        // New
+        private const string TemplateXmlDuplicateStateIds = "One or more States have a duplicate Id. A State Id must be unique.";
+        private const string TemplateXmlDuplicateWorkflowEventIds = "One or more Workflow Events have a duplicate Id. A Workflow Event Id must be unique.";
+        private const string TemplateXmlDuplicateProjectIds = "One or more Projects have a duplicate Id. A Project Id must be unique.";
+        private const string TemplateXmlDuplicateArtifactTypeIdsInProject = "One or more ArtifactTypes in a Project have a duplicate Id. A Artifact Type in a Project Id must be unique.";
 
         // Messages for the Data validation.
         private const string TemplateDataWorkflowNameNotUnique = "A Workflow with Name '{0}' already exists. Workflows in Blueprint must have unique names.";
@@ -99,7 +104,8 @@ namespace AdminStore.Services.Workflow
         {
             var errorList = errors.ToList();
             var sb = new StringBuilder();
-            AppendLine(sb, errorList.Count > 1 ? TemplateWorkflowImportFailedPlural : TemplateWorkflowImportFailedSingular, fileName);
+            AppendLine(sb, errorList.Count > 1 ? TemplateWorkflowImportFailedPlural : TemplateWorkflowImportFailedSingular,
+                string.IsNullOrWhiteSpace(fileName) ? ReplacementNotSpecifiedFileName : fileName);
 
             foreach (var error in errorList)
             {
@@ -117,7 +123,8 @@ namespace AdminStore.Services.Workflow
             var errorList = errors.ToList();
             var sb = new StringBuilder();
 
-            AppendLine(sb, errorList.Count > 1 ? TemplateWorkflowImportFailedPlural : TemplateWorkflowImportFailedSingular, fileName);
+            AppendLine(sb, errorList.Count > 1 ? TemplateWorkflowImportFailedPlural : TemplateWorkflowImportFailedSingular,
+                string.IsNullOrWhiteSpace(fileName) ? ReplacementNotSpecifiedFileName : fileName);
 
             foreach (var error in errorList)
             {
@@ -259,8 +266,8 @@ namespace AdminStore.Services.Workflow
                     template = TemplateXmlProjectNoSpecified;
                     errParams = new object[] {};
                     break;
-                case WorkflowXmlValidationErrorCodes.ProjectInvalidId:
-                    template = TemplateXmlProjectInvalidId;
+                case WorkflowXmlValidationErrorCodes.InvalidId:
+                    template = TemplateXmlInvalidId;
                     errParams = new object[] {};
                     break;
                 case WorkflowXmlValidationErrorCodes.ProjectDuplicateId:
@@ -349,6 +356,22 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowXmlValidationErrorCodes.WorkflowIdDoesNotMatchIdInUrl:
                     template = TemplateXmlWorkflowIdDoesNotMatchIdInUrl;
+                    errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.DuplicateStateIds:
+                    template = TemplateXmlDuplicateStateIds;
+                    errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.DuplicateWorkflowEventIds:
+                    template = TemplateXmlDuplicateWorkflowEventIds;
+                    errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.DuplicateProjectIds:
+                    template = TemplateXmlDuplicateProjectIds;
+                    errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.DuplicateArtifactTypeIdsInProject:
+                    template = TemplateXmlDuplicateArtifactTypeIdsInProject;
                     errParams = new object[] { };
                     break;
                 default:

@@ -28,5 +28,30 @@ namespace AdminStore.Models.Workflow
 
         [XmlElement(IsNullable = false)]
         public string Value { get; set; }
+
+        #region Generated and modified Equals and GetHashCode methods
+
+        protected bool Equals(IeValidValue other)
+        {
+            return Id.GetValueOrDefault() == other.Id.GetValueOrDefault() && string.Equals(Value, other.Value);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((IeValidValue) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (Id.GetHashCode()*397) ^ (Value != null ? Value.GetHashCode() : 0);
+            }
+        }
+
+        #endregion
     }
 }

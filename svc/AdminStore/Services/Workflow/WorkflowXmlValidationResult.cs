@@ -64,7 +64,7 @@ namespace AdminStore.Services.Workflow
         StateStateConditionNotFound,
         PropertyChangeEventActionNotSupported,
         ProjectNoSpecified,
-        ProjectInvalidId,
+        InvalidId,
         ProjectDuplicateId,
         ProjectDuplicatePath,
         ProjectDoesNotHaveAnyArtfactTypes,
@@ -72,6 +72,10 @@ namespace AdminStore.Services.Workflow
         DuplicateArtifactTypesInProject,
 
         // Update specific errors
-        WorkflowIdDoesNotMatchIdInUrl
+        WorkflowIdDoesNotMatchIdInUrl,
+        DuplicateStateIds,
+        DuplicateWorkflowEventIds,
+        DuplicateProjectIds,
+        DuplicateArtifactTypeIdsInProject
     }
 }

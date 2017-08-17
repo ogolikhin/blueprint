@@ -141,6 +141,24 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
+        public async Task GetInstanceProjectAsyncFromAdminPortal_Success()
+        {
+            //Arrange
+            var projectId = 99;
+            var project = new InstanceItem { Id = projectId };
+            var fromAdminPortal = true;
+            _instanceRepositoryMock
+                .Setup(r => r.GetInstanceProjectAsync(projectId, UserId, fromAdminPortal))
+                .ReturnsAsync(project);
+
+            //Act
+            var result = await _controller.GetInstanceProjectAsync(projectId, fromAdminPortal);
+
+            //Assert
+            Assert.AreSame(project, result);
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(HttpResponseException))]
         public async Task GetProjectNavigationPathAsync_InvalidPermission()
         {
@@ -610,20 +628,19 @@ namespace AdminStore.Controllers
         #region Project privileges
 
         [TestMethod]
-        public async Task GetInstanceProjectPrivilegesAsync_Success()
+        public async Task GetInstanceProjectPrivilegesAsync_AllParamsCorrect_ReturnPermissions()
         {
             //Arrange
-            var projectId = 99;
-            var projectAdminRolesPermission = 64;
-            _instanceRepositoryMock
-                .Setup(r => r.GetInstanceProjectPrivilegesAsync(projectId, UserId))
-                .ReturnsAsync(projectAdminRolesPermission);
+            _privilegeRepositoryMock
+                .Setup(r => r.GetProjectAdminPermissionsAsync(UserId, ProjectId))
+                .ReturnsAsync(It.IsAny<ProjectAdminPrivileges>());
 
             //Act
-            var result = await _controller.GetInstanceProjectPrivilegesAsync(projectId);
+            var result = await _controller.GetProjectAdminPermissions(ProjectId);
 
             //Assert
-            Assert.AreEqual(projectAdminRolesPermission, result);
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(OkNegotiatedContentResult<ProjectAdminPrivileges>));
         }
 
         #endregion

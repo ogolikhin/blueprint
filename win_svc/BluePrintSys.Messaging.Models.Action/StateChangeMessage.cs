@@ -1,8 +1,5 @@
-﻿using NServiceBus;
-
-namespace BluePrintSys.Messaging.Models.Actions
+﻿namespace BluePrintSys.Messaging.Models.Actions
 {
-    [Express]
     public class StateChangeMessage : ActionMessage
     {
         public override MessageActionType ActionType { get; } = MessageActionType.StateChange;

@@ -15,13 +15,15 @@ namespace ArtifactStore.Models.Workflow
         private async Task SavePropertyChangeActions()
         {
             var propertyChangeActions = this.Select(t => t.Action).OfType<PropertyChangeAction>();
-            
-            await ExecutionParameters.SaveRepository.SavePropertyChangeActions(
-                ExecutionParameters.UserId,
-                propertyChangeActions,
-                ExecutionParameters.CustomPropertyTypes,
-                ExecutionParameters.ArtifactInfo,
-                ExecutionParameters.Transaction);
+            if (propertyChangeActions.Any())
+            {
+                await ExecutionParameters.SaveRepository.SavePropertyChangeActions(
+                    ExecutionParameters.UserId,
+                    propertyChangeActions,
+                    ExecutionParameters.CustomPropertyTypes,
+                    ExecutionParameters.ArtifactInfo,
+                    ExecutionParameters.Transaction);
+            }
         }
     }
 

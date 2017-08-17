@@ -143,7 +143,13 @@ namespace ArtifactStore.Executors
                 propertyTypes = customItemTypeToPropertiesMap[artifactInfo.ItemTypeId];
             }
 
-            return new ExecutionParameters(artifactInfo, reuseTemplate, propertyTypes, _saveArtifactRepository, transaction);
+            return new ExecutionParameters(
+                _userId,
+                artifactInfo, 
+                reuseTemplate, 
+                propertyTypes, 
+                _saveArtifactRepository, 
+                transaction);
         }
 
         private async Task<int> CreateRevision(IDbTransaction transaction)

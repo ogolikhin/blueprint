@@ -18,14 +18,17 @@ namespace ArtifactStore.Models.Workflow
 
         public ISaveArtifactRepository SaveRepository { get; private set; }
         public VersionControlArtifactInfo ArtifactInfo { get; private set; }
+        public int UserId { get; private set; }
 
         public ExecutionParameters(
+            int userId,
             VersionControlArtifactInfo artifactInfo,
             ItemTypeReuseTemplate reuseTemplate,
             List<DPropertyType> customPropertyTypes,
             ISaveArtifactRepository saveArtifactRepository,
             IDbTransaction transaction)
         {
+            UserId = userId;
             ArtifactInfo = artifactInfo;
             ReuseItemTemplate = reuseTemplate;
             CustomPropertyTypes = customPropertyTypes;

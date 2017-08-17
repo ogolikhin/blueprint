@@ -17,6 +17,7 @@ namespace ArtifactStore.Models.Workflow
             var propertyChangeActions = this.Select(t => t.Action).OfType<PropertyChangeAction>();
             
             await ExecutionParameters.SaveRepository.SavePropertyChangeActions(
+                ExecutionParameters.UserId,
                 propertyChangeActions,
                 ExecutionParameters.CustomPropertyTypes,
                 ExecutionParameters.ArtifactInfo,

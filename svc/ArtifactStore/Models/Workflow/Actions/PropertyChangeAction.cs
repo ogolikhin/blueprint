@@ -107,7 +107,12 @@ namespace ArtifactStore.Models.Workflow.Actions
                         NumberValue = value
                     };
                     break;
+               
                 default:
+                    PropertyLiteValue = new PropertyLite()
+                    {
+                        PropertyTypeId = InstancePropertyTypeId
+                    };
                     break;
             }
         }

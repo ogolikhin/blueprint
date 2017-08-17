@@ -5,7 +5,6 @@ using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
-using ServiceLibrary.Helpers.Cache;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
 using ServiceLibrary.Services;
@@ -101,12 +100,12 @@ namespace AdminStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route(""), NoSessionRequired]
-        [ResponseType(typeof(Dictionary<string, object>))]
+        [ResponseType(typeof(Dictionary<string, string>))]
         public async Task<IHttpActionResult> GetApplicationSettings()
         {
-            var settings = (await _applicationSettingsRepository.GetSettingsAsync(true)).ToDictionary(it => it.Key, it => (object)it.Value);
+            var settings = (await _applicationSettingsRepository.GetSettingsAsync(true)).ToDictionary(it => it.Key, it => it.Value);
             var features = await _featuresService.GetFeaturesAsync();
-            settings["Features"] = features;
+            settings["Features"] = JsonConvert.SerializeObject(features, Formatting.None);
 
             var response = Request.CreateResponse(HttpStatusCode.OK, settings, Configuration.Formatters.JsonFormatter);
             return ResponseMessage(response);

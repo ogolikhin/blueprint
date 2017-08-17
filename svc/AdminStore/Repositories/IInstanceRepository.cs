@@ -27,6 +27,8 @@ namespace AdminStore.Repositories
 
         Task UpdateProjectAsync(int projectId, ProjectDto projectDto);
 
+        Task DeleteProject(int userId, int projectId);
+
         Task<int> GetInstanceProjectPrivilegesAsync(int projectId, int userId);
     }
 }

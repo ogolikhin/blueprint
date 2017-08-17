@@ -187,8 +187,23 @@ namespace AdminStore.Services.Workflow
                 return importResult;
             }
 
-            // TODO: temp
-            await Task.Delay(1);
+            xmlValidationResult = _workflowXmlValidator.ValidateUpdateXml(workflow);
+            if (xmlValidationResult.HasErrors)
+            {
+                var textErrors = _workflowValidationErrorBuilder.BuildTextXmlErrors(xmlValidationResult.Errors, fileName);
+                var guid = await UploadErrorsToFileStore(textErrors);
+
+                importResult.ErrorsGuid = guid;
+                importResult.ResultCode = ImportWorkflowResultCodes.InvalidModel;
+
+#if DEBUG
+                importResult.ErrorMessage = textErrors;
+#endif
+
+                return importResult;
+            }
+
+            // TODO:
 
             importResult.ResultCode = ImportWorkflowResultCodes.Ok;
             return importResult;

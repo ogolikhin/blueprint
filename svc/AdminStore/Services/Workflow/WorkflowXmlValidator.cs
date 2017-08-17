@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
+using AdminStore.Helpers.Workflow;
 using AdminStore.Models.Workflow;
 using ArtifactStore.Helpers;
 using ServiceLibrary.Helpers;
@@ -11,6 +13,10 @@ namespace AdminStore.Services.Workflow
 {
     public class WorkflowXmlValidator : IWorkflowXmlValidator
     {
+        private bool _isConventionNamesInUse;
+        private const string ConventionNamePattern = "{0}[Id = {1}]";
+        private const string ConventionNameRegex = @"\[Id = [0-9]+]$";
+
         #region Interface Implementation
 
         public WorkflowXmlValidationResult ValidateXml(IeWorkflow workflow)
@@ -580,6 +586,16 @@ namespace AdminStore.Services.Workflow
             return result;
         }
 
+        public WorkflowXmlValidationResult ValidateUpdateXml(IeWorkflow workflow)
+        {
+            _isConventionNamesInUse = true;
+            var clone = WorkflowHelper.CloneViaXmlSerialization(workflow);
+            UpdateToConventionNames(clone);
+            var result = ValidateXml(clone);
+            _isConventionNamesInUse = false;
+            return result;
+        }
+
         #endregion
 
         #region Private Methods
@@ -589,9 +605,21 @@ namespace AdminStore.Services.Workflow
             return !string.IsNullOrWhiteSpace(property);
         }
 
-        private static bool ValidatePropertyLimit(string property, int limit)
+        private bool ValidatePropertyLimit(string property, int limit)
         {
-            return !(property?.Length > limit);
+            if (property == null)
+            {
+                return true;
+            }
+
+            var conventionExtra = 0;
+            if (_isConventionNamesInUse)
+            {
+                var match = Regex.Match(property, ConventionNameRegex);
+                conventionExtra = match.Value.Length + (property.Length > match.Value.Length ? 1 : 0); // take into account the space
+            }
+
+            return !(property.Length > limit + conventionExtra);
         }
 
         private static bool ValidateWorkflowContainsStates(IEnumerable<IeState> states)
@@ -852,8 +880,188 @@ namespace AdminStore.Services.Workflow
                     }
                 }
             }
-
         }
+
+        #region Update To Convention Names
+
+        private static void UpdateToConventionNames(IeWorkflow workflow)
+        {
+            workflow?.States?.ForEach(UpdateStateToConventionNames);
+            workflow?.TransitionEvents?.ForEach(UpdateTransitionEventToConventionNames);
+            workflow?.PropertyChangeEvents?.ForEach(UpdatePropertyChangeEventToConventionNames);
+            workflow?.NewArtifactEvents?.ForEach(UpdateNewArtifactEventToConventionNames);
+            workflow?.Projects?.ForEach(UpdateProjectToConventionNames);
+        }
+
+        private static void UpdateStateToConventionNames(IeState state)
+        {
+            if (state?.Id.HasValue ?? false)
+            {
+                state.Name = GetConventionName(state.Name, state.Id.Value);
+            }
+        }
+
+        private static void UpdateTransitionEventToConventionNames(IeTransitionEvent tEvent)
+        {
+            if (tEvent?.Id.HasValue ?? false)
+            {
+                tEvent.Name = GetConventionName(tEvent.Name, tEvent.Id.Value);
+            }
+
+            if (tEvent?.FromStateId.HasValue ?? false)
+            {
+                tEvent.FromState = GetConventionName(tEvent.FromState, tEvent.FromStateId.Value);
+            }
+
+            if (tEvent?.ToStateId.HasValue ?? false)
+            {
+                tEvent.ToState = GetConventionName(tEvent.ToState, tEvent.ToStateId.Value);
+            }
+
+            tEvent?.PermissionGroups?.ForEach(UpdatePermissionGroupToConventionNames);
+            tEvent?.Triggers?.ForEach(UpdateTriggerToConventionNames);
+        }
+
+        private static void UpdatePermissionGroupToConventionNames(IeGroup group)
+        {
+            if (group?.Id.HasValue ?? false)
+            {
+                group.Name = GetConventionName(group.Name, group.Id.Value);
+            }
+        }
+
+        private static void UpdatePropertyChangeEventToConventionNames(IePropertyChangeEvent pcEvent)
+        {
+            if (pcEvent?.Id.HasValue ?? false)
+            {
+                pcEvent.Name = GetConventionName(pcEvent.Name, pcEvent.Id.Value);
+            }
+
+            if (pcEvent?.PropertyId.HasValue ?? false)
+            {
+                pcEvent.PropertyName = GetConventionName(pcEvent.PropertyName, pcEvent.PropertyId.Value);
+            }
+
+            pcEvent?.Triggers?.ForEach(UpdateTriggerToConventionNames);
+        }
+
+        private static void UpdateNewArtifactEventToConventionNames(IeNewArtifactEvent naEvent)
+        {
+            if (naEvent?.Id.HasValue ?? false)
+            {
+                naEvent.Name = GetConventionName(naEvent.Name, naEvent.Id.Value);
+            }
+
+            naEvent?.Triggers?.ForEach(UpdateTriggerToConventionNames);
+        }
+
+        private static void UpdateProjectToConventionNames(IeProject project)
+        {
+            project?.ArtifactTypes?.ForEach(UpdateArtifactTypeToConventionNames);
+        }
+
+        private static void UpdateArtifactTypeToConventionNames(IeArtifactType artifactType)
+        {
+            if (artifactType?.Id.HasValue ?? false)
+            {
+                artifactType.Name = GetConventionName(artifactType.Name, artifactType.Id.Value);
+            }
+        }
+
+        private static void UpdateTriggerToConventionNames(IeTrigger trigger)
+        {
+            UpdateConditionToConventionNames(trigger?.Condition);
+            UpdateActionToConventionNames(trigger?.Action);
+        }
+
+        private static void UpdateConditionToConventionNames(IeCondition condition)
+        {
+            switch (condition?.ConditionType)
+            {
+                case ConditionTypes.State:
+                    var stateCondition = (IeStateCondition) condition;
+                    if (stateCondition?.StateId.HasValue ?? false)
+                    {
+                        stateCondition.State = GetConventionName(stateCondition.State, stateCondition.StateId.Value);
+                    }
+                    break;
+                case null:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(condition.ConditionType));
+            }
+        }
+
+        private static void UpdateActionToConventionNames(IeBaseAction action)
+        {
+            switch (action?.ActionType)
+            {
+                case ActionTypes.EmailNotification:
+                    UpdateEmailNotificationActionToConventionNames((IeEmailNotificationAction) action);
+                    break;
+                case ActionTypes.PropertyChange:
+                    UpdatePropertyChangeActionToConventionNames((IePropertyChangeAction) action);
+                    break;
+                case ActionTypes.Generate:
+                    UpdateGenerateActionToConventionNames((IeGenerateAction) action);
+                    break;
+                case null:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(action.ActionType));
+            }
+        }
+
+        private static void UpdateEmailNotificationActionToConventionNames(IeEmailNotificationAction enAction)
+        {
+            if (enAction?.PropertyId.HasValue ?? false)
+            {
+                enAction.PropertyName = GetConventionName(enAction.PropertyName, enAction.PropertyId.Value);
+            }
+        }
+
+        private static void UpdatePropertyChangeActionToConventionNames(IePropertyChangeAction pcAction)
+        {
+            if (pcAction?.PropertyId.HasValue ?? false)
+            {
+                pcAction.PropertyName = GetConventionName(pcAction.PropertyName, pcAction.PropertyId.Value);
+            }
+
+            pcAction?.ValidValues?.ForEach(UpdateValidValueToConventionNames);
+            pcAction?.UsersGroups?.ForEach(UpdateUserGroupToConventionNames);
+        }
+
+        private static void UpdateValidValueToConventionNames(IeValidValue validValue)
+        {
+            if (validValue?.Id.HasValue ?? false)
+            {
+                validValue.Value = GetConventionName(validValue.Value, validValue.Id.Value);
+            }
+        }
+
+        private static void UpdateUserGroupToConventionNames(IeUserGroup userGroup)
+        {
+            if (userGroup?.Id.HasValue ?? false)
+            {
+                userGroup.Name = GetConventionName(userGroup.Name, userGroup.Id.Value);
+            }
+        }
+
+        private static void UpdateGenerateActionToConventionNames(IeGenerateAction gAction)
+        {
+            if (gAction?.ArtifactTypeId.HasValue ?? false)
+            {
+                gAction.ArtifactType = GetConventionName(gAction.ArtifactType, gAction.ArtifactTypeId.Value);
+            }
+        }
+
+        private static string GetConventionName(string name, int id)
+        {
+            var prefix = name == null ? string.Empty : I18NHelper.FormatInvariant("{0} ", name);
+            return I18NHelper.FormatInvariant(ConventionNamePattern, prefix, id);
+        }
+
+        #endregion
 
         #endregion
     }

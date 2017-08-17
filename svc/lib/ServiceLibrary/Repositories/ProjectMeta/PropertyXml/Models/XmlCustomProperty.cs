@@ -32,5 +32,13 @@ namespace ServiceLibrary.Repositories.ProjectMeta.PropertyXml.Models
         [XmlArray(ElementName = "VVS")]
         [XmlArrayItem(ElementName = "VV")]
         public List<XmlCustomPropertyValidValue> ValidValues => _validValues ?? (_validValues = new List<XmlCustomPropertyValidValue>());
+        public static XmlCustomProperty CreateAsValue(int propertyTypeId, int primitiveType)
+        {
+            return new XmlCustomProperty()
+            {
+                PropertyTypeId = XmlModelConvert.FromInt32(propertyTypeId),
+                PrimitiveType = XmlModelConvert.FromInt32(primitiveType)
+            };
+        }
     }
 }

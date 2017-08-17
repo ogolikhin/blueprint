@@ -21,7 +21,7 @@ namespace ArtifactStore.Models.Review
         public string Approval { get; set; }
 
         [DataMember]
-        public bool Viewed { get; set; }
+        public ViewStateType ViewState { get; set; }
 
         [DataMember]
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]

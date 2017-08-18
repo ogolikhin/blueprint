@@ -683,7 +683,9 @@ namespace AdminStore.Controllers
             };
 
             _privilegeRepositoryMock
-                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId));
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId)).ReturnsAsync(InstanceAdminPrivileges.ManageProjects);
+            _privilegeRepositoryMock
+                .Setup(r => r.GetProjectAdminPermissionsAsync(UserId, projectId)).ReturnsAsync(ProjectAdminPrivileges.ViewGroupsAndRoles);
             _instanceRepositoryMock
                 .Setup(repo => repo.GetProjectRolesAsync(projectId))
                 .ReturnsAsync(projectRoles);
@@ -734,7 +736,9 @@ namespace AdminStore.Controllers
 
             _privilegeRepositoryMock
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
-                .ReturnsAsync(InstanceAdminPrivileges.ViewUsers/*InstanceAdminPrivileges.None*/);
+                .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
+            _privilegeRepositoryMock
+                .Setup(r => r.GetProjectAdminPermissionsAsync(UserId, projectId)).ReturnsAsync(ProjectAdminPrivileges.None);
 
             _instanceRepositoryMock
                 .Setup(repo => repo.GetProjectRolesAsync(projectId))

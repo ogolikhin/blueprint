@@ -394,7 +394,7 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(QueryResult<ProjectRole>))]
         public async Task<IHttpActionResult> GetProjectRolesAsync(int projectId)
         {
-            _privilegesManager.DemandAny(Session.UserId, projectId, InstanceAdminPrivileges.AccessAllProjectsAdmin,
+            await _privilegesManager.DemandAny(Session.UserId, projectId, InstanceAdminPrivileges.AccessAllProjectsAdmin,
                     ProjectAdminPrivileges.ViewGroupsAndRoles);
 
             var result = await _instanceRepository.GetProjectRolesAsync(projectId);

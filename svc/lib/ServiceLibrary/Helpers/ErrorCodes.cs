@@ -95,6 +95,7 @@
         public const int TenantInfoNotFound = 12000;
         public const int UnsupportedActionType = 12001;
         public const int MessageHeaderValueNotFound = 12002;
+        public const int InvalidConnectionString = 12003;
 
         // Unexpected Errors
         public const int UnexpectedError = 13001;

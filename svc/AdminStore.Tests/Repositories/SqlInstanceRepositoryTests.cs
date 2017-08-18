@@ -803,5 +803,83 @@ namespace AdminStore.Repositories
         }
 
         #endregion
+
+
+        #region Roles
+
+        [TestMethod]
+        public async Task GetProjectRolesAsync_NoErrors()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            var projectId = 100;
+            int errorCode = 0;
+
+            ProjectRole[] projectRoles =
+            {
+                new ProjectRole()
+                {
+                    Name = "Collaborator",
+                    RoleId = 11
+                },
+                new ProjectRole()
+                {
+                    Name = "Author",
+                    RoleId = 12
+                },
+                new ProjectRole()
+                {
+                    Name = "Viewer",
+                    RoleId = 13
+                },
+                new ProjectRole()
+                {
+                    Name = "Project Administrator",
+                    RoleId = 14
+                },
+                new ProjectRole()
+                {
+                    Name = "Blueprint Analytics",
+                    RoleId = 15
+                }
+            };
+
+            cxn.SetupQueryAsync("GetProjectRoles",
+                                        new Dictionary<string, object> { { "projectId", projectId } },
+                                        projectRoles,
+                                        new Dictionary<string, object>() { { "ErrorCode", errorCode } });
+
+            // Act
+            await repository.GetProjectRolesAsync(projectId);
+
+            // Assert
+            cxn.Verify();
+        }
+
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task GetProjectRolesAsync_ReturnResourceNotFoundError()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            var projectId = 1;
+            int errorCode = 50020; // there are no roles for this projectId
+
+            ProjectRole[] projectRoles = { };
+
+            cxn.SetupQueryAsync("GetProjectRoles",
+                                        new Dictionary<string, object> { { "projectId", projectId } },
+                                        projectRoles,
+                                        new Dictionary<string, object>() { { "ErrorCode", errorCode } });
+
+            // Act
+            await repository.GetProjectRolesAsync(projectId);
+        }
+
+        #endregion
+
     }
 }

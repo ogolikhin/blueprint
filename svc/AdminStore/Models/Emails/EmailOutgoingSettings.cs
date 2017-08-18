@@ -14,5 +14,6 @@ namespace AdminStore.Models.Emails
         public bool AuthenticatedSmtp { get; set; }
         public string AuthenticatedSmtpUsername { get; set; }
         public string AuthenticatedSmtpPassword { get; set; }
+        public bool IsPasswordDirty { get; set; }
     }
 }

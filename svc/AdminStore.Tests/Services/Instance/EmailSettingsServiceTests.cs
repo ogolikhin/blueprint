@@ -12,6 +12,7 @@ using Moq;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Repositories.InstanceSettings;
 using ServiceLibrary.Services;
 
 namespace AdminStore.Services.Instance
@@ -28,6 +29,8 @@ namespace AdminStore.Services.Instance
 
         private const int UserId = 1;
         private const string WebsiteAddress = "https://blueprintsys.net";
+        private const string DecryptedPassword = "DECRYPTED_PASSWORD";
+        private const string EncryptedPassword = "fQR9SncMLDQYBY2g0snDP3b63WixRjlmAMh1Ry54fLY=";
 
         [TestInitialize]
         public void Initialize()
@@ -35,18 +38,25 @@ namespace AdminStore.Services.Instance
             Mock<IPrivilegesRepository> privilegesRepositoryMock = new Mock<IPrivilegesRepository>();
             Mock<IUserRepository> userRepositoryMock = new Mock<IUserRepository>();
             Mock<IWebsiteAddressService> websiteAddressServiceMock = new Mock<IWebsiteAddressService>();
+            Mock<IInstanceSettingsRepository> instanceSettingsRepositoryMock = new Mock<IInstanceSettingsRepository>();
             _emailHelperMock = new Mock<IEmailHelper>();
 
             _emailSettingsService = new EmailSettingsService(new PrivilegesManager(privilegesRepositoryMock.Object),
                                                              userRepositoryMock.Object,
                                                              _emailHelperMock.Object,
-                                                             websiteAddressServiceMock.Object);
+                                                             websiteAddressServiceMock.Object,
+                                                             instanceSettingsRepositoryMock.Object);
 
             privilegesRepositoryMock.Setup(repo => repo.GetInstanceAdminPrivilegesAsync(UserId)).ReturnsAsync(() => _adminPrivilege);
 
             userRepositoryMock.Setup(repo => repo.GetUserAsync(UserId)).ReturnsAsync(() => _user);
 
             websiteAddressServiceMock.Setup(service => service.GetWebsiteAddress()).Returns(WebsiteAddress);
+
+            instanceSettingsRepositoryMock.Setup(repo => repo.GetEmailSettings()).ReturnsAsync(new EmailSettings()
+            {
+                Password = EncryptedPassword
+            });
 
             //Setup Default Values
             _outgoingSettings = new EmailOutgoingSettings()
@@ -56,7 +66,8 @@ namespace AdminStore.Services.Instance
                 AuthenticatedSmtpUsername = "admin",
                 EnableSsl = true,
                 Port = 2,
-                ServerAddress = "smtp.blueprintsys.com"
+                ServerAddress = "smtp.blueprintsys.com",
+                IsPasswordDirty = true
             };
 
             _adminPrivilege = InstanceAdminPrivileges.ManageInstanceSettings;
@@ -239,12 +250,37 @@ namespace AdminStore.Services.Instance
             _emailHelperMock.Verify(helper => helper.Initialize(It.Is<IEmailConfigInstanceSettings>(config => CheckSettings(config))));
         }
 
+
         private bool CheckSettings(IEmailConfigInstanceSettings config)
         {
             return config.Authenticated == _outgoingSettings.AuthenticatedSmtp &&
                    config.EnableSSL == _outgoingSettings.EnableSsl &&
                    config.HostName == _outgoingSettings.ServerAddress &&
                    config.Password == (_outgoingSettings.AuthenticatedSmtp ? _outgoingSettings.AuthenticatedSmtpPassword : String.Empty) &&
+                   config.Port == _outgoingSettings.Port &&
+                   config.SenderEmailAddress == _user.Email &&
+                   config.UserName == (_outgoingSettings.AuthenticatedSmtp ? _outgoingSettings.AuthenticatedSmtpUsername : String.Empty);
+        }
+
+        [TestMethod]
+        public async Task SendTestEmailAsync_Config_Password_Should_Come_From_Database_If_Password_Is_Not_Dirty()
+        {
+            //Assert
+            _outgoingSettings.IsPasswordDirty = false;
+
+            //Act
+            await _emailSettingsService.SendTestEmailAsync(UserId, _outgoingSettings);
+
+            //Assert
+            _emailHelperMock.Verify(helper => helper.Initialize(It.Is<IEmailConfigInstanceSettings>(config => CheckSettingsPasswordNotDirty(config))));
+        }
+
+        private bool CheckSettingsPasswordNotDirty(IEmailConfigInstanceSettings config)
+        {
+            return config.Authenticated == _outgoingSettings.AuthenticatedSmtp &&
+                   config.EnableSSL == _outgoingSettings.EnableSsl &&
+                   config.HostName == _outgoingSettings.ServerAddress &&
+                   config.Password == DecryptedPassword &&
                    config.Port == _outgoingSettings.Port &&
                    config.SenderEmailAddress == _user.Email &&
                    config.UserName == (_outgoingSettings.AuthenticatedSmtp ? _outgoingSettings.AuthenticatedSmtpUsername : String.Empty);

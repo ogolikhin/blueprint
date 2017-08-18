@@ -6,9 +6,12 @@ using System.Threading.Tasks;
 using AdminStore.Helpers;
 using AdminStore.Models.Emails;
 using AdminStore.Repositories;
+using AdminStore.Models;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Helpers.Security;
 using ServiceLibrary.Models;
+using ServiceLibrary.Repositories.InstanceSettings;
 using ServiceLibrary.Services;
 
 namespace AdminStore.Services.Instance
@@ -19,20 +22,23 @@ namespace AdminStore.Services.Instance
         private readonly IUserRepository _userRepository;
         private readonly IEmailHelper _emailHelper;
         private readonly IWebsiteAddressService _websiteAddressService;
+        private readonly IInstanceSettingsRepository _instanceSettingsRepository;
 
         public EmailSettingsService() : this(new PrivilegesManager(new SqlPrivilegesRepository()),
                                              new SqlUserRepository(),
                                              new EmailHelper(),
-                                             new WebsiteAddressService())
+                                             new WebsiteAddressService(),
+                                             new SqlInstanceSettingsRepository())
         {
         }
 
-        public EmailSettingsService(PrivilegesManager privilegesManager, IUserRepository userRepository, IEmailHelper emailHelper, IWebsiteAddressService websiteAddressService)
+        public EmailSettingsService(PrivilegesManager privilegesManager, IUserRepository userRepository, IEmailHelper emailHelper, IWebsiteAddressService websiteAddressService, IInstanceSettingsRepository instanceSettingsRepository)
         {
             _privilegesManager = privilegesManager;
             _userRepository = userRepository;
             _emailHelper = emailHelper;
             _websiteAddressService = websiteAddressService;
+            _instanceSettingsRepository = instanceSettingsRepository;
         }
 
         public async Task SendTestEmailAsync(int userId, EmailOutgoingSettings outgoingSettings)
@@ -48,13 +54,7 @@ namespace AdminStore.Services.Instance
                 throw new ConflictException("Your user profile does not include an email address. Please add one to receive a test email.", ErrorCodes.UserHasNoEmail);
             }
 
-            var config = new TestEmailConfigInstanceSettings(outgoingSettings, currentUser.Email);
-
-            if (!outgoingSettings.AuthenticatedSmtp)
-            {
-                config.UserName = String.Empty;
-                config.Password = String.Empty;
-            }
+            var config = await GetEmailConfigAsync(outgoingSettings, currentUser);
 
             _emailHelper.Initialize(config);
 
@@ -65,6 +65,25 @@ namespace AdminStore.Services.Instance
             string subject = "Blueprint Test Email";
 
             _emailHelper.SendEmail(currentUser.Email, subject, body);
+        }
+
+        private async Task<IEmailConfigInstanceSettings> GetEmailConfigAsync(EmailOutgoingSettings outgoingSettings, User currentUser)
+        {
+            var config = new TestEmailConfigInstanceSettings(outgoingSettings, currentUser.Email);
+
+            if (!outgoingSettings.AuthenticatedSmtp)
+            {
+                config.UserName = String.Empty;
+                config.Password = String.Empty;
+            }
+            else if (!outgoingSettings.IsPasswordDirty)
+            {
+                var emailSettings = await _instanceSettingsRepository.GetEmailSettings();
+
+                config.Password = SystemEncryptions.DecryptFromSilverlight(emailSettings.Password);
+            }
+
+            return config;
         }
 
         private void VerifyOutgoingSettings(EmailOutgoingSettings outgoingSettings)

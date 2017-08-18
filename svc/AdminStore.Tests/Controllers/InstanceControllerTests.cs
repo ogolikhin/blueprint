@@ -734,7 +734,7 @@ namespace AdminStore.Controllers
 
             _privilegeRepositoryMock
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
-                .ReturnsAsync(/*InstanceAdminPrivileges.ViewUsers*/InstanceAdminPrivileges.None);
+                .ReturnsAsync(InstanceAdminPrivileges.ViewUsers/*InstanceAdminPrivileges.None*/);
 
             _instanceRepositoryMock
                 .Setup(repo => repo.GetProjectRolesAsync(projectId))

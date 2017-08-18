@@ -17,10 +17,10 @@ namespace ServiceLibrary.Helpers.Validators
         /// </summary>
         public virtual PropertySetResult Validate(PropertyLite property, List<DPropertyType> propertyTypes)
         {
-            if (propertyTypes.All(a => a.PropertyTypeId != property.PropertyTypeId))
+            if (propertyTypes.All(a => a.InstancePropertyTypeId.Value != property.PropertyTypeId))
                 return null;
 
-            var saveType = propertyTypes.FirstOrDefault(a => a.PropertyTypeId == property.PropertyTypeId) as T;
+            var saveType = propertyTypes.FirstOrDefault(a => a.InstancePropertyTypeId.Value == property.PropertyTypeId) as T;
             if (saveType == null)
                 return null;
 

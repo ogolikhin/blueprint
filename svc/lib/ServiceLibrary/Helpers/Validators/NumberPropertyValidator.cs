@@ -8,11 +8,7 @@ namespace ServiceLibrary.Helpers.Validators
     {
         protected override PropertySetResult Validate(PropertyLite property, DNumberPropertyType propertyType)
         {
-            decimal value;
-            if(!Decimal.TryParse(property.Value, NumberStyles.AllowDecimalPoint, new NumberFormatInfo(), out value))
-            {
-                return new PropertySetResult(property.PropertyTypeId, ErrorCodes.InvalidArtifactProperty, "Properties");
-            }
+            decimal value = property.NumberValue.Value;
             if (IsPropertyValueEmpty(property, propertyType))
                 return null;
 
@@ -40,7 +36,7 @@ namespace ServiceLibrary.Helpers.Validators
         /// </summary>
         protected override bool IsPropertyValueEmpty(PropertyLite property, DNumberPropertyType propertyType)
         {
-            return String.IsNullOrEmpty(property.Value);
+            return !property.NumberValue.HasValue;
         }
     }
 }

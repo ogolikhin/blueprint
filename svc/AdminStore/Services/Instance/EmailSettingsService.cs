@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using AdminStore.Helpers;
 using AdminStore.Models.Emails;
 using AdminStore.Repositories;
@@ -46,7 +45,7 @@ namespace AdminStore.Services.Instance
 
             var currentUser = await _userRepository.GetUserAsync(userId);
 
-            if (String.IsNullOrWhiteSpace(currentUser.Email))
+            if (string.IsNullOrWhiteSpace(currentUser.Email))
             {
                 throw new ConflictException("Your user profile does not include an email address. Please add one to receive a test email.", ErrorCodes.UserHasNoEmail);
             }
@@ -70,8 +69,8 @@ namespace AdminStore.Services.Instance
 
             if (!outgoingSettings.AuthenticatedSmtp)
             {
-                config.UserName = String.Empty;
-                config.Password = String.Empty;
+                config.UserName = string.Empty;
+                config.Password = string.Empty;
             }
             else if (!outgoingSettings.IsPasswordDirty)
             {
@@ -85,7 +84,7 @@ namespace AdminStore.Services.Instance
 
         private void VerifyOutgoingSettings(EmailOutgoingSettings outgoingSettings)
         {
-            if (String.IsNullOrWhiteSpace(outgoingSettings.ServerAddress))
+            if (string.IsNullOrWhiteSpace(outgoingSettings.ServerAddress))
             {
                 throw new BadRequestException("Please enter a mail server.", ErrorCodes.EmptyMailServer);
             }
@@ -97,12 +96,12 @@ namespace AdminStore.Services.Instance
 
             if (outgoingSettings.AuthenticatedSmtp)
             {
-                if (String.IsNullOrWhiteSpace(outgoingSettings.AuthenticatedSmtpUsername))
+                if (string.IsNullOrWhiteSpace(outgoingSettings.AuthenticatedSmtpUsername))
                 {
                     throw new BadRequestException("Please enter the SMTP administrator username.", ErrorCodes.EmptySmtpAdministratorUsername);
                 }
 
-                if (String.IsNullOrWhiteSpace(outgoingSettings.AuthenticatedSmtpPassword))
+                if (string.IsNullOrWhiteSpace(outgoingSettings.AuthenticatedSmtpPassword))
                 {
                     throw new BadRequestException("Please enter the SMTP administrator password.", ErrorCodes.EmptySmtpAdministratorPassword);
                 }

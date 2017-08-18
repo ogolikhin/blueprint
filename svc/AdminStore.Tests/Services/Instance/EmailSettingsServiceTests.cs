@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Models.Emails;
@@ -221,7 +220,7 @@ namespace AdminStore.Services.Instance
                 return;
             }
 
-            Assert.Fail("A BadRequestException was not thrown.");
+            Assert.Fail("A ConflictException was not thrown.");
         }
 
         [TestMethod]
@@ -253,10 +252,10 @@ namespace AdminStore.Services.Instance
             return config.Authenticated == _outgoingSettings.AuthenticatedSmtp &&
                    config.EnableSSL == _outgoingSettings.EnableSsl &&
                    config.HostName == _outgoingSettings.ServerAddress &&
-                   config.Password == (_outgoingSettings.AuthenticatedSmtp ? _outgoingSettings.AuthenticatedSmtpPassword : String.Empty) &&
+                   config.Password == (_outgoingSettings.AuthenticatedSmtp ? _outgoingSettings.AuthenticatedSmtpPassword : string.Empty) &&
                    config.Port == _outgoingSettings.Port &&
                    config.SenderEmailAddress == _user.Email &&
-                   config.UserName == (_outgoingSettings.AuthenticatedSmtp ? _outgoingSettings.AuthenticatedSmtpUsername : String.Empty);
+                   config.UserName == (_outgoingSettings.AuthenticatedSmtp ? _outgoingSettings.AuthenticatedSmtpUsername : string.Empty);
         }
 
         [TestMethod]
@@ -277,10 +276,10 @@ namespace AdminStore.Services.Instance
             return config.Authenticated == _outgoingSettings.AuthenticatedSmtp &&
                    config.EnableSSL == _outgoingSettings.EnableSsl &&
                    config.HostName == _outgoingSettings.ServerAddress &&
-                   config.Password == DecryptedPassword &&
+                   config.Password == (_outgoingSettings.AuthenticatedSmtp ? DecryptedPassword : string.Empty) &&
                    config.Port == _outgoingSettings.Port &&
                    config.SenderEmailAddress == _user.Email &&
-                   config.UserName == (_outgoingSettings.AuthenticatedSmtp ? _outgoingSettings.AuthenticatedSmtpUsername : String.Empty);
+                   config.UserName == (_outgoingSettings.AuthenticatedSmtp ? _outgoingSettings.AuthenticatedSmtpUsername : string.Empty);
         }
 
         [TestMethod]

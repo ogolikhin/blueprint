@@ -58,7 +58,7 @@ namespace ActionHandlerService.MessageHandlers.Notifications
                 EnableSsl = emailSettings.EnableSSL,
                 HostName = emailSettings.HostName,
                 // Bug 61312: Password must be decrypted before saving in configuration
-                Password = SystemEncryptions.Decrypt(emailSettings.Password),
+                Password = SystemEncryptions.DecryptFromSilverlight(emailSettings.Password),
                 Port = emailSettings.Port,
                 UserName = emailSettings.UserName
             };
@@ -71,6 +71,7 @@ namespace ActionHandlerService.MessageHandlers.Notifications
 
             Logger.Log("Sending Email", message, tenant, LogLevel.Info);
             InternalSendEmail(smtpClientConfiguration, emailMessage, repository);
+            Logger.Log("Email Sent", message, tenant, LogLevel.Info);
             return await Task.FromResult(SendEmailResult.Success);
         }
 

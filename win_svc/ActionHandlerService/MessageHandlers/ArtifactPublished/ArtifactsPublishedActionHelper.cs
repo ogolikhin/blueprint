@@ -49,7 +49,7 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
             }
 
             //convert all property transitions to a dictionary with artifact id as key
-            var activePropertyTransitions = new Dictionary<int, IList<SqlArtifactTriggers>>();
+            var activePropertyTransitions = new Dictionary<int, IList<SqlWorkflowEvent>>();
             var publishedArtifactEvents = artifactPropertyEvents.Where(ape => publishedArtifactIds.Contains(ape.VersionItemId));
             foreach (var artifactPropertyEvent in publishedArtifactEvents)
             {
@@ -59,7 +59,7 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
                 }
                 else
                 {
-                    activePropertyTransitions.Add(artifactPropertyEvent.VersionItemId, new List<SqlArtifactTriggers> {artifactPropertyEvent});
+                    activePropertyTransitions.Add(artifactPropertyEvent.VersionItemId, new List<SqlWorkflowEvent> {artifactPropertyEvent});
                 }
             }
 
@@ -81,7 +81,6 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
                 Logger.Log($"Processing artifact with ID: {artifactId}", message, tenant, LogLevel.Info);
 
                 var artifactTransitionInfo = activePropertyTransitions[artifactId];
-                //TODO: get the Actions from the triggers that were retrieved from the database
                 var notifications = _actionsParser.GetNotificationActions(artifactTransitionInfo).ToList();
                 Logger.Log($"{notifications.Count} Notification actions found", message, tenant, LogLevel.Info);
                 if (notifications.Count == 0)
@@ -126,8 +125,8 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
                         ArtifactName = workflowStates[artifactId].Name,
                         ProjectName = projects.First(p => p.ItemId == artifact.ProjectId).Name,
                         Subject = notificationAction.Subject,
-                        From = notificationAction.FromEmail,
-                        To = new[] {notificationAction.ToEmail},
+                        From = notificationAction.FromDisplayName,
+                        To = notificationAction.ToEmails,
                         MessageTemplate = notificationAction.MessageTemplate,
                         RevisionId = message.RevisionId,
                         UserId = message.UserId,
@@ -143,16 +142,5 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
             Logger.Log("Finished processing message", message, tenant, LogLevel.Info);
             return await Task.FromResult(true);
         }
-    }
-
-    //TODO: Use model created for xml import
-    public class NotificationAction
-    {
-        public int PropertyTypeId { get; set; }
-        public int? ConditionalStateId { get; set; }
-        public string Subject { get; set; }
-        public string FromEmail { get; set; }
-        public string ToEmail { get; set; }
-        public string MessageTemplate { get; set; }
     }
 }

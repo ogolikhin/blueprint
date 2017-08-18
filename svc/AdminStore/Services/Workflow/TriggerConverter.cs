@@ -126,7 +126,7 @@ namespace AdminStore.Services.Workflow
                         PropertyId = xpAction.PropertyTypeId,
                         PropertyName = dataMaps.PropertyTypeMap.TryGetValue(xpAction.PropertyTypeId, out name) ? name : null,
                         PropertyValue = xpAction.PropertyValue,
-                        ValidValues = xpAction.ValidValues.ConvertAll(x => new IeValidValue { Value = x.ToString(CultureInfo.InvariantCulture) }),
+                        ValidValues = GetValidValues(xpAction.ValidValues, dataMaps),
                         UsersGroups = FromXmlModel(xpAction.UsersGroups, dataMaps),
                         IncludeCurrentUser = xpAction.CurrentUserId != null
                     };
@@ -136,10 +136,10 @@ namespace AdminStore.Services.Workflow
                     action = new IeGenerateAction
                     {
                         Name = xgAction.Name,
+                        GenerateActionType = xgAction.GenerateActionType,
                         ChildCount = xgAction.ChildCount,
                         ArtifactTypeId = xgAction.ArtifactTypeId,
-                        ArtifactType = xgAction.ArtifactTypeId == null ? null : 
-                            dataMaps.ArtifactTypeMap.TryGetValue((int)xgAction.ArtifactTypeId, out name) ? name : null
+                        ArtifactType = GetArtifactType(xgAction.ArtifactTypeId, dataMaps)
                     };
                     break;
                 default:
@@ -154,29 +154,48 @@ namespace AdminStore.Services.Workflow
             return action;
         }
 
+        private List<IeValidValue> GetValidValues(List<int> valueIds, WorkflowDataNameMaps dataMaps)
+        {
+            var values = valueIds.ConvertAll(x => new IeValidValue { Id = x });
+            foreach(var v in values)
+            {
+                string vv = null;
+                v.Value = dataMaps.ValidValueMap.TryGetValue((int)v.Id, out vv) ? vv : null;
+            }
+            return values.Count == 0 ? null : values;
+        }
+        private string GetArtifactType(int? xArtifactTypeId, WorkflowDataNameMaps dataMaps)
+        {
+            
+            string artifactType = null;
+            if (xArtifactTypeId != null)
+            {
+                string name = null;
+                artifactType = dataMaps.ArtifactTypeMap.TryGetValue((int)xArtifactTypeId, out name) ? name : null;
+            }
+
+            return artifactType;
+        }
         private List<IeUserGroup> FromXmlModel(List<XmlUserGroup> xmlUserGroups, WorkflowDataNameMaps dataMaps)
         {
-            if (xmlUserGroups == null)
+            if (xmlUserGroups == null || xmlUserGroups.Count == 0)
             {
                 return null;
             }
+            string name;
             var userGroups = new List<IeUserGroup>();
-
-            if (xmlUserGroups != null)
+            foreach (var g in xmlUserGroups)
             {
-                string name;
-                foreach (var g in xmlUserGroups)
+                var group = new IeUserGroup
                 {
-                    var group = new IeUserGroup
-                    {
-                        Id = g.Id,
-                        Name = dataMaps.GroupMap.TryGetValue(g.Id, out name) ? name : null,
-                        IsGroup = g.IsGroup
-                    };
-                }
+                    Id = g.Id,
+                    Name = dataMaps.GroupMap.TryGetValue(g.Id, out name) ? name : null,
+                    IsGroup = g.IsGroup
+                };
+                userGroups.Add(group);
             }
 
-            return userGroups;
+            return userGroups; 
         }
 
         private IeCondition FromXmlModel(XmlCondition xmlCondition, WorkflowDataNameMaps dataMaps)

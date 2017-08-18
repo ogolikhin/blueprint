@@ -134,37 +134,15 @@ namespace AdminStore.Repositories.Workflow
 
             return statesMap;
         }
-        public async Task<IEnumerable<SqlWorkflowMapItem>> GetWorkflowArtifactTypesMapAsync(int workflowId)
+        
+        public async Task<IEnumerable<SqlWorkflowEventData>> GetWorkflowEventsAsync(int workflowId)
         {
             var parameters = new DynamicParameters();
             parameters.Add("WorkflowId", workflowId);
-
-            var result = await _connectionWrapper.QueryAsync<SqlWorkflowMapItem>("GetWorkflowArtifactTypeNames", parameters, commandType: CommandType.StoredProcedure);
-
-            return result;
-        }
-
-        public async Task<IEnumerable<SqlWorkflowMapItem>> GetPropertyTypesMapAsync(IEnumerable<int> propertyIds = null)
-        {
-            var prm = new DynamicParameters();
-            if (propertyIds != null)
-            {
-                prm.Add("@propertyIds", SqlConnectionWrapper.ToDataTable(propertyIds));
-            }
-
-            return await _connectionWrapper.QueryAsync<SqlWorkflowMapItem>("GetPropertyTypeNames", prm,
-                commandType: CommandType.StoredProcedure);
-        }
-
-        public async Task<IEnumerable<SqlWorkflowTransitionsAndPropertyChanges>> GetWorkflowEventsAsync(int workflowId)
-        {
-            var parameters = new DynamicParameters();
-            parameters.Add("WorkflowId", workflowId);
-            var result = await _connectionWrapper.QueryAsync<SqlWorkflowTransitionsAndPropertyChanges>("GetWorkflowTransitionsAndPropertyChangesById", parameters, commandType: CommandType.StoredProcedure);
+            var result = await _connectionWrapper.QueryAsync<SqlWorkflowEventData>("GetWorkflowEventsById", parameters, commandType: CommandType.StoredProcedure);
 
             return result;
         }
-
         public async Task UpdateWorkflowsChangedWithRevisions(int workflowId, int revisionId, IDbTransaction transaction = null)
         {
             if (workflowId < 1)

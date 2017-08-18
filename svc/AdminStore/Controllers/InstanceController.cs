@@ -342,6 +342,8 @@ namespace AdminStore.Controllers
         /// <response code="403">Forbidden The user does not have permissions to delete project</response>
         /// <response code="404">NotFound. The project with projectId doesn’t exists or removed from the system.</response>
         /// <response code="404">NotFound. Project with ID:{0}({1}) was deleted by another user!</response>
+        /// <response code="404">Could not purge project because an artifact was moved to another project and we cannot reliably purge it without corrupting the other project.  PurgeProject aborted for projectId  {0}.</response>
+        /// <response code="409">Could not purge project because it is a system instance project for internal use only and without it database is corrupted. Purge project aborted for projectId {0}.</response>
         /// <response code="500">Internal Server Error.</response>
         [HttpDelete]
         [SessionRequired]

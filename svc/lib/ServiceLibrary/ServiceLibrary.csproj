@@ -316,6 +316,8 @@
     <Compile Include="Services\FeaturesService.cs" />
     <Compile Include="Services\ICurrentDateTimeService.cs" />
     <Compile Include="Services\IFeaturesService.cs" />
+    <Compile Include="Services\IWebsiteAddressService.cs" />
+    <Compile Include="Services\WebsiteAddressService.cs" />
     <Compile Include="Swagger\SwaggerConfig.cs" />
     <Compile Include="Models\Files\NetworkContentStream.cs" />
     <Compile Include="Helpers\WebHeaderCollectionExtensions.cs" />

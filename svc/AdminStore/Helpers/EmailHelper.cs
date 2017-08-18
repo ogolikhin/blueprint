@@ -1,9 +1,7 @@
 ﻿using System;
-using AdminStore.Models;
 using MailBee.Mime;
 using MailBee.Security;
 using MailBee.SmtpMail;
-using ServiceLibrary.Helpers.Security;
 using ServiceLibrary.Models;
 
 namespace AdminStore.Helpers
@@ -64,7 +62,7 @@ namespace AdminStore.Helpers
                 if (_configuration.Authenticated)
                 {
                     smtpServer.AccountName = _configuration.UserName;
-                    smtpServer.Password = SystemEncryptions.DecryptFromSilverlight(_configuration.Password);
+                    smtpServer.Password = _configuration.Password;
                     //MailBee.AuthenticationMethods.None by default
                     smtpServer.AuthMethods = MailBee.AuthenticationMethods.Auto;
                 }

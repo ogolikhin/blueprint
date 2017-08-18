@@ -9,21 +9,21 @@ namespace AdminStore.Models.Emails
 {
     public class TestEmailConfigInstanceSettings : IEmailConfigInstanceSettings
     {
-        public string Id { get; }
+        public string Id { get; set; }
 
-        public string HostName { get; }
+        public string HostName { get; set; }
 
-        public string SenderEmailAddress { get; }
+        public string SenderEmailAddress { get; set; }
 
-        public int Port { get; }
+        public int Port { get; set; }
 
-        public bool EnableSSL { get; }
+        public bool EnableSSL { get; set; }
 
-        public bool Authenticated { get; }
+        public bool Authenticated { get; set; }
 
-        public string UserName { get; }
+        public string UserName { get; set; }
 
-        public string Password { get; }
+        public string Password { get; set; }
 
         public TestEmailConfigInstanceSettings(EmailOutgoingSettings outgoingSettings, string senderEmailAddress)
         {

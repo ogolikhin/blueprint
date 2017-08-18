@@ -9,6 +9,7 @@ using AdminStore.Repositories;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Services;
 
 namespace AdminStore.Services.Instance
 {
@@ -17,18 +18,21 @@ namespace AdminStore.Services.Instance
         private readonly PrivilegesManager _privilegesManager;
         private readonly IUserRepository _userRepository;
         private readonly IEmailHelper _emailHelper;
+        private readonly IWebsiteAddressService _websiteAddressService;
 
         public EmailSettingsService() : this(new PrivilegesManager(new SqlPrivilegesRepository()),
                                              new SqlUserRepository(),
-                                             new EmailHelper())
+                                             new EmailHelper(),
+                                             new WebsiteAddressService())
         {
         }
 
-        public EmailSettingsService(PrivilegesManager privilegesManager, IUserRepository userRepository, IEmailHelper emailHelper)
+        public EmailSettingsService(PrivilegesManager privilegesManager, IUserRepository userRepository, IEmailHelper emailHelper, IWebsiteAddressService websiteAddressService)
         {
             _privilegesManager = privilegesManager;
             _userRepository = userRepository;
             _emailHelper = emailHelper;
+            _websiteAddressService = websiteAddressService;
         }
 
         public async Task SendTestEmailAsync(int userId, EmailOutgoingSettings outgoingSettings)
@@ -44,10 +48,23 @@ namespace AdminStore.Services.Instance
                 throw new ConflictException("Your user profile does not include an email address. Please add one to receive a test email.", ErrorCodes.UserHasNoEmail);
             }
 
-            _emailHelper.Initialize(new TestEmailConfigInstanceSettings(outgoingSettings, currentUser.Email));
+            var config = new TestEmailConfigInstanceSettings(outgoingSettings, currentUser.Email);
 
-            _emailHelper.SendEmail(currentUser.Email, "Blueprint Test Email",
-                @"A test email was requested from the Blueprint Instance Administration Console.<br/><br/>This email was sent to you as a registered Blueprint user from Website");
+            if (!outgoingSettings.AuthenticatedSmtp)
+            {
+                config.UserName = String.Empty;
+                config.Password = String.Empty;
+            }
+
+            _emailHelper.Initialize(config);
+
+            //TODO: Body and Subject need to be localized, this is temporary
+            string blueprintUrl = "http://www.blueprintsys.net/";
+
+            string body = $"A test email was requested from the Blueprint Instance Administration Console.<br/><br/>This email was sent to you as a registered <a href='{blueprintUrl}'>{blueprintUrl}</a> user from {_websiteAddressService.GetWebsiteAddress()}";
+            string subject = "Blueprint Test Email";
+
+            _emailHelper.SendEmail(currentUser.Email, subject, body);
         }
 
         private void VerifyOutgoingSettings(EmailOutgoingSettings outgoingSettings)

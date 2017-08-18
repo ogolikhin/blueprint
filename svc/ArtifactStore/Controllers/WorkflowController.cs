@@ -12,6 +12,7 @@ using ServiceLibrary.Repositories;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using ArtifactStore.Models.Workflow;
 using ServiceLibrary.Models.Enums;
 using ArtifactStore.Repositories.Reuse;
 
@@ -32,7 +33,8 @@ namespace ArtifactStore.Controllers
                 new SqlItemInfoRepository(),
                 new SqlHelper(),
                 new VersionControlService(),
-                new ReuseRepository()))
+                new ReuseRepository(),
+                new SqlSaveArtifactRepository()))
         {
         }
 

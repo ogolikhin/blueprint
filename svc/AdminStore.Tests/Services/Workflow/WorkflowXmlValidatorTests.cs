@@ -943,8 +943,23 @@ namespace AdminStore.Services.Workflow
             // Assert
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(WorkflowXmlValidationErrorCodes.ProjectInvalidId, result.Errors[0].ErrorCode);
-            Assert.AreSame(_workflow.Projects[2], result.Errors[0].Element);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.InvalidId, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
+        public void Validate_ProjectInvalidId_ReturnsGroupProjectInvalidIdError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            ((IePropertyChangeAction) _workflow.NewArtifactEvents[1].Triggers[4].Action).UsersGroups[2].GroupProjectId = 0;
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.InvalidId, result.Errors[0].ErrorCode);
         }
 
         [TestMethod]
@@ -1032,8 +1047,7 @@ namespace AdminStore.Services.Workflow
             Assert.AreEqual(3, result.Errors.Count);
             var error1 = result.Errors.First(e => e.ErrorCode == WorkflowXmlValidationErrorCodes.WorkflowNameEmpty);
             Assert.AreSame(_workflow, error1.Element);
-            var error2 = result.Errors.First(e => e.ErrorCode == WorkflowXmlValidationErrorCodes.ProjectInvalidId);
-            Assert.AreSame(_workflow.Projects[0], error2.Element);
+            var error2 = result.Errors.First(e => e.ErrorCode == WorkflowXmlValidationErrorCodes.InvalidId);
             var error3 = result.Errors.First(e => e.ErrorCode == WorkflowXmlValidationErrorCodes.ArtifactTypeNoSpecified);
             Assert.AreSame(_workflow.Projects[0].ArtifactTypes[0], error3.Element);
         }

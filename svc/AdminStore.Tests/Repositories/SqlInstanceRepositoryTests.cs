@@ -143,6 +143,25 @@ namespace AdminStore.Repositories
         }
 
         [TestMethod]
+        public async Task GetInstanceProjectAsyncFromAdminPortal_Found()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            int projectId = 99;
+            int userId = 10;
+            InstanceItem[] result = { new InstanceItem { Id = projectId, Name = "My Project", ParentFolderId = 88, IsAccesible = true } };
+            cxn.SetupQueryAsync("GetProjectDetails", new Dictionary<string, object> { { "projectId", projectId }, { "userId", userId } }, result);
+
+            // Act
+            var project = await repository.GetInstanceProjectAsync(projectId, userId, fromAdminPortal: true);
+
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(result.First(), project);
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public async Task GetInstanceProjectAsync_InvalidProjectId()
         {
@@ -158,6 +177,20 @@ namespace AdminStore.Repositories
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public async Task GetInstanceProjectAsyncFromAdminPortal_InvalidProjectId()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+
+            // Act
+            var folder = await repository.GetInstanceProjectAsync(0, 10, fromAdminPortal: true);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public async Task GetInstanceProjectAsync_InvalidUserId()
         {
             // Arrange
@@ -166,6 +199,20 @@ namespace AdminStore.Repositories
 
             // Act
             var folder = await repository.GetInstanceProjectAsync(10, 0);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public async Task GetInstanceProjectAsyncFromAdminPortal_InvalidUserId()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+
+            // Act
+            var folder = await repository.GetInstanceProjectAsync(10, 0, fromAdminPortal: true);
 
             // Assert
         }
@@ -191,6 +238,26 @@ namespace AdminStore.Repositories
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task GetInstanceProjectAsyncFromAdminPortal_NotFound()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            int projectId = 99;
+            int userId = 10;
+            InstanceItem[] result = { };
+            cxn.SetupQueryAsync("GetProjectDetails", new Dictionary<string, object> { { "projectId", projectId }, { "userId", userId } }, result);
+
+            // Act
+            var project = await repository.GetInstanceProjectAsync(projectId, userId, fromAdminPortal: true);
+
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(result.First(), project);
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(AuthorizationException))]
         public async Task GetInstanceProjectAsync_Unauthorized()
         {
@@ -204,6 +271,26 @@ namespace AdminStore.Repositories
 
             // Act
             var project = await repository.GetInstanceProjectAsync(projectId, userId);
+
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(result.First(), project);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task GetInstanceProjectAsyncFromAdminPortal_Unauthorized()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            int projectId = 99;
+            int userId = 10;
+            InstanceItem[] result = { new InstanceItem { Id = projectId, Name = "My Project", ParentFolderId = 88, IsAccesible = false } };
+            cxn.SetupQueryAsync("GetProjectDetails", new Dictionary<string, object> { { "projectId", projectId }, { "userId", userId } }, result);
+
+            // Act
+            var project = await repository.GetInstanceProjectAsync(projectId, userId, fromAdminPortal: true);
 
             // Assert
             cxn.Verify();
@@ -713,48 +800,6 @@ namespace AdminStore.Repositories
 
             // Assert
             //Exception
-        }
-
-        #endregion
-
-        #region Project privileges
-
-        [TestMethod]
-        public async Task GetInstanceProjectPrivilegesAsync_Found()
-        {
-            // Arrange
-            var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
-            int projectId = 99;
-            int userId = 10;
-            int?[] expectedResult = {64};
-            cxn.SetupQueryAsync("GetUserPrivilegesOfProject", new Dictionary<string, object> { { "projectId", projectId }, { "userId", userId } }, expectedResult);
-
-            // Act
-            var actualResult = await repository.GetInstanceProjectPrivilegesAsync(projectId, userId);
-
-            // Assert
-            cxn.Verify();
-            Assert.AreEqual(expectedResult.First(), actualResult);
-        }
-        
-
-        [TestMethod]
-        [ExpectedException(typeof(ResourceNotFoundException))]
-        public async Task GetInstanceProjectPrivilegesAsync_NotFound()
-        {
-            // Arrange
-            var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
-            int projectId = 99;
-            int userId = 10;
-            int?[] expectedResult = {};
-            cxn.SetupQueryAsync("GetUserPrivilegesOfProject", new Dictionary<string, object> { { "projectId", projectId }, { "userId", userId } }, expectedResult);
-
-            // Act
-            await repository.GetInstanceProjectPrivilegesAsync(projectId, userId);
-
-            // Assert
         }
 
         #endregion

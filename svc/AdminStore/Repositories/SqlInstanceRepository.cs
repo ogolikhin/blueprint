@@ -11,6 +11,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AdminStore.Helpers;
 using AdminStore.Models.DTO;
+using AdminStore.Models.Enums;
 
 namespace AdminStore.Repositories
 {
@@ -281,19 +282,98 @@ namespace AdminStore.Repositories
             }
         }
 
-        public async Task<int> GetInstanceProjectPrivilegesAsync(int projectId, int userId)
+        public async Task DeleteProject(int userId, int projectId)
         {
-            var prm = new DynamicParameters();
-            prm.Add("@projectId", projectId);
-            prm.Add("@userId", userId);
+            //We need to check if project is still exist in database and not makred as deleted
+            //Also we need to get the latest projectstatus to apply the right delete method
+            ProjectStatus? projectStatus;
 
-            var result = (await _connectionWrapper.QueryAsync<int?>("GetUserPrivilegesOfProject", prm, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
-            if (result == null)
+            InstanceItem project = await GetInstanceProjectAsync(projectId, userId, fromAdminPortal: true);
+
+            if (!TryGetProjectStatusIfProjectExist(project, out projectStatus))
             {
-                throw new ResourceNotFoundException(I18NHelper.FormatInvariant(ErrorMessages.PrivilegesForProjectNotExist, projectId), ErrorCodes.ResourceNotFound);
+                throw new ResourceNotFoundException(I18NHelper.FormatInvariant(ErrorMessages.ProjectWasDeletedByAnotherUser, project.Id, project.Name), ErrorCodes.ResourceNotFound);
             }
 
-            return result.Value;
+            if (projectStatus == ProjectStatus.Live)
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@userId", userId);
+                parameters.Add("@projectId", projectId);
+
+                await _connectionWrapper.ExecuteAsync("RemoveProject", parameters,
+                    commandType: CommandType.StoredProcedure);                
+            }
+            else
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@projectId", projectId);
+                parameters.Add("@result", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+                await _connectionWrapper.ExecuteScalarAsync<int>("PurgeProject", parameters,
+                    commandType: CommandType.StoredProcedure);
+                var errorCode = parameters.Get<int?>("result");
+
+                if (errorCode.HasValue)
+                {
+                    switch (errorCode.Value)
+                    {
+                        case -2: // Instance project issue
+                            throw new BadRequestException(I18NHelper.FormatInvariant(ErrorMessages.ForbidToPurgeSystemInstanceProjectForInternalUseOnly, project.Id), ErrorCodes.BadRequest);
+                        case -1: // Cross project move issue
+                            throw new BadRequestException(I18NHelper.FormatInvariant(ErrorMessages.ArtifactWasMovedToAnotherProject, project.Id), ErrorCodes.BadRequest);
+                        case 0:
+                            // Success
+                            break;
+                        default:
+                            throw new Exception(ErrorMessages.GeneralErrorOfUpdatingProject);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        ///  This method takes the projectId and checks if the project is still exist in the database and not marked as deleted
+        /// </summary>
+        /// <param name="project">Project</param>
+        /// <param name="projectStatus">If the project exists it returns ProjectStatus as output If the Project does not exists projectstatus = null</param>
+        /// <returns>Returns true if project exists in the database and not marked as deleted for that specific revision</returns>
+        private bool TryGetProjectStatusIfProjectExist(InstanceItem project, out ProjectStatus? projectStatus)
+        {                        
+            if (project == null)
+            {
+                projectStatus = null;
+                return false;
+            }
+            if (project.ParentFolderId == null)
+            {
+                projectStatus = null;
+                return false;
+            }
+
+            projectStatus = GetProjectStatus(project.ProjectStatus);
+            return true;
+        }
+
+        /// <summary>
+        /// Maps the project status string to enum.
+        /// </summary>
+        private static ProjectStatus GetProjectStatus(string status)
+        {
+            // Project status is used to identify different status of the import process a project can be in
+            switch (status)
+            {
+                case "I":
+                    return ProjectStatus.Importing;
+                case "F":
+                    return ProjectStatus.ImportFailed;
+                case "C":
+                    return ProjectStatus.CancelingImport;
+                case null:
+                    return ProjectStatus.Live;
+                default:
+                    throw new Exception(I18NHelper.FormatInvariant(ErrorMessages.UnhandledStatusOfProject, status));
+            }
         }
     }
 }

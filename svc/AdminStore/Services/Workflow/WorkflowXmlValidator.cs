@@ -491,13 +491,13 @@ namespace AdminStore.Services.Workflow
                     }
                 }
 
-                if (project.Id.HasValue && project.Id.Value < 1)
+                if (!_hasInvalidIdError && project.Id.HasValue && project.Id < 1)
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
-                        Element = project,
-                        ErrorCode = WorkflowXmlValidationErrorCodes.ProjectInvalidId
+                        ErrorCode = WorkflowXmlValidationErrorCodes.InvalidId
                     });
+                    _hasInvalidIdError = true;
                 }
 
                 if (project.Id.HasValue)
@@ -588,10 +588,21 @@ namespace AdminStore.Services.Workflow
 
         public WorkflowXmlValidationResult ValidateUpdateXml(IeWorkflow workflow)
         {
+            ResetUpdateErrorFlags();
             _isConventionNamesInUse = true;
             var clone = WorkflowHelper.CloneViaXmlSerialization(workflow);
             UpdateToConventionNames(clone);
             var result = ValidateXml(clone);
+            ValidateDuplicateIds(clone, result);
+
+            if (_hasUpdateInvalidIdError && result.Errors.All(e => e.ErrorCode != WorkflowXmlValidationErrorCodes.InvalidId))
+            {
+                result.Errors.Add(new WorkflowXmlValidationError
+                {
+                    ErrorCode = WorkflowXmlValidationErrorCodes.InvalidId
+                });
+            }
+
             _isConventionNamesInUse = false;
             return result;
         }
@@ -641,8 +652,9 @@ namespace AdminStore.Services.Workflow
         private bool _hasArtifactTypeGenerateChildrenActionNotSpecitiedError;
         private bool _hasChildCountGenerateChildrenActionNotSpecitiedError;
         private bool _hasStateConditionNotOnTriggerOfPropertyChangeEventError;
-        private bool _stateStateConditionNotSpecifiedError;
-        private bool _propertyNamePropertyChangeActionNotSpecitied;
+        private bool _hasStateStateConditionNotSpecifiedError;
+        private bool _hasPropertyNamePropertyChangeActionNotSupportedError;
+        private bool _hasInvalidIdError;
 
         private void ResetErrorFlags()
         {
@@ -655,15 +667,16 @@ namespace AdminStore.Services.Workflow
             _hasArtifactTypeGenerateChildrenActionNotSpecitiedError = false;
             _hasChildCountGenerateChildrenActionNotSpecitiedError = false;
             _hasStateConditionNotOnTriggerOfPropertyChangeEventError = false;
-            _stateStateConditionNotSpecifiedError = false;
-            _propertyNamePropertyChangeActionNotSpecitied = false;
+            _hasStateStateConditionNotSpecifiedError = false;
+            _hasPropertyNamePropertyChangeActionNotSupportedError = false;
+            _hasInvalidIdError = false;
         }
 
         private void ValidatePermittedActions(IeEvent wEvent, WorkflowXmlValidationResult result)
         {
             // Currently the only action constrain is that
             // Property Change Event can have only Email Notification Action.
-            if (!_propertyNamePropertyChangeActionNotSpecitied
+            if (!_hasPropertyNamePropertyChangeActionNotSupportedError
                 && wEvent.EventType == EventTypes.PropertyChange
                 && wEvent.Triggers != null
                 && wEvent.Triggers.Any(t => t?.Action != null && t.Action.ActionType != ActionTypes.EmailNotification))
@@ -673,7 +686,7 @@ namespace AdminStore.Services.Workflow
                     Element = wEvent,
                     ErrorCode = WorkflowXmlValidationErrorCodes.PropertyChangeEventActionNotSupported
                 });
-                _propertyNamePropertyChangeActionNotSpecitied = true;
+                _hasPropertyNamePropertyChangeActionNotSupportedError = true;
             }
         }
 
@@ -776,6 +789,18 @@ namespace AdminStore.Services.Workflow
             if (action.UsersGroups?.Count > 0)
             {
                 pvCount++;
+
+                action.UsersGroups.ForEach(ug =>
+                {
+                    if (!_hasInvalidIdError && ug.GroupProjectId.HasValue && ug.GroupProjectId < 1)
+                    {
+                        result.Errors.Add(new WorkflowXmlValidationError
+                        {
+                            ErrorCode = WorkflowXmlValidationErrorCodes.InvalidId
+                        });
+                        _hasInvalidIdError = true;
+                    }
+                });
             }
 
             if (!_hasPropertyValuePropertyChangeActionNotSpecitiedError
@@ -854,7 +879,7 @@ namespace AdminStore.Services.Workflow
 
             if (wEvent.EventType == EventTypes.PropertyChange)
             {
-                if (!_stateStateConditionNotSpecifiedError
+                if (!_hasStateStateConditionNotSpecifiedError
                 && wEvent.Triggers.Any(t => t?.Condition?.ConditionType == ConditionTypes.State
                                         && !ValidatePropertyNotEmpty(((IeStateCondition)t.Condition).State)))
                 {
@@ -863,7 +888,7 @@ namespace AdminStore.Services.Workflow
                         Element = wEvent,
                         ErrorCode = WorkflowXmlValidationErrorCodes.StateStateConditionNotSpecified
                     });
-                    _stateStateConditionNotSpecifiedError = true;
+                    _hasStateStateConditionNotSpecifiedError = true;
                 }
 
 
@@ -882,9 +907,23 @@ namespace AdminStore.Services.Workflow
             }
         }
 
+        private bool _hasUpdateInvalidIdError;
+        private void ResetUpdateErrorFlags()
+        {
+            _hasUpdateInvalidIdError = false;
+        }
+
+        private void ValidateUpdateId(int id)
+        {
+            if (id < 1)
+            {
+                _hasUpdateInvalidIdError = true;
+            }
+        }
+
         #region Update To Convention Names
 
-        private static void UpdateToConventionNames(IeWorkflow workflow)
+        private void UpdateToConventionNames(IeWorkflow workflow)
         {
             workflow?.States?.ForEach(UpdateStateToConventionNames);
             workflow?.TransitionEvents?.ForEach(UpdateTransitionEventToConventionNames);
@@ -893,7 +932,7 @@ namespace AdminStore.Services.Workflow
             workflow?.Projects?.ForEach(UpdateProjectToConventionNames);
         }
 
-        private static void UpdateStateToConventionNames(IeState state)
+        private void UpdateStateToConventionNames(IeState state)
         {
             if (state?.Id.HasValue ?? false)
             {
@@ -901,7 +940,7 @@ namespace AdminStore.Services.Workflow
             }
         }
 
-        private static void UpdateTransitionEventToConventionNames(IeTransitionEvent tEvent)
+        private void UpdateTransitionEventToConventionNames(IeTransitionEvent tEvent)
         {
             if (tEvent?.Id.HasValue ?? false)
             {
@@ -922,7 +961,7 @@ namespace AdminStore.Services.Workflow
             tEvent?.Triggers?.ForEach(UpdateTriggerToConventionNames);
         }
 
-        private static void UpdatePermissionGroupToConventionNames(IeGroup group)
+        private void UpdatePermissionGroupToConventionNames(IeGroup group)
         {
             if (group?.Id.HasValue ?? false)
             {
@@ -930,7 +969,7 @@ namespace AdminStore.Services.Workflow
             }
         }
 
-        private static void UpdatePropertyChangeEventToConventionNames(IePropertyChangeEvent pcEvent)
+        private void UpdatePropertyChangeEventToConventionNames(IePropertyChangeEvent pcEvent)
         {
             if (pcEvent?.Id.HasValue ?? false)
             {
@@ -945,7 +984,7 @@ namespace AdminStore.Services.Workflow
             pcEvent?.Triggers?.ForEach(UpdateTriggerToConventionNames);
         }
 
-        private static void UpdateNewArtifactEventToConventionNames(IeNewArtifactEvent naEvent)
+        private void UpdateNewArtifactEventToConventionNames(IeNewArtifactEvent naEvent)
         {
             if (naEvent?.Id.HasValue ?? false)
             {
@@ -955,12 +994,12 @@ namespace AdminStore.Services.Workflow
             naEvent?.Triggers?.ForEach(UpdateTriggerToConventionNames);
         }
 
-        private static void UpdateProjectToConventionNames(IeProject project)
+        private void UpdateProjectToConventionNames(IeProject project)
         {
             project?.ArtifactTypes?.ForEach(UpdateArtifactTypeToConventionNames);
         }
 
-        private static void UpdateArtifactTypeToConventionNames(IeArtifactType artifactType)
+        private void UpdateArtifactTypeToConventionNames(IeArtifactType artifactType)
         {
             if (artifactType?.Id.HasValue ?? false)
             {
@@ -968,13 +1007,13 @@ namespace AdminStore.Services.Workflow
             }
         }
 
-        private static void UpdateTriggerToConventionNames(IeTrigger trigger)
+        private void UpdateTriggerToConventionNames(IeTrigger trigger)
         {
             UpdateConditionToConventionNames(trigger?.Condition);
             UpdateActionToConventionNames(trigger?.Action);
         }
 
-        private static void UpdateConditionToConventionNames(IeCondition condition)
+        private void UpdateConditionToConventionNames(IeCondition condition)
         {
             switch (condition?.ConditionType)
             {
@@ -992,7 +1031,7 @@ namespace AdminStore.Services.Workflow
             }
         }
 
-        private static void UpdateActionToConventionNames(IeBaseAction action)
+        private void UpdateActionToConventionNames(IeBaseAction action)
         {
             switch (action?.ActionType)
             {
@@ -1012,7 +1051,7 @@ namespace AdminStore.Services.Workflow
             }
         }
 
-        private static void UpdateEmailNotificationActionToConventionNames(IeEmailNotificationAction enAction)
+        private void UpdateEmailNotificationActionToConventionNames(IeEmailNotificationAction enAction)
         {
             if (enAction?.PropertyId.HasValue ?? false)
             {
@@ -1020,7 +1059,7 @@ namespace AdminStore.Services.Workflow
             }
         }
 
-        private static void UpdatePropertyChangeActionToConventionNames(IePropertyChangeAction pcAction)
+        private void UpdatePropertyChangeActionToConventionNames(IePropertyChangeAction pcAction)
         {
             if (pcAction?.PropertyId.HasValue ?? false)
             {
@@ -1031,7 +1070,7 @@ namespace AdminStore.Services.Workflow
             pcAction?.UsersGroups?.ForEach(UpdateUserGroupToConventionNames);
         }
 
-        private static void UpdateValidValueToConventionNames(IeValidValue validValue)
+        private void UpdateValidValueToConventionNames(IeValidValue validValue)
         {
             if (validValue?.Id.HasValue ?? false)
             {
@@ -1039,7 +1078,7 @@ namespace AdminStore.Services.Workflow
             }
         }
 
-        private static void UpdateUserGroupToConventionNames(IeUserGroup userGroup)
+        private void UpdateUserGroupToConventionNames(IeUserGroup userGroup)
         {
             if (userGroup?.Id.HasValue ?? false)
             {
@@ -1047,7 +1086,7 @@ namespace AdminStore.Services.Workflow
             }
         }
 
-        private static void UpdateGenerateActionToConventionNames(IeGenerateAction gAction)
+        private void UpdateGenerateActionToConventionNames(IeGenerateAction gAction)
         {
             if (gAction?.ArtifactTypeId.HasValue ?? false)
             {
@@ -1055,10 +1094,96 @@ namespace AdminStore.Services.Workflow
             }
         }
 
-        private static string GetConventionName(string name, int id)
+        private string GetConventionName(string name, int id)
         {
+            ValidateUpdateId(id);
+
             var prefix = name == null ? string.Empty : I18NHelper.FormatInvariant("{0} ", name);
             return I18NHelper.FormatInvariant(ConventionNamePattern, prefix, id);
+        }
+
+        #endregion
+
+        #region Validate Duplicate Ids
+
+        private static void ValidateDuplicateIds(IeWorkflow workflow, WorkflowXmlValidationResult result)
+        {
+            ValidateDuplicateStateIds(workflow, result);
+            ValidateDuplicateWorkflowEventIds(workflow, result);
+            ValidateDuplicateProjectIds(workflow, result);
+        }
+
+        private static void ValidateDuplicateStateIds(IeWorkflow workflow, WorkflowXmlValidationResult result)
+        {
+            var stateIds = workflow?.States?.Where(s => s.Id.HasValue).Select(s => s.Id.Value).ToList();
+            if (stateIds?.Count != stateIds?.Distinct().Count())
+            {
+                result.Errors.Add(new WorkflowXmlValidationError
+                {
+                    Element = workflow,
+                    ErrorCode = WorkflowXmlValidationErrorCodes.DuplicateStateIds
+                });
+            }
+        }
+
+        private static void ValidateDuplicateWorkflowEventIds(IeWorkflow workflow, WorkflowXmlValidationResult result)
+        {
+            var weIds = new List<int>();
+
+            var tIds = workflow?.TransitionEvents?.Where(te => te.Id.HasValue).Select(te => te.Id.Value);
+            if (tIds != null)
+            {
+                weIds.AddRange(tIds);
+            }
+
+            var pcIds = workflow?.PropertyChangeEvents?.Where(pce => pce.Id.HasValue).Select(pce => pce.Id.Value);
+            if (pcIds != null)
+            {
+                weIds.AddRange(pcIds);
+            }
+
+            var naIds = workflow?.NewArtifactEvents?.Where(nae => nae.Id.HasValue).Select(nae => nae.Id.Value);
+            if (naIds != null)
+            {
+                weIds.AddRange(naIds);
+            }
+
+            if (weIds.Count != weIds.Distinct().Count())
+            {
+                result.Errors.Add(new WorkflowXmlValidationError
+                {
+                    Element = workflow,
+                    ErrorCode = WorkflowXmlValidationErrorCodes.DuplicateWorkflowEventIds
+                });
+            }
+        }
+
+        private static void ValidateDuplicateProjectIds(IeWorkflow workflow, WorkflowXmlValidationResult result)
+        {
+            var projectIds = workflow?.Projects?.Where(p => p.Id.HasValue).Select(p => p.Id.Value).ToList();
+            if (projectIds?.Count != projectIds?.Distinct().Count())
+            {
+                result.Errors.Add(new WorkflowXmlValidationError
+                {
+                    Element = workflow,
+                    ErrorCode = WorkflowXmlValidationErrorCodes.DuplicateProjectIds
+                });
+            }
+
+            workflow?.Projects?.ForEach(p => ValidateDuplicateArtifactTypeIdsInProject(p, result));
+        }
+
+        private static void ValidateDuplicateArtifactTypeIdsInProject(IeProject project, WorkflowXmlValidationResult result)
+        {
+            var atIds = project?.ArtifactTypes?.Where(at => at.Id.HasValue).Select(at => at.Id.Value).ToList();
+            if (atIds?.Count != atIds?.Distinct().Count())
+            {
+                result.Errors.Add(new WorkflowXmlValidationError
+                {
+                    Element = project,
+                    ErrorCode = WorkflowXmlValidationErrorCodes.DuplicateArtifactTypeIdsInProject
+                });
+            }
         }
 
         #endregion

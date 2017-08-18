@@ -1,7 +1,7 @@
-﻿using ServiceLibrary.Models.Enums;
-using ServiceLibrary.Models.Workflow.Actions;
+﻿using ArtifactStore.Models.Workflow.Actions;
+using ServiceLibrary.Models.Enums;
 
-namespace ServiceLibrary.Models.Workflow
+namespace ArtifactStore.Models.Workflow
 {
     public class WorkflowEventTrigger
     {

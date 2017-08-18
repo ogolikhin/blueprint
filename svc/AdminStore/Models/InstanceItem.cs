@@ -35,6 +35,9 @@ namespace AdminStore.Models
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? ProjectAdminRolesPermissions { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string ProjectStatus { get; set; }
     }
 
     public enum InstanceItemTypeEnum

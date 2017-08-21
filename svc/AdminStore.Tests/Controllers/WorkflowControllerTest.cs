@@ -240,7 +240,7 @@ namespace AdminStore.Controllers
         public async Task GetWorkflow_AllParamsAreCorrectAndPermissionsOk_ReturnWorkflow()
         {
             //arrange
-            var workflow = new WorkflowDto{ Name = "Workflow1", Description = "DescriptionWorkflow1", Status = true };
+            var workflow = new WorkflowDto{ Name = "Workflow1", Description = "DescriptionWorkflow1", Active = true };
             _workflowServiceMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(workflow);
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))

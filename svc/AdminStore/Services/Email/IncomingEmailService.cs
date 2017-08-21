@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MailBee;
-using MailBee.Pop3Mail;
-using MailBee.Security;
+using ServiceLibrary.Exceptions;
 
 namespace AdminStore.Services.Email
 {
@@ -24,16 +18,27 @@ namespace AdminStore.Services.Email
 
         public void TryConnect(EmailClientConfig config)
         {
-            using (var emailClient = _clientFactory.Make(config.ClientType))
+            MailBee.Global.AutodetectPortAndSslMode = false;
+            MailBee.Global.LicenseKey = "MN800-02CA3564CA2ACAAECAB17D4ADEC9-145F";
+
+            try
             {
-                emailClient.UseSsl = config.EnableSsl;
+                using (var emailClient = _clientFactory.Make(config.ClientType))
+                {
+                    emailClient.UseSsl = config.EnableSsl;
 
-                emailClient.Connect(config.ServerAddress, config.Port);
+                    emailClient.Connect(config.ServerAddress, config.Port);
 
-                emailClient.Login(config.AccountUsername, config.AccountPassword);
+                    emailClient.Login(config.AccountUsername, config.AccountPassword);
 
-                emailClient.Disconnect();
+                    emailClient.Disconnect();
+                }
             }
+            catch (EmailException ex)
+            {
+                throw new BadRequestException(ex.Message, ex.ErrorCode);
+            }
+
         }
     }
 }

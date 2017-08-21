@@ -28,18 +28,31 @@ namespace AdminStore.Services.Email
 
         public void Connect(string serverAddress, int port)
         {
-            _imap.Connect(serverAddress, port);
+            try
+            {
+                _imap.Connect(serverAddress, port);
+            }
+            catch (MailBeeException ex)
+            {
+                EmailClientExceptionHandler.HandleConnectException(ex);
+            }
         }
 
         public void Login(string userName, string password)
         {
-            if (UseSsl)
-            {
-                _imap.Login(userName, password, AuthenticationMethods.Auto);
+            try {
+                if (UseSsl)
+                {
+                    _imap.Login(userName, password, AuthenticationMethods.Auto);
+                }
+                else
+                {
+                    _imap.Login(userName, password);
+                }
             }
-            else
+            catch (MailBeeException ex)
             {
-                _imap.Login(userName, password);
+                EmailClientExceptionHandler.HandleLoginException(ex);
             }
         }
 

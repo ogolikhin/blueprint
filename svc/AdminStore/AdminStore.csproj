@@ -128,6 +128,7 @@
     <Compile Include="Models\DTO\User.cs" />
     <Compile Include="Models\Emails\EmailIncomingSettings.cs" />
     <Compile Include="Models\Emails\EmailOutgoingSettings.cs" />
+    <Compile Include="Services\Email\EmailClientExceptionHandler.cs" />
     <Compile Include="Services\Email\EmailClientType.cs" />
     <Compile Include="Models\Emails\TestEmailConfigInstanceSettings.cs" />
     <Compile Include="Models\Enums\LicenseType.cs" />
@@ -235,6 +236,7 @@
     <Compile Include="Saml\SamlIssuerNameRegistry.cs" />
     <Compile Include="Services\Email\EmailClientFactory.cs" />
     <Compile Include="Services\Email\EmailClientConfig.cs" />
+    <Compile Include="Services\Email\EmailException.cs" />
     <Compile Include="Services\Email\IEmailClient.cs" />
     <Compile Include="Services\Email\IEmailClientFactory.cs" />
     <Compile Include="Services\Email\IIncomingEmailService.cs" />

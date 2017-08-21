@@ -1,5 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
 
 namespace AdminStore.Services.Email
 {
@@ -97,6 +99,78 @@ namespace AdminStore.Services.Email
 
             //Assert
             _emailClientMock.Verify(client => client.Dispose());
+        }
+
+        [TestMethod]
+        public void Should_Throw_BadRequestException_When_Connect_Throws_EmailException()
+        {
+            //Arrange
+            _emailClientMock.Setup(client => client.Connect(_clientConfig.ServerAddress, _clientConfig.Port))
+                            .Throws(new EmailException("Error Message", ErrorCodes.IncomingMailServerInvalidHostname));
+
+            //Act
+            try
+            {
+                _incomingEmailService.TryConnect(_clientConfig);
+            }
+            //Assert
+            catch (BadRequestException ex)
+            {
+                Assert.AreEqual("Error Message", ex.Message);
+                Assert.AreEqual(ErrorCodes.IncomingMailServerInvalidHostname, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("No BadRequestException was thrown.");
+        }
+
+        [TestMethod]
+        public void Should_Throw_BadRequestException_When_Login_Throws_EmailException()
+        {
+            //Arrange
+            _emailClientMock.Setup(client => client.Login(_clientConfig.AccountUsername, _clientConfig.AccountPassword))
+                            .Throws(new EmailException("Error Message", ErrorCodes.IncomingMailServerInvalidCredentials));
+
+            //Act
+            try
+            {
+                _incomingEmailService.TryConnect(_clientConfig);
+            }
+            //Assert
+            catch (BadRequestException ex)
+            {
+                Assert.AreEqual("Error Message", ex.Message);
+                Assert.AreEqual(ErrorCodes.IncomingMailServerInvalidCredentials, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("No BadRequestException was thrown.");
+        }
+
+        [TestMethod]
+        public void Should_Throw_BadRequestException_When_Disconnect_Throws_EmailException()
+        {
+            //Arrange
+            _emailClientMock.Setup(client => client.Disconnect())
+                            .Throws(new EmailException("Error Message", ErrorCodes.UnknownIncomingMailServerError));
+
+            //Act
+            try
+            {
+                _incomingEmailService.TryConnect(_clientConfig);
+            }
+            //Assert
+            catch (BadRequestException ex)
+            {
+                Assert.AreEqual("Error Message", ex.Message);
+                Assert.AreEqual(ErrorCodes.UnknownIncomingMailServerError, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("No BadRequestException was thrown.");
         }
     }
 }

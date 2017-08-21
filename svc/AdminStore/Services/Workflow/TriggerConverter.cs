@@ -190,8 +190,7 @@ namespace AdminStore.Services.Workflow
                 {
                     Id = g.Id,
                     Name = dataMaps.GroupMap.TryGetValue(g.Id, out name) ? name : null,
-                    IsGroup = g.IsGroup,
-                    GroupProjectId = g.GroupProjectId
+                    IsGroup = g.IsGroup
                 };
                 userGroups.Add(group);
             }
@@ -318,8 +317,7 @@ namespace AdminStore.Services.Workflow
                 xmlAction.UsersGroups.Add(new XmlUserGroup
                 {
                     IsGroup = isGroup,
-                    Id = ugId,
-                    GroupProjectId = ug.GroupProjectId
+                    Id = ugId
                 });
             });
 

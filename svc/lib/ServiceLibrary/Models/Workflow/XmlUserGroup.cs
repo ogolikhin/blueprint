@@ -25,9 +25,5 @@ namespace ServiceLibrary.Models.Workflow
             return IsGroup.HasValue;
         }
         //========================================================
-
-        [XmlElement("GPID")]
-        public int? GroupProjectId { get; set; }
-        public bool ShouldSerializeGroupProjectId() { return GroupProjectId.HasValue; }
     }
 }

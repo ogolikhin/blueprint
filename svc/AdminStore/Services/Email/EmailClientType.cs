@@ -2,8 +2,7 @@
 {
     public enum EmailClientType
     {
-        None = 0,
-        Imap = 1,
-        Pop3 = 2
+        Imap = 0,
+        Pop3 = 1
     }
 }

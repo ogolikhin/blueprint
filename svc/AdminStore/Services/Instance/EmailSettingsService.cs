@@ -152,13 +152,13 @@ namespace AdminStore.Services.Instance
             {
                 ServerAddress = incomingSettings.ServerAddress,
                 Port = incomingSettings.Port,
-                ClientType = EmailClientType.Imap,
+                ClientType = incomingSettings.ServerType,
                 AccountUsername = incomingSettings.AccountUsername,
                 AccountPassword = incomingSettings.AccountPassword,
                 EnableSsl = incomingSettings.EnableSsl
             };
 
-            if (incomingSettings.IsPasswordDirty)
+            if (!incomingSettings.IsPasswordDirty)
             {
                 var emailSettings = await _instanceSettingsRepository.GetEmailSettings();
 

@@ -80,7 +80,7 @@ namespace AdminStore.Services.Instance
                 Port = 2,
                 ServerAddress = "mail.test.com",
                 ServerType = EmailClientType.Imap,
-                IsPasswordDirty = false
+                IsPasswordDirty = true
             };
 
             _adminPrivilege = InstanceAdminPrivileges.ManageInstanceSettings;
@@ -465,10 +465,10 @@ namespace AdminStore.Services.Instance
         }
 
         [TestMethod]
-        public async Task CheckIncomingEmailConnectionAsync_Should_Use_Password_From_Repository_When_IsPasswordDirty_Is_True()
+        public async Task CheckIncomingEmailConnectionAsync_Should_Use_Password_From_Repository_When_IsPasswordDirty_Is_False()
         {
             //Arrange
-            _incomingSettings.IsPasswordDirty = true;
+            _incomingSettings.IsPasswordDirty = false;
 
             //Act
             await _emailSettingsService.TestIncomingEmailConnectionAsync(UserId, _incomingSettings);

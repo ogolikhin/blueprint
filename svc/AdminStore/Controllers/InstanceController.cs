@@ -266,10 +266,8 @@ namespace AdminStore.Controllers
         /// <response code="400">BadRequest. Parameters are invalid. </response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. The user does not have permissions for updating the folder.</response>
-        /// <response code="404">NotFound. The folder with the current folderId doesn’t exist or removed from the system.</response>
-        /// <response code="404">NotFound. The parent folder with current id does not exist.</response>
-        /// <response code="409">Conflict. The folder with the same name already exists in the parent folder.</response>
-        /// <response code="409">Conflict. The parent folder cannot be placed into its descendant. Please select a different location.</response>
+        /// <response code="404">NotFound. The folder or parent folder with the current id doesn’t exist or removed from the system.</response>
+        /// <response code="409">Conflict. The folder with the same name already exists in the parent folder or the parent folder cannot be placed into its descendant. Please select a different location.</response>
         /// <response code="500">Internal server error.</response>
         [HttpPut]
         [SessionRequired]
@@ -340,8 +338,9 @@ namespace AdminStore.Controllers
         /// <response code="400">BadRequest. Parameters are invalid.</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden The user does not have permissions to delete project</response>
-        /// <response code="404">NotFound. The project with projectId doesn’t exists or removed from the system.</response>
-        /// <response code="404">NotFound. Project with ID:{0}({1}) was deleted by another user!</response>
+        /// <response code="404">NotFound. The project with ID:{0}({1}) doesn’t exists or removed from the system or was deleted by another user! </response>
+        /// <response code="404">Could not purge project because an artifact was moved to another project and we cannot reliably purge it without corrupting the other project.  PurgeProject aborted for projectId  {0}.</response>
+        /// <response code="409">Could not purge project because it is a system instance project for internal use only and without it database is corrupted. Purge project aborted for projectId {0}.</response>
         /// <response code="500">Internal Server Error.</response>
         [HttpDelete]
         [SessionRequired]

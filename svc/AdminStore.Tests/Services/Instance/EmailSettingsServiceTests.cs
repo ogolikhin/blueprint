@@ -246,7 +246,6 @@ namespace AdminStore.Services.Instance
             _emailHelperMock.Verify(helper => helper.Initialize(It.Is<IEmailConfigInstanceSettings>(config => CheckSettings(config))));
         }
 
-
         private bool CheckSettings(IEmailConfigInstanceSettings config)
         {
             return config.Authenticated == _outgoingSettings.AuthenticatedSmtp &&

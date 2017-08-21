@@ -126,7 +126,9 @@
     <Compile Include="Models\CreateResult.cs" />
     <Compile Include="Models\DTO\FolderDto.cs" />
     <Compile Include="Models\DTO\User.cs" />
+    <Compile Include="Models\Emails\EmailIncomingSettings.cs" />
     <Compile Include="Models\Emails\EmailOutgoingSettings.cs" />
+    <Compile Include="Services\Email\EmailClientType.cs" />
     <Compile Include="Models\Emails\TestEmailConfigInstanceSettings.cs" />
     <Compile Include="Models\Enums\LicenseType.cs" />
     <Compile Include="Models\Enums\OperationMode.cs" />
@@ -231,6 +233,14 @@
     <Compile Include="Saml\SamlCertificateValidator.cs" />
     <Compile Include="Saml\SamlRepository.cs" />
     <Compile Include="Saml\SamlIssuerNameRegistry.cs" />
+    <Compile Include="Services\Email\EmailClientFactory.cs" />
+    <Compile Include="Services\Email\EmailClientConfig.cs" />
+    <Compile Include="Services\Email\IEmailClient.cs" />
+    <Compile Include="Services\Email\IEmailClientFactory.cs" />
+    <Compile Include="Services\Email\IIncomingEmailService.cs" />
+    <Compile Include="Services\Email\ImapEmailClient.cs" />
+    <Compile Include="Services\Email\Pop3EmailClient.cs" />
+    <Compile Include="Services\Email\IncomingEmailService.cs" />
     <Compile Include="Services\Instance\EmailSettingsService.cs" />
     <Compile Include="Services\Instance\IEmailSettingsService.cs" />
     <Compile Include="Services\Instance\IInstanceService.cs" />

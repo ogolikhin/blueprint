@@ -68,6 +68,11 @@ namespace AdminStore.Services.Workflow
 
         public async Task<string> GetImportWorkflowErrorsAsync(string guid, int userId)
         {
+            if (string.IsNullOrWhiteSpace(guid))
+            {
+                throw new BadRequestException("The error GUID is not provided.", ErrorCodes.BadRequest);
+            }
+
             File errorsFile = null;
             try
             {

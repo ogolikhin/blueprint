@@ -110,6 +110,7 @@
     <Compile Include="Controllers\InstanceEmailSettingsController.cs" />
     <Compile Include="Controllers\JobsController.cs" />
     <Compile Include="Controllers\LogController.cs" />
+    <Compile Include="Helpers\EmailTemplateHelper.cs" />
     <Compile Include="Helpers\FolderValidator.cs" />
     <Compile Include="Helpers\GroupMapper.cs" />
     <Compile Include="Helpers\GroupsHelper.cs" />

@@ -18,7 +18,7 @@ namespace ServiceLibrary.Notification.Templates
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\SourceCode\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
+    #line 1 "C:\source\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "14.0.0.0")]
     public partial class NotificationEmailContent : NotificationEmailContentBase
     {
@@ -29,9 +29,10 @@ namespace ServiceLibrary.Notification.Templates
         public virtual string TransformText()
         {
             this.Write("\r\n<!doctype html>\r\n<html>\r\n<head>\r\n<meta charset=\"utf-8\">\r\n<title>Email</title>\r\n" +
-                    "\r\n</head>\r\n\r\n<body style=\"margin:0; padding:0;\">\r\n\r\n\t<p>");
+                    "<style>\r\nth, td {\r\n\ttext-align: left;\r\n\tpadding: 10px;\r\n}\r\n</style>\r\n</head>\r\n\r\n" +
+                    "<body style=\"margin:0; padding:0;\">\r\n\r\n\t<p>");
             
-            #line 18 "C:\SourceCode\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
+            #line 23 "C:\source\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Email.Body));
             
             #line default
@@ -39,30 +40,30 @@ namespace ServiceLibrary.Notification.Templates
             this.Write("</p>\r\n\r\n\t<table>\r\n\t\t<tr>\r\n\t\t\t<th>Property</th>\r\n\t\t\t<th>Value</th>\r\n\t\t</tr>\r\n\r\n\t\t<" +
                     "tr>\r\n\t\t\t<td>Project Name</td>\r\n\t\t\t<td>");
             
-            #line 28 "C:\SourceCode\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
+            #line 33 "C:\source\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Email.ProjectName));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t</tr>\r\n\r\n\t\t<tr>\r\n\t\t\t<td>Artifact Name</td>\r\n\t\t\t<td>");
             
-            #line 33 "C:\SourceCode\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
+            #line 38 "C:\source\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Email.ArtifactName));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t</tr>\r\n\r\n\t\t<tr>\r\n\t\t\t<td>URL</td>\r\n\t\t\t<td style=\"color:#1b1b1b; font-fami" +
-                    "ly:Arial; font-size: 12px;\"> Having trouble with the link above? Just copy and p" +
+                    "ly:Arial; font-size: 12px;\"> Having trouble with the link below? Just copy and p" +
                     "aste the URL below into your browser.<br> \r\n\t\t\t\t<a href=\"");
             
-            #line 39 "C:\SourceCode\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
+            #line 44 "C:\source\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Email.ArtifactUrl));
             
             #line default
             #line hidden
             this.Write("\">");
             
-            #line 39 "C:\SourceCode\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
+            #line 44 "C:\source\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Email.ArtifactUrl));
             
             #line default

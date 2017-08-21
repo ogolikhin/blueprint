@@ -9,5 +9,6 @@ namespace AdminStore.Services.Instance
         Task<EmailSettings> GetEmailSettingsAsync(int userId);
 
         Task SendTestEmailAsync(int userId, EmailOutgoingSettings outgoingSettings);
+        Task TestIncomingEmailConnectionAsync(int userId, EmailIncomingSettings incomingSettings);
     }
 }

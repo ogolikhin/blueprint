@@ -195,6 +195,39 @@ namespace AdminStore.Controllers
             return Ok(result);
         }
 
+        #region Project role assignments
+
+        /// <summary>
+        /// The method returns all roles assignments for the specified project.
+        /// </summary>
+        /// <param name="projectId">Project's identity</param>
+        /// <param name="pagination">Pagination parameters</param>
+        /// <param name="sorting">Sorting parameters</param>
+        /// <param name="search">The parameter for searching by group name.</param>
+        /// <response code="200">OK. The list of roles assignments for the project.</response>
+        /// <response code="400">BadRequest. Parameters are invalid. </response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. if user doesn’t have permissions to get roles assignments for the project.</response>
+        /// <response code="404">NotFound. The project with the current id does not exist.</response>
+        [Route("projects/{projectId:int:min(1)}/rolesassignments")]
+        [SessionRequired]
+        [ResponseType(typeof(QueryResult<RolesAssignments>))]
+        public async Task<IHttpActionResult> GetProjectRoleAssignments(int projectId, [FromUri]Pagination pagination, [FromUri]Sorting sorting, string search = null)
+        {
+            pagination.Validate();
+
+            await
+                _privilegesManager.DemandAny(Session.UserId, projectId, InstanceAdminPrivileges.AccessAllProjectsAdmin,
+                    ProjectAdminPrivileges.ViewGroupsAndRoles);
+
+            var tabularData = new TabularData { Pagination = pagination, Sorting = sorting, Search = search };
+            var result = await _instanceRepository.GetProjectRoleAssignmentsAsync(projectId, tabularData, SortingHelper.SortProjectRolesAssignments);
+
+            return Ok(result);
+        }
+
+        #endregion
+
         #region folders
 
         /// <summary>

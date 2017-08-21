@@ -34,5 +34,13 @@ namespace AdminStore.Controllers
             return _emailSettingsService.SendTestEmailAsync(Session.UserId, settings);
         }
 
+        [Route("testconnection")]
+        [HttpPost, SessionRequired]
+        [ActionName("TestConnection")]
+        public Task TestConnectionAsync([FromBody] EmailIncomingSettings settings)
+        {
+            return _emailSettingsService.TestIncomingEmailConnectionAsync(Session.UserId, settings);
+        }
+
     }
 }

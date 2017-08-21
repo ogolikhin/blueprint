@@ -86,6 +86,7 @@ namespace AdminStore
             config.AssertAction<InstanceController>("GetProjectAdminPermissions", HttpMethod.Get, "instance/projects/1/privileges");
             config.AssertAction<InstanceController>("GetProjectRolesAsync", HttpMethod.Get, "instance/projects/1/roles");
             config.AssertAction<InstanceEmailSettingsController>("SendTestEmail", HttpMethod.Post, "instance/emailsettings/sendtestemail");
+            config.AssertAction<InstanceEmailSettingsController>("TestConnection", HttpMethod.Post, "instance/emailsettings/testconnection");
         }
 
         [TestMethod]

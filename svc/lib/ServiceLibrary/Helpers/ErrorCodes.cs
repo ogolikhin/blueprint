@@ -104,10 +104,17 @@
         public const int InvalidArtifactProperty = 14001;
 
         //Email Settings errors
-        public const int EmptyMailServer = 15001;
-        public const int PortOutOfRange = 15002;
-        public const int EmptySmtpAdministratorUsername = 15003;
-        public const int EmptySmtpAdministratorPassword = 15004;
-        public const int UserHasNoEmail = 15005;
+        public const int OutgoingEmptyMailServer = 15001;
+        public const int OutgoingPortOutOfRange = 15002;
+        public const int IncomingEmptyMailServer = 15003;
+        public const int IncomingPortOutOfRange = 15004;
+        public const int EmptySmtpAdministratorUsername = 15005;
+        public const int EmptySmtpAdministratorPassword = 15006;
+        public const int UserHasNoEmail = 15007;
+        public const int EmptyEmailUsername = 15008;
+        public const int EmptyEmailPassword = 15009;
+        public const int UnknownIncomingMailServerError = 15010;
+        public const int IncomingMailServerInvalidHostname = 15011;
+        public const int IncomingMailServerInvalidCredentials = 15012;
     }
 }

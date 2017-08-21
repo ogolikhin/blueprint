@@ -1,5 +1,5 @@
-﻿using System;
-using ActionHandlerService.Models.Enums;
+﻿using ActionHandlerService.Models.Enums;
+using ActionHandlerService.Models.Exceptions;
 using BluePrintSys.Messaging.CrossCutting;
 using BluePrintSys.Messaging.Models.Actions;
 
@@ -51,7 +51,7 @@ namespace ActionHandlerService.Helpers
                 {
                     return MessageBroker.SQL;
                 }
-                throw new Exception($"Invalid Connection String. It must contain {host} or {datasource}");
+                throw new InvalidConnectionStringException($"Invalid Connection String: {connectionString}. It must contain {host} or {datasource}");
             }
         }
 

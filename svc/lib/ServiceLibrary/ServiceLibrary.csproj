@@ -198,7 +198,6 @@
     <Compile Include="Models\Item.cs" />
     <Compile Include="Models\ItemDetails.cs" />
     <Compile Include="Models\ItemInfo.cs" />
-    <Compile Include="Models\IWorkflowEvent.cs" />
     <Compile Include="Models\Jobs\AddJobResult.cs" />
     <Compile Include="Models\Jobs\DJobMessage.cs" />
     <Compile Include="Models\Jobs\JobInfo.cs" />
@@ -260,18 +259,9 @@
     <Compile Include="Models\VersionControl\SqlItemInfo.cs" />
     <Compile Include="Models\VersionControl\SqlJournalEntry.cs" />
     <Compile Include="Models\VersionControl\SqlPublishResult.cs" />
-    <Compile Include="Models\Workflow\Actions\PropertyChangeAction.cs" />
-    <Compile Include="Models\Workflow\ExecutionParameters.cs" />
-    <Compile Include="Models\Workflow\Workflow.cs" />
-    <Compile Include="Models\Workflow\Actions\WorkflowEventAction.cs" />
-    <Compile Include="Models\Workflow\WorkflowEventCondition.cs" />
     <Compile Include="Models\Workflow\WorkflowConstants.cs" />
-    <Compile Include="Models\Workflow\WorkflowEventTrigger.cs" />
     <Compile Include="Models\Workflow\WorkflowState.cs" />
     <Compile Include="Models\Workflow\WorkflowStateChangeParameter.cs" />
-    <Compile Include="Models\Workflow\WorkflowTransition.cs" />
-    <Compile Include="Models\Workflow\WorkflowTransitionResult.cs" />
-    <Compile Include="Models\Workflow\WorkflowEventTriggers.cs" />
     <Compile Include="Models\Workflow\XmlAction.cs" />
     <Compile Include="Models\Workflow\XmlCondition.cs" />
     <Compile Include="Models\Workflow\XmlEmailNotificationAction.cs" />
@@ -306,6 +296,7 @@
     <Compile Include="Repositories\ProjectMeta\PropertyXml\Models\XmlCustomProperties.cs" />
     <Compile Include="Repositories\ProjectMeta\PropertyXml\Models\XmlCustomProperty.cs" />
     <Compile Include="Repositories\ProjectMeta\PropertyXml\Models\XmlCustomPropertyValidValue.cs" />
+    <Compile Include="Repositories\ProjectMeta\PropertyXml\XmlModelConvert.cs" />
     <Compile Include="Repositories\ProjectMeta\PropertyXml\XmlModelSerializer.cs" />
     <Compile Include="Repositories\ProjectMeta\SqlProjectMetaRepository.cs" />
     <Compile Include="Repositories\SqlArtifactPermissionsRepository.cs" />
@@ -325,6 +316,8 @@
     <Compile Include="Services\FeaturesService.cs" />
     <Compile Include="Services\ICurrentDateTimeService.cs" />
     <Compile Include="Services\IFeaturesService.cs" />
+    <Compile Include="Services\IWebsiteAddressService.cs" />
+    <Compile Include="Services\WebsiteAddressService.cs" />
     <Compile Include="Swagger\SwaggerConfig.cs" />
     <Compile Include="Models\Files\NetworkContentStream.cs" />
     <Compile Include="Helpers\WebHeaderCollectionExtensions.cs" />

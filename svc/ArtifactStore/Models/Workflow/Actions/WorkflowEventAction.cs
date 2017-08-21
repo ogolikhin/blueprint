@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using ServiceLibrary.Models.Enums;
 
-namespace ServiceLibrary.Models.Workflow.Actions
+namespace ArtifactStore.Models.Workflow.Actions
 {
     public abstract class WorkflowEventAction
     {
@@ -15,18 +15,18 @@ namespace ServiceLibrary.Models.Workflow.Actions
 
     public interface IWorkflowEventSynchronousAction
     {
-        void ValidateActionToBeProcessed(ExecutionParameters executionParameters);
+        bool ValidateActionToBeProcessed(ExecutionParameters executionParameters);
     }
 
     public abstract class WorkflowEventSynchronousWorkflowEventAction : WorkflowEventAction, IWorkflowEventSynchronousAction
     {
         public override async Task<bool> Execute(ExecutionParameters executionParameters)
         {
-            ValidateActionToBeProcessed(executionParameters);
-            return await Task.FromResult(true);
+            var result = ValidateActionToBeProcessed(executionParameters);
+            return await Task.FromResult(result);
         }
 
-        public abstract void ValidateActionToBeProcessed(ExecutionParameters executionParameters);
+        public abstract bool ValidateActionToBeProcessed(ExecutionParameters executionParameters);
 
     }
 

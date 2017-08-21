@@ -173,7 +173,7 @@ namespace AdminStore.Repositories
 
         public async Task<IEnumerable<FolderDto>> GetFoldersByName(string name)
         {
-            if (string.IsNullOrWhiteSpace(name))
+            if (!string.IsNullOrWhiteSpace(name))
             {
                 name = UsersHelper.ReplaceWildcardCharacters(name);
             }
@@ -319,9 +319,9 @@ namespace AdminStore.Repositories
                     switch (errorCode.Value)
                     {
                         case -2: // Instance project issue
-                            throw new BadRequestException(I18NHelper.FormatInvariant(ErrorMessages.ForbidToPurgeSystemInstanceProjectForInternalUseOnly, project.Id), ErrorCodes.BadRequest);
+                            throw new ConflictException(I18NHelper.FormatInvariant(ErrorMessages.ForbidToPurgeSystemInstanceProjectForInternalUseOnly, project.Id), ErrorCodes.Conflict);
                         case -1: // Cross project move issue
-                            throw new BadRequestException(I18NHelper.FormatInvariant(ErrorMessages.ArtifactWasMovedToAnotherProject, project.Id), ErrorCodes.BadRequest);
+                            throw new ResourceNotFoundException(I18NHelper.FormatInvariant(ErrorMessages.ArtifactWasMovedToAnotherProject, project.Id), ErrorCodes.ResourceNotFound);
                         case 0:
                             // Success
                             break;

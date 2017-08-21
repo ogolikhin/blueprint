@@ -95,6 +95,7 @@
         public const int TenantInfoNotFound = 12000;
         public const int UnsupportedActionType = 12001;
         public const int MessageHeaderValueNotFound = 12002;
+        public const int InvalidConnectionString = 12003;
 
         // Unexpected Errors
         public const int UnexpectedError = 13001;
@@ -102,5 +103,11 @@
         //Property Type errors
         public const int InvalidArtifactProperty = 14001;
 
+        //Email Settings errors
+        public const int EmptyMailServer = 15001;
+        public const int PortOutOfRange = 15002;
+        public const int EmptySmtpAdministratorUsername = 15003;
+        public const int EmptySmtpAdministratorPassword = 15004;
+        public const int UserHasNoEmail = 15005;
     }
 }

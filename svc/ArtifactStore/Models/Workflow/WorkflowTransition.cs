@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
+using ServiceLibrary.Models;
+using ServiceLibrary.Models.Workflow;
 
-namespace ServiceLibrary.Models.Workflow
+namespace ArtifactStore.Models.Workflow
 {
     public class WorkflowTransition : IWorkflowEvent
     {

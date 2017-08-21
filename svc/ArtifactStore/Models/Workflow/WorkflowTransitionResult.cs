@@ -1,6 +1,7 @@
-﻿using ServiceLibrary.Models.Enums;
+﻿using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
 
-namespace ServiceLibrary.Models.Workflow
+namespace ArtifactStore.Models.Workflow
 {
     public class WorkflowTransitionResult : QueryResult<WorkflowTransition>
     {

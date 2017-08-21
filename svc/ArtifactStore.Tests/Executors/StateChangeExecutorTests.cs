@@ -2,6 +2,7 @@
 using System.Data;
 using System.Threading.Tasks;
 using ArtifactStore.Models;
+using ArtifactStore.Models.Workflow;
 using ArtifactStore.Repositories;
 using ArtifactStore.Repositories.Reuse;
 using ArtifactStore.Repositories.Workflow;
@@ -32,6 +33,7 @@ namespace ArtifactStore.Executors
         private ISqlHelper _sqlHelperMock;
         private Mock<IVersionControlService> _versionControlService;
         private Mock<IReuseRepository> _reuseRepository;
+        private Mock<ISaveArtifactRepository> _saveArtifactRepositoryMock;
 
         [TestInitialize]
         public void TestInitialize()
@@ -48,12 +50,14 @@ namespace ArtifactStore.Executors
             _sqlHelperMock = new SqlHelperMock();
             _versionControlService = new Mock<IVersionControlService>(MockBehavior.Loose);
             _reuseRepository = new Mock<IReuseRepository>(MockBehavior.Loose);
+            _saveArtifactRepositoryMock = new Mock<ISaveArtifactRepository>(MockBehavior.Loose);
             _stateChangeExecutor = new StateChangeExecutor(ex, UserId,
                 _artifactVersionsRepository.Object,
                 _workflowRepository.Object,
                 _sqlHelperMock,
                 _versionControlService.Object,
-                _reuseRepository.Object
+                _reuseRepository.Object,
+                _saveArtifactRepositoryMock.Object
                 );
         }
 

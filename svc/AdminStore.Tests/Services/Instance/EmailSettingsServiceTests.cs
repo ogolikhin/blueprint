@@ -3,6 +3,7 @@ using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Models.Emails;
 using AdminStore.Repositories;
+using AdminStore.Services.Email;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Exceptions;
@@ -18,8 +19,10 @@ namespace AdminStore.Services.Instance
     {
         private EmailSettingsService _emailSettingsService;
         private Mock<IEmailHelper> _emailHelperMock;
+        private Mock<IIncomingEmailService> _incomingEmailServiceMock;
 
         private EmailOutgoingSettings _outgoingSettings;
+        private EmailIncomingSettings _incomingSettings;
         private InstanceAdminPrivileges _adminPrivilege;
         private User _user;
 
@@ -36,12 +39,14 @@ namespace AdminStore.Services.Instance
             Mock<IWebsiteAddressService> websiteAddressServiceMock = new Mock<IWebsiteAddressService>();
             Mock<IInstanceSettingsRepository> instanceSettingsRepositoryMock = new Mock<IInstanceSettingsRepository>();
             _emailHelperMock = new Mock<IEmailHelper>();
+            _incomingEmailServiceMock = new Mock<IIncomingEmailService>();
 
             _emailSettingsService = new EmailSettingsService(new PrivilegesManager(privilegesRepositoryMock.Object),
                                                              userRepositoryMock.Object,
                                                              _emailHelperMock.Object,
                                                              websiteAddressServiceMock.Object,
-                                                             instanceSettingsRepositoryMock.Object);
+                                                             instanceSettingsRepositoryMock.Object,
+                                                             _incomingEmailServiceMock.Object);
 
             privilegesRepositoryMock.Setup(repo => repo.GetInstanceAdminPrivilegesAsync(UserId)).ReturnsAsync(() => _adminPrivilege);
 
@@ -51,7 +56,8 @@ namespace AdminStore.Services.Instance
 
             instanceSettingsRepositoryMock.Setup(repo => repo.GetEmailSettings()).ReturnsAsync(new EmailSettings()
             {
-                Password = EncryptedPassword
+                Password = EncryptedPassword,
+                IncomingPassword = EncryptedPassword
             });
 
             //Setup Default Values
@@ -64,6 +70,17 @@ namespace AdminStore.Services.Instance
                 Port = 2,
                 ServerAddress = "smtp.blueprintsys.com",
                 IsPasswordDirty = true
+            };
+
+            _incomingSettings = new EmailIncomingSettings()
+            {
+                AccountUsername = "admin",
+                AccountPassword = "password",
+                EnableSsl = true,
+                Port = 2,
+                ServerAddress = "mail.test.com",
+                ServerType = EmailClientType.Imap,
+                IsPasswordDirty = false
             };
 
             _adminPrivilege = InstanceAdminPrivileges.ManageInstanceSettings;
@@ -111,7 +128,7 @@ namespace AdminStore.Services.Instance
                 //Assert
             catch (BadRequestException ex)
             {
-                Assert.AreEqual(ex.ErrorCode, ErrorCodes.EmptyMailServer);
+                Assert.AreEqual(ex.ErrorCode, ErrorCodes.OutgoingEmptyMailServer);
                 return;
             }
 
@@ -132,7 +149,7 @@ namespace AdminStore.Services.Instance
             //Assert
             catch (BadRequestException ex)
             {
-                Assert.AreEqual(ex.ErrorCode, ErrorCodes.PortOutOfRange);
+                Assert.AreEqual(ex.ErrorCode, ErrorCodes.OutgoingPortOutOfRange);
                 return;
             }
 
@@ -153,7 +170,7 @@ namespace AdminStore.Services.Instance
             //Assert
             catch (BadRequestException ex)
             {
-                Assert.AreEqual(ex.ErrorCode, ErrorCodes.PortOutOfRange);
+                Assert.AreEqual(ex.ErrorCode, ErrorCodes.OutgoingPortOutOfRange);
                 return;
             }
 
@@ -289,6 +306,185 @@ namespace AdminStore.Services.Instance
 
             //Assert
             _emailHelperMock.Verify(helper => helper.SendEmail(_user.Email, It.IsAny<string>(), It.IsAny<string>()));
+        }
+
+        #endregion
+
+        #region CheckingIncomingEmailConnectionAsync
+
+        [TestMethod]
+        public async Task CheckIncomingEmailConnectionAsync_Should_Throw_AuthorizationException_When_User_Doesnt_Have_ManageInstanceSettings_Permission()
+        {
+            //Arrange
+            _adminPrivilege = InstanceAdminPrivileges.ViewInstanceSettings;
+
+            //Act
+            try
+            {
+                await _emailSettingsService.TestIncomingEmailConnectionAsync(UserId, _incomingSettings);
+            }
+            //Assert
+            catch (AuthorizationException ex)
+            {
+                Assert.AreEqual(ErrorCodes.Forbidden, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("No AuthorizationException was thrown.");
+        }
+
+        [TestMethod]
+        public async Task CheckIncomingEmailConnectionAsync_Should_Throw_BadRequestException_When_ServerAddress_Is_Empty()
+        {
+            //Arrange
+            _incomingSettings.ServerAddress = null;
+
+            //Act
+            try
+            {
+                await _emailSettingsService.TestIncomingEmailConnectionAsync(UserId, _incomingSettings);
+            }
+            //Assert
+            catch (BadRequestException ex)
+            {
+                Assert.AreEqual(ErrorCodes.IncomingEmptyMailServer, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("No BadRequestException was thrown.");
+        }
+
+        [TestMethod]
+        public async Task CheckIncomingEmailConnectionAsync_Should_Throw_BadRequestException_When_Port_Is_Less_Than_1()
+        {
+            //Arrange
+            _incomingSettings.Port = 0;
+
+            //Act
+            try
+            {
+                await _emailSettingsService.TestIncomingEmailConnectionAsync(UserId, _incomingSettings);
+            }
+            //Assert
+            catch (BadRequestException ex)
+            {
+                Assert.AreEqual(ErrorCodes.IncomingPortOutOfRange, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("No BadRequestException was thrown.");
+        }
+
+        [TestMethod]
+        public async Task CheckIncomingEmailConnectionAsync_Should_Throw_BadRequestException_When_Port_Is_Greater_Than_65535()
+        {
+            //Arrange
+            _incomingSettings.Port = 65536;
+
+            //Act
+            try
+            {
+                await _emailSettingsService.TestIncomingEmailConnectionAsync(UserId, _incomingSettings);
+            }
+            //Assert
+            catch (BadRequestException ex)
+            {
+                Assert.AreEqual(ErrorCodes.IncomingPortOutOfRange, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("No BadRequestException was thrown.");
+        }
+
+        [TestMethod]
+        public async Task CheckIncomingEmailConnectionAsync_Should_Throw_BadRequestException_When_Username_Is_Empty()
+        {
+            //Arrange
+            _incomingSettings.AccountUsername = null;
+
+            //Act
+            try
+            {
+                await _emailSettingsService.TestIncomingEmailConnectionAsync(UserId, _incomingSettings);
+            }
+            //Assert
+            catch (BadRequestException ex)
+            {
+                Assert.AreEqual(ErrorCodes.EmptyEmailUsername, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("No BadRequestException was thrown.");
+        }
+
+        [TestMethod]
+        public async Task CheckIncomingEmailConnectionAsync_Should_Throw_BadRequestException_When_Password_Is_Empty()
+        {
+            //Arrange
+            _incomingSettings.AccountPassword = null;
+
+            //Act
+            try
+            {
+                await _emailSettingsService.TestIncomingEmailConnectionAsync(UserId, _incomingSettings);
+            }
+            //Assert
+            catch (BadRequestException ex)
+            {
+                Assert.AreEqual(ErrorCodes.EmptyEmailPassword, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("No BadRequestException was thrown.");
+        }
+
+        [TestMethod]
+        public async Task CheckIncomingEmailConnectionAsync_Should_TestEmailConnection()
+        {
+            //Act
+            await _emailSettingsService.TestIncomingEmailConnectionAsync(UserId, _incomingSettings);
+
+            //Assert
+            _incomingEmailServiceMock.Verify(service => service.TryConnect(It.Is<EmailClientConfig>(config => CheckEmailClientConfig(config))));
+        }
+
+        private bool CheckEmailClientConfig(EmailClientConfig config)
+        {
+            return config.EnableSsl == _incomingSettings.EnableSsl &&
+                   config.AccountPassword == _incomingSettings.AccountPassword &&
+                   config.AccountUsername == _incomingSettings.AccountUsername &&
+                   config.ClientType == _incomingSettings.ServerType &&
+                   config.Port == _incomingSettings.Port &&
+                   config.ServerAddress == _incomingSettings.ServerAddress;
+        }
+
+        [TestMethod]
+        public async Task CheckIncomingEmailConnectionAsync_Should_Use_Password_From_Repository_When_IsPasswordDirty_Is_True()
+        {
+            //Arrange
+            _incomingSettings.IsPasswordDirty = true;
+
+            //Act
+            await _emailSettingsService.TestIncomingEmailConnectionAsync(UserId, _incomingSettings);
+
+            //Assert
+            _incomingEmailServiceMock.Verify(service => service.TryConnect(It.Is<EmailClientConfig>(config => CheckEmailClientConfigWithDirtyPassword(config))));
+        }
+
+        private bool CheckEmailClientConfigWithDirtyPassword(EmailClientConfig config)
+        {
+            return config.EnableSsl == _incomingSettings.EnableSsl &&
+                   config.AccountPassword == DecryptedPassword &&
+                   config.AccountUsername == _incomingSettings.AccountUsername &&
+                   config.ClientType == _incomingSettings.ServerType &&
+                   config.Port == _incomingSettings.Port &&
+                   config.ServerAddress == _incomingSettings.ServerAddress;
         }
 
         #endregion

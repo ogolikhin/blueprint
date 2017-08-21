@@ -113,7 +113,7 @@
     <Compile Include="MessageHandlers\PropertyChange\PropertyChangeActionHelper.cs" />
     <Compile Include="MessageHandlers\StateTransition\StateTransitionMessageHandler.cs" />
     <Compile Include="MessageHandlers\StateTransition\StateTransitionActionHelper.cs" />
-    <Compile Include="Models\SqlArtifactTriggers.cs" />
+    <Compile Include="Models\SqlWorkflowEvent.cs" />
     <Compile Include="Models\SqlModifiedProperty.cs" />
     <Compile Include="Models\SqlProject.cs" />
     <Compile Include="Repositories\ActionHandlerServiceRepository.cs" />

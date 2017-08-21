@@ -1,61 +1,68 @@
-﻿using System.Collections.Generic;
-using ActionHandlerService.MessageHandlers.ArtifactPublished;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using ActionHandlerService.Models;
+using BluePrintSys.Messaging.CrossCutting.Logging;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Models.Workflow;
 
 namespace ActionHandlerService.Helpers
 {
     public interface IActionsParser
     {
-        IEnumerable<NotificationAction> GetNotificationActions(IEnumerable<SqlArtifactTriggers> sqlArtifactTriggers);
+        List<NotificationAction> GetNotificationActions(IEnumerable<SqlWorkflowEvent> sqlArtifactTriggers);
     }
 
     public class ActionsParser : IActionsParser
     {
-        public IEnumerable<NotificationAction> GetNotificationActions(IEnumerable<SqlArtifactTriggers> sqlArtifactTriggers)
+        public List<NotificationAction> GetNotificationActions(IEnumerable<SqlWorkflowEvent> sqlArtifactTriggers)
         {
-            //Should be replaced with some pattern here
+            var notifications = new List<NotificationAction>();
             foreach (var workflowEvent in sqlArtifactTriggers)
             {
-                var triggers = GetTriggers(workflowEvent.Triggers);
-                foreach (var trigger in triggers)
+                var triggersXml = workflowEvent.Triggers;
+                var xmlWorkflowEventTriggers = new XmlWorkflowEventTriggers();
+                if (!string.IsNullOrWhiteSpace(triggersXml))
                 {
-                    yield return new NotificationAction
+                    try
                     {
-                        PropertyTypeId = workflowEvent.EventPropertyTypeId ?? 0,
-                        ConditionalStateId = workflowEvent.RequiredPreviousStateId,
-                        FromEmail = trigger.FromEmail,
-                        ToEmail = trigger.ToEmail,
-                        Subject = trigger.Subject,
-                        MessageTemplate = trigger.MessageTemplate
-                    };
+                        Log.Info($"deserializing triggers: {triggersXml}");
+                        xmlWorkflowEventTriggers = SerializationHelper.FromXml<XmlWorkflowEventTriggers>(triggersXml);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error($"Deserialization failed for triggers: {triggersXml}", ex);
+                    }
+                }
+                var triggersWithEmailActions = xmlWorkflowEventTriggers.Triggers.Where(trigger => trigger.Action.ActionType == ActionTypes.EmailNotification);
+                foreach (var trigger in triggersWithEmailActions)
+                {
+                    var action = (XmlEmailNotificationAction) trigger.Action;
+                    XmlStateCondition condition = null;
+                    if (trigger.Condition?.ConditionType == ConditionTypes.State)
+                    {
+                        condition = (XmlStateCondition) trigger.Condition;
+                    }
+                    notifications.Add(
+                        new NotificationAction
+                        {
+                            ToEmails = action.Emails,
+                            ConditionalStateId = condition?.StateId,
+                            PropertyTypeId = workflowEvent.EventPropertyTypeId ?? 0
+                        });
                 }
             }
-        }
-
-        private List<Trigger> GetTriggers(string triggersXml)
-        {
-            var triggers = new List<Trigger>();
-            if (!string.IsNullOrWhiteSpace(triggersXml))
-            {
-                //TODO parse the XML
-                var testTrigger = new Trigger
-                {
-                    FromEmail = "munish.saini@blueprintsys.com",
-                    ToEmail = "munish.saini@blueprintsys.com",
-                    Subject = "Artifact has been published.",
-                    MessageTemplate = "Artifact has been published."
-                };
-                triggers.Add(testTrigger);
-            }
-            return triggers;
+            return notifications;
         }
     }
 
-    public class Trigger
+    public class NotificationAction
     {
-        public string FromEmail { get; set; }
-        public string ToEmail { get; set; }
-        public string Subject { get; set; }
-        public string MessageTemplate { get; set; }
+        public IEnumerable<string> ToEmails { get; set; }
+        public int? ConditionalStateId { get; set; }
+        public int PropertyTypeId { get; set; }
+        public string FromDisplayName => string.Empty;
+        public string Subject => "Artifact has been published.";
+        public string MessageTemplate => "You are being notified because of an update to the following artifact:";
     }
 }

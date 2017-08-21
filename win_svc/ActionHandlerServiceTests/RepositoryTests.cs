@@ -88,10 +88,10 @@ namespace ActionHandlerServiceTests
                 {nameof(eventType), eventType},
                 {nameof(itemIds), SqlConnectionWrapper.ToDataTable(itemIds)}
             };
-            var result = new List<SqlArtifactTriggers>();
+            var result = new List<SqlWorkflowEvent>();
             for (int i = 0; i < 5; i++)
             {
-                result.Add(new SqlArtifactTriggers {Triggers = $"Triggers{i}"});
+                result.Add(new SqlWorkflowEvent {Triggers = $"Triggers{i}"});
             }
             connectionMock.SetupQueryAsync(storedProcedure, parameters, result);
 

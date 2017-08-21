@@ -1,6 +1,7 @@
 ﻿using System;
 using MailBee;
 using MailBee.ImapMail;
+using MailBee.Security;
 
 namespace AdminStore.Services.Email
 {
@@ -8,7 +9,17 @@ namespace AdminStore.Services.Email
     {
         private readonly Imap _imap;
 
-        public bool UseSsl { get; set; }
+        private bool _useSsl;
+
+        public bool UseSsl
+        {
+            get { return _useSsl; }
+            set
+            {
+                _useSsl = value;
+                _imap.SslMode = value ? SslStartupMode.OnConnect : SslStartupMode.Manual;
+            }
+        }
 
         public ImapEmailClient()
         {

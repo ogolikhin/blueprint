@@ -1,6 +1,7 @@
 ﻿using System;
 using MailBee;
 using MailBee.Pop3Mail;
+using MailBee.Security;
 
 namespace AdminStore.Services.Email
 {
@@ -13,7 +14,17 @@ namespace AdminStore.Services.Email
             _pop3 = new Pop3();
         }
 
-        public bool UseSsl { get; set; }
+        private bool _useSsl;
+
+        public bool UseSsl
+        {
+            get { return _useSsl; }
+            set
+            {
+                _useSsl = value;
+                _pop3.SslMode = value ? SslStartupMode.OnConnect : SslStartupMode.Manual;
+            }
+        }
 
         public void Connect(string serverAddress, int port)
         {

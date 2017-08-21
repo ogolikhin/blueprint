@@ -20,6 +20,8 @@ namespace AdminStore.Services.Instance
         private readonly IWebsiteAddressService _websiteAddressService;
         private readonly IInstanceSettingsRepository _instanceSettingsRepository;
 
+        private const string TestEmailSubject = "Blueprint Test Email";
+
         public EmailSettingsService() : this(new PrivilegesManager(new SqlPrivilegesRepository()),
                                              new SqlUserRepository(),
                                              new EmailHelper(),
@@ -54,13 +56,9 @@ namespace AdminStore.Services.Instance
 
             _emailHelper.Initialize(config);
 
-            //TODO: Body and Subject need to be localized, this is temporary
-            string blueprintUrl = "http://www.blueprintsys.net/";
+            string body = EmailTemplateHelper.GetSendTestEmailTemplate(_websiteAddressService.GetWebsiteAddress());
 
-            string body = $"A test email was requested from the Blueprint Instance Administration Console.<br/><br/>This email was sent to you as a registered <a href='{blueprintUrl}'>{blueprintUrl}</a> user from {_websiteAddressService.GetWebsiteAddress()}";
-            string subject = "Blueprint Test Email";
-
-            _emailHelper.SendEmail(currentUser.Email, subject, body);
+            _emailHelper.SendEmail(currentUser.Email, TestEmailSubject, body);
         }
 
         private async Task<IEmailConfigInstanceSettings> GetEmailConfigAsync(EmailOutgoingSettings outgoingSettings, User currentUser)

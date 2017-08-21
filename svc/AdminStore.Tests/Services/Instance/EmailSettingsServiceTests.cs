@@ -24,6 +24,8 @@ namespace AdminStore.Services.Instance
         private User _user;
 
         private const int UserId = 1;
+        private const string TestEmailSubject = "Blueprint Test Email";
+
         private const string WebsiteAddress = "https://blueprintsys.net";
         private const string DecryptedPassword = "DECRYPTED_PASSWORD";
         private const string EncryptedPassword = "fQR9SncMLDQYBY2g0snDP3b63WixRjlmAMh1Ry54fLY=";
@@ -289,7 +291,7 @@ namespace AdminStore.Services.Instance
             await _emailSettingsService.SendTestEmailAsync(UserId, _outgoingSettings);
 
             //Assert
-            _emailHelperMock.Verify(helper => helper.SendEmail(_user.Email, It.IsAny<string>(), It.IsAny<string>()));
+            _emailHelperMock.Verify(helper => helper.SendEmail(_user.Email, TestEmailSubject, It.IsAny<string>()));
         }
 
         #endregion

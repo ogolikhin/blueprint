@@ -6,6 +6,7 @@ using ActionHandlerService.Models;
 using ActionHandlerService.Repositories;
 using ArtifactStore.Helpers;
 using BluePrintSys.Messaging.Models.Actions;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
 
 namespace ActionHandlerService.MessageHandlers.ArtifactPublished
@@ -24,7 +25,7 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
         public async Task<bool> HandleAction(TenantInformation tenant, ActionMessage actionMessage, IActionHandlerServiceRepository actionHandlerServiceRepository)
         {
             var message = (ArtifactsPublishedMessage) actionMessage;
-            Logger.Log($"Handling started for user ID {message.UserId}, revision ID {message.RevisionId}", message, tenant, LogLevel.Info);
+            Logger.Log($"Handling started for user ID {message.UserId}, revision ID {message.RevisionId} with message {message.ToJSON()}", message, tenant, LogLevel.Debug);
             var repository = (IArtifactsPublishedRepository) actionHandlerServiceRepository;
 
             //Get modified properties for all artifacts and create a dictionary with key as artifact ids
@@ -96,6 +97,7 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
                 }
 
                 var artifactModifiedPropertiesSet = artifactModifiedProperties.Select(a => a.TypeId).ToHashSet();
+                Logger.Log($"{artifactModifiedPropertiesSet.Count} instance property type IDs being located: {string.Join(", ", artifactModifiedPropertiesSet)}", message, tenant, LogLevel.Debug);
                 var instancePropertyTypeIds = await repository.GetInstancePropertyTypeIdsMap(artifactModifiedPropertiesSet);
                 Logger.Log($"{instancePropertyTypeIds.Count} instance property type IDs found: {string.Join(", ", instancePropertyTypeIds.Select(k => k.Key))}", message, tenant, LogLevel.Info);
 

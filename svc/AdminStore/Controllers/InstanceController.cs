@@ -376,5 +376,32 @@ namespace AdminStore.Controllers
         }
 
         #endregion
+
+
+        #region roles
+        /// <summary>
+        /// Get roles for project
+        /// </summary>
+        /// <param name="projectId">Project id</param>
+        /// <response code="200">OK. The roles for the project are returned</response>
+        /// <response code="400">BadRequest. Parameters are invalid. </response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. If used doesn’t have permissions to get project's roles.</response>
+        /// <response code="404">NotFound. If roles with projectId don’t exists or removed from the system.</response>
+        [HttpGet, NoCache]
+        [Route("projects/{projectId:int:min(1)}/roles"), SessionRequired]
+        [ResponseType(typeof(QueryResult<ProjectRole>))]
+        public async Task<IHttpActionResult> GetProjectRolesAsync(int projectId)
+        {
+            await _privilegesManager.DemandAny(Session.UserId, projectId, InstanceAdminPrivileges.AccessAllProjectsAdmin,
+                    ProjectAdminPrivileges.ViewGroupsAndRoles);
+
+            var result = await _instanceRepository.GetProjectRolesAsync(projectId);
+
+            return Ok(result);
+        }
+
+        #endregion
+
     }
 }

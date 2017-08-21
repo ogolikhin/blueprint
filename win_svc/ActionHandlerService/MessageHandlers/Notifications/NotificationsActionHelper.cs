@@ -18,7 +18,7 @@ namespace ActionHandlerService.MessageHandlers.Notifications
         {
             var message = (NotificationMessage) actionMessage;
             var result = await SendNotificationEmail(tenant, message, (INotificationRepository) actionHandlerServiceRepository);
-            Logger.Log($"Finished processing message with result: {result}", message, tenant, LogLevel.Info);
+            Logger.Log($"Finished processing message with result: {result}", message, tenant, LogLevel.Debug);
             return await Task.FromResult(result == SendEmailResult.Success);
         }
 
@@ -70,9 +70,9 @@ namespace ActionHandlerService.MessageHandlers.Notifications
                 return await Task.FromResult(SendEmailResult.Error);
             }
 
-            Logger.Log("Sending Email", message, tenant, LogLevel.Info);
+            Logger.Log("Sending Email", message, tenant, LogLevel.Debug);
             InternalSendEmail(smtpClientConfiguration, emailMessage, repository);
-            Logger.Log("Email Sent", message, tenant, LogLevel.Info);
+            Logger.Log("Email Sent", message, tenant, LogLevel.Debug);
             return await Task.FromResult(SendEmailResult.Success);
         }
 

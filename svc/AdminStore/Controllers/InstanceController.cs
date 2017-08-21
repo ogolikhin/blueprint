@@ -381,10 +381,10 @@ namespace AdminStore.Controllers
 
         #region roles
         /// <summary>
-        /// Get group's members 
+        /// Get roles for project
         /// </summary>
         /// <param name="projectId">Project id</param>
-        /// <response code="200">OK. The roles for the project is returned</response>
+        /// <response code="200">OK. The roles for the project are returned</response>
         /// <response code="400">BadRequest. Parameters are invalid. </response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. If used doesn’t have permissions to get project's roles.</response>

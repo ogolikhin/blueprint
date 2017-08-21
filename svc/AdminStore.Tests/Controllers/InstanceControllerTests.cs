@@ -649,7 +649,7 @@ namespace AdminStore.Controllers
         #region Project roles
 
         [TestMethod]
-        public async Task GetProjectRolesAsync_ReturnOkNegotiatedResult()
+        public async Task GetProjectRolesAsync_Suttisfied_ReturnOkNegotiatedResult()
         {
             // Arrange
             var projectId = 100;
@@ -701,7 +701,7 @@ namespace AdminStore.Controllers
 
         [TestMethod]
         [ExpectedException(typeof(AuthorizationException))]
-        public async Task GetProjectRolesAsync_NoPermissions_ReturnForbiddenResult()
+        public async Task GetProjectRolesAsync_Failed_NoPermissions_ReturnForbiddenResult()
         {
             //arrange
             var projectId = 100;

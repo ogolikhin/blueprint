@@ -808,7 +808,7 @@ namespace AdminStore.Repositories
         #region Roles
 
         [TestMethod]
-        public async Task GetProjectRolesAsync_NoErrors()
+        public async Task GetProjectRolesAsync_RolesFound_NoErrors()
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
@@ -860,7 +860,7 @@ namespace AdminStore.Repositories
 
         [TestMethod]
         [ExpectedException(typeof(ResourceNotFoundException))]
-        public async Task GetProjectRolesAsync_ReturnResourceNotFoundError()
+        public async Task GetProjectRolesAsync_RolesNotFound_NotFoundError()
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();

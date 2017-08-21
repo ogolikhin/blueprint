@@ -1,8 +1,11 @@
 ﻿using System;
+using AdminStore.Services.Email;
+using MailBee;
 using MailBee.Mime;
 using MailBee.Security;
 using MailBee.SmtpMail;
 using ServiceLibrary.Models;
+using ErrorCodes = ServiceLibrary.Helpers.ErrorCodes;
 
 namespace AdminStore.Helpers
 {
@@ -34,11 +37,18 @@ namespace AdminStore.Helpers
 
         public void SendEmail(string toEmail, string subject, string body)
         {
-            var smtpServer = SmtpServer;
-            var smtp = new Smtp();
-            smtp.SmtpServers.Add(smtpServer);
-            smtp.Message = PrepareMessage(toEmail, _configuration.SenderEmailAddress, subject,  body);
-            smtp.Send();
+            try
+            {
+                var smtpServer = SmtpServer;
+                var smtp = new Smtp();
+                smtp.SmtpServers.Add(smtpServer);
+                smtp.Message = PrepareMessage(toEmail, _configuration.SenderEmailAddress, subject, body);
+                smtp.Send();
+            }
+            catch (MailBeeException ex)
+            {
+                throw new EmailException(ex.Message, ErrorCodes.OutgoingMailError);
+            }
         }
 
         internal static MailMessage PrepareMessage(string toEmail, string fromEmail, string subject, string body)

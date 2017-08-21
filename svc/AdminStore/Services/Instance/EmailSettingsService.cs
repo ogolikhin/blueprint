@@ -62,7 +62,14 @@ namespace AdminStore.Services.Instance
 
             string body = EmailTemplateHelper.GetSendTestEmailTemplate(_websiteAddressService.GetWebsiteAddress());
 
-            _emailHelper.SendEmail(currentUser.Email, TestEmailSubject, body);
+            try
+            {
+                _emailHelper.SendEmail(currentUser.Email, TestEmailSubject, body);
+            }
+            catch (EmailException ex)
+            {
+                throw new BadRequestException(ex.Message, ex.ErrorCode);
+            }
         }
 
         private async Task<IEmailConfigInstanceSettings> GetEmailConfigAsync(EmailOutgoingSettings outgoingSettings, User currentUser)

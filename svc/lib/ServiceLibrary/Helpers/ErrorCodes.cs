@@ -116,5 +116,6 @@
         public const int UnknownIncomingMailServerError = 15010;
         public const int IncomingMailServerInvalidHostname = 15011;
         public const int IncomingMailServerInvalidCredentials = 15012;
+        public const int OutgoingMailError = 15013;
     }
 }

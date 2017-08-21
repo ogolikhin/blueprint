@@ -310,6 +310,29 @@ namespace AdminStore.Services.Instance
             _emailHelperMock.Verify(helper => helper.SendEmail(_user.Email, TestEmailSubject, It.IsAny<string>()));
         }
 
+        [TestMethod]
+        public async Task SendTestEmailAsync_Should_Throw_Bad_Request_Exception_When_EmailHelper_Throws_EmailException()
+        {
+            //Arrange
+            _emailHelperMock.Setup(helper => helper.SendEmail(_user.Email, TestEmailSubject, It.IsAny<string>())).Throws(new EmailException("Error Message", ErrorCodes.OutgoingMailError));
+            
+            //Act
+            try
+            {
+                await _emailSettingsService.SendTestEmailAsync(UserId, _outgoingSettings);
+            }
+            //Assert
+            catch (BadRequestException ex)
+            {
+                Assert.AreEqual("Error Message", ex.Message);
+                Assert.AreEqual(ErrorCodes.OutgoingMailError, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("BadRequestException was not thrown.");
+        }
+
         #endregion
 
         #region CheckingIncomingEmailConnectionAsync

@@ -4,6 +4,7 @@ using ActionHandlerService.Helpers;
 using ActionHandlerService.Models;
 using ActionHandlerService.Repositories;
 using BluePrintSys.Messaging.Models.Actions;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Helpers.Security;
 using ServiceLibrary.Models.Email;
 using ServiceLibrary.Models.Enums;
@@ -23,7 +24,7 @@ namespace ActionHandlerService.MessageHandlers.Notifications
 
         private async Task<SendEmailResult> SendNotificationEmail(TenantInformation tenant, NotificationMessage message, INotificationRepository repository)
         {
-            Logger.Log($"Handling started for user ID {message.UserId}", message, tenant, LogLevel.Info);
+            Logger.Log($"Handling started for user ID {message.UserId} with message {message.ToJSON()}", message, tenant, LogLevel.Debug);
             //It should be responsibility of notification handler to recieve information about email settings
             //Maybe this information can be cached for tenant ids???
             var emailSettings = await new EmailSettingsRetriever().GetEmailSettings(repository);

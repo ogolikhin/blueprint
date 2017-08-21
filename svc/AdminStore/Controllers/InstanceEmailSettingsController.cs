@@ -4,6 +4,7 @@ using AdminStore.Models.Emails;
 using AdminStore.Services.Instance;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
+using ServiceLibrary.Models;
 
 namespace AdminStore.Controllers
 {
@@ -25,6 +26,15 @@ namespace AdminStore.Controllers
         }
 
         public override string LogSource => "AdminStore.Instance.EmailSettings";
+
+        [Route("")]
+        [HttpGet, NoCache]
+        [ActionName("GetEmailSettings")]
+        [SessionRequired]
+        public Task<EmailSettings> GetEmailSettingsAsync()
+        {
+            return _emailSettingsService.GetEmailSettingsAsync(Session.UserId);
+        }
 
         [Route("sendtestemail")]
         [HttpPost, SessionRequired]

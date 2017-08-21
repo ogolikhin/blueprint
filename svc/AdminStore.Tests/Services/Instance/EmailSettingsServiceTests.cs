@@ -22,6 +22,7 @@ namespace AdminStore.Services.Instance
         private EmailOutgoingSettings _outgoingSettings;
         private InstanceAdminPrivileges _adminPrivilege;
         private User _user;
+        private EmailSettings _emailSettings;
 
         private const int UserId = 1;
         private const string WebsiteAddress = "https://blueprintsys.net";
@@ -49,10 +50,7 @@ namespace AdminStore.Services.Instance
 
             websiteAddressServiceMock.Setup(service => service.GetWebsiteAddress()).Returns(WebsiteAddress);
 
-            instanceSettingsRepositoryMock.Setup(repo => repo.GetEmailSettings()).ReturnsAsync(new EmailSettings()
-            {
-                Password = EncryptedPassword
-            });
+            instanceSettingsRepositoryMock.Setup(repo => repo.GetEmailSettings()).ReturnsAsync(() => _emailSettings);
 
             //Setup Default Values
             _outgoingSettings = new EmailOutgoingSettings()
@@ -71,6 +69,11 @@ namespace AdminStore.Services.Instance
             _user = new User()
             {
                 Email = "test@example.com"
+            };
+
+            _emailSettings = new EmailSettings()
+            {
+                Password = EncryptedPassword
             };
         }
 
@@ -290,6 +293,45 @@ namespace AdminStore.Services.Instance
 
             //Assert
             _emailHelperMock.Verify(helper => helper.SendEmail(_user.Email, It.IsAny<string>(), It.IsAny<string>()));
+        }
+
+        #endregion
+
+        #region GetEmailSettingsAsync
+
+        [TestMethod]
+        public async Task GetEmailSettingsAsync_Should_Throw_AuthorizationException_When_User_Doesnt_Have_ViewInstanceSettings()
+        {
+            //Arrange
+            _adminPrivilege = InstanceAdminPrivileges.ManageProjects;
+
+            //Act
+            try
+            {
+                await _emailSettingsService.GetEmailSettingsAsync(UserId);
+            }
+            //Assert
+            catch (AuthorizationException ex)
+            {
+                Assert.AreEqual(ex.ErrorCode, ErrorCodes.Forbidden);
+
+                return;
+            }
+
+            Assert.Fail("AuthorizationException was not thrown.");
+        }
+
+        [TestMethod]
+        public async Task GetEmailSettingsAsync_Should_Return_EmailSettings_From_Repository()
+        {
+            //Arrange
+            _adminPrivilege = InstanceAdminPrivileges.ViewInstanceSettings;
+
+            //Act
+            var emailSettings = await _emailSettingsService.GetEmailSettingsAsync(UserId);
+
+            //Assert
+            Assert.AreSame(_emailSettings, emailSettings);
         }
 
         #endregion

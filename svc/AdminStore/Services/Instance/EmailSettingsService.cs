@@ -37,6 +37,13 @@ namespace AdminStore.Services.Instance
             _instanceSettingsRepository = instanceSettingsRepository;
         }
 
+        public async Task<EmailSettings> GetEmailSettingsAsync(int userId)
+        {
+            await _privilegesManager.Demand(userId, InstanceAdminPrivileges.ViewInstanceSettings);
+
+            return await _instanceSettingsRepository.GetEmailSettings();
+        }
+
         public async Task SendTestEmailAsync(int userId, EmailOutgoingSettings outgoingSettings)
         {
             await _privilegesManager.Demand(userId, InstanceAdminPrivileges.ManageInstanceSettings);

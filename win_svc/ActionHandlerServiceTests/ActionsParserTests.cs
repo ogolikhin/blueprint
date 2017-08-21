@@ -65,6 +65,21 @@ namespace ActionHandlerServiceTests
         }
 
         [TestMethod]
+        public void ActionsParser_ReturnsNoActions_WhenTriggersAreInvalid()
+        {
+            const string triggers = "Invalid Trigger XML";
+            var workflowEvents = new[]
+            {
+                new SqlWorkflowEvent
+                {
+                    Triggers = triggers
+                }
+            };
+            var notificationActions = _actionsParser.GetNotificationActions(workflowEvents);
+            Assert.AreEqual(0, notificationActions.Count);
+        }
+
+        [TestMethod]
         public void ActionsParser_ReturnsANotificationAction_WhenATriggerExists()
         {
             var workflowEvents = new[]

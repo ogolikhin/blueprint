@@ -26,8 +26,16 @@ namespace ActionHandlerService.Helpers
                 {
                     try
                     {
-                        Log.Info($"deserializing triggers: {triggersXml}");
-                        xmlWorkflowEventTriggers = SerializationHelper.FromXml<XmlWorkflowEventTriggers>(triggersXml);
+                        Log.Debug($"Deserializing triggers: {triggersXml}");
+                        var triggersFromXml = SerializationHelper.FromXml<XmlWorkflowEventTriggers>(triggersXml);
+                        if (triggersFromXml != null)
+                        {
+                            xmlWorkflowEventTriggers = triggersFromXml;
+                        }
+                        else
+                        {
+                            Log.Debug($"Invalid triggers XML: {triggersXml}");
+                        }
                     }
                     catch (Exception ex)
                     {

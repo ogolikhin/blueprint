@@ -71,6 +71,45 @@ namespace AdminStore.Services.Instance
             {
                 VerifyOutgoingSettings(emailSettingsDto.Outgoing);
             }
+
+            var emailSettings = await _instanceSettingsRepository.GetEmailSettings();
+
+            UpdateEmailSettings(emailSettings, emailSettingsDto);
+
+            await _instanceSettingsRepository.UpdateEmailSettingsAsync(emailSettings);
+        }
+
+        private void UpdateEmailSettings(EmailSettings emailSettings, EmailSettingsDto emailSettingsDto)
+        {
+            //Notification settings
+            emailSettings.EnableNotifications = emailSettingsDto.EnableReviewNotifications;
+            emailSettings.EnableEmailReplies = emailSettingsDto.EnableEmailNotifications;
+            emailSettings.EnableEmailDiscussion = emailSettingsDto.EnableDiscussions;
+
+            //Incoming settings
+            emailSettings.IncomingServerType = (int)emailSettingsDto.Incoming.ServerType;
+            emailSettings.IncomingHostName = emailSettingsDto.Incoming.ServerAddress;
+            emailSettings.IncomingPort = emailSettingsDto.Incoming.Port;
+            emailSettings.IncomingEnableSSL = emailSettingsDto.Incoming.EnableSsl;
+            emailSettings.IncomingUserName = emailSettingsDto.Incoming.AccountUsername;
+
+            if (emailSettingsDto.Incoming.IsPasswordDirty)
+            {
+                emailSettings.IncomingPassword = SystemEncryptions.EncryptForSilverLight(emailSettingsDto.Incoming.AccountPassword);
+            }
+
+            //Outgoing settings
+            emailSettings.HostName = emailSettingsDto.Outgoing.ServerAddress;
+            emailSettings.Port = emailSettingsDto.Outgoing.Port;
+            emailSettings.EnableSSL = emailSettingsDto.Outgoing.EnableSsl;
+            emailSettings.SenderEmailAddress = emailSettingsDto.Outgoing.AccountEmailAddress;
+            emailSettings.Authenticated = emailSettingsDto.Outgoing.AuthenticatedSmtp;
+            emailSettings.UserName = emailSettingsDto.Outgoing.AccountUsername;
+
+            if (emailSettingsDto.Outgoing.IsPasswordDirty)
+            {
+                emailSettings.Password = SystemEncryptions.EncryptForSilverLight(emailSettingsDto.Outgoing.AccountPassword);
+            }
         }
 
         public async Task SendTestEmailAsync(int userId, EmailOutgoingSettings outgoingSettings)

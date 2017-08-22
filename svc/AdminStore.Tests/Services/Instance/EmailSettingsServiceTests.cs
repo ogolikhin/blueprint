@@ -21,6 +21,7 @@ namespace AdminStore.Services.Instance
         private EmailSettingsService _emailSettingsService;
         private Mock<IEmailHelper> _emailHelperMock;
         private Mock<IIncomingEmailService> _incomingEmailServiceMock;
+        private Mock<IInstanceSettingsRepository> _instanceSettingsRepositoryMock;
 
         private EmailOutgoingSettings _outgoingSettings;
         private EmailIncomingSettings _incomingSettings;
@@ -42,7 +43,7 @@ namespace AdminStore.Services.Instance
             Mock<IPrivilegesRepository> privilegesRepositoryMock = new Mock<IPrivilegesRepository>();
             Mock<IUserRepository> userRepositoryMock = new Mock<IUserRepository>();
             Mock<IWebsiteAddressService> websiteAddressServiceMock = new Mock<IWebsiteAddressService>();
-            Mock<IInstanceSettingsRepository> instanceSettingsRepositoryMock = new Mock<IInstanceSettingsRepository>();
+            _instanceSettingsRepositoryMock = new Mock<IInstanceSettingsRepository>();
             _emailHelperMock = new Mock<IEmailHelper>();
             _incomingEmailServiceMock = new Mock<IIncomingEmailService>();
 
@@ -50,7 +51,7 @@ namespace AdminStore.Services.Instance
                                                              userRepositoryMock.Object,
                                                              _emailHelperMock.Object,
                                                              websiteAddressServiceMock.Object,
-                                                             instanceSettingsRepositoryMock.Object,
+                                                             _instanceSettingsRepositoryMock.Object,
                                                              _incomingEmailServiceMock.Object);
 
             privilegesRepositoryMock.Setup(repo => repo.GetInstanceAdminPrivilegesAsync(UserId)).ReturnsAsync(() => _adminPrivilege);
@@ -59,7 +60,7 @@ namespace AdminStore.Services.Instance
 
             websiteAddressServiceMock.Setup(service => service.GetWebsiteAddress()).Returns(WebsiteAddress);
 
-            instanceSettingsRepositoryMock.Setup(repo => repo.GetEmailSettings()).ReturnsAsync(() => _emailSettings);
+            _instanceSettingsRepositoryMock.Setup(repo => repo.GetEmailSettings()).ReturnsAsync(() => _emailSettings);
 
             //Setup Default Values
             _outgoingSettings = new EmailOutgoingSettings()
@@ -1172,6 +1173,95 @@ namespace AdminStore.Services.Instance
             }
 
             Assert.Fail("BadRequestException was not thrown.");
+        }
+
+        [TestMethod]
+        public async Task UpdateEmailSettingsAsync_Should_Update_Via_The_Repository()
+        {
+            //Act
+            await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
+           
+            //Assert
+            _instanceSettingsRepositoryMock.Verify(repo => repo.UpdateEmailSettingsAsync(_emailSettings));
+        }
+
+        [TestMethod]
+        public async Task UpdateEmailSettingsAsync_Should_Update_Settings_From_The_Dto()
+        {
+            //Act
+            await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
+
+            //Assert
+            Assert.AreEqual(_emailSettings.EnableEmailDiscussion, _emailSettingsDto.EnableDiscussions);
+            Assert.AreEqual(_emailSettings.EnableEmailReplies, _emailSettingsDto.EnableEmailNotifications);
+            Assert.AreEqual(_emailSettings.EnableNotifications, _emailSettingsDto.EnableReviewNotifications);
+
+            Assert.AreEqual(_emailSettings.Authenticated, _emailSettingsDto.Outgoing.AuthenticatedSmtp);
+            Assert.AreEqual(_emailSettings.EnableSSL, _emailSettingsDto.Outgoing.EnableSsl);
+            Assert.AreEqual(_emailSettings.HostName, _emailSettingsDto.Outgoing.ServerAddress);
+            Assert.AreEqual(_emailSettings.Port, _emailSettingsDto.Outgoing.Port);
+            Assert.AreEqual(_emailSettings.SenderEmailAddress, _emailSettingsDto.Outgoing.AccountEmailAddress);
+            Assert.AreEqual(_emailSettings.UserName, _emailSettingsDto.Outgoing.AccountUsername);
+
+            Assert.AreEqual(_emailSettings.IncomingEnableSSL, _emailSettingsDto.Incoming.EnableSsl);
+            Assert.AreEqual(_emailSettings.IncomingHostName, _emailSettingsDto.Incoming.ServerAddress);
+            Assert.AreEqual(_emailSettings.IncomingPort, _emailSettingsDto.Incoming.Port);
+            Assert.AreEqual(_emailSettings.IncomingServerType, (int)_emailSettingsDto.Incoming.ServerType);
+            Assert.AreEqual(_emailSettings.IncomingUserName, _emailSettingsDto.Incoming.AccountUsername);
+        }
+
+        [TestMethod]
+        public async Task UpdateEmailSettingsAsync_Should_Encrypt_Outgoing_Password()
+        {
+            //Arrange
+            var encryptedOutgoingPassword = "ksZKZH6kl2wKJ4Nb/OlFmw==";
+
+            //Act
+            await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
+
+            //Assert
+            Assert.AreEqual(encryptedOutgoingPassword, _emailSettings.Password);
+        }
+
+        [TestMethod]
+        public async Task UpdateEmailSettingsAsync_Should_Encrypt_Incoming_Password()
+        {
+            //Arrange
+            var encryptedIncomingPassword = "uNPPwhOB27mMxpqxMKjMqw==";
+
+            //Act
+            await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
+
+            //Assert
+            Assert.AreEqual(encryptedIncomingPassword, _emailSettings.IncomingPassword);
+        }
+
+        [TestMethod]
+        public async Task UpdateEmailSettingsAsync_Should_Not_Update_Password_If_Outgoing_Password_Is_Not_Dirty()
+        {
+            //Arrange
+            string oldPassword = _emailSettings.Password;
+            _emailSettingsDto.Outgoing.IsPasswordDirty = false;
+
+            //Act
+            await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
+
+            //Assert
+            Assert.AreEqual(_emailSettings.Password, oldPassword);
+        }
+
+        [TestMethod]
+        public async Task UpdateEmailSettingsAsync_Should_Not_Update_IncomingPassword_If_Incoming_Password_Is_Not_Dirty()
+        {
+            //Arrange
+            string oldPassword = _emailSettings.IncomingPassword;
+            _emailSettingsDto.Incoming.IsPasswordDirty = false;
+
+            //Act
+            await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
+
+            //Assert
+            Assert.AreEqual(_emailSettings.IncomingPassword, oldPassword);
         }
 
         #endregion

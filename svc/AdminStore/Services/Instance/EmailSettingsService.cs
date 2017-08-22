@@ -7,6 +7,7 @@ using AdminStore.Services.Email;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Helpers.Security;
+using ServiceLibrary.Helpers.Validators;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.InstanceSettings;
 using ServiceLibrary.Services;
@@ -50,6 +51,26 @@ namespace AdminStore.Services.Instance
             EmailSettings settings = await _instanceSettingsRepository.GetEmailSettings();
 
             return (EmailSettingsDto) settings;
+        }
+
+        public async Task UpdateEmailSettingsAsync(int userId, EmailSettingsDto emailSettingsDto)
+        {
+            await _privilegesManager.Demand(userId, InstanceAdminPrivileges.ManageInstanceSettings);
+
+            if (!emailSettingsDto.EnableEmailNotifications && emailSettingsDto.EnableDiscussions)
+            {
+                throw new BadRequestException("Cannot enable discussions without enabling email notifications", ErrorCodes.CannotEnableDiscussions);
+            }
+
+            if (emailSettingsDto.EnableDiscussions)
+            {
+                VerifyIncomingSettings(emailSettingsDto.Incoming);
+            }
+
+            if (emailSettingsDto.EnableReviewNotifications || emailSettingsDto.EnableEmailNotifications)
+            {
+                VerifyOutgoingSettings(emailSettingsDto.Outgoing);
+            }
         }
 
         public async Task SendTestEmailAsync(int userId, EmailOutgoingSettings outgoingSettings)
@@ -110,6 +131,16 @@ namespace AdminStore.Services.Instance
             if (outgoingSettings.Port < 1 || outgoingSettings.Port > 65535)
             {
                 throw new BadRequestException("Ensure the port number is between 1 and 65535.", ErrorCodes.OutgoingPortOutOfRange);
+            }
+
+            if (string.IsNullOrWhiteSpace(outgoingSettings.AccountEmailAddress))
+            {
+                throw new BadRequestException("Please enter the system email account address.", ErrorCodes.EmptyEmailAddress);
+            }
+
+            if (!EmailValidator.IsEmailAddress(outgoingSettings.AccountEmailAddress))
+            {
+                throw new BadRequestException("The system email account address is not in a valid format.", ErrorCodes.InvalidEmailAddress);
             }
 
             if (outgoingSettings.AuthenticatedSmtp)

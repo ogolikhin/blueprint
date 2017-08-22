@@ -633,20 +633,34 @@ namespace AdminStore.Services.Workflow
         {
             var dataMaps = new WorkflowDataNameMaps();
 
-            dataMaps.GroupMap.AddRange(await GetUserGroupsMap());
+            dataMaps.UserMap.AddRange(await GetUsersMap());
+            dataMaps.GroupMap.AddRange(await GetGroupsMap());
             dataMaps.StateMap.AddRange(await GetStatesMap(workflowId));
             dataMaps.ArtifactTypeMap.AddRange(await GetArtifactTypesMap());
-            
             dataMaps.PropertyTypeMap.AddRange(await GetPropertyTypesMap());
             dataMaps.ValidValueMap.AddRange(await GetValidValueMap());
+
             return dataMaps;
         }
 
-        private async Task<Dictionary<int, Tuple<string, int?>>> GetUserGroupsMap()
+        private async Task<Dictionary<int, string>> GetUsersMap()
+        {
+            var map = new Dictionary<int, string>();
+
+            var result = await _userRepository.GetUsersAsync(new Pagination { Offset = 0, Limit = 1000 });
+            if (result != null && result.Items != null)
+            {
+                result.Items.ForEach(u => map.Add(u.Id, u.Login));
+            }
+
+            return map;
+        }
+
+        private async Task<Dictionary<int, Tuple<string, int?>>> GetGroupsMap()
         {
             var map = new Dictionary<int, Tuple<string, int?>>();
 
-            var groups = await _userRepository.GetUserGroupsMapAsync();
+            var groups = await _userRepository.GetGroupsMapAsync();
             groups?.ForEach(g => map.Add(g.GroupId, Tuple.Create(g.Name, g.ProjectId)));
 
             return map;

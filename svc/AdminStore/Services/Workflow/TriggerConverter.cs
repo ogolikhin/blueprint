@@ -185,16 +185,29 @@ namespace AdminStore.Services.Workflow
             var userGroups = new List<IeUserGroup>();
             foreach (var g in xmlUserGroups)
             {
-                Tuple<string, int?> nameProjectId;
-                dataMaps.GroupMap.TryGetValue(g.Id, out nameProjectId);
-                var group = new IeUserGroup
+                if (g.IsGroup.HasValue && (bool)g.IsGroup)
                 {
-                    Id = g.Id,
-                    Name = nameProjectId?.Item1,
-                    IsGroup = g.IsGroup,
-                    GroupProjectId = nameProjectId?.Item2
-                };
-                userGroups.Add(group);
+                    Tuple<string, int?> nameProjectId;
+                    dataMaps.GroupMap.TryGetValue(g.Id, out nameProjectId);
+                    var group = new IeUserGroup
+                    {
+                        Id = g.Id,
+                        Name = nameProjectId?.Item1,
+                        IsGroup = g.IsGroup,
+                        GroupProjectId = nameProjectId?.Item2
+                    };
+                    userGroups.Add(group);
+                }
+                else
+                {
+                    string name;
+                    var user = new IeUserGroup
+                    {
+                        Id = g.Id,
+                        Name = dataMaps.UserMap.TryGetValue(g.Id, out name) ? name : null
+                    };
+                    userGroups.Add(user);
+                }
             }
 
             return userGroups; 

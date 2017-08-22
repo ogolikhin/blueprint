@@ -27,11 +27,4 @@ namespace ArtifactStore.Models.Review
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public DateTime? eSignatureTimestamp { get; set; }
     }
-
-    public class ArtifactReviewContent
-    {
-        public IEnumerable<ReviewArtifactDetails> Items { get; set; }
-        public int Total { get; set; }
-
-    }
 }

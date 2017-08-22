@@ -931,11 +931,28 @@ namespace AdminStore.Services.Workflow
         }
 
         [TestMethod]
+        public void Validate_AmbiguousProjectReference_ReturnsAmbiguousProjectReferenceError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.Projects[0].Id = 11;
+            _workflow.Projects[1].Id = 22;
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.AmbiguousProjectReference, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
         public void Validate_ProjectInvalidId_ReturnsProjectInvalidIdError()
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
-            _workflow.Projects[2].Id = 0;
+            _workflow.Projects[0].Id = 0;
 
             // Act
             var result = workflowValidator.ValidateXml(_workflow);
@@ -968,6 +985,7 @@ namespace AdminStore.Services.Workflow
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
             _workflow.Projects[1].Id = _workflow.Projects[0].Id;
+            _workflow.Projects[1].Path = null;
 
             // Act
             var result = workflowValidator.ValidateXml(_workflow);
@@ -1212,6 +1230,23 @@ namespace AdminStore.Services.Workflow
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
             Assert.AreEqual(WorkflowXmlValidationErrorCodes.PropertyNamePropertyChangeActionNotSpecitied, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
+        public void Validate_AmbiguousGroupProjectReference_ReturnsAmbiguousGroupProjectReferenceError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            ((IePropertyChangeAction)_workflow.NewArtifactEvents[1].Triggers[4].Action).UsersGroups[3].GroupProjectId = 66;
+            ((IePropertyChangeAction)_workflow.NewArtifactEvents[1].Triggers[4].Action).UsersGroups[4].GroupProjectId = 77;
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.AmbiguousGroupProjectReference, result.Errors[0].ErrorCode);
         }
 
         [TestMethod]

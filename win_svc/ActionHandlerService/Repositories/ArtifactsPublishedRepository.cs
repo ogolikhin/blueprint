@@ -15,7 +15,7 @@ namespace ActionHandlerService.Repositories
         /// <summary>
         /// Calls the stored procedure GetWorkflowTriggersForArtifacts
         /// </summary>
-        Task<List<SqlArtifactTriggers>> GetWorkflowPropertyTransitionsForArtifactsAsync(int userId, int revisionId, int eventType, IEnumerable<int> itemIds);
+        Task<List<SqlWorkflowEvent>> GetWorkflowPropertyTransitionsForArtifactsAsync(int userId, int revisionId, int eventType, IEnumerable<int> itemIds);
 
         /// <summary>
         /// Calls the stored procedure GetWorkflowStatesForArtifacts
@@ -52,14 +52,14 @@ namespace ActionHandlerService.Repositories
         {
         }
 
-        public async Task<List<SqlArtifactTriggers>> GetWorkflowPropertyTransitionsForArtifactsAsync(int userId, int revisionId, int eventType, IEnumerable<int> itemIds)
+        public async Task<List<SqlWorkflowEvent>> GetWorkflowPropertyTransitionsForArtifactsAsync(int userId, int revisionId, int eventType, IEnumerable<int> itemIds)
         {
             var param = new DynamicParameters();
             param.Add("@userId", userId);
             param.Add("@revisionId", revisionId);
             param.Add("@eventType", eventType);
             param.Add("@itemIds", SqlConnectionWrapper.ToDataTable(itemIds));
-            return (await ConnectionWrapper.QueryAsync<SqlArtifactTriggers>("GetWorkflowTriggersForArtifacts", param, commandType: CommandType.StoredProcedure)).ToList();
+            return (await ConnectionWrapper.QueryAsync<SqlWorkflowEvent>("GetWorkflowTriggersForArtifacts", param, commandType: CommandType.StoredProcedure)).ToList();
         }
 
         public async Task<List<SqlWorkFlowStateInformation>> GetWorkflowStatesForArtifactsAsync(int userId, IEnumerable<int> artifactIds, int revisionId, bool addDrafts = true)

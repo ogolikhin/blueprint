@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Models.DTO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -10,12 +11,38 @@ using ServiceLibrary.Repositories;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
 
 namespace AdminStore.Repositories
 {
     [TestClass]
     public class SqlInstanceRepositoryTests
     {
+
+        private SqlConnectionWrapperMock _connection;
+        private SqlInstanceRepository _instanceRepository;
+        private const int ProjectId = 1;
+        private IEnumerable<RolesAssignments> _projectRolesAssignments;
+        private TabularData _tabularData;
+
+        [TestInitialize]
+        public void Initialize()
+        {
+            _connection = new SqlConnectionWrapperMock();
+            _instanceRepository = new SqlInstanceRepository(_connection.Object);
+
+            _projectRolesAssignments = new List<RolesAssignments>
+            {
+                new RolesAssignments {Id = 1, RoleName = "Role1", GroupName = "Group1"}
+            };
+
+            _tabularData = new TabularData
+            {
+                Pagination = new Pagination { Limit = 10, Offset = 0 },
+                Sorting = new Sorting { Order = SortOrder.Asc, Sort = "groupName" }
+            };
+        }
+
         [TestMethod]
         public async Task GetInstanceFolderAsync_Found()
         {
@@ -802,6 +829,127 @@ namespace AdminStore.Repositories
             //Exception
         }
 
+        #endregion
+
+        #region Roles
+
+        [TestMethod]
+        public async Task GetProjectRolesAsync_RolesFound_NoErrors()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            var projectId = 100;
+            int errorCode = 0;
+
+            ProjectRole[] projectRoles =
+            {
+                new ProjectRole()
+                {
+                    Name = "Collaborator",
+                    RoleId = 11
+                },
+                new ProjectRole()
+                {
+                    Name = "Author",
+                    RoleId = 12
+                },
+                new ProjectRole()
+                {
+                    Name = "Viewer",
+                    RoleId = 13
+                },
+                new ProjectRole()
+                {
+                    Name = "Project Administrator",
+                    RoleId = 14
+                },
+                new ProjectRole()
+                {
+                    Name = "Blueprint Analytics",
+                    RoleId = 15
+                }
+            };
+
+            cxn.SetupQueryAsync("GetProjectRoles",
+                                        new Dictionary<string, object> { { "projectId", projectId } },
+                                        projectRoles,
+                                        new Dictionary<string, object>() { { "ErrorCode", errorCode } });
+
+            // Act
+            await repository.GetProjectRolesAsync(projectId);
+
+            // Assert
+            cxn.Verify();
+        }
+
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task GetProjectRolesAsync_RolesNotFound_NotFoundError()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            var projectId = 1;
+            int errorCode = 50020; // there are no roles for this projectId
+
+            ProjectRole[] projectRoles = { };
+
+            cxn.SetupQueryAsync("GetProjectRoles",
+                                        new Dictionary<string, object> { { "projectId", projectId } },
+                                        projectRoles,
+                                        new Dictionary<string, object>() { { "ErrorCode", errorCode } });
+
+            // Act
+            await repository.GetProjectRolesAsync(projectId);
+        }
+
+        #endregion
+
+
+        #region GetProjectRoleAssignmentsAsync
+
+        [TestMethod]
+        public async Task GetProjectRoleAssignmentsAsync_ProjectRolesAssignmentsFound_SuccessfulResult()
+        {
+            // Arrange
+            var errorCode = 0;
+
+            _connection.SetupQueryAsync("GetProjectRoleAssignments",
+                                        It.IsAny<Dictionary<string, object>>(),
+                                        _projectRolesAssignments,
+                                        new Dictionary<string, object>() { { "ErrorCode", errorCode } });
+
+            // Act
+            var projectRolesAssignmentsResult = await
+                _instanceRepository.GetProjectRoleAssignmentsAsync(ProjectId, _tabularData,
+                    SortingHelper.SortProjectRolesAssignments);
+
+            // Assert
+            Assert.IsNotNull(projectRolesAssignmentsResult);
+            Assert.AreEqual(projectRolesAssignmentsResult.Items, _projectRolesAssignments);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task GetProjectRoleAssignmentsAsync_ProjectNotFound_NotFoundError()
+        {
+            // Arrange
+            var errorCode = SqlErrorCodes.ProjectWithCurrentIdNotExist;
+
+            _connection.SetupQueryAsync("GetProjectRoleAssignments",
+                                        It.IsAny<Dictionary<string, object>>(),
+                                        _projectRolesAssignments,
+                                        new Dictionary<string, object>() { { "ErrorCode", (int)errorCode } });
+
+            // Act
+            await
+                _instanceRepository.GetProjectRoleAssignmentsAsync(ProjectId, _tabularData,
+                    SortingHelper.SortProjectRolesAssignments);
+
+            // Exception
+        }
         #endregion
     }
 }

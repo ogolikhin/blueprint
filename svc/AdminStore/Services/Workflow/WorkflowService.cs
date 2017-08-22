@@ -31,13 +31,15 @@ namespace AdminStore.Services.Workflow
         private readonly ISqlProjectMetaRepository _projectMetaRepository;
         private readonly ITriggerConverter _triggerConverter;
         private readonly IWorkflowActionPropertyValueValidator _propertyValueValidator;
+        private readonly IWorkflowDiff _workflowDiff;
 
         private const string WorkflowImportErrorsFile = "$workflow_import_errors$.txt";
 
         public WorkflowService()
             : this(new WorkflowRepository(), new WorkflowXmlValidator(), new SqlUserRepository(),
                   new WorkflowValidationErrorBuilder(), new SqlProjectMetaRepository(),
-                  new TriggerConverter(), new WorkflowActionPropertyValueValidator())
+                  new TriggerConverter(), new WorkflowActionPropertyValueValidator(),
+                  new WorkflowDiff())
         {
             _workflowDataValidator = new WorkflowDataValidator(_workflowRepository, _userRepository,
                 _projectMetaRepository, _propertyValueValidator);
@@ -49,7 +51,8 @@ namespace AdminStore.Services.Workflow
             IWorkflowValidationErrorBuilder workflowValidationErrorBuilder,
             ISqlProjectMetaRepository projectMetaRepository,
             ITriggerConverter triggerConverter,
-            IWorkflowActionPropertyValueValidator propertyValueValidator)
+            IWorkflowActionPropertyValueValidator propertyValueValidator,
+            IWorkflowDiff workflowDiff)
         {
             _workflowRepository = workflowRepository;
             _workflowXmlValidator = workflowXmlValidator;
@@ -58,6 +61,7 @@ namespace AdminStore.Services.Workflow
             _projectMetaRepository = projectMetaRepository;
             _triggerConverter = triggerConverter;
             _propertyValueValidator = propertyValueValidator;
+            _workflowDiff = workflowDiff;
         }
 
         public IFileRepository FileRepository
@@ -68,6 +72,11 @@ namespace AdminStore.Services.Workflow
 
         public async Task<string> GetImportWorkflowErrorsAsync(string guid, int userId)
         {
+            if (string.IsNullOrWhiteSpace(guid))
+            {
+                throw new BadRequestException("The error GUID is not provided.", ErrorCodes.BadRequest);
+            }
+
             File errorsFile = null;
             try
             {
@@ -187,6 +196,31 @@ namespace AdminStore.Services.Workflow
                 return importResult;
             }
 
+            var currentWorkflow = await GetWorkflowExportAsync(workflowId);
+            if (currentWorkflow.IsActive)
+            {
+                var dataValidationErrors = new[]
+                {
+                    new WorkflowDataValidationError
+                    {
+                        Element = workflow,
+                        ErrorCode = WorkflowDataValidationErrorCodes.WorkflowActive
+                    }
+                };
+                var textErrors = _workflowValidationErrorBuilder.BuildTextDataErrors(dataValidationErrors, fileName, false);
+                var guid = await UploadErrorsToFileStore(textErrors);
+
+                importResult.ErrorsGuid = guid;
+                importResult.ResultCode = ImportWorkflowResultCodes.Conflict;
+
+#if DEBUG
+                importResult.ErrorMessage = textErrors;
+#endif
+
+                return importResult;
+
+            }
+
             xmlValidationResult = _workflowXmlValidator.ValidateUpdateXml(workflow);
             if (xmlValidationResult.HasErrors)
             {
@@ -194,7 +228,7 @@ namespace AdminStore.Services.Workflow
                 var guid = await UploadErrorsToFileStore(textErrors);
 
                 importResult.ErrorsGuid = guid;
-                importResult.ResultCode = ImportWorkflowResultCodes.InvalidModel;
+                importResult.ResultCode = ImportWorkflowResultCodes.Conflict;
 
 #if DEBUG
                 importResult.ErrorMessage = textErrors;
@@ -203,7 +237,51 @@ namespace AdminStore.Services.Workflow
                 return importResult;
             }
 
-            // TODO:
+            await ReplaceProjectPathsWithIds(workflow);
+
+            var workflowDiffResult = _workflowDiff.DiffWorkflows(workflow, currentWorkflow);
+
+            var notFoundErrors = ValidateAndRemoveNotFoundByIdInCurrentWorkflow(workflow, workflowDiffResult);
+            // Even if the validation of not found by Id in current has errors,
+            // anyway we do the data validation.
+            var dataValidationResult = await _workflowDataValidator.ValidateUpdateData(workflow);
+            dataValidationResult.Errors.AddRange(notFoundErrors);
+
+            if (!dataValidationResult.HasErrors && !workflowDiffResult.HasChanges)
+            {
+                dataValidationResult.Errors.Add(new WorkflowDataValidationError
+                {
+                    Element = workflow,
+                    ErrorCode = WorkflowDataValidationErrorCodes.WorkflowNothingToUpdate
+                });
+            }
+
+
+            if (dataValidationResult.HasErrors)
+            {
+                var textErrors = _workflowValidationErrorBuilder.BuildTextDataErrors(dataValidationResult.Errors, fileName);
+                var guid = await UploadErrorsToFileStore(textErrors);
+
+                importResult.ErrorsGuid = guid;
+                importResult.ResultCode = ImportWorkflowResultCodes.Conflict;
+
+#if DEBUG
+                importResult.ErrorMessage = textErrors;
+#endif
+
+                return importResult;
+            }
+
+            Func<IDbTransaction, Task> action = async transaction =>
+            {
+                var publishRevision = await _workflowRepository.CreateRevisionInTransactionAsync(transaction, userId, "Workflow update via import.");
+
+                // TODO: Update, Create, Delete in the database
+
+                importResult.ResultCode = ImportWorkflowResultCodes.Ok;
+            };
+
+            await _workflowRepository.RunInTransactionAsync(action);
 
             importResult.ResultCode = ImportWorkflowResultCodes.Ok;
             return importResult;
@@ -217,7 +295,7 @@ namespace AdminStore.Services.Workflow
                 throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
             }
 
-            var workflowDto = new WorkflowDto {Name = workflowDetails.Name, Description = workflowDetails.Description, Status = workflowDetails.Active, WorkflowId = workflowDetails.WorkflowId,
+            var workflowDto = new WorkflowDto {Name = workflowDetails.Name, Description = workflowDetails.Description, Active = workflowDetails.Active, WorkflowId = workflowDetails.WorkflowId,
                 VersionId = workflowDetails.VersionId}; 
 
             var workflowProjectsAndArtifactTypes = (await _workflowRepository.GetWorkflowArtifactTypesAsync(workflowId)).ToList();
@@ -240,7 +318,7 @@ namespace AdminStore.Services.Workflow
                 throw new ConflictException(ErrorMessages.WorkflowVersionsNotEqual, ErrorCodes.Conflict);
             }
 
-            var workflows = new List<SqlWorkflow> {new SqlWorkflow {Name = existingWorkflow.Name, Description = existingWorkflow.Description, Active = statusUpdate.Status, WorkflowId = workflowId} };
+            var workflows = new List<SqlWorkflow> {new SqlWorkflow {Name = existingWorkflow.Name, Description = existingWorkflow.Description, Active = statusUpdate.Active, WorkflowId = workflowId} };
 
             Func<IDbTransaction, Task> action = async transaction =>
             {
@@ -517,11 +595,12 @@ namespace AdminStore.Services.Workflow
             {
                 foreach (var gid in xmlGroups.GroupIds)
                 {
-                    string name;
+                    Tuple<string, int?> nameProjectId;
+                    dataMaps.GroupMap.TryGetValue(gid, out nameProjectId);
                     var group = new IeGroup
                     {
                         Id = gid,
-                        Name = dataMaps.GroupMap.TryGetValue(gid, out name) ? name : null
+                        Name = nameProjectId?.Item1
                     };
 
                     groups.Add(group);
@@ -554,25 +633,38 @@ namespace AdminStore.Services.Workflow
         {
             var dataMaps = new WorkflowDataNameMaps();
 
-            dataMaps.GroupMap.AddRange(await GetUserGroupsMap());
+            dataMaps.UserMap.AddRange(await GetUsersMap());
+            dataMaps.GroupMap.AddRange(await GetGroupsMap());
             dataMaps.StateMap.AddRange(await GetStatesMap(workflowId));
             dataMaps.ArtifactTypeMap.AddRange(await GetArtifactTypesMap());
-            
             dataMaps.PropertyTypeMap.AddRange(await GetPropertyTypesMap());
             dataMaps.ValidValueMap.AddRange(await GetValidValueMap());
+
             return dataMaps;
         }
 
-        private async Task<Dictionary<int, string>> GetUserGroupsMap()
+        private async Task<Dictionary<int, string>> GetUsersMap()
         {
             var map = new Dictionary<int, string>();
 
-            var groups = await _userRepository.GetUserGroupsMapAsync();
-            if (groups != null)
+            // TODO: It does not work correctly if there are over 1000 users.
+            // It has to be replaced later
+            var result = await _userRepository.GetUsersAsync(new Pagination { Offset = 0, Limit = 1000 });
+            if (result != null && result.Items != null)
             {
-                groups.ForEach(g => map.Add(g.GroupId, g.Name));
+                result.Items.ForEach(u => map.Add(u.Id, u.Login));
             }
-            
+
+            return map;
+        }
+
+        private async Task<Dictionary<int, Tuple<string, int?>>> GetGroupsMap()
+        {
+            var map = new Dictionary<int, Tuple<string, int?>>();
+
+            var groups = await _userRepository.GetGroupsMapAsync();
+            groups?.ForEach(g => map.Add(g.GroupId, Tuple.Create(g.Name, g.ProjectId)));
+
             return map;
         }
 
@@ -688,6 +780,144 @@ namespace AdminStore.Services.Workflow
             }
 
             return result;
+        }
+
+        private async Task ReplaceProjectPathsWithIds(IeWorkflow workflow)
+        {
+            var projectPaths = workflow.Projects?.Where(p => !p.Id.HasValue && !string.IsNullOrWhiteSpace(p.Path))
+                .Select(p => p.Path).ToHashSet() ?? new HashSet<string>();
+
+            var wEvents = new List<IeEvent>();
+            var groups = new List<IeUserGroup>();
+
+            if (!workflow.TransitionEvents.IsEmpty()) wEvents.AddRange(workflow.TransitionEvents);
+            if (!workflow.PropertyChangeEvents.IsEmpty()) wEvents.AddRange(workflow.PropertyChangeEvents);
+            if (!workflow.NewArtifactEvents.IsEmpty()) wEvents.AddRange(workflow.NewArtifactEvents);
+
+            wEvents.ForEach(e => e.Triggers?.ForEach(t =>
+            {
+                if (t?.Action?.ActionType != ActionTypes.PropertyChange)
+                {
+                    return;
+                }
+
+                var pcAction = (IePropertyChangeAction) t.Action;
+                pcAction.UsersGroups?.Where(ug => ug.IsGroup.GetValueOrDefault()
+                                                  && !ug.GroupProjectId.HasValue
+                                                  && !string.IsNullOrWhiteSpace(ug.GroupProjectPath)).ForEach(ug =>
+                                                  {
+                                                      projectPaths.Add(ug.GroupProjectPath);
+                                                      groups.Add(ug);
+                                                  });
+            }));
+
+            if (projectPaths.IsEmpty())
+            {
+                return;
+            }
+
+            var projectMap = (await _workflowRepository.GetProjectIdsByProjectPaths(projectPaths))
+                .ToDictionary(p => p.ProjectPath, p => p.ProjectId);
+
+            workflow.Projects?.Where(p => !p.Id.HasValue && !string.IsNullOrWhiteSpace(p.Path)).ForEach(p =>
+            {
+                int id;
+                if (projectMap.TryGetValue(p.Path, out id))
+                {
+                    p.Id = id;
+                    p.Path = null;
+                }
+            });
+
+            groups.ForEach(g =>
+            {
+                int id;
+                if (projectMap.TryGetValue(g.GroupProjectPath, out id))
+                {
+                    g.GroupProjectId = id;
+                    g.GroupProjectPath = null;
+                }
+            });
+        }
+        private static IEnumerable<WorkflowDataValidationError> ValidateAndRemoveNotFoundByIdInCurrentWorkflow(IeWorkflow workflow, WorkflowDiffResult workflowDiffResult)
+        {
+            var errors = new List<WorkflowDataValidationError>();
+            if (workflowDiffResult.NotFoundStates.Any())
+            {
+                workflow.States?.ForEach(s =>
+                {
+                    if (workflowDiffResult.NotFoundStates.Contains(s))
+                    {
+                        errors.Add(new WorkflowDataValidationError
+                        {
+                            Element = s,
+                            ErrorCode = WorkflowDataValidationErrorCodes.StateNotFoundByIdInCurrent
+                        });
+                        workflow.States.Remove(s);
+                    }
+                });
+            }
+
+            if (workflowDiffResult.NotFoundEvents.Any())
+            {
+                workflow.TransitionEvents?.ForEach(te =>
+                {
+                    if (workflowDiffResult.NotFoundEvents.Contains(te))
+                    {
+                        errors.Add(new WorkflowDataValidationError
+                        {
+                            Element = te,
+                            ErrorCode = WorkflowDataValidationErrorCodes.TransitionEventNotFoundByIdInCurrent
+                        });
+                        workflow.TransitionEvents.Remove(te);
+                    }
+                });
+
+                workflow.PropertyChangeEvents?.ForEach(pce =>
+                {
+                    if (workflowDiffResult.NotFoundEvents.Contains(pce))
+                    {
+                        errors.Add(new WorkflowDataValidationError
+                        {
+                            Element = pce,
+                            ErrorCode = WorkflowDataValidationErrorCodes.ProjectArtifactTypeNotFoundByIdInCurrent
+                        });
+                        workflow.PropertyChangeEvents.Remove(pce);
+                    }
+                });
+
+                workflow.NewArtifactEvents?.ForEach(nae =>
+                {
+                    if (workflowDiffResult.NotFoundEvents.Contains(nae))
+                    {
+                        errors.Add(new WorkflowDataValidationError
+                        {
+                            Element = nae,
+                            ErrorCode = WorkflowDataValidationErrorCodes.NewArtifactEventNotFoundByIdInCurrent
+                        });
+                        workflow.NewArtifactEvents.Remove(nae);
+                    }
+                });
+            }
+
+            if (workflowDiffResult.NotFoundProjectArtifactTypes.Any())
+            {
+                workflow.Projects?.ForEach(p => p.ArtifactTypes?.ForEach(at =>
+                {
+                    if (workflowDiffResult.NotFoundProjectArtifactTypes.Contains(at))
+                    {
+                        errors.Add(new WorkflowDataValidationError
+                        {
+                            Element = Tuple.Create(p, at),
+                            ErrorCode = WorkflowDataValidationErrorCodes.ProjectArtifactTypeNotFoundByIdInCurrent
+                        });
+                        p.ArtifactTypes.Remove(at);
+                    }
+                }));
+            }
+            workflow.Projects?.RemoveAll(p => p.ArtifactTypes.IsEmpty());
+
+            return errors;
         }
     }
 }

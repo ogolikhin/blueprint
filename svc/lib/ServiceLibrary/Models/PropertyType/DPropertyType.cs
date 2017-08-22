@@ -10,6 +10,7 @@ namespace ServiceLibrary.Models.PropertyType
         public int? VersionId { get; set; }
         public string Name { get; set; }
         public PropertyPrimitiveType? PrimitiveType { get; set; }
+        public PropertyTypePredefined Predefined { get; set; }
         public int? InstancePropertyTypeId { get; set; }
         public bool? IsRichText { get; set; }
         //public decimal? DecimalDefaultValue { get; set; }

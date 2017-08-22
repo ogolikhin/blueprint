@@ -524,7 +524,7 @@ namespace ArtifactStore.Repositories
             };
             return reviewersRoot;
         }
-        public async Task<ArtifactReviewContent> GetReviewArtifactStatusesByParticipant(int artifactId, int reviewId, int? offset, int? limit, int userId, int? versionId = null, bool? addDrafts = true)
+        public async Task<QueryResult<ReviewArtifactDetails>> GetReviewArtifactStatusesByParticipant(int artifactId, int reviewId, int? offset, int? limit, int userId, int? versionId = null, bool? addDrafts = true)
         {
             int? revisionId = await _itemInfoRepository.GetRevisionId(reviewId, userId, versionId);
             if (revisionId < int.MaxValue)
@@ -540,7 +540,7 @@ namespace ArtifactStore.Repositories
             param.Add("@userId", userId);
             param.Add("@addDrafts", addDrafts);
             var participants = await _connectionWrapper.QueryMultipleAsync<ReviewArtifactDetails, int>("GetReviewArtifactStatusesByParticipant", param, commandType: CommandType.StoredProcedure);
-            var reviewersRoot = new ArtifactReviewContent()
+            var reviewersRoot = new QueryResult<ReviewArtifactDetails>()
             {
                 Items = participants.Item1.ToList(),
                 Total = participants.Item2.SingleOrDefault()

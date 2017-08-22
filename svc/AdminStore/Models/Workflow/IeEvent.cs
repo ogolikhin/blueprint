@@ -13,7 +13,7 @@ namespace AdminStore.Models.Workflow
     /// Base class for Triggers of specific type
     /// </summary>
     [XmlType("Event")]
-    public abstract class IeEvent
+    public abstract class IeEvent : IIeWorkflowEntityWithId
     {
         // Optional, not used for the import, will be used for the update
         //========================================================

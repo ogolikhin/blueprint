@@ -102,5 +102,8 @@
         public static readonly string ArtifactWasMovedToAnotherProject = "Could not purge project because an artifact was moved to another project and we cannot reliably purge it without corrupting the other project.  PurgeProject aborted for projectId  {0}.";
         public static readonly string UnhandledStatusOfProject = "Unhandled case for ProjectStatus: {0}";
         public static readonly string PrivilegesForProjectNotExist = "User privileges for project (Id:{0}) is not found.";
+        //Roles
+        public static readonly string RolesForProjectNotExist = "Roles for the requested project are missing";
+
     }
 }

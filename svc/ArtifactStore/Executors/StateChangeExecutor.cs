@@ -5,6 +5,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using ArtifactStore.Helpers;
 using ArtifactStore.Models;
+using ArtifactStore.Models.Workflow;
+using ArtifactStore.Models.Workflow.Actions;
 using ArtifactStore.Repositories;
 using ArtifactStore.Repositories.Reuse;
 using ArtifactStore.Repositories.Workflow;
@@ -17,7 +19,6 @@ using ServiceLibrary.Models.PropertyType;
 using ServiceLibrary.Models.Reuse;
 using ServiceLibrary.Models.VersionControl;
 using ServiceLibrary.Models.Workflow;
-using ServiceLibrary.Models.Workflow.Actions;
 
 namespace ArtifactStore.Executors
 {
@@ -30,6 +31,7 @@ namespace ArtifactStore.Executors
         private readonly IWorkflowRepository _workflowRepository;
         private readonly IVersionControlService _versionControlService;
         private readonly IReuseRepository _reuseRepository;
+        private readonly ISaveArtifactRepository _saveArtifactRepository;
 
         public StateChangeExecutor(
             WorkflowStateChangeParameterEx input,
@@ -38,7 +40,8 @@ namespace ArtifactStore.Executors
             IWorkflowRepository workflowRepository,
             ISqlHelper sqlHelper,
             IVersionControlService versionControlService,
-            IReuseRepository reuseRepository
+            IReuseRepository reuseRepository,
+            ISaveArtifactRepository saveArtifactRepository
             )
         {
             _input = input;
@@ -48,6 +51,7 @@ namespace ArtifactStore.Executors
             _sqlHelper = sqlHelper;
             _versionControlService = versionControlService;
             _reuseRepository = reuseRepository;
+            _saveArtifactRepository = saveArtifactRepository;
         }
 
         public async Task<QuerySingleResult<WorkflowState>> Execute()
@@ -86,13 +90,13 @@ namespace ArtifactStore.Executors
 
 
                 var executionParameters = await BuildTriggerExecutionParameters(artifactInfo, preOpTriggers, transaction);
-
-                var errors = (await ProcessEventTriggers(preOpTriggers, executionParameters)).ToDictionary(entry => entry.Key, entry => entry.Value);
+                var errors = await preOpTriggers.ProcessTriggers(executionParameters);
+                //var errors = (await ProcessPreopEventTriggers(preOpTriggers, executionParameters, artifactInfo, transaction)).ToDictionary(entry => entry.Key, entry => entry.Value);
 
                 await PublishArtifacts(publishRevision, transaction);
 
                 //These should be converted to messages and sent as a part of state change event to handler service
-                foreach (var entry in await ProcessEventTriggers(postOpTriggers, executionParameters))
+                foreach (var entry in await postOpTriggers.ProcessTriggers(executionParameters))
                 {
                     errors.Add(entry.Key, entry.Value);
                 }
@@ -122,24 +126,30 @@ namespace ArtifactStore.Executors
             var artifactId2StandardTypeId =
                 await
                     _reuseRepository.GetStandardTypeIdsForArtifactsIdsAsync(new HashSet<int> { _input.ArtifactId });
-            var instanceTypeTypeId = artifactId2StandardTypeId[_input.ArtifactId].InstanceTypeId;
-            if (instanceTypeTypeId == null)
+            var instanceItemTypeId = artifactId2StandardTypeId[_input.ArtifactId].InstanceTypeId;
+            if (instanceItemTypeId == null)
             {
                 throw new BadRequestException("Artifact is not a standard artifact type");
             }
             if (isArtifactReadOnlyReuse.ContainsKey(_input.ArtifactId) && isArtifactReadOnlyReuse[_input.ArtifactId])
             {
-                reuseTemplate = await LoadReuseSettings(instanceTypeTypeId.Value);
+                reuseTemplate = await LoadReuseSettings(instanceItemTypeId.Value);
             }
-            var itemTypetoPropertyTypesMap = await LoadPropertyInformation(new [] { instanceTypeTypeId.Value }, triggers);
+            var customItemTypeToPropertiesMap = await LoadCustomPropertyInformation(new [] { instanceItemTypeId.Value }, triggers, artifactInfo.ProjectId);
 
             var propertyTypes = new List<DPropertyType>();
-            if (itemTypetoPropertyTypesMap.ContainsKey(instanceTypeTypeId.Value))
+            if (customItemTypeToPropertiesMap.ContainsKey(artifactInfo.ItemTypeId))
             {
-                propertyTypes = itemTypetoPropertyTypesMap[instanceTypeTypeId.Value];
+                propertyTypes = customItemTypeToPropertiesMap[artifactInfo.ItemTypeId];
             }
 
-            return new ExecutionParameters(reuseTemplate, propertyTypes);
+            return new ExecutionParameters(
+                _userId,
+                artifactInfo, 
+                reuseTemplate, 
+                propertyTypes, 
+                _saveArtifactRepository, 
+                transaction);
         }
 
         private async Task<int> CreateRevision(IDbTransaction transaction)
@@ -231,8 +241,8 @@ namespace ArtifactStore.Executors
 
         private Tuple<WorkflowEventTriggers, WorkflowEventTriggers> GetTransitionTriggers(WorkflowTransition desiredTransition)
         {
-            var preOpTriggers = new WorkflowEventTriggers();
-            var postOpTriggers = new WorkflowEventTriggers();
+            var preOpTriggers = new PreopWorkflowEventTriggers();
+            var postOpTriggers = new PostopWorkflowEventTriggers();
             foreach (var workflowEventTrigger in desiredTransition.Triggers.Where(t => t?.Action != null))
             {
                 if (workflowEventTrigger.Action is IWorkflowEventSynchronousAction)
@@ -291,20 +301,7 @@ namespace ArtifactStore.Executors
                 RevisionId = publishRevision
             }, transaction);
         }
-
-        private async Task<IDictionary<string, string>> ProcessEventTriggers(WorkflowEventTriggers triggers, ExecutionParameters executionParameters)
-        {
-            var result = new Dictionary<string, string>();
-            foreach (var triggerExecutor in triggers)
-            {
-                if (!await triggerExecutor.Action.Execute(executionParameters))
-                {
-                    result.Add(triggerExecutor.Name, "State cannot be modified as the trigger cannot be executed");
-                }
-            }
-            return result;
-        }
-
+        
         private async Task<ItemTypeReuseTemplate> LoadReuseSettings(int itemTypeId, IDbTransaction transaction = null)
         {
 
@@ -321,7 +318,7 @@ namespace ArtifactStore.Executors
             return reuseTemplateSettings;
         }
 
-        private async Task<Dictionary<int, List<DPropertyType>>> LoadPropertyInformation(IEnumerable<int> instanceItemTypeIds, WorkflowEventTriggers triggers)
+        private async Task<Dictionary<int, List<DPropertyType>>> LoadCustomPropertyInformation(IEnumerable<int> instanceItemTypeIds, WorkflowEventTriggers triggers, int projectId)
         {
             var propertyChangeActions = triggers.Select(t => t.Action).OfType<PropertyChangeAction>().ToList();
             if (propertyChangeActions.Count == 0)
@@ -333,7 +330,7 @@ namespace ArtifactStore.Executors
                 propertyChangeActions.Select(b => b.InstancePropertyTypeId);
 
             return await
-                _workflowRepository.GetPropertyTypesFromItemTypeIds(_userId, _input.ArtifactId, instanceItemTypeIds,
+                _workflowRepository.GetCustomItemTypeToPropertiesMap(_userId, _input.ArtifactId, projectId, instanceItemTypeIds,
                     instancePropertyTypeIds);
         }
     }

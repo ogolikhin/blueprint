@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using ArtifactStore.Executors;
+using ArtifactStore.Models.Workflow;
 using ArtifactStore.Repositories;
 using ArtifactStore.Repositories.Reuse;
 using ArtifactStore.Repositories.Workflow;
@@ -31,13 +32,15 @@ namespace ArtifactStore.Services.Workflow
         private readonly ISqlHelper _sqlHelper;
         private readonly IVersionControlService _versionControlService;
         private readonly IReuseRepository _reuseRepository;
+        private readonly ISaveArtifactRepository _saveArtifactRepository;
 
         public WorkflowService(IWorkflowRepository workflowRepository,
             IArtifactVersionsRepository artifactVersionsRepository,
             ISqlItemInfoRepository itemInfoRepository,
             ISqlHelper sqlHelper,
             IVersionControlService versionControlService,
-            IReuseRepository reuseRepository)
+            IReuseRepository reuseRepository,
+            ISaveArtifactRepository saveArtifactRepository)
         {
             _workflowRepository = workflowRepository;
             _artifactVersionsRepository = artifactVersionsRepository;
@@ -45,6 +48,7 @@ namespace ArtifactStore.Services.Workflow
             _sqlHelper = sqlHelper;
             _versionControlService = versionControlService;
             _reuseRepository = reuseRepository;
+            _saveArtifactRepository = saveArtifactRepository;
         }
 
         public async Task<WorkflowTransitionResult> GetTransitionsAsync(int userId, int artifactId, int workflowId, int stateId)
@@ -92,7 +96,8 @@ namespace ArtifactStore.Services.Workflow
                 _workflowRepository,
                 _sqlHelper,
                 _versionControlService,
-                _reuseRepository
+                _reuseRepository,
+                _saveArtifactRepository
                 );
 
             return await stateChangeExecutor.Execute();

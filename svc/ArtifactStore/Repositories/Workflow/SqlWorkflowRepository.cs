@@ -8,10 +8,11 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using ArtifactStore.Helpers;
+using ArtifactStore.Models.Workflow;
+using ArtifactStore.Models.Workflow.Actions;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.PropertyType;
-using ServiceLibrary.Models.Workflow.Actions;
 
 namespace ArtifactStore.Repositories.Workflow
 {
@@ -75,16 +76,17 @@ namespace ArtifactStore.Repositories.Workflow
                 transaction);
         }
 
-        public async Task<Dictionary<int, List<DPropertyType>>> GetPropertyTypesFromItemTypeIds(
+        public async Task<Dictionary<int, List<DPropertyType>>> GetCustomItemTypeToPropertiesMap(
             int userId,
             int artifactId,
+            int projectId,
             IEnumerable<int> instanceItemTypeIds,
             IEnumerable<int> instancePropertyIds)
         {
             //Need to access code for artifact permissions for revision
             await CheckForArtifactPermissions(userId, artifactId, permissions: RolePermissions.Edit);
 
-            return await GetPropertyTypesForItemTypes(instanceItemTypeIds, instancePropertyIds);
+            return await GetCustomPropertyTypesFromStandardIds(instanceItemTypeIds, instancePropertyIds, projectId);
         }
         #endregion
 
@@ -137,7 +139,7 @@ namespace ArtifactStore.Repositories.Workflow
                         ConnectionWrapper.QueryAsync<SqlWorkflowTransition>("GetTransitionAssociatedWithStates", param,
                             commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
-
+        
         private IList<WorkflowTransition> ToWorkflowTransitions(IEnumerable<SqlWorkflowTransition> sqlWorkflowTransitions)
         {
             return sqlWorkflowTransitions.Select(wt =>
@@ -279,16 +281,18 @@ namespace ArtifactStore.Repositories.Workflow
             }).ToList();
         }
 
-        private async Task<Dictionary<int, List<DPropertyType>>> GetPropertyTypesForItemTypes(
+        private async Task<Dictionary<int, List<DPropertyType>>> GetCustomPropertyTypesFromStandardIds(
             IEnumerable<int> itemTypeIds, 
             IEnumerable<int> instancePropertyTypeIds, 
+            int projectId,
             IDbTransaction transaction = null)
         {
             var param = new DynamicParameters();
-            param.Add("@itemTypeIds", SqlConnectionWrapper.ToDataTable(itemTypeIds));
-            param.Add("@propertyIds", SqlConnectionWrapper.ToDataTable(instancePropertyTypeIds));
+            param.Add("@instanceItemTypeIds", SqlConnectionWrapper.ToDataTable(itemTypeIds));
+            param.Add("@instancePropertyIds", SqlConnectionWrapper.ToDataTable(instancePropertyTypeIds));
+            param.Add("@projectId", projectId);
 
-            const string storedProcedure = "GetPropertyTypesFromItemTypeIds";
+            const string storedProcedure = "GetCustomPropertyTypesFromStandardIds";
             if (transaction == null)
             {
                 return ToItemTypePropertyTypesDictionary(await ConnectionWrapper.QueryAsync<SqlPropertyType>(storedProcedure, param, commandType: CommandType.StoredProcedure));
@@ -310,7 +314,7 @@ namespace ArtifactStore.Repositories.Workflow
                         dProperty = new DNumberPropertyType
                         {
                             AllowMultiple = sqlPropertyType.AllowMultiple,
-                            DefaultValue = DecimalHelper.ToDecimal((byte[])sqlPropertyType.DecimalDefaultValue),
+                            DefaultValue = PropertyHelper.ToDecimal((byte[])sqlPropertyType.DecimalDefaultValue),
                             DecimalPlaces = sqlPropertyType.DecimalPlaces.GetValueOrDefault(0),
                             DefaultValidValueId = sqlPropertyType.DefaultValidValueId,
                             InstancePropertyTypeId = sqlPropertyType.InstancePropertyTypeId,
@@ -318,13 +322,14 @@ namespace ArtifactStore.Repositories.Workflow
                             PropertyTypeId = sqlPropertyType.PropertyTypeId,
                             Range = new Range<decimal>
                             {
-                                End = DecimalHelper.ToDecimal((byte[])sqlPropertyType.NumberRange_End).GetValueOrDefault(0),
-                                Start = DecimalHelper.ToDecimal((byte[])sqlPropertyType.NumberRange_Start).GetValueOrDefault(0)
+                                End = PropertyHelper.ToDecimal((byte[])sqlPropertyType.NumberRange_End).GetValueOrDefault(0),
+                                Start = PropertyHelper.ToDecimal((byte[])sqlPropertyType.NumberRange_Start).GetValueOrDefault(0)
                             },
                             PrimitiveType = sqlPropertyType.PrimitiveType,
                             IsRequired = sqlPropertyType.Required != null && sqlPropertyType.Required.Value,
-                            Validate = sqlPropertyType.Validate,
-                            VersionId = sqlPropertyType.VersionId
+                            IsValidate = sqlPropertyType.Validate.GetValueOrDefault(false),
+                            VersionId = sqlPropertyType.VersionId,
+                            Predefined = sqlPropertyType.Predefined
                         };
                         break;
                     }
@@ -345,8 +350,8 @@ namespace ArtifactStore.Repositories.Workflow
                                 PrimitiveType = sqlPropertyType.PrimitiveType,
                                 IsRequired = sqlPropertyType.Required != null && sqlPropertyType.Required.Value,
                                 StringDefaultValue = sqlPropertyType.StringDefaultValue,
-                                Validate = sqlPropertyType.Validate,
-                                VersionId = sqlPropertyType.VersionId
+                                VersionId = sqlPropertyType.VersionId,
+                                Predefined = sqlPropertyType.Predefined
                             };
                             break;
                     }

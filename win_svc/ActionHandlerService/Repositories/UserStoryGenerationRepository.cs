@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ActionHandlerService.Services;
+﻿using System.Threading.Tasks;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Jobs;
 using ServiceLibrary.Repositories;
@@ -23,7 +18,7 @@ namespace ActionHandlerService.Repositories
         {
             var payload = new GenerateUserStoryInfo { ProcessId = processId, TaskId = taskId };
             var parameters = SerializationHelper.ToXml(payload);
-            var hostUri = ServerUriHelper.BaseHostUri;
+            //var hostUri = ServerUriHelper.BaseHostUri;
             var jobsRepository = new JobsRepository();
             var jobId = await jobsRepository.AddJobMessage(JobType.GenerateUserStories,
                 false,
@@ -33,7 +28,7 @@ namespace ActionHandlerService.Repositories
                 string.Empty,
                 1, //TODO: get actual user info
                 "admin",
-                hostUri.ToString());
+                "http://localhost:9801/");
         }
     }
 }

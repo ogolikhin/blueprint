@@ -66,7 +66,7 @@ namespace ActionHandlerService
         private async Task CreateEndPoint(string name, string connectionString)
         {
             var endpointConfiguration = new EndpointConfiguration(name);
-            var assembliesToExclude = new HashSet<string> {"Common.dll", "NServiceBus.Persistence.Sql.dll", "BluePrintSys.Messaging.CrossCutting.dll", "Dapper.StrongName.dll"};
+            var assembliesToExclude = new HashSet<string> { "MailBee.NET.4.dll", "Common.dll", "NServiceBus.Persistence.Sql.dll", "BluePrintSys.Messaging.CrossCutting.dll", "Dapper.StrongName.dll"};
 
             var messageBroker = ConfigHelper.MessageBroker;
             if (messageBroker == MessageBroker.RabbitMQ)

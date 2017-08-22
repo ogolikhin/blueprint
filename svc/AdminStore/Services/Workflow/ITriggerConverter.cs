@@ -53,6 +53,9 @@ namespace AdminStore.Services.Workflow
         private IDictionary<int, string> _groupMap;
         public IDictionary<int, string> GroupMap => _groupMap ?? (_groupMap = new Dictionary<int, string>());
 
+        private IDictionary<int, string> _userMap;
+        public IDictionary<int, string> UserMap => _userMap ?? (_userMap = new Dictionary<int, string>());
+
         //private IDictionary<int, IDictionary<int, string>> _validValueMap;
         //public IDictionary<int, IDictionary<int, string>> ValidValueMap => _validValueMap ?? (_validValueMap = new Dictionary<int, IDictionary<int, string>>());
         private IDictionary<int, string> _validValueMap;

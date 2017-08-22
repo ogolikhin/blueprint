@@ -186,10 +186,12 @@ namespace AdminStore.Services.Workflow
             var userGroups = new List<IeUserGroup>();
             foreach (var g in xmlUserGroups)
             {
+                var map = g.IsGroup.HasValue && (bool)g.IsGroup ? dataMaps.GroupMap : dataMaps.UserMap;
+               
                 var group = new IeUserGroup
                 {
                     Id = g.Id,
-                    Name = dataMaps.GroupMap.TryGetValue(g.Id, out name) ? name : null,
+                    Name = map.TryGetValue(g.Id, out name) ? name : null,
                     IsGroup = g.IsGroup
                 };
                 userGroups.Add(group);

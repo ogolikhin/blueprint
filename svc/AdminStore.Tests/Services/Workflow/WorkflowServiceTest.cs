@@ -10,6 +10,7 @@ using Moq;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ProjectMeta;
+using AdminStore.Models;
 
 namespace AdminStore.Services
 {
@@ -214,6 +215,11 @@ namespace AdminStore.Services
                 }
             };
 
+            var items = new List<UserDto> { new UserDto { Id = 1, Login = "user" } };
+            var users = new QueryResult<UserDto> { Total = 1, Items = items };
+
+            _userRepositoryMock.Setup(repo => repo.GetUsersAsync(It.IsAny<Pagination>(), null, null, null)).ReturnsAsync(users);
+
             _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(workflow);
 
             _workflowRepositoryMock.Setup(repo => repo.GetWorkflowStatesAsync(It.IsAny<int>())).ReturnsAsync(workflowsList);
@@ -230,7 +236,7 @@ namespace AdminStore.Services
             Assert.AreEqual(2, workflowExport.Projects.Count);
             Assert.AreEqual(1, workflowExport.States.Count);
         }
-
+        
         #endregion
     }
 }

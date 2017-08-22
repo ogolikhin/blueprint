@@ -92,7 +92,21 @@ namespace AdminStore.Services.Instance
             _emailSettings = new EmailSettings()
             {
                 Password = EncryptedPassword,
-                IncomingPassword = EncryptedPassword
+                IncomingPassword = EncryptedPassword,
+                Authenticated = true,
+                EnableEmailDiscussion = true,
+                EnableEmailReplies = false,
+                EnableNotifications = true,
+                EnableSSL = true,
+                SenderEmailAddress = "example@test.com",
+                HostName = "smtp.test.com",
+                Port = 1234,
+                UserName = "admin",
+                IncomingEnableSSL = false,
+                IncomingHostName = "pop3.test.com",
+                IncomingPort = 2345,
+                IncomingServerType = 0,
+                IncomingUserName = "user"
             };
         }
 
@@ -542,16 +556,35 @@ namespace AdminStore.Services.Instance
         }
 
         [TestMethod]
-        public async Task GetEmailSettingsAsync_Should_Return_EmailSettings_From_Repository()
+        public async Task GetEmailSettingsAsync_Should_Get_EmailSettings_Information_From_Repository()
         {
             //Arrange
             _adminPrivilege = InstanceAdminPrivileges.ViewInstanceSettings;
 
             //Act
-            var emailSettings = await _emailSettingsService.GetEmailSettingsAsync(UserId);
+            var emailSettingsDto = await _emailSettingsService.GetEmailSettingsAsync(UserId);
 
             //Assert
-            Assert.AreSame(_emailSettings, emailSettings);
+            Assert.AreEqual(_emailSettings.HostName, emailSettingsDto.Outgoing.ServerAddress);
+            Assert.AreEqual(_emailSettings.Port, emailSettingsDto.Outgoing.Port);
+            Assert.AreEqual(_emailSettings.EnableSSL, emailSettingsDto.Outgoing.EnableSsl);
+            Assert.AreEqual(_emailSettings.Authenticated, emailSettingsDto.Outgoing.AuthenticatedSmtp);
+            Assert.AreEqual(null, emailSettingsDto.Outgoing.AccountPassword);
+            Assert.AreEqual(_emailSettings.UserName, emailSettingsDto.Outgoing.AccountUsername);
+            Assert.AreEqual(_emailSettings.SenderEmailAddress, emailSettingsDto.Outgoing.AccountEmailAddress);
+            Assert.AreEqual(false, emailSettingsDto.Outgoing.IsPasswordDirty);
+
+            Assert.AreEqual(_emailSettings.IncomingHostName, emailSettingsDto.Incoming.ServerAddress);
+            Assert.AreEqual(_emailSettings.IncomingPort, emailSettingsDto.Incoming.Port);
+            Assert.AreEqual(_emailSettings.IncomingServerType, (int)emailSettingsDto.Incoming.ServerType);
+            Assert.AreEqual(_emailSettings.IncomingEnableSSL, emailSettingsDto.Incoming.EnableSsl);
+            Assert.AreEqual(_emailSettings.IncomingUserName, emailSettingsDto.Incoming.AccountUsername);
+            Assert.AreEqual(null, emailSettingsDto.Incoming.AccountPassword);
+            Assert.AreEqual(false, emailSettingsDto.Incoming.IsPasswordDirty);
+
+            Assert.AreEqual(_emailSettings.EnableNotifications, emailSettingsDto.EnableReviewNotifications);
+            Assert.AreEqual(_emailSettings.EnableEmailDiscussion, emailSettingsDto.EnableEmailNotifications);
+            Assert.AreEqual(_emailSettings.EnableEmailReplies, emailSettingsDto.EnableDiscussions);
         }
 
         #endregion

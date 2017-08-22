@@ -43,11 +43,13 @@ namespace AdminStore.Services.Instance
             _incomingEmailService = incomingEmailService;
         }
 
-        public async Task<EmailSettings> GetEmailSettingsAsync(int userId)
+        public async Task<EmailSettingsDto> GetEmailSettingsAsync(int userId)
         {
             await _privilegesManager.Demand(userId, InstanceAdminPrivileges.ViewInstanceSettings);
 
-            return await _instanceSettingsRepository.GetEmailSettings();
+            EmailSettings settings = await _instanceSettingsRepository.GetEmailSettings();
+
+            return (EmailSettingsDto) settings;
         }
 
         public async Task SendTestEmailAsync(int userId, EmailOutgoingSettings outgoingSettings)

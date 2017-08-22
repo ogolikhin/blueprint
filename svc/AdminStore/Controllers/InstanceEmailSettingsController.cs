@@ -31,7 +31,7 @@ namespace AdminStore.Controllers
         [HttpGet, NoCache]
         [ActionName("GetEmailSettings")]
         [SessionRequired]
-        public Task<EmailSettings> GetEmailSettingsAsync()
+        public Task<EmailSettingsDto> GetEmailSettingsAsync()
         {
             return _emailSettingsService.GetEmailSettingsAsync(Session.UserId);
         }

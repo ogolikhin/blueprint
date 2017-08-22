@@ -9,9 +9,11 @@ namespace AdminStore.Services.Workflow
 {
     public class WorkflowValidationErrorBuilder : IWorkflowValidationErrorBuilder
     {
-        private const string TemplateWorkflowImportFailedSingular = "There was an error uploading {0}. The supplied XML is not valid. Please edit your file and upload again.";
-        private const string TemplateWorkflowImportFailedPlural = "There were errors uploading {0}. The supplied XML is not valid. Please edit your file and upload again.";
+        private const string TemplateWorkflowImportFailedSingular = "There was an error uploading {0}.{1}";
+        private const string TemplateWorkflowImportFailedPlural = "There were errors uploading {0}.{1}";
         private const string ReplacementNotSpecifiedFileName = "the XML";
+        //The supplied XML is not valid. Please edit your file and upload again.
+        private const string XmlIsNotValid = "The supplied XML is not valid. Please edit your file and upload again.";
 
         // Messages for the XML validation.
         private const string TemplateXmlWorkflowNameEmpty = "The required field 'Name' of the Workflow is missing.";
@@ -41,10 +43,10 @@ namespace AdminStore.Services.Workflow
         private const string TemplateXmlTriggerCountOnEventExceedsLimit10 = "Event (Transition, Property Change, New Artifact) '{0}' exceeded the limit of permitted Triggers per Event of 10.";
         private const string TemplateXmlPropertyChangEventPropertyNotSpecified = "Property of Property Change Event '{0}' is not specified.";
         private const string TemplateXmlProjectNoSpecified = "One or more Projects are not specified. A Project must be specified with Id or Path.";
+        private const string TemplateXmlAmbiguousProjectReference = "One or more Projects have ambiguous Reference. A Project must be specified either by Id or by Path.";
         private const string TemplateXmlInvalidId = "One or more Ids are invalid. The Id must be greater than zero.";
         private const string TemplateXmlProjectDuplicateId = "One or more Projects have a duplicate Id. Projects in a Workflow must be unique.";
         private const string TemplateXmlProjectInvalidPath = "One or more Projects have a duplicate Project Path. Projects in a Workflow must be unique.";
-        // Updated - just removed an unnecessary word
         private const string TemplateXmlProjectDoesNotHaveAnyArtfactTypes = "One or more Projects do not have Artifact Types. A Project must have at least one Artifact Type.";
         private const string TemplateXmlArtifactTypeNoSpecified = "One or more Artifact Types are not specified. An Artifact Types must be specified.";
         private const string TemplateXmlPropertyChangeEventNoAnyTriggersSpecified = "One or more Property Change Events do not have any triggers. A Property Change Event must have at least one Trigger.";
@@ -57,17 +59,16 @@ namespace AdminStore.Services.Workflow
         private const string TemplateXmlPropertyNamePropertyChangeActionNotSpecitied = "One or more Property Change Actions do not have a specified Property Name. A Property Change Action must have a Property Name.";
         private const string TemplateXmlPropertyValuePropertyChangeActionNotSpecitied = "One or more Property Change Actions do not have a specified Property Value. A Property Change Action must have one of the following values, a Property Value or Valid Values or Users and Groups.";
         private const string TemplateXmlAmbiguousPropertyValuePropertyChangeAction = "One or more Property Change Actions have ambiguous Property Values. A Property Change Action must have only one of the following values, a Property Value or Valid Values or Users and Groups.";
+        private const string TemplateXmlAmbiguousGroupProjectReference = "One or more Property Change Actions have ambiguous Group Project Reference. A Group Project must be specified either by Id or by Path.";
         private const string TemplateXmlArtifactTypeGenerateChildrenActionNotSpecitied = "One or more Generate Children Actions do not have a specified Artifact Type. A Generate Children Action must have an Artifact Type.";
         private const string TemplateXmlChildCountGenerateChildrenActionNotSpecitied = "One or more Generate Children Actions do not have a specified Child Count. A Generate Children Action must have a Child Count.";
         private const string TemplateXmlStateConditionNotOnTriggerOfPropertyChangeEvent = "One or more Triggers of Transitions or New Artifact Events have a State Condition. Only Triggers of Property Change Events can have a State Condition.";
         private const string TemplateXmlStateStateConditionNotSpecified = "One or more States missing on State Conditions of Triggers. The State must be specified on a State Condition.";
         private const string TemplateXmlStateStateConditionNotFound = "State '{0}' of a State Condition is not found. The State of a State Condition must be in the Workflow.";
         private const string TemplateXmlPropertyChangeEventActionNotSupported = "One or more Property Change Events have unsupported Actions. A Property Change Event supports only Email Notification Action";
-        // Updated - just fixed a misspelling
         private const string TemplateXmlDuplicateArtifactTypesInProject = "One or more Projects contain duplicate Artifact Types. Artifact Types in a Project must be unique.";
         // Workflow Update specific messages
         private const string TemplateXmlWorkflowIdDoesNotMatchIdInUrl = "The Workflow Id in XML does not match the Workflow to update, Id in URL. You probably supplied a wrong Workflow XML file.";
-        // New
         private const string TemplateXmlDuplicateStateIds = "One or more States have a duplicate Id. A State Id must be unique.";
         private const string TemplateXmlDuplicateWorkflowEventIds = "One or more Workflow Events have a duplicate Id. A Workflow Event Id must be unique.";
         private const string TemplateXmlDuplicateProjectIds = "One or more Projects have a duplicate Id. A Project Id must be unique.";
@@ -97,15 +98,24 @@ namespace AdminStore.Services.Workflow
         private const string TemplateDataPropertyChangeActionNumberOutOfRange = "The Value of Number Property '{0}' in a Property Change Action is out of the range.";
         private const string TemplateDataPropertyChangeActionInvalidDateFormat = "The Value of Date Property '{0}' in a Property Change Action has an invalid date format.";
         private const string TemplateDataPropertyChangeActionDateOutOfRange = "The Value of Date Property '{0}' in a Property Change Action is out of the range.";
+        // Workflow Update specific messages
+        private const string TemplateDataPWorkflowActive = "The Workflow '{0}' [ID = {1}] is Active. An Active Workflow cannot be updated.";
+        private const string TemplateDataStateNotFoundByIdInCurrent = "The State '{0}' [ID = {1}] is not found by ID in the current workflow.";
+        private const string TemplateDataTransitionEventNotFoundByIdInCurrent = "The Transition Event '{0}' [ID = {1}] is not found by ID in the current workflow.";
+        private const string TemplateDataPropertyChangeEventNotFoundBuIdInCurrent = "The Property Change Event '{0}' [ID = {1}] is not found by ID in the current workflow.";
+        private const string TemplateDataNewArtifactEventNotFoundByIdInCurrent = "The New Artifact Event '{0}' [ID = {1}] is not found by ID in the current workflow.";
+        private const string TemplateDataProjectArtifactTypeNotFoundByIdInCurrent = "The Standard Artifact Type '{1}' [ID = {2}] in Project [ID = {0}] is not found by ID in the current workflow.";
+        private const string TemplateDataWorkflowNothingToUpdate = "The provided workflow does not contain any updates.";
 
         #region Interface Implementation
 
-        public string BuildTextXmlErrors(IEnumerable<WorkflowXmlValidationError> errors, string fileName)
+        public string BuildTextXmlErrors(IEnumerable<WorkflowXmlValidationError> errors, string fileName, bool isEditFileMessage = true)
         {
             var errorList = errors.ToList();
             var sb = new StringBuilder();
             AppendLine(sb, errorList.Count > 1 ? TemplateWorkflowImportFailedPlural : TemplateWorkflowImportFailedSingular,
-                string.IsNullOrWhiteSpace(fileName) ? ReplacementNotSpecifiedFileName : fileName);
+                string.IsNullOrWhiteSpace(fileName) ? ReplacementNotSpecifiedFileName : fileName,
+                isEditFileMessage ? " " + XmlIsNotValid : string.Empty);
 
             foreach (var error in errorList)
             {
@@ -118,13 +128,14 @@ namespace AdminStore.Services.Workflow
             return sb.ToString();
         }
 
-        public string BuildTextDataErrors(IEnumerable<WorkflowDataValidationError> errors, string fileName)
+        public string BuildTextDataErrors(IEnumerable<WorkflowDataValidationError> errors, string fileName, bool isEditFileMessage = true)
         {
             var errorList = errors.ToList();
             var sb = new StringBuilder();
 
             AppendLine(sb, errorList.Count > 1 ? TemplateWorkflowImportFailedPlural : TemplateWorkflowImportFailedSingular,
-                string.IsNullOrWhiteSpace(fileName) ? ReplacementNotSpecifiedFileName : fileName);
+                string.IsNullOrWhiteSpace(fileName) ? ReplacementNotSpecifiedFileName : fileName,
+                isEditFileMessage ? " " + XmlIsNotValid : string.Empty);
 
             foreach (var error in errorList)
             {
@@ -266,6 +277,10 @@ namespace AdminStore.Services.Workflow
                     template = TemplateXmlProjectNoSpecified;
                     errParams = new object[] {};
                     break;
+                case WorkflowXmlValidationErrorCodes.AmbiguousProjectReference:
+                    template = TemplateXmlAmbiguousProjectReference;
+                    errParams = new object[] { };
+                    break;
                 case WorkflowXmlValidationErrorCodes.InvalidId:
                     template = TemplateXmlInvalidId;
                     errParams = new object[] {};
@@ -324,6 +339,10 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowXmlValidationErrorCodes.AmbiguousPropertyValuePropertyChangeAction:
                     template = TemplateXmlAmbiguousPropertyValuePropertyChangeAction;
+                    errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.AmbiguousGroupProjectReference:
+                    template = TemplateXmlAmbiguousGroupProjectReference;
                     errParams = new object[] { };
                     break;
                 case WorkflowXmlValidationErrorCodes.ArtifactTypeGenerateChildrenActionNotSpecitied:
@@ -479,6 +498,40 @@ namespace AdminStore.Services.Workflow
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionDateOutOfRange:
                     template = TemplateDataPropertyChangeActionDateOutOfRange;
                     errParams = new object[] { (string)error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.WorkflowActive:
+                    template = TemplateDataPWorkflowActive;
+                    var workflow = (IeWorkflow) error.Element;
+                    errParams = new object[] { workflow.Name, workflow.Id };
+                    break;
+                case WorkflowDataValidationErrorCodes.StateNotFoundByIdInCurrent:
+                    template = TemplateDataStateNotFoundByIdInCurrent;
+                    var state = (IeState) error.Element;
+                    errParams = new object[] { state.Name, state.Id };
+                    break;
+                case WorkflowDataValidationErrorCodes.TransitionEventNotFoundByIdInCurrent:
+                    template = TemplateDataTransitionEventNotFoundByIdInCurrent;
+                    var te = (IeTransitionEvent) error.Element;
+                    errParams = new object[] { te.Name, te.Id };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeEventNotFoundBuIdInCurrent:
+                    template = TemplateDataPropertyChangeEventNotFoundBuIdInCurrent;
+                    var pce = (IePropertyChangeEvent )error.Element;
+                    errParams = new object[] { pce.Name, pce.Id };
+                    break;
+                case WorkflowDataValidationErrorCodes.NewArtifactEventNotFoundByIdInCurrent:
+                    template = TemplateDataNewArtifactEventNotFoundByIdInCurrent;
+                    var nae = (IeNewArtifactEvent) error.Element;
+                    errParams = new object[] { nae.Name, nae.Id };
+                    break;
+                case WorkflowDataValidationErrorCodes.ProjectArtifactTypeNotFoundByIdInCurrent:
+                    template = TemplateDataProjectArtifactTypeNotFoundByIdInCurrent;
+                    var tuple  = (Tuple<IeProject, IeArtifactType>) error.Element;
+                    errParams = new object[] { tuple.Item1.Id, tuple.Item2.Name, tuple.Item2.Id };
+                    break;
+                case WorkflowDataValidationErrorCodes.WorkflowNothingToUpdate:
+                    template = TemplateDataWorkflowNothingToUpdate;
+                    errParams = new object[] { };
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

@@ -70,7 +70,7 @@ namespace AdminStore.Repositories
             return (await _connectionWrapper.QueryAsync<UserIcon>("GetUserIconByUserId", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
 
-        public async Task<IEnumerable<SqlGroup>> GetUserGroupsMapAsync(IEnumerable<int> groupIds = null)
+        public async Task<IEnumerable<SqlGroup>> GetGroupsMapAsync(IEnumerable<int> groupIds = null)
         {
             var prm = new DynamicParameters();
             if (groupIds != null)

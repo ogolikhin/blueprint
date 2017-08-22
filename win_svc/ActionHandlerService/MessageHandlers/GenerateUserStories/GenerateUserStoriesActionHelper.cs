@@ -9,6 +9,13 @@ namespace ActionHandlerService.MessageHandlers.GenerateUserStories
     {
         public async Task<bool> HandleAction(TenantInformation tenant, ActionMessage actionMessage, IActionHandlerServiceRepository actionHandlerServiceRepository)
         {
+            var generateUserStoriesMessage = actionMessage as GenerateUserStoriesMessage;
+            if (generateUserStoriesMessage == null)
+            {
+                return await Task.FromResult(false);
+            }
+            await UserStoryGenerationRepository.GenerateUserStories(generateUserStoriesMessage.ProjectId, generateUserStoriesMessage.ProcessId, generateUserStoriesMessage.TaskId);
+            //return Request.CreateResponse(HttpStatusCode.OK, userstories);
             return await Task.FromResult(true);
         }
     }

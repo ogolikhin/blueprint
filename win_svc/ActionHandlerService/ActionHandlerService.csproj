@@ -146,6 +146,7 @@
     <Compile Include="Helpers\TenantInfoRetriever.cs" />
     <Compile Include="Repositories\ArtifactsPublishedRepository.cs" />
     <Compile Include="Repositories\NotificationRepository.cs" />
+    <Compile Include="Repositories\UserStoryGenerationRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
@@ -169,6 +170,7 @@
       <Name>BluePrintSys.Messaging.Models.Actions</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

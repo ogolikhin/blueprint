@@ -204,7 +204,8 @@ namespace AdminStore.Services.Workflow
                     var user = new IeUserGroup
                     {
                         Id = g.Id,
-                        Name = dataMaps.UserMap.TryGetValue(g.Id, out name) ? name : null
+                        Name = dataMaps.UserMap.TryGetValue(g.Id, out name) ? name : null,
+                        IsGroup = false
                     };
                     userGroups.Add(user);
                 }

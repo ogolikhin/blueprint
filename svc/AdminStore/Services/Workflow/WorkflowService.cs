@@ -647,6 +647,8 @@ namespace AdminStore.Services.Workflow
         {
             var map = new Dictionary<int, string>();
 
+            // TODO: It does not work correctly if there are over 1000 users.
+            // It has to be replaced later
             var result = await _userRepository.GetUsersAsync(new Pagination { Offset = 0, Limit = 1000 });
             if (result != null && result.Items != null)
             {

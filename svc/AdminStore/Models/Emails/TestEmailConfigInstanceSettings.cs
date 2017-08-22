@@ -27,8 +27,8 @@ namespace AdminStore.Models.Emails
             Port = outgoingSettings.Port;
             EnableSSL = outgoingSettings.EnableSsl;
             Authenticated = outgoingSettings.AuthenticatedSmtp;
-            UserName = outgoingSettings.AuthenticatedSmtpUsername;
-            Password = outgoingSettings.AuthenticatedSmtpPassword;
+            UserName = outgoingSettings.AccountUsername;
+            Password = outgoingSettings.AccountPassword;
         }
     }
 }

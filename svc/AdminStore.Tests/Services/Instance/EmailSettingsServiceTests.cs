@@ -63,8 +63,8 @@ namespace AdminStore.Services.Instance
             _outgoingSettings = new EmailOutgoingSettings()
             {
                 AuthenticatedSmtp = true,
-                AuthenticatedSmtpPassword = "password",
-                AuthenticatedSmtpUsername = "admin",
+                AccountPassword = "password",
+                AccountUsername = "admin",
                 EnableSsl = true,
                 Port = 2,
                 ServerAddress = "smtp.blueprintsys.com",
@@ -186,7 +186,7 @@ namespace AdminStore.Services.Instance
         public async Task SendTestEmailAsync_Should_Throw_BadRequestException_When_AuthenticatedSmtp_Is_Enabled_And_Username_Is_Empty()
         {
             //Arrange
-            _outgoingSettings.AuthenticatedSmtpUsername = "";
+            _outgoingSettings.AccountUsername = "";
 
             //Act
             try
@@ -207,7 +207,7 @@ namespace AdminStore.Services.Instance
         public async Task SendTestEmailAsync_Should_Throw_BadRequestException_When_AuthenticatedSmtp_Is_Enabled_And_Password_Is_Empty()
         {
             //Arrange
-            _outgoingSettings.AuthenticatedSmtpPassword = "";
+            _outgoingSettings.AccountPassword = "";
 
             //Act
             try
@@ -273,10 +273,10 @@ namespace AdminStore.Services.Instance
             return config.Authenticated == _outgoingSettings.AuthenticatedSmtp &&
                    config.EnableSSL == _outgoingSettings.EnableSsl &&
                    config.HostName == _outgoingSettings.ServerAddress &&
-                   config.Password == (_outgoingSettings.AuthenticatedSmtp ? _outgoingSettings.AuthenticatedSmtpPassword : string.Empty) &&
+                   config.Password == (_outgoingSettings.AuthenticatedSmtp ? _outgoingSettings.AccountPassword : string.Empty) &&
                    config.Port == _outgoingSettings.Port &&
                    config.SenderEmailAddress == _user.Email &&
-                   config.UserName == (_outgoingSettings.AuthenticatedSmtp ? _outgoingSettings.AuthenticatedSmtpUsername : string.Empty);
+                   config.UserName == (_outgoingSettings.AuthenticatedSmtp ? _outgoingSettings.AccountUsername : string.Empty);
         }
 
         [TestMethod]
@@ -300,7 +300,7 @@ namespace AdminStore.Services.Instance
                    config.Password == (_outgoingSettings.AuthenticatedSmtp ? DecryptedPassword : string.Empty) &&
                    config.Port == _outgoingSettings.Port &&
                    config.SenderEmailAddress == _user.Email &&
-                   config.UserName == (_outgoingSettings.AuthenticatedSmtp ? _outgoingSettings.AuthenticatedSmtpUsername : string.Empty);
+                   config.UserName == (_outgoingSettings.AuthenticatedSmtp ? _outgoingSettings.AccountUsername : string.Empty);
         }
 
         [TestMethod]

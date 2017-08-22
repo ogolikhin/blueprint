@@ -112,12 +112,12 @@ namespace AdminStore.Services.Instance
 
             if (outgoingSettings.AuthenticatedSmtp)
             {
-                if (string.IsNullOrWhiteSpace(outgoingSettings.AuthenticatedSmtpUsername))
+                if (string.IsNullOrWhiteSpace(outgoingSettings.AccountUsername))
                 {
                     throw new BadRequestException("Please enter the SMTP administrator username.", ErrorCodes.EmptySmtpAdministratorUsername);
                 }
 
-                if (string.IsNullOrWhiteSpace(outgoingSettings.AuthenticatedSmtpPassword))
+                if (string.IsNullOrWhiteSpace(outgoingSettings.AccountPassword))
                 {
                     throw new BadRequestException("Please enter the SMTP administrator password.", ErrorCodes.EmptySmtpAdministratorPassword);
                 }

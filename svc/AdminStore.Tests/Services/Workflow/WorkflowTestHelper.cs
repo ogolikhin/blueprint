@@ -62,7 +62,6 @@ namespace AdminStore.Services.Workflow
 
                 workflow.Projects.Add(new IeProject
                 {
-                    Id = 20,
                     Path = @"Blueprint/folder/project2",
                     ArtifactTypes = new List<IeArtifactType>
                 {
@@ -344,10 +343,9 @@ namespace AdminStore.Services.Workflow
                                 },
                                 new IeUserGroup
                                 {
-                                    Name = "project group by id and path",
+                                    Name = "project group by path",
                                     IsGroup = true,
-                                    GroupProjectId = 99,
-                                    GroupProjectPath = "path"
+                                    GroupProjectPath = "path2"
                                 }
                             }
                         }

@@ -6,7 +6,6 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
-using System.Globalization;
 
 namespace AdminStore.Services.Workflow
 {
@@ -22,7 +21,7 @@ namespace AdminStore.Services.Workflow
             }
 
             var xmlTriggers = new XmlWorkflowEventTriggers();
-            ieTriggers?.ForEach(t => xmlTriggers.Triggers.Add(ToXmlModel(t, dataMaps, currentUserId)));
+            ieTriggers.ForEach(t => xmlTriggers.Triggers.Add(ToXmlModel(t, dataMaps, currentUserId)));
             return xmlTriggers;
         }
 
@@ -94,7 +93,7 @@ namespace AdminStore.Services.Workflow
 
         #region Private Methods
 
-        private IeBaseAction FromXmlModel(XmlAction xmlAction, WorkflowDataNameMaps dataMaps)
+        private static IeBaseAction FromXmlModel(XmlAction xmlAction, WorkflowDataNameMaps dataMaps)
         {
             if (xmlAction == null)
             {
@@ -154,7 +153,7 @@ namespace AdminStore.Services.Workflow
             return action;
         }
 
-        private List<IeValidValue> GetValidValues(List<int> valueIds, WorkflowDataNameMaps dataMaps)
+        private static List<IeValidValue> GetValidValues(List<int> valueIds, WorkflowDataNameMaps dataMaps)
         {
             var values = valueIds.ConvertAll(x => new IeValidValue { Id = x });
             foreach(var v in values)
@@ -164,7 +163,7 @@ namespace AdminStore.Services.Workflow
             }
             return values.Count == 0 ? null : values;
         }
-        private string GetArtifactType(int? xArtifactTypeId, WorkflowDataNameMaps dataMaps)
+        private static string GetArtifactType(int? xArtifactTypeId, WorkflowDataNameMaps dataMaps)
         {
             
             string artifactType = null;
@@ -176,21 +175,24 @@ namespace AdminStore.Services.Workflow
 
             return artifactType;
         }
-        private List<IeUserGroup> FromXmlModel(List<XmlUserGroup> xmlUserGroups, WorkflowDataNameMaps dataMaps)
+        private static List<IeUserGroup> FromXmlModel(List<XmlUserGroup> xmlUserGroups, WorkflowDataNameMaps dataMaps)
         {
             if (xmlUserGroups == null || xmlUserGroups.Count == 0)
             {
                 return null;
             }
-            string name;
+
             var userGroups = new List<IeUserGroup>();
             foreach (var g in xmlUserGroups)
             {
+                Tuple<string, int?> nameProjectId;
+                dataMaps.GroupMap.TryGetValue(g.Id, out nameProjectId);
                 var group = new IeUserGroup
                 {
                     Id = g.Id,
-                    Name = dataMaps.GroupMap.TryGetValue(g.Id, out name) ? name : null,
-                    IsGroup = g.IsGroup
+                    Name = nameProjectId?.Item1,
+                    IsGroup = g.IsGroup,
+                    GroupProjectId = nameProjectId?.Item2
                 };
                 userGroups.Add(group);
             }
@@ -198,7 +200,7 @@ namespace AdminStore.Services.Workflow
             return userGroups; 
         }
 
-        private IeCondition FromXmlModel(XmlCondition xmlCondition, WorkflowDataNameMaps dataMaps)
+        private static IeCondition FromXmlModel(XmlCondition xmlCondition, WorkflowDataNameMaps dataMaps)
         {
             if (xmlCondition == null)
             {
@@ -221,7 +223,7 @@ namespace AdminStore.Services.Workflow
             }
         }
 
-        private XmlAction ToXmlModel(IeBaseAction ieAction, WorkflowDataMaps dataMaps, int currentUserId)
+        private static XmlAction ToXmlModel(IeBaseAction ieAction, WorkflowDataMaps dataMaps, int currentUserId)
         {
             if (ieAction == null)
             {
@@ -386,7 +388,7 @@ namespace AdminStore.Services.Workflow
             return xmlAction;
         }
 
-        private XmlStateCondition ToXmlModel(IeCondition ieCondition, IDictionary<string, int> stateMap)
+        private static XmlStateCondition ToXmlModel(IeCondition ieCondition, IDictionary<string, int> stateMap)
         {
             if (ieCondition == null)
             {

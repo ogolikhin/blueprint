@@ -10,12 +10,17 @@
 <head>
 <meta charset="utf-8">
 <title>Email</title>
-
+<style>
+th, td {
+	text-align: left;
+	padding: 10px;
+}
+</style>
 </head>
 
 <body style="margin:0; padding:0;">
 
-	<p><#= Email.Content.Body #></p>
+	<p><#= Email.Body #></p>
 
 	<table>
 		<tr>
@@ -25,18 +30,18 @@
 
 		<tr>
 			<td>Project Name</td>
-			<td><#= Email.Content.ProjectName #></td>
+			<td><#= Email.ProjectName #></td>
 		</tr>
 
 		<tr>
 			<td>Artifact Name</td>
-			<td><#= Email.Content.ArtifactName #></td>
+			<td><#= Email.ArtifactName #></td>
 		</tr>
 
 		<tr>
 			<td>URL</td>
-			<td style="color:#1b1b1b; font-family:Arial; font-size: 12px;"> Having trouble with the link above? Just copy and paste the URL below into your browser.<br> 
-				<a href="<#= Email.Content.ArtifactUrl #>"><#= Email.Content.ArtifactUrl #></a>
+			<td style="color:#1b1b1b; font-family:Arial; font-size: 12px;"> Having trouble with the link below? Just copy and paste the URL below into your browser.<br> 
+				<a href="<#= Email.ArtifactUrl #>"><#= Email.ArtifactUrl #></a>
 			</td>
 		</tr>
 

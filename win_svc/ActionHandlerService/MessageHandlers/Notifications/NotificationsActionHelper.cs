@@ -4,6 +4,7 @@ using ActionHandlerService.Helpers;
 using ActionHandlerService.Models;
 using ActionHandlerService.Repositories;
 using BluePrintSys.Messaging.Models.Actions;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Helpers.Security;
 using ServiceLibrary.Models.Email;
 using ServiceLibrary.Models.Enums;
@@ -17,13 +18,13 @@ namespace ActionHandlerService.MessageHandlers.Notifications
         {
             var message = (NotificationMessage) actionMessage;
             var result = await SendNotificationEmail(tenant, message, (INotificationRepository) actionHandlerServiceRepository);
-            Logger.Log($"Finished processing message with result: {result}", message, tenant, LogLevel.Info);
+            Logger.Log($"Finished processing message with result: {result}", message, tenant, LogLevel.Debug);
             return await Task.FromResult(result == SendEmailResult.Success);
         }
 
         private async Task<SendEmailResult> SendNotificationEmail(TenantInformation tenant, NotificationMessage message, INotificationRepository repository)
         {
-            Logger.Log($"Handling started for user ID {message.UserId}", message, tenant, LogLevel.Info);
+            Logger.Log($"Handling started for user ID {message.UserId} with message {message.ToJSON()}", message, tenant, LogLevel.Debug);
             //It should be responsibility of notification handler to recieve information about email settings
             //Maybe this information can be cached for tenant ids???
             var emailSettings = await new EmailSettingsRetriever().GetEmailSettings(repository);
@@ -69,9 +70,9 @@ namespace ActionHandlerService.MessageHandlers.Notifications
                 return await Task.FromResult(SendEmailResult.Error);
             }
 
-            Logger.Log("Sending Email", message, tenant, LogLevel.Info);
+            Logger.Log("Sending Email", message, tenant, LogLevel.Debug);
             InternalSendEmail(smtpClientConfiguration, emailMessage, repository);
-            Logger.Log("Email Sent", message, tenant, LogLevel.Info);
+            Logger.Log("Email Sent", message, tenant, LogLevel.Debug);
             return await Task.FromResult(SendEmailResult.Success);
         }
 

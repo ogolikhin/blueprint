@@ -5,12 +5,18 @@ using AdminStore.Helpers.Workflow;
 
 namespace AdminStore.Models.Workflow
 {
+    public interface IIeWorkflowEntityWithId
+    {
+        int? Id { get; }
+    }
+
+
     // !!! Updating of this class requires regenerating of the xml schema IeWorkflow.xsd is required, see below:
     // !!! xsd.exe AdminStore.dll /t:IeWorkflow
     // Workflow for Import/Export
     [XmlRoot("Workflow")]
     [XmlType("Workflow")]
-    public class IeWorkflow
+    public class IeWorkflow : IIeWorkflowEntityWithId
     {
         // Optional, not used for the import, will be used for the update
         //========================================================

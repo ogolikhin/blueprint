@@ -245,7 +245,7 @@ namespace AdminStore.Services.Workflow
                 throw new ConflictException(ErrorMessages.WorkflowVersionsNotEqual, ErrorCodes.Conflict);
             }
 
-            var workflows = new List<SqlWorkflow> {new SqlWorkflow {Name = existingWorkflow.Name, Description = existingWorkflow.Description, Active = statusUpdate.Status, WorkflowId = workflowId} };
+            var workflows = new List<SqlWorkflow> {new SqlWorkflow {Name = existingWorkflow.Name, Description = existingWorkflow.Description, Active = statusUpdate.Active, WorkflowId = workflowId} };
 
             Func<IDbTransaction, Task> action = async transaction =>
             {

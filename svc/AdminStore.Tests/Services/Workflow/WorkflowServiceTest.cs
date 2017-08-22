@@ -127,7 +127,7 @@ namespace AdminStore.Services
         public async Task UpdateWorkflowStatusAsync_WorkflowNotExistsInDb_NotFoundResult()
         {
             // Arrange
-            var updateSatus = new StatusUpdate { VersionId = 1, Status = true };
+            var updateSatus = new StatusUpdate { VersionId = 1, Active = true };
             _workflowRepositoryMock
                 .Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync((SqlWorkflow)null);
             // Act
@@ -141,7 +141,7 @@ namespace AdminStore.Services
         {
             // Arrange
             var existingWorkflow = new SqlWorkflow { VersionId = 1, WorkflowId = 1 };
-            var updateSatus = new StatusUpdate { VersionId = 2, Status = true };
+            var updateSatus = new StatusUpdate { VersionId = 2, Active = true };
             _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(existingWorkflow);
             // Act
                 await _service.UpdateWorkflowStatusAsync(updateSatus, WorkflowId, SessionUserId);

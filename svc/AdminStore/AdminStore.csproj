@@ -142,6 +142,7 @@
     <Compile Include="Models\DTO\ProjectDto.cs" />
     <Compile Include="Models\ProjectRole.cs" />
     <Compile Include="Models\QueryDataResult.cs" />
+    <Compile Include="Models\RolesAssignments.cs" />
     <Compile Include="Models\SqlUser.cs" />
     <Compile Include="Models\TabularData.cs" />
     <Compile Include="Models\TabularPagination.cs" />

@@ -72,5 +72,23 @@ namespace AdminStore.Helpers
 
             return sorting.Order == SortOrder.Desc ? "-" + sortColumn : sortColumn;
         }
+
+        public static string SortProjectRolesAssignments(Sorting sorting)
+        {
+            var defaultSortColumn = "groupName";
+
+            var sortableColumns = new HashSet<string>
+            {
+                defaultSortColumn,
+                "roleName",
+            };
+
+            var column = sorting.Sort;
+            var sortColumn = !string.IsNullOrWhiteSpace(column) && sortableColumns.Contains(column)
+                ? column
+                : defaultSortColumn;
+
+            return sorting.Order == SortOrder.Desc ? "-" + sortColumn : sortColumn;
+        }
     }
 }

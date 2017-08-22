@@ -1,7 +1,9 @@
-﻿using AdminStore.Models;
+﻿using System;
+using AdminStore.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AdminStore.Models.DTO;
+using ServiceLibrary.Models;
 
 namespace AdminStore.Repositories
 {
@@ -29,5 +31,8 @@ namespace AdminStore.Repositories
         Task DeleteProject(int userId, int projectId);
         Task<IEnumerable<ProjectRole>> GetProjectRolesAsync(int projectId);
 
+
+        Task<QueryResult<RolesAssignments>> GetProjectRoleAssignmentsAsync(int projectId, TabularData tabularData,
+            Func<Sorting, string> sort = null);
     }
 }

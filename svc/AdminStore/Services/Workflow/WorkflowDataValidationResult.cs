@@ -55,6 +55,15 @@ namespace AdminStore.Services.Workflow
         PropertyChangeActionInvalidNumberDecimalPlaces,
         PropertyChangeActionNumberOutOfRange,
         PropertyChangeActionInvalidDateFormat,
-        PropertyChangeActionDateOutOfRange
+        PropertyChangeActionDateOutOfRange,
+
+        // Update specific errors
+        WorkflowActive,
+        StateNotFoundByIdInCurrent,
+        TransitionEventNotFoundByIdInCurrent,
+        PropertyChangeEventNotFoundBuIdInCurrent,
+        NewArtifactEventNotFoundByIdInCurrent,
+        ProjectArtifactTypeNotFoundByIdInCurrent,
+        WorkflowNothingToUpdate
     }
 }

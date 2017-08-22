@@ -1,12 +1,16 @@
-﻿using System.Linq;
+﻿using System;
+using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Helpers.Validators;
 using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.PropertyType;
+using ServiceLibrary.Models.Workflow;
 
-namespace ServiceLibrary.Models.Workflow.Actions
+namespace ArtifactStore.Models.Workflow.Actions
 {
 
     public class PropertyChangeAction : WorkflowEventSynchronousWorkflowEventAction
@@ -14,6 +18,8 @@ namespace ServiceLibrary.Models.Workflow.Actions
         public int InstancePropertyTypeId { get; set; }
 
         public string PropertyValue { get; set; }
+
+        public PropertyLite PropertyLiteValue { get; private set; }
 
         public override WorkflowActionType ActionType { get; } = WorkflowActionType.PropertyChange;
 
@@ -24,14 +30,15 @@ namespace ServiceLibrary.Models.Workflow.Actions
             return await Task.FromResult(true);
         }
 
-        public override void ValidateActionToBeProcessed(ExecutionParameters executionParameters)
+        public override bool ValidateActionToBeProcessed(ExecutionParameters executionParameters)
         {
             ValidateReuseSettings(executionParameters);
             var result = ValidateProperty(executionParameters);
             if (result != null)
             {
-                throw new ConflictException(result.Message, result.ErrorCode);
+                return false;
             }
+            return true;
         }
 
         private PropertySetResult ValidateProperty(ExecutionParameters executionParameters)
@@ -43,20 +50,18 @@ namespace ServiceLibrary.Models.Workflow.Actions
                 // todo: validate in later stories
                 return null;
             }
-
-            if (!executionParameters.InstancePropertyTypes.Exists(item => item.PropertyTypeId == InstancePropertyTypeId))
+            var dPropertyType = executionParameters.CustomPropertyTypes.FirstOrDefault(item => item.InstancePropertyTypeId == InstancePropertyTypeId);
+            if (dPropertyType == null)
             {
                 throw new ConflictException(
                     I18NHelper.FormatInvariant("Property type id {0} is not associated with specified artifact type", InstancePropertyTypeId));
             }
-            var propertyLite = new PropertyLite
-            {
-                PropertyTypeId = InstancePropertyTypeId,
-                Value = PropertyValue
-            };
 
-            return executionParameters.Validators.Select(v => v.Validate(propertyLite, executionParameters.InstancePropertyTypes)).FirstOrDefault(r => r != null);
+            PopulatePropertyLite(dPropertyType);
+
+            return executionParameters.Validators.Select(v => v.Validate(PropertyLiteValue, executionParameters.CustomPropertyTypes)).FirstOrDefault(r => r != null);
         }
+
         private void ValidateReuseSettings(ExecutionParameters executionParameters)
         {
             var reuseTemplate = executionParameters.ReuseItemTemplate;
@@ -83,6 +88,32 @@ namespace ServiceLibrary.Models.Workflow.Actions
             if (propertyReusetemplate.Settings == PropertyTypeReuseTemplateSettings.ReadOnly)
             {
                 throw new ConflictException("Cannot modify property from workflow event action. Property is readonly.");
+            }
+        }
+
+        private void PopulatePropertyLite(DPropertyType propertyType)
+        {
+            switch (propertyType?.PrimitiveType)
+            {
+                case PropertyPrimitiveType.Number:
+                    decimal value;
+                    if (!Decimal.TryParse(PropertyValue, NumberStyles.AllowDecimalPoint, new NumberFormatInfo(), out value))
+                    {
+                        throw new FormatException("Property change action provided incorrect value type");
+                    }
+                    PropertyLiteValue = new PropertyLite()
+                    {
+                        PropertyTypeId = InstancePropertyTypeId,
+                        NumberValue = value
+                    };
+                    break;
+               
+                default:
+                    PropertyLiteValue = new PropertyLite()
+                    {
+                        PropertyTypeId = InstancePropertyTypeId
+                    };
+                    break;
             }
         }
     }

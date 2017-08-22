@@ -173,61 +173,7 @@ namespace AdminStore.Controllers
             return result;
         }
 
-        /// <summary>
-        /// Get the list of instance administrators roles in the instance  
-        /// </summary>
-        /// <remarks>
-        /// Returns the list of instance administrators roles.
-        /// </remarks>
-        /// <returns code="200">OK list of AdminRole models</returns>
-        /// <returns code="400">BadRequest if errors occurred</returns>
-        /// <returns code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</returns>
-        /// <returns code="403">Forbidden if used doesn’t have permissions to get the list of instance administrators roles</returns>
-        [SessionRequired]
-        [Route("roles")]
-        [ResponseType(typeof(IEnumerable<AdminRole>))]
-        public async Task<IHttpActionResult> GetInstanceRoles()
-        {
-            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewUsers);
-
-            var result = await _instanceRepository.GetInstanceRolesAsync();
-
-            return Ok(result);
-        }
-
-        #region Project role assignments
-
-        /// <summary>
-        /// The method returns all roles assignments for the specified project.
-        /// </summary>
-        /// <param name="projectId">Project's identity</param>
-        /// <param name="pagination">Pagination parameters</param>
-        /// <param name="sorting">Sorting parameters</param>
-        /// <param name="search">The parameter for searching by group name.</param>
-        /// <response code="200">OK. The list of roles assignments for the project.</response>
-        /// <response code="400">BadRequest. Parameters are invalid. </response>
-        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
-        /// <response code="403">Forbidden. if user doesn’t have permissions to get roles assignments for the project.</response>
-        /// <response code="404">NotFound. The project with the current id does not exist.</response>
-        [Route("projects/{projectId:int:min(1)}/rolesassignments")]
-        [SessionRequired]
-        [ResponseType(typeof(QueryResult<RolesAssignments>))]
-        public async Task<IHttpActionResult> GetProjectRoleAssignments(int projectId, [FromUri]Pagination pagination, [FromUri]Sorting sorting, string search = null)
-        {
-            pagination.Validate();
-
-            await
-                _privilegesManager.DemandAny(Session.UserId, projectId, InstanceAdminPrivileges.AccessAllProjectsAdmin,
-                    ProjectAdminPrivileges.ViewGroupsAndRoles);
-
-            var tabularData = new TabularData { Pagination = pagination, Sorting = sorting, Search = search };
-            var result = await _instanceRepository.GetProjectRoleAssignmentsAsync(projectId, tabularData, SortingHelper.SortProjectRolesAssignments);
-
-            return Ok(result);
-        }
-
-        #endregion
-
+     
         #region folders
 
         /// <summary>
@@ -299,10 +245,8 @@ namespace AdminStore.Controllers
         /// <response code="400">BadRequest. Parameters are invalid. </response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. The user does not have permissions for updating the folder.</response>
-        /// <response code="404">NotFound. The folder with the current folderId doesn’t exist or removed from the system.</response>
-        /// <response code="404">NotFound. The parent folder with current id does not exist.</response>
-        /// <response code="409">Conflict. The folder with the same name already exists in the parent folder.</response>
-        /// <response code="409">Conflict. The parent folder cannot be placed into its descendant. Please select a different location.</response>
+        /// <response code="404">NotFound. The folder or parent folder with the current id doesn’t exist or removed from the system.</response>
+        /// <response code="409">Conflict. The folder with the same name already exists in the parent folder or the parent folder cannot be placed into its descendant. Please select a different location.</response>
         /// <response code="500">Internal server error.</response>
         [HttpPut]
         [SessionRequired]
@@ -373,8 +317,9 @@ namespace AdminStore.Controllers
         /// <response code="400">BadRequest. Parameters are invalid.</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden The user does not have permissions to delete project</response>
-        /// <response code="404">NotFound. The project with projectId doesn’t exists or removed from the system.</response>
-        /// <response code="404">NotFound. Project with ID:{0}({1}) was deleted by another user!</response>
+        /// <response code="404">NotFound. The project with ID:{0}({1}) doesn’t exists or removed from the system or was deleted by another user! </response>
+        /// <response code="404">Could not purge project because an artifact was moved to another project and we cannot reliably purge it without corrupting the other project.  PurgeProject aborted for projectId  {0}.</response>
+        /// <response code="409">Could not purge project because it is a system instance project for internal use only and without it database is corrupted. Purge project aborted for projectId {0}.</response>
         /// <response code="500">Internal Server Error.</response>
         [HttpDelete]
         [SessionRequired]
@@ -410,5 +355,83 @@ namespace AdminStore.Controllers
         }
 
         #endregion
+
+        #region roles
+
+        /// <summary>
+        /// Get the list of instance administrators roles in the instance  
+        /// </summary>
+        /// <remarks>
+        /// Returns the list of instance administrators roles.
+        /// </remarks>
+        /// <returns code="200">OK list of AdminRole models</returns>
+        /// <returns code="400">BadRequest if errors occurred</returns>
+        /// <returns code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</returns>
+        /// <returns code="403">Forbidden if used doesn’t have permissions to get the list of instance administrators roles</returns>
+        [SessionRequired]
+        [Route("roles")]
+        [ResponseType(typeof(IEnumerable<AdminRole>))]
+        public async Task<IHttpActionResult> GetInstanceRoles()
+        {
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewUsers);
+
+            var result = await _instanceRepository.GetInstanceRolesAsync();
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Get roles for project
+        /// </summary>
+        /// <param name="projectId">Project id</param>
+        /// <response code="200">OK. The roles for the project are returned</response>
+        /// <response code="400">BadRequest. Parameters are invalid. </response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. If used doesn’t have permissions to get project's roles.</response>
+        /// <response code="404">NotFound. If roles with projectId don’t exists or removed from the system.</response>
+        [HttpGet, NoCache]
+        [Route("projects/{projectId:int:min(1)}/roles"), SessionRequired]
+        [ResponseType(typeof(QueryResult<ProjectRole>))]
+        public async Task<IHttpActionResult> GetProjectRolesAsync(int projectId)
+        {
+            await _privilegesManager.DemandAny(Session.UserId, projectId, InstanceAdminPrivileges.AccessAllProjectsAdmin,
+                    ProjectAdminPrivileges.ViewGroupsAndRoles);
+
+            var result = await _instanceRepository.GetProjectRolesAsync(projectId);
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// The method returns all roles assignments for the specified project.
+        /// </summary>
+        /// <param name="projectId">Project's identity</param>
+        /// <param name="pagination">Pagination parameters</param>
+        /// <param name="sorting">Sorting parameters</param>
+        /// <param name="search">The parameter for searching by group name.</param>
+        /// <response code="200">OK. The list of roles assignments for the project.</response>
+        /// <response code="400">BadRequest. Parameters are invalid. </response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. if user doesn’t have permissions to get roles assignments for the project.</response>
+        /// <response code="404">NotFound. The project with the current id does not exist.</response>
+        [Route("projects/{projectId:int:min(1)}/rolesassignments")]
+        [SessionRequired]
+        [ResponseType(typeof(QueryResult<RolesAssignments>))]
+        public async Task<IHttpActionResult> GetProjectRoleAssignments(int projectId, [FromUri]Pagination pagination, [FromUri]Sorting sorting, string search = null)
+        {
+            pagination.Validate();
+
+            await
+                _privilegesManager.DemandAny(Session.UserId, projectId, InstanceAdminPrivileges.AccessAllProjectsAdmin,
+                    ProjectAdminPrivileges.ViewGroupsAndRoles);
+
+            var tabularData = new TabularData { Pagination = pagination, Sorting = sorting, Search = search };
+            var result = await _instanceRepository.GetProjectRoleAssignmentsAsync(projectId, tabularData, SortingHelper.SortProjectRolesAssignments);
+
+            return Ok(result);
+        }
+
+        #endregion
+
     }
 }

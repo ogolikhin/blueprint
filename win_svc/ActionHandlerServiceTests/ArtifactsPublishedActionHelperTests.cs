@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using ActionHandlerService;
 using ActionHandlerService.Helpers;
@@ -21,7 +20,7 @@ namespace ActionHandlerServiceTests
     {
         private Mock<IArtifactsPublishedRepository> _repositoryMock;
         private TenantInformation _tenantInformation;
-        private List<SqlArtifactTriggers> _triggers;
+        private List<SqlWorkflowEvent> _triggers;
         private List<SqlWorkFlowStateInformation> _states;
         private List<SqlProject> _projects;
         private List<NotificationAction> _notificationActions;
@@ -35,11 +34,11 @@ namespace ActionHandlerServiceTests
         {
             _repositoryMock = new Mock<IArtifactsPublishedRepository>();
             _tenantInformation = new TenantInformation {ConnectionString = "", Id = "", Settings = ""};
-            _triggers = new List<SqlArtifactTriggers> {new SqlArtifactTriggers {CurrentStateId = 0, VersionItemId = 0, EventPropertyTypeId = 0, EventType = 0, HolderId = 0, RequiredNewStateId = 0, RequiredPreviousStateId = 0, Triggers = "", WorkflowId = 0}, new SqlArtifactTriggers {CurrentStateId = 1, VersionItemId = 0, EventPropertyTypeId = 0, EventType = 0, HolderId = 0, RequiredNewStateId = 0, RequiredPreviousStateId = 0, Triggers = "", WorkflowId = 0}};
+            _triggers = new List<SqlWorkflowEvent> {new SqlWorkflowEvent {CurrentStateId = 0, VersionItemId = 0, EventPropertyTypeId = 0, EventType = 0, HolderId = 0, RequiredNewStateId = 0, RequiredPreviousStateId = 0, Triggers = "", WorkflowId = 0}, new SqlWorkflowEvent {CurrentStateId = 1, VersionItemId = 0, EventPropertyTypeId = 0, EventType = 0, HolderId = 0, RequiredNewStateId = 0, RequiredPreviousStateId = 0, Triggers = "", WorkflowId = 0}};
             _states = new List<SqlWorkFlowStateInformation> {new SqlWorkFlowStateInformation {WorkflowStateId = WorkflowStateId, ArtifactId = 0, EndRevision = 0, ItemId = 0, ItemTypeId = 0, LockedByUserId = 0, Name = "", ProjectId = 0, Result = 0, StartRevision = 0, WorkflowId = 0, WorkflowName = "", WorkflowStateName = ""}};
             _projects = new List<SqlProject> {new SqlProject {ItemId = 0, Name = ""}};
             _instancePropertyTypeIds = new Dictionary<int, List<int>> {{0, new List<int> {0}}};
-            _notificationActions = new List<NotificationAction> {new NotificationAction {ConditionalStateId = WorkflowStateId, MessageTemplate = "", PropertyTypeId = PropertyTypeId, ToEmail = ""}};
+            _notificationActions = new List<NotificationAction> {new NotificationAction {ConditionalStateId = WorkflowStateId, PropertyTypeId = PropertyTypeId, ToEmails = new [] {""}}};
             _messageWithModifiedProperties = new ArtifactsPublishedMessage {Artifacts = new[] {new PublishedArtifactInformation {ModifiedProperties = new List<PublishedPropertyInformation> {new PublishedPropertyInformation {TypeId = PropertyTypeId}}}}};
         }
 
@@ -49,7 +48,7 @@ namespace ActionHandlerServiceTests
             var message = new ArtifactsPublishedMessage();
 
             //empty list of triggers
-            var emptyTriggersList = new List<SqlArtifactTriggers>();
+            var emptyTriggersList = new List<SqlWorkflowEvent>();
             _repositoryMock.Setup(m => m.GetWorkflowPropertyTransitionsForArtifactsAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<IEnumerable<int>>())).ReturnsAsync(emptyTriggersList);
 
             var actionHelper = new ArtifactsPublishedActionHelper();
@@ -100,7 +99,7 @@ namespace ActionHandlerServiceTests
             var actionsParserMock = new Mock<IActionsParser>();
             //empty list of notification actions
             var emptyNotificationActionsList = new List<NotificationAction>();
-            actionsParserMock.Setup(m => m.GetNotificationActions(It.IsAny<IEnumerable<SqlArtifactTriggers>>())).Returns(emptyNotificationActionsList);
+            actionsParserMock.Setup(m => m.GetNotificationActions(It.IsAny<IEnumerable<SqlWorkflowEvent>>())).Returns(emptyNotificationActionsList);
             var actionHelper = new ArtifactsPublishedActionHelper(actionsParserMock.Object);
 
             var result = await actionHelper.HandleAction(_tenantInformation, message, _repositoryMock.Object);
@@ -118,7 +117,7 @@ namespace ActionHandlerServiceTests
             _repositoryMock.Setup(m => m.GetProjectNameByIdsAsync(It.IsAny<IEnumerable<int>>())).ReturnsAsync(_projects);
 
             var actionsParserMock = new Mock<IActionsParser>();
-            actionsParserMock.Setup(m => m.GetNotificationActions(It.IsAny<IEnumerable<SqlArtifactTriggers>>())).Returns(_notificationActions);
+            actionsParserMock.Setup(m => m.GetNotificationActions(It.IsAny<IEnumerable<SqlWorkflowEvent>>())).Returns(_notificationActions);
             var actionHelper = new ArtifactsPublishedActionHelper(actionsParserMock.Object);
 
             var result = await actionHelper.HandleAction(_tenantInformation, message, _repositoryMock.Object);
@@ -137,7 +136,7 @@ namespace ActionHandlerServiceTests
             _repositoryMock.Setup(m => m.GetInstancePropertyTypeIdsMap(It.IsAny<IEnumerable<int>>())).ReturnsAsync(_instancePropertyTypeIds);
 
             var actionsParserMock = new Mock<IActionsParser>();
-            actionsParserMock.Setup(m => m.GetNotificationActions(It.IsAny<IEnumerable<SqlArtifactTriggers>>())).Returns(_notificationActions);
+            actionsParserMock.Setup(m => m.GetNotificationActions(It.IsAny<IEnumerable<SqlWorkflowEvent>>())).Returns(_notificationActions);
             var actionHelper = new ArtifactsPublishedActionHelper(actionsParserMock.Object, new Mock<INServiceBusServer>().Object);
 
             var result = await actionHelper.HandleAction(_tenantInformation, message, _repositoryMock.Object);
@@ -149,7 +148,7 @@ namespace ActionHandlerServiceTests
         {
             //non-matching Property Type IDs
             const int notificationPropertyTypeId = 1 + PropertyTypeId;
-            var notificationActions = new List<NotificationAction> {new NotificationAction {ConditionalStateId = WorkflowStateId, MessageTemplate = "", PropertyTypeId = notificationPropertyTypeId, ToEmail = ""}};
+            var notificationActions = new List<NotificationAction> {new NotificationAction {ConditionalStateId = WorkflowStateId, PropertyTypeId = notificationPropertyTypeId, ToEmails = new[] {""}}};
             var message = new ArtifactsPublishedMessage {Artifacts = new[] {new PublishedArtifactInformation {ModifiedProperties = new List<PublishedPropertyInformation> {new PublishedPropertyInformation {TypeId = PropertyTypeId}}}}};
 
             _repositoryMock.Setup(m => m.GetWorkflowPropertyTransitionsForArtifactsAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<IEnumerable<int>>())).ReturnsAsync(_triggers);
@@ -157,7 +156,7 @@ namespace ActionHandlerServiceTests
             _repositoryMock.Setup(m => m.GetProjectNameByIdsAsync(It.IsAny<IEnumerable<int>>())).ReturnsAsync(_projects);
             _repositoryMock.Setup(m => m.GetInstancePropertyTypeIdsMap(It.IsAny<IEnumerable<int>>())).ReturnsAsync(_instancePropertyTypeIds);
             var actionsParserMock = new Mock<IActionsParser>();
-            actionsParserMock.Setup(m => m.GetNotificationActions(It.IsAny<IEnumerable<SqlArtifactTriggers>>())).Returns(notificationActions);
+            actionsParserMock.Setup(m => m.GetNotificationActions(It.IsAny<IEnumerable<SqlWorkflowEvent>>())).Returns(notificationActions);
             var actionHelper = new ArtifactsPublishedActionHelper(actionsParserMock.Object, new Mock<INServiceBusServer>().Object);
 
             var result = await actionHelper.HandleAction(_tenantInformation, message, _repositoryMock.Object);
@@ -170,7 +169,7 @@ namespace ActionHandlerServiceTests
             //non-matching State IDs
             const int conditionalStateId = 1 + WorkflowStateId;
             var states = new List<SqlWorkFlowStateInformation> {new SqlWorkFlowStateInformation {WorkflowStateId = WorkflowStateId, ArtifactId = 0, EndRevision = 0, ItemId = 0, ItemTypeId = 0, LockedByUserId = 0, Name = "", ProjectId = 0, Result = 0, StartRevision = 0, WorkflowId = 0, WorkflowName = "", WorkflowStateName = ""}};
-            var notificationActions = new List<NotificationAction> {new NotificationAction {ConditionalStateId = conditionalStateId, MessageTemplate = "", PropertyTypeId = PropertyTypeId, ToEmail = ""}};
+            var notificationActions = new List<NotificationAction> {new NotificationAction {ConditionalStateId = conditionalStateId, PropertyTypeId = PropertyTypeId, ToEmails = new[] {""}}};
 
             _repositoryMock.Setup(m => m.GetWorkflowPropertyTransitionsForArtifactsAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<IEnumerable<int>>())).ReturnsAsync(_triggers);
             _repositoryMock.Setup(m => m.GetWorkflowStatesForArtifactsAsync(It.IsAny<int>(), It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>())).ReturnsAsync(states);
@@ -178,31 +177,11 @@ namespace ActionHandlerServiceTests
             _repositoryMock.Setup(m => m.GetInstancePropertyTypeIdsMap(It.IsAny<IEnumerable<int>>())).ReturnsAsync(_instancePropertyTypeIds);
 
             var actionsParserMock = new Mock<IActionsParser>();
-            actionsParserMock.Setup(m => m.GetNotificationActions(It.IsAny<IEnumerable<SqlArtifactTriggers>>())).Returns(notificationActions);
+            actionsParserMock.Setup(m => m.GetNotificationActions(It.IsAny<IEnumerable<SqlWorkflowEvent>>())).Returns(notificationActions);
             var actionHelper = new ArtifactsPublishedActionHelper(actionsParserMock.Object, new Mock<INServiceBusServer>().Object);
 
             var result = await actionHelper.HandleAction(_tenantInformation, _messageWithModifiedProperties, _repositoryMock.Object);
             Assert.IsTrue(result);
-        }
-
-        [TestMethod]
-        public void ActionsParser_ReturnsNoActions_WhenTriggerStringIsEmpty()
-        {
-            const string triggerString = "";
-            var sqlArtifactTriggers = new[] {new SqlArtifactTriggers {Triggers = triggerString}};
-            var actionsParser = new ActionsParser();
-            var notificationActions = actionsParser.GetNotificationActions(sqlArtifactTriggers);
-            Assert.AreEqual(0, notificationActions.Count());
-        }
-
-        [TestMethod]
-        public void ActionsParser_ReturnsActions_WhenTriggersExist()
-        {
-            const string triggerString = "this should be a valid trigger string";
-            var sqlArtifactTriggers = new[] {new SqlArtifactTriggers {Triggers = triggerString}};
-            var actionsParser = new ActionsParser();
-            var notificationActions = actionsParser.GetNotificationActions(sqlArtifactTriggers);
-            Assert.IsTrue(notificationActions.Any());
         }
     }
 }

@@ -68,6 +68,11 @@ namespace AdminStore.Services.Workflow
 
         public async Task<string> GetImportWorkflowErrorsAsync(string guid, int userId)
         {
+            if (string.IsNullOrWhiteSpace(guid))
+            {
+                throw new BadRequestException("The error GUID is not provided.", ErrorCodes.BadRequest);
+            }
+
             File errorsFile = null;
             try
             {
@@ -217,7 +222,7 @@ namespace AdminStore.Services.Workflow
                 throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
             }
 
-            var workflowDto = new WorkflowDto {Name = workflowDetails.Name, Description = workflowDetails.Description, Status = workflowDetails.Active, WorkflowId = workflowDetails.WorkflowId,
+            var workflowDto = new WorkflowDto {Name = workflowDetails.Name, Description = workflowDetails.Description, Active = workflowDetails.Active, WorkflowId = workflowDetails.WorkflowId,
                 VersionId = workflowDetails.VersionId}; 
 
             var workflowProjectsAndArtifactTypes = (await _workflowRepository.GetWorkflowArtifactTypesAsync(workflowId)).ToList();
@@ -452,6 +457,8 @@ namespace AdminStore.Services.Workflow
                         FromState = e.FromState,
                         ToState = e.ToState,
                         ToStateId = e.ToStateId,
+                        PermissionGroups = DeserializePermissionGroups(e.Permissions, dataMaps),
+                        SkipPermissionGroups = GetSkipPermissionGroup(e.Permissions),
                         Triggers = DeserializeTriggers(e.Triggers, dataMaps)
                     }).Distinct().ToList(),
                 PropertyChangeEvents = workflowEvents.Where(e => e.Type == (int)DWorkflowEventType.PropertyChange).
@@ -459,6 +466,8 @@ namespace AdminStore.Services.Workflow
                     {
                         Id = e.WorkflowEventId,
                         Name = e.Name,
+                        PropertyId = e.PropertyTypeId,
+                        PropertyName = GetPropertyChangedName(e.PropertyTypeId, dataMaps),
                         Triggers = DeserializeTriggers(e.Triggers, dataMaps)
                     }).Distinct().ToList(),
                 NewArtifactEvents = workflowEvents.Where(e => e.Type == (int)DWorkflowEventType.NewArtifact).
@@ -474,6 +483,15 @@ namespace AdminStore.Services.Workflow
             return ieWorkflow;
         }
        
+        private string GetPropertyChangedName(int? propertyTypeId, WorkflowDataNameMaps dataMaps)
+        {
+            string name = null;
+            if (propertyTypeId != null)
+            {
+                dataMaps.PropertyTypeMap.TryGetValue((int)propertyTypeId, out name);
+            }
+            return name;
+        }
         private List<IeProject> GetProjects(IEnumerable<SqlWorkflowArtifactTypes> wpa)
         {
             var wprojects = wpa.GroupBy(g => g.ProjectId).Select(w => w).ToList(); 
@@ -494,7 +512,39 @@ namespace AdminStore.Services.Workflow
                 projects.Add(project);
             };
             return projects;
-        }                                                                                                        
+        }
+
+        private List<IeGroup> DeserializePermissionGroups(string xGroups, WorkflowDataNameMaps dataMaps)
+        {
+            List<IeGroup> groups = new List<IeGroup>();
+            var xmlGroups = SerializationHelper.FromXml<XmlTriggerPermissions>(xGroups);
+            if (xmlGroups != null)
+            {
+                foreach (var gid in xmlGroups.GroupIds)
+                {
+                    string name;
+                    var group = new IeGroup
+                    {
+                        Id = gid,
+                        Name = dataMaps.GroupMap.TryGetValue(gid, out name) ? name : null
+                    };
+
+                    groups.Add(group);
+                }
+            }
+            return groups.Count == 0 ? null : groups;
+        }
+        private bool? GetSkipPermissionGroup(string xGroups)
+        {
+            bool? skip = null;
+            var xmlGroups = SerializationHelper.FromXml<XmlTriggerPermissions>(xGroups);
+            
+            if (xmlGroups != null)
+            {
+                skip = xmlGroups.Skip > 0;
+            }
+            return skip;
+        }
 
         private List<IeTrigger> DeserializeTriggers(string triggers, WorkflowDataNameMaps dataMaps)
         {
@@ -511,9 +561,10 @@ namespace AdminStore.Services.Workflow
 
             dataMaps.GroupMap.AddRange(await GetUserGroupsMap());
             dataMaps.StateMap.AddRange(await GetStatesMap(workflowId));
-            dataMaps.ArtifactTypeMap.AddRange(await GetArtifactTypesMap(workflowId));
+            dataMaps.ArtifactTypeMap.AddRange(await GetArtifactTypesMap());
+            
             dataMaps.PropertyTypeMap.AddRange(await GetPropertyTypesMap());
-
+            dataMaps.ValidValueMap.AddRange(await GetValidValueMap());
             return dataMaps;
         }
 
@@ -543,16 +594,40 @@ namespace AdminStore.Services.Workflow
             return map;
         }
 
-        private async Task<Dictionary<int, string>> GetArtifactTypesMap(int workflowId)
+        private async Task<Dictionary<int, string>> GetArtifactTypesMap()
         {
             var map = new Dictionary<int, string>();
 
-            var artifacts = await _workflowRepository.GetWorkflowArtifactTypesMapAsync(workflowId);
+            var artifacts = await _projectMetaRepository.GetStandardProjectTypesAsync();
+
             if (artifacts != null)
             {
-                artifacts.ForEach(a => map.Add(a.Id, a.Name));
+                artifacts.ArtifactTypes.ForEach(a => map.Add(a.Id, a.Name));
             }
             
+            return map;
+        }
+
+        private async Task<Dictionary<int, string>> GetValidValueMap()
+        {
+            var map = new Dictionary<int, string>();
+
+            var types = await _projectMetaRepository.GetStandardProjectTypesAsync();
+
+            if (types != null)
+            {
+                foreach (var p in types.PropertyTypes)
+                {
+                    if (p.ValidValues != null)
+                    {
+                        foreach(var v in p.ValidValues)
+                        {
+                            map.Add((int)v.Id, v.Value);
+                        }
+                    }
+                };
+            }
+
             return map;
         }
 
@@ -560,15 +635,19 @@ namespace AdminStore.Services.Workflow
         {
             var map = new Dictionary<int, string>();
 
-            var properties = await _workflowRepository.GetPropertyTypesMapAsync();
-            if (properties != null)
+            var types = await _projectMetaRepository.GetStandardProjectTypesAsync();
+
+            if (types != null)
             {
-                properties.ForEach(p => map.Add(p.Id, p.Name));
+                foreach (var p in types.PropertyTypes)
+                {
+                    map.Add(p.Id, p.Name);
+                };
             }
-            
+
             return map;
         }
-
+        
         private async Task<string> UploadErrorsToFileStore(string errors)
         {
             using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(errors ?? string.Empty)))

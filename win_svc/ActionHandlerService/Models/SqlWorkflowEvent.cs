@@ -1,6 +1,6 @@
 ﻿namespace ActionHandlerService.Models
 {
-    public class SqlArtifactTriggers
+    public class SqlWorkflowEvent
     {
         public int HolderId { get; set; }
         public int VersionItemId { get; set; }

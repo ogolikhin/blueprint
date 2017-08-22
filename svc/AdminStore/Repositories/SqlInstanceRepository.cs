@@ -173,7 +173,7 @@ namespace AdminStore.Repositories
 
         public async Task<IEnumerable<FolderDto>> GetFoldersByName(string name)
         {
-            if (string.IsNullOrWhiteSpace(name))
+            if (!string.IsNullOrWhiteSpace(name))
             {
                 name = UsersHelper.ReplaceWildcardCharacters(name);
             }
@@ -319,9 +319,9 @@ namespace AdminStore.Repositories
                     switch (errorCode.Value)
                     {
                         case -2: // Instance project issue
-                            throw new BadRequestException(I18NHelper.FormatInvariant(ErrorMessages.ForbidToPurgeSystemInstanceProjectForInternalUseOnly, project.Id), ErrorCodes.BadRequest);
+                            throw new ConflictException(I18NHelper.FormatInvariant(ErrorMessages.ForbidToPurgeSystemInstanceProjectForInternalUseOnly, project.Id), ErrorCodes.Conflict);
                         case -1: // Cross project move issue
-                            throw new BadRequestException(I18NHelper.FormatInvariant(ErrorMessages.ArtifactWasMovedToAnotherProject, project.Id), ErrorCodes.BadRequest);
+                            throw new ResourceNotFoundException(I18NHelper.FormatInvariant(ErrorMessages.ArtifactWasMovedToAnotherProject, project.Id), ErrorCodes.ResourceNotFound);
                         case 0:
                             // Success
                             break;
@@ -414,5 +414,34 @@ namespace AdminStore.Repositories
                     throw new Exception(I18NHelper.FormatInvariant(ErrorMessages.UnhandledStatusOfProject, status));
             }
         }
+
+        public async Task<IEnumerable<ProjectRole>> GetProjectRolesAsync(int projectId)
+        {
+            if (projectId < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(projectId));
+            }
+
+            var prm = new DynamicParameters();
+            prm.Add("@projectId", projectId);
+            prm.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var result = (await _connectionWrapper.QueryAsync<ProjectRole>("GetProjectRoles", prm, commandType: CommandType.StoredProcedure)).ToList();
+
+            var errorCode = prm.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.RolesForProjectNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.RolesForProjectNotExist, ErrorCodes.ResourceNotFound);
+
+                }
+            }
+
+            return result;
+        }
+
     }
 }

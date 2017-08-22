@@ -1,6 +1,6 @@
-﻿using System;
-using ActionHandlerService.Helpers;
+﻿using ActionHandlerService.Helpers;
 using ActionHandlerService.Models.Enums;
+using ActionHandlerService.Models.Exceptions;
 using BluePrintSys.Messaging.Models.Actions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -77,7 +77,7 @@ namespace ActionHandlerServiceTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(InvalidConnectionStringException))]
         public void ConfigHelper_ThrowsException_WhenGettingMessageBrokerForEmptyConnectionString()
         {
             var configValue = _configHelper.MessageBroker;

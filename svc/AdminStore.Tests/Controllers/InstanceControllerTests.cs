@@ -644,5 +644,111 @@ namespace AdminStore.Controllers
         }
 
         #endregion
+
+
+        #region Project roles
+
+        [TestMethod]
+        public async Task GetProjectRolesAsync_Suttisfied_ReturnOkNegotiatedResult()
+        {
+            // Arrange
+            var projectId = 100;
+            var projectRoles = new List<ProjectRole>
+            {
+                new ProjectRole()
+                {
+                    Name = "Collaborator",
+                    RoleId = 11
+                },
+                new ProjectRole()
+                {
+                    Name = "Author",
+                    RoleId = 12
+                },
+                new ProjectRole()
+                {
+                    Name = "Viewer",
+                    RoleId = 13
+                },
+                new ProjectRole()
+                {
+                    Name = "Project Administrator",
+                    RoleId = 14
+                },
+                new ProjectRole()
+                {
+                    Name = "Blueprint Analytics",
+                    RoleId = 15
+                }
+            };
+
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId)).ReturnsAsync(InstanceAdminPrivileges.ManageProjects);
+            _privilegeRepositoryMock
+                .Setup(r => r.GetProjectAdminPermissionsAsync(UserId, projectId)).ReturnsAsync(ProjectAdminPrivileges.ViewGroupsAndRoles);
+            _instanceRepositoryMock
+                .Setup(repo => repo.GetProjectRolesAsync(projectId))
+                .ReturnsAsync(projectRoles);
+
+            // Act
+            var result = await _controller.GetProjectRolesAsync(projectId) as OkNegotiatedContentResult<IEnumerable<ProjectRole>>;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(result.Content, projectRoles);
+
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task GetProjectRolesAsync_Failed_NoPermissions_ReturnForbiddenResult()
+        {
+            //arrange
+            var projectId = 100;
+            var projectRoles = new List<ProjectRole>
+            {
+                new ProjectRole()
+                {
+                    Name = "Collaborator",
+                    RoleId = 11
+                },
+                new ProjectRole()
+                {
+                    Name = "Author",
+                    RoleId = 12
+                },
+                new ProjectRole()
+                {
+                    Name = "Viewer",
+                    RoleId = 13
+                },
+                new ProjectRole()
+                {
+                    Name = "Project Administrator",
+                    RoleId = 14
+                },
+                new ProjectRole()
+                {
+                    Name = "Blueprint Analytics",
+                    RoleId = 15
+                }
+            };
+
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
+            _privilegeRepositoryMock
+                .Setup(r => r.GetProjectAdminPermissionsAsync(UserId, projectId)).ReturnsAsync(ProjectAdminPrivileges.None);
+
+            _instanceRepositoryMock
+                .Setup(repo => repo.GetProjectRolesAsync(projectId))
+                .ReturnsAsync(projectRoles);
+
+            await _controller.GetProjectRolesAsync(projectId);
+
+        }
+
+        #endregion
+
     }
 }

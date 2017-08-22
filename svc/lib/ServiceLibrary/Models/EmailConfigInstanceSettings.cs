@@ -36,6 +36,7 @@ namespace ServiceLibrary.Models
             UserName = emailSettings.UserName;
             Password = emailSettings.Password;
         }
+
         public string Id { get; private set; }
         public string HostName { get; private set; }
         public string SenderEmailAddress { get; private set; }

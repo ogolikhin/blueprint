@@ -29,6 +29,8 @@ namespace AdminStore.Repositories
 
         Task UpdateProjectAsync(int projectId, ProjectDto projectDto);
         Task DeleteProject(int userId, int projectId);
+        Task<IEnumerable<ProjectRole>> GetProjectRolesAsync(int projectId);
+
 
         Task<QueryResult<RolesAssignments>> GetProjectRoleAssignmentsAsync(int projectId, TabularData tabularData,
             Func<Sorting, string> sort = null);

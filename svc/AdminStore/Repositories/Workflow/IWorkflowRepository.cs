@@ -46,10 +46,6 @@ namespace AdminStore.Repositories.Workflow
 
         Task<IEnumerable<SqlWorkflowArtifactTypes>> GetWorkflowArtifactTypesAsync(int workflowId);
 
-        Task<IEnumerable<SqlWorkflowMapItem>> GetWorkflowArtifactTypesMapAsync(int workflowId);
-
-        Task<IEnumerable<SqlWorkflowMapItem>> GetPropertyTypesMapAsync(IEnumerable<int> propertyIds = null);
-
         Task<int> DeleteWorkflows(OperationScope body, string search, int revision, IDbTransaction transaction = null);
 
         Task<IEnumerable<SqlWorkflow>> UpdateWorkflows(IEnumerable<SqlWorkflow> workflows, int revision,
@@ -59,8 +55,7 @@ namespace AdminStore.Repositories.Workflow
 
         Task<IEnumerable<SqlWorkflowMapItem>> GetWorkflowStatesMapAsync(int workflowId);
 
-        Task<IEnumerable<SqlWorkflowTransitionsAndPropertyChanges>> GetWorkflowEventsAsync(int workflowId);       
-
+        Task<IEnumerable<SqlWorkflowEventData>> GetWorkflowEventsAsync(int workflowId);
         Task UpdateWorkflowsChangedWithRevisions(int workflowId, int revisionId, IDbTransaction transaction = null);
     }
 }

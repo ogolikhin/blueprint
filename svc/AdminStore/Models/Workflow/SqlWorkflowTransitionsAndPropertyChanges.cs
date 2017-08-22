@@ -5,7 +5,7 @@ using System.Web;
 
 namespace AdminStore.Models.Workflow
 {
-    public class SqlWorkflowTransitionsAndPropertyChanges
+    public class SqlWorkflowEventData
     {
         public int WorkflowEventId { get; set; }
         public int WorkflowId { get; set; }
@@ -17,5 +17,6 @@ namespace AdminStore.Models.Workflow
         public int?  FromStateId { get; set; }
         public string ToState { get; set; } 
         public int? ToStateId { get; set; }
+        public int? PropertyTypeId { get; set; }
     }
 }

@@ -109,7 +109,6 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Helpers\DecimalHelper.cs" />
     <Compile Include="Helpers\MentionHelper.cs" />
     <Compile Include="Helpers\SensitivityCommonHelper.cs" />
     <Compile Include="Models\Review\ParticipantArtifactStats.cs" />
@@ -161,6 +160,15 @@
     <Compile Include="Models\Review\SimulationSettings.cs" />
     <Compile Include="Models\Review\ViewStateType.cs" />
     <Compile Include="Models\VersionControlArtifactInfo.cs" />
+    <Compile Include="Models\Workflow\Actions\PropertyChangeAction.cs" />
+    <Compile Include="Models\Workflow\Actions\WorkflowEventAction.cs" />
+    <Compile Include="Models\Workflow\ExecutionParameters.cs" />
+    <Compile Include="Models\Workflow\IWorkflowEvent.cs" />
+    <Compile Include="Models\Workflow\WorkflowEventCondition.cs" />
+    <Compile Include="Models\Workflow\WorkflowEventTrigger.cs" />
+    <Compile Include="Models\Workflow\WorkflowEventTriggers.cs" />
+    <Compile Include="Models\Workflow\WorkflowTransition.cs" />
+    <Compile Include="Models\Workflow\WorkflowTransitionResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\IRelationshipsRepository.cs" />
     <Compile Include="Repositories\IAttachmentsRepository.cs" />
@@ -176,6 +184,7 @@
     <Compile Include="Repositories\SqlDiscussionsRepository.cs" />
     <Compile Include="Repositories\SqlRelationshipsRepository.cs" />
     <Compile Include="Repositories\SqlReviewsRepository.cs" />
+    <Compile Include="Repositories\SqlSaveArtifactRepository.cs" />
     <Compile Include="Repositories\VersionControl\ArtifactsHierarchyValidator.cs" />
     <Compile Include="Repositories\VersionControl\IPublishRepository.cs" />
     <Compile Include="Repositories\VersionControl\PublishRepositoriesContainer.cs" />

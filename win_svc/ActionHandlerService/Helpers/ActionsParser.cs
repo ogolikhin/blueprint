@@ -70,7 +70,7 @@ namespace ActionHandlerService.Helpers
         public int? ConditionalStateId { get; set; }
         public int PropertyTypeId { get; set; }
         public string FromDisplayName => string.Empty;
-        public string Subject => "Artifact has been published.";
+        public string Subject => "Artifact has been updated.";
         public string MessageTemplate => "You are being notified because of an update to the following artifact:";
     }
 }

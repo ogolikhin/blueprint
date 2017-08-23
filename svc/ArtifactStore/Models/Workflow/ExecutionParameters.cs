@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Data;
+using ArtifactStore.Helpers.Validators;
+using ArtifactStore.Models.PropertyTypes;
 using ArtifactStore.Repositories;
-using ServiceLibrary.Helpers.Validators;
 using ServiceLibrary.Models.PropertyType;
 using ServiceLibrary.Models.Reuse;
 
@@ -15,6 +16,7 @@ namespace ArtifactStore.Models.Workflow
         public IDbTransaction Transaction { get; private set; }
 
         public IReadOnlyList<IPropertyValidator> Validators { get; private set; }
+        public IReusePropertyValidator ReuseValidator { get; private set; }
 
         public ISaveArtifactRepository SaveRepository { get; private set; }
         public VersionControlArtifactInfo ArtifactInfo { get; private set; }
@@ -26,7 +28,10 @@ namespace ArtifactStore.Models.Workflow
             ItemTypeReuseTemplate reuseTemplate,
             List<DPropertyType> customPropertyTypes,
             ISaveArtifactRepository saveArtifactRepository,
-            IDbTransaction transaction)
+            IDbTransaction transaction,
+            IReadOnlyList<IPropertyValidator> validators,
+            IReusePropertyValidator reuseValidator
+            )
         {
             UserId = userId;
             ArtifactInfo = artifactInfo;
@@ -34,10 +39,29 @@ namespace ArtifactStore.Models.Workflow
             CustomPropertyTypes = customPropertyTypes;
             SaveRepository = saveArtifactRepository;
             Transaction = transaction;
-            Validators  = new List<IPropertyValidator>
-            {
-                new NumberPropertyValidator()
-            }; 
+            Validators = validators;
+            ReuseValidator = reuseValidator;
+        }
+        public ExecutionParameters(
+            int userId,
+            VersionControlArtifactInfo artifactInfo,
+            ItemTypeReuseTemplate reuseTemplate,
+            List<DPropertyType> customPropertyTypes,
+            ISaveArtifactRepository saveArtifactRepository,
+            IDbTransaction transaction): this(
+                userId, 
+                artifactInfo, 
+                reuseTemplate, 
+                customPropertyTypes, 
+                saveArtifactRepository, 
+                transaction, 
+                new List<IPropertyValidator>()
+                {
+                    new NumberPropertyValidator()
+
+                }, 
+                new ReusePropertyValidator())
+        {
         }
     }
 }

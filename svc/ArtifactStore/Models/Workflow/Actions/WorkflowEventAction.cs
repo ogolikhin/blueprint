@@ -15,7 +15,7 @@ namespace ArtifactStore.Models.Workflow.Actions
 
     public interface IWorkflowEventSynchronousAction
     {
-        bool ValidateActionToBeProcessed(ExecutionParameters executionParameters);
+        Task<bool> Execute(ExecutionParameters executionParameters);
     }
 
     public abstract class WorkflowEventSynchronousWorkflowEventAction : WorkflowEventAction, IWorkflowEventSynchronousAction
@@ -26,7 +26,7 @@ namespace ArtifactStore.Models.Workflow.Actions
             return await Task.FromResult(result);
         }
 
-        public abstract bool ValidateActionToBeProcessed(ExecutionParameters executionParameters);
+        protected abstract bool ValidateActionToBeProcessed(ExecutionParameters executionParameters);
 
     }
 

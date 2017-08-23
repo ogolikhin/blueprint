@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using ArtifactStore.Models.PropertyTypes;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.PropertyType;
 
-namespace ServiceLibrary.Helpers.Validators
+namespace ArtifactStore.Helpers.Validators
 {
     public interface IPropertyValidator
     {
@@ -61,6 +63,7 @@ namespace ServiceLibrary.Helpers.Validators
         #endregion
     }
 
+    //TODO: If after we implemented all validators and this is not required, delete
     //public class ValidationContext
     //{
     //    #region Properties

@@ -111,6 +111,11 @@
     </Compile>
     <Compile Include="Helpers\MentionHelper.cs" />
     <Compile Include="Helpers\SensitivityCommonHelper.cs" />
+    <Compile Include="Helpers\Validators\NumberPropertyValidator.cs" />
+    <Compile Include="Helpers\Validators\PropertyLite.cs" />
+    <Compile Include="Helpers\Validators\PropertyValidator.cs" />
+    <Compile Include="Models\PropertyTypes\DNumberPropertyType.cs" />
+    <Compile Include="Models\PropertyTypes\DPropertyType.cs" />
     <Compile Include="Models\Review\ParticipantArtifactStats.cs" />
     <Compile Include="Models\Reuse\ReconcileProperty.cs" />
     <Compile Include="Models\Reuse\ReuseSensitivityCollector.cs" />
@@ -164,6 +169,7 @@
     <Compile Include="Models\Workflow\Actions\WorkflowEventAction.cs" />
     <Compile Include="Models\Workflow\ExecutionParameters.cs" />
     <Compile Include="Models\Workflow\IWorkflowEvent.cs" />
+    <Compile Include="Helpers\Validators\ReusePropertyValidator.cs" />
     <Compile Include="Models\Workflow\WorkflowEventCondition.cs" />
     <Compile Include="Models\Workflow\WorkflowEventTrigger.cs" />
     <Compile Include="Models\Workflow\WorkflowEventTriggers.cs" />

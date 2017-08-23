@@ -92,6 +92,9 @@
     <Compile Include="Helpers\MentionHelperTests.cs" />
     <Compile Include="Helpers\SensitivityCommonHelperTests.cs" />
     <Compile Include="Helpers\ReuseSystemPropertiesMapTests.cs" />
+    <Compile Include="Helpers\Validators\NumberPropertyValidatorTests.cs" />
+    <Compile Include="Helpers\Validators\ReusePropertyValidatorTests.cs" />
+    <Compile Include="Models\Workflow\Actions\PropertyChangeActionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\SqlArtifactRelationshipsRepositoryTests.cs" />
     <Compile Include="Repositories\SqlDiscussionsRepositoryTests.cs" />

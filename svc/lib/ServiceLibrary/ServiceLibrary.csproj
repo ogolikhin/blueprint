@@ -151,9 +151,6 @@
     <Compile Include="Helpers\I18NHelper.cs" />
     <Compile Include="Helpers\TimeProvider.cs" />
     <Compile Include="Helpers\UserManagementHelper.cs" />
-    <Compile Include="Helpers\Validators\PropertyLite.cs" />
-    <Compile Include="Helpers\Validators\PropertyValidator.cs" />
-    <Compile Include="Helpers\Validators\NumberPropertyValidator.cs" />
     <Compile Include="LocalLog\ILocalLog.cs" />
     <Compile Include="LocalLog\LocalEventLog.cs" />
     <Compile Include="LocalLog\LocalFileLog.cs" />
@@ -226,8 +223,6 @@
     <Compile Include="Models\ProjectMeta\PropertyTypePredefinedExtension.cs" />
     <Compile Include="Models\ProjectNameIdPair.cs" />
     <Compile Include="Models\ProjectPermissions.cs" />
-    <Compile Include="Models\PropertyType\DNumberPropertyType.cs" />
-    <Compile Include="Models\PropertyType\DPropertyType.cs" />
     <Compile Include="Models\PropertyType\PropertySetResult.cs" />
     <Compile Include="Models\PropertyType\SqlPropertyType.cs" />
     <Compile Include="Models\QueryResult.cs" />
@@ -344,6 +339,7 @@
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

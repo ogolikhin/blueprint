@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using AdminStore.Models;
-using AdminStore.Models.DTO;
-using AdminStore.Models.Enums;
+﻿using AdminStore.Models.DTO;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 
@@ -28,7 +22,12 @@ namespace AdminStore.Helpers
                 throw new BadRequestException(ErrorMessages.FolderNameLimitation, ErrorCodes.BadRequest);
             }
 
-            if (folder.ParentFolderId.HasValue && folder.Id == folder.ParentFolderId.Value)
+            if (!folder.ParentFolderId.HasValue)
+            {
+                throw new BadRequestException(ErrorMessages.LocationIsRequired, ErrorCodes.BadRequest);
+            }
+
+            if (folder.Id == folder.ParentFolderId.Value)
             {
                 throw new BadRequestException(ErrorMessages.FolderReferenceToItself, ErrorCodes.BadRequest);
             }

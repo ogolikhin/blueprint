@@ -1,11 +1,10 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Exceptions;
-using ServiceLibrary.Helpers.Validators;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Reuse;
 using ServiceLibrary.Models.Workflow;
 
-namespace ArtifactStore.Helpers.Validators
+namespace ServiceLibrary.Helpers.Validators
 {
     [TestClass]
     public class ReusePropertyValidatorTests

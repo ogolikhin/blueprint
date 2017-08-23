@@ -337,7 +337,7 @@ namespace AdminStore.Controllers
         public async Task UpdateStatus_AllRequirementsSatisfied_ReturnOkResult()
         {
             // Arrange
-            var updateSatus = new StatusUpdate { VersionId = 1, Status = true };
+            var updateSatus = new StatusUpdate { VersionId = 1, Active = true };
             _privilegesRepositoryMock
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(AllProjectDataPermissions);
@@ -366,7 +366,7 @@ namespace AdminStore.Controllers
         public async Task UpdateStatus_WorkflowWithInvalidPermissions_ForbiddenResult()
         {
             //arrange
-            var updateSatus = new StatusUpdate { VersionId = 1, Status = true };
+            var updateSatus = new StatusUpdate { VersionId = 1, Active = true };
             Exception exception = null;
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))

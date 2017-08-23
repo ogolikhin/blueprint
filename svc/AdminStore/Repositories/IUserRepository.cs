@@ -14,7 +14,7 @@ namespace AdminStore.Repositories
 
         Task<UserIcon> GetUserIconByUserIdAsync(int userId);
 
-        Task<IEnumerable<SqlGroup>> GetUserGroupsMapAsync(IEnumerable<int> groupIds = null);
+        Task<IEnumerable<SqlGroup>> GetGroupsMapAsync(IEnumerable<int> groupIds = null);
 
         Task<IEnumerable<SqlGroup>> GetExistingGroupsByNames(IEnumerable<string> groupNames, bool instanceOnly);
 

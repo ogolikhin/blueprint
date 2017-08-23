@@ -127,8 +127,10 @@
     <Compile Include="Models\CreateResult.cs" />
     <Compile Include="Models\DTO\FolderDto.cs" />
     <Compile Include="Models\DTO\User.cs" />
+    <Compile Include="Models\Emails\BaseEmailSettings.cs" />
     <Compile Include="Models\Emails\EmailIncomingSettings.cs" />
     <Compile Include="Models\Emails\EmailOutgoingSettings.cs" />
+    <Compile Include="Models\Emails\EmailSettingsDto.cs" />
     <Compile Include="Services\Email\EmailClientExceptionHandler.cs" />
     <Compile Include="Services\Email\EmailClientType.cs" />
     <Compile Include="Models\Emails\TestEmailConfigInstanceSettings.cs" />
@@ -253,6 +255,7 @@
     <Compile Include="Services\Workflow\ITriggerConverter.cs" />
     <Compile Include="Services\Workflow\IWorkflowActionPropertyValueValidator.cs" />
     <Compile Include="Services\Workflow\IWorkflowDataValidator.cs" />
+    <Compile Include="Services\Workflow\IWorkflowDiff.cs" />
     <Compile Include="Services\Workflow\IWorkflowService.cs" />
     <Compile Include="Services\Workflow\IWorkflowValidationErrorBuilder.cs" />
     <Compile Include="Services\Workflow\IWorkflowXmlValidator.cs" />
@@ -260,6 +263,7 @@
     <Compile Include="Services\Workflow\WorkflowActionPropertyValueValidator.cs" />
     <Compile Include="Services\Workflow\WorkflowDataValidationResult.cs" />
     <Compile Include="Services\Workflow\WorkflowDataValidator.cs" />
+    <Compile Include="Services\Workflow\WorkflowDiff.cs" />
     <Compile Include="Services\Workflow\WorkflowService.cs" />
     <Compile Include="Services\Workflow\WorkflowValidationErrorBuilder.cs" />
     <Compile Include="Services\Workflow\WorkflowXmlValidationResult.cs" />

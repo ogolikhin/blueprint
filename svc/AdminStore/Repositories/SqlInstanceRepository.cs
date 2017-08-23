@@ -422,9 +422,6 @@ namespace AdminStore.Repositories
             {
                 switch (errorCode.Value)
                 {
-                    case (int)SqlErrorCodes.GeneralSqlError:
-                        throw new Exception(ErrorMessages.GeneralErrorOfDeletingRoleAssignments);
-
                     case (int)SqlErrorCodes.ProjectWithCurrentIdNotExist:
                         throw new ResourceNotFoundException(ErrorMessages.ProjectNotExist, ErrorCodes.ResourceNotFound);
                 }

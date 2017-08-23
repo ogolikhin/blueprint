@@ -440,7 +440,7 @@ namespace AdminStore.Controllers
         /// <remarks>
         /// Returns Ok result.
         /// </remarks>
-        /// <response code="204">OK. Role assignments were deleted.</response>
+        /// <response code="200">OK. Role assignments were deleted.</response>
         /// <response code="400">BadRequest. Parameters are invalid.</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden The user does not have permissions to delete assignment/assignments</response>

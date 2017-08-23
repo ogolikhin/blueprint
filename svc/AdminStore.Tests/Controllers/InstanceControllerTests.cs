@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Web.Http;
-using System.Web.Http.Results;
-using AdminStore.Models;
+﻿using AdminStore.Models;
 using AdminStore.Models.DTO;
 using AdminStore.Repositories;
 using AdminStore.Services.Instance;
@@ -14,8 +7,16 @@ using Moq;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Results;
 
 namespace AdminStore.Controllers
 {
@@ -33,6 +34,9 @@ namespace AdminStore.Controllers
         private InstanceController _controller;
         private FolderDto _folder;
         private ProjectDto _project;
+        private Pagination _pagination;
+        private Sorting _sorting;
+        private QueryResult<RolesAssignments> _rolesAssignmentsQueryResult;
 
         [TestInitialize]
         public void Initialize()
@@ -62,6 +66,28 @@ namespace AdminStore.Controllers
 
             _folder = new FolderDto { Name = "Folder1", ParentFolderId = 2 };
             _project = new ProjectDto {Name = "Project1", Description = "Project1Description", ParentFolderId = 1};
+            _pagination = new Pagination() { Limit = 1, Offset = 0 };
+            _sorting = new Sorting() { Order = SortOrder.Asc, Sort = "Name" };
+
+            var projectRolesAssignments = new List<RolesAssignments>
+            {
+               new RolesAssignments
+               {
+                   GroupName = "GroupName",
+                   Id = 1,
+                   RoleName = "RoleName"
+               }
+            };
+
+            _rolesAssignmentsQueryResult = new QueryResult<RolesAssignments>
+            {
+                Items = projectRolesAssignments,
+                Total = 1
+            };
+
+            _instanceRepositoryMock
+                .Setup(repo => repo.GetProjectRoleAssignmentsAsync(It.IsAny<int>(), It.IsAny<TabularData>(), It.IsAny<Func<Sorting, string>>()))
+                .ReturnsAsync(_rolesAssignmentsQueryResult);
         }
 
         [TestMethod]
@@ -353,6 +379,31 @@ namespace AdminStore.Controllers
             // Exception
         }
 
+        [TestMethod]
+        public async Task CreateFolder_LocationNotSpecified_ThrowsBadRequestException()
+        {
+            // Arrange
+            var folderToCreate = new FolderDto { Name = "New Folder 1", Path = "Blueprint" };
+            _privilegeRepositoryMock
+                .Setup(m => m.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageProjects);
+
+            // Act
+            try
+            {
+                await _controller.CreateFolder(folderToCreate);
+            }
+            catch (BadRequestException ex)
+            {
+                // Assert
+                Assert.AreEqual(ErrorCodes.BadRequest, ex.ErrorCode);
+                Assert.AreEqual(ErrorMessages.LocationIsRequired, ex.Message);
+                return;
+            }
+
+            Assert.Fail("No BadRequestException was thrown.");
+        }
+
         #endregion
 
         #region SearchFolder
@@ -521,6 +572,32 @@ namespace AdminStore.Controllers
             // Exception
         }
 
+        [TestMethod]
+        public async Task UpdateInstanceFolder_LocationNotSpecified_ThrowsBadRequestException()
+        {
+            // Arrange
+            var folderId = 1;
+            var updatedFolder = new FolderDto { Id = folderId, Name = "New Folder 1", Path = "Blueprint" };
+            _privilegeRepositoryMock
+                .Setup(m => m.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageProjects);
+
+            // Act
+            try
+            {
+                await _controller.UpdateInstanceFolder(folderId, updatedFolder);
+            }
+            catch (BadRequestException ex)
+            {
+                // Assert
+                Assert.AreEqual(ErrorCodes.BadRequest, ex.ErrorCode);
+                Assert.AreEqual(ErrorMessages.LocationIsRequired, ex.Message);
+                return;
+            }
+
+            Assert.Fail("No BadRequestException was thrown.");
+        }
+
         #endregion
 
         #region UpdateProject
@@ -645,7 +722,6 @@ namespace AdminStore.Controllers
 
         #endregion
 
-
         #region Project roles
 
         [TestMethod]
@@ -746,6 +822,69 @@ namespace AdminStore.Controllers
 
             await _controller.GetProjectRolesAsync(projectId);
 
+        }
+
+        #endregion
+
+
+        #region GetProjectRoleAssignments
+
+        [TestMethod]
+        public async Task GetProjectRoleAssignments_SuccessfulGettingProjectRoleAssignments_ProjectRoleAssignmentsOkResult()
+        {
+            // Arrange
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectsAdmin);
+
+            _privilegeRepositoryMock
+               .Setup(r => r.GetProjectAdminPermissionsAsync(UserId, ProjectId))
+               .ReturnsAsync(ProjectAdminPrivileges.ViewGroupsAndRoles);
+
+            // Act
+            var result = await _controller.GetProjectRoleAssignments(ProjectId, _pagination, _sorting) as OkNegotiatedContentResult<QueryResult<RolesAssignments>>;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(result.Content, _rolesAssignmentsQueryResult);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task GetProjectRoleAssignments_IncorrectModel_ReturnBadRequestResult()
+        {
+            // Arrange
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectsAdmin);
+
+            _privilegeRepositoryMock
+               .Setup(r => r.GetProjectAdminPermissionsAsync(UserId, ProjectId))
+               .ReturnsAsync(ProjectAdminPrivileges.ViewGroupsAndRoles);
+
+            // Act
+            var result = await _controller.GetProjectRoleAssignments(ProjectId, null, _sorting) as OkNegotiatedContentResult<QueryResult<RolesAssignments>>;
+
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task GetProjectRoleAssignments_IncorrectUserPermissions_ReturnForbiddenErrorResult()
+        {
+            // Arrange
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
+
+            _privilegeRepositoryMock
+               .Setup(r => r.GetProjectAdminPermissionsAsync(UserId, ProjectId))
+               .ReturnsAsync(ProjectAdminPrivileges.ViewAlmIntegration);
+          
+            // Act
+            var result = await _controller.GetProjectRoleAssignments(ProjectId, _pagination, _sorting) as OkNegotiatedContentResult<QueryResult<RolesAssignments>>;
+
+            // Exception
         }
 
         #endregion

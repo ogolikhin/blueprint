@@ -103,6 +103,7 @@
     <Compile Include="Helpers\PrivilegesManagerTests.cs" />
     <Compile Include="Helpers\SystemEncryptionsTests.cs" />
     <Compile Include="Helpers\LoginInfoTests.cs" />
+    <Compile Include="Helpers\SortingHelperTest.cs" />
     <Compile Include="Helpers\Workflow\WorkflowHelperTests.cs" />
     <Compile Include="Models\Workflow\IeWorkflowTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

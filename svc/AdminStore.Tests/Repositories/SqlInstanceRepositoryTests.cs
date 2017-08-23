@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Models.DTO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -10,12 +11,38 @@ using ServiceLibrary.Repositories;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
 
 namespace AdminStore.Repositories
 {
     [TestClass]
     public class SqlInstanceRepositoryTests
     {
+
+        private SqlConnectionWrapperMock _connection;
+        private SqlInstanceRepository _instanceRepository;
+        private const int ProjectId = 1;
+        private IEnumerable<RolesAssignments> _projectRolesAssignments;
+        private TabularData _tabularData;
+
+        [TestInitialize]
+        public void Initialize()
+        {
+            _connection = new SqlConnectionWrapperMock();
+            _instanceRepository = new SqlInstanceRepository(_connection.Object);
+
+            _projectRolesAssignments = new List<RolesAssignments>
+            {
+                new RolesAssignments {Id = 1, RoleName = "Role1", GroupName = "Group1"}
+            };
+
+            _tabularData = new TabularData
+            {
+                Pagination = new Pagination { Limit = 10, Offset = 0 },
+                Sorting = new Sorting { Order = SortOrder.Asc, Sort = "groupName" }
+            };
+        }
+
         [TestMethod]
         public async Task GetInstanceFolderAsync_Found()
         {
@@ -804,7 +831,6 @@ namespace AdminStore.Repositories
 
         #endregion
 
-
         #region Roles
 
         [TestMethod]
@@ -881,5 +907,49 @@ namespace AdminStore.Repositories
 
         #endregion
 
+
+        #region GetProjectRoleAssignmentsAsync
+
+        [TestMethod]
+        public async Task GetProjectRoleAssignmentsAsync_ProjectRolesAssignmentsFound_SuccessfulResult()
+        {
+            // Arrange
+            var errorCode = 0;
+
+            _connection.SetupQueryAsync("GetProjectRoleAssignments",
+                                        It.IsAny<Dictionary<string, object>>(),
+                                        _projectRolesAssignments,
+                                        new Dictionary<string, object>() { { "ErrorCode", errorCode } });
+
+            // Act
+            var projectRolesAssignmentsResult = await
+                _instanceRepository.GetProjectRoleAssignmentsAsync(ProjectId, _tabularData,
+                    SortingHelper.SortProjectRolesAssignments);
+
+            // Assert
+            Assert.IsNotNull(projectRolesAssignmentsResult);
+            Assert.AreEqual(projectRolesAssignmentsResult.Items, _projectRolesAssignments);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task GetProjectRoleAssignmentsAsync_ProjectNotFound_NotFoundError()
+        {
+            // Arrange
+            var errorCode = SqlErrorCodes.ProjectWithCurrentIdNotExist;
+
+            _connection.SetupQueryAsync("GetProjectRoleAssignments",
+                                        It.IsAny<Dictionary<string, object>>(),
+                                        _projectRolesAssignments,
+                                        new Dictionary<string, object>() { { "ErrorCode", (int)errorCode } });
+
+            // Act
+            await
+                _instanceRepository.GetProjectRoleAssignmentsAsync(ProjectId, _tabularData,
+                    SortingHelper.SortProjectRolesAssignments);
+
+            // Exception
+        }
+        #endregion
     }
 }

@@ -25,6 +25,7 @@ namespace AdminStore.Services.Instance
         private EmailIncomingSettings _incomingSettings;
         private InstanceAdminPrivileges _adminPrivilege;
         private User _user;
+        private EmailSettings _emailSettings;
 
         private const int UserId = 1;
         private const string TestEmailSubject = "Blueprint Test Email";
@@ -56,18 +57,14 @@ namespace AdminStore.Services.Instance
 
             websiteAddressServiceMock.Setup(service => service.GetWebsiteAddress()).Returns(WebsiteAddress);
 
-            instanceSettingsRepositoryMock.Setup(repo => repo.GetEmailSettings()).ReturnsAsync(new EmailSettings()
-            {
-                Password = EncryptedPassword,
-                IncomingPassword = EncryptedPassword
-            });
+            instanceSettingsRepositoryMock.Setup(repo => repo.GetEmailSettings()).ReturnsAsync(() => _emailSettings);
 
             //Setup Default Values
             _outgoingSettings = new EmailOutgoingSettings()
             {
                 AuthenticatedSmtp = true,
-                AuthenticatedSmtpPassword = "password",
-                AuthenticatedSmtpUsername = "admin",
+                AccountPassword = "password",
+                AccountUsername = "admin",
                 EnableSsl = true,
                 Port = 2,
                 ServerAddress = "smtp.blueprintsys.com",
@@ -90,6 +87,26 @@ namespace AdminStore.Services.Instance
             _user = new User()
             {
                 Email = "test@example.com"
+            };
+
+            _emailSettings = new EmailSettings()
+            {
+                Password = EncryptedPassword,
+                IncomingPassword = EncryptedPassword,
+                Authenticated = true,
+                EnableEmailDiscussion = true,
+                EnableEmailReplies = false,
+                EnableNotifications = true,
+                EnableSSL = true,
+                SenderEmailAddress = "example@test.com",
+                HostName = "smtp.test.com",
+                Port = 1234,
+                UserName = "admin",
+                IncomingEnableSSL = false,
+                IncomingHostName = "pop3.test.com",
+                IncomingPort = 2345,
+                IncomingServerType = 0,
+                IncomingUserName = "user"
             };
         }
 
@@ -183,7 +200,7 @@ namespace AdminStore.Services.Instance
         public async Task SendTestEmailAsync_Should_Throw_BadRequestException_When_AuthenticatedSmtp_Is_Enabled_And_Username_Is_Empty()
         {
             //Arrange
-            _outgoingSettings.AuthenticatedSmtpUsername = "";
+            _outgoingSettings.AccountUsername = "";
 
             //Act
             try
@@ -204,7 +221,7 @@ namespace AdminStore.Services.Instance
         public async Task SendTestEmailAsync_Should_Throw_BadRequestException_When_AuthenticatedSmtp_Is_Enabled_And_Password_Is_Empty()
         {
             //Arrange
-            _outgoingSettings.AuthenticatedSmtpPassword = "";
+            _outgoingSettings.AccountPassword = "";
 
             //Act
             try
@@ -270,10 +287,10 @@ namespace AdminStore.Services.Instance
             return config.Authenticated == _outgoingSettings.AuthenticatedSmtp &&
                    config.EnableSSL == _outgoingSettings.EnableSsl &&
                    config.HostName == _outgoingSettings.ServerAddress &&
-                   config.Password == (_outgoingSettings.AuthenticatedSmtp ? _outgoingSettings.AuthenticatedSmtpPassword : string.Empty) &&
+                   config.Password == (_outgoingSettings.AuthenticatedSmtp ? _outgoingSettings.AccountPassword : string.Empty) &&
                    config.Port == _outgoingSettings.Port &&
                    config.SenderEmailAddress == _user.Email &&
-                   config.UserName == (_outgoingSettings.AuthenticatedSmtp ? _outgoingSettings.AuthenticatedSmtpUsername : string.Empty);
+                   config.UserName == (_outgoingSettings.AuthenticatedSmtp ? _outgoingSettings.AccountUsername : string.Empty);
         }
 
         [TestMethod]
@@ -297,7 +314,7 @@ namespace AdminStore.Services.Instance
                    config.Password == (_outgoingSettings.AuthenticatedSmtp ? DecryptedPassword : string.Empty) &&
                    config.Port == _outgoingSettings.Port &&
                    config.SenderEmailAddress == _user.Email &&
-                   config.UserName == (_outgoingSettings.AuthenticatedSmtp ? _outgoingSettings.AuthenticatedSmtpUsername : string.Empty);
+                   config.UserName == (_outgoingSettings.AuthenticatedSmtp ? _outgoingSettings.AccountUsername : string.Empty);
         }
 
         [TestMethod]
@@ -510,6 +527,64 @@ namespace AdminStore.Services.Instance
                    config.ClientType == _incomingSettings.ServerType &&
                    config.Port == _incomingSettings.Port &&
                    config.ServerAddress == _incomingSettings.ServerAddress;
+        }
+
+        #endregion
+
+        #region GetEmailSettingsAsync
+
+        [TestMethod]
+        public async Task GetEmailSettingsAsync_Should_Throw_AuthorizationException_When_User_Doesnt_Have_ViewInstanceSettings()
+        {
+            //Arrange
+            _adminPrivilege = InstanceAdminPrivileges.ManageProjects;
+
+            //Act
+            try
+            {
+                await _emailSettingsService.GetEmailSettingsAsync(UserId);
+            }
+            //Assert
+            catch (AuthorizationException ex)
+            {
+                Assert.AreEqual(ex.ErrorCode, ErrorCodes.Forbidden);
+
+                return;
+            }
+
+            Assert.Fail("AuthorizationException was not thrown.");
+        }
+
+        [TestMethod]
+        public async Task GetEmailSettingsAsync_Should_Get_EmailSettings_Information_From_Repository()
+        {
+            //Arrange
+            _adminPrivilege = InstanceAdminPrivileges.ViewInstanceSettings;
+
+            //Act
+            var emailSettingsDto = await _emailSettingsService.GetEmailSettingsAsync(UserId);
+
+            //Assert
+            Assert.AreEqual(_emailSettings.HostName, emailSettingsDto.Outgoing.ServerAddress);
+            Assert.AreEqual(_emailSettings.Port, emailSettingsDto.Outgoing.Port);
+            Assert.AreEqual(_emailSettings.EnableSSL, emailSettingsDto.Outgoing.EnableSsl);
+            Assert.AreEqual(_emailSettings.Authenticated, emailSettingsDto.Outgoing.AuthenticatedSmtp);
+            Assert.AreEqual(null, emailSettingsDto.Outgoing.AccountPassword);
+            Assert.AreEqual(_emailSettings.UserName, emailSettingsDto.Outgoing.AccountUsername);
+            Assert.AreEqual(_emailSettings.SenderEmailAddress, emailSettingsDto.Outgoing.AccountEmailAddress);
+            Assert.AreEqual(false, emailSettingsDto.Outgoing.IsPasswordDirty);
+
+            Assert.AreEqual(_emailSettings.IncomingHostName, emailSettingsDto.Incoming.ServerAddress);
+            Assert.AreEqual(_emailSettings.IncomingPort, emailSettingsDto.Incoming.Port);
+            Assert.AreEqual(_emailSettings.IncomingServerType, (int)emailSettingsDto.Incoming.ServerType);
+            Assert.AreEqual(_emailSettings.IncomingEnableSSL, emailSettingsDto.Incoming.EnableSsl);
+            Assert.AreEqual(_emailSettings.IncomingUserName, emailSettingsDto.Incoming.AccountUsername);
+            Assert.AreEqual(null, emailSettingsDto.Incoming.AccountPassword);
+            Assert.AreEqual(false, emailSettingsDto.Incoming.IsPasswordDirty);
+
+            Assert.AreEqual(_emailSettings.EnableNotifications, emailSettingsDto.EnableReviewNotifications);
+            Assert.AreEqual(_emailSettings.EnableEmailDiscussion, emailSettingsDto.EnableEmailNotifications);
+            Assert.AreEqual(_emailSettings.EnableEmailReplies, emailSettingsDto.EnableDiscussions);
         }
 
         #endregion

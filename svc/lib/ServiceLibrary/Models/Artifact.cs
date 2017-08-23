@@ -1,6 +1,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using ServiceLibrary.Models.ProjectMeta;
 
 namespace ServiceLibrary.Models
 {
@@ -31,5 +32,15 @@ namespace ServiceLibrary.Models
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public DateTime? CreatedOn { get; set; }
+    }
+
+    [JsonObject]
+    public class Property
+    {
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int PropertyTypeId { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public PropertyTypePredefined Predefined { get; set; }
     }
 }

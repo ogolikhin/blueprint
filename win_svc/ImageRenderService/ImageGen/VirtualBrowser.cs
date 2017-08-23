@@ -7,7 +7,7 @@ using CefSharp.OffScreen;
 
 namespace ImageRenderService.ImageGen
 {
-    public class VirtualBrowser : IVirtualBrowser
+    public sealed class VirtualBrowser : IVirtualBrowser
     {
         private readonly ChromiumWebBrowser _browser;
         private readonly AsyncBoundObject _asyncBoundObject;
@@ -115,6 +115,7 @@ namespace ImageRenderService.ImageGen
         }
 
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1063:ImplementIDisposableCorrectly")]
         public void Dispose()
         {
             _browser.Dispose();

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ServiceLibrary.Models.Enums;
 
 namespace BluePrintSys.Messaging.Models.Actions
 {

@@ -1,19 +1,26 @@
 ﻿using System;
 using System.Threading.Tasks;
-using ActionHandlerService.Helpers;
+using BluePrintSys.Messaging.CrossCutting.Configuration;
 using BluePrintSys.Messaging.CrossCutting.Logging;
+using NServiceBus;
 
-namespace ActionHandlerService.Models
+namespace BluePrintSys.Messaging.CrossCutting.Host
 {
-    public class SqlTransportHost : IMessageTransportHost
+    public class TransportHost : IMessageTransportHost
     {
         private readonly IConfigHelper _configHelper;
         private readonly INServiceBusServer _nServiceBusServer;
 
-        public SqlTransportHost(IConfigHelper configHelper = null, INServiceBusServer nServiceBusServer = null)
+        public TransportHost(IConfigHelper configHelper, INServiceBusServer nServiceBusServer)
         {
             _configHelper = configHelper ?? new ConfigHelper();
-            _nServiceBusServer = nServiceBusServer ?? NServiceBusServer.Instance;
+            _nServiceBusServer = nServiceBusServer;
+        }
+
+        public async Task SendAsync(string tenantId, IMessage message)
+        {
+            Log.Info("Sending message to server via RabbitMQ");
+            await _nServiceBusServer.Send(tenantId, message);
         }
 
         public void Start(Func<bool> errorCallback = null)

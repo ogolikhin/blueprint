@@ -34,7 +34,8 @@ namespace ArtifactStore.Controllers
                 new SqlHelper(),
                 new VersionControlService(),
                 new ReuseRepository(),
-                new SqlSaveArtifactRepository()))
+                new SqlSaveArtifactRepository(),
+                new ApplicationSettingsRepository()))
         {
         }
 

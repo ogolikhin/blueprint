@@ -29,6 +29,7 @@ namespace ArtifactStore.Services
         private Mock<IVersionControlService> _versionControlServiceMock;
         private Mock<IReuseRepository> _reuseRepository;
         private Mock<ISaveArtifactRepository> _saveArtifactRepositoryMock;
+        private Mock<IApplicationSettingsRepository> _applicationSettingsRepositoryMock;
 
         [TestInitialize]
         public void TestInitialize()
@@ -40,13 +41,16 @@ namespace ArtifactStore.Services
             _versionControlServiceMock = new Mock<IVersionControlService>();
             _reuseRepository = new Mock<IReuseRepository>(MockBehavior.Loose);
             _saveArtifactRepositoryMock = new Mock<ISaveArtifactRepository>(MockBehavior.Loose);
+            _applicationSettingsRepositoryMock = new Mock<IApplicationSettingsRepository>(MockBehavior.Loose);
+
             _workflowServiceMock = new WorkflowService(_workflowRepositoryMock.Object, 
                 _artifactVersionsRepositoryMock.Object, 
                 _itemInfoRepositoryMock.Object, 
                 _sqlHelperMock,
                 _versionControlServiceMock.Object,
                 _reuseRepository.Object,
-                _saveArtifactRepositoryMock.Object);
+                _saveArtifactRepositoryMock.Object,
+                _applicationSettingsRepositoryMock.Object);
         }
 
         [TestMethod]

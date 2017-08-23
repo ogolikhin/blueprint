@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace ActionHandlerServiceTests
 {
     /// <summary>
-    /// Tests for the Property Change Action Helper in the Action Handler Service
+    /// Tests for the PropertyChange Change Action Helper in the Action Handler Service
     /// </summary>
     [TestClass]
     public class PropertyChangeActionHelperTests

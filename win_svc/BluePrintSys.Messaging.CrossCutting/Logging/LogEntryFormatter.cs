@@ -34,7 +34,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Logging
 
             if (typeof(TLogEntry) != entry.GetType())
             {
-                throw new ArgumentOutOfRangeException("entry", string.Format("Unexpected Log Entry", entry.GetType()));
+                throw new ArgumentOutOfRangeException("entry", string.Format("Unexpected Log Entry: {0}", entry.GetType()));
             }
 
             return Format((TLogEntry) entry);

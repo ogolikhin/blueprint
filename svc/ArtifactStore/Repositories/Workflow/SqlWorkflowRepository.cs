@@ -11,6 +11,7 @@ using ArtifactStore.Helpers;
 using ArtifactStore.Models.PropertyTypes;
 using ArtifactStore.Models.Workflow;
 using ArtifactStore.Models.Workflow.Actions;
+using BluePrintSys.Messaging.CrossCutting.Models;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.PropertyType;
@@ -241,11 +242,13 @@ namespace ArtifactStore.Repositories.Workflow
         
         private WorkflowEventAction ToGenerateAction(XmlGenerateAction generateAction)
         {
-            if (!generateAction.ArtifactTypeId.HasValue)
-                return null;
             switch (generateAction.GenerateActionType)
             {
                 case GenerateActionTypes.Children:
+                    if (!generateAction.ArtifactTypeId.HasValue)
+                    {
+                        return null;
+                    }
                     return new GenerateChildrenAction
                     {
                         ArtifactTypeId = generateAction.ArtifactTypeId.Value,

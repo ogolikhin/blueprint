@@ -1,12 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using ArtifactStore.Helpers.Validators;
 using ArtifactStore.Models.PropertyTypes;
 using ArtifactStore.Repositories;
+using BluePrintSys.Messaging.CrossCutting.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers.Validators;
 using ServiceLibrary.Models.ProjectMeta;
+using ServiceLibrary.Models.PropertyType;
 
 namespace ArtifactStore.Models.Workflow.Actions
 {
@@ -17,7 +19,7 @@ namespace ArtifactStore.Models.Workflow.Actions
         private Mock<IReusePropertyValidator> _reuseValidatorMock;
         private List<DPropertyType> _customPropertyTypes;
 
-        private ExecutionParameters _executionParameters;
+        private IExecutionParameters _executionParameters;
         private PropertyChangeAction _propertyChangeAction;
 
         private const int DefaultInstancePropertyTypeId = 123;

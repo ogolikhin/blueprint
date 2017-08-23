@@ -5,6 +5,8 @@ using ActionHandlerService.Helpers;
 using ActionHandlerService.MessageHandlers.ArtifactPublished;
 using ActionHandlerService.Models;
 using ActionHandlerService.Repositories;
+using BluePrintSys.Messaging.CrossCutting.Host;
+using BluePrintSys.Messaging.CrossCutting.Models;
 using BluePrintSys.Messaging.Models.Actions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -23,7 +25,7 @@ namespace ActionHandlerServiceTests
         private List<SqlWorkflowEvent> _triggers;
         private List<SqlWorkFlowStateInformation> _states;
         private List<SqlProject> _projects;
-        private List<NotificationAction> _notificationActions;
+        private List<EmailNotificationAction> _notificationActions;
         private ArtifactsPublishedMessage _messageWithModifiedProperties;
         private Dictionary<int, List<int>> _instancePropertyTypeIds;
         private const int WorkflowStateId = 10;
@@ -38,7 +40,14 @@ namespace ActionHandlerServiceTests
             _states = new List<SqlWorkFlowStateInformation> {new SqlWorkFlowStateInformation {WorkflowStateId = WorkflowStateId, ArtifactId = 0, EndRevision = 0, ItemId = 0, ItemTypeId = 0, LockedByUserId = 0, Name = "", ProjectId = 0, Result = 0, StartRevision = 0, WorkflowId = 0, WorkflowName = "", WorkflowStateName = ""}};
             _projects = new List<SqlProject> {new SqlProject {ItemId = 0, Name = ""}};
             _instancePropertyTypeIds = new Dictionary<int, List<int>> {{0, new List<int> {0}}};
-            _notificationActions = new List<NotificationAction> {new NotificationAction {ConditionalStateId = WorkflowStateId, PropertyTypeId = PropertyTypeId, ToEmails = new [] {""}}};
+            var emailNotification = new EmailNotificationAction
+            {
+                ConditionalStateId = WorkflowStateId,
+                PropertyTypeId = PropertyTypeId
+            };
+            emailNotification.Emails.Add("");
+            _notificationActions = new List<EmailNotificationAction> {emailNotification};
+
             _messageWithModifiedProperties = new ArtifactsPublishedMessage {Artifacts = new[] {new PublishedArtifactInformation {ModifiedProperties = new List<PublishedPropertyInformation> {new PublishedPropertyInformation {TypeId = PropertyTypeId}}}}};
         }
 
@@ -98,7 +107,7 @@ namespace ActionHandlerServiceTests
 
             var actionsParserMock = new Mock<IActionsParser>();
             //empty list of notification actions
-            var emptyNotificationActionsList = new List<NotificationAction>();
+            var emptyNotificationActionsList = new List<EmailNotificationAction>();
             actionsParserMock.Setup(m => m.GetNotificationActions(It.IsAny<IEnumerable<SqlWorkflowEvent>>())).Returns(emptyNotificationActionsList);
             var actionHelper = new ArtifactsPublishedActionHelper(actionsParserMock.Object);
 
@@ -146,9 +155,18 @@ namespace ActionHandlerServiceTests
         [TestMethod]
         public async Task ArtifactsPublishedActionHelper_ReturnsTrue_WhenPropertyTypeIdDoesNotMatchNotificationPropertyTypeId()
         {
-            //non-matching Property Type IDs
+            //non-matching PropertyChange Type IDs
             const int notificationPropertyTypeId = 1 + PropertyTypeId;
-            var notificationActions = new List<NotificationAction> {new NotificationAction {ConditionalStateId = WorkflowStateId, PropertyTypeId = notificationPropertyTypeId, ToEmails = new[] {""}}};
+            var emailNotification = new EmailNotificationAction
+            {
+                ConditionalStateId = WorkflowStateId,
+                PropertyTypeId = notificationPropertyTypeId
+            };
+            emailNotification.Emails.Add("");
+            var notificationActions = new List<EmailNotificationAction>
+            {
+                emailNotification
+            };
             var message = new ArtifactsPublishedMessage {Artifacts = new[] {new PublishedArtifactInformation {ModifiedProperties = new List<PublishedPropertyInformation> {new PublishedPropertyInformation {TypeId = PropertyTypeId}}}}};
 
             _repositoryMock.Setup(m => m.GetWorkflowPropertyTransitionsForArtifactsAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<IEnumerable<int>>())).ReturnsAsync(_triggers);
@@ -169,7 +187,14 @@ namespace ActionHandlerServiceTests
             //non-matching State IDs
             const int conditionalStateId = 1 + WorkflowStateId;
             var states = new List<SqlWorkFlowStateInformation> {new SqlWorkFlowStateInformation {WorkflowStateId = WorkflowStateId, ArtifactId = 0, EndRevision = 0, ItemId = 0, ItemTypeId = 0, LockedByUserId = 0, Name = "", ProjectId = 0, Result = 0, StartRevision = 0, WorkflowId = 0, WorkflowName = "", WorkflowStateName = ""}};
-            var notificationActions = new List<NotificationAction> {new NotificationAction {ConditionalStateId = conditionalStateId, PropertyTypeId = PropertyTypeId, ToEmails = new[] {""}}};
+            var emailNotification =
+                new EmailNotificationAction
+                {
+                    ConditionalStateId = conditionalStateId,
+                    PropertyTypeId = PropertyTypeId
+                };
+            emailNotification.Emails.Add("");
+            var notificationActions = new List<EmailNotificationAction> {emailNotification};
 
             _repositoryMock.Setup(m => m.GetWorkflowPropertyTransitionsForArtifactsAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<IEnumerable<int>>())).ReturnsAsync(_triggers);
             _repositoryMock.Setup(m => m.GetWorkflowStatesForArtifactsAsync(It.IsAny<int>(), It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>())).ReturnsAsync(states);

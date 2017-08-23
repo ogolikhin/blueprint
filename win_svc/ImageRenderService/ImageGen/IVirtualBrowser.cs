@@ -26,6 +26,7 @@ namespace ImageRenderService.ImageGen
         IScreenshot Bitmap { get; }
 
         event EventHandler BrowserInitialized;
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
         event EventHandler<VirtualBrowserLoadingStateChangedEventArgs> LoadingStateChanged;
 
         void Load(string url);

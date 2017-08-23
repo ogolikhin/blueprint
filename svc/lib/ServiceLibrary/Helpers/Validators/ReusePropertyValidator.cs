@@ -3,7 +3,7 @@ using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Reuse;
 using ServiceLibrary.Models.Workflow;
 
-namespace ArtifactStore.Helpers.Validators
+namespace ServiceLibrary.Helpers.Validators
 {
     public interface IReusePropertyValidator
     {

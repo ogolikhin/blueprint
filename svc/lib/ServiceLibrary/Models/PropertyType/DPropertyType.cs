@@ -1,7 +1,7 @@
 ﻿using System;
 using ServiceLibrary.Models.ProjectMeta;
 
-namespace ArtifactStore.Models.PropertyTypes
+namespace ServiceLibrary.Models.PropertyType
 {
     //TODO: remove properties from this class as we create the new ones
     public class DPropertyType

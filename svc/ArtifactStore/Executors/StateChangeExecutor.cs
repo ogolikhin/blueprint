@@ -12,6 +12,10 @@ using ArtifactStore.Repositories;
 using ArtifactStore.Repositories.Reuse;
 using ArtifactStore.Repositories.Workflow;
 using ArtifactStore.Services.VersionControl;
+using BluePrintSys.Messaging.CrossCutting.Helpers;
+using BluePrintSys.Messaging.CrossCutting.Logging;
+using BluePrintSys.Messaging.CrossCutting.Models;
+using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
@@ -20,6 +24,7 @@ using ServiceLibrary.Models.PropertyType;
 using ServiceLibrary.Models.Reuse;
 using ServiceLibrary.Models.VersionControl;
 using ServiceLibrary.Models.Workflow;
+using ServiceLibrary.Repositories;
 
 namespace ArtifactStore.Executors
 {
@@ -33,6 +38,7 @@ namespace ArtifactStore.Executors
         private readonly IVersionControlService _versionControlService;
         private readonly IReuseRepository _reuseRepository;
         private readonly ISaveArtifactRepository _saveArtifactRepository;
+        private readonly IApplicationSettingsRepository _applicationSettingsRepository;
 
         public StateChangeExecutor(
             WorkflowStateChangeParameterEx input,
@@ -42,7 +48,8 @@ namespace ArtifactStore.Executors
             ISqlHelper sqlHelper,
             IVersionControlService versionControlService,
             IReuseRepository reuseRepository,
-            ISaveArtifactRepository saveArtifactRepository
+            ISaveArtifactRepository saveArtifactRepository,
+            IApplicationSettingsRepository applicationSettingsRepository
             )
         {
             _input = input;
@@ -53,16 +60,26 @@ namespace ArtifactStore.Executors
             _versionControlService = versionControlService;
             _reuseRepository = reuseRepository;
             _saveArtifactRepository = saveArtifactRepository;
+            _applicationSettingsRepository = applicationSettingsRepository;
+        }
+
+        class StateChangeResult
+        {
+            public QuerySingleResult<WorkflowState> Result { get; set; }
+
+            public IList<ActionMessage> ActionMessages { get; } = new List<ActionMessage>();
         }
 
         public async Task<QuerySingleResult<WorkflowState>> Execute()
         {
-            return await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, GetTransactionAction());
+            var result = await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, GetTransactionAction());
+            
+            return result.Result;
         }
 
-        private Func<IDbTransaction, Task<QuerySingleResult<WorkflowState>>> GetTransactionAction()
+        private Func<IDbTransaction, Task<StateChangeResult>> GetTransactionAction()
         {
-            Func<IDbTransaction, Task<QuerySingleResult<WorkflowState>>> action = async transaction =>
+            Func<IDbTransaction, Task<StateChangeResult>> action = async transaction =>
             {
                 var publishRevision = await CreateRevision(transaction);
                 _input.RevisionId = publishRevision;
@@ -87,20 +104,13 @@ namespace ArtifactStore.Executors
 
                 await ProcessConstraints(constraints);
 
-                var result = await ChangeStateForArtifactAsync(_input, transaction);
-
+                var stateChangeResult = await ChangeStateForArtifactAsync(_input, transaction);
 
                 var executionParameters = await BuildTriggerExecutionParameters(artifactInfo, preOpTriggers, transaction);
+
                 var errors = await preOpTriggers.ProcessTriggers(executionParameters);
-                //var errors = (await ProcessPreopEventTriggers(preOpTriggers, executionParameters, artifactInfo, transaction)).ToDictionary(entry => entry.Key, entry => entry.Value);
-
-                await PublishArtifacts(publishRevision, transaction);
-
-                //These should be converted to messages and sent as a part of state change event to handler service
-                foreach (var entry in await postOpTriggers.ProcessTriggers(executionParameters))
-                {
-                    errors.Add(entry.Key, entry.Value);
-                }
+                
+                var artifactResultSet = await PublishArtifacts(publishRevision, transaction);
 
                 //Collecting all errors so that we can distinguish between errors at a later stage.
                 if (errors.Count > 0)
@@ -108,25 +118,186 @@ namespace ArtifactStore.Executors
                     throw new ConflictException("State cannot be modified as the trigger cannot be executed");
                 }
 
+                var result = new StateChangeResult
+                {
+                    Result = stateChangeResult
+                };
+
+                //Generate asynchronous messages for sending
+                GenerateMessages(postOpTriggers, artifactInfo, artifactResultSet, publishRevision, result);
+
+                var tenantInfo = await _applicationSettingsRepository.GetTenantInfo();
+                if (string.IsNullOrWhiteSpace(tenantInfo?.TenantId))
+                {
+                    throw new TenantInfoNotFoundException("No tenant information found. Please contact your administrator.");
+                }
+
+                await ProcessMessages(tenantInfo.TenantId, result);
+
                 return result;
             };
             return action;
         }
 
-        private async Task<ExecutionParameters> BuildTriggerExecutionParameters(VersionControlArtifactInfo artifactInfo,
-            WorkflowEventTriggers triggers, IDbTransaction transaction = null)
+        private async Task ProcessMessages(string tenantId, StateChangeResult result)
+        {
+            foreach (var actionMessage in result.ActionMessages.Where(a => a != null))
+            {
+                try
+                {
+                    await WorkflowMessaging.Instance.SendMessageAsync(tenantId, actionMessage);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(
+                        $"Error while sending {actionMessage.ActionType} message on successful transition of artifact: {_input.ArtifactId} from {_input.FromStateId} to {_input.ToStateId}.",
+                        ex);
+                    throw;
+                }
+            }
+        }
+
+        private void GenerateMessages(WorkflowEventTriggers postOpTriggers, VersionControlArtifactInfo artifactInfo,
+            ArtifactResultSet artifactResultSet, int publishRevision, StateChangeResult result)
+        {
+            foreach (var workflowEventTrigger in postOpTriggers)
+            {
+                if (workflowEventTrigger?.Action == null)
+                {
+                    continue;
+                }
+                switch (workflowEventTrigger.ActionType)
+                {
+                    case MessageActionType.Notification:
+                        var notificationAction = workflowEventTrigger.Action as EmailNotificationAction;
+                        if (notificationAction == null)
+                        {
+                            continue;
+                        }
+                        var notificationMessage = GetNotificationMessage(artifactInfo, artifactResultSet, publishRevision,
+                            notificationAction);
+                        result.ActionMessages.Add(notificationMessage);
+                        break;
+                    case MessageActionType.GenerateChildren:
+                        var generateChildrenAction = workflowEventTrigger.Action as GenerateChildrenAction;
+                        if (generateChildrenAction == null)
+                        {
+                            continue;
+                        }
+                        var generateChildrenMessage = new GenerateDescendantsMessage
+                        {
+                            ChildCount = generateChildrenAction.ChildCount.GetValueOrDefault(10),
+                            ArtifactTypeId = generateChildrenAction.ArtifactTypeId,
+                            ArtifactId = artifactInfo.Id,
+                            RevisionId = publishRevision
+                        };
+                        result.ActionMessages.Add(generateChildrenMessage);
+                        break;
+                    case MessageActionType.GenerateTests:
+                        var generateTestsAction = workflowEventTrigger.Action as GenerateTestCasesAction;
+                        if (generateTestsAction == null)
+                        {
+                            continue;
+                        }
+                        var generateTestsMessage = new GenerateTestsMessage
+                        {
+                            ArtifactId = artifactInfo.Id,
+                            RevisionId = publishRevision
+                        };
+                        result.ActionMessages.Add(generateTestsMessage);
+                        break;
+                    case MessageActionType.GenerateUserStories:
+                        var generateUserStories = workflowEventTrigger.Action as GenerateUserStoriesAction;
+                        if (generateUserStories == null)
+                        {
+                            continue;
+                        }
+                        var generateUserStoriesMessage = new GenerateUserStoriesMessage
+                        {
+                            ArtifactId = artifactInfo.Id,
+                            RevisionId = publishRevision
+                        };
+                        result.ActionMessages.Add(generateUserStoriesMessage);
+                        break;
+                }
+            }
+
+            //Add published artifact message
+            var publishedMessage =
+                GetPublishedMessage(_userId, publishRevision, artifactInfo, artifactResultSet) as ArtifactsPublishedMessage;
+
+            if (publishedMessage?.Artifacts?.Count > 0)
+            {
+                result.ActionMessages.Add(publishedMessage);
+            }
+        }
+
+        private NotificationMessage GetNotificationMessage(VersionControlArtifactInfo artifactInfo,
+            ArtifactResultSet artifactResultSet, int publishRevision, EmailNotificationAction notificationAction)
+        {
+            var artifactPartUrl = ServerUriHelper.GetArtifactUrl(artifactInfo.Id);
+            if (artifactPartUrl == null)
+            {
+                return null;
+            }
+            var notificationMessage = new NotificationMessage
+            {
+                ArtifactName = artifactInfo.Name,
+                ProjectName = artifactResultSet.Projects?.FirstOrDefault(p => p.Id == artifactInfo.ProjectId)?.Name,
+                Subject = notificationAction.Subject,
+                From = notificationAction.FromDisplayName,
+                To = notificationAction.Emails,
+                MessageTemplate = notificationAction.Message,
+                RevisionId = publishRevision,
+                UserId = _userId,
+                ArtifactTypeId = artifactInfo.ItemTypeId,
+                ArtifactId = artifactInfo.Id,
+                ArtifactUrl = artifactPartUrl,
+                ArtifactTypePredefined = (int) artifactInfo.PredefinedType,
+                ProjectId = artifactInfo.ProjectId
+            };
+            return notificationMessage;
+        }
+
+        private ActionMessage GetPublishedMessage(int userId, int revisionId, VersionControlArtifactInfo artifactInfo, ArtifactResultSet artifactResultSet)
+        {
+            var message = new ArtifactsPublishedMessage
+            {
+                UserId = userId, RevisionId = revisionId
+            };
+            var artifacts = new List<PublishedArtifactInformation>();
+            var artifact = new PublishedArtifactInformation
+            {
+                Id = artifactInfo.Id, Name = artifactInfo.Name, Predefined = (int) artifactInfo.PredefinedType, IsFirstTimePublished = false, //State change always occurs on published artifacts
+                ProjectId = artifactInfo.ProjectId, Url = ServerUriHelper.GetArtifactUrl(artifactInfo.Id)
+            };
+            
+            IList<Property> modifiedProperties;
+            if (artifactResultSet?.ModifiedProperties?.Count > 0 && artifactResultSet.ModifiedProperties.TryGetValue(artifactInfo.Id, out modifiedProperties) && modifiedProperties?.Count > 0)
+            {
+                artifact.ModifiedProperties.AddRange(modifiedProperties.Select(p => new PublishedPropertyInformation
+                {
+                    TypeId = p.PropertyTypeId, PredefinedType = (int) p.Predefined
+                }));
+                //Only add artifact to list if there is a list of modified properties
+                artifacts.Add(artifact);
+            }
+
+            message.Artifacts = artifacts;
+            return message;
+        }
+
+        private async Task<ExecutionParameters> BuildTriggerExecutionParameters(VersionControlArtifactInfo artifactInfo, WorkflowEventTriggers triggers, IDbTransaction transaction = null)
         {
             if (triggers.IsEmpty())
             {
                 return null;
             }
             //TODO: detect if artifact has readonly reuse
-            var isArtifactReadOnlyReuse = await _reuseRepository.DoItemsContainReadonlyReuse(new [] {_input.ArtifactId}, transaction);
+            var isArtifactReadOnlyReuse = await _reuseRepository.DoItemsContainReadonlyReuse(new[] {_input.ArtifactId}, transaction);
 
             ItemTypeReuseTemplate reuseTemplate = null;
-            var artifactId2StandardTypeId =
-                await
-                    _reuseRepository.GetStandardTypeIdsForArtifactsIdsAsync(new HashSet<int> { _input.ArtifactId });
+            var artifactId2StandardTypeId = await _reuseRepository.GetStandardTypeIdsForArtifactsIdsAsync(new HashSet<int> {_input.ArtifactId});
             var instanceItemTypeId = artifactId2StandardTypeId[_input.ArtifactId].InstanceTypeId;
             if (instanceItemTypeId == null)
             {
@@ -136,7 +307,7 @@ namespace ArtifactStore.Executors
             {
                 reuseTemplate = await LoadReuseSettings(instanceItemTypeId.Value);
             }
-            var customItemTypeToPropertiesMap = await LoadCustomPropertyInformation(new [] { instanceItemTypeId.Value }, triggers, artifactInfo.ProjectId);
+            var customItemTypeToPropertiesMap = await LoadCustomPropertyInformation(new[] {instanceItemTypeId.Value}, triggers, artifactInfo.ProjectId);
 
             var propertyTypes = new List<DPropertyType>();
             if (customItemTypeToPropertiesMap.ContainsKey(artifactInfo.ItemTypeId))
@@ -144,25 +315,12 @@ namespace ArtifactStore.Executors
                 propertyTypes = customItemTypeToPropertiesMap[artifactInfo.ItemTypeId];
             }
 
-            return new ExecutionParameters(
-                _userId,
-                artifactInfo, 
-                reuseTemplate, 
-                propertyTypes, 
-                _saveArtifactRepository, 
-                transaction);
+            return new ExecutionParameters(_userId, artifactInfo, reuseTemplate, propertyTypes, _saveArtifactRepository, transaction);
         }
 
         private async Task<int> CreateRevision(IDbTransaction transaction)
         {
-            var publishRevision =
-                await
-                    _sqlHelper.CreateRevisionInTransactionAsync(
-                        transaction,
-                        _userId,
-                        I18NHelper.FormatInvariant(
-                            "State Change Publish: publishing changes and changing artifact {0} state to {1}",
-                            _input.ArtifactId, _input.ToStateId));
+            var publishRevision = await _sqlHelper.CreateRevisionInTransactionAsync(transaction, _userId, I18NHelper.FormatInvariant("State Change Publish: publishing changes and changing artifact {0} state to {1}", _input.ArtifactId, _input.ToStateId));
             return publishRevision;
         }
 
@@ -172,53 +330,38 @@ namespace ArtifactStore.Executors
             var isDeleted = await _artifactVersionsRepository.IsItemDeleted(_input.ArtifactId);
             if (isDeleted)
             {
-                throw new ConflictException(
-                    I18NHelper.FormatInvariant(
-                        "Artifact has been deleted and is no longer available for workflow state change. Please refresh your view."));
+                throw new ConflictException(I18NHelper.FormatInvariant("Artifact has been deleted and is no longer available for workflow state change. Please refresh your view."));
             }
 
             if (artifactInfo.IsDeleted)
             {
-                throw new ConflictException(
-                    I18NHelper.FormatInvariant(
-                        "Artifact has been deleted and is no longer available for workflow state change. Please refresh your view."));
+                throw new ConflictException(I18NHelper.FormatInvariant("Artifact has been deleted and is no longer available for workflow state change. Please refresh your view."));
             }
 
             if (artifactInfo.VersionCount != _input.CurrentVersionId)
             {
-                throw new ConflictException(
-                    I18NHelper.FormatInvariant(
-                        "Artifact has been updated. The current version of the artifact {0} does not match the specified version {1}. Please refresh your view.",
-                        artifactInfo.VersionCount, _input.CurrentVersionId));
+                throw new ConflictException(I18NHelper.FormatInvariant("Artifact has been updated. The current version of the artifact {0} does not match the specified version {1}. Please refresh your view.", artifactInfo.VersionCount, _input.CurrentVersionId));
             }
 
             //Lock is obtained by current user inside the stored procedure itself
             //Check that it is not locked by some other user
             if (artifactInfo.LockedByUser != null && artifactInfo.LockedByUser.Id != _userId)
             {
-                throw new ConflictException(
-                    I18NHelper.FormatInvariant(
-                        "Artifact has been updated. Artifact is locked by another user. Please refresh your view."));
+                throw new ConflictException(I18NHelper.FormatInvariant("Artifact has been updated. Artifact is locked by another user. Please refresh your view."));
             }
         }
 
         private async Task<WorkflowState> ValidateCurrentState()
         {
             //Get current state and validate current state
-            var currentState =
-                await _workflowRepository.GetStateForArtifactAsync(_userId, _input.ArtifactId, int.MaxValue, true);
+            var currentState = await _workflowRepository.GetStateForArtifactAsync(_userId, _input.ArtifactId, int.MaxValue, true);
             if (currentState == null)
             {
-                throw new ConflictException(
-                    I18NHelper.FormatInvariant(
-                        "Artifact has been updated. There is no workflow state associated with the artifact. Please refresh your view."));
+                throw new ConflictException(I18NHelper.FormatInvariant("Artifact has been updated. There is no workflow state associated with the artifact. Please refresh your view."));
             }
             if (currentState.Id != _input.FromStateId)
             {
-                throw new ConflictException(
-                    I18NHelper.FormatInvariant(
-                        "Artifact has been updated. The current workflow state id {0} of the artifact does not match the specified state {1}. Please refresh your view.",
-                        currentState.Id, _input.FromStateId));
+                throw new ConflictException(I18NHelper.FormatInvariant("Artifact has been updated. The current workflow state id {0} of the artifact does not match the specified state {1}. Please refresh your view.", currentState.Id, _input.FromStateId));
             }
             return currentState;
         }
@@ -226,16 +369,11 @@ namespace ArtifactStore.Executors
         private async Task<WorkflowTransition> GetDesiredTransition(WorkflowState currentState)
         {
             //Get available transitions and validate the required transition
-            var desiredTransition =
-                await
-                    _workflowRepository.GetTransitionForAssociatedStatesAsync(_userId, _input.ArtifactId,
-                        currentState.WorkflowId, _input.FromStateId, _input.ToStateId);
+            var desiredTransition = await _workflowRepository.GetTransitionForAssociatedStatesAsync(_userId, _input.ArtifactId, currentState.WorkflowId, _input.FromStateId, _input.ToStateId);
 
             if (desiredTransition == null)
             {
-                throw new ConflictException(
-                    I18NHelper.FormatInvariant(
-                        "No transitions available. Workflow could have been updated. Please refresh your view."));
+                throw new ConflictException(I18NHelper.FormatInvariant("No transitions available. Workflow could have been updated. Please refresh your view."));
             }
             return desiredTransition;
         }
@@ -277,41 +415,31 @@ namespace ArtifactStore.Executors
             {
                 return new QuerySingleResult<WorkflowState>
                 {
-                    ResultCode = QueryResultCode.Failure,
-                    Message = I18NHelper.FormatInvariant("State could not be modified for Artifact: {0} from State: {1} to New State: {2}",
-                    input.ArtifactId,
-                    input.FromStateId,
-                    input.ToStateId)
+                    ResultCode = QueryResultCode.Failure, Message = I18NHelper.FormatInvariant("State could not be modified for Artifact: {0} from State: {1} to New State: {2}", input.ArtifactId, input.FromStateId, input.ToStateId)
                 };
             }
             return new QuerySingleResult<WorkflowState>
             {
-                ResultCode = QueryResultCode.Success,
-                Item = newState
+                ResultCode = QueryResultCode.Success, Item = newState
             };
         }
 
-        private async Task PublishArtifacts(int publishRevision, IDbTransaction transaction)
+        private async Task<ArtifactResultSet> PublishArtifacts(int publishRevision, IDbTransaction transaction)
         {
-            await _versionControlService.PublishArtifacts(new PublishParameters
+            return await _versionControlService.PublishArtifacts(new PublishParameters
 
             {
-                All = false,
-                ArtifactIds = new[] { _input.ArtifactId },
-                UserId = _userId,
-                RevisionId = publishRevision
+                All = false, ArtifactIds = new[] {_input.ArtifactId}, UserId = _userId, RevisionId = publishRevision
             }, transaction);
         }
-        
+
         private async Task<ItemTypeReuseTemplate> LoadReuseSettings(int itemTypeId, IDbTransaction transaction = null)
         {
+            var reuseSettingsDictionary = await _reuseRepository.GetReuseItemTypeTemplatesAsyc(new[] {itemTypeId}, transaction);
 
-            var reuseSettingsDictionary = await _reuseRepository.GetReuseItemTypeTemplatesAsyc(new[] { itemTypeId }, transaction);
-            
             ItemTypeReuseTemplate reuseTemplateSettings;
 
-            if (reuseSettingsDictionary.Count == 0 ||
-                !reuseSettingsDictionary.TryGetValue(itemTypeId, out reuseTemplateSettings))
+            if (reuseSettingsDictionary.Count == 0 || !reuseSettingsDictionary.TryGetValue(itemTypeId, out reuseTemplateSettings))
             {
                 return null;
             }
@@ -327,12 +455,9 @@ namespace ArtifactStore.Executors
                 return new Dictionary<int, List<DPropertyType>>();
             }
 
-            var instancePropertyTypeIds =
-                propertyChangeActions.Select(b => b.InstancePropertyTypeId);
+            var instancePropertyTypeIds = propertyChangeActions.Select(b => b.InstancePropertyTypeId);
 
-            return await
-                _workflowRepository.GetCustomItemTypeToPropertiesMap(_userId, _input.ArtifactId, projectId, instanceItemTypeIds,
-                    instancePropertyTypeIds);
+            return await _workflowRepository.GetCustomItemTypeToPropertiesMap(_userId, _input.ArtifactId, projectId, instanceItemTypeIds, instancePropertyTypeIds);
         }
     }
 }

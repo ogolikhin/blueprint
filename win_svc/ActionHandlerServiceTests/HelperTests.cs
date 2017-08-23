@@ -1,7 +1,8 @@
 ﻿using System.Threading.Tasks;
 using ActionHandlerService;
 using ActionHandlerService.Helpers;
-using ActionHandlerService.Models.Enums;
+using BluePrintSys.Messaging.CrossCutting.Configuration;
+using BluePrintSys.Messaging.CrossCutting.Models.Enums;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -38,7 +39,7 @@ namespace ActionHandlerServiceTests
         [TestMethod]
         public async Task NServiceBus_ReturnsArgumentNullExceptionMessage_WhenConnectionStringIsNull()
         {
-            var exceptionMessage = await NServiceBusServer.Instance.Start(null);
+            var exceptionMessage = await WorkflowServiceBusServer.Instance.Start(null);
             Assert.IsTrue(exceptionMessage.Contains("connectionString"));
         }
     }

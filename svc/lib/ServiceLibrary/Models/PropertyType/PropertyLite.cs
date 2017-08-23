@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using ServiceLibrary.Models;
 
-namespace ArtifactStore.Helpers.Validators
+namespace ServiceLibrary.Models.PropertyType
 {
     public class PropertyLite
     {

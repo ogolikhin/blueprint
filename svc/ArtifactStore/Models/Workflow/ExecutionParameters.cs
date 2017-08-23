@@ -3,12 +3,16 @@ using System.Data;
 using ArtifactStore.Helpers.Validators;
 using ArtifactStore.Models.PropertyTypes;
 using ArtifactStore.Repositories;
+using BluePrintSys.Messaging.CrossCutting.Models;
+using ServiceLibrary.Helpers.Validators;
 using ServiceLibrary.Models.PropertyType;
 using ServiceLibrary.Models.Reuse;
 
 namespace ArtifactStore.Models.Workflow
 {
-    public class ExecutionParameters
+    
+
+    public class ExecutionParameters : IExecutionParameters
     {
         public ItemTypeReuseTemplate ReuseItemTemplate { get; private set; }
 

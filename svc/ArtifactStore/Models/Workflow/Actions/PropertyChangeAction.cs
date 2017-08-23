@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using ArtifactStore.Helpers.Validators;
 using ArtifactStore.Models.PropertyTypes;
+using BluePrintSys.Messaging.CrossCutting.Models;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
@@ -22,16 +24,16 @@ namespace ArtifactStore.Models.Workflow.Actions
 
         public PropertyLite PropertyLiteValue { get; private set; }
 
-        public override WorkflowActionType ActionType { get; } = WorkflowActionType.PropertyChange;
+        public override MessageActionType ActionType { get; } = MessageActionType.PropertyChange;
 
-        public override async Task<bool> Execute(ExecutionParameters executionParameters)
+        public override async Task<bool> Execute(IExecutionParameters executionParameters)
         {
             await base.Execute(executionParameters);
 
             return await Task.FromResult(true);
         }
 
-        protected override bool ValidateActionToBeProcessed(ExecutionParameters executionParameters)
+        protected override bool ValidateActionToBeProcessed(IExecutionParameters executionParameters)
         {
             executionParameters.ReuseValidator.ValidateReuseSettings(InstancePropertyTypeId, executionParameters.ReuseItemTemplate);
             var result = ValidateProperty(executionParameters);
@@ -42,7 +44,7 @@ namespace ArtifactStore.Models.Workflow.Actions
             return true;
         }
 
-        private PropertySetResult ValidateProperty(ExecutionParameters executionParameters)
+        private PropertySetResult ValidateProperty(IExecutionParameters executionParameters)
         {
 
             if (InstancePropertyTypeId == WorkflowConstants.PropertyTypeFakeIdDescription ||
@@ -88,6 +90,12 @@ namespace ArtifactStore.Models.Workflow.Actions
                     break;
             }
         }
+    }
+
+    public class PropertyChangeUserGroupsAction : PropertyChangeAction
+    {
+        // Used for User properties and indicates that PropertyValue contains the group name.
+        public List<ActionUserGroups> UserGroups { get; } = new List<ActionUserGroups>();
     }
 
 }

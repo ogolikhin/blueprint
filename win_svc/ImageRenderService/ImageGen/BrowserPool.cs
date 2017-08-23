@@ -7,6 +7,7 @@ using ImageRenderService.Helpers;
 
 namespace ImageRenderService.ImageGen
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1063:ImplementIDisposableCorrectly")]
     public class BrowserPool : IBrowserPool, IDisposable
     {
         private static BrowserPool _instance;
@@ -79,6 +80,8 @@ namespace ImageRenderService.ImageGen
             _browserPool.Release(1);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1063:ImplementIDisposableCorrectly")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed", MessageId = "_browserPool")]
         public void Dispose()
         {
             if (!IsPoolEnabled)

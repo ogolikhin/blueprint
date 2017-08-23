@@ -3,6 +3,7 @@ using ArtifactStore.Models.PropertyTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.PropertyType;
 
 namespace ArtifactStore.Helpers.Validators
 {

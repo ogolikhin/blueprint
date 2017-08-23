@@ -90,5 +90,24 @@ namespace AdminStore.Helpers
 
             return sorting.Order == SortOrder.Desc ? "-" + sortColumn : sortColumn;
         }
+
+        public static string SortProjectFolders(Sorting sorting)
+        {
+            var defaultSortColumn = "name";
+
+            var sortableColumns = new HashSet<string>
+            {
+                defaultSortColumn,
+                "type",
+                "location"
+            };
+
+            var column = sorting.Sort;
+            var sortColumn = !string.IsNullOrWhiteSpace(column) && sortableColumns.Contains(column)
+                ? column
+                : defaultSortColumn;
+
+            return sorting.Order == SortOrder.Desc ? "-" + sortColumn : sortColumn;
+        }
     }
 }

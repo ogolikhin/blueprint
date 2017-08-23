@@ -126,6 +126,7 @@
     <Compile Include="Models\AssignScope.cs" />
     <Compile Include="Models\CreateResult.cs" />
     <Compile Include="Models\DTO\FolderDto.cs" />
+    <Compile Include="Models\DTO\ProjectFolderSearchDto.cs" />
     <Compile Include="Models\DTO\User.cs" />
     <Compile Include="Models\Emails\BaseEmailSettings.cs" />
     <Compile Include="Models\Emails\EmailIncomingSettings.cs" />

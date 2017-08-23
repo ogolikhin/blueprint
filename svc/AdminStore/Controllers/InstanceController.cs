@@ -173,7 +173,31 @@ namespace AdminStore.Controllers
             return result;
         }
 
-     
+        /// <summary>
+        /// Search projects and folders
+        /// </summary>
+        /// <param name="pagination">Limit and offset values to query results</param>
+        /// <param name="sorting">(optional) Sort and its order</param>
+        /// <param name="search">Search query parameter</param>
+        /// <response code="200">OK.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have appropriate permissions.</response>
+        [HttpGet, NoCache]
+        [Route("folderprojectsearch"), SessionRequired]
+        public async Task<IHttpActionResult> SearchProjectFolder([FromUri]Pagination pagination, [FromUri]Sorting sorting = null, string search = null)
+        {
+            pagination.Validate();
+            await
+                _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewProjects);
+
+            var result =
+                await
+                    _instanceRepository.GetProjectsAndFolders(Session.UserId,
+                        new TabularData() {Pagination = pagination, Sorting = sorting, Search = search},
+                        SortingHelper.SortProjectFolders);
+            return Ok(result);
+        }
+
         #region folders
 
         /// <summary>

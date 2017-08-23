@@ -34,5 +34,7 @@ namespace AdminStore.Repositories
 
         Task<QueryResult<RolesAssignments>> GetProjectRoleAssignmentsAsync(int projectId, TabularData tabularData,
             Func<Sorting, string> sort = null);
+
+        Task<QueryResult<ProjectFolderSearchDto>> GetProjectsAndFolders(int userId, TabularData tabularData, Func<Sorting, string> sort = null);
     }
 }

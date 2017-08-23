@@ -889,5 +889,64 @@ namespace AdminStore.Controllers
 
         #endregion
 
+        #region DeleteRoleAssignment
+
+        [TestMethod]
+        public async Task DeleteRoleAssignment_SuccessfulDeletionOfRoleAssignment_ReturnCountOfDeletedRoleAssignmentResult()
+        {
+            // Arrange
+            var totalDeletedItems = 1;
+            var scope = new OperationScope() { SelectAll = false, Ids = new List<int>() { 2, 3 } };
+
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectsAdmin);
+
+            _privilegeRepositoryMock
+                .Setup(r => r.GetProjectAdminPermissionsAsync(UserId, ProjectId))
+                .ReturnsAsync(ProjectAdminPrivileges.ManageGroupsAndRoles);
+
+            _instanceRepositoryMock.Setup(repo => repo.DeleteRoleAssignmentsAsync(It.IsAny<int>(), It.Is<OperationScope>(a => a.Ids != null), It.IsAny<string>())).ReturnsAsync(totalDeletedItems);
+
+            // Act
+            var result = await _controller.DeleteRoleAssignment(ProjectId, scope, string.Empty) as OkNegotiatedContentResult<DeleteResult>;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(totalDeletedItems, result.Content.TotalDeleted);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task DeleteRoleAssignment_UserdDoesNotHaveRequiredPermissions_ForbiddenResult()
+        {
+            //arrange
+            var scope = new OperationScope() { SelectAll = false, Ids = new List<int>() { 2, 3 } };
+            _privilegeRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.None);
+
+            //act
+            await _controller.DeleteRoleAssignment(ProjectId, scope);
+
+            //assert
+            //Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task DeleteRoleAssignment_InvalidParameteres_BadRequest()
+        {
+            //arrange
+
+            //act
+            await _controller.DeleteRoleAssignment(ProjectId, null);
+
+            //assert
+            //Exception
+        }
+
+        #endregion
+
     }
 }

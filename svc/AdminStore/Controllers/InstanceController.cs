@@ -431,6 +431,45 @@ namespace AdminStore.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Delete role assignment/assignments
+        /// </summary>
+        /// <param name="projectId">Project's identity</param>
+        /// <param name="scope">list of role assignment ids and selectAll flag</param>
+        /// <param name="search">The parameter for searching by group name.</param>
+        /// <remarks>
+        /// Returns Ok result.
+        /// </remarks>
+        /// <response code="200">OK. Role assignments were deleted.</response>
+        /// <response code="400">BadRequest. Parameters are invalid.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden The user does not have permissions to delete assignment/assignments</response>
+        /// <response code="404">NotFound. The project with the current id doesn't exist or removed from the system.</response>
+        /// <response code="500">Internal Server Error.</response>
+        [HttpPost]
+        [SessionRequired]
+        [ResponseType(typeof(DeleteResult))]
+        [Route("projects/{projectId:int:min(1)}/rolesassignments/delete")]
+        public async Task<IHttpActionResult> DeleteRoleAssignment(int projectId, [FromBody] OperationScope scope, string search = null)
+        {
+            if (scope == null)
+            {
+                throw new BadRequestException(ErrorMessages.InvalidDeleteRoleAssignmentsParameters, ErrorCodes.BadRequest);
+            }
+
+            if (scope.IsEmpty())
+            {
+                return Ok(DeleteResult.Empty);
+            }
+
+            await _privilegesManager.DemandAny(Session.UserId, projectId,
+                InstanceAdminPrivileges.AccessAllProjectsAdmin, ProjectAdminPrivileges.ManageGroupsAndRoles);
+            
+            var result = await _instanceRepository.DeleteRoleAssignmentsAsync(projectId, scope, search);
+
+            return Ok(new DeleteResult { TotalDeleted = result });
+        }
+
         #endregion
 
     }

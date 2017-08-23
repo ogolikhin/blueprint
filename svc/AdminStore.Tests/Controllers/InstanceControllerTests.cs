@@ -65,9 +65,9 @@ namespace AdminStore.Controllers
             };
 
             _folder = new FolderDto { Name = "Folder1", ParentFolderId = 2 };
-            _project = new ProjectDto {Name = "Project1", Description = "Project1Description", ParentFolderId = 1};
-            _pagination = new Pagination() { Limit = 1, Offset = 0 };
-            _sorting = new Sorting() { Order = SortOrder.Asc, Sort = "Name" };
+            _project = new ProjectDto { Name = "Project1", Description = "Project1Description", ParentFolderId = 1 };
+            _pagination = new Pagination { Limit = 1, Offset = 0 };
+            _sorting = new Sorting { Order = SortOrder.Asc, Sort = "Name" };
 
             var projectRolesAssignments = new List<RolesAssignments>
             {
@@ -196,7 +196,7 @@ namespace AdminStore.Controllers
                 .Setup(r => r.GetProjectNavigationPathAsync(projectId, UserId, includeProjectItself))
                 .ReturnsAsync(repositoryResult);
             _artifactPermissionsRepositoryMock
-                .Setup(r => r.GetArtifactPermissions(new List<int> { projectId}, UserId, false, int.MaxValue, true))
+                .Setup(r => r.GetArtifactPermissions(new List<int> { projectId }, UserId, false, int.MaxValue, true))
                 .ReturnsAsync(new Dictionary<int, RolePermissions>());
 
             //Act
@@ -319,7 +319,7 @@ namespace AdminStore.Controllers
             _instanceRepositoryMock.Setup(repo => repo.CreateFolderAsync(It.IsAny<FolderDto>())).ReturnsAsync(FolderId);
 
             // Act
-             await _controller.CreateFolder(_folder);
+            await _controller.CreateFolder(_folder);
 
             // Assert
             // Exception
@@ -413,11 +413,14 @@ namespace AdminStore.Controllers
         public async Task SearchFolderByName_NoPermissions_ReturnForbiddenErrorResult()
         {
             // Arrange
-            var response = new List<FolderDto>();
+            var response = new List<InstanceItem>();
+
             _privilegeRepositoryMock
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
-            _instanceServiceMock.Setup(repo => repo.GetFoldersByName(It.IsAny<string>())).ReturnsAsync(response);
+            _instanceServiceMock
+                .Setup(repo => repo.GetFoldersByName(It.IsAny<string>()))
+                .ReturnsAsync(response);
 
             // Act
             await _controller.SearchFolderByName("test");
@@ -430,22 +433,23 @@ namespace AdminStore.Controllers
         public async Task SearchFolderByName_PermissionaAreOkAndFolderIsExists_RenurnListOfFolders()
         {
             //arrange
-            var response = new List<FolderDto>() {new FolderDto() {Id = 1} };
+            var response = new List<InstanceItem> { new InstanceItem { Id = 1 } };
             var name = "folder";
+
             _privilegeRepositoryMock
-              .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
-              .ReturnsAsync(InstanceAdminPrivileges.ManageProjects);
-            _instanceServiceMock.Setup(repo => repo.GetFoldersByName(It.IsAny<string>())).ReturnsAsync(response);
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageProjects);
+            _instanceServiceMock
+                .Setup(repo => repo.GetFoldersByName(It.IsAny<string>()))
+                .ReturnsAsync(response);
 
             //act
-            var result = await _controller.SearchFolderByName(name) as OkNegotiatedContentResult<IEnumerable<FolderDto>>;
+            var result = await _controller.SearchFolderByName(name) as OkNegotiatedContentResult<IEnumerable<InstanceItem>>;
 
             //assert
             Assert.IsNotNull(result);
             Assert.AreEqual(response, result.Content);
-
         }
-
 
         #endregion
 
@@ -757,27 +761,27 @@ namespace AdminStore.Controllers
             var projectId = 100;
             var projectRoles = new List<ProjectRole>
             {
-                new ProjectRole()
+                new ProjectRole
                 {
                     Name = "Collaborator",
                     RoleId = 11
                 },
-                new ProjectRole()
+                new ProjectRole
                 {
                     Name = "Author",
                     RoleId = 12
                 },
-                new ProjectRole()
+                new ProjectRole
                 {
                     Name = "Viewer",
                     RoleId = 13
                 },
-                new ProjectRole()
+                new ProjectRole
                 {
                     Name = "Project Administrator",
                     RoleId = 14
                 },
-                new ProjectRole()
+                new ProjectRole
                 {
                     Name = "Blueprint Analytics",
                     RoleId = 15
@@ -809,27 +813,27 @@ namespace AdminStore.Controllers
             var projectId = 100;
             var projectRoles = new List<ProjectRole>
             {
-                new ProjectRole()
+                new ProjectRole
                 {
                     Name = "Collaborator",
                     RoleId = 11
                 },
-                new ProjectRole()
+                new ProjectRole
                 {
                     Name = "Author",
                     RoleId = 12
                 },
-                new ProjectRole()
+                new ProjectRole
                 {
                     Name = "Viewer",
                     RoleId = 13
                 },
-                new ProjectRole()
+                new ProjectRole
                 {
                     Name = "Project Administrator",
                     RoleId = 14
                 },
-                new ProjectRole()
+                new ProjectRole
                 {
                     Name = "Blueprint Analytics",
                     RoleId = 15
@@ -906,7 +910,7 @@ namespace AdminStore.Controllers
             _privilegeRepositoryMock
                .Setup(r => r.GetProjectAdminPermissionsAsync(UserId, ProjectId))
                .ReturnsAsync(ProjectAdminPrivileges.ViewAlmIntegration);
-          
+
             // Act
             var result = await _controller.GetProjectRoleAssignments(ProjectId, _pagination, _sorting) as OkNegotiatedContentResult<QueryResult<RolesAssignments>>;
 

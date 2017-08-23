@@ -113,7 +113,7 @@ namespace AdminStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet,NoCache]
         [Route("foldersearch"), SessionRequired]
-        [ResponseType(typeof(IEnumerable<FolderDto>))]
+        [ResponseType(typeof(IEnumerable<InstanceItem>))]
         public async Task<IHttpActionResult> SearchFolderByName(string name)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageProjects);

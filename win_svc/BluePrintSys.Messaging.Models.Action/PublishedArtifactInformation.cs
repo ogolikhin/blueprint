@@ -8,6 +8,8 @@ namespace BluePrintSys.Messaging.Models.Actions
 
         public int Id { get; set; }
 
+        public string Name { get; set; }
+
         public int Predefined { get; set; }
 
         public string Url { get; set; }

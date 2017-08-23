@@ -1,8 +1,9 @@
 ﻿using ActionHandlerService.Helpers;
-using ActionHandlerService.Models.Enums;
-using ActionHandlerService.Models.Exceptions;
-using BluePrintSys.Messaging.Models.Actions;
+using BluePrintSys.Messaging.CrossCutting.Configuration;
+using BluePrintSys.Messaging.CrossCutting.Models.Enums;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ServiceLibrary.Exceptions;
+using ServiceLibrary.Models.Enums;
 
 namespace ActionHandlerServiceTests
 {
@@ -13,11 +14,13 @@ namespace ActionHandlerServiceTests
     public class ConfigHelperTests
     {
         private ConfigHelper _configHelper;
+        private ExtendedConfigHelper _extendedConfigHelper;
 
         [TestInitialize]
         public void TestInitialize()
         {
             _configHelper = new ConfigHelper();
+            _extendedConfigHelper = new ExtendedConfigHelper();
         }
 
         [TestMethod]
@@ -39,8 +42,8 @@ namespace ActionHandlerServiceTests
         [TestMethod]
         public void ConfigHelper_ReturnsDefault_WhenGettingServiceName()
         {
-            var configValue = _configHelper.ServiceName;
-            const string defaultValue = ConfigHelper.ServiceNameDefault;
+            var configValue = _extendedConfigHelper.ServiceName;
+            const string defaultValue = ExtendedConfigHelper.ServiceNameDefault;
             Assert.AreEqual(defaultValue, configValue);
         }
 
@@ -80,7 +83,7 @@ namespace ActionHandlerServiceTests
         [ExpectedException(typeof(InvalidConnectionStringException))]
         public void ConfigHelper_ThrowsException_WhenGettingMessageBrokerForEmptyConnectionString()
         {
-            var configValue = _configHelper.MessageBroker;
+            var configValue = _configHelper.GetMessageBroker();
             Assert.IsTrue(configValue != MessageBroker.SQL);
         }
 

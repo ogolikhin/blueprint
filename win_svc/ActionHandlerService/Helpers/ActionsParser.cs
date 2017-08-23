@@ -2,22 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using ActionHandlerService.Models;
+using ArtifactStore.Helpers;
 using BluePrintSys.Messaging.CrossCutting.Logging;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Workflow;
+using BluePrintSys.Messaging.CrossCutting.Models;
 
 namespace ActionHandlerService.Helpers
 {
     public interface IActionsParser
     {
-        List<NotificationAction> GetNotificationActions(IEnumerable<SqlWorkflowEvent> sqlArtifactTriggers);
+        List<EmailNotificationAction> GetNotificationActions(IEnumerable<SqlWorkflowEvent> sqlArtifactTriggers);
     }
 
     public class ActionsParser : IActionsParser
     {
-        public List<NotificationAction> GetNotificationActions(IEnumerable<SqlWorkflowEvent> sqlArtifactTriggers)
+        public List<EmailNotificationAction> GetNotificationActions(IEnumerable<SqlWorkflowEvent> sqlArtifactTriggers)
         {
-            var notifications = new List<NotificationAction>();
+            var notifications = new List<EmailNotificationAction>();
             foreach (var workflowEvent in sqlArtifactTriggers)
             {
                 var triggersXml = workflowEvent.Triggers;
@@ -51,26 +53,16 @@ namespace ActionHandlerService.Helpers
                     {
                         condition = (XmlStateCondition) trigger.Condition;
                     }
-                    notifications.Add(
-                        new NotificationAction
-                        {
-                            ToEmails = action.Emails,
-                            ConditionalStateId = condition?.StateId,
-                            PropertyTypeId = workflowEvent.EventPropertyTypeId ?? 0
-                        });
+                    var emailNotification = new EmailNotificationAction
+                    {
+                        ConditionalStateId = condition?.StateId,
+                        PropertyTypeId = workflowEvent.EventPropertyTypeId ?? 0
+                    };
+                    emailNotification.Emails.AddRange(action.Emails);
+                    notifications.Add(emailNotification);
                 }
             }
             return notifications;
         }
-    }
-
-    public class NotificationAction
-    {
-        public IEnumerable<string> ToEmails { get; set; }
-        public int? ConditionalStateId { get; set; }
-        public int PropertyTypeId { get; set; }
-        public string FromDisplayName => string.Empty;
-        public string Subject => "Artifact has been updated.";
-        public string MessageTemplate => "You are being notified because of an update to the following artifact:";
     }
 }

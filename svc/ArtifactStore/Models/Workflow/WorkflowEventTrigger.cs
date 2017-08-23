@@ -1,4 +1,4 @@
-﻿using ArtifactStore.Models.Workflow.Actions;
+﻿using BluePrintSys.Messaging.CrossCutting.Models;
 using ServiceLibrary.Models.Enums;
 
 namespace ArtifactStore.Models.Workflow
@@ -11,7 +11,7 @@ namespace ArtifactStore.Models.Workflow
 
         public WorkflowEventCondition Condition { get; set; }
 
-        public WorkflowActionType ActionType
+        public MessageActionType ActionType
         {
             get
             {
@@ -19,7 +19,7 @@ namespace ArtifactStore.Models.Workflow
                 {
                     return Action.ActionType;
                 }
-                return WorkflowActionType.None;
+                return MessageActionType.None;
             }
         } 
     }

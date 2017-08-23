@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using ArtifactStore.Models;
@@ -29,6 +30,7 @@ namespace ArtifactStore.Services
         private Mock<IVersionControlService> _versionControlServiceMock;
         private Mock<IReuseRepository> _reuseRepository;
         private Mock<ISaveArtifactRepository> _saveArtifactRepositoryMock;
+        private Mock<IApplicationSettingsRepository> _applicationSettingsRepositoryMock;
 
         [TestInitialize]
         public void TestInitialize()
@@ -40,13 +42,16 @@ namespace ArtifactStore.Services
             _versionControlServiceMock = new Mock<IVersionControlService>();
             _reuseRepository = new Mock<IReuseRepository>(MockBehavior.Loose);
             _saveArtifactRepositoryMock = new Mock<ISaveArtifactRepository>(MockBehavior.Loose);
+            _applicationSettingsRepositoryMock = new Mock<IApplicationSettingsRepository>(MockBehavior.Loose);
+
             _workflowServiceMock = new WorkflowService(_workflowRepositoryMock.Object, 
                 _artifactVersionsRepositoryMock.Object, 
                 _itemInfoRepositoryMock.Object, 
                 _sqlHelperMock,
                 _versionControlServiceMock.Object,
                 _reuseRepository.Object,
-                _saveArtifactRepositoryMock.Object);
+                _saveArtifactRepositoryMock.Object,
+                _applicationSettingsRepositoryMock.Object);
         }
 
         [TestMethod]
@@ -188,6 +193,11 @@ namespace ArtifactStore.Services
                 .ReturnsAsync(false);
             _artifactVersionsRepositoryMock.Setup(t => t.GetVersionControlArtifactInfoAsync(itemId, null, 1))
                 .ReturnsAsync(vcArtifactInfo);
+            _applicationSettingsRepositoryMock.Setup(t => t.GetTenantInfo()).ReturnsAsync(new TenantInfo()
+            {
+                TenantId = Guid.NewGuid().ToString()
+            });
+
             var wfStateChangeParam = new WorkflowStateChangeParameter
             {
                 CurrentVersionId = 10,

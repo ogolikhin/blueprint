@@ -10,14 +10,17 @@ using ActionHandlerService.MessageHandlers.Notifications;
 using ActionHandlerService.MessageHandlers.PropertyChange;
 using ActionHandlerService.MessageHandlers.StateTransition;
 using ActionHandlerService.Models;
-using ActionHandlerService.Models.Exceptions;
 using ActionHandlerService.Repositories;
+using BluePrintSys.Messaging.CrossCutting.Configuration;
+using BluePrintSys.Messaging.CrossCutting.Host;
+using BluePrintSys.Messaging.CrossCutting.Models.Exceptions;
 using BluePrintSys.Messaging.Models.Actions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Moq.Language.Flow;
 using NServiceBus;
 using NServiceBus.Testing;
+using ServiceLibrary.Models.Enums;
 
 namespace ActionHandlerServiceTests
 {
@@ -50,6 +53,7 @@ namespace ActionHandlerServiceTests
             Test.Handler(handler).SetIncomingHeader(ActionMessageHeaders.TenantId, tenantId).SetIncomingHeader(Headers.MessageId, "0").SetIncomingHeader(Headers.TimeSent, "0").OnMessage(message);
         }
 
+        [Serializable]
         public class TestException : Exception
         {
             public TestException(string message = "An exception used for testing the Action Handler Service") : base(message)

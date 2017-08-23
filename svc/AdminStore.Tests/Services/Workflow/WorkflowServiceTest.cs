@@ -11,6 +11,7 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ProjectMeta;
 using AdminStore.Models;
+using System;
 
 namespace AdminStore.Services
 {
@@ -236,7 +237,52 @@ namespace AdminStore.Services
             Assert.AreEqual(2, workflowExport.Projects.Count);
             Assert.AreEqual(1, workflowExport.States.Count);
         }
-        
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException), "Workflow doesn't exist.")]
+        public async Task GetWorkflowExportAsync_WorkflowDetailsError()
+        {
+            //arrange
+            var workflowId = 10;
+            SqlWorkflow workflow = null;
+            
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(workflow);
+            
+            //act
+            var workflowExport = await _service.GetWorkflowExportAsync(workflowId);
+
+        }
+
+        [TestMethod]
+        public async Task GetWorkflowExportAsync_EmptyWorkflow()
+        {
+            //arrange
+            var workflowId = 10;
+            var workflow = new SqlWorkflow();
+            var artifactTypes = new List<SqlWorkflowArtifactTypes>();
+            var states = new List<SqlState>();
+            var users = new QueryResult<UserDto>();
+            var events = new List<SqlWorkflowEventData>();
+
+            _userRepositoryMock.Setup(repo => repo.GetUsersAsync(It.IsAny<Pagination>(), null, null, null)).ReturnsAsync(users);
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(workflow);
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowArtifactTypesAsync(It.IsAny<int>())).ReturnsAsync(artifactTypes);
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowStatesAsync(It.IsAny<int>())).ReturnsAsync(states);
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowEventsAsync(It.IsAny<int>())).ReturnsAsync(events);
+
+
+            //act
+            var workflowExport = await _service.GetWorkflowExportAsync(workflowId);
+
+            //assert
+            Assert.IsNotNull(workflowExport);
+            Assert.IsFalse(workflowExport.IsActive);
+            Assert.IsTrue(workflowExport.Projects.Count == 0);
+            Assert.IsTrue(workflowExport.States.Count == 0);
+            Assert.IsTrue(workflowExport.TransitionEvents.Count == 0);
+            Assert.IsTrue(workflowExport.PropertyChangeEvents.Count == 0);
+            Assert.IsTrue(workflowExport.NewArtifactEvents.Count == 0);
+        }
         #endregion
     }
 }

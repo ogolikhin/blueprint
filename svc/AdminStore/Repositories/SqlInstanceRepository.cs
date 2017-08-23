@@ -1,4 +1,7 @@
-﻿using AdminStore.Models;
+﻿using AdminStore.Helpers;
+using AdminStore.Models;
+using AdminStore.Models.DTO;
+using AdminStore.Models.Enums;
 using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
@@ -9,9 +12,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using AdminStore.Helpers;
-using AdminStore.Models.DTO;
-using AdminStore.Models.Enums;
 
 namespace AdminStore.Repositories
 {
@@ -171,20 +171,22 @@ namespace AdminStore.Repositories
             return folderId;
         }
 
-        public async Task<IEnumerable<FolderDto>> GetFoldersByName(string name)
+        public async Task<IEnumerable<InstanceItem>> GetFoldersByName(string name)
         {
             if (!string.IsNullOrWhiteSpace(name))
             {
                 name = UsersHelper.ReplaceWildcardCharacters(name);
             }
+
             var parameters = new DynamicParameters();
             parameters.Add("@name", name);
 
-            var result =
-                await
-                    _connectionWrapper.QueryAsync<FolderDto>("GetFoldersByName", parameters,
-                        commandType: CommandType.StoredProcedure);
-            return result;
+            return await _connectionWrapper.QueryAsync<InstanceItem>
+            (
+                "GetFoldersByName", 
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
         }
 
         public async Task<int> DeleteInstanceFolderAsync(int instanceFolderId)
@@ -371,6 +373,67 @@ namespace AdminStore.Repositories
             return queryDataResult;
         }
 
+        public async Task<IEnumerable<ProjectRole>> GetProjectRolesAsync(int projectId)
+        {
+            if (projectId < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(projectId));
+            }
+
+            var prm = new DynamicParameters();
+            prm.Add("@projectId", projectId);
+            prm.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var result = (await _connectionWrapper.QueryAsync<ProjectRole>("GetProjectRoles", prm, commandType: CommandType.StoredProcedure)).ToList();
+
+            var errorCode = prm.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.RolesForProjectNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.RolesForProjectNotExist, ErrorCodes.ResourceNotFound);
+
+                }
+            }
+
+            return result;
+        }
+
+        public async Task<int> DeleteRoleAssignmentsAsync(int projectId, OperationScope scope, string search)
+        {
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                search = UsersHelper.ReplaceWildcardCharacters(search);
+            }
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@ProjectId", projectId);
+            parameters.Add("@RoleAssignmentIds", SqlConnectionWrapper.ToDataTable(scope.Ids));
+            parameters.Add("@Search", search);
+            parameters.Add("@SelectAll", scope.SelectAll);
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var result = await _connectionWrapper.ExecuteScalarAsync<int>("DeleteProjectRoleAssigments", parameters,
+                commandType: CommandType.StoredProcedure);
+
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.ProjectWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.ProjectNotExist, ErrorCodes.ResourceNotFound);
+                }
+            }
+
+            return result;
+        }
+
+        #region private methods
+
         public async Task<QueryResult<ProjectFolderSearchDto>> GetProjectsAndFolders(int userId, TabularData tabularData, Func<Sorting, string> sort = null)
         {
             var orderField = string.Empty;
@@ -411,7 +474,7 @@ namespace AdminStore.Repositories
         /// <param name="projectStatus">If the project exists it returns ProjectStatus as output If the Project does not exists projectstatus = null</param>
         /// <returns>Returns true if project exists in the database and not marked as deleted for that specific revision</returns>
         private bool TryGetProjectStatusIfProjectExist(InstanceItem project, out ProjectStatus? projectStatus)
-        {                        
+        {
             if (project == null)
             {
                 projectStatus = null;
@@ -448,33 +511,6 @@ namespace AdminStore.Repositories
             }
         }
 
-        public async Task<IEnumerable<ProjectRole>> GetProjectRolesAsync(int projectId)
-        {
-            if (projectId < 1)
-            {
-                throw new ArgumentOutOfRangeException(nameof(projectId));
+        #endregion
             }
-
-            var prm = new DynamicParameters();
-            prm.Add("@projectId", projectId);
-            prm.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-
-            var result = (await _connectionWrapper.QueryAsync<ProjectRole>("GetProjectRoles", prm, commandType: CommandType.StoredProcedure)).ToList();
-
-            var errorCode = prm.Get<int?>("ErrorCode");
-
-            if (errorCode.HasValue)
-            {
-                switch (errorCode.Value)
-                {
-                    case (int)SqlErrorCodes.RolesForProjectNotExist:
-                        throw new ResourceNotFoundException(ErrorMessages.RolesForProjectNotExist, ErrorCodes.ResourceNotFound);
-
-                }
-            }
-
-            return result;
-        }
-
-    }
 }

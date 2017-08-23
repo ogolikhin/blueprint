@@ -29,7 +29,7 @@ namespace AdminStore.Helpers
 
             if (folder.Id == folder.ParentFolderId.Value)
             {
-                throw new BadRequestException(ErrorMessages.FolderReferenceToItself, ErrorCodes.BadRequest);
+                throw new ConflictException(ErrorMessages.FolderReferenceToItself, ErrorCodes.Conflict);
             }
         }
     }

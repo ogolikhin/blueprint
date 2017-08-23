@@ -36,6 +36,14 @@ namespace AdminStore.Controllers
             return _emailSettingsService.GetEmailSettingsAsync(Session.UserId);
         }
 
+        [Route("")]
+        [HttpPut, SessionRequired]
+        [ActionName("UpdateEmailSettings")]
+        public Task UpdateEmailSettingsAsync([FromBody] EmailSettingsDto emailSettingsDto)
+        {
+            return _emailSettingsService.UpdateEmailSettingsAsync(Session.UserId, emailSettingsDto);
+        }
+
         [Route("sendtestemail")]
         [HttpPost, SessionRequired]
         [ActionName("SendTestEmail")]

@@ -1,5 +1,4 @@
 ﻿using AdminStore.Helpers;
-using AdminStore.Repositories.Jobs;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
 using ServiceLibrary.Helpers;
@@ -15,6 +14,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using ServiceLibrary.Repositories.Jobs;
 
 namespace AdminStore.Controllers
 {

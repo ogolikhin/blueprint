@@ -298,6 +298,10 @@ namespace ArtifactStore.Executors
             //Arrange
             _artifactVersionsRepository.Setup(t => t.IsItemDeleted(ArtifactId))
                 .ReturnsAsync(false);
+            _applicationSettingsRepositoryMock.Setup(t => t.GetTenantInfo()).ReturnsAsync(new TenantInfo()
+            {
+                TenantId = Guid.NewGuid().ToString()
+            });
 
             var vcArtifactInfo = new VersionControlArtifactInfo
             {
@@ -355,6 +359,10 @@ namespace ArtifactStore.Executors
             //Arrange
             _artifactVersionsRepository.Setup(t => t.IsItemDeleted(ArtifactId))
                 .ReturnsAsync(false);
+            _applicationSettingsRepositoryMock.Setup(t => t.GetTenantInfo()).ReturnsAsync(new TenantInfo()
+            {
+                TenantId = Guid.NewGuid().ToString()
+            });
 
             var vcArtifactInfo = new VersionControlArtifactInfo
             {

@@ -25,6 +25,7 @@ namespace ActionHandlerService.Repositories
 
         public void SendEmail(SMTPClientConfiguration smtpClientConfiguration, Message emailMessage)
         {
+            MailBee.Global.LicenseKey = "MN800-02CA3564CA2ACAAECAB17D4ADEC9-145F";
             new SmtpClient(smtpClientConfiguration).SendEmail(emailMessage);
         }
     }

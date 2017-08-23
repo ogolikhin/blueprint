@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ServiceLibrary.Models;
+﻿using ServiceLibrary.Models;
 
 namespace AdminStore.Models.Emails
 {
@@ -32,8 +27,8 @@ namespace AdminStore.Models.Emails
             Port = outgoingSettings.Port;
             EnableSSL = outgoingSettings.EnableSsl;
             Authenticated = outgoingSettings.AuthenticatedSmtp;
-            UserName = outgoingSettings.AuthenticatedSmtpUsername;
-            Password = outgoingSettings.AuthenticatedSmtpPassword;
+            UserName = outgoingSettings.AccountUsername;
+            Password = outgoingSettings.AccountPassword;
         }
     }
 }

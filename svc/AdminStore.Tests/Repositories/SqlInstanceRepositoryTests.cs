@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Models.DTO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -10,12 +11,38 @@ using ServiceLibrary.Repositories;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
 
 namespace AdminStore.Repositories
 {
     [TestClass]
     public class SqlInstanceRepositoryTests
     {
+
+        private SqlConnectionWrapperMock _connection;
+        private SqlInstanceRepository _instanceRepository;
+        private const int ProjectId = 1;
+        private IEnumerable<RolesAssignments> _projectRolesAssignments;
+        private TabularData _tabularData;
+
+        [TestInitialize]
+        public void Initialize()
+        {
+            _connection = new SqlConnectionWrapperMock();
+            _instanceRepository = new SqlInstanceRepository(_connection.Object);
+
+            _projectRolesAssignments = new List<RolesAssignments>
+            {
+                new RolesAssignments {Id = 1, RoleName = "Role1", GroupName = "Group1"}
+            };
+
+            _tabularData = new TabularData
+            {
+                Pagination = new Pagination { Limit = 10, Offset = 0 },
+                Sorting = new Sorting { Order = SortOrder.Asc, Sort = "groupName" }
+            };
+        }
+
         [TestMethod]
         public async Task GetInstanceFolderAsync_Found()
         {
@@ -881,68 +908,49 @@ namespace AdminStore.Repositories
 
         #endregion
 
-        #region Project Groups
 
-        /*[TestMethod]
-        public async Task GetProjectGroupsAsync_GroupsFound_NoErrors()
+        #region GetProjectRoleAssignmentsAsync
+
+        [TestMethod]
+        public async Task GetProjectRoleAssignmentsAsync_ProjectRolesAssignmentsFound_SuccessfulResult()
         {
             // Arrange
-            var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
-            var projectId = 100;
-            int errorCode = 0;
+            var errorCode = 0;
 
-            GroupDto[] projectGroups =
-            {
-                 new GroupDto()
-                {
-                    Name = "Group1"
-                },
-                new GroupDto()
-                {
-                    Name = "Group2"
-                },
-                new GroupDto()
-                {
-                    Name = "Group3"
-                }
-            };
-
-            cxn.SetupQueryAsync("GetAvailableGroupsForProject",
-                                        new Dictionary<string, object> { { "projectId", projectId } },
-                                        projectGroups,
+            _connection.SetupQueryAsync("GetProjectRoleAssignments",
+                                        It.IsAny<Dictionary<string, object>>(),
+                                        _projectRolesAssignments,
                                         new Dictionary<string, object>() { { "ErrorCode", errorCode } });
 
             // Act
-            await repository.GetProjectGroupsAsync(projectId);
+            var projectRolesAssignmentsResult = await
+                _instanceRepository.GetProjectRoleAssignmentsAsync(ProjectId, _tabularData,
+                    SortingHelper.SortProjectRolesAssignments);
 
             // Assert
-            cxn.Verify();
+            Assert.IsNotNull(projectRolesAssignmentsResult);
+            Assert.AreEqual(projectRolesAssignmentsResult.Items, _projectRolesAssignments);
         }
-
 
         [TestMethod]
         [ExpectedException(typeof(ResourceNotFoundException))]
-        public async Task GetProjectGroupsAsync_GroupsNotFound_NotFoundError()
+        public async Task GetProjectRoleAssignmentsAsync_ProjectNotFound_NotFoundError()
         {
             // Arrange
-            var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
-            var projectId = 1;
-            int errorCode = 50021; // there are no roles for this projectId
+            var errorCode = SqlErrorCodes.ProjectWithCurrentIdNotExist;
 
-            GroupDto[] projectGroups = { };
-
-            cxn.SetupQueryAsync("GetAvailableGroupsForProject",
-                                        new Dictionary<string, object> { { "projectId", projectId } },
-                                        projectGroups,
-                                        new Dictionary<string, object>() { { "ErrorCode", errorCode } });
+            _connection.SetupQueryAsync("GetProjectRoleAssignments",
+                                        It.IsAny<Dictionary<string, object>>(),
+                                        _projectRolesAssignments,
+                                        new Dictionary<string, object>() { { "ErrorCode", (int)errorCode } });
 
             // Act
-            await repository.GetProjectGroupsAsync(projectId);
-        }*/
+            await
+                _instanceRepository.GetProjectRoleAssignmentsAsync(ProjectId, _tabularData,
+                    SortingHelper.SortProjectRolesAssignments);
 
+            // Exception
+        }
         #endregion
-
     }
 }

@@ -3,6 +3,7 @@ using AdminStore.Helpers;
 using AdminStore.Models.Emails;
 using AdminStore.Repositories;
 using AdminStore.Models;
+using AdminStore.Services.Email;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Helpers.Security;
@@ -19,22 +20,36 @@ namespace AdminStore.Services.Instance
         private readonly IEmailHelper _emailHelper;
         private readonly IWebsiteAddressService _websiteAddressService;
         private readonly IInstanceSettingsRepository _instanceSettingsRepository;
+        private readonly IIncomingEmailService _incomingEmailService;
+
+        private const string TestEmailSubject = "Blueprint Test Email";
 
         public EmailSettingsService() : this(new PrivilegesManager(new SqlPrivilegesRepository()),
                                              new SqlUserRepository(),
                                              new EmailHelper(),
                                              new WebsiteAddressService(),
-                                             new SqlInstanceSettingsRepository())
+                                             new SqlInstanceSettingsRepository(),
+                                             new IncomingEmailService())
         {
         }
 
-        public EmailSettingsService(PrivilegesManager privilegesManager, IUserRepository userRepository, IEmailHelper emailHelper, IWebsiteAddressService websiteAddressService, IInstanceSettingsRepository instanceSettingsRepository)
+        public EmailSettingsService(PrivilegesManager privilegesManager, IUserRepository userRepository, IEmailHelper emailHelper, IWebsiteAddressService websiteAddressService, IInstanceSettingsRepository instanceSettingsRepository, IIncomingEmailService incomingEmailService)
         {
             _privilegesManager = privilegesManager;
             _userRepository = userRepository;
             _emailHelper = emailHelper;
             _websiteAddressService = websiteAddressService;
             _instanceSettingsRepository = instanceSettingsRepository;
+            _incomingEmailService = incomingEmailService;
+        }
+
+        public async Task<EmailSettingsDto> GetEmailSettingsAsync(int userId)
+        {
+            await _privilegesManager.Demand(userId, InstanceAdminPrivileges.ViewInstanceSettings);
+
+            EmailSettings settings = await _instanceSettingsRepository.GetEmailSettings();
+
+            return (EmailSettingsDto) settings;
         }
 
         public async Task SendTestEmailAsync(int userId, EmailOutgoingSettings outgoingSettings)
@@ -54,13 +69,16 @@ namespace AdminStore.Services.Instance
 
             _emailHelper.Initialize(config);
 
-            //TODO: Body and Subject need to be localized, this is temporary
-            string blueprintUrl = "http://www.blueprintsys.net/";
+            string body = EmailTemplateHelper.GetSendTestEmailTemplate(_websiteAddressService.GetWebsiteAddress());
 
-            string body = $"A test email was requested from the Blueprint Instance Administration Console.<br/><br/>This email was sent to you as a registered <a href='{blueprintUrl}'>{blueprintUrl}</a> user from {_websiteAddressService.GetWebsiteAddress()}";
-            string subject = "Blueprint Test Email";
-
-            _emailHelper.SendEmail(currentUser.Email, subject, body);
+            try
+            {
+                _emailHelper.SendEmail(currentUser.Email, TestEmailSubject, body);
+            }
+            catch (EmailException ex)
+            {
+                throw new BadRequestException(ex.Message, ex.ErrorCode);
+            }
         }
 
         private async Task<IEmailConfigInstanceSettings> GetEmailConfigAsync(EmailOutgoingSettings outgoingSettings, User currentUser)
@@ -86,26 +104,82 @@ namespace AdminStore.Services.Instance
         {
             if (string.IsNullOrWhiteSpace(outgoingSettings.ServerAddress))
             {
-                throw new BadRequestException("Please enter a mail server.", ErrorCodes.EmptyMailServer);
+                throw new BadRequestException("Please enter a mail server.", ErrorCodes.OutgoingEmptyMailServer);
             }
 
             if (outgoingSettings.Port < 1 || outgoingSettings.Port > 65535)
             {
-                throw new BadRequestException("Ensure the port number is between 1 and 65535.", ErrorCodes.PortOutOfRange);
+                throw new BadRequestException("Ensure the port number is between 1 and 65535.", ErrorCodes.OutgoingPortOutOfRange);
             }
 
             if (outgoingSettings.AuthenticatedSmtp)
             {
-                if (string.IsNullOrWhiteSpace(outgoingSettings.AuthenticatedSmtpUsername))
+                if (string.IsNullOrWhiteSpace(outgoingSettings.AccountUsername))
                 {
                     throw new BadRequestException("Please enter the SMTP administrator username.", ErrorCodes.EmptySmtpAdministratorUsername);
                 }
 
-                if (string.IsNullOrWhiteSpace(outgoingSettings.AuthenticatedSmtpPassword))
+                if (string.IsNullOrWhiteSpace(outgoingSettings.AccountPassword))
                 {
                     throw new BadRequestException("Please enter the SMTP administrator password.", ErrorCodes.EmptySmtpAdministratorPassword);
                 }
             }
+        }
+
+        public async Task TestIncomingEmailConnectionAsync(int userId, EmailIncomingSettings incomingSettings)
+        {
+            await _privilegesManager.Demand(userId, InstanceAdminPrivileges.ManageInstanceSettings);
+
+            VerifyIncomingSettings(incomingSettings);
+
+            var emailClientConfig = await GetEmailClientConfig(incomingSettings);
+
+            _incomingEmailService.TryConnect(emailClientConfig);
+        }
+
+        private void VerifyIncomingSettings(EmailIncomingSettings incomingSettings)
+        {
+            if (string.IsNullOrWhiteSpace(incomingSettings.ServerAddress))
+            {
+                throw new BadRequestException("Please enter a mail server.", ErrorCodes.IncomingEmptyMailServer);
+            }
+
+            if (incomingSettings.Port < 1 || incomingSettings.Port > 65535)
+            {
+                throw new BadRequestException("Ensure the port number is between 1 and 65535.", ErrorCodes.IncomingPortOutOfRange);
+            }
+
+            if (string.IsNullOrWhiteSpace(incomingSettings.AccountUsername))
+            {
+                throw new BadRequestException("Please enter the system email account username.", ErrorCodes.EmptyEmailUsername);
+            }
+
+            if (string.IsNullOrWhiteSpace(incomingSettings.AccountPassword))
+            {
+                throw new BadRequestException("Please enter the system email account username.", ErrorCodes.EmptyEmailPassword);
+            }
+        }
+
+        private async Task<EmailClientConfig> GetEmailClientConfig(EmailIncomingSettings incomingSettings)
+        {
+            var emailClientConfig = new EmailClientConfig()
+            {
+                ServerAddress = incomingSettings.ServerAddress,
+                Port = incomingSettings.Port,
+                ClientType = incomingSettings.ServerType,
+                AccountUsername = incomingSettings.AccountUsername,
+                AccountPassword = incomingSettings.AccountPassword,
+                EnableSsl = incomingSettings.EnableSsl
+            };
+
+            if (!incomingSettings.IsPasswordDirty)
+            {
+                var emailSettings = await _instanceSettingsRepository.GetEmailSettings();
+
+                emailClientConfig.AccountPassword = SystemEncryptions.DecryptFromSilverlight(emailSettings.IncomingPassword);
+            }
+
+            return emailClientConfig;
         }
     }
 }

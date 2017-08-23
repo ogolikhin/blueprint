@@ -332,6 +332,45 @@ namespace AdminStore.Repositories
             }
         }
 
+
+        public async Task<QueryResult<RolesAssignments>> GetProjectRoleAssignmentsAsync(int projectId, TabularData tabularData, Func<Sorting, string> sort = null)
+        {
+            var orderField = string.Empty;
+            if (sort != null && tabularData.Sorting != null)
+            {
+                orderField = sort(tabularData.Sorting);
+            }
+
+            if (!string.IsNullOrWhiteSpace(tabularData.Search))
+            {
+                tabularData.Search = UsersHelper.ReplaceWildcardCharacters(tabularData.Search);
+            }
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@projectId", projectId);
+            parameters.Add("@Offset", tabularData.Pagination.Offset);
+            parameters.Add("@Limit", tabularData.Pagination.Limit);
+            parameters.Add("@OrderField", orderField);
+            parameters.Add("@Search", tabularData.Search);
+            parameters.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var rolesAssigments = await _connectionWrapper.QueryAsync<RolesAssignments>("GetProjectRoleAssignments", parameters, commandType: CommandType.StoredProcedure);
+
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue && errorCode.Value == (int)SqlErrorCodes.ProjectWithCurrentIdNotExist)
+            {
+                throw new ResourceNotFoundException(ErrorMessages.ProjectNotExist, ErrorCodes.ResourceNotFound);
+            }
+
+            var total = parameters.Get<int?>("Total");
+
+            var queryDataResult = new QueryResult<RolesAssignments> { Items = rolesAssigments, Total = total ?? 0 };
+
+            return queryDataResult;
+        }
+
         /// <summary>
         ///  This method takes the projectId and checks if the project is still exist in the database and not marked as deleted
         /// </summary>
@@ -404,53 +443,6 @@ namespace AdminStore.Repositories
             return result;
         }
 
-        public async Task<QueryResult<GroupDto>> GetProjectGroupsAsync(int projectId, TabularData tabularData, Func<Sorting, string> sort = null)
-        {
-            var orderField = string.Empty;
-            if (sort != null && tabularData.Sorting != null)
-            {
-                orderField = sort(tabularData.Sorting);
-            }
-
-            if (!string.IsNullOrWhiteSpace(tabularData.Search))
-            {
-                tabularData.Search = UsersHelper.ReplaceWildcardCharacters(tabularData.Search);
-            }
-
-            if (projectId < 1)
-            {
-                throw new ArgumentOutOfRangeException(nameof(projectId));
-            }
-
-            var prm = new DynamicParameters();
-            prm.Add("@projectId", projectId);
-            prm.Add("@Offset", tabularData.Pagination.Offset);
-            prm.Add("@Limit", tabularData.Pagination.Limit);
-            prm.Add("@OrderField", orderField);
-            prm.Add("@Search", tabularData.Search);
-            prm.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            prm.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-
-            var result = (await _connectionWrapper.QueryAsync<GroupDto>("GetAvailableGroupsForProject", prm, commandType: CommandType.StoredProcedure)).ToList();
-
-            var errorCode = prm.Get<int?>("ErrorCode");
-
-            if (errorCode.HasValue)
-            {
-                switch (errorCode.Value)
-                {
-                    case (int)SqlErrorCodes.GroupsForProjectNotExist:
-                        throw new ResourceNotFoundException(ErrorMessages.GroupsForProjectMissing, ErrorCodes.ResourceNotFound);
-
-                }
-            }
-
-            var total = prm.Get<int?>("Total");
-
-            var queryDataResult = new QueryResult<GroupDto> { Items = result, Total = total ?? 0 };
-
-            return queryDataResult;
-        }
 
     }
 }

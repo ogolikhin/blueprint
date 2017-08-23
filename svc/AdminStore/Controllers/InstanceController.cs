@@ -173,28 +173,7 @@ namespace AdminStore.Controllers
             return result;
         }
 
-        /// <summary>
-        /// Get the list of instance administrators roles in the instance  
-        /// </summary>
-        /// <remarks>
-        /// Returns the list of instance administrators roles.
-        /// </remarks>
-        /// <returns code="200">OK list of AdminRole models</returns>
-        /// <returns code="400">BadRequest if errors occurred</returns>
-        /// <returns code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</returns>
-        /// <returns code="403">Forbidden if used doesn’t have permissions to get the list of instance administrators roles</returns>
-        [SessionRequired]
-        [Route("roles")]
-        [ResponseType(typeof(IEnumerable<AdminRole>))]
-        public async Task<IHttpActionResult> GetInstanceRoles()
-        {
-            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewUsers);
-
-            var result = await _instanceRepository.GetInstanceRolesAsync();
-
-            return Ok(result);
-        }
-
+     
         #region folders
 
         /// <summary>
@@ -377,8 +356,30 @@ namespace AdminStore.Controllers
 
         #endregion
 
-
         #region roles
+
+        /// <summary>
+        /// Get the list of instance administrators roles in the instance  
+        /// </summary>
+        /// <remarks>
+        /// Returns the list of instance administrators roles.
+        /// </remarks>
+        /// <returns code="200">OK list of AdminRole models</returns>
+        /// <returns code="400">BadRequest if errors occurred</returns>
+        /// <returns code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</returns>
+        /// <returns code="403">Forbidden if used doesn’t have permissions to get the list of instance administrators roles</returns>
+        [SessionRequired]
+        [Route("roles")]
+        [ResponseType(typeof(IEnumerable<AdminRole>))]
+        public async Task<IHttpActionResult> GetInstanceRoles()
+        {
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewUsers);
+
+            var result = await _instanceRepository.GetInstanceRolesAsync();
+
+            return Ok(result);
+        }
+
         /// <summary>
         /// Get roles for project
         /// </summary>
@@ -401,22 +402,51 @@ namespace AdminStore.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// The method returns all roles assignments for the specified project.
+        /// </summary>
+        /// <param name="projectId">Project's identity</param>
+        /// <param name="pagination">Pagination parameters</param>
+        /// <param name="sorting">Sorting parameters</param>
+        /// <param name="search">The parameter for searching by group name.</param>
+        /// <response code="200">OK. The list of roles assignments for the project.</response>
+        /// <response code="400">BadRequest. Parameters are invalid. </response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. if user doesn’t have permissions to get roles assignments for the project.</response>
+        /// <response code="404">NotFound. The project with the current id does not exist.</response>
+        [Route("projects/{projectId:int:min(1)}/rolesassignments")]
+        [SessionRequired]
+        [ResponseType(typeof(QueryResult<RolesAssignments>))]
+        public async Task<IHttpActionResult> GetProjectRoleAssignments(int projectId, [FromUri]Pagination pagination, [FromUri]Sorting sorting, string search = null)
+        {
+            pagination.Validate();
+
+            await
+                _privilegesManager.DemandAny(Session.UserId, projectId, InstanceAdminPrivileges.AccessAllProjectsAdmin,
+                    ProjectAdminPrivileges.ViewGroupsAndRoles);
+
+            var tabularData = new TabularData { Pagination = pagination, Sorting = sorting, Search = search };
+            var result = await _instanceRepository.GetProjectRoleAssignmentsAsync(projectId, tabularData, SortingHelper.SortProjectRolesAssignments);
+
+            return Ok(result);
+        }
+
         #endregion
 
         #region groups
 
-        /// <summary>
+        /*/// <summary>
         /// Get the list of groups for the project  
         /// </summary>
         /// <remarks>
-        /// Returns the list of instance administrators roles.
+        /// Get the list of groups for the project
         /// </remarks>
         /// <response code="200">OK list groups returned</response>
         /// <response code="400">BadRequest if errors occurred</response>
         /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
         /// <response code="403">Forbidden if used doesn’t have permissions to get the list of instance administrators roles</response>
-        /// <response code="404">NotFound. If groups with projectId don’t exists or removed from the system.</response>
-        [HttpGet, NoCache]
+        /// <response code="404">NotFound. If groups with projectId don’t exists or removed from the system.</response>*/
+        /*[HttpGet, NoCache]
         [Route("groups/{projectId:int:min(1)}/available"), SessionRequired]
         [ResponseType(typeof(QueryResult<GroupDto>))]
         public async Task<IHttpActionResult> GetProjectGroupsAsync(int projectId, [FromUri]Pagination pagination, [FromUri]Sorting sorting, string search = null)
@@ -427,10 +457,10 @@ namespace AdminStore.Controllers
                     ProjectAdminPrivileges.ViewGroupsAndRoles);
 
             var tabularData = new TabularData { Pagination = pagination, Sorting = sorting, Search = search };
-            var result = await _instanceRepository.GetProjectGroupsAsync(projectId, tabularData, /*SortingHelper.SortProjectRolesAssignments*/null);
+            var result = await _instanceRepository.GetProjectGroupsAsync(projectId, tabularData, SortingHelper.SortProjectGroups);
 
             return Ok(result);
-        }
+        }*/
 
         #endregion
 

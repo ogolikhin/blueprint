@@ -14,6 +14,7 @@ using Moq;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
 
@@ -33,6 +34,9 @@ namespace AdminStore.Controllers
         private InstanceController _controller;
         private FolderDto _folder;
         private ProjectDto _project;
+        private Pagination _pagination;
+        private Sorting _sorting;
+        private QueryResult<RolesAssignments> _rolesAssignmentsQueryResult;
 
         [TestInitialize]
         public void Initialize()
@@ -62,6 +66,28 @@ namespace AdminStore.Controllers
 
             _folder = new FolderDto { Name = "Folder1", ParentFolderId = 2 };
             _project = new ProjectDto {Name = "Project1", Description = "Project1Description", ParentFolderId = 1};
+            _pagination = new Pagination() { Limit = 1, Offset = 0 };
+            _sorting = new Sorting() { Order = SortOrder.Asc, Sort = "Name" };
+
+            var projectRolesAssignments = new List<RolesAssignments>
+            {
+               new RolesAssignments
+               {
+                   GroupName = "GroupName",
+                   Id = 1,
+                   RoleName = "RoleName"
+               }
+            };
+
+            _rolesAssignmentsQueryResult = new QueryResult<RolesAssignments>
+            {
+                Items = projectRolesAssignments,
+                Total = 1
+            };
+
+            _instanceRepositoryMock
+                .Setup(repo => repo.GetProjectRoleAssignmentsAsync(It.IsAny<int>(), It.IsAny<TabularData>(), It.IsAny<Func<Sorting, string>>()))
+                .ReturnsAsync(_rolesAssignmentsQueryResult);
         }
 
         [TestMethod]
@@ -645,7 +671,6 @@ namespace AdminStore.Controllers
 
         #endregion
 
-
         #region Project roles
 
         [TestMethod]
@@ -750,81 +775,66 @@ namespace AdminStore.Controllers
 
         #endregion
 
-        #region Project Groups
 
-        /*[TestMethod]
-        public async Task GetProjectGroupsAsync_Suttisfied_ReturnOkNegotiatedResult()
+        #region GetProjectRoleAssignments
+
+        [TestMethod]
+        public async Task GetProjectRoleAssignments_SuccessfulGettingProjectRoleAssignments_ProjectRoleAssignmentsOkResult()
         {
             // Arrange
-            var projectId = 100;
-            var projectGroups = new List<GroupDto>
-            {
-                new GroupDto()
-                {
-                    Name = "Group1"
-                },
-                new GroupDto()
-                {
-                    Name = "Group2"
-                },
-                new GroupDto()
-                {
-                    Name = "Group3"
-                }
-            };
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectsAdmin);
 
             _privilegeRepositoryMock
-                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId)).ReturnsAsync(InstanceAdminPrivileges.ManageProjects);
-            _privilegeRepositoryMock
-                .Setup(r => r.GetProjectAdminPermissionsAsync(UserId, projectId)).ReturnsAsync(ProjectAdminPrivileges.ViewGroupsAndRoles);
-            _instanceRepositoryMock
-                .Setup(repo => repo.GetProjectGroupsAsync(projectId))
-                .ReturnsAsync(projectGroups);
+               .Setup(r => r.GetProjectAdminPermissionsAsync(UserId, ProjectId))
+               .ReturnsAsync(ProjectAdminPrivileges.ViewGroupsAndRoles);
 
             // Act
-            var result = await _controller.GetProjectGroupsAsync(projectId) as OkNegotiatedContentResult<IEnumerable<GroupDto>>;
+            var result = await _controller.GetProjectRoleAssignments(ProjectId, _pagination, _sorting) as OkNegotiatedContentResult<QueryResult<RolesAssignments>>;
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(result.Content, projectGroups);
+            Assert.AreEqual(result.Content, _rolesAssignmentsQueryResult);
+        }
 
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task GetProjectRoleAssignments_IncorrectModel_ReturnBadRequestResult()
+        {
+            // Arrange
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectsAdmin);
+
+            _privilegeRepositoryMock
+               .Setup(r => r.GetProjectAdminPermissionsAsync(UserId, ProjectId))
+               .ReturnsAsync(ProjectAdminPrivileges.ViewGroupsAndRoles);
+
+            // Act
+            var result = await _controller.GetProjectRoleAssignments(ProjectId, null, _sorting) as OkNegotiatedContentResult<QueryResult<RolesAssignments>>;
+
+            // Exception
         }
 
         [TestMethod]
         [ExpectedException(typeof(AuthorizationException))]
-        public async Task GetProjectGroupsAsync_Failed_NoPermissions_ReturnForbiddenResult()
+        public async Task GetProjectRoleAssignments_IncorrectUserPermissions_ReturnForbiddenErrorResult()
         {
             // Arrange
-            var projectId = 100;
-            var projectGroups = new List<GroupDto>
-            {
-                new GroupDto()
-                {
-                    Name = "Group1"
-                },
-                new GroupDto()
-                {
-                    Name = "Group2"
-                },
-                new GroupDto()
-                {
-                    Name = "Group3"
-                }
-            };
-
             _privilegeRepositoryMock
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
+
             _privilegeRepositoryMock
-                .Setup(r => r.GetProjectAdminPermissionsAsync(UserId, projectId)).ReturnsAsync(ProjectAdminPrivileges.None);
+               .Setup(r => r.GetProjectAdminPermissionsAsync(UserId, ProjectId))
+               .ReturnsAsync(ProjectAdminPrivileges.ViewAlmIntegration);
+          
+            // Act
+            var result = await _controller.GetProjectRoleAssignments(ProjectId, _pagination, _sorting) as OkNegotiatedContentResult<QueryResult<RolesAssignments>>;
 
-            _instanceRepositoryMock
-                .Setup(repo => repo.GetProjectGroupsAsync(projectId))
-                .ReturnsAsync(projectGroups);
-
-            await _controller.GetProjectGroupsAsync(projectId);
-
-        }*/
+            // Exception
+        }
 
         #endregion
     }

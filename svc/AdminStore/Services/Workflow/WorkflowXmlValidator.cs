@@ -468,6 +468,7 @@ namespace AdminStore.Services.Workflow
             }
 
             var hasProjectNoSpecifieError = false;
+            var hasAmbiguousProjectReference = false;
             var hasDuplicateProjectIdError = false;
             var hasDuplicateProjectPathError = false;
             var hasProjectDoesNotHaveAnyArtfactTypesError = false;
@@ -477,18 +478,24 @@ namespace AdminStore.Services.Workflow
             var projectPaths = new HashSet<string>();
             foreach (var project in workflow.Projects.FindAll(p => p != null))
             {
-                if (!project.Id.HasValue && !ValidatePropertyNotEmpty(project.Path))
+                if (!hasProjectNoSpecifieError && !project.Id.HasValue && !ValidatePropertyNotEmpty(project.Path))
                 {
-                    // There should be only one such an error.
-                    if (!hasProjectNoSpecifieError)
+                    result.Errors.Add(new WorkflowXmlValidationError
                     {
-                        result.Errors.Add(new WorkflowXmlValidationError
-                        {
-                            Element = project,
-                            ErrorCode = WorkflowXmlValidationErrorCodes.ProjectNoSpecified
-                        });
-                        hasProjectNoSpecifieError = true;
-                    }
+                        Element = project,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.ProjectNoSpecified
+                    });
+                    hasProjectNoSpecifieError = true;
+                }
+
+                if (!hasAmbiguousProjectReference && project.Id.HasValue && ValidatePropertyNotEmpty(project.Path))
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = project,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.AmbiguousProjectReference
+                    });
+                    hasAmbiguousProjectReference = true;
                 }
 
                 if (!_hasInvalidIdError && project.Id.HasValue && project.Id < 1)
@@ -655,6 +662,7 @@ namespace AdminStore.Services.Workflow
         private bool _hasStateStateConditionNotSpecifiedError;
         private bool _hasPropertyNamePropertyChangeActionNotSupportedError;
         private bool _hasInvalidIdError;
+        private bool _hasAmbiguousGroupProjectReference;
 
         private void ResetErrorFlags()
         {
@@ -670,6 +678,7 @@ namespace AdminStore.Services.Workflow
             _hasStateStateConditionNotSpecifiedError = false;
             _hasPropertyNamePropertyChangeActionNotSupportedError = false;
             _hasInvalidIdError = false;
+            _hasAmbiguousGroupProjectReference = false;
         }
 
         private void ValidatePermittedActions(IeEvent wEvent, WorkflowXmlValidationResult result)
@@ -799,6 +808,17 @@ namespace AdminStore.Services.Workflow
                             ErrorCode = WorkflowXmlValidationErrorCodes.InvalidId
                         });
                         _hasInvalidIdError = true;
+                    }
+
+                    if (!_hasAmbiguousGroupProjectReference && ug.GroupProjectId.HasValue
+                       && ValidatePropertyNotEmpty(ug.GroupProjectPath))
+                    {
+                        result.Errors.Add(new WorkflowXmlValidationError
+                        {
+                            Element = action,
+                            ErrorCode = WorkflowXmlValidationErrorCodes.AmbiguousGroupProjectReference
+                        });
+                        _hasAmbiguousGroupProjectReference = true;
                     }
                 });
             }

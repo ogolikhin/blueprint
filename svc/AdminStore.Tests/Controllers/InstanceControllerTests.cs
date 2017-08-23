@@ -598,6 +598,32 @@ namespace AdminStore.Controllers
             Assert.Fail("No BadRequestException was thrown.");
         }
 
+        [TestMethod]
+        public async Task UpdateInstanceFolder_LocationIsFolderItself_ThrowsConflictException()
+        {
+            // Arrange
+            var folderId = 1;
+            var updatedFolder = new FolderDto { Id = folderId, Name = "New Folder 1", ParentFolderId = folderId, Path = "Blueprint/New Folder 1" };
+            _privilegeRepositoryMock
+                .Setup(m => m.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageProjects);
+
+            // Act
+            try
+            {
+                await _controller.UpdateInstanceFolder(folderId, updatedFolder);
+            }
+            catch (ConflictException ex)
+            {
+                // Assert
+                Assert.AreEqual(ErrorCodes.Conflict, ex.ErrorCode);
+                Assert.AreEqual(ErrorMessages.FolderReferenceToItself, ex.Message);
+                return;
+            }
+
+            Assert.Fail("No ConflictException was thrown.");
+        }
+
         #endregion
 
         #region UpdateProject

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using ArtifactStore.Models;
@@ -192,6 +193,11 @@ namespace ArtifactStore.Services
                 .ReturnsAsync(false);
             _artifactVersionsRepositoryMock.Setup(t => t.GetVersionControlArtifactInfoAsync(itemId, null, 1))
                 .ReturnsAsync(vcArtifactInfo);
+            _applicationSettingsRepositoryMock.Setup(t => t.GetTenantInfo()).ReturnsAsync(new TenantInfo()
+            {
+                TenantId = Guid.NewGuid().ToString()
+            });
+
             var wfStateChangeParam = new WorkflowStateChangeParameter
             {
                 CurrentVersionId = 10,

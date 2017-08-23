@@ -297,6 +297,8 @@
     <Compile Include="Repositories\ISqlItemInfoRepository.cs" />
     <Compile Include="Repositories\IUsersRepository.cs" />
     <Compile Include="Repositories\JobExecutorStatusRepository.cs" />
+    <Compile Include="Repositories\Jobs\IJobsRepository.cs" />
+    <Compile Include="Repositories\Jobs\JobsRepository.cs" />
     <Compile Include="Repositories\Licenses\ILicenseRepository.cs" />
     <Compile Include="Repositories\Licenses\LicenseRepository.cs" />
     <Compile Include="Repositories\ProjectMeta\ISqlProjectMetaRepository.cs" />

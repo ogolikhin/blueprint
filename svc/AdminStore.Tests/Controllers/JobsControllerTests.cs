@@ -8,6 +8,7 @@ using ServiceLibrary.Repositories.ConfigControl;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using ServiceLibrary.Repositories.Jobs;
 
 namespace AdminStore.Controllers
 {

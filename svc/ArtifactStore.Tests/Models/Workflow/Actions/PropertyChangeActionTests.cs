@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using ArtifactStore.Models.PropertyTypes;
 using ArtifactStore.Repositories;
-using BluePrintSys.Messaging.CrossCutting.Models;
+using BluePrintSys.Messaging.CrossCutting.Models.Interfaces;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Exceptions;

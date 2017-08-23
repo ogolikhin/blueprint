@@ -1,17 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Data;
 using ArtifactStore.Helpers.Validators;
-using ArtifactStore.Models.PropertyTypes;
 using ArtifactStore.Repositories;
-using BluePrintSys.Messaging.CrossCutting.Models;
+using BluePrintSys.Messaging.CrossCutting.Models.Interfaces;
 using ServiceLibrary.Helpers.Validators;
 using ServiceLibrary.Models.PropertyType;
 using ServiceLibrary.Models.Reuse;
 
 namespace ArtifactStore.Models.Workflow
 {
-    
-
     public class ExecutionParameters : IExecutionParameters
     {
         public ItemTypeReuseTemplate ReuseItemTemplate { get; private set; }

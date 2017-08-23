@@ -23,7 +23,8 @@
         ProjectWithSuchNameExistsInParentFolder = 50017,
         ParentFolderIdReferenceToDescendantItem = 50018,
         EditRootFolderIsForbidden = 50019,
-        RolesForProjectNotExist = 50020
+        RolesForProjectNotExist = 50020,
+        GroupsForProjectNotExist = 50021
 
     }
 }

@@ -750,5 +750,82 @@ namespace AdminStore.Controllers
 
         #endregion
 
+        #region Project Groups
+
+        /*[TestMethod]
+        public async Task GetProjectGroupsAsync_Suttisfied_ReturnOkNegotiatedResult()
+        {
+            // Arrange
+            var projectId = 100;
+            var projectGroups = new List<GroupDto>
+            {
+                new GroupDto()
+                {
+                    Name = "Group1"
+                },
+                new GroupDto()
+                {
+                    Name = "Group2"
+                },
+                new GroupDto()
+                {
+                    Name = "Group3"
+                }
+            };
+
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId)).ReturnsAsync(InstanceAdminPrivileges.ManageProjects);
+            _privilegeRepositoryMock
+                .Setup(r => r.GetProjectAdminPermissionsAsync(UserId, projectId)).ReturnsAsync(ProjectAdminPrivileges.ViewGroupsAndRoles);
+            _instanceRepositoryMock
+                .Setup(repo => repo.GetProjectGroupsAsync(projectId))
+                .ReturnsAsync(projectGroups);
+
+            // Act
+            var result = await _controller.GetProjectGroupsAsync(projectId) as OkNegotiatedContentResult<IEnumerable<GroupDto>>;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(result.Content, projectGroups);
+
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task GetProjectGroupsAsync_Failed_NoPermissions_ReturnForbiddenResult()
+        {
+            // Arrange
+            var projectId = 100;
+            var projectGroups = new List<GroupDto>
+            {
+                new GroupDto()
+                {
+                    Name = "Group1"
+                },
+                new GroupDto()
+                {
+                    Name = "Group2"
+                },
+                new GroupDto()
+                {
+                    Name = "Group3"
+                }
+            };
+
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
+            _privilegeRepositoryMock
+                .Setup(r => r.GetProjectAdminPermissionsAsync(UserId, projectId)).ReturnsAsync(ProjectAdminPrivileges.None);
+
+            _instanceRepositoryMock
+                .Setup(repo => repo.GetProjectGroupsAsync(projectId))
+                .ReturnsAsync(projectGroups);
+
+            await _controller.GetProjectGroupsAsync(projectId);
+
+        }*/
+
+        #endregion
     }
 }

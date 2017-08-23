@@ -13,6 +13,11 @@ namespace AdminStore.Models
 
         public LicenseType LicenseType { get; set; }
 
+        //public string LicenseTypeString
+        //{
+        //    get { return LicenseType.ToString(); }
+        //}
+
         public UserGroupSource Source { get; set; }
 
         public string Email { get; set; }

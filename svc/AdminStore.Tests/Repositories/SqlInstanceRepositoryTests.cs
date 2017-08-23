@@ -805,7 +805,7 @@ namespace AdminStore.Repositories
         #endregion
 
 
-        #region Roles
+        #region Project Roles
 
         [TestMethod]
         public async Task GetProjectRolesAsync_RolesFound_NoErrors()
@@ -878,6 +878,69 @@ namespace AdminStore.Repositories
             // Act
             await repository.GetProjectRolesAsync(projectId);
         }
+
+        #endregion
+
+        #region Project Groups
+
+        /*[TestMethod]
+        public async Task GetProjectGroupsAsync_GroupsFound_NoErrors()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            var projectId = 100;
+            int errorCode = 0;
+
+            GroupDto[] projectGroups =
+            {
+                 new GroupDto()
+                {
+                    Name = "Group1"
+                },
+                new GroupDto()
+                {
+                    Name = "Group2"
+                },
+                new GroupDto()
+                {
+                    Name = "Group3"
+                }
+            };
+
+            cxn.SetupQueryAsync("GetAvailableGroupsForProject",
+                                        new Dictionary<string, object> { { "projectId", projectId } },
+                                        projectGroups,
+                                        new Dictionary<string, object>() { { "ErrorCode", errorCode } });
+
+            // Act
+            await repository.GetProjectGroupsAsync(projectId);
+
+            // Assert
+            cxn.Verify();
+        }
+
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task GetProjectGroupsAsync_GroupsNotFound_NotFoundError()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            var projectId = 1;
+            int errorCode = 50021; // there are no roles for this projectId
+
+            GroupDto[] projectGroups = { };
+
+            cxn.SetupQueryAsync("GetAvailableGroupsForProject",
+                                        new Dictionary<string, object> { { "projectId", projectId } },
+                                        projectGroups,
+                                        new Dictionary<string, object>() { { "ErrorCode", errorCode } });
+
+            // Act
+            await repository.GetProjectGroupsAsync(projectId);
+        }*/
 
         #endregion
 

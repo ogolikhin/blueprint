@@ -70,7 +70,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Models
 
         public string FromDisplayName { get; set; } = string.Empty;
 
-        public string Subject { get; set; } = "Artifact has been published.";
+        public string Subject { get; set; } = "Artifact has been updated.";
 
         public override MessageActionType ActionType { get; } = MessageActionType.Notification;
 

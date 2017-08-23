@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using ArtifactStore.Helpers.Validators;
 using ArtifactStore.Models.PropertyTypes;
@@ -10,7 +7,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models.ProjectMeta;
-using ServiceLibrary.Models.PropertyType;
 
 namespace ArtifactStore.Models.Workflow.Actions
 {

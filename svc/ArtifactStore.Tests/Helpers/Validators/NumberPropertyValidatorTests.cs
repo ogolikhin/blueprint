@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using ArtifactStore.Models.PropertyTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 
 namespace ArtifactStore.Helpers.Validators
@@ -34,14 +35,14 @@ namespace ArtifactStore.Helpers.Validators
         }
 
         [TestMethod]
-        public void ValidateNumberPropertySuccess()
+        public void Validate_DefaultNumberProperty_Success()
         {
             //Arrange.
             var validator = new NumberPropertyValidator();
 
             //Act.
             var actualResult = validator.Validate(
-                _property, 
+                _property,
                 new List<DPropertyType>()
                 {
                     _propertyType
@@ -49,6 +50,57 @@ namespace ArtifactStore.Helpers.Validators
 
             //Assert.
             Assert.AreEqual(actualResult, null, "There should not be validation errors.");
+        }
+
+        [TestMethod]
+        public void Validate_ValueExceedsDecimalPlaces_ReturnsErrorResultSet()
+        {
+            //Arrange.
+            _property.NumberValue = (decimal)10.123;
+
+            ExecuteErrorResultTests();
+        }
+        [TestMethod]
+        public void Validate_ValuGreaterThanMaximum_ReturnsErrorResultSet()
+        {
+            //Arrange.
+            _property.NumberValue = 21;
+
+            ExecuteErrorResultTests();
+        }
+        [TestMethod]
+        public void Validate_ValueLessThanMinimum_ReturnsErrorResultSet()
+        {
+            //Arrange.
+            _property.NumberValue = 9;
+            
+            ExecuteErrorResultTests();
+        }
+
+        [TestMethod]
+        public void Validate_ValueEmptyForRequiredType_ReturnsErrorResultSet()
+        {
+            //Arrange.
+            _propertyType.IsRequired = true;
+            _property.NumberValue = null;
+
+            ExecuteErrorResultTests();
+        }
+
+        private void ExecuteErrorResultTests()
+        {
+            var validator = new NumberPropertyValidator();
+            //Act
+            var actualResult = validator.Validate(
+                _property,
+                new List<DPropertyType>()
+                {
+                    _propertyType
+                });
+
+            //Assert
+            Assert.AreEqual(actualResult.ErrorCode, ErrorCodes.InvalidArtifactProperty,
+                "Error code is not InvalidArtifactProperty");
         }
     }
 }

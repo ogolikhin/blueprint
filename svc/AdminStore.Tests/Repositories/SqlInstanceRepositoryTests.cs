@@ -51,7 +51,7 @@ namespace AdminStore.Repositories
             var repository = new SqlInstanceRepository(cxn.Object);
             var folderId = 99;
             var userId = 9;
-            InstanceItem[] result = { new InstanceItem { Id = folderId, Name = "Blueprint", ParentFolderId = 88} };
+            InstanceItem[] result = { new InstanceItem { Id = folderId, Name = "Blueprint", ParentFolderId = 88 } };
             cxn.SetupQueryAsync("GetInstanceFolderById", new Dictionary<string, object> { { "folderId", folderId } }, result);
 
             // Act
@@ -158,7 +158,7 @@ namespace AdminStore.Repositories
             var repository = new SqlInstanceRepository(cxn.Object);
             int projectId = 99;
             int userId = 10;
-            InstanceItem[] result = { new InstanceItem { Id = projectId, Name = "My Project", ParentFolderId = 88, IsAccesible = true} };
+            InstanceItem[] result = { new InstanceItem { Id = projectId, Name = "My Project", ParentFolderId = 88, IsAccesible = true } };
             cxn.SetupQueryAsync("GetInstanceProjectById", new Dictionary<string, object> { { "projectId", projectId }, { "userId", userId } }, result);
 
             // Act
@@ -253,7 +253,7 @@ namespace AdminStore.Repositories
             var repository = new SqlInstanceRepository(cxn.Object);
             int projectId = 99;
             int userId = 10;
-            InstanceItem[] result = {};
+            InstanceItem[] result = { };
             cxn.SetupQueryAsync("GetInstanceProjectById", new Dictionary<string, object> { { "projectId", projectId }, { "userId", userId } }, result);
 
             // Act
@@ -426,7 +426,7 @@ namespace AdminStore.Repositories
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlInstanceRepository(cxn.Object);
-            var adminRoles = new List<AdminRole>()
+            var adminRoles = new List<AdminRole>
             {
                 new AdminRole
                 {
@@ -459,7 +459,7 @@ namespace AdminStore.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlInstanceRepository(cxn.Object);
             var folderId = 1;
-            var folder = new FolderDto {Name = "Folder1", ParentFolderId = 1};
+            var folder = new FolderDto { Name = "Folder1", ParentFolderId = 1 };
 
             cxn.SetupExecuteScalarAsync("CreateFolder", It.IsAny<Dictionary<string, object>>(), folderId, new Dictionary<string, object> { { "ErrorCode", 0 } });
 
@@ -518,7 +518,7 @@ namespace AdminStore.Repositories
         {
             //arrange
             var name = "folderName";
-            var result = new List<FolderDto>() {new FolderDto() {Id = 1} };
+            var result = new List<InstanceItem> { new InstanceItem { Id = 1 } };
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlInstanceRepository(cxn.Object);
             cxn.SetupQueryAsync("GetFoldersByName", new Dictionary<string, object> { { "name", name } }, result);
@@ -538,7 +538,7 @@ namespace AdminStore.Repositories
         {
             //arrange
             var name = "someName";
-            var result = new List<FolderDto>();
+            var result = new List<InstanceItem>();
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlInstanceRepository(cxn.Object);
             cxn.SetupQueryAsync("GetFoldersByName", new Dictionary<string, object> { { "name", name } }, result);
@@ -561,7 +561,7 @@ namespace AdminStore.Repositories
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlInstanceRepository(cxn.Object);
-            var deletedFolderCount = 1;            
+            var deletedFolderCount = 1;
 
             cxn.SetupExecuteScalarAsync("DeleteFolder", It.IsAny<Dictionary<string, object>>(), deletedFolderCount, new Dictionary<string, object> { { "ErrorCode", 0 } });
 
@@ -738,7 +738,7 @@ namespace AdminStore.Repositories
             var repository = new SqlInstanceRepository(cxn.Object);
             var countUpdatedProjects = 1;
             var projectId = 1;
-            var project = new ProjectDto { Name = "Project1", ParentFolderId = 1, Description = "Description"};
+            var project = new ProjectDto { Name = "Project1", ParentFolderId = 1, Description = "Description" };
 
             cxn.SetupExecuteScalarAsync("UpdateProject", It.IsAny<Dictionary<string, object>>(), countUpdatedProjects, new Dictionary<string, object> { { "ErrorCode", 0 } });
 
@@ -844,27 +844,27 @@ namespace AdminStore.Repositories
 
             ProjectRole[] projectRoles =
             {
-                new ProjectRole()
+                new ProjectRole
                 {
                     Name = "Collaborator",
                     RoleId = 11
                 },
-                new ProjectRole()
+                new ProjectRole
                 {
                     Name = "Author",
                     RoleId = 12
                 },
-                new ProjectRole()
+                new ProjectRole
                 {
                     Name = "Viewer",
                     RoleId = 13
                 },
-                new ProjectRole()
+                new ProjectRole
                 {
                     Name = "Project Administrator",
                     RoleId = 14
                 },
-                new ProjectRole()
+                new ProjectRole
                 {
                     Name = "Blueprint Analytics",
                     RoleId = 15
@@ -874,7 +874,7 @@ namespace AdminStore.Repositories
             cxn.SetupQueryAsync("GetProjectRoles",
                                         new Dictionary<string, object> { { "projectId", projectId } },
                                         projectRoles,
-                                        new Dictionary<string, object>() { { "ErrorCode", errorCode } });
+                                        new Dictionary<string, object> { { "ErrorCode", errorCode } });
 
             // Act
             await repository.GetProjectRolesAsync(projectId);
@@ -899,7 +899,7 @@ namespace AdminStore.Repositories
             cxn.SetupQueryAsync("GetProjectRoles",
                                         new Dictionary<string, object> { { "projectId", projectId } },
                                         projectRoles,
-                                        new Dictionary<string, object>() { { "ErrorCode", errorCode } });
+                                        new Dictionary<string, object> { { "ErrorCode", errorCode } });
 
             // Act
             await repository.GetProjectRolesAsync(projectId);
@@ -919,7 +919,7 @@ namespace AdminStore.Repositories
             _connection.SetupQueryAsync("GetProjectRoleAssignments",
                                         It.IsAny<Dictionary<string, object>>(),
                                         _projectRolesAssignments,
-                                        new Dictionary<string, object>() { { "ErrorCode", errorCode } });
+                                        new Dictionary<string, object> { { "ErrorCode", errorCode } });
 
             // Act
             var projectRolesAssignmentsResult = await
@@ -941,7 +941,7 @@ namespace AdminStore.Repositories
             _connection.SetupQueryAsync("GetProjectRoleAssignments",
                                         It.IsAny<Dictionary<string, object>>(),
                                         _projectRolesAssignments,
-                                        new Dictionary<string, object>() { { "ErrorCode", (int)errorCode } });
+                                        new Dictionary<string, object> { { "ErrorCode", (int)errorCode } });
 
             // Act
             await

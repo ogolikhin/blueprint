@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Web.Http;
-using System.Web.Http.Results;
-using AdminStore.Models;
+﻿using AdminStore.Models;
 using AdminStore.Models.DTO;
 using AdminStore.Repositories;
 using AdminStore.Services.Instance;
@@ -17,6 +10,13 @@ using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Results;
 
 namespace AdminStore.Controllers
 {
@@ -379,6 +379,31 @@ namespace AdminStore.Controllers
             // Exception
         }
 
+        [TestMethod]
+        public async Task CreateFolder_LocationNotSpecified_ThrowsBadRequestException()
+        {
+            // Arrange
+            var folderToCreate = new FolderDto { Name = "New Folder 1", Path = "Blueprint" };
+            _privilegeRepositoryMock
+                .Setup(m => m.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageProjects);
+
+            // Act
+            try
+            {
+                await _controller.CreateFolder(folderToCreate);
+            }
+            catch (BadRequestException ex)
+            {
+                // Assert
+                Assert.AreEqual(ErrorCodes.BadRequest, ex.ErrorCode);
+                Assert.AreEqual(ErrorMessages.LocationIsRequired, ex.Message);
+                return;
+            }
+
+            Assert.Fail("No BadRequestException was thrown.");
+        }
+
         #endregion
 
         #region SearchFolder
@@ -545,6 +570,32 @@ namespace AdminStore.Controllers
 
             // Assert
             // Exception
+        }
+
+        [TestMethod]
+        public async Task UpdateInstanceFolder_LocationNotSpecified_ThrowsBadRequestException()
+        {
+            // Arrange
+            var folderId = 1;
+            var updatedFolder = new FolderDto { Id = folderId, Name = "New Folder 1", Path = "Blueprint" };
+            _privilegeRepositoryMock
+                .Setup(m => m.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageProjects);
+
+            // Act
+            try
+            {
+                await _controller.UpdateInstanceFolder(folderId, updatedFolder);
+            }
+            catch (BadRequestException ex)
+            {
+                // Assert
+                Assert.AreEqual(ErrorCodes.BadRequest, ex.ErrorCode);
+                Assert.AreEqual(ErrorMessages.LocationIsRequired, ex.Message);
+                return;
+            }
+
+            Assert.Fail("No BadRequestException was thrown.");
         }
 
         #endregion

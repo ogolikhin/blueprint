@@ -7,6 +7,7 @@ namespace AdminStore.Services.Instance
     public interface IEmailSettingsService
     {
         Task<EmailSettingsDto> GetEmailSettingsAsync(int userId);
+        Task UpdateEmailSettingsAsync(int userId, EmailSettingsDto emailSettingsDto);
 
         Task SendTestEmailAsync(int userId, EmailOutgoingSettings outgoingSettings);
         Task TestIncomingEmailConnectionAsync(int userId, EmailIncomingSettings incomingSettings);

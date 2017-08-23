@@ -15,9 +15,14 @@ namespace ServiceLibrary.Repositories
             _instanceSettings = instanceSettings;
             }
 
-        public async Task<EmailSettings> GetEmailSettings()
+        public Task<EmailSettings> GetEmailSettings()
         {
-            return await Task.FromResult(_mockEmailSettings);
+            return Task.FromResult(_mockEmailSettings);
+        }
+
+        public Task UpdateEmailSettingsAsync(EmailSettings settings)
+        {
+            return Task.FromResult(0);
         }
 
         public async Task<Models.InstanceSettings> GetInstanceSettingsAsync(int maxInvalidLogonAttempts)

@@ -555,23 +555,23 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotFoundById:
                     template = TemplateDataPropertyChangeActionPropertyTypeNotFoundById;
-                    errParams = new object[] { (string) error.Element };
+                    errParams = new object[] { (int) error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.GenerateChildArtifactsActionArtifactTypeNotFoundById:
                     template = TemplateDataGenerateChildArtifactsActionArtifactTypeNotFoundById;
-                    errParams = new object[] { (string) error.Element };
+                    errParams = new object[] { (int) error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionValidValueNotFoundById:
                     template = TemplateDataPropertyChangeActionValidValueNotFoundById;
-                    errParams = new object[] { (string) error.Element };
+                    errParams = new object[] { (int) error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionGroupNotFoundById:
                     template = TemplateDataPropertyChangeActionGroupNotFoundById;
-                    errParams = new object[] { (string)error.Element };
+                    errParams = new object[] { (int) error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionUserNotFoundById:
                     template = TemplateDataPropertyChangeActionUserNotFoundById;
-                    errParams = new object[] { (string)error.Element };
+                    errParams = new object[] { (int) error.Element };
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

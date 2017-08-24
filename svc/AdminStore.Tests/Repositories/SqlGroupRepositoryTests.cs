@@ -355,7 +355,7 @@ namespace AdminStore.Repositories
 
         [TestMethod]
         [ExpectedException(typeof(ResourceNotFoundException))]
-        public async Task GetProjectGroupsAsync_GroupsNotFound_NotFoundError()
+        public async Task GetProjectGroupsAsync_ProjectNotFound_NotFoundError()
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
@@ -366,7 +366,7 @@ namespace AdminStore.Repositories
                 Pagination = new Pagination {Limit = 10, Offset = 0},
                 Sorting = new Sorting {Order = SortOrder.Asc, Sort = "name"}
             };
-            int errorCode = 50016; // there are no roles for this projectId
+            int errorCode = 50016; // there are no project for this projectId
 
             GroupDto[] projectGroups = {};
 

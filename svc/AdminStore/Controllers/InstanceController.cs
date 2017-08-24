@@ -433,36 +433,5 @@ namespace AdminStore.Controllers
 
         #endregion
 
-        #region groups
-
-        /*/// <summary>
-        /// Get the list of groups for the project  
-        /// </summary>
-        /// <remarks>
-        /// Get the list of groups for the project
-        /// </remarks>
-        /// <response code="200">OK list groups returned</response>
-        /// <response code="400">BadRequest if errors occurred</response>
-        /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
-        /// <response code="403">Forbidden if used doesn’t have permissions to get the list of instance administrators roles</response>
-        /// <response code="404">NotFound. If groups with projectId don’t exists or removed from the system.</response>*/
-        /*[HttpGet, NoCache]
-        [Route("groups/{projectId:int:min(1)}/available"), SessionRequired]
-        [ResponseType(typeof(QueryResult<GroupDto>))]
-        public async Task<IHttpActionResult> GetProjectGroupsAsync(int projectId, [FromUri]Pagination pagination, [FromUri]Sorting sorting, string search = null)
-        {
-            pagination.Validate();
-
-            await _privilegesManager.DemandAny(Session.UserId, projectId, InstanceAdminPrivileges.AccessAllProjectsAdmin,
-                    ProjectAdminPrivileges.ViewGroupsAndRoles);
-
-            var tabularData = new TabularData { Pagination = pagination, Sorting = sorting, Search = search };
-            var result = await _instanceRepository.GetProjectGroupsAsync(projectId, tabularData, SortingHelper.SortProjectGroups);
-
-            return Ok(result);
-        }*/
-
-        #endregion
-
     }
 }

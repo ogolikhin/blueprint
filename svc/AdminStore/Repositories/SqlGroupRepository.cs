@@ -314,6 +314,11 @@ namespace AdminStore.Repositories
         public async Task<QueryResult<GroupDto>> GetProjectGroupsAsync(int projectId, TabularData tabularData,
             Func<Sorting, string> sort = null)
         {
+            if (projectId < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(projectId));
+            }
+
             var orderField = string.Empty;
             if (sort != null && tabularData.Sorting != null)
             {
@@ -323,11 +328,6 @@ namespace AdminStore.Repositories
             if (!string.IsNullOrWhiteSpace(tabularData.Search))
             {
                 tabularData.Search = UsersHelper.ReplaceWildcardCharacters(tabularData.Search);
-            }
-
-            if (projectId < 1)
-            {
-                throw new ArgumentOutOfRangeException(nameof(projectId));
             }
 
             var prm = new DynamicParameters();

@@ -820,7 +820,7 @@ namespace AdminStore.Controllers
         #region Project Groups
 
         [TestMethod]
-        public async Task GetProjectGroupsAsync_Suttisfied_ReturnOkNegotiatedResult()
+        public async Task GetProjectGroupsAsync_AllRequirementsIsSatisfied_ReturnOkNegotiatedResult()
         {
             // Arrange
             var projectId = 100;

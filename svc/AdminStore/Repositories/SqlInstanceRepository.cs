@@ -430,6 +430,33 @@ namespace AdminStore.Repositories
             return result;
         }
 
+        public async Task<int> CreateRoleAssignmentAsync(int projectId, CreateRoleAssignment roleAssignment)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@ProjectId", projectId);
+            parameters.Add("@GroupId", roleAssignment.GroupId);
+            parameters.Add("@RoleId", roleAssignment.RoleId);
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var result = await _connectionWrapper.ExecuteScalarAsync<int>("CreateProjectRoleAssignment", parameters,
+                commandType: CommandType.StoredProcedure);
+
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.ProjectWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.ProjectNotExist, ErrorCodes.ResourceNotFound);
+                }
+            }
+
+            return result;
+        }
+
+        
+
         #region private methods
 
         /// <summary>

@@ -37,5 +37,7 @@ namespace AdminStore.Repositories
             Func<Sorting, string> sort = null);
         
         Task<int> DeleteRoleAssignmentsAsync(int projectId, OperationScope scope, string search);
+
+        Task<int> CreateRoleAssignmentAsync(int projectId, CreateRoleAssignment roleAssignment);
     }
 }

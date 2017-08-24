@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using System;
+using Dapper;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Workflow;
@@ -337,15 +338,35 @@ namespace ArtifactStore.Repositories.Workflow
                         };
                         break;
                     }
+                    case PropertyPrimitiveType.Date:
+                    {
+                        dProperty = new DDatePropertyType
+                        {
+                            AllowMultiple = sqlPropertyType.AllowMultiple,
+                            DefaultValue = sqlPropertyType.DateDefaultValue,
+                            DefaultValidValueId = sqlPropertyType.DefaultValidValueId,
+                            InstancePropertyTypeId = sqlPropertyType.InstancePropertyTypeId,
+                            Name = sqlPropertyType.Name,
+                            PropertyTypeId = sqlPropertyType.PropertyTypeId,
+                            Range = new Range<DateTime?>
+                            {
+                                End = sqlPropertyType.DateRange_End,
+                                Start = sqlPropertyType.DateRange_Start
+                            },
+                            PrimitiveType = sqlPropertyType.PrimitiveType,
+                            IsRequired = sqlPropertyType.Required != null && sqlPropertyType.Required.Value,
+                            IsValidate = sqlPropertyType.Validate.GetValueOrDefault(false),
+                            VersionId = sqlPropertyType.VersionId,
+                            Predefined = sqlPropertyType.Predefined
+                        };
+                        break;
+                    }
                     //TODO: add other DPropertyTypes
                     default:
                         {
                             dProperty = new DPropertyType
                             {
                                 AllowMultiple = sqlPropertyType.AllowMultiple,
-                                DateDefaultValue = sqlPropertyType.DateDefaultValue,
-                                DateRange_End = sqlPropertyType.DateRange_End,
-                                DateRange_Start = sqlPropertyType.DateRange_Start,
                                 DefaultValidValueId = sqlPropertyType.DefaultValidValueId,
                                 InstancePropertyTypeId = sqlPropertyType.InstancePropertyTypeId,
                                 IsRichText = sqlPropertyType.IsRichText,

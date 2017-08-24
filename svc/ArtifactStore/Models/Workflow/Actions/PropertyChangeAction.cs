@@ -80,7 +80,13 @@ namespace ArtifactStore.Models.Workflow.Actions
                         NumberValue = value
                     };
                     break;
-               
+                case PropertyPrimitiveType.Date:
+                    PropertyLiteValue = new PropertyLite
+                    {
+                        PropertyTypeId = InstancePropertyTypeId,
+                        DateValue = ParseDateValue(PropertyValue, new TimeProvider())
+                    };
+                    break;
                 default:
                     PropertyLiteValue = new PropertyLite()
                     {
@@ -88,6 +94,39 @@ namespace ArtifactStore.Models.Workflow.Actions
                     };
                     break;
             }
+        }
+
+        public const string CurrentDate = "@CURRENTDATE";
+        public const string Plus = "+";
+
+        public static DateTime ParseDateValue(string dateValue, ITimeProvider timeProvider)
+        {
+            var value = new string(dateValue.ToUpperInvariant().Where(c => !char.IsWhiteSpace(c)).ToArray());
+
+            //today
+            if (value.Equals(CurrentDate))
+            {
+                return timeProvider.Today;
+            }
+
+            //today + days
+            if (value.Contains(CurrentDate))
+            {
+                var daysToAdd = value.Replace(CurrentDate, string.Empty).Replace(Plus, string.Empty);
+                int daysInt;
+                if (int.TryParse(daysToAdd, out daysInt))
+                {
+                    return timeProvider.Today.AddDays(daysInt);
+                }
+            }
+
+            //specific date
+            DateTime date;
+            if (!DateTime.TryParse(dateValue, out date))
+            {
+                throw new FormatException("Invalid date value: " + dateValue);
+            }
+            return date;
         }
     }
 

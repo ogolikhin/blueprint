@@ -14,9 +14,12 @@ namespace ActionHandlerService.MessageHandlers.GenerateUserStories
             {
                 return await Task.FromResult(false);
             }
-            await UserStoryGenerationRepository.GenerateUserStories(generateUserStoriesMessage.ProjectId, generateUserStoriesMessage.ProcessId, generateUserStoriesMessage.TaskId);
-            //return Request.CreateResponse(HttpStatusCode.OK, userstories);
-            return await Task.FromResult(true);
+            return await UserStoryGenerationRepository.GenerateUserStories(generateUserStoriesMessage.ProjectId, 
+                generateUserStoriesMessage.ArtifactId,
+                generateUserStoriesMessage.ProjectName,
+                generateUserStoriesMessage.UserName,
+                generateUserStoriesMessage.UserId,
+                generateUserStoriesMessage.BaseHostUri);
         }
     }
 }

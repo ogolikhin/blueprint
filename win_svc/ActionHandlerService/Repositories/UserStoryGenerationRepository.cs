@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Jobs;
-using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories.Jobs;
 
 namespace ActionHandlerService.Repositories
 {
@@ -14,21 +14,15 @@ namespace ActionHandlerService.Repositories
 
     public class UserStoryGenerationRepository
     {
-        public static async Task GenerateUserStories(int projectId, int processId, int? taskId = null)
+        public static async Task<bool> GenerateUserStories(int projectId, int processId, string projectName, string username, int userId, string uri)
         {
-            var payload = new GenerateUserStoryInfo { ProcessId = processId, TaskId = taskId };
+            var payload = new GenerateUserStoryInfo { ProcessId = processId, TaskId = null };
             var parameters = SerializationHelper.ToXml(payload);
-            //var hostUri = ServerUriHelper.BaseHostUri;
             var jobsRepository = new JobsRepository();
-            var jobId = await jobsRepository.AddJobMessage(JobType.GenerateUserStories,
-                false,
-                parameters,
-                null,
-                projectId,
-                string.Empty,
-                1, //TODO: get actual user info
-                "admin",
-                "http://localhost:9801/");
+            var jobId = await jobsRepository.AddJobMessage(JobType.GenerateUserStories, 
+                false, parameters, null, projectId, projectName, userId, username, uri);
+
+            return jobId > 0;
         }
     }
 }

@@ -125,6 +125,7 @@
     <Compile Include="Models\Enums\Tenancy.cs" />
     <Compile Include="Models\Exceptions\MessageHeaderValueNotFoundException.cs" />
     <Compile Include="Models\Exceptions\UnsupportedActionTypeException.cs" />
+    <Compile Include="Models\Interfaces\IExecutionParameters.cs" />
     <Compile Include="Models\WorkflowEventAction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -1,9 +1,7 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
-using ServiceLibrary.Models;
 
-namespace ServiceLibrary.Helpers.Validators
+namespace ServiceLibrary.Models.PropertyType
 {
     public class PropertyLite
     {

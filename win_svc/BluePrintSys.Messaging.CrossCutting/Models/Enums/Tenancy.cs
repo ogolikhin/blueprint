@@ -1,4 +1,4 @@
-﻿namespace ActionHandlerService.Models.Enums
+﻿namespace BluePrintSys.Messaging.CrossCutting.Models.Enums
 {
     public enum Tenancy
     {

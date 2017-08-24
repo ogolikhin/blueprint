@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using Dapper;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 
@@ -30,6 +31,17 @@ namespace ServiceLibrary.Repositories.InstanceSettings
         {
             var result = (await ConnectionWrapper.QueryAsync<dynamic>("GetInstanceEmailSettings", commandType: CommandType.StoredProcedure)).FirstOrDefault();
             return result == null ? null : EmailSettings.CreateFromString(result.EmailSettings);
+        }
+
+        public Task UpdateEmailSettingsAsync(EmailSettings emailSettings)
+        {
+            string emailSettingsXmlString = SerializationHelper.Serialize(emailSettings);
+
+            var parameters = new DynamicParameters();
+
+            parameters.Add("@emailSettingsXml", emailSettingsXmlString);
+
+            return ConnectionWrapper.ExecuteAsync("UpdateInstanceEmailSettings", parameters, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<Models.InstanceSettings> GetInstanceSettingsAsync(int maxInvalidLogonAttempts)

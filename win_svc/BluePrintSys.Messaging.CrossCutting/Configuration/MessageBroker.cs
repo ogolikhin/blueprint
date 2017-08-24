@@ -1,4 +1,4 @@
-﻿namespace ActionHandlerService.Models.Enums
+﻿namespace BluePrintSys.Messaging.CrossCutting.Configuration
 {
     public enum MessageBroker
     {

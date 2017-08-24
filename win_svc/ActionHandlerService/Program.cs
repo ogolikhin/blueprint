@@ -7,7 +7,7 @@ namespace ActionHandlerService
     {
         static void Main()
         {
-            var serviceName = new ConfigHelper().ServiceName;
+            var serviceName = new ExtendedConfigHelper().ServiceName;
             HostFactory.Run(x =>
             {
                 x.Service<ActionHandlerService>(s =>

@@ -1,20 +1,19 @@
-﻿using Dapper;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Threading.Tasks;
+using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Files;
 using ServiceLibrary.Models.Jobs;
 using ServiceLibrary.Models.Messaging;
-using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.Files;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace AdminStore.Repositories.Jobs
+namespace ServiceLibrary.Repositories.Jobs
 {
     public class JobsRepository : IJobsRepository
     {
@@ -34,7 +33,7 @@ namespace AdminStore.Repositories.Jobs
         {
         }
 
-        internal JobsRepository
+        public JobsRepository
         (
             ISqlConnectionWrapper connectionWrapper, 
             ISqlArtifactRepository sqlArtifactRepository,

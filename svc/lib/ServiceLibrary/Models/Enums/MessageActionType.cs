@@ -1,18 +1,18 @@
 ﻿using System;
 
-namespace BluePrintSys.Messaging.Models.Actions
+namespace ServiceLibrary.Models.Enums
 {
     [Flags]
     public enum MessageActionType
     {
         None = 0,
-        Property = 1,
+        PropertyChange =1,
         Notification = 2,
-        GenerateDescendants = 4,
+        GenerateChildren = 4,
         GenerateTests = 8,
         GenerateUserStories = 16,
         StateChange = 32,
         ArtifactsPublished = 64,
-        All = Property | Notification | GenerateDescendants | GenerateTests | GenerateUserStories | StateChange | ArtifactsPublished
+        All = PropertyChange | Notification | GenerateChildren | GenerateTests | GenerateUserStories | StateChange | ArtifactsPublished
     }
 }

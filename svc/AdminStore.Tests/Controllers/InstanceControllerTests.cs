@@ -978,5 +978,30 @@ namespace AdminStore.Controllers
 
         #endregion
 
+        #region HasProjectExternalLocks
+
+        [TestMethod]
+        public async Task HasProjectExternalLocks_AllParamsCorrect_ReturnBooleanValue()
+        {
+            //Arrange
+            var hasProjectExternalLocks = 1;
+
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.DeleteProjects);
+            _instanceRepositoryMock
+                .Setup(repo => repo.HasProjectExternalLocksAsync(UserId, ProjectId))
+                .ReturnsAsync(hasProjectExternalLocks);
+
+            //Act
+            var result = await _controller.HasProjectExternalLocks(ProjectId) as OkNegotiatedContentResult<int>;
+
+            //Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(hasProjectExternalLocks, result.Content);
+        }
+
+        #endregion
+
     }
 }

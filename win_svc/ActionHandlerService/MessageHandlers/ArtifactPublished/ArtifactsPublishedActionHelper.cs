@@ -5,6 +5,7 @@ using ActionHandlerService.Helpers;
 using ActionHandlerService.Models;
 using ActionHandlerService.Repositories;
 using ArtifactStore.Helpers;
+using BluePrintSys.Messaging.CrossCutting.Host;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
@@ -19,7 +20,8 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
         public ArtifactsPublishedActionHelper(IActionsParser actionsParser = null, INServiceBusServer nServiceBusServer = null)
         {
             _actionsParser = actionsParser ?? new ActionsParser();
-            _nServiceBusServer = nServiceBusServer ?? NServiceBusServer.Instance;
+            _nServiceBusServer = nServiceBusServer ?? WorkflowServiceBusServer.Instance;
+            _nServiceBusServer = nServiceBusServer ?? WorkflowServiceBusServer.Instance;
         }
 
         public async Task<bool> HandleAction(TenantInformation tenant, ActionMessage actionMessage, IActionHandlerServiceRepository actionHandlerServiceRepository)
@@ -107,7 +109,13 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
                 {
                     Logger.Log("Processing notification action", message, tenant, LogLevel.Debug);
 
-                    if (!instancePropertyTypeIds.ContainsKey(notificationAction.PropertyTypeId) || instancePropertyTypeIds[notificationAction.PropertyTypeId].IsEmpty())
+                    if (!notificationAction.PropertyTypeId.HasValue)
+                    {
+                        continue;
+                    }
+
+                    if (!instancePropertyTypeIds.ContainsKey(notificationAction.PropertyTypeId.Value) 
+                        || instancePropertyTypeIds[notificationAction.PropertyTypeId.Value].IsEmpty())
                     {
                         Logger.Log($"The property type ID {notificationAction.PropertyTypeId} was not found in the dictionary of instance property type IDs.", message, tenant, LogLevel.Debug);
                         continue;
@@ -128,8 +136,8 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
                         ProjectName = projects.First(p => p.ItemId == artifact.ProjectId).Name,
                         Subject = notificationAction.Subject,
                         From = notificationAction.FromDisplayName,
-                        To = notificationAction.ToEmails,
-                        MessageTemplate = notificationAction.MessageTemplate,
+                        To = notificationAction.Emails,
+                        MessageTemplate = notificationAction.Message,
                         RevisionId = message.RevisionId,
                         UserId = message.UserId,
                         ArtifactTypeId = currentStateInfo.ItemTypeId,
@@ -138,7 +146,7 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
                         ArtifactTypePredefined = artifact.Predefined,
                         ProjectId = artifact.ProjectId
                     };
-                    _nServiceBusServer.Send(tenant.Id, notificationMessage);
+                    await _nServiceBusServer.Send(tenant.Id, notificationMessage);
                 }
             }
             Logger.Log("Finished processing message", message, tenant, LogLevel.Debug);

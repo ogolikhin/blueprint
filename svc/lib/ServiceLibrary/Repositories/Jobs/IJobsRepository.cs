@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using ServiceLibrary.Models.Files;
 using ServiceLibrary.Models.Jobs;
 using ServiceLibrary.Repositories.Files;
 
-namespace AdminStore.Repositories.Jobs
+namespace ServiceLibrary.Repositories.Jobs
 {
     public interface IJobsRepository
     {

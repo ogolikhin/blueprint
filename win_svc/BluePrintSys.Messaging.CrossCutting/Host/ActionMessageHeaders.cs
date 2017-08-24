@@ -1,4 +1,4 @@
-﻿namespace BluePrintSys.Messaging.Models.Actions
+﻿namespace BluePrintSys.Messaging.CrossCutting.Host
 {
     public class ActionMessageHeaders
     {

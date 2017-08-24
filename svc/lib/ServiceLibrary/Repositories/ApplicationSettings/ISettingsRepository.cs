@@ -9,5 +9,7 @@ namespace ServiceLibrary.Repositories
         Task<IEnumerable<ApplicationSetting>> GetSettingsAsync(bool returnNonRestrictedOnly);
 
         Task<T> GetValue<T>(string key, T defaultValue);
+
+        Task<TenantInfo> GetTenantInfo();
     }
 }

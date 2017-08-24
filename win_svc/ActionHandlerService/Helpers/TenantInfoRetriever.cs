@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ActionHandlerService.Models;
-using ActionHandlerService.Models.Enums;
 using ActionHandlerService.Repositories;
+using BluePrintSys.Messaging.CrossCutting.Configuration;
 using BluePrintSys.Messaging.CrossCutting.Logging;
+using BluePrintSys.Messaging.CrossCutting.Models.Enums;
 using ServiceLibrary.Helpers;
 
 namespace ActionHandlerService.Helpers

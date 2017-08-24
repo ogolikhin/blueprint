@@ -1,10 +1,8 @@
 ﻿using System.Linq;
 using System.Threading;
-using ActionHandlerService;
-using ActionHandlerService.Helpers;
 using ActionHandlerService.Logging;
-using ActionHandlerService.Models;
-using ActionHandlerService.Models.Enums;
+using BluePrintSys.Messaging.CrossCutting.Configuration;
+using BluePrintSys.Messaging.CrossCutting.Host;
 using BluePrintSys.Messaging.CrossCutting.Logging;
 using log4net.Appender;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -19,28 +17,10 @@ namespace ActionHandlerServiceTests
     public class TransportTests
     {
         [TestMethod]
-        public void MessageTransportHostFactory_ReturnsRabbitMQTransportHost_WhenMessageBrokerIsRabbitMQ()
-        {
-            var configHelperMock = new Mock<IConfigHelper>();
-            configHelperMock.Setup(m => m.MessageBroker).Returns(MessageBroker.RabbitMQ);
-            var messageTransportHost = MessageTransportHostFactory.GetMessageTransportHost(configHelperMock.Object);
-            Assert.IsTrue(messageTransportHost is RabbitMqTransportHost);
-        }
-
-        [TestMethod]
-        public void MessageTransportHostFactory_ReturnsSqlTransportHost_WhenMessageBrokerIsSQL()
-        {
-            var configHelperMock = new Mock<IConfigHelper>();
-            configHelperMock.Setup(m => m.MessageBroker).Returns(MessageBroker.SQL);
-            var messageTransportHost = MessageTransportHostFactory.GetMessageTransportHost(configHelperMock.Object);
-            Assert.IsTrue(messageTransportHost is SqlTransportHost);
-        }
-
-        [TestMethod]
         public void RabbitMQTransportHost_StartsSuccessfully()
         {
             var nServiceBusServerMock = new Mock<INServiceBusServer>();
-            var rabbitMqTransportHost = new RabbitMqTransportHost(null, nServiceBusServerMock.Object);
+            var rabbitMqTransportHost = new TransportHost(null, nServiceBusServerMock.Object);
             rabbitMqTransportHost.Start();
         }
 
@@ -54,7 +34,7 @@ namespace ActionHandlerServiceTests
             var nServiceBusServerMock = new Mock<INServiceBusServer>();
             const string errorMessage = "error message";
             nServiceBusServerMock.Setup(m => m.Start(It.IsAny<string>())).ReturnsAsync(errorMessage);
-            var rabbitMqTransportHost = new RabbitMqTransportHost(null, nServiceBusServerMock.Object);
+            var rabbitMqTransportHost = new TransportHost(null, nServiceBusServerMock.Object);
             rabbitMqTransportHost.Start(() => true);
 
             //Give the logging time to finish
@@ -70,7 +50,7 @@ namespace ActionHandlerServiceTests
         public void RabbitMQTransportHost_StopsSuccessfully()
         {
             var nServiceBusServerMock = new Mock<INServiceBusServer>();
-            var rabbitMqTransportHost = new RabbitMqTransportHost(null, nServiceBusServerMock.Object);
+            var rabbitMqTransportHost = new TransportHost(null, nServiceBusServerMock.Object);
             rabbitMqTransportHost.Stop();
         }
 
@@ -78,7 +58,7 @@ namespace ActionHandlerServiceTests
         public void SqlTransportHost_StartsSuccessfully()
         {
             var nServiceBusServerMock = new Mock<INServiceBusServer>();
-            var sqlTransportHost = new SqlTransportHost(null, nServiceBusServerMock.Object);
+            var sqlTransportHost = new TransportHost(null, nServiceBusServerMock.Object);
             sqlTransportHost.Start();
         }
 
@@ -92,7 +72,7 @@ namespace ActionHandlerServiceTests
             var nServiceBusServerMock = new Mock<INServiceBusServer>();
             const string errorMessage = "error message";
             nServiceBusServerMock.Setup(m => m.Start(It.IsAny<string>())).ReturnsAsync(errorMessage);
-            var sqlTransportHost = new SqlTransportHost(null, nServiceBusServerMock.Object);
+            var sqlTransportHost = new TransportHost(null, nServiceBusServerMock.Object);
             sqlTransportHost.Start(() => true);
 
             //Give the logging time to finish
@@ -108,7 +88,7 @@ namespace ActionHandlerServiceTests
         public void SqlTransportHost_StopsSuccessfully()
         {
             var nServiceBusServerMock = new Mock<INServiceBusServer>();
-            var sqlTransportHost = new SqlTransportHost(null, nServiceBusServerMock.Object);
+            var sqlTransportHost = new TransportHost(null, nServiceBusServerMock.Object);
             sqlTransportHost.Stop();
         }
     }

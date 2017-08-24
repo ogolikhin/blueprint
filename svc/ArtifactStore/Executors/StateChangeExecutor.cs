@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ArtifactStore.Helpers;
 using ArtifactStore.Models;
+using ArtifactStore.Models.PropertyTypes;
 using ArtifactStore.Models.Workflow;
 using ArtifactStore.Models.Workflow.Actions;
 using ArtifactStore.Repositories;

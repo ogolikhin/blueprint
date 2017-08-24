@@ -102,6 +102,7 @@
     <Compile Include="Helpers\TestsForHelpers\I18HelperTests.cs" />
     <Compile Include="Helpers\TestsForHelpers\LoggableApiControllerTests.cs" />
     <Compile Include="Helpers\TestsForHelpers\StatusControllerHelperTests.cs" />
+    <Compile Include="Helpers\Validators\ReusePropertyValidatorTests.cs" />
     <Compile Include="Helpers\WebApiConfigHelper.cs" />
     <Compile Include="LocalLog\LocalLogTests.cs" />
     <Compile Include="Models\Licenses\FeatureInformationTests.cs" />

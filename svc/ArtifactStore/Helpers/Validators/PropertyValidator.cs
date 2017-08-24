@@ -1,13 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Helpers.Validators;
 using ServiceLibrary.Models.PropertyType;
 
-namespace ServiceLibrary.Helpers.Validators
+namespace ArtifactStore.Helpers.Validators
 {
-    public interface IPropertyValidator
-    {
-        PropertySetResult Validate(PropertyLite property, List<DPropertyType> propertyTypes);
-    }
     public abstract class PropertyValidator<T> : IPropertyValidator where T : DPropertyType
     {
         #region Virtual and abstract methods
@@ -61,6 +59,7 @@ namespace ServiceLibrary.Helpers.Validators
         #endregion
     }
 
+    //TODO: If after we implemented all validators and this is not required, delete
     //public class ValidationContext
     //{
     //    #region Properties

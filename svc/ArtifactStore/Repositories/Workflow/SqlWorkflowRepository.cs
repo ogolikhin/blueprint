@@ -8,6 +8,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using ArtifactStore.Helpers;
+using ArtifactStore.Models.PropertyTypes;
 using ArtifactStore.Models.Workflow;
 using ArtifactStore.Models.Workflow.Actions;
 using BluePrintSys.Messaging.CrossCutting.Models;

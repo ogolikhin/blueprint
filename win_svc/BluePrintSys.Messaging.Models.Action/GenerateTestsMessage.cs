@@ -9,5 +9,15 @@ namespace BluePrintSys.Messaging.Models.Actions
         public int ArtifactId { get; set; }
 
         public int RevisionId { get; set; }
+
+        public int UserId { get; set; }
+
+        public int ProjectId { get; set; }
+
+        public string ProjectName { get; set; }
+
+        public string UserName { get; set; }
+
+        public string BaseHostUri { get; set; }
     }
 }

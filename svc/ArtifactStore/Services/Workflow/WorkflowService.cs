@@ -20,7 +20,7 @@ namespace ArtifactStore.Services.Workflow
         Task<QuerySingleResult<WorkflowState>> GetStateForArtifactAsync(int userId, int artifactId, int? versionId = null,
             bool addDrafts = true);
 
-        Task<QuerySingleResult<WorkflowState>> ChangeStateForArtifactAsync(int userId, int artifactId,
+        Task<QuerySingleResult<WorkflowState>> ChangeStateForArtifactAsync(int userId, string userName, int artifactId,
             WorkflowStateChangeParameter stateChangeParameter);
     }
 
@@ -86,13 +86,14 @@ namespace ArtifactStore.Services.Workflow
             };
         }
 
-        public async Task<QuerySingleResult<WorkflowState>> ChangeStateForArtifactAsync(int userId, int artifactId, WorkflowStateChangeParameter stateChangeParameter)
+        public async Task<QuerySingleResult<WorkflowState>> ChangeStateForArtifactAsync(int userId, string userName, int artifactId, WorkflowStateChangeParameter stateChangeParameter)
         {
             //We will be getting state information and then will construct the property constraints and post operation actions over here
             var stateChangeExecutor = new StateChangeExecutor(
                 new WorkflowStateChangeParameterEx(stateChangeParameter)
                 {
-                    ArtifactId = artifactId
+                    ArtifactId = artifactId,
+                    UserName = userName
                 },
                 userId,
                 _artifactVersionsRepository,

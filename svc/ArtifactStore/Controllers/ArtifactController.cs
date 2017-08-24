@@ -186,5 +186,23 @@ namespace ArtifactStore.Controllers
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             return await ArtifactRepository.GetBaselineInfo(artifactIds, session.UserId, true, int.MaxValue);
         }
+
+        /// <summary>
+        /// Get process information.
+        /// </summary>
+        /// <remarks>
+        /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Returns ADD !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        /// </remarks>
+        /// <response code="200">OK.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>              
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpPost]
+        [Route("artifacts/processInfo"), SessionRequired]
+        public async Task<IEnumerable<ProcessInfo>> GetProcessInformationAsync([FromBody] ISet<int> artifactIds)
+        {
+
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            return await ArtifactRepository.GetProcessInformationAsync(artifactIds, session.UserId);
+        }
     }
 }

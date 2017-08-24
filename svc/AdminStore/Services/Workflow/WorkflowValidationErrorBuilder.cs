@@ -61,7 +61,7 @@ namespace AdminStore.Services.Workflow
         private const string TemplateXmlAmbiguousGroupProjectReference = "One or more Property Change Actions have ambiguous Group Project Reference. A Group Project must be specified either by Id or by Path.";
         private const string TemplateXmlArtifactTypeGenerateChildrenActionNotSpecitied = "One or more Generate Children Actions do not have a specified Artifact Type. A Generate Children Action must have an Artifact Type.";
         private const string TemplateXmlChildCountGenerateChildrenActionNotSpecitied = "One or more Generate Children Actions do not have a specified Child Count. A Generate Children Action must have a Child Count.";
-        private const string TemplateXmlChildCountGenerateChildrenActionNotValid = "One or more Generate Children Actions have a not valid Child Count. The Child Count of A Generate Children Action must be between 1 and 10 inclusive.";
+        private const string TemplateXmlChildCountGenerateChildrenActionNotValid = "One or more Generate Children Actions have an invalid Child Count. The Child Count of A Generate Children Action must be between 1 and 10 inclusive.";
         private const string TemplateXmlStateConditionNotOnTriggerOfPropertyChangeEvent = "One or more Triggers of Transitions or New Artifact Events have a State Condition. Only Triggers of Property Change Events can have a State Condition.";
         private const string TemplateXmlStateStateConditionNotSpecified = "One or more States missing on State Conditions of Triggers. The State must be specified on a State Condition.";
         private const string TemplateXmlStateStateConditionNotFound = "State '{0}' of a State Condition is not found. The State of a State Condition must be in the Workflow.";

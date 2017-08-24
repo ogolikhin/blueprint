@@ -59,6 +59,7 @@ namespace AdminStore.Services.Workflow
         AmbiguousGroupProjectReference,
         ArtifactTypeGenerateChildrenActionNotSpecitied,
         ChildCountGenerateChildrenActionNotSpecitied,
+        ChildCountGenerateChildrenActionNotValid,
         StateConditionNotOnTriggerOfPropertyChangeEvent,
         StateStateConditionNotSpecified,
         StateStateConditionNotFound,

@@ -144,7 +144,6 @@
     <Compile Include="Helpers\TenantInfoRetriever.cs" />
     <Compile Include="Repositories\ArtifactsPublishedRepository.cs" />
     <Compile Include="Repositories\NotificationRepository.cs" />
-    <Compile Include="Repositories\UserStoryGenerationRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

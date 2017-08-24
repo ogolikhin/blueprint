@@ -107,7 +107,7 @@ namespace AdminStore.Services.Workflow
                 }
                 else
                 {
-                    colToAddTo = pAtIds.Contains(Tuple.Create(p.Id.Value, at.Id.Value))
+                    colToAddTo = cpAtIds.Contains(Tuple.Create(p.Id.Value, at.Id.Value))
                     ? result.UnchangedProjectArtifactTypes
                     : result.NotFoundProjectArtifactTypes;
                 }

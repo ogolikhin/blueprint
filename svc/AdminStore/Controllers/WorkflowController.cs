@@ -249,7 +249,7 @@ namespace AdminStore.Controllers
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
             var ieWorkflow = await _workflowService.GetWorkflowExportAsync(workflowId);
-            var workflowXml = SerializationHelper.ToXml(ieWorkflow);
+            var workflowXml = SerializationHelper.ToXml(ieWorkflow, true);
             var response = Request.CreateResponse(HttpStatusCode.OK);
 
             response.Content = new StringContent(workflowXml);

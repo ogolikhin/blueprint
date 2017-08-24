@@ -951,5 +951,48 @@ namespace AdminStore.Repositories
             // Exception
         }
         #endregion
+
+        #region DeleteRoleAssignmentsAsync
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task DeleteRoleAssignmentsAsync_ProjectNotFound_NotFoundError()
+        {
+            // Arrange
+            var errorCode = SqlErrorCodes.ProjectWithCurrentIdNotExist;
+            var deleteRoleAssignmentCount = 0;
+            var scope = new OperationScope() { SelectAll = false, Ids = new List<int>() { 2, 3 } };
+
+            _connection.SetupExecuteScalarAsync("DeleteProjectRoleAssigments",
+                It.IsAny<Dictionary<string, object>>(),
+                deleteRoleAssignmentCount,
+                new Dictionary<string, object>() { { "ErrorCode", (int)errorCode } });
+
+            // Act
+            await _instanceRepository.DeleteRoleAssignmentsAsync(ProjectId, scope, null);
+
+            // Exception
+        }
+
+        [TestMethod]
+        public async Task DeleteRoleAssignmentsAsync_SuccessfulDeletionOfRoleAssignment_ReturnCountOfDeletedRoleAssignment()
+        {
+            // Arrange
+            var deleteRoleAssignmentCount = 1;
+            var scope = new OperationScope() { SelectAll = false, Ids = new List<int>() { 2, 3 } };
+
+            _connection.SetupExecuteScalarAsync("DeleteProjectRoleAssigments",
+                It.IsAny<Dictionary<string, object>>(),
+                deleteRoleAssignmentCount);
+
+            // Act
+            var result = await _instanceRepository.DeleteRoleAssignmentsAsync(ProjectId, scope, null);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(deleteRoleAssignmentCount, result);
+        }
+
+        #endregion
     }
 }

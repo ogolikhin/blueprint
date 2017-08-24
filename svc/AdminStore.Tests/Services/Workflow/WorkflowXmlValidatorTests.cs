@@ -1271,7 +1271,7 @@ namespace AdminStore.Services.Workflow
                     if (action.GenerateActionType == GenerateActionTypes.Children)
                     {
                         action.ArtifactType = "a";
-                        action.ChildCount = 0;
+                        action.ChildCount = null;
                     }
                 }
             }));
@@ -1283,6 +1283,84 @@ namespace AdminStore.Services.Workflow
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
             Assert.AreEqual(WorkflowXmlValidationErrorCodes.ChildCountGenerateChildrenActionNotSpecitied, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
+        public void Validate_ChildCountGenerateChildrenActionNotValid_0_ReturnsChildCountGenerateChildrenActionNotValidError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.TransitionEvents.ForEach(e => e.Triggers?.ForEach(t =>
+            {
+                if (t?.Action?.ActionType == ActionTypes.Generate)
+                {
+                    var action = (IeGenerateAction)t.Action;
+                    if (action.GenerateActionType == GenerateActionTypes.Children)
+                    {
+                        action.ArtifactType = "a";
+                        action.ChildCount = 0;
+                    }
+                }
+            }));
+            _workflow.NewArtifactEvents?.ForEach(e => e.Triggers?.ForEach(t =>
+            {
+                if (t?.Action?.ActionType == ActionTypes.Generate)
+                {
+                    var action = (IeGenerateAction)t.Action;
+                    if (action.GenerateActionType == GenerateActionTypes.Children)
+                    {
+                        action.ArtifactType = "a";
+                        action.ChildCount = 0;
+                    }
+                }
+            }));
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.ChildCountGenerateChildrenActionNotValid, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
+        public void Validate_ChildCountGenerateChildrenActionNotValid_11_ReturnsChildCountGenerateChildrenActionNotValidError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.TransitionEvents.ForEach(e => e.Triggers?.ForEach(t =>
+            {
+                if (t?.Action?.ActionType == ActionTypes.Generate)
+                {
+                    var action = (IeGenerateAction)t.Action;
+                    if (action.GenerateActionType == GenerateActionTypes.Children)
+                    {
+                        action.ArtifactType = "a";
+                        action.ChildCount = 11;
+                    }
+                }
+            }));
+            _workflow.NewArtifactEvents?.ForEach(e => e.Triggers?.ForEach(t =>
+            {
+                if (t?.Action?.ActionType == ActionTypes.Generate)
+                {
+                    var action = (IeGenerateAction)t.Action;
+                    if (action.GenerateActionType == GenerateActionTypes.Children)
+                    {
+                        action.ArtifactType = "a";
+                        action.ChildCount = 11;
+                    }
+                }
+            }));
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.ChildCountGenerateChildrenActionNotValid, result.Errors[0].ErrorCode);
         }
 
         [TestMethod]

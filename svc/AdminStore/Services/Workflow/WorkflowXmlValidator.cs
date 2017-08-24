@@ -618,6 +618,7 @@ namespace AdminStore.Services.Workflow
         private bool _hasAmbiguousPropertyValuePropertyChangeActionError;
         private bool _hasArtifactTypeGenerateChildrenActionNotSpecitiedError;
         private bool _hasChildCountGenerateChildrenActionNotSpecitiedError;
+        private bool _hasChildCountGenerateChildrenActionNotValidError;
         private bool _hasStateConditionNotOnTriggerOfPropertyChangeEventError;
         private bool _hasStateStateConditionNotSpecifiedError;
         private bool _hasPropertyNamePropertyChangeActionNotSupportedError;
@@ -636,6 +637,7 @@ namespace AdminStore.Services.Workflow
             _hasPropertyValuePropertyChangeActionNotSpecitiedError = false;
             _hasArtifactTypeGenerateChildrenActionNotSpecitiedError = false;
             _hasChildCountGenerateChildrenActionNotSpecitiedError = false;
+            _hasChildCountGenerateChildrenActionNotValidError = false;
             _hasStateConditionNotOnTriggerOfPropertyChangeEventError = false;
             _hasStateStateConditionNotSpecifiedError = false;
             _hasPropertyNamePropertyChangeActionNotSupportedError = false;
@@ -850,7 +852,7 @@ namespace AdminStore.Services.Workflow
                 }
 
                 if (!_hasChildCountGenerateChildrenActionNotSpecitiedError
-                    && action.ChildCount.GetValueOrDefault() < 1)
+                    && !action.ChildCount.HasValue)
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
@@ -858,6 +860,17 @@ namespace AdminStore.Services.Workflow
                         ErrorCode = WorkflowXmlValidationErrorCodes.ChildCountGenerateChildrenActionNotSpecitied
                     });
                     _hasChildCountGenerateChildrenActionNotSpecitiedError = true;
+                }
+                else if (!_hasChildCountGenerateChildrenActionNotValidError
+                    && action.ChildCount.HasValue
+                    && (action.ChildCount.Value < 1 || action.ChildCount.Value > 10))
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = action,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.ChildCountGenerateChildrenActionNotValid
+                    });
+                    _hasChildCountGenerateChildrenActionNotValidError = true;
                 }
             }
         }

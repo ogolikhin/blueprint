@@ -98,7 +98,8 @@ namespace AdminStore.Helpers
             var sortableColumns = new HashSet<string>
             {
                 defaultSortColumn,
-                "scope"
+                "scope",
+                "licenseTitle"
             };
 
             var column = sorting.Sort;

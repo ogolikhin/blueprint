@@ -40,19 +40,7 @@ namespace AdminStore.Services.Workflow
                 throw new ArgumentNullException(nameof(workflow));
             }
 
-            var result = new WorkflowDataValidationResult();
-
-            result.StandardTypes = await _projectMetaRepository.GetStandardProjectTypesAsync();
-
-            result.StandardTypes.ArtifactTypes?.RemoveAll(at => at.PredefinedType != null
-                                                                && !at.PredefinedType.Value.IsRegularArtifactType());
-            result.StandardArtifactTypeMapByName.AddRange(result.StandardTypes.ArtifactTypes.ToDictionary(pt => pt.Name));
-            result.StandardPropertyTypeMapByName.AddRange(result.StandardTypes.PropertyTypes.ToDictionary(pt => pt.Name));
-            ISet<string> groupsToLookup;
-            ISet<string> usersToLookup;
-            CollectUsersAndGroupsToLookup(workflow, out usersToLookup, out groupsToLookup);
-            result.Users.AddRange(await _userRepository.GetExistingUsersByNames(usersToLookup));
-            result.Groups.AddRange(await _userRepository.GetExistingGroupsByNames(groupsToLookup, false));
+            var result = await InitializeDataValidationResult(workflow, true);
 
             await ValidateWorkflowNameForUniqueness(result, workflow);
             await ValidateProjectsData(result, workflow.Projects, false);
@@ -69,12 +57,11 @@ namespace AdminStore.Services.Workflow
                 throw new ArgumentNullException(nameof(workflow));
             }
 
-            var result = new WorkflowDataValidationResult();
-            // TODO: initialize maps
+            var result = await InitializeDataValidationResult(workflow, false);
 
             await ValidateProjectsData(result, workflow.Projects, true);
-            //await ValidateArtifactTypesData(result, workflow.Projects, false);
-            //await ValidateEventsData(result, workflow, false);
+            await ValidateArtifactTypesData(result, workflow.Projects, false);
+            await ValidateEventsData(result, workflow, false);
 
             return result;
         }
@@ -84,26 +71,74 @@ namespace AdminStore.Services.Workflow
 
         #region Private methods
 
-        private static void CollectUsersAndGroupsToLookup(IeWorkflow workflow, out ISet<string> usersToLookup,
-            out ISet<string> groupsToLookup)
+        private async Task<WorkflowDataValidationResult> InitializeDataValidationResult(IeWorkflow workflow, bool ignoreIds)
         {
-            var users = new HashSet<string>();
-            var groups = new HashSet<string>();
+            var result = new WorkflowDataValidationResult();
+
+            result.StandardTypes = await _projectMetaRepository.GetStandardProjectTypesAsync();
+
+            result.StandardTypes.ArtifactTypes?.RemoveAll(at => at.PredefinedType != null
+                                                                && !at.PredefinedType.Value.IsRegularArtifactType());
+            result.StandardArtifactTypeMapByName.AddRange(result.StandardTypes.ArtifactTypes.ToDictionary(pt => pt.Name));
+            result.StandardPropertyTypeMapByName.AddRange(result.StandardTypes.PropertyTypes.ToDictionary(pt => pt.Name));
+            ISet<string> groupNamesToLookup;
+            ISet<string> userNamesToLookup;
+            ISet<int> groupIdsToLookup;
+            ISet<int> userIdsToLookup;
+            CollectUsersAndGroupsToLookup(workflow, out userNamesToLookup, out groupNamesToLookup,
+                out userIdsToLookup, out groupIdsToLookup, ignoreIds);
+            result.Users.AddRange(await _userRepository.GetExistingUsersByNames(userNamesToLookup));
+            result.Groups.AddRange(await _userRepository.GetExistingGroupsByNames(groupNamesToLookup, false));
+
+            if (!ignoreIds)
+            {
+                result.StandardArtifactTypeMapById.AddRange(result.StandardTypes.ArtifactTypes.ToDictionary(pt => pt.Id));
+                result.StandardPropertyTypeMapById.AddRange(result.StandardTypes.PropertyTypes.ToDictionary(pt => pt.Id));
+                result.Users.AddRange(await _userRepository.GetExistingUsersByIds(userIdsToLookup));
+                result.Groups.AddRange(await _userRepository.GetExistingGroupsByIds(groupIdsToLookup, false));
+            }
+
+            return result;
+        }
+
+        private static void CollectUsersAndGroupsToLookup(IeWorkflow workflow, out ISet<string> userNamesToLookup,
+            out ISet<string> groupNamesToLookup, out ISet<int> userIdsToLookup, out ISet<int> groupIdsToLookup, bool ignoreIds)
+        {
+            var userNames = new HashSet<string>();
+            var groupNames = new HashSet<string>();
+            var userIds = new HashSet<int>();
+            var groupIds = new HashSet<int>();
 
             workflow.TransitionEvents?.ForEach(t =>
             {
-                t?.PermissionGroups?.ForEach(g => groups.Add(g.Name));
+                t?.PermissionGroups?.ForEach(g =>
+                {
+                    if (!ignoreIds && g.Id.HasValue)
+                    {
+                        groupIds.Add(g.Id.Value);
+                    }
+                    else
+                    {
+                        groupNames.Add(g.Name);
+                    }
+                });
             });
 
-            workflow.TransitionEvents?.ForEach(te => CollectUsersAndGroupsToLookup(te, users, groups));
-            workflow.PropertyChangeEvents?.ForEach(pce => CollectUsersAndGroupsToLookup(pce, users, groups));
-            workflow.NewArtifactEvents?.ForEach(nae => CollectUsersAndGroupsToLookup(nae, users, groups));
+            workflow.TransitionEvents?.ForEach(te => CollectUsersAndGroupsToLookup(te, userNames, groupNames,
+                userIds, groupIds, ignoreIds));
+            workflow.PropertyChangeEvents?.ForEach(pce => CollectUsersAndGroupsToLookup(pce, userNames, groupNames,
+                userIds, groupIds, ignoreIds));
+            workflow.NewArtifactEvents?.ForEach(nae => CollectUsersAndGroupsToLookup(nae, userNames, groupNames,
+                userIds, groupIds, ignoreIds));
 
-            usersToLookup = new HashSet<string>(users);
-            groupsToLookup = new HashSet<string>(groups);
+            userNamesToLookup = userNames;
+            groupNamesToLookup = groupNames;
+            userIdsToLookup = ignoreIds ? null : userIds;
+            groupIdsToLookup = ignoreIds ? null : groupIds;
         }
 
-        private static void CollectUsersAndGroupsToLookup(IeEvent wEvent, ISet<string> users, ISet<string> groups)
+        private static void CollectUsersAndGroupsToLookup(IeEvent wEvent, ISet<string> userNames, ISet<string> groupNames,
+            ISet<int> userIds, ISet<int> groupIds, bool ignoreIds)
         {
             wEvent?.Triggers?.ForEach(t =>
             {
@@ -114,11 +149,25 @@ namespace AdminStore.Services.Workflow
                     {
                         if (ug.IsGroup.GetValueOrDefault())
                         {
-                            groups.Add(ug.Name);
+                            if (!ignoreIds && ug.Id.HasValue)
+                            {
+                                groupIds.Add(ug.Id.Value);
+                            }
+                            else
+                            {
+                                groupNames.Add(ug.Name);
+                            }
                         }
                         else
                         {
-                            users.Add(ug.Name);
+                            if (!ignoreIds && ug.Id.HasValue)
+                            {
+                                userIds.Add(ug.Id.Value);
+                            }
+                            else
+                            {
+                                userNames.Add(ug.Name);
+                            }
                         }
                     });
                 }
@@ -420,7 +469,7 @@ namespace AdminStore.Services.Workflow
                 if (!ignoreIds && g.Id.HasValue)
                 {
                     string name;
-                    if (instanceGroupMapById.TryGetValue(g.Id.Value, out name))
+                    if (!instanceGroupMapById.TryGetValue(g.Id.Value, out name))
                     {
                         result.Errors.Add(new WorkflowDataValidationError
                         {
@@ -501,7 +550,7 @@ namespace AdminStore.Services.Workflow
             if (!ignoreIds && action.PropertyId.HasValue)
             {
                 PropertyType pt;
-                if (result.StandardPropertyTypeMapById.TryGetValue(action.PropertyId.Value, out pt))
+                if (!result.StandardPropertyTypeMapById.TryGetValue(action.PropertyId.Value, out pt))
                 {
                     result.Errors.Add(new WorkflowDataValidationError
                     {
@@ -551,7 +600,7 @@ namespace AdminStore.Services.Workflow
             if (!ignoreIds && action.PropertyId.HasValue)
             {
                 PropertyType pt;
-                if (result.StandardPropertyTypeMapById.TryGetValue(action.PropertyId.Value, out pt))
+                if (!result.StandardPropertyTypeMapById.TryGetValue(action.PropertyId.Value, out pt))
                 {
                     result.Errors.Add(new WorkflowDataValidationError
                     {

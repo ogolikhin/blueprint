@@ -18,7 +18,11 @@ namespace AdminStore.Repositories
 
         Task<IEnumerable<SqlGroup>> GetExistingGroupsByNames(IEnumerable<string> groupNames, bool instanceOnly);
 
+        Task<IEnumerable<SqlGroup>> GetExistingGroupsByIds(IEnumerable<int> groupIds, bool instanceOnly);
+
         Task<IEnumerable<SqlUser>> GetExistingUsersByNames(IEnumerable<string> userNames);
+
+        Task<IEnumerable<SqlUser>> GetExistingUsersByIds(IEnumerable<int> userIds);
 
         Task<IEnumerable<LicenseTransactionUser>> GetLicenseTransactionUserInfoAsync(IEnumerable<int> userIds);
 

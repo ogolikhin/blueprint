@@ -160,6 +160,9 @@ namespace ArtifactStore.Executors
         private void GenerateMessages(WorkflowEventTriggers postOpTriggers, VersionControlArtifactInfo artifactInfo,
             ArtifactResultSet artifactResultSet, int publishRevision, StateChangeResult result)
         {
+            var project = artifactResultSet?.Projects?.FirstOrDefault(d => d.Id == artifactInfo.ProjectId);
+            var baseHostUri = ServerUriHelper.GetBaseHostUri()?.ToString();
+
             foreach (var workflowEventTrigger in postOpTriggers)
             {
                 if (workflowEventTrigger?.Action == null)
@@ -189,33 +192,48 @@ namespace ArtifactStore.Executors
                             ChildCount = generateChildrenAction.ChildCount.GetValueOrDefault(10),
                             ArtifactTypeId = generateChildrenAction.ArtifactTypeId,
                             ArtifactId = artifactInfo.Id,
-                            RevisionId = publishRevision
+                            RevisionId = publishRevision,
+                            UserId = _userId,
+                            ProjectId = artifactInfo.ProjectId,
+                            UserName = _input.UserName,
+                            BaseHostUri = baseHostUri,
+                            ProjectName = project?.Name
                         };
                         result.ActionMessages.Add(generateChildrenMessage);
                         break;
                     case MessageActionType.GenerateTests:
                         var generateTestsAction = workflowEventTrigger.Action as GenerateTestCasesAction;
-                        if (generateTestsAction == null)
+                        if (generateTestsAction == null || artifactInfo.PredefinedType != ItemTypePredefined.Process)
                         {
                             continue;
                         }
                         var generateTestsMessage = new GenerateTestsMessage
                         {
                             ArtifactId = artifactInfo.Id,
-                            RevisionId = publishRevision
+                            RevisionId = publishRevision,
+                            UserId = _userId,
+                            ProjectId = artifactInfo.ProjectId,
+                            UserName = _input.UserName,
+                            BaseHostUri = baseHostUri,
+                            ProjectName = project?.Name
                         };
                         result.ActionMessages.Add(generateTestsMessage);
                         break;
                     case MessageActionType.GenerateUserStories:
                         var generateUserStories = workflowEventTrigger.Action as GenerateUserStoriesAction;
-                        if (generateUserStories == null)
+                        if (generateUserStories == null || artifactInfo.PredefinedType != ItemTypePredefined.Process)
                         {
                             continue;
                         }
                         var generateUserStoriesMessage = new GenerateUserStoriesMessage
                         {
                             ArtifactId = artifactInfo.Id,
-                            RevisionId = publishRevision
+                            RevisionId = publishRevision,
+                            UserId = _userId,
+                            ProjectId = artifactInfo.ProjectId,
+                            UserName = _input.UserName,
+                            BaseHostUri = baseHostUri,
+                            ProjectName = project?.Name
                         };
                         result.ActionMessages.Add(generateUserStoriesMessage);
                         break;

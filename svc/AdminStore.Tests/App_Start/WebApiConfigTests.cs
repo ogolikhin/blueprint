@@ -22,7 +22,7 @@ namespace AdminStore
             config.EnsureInitialized();
 
             // Assert
-            config.AssertTotalRoutes(66, "Please update asserts in WebApiConfigTests when changing routes.");
+            config.AssertTotalRoutes(68, "Please update asserts in WebApiConfigTests when changing routes.");
             config.AssertAction<ConfigController>("GetConfigSettings", HttpMethod.Get, "config/settings");
             config.AssertAction<ConfigController>("GetConfig", HttpMethod.Get, "config/config.js");
             config.AssertAction<ConfigController>("GetApplicationSettings", HttpMethod.Get, "config");
@@ -91,6 +91,8 @@ namespace AdminStore
             config.AssertAction<InstanceController>("DeleteRoleAssignment", HttpMethod.Post, "instance/projects/1/rolesassignments/delete");
             config.AssertAction<InstanceEmailSettingsController>("GetEmailSettings", HttpMethod.Get, "instance/emailsettings");
             config.AssertAction<InstanceEmailSettingsController>("UpdateEmailSettings", HttpMethod.Put, "instance/emailsettings");
+            config.AssertAction<InstanceController>("HasProjectExternalLocks", HttpMethod.Get, "instance/projects/1/hasprojectexternallocks");
+            config.AssertAction<GroupsController>("GetProjectGroupsAsync", HttpMethod.Get, "groups/1/available");
         }
 
         [TestMethod]

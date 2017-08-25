@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using ArtifactStore.Models.PropertyTypes;
 using ArtifactStore.Repositories;
@@ -6,6 +7,7 @@ using BluePrintSys.Messaging.CrossCutting.Models.Interfaces;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Helpers.Validators;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.PropertyType;
@@ -85,6 +87,58 @@ namespace ArtifactStore.Models.Workflow.Actions
             //Assert
             Assert.IsTrue(result);
             Assert.IsTrue(propertyLiteValue.NumberValue.HasValue);
+        }
+
+        [TestMethod]
+        public void ParseDateValue_ReturnsCurrentDate_WhenDateValueIsCurrentDate()
+        {
+            //arrange
+            const string dateValue = PropertyChangeAction.CurrentDate;
+            var today = new DateTime(2017, 1, 1);
+            var mockTimeProvider = new Mock<ITimeProvider>();
+            mockTimeProvider.Setup(m => m.Today).Returns(today);
+            //act
+            var date = PropertyChangeAction.ParseDateValue(dateValue, mockTimeProvider.Object);
+            //assert
+            Assert.AreEqual(today, date);
+        }
+
+        [TestMethod]
+        public void ParseDateValue_ReturnsFutureDate_WhenDateValueIsCurrentDatePlusInteger()
+        {
+            //arrange
+            const int daysToAdd = 1;
+            var dateValue = PropertyChangeAction.CurrentDate + PropertyChangeAction.Plus + daysToAdd;
+            var today = new DateTime(2018, 2, 2);
+            var mockTimeProvider = new Mock<ITimeProvider>();
+            mockTimeProvider.Setup(m => m.Today).Returns(today);
+            //act
+            var date = PropertyChangeAction.ParseDateValue(dateValue, mockTimeProvider.Object);
+            //assert
+            var expected = today.AddDays(daysToAdd);
+            Assert.AreEqual(expected, date);
+        }
+
+        [TestMethod]
+        public void ParseDateValue_ReturnsSpecifiedDate_WhenDateValueIsASpecificDate()
+        {
+            //arrange
+            var expectedDate = new DateTime(2019, 3, 3);
+            var dateValue = expectedDate.ToShortDateString();
+            //act
+            var date = PropertyChangeAction.ParseDateValue(dateValue, new TimeProvider());
+            //assert
+            Assert.AreEqual(expectedDate, date);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(FormatException))]
+        public void ParseDateValue_ThrowsFormatException_WhenDateValueIsInvalid()
+        {
+            //arrange
+            const string dateValue = "invalid date";
+            //act
+            PropertyChangeAction.ParseDateValue(dateValue, new TimeProvider());
         }
     }
 }

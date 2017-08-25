@@ -816,5 +816,139 @@ namespace AdminStore.Controllers
         }
 
         #endregion
+
+        #region Project Groups
+
+        [TestMethod]
+        public async Task GetProjectGroupsAsync_AllRequirementsIsSatisfied_ReturnOkNegotiatedResult()
+        {
+            // Arrange
+            var projectId = 100;
+            var projectGroups = new List<GroupDto>
+            {
+                new GroupDto()
+                {
+                    Name = "Group1"
+                },
+                new GroupDto()
+                {
+                    Name = "Group2"
+                },
+                new GroupDto()
+                {
+                    Name = "Group3"
+                }
+            };
+
+            QueryResult<GroupDto> groupsQueryResult = new QueryResult<GroupDto>() {Items = projectGroups, Total = 3};
+
+            var pagination = new Pagination() { Limit = 5, Offset = 0 };
+            var sorting = new Sorting() { Order = SortOrder.Asc, Sort = "Name" };
+
+            _privilegesRepository
+            .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+
+            _privilegesRepository
+                .Setup(r => r.GetProjectAdminPermissionsAsync(SessionUserId, projectId))
+                .ReturnsAsync(ProjectAdminPrivileges.ViewGroupsAndRoles);
+
+            _sqlGroupRepositoryMock
+                .Setup(repo => repo.GetProjectGroupsAsync(It.IsAny<int>(), It.IsAny<TabularData>(), It.IsAny<Func<Sorting, string>>()))
+                .ReturnsAsync(groupsQueryResult);
+
+            // Act
+            var result = await _controller.GetProjectGroupsAsync(projectId, pagination, sorting) as OkNegotiatedContentResult<QueryResult<GroupDto>>;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(result.Content, groupsQueryResult);
+
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task GetProjectGroupsAsync_Failed_NoPermissions_ReturnForbiddenResult()
+        {
+            // Arrange
+            var projectId = 100;
+            var projectGroups = new List<GroupDto>
+            {
+                new GroupDto()
+                {
+                    Name = "Group1"
+                },
+                new GroupDto()
+                {
+                    Name = "Group2"
+                },
+                new GroupDto()
+                {
+                    Name = "Group3"
+                }
+            };
+
+            QueryResult<GroupDto> groupsQueryResult = new QueryResult<GroupDto>() { Items = projectGroups, Total = 3 };
+
+            var pagination = new Pagination() { Limit = 5, Offset = 0 };
+            var sorting = new Sorting() { Order = SortOrder.Asc, Sort = "Name" };
+
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
+            _privilegesRepository
+                .Setup(r => r.GetProjectAdminPermissionsAsync(SessionUserId, projectId)).ReturnsAsync(ProjectAdminPrivileges.None);
+
+            _sqlGroupRepositoryMock
+                .Setup(repo => repo.GetProjectGroupsAsync(It.IsAny<int>(), It.IsAny<TabularData>(), It.IsAny<Func<Sorting, string>>()))
+                .ReturnsAsync(groupsQueryResult);
+
+            // Act
+            var result = await _controller.GetProjectGroupsAsync(projectId, pagination, sorting) as OkNegotiatedContentResult<QueryResult<GroupDto>>;
+
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task GetProjectGroupsAsync_IncorrectModel_ReturnBadRequestResult()
+        {
+            // Arrange
+            var projectId = 100;
+            var projectGroups = new List<GroupDto>
+            {
+                new GroupDto()
+                {
+                    Name = "Group1"
+                },
+                new GroupDto()
+                {
+                    Name = "Group2"
+                },
+                new GroupDto()
+                {
+                    Name = "Group3"
+                }
+            };
+
+            QueryResult<GroupDto> groupsQueryResult = new QueryResult<GroupDto>() { Items = projectGroups, Total = 3 };
+
+            var sorting = new Sorting() { Order = SortOrder.Asc, Sort = "Name" };
+
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
+            _privilegesRepository
+                .Setup(r => r.GetProjectAdminPermissionsAsync(UserId, projectId)).ReturnsAsync(ProjectAdminPrivileges.None);
+
+            _sqlGroupRepositoryMock
+                .Setup(repo => repo.GetProjectGroupsAsync(It.IsAny<int>(), It.IsAny<TabularData>(), It.IsAny<Func<Sorting, string>>()))
+                .ReturnsAsync(groupsQueryResult);
+
+            // Act
+            var result = await _controller.GetProjectGroupsAsync(projectId, null, sorting) as OkNegotiatedContentResult<QueryResult<GroupDto>>;
+
+        }
+        
+        #endregion
     }
 }

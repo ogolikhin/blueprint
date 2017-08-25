@@ -286,8 +286,13 @@ namespace ArtifactStore.Executors
             var artifacts = new List<PublishedArtifactInformation>();
             var artifact = new PublishedArtifactInformation
             {
-                Id = artifactInfo.Id, Name = artifactInfo.Name, Predefined = (int) artifactInfo.PredefinedType, IsFirstTimePublished = false, //State change always occurs on published artifacts
-                ProjectId = artifactInfo.ProjectId, Url = ServerUriHelper.GetArtifactUrl(artifactInfo.Id)
+                Id = artifactInfo.Id,
+                Name = artifactInfo.Name,
+                Predefined = (int) artifactInfo.PredefinedType,
+                IsFirstTimePublished = false, //State change always occurs on published artifacts
+                ProjectId = artifactInfo.ProjectId,
+                Url = ServerUriHelper.GetArtifactUrl(artifactInfo.Id),
+                ModifiedProperties = new List<PublishedPropertyInformation>()
             };
             
             IList<Property> modifiedProperties;

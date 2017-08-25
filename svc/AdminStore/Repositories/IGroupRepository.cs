@@ -16,5 +16,8 @@ namespace AdminStore.Repositories
         Task<QueryResult<GroupUser>> GetGroupMembersAsync(int groupId, TabularData tabularData, Func<Sorting, string> sort = null);
         Task<int> DeleteMembersFromGroupAsync(int groupId, AssignScope body);
         Task<int> AssignMembers(int groupId, AssignScope scope, string search = null);
+        Task<QueryResult<GroupDto>> GetProjectGroupsAsync(int projectId, TabularData tabularData,
+             Func<Sorting, string> sort = null);
+
     }
 }

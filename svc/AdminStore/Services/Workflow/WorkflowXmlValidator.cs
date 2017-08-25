@@ -622,8 +622,8 @@ namespace AdminStore.Services.Workflow
         private bool _hasArtifactTypeGenerateChildrenActionNotSpecitiedError;
         private bool _hasChildCountGenerateChildrenActionNotSpecitiedError;
         private bool _hasChildCountGenerateChildrenActionNotValidError;
-        private bool _hasArtifactTypeIrrelevantOnNotGenerateChildrenActionError;
-        private bool _hasChildCountIrrelevantOnNotGenerateChildrenActionError;
+        private bool _hasArtifactTypeApplicableOnlyToGenerateChildArtifactActionError;
+        private bool _hasChildCountApplicableOnlyToGenerateChildArtifactActionError;
         private bool _hasStateConditionNotOnTriggerOfPropertyChangeEventError;
         private bool _hasStateStateConditionNotSpecifiedError;
         private bool _hasPropertyNamePropertyChangeActionNotSupportedError;
@@ -643,8 +643,8 @@ namespace AdminStore.Services.Workflow
             _hasArtifactTypeGenerateChildrenActionNotSpecitiedError = false;
             _hasChildCountGenerateChildrenActionNotSpecitiedError = false;
             _hasChildCountGenerateChildrenActionNotValidError = false;
-            _hasArtifactTypeIrrelevantOnNotGenerateChildrenActionError = false;
-            _hasChildCountIrrelevantOnNotGenerateChildrenActionError = false;
+            _hasArtifactTypeApplicableOnlyToGenerateChildArtifactActionError = false;
+            _hasChildCountApplicableOnlyToGenerateChildArtifactActionError = false;
             _hasStateConditionNotOnTriggerOfPropertyChangeEventError = false;
             _hasStateStateConditionNotSpecifiedError = false;
             _hasPropertyNamePropertyChangeActionNotSupportedError = false;
@@ -882,26 +882,26 @@ namespace AdminStore.Services.Workflow
             }
             else
             {
-                if (!_hasArtifactTypeIrrelevantOnNotGenerateChildrenActionError
+                if (!_hasArtifactTypeApplicableOnlyToGenerateChildArtifactActionError
                     && action.ArtifactType != null)
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
                         Element = action,
-                        ErrorCode = WorkflowXmlValidationErrorCodes.ArtifactTypeIrrelevantOnNotGenerateChildrenAction
+                        ErrorCode = WorkflowXmlValidationErrorCodes.ArtifactTypeApplicableOnlyToGenerateChildArtifactAction
                     });
-                    _hasArtifactTypeIrrelevantOnNotGenerateChildrenActionError = true;
+                    _hasArtifactTypeApplicableOnlyToGenerateChildArtifactActionError = true;
                 }
 
-                if (!_hasChildCountIrrelevantOnNotGenerateChildrenActionError
+                if (!_hasChildCountApplicableOnlyToGenerateChildArtifactActionError
                     && action.ChildCount != null)
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
                         Element = action,
-                        ErrorCode = WorkflowXmlValidationErrorCodes.ChildCountIrrelevantOnNotGenerateChildrenAction
+                        ErrorCode = WorkflowXmlValidationErrorCodes.ChildCountApplicableOnlyToGenerateChildArtifactAction
                     });
-                    _hasChildCountIrrelevantOnNotGenerateChildrenActionError = true;
+                    _hasChildCountApplicableOnlyToGenerateChildArtifactActionError = true;
                 }
             }
         }

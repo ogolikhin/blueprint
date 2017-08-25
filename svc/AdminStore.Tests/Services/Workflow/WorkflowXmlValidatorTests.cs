@@ -1364,7 +1364,7 @@ namespace AdminStore.Services.Workflow
         }
 
         [TestMethod]
-        public void Validate_ArtifactTypeIrrelevantOnNotGenerateChildrenAction_GenerateUserStories_ReturnsArtifactTypeIrrelevantOnNotGenerateChildrenActionError()
+        public void Validate_ArtifactTypeApplicableOnlyToGenerateChildArtifactAction_GenerateUserStories_ReturnsArtifactTypeApplicableOnlyToGenerateChildArtifactActionError()
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
@@ -1397,11 +1397,11 @@ namespace AdminStore.Services.Workflow
             // Assert
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(WorkflowXmlValidationErrorCodes.ArtifactTypeIrrelevantOnNotGenerateChildrenAction, result.Errors[0].ErrorCode);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.ArtifactTypeApplicableOnlyToGenerateChildArtifactAction, result.Errors[0].ErrorCode);
         }
 
         [TestMethod]
-        public void Validate_ArtifactTypeIrrelevantOnNotGenerateChildrenAction_GenerateTestCases_ReturnsArtifactTypeIrrelevantOnNotGenerateChildrenActionError()
+        public void Validate_ArtifactTypeApplicableOnlyToGenerateChildArtifactAction_GenerateTestCases_ReturnsArtifactTypeApplicableOnlyToGenerateChildArtifactActionError()
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
@@ -1434,11 +1434,11 @@ namespace AdminStore.Services.Workflow
             // Assert
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(WorkflowXmlValidationErrorCodes.ArtifactTypeIrrelevantOnNotGenerateChildrenAction, result.Errors[0].ErrorCode);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.ArtifactTypeApplicableOnlyToGenerateChildArtifactAction, result.Errors[0].ErrorCode);
         }
 
         [TestMethod]
-        public void Validate_ChildCountIrrelevantOnNotGenerateChildrenAction_GenerateUserStories_ReturnsChildCountIrrelevantOnNotGenerateChildrenActionError()
+        public void Validate_ChildCountApplicableOnlyToGenerateChildArtifactAction_GenerateChildCountApplicableOnlyToGenerateChildArtifactActionError()
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
@@ -1471,11 +1471,11 @@ namespace AdminStore.Services.Workflow
             // Assert
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(WorkflowXmlValidationErrorCodes.ChildCountIrrelevantOnNotGenerateChildrenAction, result.Errors[0].ErrorCode);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.ChildCountApplicableOnlyToGenerateChildArtifactAction, result.Errors[0].ErrorCode);
         }
 
         [TestMethod]
-        public void Validate_ChildCountIrrelevantOnNotGenerateChildrenAction_GenerateTestCases_ReturnsChildCountIrrelevantOnNotGenerateChildrenActionError()
+        public void Validate_ChildCountApplicableOnlyToGenerateChildArtifactAction_GenerateTestCases_ReturnsChildCountApplicableOnlyToGenerateChildArtifactActionError()
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
@@ -1508,7 +1508,7 @@ namespace AdminStore.Services.Workflow
             // Assert
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(WorkflowXmlValidationErrorCodes.ChildCountIrrelevantOnNotGenerateChildrenAction, result.Errors[0].ErrorCode);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.ChildCountApplicableOnlyToGenerateChildArtifactAction, result.Errors[0].ErrorCode);
         }
 
         [TestMethod]

@@ -63,8 +63,8 @@ namespace AdminStore.Services.Workflow
         private const string TemplateXmlArtifactTypeGenerateChildrenActionNotSpecitied = "One or more Generate Child Artifacts Actions do not have a specified Artifact Type. A Generate Child Artifacts Action must have an Artifact Type.";
         private const string TemplateXmlChildCountGenerateChildrenActionNotSpecitied = "One or more Generate Child Artifacts Actions do not have a specified Child Count. A Generate Child Artifacts Action must have a Child Count.";
         private const string TemplateXmlChildCountGenerateChildrenActionNotValid = "One or more Generate Child Artifacts Actions have an invalid Child Count. The Child Count of A Generate Child Artifacts Action must be between 1 and 10 inclusive.";
-        private const string TemplateXmlArtifactTypeIrrelevantOnNotGenerateChildrenAction = "One or more Generate Test Cases or Generate User Stories Actions have the irrelevant Artifact Type. The Artifact Type is relevant only for the Generate Child Artifacts Action.";
-        private const string TemplateXmlChildCountIrrelevantOnNotGenerateChildrenAction = "One or more Generate Test Cases or Generate User Stories Actions have the irrelevant Child Count. The Child Count is relevant only for the Generate Child Artifacts Action.";
+        private const string TemplateXmlArtifactTypeApplicableOnlyToGenerateChildArtifactAction = "One or more Generate Test Cases or Generate User Stories Actions have a not applicable parameter: Artifact Type. The Artifact Type is applicable only to the Generate Child Artifacts Action.";
+        private const string TemplateXmlChildCountApplicableOnlyToGenerateChildArtifactAction = "One or more Generate Test Cases or Generate User Stories Actions have a not applicable parameter: Child Count. The Child Count is applicable only to the Generate Child Artifacts Action.";
         private const string TemplateXmlStateConditionNotOnTriggerOfPropertyChangeEvent = "One or more Triggers of Transitions or New Artifact Events have a State Condition. Only Triggers of Property Change Events can have a State Condition.";
         private const string TemplateXmlStateStateConditionNotSpecified = "One or more States missing on State Conditions of Triggers. The State must be specified on a State Condition.";
         private const string TemplateXmlStateStateConditionNotFound = "State '{0}' of a State Condition is not found. The State of a State Condition must be in the Workflow.";
@@ -368,12 +368,12 @@ namespace AdminStore.Services.Workflow
                     template = TemplateXmlChildCountGenerateChildrenActionNotValid;
                     errParams = new object[] { };
                     break;
-                case WorkflowXmlValidationErrorCodes.ArtifactTypeIrrelevantOnNotGenerateChildrenAction:
-                    template = TemplateXmlArtifactTypeIrrelevantOnNotGenerateChildrenAction;
+                case WorkflowXmlValidationErrorCodes.ArtifactTypeApplicableOnlyToGenerateChildArtifactAction:
+                    template = TemplateXmlArtifactTypeApplicableOnlyToGenerateChildArtifactAction;
                     errParams = new object[] { };
                     break;
-                case WorkflowXmlValidationErrorCodes.ChildCountIrrelevantOnNotGenerateChildrenAction:
-                    template = TemplateXmlChildCountIrrelevantOnNotGenerateChildrenAction;
+                case WorkflowXmlValidationErrorCodes.ChildCountApplicableOnlyToGenerateChildArtifactAction:
+                    template = TemplateXmlChildCountApplicableOnlyToGenerateChildArtifactAction;
                     errParams = new object[] { };
                     break;
                 case WorkflowXmlValidationErrorCodes.StateConditionNotOnTriggerOfPropertyChangeEvent:

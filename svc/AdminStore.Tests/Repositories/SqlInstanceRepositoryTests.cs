@@ -449,7 +449,6 @@ namespace AdminStore.Repositories
 
         #endregion GetInstanceRolesAsync
 
-
         #region CreateFolderAsync
 
         [TestMethod]
@@ -908,7 +907,6 @@ namespace AdminStore.Repositories
 
         #endregion
 
-
         #region GetProjectRoleAssignmentsAsync
 
         [TestMethod]
@@ -992,6 +990,28 @@ namespace AdminStore.Repositories
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(deleteRoleAssignmentCount, result);
+        }
+
+        #endregion
+
+        #region HasProjectExternalLocksAsync
+
+        [TestMethod]
+        public async Task HasProjectExternalLocksAsync_ExistingUserAndProject_ReturnIntValueCheckingIfProjectHasExternalLocks()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            var userId = 1;
+            var hasProjectExternalLocksAsync = 1;
+            cxn.SetupExecuteScalarAsync("IsProjectHasForeignLocks", It.IsAny<Dictionary<string, object>>(), hasProjectExternalLocksAsync);
+
+            // Act
+            var result = await repository.HasProjectExternalLocksAsync(userId, ProjectId);
+
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(result, hasProjectExternalLocksAsync);
         }
 
         #endregion

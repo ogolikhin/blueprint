@@ -20,7 +20,7 @@ th, td {
 
 <body style="margin:0; padding:0;">
 
-	<p><#= Email.Body #></p>
+	<p><#= Email.Header #></p>
 
 	<table>
 		<tr>
@@ -36,6 +36,11 @@ th, td {
 		<tr>
 			<td>Artifact Name</td>
 			<td><#= Email.ArtifactName #></td>
+		</tr>
+
+		<tr>
+			<td>Message</td>
+			<td><#= Email.Body #></td>
 		</tr>
 
 		<tr>

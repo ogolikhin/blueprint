@@ -176,6 +176,7 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
                         Subject = notificationAction.Subject,
                         From = notificationAction.FromDisplayName,
                         To = notificationAction.Emails,
+                        Header = notificationAction.Header,
                         MessageTemplate = notificationAction.Message,
                         RevisionId = message.RevisionId,
                         UserId = message.UserId,

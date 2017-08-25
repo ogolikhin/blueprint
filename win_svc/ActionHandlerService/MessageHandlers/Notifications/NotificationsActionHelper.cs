@@ -41,7 +41,8 @@ namespace ActionHandlerService.MessageHandlers.Notifications
                 message.ArtifactId,
                 message.ArtifactName ?? string.Empty,
                 message.ArtifactUrl ?? string.Empty,
-                message.MessageTemplate ?? string.Empty);
+                message.MessageTemplate ?? string.Empty,
+                message.Header ?? string.Empty);
 
             var emailMessage = new Message
             {

@@ -56,7 +56,8 @@ namespace ActionHandlerService.Helpers
                     var emailNotification = new EmailNotificationAction
                     {
                         ConditionalStateId = condition?.StateId,
-                        PropertyTypeId = workflowEvent.EventPropertyTypeId ?? 0
+                        PropertyTypeId = workflowEvent.EventPropertyTypeId ?? 0,
+                        Message = action.Message
                     };
                     emailNotification.Emails.AddRange(action.Emails);
                     notifications.Add(emailNotification);

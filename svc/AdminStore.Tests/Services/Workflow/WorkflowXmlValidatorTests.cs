@@ -1364,6 +1364,154 @@ namespace AdminStore.Services.Workflow
         }
 
         [TestMethod]
+        public void Validate_ArtifactTypeIrrelevantOnNotGenerateChildrenAction_GenerateUserStories_ReturnsArtifactTypeIrrelevantOnNotGenerateChildrenActionError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.TransitionEvents?.ForEach(e => e.Triggers?.ForEach(t =>
+            {
+                if (t?.Action?.ActionType == ActionTypes.Generate)
+                {
+                    var action = (IeGenerateAction)t.Action;
+                    if (action.GenerateActionType == GenerateActionTypes.UserStories)
+                    {
+                        action.ArtifactType = "a";
+                    }
+                }
+            }));
+            _workflow.NewArtifactEvents?.ForEach(e => e.Triggers?.ForEach(t =>
+            {
+                if (t?.Action?.ActionType == ActionTypes.Generate)
+                {
+                    var action = (IeGenerateAction)t.Action;
+                    if (action.GenerateActionType == GenerateActionTypes.UserStories)
+                    {
+                        action.ArtifactType = "a";
+                    }
+                }
+            }));
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.ArtifactTypeIrrelevantOnNotGenerateChildrenAction, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
+        public void Validate_ArtifactTypeIrrelevantOnNotGenerateChildrenAction_GenerateTestCases_ReturnsArtifactTypeIrrelevantOnNotGenerateChildrenActionError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.TransitionEvents?.ForEach(e => e.Triggers?.ForEach(t =>
+            {
+                if (t?.Action?.ActionType == ActionTypes.Generate)
+                {
+                    var action = (IeGenerateAction)t.Action;
+                    if (action.GenerateActionType == GenerateActionTypes.TestCases)
+                    {
+                        action.ArtifactType = "a";
+                    }
+                }
+            }));
+            _workflow.NewArtifactEvents?.ForEach(e => e.Triggers?.ForEach(t =>
+            {
+                if (t?.Action?.ActionType == ActionTypes.Generate)
+                {
+                    var action = (IeGenerateAction)t.Action;
+                    if (action.GenerateActionType == GenerateActionTypes.TestCases)
+                    {
+                        action.ArtifactType = "a";
+                    }
+                }
+            }));
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.ArtifactTypeIrrelevantOnNotGenerateChildrenAction, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
+        public void Validate_ChildCountIrrelevantOnNotGenerateChildrenAction_GenerateUserStories_ReturnsChildCountIrrelevantOnNotGenerateChildrenActionError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.TransitionEvents?.ForEach(e => e.Triggers?.ForEach(t =>
+            {
+                if (t?.Action?.ActionType == ActionTypes.Generate)
+                {
+                    var action = (IeGenerateAction)t.Action;
+                    if (action.GenerateActionType == GenerateActionTypes.UserStories)
+                    {
+                        action.ChildCount = 2;
+                    }
+                }
+            }));
+            _workflow.NewArtifactEvents?.ForEach(e => e.Triggers?.ForEach(t =>
+            {
+                if (t?.Action?.ActionType == ActionTypes.Generate)
+                {
+                    var action = (IeGenerateAction)t.Action;
+                    if (action.GenerateActionType == GenerateActionTypes.UserStories)
+                    {
+                        action.ChildCount = 1;
+                    }
+                }
+            }));
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.ChildCountIrrelevantOnNotGenerateChildrenAction, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
+        public void Validate_ChildCountIrrelevantOnNotGenerateChildrenAction_GenerateTestCases_ReturnsChildCountIrrelevantOnNotGenerateChildrenActionError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.TransitionEvents?.ForEach(e => e.Triggers?.ForEach(t =>
+            {
+                if (t?.Action?.ActionType == ActionTypes.Generate)
+                {
+                    var action = (IeGenerateAction)t.Action;
+                    if (action.GenerateActionType == GenerateActionTypes.TestCases)
+                    {
+                        action.ChildCount = 2;
+                    }
+                }
+            }));
+            _workflow.NewArtifactEvents?.ForEach(e => e.Triggers?.ForEach(t =>
+            {
+                if (t?.Action?.ActionType == ActionTypes.Generate)
+                {
+                    var action = (IeGenerateAction)t.Action;
+                    if (action.GenerateActionType == GenerateActionTypes.TestCases)
+                    {
+                        action.ChildCount = 1;
+                    }
+                }
+            }));
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.ChildCountIrrelevantOnNotGenerateChildrenAction, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
         public void Validate_StateConditionNotOnTriggerOfPropertyChangeEvent_ReturnsStateConditionNotOnTriggerOfPropertyChangeEventError()
         {
             // Arrange
@@ -1542,7 +1690,6 @@ namespace AdminStore.Services.Workflow
                             Action = new IeGenerateAction
                             {
                                 Name = "Action " + i,
-                                ArtifactType = "Process",
                                 GenerateActionType = GenerateActionTypes.UserStories
                             }
                         });

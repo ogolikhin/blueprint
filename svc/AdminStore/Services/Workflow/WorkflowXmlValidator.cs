@@ -622,6 +622,8 @@ namespace AdminStore.Services.Workflow
         private bool _hasArtifactTypeGenerateChildrenActionNotSpecitiedError;
         private bool _hasChildCountGenerateChildrenActionNotSpecitiedError;
         private bool _hasChildCountGenerateChildrenActionNotValidError;
+        private bool _hasArtifactTypeIrrelevantOnNotGenerateChildrenActionError;
+        private bool _hasChildCountIrrelevantOnNotGenerateChildrenActionError;
         private bool _hasStateConditionNotOnTriggerOfPropertyChangeEventError;
         private bool _hasStateStateConditionNotSpecifiedError;
         private bool _hasPropertyNamePropertyChangeActionNotSupportedError;
@@ -641,6 +643,8 @@ namespace AdminStore.Services.Workflow
             _hasArtifactTypeGenerateChildrenActionNotSpecitiedError = false;
             _hasChildCountGenerateChildrenActionNotSpecitiedError = false;
             _hasChildCountGenerateChildrenActionNotValidError = false;
+            _hasArtifactTypeIrrelevantOnNotGenerateChildrenActionError = false;
+            _hasChildCountIrrelevantOnNotGenerateChildrenActionError = false;
             _hasStateConditionNotOnTriggerOfPropertyChangeEventError = false;
             _hasStateStateConditionNotSpecifiedError = false;
             _hasPropertyNamePropertyChangeActionNotSupportedError = false;
@@ -874,6 +878,30 @@ namespace AdminStore.Services.Workflow
                         ErrorCode = WorkflowXmlValidationErrorCodes.ChildCountGenerateChildrenActionNotValid
                     });
                     _hasChildCountGenerateChildrenActionNotValidError = true;
+                }
+            }
+            else
+            {
+                if (!_hasArtifactTypeIrrelevantOnNotGenerateChildrenActionError
+                    && action.ArtifactType != null)
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = action,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.ArtifactTypeIrrelevantOnNotGenerateChildrenAction
+                    });
+                    _hasArtifactTypeIrrelevantOnNotGenerateChildrenActionError = true;
+                }
+
+                if (!_hasChildCountIrrelevantOnNotGenerateChildrenActionError
+                    && action.ChildCount != null)
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = action,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.ChildCountIrrelevantOnNotGenerateChildrenAction
+                    });
+                    _hasChildCountIrrelevantOnNotGenerateChildrenActionError = true;
                 }
             }
         }

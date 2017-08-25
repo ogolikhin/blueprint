@@ -751,9 +751,9 @@ namespace ServiceLibrary.Repositories
             }
 
             var param = new DynamicParameters();
-            param.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
             param.Add("@userId", userId);
-
+            param.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
+            
             var artifacts = (await ConnectionWrapper.QueryAsync<ProcessInfo>("GetProcessInformation", param, commandType: CommandType.StoredProcedure));
 
             //return artifacts.Where(a => a.ProcessType == ProcessType.UserToSystemProcess);

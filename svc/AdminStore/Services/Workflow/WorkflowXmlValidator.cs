@@ -594,7 +594,10 @@ namespace AdminStore.Services.Workflow
             if (_isConventionNamesInUse)
             {
                 var match = Regex.Match(property, ConventionNameRegex);
-                conventionExtra = match.Value.Length + (property.Length > match.Value.Length ? 1 : 0); // take into account the space
+                if(match.Value.Length > 0)
+                {
+                    conventionExtra = match.Value.Length + (property.Length > match.Value.Length ? 1 : 0); // take into account the space
+                }
             }
 
             return !(property.Length > limit + conventionExtra);

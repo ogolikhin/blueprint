@@ -143,7 +143,7 @@ namespace AdminStore.Repositories.Workflow
 
             return result;
         }
-        public async Task UpdateWorkflowsChangedWithRevisions(int workflowId, int revisionId, IDbTransaction transaction = null)
+        public async Task UpdateWorkflowsChangedWithRevisionsAsync(int workflowId, int revisionId, IDbTransaction transaction = null)
         {
             if (workflowId < 1)
             {
@@ -226,7 +226,7 @@ namespace AdminStore.Repositories.Workflow
                 transaction, commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<IEnumerable<SqlProjectPathPair>> GetProjectIdsByProjectPaths(IEnumerable<string> projectPaths)
+        public async Task<IEnumerable<SqlProjectPathPair>> GetProjectIdsByProjectPathsAsync(IEnumerable<string> projectPaths)
         {
             var dProjectPaths = projectPaths.ToList();
             if (!dProjectPaths.Any())
@@ -241,7 +241,7 @@ namespace AdminStore.Repositories.Workflow
                 commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<IEnumerable<SqlArtifactTypesWorkflowDetails>> GetExistingStandardArtifactTypesForWorkflows(IEnumerable<string> artifactTypes, IEnumerable<int> projectIds)
+        public async Task<IEnumerable<SqlArtifactTypesWorkflowDetails>> GetExistingStandardArtifactTypesForWorkflowsAsync(IEnumerable<string> artifactTypes, IEnumerable<int> projectIds)
         {
             var dArtifactTypes = artifactTypes.ToList();
             if (!dArtifactTypes.Any())
@@ -278,7 +278,7 @@ namespace AdminStore.Repositories.Workflow
                 commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<IEnumerable<int>> GetExistingProjectsByIds(IEnumerable<int> projectIds)
+        public async Task<IEnumerable<int>> GetExistingProjectsByIdsAsync(IEnumerable<int> projectIds)
         {
             var dProjectIds = projectIds.ToList();
             if (!dProjectIds.Any())
@@ -298,7 +298,7 @@ namespace AdminStore.Repositories.Workflow
             return _sqlHelper.CreateRevisionInTransactionAsync(transaction, userId, description);
         }
 
-        public async Task<IEnumerable<string>> CheckLiveWorkflowsForNameUniqueness(IEnumerable<string> names)
+        public async Task<IEnumerable<string>> CheckLiveWorkflowsForNameUniquenessAsync(IEnumerable<string> names)
         {
             var prm = new DynamicParameters();
             prm.Add("@names", SqlConnectionWrapper.ToStringDataTable(names));
@@ -358,7 +358,7 @@ namespace AdminStore.Repositories.Workflow
             return result;
         }
         
-        public async Task<int> DeleteWorkflows(OperationScope body, string search, int revision, IDbTransaction transaction = null)
+        public async Task<int> DeleteWorkflowsAsync(OperationScope body, string search, int revision, IDbTransaction transaction = null)
         {
             if (search != null)
             {
@@ -400,7 +400,7 @@ namespace AdminStore.Repositories.Workflow
             return result;
         }
 
-        public async Task<IEnumerable<SqlWorkflow>> UpdateWorkflows(IEnumerable<SqlWorkflow> workflows, int revision, IDbTransaction transaction = null)
+        public async Task<IEnumerable<SqlWorkflow>> UpdateWorkflowsAsync(IEnumerable<SqlWorkflow> workflows, int revision, IDbTransaction transaction = null)
         {
             var prm = new DynamicParameters();
             prm.Add("@publishRevision", revision);

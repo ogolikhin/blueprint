@@ -7,9 +7,9 @@ namespace AdminStore.Services.Workflow
 {
     public interface IWorkflowService
     {
-        Task<ImportWorkflowResult> ImportWorkflowAsync(IeWorkflow workflow, string fileName, int userId);
+        Task<ImportWorkflowResult> ImportWorkflowAsync(IeWorkflow workflow, string fileName, int userId, string xmlSerError);
 
-        Task<ImportWorkflowResult> UpdateWorkflowViaImport(int workflowId, IeWorkflow workflow, string fileName, int userId);
+        Task<ImportWorkflowResult> UpdateWorkflowViaImport(int workflowId, IeWorkflow workflow, string fileName, int userId, string xmlSerError);
 
         IFileRepository FileRepository { get; set; }
 

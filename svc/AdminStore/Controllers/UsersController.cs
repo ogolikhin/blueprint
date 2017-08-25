@@ -158,7 +158,7 @@ namespace AdminStore.Controllers
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageUsers);
 
-            var result = await _userRepository.DeleteUsers(scope, search, Session.UserId);
+            var result = await _userRepository.DeleteUsersAsync(scope, search, Session.UserId);
 
             return Ok(new DeleteResult { TotalDeleted = result });
         }

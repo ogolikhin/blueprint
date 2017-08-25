@@ -33,35 +33,35 @@ namespace AdminStore.Services.Workflow
 
         #region Interface Implementation
 
-        public async Task<WorkflowDataValidationResult> ValidateData(IeWorkflow workflow)
+        public async Task<WorkflowDataValidationResult> ValidateDataAsync(IeWorkflow workflow)
         {
             if (workflow == null)
             {
                 throw new ArgumentNullException(nameof(workflow));
             }
 
-            var result = await InitializeDataValidationResult(workflow, true);
+            var result = await InitializeDataValidationResultAsync(workflow, true);
 
-            await ValidateWorkflowNameForUniqueness(result, workflow);
-            await ValidateProjectsData(result, workflow.Projects, false);
-            await ValidateArtifactTypesData(result, workflow.Projects, true);
-            await ValidateEventsData(result, workflow, true);
+            await ValidateWorkflowNameForUniquenessAsync(result, workflow);
+            await ValidateProjectsDataAsync(result, workflow.Projects, false);
+            await ValidateArtifactTypesDataAsync(result, workflow.Projects, null, true);
+            await ValidateEventsDataAsync(result, workflow, true);
 
             return result;
         }
 
-        public async Task<WorkflowDataValidationResult> ValidateUpdateData(IeWorkflow workflow)
+        public async Task<WorkflowDataValidationResult> ValidateUpdateDataAsync(IeWorkflow workflow)
         {
             if (workflow == null)
             {
                 throw new ArgumentNullException(nameof(workflow));
             }
 
-            var result = await InitializeDataValidationResult(workflow, false);
+            var result = await InitializeDataValidationResultAsync(workflow, false);
 
-            await ValidateProjectsData(result, workflow.Projects, true);
-            await ValidateArtifactTypesData(result, workflow.Projects, false);
-            await ValidateEventsData(result, workflow, false);
+            await ValidateProjectsDataAsync(result, workflow.Projects, true);
+            await ValidateArtifactTypesDataAsync(result, workflow.Projects, workflow.Id, false);
+            await ValidateEventsDataAsync(result, workflow, false);
 
             return result;
         }
@@ -71,7 +71,7 @@ namespace AdminStore.Services.Workflow
 
         #region Private methods
 
-        private async Task<WorkflowDataValidationResult> InitializeDataValidationResult(IeWorkflow workflow, bool ignoreIds)
+        private async Task<WorkflowDataValidationResult> InitializeDataValidationResultAsync(IeWorkflow workflow, bool ignoreIds)
         {
             var result = new WorkflowDataValidationResult();
 
@@ -87,14 +87,14 @@ namespace AdminStore.Services.Workflow
             ISet<int> userIdsToLookup;
             CollectUsersAndGroupsToLookup(workflow, out userNamesToLookup, out groupNamesToLookup,
                 out userIdsToLookup, out groupIdsToLookup, ignoreIds);
-            result.Users.AddRange(await _userRepository.GetExistingUsersByNames(userNamesToLookup));
-            result.Groups.AddRange(await _userRepository.GetExistingGroupsByNames(groupNamesToLookup, false));
+            result.Users.AddRange(await _userRepository.GetExistingUsersByNamesAsync(userNamesToLookup));
+            result.Groups.AddRange(await _userRepository.GetExistingGroupsByNamesAsync(groupNamesToLookup, false));
 
             if (!ignoreIds)
             {
                 result.StandardArtifactTypeMapById.AddRange(result.StandardTypes.ArtifactTypes.ToDictionary(pt => pt.Id));
                 result.StandardPropertyTypeMapById.AddRange(result.StandardTypes.PropertyTypes.ToDictionary(pt => pt.Id));
-                result.Users.AddRange(await _userRepository.GetExistingUsersByIds(userIdsToLookup));
+                result.Users.AddRange(await _userRepository.GetExistingUsersByIdsAsync(userIdsToLookup));
                 result.Groups.AddRange(await _userRepository.GetExistingGroupsByIds(groupIdsToLookup, false));
             }
 
@@ -174,9 +174,9 @@ namespace AdminStore.Services.Workflow
             });
         }
 
-        private async Task ValidateWorkflowNameForUniqueness(WorkflowDataValidationResult result, IeWorkflow workflow)
+        private async Task ValidateWorkflowNameForUniquenessAsync(WorkflowDataValidationResult result, IeWorkflow workflow)
         {
-            var duplicateNames = await _workflowRepository.CheckLiveWorkflowsForNameUniqueness(new[] {workflow.Name});
+            var duplicateNames = await _workflowRepository.CheckLiveWorkflowsForNameUniquenessAsync(new[] {workflow.Name});
             if (duplicateNames.Any())
             {
                 result.Errors.Add(new WorkflowDataValidationError
@@ -187,7 +187,7 @@ namespace AdminStore.Services.Workflow
             }
         }
 
-        private async Task ValidateProjectsData(WorkflowDataValidationResult result, List<IeProject> projects,
+        private async Task ValidateProjectsDataAsync(WorkflowDataValidationResult result, List<IeProject> projects,
             bool doNotLookupProjectPaths)
         {
             result.ValidProjectIds.Clear();
@@ -215,7 +215,7 @@ namespace AdminStore.Services.Workflow
                     //look up ID of projects that have no ID provided
                     foreach (
                         var sqlProjectPathPair in
-                            await _workflowRepository.GetProjectIdsByProjectPaths(projectPathsToLookup.Keys))
+                            await _workflowRepository.GetProjectIdsByProjectPathsAsync(projectPathsToLookup.Keys))
                     {
                         projectPaths[sqlProjectPathPair.ProjectId] = sqlProjectPathPair.ProjectPath;
                         // Assign ProjectId to projects without it.
@@ -238,7 +238,7 @@ namespace AdminStore.Services.Workflow
                 }
 
                 var projectIds = projectPaths.Select(p => p.Key).ToHashSet();
-                var validProjectIds = (await _workflowRepository.GetExistingProjectsByIds(projectIds)).ToArray();
+                var validProjectIds = (await _workflowRepository.GetExistingProjectsByIdsAsync(projectIds)).ToArray();
                 if (validProjectIds.Length != projectIds.Count)
                 {
                     foreach (var invalidId in projectIds.Where(pid => !validProjectIds.Contains(pid)))
@@ -263,8 +263,8 @@ namespace AdminStore.Services.Workflow
             }
         }
 
-        private async Task ValidateArtifactTypesData(WorkflowDataValidationResult result, List<IeProject> projects,
-            bool ignoreIds)
+        private async Task ValidateArtifactTypesDataAsync(WorkflowDataValidationResult result, List<IeProject> projects,
+            int? workflowId, bool ignoreIds)
         {
             if (projects.IsEmpty() || result.ValidProjectIds.IsEmpty())
             {
@@ -306,13 +306,15 @@ namespace AdminStore.Services.Workflow
 
             // TODO: Change the stored proc GetExistingStandardArtifactTypesForWorkflows
             var artifactTypeInWorkflowInfos =
-                (await _workflowRepository.GetExistingStandardArtifactTypesForWorkflows(
+                (await _workflowRepository.GetExistingStandardArtifactTypesForWorkflowsAsync(
                     artifactTypesInProjects, result.ValidProjectIds)).Where(i => i.WorkflowId.HasValue).
-                    Select(i => Tuple.Create(i.VersionProjectId, i.Name)).ToHashSet();
+                    ToDictionary(i => Tuple.Create(i.VersionProjectId, i.Name), i => i.WorkflowId);
 
             projects.ForEach(p => p?.ArtifactTypes?.Where(at => at.Name != null).ForEach(at =>
             {
-                if (artifactTypeInWorkflowInfos.Contains(Tuple.Create(p.Id.GetValueOrDefault(), at.Name)))
+                int? currentWorkflowId;
+                if (artifactTypeInWorkflowInfos.TryGetValue(Tuple.Create(p.Id.GetValueOrDefault(), at.Name), out currentWorkflowId)
+                    && (ignoreIds || currentWorkflowId != workflowId))
                 {
                     result.Errors.Add(new WorkflowDataValidationError
                     {
@@ -324,13 +326,13 @@ namespace AdminStore.Services.Workflow
             }));
         }
 
-        private async Task ValidateEventsData(WorkflowDataValidationResult result, IeWorkflow workflow,
+        private async Task ValidateEventsDataAsync(WorkflowDataValidationResult result, IeWorkflow workflow,
             bool ignoreIds)
         {
             // For the workflow update Ids are already filled in.
             if(ignoreIds)
             {
-                await FillInGroupProjectIds(result, workflow);
+                await FillInGroupProjectIdsAsync(result, workflow);
             }
 
             workflow.TransitionEvents?.ForEach(t => ValidateTransitionData(result, t, ignoreIds));
@@ -338,7 +340,7 @@ namespace AdminStore.Services.Workflow
             workflow.NewArtifactEvents?.ForEach(nae => ValidateNewArtifactEventData(result, nae, ignoreIds));
         }
 
-        private async Task FillInGroupProjectIds(WorkflowDataValidationResult result, IeWorkflow workflow)
+        private async Task FillInGroupProjectIdsAsync(WorkflowDataValidationResult result, IeWorkflow workflow)
         {
             var groupsWithoutProjectId = new List<IeUserGroup>();
             workflow.TransitionEvents?.ForEach(t => CollectGroupsWithUnassignedProjectId(t, groupsWithoutProjectId));
@@ -352,7 +354,7 @@ namespace AdminStore.Services.Workflow
             }
 
             var projectMap = (await
-                _workflowRepository.GetProjectIdsByProjectPaths(groupsWithoutProjectId.Select(g => g.GroupProjectPath)))
+                _workflowRepository.GetProjectIdsByProjectPathsAsync(groupsWithoutProjectId.Select(g => g.GroupProjectPath)))
                 .ToDictionary(p => p.ProjectPath, p => p.ProjectId);
             groupsWithoutProjectId.ForEach(g =>
             {

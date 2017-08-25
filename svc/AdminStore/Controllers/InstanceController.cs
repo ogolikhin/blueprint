@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -173,7 +172,6 @@ namespace AdminStore.Controllers
             return result;
         }
 
-     
         #region folders
 
         /// <summary>
@@ -258,7 +256,7 @@ namespace AdminStore.Controllers
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageProjects);
 
-            FolderValidator.ValidateModel(folderDto);
+            FolderValidator.ValidateModel(folderDto, folderId);
 
             await _instanceRepository.UpdateFolderAsync(folderId, folderDto);
 
@@ -349,6 +347,27 @@ namespace AdminStore.Controllers
         {
             var permissions = await _privilegesRepository.GetProjectAdminPermissionsAsync(Session.UserId , projectId );
             return Ok(permissions);
+        }
+
+        /// <summary>
+        /// Check if project has external locks
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <remarks>
+        /// Returns boolean, if there are any external locks for the specified instance project id.
+        /// </remarks>
+        /// <response code="200">OK. Boolean, if there are any external locks for the specified instance project id.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden The user does not have permissions to check if project has external locks</response>
+        [HttpGet, NoCache]
+        [Route("projects/{projectId:int:min(1)}/hasprojectexternallocks"), SessionRequired]
+        [ResponseType(typeof(HttpResponseMessage))]
+        public async Task<IHttpActionResult> HasProjectExternalLocks(int projectId)
+        {
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.DeleteProjects);
+
+            var hasProjectExternalLocks = await _instanceRepository.HasProjectExternalLocksAsync(Session.UserId, projectId);
+            return Ok(hasProjectExternalLocks);
         }
 
         #endregion
@@ -468,6 +487,5 @@ namespace AdminStore.Controllers
         }
 
         #endregion
-
     }
 }

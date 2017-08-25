@@ -9,6 +9,8 @@ using ServiceLibrary.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using AdminStore.Helpers;
+using ServiceLibrary.Models;
 
 namespace AdminStore.Repositories
 {
@@ -304,5 +306,78 @@ namespace AdminStore.Repositories
             // Exception
         }
         #endregion DeleteMembersFromGroupAsync
+
+        #region Project Group
+
+        [TestMethod]
+        public async Task GetProjectGroupsAsync_GroupsFound_NoErrors()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlGroupRepository(cxn.Object);
+            var projectId = 100;
+            int errorCode = 0;
+
+            GroupDto[] projectGroups =
+            {
+                new GroupDto()
+                {
+                    Name = "Group1"
+                },
+                new GroupDto()
+                {
+                    Name = "Group2"
+                },
+                new GroupDto()
+                {
+                    Name = "Group3"
+                }
+            };
+
+            var tabularData = new TabularData
+            {
+                Pagination = new Pagination {Limit = 10, Offset = 0},
+                Sorting = new Sorting {Order = SortOrder.Asc, Sort = "name"}
+            };
+
+            cxn.SetupQueryAsync("GetAvailableGroupsForProject",
+                new Dictionary<string, object> {{"projectId", projectId}},
+                projectGroups,
+                new Dictionary<string, object>() {{"ErrorCode", errorCode}});
+
+            // Act
+            await repository.GetProjectGroupsAsync(projectId, tabularData, SortingHelper.SortProjectGroups);
+
+            // Assert
+            cxn.Verify();
+        }
+
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task GetProjectGroupsAsync_ProjectNotFound_NotFoundError()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlGroupRepository(cxn.Object);
+            var projectId = 1;
+            var tabularData = new TabularData
+            {
+                Pagination = new Pagination {Limit = 10, Offset = 0},
+                Sorting = new Sorting {Order = SortOrder.Asc, Sort = "name"}
+            };
+            int errorCode = 50016; // there are no project for this projectId
+
+            GroupDto[] projectGroups = {};
+
+            cxn.SetupQueryAsync("GetAvailableGroupsForProject",
+                new Dictionary<string, object> {{"projectId", projectId}},
+                projectGroups,
+                new Dictionary<string, object>() {{"ErrorCode", errorCode}});
+
+            // Act
+            await repository.GetProjectGroupsAsync(projectId, tabularData);
+        }
+        #endregion
     }
 }

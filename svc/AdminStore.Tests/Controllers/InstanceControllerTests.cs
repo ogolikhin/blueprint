@@ -581,7 +581,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             var folderId = 1;
-            var updatedFolder = new FolderDto { Id = folderId, Name = "New Folder 1", Path = "Blueprint" };
+            var updatedFolder = new FolderDto { Name = "New Folder 1", Path = "Blueprint" };
             _privilegeRepositoryMock
                 .Setup(m => m.GetInstanceAdminPrivilegesAsync(UserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageProjects);
@@ -607,7 +607,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             var folderId = 1;
-            var updatedFolder = new FolderDto { Id = folderId, Name = "New Folder 1", ParentFolderId = folderId, Path = "Blueprint/New Folder 1" };
+            var updatedFolder = new FolderDto { Name = "New Folder 1", ParentFolderId = folderId, Path = "Blueprint/New Folder 1" };
             _privilegeRepositoryMock
                 .Setup(m => m.GetInstanceAdminPrivilegesAsync(UserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageProjects);

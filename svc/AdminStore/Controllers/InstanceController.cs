@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -173,7 +172,6 @@ namespace AdminStore.Controllers
             return result;
         }
 
-     
         #region folders
 
         /// <summary>
@@ -258,7 +256,7 @@ namespace AdminStore.Controllers
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageProjects);
 
-            FolderValidator.ValidateModel(folderDto);
+            FolderValidator.ValidateModel(folderDto, folderId);
 
             await _instanceRepository.UpdateFolderAsync(folderId, folderDto);
 
@@ -489,6 +487,5 @@ namespace AdminStore.Controllers
         }
 
         #endregion
-
     }
 }

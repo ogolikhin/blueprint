@@ -16,6 +16,7 @@ namespace AdminStore.Services.Workflow
         private const string XmlIsNotValid = "The supplied XML is not valid. Please edit your file and upload again.";
 
         // Messages for the XML validation.
+        private const string TemplateXmlWorkflowXmlSerializationError = "{0}";
         private const string TemplateXmlWorkflowNameEmpty = "The required field 'Name' of the Workflow is missing.";
         private const string TemplateXmlWorkflowNameExceedsLimit24 = "The field 'Name' of the Workflow is over the character limit of 24.";
         private const string TemplateXmlWorkflowDescriptionExceedsLimit4000 = "The field 'Description' of the Workflow is over the character limit of 4000.";
@@ -177,6 +178,10 @@ namespace AdminStore.Services.Workflow
 
             switch (error.ErrorCode)
             {
+                case WorkflowXmlValidationErrorCodes.WorkflowXmlSerializationError:
+                    template = TemplateXmlWorkflowXmlSerializationError;
+                    errParams = new object[] { (string) error.Element };
+                    break;
                 case WorkflowXmlValidationErrorCodes.WorkflowNameEmpty:
                     template = TemplateXmlWorkflowNameEmpty;
                     errParams = new object[] {};

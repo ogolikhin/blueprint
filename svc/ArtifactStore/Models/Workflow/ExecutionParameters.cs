@@ -64,8 +64,8 @@ namespace ArtifactStore.Models.Workflow
                 new List<IPropertyValidator>()
                 {
                     new NumberPropertyValidator(),
-                    new DatePropertyValidator()
-
+                    new DatePropertyValidator(),
+                    new UserPropertyValidator()
                 }, 
                 new ReusePropertyValidator())
         {

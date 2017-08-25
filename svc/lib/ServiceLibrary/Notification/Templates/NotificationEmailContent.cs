@@ -28,33 +28,17 @@ namespace ServiceLibrary.Notification.Templates
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write(@"
-<!doctype html>
-<html>
-<head>
-<meta charset=""utf-8"">
-<title>Email</title>
-<style>
-th, td {
-	text-align: left;
-	padding: 10px;
-}
-</style>
-</head>
-
-<body style=""margin:0; padding:0;"">
-
-	<p>You are being notified because of an update to the following artifact:</p>
-
-	<table>
-		<tr>
-			<th>Property</th>
-			<th>Value</th>
-		</tr>
-
-		<tr>
-			<td>Project Name</td>
-			<td>");
+            this.Write("\r\n<!doctype html>\r\n<html>\r\n<head>\r\n<meta charset=\"utf-8\">\r\n<title>Email</title>\r\n" +
+                    "<style>\r\nth, td {\r\n\ttext-align: left;\r\n\tpadding: 10px;\r\n}\r\n</style>\r\n</head>\r\n\r\n" +
+                    "<body style=\"margin:0; padding:0;\">\r\n\r\n\t<p>");
+            
+            #line 23 "C:\source\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Email.Header));
+            
+            #line default
+            #line hidden
+            this.Write("</p>\r\n\r\n\t<table>\r\n\t\t<tr>\r\n\t\t\t<th>Property</th>\r\n\t\t\t<th>Value</th>\r\n\t\t</tr>\r\n\r\n\t\t<" +
+                    "tr>\r\n\t\t\t<td>Project Name</td>\r\n\t\t\t<td>");
             
             #line 33 "C:\source\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Email.ProjectName));

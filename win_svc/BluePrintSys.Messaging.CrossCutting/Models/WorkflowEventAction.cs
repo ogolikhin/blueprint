@@ -52,6 +52,8 @@ namespace BluePrintSys.Messaging.CrossCutting.Models
 
         public int? PropertyTypeId { get; set; }
 
+        public string Header { get; set; } = "You are being notified because of an update to the following artifact:";
+
         public string Message { get; set; }
 
         public string FromDisplayName { get; set; } = string.Empty;

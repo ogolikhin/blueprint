@@ -20,7 +20,7 @@ th, td {
 
 <body style="margin:0; padding:0;">
 
-	<p>You are being notified because of an update to the following artifact:</p>
+	<p><#= Email.Header #></p>
 
 	<table>
 		<tr>

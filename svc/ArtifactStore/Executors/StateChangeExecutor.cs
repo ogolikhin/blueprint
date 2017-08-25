@@ -253,7 +253,7 @@ namespace ArtifactStore.Executors
         private NotificationMessage GetNotificationMessage(VersionControlArtifactInfo artifactInfo,
             ArtifactResultSet artifactResultSet, int publishRevision, EmailNotificationAction notificationAction)
         {
-            var artifactPartUrl = ServerUriHelper.GetArtifactUrl(artifactInfo.Id);
+            var artifactPartUrl = ServerUriHelper.GetArtifactUrl(artifactInfo.Id, true);
             if (artifactPartUrl == null)
             {
                 return null;
@@ -291,7 +291,7 @@ namespace ArtifactStore.Executors
                 Predefined = (int) artifactInfo.PredefinedType,
                 IsFirstTimePublished = false, //State change always occurs on published artifacts
                 ProjectId = artifactInfo.ProjectId,
-                Url = ServerUriHelper.GetArtifactUrl(artifactInfo.Id),
+                Url = ServerUriHelper.GetArtifactUrl(artifactInfo.Id, true),
                 ModifiedProperties = new List<PublishedPropertyInformation>()
             };
             

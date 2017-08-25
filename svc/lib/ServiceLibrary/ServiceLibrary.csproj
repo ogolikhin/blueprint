@@ -207,6 +207,7 @@
     <Compile Include="Models\ItemInfo.cs" />
     <Compile Include="Models\Jobs\AddJobResult.cs" />
     <Compile Include="Models\Jobs\DJobMessage.cs" />
+    <Compile Include="Models\Jobs\GenerateDescendantsInfo.cs" />
     <Compile Include="Models\Jobs\JobInfo.cs" />
     <Compile Include="Models\Jobs\ProcessTestGenerationRequest.cs" />
     <Compile Include="Models\Jobs\ProcessTestGenTaskResult.cs" />

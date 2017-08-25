@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using ArtifactStore.Helpers;
 using ArtifactStore.Models;
-using ArtifactStore.Models.PropertyTypes;
 using ArtifactStore.Models.Workflow;
 using ArtifactStore.Models.Workflow.Actions;
 using ArtifactStore.Repositories;
@@ -190,14 +189,15 @@ namespace ArtifactStore.Executors
                         var generateChildrenMessage = new GenerateDescendantsMessage
                         {
                             ChildCount = generateChildrenAction.ChildCount.GetValueOrDefault(10),
-                            ArtifactTypeId = generateChildrenAction.ArtifactTypeId,
+                            DesiredArtifactTypeId = generateChildrenAction.ArtifactTypeId,
                             ArtifactId = artifactInfo.Id,
                             RevisionId = publishRevision,
                             UserId = _userId,
                             ProjectId = artifactInfo.ProjectId,
                             UserName = _input.UserName,
                             BaseHostUri = baseHostUri,
-                            ProjectName = project?.Name
+                            ProjectName = project?.Name,
+                            TypePredefined = (int)artifactInfo.PredefinedType
                         };
                         result.ActionMessages.Add(generateChildrenMessage);
                         break;

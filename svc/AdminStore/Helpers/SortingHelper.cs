@@ -99,7 +99,7 @@ namespace AdminStore.Helpers
             {
                 defaultSortColumn,
                 "scope",
-                "licenseTitle"
+                "licenseType"
             };
 
             var column = sorting.Sort;

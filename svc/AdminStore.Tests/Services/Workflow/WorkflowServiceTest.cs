@@ -11,7 +11,7 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ProjectMeta;
 using AdminStore.Models;
-using System;
+using ArtifactStore.Helpers;
 
 namespace AdminStore.Services
 {
@@ -277,11 +277,11 @@ namespace AdminStore.Services
             //assert
             Assert.IsNotNull(workflowExport);
             Assert.IsFalse(workflowExport.IsActive);
-            Assert.IsTrue(workflowExport.Projects.Count == 0);
-            Assert.IsTrue(workflowExport.States.Count == 0);
-            Assert.IsTrue(workflowExport.TransitionEvents.Count == 0);
-            Assert.IsTrue(workflowExport.PropertyChangeEvents.Count == 0);
-            Assert.IsTrue(workflowExport.NewArtifactEvents.Count == 0);
+            Assert.IsTrue(workflowExport.Projects.IsEmpty());
+            Assert.IsTrue(workflowExport.States.IsEmpty());
+            Assert.IsTrue(workflowExport.TransitionEvents.IsEmpty());
+            Assert.IsTrue(workflowExport.PropertyChangeEvents.IsEmpty());
+            Assert.IsTrue(workflowExport.NewArtifactEvents.IsEmpty());
         }
         #endregion
     }

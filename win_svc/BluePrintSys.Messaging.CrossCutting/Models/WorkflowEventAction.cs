@@ -1,24 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using ServiceLibrary.Helpers.Validators;
+using BluePrintSys.Messaging.CrossCutting.Models.Interfaces;
 using ServiceLibrary.Models.Enums;
-using ServiceLibrary.Models.PropertyType;
-using ServiceLibrary.Models.Reuse;
 
 namespace BluePrintSys.Messaging.CrossCutting.Models
 {
-    public interface IExecutionParameters
-    {
-        ItemTypeReuseTemplate ReuseItemTemplate { get; }
-        List<DPropertyType> CustomPropertyTypes { get; }
-        IDbTransaction Transaction { get; }
-        IReadOnlyList<IPropertyValidator> Validators { get; }
-        int UserId { get; }
-    }
 
     public abstract class WorkflowEventAction
     {
@@ -31,7 +17,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Models
 
     public interface IWorkflowEventSynchronousAction
     {
-        bool ValidateActionToBeProcessed(IExecutionParameters executionParameters);
+        Task<bool> Execute(IExecutionParameters executionParameters);
     }
 
     public abstract class WorkflowEventSynchronousWorkflowEventAction : WorkflowEventAction, IWorkflowEventSynchronousAction
@@ -42,7 +28,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Models
             return await Task.FromResult(result);
         }
 
-        public abstract bool ValidateActionToBeProcessed(IExecutionParameters executionParameters);
+        protected abstract bool ValidateActionToBeProcessed(IExecutionParameters executionParameters);
 
     }
 

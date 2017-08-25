@@ -237,7 +237,7 @@ namespace ArtifactStore.Services
                 .ReturnsAsync(toState);
 
             //Act
-            var result = await _workflowServiceMock.ChangeStateForArtifactAsync(1, itemId, wfStateChangeParam);
+            var result = await _workflowServiceMock.ChangeStateForArtifactAsync(1, "admin", itemId, wfStateChangeParam);
 
             //Assert
             Assert.AreEqual(toState, result.Item);

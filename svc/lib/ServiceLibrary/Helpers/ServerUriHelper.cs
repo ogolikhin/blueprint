@@ -33,6 +33,15 @@ namespace ServiceLibrary.Helpers
             }
         }
 
+        public static Uri GetBaseHostUri()
+        {
+            if (HttpContext.Current?.Request?.Url == null)
+            {
+                return null;
+            }
+            return BaseHostUri;
+        }
+
         public static string GetArtifactUrl(int artifactId)
         {
             Uri hostUri = GetCurrentHostUri();

@@ -97,7 +97,7 @@ namespace ActionHandlerServiceTests
         }
 
         [TestMethod]
-        public async Task ArtifactsPublishedActionHelper_ReturnsTrue_WhenNoNotificationActionsAreFound()
+        public async Task ArtifactsPublishedActionHelper_ReturnsFalse_WhenNoNotificationActionsAreFound()
         {
             var message = new ArtifactsPublishedMessage {Artifacts = new[] {new PublishedArtifactInformation()}};
 
@@ -112,11 +112,11 @@ namespace ActionHandlerServiceTests
             var actionHelper = new ArtifactsPublishedActionHelper(actionsParserMock.Object);
 
             var result = await actionHelper.HandleAction(_tenantInformation, message, _repositoryMock.Object);
-            Assert.IsTrue(result);
+            Assert.IsFalse(result);
         }
 
         [TestMethod]
-        public async Task ArtifactsPublishedActionHelper_ReturnsTrue_WhenThereIsATriggerWithoutModifiedProperties()
+        public async Task ArtifactsPublishedActionHelper_ReturnsFalse_WhenThereIsATriggerWithoutModifiedProperties()
         {
             //no modified properties
             var message = new ArtifactsPublishedMessage {Artifacts = new[] {new PublishedArtifactInformation()}};
@@ -130,11 +130,11 @@ namespace ActionHandlerServiceTests
             var actionHelper = new ArtifactsPublishedActionHelper(actionsParserMock.Object);
 
             var result = await actionHelper.HandleAction(_tenantInformation, message, _repositoryMock.Object);
-            Assert.IsTrue(result);
+            Assert.IsFalse(result);
         }
 
         [TestMethod]
-        public async Task ArtifactsPublishedActionHelper_ReturnsTrue_WhenThereIsATriggerWithModifiedProperties()
+        public async Task ArtifactsPublishedActionHelper_ReturnsFalse_WhenThereIsATriggerWithModifiedProperties()
         {
             //message with a list of modified properties
             var message = _messageWithModifiedProperties;
@@ -149,11 +149,11 @@ namespace ActionHandlerServiceTests
             var actionHelper = new ArtifactsPublishedActionHelper(actionsParserMock.Object, new Mock<INServiceBusServer>().Object);
 
             var result = await actionHelper.HandleAction(_tenantInformation, message, _repositoryMock.Object);
-            Assert.IsTrue(result);
+            Assert.IsFalse(result);
         }
 
         [TestMethod]
-        public async Task ArtifactsPublishedActionHelper_ReturnsTrue_WhenPropertyTypeIdDoesNotMatchNotificationPropertyTypeId()
+        public async Task ArtifactsPublishedActionHelper_ReturnsFalse_WhenPropertyTypeIdDoesNotMatchNotificationPropertyTypeId()
         {
             //non-matching PropertyChange Type IDs
             const int notificationPropertyTypeId = 1 + PropertyTypeId;
@@ -178,11 +178,11 @@ namespace ActionHandlerServiceTests
             var actionHelper = new ArtifactsPublishedActionHelper(actionsParserMock.Object, new Mock<INServiceBusServer>().Object);
 
             var result = await actionHelper.HandleAction(_tenantInformation, message, _repositoryMock.Object);
-            Assert.IsTrue(result);
+            Assert.IsFalse(result);
         }
 
         [TestMethod]
-        public async Task ArtifactsPublishedActionHelper_ReturnsTrue_WhenWorkflowStateIdDoesNotMatchConditionalStateId()
+        public async Task ArtifactsPublishedActionHelper_ReturnsFalse_WhenWorkflowStateIdDoesNotMatchConditionalStateId()
         {
             //non-matching State IDs
             const int conditionalStateId = 1 + WorkflowStateId;
@@ -206,7 +206,7 @@ namespace ActionHandlerServiceTests
             var actionHelper = new ArtifactsPublishedActionHelper(actionsParserMock.Object, new Mock<INServiceBusServer>().Object);
 
             var result = await actionHelper.HandleAction(_tenantInformation, _messageWithModifiedProperties, _repositoryMock.Object);
-            Assert.IsTrue(result);
+            Assert.IsFalse(result);
         }
     }
 }

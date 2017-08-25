@@ -4,9 +4,9 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using BluePrintSys.Messaging.CrossCutting.Models;
+using BluePrintSys.Messaging.CrossCutting.Models.Interfaces;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
-using ServiceLibrary.Helpers.Validators;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.PropertyType;
@@ -32,9 +32,9 @@ namespace ArtifactStore.Models.Workflow.Actions
             return await Task.FromResult(true);
         }
 
-        public override bool ValidateActionToBeProcessed(IExecutionParameters executionParameters)
+        protected override bool ValidateActionToBeProcessed(IExecutionParameters executionParameters)
         {
-            ValidateReuseSettings(executionParameters);
+            executionParameters.ReuseValidator.ValidateReuseSettings(InstancePropertyTypeId, executionParameters.ReuseItemTemplate);
             var result = ValidateProperty(executionParameters);
             if (result != null)
             {
@@ -64,35 +64,6 @@ namespace ArtifactStore.Models.Workflow.Actions
             return executionParameters.Validators.Select(v => v.Validate(PropertyLiteValue, executionParameters.CustomPropertyTypes)).FirstOrDefault(r => r != null);
         }
 
-        private void ValidateReuseSettings(IExecutionParameters executionParameters)
-        {
-            var reuseTemplate = executionParameters.ReuseItemTemplate;
-            if (reuseTemplate == null)
-            {
-                return;
-            }
-
-            if (reuseTemplate.ReadOnlySettings.HasFlag(ItemTypeReuseTemplateSetting.Name) &&
-                InstancePropertyTypeId == WorkflowConstants.PropertyTypeFakeIdName)
-            {
-                throw new ConflictException("Cannot modify name from workflow event action. Property is readonly.");
-            }
-
-            if (reuseTemplate.ReadOnlySettings.HasFlag(ItemTypeReuseTemplateSetting.Description) &&
-                InstancePropertyTypeId == WorkflowConstants.PropertyTypeFakeIdDescription)
-            {
-                throw new ConflictException("Cannot modify description from workflow event action. Property is readonly.");
-            }
-
-            var customProperty = reuseTemplate.PropertyTypeReuseTemplates[InstancePropertyTypeId];
-
-            var propertyReusetemplate = reuseTemplate.PropertyTypeReuseTemplates[customProperty.PropertyTypeId];
-            if (propertyReusetemplate.Settings == PropertyTypeReuseTemplateSettings.ReadOnly)
-            {
-                throw new ConflictException("Cannot modify property from workflow event action. Property is readonly.");
-            }
-        }
-
         private void PopulatePropertyLite(DPropertyType propertyType)
         {
             switch (propertyType?.PrimitiveType)
@@ -109,7 +80,13 @@ namespace ArtifactStore.Models.Workflow.Actions
                         NumberValue = value
                     };
                     break;
-               
+                case PropertyPrimitiveType.Date:
+                    PropertyLiteValue = new PropertyLite
+                    {
+                        PropertyTypeId = InstancePropertyTypeId,
+                        DateValue = ParseDateValue(PropertyValue, new TimeProvider())
+                    };
+                    break;
                 default:
                     PropertyLiteValue = new PropertyLite()
                     {
@@ -117,6 +94,39 @@ namespace ArtifactStore.Models.Workflow.Actions
                     };
                     break;
             }
+        }
+
+        public const string CurrentDate = "@CURRENTDATE";
+        public const string Plus = "+";
+
+        public static DateTime ParseDateValue(string dateValue, ITimeProvider timeProvider)
+        {
+            var value = new string(dateValue.ToUpperInvariant().Where(c => !char.IsWhiteSpace(c)).ToArray());
+
+            //today
+            if (value.Equals(CurrentDate))
+            {
+                return timeProvider.Today;
+            }
+
+            //today + days
+            if (value.Contains(CurrentDate))
+            {
+                var daysToAdd = value.Replace(CurrentDate, string.Empty).Replace(Plus, string.Empty);
+                int daysInt;
+                if (int.TryParse(daysToAdd, out daysInt))
+                {
+                    return timeProvider.Today.AddDays(daysInt);
+                }
+            }
+
+            //specific date
+            DateTime date;
+            if (!DateTime.TryParse(dateValue, out date))
+            {
+                throw new FormatException("Invalid date value: " + dateValue);
+            }
+            return date;
         }
     }
 

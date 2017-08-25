@@ -314,6 +314,7 @@ namespace AdminStore.Controllers
             using (var stream = await Request.Content.ReadAsStreamAsync())
             {
                 IeWorkflow workflow;
+                string xmlSerError = null;
                 try
                 {
                     ValidateWorkflowXmlAgainstXsd(stream);
@@ -321,21 +322,15 @@ namespace AdminStore.Controllers
                 }
                 catch (Exception ex)
                 {
-                    var errorResult = new ImportWorkflowResult
-                    {
-                        ErrorMessage = I18NHelper.FormatInvariant(InvalidXmlErrorMessageTemplate, fileName, ex.Message)
-                    };
-
-                    var response = Request.CreateResponse(HttpStatusCode.BadRequest, errorResult);
-
-                    return ResponseMessage(response);
+                    workflow = null;
+                    xmlSerError = ex.Message;
                 }
 
                 _workflowService.FileRepository = GetFileRepository();
 
                 var result = workflowId == null
-                    ? await _workflowService.ImportWorkflowAsync(workflow, fileName, session.UserId)
-                    : await _workflowService.UpdateWorkflowViaImport(workflowId.Value, workflow, fileName, session.UserId);
+                    ? await _workflowService.ImportWorkflowAsync(workflow, fileName, session.UserId, xmlSerError)
+                    : await _workflowService.UpdateWorkflowViaImport(workflowId.Value, workflow, fileName, session.UserId, xmlSerError);
 
                 switch (result.ResultCode)
                 {

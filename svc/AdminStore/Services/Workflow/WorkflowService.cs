@@ -104,18 +104,17 @@ namespace AdminStore.Services.Workflow
             }
         }
 
-        public async Task<ImportWorkflowResult> ImportWorkflowAsync(IeWorkflow workflow, string fileName, int userId)
+        public async Task<ImportWorkflowResult> ImportWorkflowAsync(IeWorkflow workflow, string fileName, int userId, string xmlSerError)
         {
-            if (workflow == null)
-            {
-                throw new NullReferenceException(nameof(workflow));
-            }
-
             var importResult = new ImportWorkflowResult();
 
-            ReplaceNewLinesInNames(workflow);
+            var xmlValidationResult = ValidateWorkflowXmlSerialization(xmlSerError);
+            if (!xmlValidationResult.HasErrors)
+            {
+                ReplaceNewLinesInNames(workflow);
+                xmlValidationResult = _workflowXmlValidator.ValidateXml(workflow);
+            }
 
-            var xmlValidationResult = _workflowXmlValidator.ValidateXml(workflow);
             if (xmlValidationResult.HasErrors)
             {
                 var textErrors = _workflowValidationErrorBuilder.BuildTextXmlErrors(xmlValidationResult.Errors, fileName);
@@ -186,11 +185,16 @@ namespace AdminStore.Services.Workflow
         }
 
         public async Task<ImportWorkflowResult> UpdateWorkflowViaImport(int workflowId, IeWorkflow workflow,
-            string fileName, int userId)
+            string fileName, int userId, string xmlSerError)
         {
             var importResult = new ImportWorkflowResult();
 
-            var xmlValidationResult = ValidateWorkflowId(workflow, workflowId);
+            var xmlValidationResult = ValidateWorkflowXmlSerialization(xmlSerError);
+            if (xmlValidationResult.HasErrors)
+            {
+                xmlValidationResult = ValidateWorkflowId(workflow, workflowId);
+            }
+
             if (xmlValidationResult.HasErrors)
             {
                 var textErrors = _workflowValidationErrorBuilder.BuildTextXmlErrors(xmlValidationResult.Errors, fileName);
@@ -232,6 +236,7 @@ namespace AdminStore.Services.Workflow
 
             }
 
+            ReplaceNewLinesInNames(workflow);
             xmlValidationResult = _workflowXmlValidator.ValidateUpdateXml(workflow);
             if (xmlValidationResult.HasErrors)
             {
@@ -388,6 +393,22 @@ namespace AdminStore.Services.Workflow
             await _workflowRepository.RunInTransactionAsync(action);
 
             return totalDeleted;
+        }
+
+        private WorkflowXmlValidationResult ValidateWorkflowXmlSerialization(string errorMessage)
+        {
+            var result = new WorkflowXmlValidationResult();
+
+            if (errorMessage != null)
+            {
+                result.Errors.Add(new WorkflowXmlValidationError
+                {
+                    Element = errorMessage,
+                    ErrorCode = WorkflowXmlValidationErrorCodes.WorkflowXmlSerializationError
+                });
+            }
+
+            return result;
         }
 
         private async Task ImportWorkflowComponentsAsync(IeWorkflow workflow, SqlWorkflow newWorkflow,

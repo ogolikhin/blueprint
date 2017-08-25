@@ -449,6 +449,15 @@ namespace AdminStore.Repositories
                 {
                     case (int)SqlErrorCodes.ProjectWithCurrentIdNotExist:
                         throw new ResourceNotFoundException(ErrorMessages.ProjectNotExist, ErrorCodes.ResourceNotFound);
+
+                    case (int)SqlErrorCodes.GroupWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.GroupIsNotFound, ErrorCodes.ResourceNotFound);
+
+                    case (int)SqlErrorCodes.RolesForProjectNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.RoleIsNotFound, ErrorCodes.ResourceNotFound);
+
+                    case (int)SqlErrorCodes.RoleAssignmentAlreadyExists:
+                        throw new ResourceNotFoundException(ErrorMessages.RoleAssignmentAlreadyExists, ErrorCodes.ResourceNotFound);
                 }
             }
 

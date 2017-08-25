@@ -191,7 +191,7 @@ namespace ArtifactStore.Controllers
         /// Get process information.
         /// </summary>
         /// <remarks>
-        /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Returns ADD !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        /// Returns list of objects with information about Process type for artifacts passed as parameters
         /// </remarks>
         /// <response code="200">OK.</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>              
@@ -200,9 +200,8 @@ namespace ArtifactStore.Controllers
         [Route("artifacts/processInfo"), SessionRequired]
         public async Task<IEnumerable<ProcessInfo>> GetProcessInformationAsync([FromBody] ISet<int> artifactIds)
         {
-
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return await ArtifactRepository.GetProcessInformationAsync(artifactIds, session.UserId);
+            return await ArtifactRepository.GetProcessInformationAsync(artifactIds, session.UserId/*???????  not sure if we need UserId  ?????????*/);
         }
     }
 }

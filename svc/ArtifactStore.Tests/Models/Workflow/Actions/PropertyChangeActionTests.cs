@@ -59,6 +59,7 @@ namespace ArtifactStore.Models.Workflow.Actions
                 _customPropertyTypes,
                 _saveRepositoryMock.Object,
                 null,
+                null,
                 new List<IPropertyValidator>(),
                 _reuseValidatorMock.Object);
 
@@ -76,6 +77,7 @@ namespace ArtifactStore.Models.Workflow.Actions
                 null,
                 _customPropertyTypes,
                 _saveRepositoryMock.Object,
+                null,
                 null,
                 new List<IPropertyValidator>(), 
                 _reuseValidatorMock.Object);

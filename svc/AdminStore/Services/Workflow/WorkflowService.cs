@@ -15,6 +15,7 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.Workflow;
+using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.Files;
 using ServiceLibrary.Repositories.ProjectMeta;
 using File = ServiceLibrary.Models.Files.File;
@@ -24,6 +25,7 @@ namespace AdminStore.Services.Workflow
     public class WorkflowService : IWorkflowService
     {
         private readonly IWorkflowRepository _workflowRepository;
+        private readonly IUsersRepository _usersRepository;
         private readonly IUserRepository _userRepository;
 
         private readonly IWorkflowXmlValidator _workflowXmlValidator;
@@ -37,18 +39,28 @@ namespace AdminStore.Services.Workflow
         private const string WorkflowImportErrorsFile = "$workflow_import_errors$.txt";
 
         public WorkflowService()
-            : this(new WorkflowRepository(), new WorkflowXmlValidator(), new SqlUserRepository(),
-                new WorkflowValidationErrorBuilder(), new SqlProjectMetaRepository(),
-                new TriggerConverter(), new WorkflowActionPropertyValueValidator(),
-                new WorkflowDiff())
+            : this(
+                  new WorkflowRepository(), 
+                  new WorkflowXmlValidator(), 
+                  new SqlUserRepository(), 
+                  new SqlUsersRepository(),
+                  new WorkflowValidationErrorBuilder(), 
+                  new SqlProjectMetaRepository(),
+                  new TriggerConverter(), 
+                  new WorkflowActionPropertyValueValidator(),
+                  new WorkflowDiff())
         {
-            _workflowDataValidator = new WorkflowDataValidator(_workflowRepository, _userRepository,
-                _projectMetaRepository, _propertyValueValidator);
+            _workflowDataValidator = new WorkflowDataValidator(
+                _workflowRepository, 
+                _usersRepository,
+                _projectMetaRepository, 
+                _propertyValueValidator);
         }
 
         public WorkflowService(IWorkflowRepository workflowRepository,
             IWorkflowXmlValidator workflowXmlValidator,
             IUserRepository userRepository,
+            IUsersRepository usersRepository,
             IWorkflowValidationErrorBuilder workflowValidationErrorBuilder,
             ISqlProjectMetaRepository projectMetaRepository,
             ITriggerConverter triggerConverter,
@@ -58,6 +70,7 @@ namespace AdminStore.Services.Workflow
             _workflowRepository = workflowRepository;
             _workflowXmlValidator = workflowXmlValidator;
             _userRepository = userRepository;
+            _usersRepository = usersRepository;
             _workflowValidationErrorBuilder = workflowValidationErrorBuilder;
             _projectMetaRepository = projectMetaRepository;
             _triggerConverter = triggerConverter;

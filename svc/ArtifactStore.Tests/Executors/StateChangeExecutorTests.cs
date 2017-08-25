@@ -36,6 +36,7 @@ namespace ArtifactStore.Executors
         private Mock<IReuseRepository> _reuseRepository;
         private Mock<ISaveArtifactRepository> _saveArtifactRepositoryMock;
         private Mock<IApplicationSettingsRepository> _applicationSettingsRepositoryMock;
+        private Mock<IUsersRepository> _usersRepositoryMock;
 
         [TestInitialize]
         public void TestInitialize()
@@ -54,6 +55,7 @@ namespace ArtifactStore.Executors
             _reuseRepository = new Mock<IReuseRepository>(MockBehavior.Loose);
             _saveArtifactRepositoryMock = new Mock<ISaveArtifactRepository>(MockBehavior.Loose);
             _applicationSettingsRepositoryMock = new Mock<IApplicationSettingsRepository>(MockBehavior.Loose);
+            _usersRepositoryMock = new Mock<IUsersRepository>(MockBehavior.Loose);
 
             _stateChangeExecutor = new StateChangeExecutor(ex, UserId,
                 _artifactVersionsRepository.Object,
@@ -62,7 +64,8 @@ namespace ArtifactStore.Executors
                 _versionControlService.Object,
                 _reuseRepository.Object,
                 _saveArtifactRepositoryMock.Object,
-                _applicationSettingsRepositoryMock.Object
+                _applicationSettingsRepositoryMock.Object,
+                _usersRepositoryMock.Object
                 );
         }
 

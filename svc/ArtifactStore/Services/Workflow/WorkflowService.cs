@@ -34,6 +34,7 @@ namespace ArtifactStore.Services.Workflow
         private readonly IReuseRepository _reuseRepository;
         private readonly ISaveArtifactRepository _saveArtifactRepository;
         private readonly IApplicationSettingsRepository _applicationSettingsRepository;
+        private readonly IUsersRepository _usersRepository;
 
         public WorkflowService(IWorkflowRepository workflowRepository,
             IArtifactVersionsRepository artifactVersionsRepository,
@@ -42,7 +43,8 @@ namespace ArtifactStore.Services.Workflow
             IVersionControlService versionControlService,
             IReuseRepository reuseRepository,
             ISaveArtifactRepository saveArtifactRepository,
-            IApplicationSettingsRepository applicationSettingsRepository)
+            IApplicationSettingsRepository applicationSettingsRepository,
+            IUsersRepository usersRepository)
         {
             _workflowRepository = workflowRepository;
             _artifactVersionsRepository = artifactVersionsRepository;
@@ -52,6 +54,7 @@ namespace ArtifactStore.Services.Workflow
             _reuseRepository = reuseRepository;
             _saveArtifactRepository = saveArtifactRepository;
             _applicationSettingsRepository = applicationSettingsRepository;
+            _usersRepository = usersRepository;
         }
 
         public async Task<WorkflowTransitionResult> GetTransitionsAsync(int userId, int artifactId, int workflowId, int stateId)
@@ -102,7 +105,8 @@ namespace ArtifactStore.Services.Workflow
                 _versionControlService,
                 _reuseRepository,
                 _saveArtifactRepository,
-                _applicationSettingsRepository
+                _applicationSettingsRepository,
+                _usersRepository
                 );
 
             return await stateChangeExecutor.Execute();

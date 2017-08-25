@@ -4,8 +4,8 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using ArtifactStore.Helpers;
+using ArtifactStore.Helpers.Validators;
 using ArtifactStore.Models;
-using ArtifactStore.Models.PropertyTypes;
 using ArtifactStore.Models.Workflow;
 using ArtifactStore.Models.Workflow.Actions;
 using ArtifactStore.Repositories;
@@ -38,6 +38,7 @@ namespace ArtifactStore.Executors
         private readonly IVersionControlService _versionControlService;
         private readonly IReuseRepository _reuseRepository;
         private readonly ISaveArtifactRepository _saveArtifactRepository;
+        private readonly IUsersRepository _usersRepository;
         private readonly IApplicationSettingsRepository _applicationSettingsRepository;
 
         public StateChangeExecutor(
@@ -49,7 +50,8 @@ namespace ArtifactStore.Executors
             IVersionControlService versionControlService,
             IReuseRepository reuseRepository,
             ISaveArtifactRepository saveArtifactRepository,
-            IApplicationSettingsRepository applicationSettingsRepository
+            IApplicationSettingsRepository applicationSettingsRepository,
+            IUsersRepository userRepository
             )
         {
             _input = input;
@@ -61,6 +63,7 @@ namespace ArtifactStore.Executors
             _reuseRepository = reuseRepository;
             _saveArtifactRepository = saveArtifactRepository;
             _applicationSettingsRepository = applicationSettingsRepository;
+            _usersRepository = userRepository;
         }
 
         class StateChangeResult
@@ -337,8 +340,16 @@ namespace ArtifactStore.Executors
             {
                 propertyTypes = customItemTypeToPropertiesMap[artifactInfo.ItemTypeId];
             }
-
-            return new ExecutionParameters(_userId, artifactInfo, reuseTemplate, propertyTypes, _saveArtifactRepository, transaction);
+            var usersAndGroups = await LoadUsersAndGroups(triggers);
+            return new ExecutionParameters(
+                _userId, 
+                artifactInfo, 
+                reuseTemplate, 
+                propertyTypes, 
+                _saveArtifactRepository, 
+                transaction,
+                new ValidationContext(usersAndGroups.Item1, usersAndGroups.Item2)
+                );
         }
 
         private async Task<int> CreateRevision(IDbTransaction transaction)
@@ -481,6 +492,18 @@ namespace ArtifactStore.Executors
             var instancePropertyTypeIds = propertyChangeActions.Select(b => b.InstancePropertyTypeId);
 
             return await _workflowRepository.GetCustomItemTypeToPropertiesMap(_userId, _input.ArtifactId, projectId, instanceItemTypeIds, instancePropertyTypeIds);
+        }
+
+        public async Task<Tuple<IEnumerable<SqlUser>, IEnumerable<SqlGroup>>> LoadUsersAndGroups(WorkflowEventTriggers triggers)
+        {
+            var userGroups = triggers.Select(a => a.Action).OfType<PropertyChangeUserGroupsAction>().SelectMany(b => b.UserGroups);
+            var userIds = userGroups.Where(u => !u.IsGroup.GetValueOrDefault(false) && u.Id.HasValue).Select(u => u.Id.Value).ToHashSet();
+            var groupIds = userGroups.Where(u => u.IsGroup.GetValueOrDefault(false) && u.Id.HasValue).Select(u => u.Id.Value).ToHashSet();
+
+            var users = await _usersRepository.GetExistingUsersByIdsAsync(userIds);
+            var groups = await _usersRepository.GetExistingGroupsByIds(groupIds, false);
+
+            return new Tuple<IEnumerable<SqlUser>, IEnumerable<SqlGroup>>(users, groups);
         }
     }
 }

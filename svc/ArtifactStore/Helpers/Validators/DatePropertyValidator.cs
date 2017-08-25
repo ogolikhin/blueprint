@@ -1,12 +1,16 @@
 ﻿using ArtifactStore.Models.PropertyTypes;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
 using ServiceLibrary.Models.PropertyType;
 
 namespace ArtifactStore.Helpers.Validators
 {
     public class DatePropertyValidator : PropertyValidator<DDatePropertyType>
     {
-        protected override PropertySetResult Validate(PropertyLite property, DDatePropertyType propertyType)
+        protected override PropertySetResult Validate(
+            PropertyLite property, 
+            DDatePropertyType propertyType, 
+            IValidationContext validationContext)
         {
             if (IsPropertyValueEmpty(property, propertyType))
                 return null;

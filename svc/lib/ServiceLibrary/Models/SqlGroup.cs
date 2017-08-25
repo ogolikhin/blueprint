@@ -1,6 +1,6 @@
 ﻿
 
-namespace AdminStore.Models
+namespace ServiceLibrary.Models
 {
     public class SqlGroup
     {

@@ -12,6 +12,7 @@ using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ProjectMeta;
 using AdminStore.Models;
 using ArtifactStore.Helpers;
+using ServiceLibrary.Repositories;
 
 namespace AdminStore.Services
 {
@@ -23,6 +24,7 @@ namespace AdminStore.Services
         private Mock<IWorkflowXmlValidator> _workflowXmlValidatorMock;
         private Mock<IWorkflowRepository> _workflowRepositoryMock;
         private Mock<IUserRepository> _userRepositoryMock;
+        private Mock<IUsersRepository> _usersRepositoryMock;
         private Mock<IWorkflowValidationErrorBuilder> _workflowValidationErrorBuilder ;
         private Mock<ITriggerConverter> _triggerConverter;
         private Mock<ISqlProjectMetaRepository> _projectMetaRepository;
@@ -38,6 +40,7 @@ namespace AdminStore.Services
             _workflowRepositoryMock = new Mock<IWorkflowRepository>();
             _workflowXmlValidatorMock = new Mock<IWorkflowXmlValidator>();
             _userRepositoryMock = new Mock<IUserRepository>();
+            _usersRepositoryMock = new Mock<IUsersRepository>();
             _workflowValidationErrorBuilder = new Mock<IWorkflowValidationErrorBuilder>();
             _triggerConverter = new Mock<ITriggerConverter>();
             _projectMetaRepository = new Mock<ISqlProjectMetaRepository>();
@@ -45,8 +48,12 @@ namespace AdminStore.Services
             _service = new WorkflowService(_workflowRepositoryMock.Object,
                 _workflowXmlValidatorMock.Object,
                 _userRepositoryMock.Object,
-                _workflowValidationErrorBuilder.Object, _projectMetaRepository.Object,
-                _triggerConverter.Object, null, null);
+                _usersRepositoryMock.Object,
+                _workflowValidationErrorBuilder.Object, 
+                _projectMetaRepository.Object,
+                _triggerConverter.Object, 
+                null, 
+                null);
         }
 
         #region GetWorkflowDetailsAsync
@@ -59,8 +66,16 @@ namespace AdminStore.Services
             var workflowValidatorMock = new Mock<IWorkflowXmlValidator>();
             var userRepositoryMock = new Mock<IUserRepository>();
             var workflowValidationErrorBuilder = new Mock<IWorkflowValidationErrorBuilder>();
-            var workflowService = new WorkflowService(workflowRepositoryMock.Object, workflowValidatorMock.Object,
-                userRepositoryMock.Object, workflowValidationErrorBuilder.Object, null, null, null, null);
+            var workflowService = new WorkflowService(
+                workflowRepositoryMock.Object, 
+                workflowValidatorMock.Object,
+                userRepositoryMock.Object,
+                _usersRepositoryMock.Object,
+                workflowValidationErrorBuilder.Object, 
+                null, 
+                null, 
+                null, 
+                null);
             var workflowId = 10;
             var workflow = new SqlWorkflow { Name = "Workflow1", Description = "Workflow1Description" };
             var workflowArtifactTypesAndProjects = new List<SqlWorkflowArtifactTypes>
@@ -110,8 +125,16 @@ namespace AdminStore.Services
             var workflowValidatorMock = new Mock<IWorkflowXmlValidator>();
             var userRepositoryMock = new Mock<IUserRepository>();
             var workflowValidationErrorBuilder = new Mock<IWorkflowValidationErrorBuilder>();
-            var workflowService = new WorkflowService(workflowRepositoryMock.Object, workflowValidatorMock.Object,
-                userRepositoryMock.Object, workflowValidationErrorBuilder.Object, null, null, null, null);
+            var workflowService = new WorkflowService(
+                workflowRepositoryMock.Object, 
+                workflowValidatorMock.Object,
+                userRepositoryMock.Object,
+                _usersRepositoryMock.Object,
+                workflowValidationErrorBuilder.Object, 
+                null, 
+                null, 
+                null, 
+                null);
             var workflowId = 10;
 
             workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync((SqlWorkflow)null);

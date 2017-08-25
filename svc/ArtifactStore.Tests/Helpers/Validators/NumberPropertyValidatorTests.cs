@@ -47,7 +47,8 @@ namespace ArtifactStore.Helpers.Validators
                 new List<DPropertyType>()
                 {
                     _propertyType
-                });
+                }, 
+                new ValidationContext(new List<SqlUser>(), new List<SqlGroup>()));
 
             //Assert.
             Assert.AreEqual(actualResult, null, "There should not be validation errors.");
@@ -97,7 +98,8 @@ namespace ArtifactStore.Helpers.Validators
                 new List<DPropertyType>()
                 {
                     _propertyType
-                });
+                },
+                new ValidationContext(new List<SqlUser>(), new List<SqlGroup>()));
 
             //Assert
             Assert.AreEqual(actualResult.ErrorCode, ErrorCodes.InvalidArtifactProperty,

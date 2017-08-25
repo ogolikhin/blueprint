@@ -130,8 +130,11 @@
     <Compile Include="Helpers\Validators\DatePropertyValidator.cs" />
     <Compile Include="Helpers\Validators\NumberPropertyValidator.cs" />
     <Compile Include="Helpers\Validators\PropertyValidator.cs" />
+    <Compile Include="Helpers\Validators\ValidationContext.cs" />
     <Compile Include="Models\PropertyTypes\DDatePropertyType.cs" />
+    <Compile Include="Helpers\Validators\UserPropertyValidator.cs" />
     <Compile Include="Models\PropertyTypes\DNumberPropertyType.cs" />
+    <Compile Include="Models\PropertyTypes\DUserPropertyType.cs" />
     <Compile Include="Models\Review\ParticipantArtifactStats.cs" />
     <Compile Include="Models\Reuse\ReconcileProperty.cs" />
     <Compile Include="Models\Reuse\ReuseSensitivityCollector.cs" />
@@ -182,6 +185,7 @@
     <Compile Include="Models\Review\ViewStateType.cs" />
     <Compile Include="Models\VersionControlArtifactInfo.cs" />
     <Compile Include="Models\Workflow\Actions\PropertyChangeAction.cs" />
+    <Compile Include="Models\Workflow\Actions\PropertyChangeUserGroupsAction.cs" />
     <Compile Include="Models\Workflow\ExecutionParameters.cs" />
     <Compile Include="Models\Workflow\IWorkflowEvent.cs" />
     <Compile Include="Models\Workflow\WorkflowEventCondition.cs" />

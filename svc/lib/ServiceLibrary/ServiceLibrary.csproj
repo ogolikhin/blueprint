@@ -245,8 +245,10 @@
     <Compile Include="Models\RolePermissions.cs" />
     <Compile Include="Models\Email\SMTPClientConfiguration.cs" />
     <Compile Include="Models\Sorting.cs" />
+    <Compile Include="Models\SqlGroup.cs" />
     <Compile Include="Models\SQLTraceLogModel.cs" />
     <Compile Include="Models\PerformanceLogModel.cs" />
+    <Compile Include="Models\SqlUser.cs" />
     <Compile Include="Models\StandardLogModel.cs" />
     <Compile Include="Models\CLogModel.cs" />
     <Compile Include="Models\LicenseInfo.cs" />
@@ -258,6 +260,7 @@
     <Compile Include="Models\SubArtifact.cs" />
     <Compile Include="Models\UserGroup.cs" />
     <Compile Include="Models\UserInfo.cs" />
+    <Compile Include="Models\ValidationContext.cs" />
     <Compile Include="Models\VersionControl\PublishParameters.cs" />
     <Compile Include="Models\VersionControl\SqlDiscardPublishDetails.cs" />
     <Compile Include="Models\VersionControl\SqlDiscardPublishDetailsResult.cs" />

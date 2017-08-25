@@ -2,13 +2,14 @@
 using System.Globalization;
 using ArtifactStore.Models.PropertyTypes;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
 using ServiceLibrary.Models.PropertyType;
 
 namespace ArtifactStore.Helpers.Validators
 {
     public class NumberPropertyValidator : PropertyValidator<DNumberPropertyType>
     {
-        protected override PropertySetResult Validate(PropertyLite property, DNumberPropertyType propertyType)
+        protected override PropertySetResult Validate(PropertyLite property, DNumberPropertyType propertyType, IValidationContext validationContext)
         {
             decimal value = property.NumberValue.Value;
             if (IsPropertyValueEmpty(property, propertyType))

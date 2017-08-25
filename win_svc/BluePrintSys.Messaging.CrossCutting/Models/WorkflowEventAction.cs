@@ -32,12 +32,6 @@ namespace BluePrintSys.Messaging.CrossCutting.Models
 
     }
 
-    public class ActionUserGroups
-    {
-        public int Id;
-        public bool? IsGroup;
-    }
-
     #endregion
 
     #region Asynchronous actions

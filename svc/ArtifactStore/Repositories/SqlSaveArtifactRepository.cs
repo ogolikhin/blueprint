@@ -63,22 +63,18 @@ namespace ArtifactStore.Repositories
             param.Add("@userId", userId);
 
             const string storedProcedure = "SavePropertyValueVersions";
-            dynamic result;
             if (transaction == null)
             {
-                result = await
+                await
                     _connectionWrapper.QueryAsync<dynamic>(storedProcedure, param, commandType: CommandType.StoredProcedure);
                 
             }
             else
             {
-                result = await
+                await
                     transaction.Connection.QueryAsync<dynamic>(storedProcedure, param, transaction,
                         commandType: CommandType.StoredProcedure);
             }
-#if DEBUG
-                Log.Info(result);
-#endif
         }
 
         private DataTable PopulateSavePropertyValueVersionsTable(

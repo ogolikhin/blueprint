@@ -40,5 +40,7 @@ namespace ServiceLibrary.Models.Workflow
         public int RevisionId { get; set; }
 
         public string Triggers { get; set; }
+
+        public string UserName { get; set; }
     }
 }

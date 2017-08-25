@@ -1,4 +1,6 @@
-﻿namespace BluePrintSys.Messaging.Models.Actions
+﻿using ServiceLibrary.Models.Enums;
+
+namespace BluePrintSys.Messaging.Models.Actions
 {
     public class StateChangeMessage : ActionMessage
     {

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 namespace ImageRenderService.ImageGen
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable")]
     public class AsyncBoundObject
     {
 

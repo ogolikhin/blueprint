@@ -34,7 +34,8 @@ namespace ArtifactStore.Controllers
                 new SqlHelper(),
                 new VersionControlService(),
                 new ReuseRepository(),
-                new SqlSaveArtifactRepository()))
+                new SqlSaveArtifactRepository(),
+                new ApplicationSettingsRepository()))
         {
         }
 
@@ -108,8 +109,8 @@ namespace ArtifactStore.Controllers
             {
                 throw new BadRequestException("Please provide valid state change parameters");
             }
-
-            return Ok(await _workflowService.ChangeStateForArtifactAsync(Session.UserId, artifactId, stateChangeParameter));
+            
+            return Ok(await _workflowService.ChangeStateForArtifactAsync(Session.UserId, Session.UserName, artifactId, stateChangeParameter));
         }
     }
 }

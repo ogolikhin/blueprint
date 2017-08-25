@@ -20,7 +20,7 @@ namespace ArtifactStore.Services.Workflow
         Task<QuerySingleResult<WorkflowState>> GetStateForArtifactAsync(int userId, int artifactId, int? versionId = null,
             bool addDrafts = true);
 
-        Task<QuerySingleResult<WorkflowState>> ChangeStateForArtifactAsync(int userId, int artifactId,
+        Task<QuerySingleResult<WorkflowState>> ChangeStateForArtifactAsync(int userId, string userName, int artifactId,
             WorkflowStateChangeParameter stateChangeParameter);
     }
 
@@ -33,6 +33,7 @@ namespace ArtifactStore.Services.Workflow
         private readonly IVersionControlService _versionControlService;
         private readonly IReuseRepository _reuseRepository;
         private readonly ISaveArtifactRepository _saveArtifactRepository;
+        private readonly IApplicationSettingsRepository _applicationSettingsRepository;
 
         public WorkflowService(IWorkflowRepository workflowRepository,
             IArtifactVersionsRepository artifactVersionsRepository,
@@ -40,7 +41,8 @@ namespace ArtifactStore.Services.Workflow
             ISqlHelper sqlHelper,
             IVersionControlService versionControlService,
             IReuseRepository reuseRepository,
-            ISaveArtifactRepository saveArtifactRepository)
+            ISaveArtifactRepository saveArtifactRepository,
+            IApplicationSettingsRepository applicationSettingsRepository)
         {
             _workflowRepository = workflowRepository;
             _artifactVersionsRepository = artifactVersionsRepository;
@@ -49,6 +51,7 @@ namespace ArtifactStore.Services.Workflow
             _versionControlService = versionControlService;
             _reuseRepository = reuseRepository;
             _saveArtifactRepository = saveArtifactRepository;
+            _applicationSettingsRepository = applicationSettingsRepository;
         }
 
         public async Task<WorkflowTransitionResult> GetTransitionsAsync(int userId, int artifactId, int workflowId, int stateId)
@@ -83,13 +86,14 @@ namespace ArtifactStore.Services.Workflow
             };
         }
 
-        public async Task<QuerySingleResult<WorkflowState>> ChangeStateForArtifactAsync(int userId, int artifactId, WorkflowStateChangeParameter stateChangeParameter)
+        public async Task<QuerySingleResult<WorkflowState>> ChangeStateForArtifactAsync(int userId, string userName, int artifactId, WorkflowStateChangeParameter stateChangeParameter)
         {
             //We will be getting state information and then will construct the property constraints and post operation actions over here
             var stateChangeExecutor = new StateChangeExecutor(
                 new WorkflowStateChangeParameterEx(stateChangeParameter)
                 {
-                    ArtifactId = artifactId
+                    ArtifactId = artifactId,
+                    UserName = userName
                 },
                 userId,
                 _artifactVersionsRepository,
@@ -97,7 +101,8 @@ namespace ArtifactStore.Services.Workflow
                 _sqlHelper,
                 _versionControlService,
                 _reuseRepository,
-                _saveArtifactRepository
+                _saveArtifactRepository,
+                _applicationSettingsRepository
                 );
 
             return await stateChangeExecutor.Execute();

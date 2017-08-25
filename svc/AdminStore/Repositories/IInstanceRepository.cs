@@ -1,9 +1,9 @@
-﻿using System;
-using AdminStore.Models;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using AdminStore.Models;
 using AdminStore.Models.DTO;
 using ServiceLibrary.Models;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace AdminStore.Repositories
 {
@@ -21,17 +21,21 @@ namespace AdminStore.Repositories
 
         Task<int> CreateFolderAsync(FolderDto folder);
 
-        Task<IEnumerable<FolderDto>> GetFoldersByName(string name);
+        Task<IEnumerable<InstanceItem>> GetFoldersByName(string name);
 
         Task<int> DeleteInstanceFolderAsync(int instanceFolderId);
 
         Task UpdateFolderAsync(int folderId, FolderDto folderDto);
 
         Task UpdateProjectAsync(int projectId, ProjectDto projectDto);
+
         Task DeleteProject(int userId, int projectId);
+
         Task<IEnumerable<ProjectRole>> GetProjectRolesAsync(int projectId);
+
         Task<QueryResult<RolesAssignments>> GetProjectRoleAssignmentsAsync(int projectId, TabularData tabularData,
             Func<Sorting, string> sort = null);
-
+        
+        Task<int> DeleteRoleAssignmentsAsync(int projectId, OperationScope scope, string search);
     }
 }

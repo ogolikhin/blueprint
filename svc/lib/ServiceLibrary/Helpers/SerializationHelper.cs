@@ -75,14 +75,14 @@ namespace ServiceLibrary.Helpers
         }
 
         // Copied from Blueprint
-        public static string ToXml(object obj)
+        public static string ToXml(object obj, bool indent = false)
         {
             var ns = new XmlSerializerNamespaces();
             ns.Add(string.Empty, string.Empty);
 
             var serializer = new XmlSerializer(obj.GetType());
             var builder = new StringBuilder();
-            var settings = new XmlWriterSettings { OmitXmlDeclaration = true, Indent = false };
+            var settings = new XmlWriterSettings { OmitXmlDeclaration = true, Indent = indent };
 
             using (var writer = XmlWriter.Create(builder, settings))
             {

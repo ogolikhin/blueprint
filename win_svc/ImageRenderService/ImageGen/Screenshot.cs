@@ -5,7 +5,7 @@ using System.IO;
 
 namespace ImageRenderService.ImageGen
 {
-    public class Screenshot : IScreenshot
+    public sealed class Screenshot : IScreenshot
     {
         public Screenshot(Bitmap image)
         {
@@ -21,8 +21,9 @@ namespace ImageRenderService.ImageGen
             Image.Save(stream, format);
         }
         public Bitmap Image { get; set; }
-        public virtual int Width => Image.Width;
-        public virtual int Height => Image.Height;
+        public int Width => Image.Width;
+        public int Height => Image.Height;
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1063:ImplementIDisposableCorrectly")]
         public void Dispose()
         {
             Image.Dispose();

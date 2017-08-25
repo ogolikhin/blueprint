@@ -12,7 +12,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Logging
     /// Log manager singleton
     /// Asynchronously delivers log entries to a collection of listeners
     /// </summary>
-    public sealed partial class LogManager : ILogManager, ILogWriter<StandardLogEntry>
+    public sealed partial class LogManager : ILogManager, ILogWriter<StandardLogEntry>, IDisposable
     {
         /// <summary>
         /// The cancellation token source
@@ -276,6 +276,20 @@ namespace BluePrintSys.Messaging.CrossCutting.Logging
             {
                 Debug.WriteLine("Failed to enque the entry. Excpetion {0}", e);
             }
+        }
+
+        private volatile bool _isDisposed = false;
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed", MessageId = "_tokenSource")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed", MessageId = "_backgroundTask")]
+        public void Dispose()
+        {
+            if (_isDisposed)
+            {
+                return;
+            }
+            _tokenSource?.Dispose();
+            _backgroundTask?.Dispose();
+            _isDisposed = true;
         }
     }
 }

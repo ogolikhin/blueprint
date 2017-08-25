@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using AdminStore.Models.DTO;
+﻿using AdminStore.Models;
 using AdminStore.Repositories;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace AdminStore.Services.Instance
 {
@@ -20,7 +20,7 @@ namespace AdminStore.Services.Instance
             _instanceRepository = instanceRepository;
         }
 
-        public async Task<IEnumerable<FolderDto>> GetFoldersByName(string name)
+        public async Task<IEnumerable<InstanceItem>> GetFoldersByName(string name)
         {
             return await _instanceRepository.GetFoldersByName(name);
         }

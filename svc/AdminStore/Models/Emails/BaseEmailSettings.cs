@@ -13,5 +13,6 @@ namespace AdminStore.Models.Emails
         public bool EnableSsl { get; set; }
         public string AccountUsername { get; set; }
         public string AccountPassword { get; set; }
+        public bool IsPasswordDirty { get; set; }
     }
 }

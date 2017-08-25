@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using System;
+using Dapper;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Workflow;
@@ -8,8 +9,10 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using ArtifactStore.Helpers;
+using ArtifactStore.Models.PropertyTypes;
 using ArtifactStore.Models.Workflow;
 using ArtifactStore.Models.Workflow.Actions;
+using BluePrintSys.Messaging.CrossCutting.Models;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.PropertyType;
@@ -240,11 +243,13 @@ namespace ArtifactStore.Repositories.Workflow
         
         private WorkflowEventAction ToGenerateAction(XmlGenerateAction generateAction)
         {
-            if (!generateAction.ArtifactTypeId.HasValue)
-                return null;
             switch (generateAction.GenerateActionType)
             {
                 case GenerateActionTypes.Children:
+                    if (!generateAction.ArtifactTypeId.HasValue)
+                    {
+                        return null;
+                    }
                     return new GenerateChildrenAction
                     {
                         ArtifactTypeId = generateAction.ArtifactTypeId.Value,
@@ -333,15 +338,35 @@ namespace ArtifactStore.Repositories.Workflow
                         };
                         break;
                     }
+                    case PropertyPrimitiveType.Date:
+                    {
+                        dProperty = new DDatePropertyType
+                        {
+                            AllowMultiple = sqlPropertyType.AllowMultiple,
+                            DefaultValue = sqlPropertyType.DateDefaultValue,
+                            DefaultValidValueId = sqlPropertyType.DefaultValidValueId,
+                            InstancePropertyTypeId = sqlPropertyType.InstancePropertyTypeId,
+                            Name = sqlPropertyType.Name,
+                            PropertyTypeId = sqlPropertyType.PropertyTypeId,
+                            Range = new Range<DateTime?>
+                            {
+                                End = sqlPropertyType.DateRange_End,
+                                Start = sqlPropertyType.DateRange_Start
+                            },
+                            PrimitiveType = sqlPropertyType.PrimitiveType,
+                            IsRequired = sqlPropertyType.Required != null && sqlPropertyType.Required.Value,
+                            IsValidate = sqlPropertyType.Validate.GetValueOrDefault(false),
+                            VersionId = sqlPropertyType.VersionId,
+                            Predefined = sqlPropertyType.Predefined
+                        };
+                        break;
+                    }
                     //TODO: add other DPropertyTypes
                     default:
                         {
                             dProperty = new DPropertyType
                             {
                                 AllowMultiple = sqlPropertyType.AllowMultiple,
-                                DateDefaultValue = sqlPropertyType.DateDefaultValue,
-                                DateRange_End = sqlPropertyType.DateRange_End,
-                                DateRange_Start = sqlPropertyType.DateRange_Start,
                                 DefaultValidValueId = sqlPropertyType.DefaultValidValueId,
                                 InstancePropertyTypeId = sqlPropertyType.InstancePropertyTypeId,
                                 IsRichText = sqlPropertyType.IsRichText,

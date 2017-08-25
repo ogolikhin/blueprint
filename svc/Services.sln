@@ -56,6 +56,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SearchService.Tests", "Sear
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SearchService", "SearchService\SearchService.csproj", "{BD135230-3FA1-4F51-A89C-B620F785B930}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BluePrintSys.Messaging.Models.Actions", "..\win_svc\BluePrintSys.Messaging.Models.Action\BluePrintSys.Messaging.Models.Actions.csproj", "{03BD78CA-0BB7-4488-A0B3-4E07CE05391F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BluePrintSys.Messaging.CrossCutting", "..\win_svc\BluePrintSys.Messaging.CrossCutting\BluePrintSys.Messaging.CrossCutting.csproj", "{74353EB4-59E8-4F3E-A9E3-9927546970FD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -388,6 +392,38 @@ Global
 		{BD135230-3FA1-4F51-A89C-B620F785B930}.Release|x64.Build.0 = Release|Any CPU
 		{BD135230-3FA1-4F51-A89C-B620F785B930}.Release|x86.ActiveCfg = Release|Any CPU
 		{BD135230-3FA1-4F51-A89C-B620F785B930}.Release|x86.Build.0 = Release|Any CPU
+		{03BD78CA-0BB7-4488-A0B3-4E07CE05391F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03BD78CA-0BB7-4488-A0B3-4E07CE05391F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03BD78CA-0BB7-4488-A0B3-4E07CE05391F}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{03BD78CA-0BB7-4488-A0B3-4E07CE05391F}.Debug|ARM.Build.0 = Debug|Any CPU
+		{03BD78CA-0BB7-4488-A0B3-4E07CE05391F}.Debug|x64.ActiveCfg = Debug|x64
+		{03BD78CA-0BB7-4488-A0B3-4E07CE05391F}.Debug|x64.Build.0 = Debug|x64
+		{03BD78CA-0BB7-4488-A0B3-4E07CE05391F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{03BD78CA-0BB7-4488-A0B3-4E07CE05391F}.Debug|x86.Build.0 = Debug|Any CPU
+		{03BD78CA-0BB7-4488-A0B3-4E07CE05391F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03BD78CA-0BB7-4488-A0B3-4E07CE05391F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{03BD78CA-0BB7-4488-A0B3-4E07CE05391F}.Release|ARM.ActiveCfg = Release|Any CPU
+		{03BD78CA-0BB7-4488-A0B3-4E07CE05391F}.Release|ARM.Build.0 = Release|Any CPU
+		{03BD78CA-0BB7-4488-A0B3-4E07CE05391F}.Release|x64.ActiveCfg = Release|x64
+		{03BD78CA-0BB7-4488-A0B3-4E07CE05391F}.Release|x64.Build.0 = Release|x64
+		{03BD78CA-0BB7-4488-A0B3-4E07CE05391F}.Release|x86.ActiveCfg = Release|Any CPU
+		{03BD78CA-0BB7-4488-A0B3-4E07CE05391F}.Release|x86.Build.0 = Release|Any CPU
+		{74353EB4-59E8-4F3E-A9E3-9927546970FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74353EB4-59E8-4F3E-A9E3-9927546970FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74353EB4-59E8-4F3E-A9E3-9927546970FD}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{74353EB4-59E8-4F3E-A9E3-9927546970FD}.Debug|ARM.Build.0 = Debug|Any CPU
+		{74353EB4-59E8-4F3E-A9E3-9927546970FD}.Debug|x64.ActiveCfg = Debug|x64
+		{74353EB4-59E8-4F3E-A9E3-9927546970FD}.Debug|x64.Build.0 = Debug|x64
+		{74353EB4-59E8-4F3E-A9E3-9927546970FD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{74353EB4-59E8-4F3E-A9E3-9927546970FD}.Debug|x86.Build.0 = Debug|Any CPU
+		{74353EB4-59E8-4F3E-A9E3-9927546970FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74353EB4-59E8-4F3E-A9E3-9927546970FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74353EB4-59E8-4F3E-A9E3-9927546970FD}.Release|ARM.ActiveCfg = Release|Any CPU
+		{74353EB4-59E8-4F3E-A9E3-9927546970FD}.Release|ARM.Build.0 = Release|Any CPU
+		{74353EB4-59E8-4F3E-A9E3-9927546970FD}.Release|x64.ActiveCfg = Release|x64
+		{74353EB4-59E8-4F3E-A9E3-9927546970FD}.Release|x64.Build.0 = Release|x64
+		{74353EB4-59E8-4F3E-A9E3-9927546970FD}.Release|x86.ActiveCfg = Release|Any CPU
+		{74353EB4-59E8-4F3E-A9E3-9927546970FD}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -401,6 +437,8 @@ Global
 		{717F5600-AF8E-4732-B456-A61794BD2B64} = {1A285524-40FC-49C6-B0D8-DF9ED0270E97}
 		{FBB16370-F443-4E45-9C18-64D11239AE44} = {1A285524-40FC-49C6-B0D8-DF9ED0270E97}
 		{5CB1CB3F-8E8E-44F6-80C8-AA6BBE6ECF31} = {1A285524-40FC-49C6-B0D8-DF9ED0270E97}
+		{03BD78CA-0BB7-4488-A0B3-4E07CE05391F} = {1A285524-40FC-49C6-B0D8-DF9ED0270E97}
+		{74353EB4-59E8-4F3E-A9E3-9927546970FD} = {1A285524-40FC-49C6-B0D8-DF9ED0270E97}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPathV6 = packages\EnterpriseLibrary.TransientFaultHandling.6.0.1304.0\lib\portable-net45+win+wp8;packages\EnterpriseLibrary.TransientFaultHandling.Data.6.0.1304.1\lib\NET45

@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Threading.Tasks;
-using ArtifactStore.Models;
-using ArtifactStore.Models.Workflow;
 using ArtifactStore.Repositories;
-using ArtifactStore.Repositories.Reuse;
-using ArtifactStore.Repositories.Workflow;
-using ArtifactStore.Services.VersionControl;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Exceptions;
@@ -17,6 +12,7 @@ using ServiceLibrary.Models.VersionControl;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using ServiceLibrary.Repositories.Reuse;
 using ServiceLibrary.Repositories.Workflow;
 
 namespace ArtifactStore.Executors

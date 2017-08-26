@@ -2,13 +2,13 @@
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using ArtifactStore.Repositories.Reuse;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.Reuse;
+using ServiceLibrary.Repositories.Reuse;
 
 namespace ArtifactStore.Helpers
 {
@@ -65,7 +65,7 @@ namespace ArtifactStore.Helpers
                 .ToList();
 
             //Assert
-            Assert.IsTrue(result.Count == 1, "One item should have been retrieved as sensitive.");
+            Assert.IsTrue(result.Count() == 1, "One item should have been retrieved as sensitive.");
             Assert.IsTrue(result[0] == 1, "One item should have been retrieved as sensitive.");
         }
 
@@ -106,7 +106,7 @@ namespace ArtifactStore.Helpers
             var result = (await _sensitivityCommonHelper.FilterInsensitiveItems(new List<int> { 1, 5, 8 }, _sensitivityCollector, _reuseRepository.Object)).ToList();
 
             //Assert
-            Assert.IsTrue(result.Count == 1, "One item should have been retrieved as sensitive.");
+            Assert.IsTrue(result.Count() == 1, "One item should have been retrieved as sensitive.");
             Assert.IsTrue(result[0] == 1, "One item should have been retrieved as sensitive.");
         }
 

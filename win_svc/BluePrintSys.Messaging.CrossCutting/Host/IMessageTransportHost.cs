@@ -6,7 +6,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
 {
     public interface IMessageTransportHost
     {
-        void Start(Func<bool> errorCallback = null);
+        void Start(bool sendOnly, Func<bool> errorCallback = null);
 
         void Stop();
 

@@ -12,9 +12,11 @@ using ServiceLibrary.Repositories;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using ArtifactStore.Executors;
 using ArtifactStore.Models.Workflow;
 using ServiceLibrary.Models.Enums;
 using ArtifactStore.Repositories.Reuse;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace ArtifactStore.Controllers
 {
@@ -28,14 +30,16 @@ namespace ArtifactStore.Controllers
 
         public WorkflowController() : this(
             new WorkflowService(
-                new SqlWorkflowRepository(),
-                new SqlArtifactVersionsRepository(),
-                new SqlItemInfoRepository(),
                 new SqlHelper(),
-                new VersionControlService(),
-                new ReuseRepository(),
-                new SqlSaveArtifactRepository(),
-                new ApplicationSettingsRepository()))
+                new SqlItemInfoRepository(),
+                new StateChangeExecutorRepositories(
+                    new SqlArtifactVersionsRepository(),
+                    new SqlWorkflowRepository(),
+                    new VersionControlService(),
+                    new ReuseRepository(),
+                    new SqlSaveArtifactRepository(),
+                    new ApplicationSettingsRepository(),
+                    new ServiceLogRepository())))
         {
         }
 

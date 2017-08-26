@@ -22,14 +22,25 @@ namespace ActionHandlerService.MessageHandlers.GenerateDescendants
                 || message.ProjectId <= 0
                 || message.RevisionId <= 0
                 || message.UserId <= 0
-                || !message.DesiredArtifactTypeId.HasValue
+                || message.DesiredArtifactTypeId == null
                 || string.IsNullOrWhiteSpace(message.UserName))
             {
                 Log.Debug("Invalid GenerateDescendantsMessage received");
-                return await Task.FromResult(true);
+                return false;
             }
 
             Logger.Log($"Handling of type: {message.ActionType} started for user ID {message.UserId}, revision ID {message.RevisionId} with message {message.ToJSON()}", message, tenant, LogLevel.Debug);
+
+            var sqlConnectionWrapper = new SqlConnectionWrapper(tenant.ConnectionString);
+            var sqlItemTypeRepository = new SqlItemTypeRepository(sqlConnectionWrapper);
+
+            var desiredItemType = await sqlItemTypeRepository.GetCustomItemTypeForProvidedStandardItemTypeIdInProject(message.ProjectId,
+                message.DesiredArtifactTypeId.GetValueOrDefault());
+            if (desiredItemType == null || desiredItemType.ItemTypeId <= 0)
+            {
+                Log.Debug($"No artifact type found with instance Id: {message.DesiredArtifactTypeId.Value} in Project: {message.ProjectId}");
+                return false;
+            }
 
             var generateDescendantsInfo = new GenerateDescendantsInfo
             {
@@ -38,12 +49,12 @@ namespace ActionHandlerService.MessageHandlers.GenerateDescendants
                 ArtifacId = message.ArtifactId,
                 UserId = message.UserId,
                 ChildCount = message.ChildCount,
-                DesiredArtifactTypeId = message.DesiredArtifactTypeId.Value,
+                DesiredArtifactTypeId = desiredItemType.ItemTypeId,
                 Predefined = (ItemTypePredefined)message.TypePredefined
             };
 
             var parameters = SerializationHelper.ToXml(generateDescendantsInfo);
-            var sqlConnectionWrapper = new SqlConnectionWrapper(tenant.ConnectionString);
+
             var jobsRepository = new JobsRepository(sqlConnectionWrapper,
                 new SqlArtifactRepository(sqlConnectionWrapper),
                 new SqlArtifactPermissionsRepository(sqlConnectionWrapper),
@@ -57,14 +68,14 @@ namespace ActionHandlerService.MessageHandlers.GenerateDescendants
                 message.ProjectName,
                 message.UserId,
                 message.UserName,
-                message.ToString());
+                message.BaseHostUri);
 
             if (job.HasValue)
             {
                 Log.Debug($"Job scheduled for {message.ActionType} with id: {job.Value}");
             }
 
-            return await Task.FromResult(true);
+            return true;
         }
     }
 }

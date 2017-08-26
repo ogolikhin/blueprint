@@ -1,4 +1,4 @@
-﻿namespace ArtifactStore.Models.Reuse
+﻿namespace ServiceLibrary.Models.Reuse
 {
     public class SqlReuseSettingsInfo
     {

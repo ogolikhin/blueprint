@@ -1,8 +1,7 @@
-﻿using ServiceLibrary.Models;
-using ServiceLibrary.Models.Enums;
+﻿using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.ProjectMeta;
 
-namespace ArtifactStore.Models.Reuse
+namespace ServiceLibrary.Models.Reuse
 {
     public class SqlItemTypeReuseTemplate
     {

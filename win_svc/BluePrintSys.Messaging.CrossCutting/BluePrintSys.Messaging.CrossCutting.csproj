@@ -121,16 +121,10 @@
     <Compile Include="Logging\ServiceLocator.cs" />
     <Compile Include="Logging\StackTraceProvider.cs" />
     <Compile Include="Logging\StandardLogEntry.cs" />
-    <Compile Include="Models\EmailNotificationAction.cs" />
     <Compile Include="Models\Enums\MessageType.cs" />
     <Compile Include="Models\Enums\Tenancy.cs" />
     <Compile Include="Models\Exceptions\MessageHeaderValueNotFoundException.cs" />
     <Compile Include="Models\Exceptions\UnsupportedActionTypeException.cs" />
-    <Compile Include="Models\GenerateAction.cs" />
-    <Compile Include="Models\GenerateChildrenAction.cs" />
-    <Compile Include="Models\GenerateTestCasesAction.cs" />
-    <Compile Include="Models\GenerateUserStoriesAction.cs" />
-    <Compile Include="Models\PropertyChangeAction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

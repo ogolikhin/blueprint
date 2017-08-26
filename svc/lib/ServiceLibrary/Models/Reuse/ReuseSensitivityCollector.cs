@@ -5,7 +5,7 @@ using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.ProjectMeta;
 using PropertyTypeInfo = System.Tuple<int, ServiceLibrary.Models.ProjectMeta.PropertyTypePredefined>;
 
-namespace ArtifactStore.Models.Reuse
+namespace ServiceLibrary.Models.Reuse
 {
     public class ReuseSensitivityCollector
     {

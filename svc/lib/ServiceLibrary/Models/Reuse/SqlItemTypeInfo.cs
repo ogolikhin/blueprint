@@ -1,6 +1,4 @@
-﻿using ServiceLibrary.Models;
-
-namespace ArtifactStore.Models.Reuse
+﻿namespace ServiceLibrary.Models.Reuse
 {
     public class SqlItemTypeInfo
     {

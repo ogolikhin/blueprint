@@ -8,9 +8,8 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.PropertyType;
-using ServiceLibrary.Models.Workflow;
 
-namespace BluePrintSys.Messaging.CrossCutting.Models
+namespace ServiceLibrary.Models.Workflow.Actions
 {
     public class PropertyChangeAction : WorkflowEventSynchronousWorkflowEventAction, IPropertyChangeAction
     {

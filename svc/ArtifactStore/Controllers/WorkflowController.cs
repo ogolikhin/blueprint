@@ -1,5 +1,4 @@
 ﻿using ArtifactStore.Repositories;
-using ArtifactStore.Repositories.Workflow;
 using ArtifactStore.Services.VersionControl;
 using ArtifactStore.Services.Workflow;
 using ServiceLibrary.Attributes;
@@ -13,10 +12,10 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 using ArtifactStore.Executors;
-using ArtifactStore.Models.Workflow;
 using ServiceLibrary.Models.Enums;
 using ArtifactStore.Repositories.Reuse;
 using ServiceLibrary.Repositories.ConfigControl;
+using ServiceLibrary.Repositories.Workflow;
 
 namespace ArtifactStore.Controllers
 {

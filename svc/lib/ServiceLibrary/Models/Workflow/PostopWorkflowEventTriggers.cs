@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
-using ServiceLibrary.Models.Workflow;
 
-namespace ArtifactStore.Models.Workflow
+namespace ServiceLibrary.Models.Workflow
 {
     public class PostopWorkflowEventTriggers : WorkflowEventTriggers
     {

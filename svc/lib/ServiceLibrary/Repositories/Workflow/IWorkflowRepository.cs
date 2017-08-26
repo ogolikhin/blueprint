@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using ServiceLibrary.Models.PropertyType;
 using ServiceLibrary.Models.Workflow;
 
-namespace ArtifactStore.Repositories.Workflow
+namespace ServiceLibrary.Repositories.Workflow
 {
     public interface IWorkflowRepository
     {
@@ -18,5 +18,7 @@ namespace ArtifactStore.Repositories.Workflow
             WorkflowStateChangeParameterEx stateChangeParameter, IDbTransaction transaction = null);
 
         Task<Dictionary<int, List<DPropertyType>>> GetCustomItemTypeToPropertiesMap(int userId, int artifactId, int projectId, IEnumerable<int> instanceItemTypeIds, IEnumerable<int> instancePropertyIds);
+
+        Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForTransition(int userId, int artifactId, int workflowId, int fromStateId, int toStateId);
     }
 }

@@ -1,6 +1,4 @@
-﻿using ServiceLibrary.Models.Workflow;
-
-namespace BluePrintSys.Messaging.CrossCutting.Models
+﻿namespace ServiceLibrary.Models.Workflow.Actions
 {
     public abstract class GenerateAction : WorkflowEventAction, IWorkflowEventASynchronousAction
     {

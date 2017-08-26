@@ -1,9 +1,8 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using BluePrintSys.Messaging.CrossCutting.Models;
-using ServiceLibrary.Models.Workflow;
+using ServiceLibrary.Models.Workflow.Actions;
 
-namespace ArtifactStore.Models.Workflow
+namespace ServiceLibrary.Models.Workflow
 {
     public class PreopWorkflowEventTriggers : WorkflowEventTriggers
     {

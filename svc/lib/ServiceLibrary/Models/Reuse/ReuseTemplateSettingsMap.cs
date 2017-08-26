@@ -2,7 +2,7 @@
 using System.Collections.ObjectModel;
 using ServiceLibrary.Models.Enums;
 
-namespace ArtifactStore.Models.Reuse
+namespace ServiceLibrary.Models.Reuse
 {
     public static class ReuseTemplateSettingsMap
     {

@@ -1,8 +1,8 @@
 ﻿using System.Linq;
-using ArtifactStore.Models.Reuse;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.ProjectMeta;
+using ServiceLibrary.Models.Reuse;
 
 namespace ArtifactStore.Helpers
 {

@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using ServiceLibrary.Models.Enums;
-using ServiceLibrary.Models.Workflow;
 
-namespace BluePrintSys.Messaging.CrossCutting.Models
+namespace ServiceLibrary.Models.Workflow.Actions
 {
     public class EmailNotificationAction : WorkflowEventAction, IWorkflowEventASynchronousAction
     {

@@ -2,7 +2,6 @@
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using ArtifactStore.Models.Reuse;
 using ArtifactStore.Repositories.Reuse;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;

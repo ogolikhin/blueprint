@@ -1,20 +1,19 @@
 ﻿using System;
-using Dapper;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Models;
-using ServiceLibrary.Models.Workflow;
-using ServiceLibrary.Repositories;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using ArtifactStore.Helpers;
-using BluePrintSys.Messaging.CrossCutting.Models;
+using Dapper;
+using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.PropertyType;
+using ServiceLibrary.Models.Workflow;
+using ServiceLibrary.Models.Workflow.Actions;
 
-namespace ArtifactStore.Repositories.Workflow
+namespace ServiceLibrary.Repositories.Workflow
 {
     public class SqlWorkflowRepository : SqlBaseArtifactRepository, IWorkflowRepository
     {
@@ -50,6 +49,35 @@ namespace ArtifactStore.Repositories.Workflow
             await CheckForArtifactPermissions(userId, artifactId, permissions: RolePermissions.Edit);
 
             return await GetTransitionForAssociatedStatesInternalAsync(userId, workflowId, fromStateId, toStateId);
+        }
+
+        public async Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForTransition(int userId, int artifactId, int workflowId,
+            int fromStateId, int toStateId)
+        {
+            var desiredTransition = await GetTransitionForAssociatedStatesAsync(userId, artifactId, workflowId, fromStateId, toStateId);
+
+            if (desiredTransition == null)
+            {
+                throw new ConflictException(I18NHelper.FormatInvariant("No transitions available. Workflow could have been updated. Please refresh your view."));
+            }
+            var preOpTriggers = new PreopWorkflowEventTriggers();
+            var postOpTriggers = new PostopWorkflowEventTriggers();
+            foreach (var workflowEventTrigger in desiredTransition.Triggers.Where(t => t?.Action != null))
+            {
+                if (workflowEventTrigger.Action is IWorkflowEventSynchronousAction)
+                {
+                    preOpTriggers.Add(workflowEventTrigger);
+                }
+                else if (workflowEventTrigger.Action is IWorkflowEventASynchronousAction)
+                {
+                    postOpTriggers.Add(workflowEventTrigger);
+                }
+            }
+            return new WorkflowTriggersContainer
+            {
+                SynchronousTriggers = preOpTriggers,
+                AsynchronousTriggers = postOpTriggers
+            };
         }
 
         public async Task<WorkflowState> GetStateForArtifactAsync(int userId, int artifactId, int revisionId, bool addDrafts)

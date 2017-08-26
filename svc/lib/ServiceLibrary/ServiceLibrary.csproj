@@ -249,6 +249,14 @@
     <Compile Include="Models\Range.cs" />
     <Compile Include="Models\Reuse\ItemTypeReuseTemplate.cs" />
     <Compile Include="Models\Reuse\PropertyTypeReuseTemplate.cs" />
+    <Compile Include="Models\Reuse\ReconcileProperty.cs" />
+    <Compile Include="Models\Reuse\ReuseSensitivityCollector.cs" />
+    <Compile Include="Models\Reuse\ReuseTemplateSettingsMap.cs" />
+    <Compile Include="Models\Reuse\SqlItemTypeInfo.cs" />
+    <Compile Include="Models\Reuse\SqlItemTypeReuseTemplate.cs" />
+    <Compile Include="Models\Reuse\SqlModifiedItems.cs" />
+    <Compile Include="Models\Reuse\SqlPropertyTypeInfo.cs" />
+    <Compile Include="Models\Reuse\SqlReuseSettingsInfo.cs" />
     <Compile Include="Models\RolePermissions.cs" />
     <Compile Include="Models\Email\SMTPClientConfiguration.cs" />
     <Compile Include="Models\Sorting.cs" />
@@ -275,6 +283,12 @@
     <Compile Include="Models\VersionControl\SqlJournalEntry.cs" />
     <Compile Include="Models\VersionControl\SqlPublishResult.cs" />
     <Compile Include="Models\VersionControl\VersionControlArtifactInfo.cs" />
+    <Compile Include="Models\Workflow\Actions\EmailNotificationAction.cs" />
+    <Compile Include="Models\Workflow\Actions\GenerateAction.cs" />
+    <Compile Include="Models\Workflow\Actions\GenerateChildrenAction.cs" />
+    <Compile Include="Models\Workflow\Actions\GenerateTestCasesAction.cs" />
+    <Compile Include="Models\Workflow\Actions\GenerateUserStoriesAction.cs" />
+    <Compile Include="Models\Workflow\Actions\PropertyChangeAction.cs" />
     <Compile Include="Models\Workflow\ActionUserGroups.cs" />
     <Compile Include="Models\Workflow\ExecutionParameters.cs" />
     <Compile Include="Models\Workflow\IExecutionParameters.cs" />
@@ -282,6 +296,8 @@
     <Compile Include="Models\Workflow\IWorkflowEvent.cs" />
     <Compile Include="Models\Workflow\IWorkflowEventASynchronousAction.cs" />
     <Compile Include="Models\Workflow\IWorkflowEventSynchronousAction.cs" />
+    <Compile Include="Models\Workflow\PostopWorkflowEventTriggers.cs" />
+    <Compile Include="Models\Workflow\PreopWorkflowEventTriggers.cs" />
     <Compile Include="Models\Workflow\SqlWorkflowTransition.cs" />
     <Compile Include="Models\Workflow\WorkflowConstants.cs" />
     <Compile Include="Models\Workflow\WorkflowEventAction.cs" />
@@ -321,6 +337,7 @@
     <Compile Include="Repositories\ISqlArtifactRepository.cs" />
     <Compile Include="Repositories\ISqlItemInfoRepository.cs" />
     <Compile Include="Repositories\IUsersRepository.cs" />
+    <Compile Include="Repositories\IVersionControlService.cs" />
     <Compile Include="Repositories\JobExecutorStatusRepository.cs" />
     <Compile Include="Repositories\Jobs\IJobsRepository.cs" />
     <Compile Include="Repositories\Jobs\JobsRepository.cs" />
@@ -333,6 +350,8 @@
     <Compile Include="Repositories\ProjectMeta\PropertyXml\XmlModelConvert.cs" />
     <Compile Include="Repositories\ProjectMeta\PropertyXml\XmlModelSerializer.cs" />
     <Compile Include="Repositories\ProjectMeta\SqlProjectMetaRepository.cs" />
+    <Compile Include="Repositories\Reuse\IReuseRepository.cs" />
+    <Compile Include="Repositories\Reuse\SqlReuseRepository.cs" />
     <Compile Include="Repositories\SqlArtifactPermissionsRepository.cs" />
     <Compile Include="Repositories\SqlArtifactRepository.cs" />
     <Compile Include="Helpers\ExceptionHelper.cs" />
@@ -347,6 +366,8 @@
     <Compile Include="Repositories\SqlUsersRepository.cs" />
     <Compile Include="Exceptions\SqlTimeoutException.cs" />
     <Compile Include="Repositories\BaselineRawDataHelper.cs" />
+    <Compile Include="Repositories\Workflow\IWorkflowRepository.cs" />
+    <Compile Include="Repositories\Workflow\SqlWorkflowRepository.cs" />
     <Compile Include="Services\CurrentDateTimeService.cs" />
     <Compile Include="Services\FeaturesService.cs" />
     <Compile Include="Services\ICurrentDateTimeService.cs" />

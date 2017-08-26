@@ -140,6 +140,10 @@ namespace ArtifactStore.Executors
 
         private async Task ProcessMessages(string tenantId, StateChangeResult result)
         {
+            if (result?.ActionMessages?.Count <= 0)
+            {
+                return;
+            }
             foreach (var actionMessage in result.ActionMessages.Where(a => a != null))
             {
                 try

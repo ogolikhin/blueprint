@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using ActionHandlerService.Helpers;
 using ActionHandlerService.Models;
 using ActionHandlerService.Repositories;
-using ArtifactStore.Helpers;
 using BluePrintSys.Messaging.CrossCutting.Host;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers;

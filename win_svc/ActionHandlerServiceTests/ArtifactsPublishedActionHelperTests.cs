@@ -1,16 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using ActionHandlerService;
 using ActionHandlerService.Helpers;
 using ActionHandlerService.MessageHandlers.ArtifactPublished;
 using ActionHandlerService.Models;
 using ActionHandlerService.Repositories;
 using BluePrintSys.Messaging.CrossCutting.Host;
-using BluePrintSys.Messaging.CrossCutting.Models;
 using BluePrintSys.Messaging.Models.Actions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Models.Workflow;
+using ServiceLibrary.Models.Workflow.Actions;
 
 namespace ActionHandlerServiceTests
 {

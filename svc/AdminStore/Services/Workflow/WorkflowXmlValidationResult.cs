@@ -61,6 +61,8 @@ namespace AdminStore.Services.Workflow
         ArtifactTypeGenerateChildrenActionNotSpecitied,
         ChildCountGenerateChildrenActionNotSpecitied,
         ChildCountGenerateChildrenActionNotValid,
+        ArtifactTypeApplicableOnlyToGenerateChildArtifactAction,
+        ChildCountApplicableOnlyToGenerateChildArtifactAction,
         StateConditionNotOnTriggerOfPropertyChangeEvent,
         StateStateConditionNotSpecified,
         StateStateConditionNotFound,

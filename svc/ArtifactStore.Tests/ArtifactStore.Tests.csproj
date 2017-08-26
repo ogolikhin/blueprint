@@ -92,6 +92,7 @@
     <Compile Include="Helpers\MentionHelperTests.cs" />
     <Compile Include="Helpers\SensitivityCommonHelperTests.cs" />
     <Compile Include="Helpers\ReuseSystemPropertiesMapTests.cs" />
+    <Compile Include="Helpers\Validators\DatePropertyValidatorTests.cs" />
     <Compile Include="Helpers\Validators\NumberPropertyValidatorTests.cs" />
     <Compile Include="Models\Workflow\Actions\PropertyChangeActionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

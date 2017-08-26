@@ -1,27 +1,29 @@
 ﻿using System.Collections.Generic;
 using System.Data;
-using ArtifactStore.Helpers.Validators;
-using ArtifactStore.Repositories;
-using BluePrintSys.Messaging.CrossCutting.Models.Interfaces;
 using ServiceLibrary.Helpers.Validators;
 using ServiceLibrary.Models.PropertyType;
 using ServiceLibrary.Models.Reuse;
+using ServiceLibrary.Models.VersionControl;
 
-namespace ArtifactStore.Models.Workflow
+namespace ServiceLibrary.Models.Workflow
 {
     public class ExecutionParameters : IExecutionParameters
     {
-        public ItemTypeReuseTemplate ReuseItemTemplate { get; private set; }
+        public ItemTypeReuseTemplate ReuseItemTemplate { get; }
 
-        public List<DPropertyType> CustomPropertyTypes { get; private set; }
-        public IDbTransaction Transaction { get; private set; }
+        public List<DPropertyType> CustomPropertyTypes { get; }
 
-        public IReadOnlyList<IPropertyValidator> Validators { get; private set; }
-        public IReusePropertyValidator ReuseValidator { get; private set; }
+        public IDbTransaction Transaction { get; }
 
-        public ISaveArtifactRepository SaveRepository { get; private set; }
-        public VersionControlArtifactInfo ArtifactInfo { get; private set; }
-        public int UserId { get; private set; }
+        public IReadOnlyList<IPropertyValidator> Validators { get; }
+
+        public IReusePropertyValidator ReuseValidator { get; }
+
+        public ISaveArtifactRepository SaveRepository { get; }
+
+        public VersionControlArtifactInfo ArtifactInfo { get; }
+
+        public int UserId { get; }
 
         public ExecutionParameters(
             int userId,

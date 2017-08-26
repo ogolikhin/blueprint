@@ -1,8 +1,7 @@
-﻿using Newtonsoft.Json;
-using ServiceLibrary.Models;
-using System;
+﻿using System;
+using Newtonsoft.Json;
 
-namespace ArtifactStore.Models
+namespace ServiceLibrary.Models.VersionControl
 {
     [JsonObject]
     public class VersionControlArtifactInfo

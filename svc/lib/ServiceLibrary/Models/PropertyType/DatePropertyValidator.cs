@@ -1,8 +1,6 @@
-﻿using ArtifactStore.Models.PropertyTypes;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Models.PropertyType;
+﻿using ServiceLibrary.Helpers;
 
-namespace ArtifactStore.Helpers.Validators
+namespace ServiceLibrary.Models.PropertyType
 {
     public class DatePropertyValidator : PropertyValidator<DDatePropertyType>
     {

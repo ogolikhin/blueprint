@@ -1,5 +1,4 @@
-﻿using System;
-using ServiceLibrary.Models.ProjectMeta;
+﻿using ServiceLibrary.Models.ProjectMeta;
 
 namespace ServiceLibrary.Models.PropertyType
 {

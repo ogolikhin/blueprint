@@ -1,9 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
-using ArtifactStore.Models.PropertyTypes;
-using ArtifactStore.Models.Workflow;
-using ServiceLibrary.Models;
 using ServiceLibrary.Models.PropertyType;
 using ServiceLibrary.Models.Workflow;
 

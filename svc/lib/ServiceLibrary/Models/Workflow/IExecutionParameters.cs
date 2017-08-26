@@ -3,10 +3,10 @@ using System.Data;
 using ServiceLibrary.Helpers.Validators;
 using ServiceLibrary.Models.PropertyType;
 using ServiceLibrary.Models.Reuse;
+using ServiceLibrary.Models.VersionControl;
 
-namespace BluePrintSys.Messaging.CrossCutting.Models.Interfaces
+namespace ServiceLibrary.Models.Workflow
 {
-
     public interface IExecutionParameters
     {
         ItemTypeReuseTemplate ReuseItemTemplate { get; }
@@ -15,5 +15,10 @@ namespace BluePrintSys.Messaging.CrossCutting.Models.Interfaces
         IReadOnlyList<IPropertyValidator> Validators { get; }
         IReusePropertyValidator ReuseValidator { get; }
         int UserId { get; }
+
+        ISaveArtifactRepository SaveRepository { get; }
+
+        VersionControlArtifactInfo ArtifactInfo { get; }
+
     }
 }

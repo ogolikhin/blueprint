@@ -121,12 +121,16 @@
     <Compile Include="Logging\ServiceLocator.cs" />
     <Compile Include="Logging\StackTraceProvider.cs" />
     <Compile Include="Logging\StandardLogEntry.cs" />
+    <Compile Include="Models\EmailNotificationAction.cs" />
     <Compile Include="Models\Enums\MessageType.cs" />
     <Compile Include="Models\Enums\Tenancy.cs" />
     <Compile Include="Models\Exceptions\MessageHeaderValueNotFoundException.cs" />
     <Compile Include="Models\Exceptions\UnsupportedActionTypeException.cs" />
-    <Compile Include="Models\Interfaces\IExecutionParameters.cs" />
-    <Compile Include="Models\WorkflowEventAction.cs" />
+    <Compile Include="Models\GenerateAction.cs" />
+    <Compile Include="Models\GenerateChildrenAction.cs" />
+    <Compile Include="Models\GenerateTestCasesAction.cs" />
+    <Compile Include="Models\GenerateUserStoriesAction.cs" />
+    <Compile Include="Models\PropertyChangeAction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -141,6 +145,7 @@
       <Name>ServiceLibrary</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

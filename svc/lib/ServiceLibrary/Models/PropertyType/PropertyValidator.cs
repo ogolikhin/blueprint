@@ -2,9 +2,8 @@
 using System.Linq;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Helpers.Validators;
-using ServiceLibrary.Models.PropertyType;
 
-namespace ArtifactStore.Helpers.Validators
+namespace ServiceLibrary.Models.PropertyType
 {
     public abstract class PropertyValidator<T> : IPropertyValidator where T : DPropertyType
     {

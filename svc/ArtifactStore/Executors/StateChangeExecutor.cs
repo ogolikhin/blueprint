@@ -6,11 +6,6 @@ using System.Threading.Tasks;
 using ArtifactStore.Helpers;
 using ArtifactStore.Models;
 using ArtifactStore.Models.Workflow;
-using ArtifactStore.Models.Workflow.Actions;
-using ArtifactStore.Repositories;
-using ArtifactStore.Repositories.Reuse;
-using ArtifactStore.Repositories.Workflow;
-using ArtifactStore.Services.VersionControl;
 using BluePrintSys.Messaging.CrossCutting.Helpers;
 using BluePrintSys.Messaging.CrossCutting.Models;
 using BluePrintSys.Messaging.Models.Actions;
@@ -22,8 +17,6 @@ using ServiceLibrary.Models.PropertyType;
 using ServiceLibrary.Models.Reuse;
 using ServiceLibrary.Models.VersionControl;
 using ServiceLibrary.Models.Workflow;
-using ServiceLibrary.Repositories;
-using ServiceLibrary.Repositories.ConfigControl;
 
 namespace ArtifactStore.Executors
 {

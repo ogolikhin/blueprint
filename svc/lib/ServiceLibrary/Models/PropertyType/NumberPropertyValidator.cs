@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Globalization;
-using ArtifactStore.Models.PropertyTypes;
 using ServiceLibrary.Helpers;
-using ServiceLibrary.Models.PropertyType;
 
-namespace ArtifactStore.Helpers.Validators
+namespace ServiceLibrary.Models.PropertyType
 {
     public class NumberPropertyValidator : PropertyValidator<DNumberPropertyType>
     {

@@ -1,8 +1,4 @@
-﻿
-using ServiceLibrary.Models;
-using ServiceLibrary.Models.PropertyType;
-
-namespace ArtifactStore.Models.PropertyTypes
+﻿namespace ServiceLibrary.Models.PropertyType
 {
     public class DNumberPropertyType : DPropertyType
     {

@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using BluePrintSys.Messaging.CrossCutting.Models;
-using BluePrintSys.Messaging.CrossCutting.Models.Interfaces;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
@@ -12,10 +10,9 @@ using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.PropertyType;
 using ServiceLibrary.Models.Workflow;
 
-namespace ArtifactStore.Models.Workflow.Actions
+namespace BluePrintSys.Messaging.CrossCutting.Models
 {
-
-    public class PropertyChangeAction : WorkflowEventSynchronousWorkflowEventAction
+    public class PropertyChangeAction : WorkflowEventSynchronousWorkflowEventAction, IPropertyChangeAction
     {
         public int InstancePropertyTypeId { get; set; }
 

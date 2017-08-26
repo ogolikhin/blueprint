@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using ArtifactStore.Models.PropertyTypes;
-using ArtifactStore.Repositories;
-using BluePrintSys.Messaging.CrossCutting.Models.Interfaces;
+using BluePrintSys.Messaging.CrossCutting.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Exceptions;
@@ -11,6 +9,8 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Helpers.Validators;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.PropertyType;
+using ServiceLibrary.Models.VersionControl;
+using ServiceLibrary.Models.Workflow;
 
 namespace ArtifactStore.Models.Workflow.Actions
 {

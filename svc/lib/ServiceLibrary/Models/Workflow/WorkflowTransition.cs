@@ -1,8 +1,11 @@
-﻿using Newtonsoft.Json;
-using ServiceLibrary.Models;
-using ServiceLibrary.Models.Workflow;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
 
-namespace ArtifactStore.Models.Workflow
+namespace ServiceLibrary.Models.Workflow
 {
     public class WorkflowTransition : IWorkflowEvent
     {
@@ -20,18 +23,5 @@ namespace ArtifactStore.Models.Workflow
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public WorkflowEventTriggers Triggers { get; } = new WorkflowEventTriggers();
-    }
-
-    public class SqlWorkflowTransition
-    {
-        public int WorkflowId { get; set; }
-        public int WorkflowEventId { get; set; }
-        public string WorkflowEventName { get; set; }
-        public int FromStateId { get; set; }
-        public string FromStateName { get; set; }
-        public int ToStateId { get; set; }
-        public string ToStateName { get; set; }
-        
-        public string Triggers { get; set; }
     }
 }

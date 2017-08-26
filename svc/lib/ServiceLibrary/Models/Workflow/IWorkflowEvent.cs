@@ -1,4 +1,4 @@
-﻿namespace ServiceLibrary.Models
+﻿namespace ServiceLibrary.Models.Workflow
 {
     public interface IWorkflowEvent
     {

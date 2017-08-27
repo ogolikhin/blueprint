@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
+using ArtifactStore.Executors;
 using ArtifactStore.Models;
 using ArtifactStore.Models.Workflow;
 using ArtifactStore.Repositories;
@@ -16,6 +17,7 @@ using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace ArtifactStore.Services
 {
@@ -31,6 +33,7 @@ namespace ArtifactStore.Services
         private Mock<IReuseRepository> _reuseRepository;
         private Mock<ISaveArtifactRepository> _saveArtifactRepositoryMock;
         private Mock<IApplicationSettingsRepository> _applicationSettingsRepositoryMock;
+        private Mock<IServiceLogRepository> _serviceLogRepositoryMock;
 
         [TestInitialize]
         public void TestInitialize()
@@ -43,15 +46,17 @@ namespace ArtifactStore.Services
             _reuseRepository = new Mock<IReuseRepository>(MockBehavior.Loose);
             _saveArtifactRepositoryMock = new Mock<ISaveArtifactRepository>(MockBehavior.Loose);
             _applicationSettingsRepositoryMock = new Mock<IApplicationSettingsRepository>(MockBehavior.Loose);
+            _serviceLogRepositoryMock = new Mock<IServiceLogRepository>(MockBehavior.Loose);
 
-            _workflowServiceMock = new WorkflowService(_workflowRepositoryMock.Object, 
-                _artifactVersionsRepositoryMock.Object, 
-                _itemInfoRepositoryMock.Object, 
-                _sqlHelperMock,
+            _workflowServiceMock = new WorkflowService(_sqlHelperMock,
+                _itemInfoRepositoryMock.Object,
+                new StateChangeExecutorRepositories(_artifactVersionsRepositoryMock.Object,
+                _workflowRepositoryMock.Object,
                 _versionControlServiceMock.Object,
                 _reuseRepository.Object,
                 _saveArtifactRepositoryMock.Object,
-                _applicationSettingsRepositoryMock.Object);
+                _applicationSettingsRepositoryMock.Object,
+                _serviceLogRepositoryMock.Object));
         }
 
         [TestMethod]

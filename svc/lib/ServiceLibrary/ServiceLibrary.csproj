@@ -205,8 +205,10 @@
     <Compile Include="Models\Item.cs" />
     <Compile Include="Models\ItemDetails.cs" />
     <Compile Include="Models\ItemInfo.cs" />
+    <Compile Include="Models\ItemType\SqlItemType.cs" />
     <Compile Include="Models\Jobs\AddJobResult.cs" />
     <Compile Include="Models\Jobs\DJobMessage.cs" />
+    <Compile Include="Models\Jobs\GenerateDescendantsInfo.cs" />
     <Compile Include="Models\Jobs\JobInfo.cs" />
     <Compile Include="Models\Jobs\ProcessTestGenerationRequest.cs" />
     <Compile Include="Models\Jobs\ProcessTestGenTaskResult.cs" />
@@ -315,6 +317,7 @@
     <Compile Include="Repositories\SqlConnectionWrapper.cs" />
     <Compile Include="Repositories\ServiceDependencyStatusRepository.cs" />
     <Compile Include="Repositories\SqlItemInfoRepository.cs" />
+    <Compile Include="Repositories\SqlItemTypeRepository.cs" />
     <Compile Include="Repositories\SqlStatusRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\IStatusRepository.cs" />

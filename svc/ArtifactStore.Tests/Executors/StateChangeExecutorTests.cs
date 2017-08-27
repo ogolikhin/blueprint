@@ -16,6 +16,7 @@ using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.VersionControl;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace ArtifactStore.Executors
 {
@@ -36,6 +37,7 @@ namespace ArtifactStore.Executors
         private Mock<IReuseRepository> _reuseRepository;
         private Mock<ISaveArtifactRepository> _saveArtifactRepositoryMock;
         private Mock<IApplicationSettingsRepository> _applicationSettingsRepositoryMock;
+        private Mock<IServiceLogRepository> _serviceLogRepositoryMock;
 
         [TestInitialize]
         public void TestInitialize()
@@ -54,16 +56,18 @@ namespace ArtifactStore.Executors
             _reuseRepository = new Mock<IReuseRepository>(MockBehavior.Loose);
             _saveArtifactRepositoryMock = new Mock<ISaveArtifactRepository>(MockBehavior.Loose);
             _applicationSettingsRepositoryMock = new Mock<IApplicationSettingsRepository>(MockBehavior.Loose);
+            _serviceLogRepositoryMock = new Mock<IServiceLogRepository>(MockBehavior.Loose);
 
-            _stateChangeExecutor = new StateChangeExecutor(ex, UserId,
-                _artifactVersionsRepository.Object,
-                _workflowRepository.Object,
+            _stateChangeExecutor = new StateChangeExecutor(UserId,
+                ex,
                 _sqlHelperMock,
+                new StateChangeExecutorRepositories(_artifactVersionsRepository.Object,
+                _workflowRepository.Object,
                 _versionControlService.Object,
                 _reuseRepository.Object,
                 _saveArtifactRepositoryMock.Object,
-                _applicationSettingsRepositoryMock.Object
-                );
+                _applicationSettingsRepositoryMock.Object,
+                _serviceLogRepositoryMock.Object));
         }
 
         [TestMethod]

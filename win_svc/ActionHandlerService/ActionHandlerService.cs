@@ -22,7 +22,7 @@ namespace ActionHandlerService
 
             Log.Info("Action Handler Service is starting.");
             _messageTransportHost = new TransportHost(new ConfigHelper(), WorkflowServiceBusServer.Instance);
-            _messageTransportHost.Start(() => Stop(null));
+            _messageTransportHost.Start(false, () => Stop(null));
             Log.Info("Action Handler Service started.");
 
             return true;

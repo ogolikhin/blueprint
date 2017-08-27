@@ -29,7 +29,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Configuration
             throw new InvalidConnectionStringException(I18NHelper.FormatInvariant("Invalid Connection String: {0}. It must contain {1} or {2}", connectionString, host, datasource));
         }
 
-        public const string MessageQueueKey = "MessageQueue";
+        public const string MessageQueueKey = "NServiceBus.Messaging.MessageQueue";
         public const string MessageQueueDefault = "Cloud.MessageServer";
         public string MessageQueue => AppSettingsHelper.GetConfigStringValue(MessageQueueKey, MessageQueueDefault);
 

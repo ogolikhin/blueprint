@@ -40,6 +40,8 @@ namespace AdminStore.Repositories
 
         Task<int> HasProjectExternalLocksAsync(int userId, int projectId);
 
+        Task<QueryResult<ProjectFolderSearchDto>> GetProjectsAndFolders(int userId, TabularData tabularData, Func<Sorting, string> sort = null);
+
         Task<int> CreateRoleAssignmentAsync(int projectId, CreateRoleAssignment roleAssignment);
     }
 }

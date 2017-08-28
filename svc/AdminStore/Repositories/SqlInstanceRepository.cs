@@ -491,6 +491,39 @@ namespace AdminStore.Repositories
 
         #region private methods
 
+        public async Task<QueryResult<ProjectFolderSearchDto>> GetProjectsAndFolders(int userId, TabularData tabularData, Func<Sorting, string> sort = null)
+        {
+            var orderField = string.Empty;
+            if (sort != null && tabularData.Sorting != null)
+            {
+                orderField = sort(tabularData.Sorting);
+            }
+
+            if (!string.IsNullOrWhiteSpace(tabularData.Search))
+            {
+                tabularData.Search = UsersHelper.ReplaceWildcardCharacters(tabularData.Search);
+            }
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@UserId",userId);
+            parameters.Add("@Offset", tabularData.Pagination.Offset);
+            parameters.Add("@Limit", tabularData.Pagination.Limit);
+            parameters.Add("@OrderField", orderField);
+            parameters.Add("@Search", tabularData.Search);
+            parameters.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var projectFolders =
+                await
+                    _connectionWrapper.QueryAsync<ProjectFolderSearchDto>("SearchProjectsAndFolders", parameters,
+                        commandType: CommandType.StoredProcedure);
+
+            var total = parameters.Get<int?>("Total");
+
+            var queryDataResult = new QueryResult<ProjectFolderSearchDto> { Items = projectFolders, Total = total ?? 0 };
+
+            return queryDataResult;
+        }
+
         /// <summary>
         ///  This method takes the projectId and checks if the project is still exist in the database and not marked as deleted
         /// </summary>
@@ -535,6 +568,6 @@ namespace AdminStore.Repositories
             }
         }
 
-    #endregion
-    }
+        #endregion
+            }
 }

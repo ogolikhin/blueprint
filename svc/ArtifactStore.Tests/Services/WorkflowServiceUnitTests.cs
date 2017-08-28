@@ -32,6 +32,7 @@ namespace ArtifactStore.Services
         private Mock<ISaveArtifactRepository> _saveArtifactRepositoryMock;
         private Mock<IApplicationSettingsRepository> _applicationSettingsRepositoryMock;
         private Mock<IServiceLogRepository> _serviceLogRepositoryMock;
+        private Mock<IUsersRepository> _usersRepositoryMock;
 
         [TestInitialize]
         public void TestInitialize()
@@ -45,6 +46,7 @@ namespace ArtifactStore.Services
             _saveArtifactRepositoryMock = new Mock<ISaveArtifactRepository>(MockBehavior.Loose);
             _applicationSettingsRepositoryMock = new Mock<IApplicationSettingsRepository>(MockBehavior.Loose);
             _serviceLogRepositoryMock = new Mock<IServiceLogRepository>(MockBehavior.Loose);
+            _usersRepositoryMock = new Mock<IUsersRepository>(MockBehavior.Loose);
 
             _workflowServiceMock = new WorkflowService(_sqlHelperMock,
                 _itemInfoRepositoryMock.Object,
@@ -54,7 +56,8 @@ namespace ArtifactStore.Services
                 _reuseRepository.Object,
                 _saveArtifactRepositoryMock.Object,
                 _applicationSettingsRepositoryMock.Object,
-                _serviceLogRepositoryMock.Object));
+                _serviceLogRepositoryMock.Object,
+                _usersRepositoryMock.Object));
         }
 
         [TestMethod]

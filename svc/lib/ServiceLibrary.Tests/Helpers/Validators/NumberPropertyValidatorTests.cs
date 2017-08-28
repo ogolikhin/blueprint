@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.PropertyType;
 
-namespace ArtifactStore.Helpers.Validators
+namespace ServiceLibrary.Helpers.Validators
 {
     [TestClass]
     public class NumberPropertyValidatorTests
@@ -46,7 +45,8 @@ namespace ArtifactStore.Helpers.Validators
                 new List<DPropertyType>()
                 {
                     _propertyType
-                });
+                }, 
+                new ValidationContext(new List<SqlUser>(), new List<SqlGroup>()));
 
             //Assert.
             Assert.AreEqual(actualResult, null, "There should not be validation errors.");
@@ -96,7 +96,8 @@ namespace ArtifactStore.Helpers.Validators
                 new List<DPropertyType>()
                 {
                     _propertyType
-                });
+                },
+                new ValidationContext(new List<SqlUser>(), new List<SqlGroup>()));
 
             //Assert
             Assert.AreEqual(actualResult.ErrorCode, ErrorCodes.InvalidArtifactProperty,

@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using ArtifactStore.Helpers;
 using BluePrintSys.Messaging.CrossCutting.Helpers;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Helpers.Validators;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.PropertyType;
@@ -15,8 +15,6 @@ using ServiceLibrary.Models.Reuse;
 using ServiceLibrary.Models.VersionControl;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Models.Workflow.Actions;
-using ServiceLibrary.Repositories;
-using ServiceLibrary.Repositories.ConfigControl;
 
 namespace ArtifactStore.Executors
 {
@@ -302,7 +300,7 @@ namespace ArtifactStore.Executors
             {
                 return null;
             }
-            //TODO: detect if artifact has readonly reuse
+
             var isArtifactReadOnlyReuse = await _stateChangeExecutorRepositories.ReuseRepository.DoItemsContainReadonlyReuse(new[] { _input.ArtifactId }, transaction);
 
             ItemTypeReuseTemplate reuseTemplate = null;
@@ -323,8 +321,16 @@ namespace ArtifactStore.Executors
             {
                 propertyTypes = customItemTypeToPropertiesMap[artifactInfo.ItemTypeId];
             }
-
-            return new ExecutionParameters(_userId, artifactInfo, reuseTemplate, propertyTypes, _stateChangeExecutorRepositories.SaveArtifactRepository, transaction);
+            var usersAndGroups = await LoadUsersAndGroups(triggers);
+            return new ExecutionParameters(
+                _userId, 
+                artifactInfo, 
+                reuseTemplate, 
+                propertyTypes,
+                _stateChangeExecutorRepositories.SaveArtifactRepository, 
+                transaction,
+                new ValidationContext(usersAndGroups.Item1, usersAndGroups.Item2)
+                );
         }
 
         private async Task<int> CreateRevision(IDbTransaction transaction)
@@ -373,36 +379,6 @@ namespace ArtifactStore.Executors
                 throw new ConflictException(I18NHelper.FormatInvariant("Artifact has been updated. The current workflow state id {0} of the artifact does not match the specified state {1}. Please refresh your view.", currentState.Id, _input.FromStateId));
             }
             return currentState;
-        }
-
-        private async Task<WorkflowTransition> GetDesiredTransition(WorkflowState currentState)
-        {
-            //Get available transitions and validate the required transition
-            var desiredTransition = await _stateChangeExecutorRepositories.WorkflowRepository.GetTransitionForAssociatedStatesAsync(_userId, _input.ArtifactId, currentState.WorkflowId, _input.FromStateId, _input.ToStateId);
-
-            if (desiredTransition == null)
-            {
-                throw new ConflictException(I18NHelper.FormatInvariant("No transitions available. Workflow could have been updated. Please refresh your view."));
-            }
-            return desiredTransition;
-        }
-
-        private Tuple<WorkflowEventTriggers, WorkflowEventTriggers> GetTransitionTriggers(WorkflowTransition desiredTransition)
-        {
-            var preOpTriggers = new PreopWorkflowEventTriggers();
-            var postOpTriggers = new PostopWorkflowEventTriggers();
-            foreach (var workflowEventTrigger in desiredTransition.Triggers.Where(t => t?.Action != null))
-            {
-                if (workflowEventTrigger.Action is IWorkflowEventSynchronousAction)
-                {
-                    preOpTriggers.Add(workflowEventTrigger);
-                }
-                else if (workflowEventTrigger.Action is IWorkflowEventASynchronousAction)
-                {
-                    postOpTriggers.Add(workflowEventTrigger);
-                }
-            }
-            return new Tuple<WorkflowEventTriggers, WorkflowEventTriggers>(preOpTriggers, postOpTriggers);
         }
 
         private async Task ProcessConstraints(List<IConstraint> constraints)
@@ -472,6 +448,18 @@ namespace ArtifactStore.Executors
             var instancePropertyTypeIds = propertyChangeActions.Select(b => b.InstancePropertyTypeId);
 
             return await _stateChangeExecutorRepositories.WorkflowRepository.GetCustomItemTypeToPropertiesMap(_userId, _input.ArtifactId, projectId, instanceItemTypeIds, instancePropertyTypeIds);
+        }
+
+        public async Task<Tuple<IEnumerable<SqlUser>, IEnumerable<SqlGroup>>> LoadUsersAndGroups(WorkflowEventTriggers triggers)
+        {
+            var userGroups = triggers.Select(a => a.Action).OfType<PropertyChangeUserGroupsAction>().SelectMany(b => b.UserGroups).ToList();
+            var userIds = userGroups.Where(u => !u.IsGroup.GetValueOrDefault(false) && u.Id.HasValue).Select(u => u.Id.Value).ToHashSet();
+            var groupIds = userGroups.Where(u => u.IsGroup.GetValueOrDefault(false) && u.Id.HasValue).Select(u => u.Id.Value).ToHashSet();
+
+            var users = await _stateChangeExecutorRepositories.UsersRepository.GetExistingUsersByIdsAsync(userIds);
+            var groups = await _stateChangeExecutorRepositories.UsersRepository.GetExistingGroupsByIds(groupIds, false);
+
+            return new Tuple<IEnumerable<SqlUser>, IEnumerable<SqlGroup>>(users, groups);
         }
     }
 }

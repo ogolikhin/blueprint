@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using ServiceLibrary.Exceptions;
@@ -16,7 +15,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
 
         public string PropertyValue { get; set; }
 
-        public PropertyLite PropertyLiteValue { get; private set; }
+        public PropertyLite PropertyLiteValue { get; protected set; }
 
         public override MessageActionType ActionType { get; } = MessageActionType.PropertyChange;
 
@@ -49,10 +48,10 @@ namespace ServiceLibrary.Models.Workflow.Actions
 
             PopulatePropertyLite(dPropertyType);
 
-            return executionParameters.Validators.Select(v => v.Validate(PropertyLiteValue, executionParameters.CustomPropertyTypes)).FirstOrDefault(r => r != null);
+            return executionParameters.Validators.Select(v => v.Validate(PropertyLiteValue, executionParameters.CustomPropertyTypes, executionParameters.ValidationContext)).FirstOrDefault(r => r != null);
         }
 
-        private void PopulatePropertyLite(DPropertyType propertyType)
+        protected virtual void PopulatePropertyLite(DPropertyType propertyType)
         {
             switch (propertyType?.PrimitiveType)
             {
@@ -117,11 +116,4 @@ namespace ServiceLibrary.Models.Workflow.Actions
             return date;
         }
     }
-
-    public class PropertyChangeUserGroupsAction : PropertyChangeAction
-    {
-        // Used for User properties and indicates that PropertyValue contains the group name.
-        public List<ActionUserGroups> UserGroups { get; } = new List<ActionUserGroups>();
-    }
-
 }

@@ -16,6 +16,7 @@ namespace ArtifactStore.Executors
         public ISaveArtifactRepository SaveArtifactRepository { get; }
         public IApplicationSettingsRepository ApplicationSettingsRepository { get; }
         public IServiceLogRepository ServiceLogRepository { get; }
+        public IUsersRepository UsersRepository { get; }
 
 
         public StateChangeExecutorRepositories(IArtifactVersionsRepository artifactVersionsRepository,
@@ -24,7 +25,8 @@ namespace ArtifactStore.Executors
             IReuseRepository reuseRepository,
             ISaveArtifactRepository saveArtifactRepository,
             IApplicationSettingsRepository applicationSettingsRepository,
-            IServiceLogRepository serviceLogRepository)
+            IServiceLogRepository serviceLogRepository,
+            IUsersRepository usersRepository)
         {
             ArtifactVersionsRepository = artifactVersionsRepository;
             WorkflowRepository = workflowRepository;
@@ -33,6 +35,7 @@ namespace ArtifactStore.Executors
             SaveArtifactRepository = saveArtifactRepository;
             ApplicationSettingsRepository = applicationSettingsRepository;
             ServiceLogRepository = serviceLogRepository;
+            UsersRepository = usersRepository;
         }
     }
 }

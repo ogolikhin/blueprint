@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Globalization;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Helpers.Validators;
 
 namespace ServiceLibrary.Models.PropertyType
 {
     public class NumberPropertyValidator : PropertyValidator<DNumberPropertyType>
     {
-        protected override PropertySetResult Validate(PropertyLite property, DNumberPropertyType propertyType)
+        protected override PropertySetResult Validate(PropertyLite property, DNumberPropertyType propertyType, IValidationContext validationContext)
         {
             decimal value = property.NumberValue.Value;
             if (IsPropertyValueEmpty(property, propertyType))

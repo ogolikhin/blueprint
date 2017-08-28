@@ -20,5 +20,15 @@ namespace ServiceLibrary.Repositories.Workflow
         Task<Dictionary<int, List<DPropertyType>>> GetCustomItemTypeToPropertiesMap(int userId, int artifactId, int projectId, IEnumerable<int> instanceItemTypeIds, IEnumerable<int> instancePropertyIds);
 
         Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForTransition(int userId, int artifactId, int workflowId, int fromStateId, int toStateId);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="artifactId"></param>
+        /// <param name="revisionId"></param>
+        /// <returns></returns>
+        Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForNewArtifactEvent(int userId,
+            int artifactId, int revisionId);
     }
 }

@@ -8,6 +8,7 @@ using BluePrintSys.Messaging.CrossCutting.Host;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Models.Workflow;
 
 namespace ActionHandlerService.MessageHandlers.ArtifactPublished
 {
@@ -38,8 +39,23 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
                 return await Task.FromResult(false);
             }
 
+            var createdArtifacts = allPublishedArtifacts.Where(p => p.IsFirstTimePublished).ToList();
+            if (!await ProcessCreatedArtifacts(tenant, updatedArtifacts, message, repository))
+            {
+                return await Task.FromResult(false);
+            }
+
             Logger.Log("Finished processing message", message, tenant, LogLevel.Debug);
             return await Task.FromResult(true);
+        }
+
+        private Task<bool> ProcessCreatedArtifacts(TenantInformation tenant, List<PublishedArtifactInformation> createdArtifacts, ArtifactsPublishedMessage message, IArtifactsPublishedRepository repository)
+        {
+            foreach (var publishedArtifactInformation in createdArtifacts)
+            {
+                repository.GetWorkflowEventTriggersForTransition(message.UserId, )
+            }
+            
         }
 
         private async Task<bool> ProcessUpdatedArtifacts(TenantInformation tenant,

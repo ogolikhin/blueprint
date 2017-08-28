@@ -1,4 +1,4 @@
-﻿namespace BluePrintSys.Messaging.Models.Actions
+﻿namespace ServiceLibrary.Models.Workflow
 {
 
     public class SqlCustomToInstancePropertyTypeIds

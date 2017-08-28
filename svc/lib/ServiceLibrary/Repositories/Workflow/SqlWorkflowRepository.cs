@@ -60,24 +60,7 @@ namespace ServiceLibrary.Repositories.Workflow
             {
                 throw new ConflictException(I18NHelper.FormatInvariant("No transitions available. Workflow could have been updated. Please refresh your view."));
             }
-            var preOpTriggers = new PreopWorkflowEventTriggers();
-            var postOpTriggers = new PostopWorkflowEventTriggers();
-            foreach (var workflowEventTrigger in desiredTransition.Triggers.Where(t => t?.Action != null))
-            {
-                if (workflowEventTrigger.Action is IWorkflowEventSynchronousAction)
-                {
-                    preOpTriggers.Add(workflowEventTrigger);
-                }
-                else if (workflowEventTrigger.Action is IWorkflowEventASynchronousAction)
-                {
-                    postOpTriggers.Add(workflowEventTrigger);
-                }
-            }
-            return new WorkflowTriggersContainer
-            {
-                SynchronousTriggers = preOpTriggers,
-                AsynchronousTriggers = postOpTriggers
-            };
+            return GetWorkflowTriggersContainer(desiredTransition.Triggers);
         }
 
         public async Task<WorkflowState> GetStateForArtifactAsync(int userId, int artifactId, int revisionId, bool addDrafts)
@@ -116,9 +99,61 @@ namespace ServiceLibrary.Repositories.Workflow
 
             return await GetCustomPropertyTypesFromStandardIds(instanceItemTypeIds, instancePropertyIds, projectId);
         }
+
+        public async Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForNewArtifactEvent(int userId,
+            int artifactId, int revisionId)
+        {
+            //Need to access code for artifact permissions for revision
+            await CheckForArtifactPermissions(userId, artifactId, permissions: RolePermissions.Read);
+
+            return await GetWorkflowEventTriggersForNewArtifactEventInternal(userId, artifactId, revisionId);
+        }
+
+
+
         #endregion
 
         #region Private methods
+
+        private async Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForNewArtifactEventInternal(int userId, int artifactId, int revisionId)
+        {
+            var param = new DynamicParameters();
+            param.Add("@userId", userId);
+            param.Add("@artifactId", artifactId);
+            param.Add("@revisionId", revisionId);
+            var newArtifactEvents = (await
+                ConnectionWrapper.QueryAsync<SqlWorkflowNewArtifactEvent>("GetWorkflowEventTriggersForNewArtifact",
+                    param,
+                    commandType: CommandType.StoredProcedure)).ToList();
+            var eventTriggers = new WorkflowEventTriggers();
+            newArtifactEvents.Where(n => n != null).ForEach(n =>
+            {
+                eventTriggers.AddRange(ToWorkflowTriggers(SerializationHelper.FromXml<XmlWorkflowEventTriggers>(n.Triggers)));
+            });
+            return GetWorkflowTriggersContainer(eventTriggers);
+        }
+
+        private static WorkflowTriggersContainer GetWorkflowTriggersContainer(WorkflowEventTriggers eventTriggers)
+        {
+            var preOpTriggers = new PreopWorkflowEventTriggers();
+            var postOpTriggers = new PostopWorkflowEventTriggers();
+            foreach (var workflowEventTrigger in eventTriggers.Where(t => t?.Action != null))
+            {
+                if (workflowEventTrigger.Action is IWorkflowEventSynchronousAction)
+                {
+                    preOpTriggers.Add(workflowEventTrigger);
+                }
+                else if (workflowEventTrigger.Action is IWorkflowEventASynchronousAction)
+                {
+                    postOpTriggers.Add(workflowEventTrigger);
+                }
+            }
+            return new WorkflowTriggersContainer
+            {
+                SynchronousTriggers = preOpTriggers,
+                AsynchronousTriggers = postOpTriggers
+            };
+        }
 
         private async Task<WorkflowState> GetCurrentStateInternal(int userId, int artifactId, int revisionId, bool addDrafts)
         {

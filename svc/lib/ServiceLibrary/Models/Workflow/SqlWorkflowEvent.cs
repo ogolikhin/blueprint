@@ -1,4 +1,4 @@
-﻿namespace ActionHandlerService.Models
+﻿namespace ServiceLibrary.Models.Workflow
 {
     public class SqlWorkflowEvent
     {

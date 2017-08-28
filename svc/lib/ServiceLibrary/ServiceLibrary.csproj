@@ -298,6 +298,13 @@
     <Compile Include="Models\Workflow\IWorkflowEventSynchronousAction.cs" />
     <Compile Include="Models\Workflow\PostopWorkflowEventTriggers.cs" />
     <Compile Include="Models\Workflow\PreopWorkflowEventTriggers.cs" />
+    <Compile Include="Models\Workflow\SqlCustomToInstancePropertyTypeIds.cs" />
+    <Compile Include="Models\Workflow\SqlModifiedProperty.cs" />
+    <Compile Include="Models\Workflow\SqlProject.cs" />
+    <Compile Include="Models\Workflow\SqlWorkflowEvent.cs" />
+    <Compile Include="Models\Workflow\SqlWorkflowNewArtifactEvent.cs" />
+    <Compile Include="Models\Workflow\SqlWorkFlowState.cs" />
+    <Compile Include="Models\Workflow\SqlWorkFlowStateInformation.cs" />
     <Compile Include="Models\Workflow\SqlWorkflowTransition.cs" />
     <Compile Include="Models\Workflow\WorkflowConstants.cs" />
     <Compile Include="Models\Workflow\WorkflowEventAction.cs" />

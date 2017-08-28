@@ -8,6 +8,7 @@ using BluePrintSys.Messaging.CrossCutting.Host;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Models.VersionControl;
 using ServiceLibrary.Models.Workflow;
 
 namespace ActionHandlerService.MessageHandlers.ArtifactPublished
@@ -51,17 +52,23 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
 
         private async Task<bool> ProcessCreatedArtifacts(TenantInformation tenant, List<PublishedArtifactInformation> createdArtifacts, ArtifactsPublishedMessage message, IArtifactsPublishedRepository repository)
         {
-            foreach (var createdArtifact in createdArtifacts)
-            {
-                var eventTriggers = await repository.GetWorkflowEventTriggersForNewArtifactEvent(message.UserId,
-                    new [] { createdArtifact.Id },
-                    message.RevisionId);
-                WorkflowEventsMessagesHelper.GenerateMessages(message.UserId,
-                    message.RevisionId,
-                    message.UserName,
-                    eventTriggers.AsynchronousTriggers,
-                    )
-            }
+            //foreach (var createdArtifact in createdArtifacts)
+            //{
+            //    var eventTriggers = await repository.GetWorkflowEventTriggersForNewArtifactEvent(message.UserId,
+            //        new [] { createdArtifact.Id },
+            //        message.RevisionId);
+            //    WorkflowEventsMessagesHelper.GenerateMessages(message.UserId,
+            //        message.RevisionId,
+            //        message.UserName,
+            //        eventTriggers.AsynchronousTriggers,
+            //        new VersionControlArtifactInfo()
+            //        {
+            //            Id = createdArtifact.Id,
+                        
+            //        }
+            //        )
+            //}
+            return await Task.FromResult(true);
         }
 
         private async Task<bool> ProcessUpdatedArtifacts(TenantInformation tenant,

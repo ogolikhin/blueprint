@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq;
-using System.Threading.Tasks;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
@@ -19,13 +18,6 @@ namespace ServiceLibrary.Models.Workflow.Actions
         public PropertyLite PropertyLiteValue { get; protected set; }
 
         public override MessageActionType ActionType { get; } = MessageActionType.PropertyChange;
-
-        public override async Task<bool> Execute(IExecutionParameters executionParameters)
-        {
-            await base.Execute(executionParameters);
-
-            return await Task.FromResult(true);
-        }
 
         protected override bool ValidateActionToBeProcessed(IExecutionParameters executionParameters)
         {

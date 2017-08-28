@@ -22,7 +22,7 @@ namespace AdminStore
             config.EnsureInitialized();
 
             // Assert
-            config.AssertTotalRoutes(69, "Please update asserts in WebApiConfigTests when changing routes.");
+            config.AssertTotalRoutes(70, "Please update asserts in WebApiConfigTests when changing routes.");
             config.AssertAction<ConfigController>("GetConfigSettings", HttpMethod.Get, "config/settings");
             config.AssertAction<ConfigController>("GetConfig", HttpMethod.Get, "config/config.js");
             config.AssertAction<ConfigController>("GetApplicationSettings", HttpMethod.Get, "config");
@@ -89,10 +89,8 @@ namespace AdminStore
             config.AssertAction<InstanceEmailSettingsController>("TestConnection", HttpMethod.Post, "instance/emailsettings/testconnection");
             config.AssertAction<InstanceController>("GetProjectRoleAssignments", HttpMethod.Get, "instance/projects/1/rolesassignments");
             config.AssertAction<InstanceController>("DeleteRoleAssignment", HttpMethod.Post, "instance/projects/1/rolesassignments/delete");
+            config.AssertAction<InstanceController>("CreateRoleAssignment", HttpMethod.Post, "instance/projects/1/rolesassignments");
             config.AssertAction<InstanceEmailSettingsController>("GetEmailSettings", HttpMethod.Get, "instance/emailsettings");
-            config.AssertAction<InstanceEmailSettingsController>("UpdateEmailSettings", HttpMethod.Put, "instance/emailsettings");
-            config.AssertAction<InstanceController>("HasProjectExternalLocks", HttpMethod.Get, "instance/projects/1/hasprojectexternallocks");
-            config.AssertAction<GroupsController>("GetProjectGroupsAsync", HttpMethod.Get, "groups/1/available");
             config.AssertAction<InstanceController>("SearchProjectFolder", HttpMethod.Get, "instance/folderprojectsearch?offset=0&limit=20");
         }
 

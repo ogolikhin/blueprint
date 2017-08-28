@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using ActionHandlerService.Helpers;
-using ActionHandlerService.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ServiceLibrary.Models.Workflow;
 
 namespace ActionHandlerServiceTests
 {

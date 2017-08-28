@@ -3,23 +3,18 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using ArtifactStore.Helpers;
-using ArtifactStore.Models.Reuse;
 using ArtifactStore.Models.VersionControl;
 using ArtifactStore.Repositories.Revisions;
 using ArtifactStore.Repositories.VersionControl;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Reuse;
 using ServiceLibrary.Models.VersionControl;
+using ServiceLibrary.Repositories;
 
 namespace ArtifactStore.Services.VersionControl
 {
-    public interface IVersionControlService
-    {
-        Task<ArtifactResultSet> PublishArtifacts(PublishParameters parameters, IDbTransaction transaction = null);
-    }
-
     public class VersionControlService : IVersionControlService
     {
         private readonly IVersionControlRepository _versionControlRepository;

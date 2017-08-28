@@ -9,7 +9,6 @@ using AdminStore.Helpers.Workflow;
 using AdminStore.Models.Workflow;
 using AdminStore.Repositories;
 using AdminStore.Repositories.Workflow;
-using ArtifactStore.Helpers;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
@@ -18,6 +17,7 @@ using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories.Files;
 using ServiceLibrary.Repositories.ProjectMeta;
 using File = ServiceLibrary.Models.Files.File;
+using SqlWorkflowEvent = AdminStore.Models.Workflow.SqlWorkflowEvent;
 
 namespace AdminStore.Services.Workflow
 {

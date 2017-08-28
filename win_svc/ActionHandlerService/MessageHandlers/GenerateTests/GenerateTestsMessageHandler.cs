@@ -1,8 +1,6 @@
 ﻿using ActionHandlerService.Helpers;
 using BluePrintSys.Messaging.CrossCutting.Configuration;
 using BluePrintSys.Messaging.Models.Actions;
-using ServiceLibrary.Repositories;
-using ServiceLibrary.Repositories.Jobs;
 
 namespace ActionHandlerService.MessageHandlers.GenerateTests
 {

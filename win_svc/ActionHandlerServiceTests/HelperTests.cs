@@ -39,7 +39,7 @@ namespace ActionHandlerServiceTests
         [TestMethod]
         public async Task NServiceBus_ReturnsArgumentNullExceptionMessage_WhenConnectionStringIsNull()
         {
-            var exceptionMessage = await WorkflowServiceBusServer.Instance.Start(null);
+            var exceptionMessage = await WorkflowServiceBusServer.Instance.Start(null, true);
             Assert.IsTrue(exceptionMessage.Contains("connectionString"));
         }
     }

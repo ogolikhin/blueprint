@@ -21,7 +21,7 @@ namespace ActionHandlerServiceTests
         {
             var nServiceBusServerMock = new Mock<INServiceBusServer>();
             var rabbitMqTransportHost = new TransportHost(null, nServiceBusServerMock.Object);
-            rabbitMqTransportHost.Start();
+            rabbitMqTransportHost.Start(false);
         }
 
         [TestMethod]
@@ -33,9 +33,9 @@ namespace ActionHandlerServiceTests
 
             var nServiceBusServerMock = new Mock<INServiceBusServer>();
             const string errorMessage = "error message";
-            nServiceBusServerMock.Setup(m => m.Start(It.IsAny<string>())).ReturnsAsync(errorMessage);
+            nServiceBusServerMock.Setup(m => m.Start(It.IsAny<string>(), It.IsAny<bool>())).ReturnsAsync(errorMessage);
             var rabbitMqTransportHost = new TransportHost(null, nServiceBusServerMock.Object);
-            rabbitMqTransportHost.Start(() => true);
+            rabbitMqTransportHost.Start(false, () => true);
 
             //Give the logging time to finish
             Thread.Sleep(1000);
@@ -59,7 +59,7 @@ namespace ActionHandlerServiceTests
         {
             var nServiceBusServerMock = new Mock<INServiceBusServer>();
             var sqlTransportHost = new TransportHost(null, nServiceBusServerMock.Object);
-            sqlTransportHost.Start();
+            sqlTransportHost.Start(false);
         }
 
         [TestMethod]
@@ -71,9 +71,9 @@ namespace ActionHandlerServiceTests
 
             var nServiceBusServerMock = new Mock<INServiceBusServer>();
             const string errorMessage = "error message";
-            nServiceBusServerMock.Setup(m => m.Start(It.IsAny<string>())).ReturnsAsync(errorMessage);
+            nServiceBusServerMock.Setup(m => m.Start(It.IsAny<string>(), It.IsAny<bool>())).ReturnsAsync(errorMessage);
             var sqlTransportHost = new TransportHost(null, nServiceBusServerMock.Object);
-            sqlTransportHost.Start(() => true);
+            sqlTransportHost.Start(false, () => true);
 
             //Give the logging time to finish
             Thread.Sleep(1000);

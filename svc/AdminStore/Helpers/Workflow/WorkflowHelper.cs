@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AdminStore.Models.Workflow;
-using ArtifactStore.Helpers;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.Workflow;

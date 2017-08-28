@@ -118,9 +118,6 @@
     <Compile Include="MessageHandlers\PropertyChange\PropertyChangeActionHelper.cs" />
     <Compile Include="MessageHandlers\StateTransition\StateTransitionMessageHandler.cs" />
     <Compile Include="MessageHandlers\StateTransition\StateTransitionActionHelper.cs" />
-    <Compile Include="Models\SqlWorkflowEvent.cs" />
-    <Compile Include="Models\SqlModifiedProperty.cs" />
-    <Compile Include="Models\SqlProject.cs" />
     <Compile Include="Repositories\ActionHandlerServiceRepository.cs" />
     <Compile Include="Logging\Log4NetStandardLogListener.cs" />
     <Compile Include="MessageHandlers\ArtifactPublished\ArtifactsPublishedActionHelper.cs" />

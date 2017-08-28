@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Helpers.Validators;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.PropertyType;
 
-namespace ArtifactStore.Helpers.Validators
+namespace ServiceLibrary.Helpers.Validators
 {
     /// <summary>
     /// Tests for the DatePropertyValidator
@@ -23,7 +21,7 @@ namespace ArtifactStore.Helpers.Validators
         private const int DefaultInstancePropertyTypeId = 20;
         private Mock<IValidationContext> _validationContextMock;
 
-            [TestInitialize]
+        [TestInitialize]
         public void TestInitialize()
         {
             _validator = new DatePropertyValidator();

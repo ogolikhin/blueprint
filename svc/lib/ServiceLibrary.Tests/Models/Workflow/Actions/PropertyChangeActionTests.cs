@@ -9,10 +9,8 @@ using ServiceLibrary.Helpers.Validators;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.PropertyType;
 using ServiceLibrary.Models.VersionControl;
-using ServiceLibrary.Models.Workflow;
-using ServiceLibrary.Models.Workflow.Actions;
 
-namespace ArtifactStore.Models.Workflow.Actions
+namespace ServiceLibrary.Models.Workflow.Actions
 {
     [TestClass]
     public class PropertyChangeActionTests

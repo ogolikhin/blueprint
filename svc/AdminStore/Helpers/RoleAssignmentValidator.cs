@@ -12,12 +12,12 @@ namespace AdminStore.Helpers
     {
         public static void ValidateModel(CreateRoleAssignment roleAssignment)
         {
-            if (roleAssignment.RoleId < 0)
+            if (roleAssignment.RoleId < 1)
             {
                 throw new BadRequestException(ErrorMessages.RoleNameIsRequiredField, ErrorCodes.BadRequest);
             }
 
-            if (roleAssignment.GroupId < 0)
+            if (roleAssignment.GroupId < 1)
             {
                 throw new BadRequestException(ErrorMessages.GroupIsRequiredField, ErrorCodes.BadRequest);
             }

@@ -485,7 +485,10 @@ namespace AdminStore.Controllers
         /// <response code="400">BadRequest. Parameters are invalid.</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden The user does not have permissions to create role assignment</response>
-        /// <response code="404">NotFound. The project with the current id doesn't exist or removed from the system.</response>
+        /// <response code="404">NotFound. The project with the current id doesn't exist or removed from the system or
+        /// the group with the current id is not found on the instance and project levels or
+        /// the role with the current id is not found in the project's roles.</response>
+        /// <response code="409">Conflict. The project role assignment with same data already exists.</response>
         /// <response code="500">Internal Server Error.</response>
         [HttpPost]
         [SessionRequired]

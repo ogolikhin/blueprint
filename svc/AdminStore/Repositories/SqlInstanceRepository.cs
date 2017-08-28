@@ -432,6 +432,16 @@ namespace AdminStore.Repositories
 
         public async Task<int> CreateRoleAssignmentAsync(int projectId, CreateRoleAssignment roleAssignment)
         {
+            if (projectId < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(projectId));
+            }
+
+            if (roleAssignment == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(roleAssignment));
+            }
+
             var parameters = new DynamicParameters();
             parameters.Add("@ProjectId", projectId);
             parameters.Add("@GroupId", roleAssignment.GroupId);
@@ -457,7 +467,7 @@ namespace AdminStore.Repositories
                         throw new ResourceNotFoundException(ErrorMessages.RoleIsNotFound, ErrorCodes.ResourceNotFound);
 
                     case (int)SqlErrorCodes.RoleAssignmentAlreadyExists:
-                        throw new ResourceNotFoundException(ErrorMessages.RoleAssignmentAlreadyExists, ErrorCodes.ResourceNotFound);
+                        throw new ConflictException(ErrorMessages.RoleAssignmentAlreadyExists, ErrorCodes.Conflict);
                 }
             }
 

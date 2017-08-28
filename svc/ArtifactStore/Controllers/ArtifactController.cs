@@ -202,7 +202,11 @@ namespace ArtifactStore.Controllers
         [Route("artifacts/processInfo"), SessionRequired]
         public async Task<IEnumerable<ProcessInfoDto>> GetProcessInformationAsync([FromBody] ISet<int> artifactIds)
         {
-            
+            if (artifactIds == null)
+            {
+                throw new BadRequestException("Please provide valid artifact ids");
+            }
+
             return await ArtifactRepository.GetProcessInformationAsync(artifactIds);
         }
     }

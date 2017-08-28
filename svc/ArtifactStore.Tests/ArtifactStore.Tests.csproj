@@ -90,6 +90,7 @@
     <Compile Include="Controllers\WorkflowControllerTests.cs" />
     <Compile Include="Executors\StateChangeExecutorTests.cs" />
     <Compile Include="Helpers\MentionHelperTests.cs" />
+    <Compile Include="Helpers\ProcessInfoHelperTests.cs" />
     <Compile Include="Helpers\SensitivityCommonHelperTests.cs" />
     <Compile Include="Helpers\ReuseSystemPropertiesMapTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

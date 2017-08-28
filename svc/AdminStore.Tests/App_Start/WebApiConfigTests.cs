@@ -89,6 +89,7 @@ namespace AdminStore
             config.AssertAction<InstanceEmailSettingsController>("TestConnection", HttpMethod.Post, "instance/emailsettings/testconnection");
             config.AssertAction<InstanceController>("GetProjectRoleAssignments", HttpMethod.Get, "instance/projects/1/rolesassignments");
             config.AssertAction<InstanceController>("DeleteRoleAssignment", HttpMethod.Post, "instance/projects/1/rolesassignments/delete");
+            config.AssertAction<InstanceController>("CreateRoleAssignment", HttpMethod.Post, "instance/projects/1/rolesassignments");
             config.AssertAction<InstanceEmailSettingsController>("GetEmailSettings", HttpMethod.Get, "instance/emailsettings");
         }
 

@@ -7,9 +7,9 @@ using ServiceLibrary.Models.Enums;
 
 namespace ServiceLibrary.Models
 {
-    public class ProcessInfo
+    public class ProcessInfoDto
     {
         public int ItemId { get; set; }
-        public string ProcessType { get; set; }
+        public ProcessType ProcessType { get; set; }
     }
 }

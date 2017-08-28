@@ -132,6 +132,7 @@
     <Compile Include="Helpers\ImageHelper.cs" />
     <Compile Include="Helpers\ISqlHelper.cs" />
     <Compile Include="Helpers\ItemTypePredefinedExtension.cs" />
+    <Compile Include="Helpers\ProcessInfoMapper.cs" />
     <Compile Include="Helpers\PropertyHelper.cs" />
     <Compile Include="Helpers\RemoveSecurityRelatedHeadersHttpModule.cs" />
     <Compile Include="Helpers\Security\SystemEncryptions.cs" />
@@ -217,6 +218,7 @@
     <Compile Include="Models\PaginationExtensions.cs" />
     <Compile Include="Models\PermissionsItem.cs" />
     <Compile Include="Models\ProcessInfo.cs" />
+    <Compile Include="Models\ProcessInfoDto.cs" />
     <Compile Include="Models\ProjectAdminPrivileges.cs" />
     <Compile Include="Models\ProjectMeta\ApprovalType.cs" />
     <Compile Include="Models\ProjectMeta\ItemType.cs" />

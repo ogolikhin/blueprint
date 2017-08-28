@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -9,6 +10,7 @@ using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
 using System.Web.Http;
 using System.Net;
+using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Repositories;
 
 namespace ArtifactStore.Controllers
@@ -199,6 +201,54 @@ namespace ArtifactStore.Controllers
 
             //Assert
             Assert.AreSame(navPath, result);
+        }
+
+        [TestMethod]
+        public async Task Artifact_GetProcessInfo_Success()
+        {
+            //Arrange
+            const int userId = 1;
+            var session = new Session { UserId = userId };
+
+            HashSet<int> artifactIds = new HashSet<int>() { 1, 2, 3 };
+
+            List<ProcessInfoDto> processInfo = new List<ProcessInfoDto>()
+            {
+                new ProcessInfoDto()
+                {
+                    ItemId = 1,
+                    ProcessType = ProcessType.None
+                },
+                new ProcessInfoDto()
+                {
+                    ItemId = 2,
+                    ProcessType = ProcessType.None
+                },
+                new ProcessInfoDto()
+                {
+                    ItemId = 3,
+                    ProcessType = ProcessType.None
+                }
+            };
+
+            var mockArtifactRepository = new Mock<ISqlArtifactRepository>();
+            mockArtifactRepository.Setup(r => r.GetProcessInformationAsync(artifactIds))
+                                  .ReturnsAsync(processInfo);
+
+            var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
+            var mockServiceLogRepository = new Mock<IServiceLogRepository>();
+            var artifactController = new ArtifactController(mockArtifactRepository.Object, mockArtifactPermissionsRepository.Object, mockServiceLogRepository.Object)
+            {
+                Request = new HttpRequestMessage()
+            };
+            artifactController.Request.Properties[ServiceConstants.SessionProperty] = session;
+
+            
+            //Act
+            var result = await artifactController.GetProcessInformationAsync(artifactIds);
+            
+            //Assert
+            Assert.AreSame(processInfo, result);
         }
     }
 }

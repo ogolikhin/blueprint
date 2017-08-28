@@ -8,8 +8,10 @@ using ServiceLibrary.Repositories.ConfigControl;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.UI.WebControls.Expressions;
 
 namespace ArtifactStore.Controllers
 {
@@ -198,10 +200,10 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost]
         [Route("artifacts/processInfo"), SessionRequired]
-        public async Task<IEnumerable<ProcessInfo>> GetProcessInformationAsync([FromBody] ISet<int> artifactIds)
+        public async Task<IEnumerable<ProcessInfoDto>> GetProcessInformationAsync([FromBody] ISet<int> artifactIds)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return await ArtifactRepository.GetProcessInformationAsync(artifactIds, session.UserId/*???????  not sure if we need UserId  ?????????*/);
+            
+            return await ArtifactRepository.GetProcessInformationAsync(artifactIds);
         }
     }
 }

@@ -182,6 +182,7 @@ namespace AdminStore.Controllers
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         [HttpGet, NoCache]
         [Route("folderprojectsearch"), SessionRequired]
+        [ResponseType(typeof(QueryResult<ProjectFolderSearchDto>))]
         public async Task<IHttpActionResult> SearchProjectFolder([FromUri]Pagination pagination, [FromUri]Sorting sorting = null, string search = null)
         {
             pagination.Validate();

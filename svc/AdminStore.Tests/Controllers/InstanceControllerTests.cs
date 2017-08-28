@@ -856,7 +856,6 @@ namespace AdminStore.Controllers
 
         #endregion
 
-
         #region GetProjectRoleAssignments
 
         [TestMethod]
@@ -1003,5 +1002,43 @@ namespace AdminStore.Controllers
 
         #endregion
 
+        #region SearchProjectFolder
+
+        [TestMethod]
+        public async Task SearchProjectFolder_AllParametersAreValid_ReturnSuccessResult()
+        {
+            //arrange
+            var request = new Pagination() { Limit = 10, Offset = 0 };
+            var queryResult = new QueryResult<ProjectFolderSearchDto>() { Items = new List<ProjectFolderSearchDto>() { new ProjectFolderSearchDto() }, Total = 1 };
+            _instanceRepositoryMock.Setup(
+                repo =>
+                    repo.GetProjectsAndFolders(It.IsAny<int>(),
+                        It.Is<TabularData>(
+                            t =>
+                                t.Pagination != null && t.Pagination.Offset.HasValue && t.Pagination.Offset >= 0 &&
+                                t.Pagination.Limit > 0), It.IsAny<Func<Sorting, string>>())).ReturnsAsync(queryResult);
+
+            //act
+            var result =
+                await _controller.SearchProjectFolder(request) as
+                    OkNegotiatedContentResult<QueryResult<ProjectFolderSearchDto>>;
+
+            //assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1, result.Content.Total);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task SearchProjectFolder_InvalidPagination_ReturnBadRequestResponse()
+        {
+            //arrange
+
+            //act
+            await _controller.SearchProjectFolder(new Pagination());
+
+            //assert
+        }
+        #endregion
     }
 }

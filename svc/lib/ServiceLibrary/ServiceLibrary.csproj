@@ -297,7 +297,6 @@
     <Compile Include="Models\Workflow\Actions\GenerateUserStoriesAction.cs" />
     <Compile Include="Models\Workflow\Actions\PropertyChangeAction.cs" />
     <Compile Include="Models\Workflow\Actions\PropertyChangeUserGroupsAction.cs" />
-    <Compile Include="Models\Workflow\ActionUserGroups.cs" />
     <Compile Include="Models\Workflow\ExecutionParameters.cs" />
     <Compile Include="Models\Workflow\IExecutionParameters.cs" />
     <Compile Include="Models\Workflow\IPropertyChangeAction.cs" />

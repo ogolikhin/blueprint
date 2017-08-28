@@ -32,6 +32,8 @@ namespace AdminStore.Services.Workflow
 
         #region Interface Implementation
 
+        public ProjectTypes StandardTypes { get; set; }
+
         public async Task<WorkflowDataValidationResult> ValidateDataAsync(IeWorkflow workflow)
         {
             if (workflow == null)
@@ -49,6 +51,7 @@ namespace AdminStore.Services.Workflow
             return result;
         }
 
+        // During the update data validation names of elements with Id are assigned according to the meta data.
         public async Task<WorkflowDataValidationResult> ValidateUpdateDataAsync(IeWorkflow workflow)
         {
             if (workflow == null)
@@ -74,7 +77,7 @@ namespace AdminStore.Services.Workflow
         {
             var result = new WorkflowDataValidationResult();
 
-            result.StandardTypes = await _projectMetaRepository.GetStandardProjectTypesAsync();
+            result.StandardTypes = StandardTypes ?? await _projectMetaRepository.GetStandardProjectTypesAsync();
 
             result.StandardTypes.ArtifactTypes?.RemoveAll(at => at.PredefinedType != null
                                                                 && !at.PredefinedType.Value.IsRegularArtifactType());
@@ -542,7 +545,7 @@ namespace AdminStore.Services.Workflow
         public virtual void ValidateEmailNotificationActionData(WorkflowDataValidationResult result,
             IeEmailNotificationAction action, bool ignoreIds)
         {
-            if (action?.PropertyName == null)
+            if (action == null)
             {
                 return;
             }
@@ -640,7 +643,6 @@ namespace AdminStore.Services.Workflow
                 });
             }
         }
-
 
         public virtual void ValidateGenerateActionData(WorkflowDataValidationResult result, IeGenerateAction action,
             bool ignoreIds)

@@ -12,8 +12,6 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ProjectMeta;
-using AdminStore.Models;
-using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.ProjectMeta;
 
 namespace AdminStore.Services.Workflow
@@ -26,7 +24,6 @@ namespace AdminStore.Services.Workflow
         private Mock<IWorkflowXmlValidator> _workflowXmlValidatorMock;
         private Mock<IWorkflowRepository> _workflowRepositoryMock;
         private Mock<IUserRepository> _userRepositoryMock;
-        private Mock<ISqlProjectMetaRepository> _projectMetaRepositoryMock;
         private Mock<IUsersRepository> _usersRepositoryMock;
         private Mock<IWorkflowValidationErrorBuilder> _workflowValidationErrorBuilder ;
         private Mock<ITriggerConverter> _triggerConverter;
@@ -43,7 +40,6 @@ namespace AdminStore.Services.Workflow
             _workflowRepositoryMock = new Mock<IWorkflowRepository>();
             _workflowXmlValidatorMock = new Mock<IWorkflowXmlValidator>();
             _userRepositoryMock = new Mock<IUserRepository>();
-            _projectMetaRepositoryMock = new Mock<ISqlProjectMetaRepository>();
             _usersRepositoryMock = new Mock<IUsersRepository>();
             _workflowValidationErrorBuilder = new Mock<IWorkflowValidationErrorBuilder>();
             _triggerConverter = new Mock<ITriggerConverter>();

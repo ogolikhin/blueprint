@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using AdminStore.Helpers.Workflow;
 using AdminStore.Models.Workflow;
-using ArtifactStore.Helpers;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
@@ -594,7 +593,10 @@ namespace AdminStore.Services.Workflow
             if (_isConventionNamesInUse)
             {
                 var match = Regex.Match(property, ConventionNameRegex);
-                conventionExtra = match.Value.Length + (property.Length > match.Value.Length ? 1 : 0); // take into account the space
+                if(match.Value.Length > 0)
+                {
+                    conventionExtra = match.Value.Length + (property.Length > match.Value.Length ? 1 : 0); // take into account the space
+                }
             }
 
             return !(property.Length > limit + conventionExtra);
@@ -618,6 +620,9 @@ namespace AdminStore.Services.Workflow
         private bool _hasAmbiguousPropertyValuePropertyChangeActionError;
         private bool _hasArtifactTypeGenerateChildrenActionNotSpecitiedError;
         private bool _hasChildCountGenerateChildrenActionNotSpecitiedError;
+        private bool _hasChildCountGenerateChildrenActionNotValidError;
+        private bool _hasArtifactTypeApplicableOnlyToGenerateChildArtifactActionError;
+        private bool _hasChildCountApplicableOnlyToGenerateChildArtifactActionError;
         private bool _hasStateConditionNotOnTriggerOfPropertyChangeEventError;
         private bool _hasStateStateConditionNotSpecifiedError;
         private bool _hasPropertyNamePropertyChangeActionNotSupportedError;
@@ -636,6 +641,9 @@ namespace AdminStore.Services.Workflow
             _hasPropertyValuePropertyChangeActionNotSpecitiedError = false;
             _hasArtifactTypeGenerateChildrenActionNotSpecitiedError = false;
             _hasChildCountGenerateChildrenActionNotSpecitiedError = false;
+            _hasChildCountGenerateChildrenActionNotValidError = false;
+            _hasArtifactTypeApplicableOnlyToGenerateChildArtifactActionError = false;
+            _hasChildCountApplicableOnlyToGenerateChildArtifactActionError = false;
             _hasStateConditionNotOnTriggerOfPropertyChangeEventError = false;
             _hasStateStateConditionNotSpecifiedError = false;
             _hasPropertyNamePropertyChangeActionNotSupportedError = false;
@@ -850,7 +858,7 @@ namespace AdminStore.Services.Workflow
                 }
 
                 if (!_hasChildCountGenerateChildrenActionNotSpecitiedError
-                    && action.ChildCount.GetValueOrDefault() < 1)
+                    && !action.ChildCount.HasValue)
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
@@ -858,6 +866,41 @@ namespace AdminStore.Services.Workflow
                         ErrorCode = WorkflowXmlValidationErrorCodes.ChildCountGenerateChildrenActionNotSpecitied
                     });
                     _hasChildCountGenerateChildrenActionNotSpecitiedError = true;
+                }
+                else if (!_hasChildCountGenerateChildrenActionNotValidError
+                    && action.ChildCount.HasValue
+                    && (action.ChildCount.Value < 1 || action.ChildCount.Value > 10))
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = action,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.ChildCountGenerateChildrenActionNotValid
+                    });
+                    _hasChildCountGenerateChildrenActionNotValidError = true;
+                }
+            }
+            else
+            {
+                if (!_hasArtifactTypeApplicableOnlyToGenerateChildArtifactActionError
+                    && action.ArtifactType != null)
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = action,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.ArtifactTypeApplicableOnlyToGenerateChildArtifactAction
+                    });
+                    _hasArtifactTypeApplicableOnlyToGenerateChildArtifactActionError = true;
+                }
+
+                if (!_hasChildCountApplicableOnlyToGenerateChildArtifactActionError
+                    && action.ChildCount != null)
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = action,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.ChildCountApplicableOnlyToGenerateChildArtifactAction
+                    });
+                    _hasChildCountApplicableOnlyToGenerateChildArtifactActionError = true;
                 }
             }
         }

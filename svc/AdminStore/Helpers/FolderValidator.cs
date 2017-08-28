@@ -26,8 +26,13 @@ namespace AdminStore.Helpers
             {
                 throw new BadRequestException(ErrorMessages.LocationIsRequired, ErrorCodes.BadRequest);
             }
+        }
 
-            if (folder.Id == folder.ParentFolderId.Value)
+        public static void ValidateModel(FolderDto folder, int folderId)
+        {
+            ValidateModel(folder);
+
+            if (folderId == folder.ParentFolderId.Value)
             {
                 throw new ConflictException(ErrorMessages.FolderReferenceToItself, ErrorCodes.Conflict);
             }

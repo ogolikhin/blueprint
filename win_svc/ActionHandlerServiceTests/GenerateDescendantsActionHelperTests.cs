@@ -11,11 +11,11 @@ namespace ActionHandlerServiceTests
     public class GenerateDescendantsActionHelperTests
     {
         [TestMethod]
-        public async Task GenerateDescendantsActionHelper_HandleActionReturnsTrue()
+        public async Task GenerateDescendantsActionHelper_NullMessage_HandleActionReturnsFalse()
         {
             var actionHelper = new GenerateDescendantsActionHelper();
             var result = await actionHelper.HandleAction(null, null, null);
-            Assert.IsTrue(result);
+            Assert.IsFalse(result, "Action should have failed for null message");
         }
     }
 }

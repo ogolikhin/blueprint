@@ -4,30 +4,18 @@ using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
-using ArtifactStore.Models;
-using ArtifactStore.Models.Workflow.Actions;
 using Dapper;
 using ServiceLibrary.Helpers;
-using ServiceLibrary.Helpers.Validators;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.PropertyType;
+using ServiceLibrary.Models.VersionControl;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ProjectMeta.PropertyXml;
 using ServiceLibrary.Repositories.ProjectMeta.PropertyXml.Models;
+using ServiceLibrary.Models.Workflow;
 
 namespace ArtifactStore.Repositories
 {
-    public interface ISaveArtifactRepository
-    {
-        Task SavePropertyChangeActions(
-            int userId,
-            IEnumerable<PropertyChangeAction> actions,
-            IEnumerable<DPropertyType> propertyTypes,
-            VersionControlArtifactInfo artifact,
-            IDbTransaction transaction = null);
-    }
-
     public class SqlSaveArtifactRepository : ISaveArtifactRepository
     {
         private readonly ISqlConnectionWrapper _connectionWrapper;
@@ -46,7 +34,7 @@ namespace ArtifactStore.Repositories
 
         public async Task SavePropertyChangeActions(
             int userId,
-            IEnumerable<PropertyChangeAction> actions,
+            IEnumerable<IPropertyChangeAction> actions,
             IEnumerable<DPropertyType> propertyTypes,
             VersionControlArtifactInfo artifact,
             IDbTransaction transaction = null)
@@ -75,7 +63,7 @@ namespace ArtifactStore.Repositories
         }
 
         private DataTable PopulateSavePropertyValueVersionsTable(
-            IEnumerable<PropertyChangeAction> actions,
+            IEnumerable<IPropertyChangeAction> actions,
             IEnumerable<DPropertyType> propertyTypes,
             VersionControlArtifactInfo artifact)
         {
@@ -119,6 +107,18 @@ namespace ArtifactStore.Repositories
                         //
                         customPropertyChar, propertyType.PropertyTypeId, searchableValue);
                 }
+                else if (propertyType is DDatePropertyType)
+                {
+                    propertyValueVersionsTable.Rows.Add(propertyType.PropertyTypeId, false,
+                        artifact.ProjectId, artifact.Id, artifact.Id, (int)propertyType.Predefined,
+                        //
+                        (int)PropertyPrimitiveType.Date,
+                        null,
+                        action.PropertyLiteValue.DateValue,
+                        null, null, null, null,
+                        //
+                        customPropertyChar, propertyType.PropertyTypeId, searchableValue);
+                }
             }
             propertyValueVersionsTable.SetTypeName("SavePropertyValueVersionsCollection");
             return propertyValueVersionsTable;
@@ -147,6 +147,10 @@ namespace ArtifactStore.Repositories
             if (propertyType is DNumberPropertyType)
             {
                 primitiveType = PropertyPrimitiveType.Number;
+            }
+            else if (propertyType is DDatePropertyType)
+            {
+                primitiveType = PropertyPrimitiveType.Date;
             }
             //else if (propertyValue is DTextPropertyValue)
             //{
@@ -212,6 +216,10 @@ namespace ArtifactStore.Repositories
             //    }
             //}
             if (propertyType is DNumberPropertyType)
+            {
+                return null;
+            }
+            if (propertyType is DDatePropertyType)
             {
                 return null;
             }

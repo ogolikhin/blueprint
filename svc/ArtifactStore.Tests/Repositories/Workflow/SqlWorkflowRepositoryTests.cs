@@ -8,6 +8,7 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories.Workflow;
 
 namespace ArtifactStore.Repositories.Workflow
 {

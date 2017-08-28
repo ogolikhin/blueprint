@@ -381,10 +381,10 @@ namespace AdminStore.Repositories
 
         #endregion
 
-        #region DeleteUsers
+        #region DeleteUsersAsync
 
         [TestMethod]
-        public async Task DeleteUsers_UsersToDeleteExists_QueryReturnNotEmptyResult()
+        public async Task DeleteUsersAsync_UsersToDeleteExists_QueryReturnNotEmptyResult()
         {
             //arrange
             var cxn = new SqlConnectionWrapperMock();
@@ -410,7 +410,7 @@ namespace AdminStore.Repositories
                 returntResult);
 
             //act
-            var result = await repository.DeleteUsers(operationScope, string.Empty, 0);
+            var result = await repository.DeleteUsersAsync(operationScope, string.Empty, 0);
 
             //assert
             cxn.Verify();
@@ -418,7 +418,7 @@ namespace AdminStore.Repositories
         }
 
         [TestMethod]
-        public async Task DeleteUsers_UsersToDeleteDoNotExists_QueryReturnEmptyCollection()
+        public async Task DeleteUsersAsync_UsersToDeleteDoNotExists_QueryReturnEmptyCollection()
         {
             //arrange
             var cxn = new SqlConnectionWrapperMock();
@@ -444,7 +444,7 @@ namespace AdminStore.Repositories
                 returntResult);
 
             //act
-            var result = await repository.DeleteUsers(operationScope, string.Empty, 0);
+            var result = await repository.DeleteUsersAsync(operationScope, string.Empty, 0);
 
             //assert
             cxn.Verify();

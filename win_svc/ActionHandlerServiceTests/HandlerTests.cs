@@ -187,13 +187,6 @@ namespace ActionHandlerServiceTests
         }
 
         [TestMethod]
-        public void GenerateUserStoriesMessageHandler_InstantiatesSuccessfully()
-        {
-            var handler = new GenerateUserStoriesMessageHandler();
-            Assert.IsNotNull(handler);
-        }
-
-        [TestMethod]
         public void GenerateUserStoriesMessageHandler_HandlesMessageSuccessfully()
         {
             _handleActionSetup.Returns(Task.FromResult(true));

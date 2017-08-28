@@ -92,6 +92,9 @@
     <Compile Include="Helpers\MentionHelperTests.cs" />
     <Compile Include="Helpers\SensitivityCommonHelperTests.cs" />
     <Compile Include="Helpers\ReuseSystemPropertiesMapTests.cs" />
+    <Compile Include="Helpers\Validators\DatePropertyValidatorTests.cs" />
+    <Compile Include="Helpers\Validators\NumberPropertyValidatorTests.cs" />
+    <Compile Include="Models\Workflow\Actions\PropertyChangeActionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\SqlArtifactRelationshipsRepositoryTests.cs" />
     <Compile Include="Repositories\SqlDiscussionsRepositoryTests.cs" />
@@ -103,6 +106,10 @@
     <Compile Include="Services\WorkflowServiceUnitTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\win_svc\BluePrintSys.Messaging.CrossCutting\BluePrintSys.Messaging.CrossCutting.csproj">
+      <Project>{74353EB4-59E8-4F3E-A9E3-9927546970FD}</Project>
+      <Name>BluePrintSys.Messaging.CrossCutting</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ArtifactStore\ArtifactStore.csproj">
       <Project>{30144C60-F58C-4B49-BE52-60C7884B2FB7}</Project>
       <Name>ArtifactStore</Name>

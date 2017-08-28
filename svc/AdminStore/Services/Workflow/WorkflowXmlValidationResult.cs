@@ -21,6 +21,7 @@ namespace AdminStore.Services.Workflow
 
     public enum WorkflowXmlValidationErrorCodes
     {
+        WorkflowXmlSerializationError,
         WorkflowNameEmpty,
         WorkflowNameExceedsLimit24,
         WorkflowDescriptionExceedsLimit4000,
@@ -59,6 +60,9 @@ namespace AdminStore.Services.Workflow
         AmbiguousGroupProjectReference,
         ArtifactTypeGenerateChildrenActionNotSpecitied,
         ChildCountGenerateChildrenActionNotSpecitied,
+        ChildCountGenerateChildrenActionNotValid,
+        ArtifactTypeApplicableOnlyToGenerateChildArtifactAction,
+        ChildCountApplicableOnlyToGenerateChildArtifactAction,
         StateConditionNotOnTriggerOfPropertyChangeEvent,
         StateStateConditionNotSpecified,
         StateStateConditionNotFound,

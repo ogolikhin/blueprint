@@ -33,14 +33,27 @@ namespace ServiceLibrary.Helpers
             }
         }
 
-        public static string GetArtifactUrl(int artifactId)
+        public static Uri GetBaseHostUri()
         {
-            Uri hostUri = GetCurrentHostUri();
+            if (HttpContext.Current?.Request?.Url == null)
+            {
+                return null;
+            }
+            return BaseHostUri;
+        }
+
+        public static string GetArtifactUrl(int artifactId, bool storytellerLink = false)
+        {
+            Uri hostUri = storytellerLink ? GetBaseHostUri() : GetCurrentHostUri();
             if (hostUri == null)
             {
                 return null;
             }
             string baseUrl = CreateUrlString(hostUri, "", null);
+            if (storytellerLink)
+            {
+                return GetStorytellerArtifactUrl(baseUrl, artifactId, null);
+            }
             return GetArtifactPartUrl(baseUrl, artifactId, null, null, null, null);
         }
 
@@ -82,23 +95,7 @@ namespace ServiceLibrary.Helpers
         {
             if (IsStoryTeller(baseUrl, baseItemType))
             {
-                var nBaseUrl = baseUrl ?? String.Empty;
-                var slashPosition = nBaseUrl.LastIndexOf("/", StringComparison.Ordinal);
-                if (slashPosition > 8)
-                {
-                    nBaseUrl = nBaseUrl.Substring(0, slashPosition);
-                }
-                var versionFormat = "?version={0}";
-
-                return string.Format
-                    (
-                        "{0}{1}{2}/{3}{4}",
-                        nBaseUrl,
-                        KeyStorytellerDefaultDoc,
-                        KeyStorytellerRouter,
-                        artifactId,
-                        (versionId.HasValue ? string.Format(versionFormat, versionId.Value) : string.Empty)
-                    );
+                return GetStorytellerArtifactUrl(baseUrl, artifactId, versionId);
             }
 
             return string.Format
@@ -111,6 +108,27 @@ namespace ServiceLibrary.Helpers
                 (baselineId.HasValue ? string.Format(KeyValuePairSubsequentFormat, KeyBaselineId, baselineId.Value) : string.Empty),
                 (sharedViewId.HasValue ? string.Format(KeyValuePairSubsequentFormat, KeySharedViewId, sharedViewId.Value) : string.Empty)
             );
+        }
+
+        private static string GetStorytellerArtifactUrl(string baseUrl, int artifactId, int? versionId)
+        {
+            var nBaseUrl = baseUrl ?? String.Empty;
+            var slashPosition = nBaseUrl.LastIndexOf("/", StringComparison.Ordinal);
+            if (slashPosition > 8)
+            {
+                nBaseUrl = nBaseUrl.Substring(0, slashPosition);
+            }
+            var versionFormat = "?version={0}";
+
+            return string.Format
+                (
+                    "{0}{1}{2}/{3}{4}",
+                    nBaseUrl,
+                    KeyStorytellerDefaultDoc,
+                    KeyStorytellerRouter,
+                    artifactId,
+                    (versionId.HasValue ? string.Format(versionFormat, versionId.Value) : string.Empty)
+                );
         }
 
         private static Boolean IsStoryTeller(string baseUrl, ItemTypePredefined? baseItemType = null)

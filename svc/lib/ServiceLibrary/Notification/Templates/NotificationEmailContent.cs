@@ -33,7 +33,7 @@ namespace ServiceLibrary.Notification.Templates
                     "<body style=\"margin:0; padding:0;\">\r\n\r\n\t<p>");
             
             #line 23 "C:\source\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Email.Body));
+            this.Write(this.ToStringHelper.ToStringWithCulture(Email.Header));
             
             #line default
             #line hidden
@@ -52,18 +52,25 @@ namespace ServiceLibrary.Notification.Templates
             
             #line default
             #line hidden
+            this.Write("</td>\r\n\t\t</tr>\r\n\r\n\t\t<tr>\r\n\t\t\t<td>Message</td>\r\n\t\t\t<td>");
+            
+            #line 43 "C:\source\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Email.Body));
+            
+            #line default
+            #line hidden
             this.Write("</td>\r\n\t\t</tr>\r\n\r\n\t\t<tr>\r\n\t\t\t<td>URL</td>\r\n\t\t\t<td style=\"color:#1b1b1b; font-fami" +
                     "ly:Arial; font-size: 12px;\"> Having trouble with the link below? Just copy and p" +
                     "aste the URL below into your browser.<br> \r\n\t\t\t\t<a href=\"");
             
-            #line 44 "C:\source\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
+            #line 49 "C:\source\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Email.ArtifactUrl));
             
             #line default
             #line hidden
             this.Write("\">");
             
-            #line 44 "C:\source\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
+            #line 49 "C:\source\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Email.ArtifactUrl));
             
             #line default

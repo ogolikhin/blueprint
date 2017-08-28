@@ -17,7 +17,7 @@ namespace ServiceLibrary.Repositories
         {
         }
 
-        internal SqlUsersRepository(ISqlConnectionWrapper connectionWrapper)
+        public SqlUsersRepository(ISqlConnectionWrapper connectionWrapper)
         {
             _connectionWrapper = connectionWrapper;
         }

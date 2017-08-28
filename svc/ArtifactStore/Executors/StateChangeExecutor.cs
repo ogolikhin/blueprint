@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using BluePrintSys.Messaging.CrossCutting.Helpers;
+using BluePrintSys.Messaging.Models.Actions;
 using ArtifactStore.Helpers;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Helpers.Validators;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.PropertyType;
@@ -119,7 +122,7 @@ namespace ArtifactStore.Executors
             {
                 return null;
             }
-            //TODO: detect if artifact has readonly reuse
+
             var isArtifactReadOnlyReuse = await _stateChangeExecutorRepositories.ReuseRepository.DoItemsContainReadonlyReuse(new[] { _input.ArtifactId }, transaction);
 
             ItemTypeReuseTemplate reuseTemplate = null;
@@ -140,8 +143,16 @@ namespace ArtifactStore.Executors
             {
                 propertyTypes = customItemTypeToPropertiesMap[artifactInfo.ItemTypeId];
             }
-
-            return new ExecutionParameters(_userId, artifactInfo, reuseTemplate, propertyTypes, _stateChangeExecutorRepositories.SaveArtifactRepository, transaction);
+            var usersAndGroups = await LoadUsersAndGroups(triggers);
+            return new ExecutionParameters(
+                _userId, 
+                artifactInfo, 
+                reuseTemplate, 
+                propertyTypes,
+                _stateChangeExecutorRepositories.SaveArtifactRepository, 
+                transaction,
+                new ValidationContext(usersAndGroups.Item1, usersAndGroups.Item2)
+                );
         }
 
         private async Task<int> CreateRevision(IDbTransaction transaction)
@@ -259,6 +270,18 @@ namespace ArtifactStore.Executors
             var instancePropertyTypeIds = propertyChangeActions.Select(b => b.InstancePropertyTypeId);
 
             return await _stateChangeExecutorRepositories.WorkflowRepository.GetCustomItemTypeToPropertiesMap(_userId, _input.ArtifactId, projectId, instanceItemTypeIds, instancePropertyTypeIds);
+        }
+
+        public async Task<Tuple<IEnumerable<SqlUser>, IEnumerable<SqlGroup>>> LoadUsersAndGroups(WorkflowEventTriggers triggers)
+        {
+            var userGroups = triggers.Select(a => a.Action).OfType<PropertyChangeUserGroupsAction>().SelectMany(b => b.UserGroups).ToList();
+            var userIds = userGroups.Where(u => !u.IsGroup.GetValueOrDefault(false) && u.Id.HasValue).Select(u => u.Id.Value).ToHashSet();
+            var groupIds = userGroups.Where(u => u.IsGroup.GetValueOrDefault(false) && u.Id.HasValue).Select(u => u.Id.Value).ToHashSet();
+
+            var users = await _stateChangeExecutorRepositories.UsersRepository.GetExistingUsersByIdsAsync(userIds);
+            var groups = await _stateChangeExecutorRepositories.UsersRepository.GetExistingGroupsByIds(groupIds, false);
+
+            return new Tuple<IEnumerable<SqlUser>, IEnumerable<SqlGroup>>(users, groups);
         }
     }
 }

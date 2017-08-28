@@ -52,12 +52,13 @@ namespace ArtifactStore.Repositories
             if (transaction == null)
             {
                 await
-                    _connectionWrapper.ExecuteAsync(storedProcedure, param, commandType: CommandType.StoredProcedure);
+                    _connectionWrapper.QueryAsync<dynamic>(storedProcedure, param, commandType: CommandType.StoredProcedure);
+                
             }
             else
             {
                 await
-                    transaction.Connection.ExecuteAsync(storedProcedure, param, transaction,
+                    transaction.Connection.QueryAsync<dynamic>(storedProcedure, param, transaction,
                         commandType: CommandType.StoredProcedure);
             }
         }
@@ -119,6 +120,18 @@ namespace ArtifactStore.Repositories
                         //
                         customPropertyChar, propertyType.PropertyTypeId, searchableValue);
                 }
+                else if (propertyType is DUserPropertyType)
+                {
+                    propertyValueVersionsTable.Rows.Add(propertyType.PropertyTypeId, false,
+                        artifact.ProjectId, artifact.Id, artifact.Id, (int) propertyType.Predefined,
+                        //
+                        (int) PropertyPrimitiveType.User,
+                        null, null,
+                        PropertyHelper.ParseUserGroupsToString(action.PropertyLiteValue.UsersAndGroups), null, null,
+                        null,
+                        //
+                        customPropertyChar, propertyType.PropertyTypeId, searchableValue);
+                }
             }
             propertyValueVersionsTable.SetTypeName("SavePropertyValueVersionsCollection");
             return propertyValueVersionsTable;
@@ -156,14 +169,10 @@ namespace ArtifactStore.Repositories
             //{
             //    primitiveType = PropertyPrimitiveType.Text;
             //}
-            //else if (propertyValue is DDatePropertyValue)
-            //{
-            //    primitiveType = PropertyPrimitiveType.Date;
-            //}
-            //else if (propertyValue is DUserPropertyValue)
-            //{
-            //    primitiveType = PropertyPrimitiveType.User;
-            //}
+            else if (propertyType is DUserPropertyType)
+            {
+                primitiveType = PropertyPrimitiveType.User;
+            }
             //else if (propertyValue is DChoicePropertyValue)
             //{
             //    primitiveType = PropertyPrimitiveType.Choice;

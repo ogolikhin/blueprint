@@ -612,53 +612,25 @@ namespace AdminStore.Services.Workflow
         }
 
         [TestMethod]
-        public void Validate_WorkflowEventNameNotUniqueInWorkflow_ReturnsWorkflowEventNameNotUniqueInWorkflowError()
+        public void Validate_StateWithDuplicateOutgoingTransitions_ReturnsStateWithDuplicateOutgoingTransitionsError()
         {
             // Arrange
-            var duplicateName = "duplicate";
+            const string duplicateName = "duplicate";
             var workflowValidator = new WorkflowXmlValidator();
+            _workflow.TransitionEvents[0].Name = duplicateName;
             _workflow.TransitionEvents.Add(new IeTransitionEvent
             {
                 Name = duplicateName,
                 FromState = _workflow.States[0].Name,
                 ToState = _workflow.States[2].Name
             });
+
+            _workflow.States.Add(new IeState { Name = "state" });
             _workflow.TransitionEvents.Add(new IeTransitionEvent
             {
                 Name = duplicateName,
-                FromState = _workflow.States[2].Name,
-                ToState = _workflow.States[0].Name
-            });
-            _workflow.PropertyChangeEvents.Add(new IePropertyChangeEvent
-            {
-                Name = duplicateName,
-                PropertyName = "prop",
-                Triggers = new List<IeTrigger>
-                {
-                    new IeTrigger
-                    {
-                        Action = new IeEmailNotificationAction
-                        {
-                            PropertyName = "Assignee",
-                            Message = "some message"
-                        }
-                    }
-                }
-            });
-            _workflow.NewArtifactEvents.Add(new IeNewArtifactEvent
-            {
-                Name = duplicateName,
-                Triggers = new List<IeTrigger>
-                {
-                    new IeTrigger
-                    {
-                        Action = new IeEmailNotificationAction
-                        {
-                            PropertyName = "Assignee",
-                            Message = "some message"
-                        }
-                    }
-                }
+                FromState = _workflow.States[0].Name,
+                ToState = _workflow.States[3].Name
             });
 
             // Act
@@ -667,8 +639,7 @@ namespace AdminStore.Services.Workflow
             // Assert
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(WorkflowXmlValidationErrorCodes.WorkflowEventNameNotUniqueInWorkflow, result.Errors[0].ErrorCode);
-            Assert.AreEqual(_workflow.TransitionEvents.Last(), result.Errors[0].Element);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.StateWithDuplicateOutgoingTransitions, result.Errors[0].ErrorCode);
         }
 
         [TestMethod]
@@ -1205,6 +1176,45 @@ namespace AdminStore.Services.Workflow
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
             Assert.AreEqual(WorkflowXmlValidationErrorCodes.AmbiguousPropertyValuePropertyChangeAction, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
+        public void Validate_PropertyValuePropertyChangeAction_IncludeCurrentUser_Success()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            var pcAction = (IePropertyChangeAction)_workflow.TransitionEvents[1].Triggers[1].Action;
+            pcAction.PropertyValue = null;
+            pcAction.ValidValues = null;
+            pcAction.UsersGroups = null;
+            pcAction.IncludeCurrentUser = true;
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsFalse(result.HasErrors);
+        }
+
+        [TestMethod]
+        public void Validate_PropertyValuePropertyChangeAction_UsersGroupsAndIncludeCurrentUser_Success()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            var pcAction = (IePropertyChangeAction) _workflow.TransitionEvents[1].Triggers[1].Action;
+            pcAction.PropertyValue = null;
+            pcAction.ValidValues = null;
+            pcAction.UsersGroups = new List<IeUserGroup>
+            {
+                new IeUserGroup { Name = "user1"}
+            };
+            pcAction.IncludeCurrentUser = true;
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsFalse(result.HasErrors);
         }
 
         [TestMethod]

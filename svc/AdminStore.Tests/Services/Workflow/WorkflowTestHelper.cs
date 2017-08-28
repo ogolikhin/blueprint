@@ -347,7 +347,8 @@ namespace AdminStore.Services.Workflow
                                     IsGroup = true,
                                     GroupProjectPath = "path2"
                                 }
-                            }
+                            },
+                            IncludeCurrentUser = true
                         }
                     }
                 }

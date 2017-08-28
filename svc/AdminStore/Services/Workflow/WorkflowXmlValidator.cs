@@ -161,24 +161,26 @@ namespace AdminStore.Services.Workflow
 
             var stateTransitions = stateNames.ToDictionary(s => s, s => new List<string>());
             var statesWithIncomingTransitions = new HashSet<string>();
-            var workflowEventNames = new HashSet<string>();
-            var duplicateworkflowEventNames = new HashSet<string>();
+            var stateOutgoingTransitionSet = new HashSet<Tuple<string, string>>();
+            var statesWithDuplicateOutgoingTransitions = new HashSet<string>();
             var hasActionTriggerNotSpecifiedError = false;
             foreach (var transition in workflow.TransitionEvents.FindAll(s => s != null))
             {
                 statesWithIncomingTransitions.Add(transition.ToState);
 
-                if (!workflowEventNames.Add(transition.Name))
+                if (ValidatePropertyNotEmpty(transition.Name)
+                    && ValidatePropertyNotEmpty(transition.FromState)
+                    && !stateOutgoingTransitionSet.Add(Tuple.Create(transition.FromState, transition.Name)))
                 {
-                    // There should be only one such an error for a particular duplicate name.
-                    if (ValidatePropertyNotEmpty(transition.Name) && !duplicateworkflowEventNames.Contains(transition.Name))
+                    if (!statesWithDuplicateOutgoingTransitions.Contains(transition.FromState))
                     {
                         result.Errors.Add(new WorkflowXmlValidationError
                         {
-                            Element = transition,
-                            ErrorCode = WorkflowXmlValidationErrorCodes.WorkflowEventNameNotUniqueInWorkflow
+                            Element = transition.FromState,
+                            ErrorCode = WorkflowXmlValidationErrorCodes.StateWithDuplicateOutgoingTransitions
                         });
-                        duplicateworkflowEventNames.Add(transition.Name);
+
+                        statesWithDuplicateOutgoingTransitions.Add(transition.FromState);
                     }
                 }
 
@@ -269,20 +271,6 @@ namespace AdminStore.Services.Workflow
             var hasPcEventNoAnyTriggersError = false;
             foreach (var pcEvent in workflow.PropertyChangeEvents.FindAll(s => s != null))
             {
-                if (ValidatePropertyNotEmpty(pcEvent.Name) && !workflowEventNames.Add(pcEvent.Name))
-                {
-                    // There should be only one such an error for a particular duplicate name.
-                    if (!duplicateworkflowEventNames.Contains(pcEvent.Name))
-                    {
-                        result.Errors.Add(new WorkflowXmlValidationError
-                        {
-                            Element = pcEvent,
-                            ErrorCode = WorkflowXmlValidationErrorCodes.WorkflowEventNameNotUniqueInWorkflow
-                        });
-                        duplicateworkflowEventNames.Add(pcEvent.Name);
-                    }
-                }
-
                 if (!ValidatePropertyLimit(pcEvent.Name, 24))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
@@ -343,20 +331,6 @@ namespace AdminStore.Services.Workflow
             var hasNaEventNoAnyTriggersError = false;
             foreach (var naEvent in workflow.NewArtifactEvents.FindAll(s => s != null))
             {
-                if (ValidatePropertyNotEmpty(naEvent.Name) && !workflowEventNames.Add(naEvent.Name))
-                {
-                    // There should be only one such an error for a particular duplicate name.
-                    if (!duplicateworkflowEventNames.Contains(naEvent.Name))
-                    {
-                        result.Errors.Add(new WorkflowXmlValidationError
-                        {
-                            Element = naEvent,
-                            ErrorCode = WorkflowXmlValidationErrorCodes.WorkflowEventNameNotUniqueInWorkflow
-                        });
-                        duplicateworkflowEventNames.Add(naEvent.Name);
-                    }
-                }
-
                 if (!ValidatePropertyLimit(naEvent.Name, 24))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
@@ -783,11 +757,11 @@ namespace AdminStore.Services.Workflow
                     }
                 });
             }
-            if (action.UsersGroups?.Count > 0)
+            if (action.UsersGroups?.Count > 0 || action.IncludeCurrentUser.GetValueOrDefault())
             {
                 pvCount++;
 
-                action.UsersGroups.ForEach(ug =>
+                action.UsersGroups?.ForEach(ug =>
                 {
                     if (!_hasPropertyChangeActionUserOrGroupNameNotSpecitiedError
                        && !ValidatePropertyNotEmpty(ug.Name))

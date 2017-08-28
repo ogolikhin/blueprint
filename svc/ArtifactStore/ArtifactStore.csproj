@@ -216,7 +216,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Helpers\Validators\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\win_svc\BluePrintSys.Messaging.CrossCutting\BluePrintSys.Messaging.CrossCutting.csproj">

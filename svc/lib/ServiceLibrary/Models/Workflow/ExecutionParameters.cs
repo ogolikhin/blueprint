@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Data;
 using ServiceLibrary.Helpers.Validators;
+using ServiceLibrary.Models;
 using ServiceLibrary.Models.PropertyType;
 using ServiceLibrary.Models.Reuse;
 using ServiceLibrary.Models.VersionControl;
@@ -25,6 +26,8 @@ namespace ServiceLibrary.Models.Workflow
 
         public int UserId { get; }
 
+        public IValidationContext ValidationContext { get; }
+
         public ExecutionParameters(
             int userId,
             VersionControlArtifactInfo artifactInfo,
@@ -32,9 +35,9 @@ namespace ServiceLibrary.Models.Workflow
             List<DPropertyType> customPropertyTypes,
             ISaveArtifactRepository saveArtifactRepository,
             IDbTransaction transaction,
+            IValidationContext validationContext,
             IReadOnlyList<IPropertyValidator> validators,
-            IReusePropertyValidator reuseValidator
-            )
+            IReusePropertyValidator reuseValidator)
         {
             UserId = userId;
             ArtifactInfo = artifactInfo;
@@ -44,6 +47,7 @@ namespace ServiceLibrary.Models.Workflow
             Transaction = transaction;
             Validators = validators;
             ReuseValidator = reuseValidator;
+            ValidationContext = validationContext;
         }
         public ExecutionParameters(
             int userId,
@@ -51,18 +55,20 @@ namespace ServiceLibrary.Models.Workflow
             ItemTypeReuseTemplate reuseTemplate,
             List<DPropertyType> customPropertyTypes,
             ISaveArtifactRepository saveArtifactRepository,
-            IDbTransaction transaction): this(
+            IDbTransaction transaction,
+            IValidationContext validationContext) : this(
                 userId, 
                 artifactInfo, 
                 reuseTemplate, 
                 customPropertyTypes, 
                 saveArtifactRepository, 
-                transaction, 
+                transaction,
+                validationContext,
                 new List<IPropertyValidator>()
                 {
                     new NumberPropertyValidator(),
-                    new DatePropertyValidator()
-
+                    new DatePropertyValidator(),
+                    new UserPropertyValidator()
                 }, 
                 new ReusePropertyValidator())
         {

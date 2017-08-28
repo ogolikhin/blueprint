@@ -322,11 +322,13 @@ namespace ServiceLibrary.Repositories.Workflow
                     PropertyValue = propertyChangeAction.PropertyValue
                 };
                 action.UserGroups.AddRange(propertyChangeAction.UsersGroups.Select(
-                        u => new ActionUserGroups
+                        u => new UserGroup
                         {
                             Id = u.Id,
                             IsGroup = u.IsGroup
                         }).ToList());
+
+                return action;
             }
             return new PropertyChangeAction
             {
@@ -455,6 +457,20 @@ namespace ServiceLibrary.Repositories.Workflow
                         };
                         break;
                     }
+                    case PropertyPrimitiveType.User:
+                        dProperty = new DUserPropertyType()
+                        {
+                            DefaultLabels = sqlPropertyType.UserDefaultLabel,
+                            DefaultValues = sqlPropertyType.UserDefaultValue,
+                            InstancePropertyTypeId = sqlPropertyType.InstancePropertyTypeId,
+                            Name = sqlPropertyType.Name,
+                            PropertyTypeId = sqlPropertyType.PropertyTypeId,
+                            PrimitiveType = sqlPropertyType.PrimitiveType,
+                            IsRequired = sqlPropertyType.Required != null && sqlPropertyType.Required.Value,
+                            VersionId = sqlPropertyType.VersionId,
+                            Predefined = sqlPropertyType.Predefined
+                        };
+                        break;
                     //TODO: add other DPropertyTypes
                     default:
                         {

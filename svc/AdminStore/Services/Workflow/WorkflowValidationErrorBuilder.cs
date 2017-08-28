@@ -32,7 +32,7 @@ namespace AdminStore.Services.Workflow
         private const string TemplateXmlTransitionEventNameExceedsLimit24 = "The field 'Name' of Transition '{0}' is over the character limit of 24.";
         private const string TemplateXmlPropertyChangeEventNameExceedsLimit24 = "The field 'Name' of Property Change Event '{0}' is over the character limit of 24.";
         private const string TemplateXmlNewArtifactEventNameExceedsLimit24 = "The field 'Name' of New Artifact Event '{0}' is over the character limit of 24.";
-        private const string TemplateXmlWorkflowEventNameNotUniqueInWorkflow = "Two or more Events (Transition, Property Change, New Artifact) '{0}' are the same. Event names in a workflow must be unique.";
+        private const string TemplateXmlStateWithDuplicateOutgoingTransitions = "State '{0}' has outgoing Transitions with a duplicate Name. Names of outgoing Transitions on a State must be unique.";
         private const string TemplateXmlTransitionCountOnStateExceedsLimit10 = "State '{0}' exceeded the limit of permitted Transitions per State of 10.";
         private const string TemplateXmlTransitionStateNotFound = "One of States of Transition '{0}' is not found. A Transition must connect two States located in the Workflow.";
         private const string TemplateXmlTransitionStartStateNotSpecified = "The Start State of Transition '{0}' is not specified.";
@@ -56,7 +56,7 @@ namespace AdminStore.Services.Workflow
         private const string TemplateXmlMessageEmailNotificationActionNotSpecitied = "One or more Email Notification Actions do not have a specified message. An Email Notification Action must have a message.";
         private const string TemplateXmlPropertyNamePropertyChangeActionNotSpecitied = "One or more Property Change Actions do not have a specified Property Name. A Property Change Action must have a Property Name.";
         private const string TemplateXmlPropertyValuePropertyChangeActionNotSpecitied = "One or more Property Change Actions do not have a specified Property Value. A Property Change Action must have one of the following values, a Property Value or Valid Values or Users and Groups.";
-        private const string TemplateXmlAmbiguousPropertyValuePropertyChangeAction = "One or more Property Change Actions have ambiguous Property Values. A Property Change Action must have only one of the following values, a Property Value or Valid Values or Users and Groups.";
+        private const string TemplateXmlAmbiguousPropertyValuePropertyChangeAction = "One or more Property Change Actions have ambiguous Property Values. A Property Change Action must have only one of the following values, a Property Value or Valid Values or one or any combination of Users and Groups and Include Current User.";
         private const string TemplateXmlPropertyChangeActionValidValueValueNotSpecitied = "One or more Valid Values in Property Change Actions do not have a specified Value. The Value of a Valid Value must be not empty.";
         private const string TemplateXmlPropertyChangeActionUserOrGroupNameNotSpecitied = "One or more Users or Groups in Property Change Actions do not have a specified Name. The Name of a User or Group must be not empty.";
         private const string TemplateXmlAmbiguousGroupProjectReference = "One or more Property Change Actions have ambiguous Group Project Reference. A Group Project must be specified either by Id or by Path.";
@@ -244,9 +244,9 @@ namespace AdminStore.Services.Workflow
                     template = TemplateXmlNewArtifactEventNameExceedsLimit24;
                     errParams = new object[] {((IeNewArtifactEvent) error.Element).Name};
                     break;
-                case WorkflowXmlValidationErrorCodes.WorkflowEventNameNotUniqueInWorkflow:
-                    template = TemplateXmlWorkflowEventNameNotUniqueInWorkflow;
-                    errParams = new object[] {((IeEvent) error.Element).Name};
+                case WorkflowXmlValidationErrorCodes.StateWithDuplicateOutgoingTransitions:
+                    template = TemplateXmlStateWithDuplicateOutgoingTransitions;
+                    errParams = new object[] {(string) error.Element};
                     break;
                 case WorkflowXmlValidationErrorCodes.TransitionCountOnStateExceedsLimit10:
                     template = TemplateXmlTransitionCountOnStateExceedsLimit10;

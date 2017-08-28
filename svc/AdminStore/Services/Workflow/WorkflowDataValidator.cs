@@ -4,12 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using AdminStore.Helpers.Workflow;
 using AdminStore.Models.Workflow;
-using AdminStore.Repositories;
 using AdminStore.Repositories.Workflow;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.Workflow;
+using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ProjectMeta;
 
 namespace AdminStore.Services.Workflow
@@ -17,12 +17,15 @@ namespace AdminStore.Services.Workflow
     public class WorkflowDataValidator : IWorkflowDataValidator
     {
         private readonly IWorkflowRepository _workflowRepository;
-        private readonly IUserRepository _userRepository;
+        private readonly IUsersRepository _userRepository;
         private readonly ISqlProjectMetaRepository _projectMetaRepository;
         private readonly IWorkflowActionPropertyValueValidator _propertyValueValidator;
 
-        public WorkflowDataValidator(IWorkflowRepository workflowRepository, IUserRepository userRepository,
-            ISqlProjectMetaRepository projectMetaRepository, IWorkflowActionPropertyValueValidator propertyValueValidator)
+        public WorkflowDataValidator(
+            IWorkflowRepository workflowRepository, 
+            IUsersRepository userRepository,
+            ISqlProjectMetaRepository projectMetaRepository, 
+            IWorkflowActionPropertyValueValidator propertyValueValidator)
         {
             _workflowRepository = workflowRepository;
             _userRepository = userRepository;

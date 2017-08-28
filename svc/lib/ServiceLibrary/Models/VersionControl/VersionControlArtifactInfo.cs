@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 namespace ServiceLibrary.Models.VersionControl
 {
     [JsonObject]
-    public class VersionControlArtifactInfo
+    public class VersionControlArtifactInfo : IBaseArtifactVersionControlInfo
     {
         [JsonProperty]
         public int Id { get; set; }

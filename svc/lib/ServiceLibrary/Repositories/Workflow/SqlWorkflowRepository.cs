@@ -101,12 +101,10 @@ namespace ServiceLibrary.Repositories.Workflow
         }
 
         public async Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForNewArtifactEvent(int userId,
-            int artifactId, int revisionId)
+            IEnumerable<int> artifactIds, 
+            int revisionId)
         {
-            //Need to access code for artifact permissions for revision
-            await CheckForArtifactPermissions(userId, artifactId, permissions: RolePermissions.Read);
-
-            return await GetWorkflowEventTriggersForNewArtifactEventInternal(userId, artifactId, revisionId);
+            return await GetWorkflowEventTriggersForNewArtifactEventInternal(userId, artifactIds, revisionId);
         }
 
 
@@ -115,11 +113,14 @@ namespace ServiceLibrary.Repositories.Workflow
 
         #region Private methods
 
-        private async Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForNewArtifactEventInternal(int userId, int artifactId, int revisionId)
+        private async Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForNewArtifactEventInternal(int userId, 
+            IEnumerable<int> artifactIds, 
+            int revisionId)
         {
             var param = new DynamicParameters();
             param.Add("@userId", userId);
-            param.Add("@artifactId", artifactId);
+            var artifactIdsTable = SqlConnectionWrapper.ToDataTable(artifactIds);
+            param.Add("@artifactIds", artifactIdsTable);
             param.Add("@revisionId", revisionId);
             var newArtifactEvents = (await
                 ConnectionWrapper.QueryAsync<SqlWorkflowNewArtifactEvent>("GetWorkflowEventTriggersForNewArtifact",

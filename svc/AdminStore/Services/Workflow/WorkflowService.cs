@@ -17,6 +17,7 @@ using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories.Files;
 using ServiceLibrary.Repositories.ProjectMeta;
 using File = ServiceLibrary.Models.Files.File;
+using SqlWorkflowEvent = AdminStore.Models.Workflow.SqlWorkflowEvent;
 
 namespace AdminStore.Services.Workflow
 {
@@ -511,10 +512,10 @@ namespace AdminStore.Services.Workflow
             await _workflowRepository.CreateWorkflowEventsAsync(importTriggersParams, publishRevision, transaction);
         }
 
-        private SqlWorkflowEvent ToSqlWorkflowEvent(IeEvent wEvent, int newWorkflowId, ICollection<SqlState> newStates,
+        private Models.Workflow.SqlWorkflowEvent ToSqlWorkflowEvent(IeEvent wEvent, int newWorkflowId, ICollection<SqlState> newStates,
             WorkflowDataMaps dataMaps, int userId)
         {
-            var sqlEvent = new SqlWorkflowEvent
+            var sqlEvent = new Models.Workflow.SqlWorkflowEvent
             {
                 Name = wEvent.Name,
                 WorkflowId = newWorkflowId,

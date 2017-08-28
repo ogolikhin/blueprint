@@ -273,6 +273,7 @@
     <Compile Include="Models\SubArtifact.cs" />
     <Compile Include="Models\UserGroup.cs" />
     <Compile Include="Models\UserInfo.cs" />
+    <Compile Include="Models\VersionControl\IBaseArtifactVersionControlInfo.cs" />
     <Compile Include="Models\VersionControl\ISaveArtifactRepository.cs" />
     <Compile Include="Models\VersionControl\PublishParameters.cs" />
     <Compile Include="Models\VersionControl\SqlDiscardPublishDetails.cs" />
@@ -296,6 +297,7 @@
     <Compile Include="Models\Workflow\IWorkflowEvent.cs" />
     <Compile Include="Models\Workflow\IWorkflowEventASynchronousAction.cs" />
     <Compile Include="Models\Workflow\IWorkflowEventSynchronousAction.cs" />
+    <Compile Include="Models\Workflow\IWorkflowMessage.cs" />
     <Compile Include="Models\Workflow\PostopWorkflowEventTriggers.cs" />
     <Compile Include="Models\Workflow\PreopWorkflowEventTriggers.cs" />
     <Compile Include="Models\Workflow\SqlCustomToInstancePropertyTypeIds.cs" />
@@ -306,6 +308,7 @@
     <Compile Include="Models\Workflow\SqlWorkFlowState.cs" />
     <Compile Include="Models\Workflow\SqlWorkFlowStateInformation.cs" />
     <Compile Include="Models\Workflow\SqlWorkflowTransition.cs" />
+    <Compile Include="Models\Workflow\StateChangeResult.cs" />
     <Compile Include="Models\Workflow\WorkflowConstants.cs" />
     <Compile Include="Models\Workflow\WorkflowEventAction.cs" />
     <Compile Include="Models\Workflow\WorkflowEventCondition.cs" />

@@ -49,13 +49,19 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
             return await Task.FromResult(true);
         }
 
-        private Task<bool> ProcessCreatedArtifacts(TenantInformation tenant, List<PublishedArtifactInformation> createdArtifacts, ArtifactsPublishedMessage message, IArtifactsPublishedRepository repository)
+        private async Task<bool> ProcessCreatedArtifacts(TenantInformation tenant, List<PublishedArtifactInformation> createdArtifacts, ArtifactsPublishedMessage message, IArtifactsPublishedRepository repository)
         {
-            foreach (var publishedArtifactInformation in createdArtifacts)
+            foreach (var createdArtifact in createdArtifacts)
             {
-                repository.GetWorkflowEventTriggersForTransition(message.UserId, )
+                var eventTriggers = await repository.GetWorkflowEventTriggersForNewArtifactEvent(message.UserId,
+                    new [] { createdArtifact.Id },
+                    message.RevisionId);
+                WorkflowEventsMessagesHelper.GenerateMessages(message.UserId,
+                    message.RevisionId,
+                    message.UserName,
+                    eventTriggers.AsynchronousTriggers,
+                    )
             }
-            
         }
 
         private async Task<bool> ProcessUpdatedArtifacts(TenantInformation tenant,
@@ -78,7 +84,8 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
             var publishedArtifactIds = updatedArtifacts.Select(a => a.Id).ToHashSet();
             var artifactPropertyEvents =
                 await
-                    repository.GetWorkflowPropertyTransitionsForArtifactsAsync(message.UserId, message.RevisionId,
+                    repository.GetWorkflowPropertyTransitionsForArtifactsAsync(message.UserId, 
+                    message.RevisionId,
                         (int)TransitionType.Property, publishedArtifactIds);
             //if no property transitions found, then call does not need to proceed
             Logger.Log($"{artifactPropertyEvents?.Count ?? 0} workflow property events found", message, tenant, LogLevel.Debug);

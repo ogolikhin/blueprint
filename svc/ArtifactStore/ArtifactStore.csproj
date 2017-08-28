@@ -129,6 +129,7 @@
     </Compile>
     <Compile Include="Helpers\MentionHelper.cs" />
     <Compile Include="Helpers\SensitivityCommonHelper.cs" />
+    <Compile Include="Helpers\WorkflowEventsMessagesHelper.cs" />
     <Compile Include="Models\Review\ParticipantArtifactStats.cs" />
     <Compile Include="Helpers\ReuseSystemPropertiesMap.cs" />
     <Compile Include="Models\Review\ReviewArtifactApprovalResult.cs" />

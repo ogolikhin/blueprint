@@ -125,8 +125,6 @@
     <Compile Include="Models\Enums\Tenancy.cs" />
     <Compile Include="Models\Exceptions\MessageHeaderValueNotFoundException.cs" />
     <Compile Include="Models\Exceptions\UnsupportedActionTypeException.cs" />
-    <Compile Include="Models\Interfaces\IExecutionParameters.cs" />
-    <Compile Include="Models\WorkflowEventAction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -141,6 +139,7 @@
       <Name>ServiceLibrary</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

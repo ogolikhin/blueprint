@@ -3,21 +3,19 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using ArtifactStore.Executors;
-using ArtifactStore.Models;
-using ArtifactStore.Models.Workflow;
 using ArtifactStore.Repositories;
-using ArtifactStore.Repositories.Reuse;
-using ArtifactStore.Repositories.Workflow;
-using ArtifactStore.Services.VersionControl;
 using ArtifactStore.Services.Workflow;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Models.VersionControl;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using ServiceLibrary.Repositories.Reuse;
+using ServiceLibrary.Repositories.Workflow;
 
 namespace ArtifactStore.Services
 {
@@ -236,8 +234,15 @@ namespace ArtifactStore.Services
             _workflowRepositoryMock.Setup(
                 t => t.GetTransitionForAssociatedStatesAsync(userId, itemId, workflowId, fromStateId, toStateId))
                 .ReturnsAsync(transition);
+            _workflowRepositoryMock.Setup(
+                t => t.GetWorkflowEventTriggersForTransition(userId, itemId, workflowId, fromStateId, toStateId))
+                .ReturnsAsync(new WorkflowTriggersContainer
+                {
+                    AsynchronousTriggers = new WorkflowEventTriggers(),
+                    SynchronousTriggers = new WorkflowEventTriggers()
+                });
 
-            
+
             _workflowRepositoryMock.Setup(t => t.ChangeStateForArtifactAsync(1, itemId, It.IsAny<WorkflowStateChangeParameterEx>(), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync(toState);
 

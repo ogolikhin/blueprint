@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using ActionHandlerService.Models;
-using ArtifactStore.Helpers;
 using BluePrintSys.Messaging.CrossCutting.Logging;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Workflow;
-using BluePrintSys.Messaging.CrossCutting.Models;
+using ServiceLibrary.Models.Workflow.Actions;
 
 namespace ActionHandlerService.Helpers
 {

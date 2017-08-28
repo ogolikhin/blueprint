@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using ArtifactStore.Executors;
-using ArtifactStore.Models.Workflow;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;

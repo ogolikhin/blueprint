@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Threading.Tasks;
-using ArtifactStore.Models;
-using ArtifactStore.Models.Workflow;
 using ArtifactStore.Repositories;
-using ArtifactStore.Repositories.Reuse;
-using ArtifactStore.Repositories.Workflow;
-using ArtifactStore.Services.VersionControl;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Exceptions;
@@ -17,6 +12,8 @@ using ServiceLibrary.Models.VersionControl;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using ServiceLibrary.Repositories.Reuse;
+using ServiceLibrary.Repositories.Workflow;
 
 namespace ArtifactStore.Executors
 {
@@ -280,6 +277,9 @@ namespace ArtifactStore.Executors
             _workflowRepository.Setup(
                 t => t.GetTransitionForAssociatedStatesAsync(UserId, ArtifactId, WorkflowId, FromStateId, ToStateId))
                 .ReturnsAsync((WorkflowTransition)null);
+            _workflowRepository.Setup(
+                t => t.GetWorkflowEventTriggersForTransition(UserId, ArtifactId, WorkflowId, FromStateId, ToStateId))
+                .ThrowsAsync(new ConflictException("", ErrorCodes.Conflict));
 
             //Act
             try
@@ -345,6 +345,13 @@ namespace ArtifactStore.Executors
             _workflowRepository.Setup(
                 t => t.GetTransitionForAssociatedStatesAsync(UserId, ArtifactId, WorkflowId, FromStateId, ToStateId))
                 .ReturnsAsync(transition);
+            _workflowRepository.Setup(
+                t => t.GetWorkflowEventTriggersForTransition(UserId, ArtifactId, WorkflowId, FromStateId, ToStateId))
+                .ReturnsAsync(new WorkflowTriggersContainer
+                {
+                    AsynchronousTriggers = new WorkflowEventTriggers(),
+                    SynchronousTriggers = new WorkflowEventTriggers()
+                });
 
             _workflowRepository.Setup(t => t.ChangeStateForArtifactAsync(UserId, ArtifactId, It.IsAny<WorkflowStateChangeParameterEx>(), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync((WorkflowState)null);
@@ -406,6 +413,13 @@ namespace ArtifactStore.Executors
             _workflowRepository.Setup(
                 t => t.GetTransitionForAssociatedStatesAsync(UserId, ArtifactId, WorkflowId, FromStateId, ToStateId))
                 .ReturnsAsync(transition);
+            _workflowRepository.Setup(
+                t => t.GetWorkflowEventTriggersForTransition(UserId, ArtifactId, WorkflowId, FromStateId, ToStateId))
+                .ReturnsAsync(new WorkflowTriggersContainer
+                {
+                    AsynchronousTriggers = new WorkflowEventTriggers(),
+                    SynchronousTriggers = new WorkflowEventTriggers()
+                });
 
             _workflowRepository.Setup(t => t.ChangeStateForArtifactAsync(UserId, ArtifactId, It.IsAny<WorkflowStateChangeParameterEx>(), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync((WorkflowState)null);

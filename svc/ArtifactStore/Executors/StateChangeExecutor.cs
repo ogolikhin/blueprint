@@ -72,7 +72,7 @@ namespace ArtifactStore.Executors
 
                 var executionParameters = await BuildTriggerExecutionParameters(artifactInfo, triggers.SynchronousTriggers, transaction);
 
-                var errors = await triggers.AsynchronousTriggers.ProcessTriggers(executionParameters);
+                var errors = await triggers.SynchronousTriggers.ProcessTriggers(executionParameters);
 
                 var artifactResultSet = await PublishArtifacts(publishRevision, transaction);
 

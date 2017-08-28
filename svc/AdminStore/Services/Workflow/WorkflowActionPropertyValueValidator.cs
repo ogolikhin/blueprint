@@ -6,6 +6,7 @@ using AdminStore.Models;
 using AdminStore.Models.Workflow;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.ProjectMeta;
+using ServiceLibrary.Models.Workflow;
 
 namespace AdminStore.Services.Workflow
 {
@@ -126,8 +127,15 @@ namespace AdminStore.Services.Workflow
                 return false;
             }
 
+            // For "Today+/-{the number of days)" date format we do not validate Min and Max constraints.
+            int relativeToTodayDays;
+            if (int.TryParse(action.PropertyValue, out relativeToTodayDays))
+            {
+                return true;
+            }
+
             DateTime dateValue;
-            if (!DateTime.TryParseExact(action.PropertyValue, "yyyy-MM-dd",
+            if (!DateTime.TryParseExact(action.PropertyValue, WorkflowConstants.Iso8601DateFormat,
                 CultureInfo.InvariantCulture, DateTimeStyles.None, out dateValue))
             {
                 if (!string.IsNullOrWhiteSpace(action.PropertyValue))

@@ -443,7 +443,86 @@ namespace AdminStore.Repositories
             return hasProjectExternalLocksAsync;
         }
 
+        public async Task<int> CreateRoleAssignmentAsync(int projectId, CreateRoleAssignment roleAssignment)
+        {
+            if (projectId < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(projectId));
+            }
+
+            if (roleAssignment == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(roleAssignment));
+            }
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@ProjectId", projectId);
+            parameters.Add("@GroupId", roleAssignment.GroupId);
+            parameters.Add("@RoleId", roleAssignment.RoleId);
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var result = await _connectionWrapper.ExecuteScalarAsync<int>("CreateProjectRoleAssignment", parameters,
+                commandType: CommandType.StoredProcedure);
+
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.ProjectWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.ProjectNotExist, ErrorCodes.ResourceNotFound);
+
+                    case (int)SqlErrorCodes.GroupWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.GroupIsNotFound, ErrorCodes.ResourceNotFound);
+
+                    case (int)SqlErrorCodes.RolesForProjectNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.RoleIsNotFound, ErrorCodes.ResourceNotFound);
+
+                    case (int)SqlErrorCodes.RoleAssignmentAlreadyExists:
+                        throw new ConflictException(ErrorMessages.RoleAssignmentAlreadyExists, ErrorCodes.Conflict);
+                }
+            }
+
+            return result;
+        }
+
+        
+
         #region private methods
+
+        public async Task<QueryResult<ProjectFolderSearchDto>> GetProjectsAndFolders(int userId, TabularData tabularData, Func<Sorting, string> sort = null)
+        {
+            var orderField = string.Empty;
+            if (sort != null && tabularData.Sorting != null)
+            {
+                orderField = sort(tabularData.Sorting);
+            }
+
+            if (!string.IsNullOrWhiteSpace(tabularData.Search))
+            {
+                tabularData.Search = UsersHelper.ReplaceWildcardCharacters(tabularData.Search);
+            }
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@UserId",userId);
+            parameters.Add("@Offset", tabularData.Pagination.Offset);
+            parameters.Add("@Limit", tabularData.Pagination.Limit);
+            parameters.Add("@OrderField", orderField);
+            parameters.Add("@Search", tabularData.Search);
+            parameters.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var projectFolders =
+                await
+                    _connectionWrapper.QueryAsync<ProjectFolderSearchDto>("SearchProjectsAndFolders", parameters,
+                        commandType: CommandType.StoredProcedure);
+
+            var total = parameters.Get<int?>("Total");
+
+            var queryDataResult = new QueryResult<ProjectFolderSearchDto> { Items = projectFolders, Total = total ?? 0 };
+
+            return queryDataResult;
+        }
 
         /// <summary>
         ///  This method takes the projectId and checks if the project is still exist in the database and not marked as deleted
@@ -489,6 +568,6 @@ namespace AdminStore.Repositories
             }
         }
 
-    #endregion
-    }
+        #endregion
+            }
 }

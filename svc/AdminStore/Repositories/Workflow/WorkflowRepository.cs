@@ -115,6 +115,64 @@ namespace AdminStore.Repositories.Workflow
             return result;
         }
 
+        public async Task<IEnumerable<SqlState>> UpdateWorkflowStatesAsync(IEnumerable<SqlState> workflowStates, int publishRevision, IDbTransaction transaction = null)
+        {
+            if (workflowStates == null)
+            {
+                throw new ArgumentNullException(nameof(workflowStates));
+            }
+
+            var dWorkflowStates = workflowStates.ToList();
+            if (!dWorkflowStates.Any())
+            {
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is empty.", nameof(workflowStates)));
+            }
+
+            if (publishRevision < 1)
+            {
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is less than 1.", nameof(publishRevision)));
+            }
+
+            var prm = new DynamicParameters();
+            prm.Add("@publishRevision", publishRevision);
+            prm.Add("@workflowStates", ToWorkflowStatesCollectionDataTable(dWorkflowStates));
+
+            var connection = transaction == null ? (IDbConnection) _connectionWrapper : transaction.Connection;
+            var result = await connection.QueryAsync<SqlState>("UpdateWorkflowStates", prm, transaction,
+                    commandType: CommandType.StoredProcedure);
+
+            return result;
+        }
+
+        public async Task<IEnumerable<int>> DeleteWorkflowStatesAsync(IEnumerable<int> workflowStateIds, int publishRevision, IDbTransaction transaction = null)
+        {
+            if (workflowStateIds == null)
+            {
+                throw new ArgumentNullException(nameof(workflowStateIds));
+            }
+
+            var listWorkflowStateIds = workflowStateIds.ToList();
+            if (!listWorkflowStateIds.Any())
+            {
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is empty.", nameof(workflowStateIds)));
+            }
+
+            if (publishRevision < 1)
+            {
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is less than 1.", nameof(publishRevision)));
+            }
+
+            var prm = new DynamicParameters();
+            prm.Add("@publishRevision", publishRevision);
+            prm.Add("@workflowStateIds", SqlConnectionWrapper.ToDataTable(listWorkflowStateIds));
+
+            var connection = transaction == null ? (IDbConnection)_connectionWrapper : transaction.Connection;
+            var result = await connection.QueryAsync<SqlState>("DeleteWorkflowStates", prm, transaction,
+                    commandType: CommandType.StoredProcedure);
+
+            return result.Select(s => s.WorkflowStateId);
+        }
+
         public async Task<IEnumerable<SqlState>> GetWorkflowStatesAsync(int workflowId)
         {
             var parameters = new DynamicParameters();
@@ -201,8 +259,78 @@ namespace AdminStore.Repositories.Workflow
             return result;
         }
 
+        public async Task<IEnumerable<SqlWorkflowEvent>> UpdateWorkflowEventsAsync(IEnumerable<SqlWorkflowEvent> workflowEvents, int publishRevision, IDbTransaction transaction = null)
+        {
+            if (workflowEvents == null)
+            {
+                throw new ArgumentNullException(nameof(workflowEvents));
+            }
+
+            var dWorkflowEvents = workflowEvents.ToList();
+            if (!dWorkflowEvents.Any())
+            {
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is empty.", nameof(dWorkflowEvents)));
+            }
+
+            if (publishRevision < 1)
+            {
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is less than 1.", nameof(publishRevision)));
+            }
+
+            var prm = new DynamicParameters();
+            prm.Add("@publishRevision", publishRevision);
+            prm.Add("@workflowEvents", ToWorkflowEventsCollectionDataTable(dWorkflowEvents));
+
+            var connection = transaction == null ? (IDbConnection)_connectionWrapper : transaction.Connection;
+            var result = await connection.QueryAsync<SqlWorkflowEvent>("UpdateWorkflowEvents", prm,
+                    transaction, commandType: CommandType.StoredProcedure);
+
+            return result;
+        }
+
+        public async Task<IEnumerable<int>> DeleteWorkflowEventsAsync(IEnumerable<int> workflowEventIds, int publishRevision, IDbTransaction transaction = null)
+        {
+            if (workflowEventIds == null)
+            {
+                throw new ArgumentNullException(nameof(workflowEventIds));
+            }
+
+            var listWorkflowStateIds = workflowEventIds.ToList();
+            if (!listWorkflowStateIds.Any())
+            {
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is empty.", nameof(workflowEventIds)));
+            }
+
+            if (publishRevision < 1)
+            {
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is less than 1.", nameof(publishRevision)));
+            }
+
+            var prm = new DynamicParameters();
+            prm.Add("@publishRevision", publishRevision);
+            prm.Add("@workflowEventIds", SqlConnectionWrapper.ToDataTable(listWorkflowStateIds));
+
+            var connection = transaction == null ? (IDbConnection)_connectionWrapper : transaction.Connection;
+            var result = await connection.QueryAsync<SqlWorkflowEvent>("DeleteWorkflowEvents", prm,
+                    transaction, commandType: CommandType.StoredProcedure);
+
+            return result.Select(s => s.WorkflowEventId);
+        }
+
         public async Task CreateWorkflowArtifactAssociationsAsync(IEnumerable<KeyValuePair<int, string>> projectArtifactTypePair,
             int workflowId, int publishRevision, IDbTransaction transaction = null)
+        {
+            await UpdateWorkflowArtifactAssociationsAsync(projectArtifactTypePair, workflowId, publishRevision, transaction);
+        }
+
+        public async Task DeleteWorkflowArtifactAssociationsAsync(IEnumerable<KeyValuePair<int, string>> projectArtifactTypePair,
+            int publishRevision, IDbTransaction transaction = null)
+        {
+            await UpdateWorkflowArtifactAssociationsAsync(projectArtifactTypePair, null, publishRevision, transaction);
+        }
+
+        private async Task UpdateWorkflowArtifactAssociationsAsync(IEnumerable<KeyValuePair<int, string>> projectArtifactTypePair,
+            int? workflowId, int publishRevision, IDbTransaction transaction = null)
         {
 
             var projectArtifactTypePairList = projectArtifactTypePair.ToList();

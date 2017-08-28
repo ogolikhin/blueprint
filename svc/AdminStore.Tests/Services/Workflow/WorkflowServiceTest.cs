@@ -11,8 +11,7 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ProjectMeta;
 using AdminStore.Models;
-using ArtifactStore.Helpers;
-using ServiceLibrary.Repositories;
+using ServiceLibrary.Helpers;
 
 namespace AdminStore.Services
 {

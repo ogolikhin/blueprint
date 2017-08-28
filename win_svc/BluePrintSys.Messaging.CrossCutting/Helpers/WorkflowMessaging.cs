@@ -26,7 +26,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Helpers
             Log.Debug("Workflow Messaging: Started opening the endpoint....");
             _messageTransportHost = new TransportHost(new ConfigHelper(), GenericServiceBusServer.Instance);
 
-            Task.Factory.StartNew(() => _messageTransportHost.Start()).Wait();
+            Task.Factory.StartNew(() => _messageTransportHost.Start(true)).Wait();
 
             Log.Debug("Workflow Messaging: Finished opening the endpoint.");
         }

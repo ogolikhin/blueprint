@@ -8,6 +8,7 @@
         int ArtifactId { get; }
         string ArtifactUrl { get; }
         string Body { get; }
+        string Header { get; }
     }
 
     public class NotificationEmail : INotificationEmail
@@ -18,8 +19,9 @@
         public int ArtifactId { get; }
         public string ArtifactUrl { get; }
         public string Body { get; }
+        public string Header { get; }
 
-        public NotificationEmail(int projectId, string projectName,  int artifactId, string artifactName, string artifactUrl, string body)
+        public NotificationEmail(int projectId, string projectName,  int artifactId, string artifactName, string artifactUrl, string body, string header)
         {
             ProjectId = projectId;
             ProjectName = projectName;
@@ -27,6 +29,7 @@
             ArtifactName = artifactName;
             ArtifactUrl = artifactUrl;
             Body = body;
+            Header = header;
         }
     }
 }

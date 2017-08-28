@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using ArtifactStore.Models.PropertyTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;

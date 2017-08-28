@@ -64,7 +64,9 @@ namespace ServiceLibrary.Models.Jobs
 
         GenerateProcessTests = 0x8000,
 
-        GenerateUserStories = 0x10000
+        GenerateUserStories = 0x10000,
+
+        GenerateDescendants = 0x20000
     }
 
     public class JobInfo

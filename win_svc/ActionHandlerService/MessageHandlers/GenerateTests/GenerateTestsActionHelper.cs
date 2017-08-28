@@ -54,7 +54,7 @@ namespace ActionHandlerService.MessageHandlers.GenerateTests
                 message.ProjectName,
                 message.UserId,
                 message.UserName,
-                message.ToString());
+                message.BaseHostUri);
 
             if (job.HasValue)
             {

@@ -4,32 +4,18 @@ using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
-using ArtifactStore.Helpers.Validators;
-using ArtifactStore.Models;
-using ArtifactStore.Models.PropertyTypes;
-using ArtifactStore.Models.Workflow.Actions;
-using BluePrintSys.Messaging.CrossCutting.Logging;
 using Dapper;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.PropertyType;
+using ServiceLibrary.Models.VersionControl;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ProjectMeta.PropertyXml;
 using ServiceLibrary.Repositories.ProjectMeta.PropertyXml.Models;
+using ServiceLibrary.Models.Workflow;
 
 namespace ArtifactStore.Repositories
 {
-    public interface ISaveArtifactRepository
-    {
-        Task SavePropertyChangeActions(
-            int userId,
-            IEnumerable<PropertyChangeAction> actions,
-            IEnumerable<DPropertyType> propertyTypes,
-            VersionControlArtifactInfo artifact,
-            IDbTransaction transaction = null);
-    }
-
     public class SqlSaveArtifactRepository : ISaveArtifactRepository
     {
         private readonly ISqlConnectionWrapper _connectionWrapper;
@@ -48,7 +34,7 @@ namespace ArtifactStore.Repositories
 
         public async Task SavePropertyChangeActions(
             int userId,
-            IEnumerable<PropertyChangeAction> actions,
+            IEnumerable<IPropertyChangeAction> actions,
             IEnumerable<DPropertyType> propertyTypes,
             VersionControlArtifactInfo artifact,
             IDbTransaction transaction = null)
@@ -78,7 +64,7 @@ namespace ArtifactStore.Repositories
         }
 
         private DataTable PopulateSavePropertyValueVersionsTable(
-            IEnumerable<PropertyChangeAction> actions,
+            IEnumerable<IPropertyChangeAction> actions,
             IEnumerable<DPropertyType> propertyTypes,
             VersionControlArtifactInfo artifact)
         {

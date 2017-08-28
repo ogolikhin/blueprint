@@ -116,6 +116,7 @@
     <Compile Include="Helpers\GroupsHelper.cs" />
     <Compile Include="Helpers\GroupValidator.cs" />
     <Compile Include="Helpers\ProjectValidator.cs" />
+    <Compile Include="Helpers\RoleAssignmentValidator.cs" />
     <Compile Include="Helpers\SortingHelper.cs" />
     <Compile Include="Helpers\UserConverter.cs" />
     <Compile Include="Helpers\PrivilegesManager.cs" />
@@ -126,6 +127,7 @@
     <Compile Include="Models\AssignScope.cs" />
     <Compile Include="Models\CreateResult.cs" />
     <Compile Include="Models\DTO\FolderDto.cs" />
+    <Compile Include="Models\DTO\ProjectFolderSearchDto.cs" />
     <Compile Include="Models\DTO\User.cs" />
     <Compile Include="Models\Emails\BaseEmailSettings.cs" />
     <Compile Include="Models\Emails\EmailIncomingSettings.cs" />

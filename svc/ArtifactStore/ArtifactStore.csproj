@@ -122,27 +122,18 @@
     <Compile Include="Controllers\StatusController.cs" />
     <Compile Include="Controllers\VersionControlController.cs" />
     <Compile Include="Controllers\WorkflowController.cs" />
+    <Compile Include="Executors\IStateChangeExecutorRepositories.cs" />
+    <Compile Include="Executors\StateChangeExecutorRepositories.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\MentionHelper.cs" />
     <Compile Include="Helpers\SensitivityCommonHelper.cs" />
-    <Compile Include="Helpers\Validators\DatePropertyValidator.cs" />
-    <Compile Include="Helpers\Validators\NumberPropertyValidator.cs" />
-    <Compile Include="Helpers\Validators\PropertyValidator.cs" />
     <Compile Include="Helpers\Validators\ValidationContext.cs" />
-    <Compile Include="Models\PropertyTypes\DDatePropertyType.cs" />
     <Compile Include="Helpers\Validators\UserPropertyValidator.cs" />
-    <Compile Include="Models\PropertyTypes\DNumberPropertyType.cs" />
     <Compile Include="Models\PropertyTypes\DUserPropertyType.cs" />
     <Compile Include="Models\Review\ParticipantArtifactStats.cs" />
-    <Compile Include="Models\Reuse\ReconcileProperty.cs" />
-    <Compile Include="Models\Reuse\ReuseSensitivityCollector.cs" />
     <Compile Include="Helpers\ReuseSystemPropertiesMap.cs" />
-    <Compile Include="Models\Reuse\ReuseTemplateSettingsMap.cs" />
-    <Compile Include="Models\Reuse\SqlItemTypeReuseTemplate.cs" />
-    <Compile Include="Models\Reuse\SqlModifiedItems.cs" />
-    <Compile Include="Models\Reuse\SqlReuseSettingsInfo.cs" />
     <Compile Include="Models\Review\ReviewArtifactApprovalResult.cs" />
     <Compile Include="Models\Review\ReviewArtifactsQueryResult.cs" />
     <Compile Include="Models\Review\ReviewArtifactsRemovalParams.cs" />
@@ -183,25 +174,13 @@
     <Compile Include="Models\Review\ReviewType.cs" />
     <Compile Include="Models\Review\SimulationSettings.cs" />
     <Compile Include="Models\Review\ViewStateType.cs" />
-    <Compile Include="Models\VersionControlArtifactInfo.cs" />
-    <Compile Include="Models\Workflow\Actions\PropertyChangeAction.cs" />
     <Compile Include="Models\Workflow\Actions\PropertyChangeUserGroupsAction.cs" />
-    <Compile Include="Models\Workflow\ExecutionParameters.cs" />
-    <Compile Include="Models\Workflow\IWorkflowEvent.cs" />
-    <Compile Include="Models\Workflow\WorkflowEventCondition.cs" />
-    <Compile Include="Models\Workflow\WorkflowEventTrigger.cs" />
-    <Compile Include="Models\Workflow\WorkflowEventTriggers.cs" />
-    <Compile Include="Models\Workflow\WorkflowTransition.cs" />
-    <Compile Include="Models\Workflow\WorkflowTransitionResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\IRelationshipsRepository.cs" />
     <Compile Include="Repositories\IAttachmentsRepository.cs" />
     <Compile Include="Repositories\IDiscussionsRepository.cs" />
     <Compile Include="Repositories\IArtifactVersionsRepository.cs" />
     <Compile Include="Repositories\IReviewsRepository.cs" />
-    <Compile Include="Models\Reuse\SqlItemTypeInfo.cs" />
-    <Compile Include="Models\Reuse\SqlPropertyTypeInfo.cs" />
-    <Compile Include="Repositories\Reuse\SqlReuseRepository.cs" />
     <Compile Include="Repositories\Revisions\SqlRevisionRepository.cs" />
     <Compile Include="Repositories\SqlAttachmentsRepository.cs" />
     <Compile Include="Repositories\SqlArtifactVersionsRepository.cs" />
@@ -222,8 +201,6 @@
     <Compile Include="Repositories\VersionControl\SqlPublishRepositoryComposer.cs" />
     <Compile Include="Repositories\VersionControl\SqlPublishReuseProcessingRepository.cs" />
     <Compile Include="Repositories\VersionControl\SqlVersionControlRepository.cs" />
-    <Compile Include="Repositories\Workflow\IWorkflowRepository.cs" />
-    <Compile Include="Repositories\Workflow\SqlWorkflowRepository.cs" />
     <Compile Include="Executors\StateChangeExecutor.cs" />
     <Compile Include="Services\VersionControl\VersionControlService.cs" />
     <Compile Include="Services\Workflow\WorkflowService.cs" />
@@ -242,6 +219,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Helpers\Validators\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\win_svc\BluePrintSys.Messaging.CrossCutting\BluePrintSys.Messaging.CrossCutting.csproj">

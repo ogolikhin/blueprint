@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using AdminStore.Models.Workflow;
-using ArtifactStore.Helpers;
-using ServiceLibrary.Models;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.ProjectMeta;
 
 namespace AdminStore.Services.Workflow

@@ -621,7 +621,10 @@ namespace AdminStore.Repositories
             var folderId = 1;
             var folder = new FolderDto { Name = "Folder1", ParentFolderId = 1 };
 
-            cxn.SetupExecuteScalarAsync("UpdateFolder", It.IsAny<Dictionary<string, object>>(), folderId, new Dictionary<string, object> { { "ErrorCode", 0 } });
+            cxn.SetupExecuteScalarAsync("UpdateFolder", 
+                                        It.IsAny<Dictionary<string, object>>(), 
+                                        folderId, 
+                                        new Dictionary<string, object> { { "ErrorCode", 0 } });
 
             // Act
             await repository.UpdateFolderAsync(folderId, folder);
@@ -1013,6 +1016,78 @@ namespace AdminStore.Repositories
             cxn.Verify();
             Assert.AreEqual(result, hasProjectExternalLocksAsync);
         }
+
+        #endregion
+
+        #region CreateRoleAssignmentAsync
+
+        [TestMethod]
+        public async Task CreateRoleAssignment_SuccessfulRoleAssignmentCreation_ReturnCreatedRoleAssignmentId()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            
+            var createdRoleAssignmentId = 1;
+            CreateRoleAssignment roleAssignment = new CreateRoleAssignment() {GroupId = 1, RoleId = 1};
+
+            cxn.SetupExecuteScalarAsync("CreateProjectRoleAssignment",
+                                        new Dictionary <string, object>
+                                        {
+                                            { "ProjectId", ProjectId },
+                                            {"GroupId", roleAssignment.GroupId },
+                                            {"RoleId", roleAssignment.RoleId }
+                                        }, 
+                                        createdRoleAssignmentId, 
+                                        new Dictionary<string, object> { { "ErrorCode", 0 } });
+
+            // Act
+            var result = await repository.CreateRoleAssignmentAsync(ProjectId, roleAssignment);
+
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(result, createdRoleAssignmentId);
+        }
+
+
+        //[TestMethod]
+        //[ExpectedException(typeof(ResourceNotFoundException))]
+        //public async Task CreateRoleAssignment_FolderNotExist_ReturnResourceNotFoundError()
+        //{
+        //    // Arrange
+        //    var cxn = new SqlConnectionWrapperMock();
+        //    var repository = new SqlInstanceRepository(cxn.Object);
+        //    var deletedFolderCount = 0;
+
+        //    cxn.SetupExecuteScalarAsync("DeleteFolder", It.IsAny<Dictionary<string, object>>(), deletedFolderCount,
+        //        new Dictionary<string, object> {{"ErrorCode", 0}});
+
+        //    // Act
+        //    await repository.DeleteInstanceFolderAsync(instanceFolderId: 1);
+
+        //    // Assert
+        //    //Exception
+        //}
+
+        /*[TestMethod]
+        [ExpectedException(typeof(ConflictException))]
+        public async Task DeleteFolderAsync_FolderContainsChildrenItems_ReturnConflictError()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            var deletedFolderCount = 0;
+
+            cxn.SetupExecuteScalarAsync("DeleteFolder", It.IsAny<Dictionary<string, object>>(), deletedFolderCount, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.InstanceFolderContainsChildrenItems } });
+
+            // Act
+            await repository.DeleteInstanceFolderAsync(instanceFolderId: 1);
+
+            // Assert
+            //Exception
+        }
+
+        */
 
         #endregion
     }

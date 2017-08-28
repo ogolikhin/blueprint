@@ -32,7 +32,7 @@ namespace AdminStore.Services.Workflow
         private const string TemplateXmlTransitionEventNameExceedsLimit24 = "The field 'Name' of Transition '{0}' is over the character limit of 24.";
         private const string TemplateXmlPropertyChangeEventNameExceedsLimit24 = "The field 'Name' of Property Change Event '{0}' is over the character limit of 24.";
         private const string TemplateXmlNewArtifactEventNameExceedsLimit24 = "The field 'Name' of New Artifact Event '{0}' is over the character limit of 24.";
-        private const string TemplateXmlWorkflowEventNameNotUniqueInWorkflow = "Two or more Events (Transition, Property Change, New Artifact) '{0}' are the same. Event names in a workflow must be unique.";
+        private const string TemplateXmlStateWithDuplicateOutgoingTransitions = "State '{0}' has outgoing Transitions with a duplicate Name. Names of outgoing Transitions on a State must be unique.";
         private const string TemplateXmlTransitionCountOnStateExceedsLimit10 = "State '{0}' exceeded the limit of permitted Transitions per State of 10.";
         private const string TemplateXmlTransitionStateNotFound = "One of States of Transition '{0}' is not found. A Transition must connect two States located in the Workflow.";
         private const string TemplateXmlTransitionStartStateNotSpecified = "The Start State of Transition '{0}' is not specified.";
@@ -244,9 +244,9 @@ namespace AdminStore.Services.Workflow
                     template = TemplateXmlNewArtifactEventNameExceedsLimit24;
                     errParams = new object[] {((IeNewArtifactEvent) error.Element).Name};
                     break;
-                case WorkflowXmlValidationErrorCodes.WorkflowEventNameNotUniqueInWorkflow:
-                    template = TemplateXmlWorkflowEventNameNotUniqueInWorkflow;
-                    errParams = new object[] {((IeEvent) error.Element).Name};
+                case WorkflowXmlValidationErrorCodes.StateWithDuplicateOutgoingTransitions:
+                    template = TemplateXmlStateWithDuplicateOutgoingTransitions;
+                    errParams = new object[] {(string) error.Element};
                     break;
                 case WorkflowXmlValidationErrorCodes.TransitionCountOnStateExceedsLimit10:
                     template = TemplateXmlTransitionCountOnStateExceedsLimit10;

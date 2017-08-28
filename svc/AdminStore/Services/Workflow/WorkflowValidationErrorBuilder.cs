@@ -98,7 +98,7 @@ namespace AdminStore.Services.Workflow
         private const string TemplateDataPropertyChangeActionInvalidNumberFormat = "The Value of Number Property '{0}' in a Property Change Action has an invalid number format.";
         private const string TemplateDataPropertyChangeActionInvalidNumberDecimalPlaces = "The Value of Number Property '{0}' in a Property Change Action has an invalid decimal places.";
         private const string TemplateDataPropertyChangeActionNumberOutOfRange = "The Value of Number Property '{0}' in a Property Change Action is out of the range.";
-        private const string TemplateDataPropertyChangeActionInvalidDateFormat = "The Value of Date Property '{0}' in a Property Change Action has an invalid date format.";
+        private const string TemplateDataPropertyChangeActionInvalidDateFormat = "The Value of Date Property '{0}' in a Property Change Action has an invalid date format. The date format can be ISO 8601, e.g. '2017-01-20', or an integer that specifies the shift in days relatively to the current day.";
         private const string TemplateDataPropertyChangeActionDateOutOfRange = "The Value of Date Property '{0}' in a Property Change Action is out of the range.";
         // Workflow Update specific messages
         private const string TemplateDataPWorkflowActive = "The Workflow '{0}' [ID = {1}] is Active. An Active Workflow cannot be updated.";

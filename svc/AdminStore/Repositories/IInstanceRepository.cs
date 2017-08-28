@@ -39,5 +39,7 @@ namespace AdminStore.Repositories
         Task<int> DeleteRoleAssignmentsAsync(int projectId, OperationScope scope, string search);
 
         Task<int> HasProjectExternalLocksAsync(int userId, int projectId);
+
+        Task<int> CreateRoleAssignmentAsync(int projectId, CreateRoleAssignment roleAssignment);
     }
 }

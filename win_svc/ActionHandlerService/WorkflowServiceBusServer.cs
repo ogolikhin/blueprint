@@ -11,8 +11,8 @@ using BluePrintSys.Messaging.CrossCutting.Configuration;
 using BluePrintSys.Messaging.CrossCutting.Host;
 using BluePrintSys.Messaging.CrossCutting.Logging;
 using BluePrintSys.Messaging.Models.Actions;
-using NServiceBus;
 using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Models.Workflow;
 
 namespace ActionHandlerService
 {
@@ -41,7 +41,7 @@ namespace ActionHandlerService
             MessageQueue = ConfigHelper.MessageQueue;
         }
 
-        protected override void LogInfo(string tenantId, IMessage message, Exception exception)
+        protected override void LogInfo(string tenantId, IWorkflowMessage message, Exception exception)
         {
             var actionMessage = message as ActionMessage;
             if (actionMessage == null)

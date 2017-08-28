@@ -12,6 +12,9 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ProjectMeta;
+using AdminStore.Models;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Models.ProjectMeta;
 
 namespace AdminStore.Services.Workflow
 {
@@ -23,6 +26,7 @@ namespace AdminStore.Services.Workflow
         private Mock<IWorkflowXmlValidator> _workflowXmlValidatorMock;
         private Mock<IWorkflowRepository> _workflowRepositoryMock;
         private Mock<IUserRepository> _userRepositoryMock;
+        private Mock<ISqlProjectMetaRepository> _projectMetaRepositoryMock;
         private Mock<IUsersRepository> _usersRepositoryMock;
         private Mock<IWorkflowValidationErrorBuilder> _workflowValidationErrorBuilder ;
         private Mock<ITriggerConverter> _triggerConverter;
@@ -39,6 +43,7 @@ namespace AdminStore.Services.Workflow
             _workflowRepositoryMock = new Mock<IWorkflowRepository>();
             _workflowXmlValidatorMock = new Mock<IWorkflowXmlValidator>();
             _userRepositoryMock = new Mock<IUserRepository>();
+            _projectMetaRepositoryMock = new Mock<ISqlProjectMetaRepository>();
             _usersRepositoryMock = new Mock<IUsersRepository>();
             _workflowValidationErrorBuilder = new Mock<IWorkflowValidationErrorBuilder>();
             _triggerConverter = new Mock<ITriggerConverter>();
@@ -240,6 +245,7 @@ namespace AdminStore.Services.Workflow
 
             var items = new List<UserDto> { new UserDto { Id = 1, Login = "user" } };
             var users = new QueryResult<UserDto> { Total = 1, Items = items };
+            var projectTypes = new ProjectTypes();
 
             _userRepositoryMock.Setup(repo => repo.GetUsersAsync(It.IsAny<Pagination>(), null, null, null)).ReturnsAsync(users);
 
@@ -250,6 +256,8 @@ namespace AdminStore.Services.Workflow
             _workflowRepositoryMock.Setup(repo => repo.GetWorkflowArtifactTypesAsync(It.IsAny<int>())).ReturnsAsync(workflowArtifactTypes);
 
             _workflowRepositoryMock.Setup(repo => repo.GetWorkflowEventsAsync(It.IsAny<int>())).ReturnsAsync(workflowEvents);
+
+            _projectMetaRepository.Setup(repo => repo.GetStandardProjectTypesAsync()).ReturnsAsync(projectTypes);
 
             //act
             var workflowExport = await _service.GetWorkflowExportAsync(workflowId);
@@ -285,13 +293,14 @@ namespace AdminStore.Services.Workflow
             var states = new List<SqlState>();
             var users = new QueryResult<UserDto>();
             var events = new List<SqlWorkflowEventData>();
+            var projectTypes = new ProjectTypes();
 
             _userRepositoryMock.Setup(repo => repo.GetUsersAsync(It.IsAny<Pagination>(), null, null, null)).ReturnsAsync(users);
             _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(workflow);
             _workflowRepositoryMock.Setup(repo => repo.GetWorkflowArtifactTypesAsync(It.IsAny<int>())).ReturnsAsync(artifactTypes);
             _workflowRepositoryMock.Setup(repo => repo.GetWorkflowStatesAsync(It.IsAny<int>())).ReturnsAsync(states);
             _workflowRepositoryMock.Setup(repo => repo.GetWorkflowEventsAsync(It.IsAny<int>())).ReturnsAsync(events);
-
+            _projectMetaRepository.Setup(repo => repo.GetStandardProjectTypesAsync()).ReturnsAsync(projectTypes);
 
             //act
             var workflowExport = await _service.GetWorkflowExportAsync(workflowId);

@@ -100,7 +100,7 @@ namespace AdminStore.Services.Workflow
 
             projects?.Where(p => p.Id.HasValue).ForEach(p => p.ArtifactTypes?.ForEach(at =>
             {
-                ICollection<IeArtifactType> colToAddTo;
+                ICollection<KeyValuePair<int, IeArtifactType>> colToAddTo;
                 if (!at.Id.HasValue)
                 {
                     colToAddTo = result.AddedProjectArtifactTypes;
@@ -112,12 +112,12 @@ namespace AdminStore.Services.Workflow
                     : result.NotFoundProjectArtifactTypes;
                 }
 
-                colToAddTo.Add(at);
+                colToAddTo.Add(new KeyValuePair<int, IeArtifactType>(p.Id.Value, at));
             }));
 
             currentProjects?.Where(p => p.Id.HasValue).ForEach(p => p.ArtifactTypes?
                 .Where(at => at.Id.HasValue && !pAtIds.Contains(Tuple.Create(p.Id.Value, at.Id.Value)))
-                .ForEach(at => result.DeletedProjectArtifactTypes.Add(at)));
+                .ForEach(at => result.DeletedProjectArtifactTypes.Add(new KeyValuePair<int, IeArtifactType>(p.Id.Value, at))));
         }
 
         #endregion

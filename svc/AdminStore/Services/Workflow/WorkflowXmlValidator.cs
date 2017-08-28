@@ -552,10 +552,12 @@ namespace AdminStore.Services.Workflow
             return result;
         }
 
+        // The update xml validated updates State Name references.
         public WorkflowXmlValidationResult ValidateUpdateXml(IeWorkflow workflow)
         {
             ResetUpdateErrorFlags();
             _isConventionNamesInUse = true;
+            UpdateReferenceStateNames(workflow);
             var clone = WorkflowHelper.CloneViaXmlSerialization(workflow);
             UpdateToConventionNames(clone);
             var result = ValidateXml(clone);
@@ -973,6 +975,41 @@ namespace AdminStore.Services.Workflow
             }
         }
 
+        private static void UpdateReferenceStateNames(IeWorkflow workflow)
+        {
+            var stateMap = workflow?.States?.Where(s => s.Id.HasValue).
+                ToDictionary(s => s.Id.Value, s => s.Name);
+            if (stateMap.IsEmpty())
+            {
+                return;
+            }
+
+            workflow?.TransitionEvents.ForEach(e =>
+            {
+                string name;
+                if (e.FromStateId.HasValue && stateMap.TryGetValue(e.FromStateId.Value, out name))
+                {
+                    e.FromState = name;
+                }
+                if (e.ToStateId.HasValue && stateMap.TryGetValue(e.ToStateId.Value, out name))
+                {
+                    e.ToState = name;
+                }
+            });
+
+            // State Conditions can be only on triggers of PropertyChangeEvents.
+            workflow?.PropertyChangeEvents?.ForEach(e => e.Triggers?
+                .Where(t => t?.Condition?.ConditionType == ConditionTypes.State).ForEach(t =>
+                {
+                    var stateCondition = (IeStateCondition) t.Condition;
+                    string name;
+                    if (stateCondition.StateId.HasValue && stateMap.TryGetValue(stateCondition.StateId.Value, out name))
+                    {
+                        stateCondition.State = name;
+                    }
+                }));
+        }
+
         #region Update To Convention Names
 
         private void UpdateToConventionNames(IeWorkflow workflow)
@@ -1017,7 +1054,7 @@ namespace AdminStore.Services.Workflow
         {
             if (group?.Id.HasValue ?? false)
             {
-                group.Name = GetConventionNameAndValidateId(group.Name, group.Id.Value);
+                group.Name = GetConventionNameAndValidateId(null, group.Id.Value);
             }
         }
 
@@ -1030,7 +1067,7 @@ namespace AdminStore.Services.Workflow
 
             if (pcEvent?.PropertyId.HasValue ?? false)
             {
-                pcEvent.PropertyName = GetConventionNameAndValidateId(pcEvent.PropertyName, pcEvent.PropertyId.Value,
+                pcEvent.PropertyName = GetConventionNameAndValidateId(null, pcEvent.PropertyId.Value,
                     WorkflowHelper.IsNameOrDescriptionProperty(pcEvent.PropertyId.Value));
             }
 
@@ -1056,7 +1093,7 @@ namespace AdminStore.Services.Workflow
         {
             if (artifactType?.Id.HasValue ?? false)
             {
-                artifactType.Name = GetConventionNameAndValidateId(artifactType.Name, artifactType.Id.Value);
+                artifactType.Name = GetConventionNameAndValidateId(null, artifactType.Id.Value);
             }
         }
 
@@ -1108,7 +1145,7 @@ namespace AdminStore.Services.Workflow
         {
             if (enAction?.PropertyId.HasValue ?? false)
             {
-                enAction.PropertyName = GetConventionNameAndValidateId(enAction.PropertyName, enAction.PropertyId.Value);
+                enAction.PropertyName = GetConventionNameAndValidateId(null, enAction.PropertyId.Value);
             }
         }
 
@@ -1116,7 +1153,7 @@ namespace AdminStore.Services.Workflow
         {
             if (pcAction?.PropertyId.HasValue ?? false)
             {
-                pcAction.PropertyName = GetConventionNameAndValidateId(pcAction.PropertyName, pcAction.PropertyId.Value);
+                pcAction.PropertyName = GetConventionNameAndValidateId(null, pcAction.PropertyId.Value);
             }
 
             pcAction?.ValidValues?.ForEach(UpdateValidValueToConventionNames);
@@ -1127,7 +1164,7 @@ namespace AdminStore.Services.Workflow
         {
             if (validValue?.Id.HasValue ?? false)
             {
-                validValue.Value = GetConventionNameAndValidateId(validValue.Value, validValue.Id.Value);
+                validValue.Value = GetConventionNameAndValidateId(null, validValue.Id.Value);
             }
         }
 
@@ -1135,7 +1172,7 @@ namespace AdminStore.Services.Workflow
         {
             if (userGroup?.Id.HasValue ?? false)
             {
-                userGroup.Name = GetConventionNameAndValidateId(userGroup.Name, userGroup.Id.Value);
+                userGroup.Name = GetConventionNameAndValidateId(null, userGroup.Id.Value);
             }
         }
 
@@ -1143,7 +1180,7 @@ namespace AdminStore.Services.Workflow
         {
             if (gAction?.ArtifactTypeId.HasValue ?? false)
             {
-                gAction.ArtifactType = GetConventionNameAndValidateId(gAction.ArtifactType, gAction.ArtifactTypeId.Value);
+                gAction.ArtifactType = GetConventionNameAndValidateId(null, gAction.ArtifactTypeId.Value);
             }
         }
 

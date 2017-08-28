@@ -1,4 +1,6 @@
-﻿namespace ServiceLibrary.Models.Workflow
+﻿using System.Security.Cryptography.X509Certificates;
+
+namespace ServiceLibrary.Models.Workflow
 {
     public static class WorkflowConstants
     {
@@ -13,6 +15,8 @@
         public const int PropertyTypeFakeIdName = -1;
         public const string PropertyNameDescription = "Description";
         public const int PropertyTypeFakeIdDescription = -2;
+
+        public const string Iso8601DateFormat = "yyyy-MM-dd";
 
     }
 }

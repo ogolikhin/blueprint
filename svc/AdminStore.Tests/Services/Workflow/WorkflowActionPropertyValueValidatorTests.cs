@@ -54,7 +54,7 @@ namespace AdminStore.Services.Workflow
         #region Date
 
         [TestMethod]
-        public void ValidatePropertyValue_Date_Required_Success()
+        public void ValidatePropertyValue_Date_Required_Iso8601_Success()
         {
             //Arrange
             var propertyType = new PropertyType
@@ -65,6 +65,24 @@ namespace AdminStore.Services.Workflow
             var action = new IePropertyChangeAction
             {
                 PropertyValue = "2017-07-21"
+            };
+
+            //Act and Assert
+            ValidatePropertyValue(action, propertyType, null, null, true, true, null);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyValue_Date_Required_ShiftInDays_Success()
+        {
+            //Arrange
+            var propertyType = new PropertyType
+            {
+                PrimitiveType = PropertyPrimitiveType.Date,
+                IsRequired = true
+            };
+            var action = new IePropertyChangeAction
+            {
+                PropertyValue = "-1"
             };
 
             //Act and Assert

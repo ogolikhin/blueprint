@@ -19,11 +19,26 @@ namespace AdminStore.Repositories.Workflow
         Task<IEnumerable<SqlState>> CreateWorkflowStatesAsync(IEnumerable<SqlState> workflowStates, int publishRevision,
             IDbTransaction transaction = null);
 
+        Task<IEnumerable<SqlState>> UpdateWorkflowStatesAsync(IEnumerable<SqlState> workflowStates, int publishRevision,
+            IDbTransaction transaction = null);
+
+        Task<IEnumerable<int>> DeleteWorkflowStatesAsync(IEnumerable<int> workflowStateIds, int publishRevision,
+            IDbTransaction transaction = null);
+
         Task<IEnumerable<SqlWorkflowEvent>> CreateWorkflowEventsAsync(IEnumerable<SqlWorkflowEvent> workflowEvents,
+            int publishRevision, IDbTransaction transaction = null);
+
+        Task<IEnumerable<SqlWorkflowEvent>> UpdateWorkflowEventsAsync(IEnumerable<SqlWorkflowEvent> workflowEvents,
+            int publishRevision, IDbTransaction transaction = null);
+
+        Task<IEnumerable<int>> DeleteWorkflowEventsAsync(IEnumerable<int> workflowEventIds,
             int publishRevision, IDbTransaction transaction = null);
 
         Task CreateWorkflowArtifactAssociationsAsync(IEnumerable<KeyValuePair<int, string>> projectArtifactTypePair,
             int workflowId, int publishRevision, IDbTransaction transaction = null);
+
+        Task DeleteWorkflowArtifactAssociationsAsync(IEnumerable<KeyValuePair<int, string>> projectArtifactTypePair,
+            int publishRevision, IDbTransaction transaction = null);
 
         Task<IEnumerable<SqlProjectPathPair>> GetProjectIdsByProjectPathsAsync(IEnumerable<string> projectPaths);
 

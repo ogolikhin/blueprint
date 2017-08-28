@@ -1,19 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AdminStore.Models;
 using AdminStore.Models.Workflow;
 using AdminStore.Repositories;
 using AdminStore.Repositories.Workflow;
-using AdminStore.Services.Workflow;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Exceptions;
-using ServiceLibrary.Models;
-using ServiceLibrary.Repositories.ProjectMeta;
-using AdminStore.Models;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
+using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories.ProjectMeta;
 
-namespace AdminStore.Services
+namespace AdminStore.Services.Workflow
 {
     [TestClass]
     public class WorkflowServiceTest

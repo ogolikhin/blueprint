@@ -2,7 +2,7 @@
 using System.Linq;
 using ServiceLibrary.Models;
 
-namespace ArtifactStore.Helpers.Validators
+namespace ServiceLibrary.Helpers.Validators
 {
     public class ValidationContext : IValidationContext
     {

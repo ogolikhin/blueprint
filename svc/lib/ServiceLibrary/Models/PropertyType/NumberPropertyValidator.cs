@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Helpers.Validators;
 
 namespace ServiceLibrary.Models.PropertyType
 {

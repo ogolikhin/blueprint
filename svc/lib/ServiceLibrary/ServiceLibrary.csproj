@@ -161,6 +161,7 @@
     <Compile Include="Helpers\Validators\EmailValidator.cs" />
     <Compile Include="Helpers\Validators\IPropertyValidator.cs" />
     <Compile Include="Helpers\Validators\ReusePropertyValidator.cs" />
+    <Compile Include="Helpers\Validators\ValidationContext.cs" />
     <Compile Include="LocalLog\ILocalLog.cs" />
     <Compile Include="LocalLog\LocalEventLog.cs" />
     <Compile Include="LocalLog\LocalFileLog.cs" />
@@ -240,11 +241,13 @@
     <Compile Include="Models\PropertyType\DDatePropertyType.cs" />
     <Compile Include="Models\PropertyType\DNumberPropertyType.cs" />
     <Compile Include="Models\PropertyType\DPropertyType.cs" />
+    <Compile Include="Models\PropertyType\DUserPropertyType.cs" />
     <Compile Include="Models\PropertyType\NumberPropertyValidator.cs" />
     <Compile Include="Models\PropertyType\PropertyLite.cs" />
     <Compile Include="Models\PropertyType\PropertySetResult.cs" />
     <Compile Include="Models\PropertyType\PropertyValidator.cs" />
     <Compile Include="Models\PropertyType\SqlPropertyType.cs" />
+    <Compile Include="Models\PropertyType\UserPropertyValidator.cs" />
     <Compile Include="Models\QueryResult.cs" />
     <Compile Include="Models\QuerySingleResult.cs" />
     <Compile Include="Models\Range.cs" />
@@ -277,7 +280,7 @@
     <Compile Include="Models\UserGroup.cs" />
     <Compile Include="Models\UserInfo.cs" />
     <Compile Include="Models\VersionControl\ISaveArtifactRepository.cs" />
-    <Compile Include="Models\ValidationContext.cs" />
+    <Compile Include="Helpers\Validators\IValidationContext.cs" />
     <Compile Include="Models\VersionControl\PublishParameters.cs" />
     <Compile Include="Models\VersionControl\SqlDiscardPublishDetails.cs" />
     <Compile Include="Models\VersionControl\SqlDiscardPublishDetailsResult.cs" />
@@ -293,6 +296,7 @@
     <Compile Include="Models\Workflow\Actions\GenerateTestCasesAction.cs" />
     <Compile Include="Models\Workflow\Actions\GenerateUserStoriesAction.cs" />
     <Compile Include="Models\Workflow\Actions\PropertyChangeAction.cs" />
+    <Compile Include="Models\Workflow\Actions\PropertyChangeUserGroupsAction.cs" />
     <Compile Include="Models\Workflow\ActionUserGroups.cs" />
     <Compile Include="Models\Workflow\ExecutionParameters.cs" />
     <Compile Include="Models\Workflow\IExecutionParameters.cs" />

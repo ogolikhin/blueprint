@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using ServiceLibrary.Models;
 using ServiceLibrary.Models.PropertyType;
 
 namespace ServiceLibrary.Helpers.Validators

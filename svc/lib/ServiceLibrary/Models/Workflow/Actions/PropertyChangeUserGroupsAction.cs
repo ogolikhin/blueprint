@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Models;
 using ServiceLibrary.Models.PropertyType;
 
-namespace ArtifactStore.Models.Workflow.Actions
+namespace ServiceLibrary.Models.Workflow.Actions
 {
     public class PropertyChangeUserGroupsAction : PropertyChangeAction
     {

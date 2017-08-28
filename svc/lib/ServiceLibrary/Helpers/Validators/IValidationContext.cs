@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
+using ServiceLibrary.Models;
 
-namespace ServiceLibrary.Models
+namespace ServiceLibrary.Helpers.Validators
 {
-
     public interface IValidationContext
     {
         IEnumerable<SqlUser> Users { get; }

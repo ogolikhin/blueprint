@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using ArtifactStore.Helpers;
 using ServiceLibrary.Models;
 
 namespace ServiceLibrary.Helpers

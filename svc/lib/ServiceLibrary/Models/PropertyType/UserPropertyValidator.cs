@@ -1,10 +1,8 @@
 ﻿using System.Linq;
-using ArtifactStore.Models.PropertyTypes;
 using ServiceLibrary.Helpers;
-using ServiceLibrary.Models;
-using ServiceLibrary.Models.PropertyType;
+using ServiceLibrary.Helpers.Validators;
 
-namespace ArtifactStore.Helpers.Validators
+namespace ServiceLibrary.Models.PropertyType
 {
     public class UserPropertyValidator : PropertyValidator<DUserPropertyType>
     {

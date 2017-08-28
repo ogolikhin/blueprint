@@ -593,7 +593,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             var folderId = 1;
-            var updatedFolder = new FolderDto { Id = folderId, Name = "New Folder 1", Path = "Blueprint" };
+            var updatedFolder = new FolderDto { Name = "New Folder 1", Path = "Blueprint" };
             _privilegeRepositoryMock
                 .Setup(m => m.GetInstanceAdminPrivilegesAsync(UserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageProjects);
@@ -619,7 +619,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             var folderId = 1;
-            var updatedFolder = new FolderDto { Id = folderId, Name = "New Folder 1", ParentFolderId = folderId, Path = "Blueprint/New Folder 1" };
+            var updatedFolder = new FolderDto { Name = "New Folder 1", ParentFolderId = folderId, Path = "Blueprint/New Folder 1" };
             _privilegeRepositoryMock
                 .Setup(m => m.GetInstanceAdminPrivilegesAsync(UserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageProjects);
@@ -1021,6 +1021,31 @@ namespace AdminStore.Controllers
 
             //assert
             //Exception
+        }
+
+        #endregion
+
+        #region HasProjectExternalLocks
+
+        [TestMethod]
+        public async Task HasProjectExternalLocks_AllParamsCorrect_ReturnBooleanValue()
+        {
+            //Arrange
+            var hasProjectExternalLocks = 1;
+
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.DeleteProjects);
+            _instanceRepositoryMock
+                .Setup(repo => repo.HasProjectExternalLocksAsync(UserId, ProjectId))
+                .ReturnsAsync(hasProjectExternalLocks);
+
+            //Act
+            var result = await _controller.HasProjectExternalLocks(ProjectId) as OkNegotiatedContentResult<int>;
+
+            //Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(hasProjectExternalLocks, result.Content);
         }
 
         #endregion

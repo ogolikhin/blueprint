@@ -2,20 +2,20 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
-using ArtifactStore.Models;
-using ArtifactStore.Models.Workflow;
+using ArtifactStore.Executors;
 using ArtifactStore.Repositories;
-using ArtifactStore.Repositories.Reuse;
-using ArtifactStore.Repositories.Workflow;
-using ArtifactStore.Services.VersionControl;
 using ArtifactStore.Services.Workflow;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Models.VersionControl;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories.ConfigControl;
+using ServiceLibrary.Repositories.Reuse;
+using ServiceLibrary.Repositories.Workflow;
 
 namespace ArtifactStore.Services
 {
@@ -31,6 +31,7 @@ namespace ArtifactStore.Services
         private Mock<IReuseRepository> _reuseRepository;
         private Mock<ISaveArtifactRepository> _saveArtifactRepositoryMock;
         private Mock<IApplicationSettingsRepository> _applicationSettingsRepositoryMock;
+        private Mock<IServiceLogRepository> _serviceLogRepositoryMock;
 
         [TestInitialize]
         public void TestInitialize()
@@ -43,15 +44,17 @@ namespace ArtifactStore.Services
             _reuseRepository = new Mock<IReuseRepository>(MockBehavior.Loose);
             _saveArtifactRepositoryMock = new Mock<ISaveArtifactRepository>(MockBehavior.Loose);
             _applicationSettingsRepositoryMock = new Mock<IApplicationSettingsRepository>(MockBehavior.Loose);
+            _serviceLogRepositoryMock = new Mock<IServiceLogRepository>(MockBehavior.Loose);
 
-            _workflowServiceMock = new WorkflowService(_workflowRepositoryMock.Object, 
-                _artifactVersionsRepositoryMock.Object, 
-                _itemInfoRepositoryMock.Object, 
-                _sqlHelperMock,
+            _workflowServiceMock = new WorkflowService(_sqlHelperMock,
+                _itemInfoRepositoryMock.Object,
+                new StateChangeExecutorRepositories(_artifactVersionsRepositoryMock.Object,
+                _workflowRepositoryMock.Object,
                 _versionControlServiceMock.Object,
                 _reuseRepository.Object,
                 _saveArtifactRepositoryMock.Object,
-                _applicationSettingsRepositoryMock.Object);
+                _applicationSettingsRepositoryMock.Object,
+                _serviceLogRepositoryMock.Object));
         }
 
         [TestMethod]
@@ -231,8 +234,15 @@ namespace ArtifactStore.Services
             _workflowRepositoryMock.Setup(
                 t => t.GetTransitionForAssociatedStatesAsync(userId, itemId, workflowId, fromStateId, toStateId))
                 .ReturnsAsync(transition);
+            _workflowRepositoryMock.Setup(
+                t => t.GetWorkflowEventTriggersForTransition(userId, itemId, workflowId, fromStateId, toStateId))
+                .ReturnsAsync(new WorkflowTriggersContainer
+                {
+                    AsynchronousTriggers = new WorkflowEventTriggers(),
+                    SynchronousTriggers = new WorkflowEventTriggers()
+                });
 
-            
+
             _workflowRepositoryMock.Setup(t => t.ChangeStateForArtifactAsync(1, itemId, It.IsAny<WorkflowStateChangeParameterEx>(), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync(toState);
 

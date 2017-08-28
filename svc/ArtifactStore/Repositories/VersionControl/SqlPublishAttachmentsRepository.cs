@@ -1,5 +1,4 @@
 ﻿using ArtifactStore.Helpers;
-using ArtifactStore.Models.Reuse;
 using ArtifactStore.Models.VersionControl;
 using Dapper;
 using ServiceLibrary.Models;
@@ -10,6 +9,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Models.Reuse;
 
 namespace ArtifactStore.Repositories.VersionControl
 {

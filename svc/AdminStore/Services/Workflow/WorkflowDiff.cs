@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AdminStore.Models.Workflow;
-using ArtifactStore.Helpers;
+using ServiceLibrary.Helpers;
 
 namespace AdminStore.Services.Workflow
 {

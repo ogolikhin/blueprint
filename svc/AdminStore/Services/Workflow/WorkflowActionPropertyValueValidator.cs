@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Linq;
 using AdminStore.Models;
 using AdminStore.Models.Workflow;
-using ArtifactStore.Helpers;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.ProjectMeta;
 
 namespace AdminStore.Services.Workflow

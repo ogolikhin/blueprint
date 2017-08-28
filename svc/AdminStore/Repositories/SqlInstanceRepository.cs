@@ -441,6 +441,17 @@ namespace AdminStore.Repositories
             return result;
         }
 
+        public async Task<int> HasProjectExternalLocksAsync(int userId, int projectId)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@userId", userId);
+            parameters.Add("@projectId", projectId);
+
+            var hasProjectExternalLocksAsync = await _connectionWrapper.ExecuteScalarAsync<int>("IsProjectHasForeignLocks", parameters, commandType: CommandType.StoredProcedure);
+            
+            return hasProjectExternalLocksAsync;
+        }
+
         #endregion
 
         #region private methods

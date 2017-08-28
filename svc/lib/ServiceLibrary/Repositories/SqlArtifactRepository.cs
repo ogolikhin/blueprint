@@ -29,7 +29,7 @@ namespace ServiceLibrary.Repositories
         }
 
         public SqlArtifactRepository(ISqlConnectionWrapper connectionWrapper,
-            SqlItemInfoRepository itemInfoRepository,
+            ISqlItemInfoRepository itemInfoRepository,
             IArtifactPermissionsRepository artifactPermissionsRepository)
             : base(connectionWrapper, artifactPermissionsRepository)
         {

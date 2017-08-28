@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using ActionHandlerService.Models;
-using ArtifactStore.Helpers;
 using BluePrintSys.Messaging.CrossCutting.Logging;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Workflow;
-using BluePrintSys.Messaging.CrossCutting.Models;
+using ServiceLibrary.Models.Workflow.Actions;
 
 namespace ActionHandlerService.Helpers
 {
@@ -56,7 +55,8 @@ namespace ActionHandlerService.Helpers
                     var emailNotification = new EmailNotificationAction
                     {
                         ConditionalStateId = condition?.StateId,
-                        PropertyTypeId = workflowEvent.EventPropertyTypeId ?? 0
+                        PropertyTypeId = workflowEvent.EventPropertyTypeId ?? 0,
+                        Message = action.Message
                     };
                     emailNotification.Emails.AddRange(action.Emails);
                     notifications.Add(emailNotification);

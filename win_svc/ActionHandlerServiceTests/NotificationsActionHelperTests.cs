@@ -35,6 +35,7 @@ namespace ActionHandlerServiceTests
                 ArtifactUrl = "",
                 From = "nw@blueprintsys.com",
                 To = new[] { "nw@gmail.com"},
+                Header = "header",
                 MessageTemplate = "",
                 ProjectId = 3,
                 ProjectName = "MyProject",

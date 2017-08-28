@@ -16,6 +16,7 @@ namespace AdminStore.Services.Workflow
         private const string XmlIsNotValid = "The supplied XML is not valid. Please edit your file and upload again.";
 
         // Messages for the XML validation.
+        private const string TemplateXmlWorkflowXmlSerializationError = "{0}";
         private const string TemplateXmlWorkflowNameEmpty = "The required field 'Name' of the Workflow is missing.";
         private const string TemplateXmlWorkflowNameExceedsLimit24 = "The field 'Name' of the Workflow is over the character limit of 24.";
         private const string TemplateXmlWorkflowDescriptionExceedsLimit4000 = "The field 'Description' of the Workflow is over the character limit of 4000.";
@@ -59,9 +60,11 @@ namespace AdminStore.Services.Workflow
         private const string TemplateXmlPropertyChangeActionValidValueValueNotSpecitied = "One or more Valid Values in Property Change Actions do not have a specified Value. The Value of a Valid Value must be not empty.";
         private const string TemplateXmlPropertyChangeActionUserOrGroupNameNotSpecitied = "One or more Users or Groups in Property Change Actions do not have a specified Name. The Name of a User or Group must be not empty.";
         private const string TemplateXmlAmbiguousGroupProjectReference = "One or more Property Change Actions have ambiguous Group Project Reference. A Group Project must be specified either by Id or by Path.";
-        private const string TemplateXmlArtifactTypeGenerateChildrenActionNotSpecitied = "One or more Generate Children Actions do not have a specified Artifact Type. A Generate Children Action must have an Artifact Type.";
-        private const string TemplateXmlChildCountGenerateChildrenActionNotSpecitied = "One or more Generate Children Actions do not have a specified Child Count. A Generate Children Action must have a Child Count.";
-        private const string TemplateXmlChildCountGenerateChildrenActionNotValid = "One or more Generate Children Actions have an invalid Child Count. The Child Count of A Generate Children Action must be between 1 and 10 inclusive.";
+        private const string TemplateXmlArtifactTypeGenerateChildrenActionNotSpecitied = "One or more Generate Child Artifacts Actions do not have a specified Artifact Type. A Generate Child Artifacts Action must have an Artifact Type.";
+        private const string TemplateXmlChildCountGenerateChildrenActionNotSpecitied = "One or more Generate Child Artifacts Actions do not have a specified Child Count. A Generate Child Artifacts Action must have a Child Count.";
+        private const string TemplateXmlChildCountGenerateChildrenActionNotValid = "One or more Generate Child Artifacts Actions have an invalid Child Count. The Child Count of A Generate Child Artifacts Action must be between 1 and 10 inclusive.";
+        private const string TemplateXmlArtifactTypeApplicableOnlyToGenerateChildArtifactAction = "One or more Generate Test Cases or Generate User Stories Actions have a not applicable parameter: Artifact Type. The Artifact Type is applicable only to the Generate Child Artifacts Action.";
+        private const string TemplateXmlChildCountApplicableOnlyToGenerateChildArtifactAction = "One or more Generate Test Cases or Generate User Stories Actions have a not applicable parameter: Child Count. The Child Count is applicable only to the Generate Child Artifacts Action.";
         private const string TemplateXmlStateConditionNotOnTriggerOfPropertyChangeEvent = "One or more Triggers of Transitions or New Artifact Events have a State Condition. Only Triggers of Property Change Events can have a State Condition.";
         private const string TemplateXmlStateStateConditionNotSpecified = "One or more States missing on State Conditions of Triggers. The State must be specified on a State Condition.";
         private const string TemplateXmlStateStateConditionNotFound = "State '{0}' of a State Condition is not found. The State of a State Condition must be in the Workflow.";
@@ -177,6 +180,10 @@ namespace AdminStore.Services.Workflow
 
             switch (error.ErrorCode)
             {
+                case WorkflowXmlValidationErrorCodes.WorkflowXmlSerializationError:
+                    template = TemplateXmlWorkflowXmlSerializationError;
+                    errParams = new object[] { (string) error.Element };
+                    break;
                 case WorkflowXmlValidationErrorCodes.WorkflowNameEmpty:
                     template = TemplateXmlWorkflowNameEmpty;
                     errParams = new object[] {};
@@ -359,6 +366,14 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowXmlValidationErrorCodes.ChildCountGenerateChildrenActionNotValid:
                     template = TemplateXmlChildCountGenerateChildrenActionNotValid;
+                    errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.ArtifactTypeApplicableOnlyToGenerateChildArtifactAction:
+                    template = TemplateXmlArtifactTypeApplicableOnlyToGenerateChildArtifactAction;
+                    errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.ChildCountApplicableOnlyToGenerateChildArtifactAction:
+                    template = TemplateXmlChildCountApplicableOnlyToGenerateChildArtifactAction;
                     errParams = new object[] { };
                     break;
                 case WorkflowXmlValidationErrorCodes.StateConditionNotOnTriggerOfPropertyChangeEvent:

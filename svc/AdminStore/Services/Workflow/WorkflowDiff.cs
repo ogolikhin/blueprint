@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AdminStore.Models.Workflow;
-using ArtifactStore.Helpers;
+using ServiceLibrary.Helpers;
 
 namespace AdminStore.Services.Workflow
 {
@@ -107,7 +107,7 @@ namespace AdminStore.Services.Workflow
                 }
                 else
                 {
-                    colToAddTo = pAtIds.Contains(Tuple.Create(p.Id.Value, at.Id.Value))
+                    colToAddTo = cpAtIds.Contains(Tuple.Create(p.Id.Value, at.Id.Value))
                     ? result.UnchangedProjectArtifactTypes
                     : result.NotFoundProjectArtifactTypes;
                 }

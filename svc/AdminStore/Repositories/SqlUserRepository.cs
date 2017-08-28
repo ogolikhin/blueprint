@@ -80,7 +80,7 @@ namespace AdminStore.Repositories
             return await _connectionWrapper.QueryAsync<SqlGroup>("GetGroupNames", prm, commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<IEnumerable<SqlGroup>> GetExistingGroupsByNames(IEnumerable<string> groupNames, bool instanceOnly)
+        public async Task<IEnumerable<SqlGroup>> GetExistingGroupsByNamesAsync(IEnumerable<string> groupNames, bool instanceOnly)
         {
             var prm = new DynamicParameters();
             prm.Add("@groupNames", SqlConnectionWrapper.ToStringDataTable(groupNames));
@@ -88,13 +88,30 @@ namespace AdminStore.Repositories
 
             return await _connectionWrapper.QueryAsync<SqlGroup>("GetExistingGroupsByNames", prm, commandType: CommandType.StoredProcedure);
         }
-        
-        public async Task<IEnumerable<SqlUser>> GetExistingUsersByNames(IEnumerable<string> userNames)
+
+        public async Task<IEnumerable<SqlGroup>> GetExistingGroupsByIds(IEnumerable<int> groupIds, bool instanceOnly)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@groupIds", SqlConnectionWrapper.ToDataTable(groupIds));
+            prm.Add("@instanceOnly", instanceOnly);
+
+            return await _connectionWrapper.QueryAsync<SqlGroup>("GetExistingGroupsByIds", prm, commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<IEnumerable<SqlUser>> GetExistingUsersByNamesAsync(IEnumerable<string> userNames)
         {
             var prm = new DynamicParameters();
             prm.Add("@userNames", SqlConnectionWrapper.ToStringDataTable(userNames));
 
             return await _connectionWrapper.QueryAsync<SqlUser>("GetExistingUsersByNames", prm, commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<IEnumerable<SqlUser>> GetExistingUsersByIdsAsync(IEnumerable<int> userIds)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@userIds", SqlConnectionWrapper.ToDataTable(userIds));
+
+            return await _connectionWrapper.QueryAsync<SqlUser>("GetExistingUsersByids", prm, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<IEnumerable<LicenseTransactionUser>> GetLicenseTransactionUserInfoAsync(IEnumerable<int> userIds)
@@ -286,7 +303,7 @@ namespace AdminStore.Repositories
             return userId;
         }
 
-        public async Task<int> DeleteUsers(OperationScope scope, string search, int sessionUserId)
+        public async Task<int> DeleteUsersAsync(OperationScope scope, string search, int sessionUserId)
         {
             if (!string.IsNullOrWhiteSpace(search))
             {

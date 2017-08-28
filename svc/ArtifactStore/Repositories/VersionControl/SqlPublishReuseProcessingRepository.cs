@@ -1,11 +1,11 @@
 ﻿using ArtifactStore.Helpers;
 using ArtifactStore.Models.VersionControl;
-using ArtifactStore.Repositories.Reuse;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.VersionControl;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using ServiceLibrary.Repositories.Reuse;
 
 namespace ArtifactStore.Repositories.VersionControl
 {

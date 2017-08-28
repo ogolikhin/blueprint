@@ -1,4 +1,7 @@
-﻿using AdminStore.Models;
+﻿using AdminStore.Helpers;
+using AdminStore.Models;
+using AdminStore.Models.DTO;
+using AdminStore.Models.Enums;
 using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
@@ -9,9 +12,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using AdminStore.Helpers;
-using AdminStore.Models.DTO;
-using AdminStore.Models.Enums;
 
 namespace AdminStore.Repositories
 {
@@ -171,20 +171,22 @@ namespace AdminStore.Repositories
             return folderId;
         }
 
-        public async Task<IEnumerable<FolderDto>> GetFoldersByName(string name)
+        public async Task<IEnumerable<InstanceItem>> GetFoldersByName(string name)
         {
             if (!string.IsNullOrWhiteSpace(name))
             {
                 name = UsersHelper.ReplaceWildcardCharacters(name);
             }
+
             var parameters = new DynamicParameters();
             parameters.Add("@name", name);
 
-            var result =
-                await
-                    _connectionWrapper.QueryAsync<FolderDto>("GetFoldersByName", parameters,
-                        commandType: CommandType.StoredProcedure);
-            return result;
+            return await _connectionWrapper.QueryAsync<InstanceItem>
+            (
+                "GetFoldersByName", 
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
         }
 
         public async Task<int> DeleteInstanceFolderAsync(int instanceFolderId)
@@ -430,6 +432,17 @@ namespace AdminStore.Repositories
             return result;
         }
 
+        public async Task<int> HasProjectExternalLocksAsync(int userId, int projectId)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@userId", userId);
+            parameters.Add("@projectId", projectId);
+
+            var hasProjectExternalLocksAsync = await _connectionWrapper.ExecuteScalarAsync<int>("IsProjectHasForeignLocks", parameters, commandType: CommandType.StoredProcedure);
+            
+            return hasProjectExternalLocksAsync;
+        }
+
         public async Task<int> CreateRoleAssignmentAsync(int projectId, CreateRoleAssignment roleAssignment)
         {
             if (projectId < 1)
@@ -522,6 +535,6 @@ namespace AdminStore.Repositories
             }
         }
 
-        #endregion
+    #endregion
     }
 }

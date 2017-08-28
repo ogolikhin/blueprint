@@ -14,6 +14,10 @@ namespace ServiceLibrary.Models
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public IList<Item> Projects { get;  } = new List<Item>();
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [JsonIgnore]
+        public IDictionary<int, IList<Property>> ModifiedProperties { get; } = new Dictionary<int, IList<Property>>();
     }
 
 }

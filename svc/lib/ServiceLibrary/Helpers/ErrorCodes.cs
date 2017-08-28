@@ -117,5 +117,8 @@
         public const int IncomingMailServerInvalidHostname = 15011;
         public const int IncomingMailServerInvalidCredentials = 15012;
         public const int OutgoingMailError = 15013;
+        public const int CannotEnableDiscussions = 15014;
+        public const int EmptyEmailAddress = 15015;
+        public const int InvalidEmailAddress = 15016;
     }
 }

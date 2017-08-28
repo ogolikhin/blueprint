@@ -1,5 +1,4 @@
-﻿
-namespace ServiceLibrary.Models.PropertyType
+﻿namespace ServiceLibrary.Models.PropertyType
 {
     public class DNumberPropertyType : DPropertyType
     {

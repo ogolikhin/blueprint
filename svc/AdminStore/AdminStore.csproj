@@ -223,8 +223,6 @@
     <Compile Include="Repositories\IGroupRepository.cs" />
     <Compile Include="Repositories\ISqlSettingsRepository.cs" />
     <Compile Include="Repositories\IUserRepository.cs" />
-    <Compile Include="Repositories\Jobs\IJobsRepository.cs" />
-    <Compile Include="Repositories\Jobs\JobsRepository.cs" />
     <Compile Include="Repositories\LdapRepository.cs" />
     <Compile Include="Repositories\SqlGroupRepository.cs" />
     <Compile Include="Repositories\SqlInstanceRepository.cs" />

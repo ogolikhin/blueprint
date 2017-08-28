@@ -84,10 +84,10 @@ namespace AdminStore.Repositories
 
         #endregion
 
-        #region UpdateWorkflows
+        #region UpdateWorkflowsAsync
 
         [TestMethod]
-        public async Task UpdateWorkflows_UpdateThisWorkflowInDb_QueryReturnWorkflows()
+        public async Task UpdateWorkflowsAsync_UpdateThisWorkflowInDb_QueryReturnWorkflows()
         {
             //arrange
             var cxn = new SqlConnectionWrapperMock();
@@ -100,7 +100,7 @@ namespace AdminStore.Repositories
             cxn.SetupQueryAsync("UpdateWorkflows", It.IsAny<Dictionary<string, object>>(), workflowsList);
 
             //act
-            var updatedWorkflows = await repository.UpdateWorkflows(workflowsList, publishRevision);
+            var updatedWorkflows = await repository.UpdateWorkflowsAsync(workflowsList, publishRevision);
 
             //assert
             Assert.IsNotNull(updatedWorkflows);

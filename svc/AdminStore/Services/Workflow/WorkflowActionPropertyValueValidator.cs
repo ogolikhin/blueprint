@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using AdminStore.Models;
 using AdminStore.Models.Workflow;
-using ArtifactStore.Helpers;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.ProjectMeta;
 
 namespace AdminStore.Services.Workflow
@@ -13,7 +14,8 @@ namespace AdminStore.Services.Workflow
         #region Interface Implementation
 
         public bool ValidatePropertyValue(IePropertyChangeAction action, PropertyType propertyType,
-            ISet<string> validUsers, ISet<Tuple<string, int?>> validGroups, out WorkflowDataValidationErrorCodes? errorCode)
+            IList<SqlUser> users, IList<SqlGroup> groups, bool ignoreIds,
+            out WorkflowDataValidationErrorCodes? errorCode)
         {
             if (action == null)
             {
@@ -38,10 +40,10 @@ namespace AdminStore.Services.Workflow
                     result = ValidateDatePropertyValue(action, propertyType, out errorCode);
                     break;
                 case PropertyPrimitiveType.User:
-                    result = ValidateUserPropertyValue(action, propertyType, validUsers, validGroups, out errorCode);
+                    result = ValidateUserPropertyValue(action, propertyType, users, groups, ignoreIds, out errorCode);
                     break;
                 case PropertyPrimitiveType.Choice:
-                    result = ValidateChoicePropertyValue(action, propertyType, out errorCode);
+                    result = ValidateChoicePropertyValue(action, propertyType, ignoreIds, out errorCode);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(propertyType.PrimitiveType));
@@ -152,7 +154,7 @@ namespace AdminStore.Services.Workflow
         }
 
         private static bool ValidateChoicePropertyValue(IePropertyChangeAction action, PropertyType propertyType,
-            out WorkflowDataValidationErrorCodes? errorCode)
+            bool ignoreIds, out WorkflowDataValidationErrorCodes? errorCode)
         {
             errorCode = null;
             if (!ValidateIsPropertyRequired(propertyType.IsRequired.GetValueOrDefault(),
@@ -175,18 +177,26 @@ namespace AdminStore.Services.Workflow
                 return true;
             }
 
-            var validValidValues = propertyType.ValidValues.Select(vv => vv.Value).ToHashSet();
+            var validValuesMap = propertyType.ValidValues.ToDictionary(vv => vv.Id, vv => vv.Value);
+            var validValueValues = validValuesMap.Values.ToHashSet();
+
             foreach (var validValue in action.ValidValues)
             {
-                if (string.IsNullOrWhiteSpace(validValue.Value))
+                // Update Name where Id is present (to null if Id is not found)
+                if (!ignoreIds && validValue.Id.HasValue)
                 {
-                    errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionValidValueNotSpecified;
-                    return false;
+                    string value;
+                    if (!validValuesMap.TryGetValue(validValue.Id.Value, out value))
+                    {
+                        errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionValidValueNotFoundById;
+                        return false;
+                    }
+                    validValue.Value = value;
                 }
 
-                if (!validValidValues.Contains(validValue.Value))
+                if (!validValueValues.Contains(validValue.Value))
                 {
-                    errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionValidValueNotFound;
+                    errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionValidValueNotFoundByValue;
                     return false;
                 }
             }
@@ -195,7 +205,7 @@ namespace AdminStore.Services.Workflow
         }
 
         private static bool ValidateUserPropertyValue(IePropertyChangeAction action, PropertyType propertyType,
-            ISet<string> validUsers, ISet<Tuple<string, int?>> validGroups, out WorkflowDataValidationErrorCodes? errorCode)
+            IList<SqlUser> users, IList<SqlGroup> groups, bool ignoreIds, out WorkflowDataValidationErrorCodes? errorCode)
         {
             errorCode = null;
             if (!ValidateIsPropertyRequired(propertyType.IsRequired.GetValueOrDefault(),
@@ -210,27 +220,51 @@ namespace AdminStore.Services.Workflow
                 return true;
             }
 
+            var usersMap = users.ToDictionary(u => u.UserId, u => u.Login);
+            var groupsMap = groups.ToDictionary(g => g.GroupId, g => Tuple.Create(g.Name, g.ProjectId));
+            var userNames = usersMap.Values.ToHashSet();
+            var groupNames = groupsMap.Values.ToHashSet();
+
+            //TODO: ignoreIds
             foreach (var userGroup in action.UsersGroups)
             {
-                if (string.IsNullOrWhiteSpace(userGroup.Name))
-                {
-                    errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionUserOrGroupNotSpecified;
-                    return false;
-                }
-
                 if (userGroup.IsGroup.GetValueOrDefault())
                 {
-                    if (!validGroups.Contains(Tuple.Create(userGroup.Name, userGroup.GroupProjectId)))
+                    // Update Name where Id is present (to null if Id is not found)
+                    if (!ignoreIds && userGroup.Id.HasValue)
                     {
-                        errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionGroupNotFound;
+                        Tuple<string, int?> nameProject;
+                        if (!groupsMap.TryGetValue(userGroup.Id.Value, out nameProject))
+                        {
+                            errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionGroupNotFoundById;
+                            return false;
+                        }
+                        userGroup.Name = nameProject.Item1;
+                    }
+
+                    if (!groupNames.Contains(Tuple.Create(userGroup.Name, userGroup.GroupProjectId)))
+                    {
+                        errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionGroupNotFoundByName;
                         return false;
                     }
                 }
                 else
                 {
-                    if (!validUsers.Contains(userGroup.Name))
+                    // Update Name where Id is present (to null if Id is not found)
+                    if (!ignoreIds && userGroup.Id.HasValue)
                     {
-                        errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionUserNotFound;
+                        string name;
+                        if (!usersMap.TryGetValue(userGroup.Id.Value, out name))
+                        {
+                            errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionUserNotFoundById;
+                            return false;
+                        }
+                        userGroup.Name = name;
+                    }
+
+                    if (!userNames.Contains(userGroup.Name))
+                    {
+                        errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionUserNotFoundByName;
                         return false;
                     }
                 }

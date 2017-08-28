@@ -1,4 +1,5 @@
 ﻿using ActionHandlerService.Helpers;
+using BluePrintSys.Messaging.CrossCutting.Configuration;
 using BluePrintSys.Messaging.Models.Actions;
 
 namespace ActionHandlerService.MessageHandlers.GenerateUserStories

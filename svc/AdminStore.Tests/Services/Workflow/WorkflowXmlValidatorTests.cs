@@ -1208,6 +1208,45 @@ namespace AdminStore.Services.Workflow
         }
 
         [TestMethod]
+        public void Validate_PropertyValuePropertyChangeAction_IncludeCurrentUser_Success()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            var pcAction = (IePropertyChangeAction)_workflow.TransitionEvents[1].Triggers[1].Action;
+            pcAction.PropertyValue = null;
+            pcAction.ValidValues = null;
+            pcAction.UsersGroups = null;
+            pcAction.IncludeCurrentUser = true;
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsFalse(result.HasErrors);
+        }
+
+        [TestMethod]
+        public void Validate_PropertyValuePropertyChangeAction_UsersGroupsAndIncludeCurrentUser_Success()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            var pcAction = (IePropertyChangeAction) _workflow.TransitionEvents[1].Triggers[1].Action;
+            pcAction.PropertyValue = null;
+            pcAction.ValidValues = null;
+            pcAction.UsersGroups = new List<IeUserGroup>
+            {
+                new IeUserGroup { Name = "user1"}
+            };
+            pcAction.IncludeCurrentUser = true;
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsFalse(result.HasErrors);
+        }
+
+        [TestMethod]
         public void Validate_ArtifactTypeGenerateChildrenActionNotSpecitied_ReturnsArtifactTypeGenerateChildrenActionNotSpecitiedError()
         {
             // Arrange

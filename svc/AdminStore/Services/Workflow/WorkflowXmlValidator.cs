@@ -783,11 +783,11 @@ namespace AdminStore.Services.Workflow
                     }
                 });
             }
-            if (action.UsersGroups?.Count > 0)
+            if (action.UsersGroups?.Count > 0 || action.IncludeCurrentUser.GetValueOrDefault())
             {
                 pvCount++;
 
-                action.UsersGroups.ForEach(ug =>
+                action.UsersGroups?.ForEach(ug =>
                 {
                     if (!_hasPropertyChangeActionUserOrGroupNameNotSpecitiedError
                        && !ValidatePropertyNotEmpty(ug.Name))

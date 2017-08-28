@@ -233,7 +233,11 @@ namespace AdminStore.Services.Workflow
             var userNames = usersMap.Values.ToHashSet();
             var groupNames = groupsMap.Values.ToHashSet();
 
-            //TODO: ignoreIds
+            if (action.UsersGroups.IsEmpty())
+            {
+                return true;
+            }
+
             foreach (var userGroup in action.UsersGroups)
             {
                 if (userGroup.IsGroup.GetValueOrDefault())

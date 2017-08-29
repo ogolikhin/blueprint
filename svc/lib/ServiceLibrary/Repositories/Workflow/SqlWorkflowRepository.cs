@@ -128,7 +128,7 @@ namespace ServiceLibrary.Repositories.Workflow
             var eventTriggers = new WorkflowEventTriggers();
             newArtifactEvents.Where(n => n != null).ForEach(n =>
             {
-                eventTriggers.AddRange(ToWorkflowTriggers(SerializationHelper.FromXml<XmlWorkflowEventTriggers>(n.Triggers)));
+                eventTriggers.AddRange(ToWorkflowTriggers(SerializationHelper.FromXml<XmlWorkflowEventTriggers>(n.Triggers), userId));
             });
             return GetWorkflowTriggersContainer(eventTriggers);
         }
@@ -186,7 +186,7 @@ namespace ServiceLibrary.Repositories.Workflow
             return ToWorkflowTransitions(
                     await
                         ConnectionWrapper.QueryAsync<SqlWorkflowTransition>("GetTransitionsForState", param,
-                            commandType: CommandType.StoredProcedure));
+                            commandType: CommandType.StoredProcedure), userId);
         }
 
         private async Task<WorkflowTransition> GetTransitionForAssociatedStatesInternalAsync(int userId, int workflowId, int fromStateId, int toStateId)
@@ -200,10 +200,10 @@ namespace ServiceLibrary.Repositories.Workflow
             return ToWorkflowTransitions(
                     await
                         ConnectionWrapper.QueryAsync<SqlWorkflowTransition>("GetTransitionAssociatedWithStates", param,
-                            commandType: CommandType.StoredProcedure)).FirstOrDefault();
+                            commandType: CommandType.StoredProcedure), userId).FirstOrDefault();
         }
         
-        private IList<WorkflowTransition> ToWorkflowTransitions(IEnumerable<SqlWorkflowTransition> sqlWorkflowTransitions)
+        private IList<WorkflowTransition> ToWorkflowTransitions(IEnumerable<SqlWorkflowTransition> sqlWorkflowTransitions, int currentUserId)
         {
             return sqlWorkflowTransitions.Select(wt =>
             {
@@ -225,12 +225,12 @@ namespace ServiceLibrary.Repositories.Workflow
                     Name = wt.WorkflowEventName,
                     WorkflowId = wt.WorkflowId
                 };
-                transition.Triggers.AddRange(ToWorkflowTriggers(SerializationHelper.FromXml<XmlWorkflowEventTriggers>(wt.Triggers)));
+                transition.Triggers.AddRange(ToWorkflowTriggers(SerializationHelper.FromXml<XmlWorkflowEventTriggers>(wt.Triggers), currentUserId));
                 return transition;
             }).ToList();
         }
 
-        private WorkflowEventTriggers ToWorkflowTriggers(XmlWorkflowEventTriggers xmlWorkflowEventTriggers)
+        private WorkflowEventTriggers ToWorkflowTriggers(XmlWorkflowEventTriggers xmlWorkflowEventTriggers, int currentUserId)
         {
             WorkflowEventTriggers triggers = new WorkflowEventTriggers();
             if (xmlWorkflowEventTriggers == null || xmlWorkflowEventTriggers.Triggers == null)
@@ -241,12 +241,12 @@ namespace ServiceLibrary.Repositories.Workflow
             {
                 Name = xmlWorkflowEventTrigger.Name,
                 Condition = new WorkflowEventCondition(),
-                Action = GenerateAction(xmlWorkflowEventTrigger.Action)
+                Action = GenerateAction(xmlWorkflowEventTrigger.Action, currentUserId)
             }));
             return triggers;
         }
 
-        private WorkflowEventAction GenerateAction(XmlAction action)
+        private WorkflowEventAction GenerateAction(XmlAction action, int currentUserId)
         {
             if (action == null)
             {
@@ -260,7 +260,7 @@ namespace ServiceLibrary.Repositories.Workflow
             var propertyChangeAction = action as XmlPropertyChangeAction;
             if (propertyChangeAction != null)
             {
-                return ToPropertyChangeAction(propertyChangeAction);
+                return ToPropertyChangeAction(propertyChangeAction, currentUserId);
             }
             var generateAction = action as XmlGenerateAction;
             //TODO: Should we throw an exception if the action is not a known action? Import ahead of handling situation
@@ -278,7 +278,7 @@ namespace ServiceLibrary.Repositories.Workflow
             return action;
         }
 
-        private PropertyChangeAction ToPropertyChangeAction(XmlPropertyChangeAction propertyChangeAction)
+        private PropertyChangeAction ToPropertyChangeAction(XmlPropertyChangeAction propertyChangeAction, int currentUserId)
         {
             if (propertyChangeAction.UsersGroups.Any())
             {
@@ -294,6 +294,22 @@ namespace ServiceLibrary.Repositories.Workflow
                             IsGroup = u.IsGroup
                         }).ToList());
 
+                var includeCurrentUser = propertyChangeAction.IncludeCurrentUser.GetValueOrDefault(false);
+                if (!includeCurrentUser)
+                {
+                    return action;
+                }
+                var isUserAlreadyIncluded =
+                    action.UserGroups.Exists(
+                        u => !u.IsGroup.GetValueOrDefault(false) && u.Id.GetValueOrDefault(0) == currentUserId);
+                if (!isUserAlreadyIncluded)
+                {
+                    action.UserGroups.Add(new UserGroup()
+                    {
+                        Id = currentUserId,
+                        IsGroup = false
+                    });
+                }
                 return action;
             }
             return new PropertyChangeAction

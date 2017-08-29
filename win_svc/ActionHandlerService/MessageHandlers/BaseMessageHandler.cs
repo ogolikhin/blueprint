@@ -30,8 +30,7 @@ namespace ActionHandlerService.MessageHandlers
         {
             try
             {
-                var actionType = message.ActionType.ToString();
-                Log.Info($"Received Message: {actionType}");
+                Log.Info($"Received Message: {message.ActionType}");
                 if ((ConfigHelper.SupportedActionTypes & message.ActionType) == message.ActionType)
                 {
                     var tenantId = GetMessageHeaderValue(ActionMessageHeaders.TenantId, context);
@@ -44,13 +43,13 @@ namespace ActionHandlerService.MessageHandlers
                     }
                     var messageId = GetMessageHeaderValue(Headers.MessageId, context);
                     var timeSent = GetMessageHeaderValue(Headers.TimeSent, context);
-                    Log.Info($"Action handling started. Message: {actionType}. Tenant ID: {tenantId}. Message ID: {messageId}. Time Sent: {timeSent}");
+                    Log.Info($"Action handling started. Message: {message.ActionType}. Tenant ID: {tenantId}. Message ID: {messageId}. Time Sent: {timeSent}");
                     await ProcessAction(tenant, message);
-                    Log.Info($"Action handling completed. Message: {actionType}. Tenant ID: {tenantId}. Message ID: {messageId}. Time Sent: {timeSent}");
+                    Log.Info($"Action handling completed. Message: {message.ActionType}. Tenant ID: {tenantId}. Message ID: {messageId}. Time Sent: {timeSent}");
                 }
                 else
                 {
-                    throw new UnsupportedActionTypeException($"Unsupported Action Type: {actionType}");
+                    throw new UnsupportedActionTypeException($"Unsupported Action Type: {message.ActionType}");
                 }
             }
             catch (Exception ex)

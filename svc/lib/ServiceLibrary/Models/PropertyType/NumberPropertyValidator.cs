@@ -13,12 +13,17 @@ namespace ServiceLibrary.Models.PropertyType
             if (IsPropertyValueEmpty(property, propertyType))
                 return null;
 
+            if (!propertyType.IsValidate)
+            {
+                return null;
+            }
+
             //Maximum.
-            if (propertyType.IsValidate && value.CompareTo(propertyType.Range.End) > 0)
+            if (value.CompareTo(propertyType.Range.End) > 0)
                 return new PropertySetResult(property.PropertyTypeId, ErrorCodes.InvalidArtifactProperty, "Must be less than max value");
 
             //Minimum.
-            if (propertyType.IsValidate && value.CompareTo(propertyType.Range.Start) < 0)
+            if (value.CompareTo(propertyType.Range.Start) < 0)
                 return new PropertySetResult(property.PropertyTypeId, ErrorCodes.InvalidArtifactProperty, "Must be greater than min value");
 
             //Decimal places.

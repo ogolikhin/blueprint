@@ -26,7 +26,7 @@ namespace ActionHandlerServiceTests
             int jobId = 10;
             _repositoryMock.Setup(m => m.AddJobMessage(It.IsAny<JobType>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<int?>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(jobId);
-            _tenantInformation = new TenantInformation { BlueprintConnectionString = "", TenantId = "", Settings = "" };
+            _tenantInformation = new TenantInformation { BlueprintConnectionString = "", TenantId = ""};
         }
 
         [TestMethod]

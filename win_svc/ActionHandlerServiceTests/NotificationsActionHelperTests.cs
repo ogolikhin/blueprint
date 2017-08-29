@@ -23,7 +23,7 @@ namespace ActionHandlerServiceTests
             var tenantInformation = new TenantInformation
             {
                 TenantId = Guid.NewGuid().ToString(),
-                Settings = "",
+                
                 BlueprintConnectionString = ""
             };
             var message = new NotificationMessage

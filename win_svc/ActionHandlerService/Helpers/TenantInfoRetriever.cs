@@ -55,7 +55,7 @@ namespace ActionHandlerService.Helpers
             {
                 case Tenancy.Single:
                     Log.Info("Retrieving single tenant.");
-                    var tenant = new TenantInformation {TenantId = _defaultTentantId, BlueprintConnectionString = ConfigHelper.SingleTenancyConnectionString, Settings = DefaultTenantSettings};
+                    var tenant = new TenantInformation {TenantId = _defaultTentantId, BlueprintConnectionString = ConfigHelper.SingleTenancyConnectionString};
                     tenants.Add(tenant.TenantId, tenant);
                     break;
                 case Tenancy.Multiple:

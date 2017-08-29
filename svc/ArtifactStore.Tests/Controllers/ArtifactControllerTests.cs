@@ -18,6 +18,51 @@ namespace ArtifactStore.Controllers
     [TestClass]
     public class ArtifactControllerTests
     {
+        private const int userId = 1;
+        private Session session;
+        private HashSet<int> artifactIds;
+        private List<ProcessInfoDto> processInfo;
+        private Mock<ISqlArtifactRepository> mockArtifactRepository;
+        private Mock<IServiceLogRepository> mockServiceLogRepository;
+        private Mock<IArtifactPermissionsRepository> mockArtifactPermissionsRepository;
+        private ArtifactController artifactController;
+
+        [TestInitialize]
+        public void Initialize()
+        {
+            session = new Session {UserId = userId};
+            artifactIds = new HashSet<int>() { 1, 2, 3 };
+            processInfo = new List<ProcessInfoDto>()
+            {
+                new ProcessInfoDto()
+                {
+                    ItemId = 1,
+                    ProcessType = ProcessType.None
+                },
+                new ProcessInfoDto()
+                {
+                    ItemId = 2,
+                    ProcessType = ProcessType.None
+                },
+                new ProcessInfoDto()
+                {
+                    ItemId = 3,
+                    ProcessType = ProcessType.None
+                }
+            };
+
+            mockArtifactRepository = new Mock<ISqlArtifactRepository>();
+            mockServiceLogRepository = new Mock<IServiceLogRepository>();
+            mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
+            artifactController = new ArtifactController(mockArtifactRepository.Object,
+                mockArtifactPermissionsRepository.Object, mockServiceLogRepository.Object)
+            {
+                Request = new HttpRequestMessage()
+            };
+
+            artifactController.Request.Properties[ServiceConstants.SessionProperty] = session;
+        }
+
         [TestMethod]
         public async Task GetProjectChildrenAsync_Success()
         {
@@ -207,43 +252,9 @@ namespace ArtifactStore.Controllers
         public async Task Artifact_GetProcessInfo_Success()
         {
             //Arrange
-            const int userId = 1;
-            var session = new Session { UserId = userId };
-
-            HashSet<int> artifactIds = new HashSet<int>() { 1, 2, 3 };
-
-            List<ProcessInfoDto> processInfo = new List<ProcessInfoDto>()
-            {
-                new ProcessInfoDto()
-                {
-                    ItemId = 1,
-                    ProcessType = ProcessType.None
-                },
-                new ProcessInfoDto()
-                {
-                    ItemId = 2,
-                    ProcessType = ProcessType.None
-                },
-                new ProcessInfoDto()
-                {
-                    ItemId = 3,
-                    ProcessType = ProcessType.None
-                }
-            };
-
-            var mockArtifactRepository = new Mock<ISqlArtifactRepository>();
             mockArtifactRepository.Setup(r => r.GetProcessInformationAsync(artifactIds))
                                   .ReturnsAsync(processInfo);
 
-            var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
-            var mockServiceLogRepository = new Mock<IServiceLogRepository>();
-            var artifactController = new ArtifactController(mockArtifactRepository.Object, mockArtifactPermissionsRepository.Object, mockServiceLogRepository.Object)
-            {
-                Request = new HttpRequestMessage()
-            };
-            artifactController.Request.Properties[ServiceConstants.SessionProperty] = session;
-
-            
             //Act
             var result = await artifactController.GetProcessInformationAsync(artifactIds);
             
@@ -256,25 +267,11 @@ namespace ArtifactStore.Controllers
         public async Task Artifact_GetProcessInfo_ThrowsBadRequestException()
         {
             //Arrange
-            const int userId = 1;
-            var session = new Session { UserId = userId };
-
-            HashSet<int> artifactIds = null;
-
-            List<ProcessInfoDto> processInfo = new List<ProcessInfoDto>() {};
-
-            var mockArtifactRepository = new Mock<ISqlArtifactRepository>();
+            artifactIds = null;
+            processInfo = new List<ProcessInfoDto>() {};
+            
             mockArtifactRepository.Setup(r => r.GetProcessInformationAsync(artifactIds))
                                   .ReturnsAsync(processInfo);
-
-            var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
-            var mockServiceLogRepository = new Mock<IServiceLogRepository>();
-            var artifactController = new ArtifactController(mockArtifactRepository.Object, mockArtifactPermissionsRepository.Object, mockServiceLogRepository.Object)
-            {
-                Request = new HttpRequestMessage()
-            };
-            artifactController.Request.Properties[ServiceConstants.SessionProperty] = session;
-
 
             //Act
             var result = await artifactController.GetProcessInformationAsync(artifactIds);

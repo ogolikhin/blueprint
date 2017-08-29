@@ -94,8 +94,8 @@ namespace AdminStore.Services.Instance
         {
             //Notification settings
             emailSettings.EnableNotifications = emailSettingsDto.EnableReviewNotifications;
-            emailSettings.EnableEmailReplies = emailSettingsDto.EnableEmailNotifications;
-            emailSettings.EnableEmailDiscussion = emailSettingsDto.EnableDiscussions;
+            emailSettings.EnableEmailReplies = emailSettingsDto.EnableDiscussions;
+            emailSettings.EnableEmailDiscussion = emailSettingsDto.EnableEmailNotifications;
 
             //Incoming settings
             emailSettings.IncomingServerType = (int)emailSettingsDto.Incoming.ServerType;

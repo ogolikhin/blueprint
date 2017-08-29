@@ -346,7 +346,7 @@ namespace AdminStore.Controllers
             
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result, typeof(OkResult));
+            Assert.IsInstanceOfType(result, typeof(OkNegotiatedContentResult<int>));
         }
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]

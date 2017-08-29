@@ -24,8 +24,8 @@ namespace ServiceLibrary.Models.Workflow
         [XmlArray("UGS"), XmlArrayItem("UG")]
         public List<XmlUserGroup> UsersGroups { get; set; }
 
-        [XmlElement("CUID")]
-        public int? CurrentUserId { get; set; }
-        public bool ShouldSerializeCurrentUserId() { return CurrentUserId.HasValue; }
+        [XmlElement("ICU")]
+        public bool? IncludeCurrentUser { get; set; }
+        public bool ShouldSerializeIncludeCurrentUser() { return IncludeCurrentUser.HasValue; }
     }
 }

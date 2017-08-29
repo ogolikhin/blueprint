@@ -528,8 +528,10 @@ namespace AdminStore.Repositories.Workflow
             return result;
         }
 
-        public async Task<IEnumerable<SqlWorkflow>> UpdateWorkflowsAsync(IEnumerable<SqlWorkflow> workflows, int revision, IDbTransaction transaction = null)
+        public async Task<int> UpdateWorkflowsAsync(IEnumerable<SqlWorkflow> workflows, int revision, IDbTransaction transaction = null)
         {
+            var versionId = 0;
+
             var prm = new DynamicParameters();
             prm.Add("@publishRevision", revision);
             prm.Add("@workflows", ToWorkflowsCollectionDataTable(workflows));
@@ -542,6 +544,11 @@ namespace AdminStore.Repositories.Workflow
                     await
                         transaction.Connection.QueryAsync<SqlWorkflow>("UpdateWorkflows", prm, transaction,
                             commandType: CommandType.StoredProcedure);
+                var sqlWorkflows = updatedWorkflows as IList<SqlWorkflow> ?? updatedWorkflows.ToList();
+                if (sqlWorkflows.Any())
+                {
+                    versionId = sqlWorkflows.First().VersionId;
+                }
             }
             else
             {
@@ -549,9 +556,14 @@ namespace AdminStore.Repositories.Workflow
                     await
                         _connectionWrapper.QueryAsync<SqlWorkflow>("UpdateWorkflows", prm, 
                             commandType: CommandType.StoredProcedure);
+                var sqlWorkflows = updatedWorkflows as IList<SqlWorkflow> ?? updatedWorkflows.ToList();
+                if (sqlWorkflows.Any())
+                {
+                    versionId = sqlWorkflows.First().VersionId;
+                }
             }
 
-            return updatedWorkflows;
+            return versionId;
         }
 
         #endregion

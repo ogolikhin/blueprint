@@ -223,9 +223,9 @@ namespace AdminStore.Controllers
             }
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
-            await _workflowService.UpdateWorkflowStatusAsync(statusUpdate, workflowId, Session.UserId);
+            var versionId = await _workflowService.UpdateWorkflowStatusAsync(statusUpdate, workflowId, Session.UserId);
 
-            return Ok();
+            return Ok(versionId);
         }
 
         /// <summary>
@@ -243,7 +243,7 @@ namespace AdminStore.Controllers
         [SessionRequired]
         [FeatureActivation(FeatureTypes.Workflow)]
         [HttpGet, NoCache]
-        [ResponseType(typeof (string))]
+        [ResponseType(typeof(string))]
         [Route("export/{workflowId:int:min(1)}")]
         public async Task<IHttpActionResult> ExportWorkflow(int workflowId)
         {

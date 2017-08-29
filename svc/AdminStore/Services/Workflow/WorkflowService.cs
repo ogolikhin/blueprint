@@ -364,8 +364,10 @@ namespace AdminStore.Services.Workflow
             return workflowDto;
         }
 
-        public async Task UpdateWorkflowStatusAsync(StatusUpdate statusUpdate, int workflowId, int userId)
+        public async Task<int> UpdateWorkflowStatusAsync(StatusUpdate statusUpdate, int workflowId, int userId)
         {
+            var versionId = 0;
+
             var existingWorkflow = await _workflowRepository.GetWorkflowDetailsAsync(workflowId);
             if (existingWorkflow == null)
             {
@@ -400,9 +402,10 @@ namespace AdminStore.Services.Workflow
                         nameof(publishRevision)));
                 }
 
-                await _workflowRepository.UpdateWorkflowsAsync(workflows, publishRevision, transaction);
+                versionId = await _workflowRepository.UpdateWorkflowsAsync(workflows, publishRevision, transaction);
             };
             await _workflowRepository.RunInTransactionAsync(action);
+            return versionId;
         }
 
         public async Task<int> DeleteWorkflows(OperationScope body, string search, int sessionUserId)

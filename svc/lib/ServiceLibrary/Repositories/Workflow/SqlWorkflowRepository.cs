@@ -87,7 +87,7 @@ namespace ServiceLibrary.Repositories.Workflow
                 transaction);
         }
 
-        public async Task<Dictionary<int, List<DPropertyType>>> GetCustomItemTypeToPropertiesMap(
+        public async Task<Dictionary<int, List<WorkflowPropertyType>>> GetCustomItemTypeToPropertiesMap(
             int userId,
             int artifactId,
             int projectId,
@@ -374,7 +374,7 @@ namespace ServiceLibrary.Repositories.Workflow
             }).ToList();
         }
 
-        private async Task<Dictionary<int, List<DPropertyType>>> GetCustomPropertyTypesFromStandardIds(
+        private async Task<Dictionary<int, List<WorkflowPropertyType>>> GetCustomPropertyTypesFromStandardIds(
             IEnumerable<int> itemTypeIds, 
             IEnumerable<int> instancePropertyTypeIds, 
             int projectId,
@@ -394,17 +394,17 @@ namespace ServiceLibrary.Repositories.Workflow
 
         }
 
-        private Dictionary<int, List<DPropertyType>> ToItemTypePropertyTypesDictionary(IEnumerable<SqlPropertyType> sqlPropertyTypes)
+        private Dictionary<int, List<WorkflowPropertyType>> ToItemTypePropertyTypesDictionary(IEnumerable<SqlPropertyType> sqlPropertyTypes)
         {
-            var dictionary = new Dictionary<int, List<DPropertyType>>();
+            var dictionary = new Dictionary<int, List<WorkflowPropertyType>>();
             foreach (var sqlPropertyType in sqlPropertyTypes)
             {
-                DPropertyType dProperty;
+                WorkflowPropertyType workflowProperty;
                 switch (sqlPropertyType.PrimitiveType)
                 {
                     case PropertyPrimitiveType.Number:
                     {
-                        dProperty = new DNumberPropertyType
+                        workflowProperty = new NumberPropertyType
                         {
                             AllowMultiple = sqlPropertyType.AllowMultiple,
                             DefaultValue = PropertyHelper.ToDecimal((byte[])sqlPropertyType.DecimalDefaultValue),
@@ -428,7 +428,7 @@ namespace ServiceLibrary.Repositories.Workflow
                     }
                     case PropertyPrimitiveType.Date:
                     {
-                        dProperty = new DDatePropertyType
+                        workflowProperty = new DatePropertyType
                         {
                             AllowMultiple = sqlPropertyType.AllowMultiple,
                             DefaultValue = sqlPropertyType.DateDefaultValue,
@@ -450,7 +450,7 @@ namespace ServiceLibrary.Repositories.Workflow
                         break;
                     }
                     case PropertyPrimitiveType.User:
-                        dProperty = new DUserPropertyType()
+                        workflowProperty = new UserPropertyType()
                         {
                             DefaultLabels = sqlPropertyType.UserDefaultLabel,
                             DefaultValues = sqlPropertyType.UserDefaultValue,
@@ -466,7 +466,7 @@ namespace ServiceLibrary.Repositories.Workflow
                     //TODO: add other DPropertyTypes
                     default:
                         {
-                            dProperty = new DPropertyType
+                            workflowProperty = new WorkflowPropertyType
                             {
                                 AllowMultiple = sqlPropertyType.AllowMultiple,
                                 DefaultValidValueId = sqlPropertyType.DefaultValidValueId,
@@ -486,11 +486,11 @@ namespace ServiceLibrary.Repositories.Workflow
                
                 if (dictionary.ContainsKey(sqlPropertyType.ItemTypeId))
                 {
-                    dictionary[sqlPropertyType.ItemTypeId].Add(dProperty);
+                    dictionary[sqlPropertyType.ItemTypeId].Add(workflowProperty);
                 }
                 else
                 {
-                    dictionary.Add(sqlPropertyType.ItemTypeId, new List<DPropertyType> { dProperty});
+                    dictionary.Add(sqlPropertyType.ItemTypeId, new List<WorkflowPropertyType> { workflowProperty});
                 }
             }
             return dictionary;

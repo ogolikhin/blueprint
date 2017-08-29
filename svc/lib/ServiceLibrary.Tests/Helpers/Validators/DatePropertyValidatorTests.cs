@@ -15,8 +15,8 @@ namespace ServiceLibrary.Helpers.Validators
     {
         private DatePropertyValidator _validator;
         private PropertyLite _propertyLite;
-        private DDatePropertyType _propertyType;
-        private List<DPropertyType> _propertyTypes;
+        private DatePropertyType _propertyType;
+        private List<WorkflowPropertyType> _propertyTypes;
         private const int DefaultPropertyTypeId = 10;
         private const int DefaultInstancePropertyTypeId = 20;
         private Mock<IValidationContext> _validationContextMock;
@@ -30,7 +30,7 @@ namespace ServiceLibrary.Helpers.Validators
                 PropertyTypeId = DefaultInstancePropertyTypeId,
                 DateValue = new DateTime(2018, 1, 1)
             };
-            _propertyType = new DDatePropertyType
+            _propertyType = new DatePropertyType
             {
                 PropertyTypeId = DefaultPropertyTypeId,
                 InstancePropertyTypeId = DefaultInstancePropertyTypeId,
@@ -41,7 +41,7 @@ namespace ServiceLibrary.Helpers.Validators
                 },
                 IsValidate = true
             };
-            _propertyTypes = new List<DPropertyType>
+            _propertyTypes = new List<WorkflowPropertyType>
             {
                 _propertyType
             };

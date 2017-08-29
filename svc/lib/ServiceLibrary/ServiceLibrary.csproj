@@ -242,10 +242,10 @@
     <Compile Include="Models\ProjectNameIdPair.cs" />
     <Compile Include="Models\ProjectPermissions.cs" />
     <Compile Include="Models\PropertyType\DatePropertyValidator.cs" />
-    <Compile Include="Models\PropertyType\DDatePropertyType.cs" />
-    <Compile Include="Models\PropertyType\DNumberPropertyType.cs" />
-    <Compile Include="Models\PropertyType\DPropertyType.cs" />
-    <Compile Include="Models\PropertyType\DUserPropertyType.cs" />
+    <Compile Include="Models\PropertyType\DatePropertyType.cs" />
+    <Compile Include="Models\PropertyType\NumberPropertyType.cs" />
+    <Compile Include="Models\PropertyType\WorkflowPropertyType.cs" />
+    <Compile Include="Models\PropertyType\UserPropertyType.cs" />
     <Compile Include="Models\PropertyType\NumberPropertyValidator.cs" />
     <Compile Include="Models\PropertyType\PropertyLite.cs" />
     <Compile Include="Models\PropertyType\PropertySetResult.cs" />

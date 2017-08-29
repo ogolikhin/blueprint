@@ -51,7 +51,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
             return executionParameters.Validators.Select(v => v.Validate(PropertyLiteValue, executionParameters.CustomPropertyTypes, executionParameters.ValidationContext)).FirstOrDefault(r => r != null);
         }
 
-        protected virtual void PopulatePropertyLite(DPropertyType propertyType)
+        protected virtual void PopulatePropertyLite(WorkflowPropertyType propertyType)
         {
             switch (propertyType?.PrimitiveType)
             {

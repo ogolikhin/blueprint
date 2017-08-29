@@ -18,7 +18,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
     {
         private Mock<ISaveArtifactRepository> _saveRepositoryMock;
         private Mock<IReusePropertyValidator> _reuseValidatorMock;
-        private List<DPropertyType> _customPropertyTypes;
+        private List<WorkflowPropertyType> _customPropertyTypes;
 
         private IExecutionParameters _executionParameters;
         private PropertyChangeAction _propertyChangeAction;
@@ -36,9 +36,9 @@ namespace ServiceLibrary.Models.Workflow.Actions
             };
             _saveRepositoryMock = new Mock<ISaveArtifactRepository>();
             _reuseValidatorMock = new Mock<IReusePropertyValidator>();
-            _customPropertyTypes = new List<DPropertyType>();
+            _customPropertyTypes = new List<WorkflowPropertyType>();
             _customPropertyTypes.Add(
-                new DNumberPropertyType()
+                new NumberPropertyType()
                 {
                     InstancePropertyTypeId = DefaultInstancePropertyTypeId,
                     PrimitiveType = PropertyPrimitiveType.Number

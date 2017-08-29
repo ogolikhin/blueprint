@@ -5,6 +5,6 @@ namespace ServiceLibrary.Helpers.Validators
 {
     public interface IPropertyValidator
     {
-        PropertySetResult Validate(PropertyLite property, List<DPropertyType> propertyTypes, IValidationContext validationContext);
+        PropertySetResult Validate(PropertyLite property, List<WorkflowPropertyType> propertyTypes, IValidationContext validationContext);
     }
 }

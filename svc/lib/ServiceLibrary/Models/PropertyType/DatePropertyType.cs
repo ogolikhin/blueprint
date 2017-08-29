@@ -2,7 +2,7 @@
 
 namespace ServiceLibrary.Models.PropertyType
 {
-    public class DDatePropertyType : DPropertyType
+    public class DatePropertyType : WorkflowPropertyType
     {
         public bool IsValidate { get; set; }
         public Range<DateTime?> Range { get; set; }

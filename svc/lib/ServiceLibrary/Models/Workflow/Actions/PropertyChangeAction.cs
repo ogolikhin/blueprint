@@ -83,37 +83,24 @@ namespace ServiceLibrary.Models.Workflow.Actions
             }
         }
 
-        public const string CurrentDate = "@CURRENTDATE";
-        public const string Plus = "+";
-
         public static DateTime ParseDateValue(string dateValue, ITimeProvider timeProvider)
         {
-            var value = new string(dateValue.ToUpperInvariant().Where(c => !char.IsWhiteSpace(c)).ToArray());
-
-            //today
-            if (value.Equals(CurrentDate))
+            //specific date
+            const string dateFormat = WorkflowConstants.Iso8601DateFormat;
+            DateTime date;
+            if (DateTime.TryParseExact(dateValue, dateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
             {
-                return timeProvider.Today;
+                return date;
             }
 
             //today + days
-            if (value.Contains(CurrentDate))
+            int days;
+            if (int.TryParse(dateValue, out days))
             {
-                var daysToAdd = value.Replace(CurrentDate, string.Empty).Replace(Plus, string.Empty);
-                int daysInt;
-                if (int.TryParse(daysToAdd, out daysInt))
-                {
-                    return timeProvider.Today.AddDays(daysInt);
-                }
+                return timeProvider.Today.AddDays(days);
             }
 
-            //specific date
-            DateTime date;
-            if (!DateTime.TryParse(dateValue, out date))
-            {
-                throw new FormatException("Invalid date value: " + dateValue);
-            }
-            return date;
+            throw new FormatException($"Invalid date value: {dateValue}. The date format must be {dateFormat}, or an integer.");
         }
     }
 }

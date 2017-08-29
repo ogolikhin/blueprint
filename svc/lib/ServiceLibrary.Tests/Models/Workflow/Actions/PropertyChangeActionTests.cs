@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -90,10 +91,10 @@ namespace ServiceLibrary.Models.Workflow.Actions
         }
 
         [TestMethod]
-        public void ParseDateValue_ReturnsCurrentDate_WhenDateValueIsCurrentDate()
+        public void ParseDateValue_ReturnsCurrentDate_WhenDateValueIsZero()
         {
             //arrange
-            const string dateValue = PropertyChangeAction.CurrentDate;
+            const string dateValue = "0";
             var today = new DateTime(2017, 1, 1);
             var mockTimeProvider = new Mock<ITimeProvider>();
             mockTimeProvider.Setup(m => m.Today).Returns(today);
@@ -104,11 +105,11 @@ namespace ServiceLibrary.Models.Workflow.Actions
         }
 
         [TestMethod]
-        public void ParseDateValue_ReturnsFutureDate_WhenDateValueIsCurrentDatePlusInteger()
+        public void ParseDateValue_ReturnsFutureDate_WhenDateValueIsPositiveInteger()
         {
             //arrange
             const int daysToAdd = 1;
-            var dateValue = PropertyChangeAction.CurrentDate + PropertyChangeAction.Plus + daysToAdd;
+            var dateValue = daysToAdd.ToString(CultureInfo.InvariantCulture);
             var today = new DateTime(2018, 2, 2);
             var mockTimeProvider = new Mock<ITimeProvider>();
             mockTimeProvider.Setup(m => m.Today).Returns(today);
@@ -120,15 +121,42 @@ namespace ServiceLibrary.Models.Workflow.Actions
         }
 
         [TestMethod]
-        public void ParseDateValue_ReturnsSpecifiedDate_WhenDateValueIsASpecificDate()
+        public void ParseDateValue_ReturnsPastDate_WhenDateValueIsNegativeInteger()
         {
             //arrange
-            var expectedDate = new DateTime(2019, 3, 3);
-            var dateValue = expectedDate.ToShortDateString();
+            const int daysToAdd = -1;
+            var dateValue = daysToAdd.ToString(CultureInfo.InvariantCulture);
+            var today = new DateTime(2019, 3, 3);
+            var mockTimeProvider = new Mock<ITimeProvider>();
+            mockTimeProvider.Setup(m => m.Today).Returns(today);
+            //act
+            var date = PropertyChangeAction.ParseDateValue(dateValue, mockTimeProvider.Object);
+            //assert
+            var expected = today.AddDays(daysToAdd);
+            Assert.AreEqual(expected, date);
+        }
+
+        [TestMethod]
+        public void ParseDateValue_ReturnsSpecifiedDate_WhenDateValueIsASpecificDateInTheCorrectFormat()
+        {
+            //arrange
+            var expectedDate = new DateTime(2020, 4, 4);
+            var dateValue = expectedDate.ToString(WorkflowConstants.Iso8601DateFormat, CultureInfo.InvariantCulture);
             //act
             var date = PropertyChangeAction.ParseDateValue(dateValue, new TimeProvider());
             //assert
             Assert.AreEqual(expectedDate, date);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(FormatException))]
+        public void ParseDateValue_ReturnsSpecifiedDate_WhenDateValueIsASpecificDateInAnUnsupportedFormat()
+        {
+            //arrange
+            var date = new DateTime(2021, 5, 5);
+            var unsupportedDateFormat = date.ToLongDateString();
+            //act
+            PropertyChangeAction.ParseDateValue(unsupportedDateFormat, new TimeProvider());
         }
 
         [TestMethod]

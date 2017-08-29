@@ -208,7 +208,8 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                 DateDefaultValue = pv.PrimitiveType == PropertyPrimitiveType.Date ? pv.DateDefaultValue : null,
                 DecimalDefaultValue = pv.PrimitiveType == PropertyPrimitiveType.Number
                                       ? PropertyHelper.ToDecimal(pv.DecimalDefaultValue) : null,
-                UserGroupDefaultValue = pv.PrimitiveType == PropertyPrimitiveType.User ? ParseUserGroups(pv.UserDefaultValue) : null,
+                UserGroupDefaultValue = pv.PrimitiveType == PropertyPrimitiveType.User 
+                                      ? PropertyHelper.ParseUserGroups(pv.UserDefaultValue) : null,
                 MinDate = pv.PrimitiveType == PropertyPrimitiveType.Date && pv.Validate.GetValueOrDefault() ? pv.MinDate : null,
                 MaxDate = pv.PrimitiveType == PropertyPrimitiveType.Date && pv.Validate.GetValueOrDefault() ? pv.MaxDate : null,
                 MinNumber = pv.PrimitiveType == PropertyPrimitiveType.Number && pv.Validate.GetValueOrDefault()
@@ -255,24 +256,6 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                 it.CustomPropertyTypeIds.AddRange(ptIds);
 
             return it;
-        }
-
-        private static List<UserGroup> ParseUserGroups(string userGroups)
-        {
-            if (string.IsNullOrWhiteSpace(userGroups))
-                return null;
-
-            var result = new List<UserGroup>();
-            var tokens = userGroups.Split('\n');
-            foreach (var token in tokens)
-            {
-                var isGroup = token.StartsWith("g", StringComparison.Ordinal);
-                int id;
-                if (int.TryParse(isGroup ? token.TrimStart('g') : token, out id))
-                    result.Add(new UserGroup {Id = id, IsGroup = isGroup});
-            }
-
-            return result;
         }
 
         private static int? FindDefaultValidValueId(List<XmlCustomPropertyValidValue> validValues)

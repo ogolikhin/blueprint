@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ServiceLibrary.Helpers;
+using Moq;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.PropertyType;
 
-namespace ArtifactStore.Helpers.Validators
+namespace ServiceLibrary.Helpers.Validators
 {
     /// <summary>
     /// Tests for the DatePropertyValidator
@@ -19,6 +19,7 @@ namespace ArtifactStore.Helpers.Validators
         private List<DPropertyType> _propertyTypes;
         private const int DefaultPropertyTypeId = 10;
         private const int DefaultInstancePropertyTypeId = 20;
+        private Mock<IValidationContext> _validationContextMock;
 
         [TestInitialize]
         public void TestInitialize()
@@ -44,6 +45,7 @@ namespace ArtifactStore.Helpers.Validators
             {
                 _propertyType
             };
+            _validationContextMock = new Mock<IValidationContext>();
         }
 
         [TestMethod]
@@ -56,7 +58,7 @@ namespace ArtifactStore.Helpers.Validators
             _propertyType.Range.End = date.AddYears(1);
 
             //act
-            var result = _validator.Validate(_propertyLite, _propertyTypes);
+            var result = _validator.Validate(_propertyLite, _propertyTypes, _validationContextMock.Object);
 
             //assert
             Assert.IsNull(result);
@@ -72,7 +74,7 @@ namespace ArtifactStore.Helpers.Validators
             _propertyType.Range.End = date.AddYears(2);
 
             //act
-            var result = _validator.Validate(_propertyLite, _propertyTypes);
+            var result = _validator.Validate(_propertyLite, _propertyTypes, _validationContextMock.Object);
 
             //assert
             Assert.AreEqual(ErrorCodes.InvalidArtifactProperty, result.ErrorCode);
@@ -88,7 +90,7 @@ namespace ArtifactStore.Helpers.Validators
             _propertyType.Range.End = date.AddYears(-1);
 
             //act
-            var result = _validator.Validate(_propertyLite, _propertyTypes);
+            var result = _validator.Validate(_propertyLite, _propertyTypes, _validationContextMock.Object);
 
             //assert
             Assert.AreEqual(ErrorCodes.InvalidArtifactProperty, result.ErrorCode);
@@ -101,7 +103,7 @@ namespace ArtifactStore.Helpers.Validators
             _propertyLite.DateValue = null;
 
             //act
-            var result = _validator.Validate(_propertyLite, _propertyTypes);
+            var result = _validator.Validate(_propertyLite, _propertyTypes, _validationContextMock.Object);
 
             //assert
             Assert.IsNull(result);

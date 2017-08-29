@@ -37,7 +37,7 @@ namespace AdminStore.Services.Workflow
         TransitionEventNameExceedsLimit24,
         PropertyChangeEventNameExceedsLimit24,
         NewArtifactEventNameExceedsLimit24,
-        WorkflowEventNameNotUniqueInWorkflow,
+        StateWithDuplicateOutgoingTransitions,
         TransitionCountOnStateExceedsLimit10,
         TransitionStateNotFound,
         TransitionStartStateNotSpecified,

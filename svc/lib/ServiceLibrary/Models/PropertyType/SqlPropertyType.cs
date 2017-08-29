@@ -26,6 +26,8 @@ namespace ServiceLibrary.Models.PropertyType
         public bool? Required { get; set; }
         public bool? Validate { get; set; }
         public int? DefaultValidValueId { get; set; }
+        public string UserDefaultValue { get; set; }
+        public string UserDefaultLabel { get; set; }
     }
 
 }

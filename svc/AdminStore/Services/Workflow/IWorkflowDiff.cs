@@ -42,10 +42,10 @@ namespace AdminStore.Services.Workflow
         public List<IeEvent> NotFoundEvents { get; } = new List<IeEvent>();
         public List<IeEvent> UnchangedEvents { get; } = new List<IeEvent>();
 
-        public List<IeArtifactType> AddedProjectArtifactTypes { get; } = new List<IeArtifactType>();
+        public List<KeyValuePair<int, IeArtifactType>> AddedProjectArtifactTypes { get; } = new List<KeyValuePair<int, IeArtifactType>>();
         // From the current workflow
-        public List<IeArtifactType> DeletedProjectArtifactTypes { get; } = new List<IeArtifactType>();
-        public List<IeArtifactType> NotFoundProjectArtifactTypes { get; } = new List<IeArtifactType>();
-        public List<IeArtifactType> UnchangedProjectArtifactTypes { get; } = new List<IeArtifactType>();
+        public List<KeyValuePair<int, IeArtifactType>> DeletedProjectArtifactTypes { get; } = new List<KeyValuePair<int, IeArtifactType>>();
+        public List<KeyValuePair<int, IeArtifactType>> NotFoundProjectArtifactTypes { get; } = new List<KeyValuePair<int, IeArtifactType>>();
+        public List<KeyValuePair<int, IeArtifactType>> UnchangedProjectArtifactTypes { get; } = new List<KeyValuePair<int, IeArtifactType>>();
     }
 }

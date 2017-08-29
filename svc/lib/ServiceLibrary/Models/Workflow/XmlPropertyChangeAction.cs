@@ -21,11 +21,7 @@ namespace ServiceLibrary.Models.Workflow
         public List<int> ValidValues { get; set; }
 
         [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
-        [XmlArray("UGS"), XmlArrayItem("UG")]
-        public List<XmlUserGroup> UsersGroups { get; set; }
-
-        [XmlElement("ICU")]
-        public bool? IncludeCurrentUser { get; set; }
-        public bool ShouldSerializeIncludeCurrentUser() { return IncludeCurrentUser.HasValue; }
+        [XmlElement("UGS", IsNullable = false)]
+        public XmlUsersGroups UsersGroups { get; set; }
     }
 }

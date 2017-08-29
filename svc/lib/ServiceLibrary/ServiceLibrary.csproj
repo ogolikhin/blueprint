@@ -336,6 +336,7 @@
     <Compile Include="Models\Workflow\XmlStateCondition.cs" />
     <Compile Include="Models\Workflow\XmlTriggerPermissions.cs" />
     <Compile Include="Models\Workflow\XmlUserGroup.cs" />
+    <Compile Include="Models\Workflow\XmlUsersGroups.cs" />
     <Compile Include="Models\Workflow\XmlWorkflowEventTrigger.cs" />
     <Compile Include="Models\Workflow\XmlWorkflowEventTriggers.cs" />
     <Compile Include="Models\Email\NotificationEmail.cs" />

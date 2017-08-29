@@ -204,7 +204,7 @@ namespace ArtifactStore.Controllers
         {
             if (artifactIds == null)
             {
-                throw new BadRequestException("Please provide valid artifact ids");
+                throw new BadRequestException(ErrorMessages.ArtifactIdsNotValid);
             }
 
             return await ArtifactRepository.GetProcessInformationAsync(artifactIds);

@@ -250,5 +250,35 @@ namespace ArtifactStore.Controllers
             //Assert
             Assert.AreSame(processInfo, result);
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task Artifact_GetProcessInfo_ThrowsBadRequestException()
+        {
+            //Arrange
+            const int userId = 1;
+            var session = new Session { UserId = userId };
+
+            HashSet<int> artifactIds = null;
+
+            List<ProcessInfoDto> processInfo = new List<ProcessInfoDto>() {};
+
+            var mockArtifactRepository = new Mock<ISqlArtifactRepository>();
+            mockArtifactRepository.Setup(r => r.GetProcessInformationAsync(artifactIds))
+                                  .ReturnsAsync(processInfo);
+
+            var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
+            var mockServiceLogRepository = new Mock<IServiceLogRepository>();
+            var artifactController = new ArtifactController(mockArtifactRepository.Object, mockArtifactPermissionsRepository.Object, mockServiceLogRepository.Object)
+            {
+                Request = new HttpRequestMessage()
+            };
+            artifactController.Request.Properties[ServiceConstants.SessionProperty] = session;
+
+
+            //Act
+            var result = await artifactController.GetProcessInformationAsync(artifactIds);
+
+        }
     }
 }

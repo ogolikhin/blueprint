@@ -106,6 +106,8 @@
         public static readonly string RolesForProjectNotExist = "Roles for the requested project are missing";
         public static readonly string InvalidDeleteRoleAssignmentsParameters = "Invalid parameters to delete role assignments.";
         public static readonly string GeneralErrorOfDeletingRoleAssignments = "An error has occurred when the operation was being performed at SQL level.";
+        //Artifacts
+        public static readonly string ArtifactIdsNotValid = "Please provide valid artifact ids";
 
     }
 }

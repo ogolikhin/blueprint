@@ -237,7 +237,7 @@ namespace AdminStore.Services.Instance
 
             if (string.IsNullOrWhiteSpace(incomingSettings.AccountPassword))
             {
-                throw new BadRequestException("Please enter the system email account username.", ErrorCodes.EmptyEmailPassword);
+                throw new BadRequestException("Please enter the system email account password.", ErrorCodes.EmptyEmailPassword);
             }
         }
 

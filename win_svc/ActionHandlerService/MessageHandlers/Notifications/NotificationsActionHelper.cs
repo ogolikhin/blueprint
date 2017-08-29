@@ -30,7 +30,7 @@ namespace ActionHandlerService.MessageHandlers.Notifications
             var emailSettings = await new EmailSettingsRetriever().GetEmailSettings(repository);
             if (emailSettings == null)
             {
-                Logger.Log($"No email settings provided for tenant {tenant.Id}", message, tenant, LogLevel.Error);
+                Logger.Log($"No email settings provided for tenant {tenant.TenantId}", message, tenant, LogLevel.Error);
                 return await Task.FromResult(SendEmailResult.Error);
             }
 

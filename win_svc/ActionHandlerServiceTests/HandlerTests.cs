@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using ActionHandlerService.Helpers;
 using ActionHandlerService.MessageHandlers;
@@ -43,7 +44,14 @@ namespace ActionHandlerServiceTests
             _actionHelperMock = new Mock<IActionHelper>();
             _handleActionSetup = _actionHelperMock.Setup(m => m.HandleAction(It.IsAny<TenantInformation>(), It.IsAny<ActionMessage>(), It.IsAny<ActionHandlerServiceRepository>()));
             _actionHandlerServiceRepositoryMock = new Mock<IActionHandlerServiceRepository>();
-            _actionHandlerServiceRepositoryMock.Setup(a => a.GetTenantId()).ReturnsAsync(TenantId);
+            var tenants = new List<TenantInformation>
+            {
+                new TenantInformation
+                {
+                    TenantId = TenantId
+                }
+            };
+            _actionHandlerServiceRepositoryMock.Setup(a => a.GetTenantsFromTenantsDb()).ReturnsAsync(tenants);
             _configHelper = new ConfigHelper();
             _tenantInfoRetriever = new TenantInfoRetriever(_actionHandlerServiceRepositoryMock.Object, _configHelper);
         }

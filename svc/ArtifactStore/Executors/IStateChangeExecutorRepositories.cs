@@ -16,5 +16,6 @@ namespace ArtifactStore.Executors
         ISaveArtifactRepository SaveArtifactRepository { get; }
         IApplicationSettingsRepository ApplicationSettingsRepository { get; }
         IServiceLogRepository ServiceLogRepository { get; }
+        IUsersRepository UsersRepository { get; }
     }
 }

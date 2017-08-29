@@ -23,5 +23,13 @@ namespace ServiceLibrary.Repositories
         Task<IEnumerable<UserInfo>> GetUsersByEmail(string email, bool? guestsOnly = false);
 
         Task<bool> IsInstanceAdmin(bool contextUser, int sessionUserId);
+
+        Task<IEnumerable<SqlGroup>> GetExistingGroupsByNamesAsync(IEnumerable<string> groupNames, bool instanceOnly);
+
+        Task<IEnumerable<SqlGroup>> GetExistingGroupsByIds(IEnumerable<int> groupIds, bool instanceOnly);
+
+        Task<IEnumerable<SqlUser>> GetExistingUsersByNamesAsync(IEnumerable<string> userNames);
+
+        Task<IEnumerable<SqlUser>> GetExistingUsersByIdsAsync(IEnumerable<int> userIds);
     }
 }

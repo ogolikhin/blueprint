@@ -280,37 +280,9 @@ namespace ServiceLibrary.Repositories.Workflow
 
         private PropertyChangeAction ToPropertyChangeAction(XmlPropertyChangeAction propertyChangeAction, int currentUserId)
         {
-            if (propertyChangeAction.UsersGroups?.UsersGroups?.Any() ?? false)
+            if (propertyChangeAction.UsersGroups!= null)
             {
-                var action = new PropertyChangeUserGroupsAction
-                {
-                    InstancePropertyTypeId = propertyChangeAction.PropertyTypeId,
-                    PropertyValue = propertyChangeAction.PropertyValue
-                };
-                action.UserGroups.AddRange(propertyChangeAction.UsersGroups.UsersGroups.Select(
-                        u => new UserGroup
-                        {
-                            Id = u.Id,
-                            IsGroup = u.IsGroup
-                        }).ToList());
-
-                var includeCurrentUser = propertyChangeAction.IncludeCurrentUser.GetValueOrDefault(false);
-                if (!includeCurrentUser)
-                {
-                    return action;
-                }
-                var isUserAlreadyIncluded =
-                    action.UserGroups.Exists(
-                        u => !u.IsGroup.GetValueOrDefault(false) && u.Id.GetValueOrDefault(0) == currentUserId);
-                if (!isUserAlreadyIncluded)
-                {
-                    action.UserGroups.Add(new UserGroup()
-                    {
-                        Id = currentUserId,
-                        IsGroup = false
-                    });
-                }
-                return action;
+                return ToPropertyChangeUserGroupAction(propertyChangeAction, currentUserId);
             }
             return new PropertyChangeAction
             {
@@ -318,7 +290,45 @@ namespace ServiceLibrary.Repositories.Workflow
                 PropertyValue = propertyChangeAction.PropertyValue
             };
         }
-        
+
+        private PropertyChangeAction ToPropertyChangeUserGroupAction(
+            XmlPropertyChangeAction propertyChangeAction, 
+            int currentUserId
+            )
+        {
+            var action = new PropertyChangeUserGroupsAction
+            {
+                InstancePropertyTypeId = propertyChangeAction.PropertyTypeId,
+                PropertyValue = propertyChangeAction.PropertyValue
+            };
+            if (propertyChangeAction.UsersGroups.UsersGroups?.Any() ?? false)
+            {
+                action.UserGroups.AddRange(propertyChangeAction.UsersGroups.UsersGroups.Select(
+                    u => new UserGroup
+                    {
+                        Id = u.Id,
+                        IsGroup = u.IsGroup
+                    }).ToList());
+            }
+            var includeCurrentUser = propertyChangeAction.UsersGroups.IncludeCurrentUser.GetValueOrDefault(false);
+            if (!includeCurrentUser)
+            {
+                return action;
+            }
+            var isUserAlreadyIncluded =
+                action.UserGroups.Exists(
+                    u => !u.IsGroup.GetValueOrDefault(false) && u.Id.GetValueOrDefault(0) == currentUserId);
+            if (!isUserAlreadyIncluded)
+            {
+                action.UserGroups.Add(new UserGroup()
+                {
+                    Id = currentUserId,
+                    IsGroup = false
+                });
+            }
+            return action;
+        }
+
         private WorkflowEventAction ToGenerateAction(XmlGenerateAction generateAction)
         {
             switch (generateAction.GenerateActionType)

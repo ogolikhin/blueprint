@@ -2,11 +2,10 @@
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using ActionHandlerService.Models;
-using BluePrintSys.Messaging.Models.Actions;
 using Dapper;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories.Workflow;
 
 namespace ActionHandlerService.Repositories
 {
@@ -36,20 +35,29 @@ namespace ActionHandlerService.Repositories
         /// Calls the stored procedure GetPropertyModificationsForRevisionId
         /// </summary>
         Task<List<SqlModifiedProperty>> GetPropertyModificationsForRevisionIdAsync(int revisionId);
+
+        Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForTransition(int userId, int artifactId,
+            int workflowId, int fromStateId, int toStateId);
+
+        Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForNewArtifactEvent(int userId,
+            int artifactId, int revisionId);
     }
 
     public class ArtifactsPublishedRepository : ActionHandlerServiceRepository, IArtifactsPublishedRepository
     {
-        public ArtifactsPublishedRepository(string connectionString) : base(connectionString)
+        private readonly IWorkflowRepository _workflowRepository;
+
+        public ArtifactsPublishedRepository(string connectionString) : this(new SqlConnectionWrapper(connectionString))
         {
         }
 
-        public ArtifactsPublishedRepository(ISqlConnectionWrapper connectionWrapper) : base(connectionWrapper)
+        public ArtifactsPublishedRepository(ISqlConnectionWrapper connectionWrapper) : this(connectionWrapper, new SqlArtifactPermissionsRepository(connectionWrapper))
         {
         }
 
         public ArtifactsPublishedRepository(ISqlConnectionWrapper connectionWrapper, IArtifactPermissionsRepository artifactPermissionsRepository) : base(connectionWrapper, artifactPermissionsRepository)
         {
+            _workflowRepository = new SqlWorkflowRepository(connectionWrapper, ArtifactPermissionsRepository);
         }
 
         public async Task<List<SqlWorkflowEvent>> GetWorkflowPropertyTransitionsForArtifactsAsync(int userId, int revisionId, int eventType, IEnumerable<int> itemIds)
@@ -93,6 +101,23 @@ namespace ActionHandlerService.Repositories
             var param = new DynamicParameters();
             param.Add("@revisionId", revisionId);
             return (await ConnectionWrapper.QueryAsync<SqlModifiedProperty>("GetPropertyModificationsForRevisionId", param, commandType: CommandType.StoredProcedure)).ToList();
+        }
+
+        public async Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForTransition(int userId, int artifactId,
+            int workflowId, int fromStateId, int toStateId)
+        {
+            return
+                await
+                    _workflowRepository.GetWorkflowEventTriggersForTransition(userId, artifactId, workflowId,
+                        fromStateId, toStateId);
+        }
+
+        public async Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForNewArtifactEvent(int userId,
+            int artifactId, int revisionId)
+        {
+            return await _workflowRepository.GetWorkflowEventTriggersForNewArtifactEvent(userId,
+                artifactId,
+                revisionId);
         }
     }
 }

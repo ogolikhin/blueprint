@@ -80,22 +80,6 @@ namespace AdminStore.Repositories
             return await _connectionWrapper.QueryAsync<SqlGroup>("GetGroupNames", prm, commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<IEnumerable<SqlGroup>> GetExistingGroupsByNames(IEnumerable<string> groupNames, bool instanceOnly)
-        {
-            var prm = new DynamicParameters();
-            prm.Add("@groupNames", SqlConnectionWrapper.ToStringDataTable(groupNames));
-            prm.Add("@instanceOnly", instanceOnly);
-
-            return await _connectionWrapper.QueryAsync<SqlGroup>("GetExistingGroupsByNames", prm, commandType: CommandType.StoredProcedure);
-        }
-        
-        public async Task<IEnumerable<SqlUser>> GetExistingUsersByNames(IEnumerable<string> userNames)
-        {
-            var prm = new DynamicParameters();
-            prm.Add("@userNames", SqlConnectionWrapper.ToStringDataTable(userNames));
-
-            return await _connectionWrapper.QueryAsync<SqlUser>("GetExistingUsersByNames", prm, commandType: CommandType.StoredProcedure);
-        }
 
         public async Task<IEnumerable<LicenseTransactionUser>> GetLicenseTransactionUserInfoAsync(IEnumerable<int> userIds)
         {
@@ -286,7 +270,7 @@ namespace AdminStore.Repositories
             return userId;
         }
 
-        public async Task<int> DeleteUsers(OperationScope scope, string search, int sessionUserId)
+        public async Task<int> DeleteUsersAsync(OperationScope scope, string search, int sessionUserId)
         {
             if (!string.IsNullOrWhiteSpace(search))
             {

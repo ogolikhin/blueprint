@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AdminStore.Models.Workflow;
-using ArtifactStore.Helpers;
+using ServiceLibrary.Helpers;
 
 namespace AdminStore.Services.Workflow
 {
@@ -100,24 +100,24 @@ namespace AdminStore.Services.Workflow
 
             projects?.Where(p => p.Id.HasValue).ForEach(p => p.ArtifactTypes?.ForEach(at =>
             {
-                ICollection<IeArtifactType> colToAddTo;
+                ICollection<KeyValuePair<int, IeArtifactType>> colToAddTo;
                 if (!at.Id.HasValue)
                 {
                     colToAddTo = result.AddedProjectArtifactTypes;
                 }
                 else
                 {
-                    colToAddTo = pAtIds.Contains(Tuple.Create(p.Id.Value, at.Id.Value))
+                    colToAddTo = cpAtIds.Contains(Tuple.Create(p.Id.Value, at.Id.Value))
                     ? result.UnchangedProjectArtifactTypes
                     : result.NotFoundProjectArtifactTypes;
                 }
 
-                colToAddTo.Add(at);
+                colToAddTo.Add(new KeyValuePair<int, IeArtifactType>(p.Id.Value, at));
             }));
 
             currentProjects?.Where(p => p.Id.HasValue).ForEach(p => p.ArtifactTypes?
                 .Where(at => at.Id.HasValue && !pAtIds.Contains(Tuple.Create(p.Id.Value, at.Id.Value)))
-                .ForEach(at => result.DeletedProjectArtifactTypes.Add(at)));
+                .ForEach(at => result.DeletedProjectArtifactTypes.Add(new KeyValuePair<int, IeArtifactType>(p.Id.Value, at))));
         }
 
         #endregion

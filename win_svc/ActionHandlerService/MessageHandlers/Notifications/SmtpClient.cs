@@ -1,8 +1,8 @@
 ﻿using System;
-using ArtifactStore.Helpers;
 using MailBee.Mime;
 using MailBee.Security;
 using MailBee.SmtpMail;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Email;
 
 namespace ActionHandlerService.MessageHandlers.Notifications

@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\Blueprint.Common.props" Condition="Exists('..\Blueprint.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -23,6 +24,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -32,6 +34,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -40,7 +43,8 @@
     <DebugType>full</DebugType>
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>
+    </CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -49,7 +53,8 @@
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>
+    </CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Dapper.StrongName, Version=1.50.2.0, Culture=neutral, PublicKeyToken=e3e8412083d25dd3, processorArchitecture=MSIL">
@@ -113,11 +118,7 @@
     <Compile Include="MessageHandlers\PropertyChange\PropertyChangeActionHelper.cs" />
     <Compile Include="MessageHandlers\StateTransition\StateTransitionMessageHandler.cs" />
     <Compile Include="MessageHandlers\StateTransition\StateTransitionActionHelper.cs" />
-    <Compile Include="Models\SqlWorkflowEvent.cs" />
-    <Compile Include="Models\SqlModifiedProperty.cs" />
-    <Compile Include="Models\SqlProject.cs" />
     <Compile Include="Repositories\ActionHandlerServiceRepository.cs" />
-    <Compile Include="Models\Exceptions\Exceptions.cs" />
     <Compile Include="Logging\Log4NetStandardLogListener.cs" />
     <Compile Include="MessageHandlers\ArtifactPublished\ArtifactsPublishedActionHelper.cs" />
     <Compile Include="MessageHandlers\ArtifactPublished\ArtifactsPublishedMessageHandler.cs" />
@@ -132,17 +133,11 @@
     <Compile Include="MessageHandlers\Notifications\NotificationsMessageHandler.cs" />
     <Compile Include="MessageHandlers\IActionHelper.cs" />
     <Compile Include="ActionHandlerService.cs" />
-    <Compile Include="Models\Enums\MessageBroker.cs" />
-    <Compile Include="Models\Enums\Tenancy.cs" />
-    <Compile Include="Models\IMessageTransportHost.cs" />
-    <Compile Include="Models\MessageTransportHostFactory.cs" />
-    <Compile Include="Models\RabbitMQTransportHost.cs" />
-    <Compile Include="Models\SqlTransportHost.cs" />
     <Compile Include="Models\TenantInformation.cs" />
-    <Compile Include="NServiceBusServer.cs" />
+    <Compile Include="WorkflowServiceBusServer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Helpers\ConfigHelper.cs" />
+    <Compile Include="Helpers\ExtendedConfigHelper.cs" />
     <Compile Include="Helpers\TenantInfoRetriever.cs" />
     <Compile Include="Repositories\ArtifactsPublishedRepository.cs" />
     <Compile Include="Repositories\NotificationRepository.cs" />
@@ -168,6 +163,10 @@
       <Project>{03BD78CA-0BB7-4488-A0B3-4E07CE05391F}</Project>
       <Name>BluePrintSys.Messaging.Models.Actions</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Models\Enums\" />
+    <Folder Include="Models\Exceptions\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

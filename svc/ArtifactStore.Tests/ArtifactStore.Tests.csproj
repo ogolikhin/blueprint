@@ -105,6 +105,10 @@
     <Compile Include="Services\WorkflowServiceUnitTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\win_svc\BluePrintSys.Messaging.CrossCutting\BluePrintSys.Messaging.CrossCutting.csproj">
+      <Project>{74353EB4-59E8-4F3E-A9E3-9927546970FD}</Project>
+      <Name>BluePrintSys.Messaging.CrossCutting</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ArtifactStore\ArtifactStore.csproj">
       <Project>{30144C60-F58C-4B49-BE52-60C7884B2FB7}</Project>
       <Name>ArtifactStore</Name>

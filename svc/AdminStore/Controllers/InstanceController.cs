@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -113,7 +112,7 @@ namespace AdminStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet,NoCache]
         [Route("foldersearch"), SessionRequired]
-        [ResponseType(typeof(IEnumerable<FolderDto>))]
+        [ResponseType(typeof(IEnumerable<InstanceItem>))]
         public async Task<IHttpActionResult> SearchFolderByName(string name)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageProjects);
@@ -173,7 +172,28 @@ namespace AdminStore.Controllers
             return result;
         }
 
-     
+        /// <summary>
+        /// Search projects and folders
+        /// </summary>
+        /// <param name="pagination">Limit and offset values to query results</param>
+        /// <param name="sorting">(optional) Sort and its order</param>
+        /// <param name="search">Search query parameter</param>
+        /// <response code="200">OK.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        [HttpGet, NoCache]
+        [Route("folderprojectsearch"), SessionRequired]
+        public async Task<IHttpActionResult> SearchProjectFolder([FromUri]Pagination pagination, [FromUri]Sorting sorting = null, string search = null)
+        {
+            pagination.Validate();
+
+            var result =
+                await
+                    _instanceRepository.GetProjectsAndFolders(Session.UserId,
+                        new TabularData() {Pagination = pagination, Sorting = sorting, Search = search},
+                        SortingHelper.SortProjectFolders);
+            return Ok(result);
+        }
+
         #region folders
 
         /// <summary>
@@ -234,19 +254,16 @@ namespace AdminStore.Controllers
         }
 
         /// <summary>
-        /// Update folder
+        /// Update instance folder
         /// </summary>
-        /// <param name="folderId">Folder's identity</param>
-        /// <param name="folderDto">Folder's model</param>
-        /// <remarks>
-        /// Returns Ok result.
-        /// </remarks>
-        /// <response code="204">OK. The folder is updated.</response>
+        /// <param name="folderId">Instance folder id.</param>
+        /// <param name="folderDto">Updated instance folder model.</param>
+        /// <response code="204">NoContent. The instance folder is updated.</response>
         /// <response code="400">BadRequest. Parameters are invalid. </response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
-        /// <response code="403">Forbidden. The user does not have permissions for updating the folder.</response>
-        /// <response code="404">NotFound. The folder or parent folder with the current id doesn’t exist or removed from the system.</response>
-        /// <response code="409">Conflict. The folder with the same name already exists in the parent folder or the parent folder cannot be placed into its descendant. Please select a different location.</response>
+        /// <response code="403">Forbidden. The user does not have permissions to update the instance folder.</response>
+        /// <response code="404">NotFound. The instance folder or its parent folder do not exist or are removed from the system.</response>
+        /// <response code="409">Conflict. The instance folder with the same name already exists in the parent folder or the parent folder is invalid.</response>
         /// <response code="500">Internal server error.</response>
         [HttpPut]
         [SessionRequired]
@@ -261,7 +278,7 @@ namespace AdminStore.Controllers
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageProjects);
 
-            FolderValidator.ValidateModel(folderDto);
+            FolderValidator.ValidateModel(folderDto, folderId);
 
             await _instanceRepository.UpdateFolderAsync(folderId, folderDto);
 
@@ -354,6 +371,27 @@ namespace AdminStore.Controllers
             return Ok(permissions);
         }
 
+        /// <summary>
+        /// Check if project has external locks
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <remarks>
+        /// Returns boolean, if there are any external locks for the specified instance project id.
+        /// </remarks>
+        /// <response code="200">OK. Boolean, if there are any external locks for the specified instance project id.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden The user does not have permissions to check if project has external locks</response>
+        [HttpGet, NoCache]
+        [Route("projects/{projectId:int:min(1)}/hasprojectexternallocks"), SessionRequired]
+        [ResponseType(typeof(HttpResponseMessage))]
+        public async Task<IHttpActionResult> HasProjectExternalLocks(int projectId)
+        {
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.DeleteProjects);
+
+            var hasProjectExternalLocks = await _instanceRepository.HasProjectExternalLocksAsync(Session.UserId, projectId);
+            return Ok(hasProjectExternalLocks);
+        }
+
         #endregion
 
         #region roles
@@ -414,6 +452,7 @@ namespace AdminStore.Controllers
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. if user doesn’t have permissions to get roles assignments for the project.</response>
         /// <response code="404">NotFound. The project with the current id does not exist.</response>
+        /// <response code="500">Internal Server Error.</response>
         [Route("projects/{projectId:int:min(1)}/rolesassignments")]
         [SessionRequired]
         [ResponseType(typeof(QueryResult<RolesAssignments>))]
@@ -470,7 +509,46 @@ namespace AdminStore.Controllers
             return Ok(new DeleteResult { TotalDeleted = result });
         }
 
-        #endregion
 
+
+        /// <summary>
+        /// Create role assignment
+        /// </summary>
+        /// <param name="projectId">Project's identity</param>
+        /// <param name="roleAssignment">Role assignment model</param>
+        /// <remarks>
+        /// Returns id of creted role assignment.
+        /// </remarks>
+        /// <response code="200">OK. Role assignment was created.</response>
+        /// <response code="400">BadRequest. Parameters are invalid.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden The user does not have permissions to create role assignment</response>
+        /// <response code="404">NotFound. The project with the current id doesn't exist or removed from the system or
+        /// the group with the current id is not found on the instance and project levels or
+        /// the role with the current id is not found in the project's roles.</response>
+        /// <response code="409">Conflict. The project role assignment with same data already exists.</response>
+        /// <response code="500">Internal Server Error.</response>
+        [HttpPost]
+        [SessionRequired]
+        [ResponseType(typeof(int))]
+        [Route("projects/{projectId:int:min(1)}/rolesassignments")]
+        public async Task<HttpResponseMessage> CreateRoleAssignment(int projectId, [FromBody] CreateRoleAssignment roleAssignment)
+        {
+            if (roleAssignment == null)
+            {
+                throw new BadRequestException(ErrorMessages.ModelIsEmpty, ErrorCodes.BadRequest);
+            }
+
+            await _privilegesManager.DemandAny(Session.UserId, projectId,
+                InstanceAdminPrivileges.AccessAllProjectsAdmin, ProjectAdminPrivileges.ManageGroupsAndRoles);
+
+            RoleAssignmentValidator.ValidateModel(roleAssignment);
+
+            var createdRoleAssignmentId = await _instanceRepository.CreateRoleAssignmentAsync(projectId, roleAssignment);
+
+            return Request.CreateResponse(HttpStatusCode.Created, createdRoleAssignmentId);
+        }
+
+        #endregion
     }
 }

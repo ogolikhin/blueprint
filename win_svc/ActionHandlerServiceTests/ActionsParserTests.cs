@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using ActionHandlerService.Helpers;
-using ActionHandlerService.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ServiceLibrary.Models.Workflow;
 
 namespace ActionHandlerServiceTests
 {
@@ -150,7 +150,7 @@ namespace ActionHandlerServiceTests
             var notificationAction = notificationActions.Single();
             Assert.AreEqual(conditionalStateId, notificationAction.ConditionalStateId);
             Assert.AreEqual(eventPropertyTypeId, notificationAction.PropertyTypeId);
-            var toEmails = notificationAction.ToEmails.ToList();
+            var toEmails = notificationAction.Emails.ToList();
             Assert.AreEqual(2, toEmails.Count);
             Assert.AreEqual(1, toEmails.Count(e => e == toEmail1));
             Assert.AreEqual(1, toEmails.Count(e => e == toEmail2));

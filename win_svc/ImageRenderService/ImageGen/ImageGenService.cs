@@ -12,6 +12,7 @@ using Topshelf;
 
 namespace ImageRenderService.ImageGen
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable")]
     public class ImageGenService : ServiceControl
     {
         private HttpSelfHostServer _server;

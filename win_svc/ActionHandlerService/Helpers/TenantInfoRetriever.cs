@@ -19,9 +19,8 @@ namespace ActionHandlerService.Helpers
     {
         public TenantInfoRetriever(IActionHandlerServiceRepository actionHandlerServiceRepository, IConfigHelper configHelper)
         {
-            ConfigHelper = configHelper;
-            var expirationTime = TimeSpan.FromMinutes(ConfigHelper.CacheExpirationMinutes);
-            TenantInfoCache = new CacheHelper<Task<Dictionary<string, TenantInformation>>>(expirationTime, GetTenantInfoForCache);
+            var expirationTime = TimeSpan.FromMinutes(configHelper.CacheExpirationMinutes);
+            _tenantInfoCache = new CacheHelper<Task<Dictionary<string, TenantInformation>>>(expirationTime, GetTenantInfoForCache);
             _actionHandlerServiceRepository = actionHandlerServiceRepository;
         }
 
@@ -30,12 +29,11 @@ namespace ActionHandlerService.Helpers
         }
 
         private readonly IActionHandlerServiceRepository _actionHandlerServiceRepository;
-        private IConfigHelper ConfigHelper { get; }
-        private CacheHelper<Task<Dictionary<string, TenantInformation>>> TenantInfoCache { get; }
+        private readonly CacheHelper<Task<Dictionary<string, TenantInformation>>> _tenantInfoCache;
 
         public Task<Dictionary<string, TenantInformation>> GetTenants()
         {
-            return TenantInfoCache.Get();
+            return _tenantInfoCache.Get();
         }
 
         private async Task<Dictionary<string, TenantInformation>> GetTenantInfoForCache()

@@ -666,6 +666,50 @@ namespace AdminStore.Services.Instance
         #region UpdateEmailSettingsAsync
 
         [TestMethod]
+        public async Task UpdateEmailSettingsAsync_Should_Throw_BadRequestException_When_Incoming_Is_Null()
+        {
+            //Arrange
+            _emailSettingsDto.Incoming = null;
+
+            //Act
+            try
+            {
+                await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
+            }
+            //Assert
+            catch (BadRequestException ex)
+            {
+                Assert.AreEqual(ex.ErrorCode, ErrorCodes.OutOfRangeParameter);
+
+                return;
+            }
+
+            Assert.Fail("BadRequestException was not thrown.");
+        }
+
+        [TestMethod]
+        public async Task UpdateEmailSettingsAsync_Should_Throw_BadRequestException_When_Outgoing_Is_Null()
+        {
+            //Arrange
+            _emailSettingsDto.Outgoing = null;
+
+            //Act
+            try
+            {
+                await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
+            }
+            //Assert
+            catch (BadRequestException ex)
+            {
+                Assert.AreEqual(ex.ErrorCode, ErrorCodes.OutOfRangeParameter);
+
+                return;
+            }
+
+            Assert.Fail("BadRequestException was not thrown.");
+        }
+
+        [TestMethod]
         public async Task UpdateEmailSettingsAsync_Should_Throw_AuthorizationException_When_User_Doesnt_Have_ManageInstanceSettings()
         {
             //Arrange

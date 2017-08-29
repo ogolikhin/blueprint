@@ -10,6 +10,7 @@ using ServiceLibrary.Helpers.Security;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Licenses;
+using ServiceLibrary.Repositories.ApplicationSettings;
 
 namespace ServiceLibrary.Repositories
 {

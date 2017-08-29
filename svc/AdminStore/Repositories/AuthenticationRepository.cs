@@ -9,6 +9,7 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories.ApplicationSettings;
 
 namespace AdminStore.Repositories
 {

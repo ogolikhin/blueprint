@@ -95,7 +95,7 @@ namespace ArtifactStore.Executors
                     _input.UserName,
                     triggers.AsynchronousTriggers, 
                     artifactInfo,
-                    artifactResultSet?.Projects?.FirstOrDefault(d => d.Id == artifactInfo.ProjectId),
+                    artifactResultSet?.Projects?.FirstOrDefault(d => d.Id == artifactInfo.ProjectId)?.Name,
                     artifactResultSet?.ModifiedProperties,
                     true
                     ));

@@ -322,6 +322,7 @@
     <Compile Include="Models\Workflow\WorkflowEventSynchronousWorkflowEventAction.cs" />
     <Compile Include="Models\Workflow\WorkflowEventTrigger.cs" />
     <Compile Include="Models\Workflow\WorkflowEventTriggers.cs" />
+    <Compile Include="Models\Workflow\WorkflowMessageArtifactInfo.cs" />
     <Compile Include="Models\Workflow\WorkflowState.cs" />
     <Compile Include="Models\Workflow\WorkflowStateChangeParameter.cs" />
     <Compile Include="Models\Workflow\WorkflowTransition.cs" />

@@ -10,7 +10,9 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
         {
         }
 
-        public ArtifactsPublishedMessageHandler(IActionHelper actionHelper, ITenantInfoRetriever tenantInfoRetriever, IConfigHelper configHelper) : base(actionHelper, tenantInfoRetriever, configHelper)
+        public ArtifactsPublishedMessageHandler(IActionHelper actionHelper, 
+            ITenantInfoRetriever tenantInfoRetriever, 
+            IConfigHelper configHelper) : base(actionHelper, tenantInfoRetriever, configHelper)
         {
         }
     }

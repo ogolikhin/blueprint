@@ -34,7 +34,7 @@ namespace ActionHandlerServiceTests
         public void TestInitialize()
         {
             _repositoryMock = new Mock<IArtifactsPublishedRepository>();
-            _tenantInformation = new TenantInformation {ConnectionString = "", Id = "", Settings = ""};
+            _tenantInformation = new TenantInformation {BlueprintConnectionString = "", TenantId = "", Settings = ""};
             _triggers = new List<SqlWorkflowEvent> {new SqlWorkflowEvent {CurrentStateId = 0, VersionItemId = 0, EventPropertyTypeId = 0, EventType = 0, HolderId = 0, RequiredNewStateId = 0, RequiredPreviousStateId = 0, Triggers = "", WorkflowId = 0}, new SqlWorkflowEvent {CurrentStateId = 1, VersionItemId = 0, EventPropertyTypeId = 0, EventType = 0, HolderId = 0, RequiredNewStateId = 0, RequiredPreviousStateId = 0, Triggers = "", WorkflowId = 0}};
             _states = new List<SqlWorkFlowStateInformation> {new SqlWorkFlowStateInformation {WorkflowStateId = WorkflowStateId, ArtifactId = 0, EndRevision = 0, ItemId = 0, ItemTypeId = 0, LockedByUserId = 0, Name = "", ProjectId = 0, Result = 0, StartRevision = 0, WorkflowId = 0, WorkflowName = "", WorkflowStateName = ""}};
             _projects = new List<SqlProject> {new SqlProject {ItemId = 0, Name = ""}};

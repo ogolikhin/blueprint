@@ -76,13 +76,13 @@ namespace ActionHandlerService.MessageHandlers
             switch (message.ActionType)
             {
                 case MessageActionType.Notification:
-                    serviceRepository = new NotificationRepository(tenant.ConnectionString);
+                    serviceRepository = new NotificationRepository(tenant.BlueprintConnectionString);
                     break;
                 case MessageActionType.ArtifactsPublished:
-                    serviceRepository = new ArtifactsPublishedRepository(tenant.ConnectionString);
+                    serviceRepository = new ArtifactsPublishedRepository(tenant.BlueprintConnectionString);
                     break;
                 default:
-                    serviceRepository = new ActionHandlerServiceRepository(tenant.ConnectionString);
+                    serviceRepository = new ActionHandlerServiceRepository(tenant.BlueprintConnectionString);
                     break;
             }
             return await ActionHelper.HandleAction(tenant, message, serviceRepository);

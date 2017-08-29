@@ -22,9 +22,9 @@ namespace ActionHandlerServiceTests
             //Arrange
             var tenantInformation = new TenantInformation
             {
-                Id = Guid.NewGuid().ToString(),
+                TenantId = Guid.NewGuid().ToString(),
                 Settings = "",
-                ConnectionString = ""
+                BlueprintConnectionString = ""
             };
             var message = new NotificationMessage
             {

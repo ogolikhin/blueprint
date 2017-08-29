@@ -23,7 +23,7 @@ namespace ArtifactStore.Helpers
             string userName,
             WorkflowEventTriggers postOpTriggers,
             IBaseArtifactVersionControlInfo artifactInfo,
-            Item projectItem,
+            string projectName,
             IDictionary<int, IList<Property>> modifiedProperties,
             bool sendArtifactPublishedMessage)
         {
@@ -46,7 +46,7 @@ namespace ArtifactStore.Helpers
                             continue;
                         }
                         var notificationMessage = GetNotificationMessage(userId, revisionId, artifactInfo,
-                            projectItem,
+                            projectName,
                             notificationAction);
                         resultMessages.Add(notificationMessage);
                         break;
@@ -66,7 +66,7 @@ namespace ArtifactStore.Helpers
                             ProjectId = artifactInfo.ProjectId,
                             UserName = userName,
                             BaseHostUri = baseHostUri,
-                            ProjectName = projectItem?.Name,
+                            ProjectName = projectName,
                             TypePredefined = (int)artifactInfo.PredefinedType
                         };
                         resultMessages.Add(generateChildrenMessage);
@@ -85,7 +85,7 @@ namespace ArtifactStore.Helpers
                             ProjectId = artifactInfo.ProjectId,
                             UserName = userName,
                             BaseHostUri = baseHostUri,
-                            ProjectName = projectItem?.Name
+                            ProjectName = projectName
                         };
                         resultMessages.Add(generateTestsMessage);
                         break;
@@ -103,7 +103,7 @@ namespace ArtifactStore.Helpers
                             ProjectId = artifactInfo.ProjectId,
                             UserName = userName,
                             BaseHostUri = baseHostUri,
-                            ProjectName = projectItem?.Name
+                            ProjectName = projectName
                         };
                         resultMessages.Add(generateUserStoriesMessage);
                         break;
@@ -165,7 +165,7 @@ namespace ArtifactStore.Helpers
         private static IWorkflowMessage GetNotificationMessage(int userId,
             int revisionId,
             IBaseArtifactVersionControlInfo artifactInfo,
-            Item projectItem,
+            string projectName,
             EmailNotificationAction notificationAction)
         {
             var artifactPartUrl = ServerUriHelper.GetArtifactUrl(artifactInfo.Id, true);
@@ -176,7 +176,7 @@ namespace ArtifactStore.Helpers
             var notificationMessage = new NotificationMessage
             {
                 ArtifactName = artifactInfo.Name,
-                ProjectName = projectItem?.Name,
+                ProjectName = projectName,
                 Subject = notificationAction.Subject,
                 From = notificationAction.FromDisplayName,
                 To = notificationAction.Emails,

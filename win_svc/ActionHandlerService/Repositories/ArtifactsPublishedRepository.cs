@@ -41,6 +41,9 @@ namespace ActionHandlerService.Repositories
 
         Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForNewArtifactEvent(int userId,
             IEnumerable<int> artifactIds, int revisionId);
+
+        Task<IEnumerable<WorkflowMessageArtifactInfo>> GetWorkflowMessageArtifactInfoAsync(int userId,
+            IEnumerable<int> artifactIds, int revisionId);
     }
 
     public class ArtifactsPublishedRepository : ActionHandlerServiceRepository, IArtifactsPublishedRepository
@@ -116,6 +119,14 @@ namespace ActionHandlerService.Repositories
             IEnumerable<int> artifactIds, int revisionId)
         {
             return await _workflowRepository.GetWorkflowEventTriggersForNewArtifactEvent(userId,
+                artifactIds,
+                revisionId);
+        }
+
+        public async Task<IEnumerable<WorkflowMessageArtifactInfo>> GetWorkflowMessageArtifactInfoAsync(int userId,
+            IEnumerable<int> artifactIds, int revisionId)
+        {
+            return await _workflowRepository.GetWorkflowMessageArtifactInfoAsync(userId,
                 artifactIds,
                 revisionId);
         }

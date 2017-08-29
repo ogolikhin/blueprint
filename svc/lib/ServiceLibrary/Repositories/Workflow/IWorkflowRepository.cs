@@ -30,5 +30,7 @@ namespace ServiceLibrary.Repositories.Workflow
         /// <returns></returns>
         Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForNewArtifactEvent(int userId,
             IEnumerable<int> artifactIds, int revisionId);
+
+        Task<IEnumerable<WorkflowMessageArtifactInfo>> GetWorkflowMessageArtifactInfoAsync(int userId, IEnumerable<int> artifactIds, int revisionId);
     }
 }

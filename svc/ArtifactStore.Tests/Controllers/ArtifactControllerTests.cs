@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -9,6 +10,7 @@ using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
 using System.Web.Http;
 using System.Net;
+using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Repositories;
 
 namespace ArtifactStore.Controllers
@@ -16,6 +18,51 @@ namespace ArtifactStore.Controllers
     [TestClass]
     public class ArtifactControllerTests
     {
+        private const int userId = 1;
+        private Session session;
+        private HashSet<int> artifactIds;
+        private List<ProcessInfoDto> processInfo;
+        private Mock<ISqlArtifactRepository> mockArtifactRepository;
+        private Mock<IServiceLogRepository> mockServiceLogRepository;
+        private Mock<IArtifactPermissionsRepository> mockArtifactPermissionsRepository;
+        private ArtifactController artifactController;
+
+        [TestInitialize]
+        public void Initialize()
+        {
+            session = new Session {UserId = userId};
+            artifactIds = new HashSet<int>() { 1, 2, 3 };
+            processInfo = new List<ProcessInfoDto>()
+            {
+                new ProcessInfoDto()
+                {
+                    ItemId = 1,
+                    ProcessType = ProcessType.None
+                },
+                new ProcessInfoDto()
+                {
+                    ItemId = 2,
+                    ProcessType = ProcessType.None
+                },
+                new ProcessInfoDto()
+                {
+                    ItemId = 3,
+                    ProcessType = ProcessType.None
+                }
+            };
+
+            mockArtifactRepository = new Mock<ISqlArtifactRepository>();
+            mockServiceLogRepository = new Mock<IServiceLogRepository>();
+            mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
+            artifactController = new ArtifactController(mockArtifactRepository.Object,
+                mockArtifactPermissionsRepository.Object, mockServiceLogRepository.Object)
+            {
+                Request = new HttpRequestMessage()
+            };
+
+            artifactController.Request.Properties[ServiceConstants.SessionProperty] = session;
+        }
+
         [TestMethod]
         public async Task GetProjectChildrenAsync_Success()
         {
@@ -199,6 +246,36 @@ namespace ArtifactStore.Controllers
 
             //Assert
             Assert.AreSame(navPath, result);
+        }
+
+        [TestMethod]
+        public async Task Artifact_GetProcessInfo_Success()
+        {
+            //Arrange
+            mockArtifactRepository.Setup(r => r.GetProcessInformationAsync(artifactIds))
+                                  .ReturnsAsync(processInfo);
+
+            //Act
+            var result = await artifactController.GetProcessInformationAsync(artifactIds);
+            
+            //Assert
+            Assert.AreSame(processInfo, result);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task Artifact_GetProcessInfo_ThrowsBadRequestException()
+        {
+            //Arrange
+            artifactIds = null;
+            processInfo = new List<ProcessInfoDto>() {};
+            
+            mockArtifactRepository.Setup(r => r.GetProcessInformationAsync(artifactIds))
+                                  .ReturnsAsync(processInfo);
+
+            //Act
+            var result = await artifactController.GetProcessInformationAsync(artifactIds);
+
         }
     }
 }

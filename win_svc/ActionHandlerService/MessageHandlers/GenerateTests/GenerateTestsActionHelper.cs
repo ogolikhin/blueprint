@@ -40,7 +40,7 @@ namespace ActionHandlerService.MessageHandlers.GenerateTests
                 }
             };
             var parameters = SerializationHelper.ToXml(generateProcessTestInfos);
-            var sqlConnectionWrapper = new SqlConnectionWrapper(tenant.ConnectionString);
+            var sqlConnectionWrapper = new SqlConnectionWrapper(tenant.BlueprintConnectionString);
             var jobsRepository = new JobsRepository(sqlConnectionWrapper, 
                 new SqlArtifactRepository(sqlConnectionWrapper), 
                 new SqlArtifactPermissionsRepository(sqlConnectionWrapper),

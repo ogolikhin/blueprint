@@ -31,7 +31,7 @@ namespace ActionHandlerService.MessageHandlers.GenerateDescendants
 
             Logger.Log($"Handling of type: {message.ActionType} started for user ID {message.UserId}, revision ID {message.RevisionId} with message {message.ToJSON()}", message, tenant, LogLevel.Debug);
 
-            var sqlConnectionWrapper = new SqlConnectionWrapper(tenant.ConnectionString);
+            var sqlConnectionWrapper = new SqlConnectionWrapper(tenant.BlueprintConnectionString);
             var sqlItemTypeRepository = new SqlItemTypeRepository(sqlConnectionWrapper);
 
             var desiredItemType = await sqlItemTypeRepository.GetCustomItemTypeForProvidedStandardItemTypeIdInProject(message.ProjectId,

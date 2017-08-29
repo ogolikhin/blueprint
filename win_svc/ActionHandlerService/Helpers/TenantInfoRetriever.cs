@@ -6,7 +6,6 @@ using ActionHandlerService.Models;
 using ActionHandlerService.Repositories;
 using BluePrintSys.Messaging.CrossCutting.Configuration;
 using BluePrintSys.Messaging.CrossCutting.Logging;
-using BluePrintSys.Messaging.CrossCutting.Models.Enums;
 using ServiceLibrary.Helpers;
 
 namespace ActionHandlerService.Helpers
@@ -20,50 +19,29 @@ namespace ActionHandlerService.Helpers
     {
         public TenantInfoRetriever(IActionHandlerServiceRepository actionHandlerServiceRepository, IConfigHelper configHelper)
         {
-            ConfigHelper = configHelper;
-            var expirationTime = TimeSpan.FromMinutes(ConfigHelper.CacheExpirationMinutes);
-            TenantInfoCache = new CacheHelper<Dictionary<string, TenantInformation>>(expirationTime, GetTenantInfoForCache);
+            var expirationTime = TimeSpan.FromMinutes(configHelper.CacheExpirationMinutes);
+            _tenantInfoCache = new CacheHelper<Task<Dictionary<string, TenantInformation>>>(expirationTime, GetTenantInfoForCache);
             _actionHandlerServiceRepository = actionHandlerServiceRepository;
         }
 
-        public TenantInfoRetriever() : this(new ActionHandlerServiceRepository(new ConfigHelper().SingleTenancyConnectionString), new ConfigHelper())
+        public TenantInfoRetriever() : this(new ActionHandlerServiceRepository(new ConfigHelper().TenantsDatabase), new ConfigHelper())
         {
         }
 
         private readonly IActionHandlerServiceRepository _actionHandlerServiceRepository;
-        private IConfigHelper ConfigHelper { get; }
-        private CacheHelper<Dictionary<string, TenantInformation>> TenantInfoCache { get; }
-        private string _defaultTentantId;
-        private const string DefaultTenantSettings = "settings";
+        private readonly CacheHelper<Task<Dictionary<string, TenantInformation>>> _tenantInfoCache;
 
-        public async Task<Dictionary<string, TenantInformation>> GetTenants()
+        public Task<Dictionary<string, TenantInformation>> GetTenants()
         {
-            if (string.IsNullOrEmpty(_defaultTentantId))
-            {
-                //TODO: remove once we get the tenant db ready
-                _defaultTentantId = await _actionHandlerServiceRepository.GetTenantId();
-                Log.Info($"Retrieved default tenant id: {_defaultTentantId}");
-            }
-            return TenantInfoCache.Get();
+            return _tenantInfoCache.Get();
         }
 
-        private Dictionary<string, TenantInformation> GetTenantInfoForCache()
+        private async Task<Dictionary<string, TenantInformation>> GetTenantInfoForCache()
         {
-            var tenants = new Dictionary<string, TenantInformation>();
-            var tenancy = ConfigHelper.Tenancy;
-            switch (tenancy)
-            {
-                case Tenancy.Single:
-                    Log.Info("Retrieving single tenant.");
-                    var tenant = new TenantInformation {Id = _defaultTentantId, ConnectionString = ConfigHelper.SingleTenancyConnectionString, Settings = DefaultTenantSettings};
-                    tenants.Add(tenant.Id, tenant);
-                    break;
-                case Tenancy.Multiple:
-                    Log.Info("Retrieving multiple tenants.");
-                    //TODO: get multiple tenants
-                    break;
-            }
-            Log.Info($"Retrieved {tenants.Count} tenants: {string.Join(", ", tenants.Select(p => p.Key))}");
+            Log.Debug("Retrieving tenants");
+            var sqlTenants = await _actionHandlerServiceRepository.GetTenantsFromTenantsDb();
+            var tenants = sqlTenants.ToDictionary(tenant => tenant.TenantId);
+            Log.Debug($"Retrieved {tenants.Count} tenants: {string.Join(", ", tenants.Select(p => p.Key))}");
             return tenants;
         }
     }

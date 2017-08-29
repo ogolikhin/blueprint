@@ -50,7 +50,7 @@ namespace ActionHandlerServiceTests
         [TestMethod]
         public void ConfigHelper_ReturnsDefault_WhenGettingSingleTenancyConnectionString()
         {
-            var configValue = _configHelper.SingleTenancyConnectionString;
+            var configValue = _configHelper.TenantsDatabase;
             const string defaultValue = null;
             Assert.AreEqual(defaultValue, configValue);
         }
@@ -100,14 +100,6 @@ namespace ActionHandlerServiceTests
         {
             var configValue = _configHelper.SupportedActionTypes;
             const MessageActionType defaultValue = ConfigHelper.SupportedActionTypesDefault;
-            Assert.AreEqual(defaultValue, configValue);
-        }
-
-        [TestMethod]
-        public void ConfigHelper_ReturnsDefault_WhenGettingTenancy()
-        {
-            var configValue = _configHelper.Tenancy;
-            const Tenancy defaultValue = ConfigHelper.TenancyDefault;
             Assert.AreEqual(defaultValue, configValue);
         }
     }

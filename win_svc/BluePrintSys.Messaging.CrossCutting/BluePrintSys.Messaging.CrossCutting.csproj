@@ -122,7 +122,6 @@
     <Compile Include="Logging\StackTraceProvider.cs" />
     <Compile Include="Logging\StandardLogEntry.cs" />
     <Compile Include="Models\Enums\MessageType.cs" />
-    <Compile Include="Models\Enums\Tenancy.cs" />
     <Compile Include="Models\Exceptions\MessageHeaderValueNotFoundException.cs" />
     <Compile Include="Models\Exceptions\UnsupportedActionTypeException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -1,5 +1,4 @@
-﻿using BluePrintSys.Messaging.CrossCutting.Models.Enums;
-using ServiceLibrary.Exceptions;
+﻿using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
 
@@ -41,25 +40,19 @@ namespace BluePrintSys.Messaging.CrossCutting.Configuration
         public const int MessageProcessingMaxConcurrencyDefault = 1;
         public int MessageProcessingMaxConcurrency => AppSettingsHelper.GetConfigIntValue(MessageProcessingMaxConcurrencyKey, MessageProcessingMaxConcurrencyDefault);
 
-
         public const string NServiceBusInstanceIdKey = "NServiceBus.InstanceId";
         public const string NServiceBusInstanceIdDefault = "";
         public string NServiceBusInstanceId => AppSettingsHelper.GetConfigStringValue(NServiceBusInstanceIdKey, NServiceBusInstanceIdDefault);
 
-        public const string SingleTenancyConnectionStringKey = "TenantsDatabase";
-        public string SingleTenancyConnectionString => AppSettingsHelper.GetConnectionStringValue(SingleTenancyConnectionStringKey);
+        public const string TenantsDatabaseKey = "TenantsDatabase";
+        public string TenantsDatabase => AppSettingsHelper.GetConnectionStringValue(TenantsDatabaseKey);
 
         public const string CacheExpirationMinutesKey = "CacheExpirationMinutes";
-        public const int CacheExpirationMinutesDefault = 1440;
+        public const int CacheExpirationMinutesDefault = 10080;
         public int CacheExpirationMinutes => AppSettingsHelper.GetConfigIntValue(CacheExpirationMinutesKey, CacheExpirationMinutesDefault);
-
-        public const string TenancyKey = "Tenancy";
-        public const Tenancy TenancyDefault = Tenancy.Single;
-        public Tenancy Tenancy => AppSettingsHelper.GetConfigEnum(TenancyKey, TenancyDefault);
 
         public const string SupportedActionTypesKey = "SupportedActionTypes";
         public const MessageActionType SupportedActionTypesDefault = MessageActionType.All;
         public MessageActionType SupportedActionTypes => AppSettingsHelper.GetConfigEnum(SupportedActionTypesKey, SupportedActionTypesDefault);
-
     }
 }

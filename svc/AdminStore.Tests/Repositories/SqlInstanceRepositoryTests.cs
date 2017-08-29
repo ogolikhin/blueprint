@@ -898,7 +898,6 @@ namespace AdminStore.Repositories
             await _instanceRepository.DeleteProject(UserId, ProjectId);
 
             // Assert
-            _connection.Verify();
         }
 
         [TestMethod]
@@ -939,7 +938,6 @@ namespace AdminStore.Repositories
             await _instanceRepository.DeleteProject(UserId, ProjectId);
 
             // Assert
-            _connection.Verify();
         }
 
         [TestMethod]
@@ -959,7 +957,6 @@ namespace AdminStore.Repositories
             await _instanceRepository.DeleteProject(UserId, ProjectId);
 
             // Assert
-            _connection.Verify();
         }
 
         [TestMethod]
@@ -984,9 +981,6 @@ namespace AdminStore.Repositories
                 // Assert
                 Assert.AreEqual(ErrorMessages.GeneralErrorOfUpdatingProject, ex.Message);
             }
-
-            // Assert
-            _connection.Verify();
         }
 
         #endregion

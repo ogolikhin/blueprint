@@ -280,14 +280,14 @@ namespace ServiceLibrary.Repositories.Workflow
 
         private PropertyChangeAction ToPropertyChangeAction(XmlPropertyChangeAction propertyChangeAction)
         {
-            if (propertyChangeAction.UsersGroups.Any())
+            if (propertyChangeAction.UsersGroups?.UsersGroups?.Any() ?? false)
             {
                 var action = new PropertyChangeUserGroupsAction
                 {
                     InstancePropertyTypeId = propertyChangeAction.PropertyTypeId,
                     PropertyValue = propertyChangeAction.PropertyValue
                 };
-                action.UserGroups.AddRange(propertyChangeAction.UsersGroups.Select(
+                action.UserGroups.AddRange(propertyChangeAction.UsersGroups.UsersGroups.Select(
                         u => new UserGroup
                         {
                             Id = u.Id,

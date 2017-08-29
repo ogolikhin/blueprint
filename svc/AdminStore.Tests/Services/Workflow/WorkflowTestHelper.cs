@@ -174,10 +174,13 @@ namespace AdminStore.Services.Workflow
                         Action = new IePropertyChangeAction
                         {
                             PropertyName = "User Property",
-                            UsersGroups = new List<IeUserGroup>
+                            UsersGroups = new IeUsersGroups
                             {
-                                new IeUserGroup { Name = "user1"},
-                                new IeUserGroup { Name = "group2", IsGroup = true}
+                                UsersGroups = new List<IeUserGroup>
+                                {
+                                    new IeUserGroup { Name = "user1"},
+                                    new IeUserGroup { Name = "group2", IsGroup = true}
+                                }
                             }
                         }
                     }
@@ -318,37 +321,40 @@ namespace AdminStore.Services.Workflow
                         Action = new IePropertyChangeAction
                         {
                             PropertyName = "User Property",
-                            UsersGroups = new List<IeUserGroup>
+                            UsersGroups = new IeUsersGroups
                             {
-                                new IeUserGroup
+                                UsersGroups = new List<IeUserGroup>
                                 {
-                                    Name = "user"
+                                    new IeUserGroup
+                                    {
+                                        Name = "user"
+                                    },
+                                    new IeUserGroup
+                                    {
+                                        Name = "instance group",
+                                        IsGroup = true
+                                    },
+                                    new IeUserGroup
+                                    {
+                                        Name = "project group by id",
+                                        IsGroup = true,
+                                        GroupProjectId = 99
+                                    },
+                                    new IeUserGroup
+                                    {
+                                        Name = "project group by path",
+                                        IsGroup = true,
+                                        GroupProjectPath = "path"
+                                    },
+                                    new IeUserGroup
+                                    {
+                                        Name = "project group by path",
+                                        IsGroup = true,
+                                        GroupProjectPath = "path2"
+                                    }
                                 },
-                                new IeUserGroup
-                                {
-                                    Name = "instance group",
-                                    IsGroup = true
-                                },
-                                new IeUserGroup
-                                {
-                                    Name = "project group by id",
-                                    IsGroup = true,
-                                    GroupProjectId = 99
-                                },
-                                new IeUserGroup
-                                {
-                                    Name = "project group by path",
-                                    IsGroup = true,
-                                    GroupProjectPath = "path"
-                                },
-                                new IeUserGroup
-                                {
-                                    Name = "project group by path",
-                                    IsGroup = true,
-                                    GroupProjectPath = "path2"
-                                }
-                            },
-                            IncludeCurrentUser = true
+                                IncludeCurrentUser = true
+                            }
                         }
                     }
                 }

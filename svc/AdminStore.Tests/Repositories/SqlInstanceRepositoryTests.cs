@@ -864,24 +864,26 @@ namespace AdminStore.Repositories
             await _instanceRepository.DeleteProject(UserId, ProjectId);
 
             // Assert
+            _connection.Verify();
         }
 
         [TestMethod]
         public async Task DeleteProject_ProjectStatusImporting_SuccessfulPurgeOfProject()
         {
             // Arrange
-            var errorCode = 0;
+            int? errorCode = 0;
             _instanceItems.First().ParentFolderId = ParentFolderId;
             _instanceItems.First().ProjectStatus = "I";
             _connection.SetupQueryAsync("GetProjectDetails", It.IsAny<Dictionary<string, object>>(), _instanceItems);
             _connection.SetupExecuteScalarAsync("PurgeProject",
-                It.IsAny<Dictionary<string, object>>(),
+                It.IsAny<Dictionary<string, object>>(), errorCode.Value,
                 new Dictionary<string, object> { { "result", errorCode } });
 
             // Act
             await _instanceRepository.DeleteProject(UserId, ProjectId);
 
             // Assert
+            _connection.Verify();
         }
 
         [TestMethod]
@@ -896,6 +898,7 @@ namespace AdminStore.Repositories
             await _instanceRepository.DeleteProject(UserId, ProjectId);
 
             // Assert
+            _connection.Verify();
         }
 
         [TestMethod]
@@ -936,6 +939,7 @@ namespace AdminStore.Repositories
             await _instanceRepository.DeleteProject(UserId, ProjectId);
 
             // Assert
+            _connection.Verify();
         }
 
         [TestMethod]
@@ -955,6 +959,7 @@ namespace AdminStore.Repositories
             await _instanceRepository.DeleteProject(UserId, ProjectId);
 
             // Assert
+            _connection.Verify();
         }
 
         [TestMethod]
@@ -981,6 +986,7 @@ namespace AdminStore.Repositories
             }
 
             // Assert
+            _connection.Verify();
         }
 
         #endregion

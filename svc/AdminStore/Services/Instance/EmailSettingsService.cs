@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using AdminStore.Helpers;
 using AdminStore.Models.Emails;
 using AdminStore.Repositories;
@@ -55,6 +56,16 @@ namespace AdminStore.Services.Instance
 
         public async Task UpdateEmailSettingsAsync(int userId, EmailSettingsDto emailSettingsDto)
         {
+            if (emailSettingsDto.Incoming == null)
+            {
+                throw new BadRequestException("Incoming cannot be null.", ErrorCodes.OutOfRangeParameter);
+            }
+
+            if (emailSettingsDto.Outgoing == null)
+            {
+                throw new BadRequestException("Outgoing cannot be null.", ErrorCodes.OutOfRangeParameter);
+            }
+
             await _privilegesManager.Demand(userId, InstanceAdminPrivileges.ManageInstanceSettings);
 
             if (!emailSettingsDto.EnableEmailNotifications && emailSettingsDto.EnableDiscussions)

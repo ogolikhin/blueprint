@@ -150,7 +150,7 @@ namespace AdminStore.Services.Workflow
                 if (t?.Action?.ActionType == ActionTypes.PropertyChange)
                 {
                     var action = (IePropertyChangeAction) t.Action;
-                    action.UsersGroups?.ForEach(ug =>
+                    action.UsersGroups?.UsersGroups?.ForEach(ug =>
                     {
                         if (ug.IsGroup.GetValueOrDefault())
                         {
@@ -386,7 +386,7 @@ namespace AdminStore.Services.Workflow
                 if (t?.Action.ActionType == ActionTypes.PropertyChange)
                 {
                     var pca = (IePropertyChangeAction) t.Action;
-                    pca?.UsersGroups?.Where(IsGroupProjectIdUnassigned).ForEach(collection.Add);
+                    pca?.UsersGroups?.UsersGroups?.Where(IsGroupProjectIdUnassigned).ForEach(collection.Add);
                 }
             });
         }

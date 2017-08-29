@@ -26,6 +26,7 @@ namespace AdminStore.Repositories
         private const int UserId = 10;
         private IEnumerable<RolesAssignments> _projectRolesAssignments;
         private TabularData _tabularData;
+        private InstanceItem[] _instanceItems;
 
         [TestInitialize]
         public void Initialize()
@@ -43,6 +44,8 @@ namespace AdminStore.Repositories
                 Pagination = new Pagination { Limit = 10, Offset = 0 },
                 Sorting = new Sorting { Order = SortOrder.Asc, Sort = "groupName" }
             };
+
+            _instanceItems = new[] { new InstanceItem { Id = ProjectId, Name = "My Project", IsAccesible = true } };
         }
 
         #region GetInstanceFolderAsync
@@ -853,10 +856,9 @@ namespace AdminStore.Repositories
         [TestMethod]
         public async Task DeleteProject_AllParametersCorrect_SuccessfulDeletionOfProject()
         {
-            // Arrange
-
-            InstanceItem[] instanceItems = { new InstanceItem { Id = ProjectId, Name = "My Project", ParentFolderId = ParentFolderId, IsAccesible = true } };
-            _connection.SetupQueryAsync("GetProjectDetails", It.IsAny<Dictionary<string, object>>(), instanceItems);
+            // Arrange            
+            _instanceItems.First().ParentFolderId = ParentFolderId;
+            _connection.SetupQueryAsync("GetProjectDetails", It.IsAny<Dictionary<string, object>>(), _instanceItems);
 
             // Act
             await _instanceRepository.DeleteProject(UserId, ProjectId);
@@ -869,8 +871,9 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var errorCode = 0;
-            InstanceItem[] instanceItems = { new InstanceItem { Id = ProjectId, Name = "My Project", ParentFolderId = ParentFolderId, IsAccesible = true, ProjectStatus = "I"} };
-            _connection.SetupQueryAsync("GetProjectDetails", It.IsAny<Dictionary<string, object>>(), instanceItems);
+            _instanceItems.First().ParentFolderId = ParentFolderId;
+            _instanceItems.First().ProjectStatus = "I";
+            _connection.SetupQueryAsync("GetProjectDetails", It.IsAny<Dictionary<string, object>>(), _instanceItems);
             _connection.SetupExecuteScalarAsync("PurgeProject",
                 It.IsAny<Dictionary<string, object>>(),
                 new Dictionary<string, object> { { "result", errorCode } });
@@ -886,9 +889,8 @@ namespace AdminStore.Repositories
         public async Task DeleteProject_ProjectWasDeletedByAnotherUser_ReturnResourceNotFoundException()
         {
             // Arrange
-
-            InstanceItem[] instanceItems = { new InstanceItem { Id = ProjectId, Name = "My Project", ParentFolderId = null, IsAccesible = true } };
-            _connection.SetupQueryAsync("GetProjectDetails", It.IsAny<Dictionary<string, object>>(), instanceItems);
+            
+            _connection.SetupQueryAsync("GetProjectDetails", It.IsAny<Dictionary<string, object>>(), _instanceItems);
 
             // Act
             await _instanceRepository.DeleteProject(UserId, ProjectId);
@@ -901,8 +903,9 @@ namespace AdminStore.Repositories
         {
             // Arrange
 
-            InstanceItem[] instanceItems = { new InstanceItem { Id = ProjectId, Name = "My Project", ParentFolderId = ParentFolderId, IsAccesible = true, ProjectStatus = string.Empty} };
-            _connection.SetupQueryAsync("GetProjectDetails", It.IsAny<Dictionary<string, object>>(), instanceItems);
+            _instanceItems.First().ParentFolderId = ParentFolderId;
+            _instanceItems.First().ProjectStatus = string.Empty;
+            _connection.SetupQueryAsync("GetProjectDetails", It.IsAny<Dictionary<string, object>>(), _instanceItems);
 
             // Act            
             try
@@ -912,7 +915,7 @@ namespace AdminStore.Repositories
             catch (Exception ex)
             {
                 // Assert
-                Assert.AreEqual(I18NHelper.FormatInvariant(ErrorMessages.UnhandledStatusOfProject, instanceItems.First().ProjectStatus), ex.Message);
+                Assert.AreEqual(I18NHelper.FormatInvariant(ErrorMessages.UnhandledStatusOfProject, _instanceItems.First().ProjectStatus), ex.Message);
             }
         }
 
@@ -922,8 +925,9 @@ namespace AdminStore.Repositories
         {
             // Arrange
             int? errorCode = -2;
-            InstanceItem[] instanceItems = { new InstanceItem { Id = ProjectId, Name = "My Project", ParentFolderId = ParentFolderId, IsAccesible = true, ProjectStatus = "I" } };
-            _connection.SetupQueryAsync("GetProjectDetails", It.IsAny<Dictionary<string, object>>(), instanceItems);
+            _instanceItems.First().ParentFolderId = ParentFolderId;
+            _instanceItems.First().ProjectStatus = "I";
+            _connection.SetupQueryAsync("GetProjectDetails", It.IsAny<Dictionary<string, object>>(), _instanceItems);
             _connection.SetupExecuteScalarAsync("PurgeProject",
                 It.IsAny<Dictionary<string, object>>(), errorCode.Value,
                 new Dictionary<string, object> { { "result", errorCode } });
@@ -940,8 +944,9 @@ namespace AdminStore.Repositories
         {
             // Arrange
             int? errorCode = -1;
-            InstanceItem[] instanceItems = { new InstanceItem { Id = ProjectId, Name = "My Project", ParentFolderId = ParentFolderId, IsAccesible = true, ProjectStatus = "I" } };
-            _connection.SetupQueryAsync("GetProjectDetails", It.IsAny<Dictionary<string, object>>(), instanceItems);
+            _instanceItems.First().ParentFolderId = ParentFolderId;
+            _instanceItems.First().ProjectStatus = "I";
+            _connection.SetupQueryAsync("GetProjectDetails", It.IsAny<Dictionary<string, object>>(), _instanceItems);
             _connection.SetupExecuteScalarAsync("PurgeProject",
                 It.IsAny<Dictionary<string, object>>(), errorCode.Value,
                 new Dictionary<string, object> { { "result", errorCode } });
@@ -957,8 +962,9 @@ namespace AdminStore.Repositories
         {
             // Arrange
             int? errorCode = -3;
-            InstanceItem[] instanceItems = { new InstanceItem { Id = ProjectId, Name = "My Project", ParentFolderId = ParentFolderId, IsAccesible = true, ProjectStatus = "I" } };
-            _connection.SetupQueryAsync("GetProjectDetails", It.IsAny<Dictionary<string, object>>(), instanceItems);
+            _instanceItems.First().ParentFolderId = ParentFolderId;
+            _instanceItems.First().ProjectStatus = "I";
+            _connection.SetupQueryAsync("GetProjectDetails", It.IsAny<Dictionary<string, object>>(), _instanceItems);
             _connection.SetupExecuteScalarAsync("PurgeProject",
                 It.IsAny<Dictionary<string, object>>(), errorCode.Value,
                 new Dictionary<string, object> { { "result", errorCode } });

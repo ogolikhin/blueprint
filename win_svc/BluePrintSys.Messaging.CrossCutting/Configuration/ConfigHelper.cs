@@ -30,10 +30,10 @@ namespace BluePrintSys.Messaging.CrossCutting.Configuration
         }
 
         public const string MessageQueueKey = "NServiceBus.Messaging.MessageQueue";
-        public const string MessageQueueDefault = "Cloud.MessageServer";
+        public const string MessageQueueDefault = "Blueprint.Workflow";
         public string MessageQueue => AppSettingsHelper.GetConfigStringValue(MessageQueueKey, MessageQueueDefault);
 
-        public const string ErrorQueueKey = "ErrorQueue";
+        public const string ErrorQueueKey = "NServiceBus.Messaging.ErrorQueue";
         public const string ErrorQueueDefault = "errors";
         public string ErrorQueue => AppSettingsHelper.GetConfigStringValue(ErrorQueueKey, ErrorQueueDefault);
 

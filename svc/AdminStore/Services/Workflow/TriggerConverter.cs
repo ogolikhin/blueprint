@@ -12,7 +12,7 @@ namespace AdminStore.Services.Workflow
     {
         #region Interface Implementation
 
-        public XmlWorkflowEventTriggers ToXmlModel(IEnumerable<IeTrigger> ieTriggers, WorkflowDataMaps dataMaps, int currentUserId)
+        public XmlWorkflowEventTriggers ToXmlModel(IEnumerable<IeTrigger> ieTriggers, WorkflowDataMaps dataMaps)
         {
             if (ieTriggers == null)
             {
@@ -20,11 +20,11 @@ namespace AdminStore.Services.Workflow
             }
 
             var xmlTriggers = new XmlWorkflowEventTriggers();
-            ieTriggers.ForEach(t => xmlTriggers.Triggers.Add(ToXmlModel(t, dataMaps, currentUserId)));
+            ieTriggers.ForEach(t => xmlTriggers.Triggers.Add(ToXmlModel(t, dataMaps)));
             return xmlTriggers;
         }
 
-        public XmlWorkflowEventTrigger ToXmlModel(IeTrigger ieTrigger, WorkflowDataMaps dataMaps, int currentUserId)
+        private XmlWorkflowEventTrigger ToXmlModel(IeTrigger ieTrigger, WorkflowDataMaps dataMaps)
         {
             if (ieTrigger == null)
             {
@@ -42,7 +42,7 @@ namespace AdminStore.Services.Workflow
             }
 
             // Triggers must have an action.
-            xmlTrigger.Action = ToXmlModel(ieTrigger.Action, dataMaps, currentUserId);
+            xmlTrigger.Action = ToXmlModel(ieTrigger.Action, dataMaps);
 
             return xmlTrigger;
         }
@@ -71,7 +71,7 @@ namespace AdminStore.Services.Workflow
             return triggers;
         }
 
-        public IeTrigger FromXmlModel(XmlWorkflowEventTrigger xmlTrigger, WorkflowDataNameMaps dataMaps)
+        private IeTrigger FromXmlModel(XmlWorkflowEventTrigger xmlTrigger, WorkflowDataNameMaps dataMaps)
         {
             if (xmlTrigger == null)
             {
@@ -126,7 +126,7 @@ namespace AdminStore.Services.Workflow
                         PropertyValue = xpAction.PropertyValue,
                         ValidValues = GetValidValues(xpAction.ValidValues, dataMaps),
                         UsersGroups = FromXmlModel(xpAction.UsersGroups, dataMaps),
-                        IncludeCurrentUser = xpAction.CurrentUserId != null
+                        IncludeCurrentUser = xpAction.IncludeCurrentUser
                     };
                     break;
                 case ActionTypes.Generate:
@@ -236,7 +236,7 @@ namespace AdminStore.Services.Workflow
             }
         }
 
-        private static XmlAction ToXmlModel(IeBaseAction ieAction, WorkflowDataMaps dataMaps, int currentUserId)
+        private static XmlAction ToXmlModel(IeBaseAction ieAction, WorkflowDataMaps dataMaps)
         {
             if (ieAction == null)
             {
@@ -248,7 +248,7 @@ namespace AdminStore.Services.Workflow
                 case ActionTypes.EmailNotification:
                     return ToXmlModel(ieAction as IeEmailNotificationAction, dataMaps.PropertyTypeMap);
                 case ActionTypes.PropertyChange:
-                    return ToXmlModel(ieAction as IePropertyChangeAction, dataMaps, currentUserId);
+                    return ToXmlModel(ieAction as IePropertyChangeAction, dataMaps);
                 case ActionTypes.Generate:
                     return ToXmlModel(ieAction as IeGenerateAction, dataMaps.ArtifactTypeMap);
                 default:
@@ -285,7 +285,7 @@ namespace AdminStore.Services.Workflow
             return xmlAction;
         }
 
-        private static XmlPropertyChangeAction ToXmlModel(IePropertyChangeAction ieAction, WorkflowDataMaps dataMaps, int currentUserId)
+        private static XmlPropertyChangeAction ToXmlModel(IePropertyChangeAction ieAction, WorkflowDataMaps dataMaps)
         {
             if (ieAction == null)
             {
@@ -296,7 +296,7 @@ namespace AdminStore.Services.Workflow
             {
                 Name = ieAction.Name,
                 PropertyValue = ieAction.PropertyValue,
-                CurrentUserId = ieAction.IncludeCurrentUser.GetValueOrDefault() ? currentUserId : (int?) null,
+                IncludeCurrentUser = ieAction.IncludeCurrentUser,
                 UsersGroups = !ieAction.UsersGroups.IsEmpty() ? new List<XmlUserGroup>() : null
             };
 

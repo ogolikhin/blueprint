@@ -11,7 +11,7 @@ namespace ServiceLibrary.Helpers.Validators
         #region Fields and constants
 
         private PropertyLite _property;
-        private DNumberPropertyType _propertyType;
+        private NumberPropertyType _propertyType;
         private int DefaultPropertyTypeId = 2;
         private int DefaultInstancePropertyTypeId = 1;
         #endregion
@@ -23,7 +23,7 @@ namespace ServiceLibrary.Helpers.Validators
                 PropertyTypeId = DefaultInstancePropertyTypeId,
                 NumberValue = 15.01M
             };
-            _propertyType = new DNumberPropertyType
+            _propertyType = new NumberPropertyType
             {
                 PropertyTypeId = DefaultPropertyTypeId,
                 InstancePropertyTypeId = DefaultInstancePropertyTypeId,
@@ -42,7 +42,7 @@ namespace ServiceLibrary.Helpers.Validators
             //Act.
             var actualResult = validator.Validate(
                 _property,
-                new List<DPropertyType>()
+                new List<WorkflowPropertyType>()
                 {
                     _propertyType
                 }, 
@@ -93,7 +93,7 @@ namespace ServiceLibrary.Helpers.Validators
             //Act
             var actualResult = validator.Validate(
                 _property,
-                new List<DPropertyType>()
+                new List<WorkflowPropertyType>()
                 {
                     _propertyType
                 },

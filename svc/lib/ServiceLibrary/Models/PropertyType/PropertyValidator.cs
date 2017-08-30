@@ -5,14 +5,14 @@ using ServiceLibrary.Helpers.Validators;
 
 namespace ServiceLibrary.Models.PropertyType
 {
-    public abstract class PropertyValidator<T> : IPropertyValidator where T : DPropertyType
+    public abstract class PropertyValidator<T> : IPropertyValidator where T : WorkflowPropertyType
     {
         #region Virtual and abstract methods
 
         /// <summary>
         /// Validates the specified property.
         /// </summary>
-        public virtual PropertySetResult Validate(PropertyLite property, List<DPropertyType> propertyTypes, IValidationContext validationContext)
+        public virtual PropertySetResult Validate(PropertyLite property, List<WorkflowPropertyType> propertyTypes, IValidationContext validationContext)
         {
             if (propertyTypes.All(a => a.InstancePropertyTypeId.Value != property.PropertyTypeId))
                 return null;

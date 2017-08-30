@@ -4,9 +4,9 @@ using ServiceLibrary.Helpers.Validators;
 
 namespace ServiceLibrary.Models.PropertyType
 {
-    public class UserPropertyValidator : PropertyValidator<DUserPropertyType>
+    public class UserPropertyValidator : PropertyValidator<UserPropertyType>
     {
-        protected override PropertySetResult Validate(PropertyLite property, DUserPropertyType propertyType, IValidationContext validationContext)
+        protected override PropertySetResult Validate(PropertyLite property, UserPropertyType propertyType, IValidationContext validationContext)
         {
             var isValid = property.UsersAndGroups.All(ug => IsUserOrGroupValid(ug, validationContext));
             if (!isValid)
@@ -16,7 +16,7 @@ namespace ServiceLibrary.Models.PropertyType
             return null;
         }
 
-        protected override bool IsPropertyValueEmpty(PropertyLite property, DUserPropertyType propertyType)
+        protected override bool IsPropertyValueEmpty(PropertyLite property, UserPropertyType propertyType)
         {
             return !property.UsersAndGroups.Any();
         }

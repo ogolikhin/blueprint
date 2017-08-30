@@ -215,15 +215,16 @@ namespace AdminStore.Services.Workflow
         private static bool ValidateUserPropertyValue(IePropertyChangeAction action, PropertyType propertyType,
             IList<SqlUser> users, IList<SqlGroup> groups, bool ignoreIds, out WorkflowDataValidationErrorCodes? errorCode)
         {
+            var usersGroups = action.UsersGroups?.UsersGroups;
             errorCode = null;
             if (!ValidateIsPropertyRequired(propertyType.IsRequired.GetValueOrDefault(),
-                action.PropertyValue, true, action.UsersGroups.IsEmpty()))
+                action.PropertyValue, true, usersGroups.IsEmpty()))
             {
                 errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredPropertyValueEmpty;
                 return false;
             }
 
-            if (action.UsersGroups.IsEmpty())
+            if (usersGroups.IsEmpty())
             {
                 return true;
             }
@@ -233,12 +234,12 @@ namespace AdminStore.Services.Workflow
             var userNames = usersMap.Values.ToHashSet();
             var groupNames = groupsMap.Values.ToHashSet();
 
-            if (action.UsersGroups.IsEmpty())
+            if (usersGroups.IsEmpty())
             {
                 return true;
             }
 
-            foreach (var userGroup in action.UsersGroups)
+            foreach (var userGroup in usersGroups)
             {
                 if (userGroup.IsGroup.GetValueOrDefault())
                 {

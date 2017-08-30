@@ -197,11 +197,24 @@ namespace AdminStore.Helpers.Workflow
                 return;
             }
 
-            action.IncludeCurrentUser = NormalizeNullableBool(action.IncludeCurrentUser);
             action.ValidValues = NormalizeList(action.ValidValues);
-            action.UsersGroups = NormalizeList(action.UsersGroups);
+            action.UsersGroups = NormalizeUsersGroups(action.UsersGroups);
+        }
 
-            action.UsersGroups?.ForEach(NormalizeUserGroup);
+        private static IeUsersGroups NormalizeUsersGroups(IeUsersGroups usersGroups)
+        {
+            if (usersGroups == null)
+            {
+                return null;
+            }
+
+            usersGroups.UsersGroups = NormalizeList(usersGroups.UsersGroups);
+            usersGroups.UsersGroups?.ForEach(NormalizeUserGroup);
+            usersGroups.IncludeCurrentUser = NormalizeNullableBool(usersGroups.IncludeCurrentUser);
+
+            return !usersGroups.UsersGroups.IsEmpty() || usersGroups.IncludeCurrentUser.GetValueOrDefault()
+                ? usersGroups
+                : null;
         }
 
         private static void NormalizeUserGroup(IeUserGroup userGroup)

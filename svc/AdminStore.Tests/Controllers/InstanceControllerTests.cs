@@ -90,6 +90,8 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(_rolesAssignmentsQueryResult);
         }
 
+        #region GetInstanceFolder
+
         [TestMethod]
         public async Task GetInstanceFolderAsync_Success()
         {
@@ -148,6 +150,10 @@ namespace AdminStore.Controllers
             Assert.AreSame(children, result);
         }
 
+        #endregion
+
+        #region GetInstanceProject
+
         [TestMethod]
         public async Task GetInstanceProjectAsync_Success()
         {
@@ -183,6 +189,10 @@ namespace AdminStore.Controllers
             //Assert
             Assert.AreSame(project, result);
         }
+
+        #endregion    
+
+        #region GetProjectNavigationPath
 
         [TestMethod]
         [ExpectedException(typeof(HttpResponseException))]
@@ -223,6 +233,8 @@ namespace AdminStore.Controllers
             //Assert
             Assert.AreSame(repositoryResult, result);
         }
+
+        #endregion
 
         #region GetInstanceRoles
 
@@ -725,6 +737,42 @@ namespace AdminStore.Controllers
 
             // Act
             await _controller.UpdateProject(ProjectId, _project);
+
+            // Assert
+            // Exception
+        }
+
+        #endregion
+
+        #region DeleteProject
+
+        [TestMethod]
+        public async Task DeleteProject_SuccessfulDeletionOfProject_ReturnNoContentResponse()
+        {
+            // Arrange
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.DeleteProjects);
+
+            // Act
+            var result = await _controller.DeleteProject(ProjectId);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(HttpStatusCode.NoContent, result.StatusCode);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task DeleteProject_NoPermissions_ReturnForbiddenErrorResult()
+        {
+            // Arrange
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewProjects);
+
+            // Act
+            await _controller.DeleteProject(ProjectId);
 
             // Assert
             // Exception

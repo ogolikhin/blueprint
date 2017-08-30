@@ -3,7 +3,7 @@
 namespace ServiceLibrary.Models.PropertyType
 {
     //TODO: remove properties from this class as we create the new ones
-    public class DPropertyType
+    public class WorkflowPropertyType
     {
         public int PropertyTypeId { get; set; }
         public int? VersionId { get; set; }

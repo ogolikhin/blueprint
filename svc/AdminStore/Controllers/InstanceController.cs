@@ -543,7 +543,7 @@ namespace AdminStore.Controllers
             await _privilegesManager.DemandAny(Session.UserId, projectId,
                 InstanceAdminPrivileges.AccessAllProjectsAdmin, ProjectAdminPrivileges.ManageGroupsAndRoles);
 
-            RoleAssignmentValidator.ValidateModel(roleAssignment, OperationMode.Create);
+            RoleAssignmentValidator.ValidateModel(roleAssignment);
 
             var createdRoleAssignmentId = await _instanceRepository.CreateRoleAssignmentAsync(projectId, roleAssignment);
 
@@ -558,17 +558,18 @@ namespace AdminStore.Controllers
         /// <remarks>
         /// Returns id of updated role assignment (newly created).
         /// </remarks>
-        /// <response code="200">OK. Role assignment was updated.</response>
+        /// <response code="204">OK. Role assignment was updated.</response>
         /// <response code="400">BadRequest. Parameters are invalid.</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden The user does not have permissions to update role assignment</response>
         /// <response code="404">NotFound. The project with the current id doesn't exist or removed from the system or
         /// the group with the current id is not found on the instance and project levels or
         /// the role with the current id is not found in the project's roles or role assignment with the current id is not found </response>
+        /// <response code="409">Conflict. Combination of current project, group and role already exists.</response>
         /// <response code="500">Internal Server Error.</response>
         [HttpPut]
         [SessionRequired]
-        [ResponseType(typeof(int))]
+        [ResponseType(typeof(HttpResponseMessage))]
         [Route("projects/{projectId:int:min(1)}/rolesassignments")]
         public async Task<HttpResponseMessage> UpdateRoleAssignment(int projectId, [FromBody] UpdateRoleAssignment roleAssignment)
         {
@@ -580,11 +581,11 @@ namespace AdminStore.Controllers
             await _privilegesManager.DemandAny(Session.UserId, projectId,
                 InstanceAdminPrivileges.AccessAllProjectsAdmin, ProjectAdminPrivileges.ManageGroupsAndRoles);
 
-            RoleAssignmentValidator.ValidateModel(roleAssignment, OperationMode.Edit, roleAssignment.RoleAssignmentId);
+            RoleAssignmentValidator.ValidateModel(roleAssignment);
             
-            var updatedRoleAssignmentId = await _instanceRepository.UpdateRoleAssignmentAsync(projectId, roleAssignment);
+            await _instanceRepository.UpdateRoleAssignmentAsync(projectId, roleAssignment);
 
-            return Request.CreateResponse(HttpStatusCode.NoContent, updatedRoleAssignmentId);
+            return Request.CreateResponse(HttpStatusCode.NoContent);
         }
 
         #endregion

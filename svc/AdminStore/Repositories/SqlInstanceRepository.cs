@@ -516,7 +516,7 @@ namespace AdminStore.Repositories
                 switch (errorCode.Value)
                 {
                     case (int)SqlErrorCodes.GeneralSqlError:
-                        throw new BadRequestException(ErrorMessages.GeneralErrorOfUpdatingRoleAssignment);
+                        throw new Exception(ErrorMessages.GeneralErrorOfUpdatingRoleAssignment);
 
                     case (int)SqlErrorCodes.ProjectWithCurrentIdNotExist:
                         throw new ResourceNotFoundException(ErrorMessages.ProjectNotExist, ErrorCodes.ResourceNotFound);

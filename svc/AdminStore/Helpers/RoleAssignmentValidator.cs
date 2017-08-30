@@ -11,7 +11,7 @@ namespace AdminStore.Helpers
 {
     public class RoleAssignmentValidator
     {
-        public static void ValidateModel(CreateRoleAssignment roleAssignment, OperationMode operationMode, int? roleAssignmentId = null)
+        public static void ValidateModel(CreateRoleAssignment roleAssignment)
         {
             if (roleAssignment.RoleId < 1)
             {
@@ -23,14 +23,12 @@ namespace AdminStore.Helpers
                 throw new BadRequestException(ErrorMessages.GroupIsRequiredField, ErrorCodes.BadRequest);
             }
 
-            if (operationMode == OperationMode.Edit)
+            var assignment = roleAssignment as UpdateRoleAssignment;
+            if (assignment != null && assignment.RoleAssignmentId < 1)
             {
-                if (roleAssignmentId < 1)
-                {
-                    throw new BadRequestException(ErrorMessages.RoleAssignmentNotFound, ErrorCodes.BadRequest);
-                }
+                throw new BadRequestException(ErrorMessages.RoleAssignmentNotFound, ErrorCodes.BadRequest);
             }
         }
-        
+
     }
 }

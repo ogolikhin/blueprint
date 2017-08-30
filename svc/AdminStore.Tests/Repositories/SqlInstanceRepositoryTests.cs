@@ -891,7 +891,7 @@ namespace AdminStore.Repositories
         public async Task DeleteProject_ProjectWasDeletedByAnotherUser_ReturnResourceNotFoundException()
         {
             // Arrange
-            
+
             _connection.SetupQueryAsync("GetProjectDetails", It.IsAny<Dictionary<string, object>>(), _instanceItems);
 
             // Act
@@ -1166,6 +1166,41 @@ namespace AdminStore.Repositories
             // Assert
             cxn.Verify();
             Assert.AreEqual(result, hasProjectExternalLocksAsync);
+        }
+
+        #endregion
+
+        #region GetProjectsAndFolder
+
+        [TestMethod]
+        public async Task GetProjectsAndFolders_AllParametersAreOk_ReturnNotEmptyQueryResult()
+        {
+            //arrange
+            var total = 1;
+            var spResult = new List<ProjectFolderSearchDto>() { new ProjectFolderSearchDto() { Id = 1 , Location = "path"} };
+            _connection.SetupQueryAsync("SearchProjectsAndFolders", It.IsAny<Dictionary<string, object>>(), spResult, new Dictionary<string, object> { { "Total", (int?)total } });
+
+            //act
+            var result =
+                await _instanceRepository.GetProjectsAndFolders(1, _tabularData, SortingHelper.SortProjectFolders);
+            //assert
+            Assert.AreEqual(1, result.Total);
+            Assert.AreEqual(spResult.First().Location, result.Items.ToList().First().Location);
+        }
+
+        [TestMethod]
+        public async Task GetProjectsAndFolders_AllParametersAreOk_ReturnEmptyResult()
+        {
+            //arrange
+            var total = 0;
+            var spResult = new List<ProjectFolderSearchDto>();
+            _connection.SetupQueryAsync("SearchProjectsAndFolders", It.IsAny<Dictionary<string, object>>(), spResult, new Dictionary<string, object> { { "Total", (int?)total } });
+
+            //act
+            var result =
+                await _instanceRepository.GetProjectsAndFolders(1, _tabularData, SortingHelper.SortProjectFolders);
+            //assert
+            Assert.AreEqual(0, result.Total);
         }
 
         #endregion

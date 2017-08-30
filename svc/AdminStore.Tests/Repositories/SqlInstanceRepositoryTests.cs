@@ -22,8 +22,11 @@ namespace AdminStore.Repositories
         private SqlConnectionWrapperMock _connection;
         private SqlInstanceRepository _instanceRepository;
         private const int ProjectId = 1;
+        private const int ParentFolderId = 88;
+        private const int UserId = 10;
         private IEnumerable<RolesAssignments> _projectRolesAssignments;
         private TabularData _tabularData;
+        private InstanceItem[] _instanceItems;
 
         [TestInitialize]
         public void Initialize()
@@ -41,7 +44,11 @@ namespace AdminStore.Repositories
                 Pagination = new Pagination { Limit = 10, Offset = 0 },
                 Sorting = new Sorting { Order = SortOrder.Asc, Sort = "groupName" }
             };
+
+            _instanceItems = new[] { new InstanceItem { Id = ProjectId, Name = "My Project", IsAccesible = true } };
         }
+
+        #region GetInstanceFolderAsync
 
         [TestMethod]
         public async Task GetInstanceFolderAsync_Found()
@@ -94,6 +101,10 @@ namespace AdminStore.Repositories
 
             // Assert
         }
+
+        #endregion
+
+        #region GetInstanceFolderChildrenAsync
 
         [TestMethod]
         public async Task GetInstanceFolderChildrenAsync_Found()
@@ -149,6 +160,10 @@ namespace AdminStore.Repositories
 
             // Assert
         }
+
+        #endregion
+
+        #region GetInstanceProjectAsync
 
         [TestMethod]
         public async Task GetInstanceProjectAsync_Found()
@@ -324,6 +339,10 @@ namespace AdminStore.Repositories
             Assert.AreEqual(result.First(), project);
         }
 
+        #endregion
+
+        #region GetProjectNavigationPathAsync
+
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public async Task GetProjectNavigationPathAsync_InvalidProjectId()
@@ -389,15 +408,6 @@ namespace AdminStore.Repositories
             Assert.AreEqual(result.First().Name, navigationPaths.Last());
         }
 
-        private List<ArtifactsNavigationPath> GetProjectNavigationPathSample()
-        {
-            return new List<ArtifactsNavigationPath>
-            {
-                new ArtifactsNavigationPath { Level = 0, ArtifactId = 1, Name = "ProjectName"},
-                new ArtifactsNavigationPath { Level = 1, ArtifactId = 2, Name = "Blueprint"}
-            };
-        }
-
         [TestMethod]
         public async Task GetProjectNavigationPathAsync_WithoutProjectItself_Found()
         {
@@ -417,6 +427,17 @@ namespace AdminStore.Repositories
             Assert.AreEqual(navigationPaths.Count, 1);
             Assert.AreEqual(result.Last().Name, navigationPaths.Last());
         }
+
+        private List<ArtifactsNavigationPath> GetProjectNavigationPathSample()
+        {
+            return new List<ArtifactsNavigationPath>
+            {
+                new ArtifactsNavigationPath { Level = 0, ArtifactId = 1, Name = "ProjectName"},
+                new ArtifactsNavigationPath { Level = 1, ArtifactId = 2, Name = "Blueprint"}
+            };
+        }
+
+        #endregion
 
         #region GetInstanceRolesAsync
 
@@ -833,6 +854,139 @@ namespace AdminStore.Repositories
 
         #endregion
 
+        #region DeleteProject
+
+        [TestMethod]
+        public async Task DeleteProject_AllParametersCorrect_SuccessfulDeletionOfProject()
+        {
+            // Arrange            
+            _instanceItems.First().ParentFolderId = ParentFolderId;
+            _connection.SetupQueryAsync("GetProjectDetails", It.IsAny<Dictionary<string, object>>(), _instanceItems);
+
+            // Act
+            await _instanceRepository.DeleteProject(UserId, ProjectId);
+
+            // Assert
+            _connection.Verify();
+        }
+
+        [TestMethod]
+        public async Task DeleteProject_ProjectStatusImporting_SuccessfulPurgeOfProject()
+        {
+            // Arrange
+            int? errorCode = 0;
+            _instanceItems.First().ParentFolderId = ParentFolderId;
+            _instanceItems.First().ProjectStatus = "I";
+            _connection.SetupQueryAsync("GetProjectDetails", It.IsAny<Dictionary<string, object>>(), _instanceItems);
+            _connection.SetupExecuteScalarAsync("PurgeProject",
+                It.IsAny<Dictionary<string, object>>(), errorCode.Value,
+                new Dictionary<string, object> { { "result", errorCode } });
+
+            // Act
+            await _instanceRepository.DeleteProject(UserId, ProjectId);
+
+            // Assert
+            _connection.Verify();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task DeleteProject_ProjectWasDeletedByAnotherUser_ReturnResourceNotFoundException()
+        {
+            // Arrange
+
+            _connection.SetupQueryAsync("GetProjectDetails", It.IsAny<Dictionary<string, object>>(), _instanceItems);
+
+            // Act
+            await _instanceRepository.DeleteProject(UserId, ProjectId);
+
+            // Assert
+        }
+
+        [TestMethod]
+        public async Task DeleteProject_UnhandledStatusOfProject_ReturnException()
+        {
+            // Arrange
+
+            _instanceItems.First().ParentFolderId = ParentFolderId;
+            _instanceItems.First().ProjectStatus = string.Empty;
+            _connection.SetupQueryAsync("GetProjectDetails", It.IsAny<Dictionary<string, object>>(), _instanceItems);
+
+            // Act            
+            try
+            {
+                await _instanceRepository.DeleteProject(UserId, ProjectId);
+            }
+            catch (Exception ex)
+            {
+                // Assert
+                Assert.AreEqual(I18NHelper.FormatInvariant(ErrorMessages.UnhandledStatusOfProject, _instanceItems.First().ProjectStatus), ex.Message);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ConflictException))]
+        public async Task DeleteProject_ProjectStatusImporting_ConflictExceptionOnPurgeOfProject()
+        {
+            // Arrange
+            int? errorCode = -2;
+            _instanceItems.First().ParentFolderId = ParentFolderId;
+            _instanceItems.First().ProjectStatus = "I";
+            _connection.SetupQueryAsync("GetProjectDetails", It.IsAny<Dictionary<string, object>>(), _instanceItems);
+            _connection.SetupExecuteScalarAsync("PurgeProject",
+                It.IsAny<Dictionary<string, object>>(), errorCode.Value,
+                new Dictionary<string, object> { { "result", errorCode } });
+
+            // Act
+            await _instanceRepository.DeleteProject(UserId, ProjectId);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task DeleteProject_ProjectStatusImporting_ResourceNotFoundExceptionOnPurgeOfProject()
+        {
+            // Arrange
+            int? errorCode = -1;
+            _instanceItems.First().ParentFolderId = ParentFolderId;
+            _instanceItems.First().ProjectStatus = "I";
+            _connection.SetupQueryAsync("GetProjectDetails", It.IsAny<Dictionary<string, object>>(), _instanceItems);
+            _connection.SetupExecuteScalarAsync("PurgeProject",
+                It.IsAny<Dictionary<string, object>>(), errorCode.Value,
+                new Dictionary<string, object> { { "result", errorCode } });
+
+            // Act
+            await _instanceRepository.DeleteProject(UserId, ProjectId);
+
+            // Assert
+        }
+
+        [TestMethod]
+        public async Task DeleteProject_ProjectStatusImporting_DefaultExceptionOnPurgeOfProject()
+        {
+            // Arrange
+            int? errorCode = -3;
+            _instanceItems.First().ParentFolderId = ParentFolderId;
+            _instanceItems.First().ProjectStatus = "I";
+            _connection.SetupQueryAsync("GetProjectDetails", It.IsAny<Dictionary<string, object>>(), _instanceItems);
+            _connection.SetupExecuteScalarAsync("PurgeProject",
+                It.IsAny<Dictionary<string, object>>(), errorCode.Value,
+                new Dictionary<string, object> { { "result", errorCode } });
+
+            // Act
+            try
+            {
+                await _instanceRepository.DeleteProject(UserId, ProjectId);
+            }
+            catch (Exception ex)
+            {
+                // Assert
+                Assert.AreEqual(ErrorMessages.GeneralErrorOfUpdatingProject, ex.Message);
+            }
+        }
+
+        #endregion
 
         #region Project Roles
 
@@ -1168,6 +1322,41 @@ namespace AdminStore.Repositories
             // Act
             await _instanceRepository.CreateRoleAssignmentAsync(ProjectId, roleAssignment);
 
+        }
+
+        #endregion
+
+        #region GetProjectsAndFolder
+
+        [TestMethod]
+        public async Task GetProjectsAndFolders_AllParametersAreOk_ReturnNotEmptyQueryResult()
+        {
+            //arrange
+            var total = 1;
+            var spResult = new List<ProjectFolderSearchDto>() { new ProjectFolderSearchDto() { Id = 1 , Location = "path"} };
+            _connection.SetupQueryAsync("SearchProjectsAndFolders", It.IsAny<Dictionary<string, object>>(), spResult, new Dictionary<string, object> { { "Total", (int?)total } });
+
+            //act
+            var result =
+                await _instanceRepository.GetProjectsAndFolders(1, _tabularData, SortingHelper.SortProjectFolders);
+            //assert
+            Assert.AreEqual(1, result.Total);
+            Assert.AreEqual(spResult.First().Location, result.Items.ToList().First().Location);
+        }
+
+        [TestMethod]
+        public async Task GetProjectsAndFolders_AllParametersAreOk_ReturnEmptyResult()
+        {
+            //arrange
+            var total = 0;
+            var spResult = new List<ProjectFolderSearchDto>();
+            _connection.SetupQueryAsync("SearchProjectsAndFolders", It.IsAny<Dictionary<string, object>>(), spResult, new Dictionary<string, object> { { "Total", (int?)total } });
+
+            //act
+            var result =
+                await _instanceRepository.GetProjectsAndFolders(1, _tabularData, SortingHelper.SortProjectFolders);
+            //assert
+            Assert.AreEqual(0, result.Total);
         }
 
         #endregion

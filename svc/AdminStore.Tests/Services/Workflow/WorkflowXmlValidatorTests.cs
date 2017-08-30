@@ -823,7 +823,7 @@ namespace AdminStore.Services.Workflow
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
-            ((IePropertyChangeAction) _workflow.NewArtifactEvents[1].Triggers[4].Action).UsersGroups[2].GroupProjectId = 0;
+            ((IePropertyChangeAction) _workflow.NewArtifactEvents[1].Triggers[4].Action).UsersGroups.UsersGroups[2].GroupProjectId = 0;
 
             // Act
             var result = workflowValidator.ValidateXml(_workflow);
@@ -1092,8 +1092,8 @@ namespace AdminStore.Services.Workflow
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
-            ((IePropertyChangeAction)_workflow.NewArtifactEvents[1].Triggers[4].Action).UsersGroups[3].GroupProjectId = 66;
-            ((IePropertyChangeAction)_workflow.NewArtifactEvents[1].Triggers[4].Action).UsersGroups[4].GroupProjectId = 77;
+            ((IePropertyChangeAction)_workflow.NewArtifactEvents[1].Triggers[4].Action).UsersGroups.UsersGroups[3].GroupProjectId = 66;
+            ((IePropertyChangeAction)_workflow.NewArtifactEvents[1].Triggers[4].Action).UsersGroups.UsersGroups[4].GroupProjectId = 77;
 
             // Act
             var result = workflowValidator.ValidateXml(_workflow);
@@ -1126,8 +1126,8 @@ namespace AdminStore.Services.Workflow
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
-            ((IePropertyChangeAction)_workflow.NewArtifactEvents[1].Triggers[4].Action).UsersGroups[3].Name = "";
-            ((IePropertyChangeAction)_workflow.NewArtifactEvents[1].Triggers[4].Action).UsersGroups[4].Name = null;
+            ((IePropertyChangeAction)_workflow.NewArtifactEvents[1].Triggers[4].Action).UsersGroups.UsersGroups[3].Name = "";
+            ((IePropertyChangeAction)_workflow.NewArtifactEvents[1].Triggers[4].Action).UsersGroups.UsersGroups[4].Name = null;
 
             // Act
             var result = workflowValidator.ValidateXml(_workflow);
@@ -1164,9 +1164,12 @@ namespace AdminStore.Services.Workflow
             {
                 new IeValidValue { Value = "a"}
             };
-            ((IePropertyChangeAction)_workflow.TransitionEvents[1].Triggers[1].Action).UsersGroups = new List<IeUserGroup>
+            ((IePropertyChangeAction)_workflow.TransitionEvents[1].Triggers[1].Action).UsersGroups = new IeUsersGroups
             {
-                new IeUserGroup { Name = "user1"}
+                UsersGroups = new List<IeUserGroup>
+                {
+                    new IeUserGroup { Name = "user1"}
+                }
             };
 
             // Act
@@ -1186,8 +1189,7 @@ namespace AdminStore.Services.Workflow
             var pcAction = (IePropertyChangeAction)_workflow.TransitionEvents[1].Triggers[1].Action;
             pcAction.PropertyValue = null;
             pcAction.ValidValues = null;
-            pcAction.UsersGroups = null;
-            pcAction.IncludeCurrentUser = true;
+            pcAction.UsersGroups = new IeUsersGroups { IncludeCurrentUser = true };
 
             // Act
             var result = workflowValidator.ValidateXml(_workflow);
@@ -1204,11 +1206,14 @@ namespace AdminStore.Services.Workflow
             var pcAction = (IePropertyChangeAction) _workflow.TransitionEvents[1].Triggers[1].Action;
             pcAction.PropertyValue = null;
             pcAction.ValidValues = null;
-            pcAction.UsersGroups = new List<IeUserGroup>
+            pcAction.UsersGroups = new IeUsersGroups
             {
-                new IeUserGroup { Name = "user1"}
+                UsersGroups = new List<IeUserGroup>
+                {
+                    new IeUserGroup { Name = "user1"}
+                },
+                IncludeCurrentUser = true
             };
-            pcAction.IncludeCurrentUser = true;
 
             // Act
             var result = workflowValidator.ValidateXml(_workflow);

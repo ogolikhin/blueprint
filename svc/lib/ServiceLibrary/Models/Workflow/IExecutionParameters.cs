@@ -11,7 +11,7 @@ namespace ServiceLibrary.Models.Workflow
     public interface IExecutionParameters
     {
         ItemTypeReuseTemplate ReuseItemTemplate { get; }
-        List<DPropertyType> CustomPropertyTypes { get; }
+        List<WorkflowPropertyType> CustomPropertyTypes { get; }
         IDbTransaction Transaction { get; }
         IReadOnlyList<IPropertyValidator> Validators { get; }
         IReusePropertyValidator ReuseValidator { get; }

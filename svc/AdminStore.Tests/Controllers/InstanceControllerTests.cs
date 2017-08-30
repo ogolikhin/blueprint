@@ -90,6 +90,8 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(_rolesAssignmentsQueryResult);
         }
 
+        #region GetInstanceFolder
+
         [TestMethod]
         public async Task GetInstanceFolderAsync_Success()
         {
@@ -148,6 +150,10 @@ namespace AdminStore.Controllers
             Assert.AreSame(children, result);
         }
 
+        #endregion
+
+        #region GetInstanceProject
+
         [TestMethod]
         public async Task GetInstanceProjectAsync_Success()
         {
@@ -183,6 +189,10 @@ namespace AdminStore.Controllers
             //Assert
             Assert.AreSame(project, result);
         }
+
+        #endregion    
+
+        #region GetProjectNavigationPath
 
         [TestMethod]
         [ExpectedException(typeof(HttpResponseException))]
@@ -223,6 +233,8 @@ namespace AdminStore.Controllers
             //Assert
             Assert.AreSame(repositoryResult, result);
         }
+
+        #endregion
 
         #region GetInstanceRoles
 
@@ -732,6 +744,42 @@ namespace AdminStore.Controllers
 
         #endregion
 
+        #region DeleteProject
+
+        [TestMethod]
+        public async Task DeleteProject_SuccessfulDeletionOfProject_ReturnNoContentResponse()
+        {
+            // Arrange
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.DeleteProjects);
+
+            // Act
+            var result = await _controller.DeleteProject(ProjectId);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(HttpStatusCode.NoContent, result.StatusCode);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task DeleteProject_NoPermissions_ReturnForbiddenErrorResult()
+        {
+            // Arrange
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewProjects);
+
+            // Act
+            await _controller.DeleteProject(ProjectId);
+
+            // Assert
+            // Exception
+        }
+
+        #endregion
+
         #region Project privileges
 
         [TestMethod]
@@ -855,7 +903,6 @@ namespace AdminStore.Controllers
         }
 
         #endregion
-
 
         #region GetProjectRoleAssignments
 
@@ -1124,6 +1171,44 @@ namespace AdminStore.Controllers
             var result = await _controller.CreateRoleAssignment(ProjectId, roleAssignment);
         }
 
+        #endregion
+        #region SearchProjectFolder
+
+        [TestMethod]
+        public async Task SearchProjectFolder_AllParametersAreValid_ReturnSuccessResult()
+        {
+            //arrange
+            var request = new Pagination() { Limit = 10, Offset = 0 };
+            var queryResult = new QueryResult<ProjectFolderSearchDto>() { Items = new List<ProjectFolderSearchDto>() { new ProjectFolderSearchDto() }, Total = 1 };
+            _instanceRepositoryMock.Setup(
+                repo =>
+                    repo.GetProjectsAndFolders(It.IsAny<int>(),
+                        It.Is<TabularData>(
+                            t =>
+                                t.Pagination != null && t.Pagination.Offset.HasValue && t.Pagination.Offset >= 0 &&
+                                t.Pagination.Limit > 0), It.IsAny<Func<Sorting, string>>())).ReturnsAsync(queryResult);
+
+            //act
+            var result =
+                await _controller.SearchProjectFolder(request) as
+                    OkNegotiatedContentResult<QueryResult<ProjectFolderSearchDto>>;
+
+            //assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1, result.Content.Total);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task SearchProjectFolder_InvalidPagination_ReturnBadRequestResponse()
+        {
+            //arrange
+
+            //act
+            await _controller.SearchProjectFolder(new Pagination());
+
+            //assert
+        }
         #endregion
     }
 }

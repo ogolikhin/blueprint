@@ -317,7 +317,7 @@ namespace AdminStore.Services.Workflow
                         _workflowRepository.CreateRevisionInTransactionAsync(transaction, userId,
                             "Workflow update via import.");
 
-                await UpdateWorkflowEntitiesAsync(workflow, workflowDiffResult, dataValidationResult, userId,
+                await UpdateWorkflowEntitiesAsync(workflow, workflowDiffResult, dataValidationResult,
                     publishRevision, transaction);
                 await _workflowRepository.UpdateWorkflowsChangedWithRevisionsAsync(workflow.Id.Value,
                     publishRevision, transaction);
@@ -364,8 +364,10 @@ namespace AdminStore.Services.Workflow
             return workflowDto;
         }
 
-        public async Task UpdateWorkflowStatusAsync(StatusUpdate statusUpdate, int workflowId, int userId)
+        public async Task<int> UpdateWorkflowStatusAsync(StatusUpdate statusUpdate, int workflowId, int userId)
         {
+            var versionId = 0;
+
             var existingWorkflow = await _workflowRepository.GetWorkflowDetailsAsync(workflowId);
             if (existingWorkflow == null)
             {
@@ -400,9 +402,10 @@ namespace AdminStore.Services.Workflow
                         nameof(publishRevision)));
                 }
 
-                await _workflowRepository.UpdateWorkflowsAsync(workflows, publishRevision, transaction);
+                versionId = await _workflowRepository.UpdateWorkflowsAsync(workflows, publishRevision, transaction);
             };
             await _workflowRepository.RunInTransactionAsync(action);
+            return versionId;
         }
 
         public async Task<int> DeleteWorkflows(OperationScope body, string search, int sessionUserId)
@@ -447,7 +450,7 @@ namespace AdminStore.Services.Workflow
 
             var dataMaps = CreateDataMap(dataValidationResult, newStates.ToDictionary(s => s.Name, s => s.WorkflowStateId));
 
-            await CreateWorkflowEventsAsync(workflow, newWorkflowId, publishRevision, transaction, dataMaps, userId);
+            await CreateWorkflowEventsAsync(workflow, newWorkflowId, publishRevision, transaction, dataMaps);
 
             var kvPairs = new List<KeyValuePair<int, string>>();
             if (!workflow.Projects.IsEmpty())
@@ -510,27 +513,27 @@ namespace AdminStore.Services.Workflow
         }
 
         private async Task CreateWorkflowEventsAsync(IeWorkflow workflow, int workflowId, int publishRevision,
-            IDbTransaction transaction, WorkflowDataMaps dataMaps, int userId)
+            IDbTransaction transaction, WorkflowDataMaps dataMaps)
         {
             var importTriggersParams = new List<SqlWorkflowEvent>();
 
             workflow.TransitionEvents.OfType<IeTransitionEvent>().ForEach(e =>
             {
-                importTriggersParams.Add(ToSqlWorkflowEvent(e, workflowId, dataMaps, userId));
+                importTriggersParams.Add(ToSqlWorkflowEvent(e, workflowId, dataMaps));
             });
             workflow.PropertyChangeEvents.OfType<IePropertyChangeEvent>().ForEach(e =>
             {
-                importTriggersParams.Add(ToSqlWorkflowEvent(e, workflowId, dataMaps, userId));
+                importTriggersParams.Add(ToSqlWorkflowEvent(e, workflowId, dataMaps));
             });
             workflow.NewArtifactEvents.OfType<IeNewArtifactEvent>().ForEach(e =>
             {
-                importTriggersParams.Add(ToSqlWorkflowEvent(e, workflowId, dataMaps, userId));
+                importTriggersParams.Add(ToSqlWorkflowEvent(e, workflowId, dataMaps));
             });
 
             await _workflowRepository.CreateWorkflowEventsAsync(importTriggersParams, publishRevision, transaction);
         }
 
-        private SqlWorkflowEvent ToSqlWorkflowEvent(IeEvent wEvent, int newWorkflowId, WorkflowDataMaps dataMaps, int userId)
+        private SqlWorkflowEvent ToSqlWorkflowEvent(IeEvent wEvent, int newWorkflowId, WorkflowDataMaps dataMaps)
         {
             var sqlEvent = new SqlWorkflowEvent
             {
@@ -540,7 +543,7 @@ namespace AdminStore.Services.Workflow
                 Validations = null,
                 Triggers = wEvent.Triggers == null
                     ? null
-                    : SerializationHelper.ToXml(_triggerConverter.ToXmlModel(wEvent.Triggers, dataMaps, userId))
+                    : SerializationHelper.ToXml(_triggerConverter.ToXmlModel(wEvent.Triggers, dataMaps))
             };
 
             switch (wEvent.EventType)
@@ -867,7 +870,7 @@ namespace AdminStore.Services.Workflow
                 }
 
                 var pcAction = (IePropertyChangeAction) t.Action;
-                pcAction.UsersGroups?.Where(ug => ug.IsGroup.GetValueOrDefault()
+                pcAction.UsersGroups?.UsersGroups?.Where(ug => ug.IsGroup.GetValueOrDefault()
                                                   && !ug.GroupProjectId.HasValue
                                                   && !string.IsNullOrWhiteSpace(ug.GroupProjectPath)).ForEach(ug =>
                                                   {
@@ -1034,7 +1037,7 @@ namespace AdminStore.Services.Workflow
         #region Update workflow entities for the workflow update via the import. 
 
         private async Task UpdateWorkflowEntitiesAsync(IeWorkflow workflow, WorkflowDiffResult workflowDiffResult,
-            WorkflowDataValidationResult dataValidationResult, int userId, int publishRevision, IDbTransaction transaction)
+            WorkflowDataValidationResult dataValidationResult, int publishRevision, IDbTransaction transaction)
         {
             if (workflowDiffResult.IsWorkflowPropertiesChanged)
             {
@@ -1044,7 +1047,7 @@ namespace AdminStore.Services.Workflow
             var stateMap = await UpdateWorkflowStatesAsync(workflow.Id.Value, workflowDiffResult, publishRevision, transaction);
             var dataMaps = CreateDataMap(dataValidationResult, stateMap);
 
-            await UpdateWorkflowEventsAsync(workflow.Id.Value, workflowDiffResult, dataMaps, userId,
+            await UpdateWorkflowEventsAsync(workflow.Id.Value, workflowDiffResult, dataMaps,
                 publishRevision, transaction);
 
             await UpdateArtifactAssociationsAsync(workflow.Id.Value, workflowDiffResult,
@@ -1101,7 +1104,7 @@ namespace AdminStore.Services.Workflow
         }
 
         private async Task UpdateWorkflowEventsAsync(int workflowId, WorkflowDiffResult workflowDiffResult,
-            WorkflowDataMaps dataMaps, int userId, int publishRevision, IDbTransaction transaction)
+            WorkflowDataMaps dataMaps, int publishRevision, IDbTransaction transaction)
         {
             if (workflowDiffResult.DeletedEvents.Any())
             {
@@ -1113,13 +1116,13 @@ namespace AdminStore.Services.Workflow
 
             if (workflowDiffResult.AddedEvents.Any())
             {
-                var eventParam = workflowDiffResult.AddedEvents.Select(e => ToSqlWorkflowEvent(e, workflowId, dataMaps, userId));
+                var eventParam = workflowDiffResult.AddedEvents.Select(e => ToSqlWorkflowEvent(e, workflowId, dataMaps));
                 await _workflowRepository.CreateWorkflowEventsAsync(eventParam, publishRevision, transaction);
             }
 
             if (workflowDiffResult.ChangedEvents.Any())
             {
-                var eventParam = workflowDiffResult.ChangedEvents.Select(e => ToSqlWorkflowEvent(e, workflowId, dataMaps, userId));
+                var eventParam = workflowDiffResult.ChangedEvents.Select(e => ToSqlWorkflowEvent(e, workflowId, dataMaps));
                 var updatedEvents = await _workflowRepository.UpdateWorkflowEventsAsync(eventParam, publishRevision, transaction);
 
                 Debug.Assert(workflowDiffResult.ChangedEvents.Select(s => s.Id.Value).ToHashSet()

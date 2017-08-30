@@ -63,7 +63,7 @@ namespace AdminStore.Repositories.Workflow
 
         Task<int> DeleteWorkflowsAsync(OperationScope body, string search, int revision, IDbTransaction transaction = null);
 
-        Task<IEnumerable<SqlWorkflow>> UpdateWorkflowsAsync(IEnumerable<SqlWorkflow> workflows, int revision,
+        Task<int> UpdateWorkflowsAsync(IEnumerable<SqlWorkflow> workflows, int revision,
             IDbTransaction transaction = null);
 
         Task<IEnumerable<SqlState>> GetWorkflowStatesAsync(int workflowId);

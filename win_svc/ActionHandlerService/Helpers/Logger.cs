@@ -14,7 +14,7 @@ namespace ActionHandlerService.Helpers
         /// <param name="level">The level to log at.</param>
         public static void Log(string text, ActionMessage message, TenantInformation tenant, LogLevel level)
         {
-            var logText = $" {text}. Message: {message.ActionType.ToString()}. Tenant ID: {tenant.Id}.";
+            var logText = $" {text}. Message: {message.ActionType.ToString()}. Tenant ID: {tenant.TenantId}.";
             switch (level)
             {
                 case LogLevel.Debug:

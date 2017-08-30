@@ -1,6 +1,8 @@
-﻿using System.Data;
+﻿using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using ActionHandlerService.Models;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.InstanceSettings;
 
@@ -8,7 +10,7 @@ namespace ActionHandlerService.Repositories
 {
     public interface IActionHandlerServiceRepository : IInstanceSettingsRepository
     {
-        Task<string> GetTenantId();
+        Task<List<TenantInformation>> GetTenantsFromTenantsDb();
     }
 
     public class ActionHandlerServiceRepository : SqlInstanceSettingsRepository, IActionHandlerServiceRepository
@@ -25,10 +27,20 @@ namespace ActionHandlerService.Repositories
         {
         }
 
-        //TODO: remove once we get the tenant db ready
-        public async Task<string> GetTenantId()
+        public async Task<List<TenantInformation>> GetTenantsFromTenantsDb()
         {
-            return (await ConnectionWrapper.QueryAsync<string>("SELECT TenantId FROM dbo.Instances", commandType: CommandType.Text)).FirstOrDefault();
+            var tenants = await ConnectionWrapper.QueryAsync<TenantInformation>(
+                @"SELECT [TenantId]
+                ,[TenantName]
+                ,[PackageLevel]
+                ,[PackageName]
+                ,[StartDate]
+                ,[ExpirationDate]
+                ,[BlueprintConnectionString]
+                ,[AdminStoreLog]
+                FROM [tenants].[Tenants]",
+                commandType: CommandType.Text);
+            return tenants.ToList();
         }
     }
 }

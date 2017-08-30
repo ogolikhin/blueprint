@@ -201,7 +201,7 @@ namespace ActionHandlerService.MessageHandlers.ArtifactPublished
                         ArtifactTypePredefined = artifact.Predefined,
                         ProjectId = artifact.ProjectId
                     };
-                    await _nServiceBusServer.Send(tenant.Id, notificationMessage);
+                    await _nServiceBusServer.Send(tenant.TenantId, notificationMessage);
                 }
             }
             return false;

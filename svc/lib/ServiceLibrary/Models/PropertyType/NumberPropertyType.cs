@@ -1,6 +1,6 @@
 ﻿namespace ServiceLibrary.Models.PropertyType
 {
-    public class DNumberPropertyType : DPropertyType
+    public class NumberPropertyType : WorkflowPropertyType
     {
         public bool IsValidate { get; set; }
         /// <summary>

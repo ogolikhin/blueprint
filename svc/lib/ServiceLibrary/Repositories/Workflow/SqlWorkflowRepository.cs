@@ -12,6 +12,7 @@ using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.PropertyType;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Models.Workflow.Actions;
+using ServiceLibrary.Repositories.ProjectMeta.PropertyXml;
 
 namespace ServiceLibrary.Repositories.Workflow
 {
@@ -296,11 +297,20 @@ namespace ServiceLibrary.Repositories.Workflow
 
                 return action;
             }
-            return new PropertyChangeAction
+            else
             {
-                InstancePropertyTypeId = propertyChangeAction.PropertyTypeId,
-                PropertyValue = propertyChangeAction.PropertyValue
-            };
+                var action = new PropertyChangeAction
+                {
+                    InstancePropertyTypeId = propertyChangeAction.PropertyTypeId,
+                    PropertyValue = propertyChangeAction.PropertyValue,
+                };
+                if (propertyChangeAction.ValidValues.Any())
+                {
+                    action.ValidValues.AddRange(propertyChangeAction.ValidValues);
+                }
+
+                return action;
+            }
         }
         
         private WorkflowEventAction ToGenerateAction(XmlGenerateAction generateAction)
@@ -365,7 +375,6 @@ namespace ServiceLibrary.Repositories.Workflow
                 return ToItemTypePropertyTypesDictionary(await ConnectionWrapper.QueryAsync<SqlPropertyType>(storedProcedure, param, commandType: CommandType.StoredProcedure));
             }
             return ToItemTypePropertyTypesDictionary(await transaction.Connection.QueryAsync<SqlPropertyType>(storedProcedure, param, transaction, commandType: CommandType.StoredProcedure));
-
         }
 
         private Dictionary<int, List<DPropertyType>> ToItemTypePropertyTypesDictionary(IEnumerable<SqlPropertyType> sqlPropertyTypes)
@@ -437,6 +446,46 @@ namespace ServiceLibrary.Repositories.Workflow
                             Predefined = sqlPropertyType.Predefined
                         };
                         break;
+                    case PropertyPrimitiveType.Choice:
+                    {
+                        dProperty = new ChoicePropertyType
+                        {
+                            AllowMultiple = sqlPropertyType.AllowMultiple,
+                            //DefaultValue = PropertyHelper.ToDecimal((byte[])sqlPropertyType.DecimalDefaultValue),
+                            ValidValues = sqlPropertyType.PrimitiveType == PropertyPrimitiveType.Choice
+                                    ? XmlModelSerializer.DeserializeCustomProperties(sqlPropertyType.CustomProperty).CustomProperties[0]?.ValidValues
+                                    .OrderBy(v => I18NHelper.Int32ParseInvariant(v.OrderIndex))
+                                    .Select(v =>
+                                    {
+                                        int? vvId = null;
+                                        if (!string.IsNullOrWhiteSpace(v.LookupListItemId))
+                                        {
+                                            int intValue;
+                                            if (int.TryParse(v.LookupListItemId, out intValue))
+                                                vvId = intValue;
+                                        }
+                                        int? vvSid = null;
+                                        if (!string.IsNullOrWhiteSpace(v.StandardLookupListItemId))
+                                        {
+                                            int intValue;
+                                            if (int.TryParse(v.StandardLookupListItemId, out intValue))
+                                                vvSid = intValue;
+                                        }
+                                        return new ValidValue { Id = vvId, Value = v.Value, Sid = vvSid };
+                                    }).ToList()
+                                    : null,
+                            DefaultValidValueId = sqlPropertyType.DefaultValidValueId,
+                            InstancePropertyTypeId = sqlPropertyType.InstancePropertyTypeId,
+                            Name = sqlPropertyType.Name,
+                            PropertyTypeId = sqlPropertyType.PropertyTypeId,
+                            PrimitiveType = sqlPropertyType.PrimitiveType,
+                            IsRequired = sqlPropertyType.Required != null && sqlPropertyType.Required.Value,
+                            IsValidate = sqlPropertyType.Validate.GetValueOrDefault(false),
+                            VersionId = sqlPropertyType.VersionId,
+                            Predefined = sqlPropertyType.Predefined
+                        };
+                        break;
+                    }                    
                     //TODO: add other DPropertyTypes
                     default:
                         {

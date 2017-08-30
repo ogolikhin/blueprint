@@ -20,5 +20,13 @@ namespace ServiceLibrary.Repositories.ProjectMeta.PropertyXml.Models
 
         [XmlAttribute(AttributeName = "SId")]
         public string StandardLookupListItemId { get; set; }
+        public static XmlCustomPropertyValidValue CreateAsValue(int lookupListItemId)
+        {
+            return new XmlCustomPropertyValidValue()
+            {
+                LookupListItemId = XmlModelConvert.FromInt32(lookupListItemId),
+                Selected = XmlModelConvert.FromBoolean(true)
+            };
+        }
     }
 }

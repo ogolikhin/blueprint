@@ -456,8 +456,17 @@ namespace ArtifactStore.Executors
             var userIds = userGroups.Where(u => !u.IsGroup.GetValueOrDefault(false) && u.Id.HasValue).Select(u => u.Id.Value).ToHashSet();
             var groupIds = userGroups.Where(u => u.IsGroup.GetValueOrDefault(false) && u.Id.HasValue).Select(u => u.Id.Value).ToHashSet();
 
-            var users = await _stateChangeExecutorRepositories.UsersRepository.GetExistingUsersByIdsAsync(userIds);
-            var groups = await _stateChangeExecutorRepositories.UsersRepository.GetExistingGroupsByIds(groupIds, false);
+            var users = new List<SqlUser>();
+            if (userIds.Any())
+            {
+                users.AddRange(await _stateChangeExecutorRepositories.UsersRepository.GetExistingUsersByIdsAsync(userIds));
+            }
+            var groups = new List<SqlGroup>();
+            if (groupIds.Any())
+            {
+                groups.AddRange(
+                    await _stateChangeExecutorRepositories.UsersRepository.GetExistingGroupsByIds(groupIds, false));
+            }
 
             return new Tuple<IEnumerable<SqlUser>, IEnumerable<SqlGroup>>(users, groups);
         }

@@ -28,6 +28,7 @@ namespace ServiceLibrary.Models.PropertyType
         public int? DefaultValidValueId { get; set; }
         public string UserDefaultValue { get; set; }
         public string UserDefaultLabel { get; set; }
+        public string CustomProperty { get; set; }
     }
 
 }

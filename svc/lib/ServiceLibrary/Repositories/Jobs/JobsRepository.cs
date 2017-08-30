@@ -33,7 +33,7 @@ namespace ServiceLibrary.Repositories.Jobs
         {
         }
 
-        public JobsRepository(SqlConnectionWrapper connectionWrapper):
+        public JobsRepository(ISqlConnectionWrapper connectionWrapper):
             this(connectionWrapper, new SqlArtifactRepository(connectionWrapper, 
                 new SqlItemInfoRepository(connectionWrapper), 
                 new SqlArtifactPermissionsRepository(connectionWrapper)),

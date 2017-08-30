@@ -6,8 +6,6 @@ using BluePrintSys.Messaging.CrossCutting.Logging;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Jobs;
-using ServiceLibrary.Repositories;
-using ServiceLibrary.Repositories.Jobs;
 
 namespace BlueprintSys.RC.Services.MessageHandlers.GenerateUserStories
 {
@@ -33,7 +31,9 @@ namespace BlueprintSys.RC.Services.MessageHandlers.GenerateUserStories
 
             var payload = new GenerateUserStoryInfo { ProcessId = generateUserStoriesMessage.ArtifactId, TaskId = null };
             var parameters = SerializationHelper.ToXml(payload);
-            var jobsRepository = new JobsRepository(new SqlConnectionWrapper(tenant.BlueprintConnectionString));
+            var generationUserStoriesActionRepo = (IGenerateUserStoriesRepository) actionHandlerServiceRepository;
+            var jobsRepository = generationUserStoriesActionRepo.JobsRepository;
+
             var jobId = await jobsRepository.AddJobMessage(JobType.GenerateUserStories,
                 false, parameters, null, generateUserStoriesMessage.ProjectId, 
                 generateUserStoriesMessage.ProjectName, generateUserStoriesMessage.UserId, 

@@ -679,7 +679,7 @@ namespace AdminStore.Services.Instance
             //Assert
             catch (BadRequestException ex)
             {
-                Assert.AreEqual(ex.ErrorCode, ErrorCodes.OutOfRangeParameter);
+                Assert.AreEqual(ex.ErrorCode, ErrorCodes.InvalidParameter);
 
                 return;
             }
@@ -701,7 +701,7 @@ namespace AdminStore.Services.Instance
             //Assert
             catch (BadRequestException ex)
             {
-                Assert.AreEqual(ex.ErrorCode, ErrorCodes.OutOfRangeParameter);
+                Assert.AreEqual(ex.ErrorCode, ErrorCodes.InvalidParameter);
 
                 return;
             }

@@ -58,12 +58,12 @@ namespace AdminStore.Services.Instance
         {
             if (emailSettingsDto.Incoming == null)
             {
-                throw new BadRequestException("Incoming cannot be null.", ErrorCodes.OutOfRangeParameter);
+                throw new BadRequestException("Incoming cannot be null.", ErrorCodes.InvalidParameter);
             }
 
             if (emailSettingsDto.Outgoing == null)
             {
-                throw new BadRequestException("Outgoing cannot be null.", ErrorCodes.OutOfRangeParameter);
+                throw new BadRequestException("Outgoing cannot be null.", ErrorCodes.InvalidParameter);
             }
 
             await _privilegesManager.Demand(userId, InstanceAdminPrivileges.ManageInstanceSettings);

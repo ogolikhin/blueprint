@@ -642,7 +642,10 @@ namespace AdminStore.Repositories
             var folderId = 1;
             var folder = new FolderDto { Name = "Folder1", ParentFolderId = 1 };
 
-            cxn.SetupExecuteScalarAsync("UpdateFolder", It.IsAny<Dictionary<string, object>>(), folderId, new Dictionary<string, object> { { "ErrorCode", 0 } });
+            cxn.SetupExecuteScalarAsync("UpdateFolder", 
+                                        It.IsAny<Dictionary<string, object>>(), 
+                                        folderId, 
+                                        new Dictionary<string, object> { { "ErrorCode", 0 } });
 
             // Act
             await repository.UpdateFolderAsync(folderId, folder);
@@ -1166,6 +1169,159 @@ namespace AdminStore.Repositories
             // Assert
             cxn.Verify();
             Assert.AreEqual(result, hasProjectExternalLocksAsync);
+        }
+
+        #endregion
+
+        #region CreateRoleAssignmentAsync
+
+        [TestMethod]
+        public async Task CreateRoleAssignment_SuccessfulRoleAssignmentCreation_ReturnCreatedRoleAssignmentId()
+        {
+            // Arrange
+            var createdRoleAssignmentId = 1;
+            CreateRoleAssignment roleAssignment = new CreateRoleAssignment() {GroupId = 1, RoleId = 1};
+
+            _connection.SetupExecuteScalarAsync("CreateProjectRoleAssignment",
+                                        new Dictionary <string, object>
+                                        {
+                                            { "ProjectId", ProjectId },
+                                            {"GroupId", roleAssignment.GroupId },
+                                            {"RoleId", roleAssignment.RoleId }
+                                        }, 
+                                        createdRoleAssignmentId, 
+                                        new Dictionary<string, object> { { "ErrorCode", 0 } });
+
+            // Act
+            var result = await _instanceRepository.CreateRoleAssignmentAsync(ProjectId, roleAssignment);
+
+            // Assert
+            _connection.Verify();
+            Assert.AreEqual(result, createdRoleAssignmentId);
+        }
+
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task CreateRoleAssignment_GroupNotExists_ReturnResourceNotFoundError()
+        {
+            // Arrange
+            int errorCode = 50006; // there are no groups with given Id
+
+            int createdRoleAssignmentId = 0;
+
+            CreateRoleAssignment roleAssignment = new CreateRoleAssignment()
+            {
+                GroupId = 0/*missing Id*/,
+                RoleId = 1
+            };
+
+            _connection.SetupExecuteScalarAsync("CreateProjectRoleAssignment",
+                            new Dictionary<string, object>
+                            {
+                                            { "ProjectId", ProjectId },
+                                            {"GroupId", roleAssignment.GroupId },
+                                            {"RoleId", roleAssignment.RoleId }
+                            },
+                            createdRoleAssignmentId,
+                            new Dictionary<string, object> { { "ErrorCode", errorCode } });
+
+            // Act
+            await _instanceRepository.CreateRoleAssignmentAsync(ProjectId, roleAssignment);
+
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task CreateRoleAssignment_RoleNotExists_ReturnResourceNotFoundError()
+        {
+            // Arrange
+            int errorCode = 50020; // there are no roles with given Id
+
+            int createdRoleAssignmentId = 0;
+
+            CreateRoleAssignment roleAssignment = new CreateRoleAssignment()
+            {
+                GroupId = 1,
+                RoleId = 0/*missing Id*/
+            };
+
+            _connection.SetupExecuteScalarAsync("CreateProjectRoleAssignment",
+                            new Dictionary<string, object>
+                            {
+                                            { "ProjectId", ProjectId },
+                                            {"GroupId", roleAssignment.GroupId },
+                                            {"RoleId", roleAssignment.RoleId }
+                            },
+                            createdRoleAssignmentId,
+                            new Dictionary<string, object> { { "ErrorCode", errorCode } });
+
+            // Act
+            await _instanceRepository.CreateRoleAssignmentAsync(ProjectId, roleAssignment);
+
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task CreateRoleAssignment_ProjectNotExists_ReturnResourceNotFoundError()
+        {
+            // Arrange
+            int errorCode = 50016; // there are no projects with given Id
+
+            int createdRoleAssignmentId = 0;
+
+            CreateRoleAssignment roleAssignment = new CreateRoleAssignment()
+            {
+                GroupId = 1,
+                RoleId = 1
+            };
+
+            int projectId = 10000; //this id is not in the table yet
+
+            _connection.SetupExecuteScalarAsync("CreateProjectRoleAssignment",
+                            new Dictionary<string, object>
+                            {
+                                            { "ProjectId", projectId },
+                                            {"GroupId", roleAssignment.GroupId },
+                                            {"RoleId", roleAssignment.RoleId }
+                            },
+                            createdRoleAssignmentId,
+                            new Dictionary<string, object> { { "ErrorCode", errorCode } });
+
+            // Act
+            await _instanceRepository.CreateRoleAssignmentAsync(projectId, roleAssignment);
+
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ConflictException))]
+        public async Task CreateRoleAssignment_AssignmentAlreayExists_ReturnConflictExceptionError()
+        {
+            // Arrange
+            int errorCode = 50021; // assignment with given Id already exists
+
+            int createdRoleAssignmentId = 0;
+
+            CreateRoleAssignment roleAssignment = new CreateRoleAssignment()
+            {
+                GroupId = 1,
+                RoleId = 1
+            };
+
+
+            _connection.SetupExecuteScalarAsync("CreateProjectRoleAssignment",
+                            new Dictionary<string, object>
+                            {
+                                            { "ProjectId", ProjectId },
+                                            {"GroupId", roleAssignment.GroupId },
+                                            {"RoleId", roleAssignment.RoleId }
+                            },
+                            createdRoleAssignmentId,
+                            new Dictionary<string, object> { { "ErrorCode", errorCode } });
+
+            // Act
+            await _instanceRepository.CreateRoleAssignmentAsync(ProjectId, roleAssignment);
+
         }
 
         #endregion

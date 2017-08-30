@@ -44,16 +44,19 @@ namespace ServiceLibrary.Models.Workflow.Actions
             var dPropertyType = executionParameters.CustomPropertyTypes.FirstOrDefault(item => item.InstancePropertyTypeId == InstancePropertyTypeId);
             if (dPropertyType == null)
             {
-                throw new ConflictException(
-                    I18NHelper.FormatInvariant("Property type id {0} is not associated with specified artifact type", InstancePropertyTypeId));
+                return new PropertySetResult(InstancePropertyTypeId, ErrorCodes.InvalidArtifactProperty, "Property Id does not exist in database");
             }
 
-            PopulatePropertyLite(dPropertyType);
+            var resultSet = PopulatePropertyLite(dPropertyType);
+            if (resultSet != null)
+            {
+                return resultSet;
+            }
 
             return executionParameters.Validators.Select(v => v.Validate(PropertyLiteValue, executionParameters.CustomPropertyTypes, executionParameters.ValidationContext)).FirstOrDefault(r => r != null);
         }
 
-        protected virtual void PopulatePropertyLite(WorkflowPropertyType propertyType)
+        protected virtual PropertySetResult PopulatePropertyLite(WorkflowPropertyType propertyType)
         {
             switch (propertyType?.PrimitiveType)
             {
@@ -73,7 +76,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
                             !Decimal.TryParse(PropertyValue, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint, new NumberFormatInfo(),
                                 out value))
                         {
-                            throw new FormatException("Property change action provided incorrect value type");
+                            return new PropertySetResult(InstancePropertyTypeId, ErrorCodes.InvalidArtifactProperty, "Parsing failed for decimal value");
                         }
                         PropertyLiteValue = new PropertyLite()
                         {
@@ -86,7 +89,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
                     PropertyLiteValue = new PropertyLite
                     {
                         PropertyTypeId = InstancePropertyTypeId,
-                        DateValue = ParseDateValue(PropertyValue, new TimeProvider())
+                        DateValue = PropertyHelper.ParseDateValue(PropertyValue, new TimeProvider())
                     };
                     break;
                 case PropertyPrimitiveType.Choice:
@@ -110,26 +113,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
                     };
                     break;
             }
-        }
-
-        public static DateTime ParseDateValue(string dateValue, ITimeProvider timeProvider)
-        {
-            //specific date
-            const string dateFormat = WorkflowConstants.Iso8601DateFormat;
-            DateTime date;
-            if (DateTime.TryParseExact(dateValue, dateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
-            {
-                return date;
-            }
-
-            //today + days
-            int days;
-            if (int.TryParse(dateValue, out days))
-            {
-                return timeProvider.Today.AddDays(days);
-            }
-
-            throw new FormatException($"Invalid date value: {dateValue}. The date format must be {dateFormat}, or an integer.");
+            return null;
         }
     }
 }

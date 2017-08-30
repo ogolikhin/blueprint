@@ -23,7 +23,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
         private IExecutionParameters _executionParameters;
         private PropertyChangeAction _propertyChangeAction;
 
-        private const int DefaultInstancePropertyTypeId = 123;
+        private const int DefaultNumberInstancePropertyTypeId = 123;
         private const string DefaultValue = "99";
 
         [TestInitialize]
@@ -31,7 +31,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
         {
             _propertyChangeAction = new PropertyChangeAction()
             {
-                InstancePropertyTypeId = DefaultInstancePropertyTypeId,
+                InstancePropertyTypeId = DefaultNumberInstancePropertyTypeId,
                 PropertyValue = DefaultValue
             };
             _saveRepositoryMock = new Mock<ISaveArtifactRepository>();
@@ -40,7 +40,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
             _customPropertyTypes.Add(
                 new NumberPropertyType()
                 {
-                    InstancePropertyTypeId = DefaultInstancePropertyTypeId,
+                    InstancePropertyTypeId = DefaultNumberInstancePropertyTypeId,
                     PrimitiveType = PropertyPrimitiveType.Number
                 });
         }
@@ -89,84 +89,54 @@ namespace ServiceLibrary.Models.Workflow.Actions
             Assert.IsTrue(result);
             Assert.IsTrue(propertyLiteValue.NumberValue.HasValue);
         }
-
         [TestMethod]
-        public void ParseDateValue_ReturnsCurrentDate_WhenDateValueIsZero()
+        public async Task Execute_WhenNumberIsNull_NumberIsPopulatedWithNull()
         {
-            //arrange
-            const string dateValue = "0";
-            var today = new DateTime(2017, 1, 1);
-            var mockTimeProvider = new Mock<ITimeProvider>();
-            mockTimeProvider.Setup(m => m.Today).Returns(today);
-            //act
-            var date = PropertyChangeAction.ParseDateValue(dateValue, mockTimeProvider.Object);
-            //assert
-            Assert.AreEqual(today, date);
+            //Arrange
+            _executionParameters = new ExecutionParameters(
+                1,
+                new VersionControlArtifactInfo(),
+                null,
+                _customPropertyTypes,
+                _saveRepositoryMock.Object,
+                null,
+                null,
+                new List<IPropertyValidator>(),
+                _reuseValidatorMock.Object);
+            _propertyChangeAction.PropertyValue = null;
+
+            //Act
+            var result = await _propertyChangeAction.Execute(_executionParameters);
+            var propertyLiteValue = _propertyChangeAction.PropertyLiteValue;
+
+            //Assert
+            Assert.IsTrue(result);
+            Assert.IsTrue(!propertyLiteValue.NumberValue.HasValue);
         }
 
         [TestMethod]
-        public void ParseDateValue_ReturnsFutureDate_WhenDateValueIsPositiveInteger()
+        public async Task Execute_WhenNumberIsNegative_NumberIsPopulated()
         {
-            //arrange
-            const int daysToAdd = 1;
-            var dateValue = daysToAdd.ToString(CultureInfo.InvariantCulture);
-            var today = new DateTime(2018, 2, 2);
-            var mockTimeProvider = new Mock<ITimeProvider>();
-            mockTimeProvider.Setup(m => m.Today).Returns(today);
-            //act
-            var date = PropertyChangeAction.ParseDateValue(dateValue, mockTimeProvider.Object);
-            //assert
-            var expected = today.AddDays(daysToAdd);
-            Assert.AreEqual(expected, date);
-        }
+            //Arrange
+            _executionParameters = new ExecutionParameters(
+                1,
+                new VersionControlArtifactInfo(),
+                null,
+                _customPropertyTypes,
+                _saveRepositoryMock.Object,
+                null,
+                null,
+                new List<IPropertyValidator>(),
+                _reuseValidatorMock.Object);
+            _propertyChangeAction.PropertyValue = "-10";
 
-        [TestMethod]
-        public void ParseDateValue_ReturnsPastDate_WhenDateValueIsNegativeInteger()
-        {
-            //arrange
-            const int daysToAdd = -1;
-            var dateValue = daysToAdd.ToString(CultureInfo.InvariantCulture);
-            var today = new DateTime(2019, 3, 3);
-            var mockTimeProvider = new Mock<ITimeProvider>();
-            mockTimeProvider.Setup(m => m.Today).Returns(today);
-            //act
-            var date = PropertyChangeAction.ParseDateValue(dateValue, mockTimeProvider.Object);
-            //assert
-            var expected = today.AddDays(daysToAdd);
-            Assert.AreEqual(expected, date);
-        }
+            //Act
+            var result = await _propertyChangeAction.Execute(_executionParameters);
+            var propertyLiteValue = _propertyChangeAction.PropertyLiteValue;
 
-        [TestMethod]
-        public void ParseDateValue_ReturnsSpecifiedDate_WhenDateValueIsASpecificDateInTheCorrectFormat()
-        {
-            //arrange
-            var expectedDate = new DateTime(2020, 4, 4);
-            var dateValue = expectedDate.ToString(WorkflowConstants.Iso8601DateFormat, CultureInfo.InvariantCulture);
-            //act
-            var date = PropertyChangeAction.ParseDateValue(dateValue, new TimeProvider());
-            //assert
-            Assert.AreEqual(expectedDate, date);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(FormatException))]
-        public void ParseDateValue_ReturnsSpecifiedDate_WhenDateValueIsASpecificDateInAnUnsupportedFormat()
-        {
-            //arrange
-            var date = new DateTime(2021, 5, 5);
-            var unsupportedDateFormat = date.ToLongDateString();
-            //act
-            PropertyChangeAction.ParseDateValue(unsupportedDateFormat, new TimeProvider());
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(FormatException))]
-        public void ParseDateValue_ThrowsFormatException_WhenDateValueIsInvalid()
-        {
-            //arrange
-            const string dateValue = "invalid date";
-            //act
-            PropertyChangeAction.ParseDateValue(dateValue, new TimeProvider());
+            //Assert
+            Assert.IsTrue(result);
+            Assert.IsTrue(propertyLiteValue.NumberValue.HasValue);
         }
     }
 }

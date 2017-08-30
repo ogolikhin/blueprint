@@ -46,8 +46,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ConflictException))]
-        public async Task Execute_PropertyTypeIdNotFound_ThrowsException()
+        public async Task Execute_PropertyTypeIdNotFound_ReturnsFalse()
         {
             //Arrange
             _propertyChangeAction.InstancePropertyTypeId = 5;
@@ -63,7 +62,10 @@ namespace ServiceLibrary.Models.Workflow.Actions
                 _reuseValidatorMock.Object);
 
             //Act
-            await _propertyChangeAction.Execute(_executionParameters);
+            var result = await _propertyChangeAction.Execute(_executionParameters);
+
+            //Assert
+            Assert.IsFalse(result);
         }
 
         [TestMethod]

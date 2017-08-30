@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using BlueprintSys.RC.Services.MessageHandlers.GenerateUserStories;
 using BlueprintSys.RC.Services.Models;
+using BlueprintSys.RC.Services.Repositories;
 using BluePrintSys.Messaging.Models.Actions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -32,7 +33,7 @@ namespace BlueprintSys.RC.Services.Tests
         [TestMethod]
         public async Task GenerateUserStoriesActionHelper_HandleActionReturnsFalse_WhenNoMessage()
         {
-            var actionHelper = new GenerateUserStoriesActionHelper(_repositoryMock.Object);
+            var actionHelper = new GenerateUserStoriesActionHelper();
             var result = await actionHelper.HandleAction(null, null, null);
             Assert.IsFalse(result);
         }
@@ -50,8 +51,25 @@ namespace BlueprintSys.RC.Services.Tests
                 ProjectName = "test",
                 RevisionId = 1
             };
-            var actionHelper = new GenerateUserStoriesActionHelper(_repositoryMock.Object);
-            var result = await actionHelper.HandleAction(_tenantInformation, message, null);
+            var actionHelper = new GenerateUserStoriesActionHelper();
+            var actionHandlerServiceRepositoryMock = new Mock<IGenerateUserStoriesRepository>();
+            var jobServicesMock = new Mock<IJobsRepository>();
+            jobServicesMock.Setup(t => t.AddJobMessage(JobType.GenerateUserStories,
+                false,
+                It.IsAny<string>(),
+                null,
+                It.IsAny<int?>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<string>(),
+                It.IsAny<string>()
+                )).ReturnsAsync(1);
+            actionHandlerServiceRepositoryMock.Setup(t => t.JobsRepository).Returns(jobServicesMock.Object);
+
+            //Act
+            var result = await actionHelper.HandleAction(_tenantInformation, message, actionHandlerServiceRepositoryMock.Object);
+
+            //Assert
             Assert.IsTrue(result);
         }
     }

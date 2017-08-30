@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using BluePrintSys.Messaging.CrossCutting.Configuration;
 using BluePrintSys.Messaging.CrossCutting.Logging;
-using NServiceBus;
+using ServiceLibrary.Models.Workflow;
 
 namespace BluePrintSys.Messaging.CrossCutting.Host
 {
@@ -17,7 +17,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
             _nServiceBusServer = nServiceBusServer;
         }
 
-        public async Task SendAsync(string tenantId, IMessage message)
+        public async Task SendAsync(string tenantId, IWorkflowMessage message)
         {
             Log.Info("Sending message to server via RabbitMQ");
             await _nServiceBusServer.Send(tenantId, message);

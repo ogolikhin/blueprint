@@ -7,8 +7,13 @@ using BlueprintSys.RC.Services.Repositories;
 using BluePrintSys.Messaging.CrossCutting.Host;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.LocalLog;
+using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
+using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories.ApplicationSettings;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
 {
@@ -16,11 +21,11 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
     {
         private readonly IActionsParser _actionsParser;
         private readonly INServiceBusServer _nServiceBusServer;
+        private const string LogSource = "ArtifactsPublishedActionHelper.CreatedArtifacts";
 
         public ArtifactsPublishedActionHelper(IActionsParser actionsParser = null, INServiceBusServer nServiceBusServer = null)
         {
             _actionsParser = actionsParser ?? new ActionsParser();
-            _nServiceBusServer = nServiceBusServer ?? WorkflowServiceBusServer.Instance;
             _nServiceBusServer = nServiceBusServer ?? WorkflowServiceBusServer.Instance;
         }
 
@@ -40,7 +45,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
             }
 
             var createdArtifacts = allPublishedArtifacts.Where(p => p.IsFirstTimePublished).ToList();
-            if (!await ProcessCreatedArtifacts(tenant, updatedArtifacts, message, repository))
+            if (!await ProcessCreatedArtifacts(tenant, createdArtifacts, message, repository))
             {
                 return await Task.FromResult(false);
             }
@@ -49,12 +54,65 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
             return await Task.FromResult(true);
         }
 
-        private async Task<bool> ProcessCreatedArtifacts(TenantInformation tenant, List<PublishedArtifactInformation> createdArtifacts, ArtifactsPublishedMessage message, IArtifactsPublishedRepository repository)
+        private async Task<bool> ProcessCreatedArtifacts(TenantInformation tenant, 
+            List<PublishedArtifactInformation> createdArtifacts, 
+            ArtifactsPublishedMessage message, 
+            IArtifactsPublishedRepository repository)
         {
-            //foreach (var publishedArtifactInformation in createdArtifacts)
-            //{
-            //    repository.GetWorkflowEventTriggersForTransition(message.UserId, )
-            //}
+            if (createdArtifacts == null || createdArtifacts.Count <= 0)
+            {
+                return true;
+            }
+            var applicationSettingsRepository = new ApplicationSettingsRepository(
+                new SqlConnectionWrapper(tenant.BlueprintConnectionString));
+
+            var serviceLogRepository = new ServiceLogRepository(new HttpClientProvider(), 
+                new LocalEventLog(), 
+                tenant.AdminStoreLog);
+
+            var artifactIds = createdArtifacts.Select(a => a.Id).ToHashSet();
+
+            var artifactInfos = (await repository.GetWorkflowMessageArtifactInfoAsync(message.UserId,
+                artifactIds,
+                message.RevisionId)).ToDictionary(k => k.Id);
+
+            var notFoundArtifactIds = artifactIds.Except(artifactInfos.Keys).ToHashSet();
+            if (notFoundArtifactIds.Count > 0)
+            {
+                var notFoundArtifactIdString = string.Join(", ", notFoundArtifactIds);
+                await serviceLogRepository.LogInformation(LogSource,
+                    $"Could not recover information for following artifacts {notFoundArtifactIdString}");
+            }
+
+            foreach (var createdArtifact in createdArtifacts)
+            {
+                WorkflowMessageArtifactInfo artifactInfo;
+                if (!artifactInfos.TryGetValue(createdArtifact.Id, out artifactInfo))
+                {
+                    await serviceLogRepository.LogInformation(LogSource,
+                    $"Could not recover information for artifact Id: {createdArtifact.Id} and Name: {createdArtifact.Name} and Project Id: {createdArtifact.ProjectId}");
+                    continue;
+                }
+
+                var eventTriggers = await repository.GetWorkflowEventTriggersForNewArtifactEvent(message.UserId,
+                    new[] { createdArtifact.Id },
+                    message.RevisionId);
+                var actionMessages = WorkflowEventsMessagesHelper.GenerateMessages(message.UserId,
+                    message.RevisionId,
+                    message.UserName,
+                    eventTriggers.AsynchronousTriggers,
+                    artifactInfo,
+                    artifactInfo.ProjectName,
+                    new Dictionary<int, IList<Property>>(),
+                    false
+                    );
+
+                await WorkflowEventsMessagesHelper.ProcessMessages(LogSource,
+                    applicationSettingsRepository,
+                    serviceLogRepository,
+                    actionMessages,
+                    $"Error on new artifact creation with Id: {createdArtifact.Id}");
+            }
             return await Task.FromResult(true);
         }
 
@@ -78,7 +136,8 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
             var publishedArtifactIds = updatedArtifacts.Select(a => a.Id).ToHashSet();
             var artifactPropertyEvents =
                 await
-                    repository.GetWorkflowPropertyTransitionsForArtifactsAsync(message.UserId, message.RevisionId,
+                    repository.GetWorkflowPropertyTransitionsForArtifactsAsync(message.UserId, 
+                    message.RevisionId,
                         (int)TransitionType.Property, publishedArtifactIds);
             //if no property transitions found, then call does not need to proceed
             Logger.Log($"{artifactPropertyEvents?.Count ?? 0} workflow property events found", message, tenant, LogLevel.Debug);

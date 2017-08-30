@@ -40,7 +40,10 @@ namespace BlueprintSys.RC.Services.Repositories
             int workflowId, int fromStateId, int toStateId);
 
         Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForNewArtifactEvent(int userId,
-            int artifactId, int revisionId);
+            IEnumerable<int> artifactIds, int revisionId);
+
+        Task<IEnumerable<WorkflowMessageArtifactInfo>> GetWorkflowMessageArtifactInfoAsync(int userId,
+            IEnumerable<int> artifactIds, int revisionId);
     }
 
     public class ArtifactsPublishedRepository : ActionHandlerServiceRepository, IArtifactsPublishedRepository
@@ -113,10 +116,18 @@ namespace BlueprintSys.RC.Services.Repositories
         }
 
         public async Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForNewArtifactEvent(int userId,
-            int artifactId, int revisionId)
+            IEnumerable<int> artifactIds, int revisionId)
         {
             return await _workflowRepository.GetWorkflowEventTriggersForNewArtifactEvent(userId,
-                artifactId,
+                artifactIds,
+                revisionId);
+        }
+
+        public async Task<IEnumerable<WorkflowMessageArtifactInfo>> GetWorkflowMessageArtifactInfoAsync(int userId,
+            IEnumerable<int> artifactIds, int revisionId)
+        {
+            return await _workflowRepository.GetWorkflowMessageArtifactInfoAsync(userId,
+                artifactIds,
                 revisionId);
         }
     }

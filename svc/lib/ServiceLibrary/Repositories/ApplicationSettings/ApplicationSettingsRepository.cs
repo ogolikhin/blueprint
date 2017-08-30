@@ -1,14 +1,14 @@
-﻿using Dapper;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using Dapper;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
 
-namespace ServiceLibrary.Repositories
+namespace ServiceLibrary.Repositories.ApplicationSettings
 {
     public sealed class ApplicationSettingsRepository : IApplicationSettingsRepository
     {
@@ -19,7 +19,7 @@ namespace ServiceLibrary.Repositories
         {
         }
 
-        internal ApplicationSettingsRepository(ISqlConnectionWrapper connectionWrapper)
+        public ApplicationSettingsRepository(ISqlConnectionWrapper connectionWrapper)
         {
             _connectionWrapper = connectionWrapper;
         }

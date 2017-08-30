@@ -13,6 +13,7 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using ArtifactStore.Executors;
 using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Repositories.ApplicationSettings;
 using ServiceLibrary.Repositories.ConfigControl;
 using ServiceLibrary.Repositories.Reuse;
 using ServiceLibrary.Repositories.Workflow;

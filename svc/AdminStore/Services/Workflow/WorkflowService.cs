@@ -533,9 +533,10 @@ namespace AdminStore.Services.Workflow
             await _workflowRepository.CreateWorkflowEventsAsync(importTriggersParams, publishRevision, transaction);
         }
 
-        private SqlWorkflowEvent ToSqlWorkflowEvent(IeEvent wEvent, int newWorkflowId, WorkflowDataMaps dataMaps)
+        private Models.Workflow.SqlWorkflowEvent ToSqlWorkflowEvent(IeEvent wEvent, int newWorkflowId, 
+            WorkflowDataMaps dataMaps)
         {
-            var sqlEvent = new SqlWorkflowEvent
+            var sqlEvent = new Models.Workflow.SqlWorkflowEvent
             {
                 WorkflowEventId = wEvent.Id.GetValueOrDefault(),
                 Name = wEvent.Name,

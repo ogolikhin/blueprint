@@ -80,6 +80,9 @@ namespace BlueprintSys.RC.Services.MessageHandlers
                 case MessageActionType.ArtifactsPublished:
                     serviceRepository = new ArtifactsPublishedRepository(tenant.BlueprintConnectionString);
                     break;
+                case MessageActionType.GenerateUserStories:
+                    serviceRepository = new GenerateUserStoriesActionRepository(tenant.BlueprintConnectionString);
+                    break;
                 default:
                     serviceRepository = new ActionHandlerServiceRepository(tenant.BlueprintConnectionString);
                     break;

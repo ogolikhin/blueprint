@@ -70,7 +70,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
                     {
                         decimal value;
                         if (
-                            !Decimal.TryParse(PropertyValue, NumberStyles.AllowDecimalPoint, new NumberFormatInfo(),
+                            !Decimal.TryParse(PropertyValue, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint, new NumberFormatInfo(),
                                 out value))
                         {
                             throw new FormatException("Property change action provided incorrect value type");

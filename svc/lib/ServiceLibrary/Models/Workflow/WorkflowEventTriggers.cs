@@ -29,7 +29,10 @@ namespace ServiceLibrary.Models.Workflow
             {
                 if (!await triggerExecutor.Action.Execute(executionParameters))
                 {
-                    result.Add(triggerExecutor.Name, "State cannot be modified as the trigger cannot be executed");
+                    if (!result.ContainsKey(triggerExecutor.Name))
+                    {
+                        result.Add(triggerExecutor.Name, "State cannot be modified as the trigger cannot be executed");
+                    }
                 }
             }
             return result;

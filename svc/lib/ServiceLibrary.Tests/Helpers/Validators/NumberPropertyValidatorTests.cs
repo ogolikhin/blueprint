@@ -53,6 +53,66 @@ namespace ServiceLibrary.Helpers.Validators
         }
 
         [TestMethod]
+        public void Validate_DoNotValidateNumberGreaterThanRange_Success()
+        {
+            //Arrange.
+            var validator = new NumberPropertyValidator();
+            _propertyType.IsValidate = false;
+            _property.NumberValue = _propertyType.Range.End + 1;
+            //Act.
+            var actualResult = validator.Validate(
+                _property,
+                new List<DPropertyType>()
+                {
+                    _propertyType
+                },
+                new ValidationContext(new List<SqlUser>(), new List<SqlGroup>()));
+
+            //Assert.
+            Assert.AreEqual(actualResult, null, "There should not be validation errors.");
+        }
+
+        [TestMethod]
+        public void Validate_DoNotValidateNumberLessThanRange_Success()
+        {
+            //Arrange.
+            var validator = new NumberPropertyValidator();
+            _propertyType.IsValidate = false;
+            _property.NumberValue = _propertyType.Range.Start - 1;
+            //Act.
+            var actualResult = validator.Validate(
+                _property,
+                new List<DPropertyType>()
+                {
+                    _propertyType
+                },
+                new ValidationContext(new List<SqlUser>(), new List<SqlGroup>()));
+
+            //Assert.
+            Assert.AreEqual(actualResult, null, "There should not be validation errors.");
+        }
+
+        [TestMethod]
+        public void Validate_DoNotValidateMoreThanDecimalPlaces_Success()
+        {
+            //Arrange.
+            var validator = new NumberPropertyValidator();
+            _propertyType.IsValidate = false;
+            _propertyType.DecimalPlaces = 2;
+            _property.NumberValue = (decimal)1.1234567890;
+            //Act.
+            var actualResult = validator.Validate(
+                _property,
+                new List<DPropertyType>()
+                {
+                    _propertyType
+                },
+                new ValidationContext(new List<SqlUser>(), new List<SqlGroup>()));
+
+            //Assert.
+            Assert.AreEqual(actualResult, null, "There should not be validation errors.");
+        }
+        [TestMethod]
         public void Validate_ValueExceedsDecimalPlaces_ReturnsErrorResultSet()
         {
             //Arrange.

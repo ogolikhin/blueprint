@@ -1,6 +1,7 @@
 ﻿using ServiceLibrary.Models.PropertyType;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Helpers.Validators;
+using ServiceLibrary.Helpers;
 
 namespace ServiceLibrary.Models.PropertyType
 {
@@ -11,14 +12,17 @@ namespace ServiceLibrary.Models.PropertyType
         /// </summary>
         protected override PropertySetResult Validate(PropertyLite property, TextPropertyType propertyType, IValidationContext validationContext)
         {
-            if (property.TextOrChoiceValue == null || property.Choices != null)
+            if (property.Choices != null)
             {
-                return null; // Ignore
+                return null;
+            }
+
+            if (property.TextOrChoiceValue == null && propertyType.Predefined == PropertyTypePredefined.Name)
+            {
+                return new PropertySetResult(property.PropertyTypeId, ErrorCodes.InvalidArtifactProperty, "Property 'Name' value is required");
             }
 
             // NOTE: No validation is provided for propertyType.IsRichText, propertyType.AllowMultiple
-            //       and propertyType.Predefined
-
             return null; // Success
         }
 

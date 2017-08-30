@@ -70,7 +70,7 @@ namespace AdminStore.Services.Instance
 
             if (!emailSettingsDto.EnableEmailNotifications && emailSettingsDto.EnableDiscussions)
             {
-                throw new BadRequestException("Cannot enable discussions without enabling email notifications", ErrorCodes.CannotEnableDiscussions);
+                throw new BadRequestException("Cannot enable discussions without enabling email notifications.", ErrorCodes.CannotEnableDiscussions);
             }
 
             if (emailSettingsDto.EnableDiscussions)

@@ -136,7 +136,7 @@ namespace ArtifactStore.Executors
             }
             var customItemTypeToPropertiesMap = await LoadCustomPropertyInformation(new[] { instanceItemTypeId.Value }, triggers, artifactInfo.ProjectId);
 
-            var propertyTypes = new List<DPropertyType>();
+            var propertyTypes = new List<WorkflowPropertyType>();
             if (customItemTypeToPropertiesMap.ContainsKey(artifactInfo.ItemTypeId))
             {
                 propertyTypes = customItemTypeToPropertiesMap[artifactInfo.ItemTypeId];
@@ -257,12 +257,12 @@ namespace ArtifactStore.Executors
             return reuseTemplateSettings;
         }
 
-        private async Task<Dictionary<int, List<DPropertyType>>> LoadCustomPropertyInformation(IEnumerable<int> instanceItemTypeIds, WorkflowEventTriggers triggers, int projectId)
+        private async Task<Dictionary<int, List<WorkflowPropertyType>>> LoadCustomPropertyInformation(IEnumerable<int> instanceItemTypeIds, WorkflowEventTriggers triggers, int projectId)
         {
             var propertyChangeActions = triggers.Select(t => t.Action).OfType<PropertyChangeAction>().ToList();
             if (propertyChangeActions.Count == 0)
             {
-                return new Dictionary<int, List<DPropertyType>>();
+                return new Dictionary<int, List<WorkflowPropertyType>>();
             }
 
             var instancePropertyTypeIds = propertyChangeActions.Select(b => b.InstancePropertyTypeId);
@@ -276,8 +276,17 @@ namespace ArtifactStore.Executors
             var userIds = userGroups.Where(u => !u.IsGroup.GetValueOrDefault(false) && u.Id.HasValue).Select(u => u.Id.Value).ToHashSet();
             var groupIds = userGroups.Where(u => u.IsGroup.GetValueOrDefault(false) && u.Id.HasValue).Select(u => u.Id.Value).ToHashSet();
 
-            var users = await _stateChangeExecutorRepositories.UsersRepository.GetExistingUsersByIdsAsync(userIds);
-            var groups = await _stateChangeExecutorRepositories.UsersRepository.GetExistingGroupsByIds(groupIds, false);
+            var users = new List<SqlUser>();
+            if (userIds.Any())
+            {
+                users.AddRange(await _stateChangeExecutorRepositories.UsersRepository.GetExistingUsersByIdsAsync(userIds));
+            }
+            var groups = new List<SqlGroup>();
+            if (groupIds.Any())
+            {
+                groups.AddRange(
+                    await _stateChangeExecutorRepositories.UsersRepository.GetExistingGroupsByIds(groupIds, false));
+            }
 
             return new Tuple<IEnumerable<SqlUser>, IEnumerable<SqlGroup>>(users, groups);
         }

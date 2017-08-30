@@ -3,11 +3,11 @@ using ServiceLibrary.Helpers.Validators;
 
 namespace ServiceLibrary.Models.PropertyType
 {
-    public class DatePropertyValidator : PropertyValidator<DDatePropertyType>
+    public class DatePropertyValidator : PropertyValidator<DatePropertyType>
     {
         protected override PropertySetResult Validate(
             PropertyLite property, 
-            DDatePropertyType propertyType, 
+            DatePropertyType propertyType, 
             IValidationContext validationContext)
         {
             if (IsPropertyValueEmpty(property, propertyType))
@@ -30,7 +30,7 @@ namespace ServiceLibrary.Models.PropertyType
         /// <summary>
         /// Determines whether the property value is empty.
         /// </summary>
-        protected override bool IsPropertyValueEmpty(PropertyLite property, DDatePropertyType propertyType)
+        protected override bool IsPropertyValueEmpty(PropertyLite property, DatePropertyType propertyType)
         {
             return !property.DateValue.HasValue;
         }

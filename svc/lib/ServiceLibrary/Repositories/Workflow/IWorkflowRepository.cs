@@ -17,7 +17,7 @@ namespace ServiceLibrary.Repositories.Workflow
         Task<WorkflowState> ChangeStateForArtifactAsync(int userId, int artifactId,
             WorkflowStateChangeParameterEx stateChangeParameter, IDbTransaction transaction = null);
 
-        Task<Dictionary<int, List<DPropertyType>>> GetCustomItemTypeToPropertiesMap(int userId, int artifactId, int projectId, IEnumerable<int> instanceItemTypeIds, IEnumerable<int> instancePropertyIds);
+        Task<Dictionary<int, List<WorkflowPropertyType>>> GetCustomItemTypeToPropertiesMap(int userId, int artifactId, int projectId, IEnumerable<int> instanceItemTypeIds, IEnumerable<int> instancePropertyIds);
 
         Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForTransition(int userId, int artifactId, int workflowId, int fromStateId, int toStateId);
 

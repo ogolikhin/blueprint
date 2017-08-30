@@ -257,7 +257,7 @@ namespace ArtifactStore.Services.VersionControl
                         ProjectId = dpd.VersionProjectId,
                         Version = dpd.VersionsCount == 0 ? -1 : dpd.VersionsCount
                     };
-                    if (environment.SensitivityCollector.ArtifactModifications != null)
+                    if (environment != null && environment.SensitivityCollector.ArtifactModifications != null)
                     {
                         ReuseSensitivityCollector.ArtifactModification artifactModification;
                         if (environment.SensitivityCollector.ArtifactModifications.TryGetValue(artifact.Id, out artifactModification) 

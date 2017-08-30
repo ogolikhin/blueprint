@@ -746,7 +746,7 @@ namespace AdminStore.Services.Workflow
                 action.ValidValues.ForEach(vv =>
                 {
                     if (!_hasPropertyChangeActionValidValueValueNotSpecitiedError
-                       && !ValidatePropertyNotEmpty(vv.Value))
+                        && !ValidatePropertyNotEmpty(vv.Value))
                     {
                         result.Errors.Add(new WorkflowXmlValidationError
                         {
@@ -757,14 +757,16 @@ namespace AdminStore.Services.Workflow
                     }
                 });
             }
-            if (action.UsersGroups?.Count > 0 || action.IncludeCurrentUser.GetValueOrDefault())
+
+            if (action.UsersGroups?.UsersGroups?.Count > 0
+                || (action.UsersGroups != null && action.UsersGroups.IncludeCurrentUser.GetValueOrDefault()))
             {
                 pvCount++;
 
-                action.UsersGroups?.ForEach(ug =>
+                action.UsersGroups?.UsersGroups?.ForEach(ug =>
                 {
                     if (!_hasPropertyChangeActionUserOrGroupNameNotSpecitiedError
-                       && !ValidatePropertyNotEmpty(ug.Name))
+                        && !ValidatePropertyNotEmpty(ug.Name))
                     {
                         result.Errors.Add(new WorkflowXmlValidationError
                         {
@@ -784,7 +786,7 @@ namespace AdminStore.Services.Workflow
                     }
 
                     if (!_hasAmbiguousGroupProjectReference && ug.GroupProjectId.HasValue
-                       && ValidatePropertyNotEmpty(ug.GroupProjectPath))
+                        && ValidatePropertyNotEmpty(ug.GroupProjectPath))
                     {
                         result.Errors.Add(new WorkflowXmlValidationError
                         {
@@ -1131,7 +1133,7 @@ namespace AdminStore.Services.Workflow
             }
 
             pcAction?.ValidValues?.ForEach(UpdateValidValueToConventionNames);
-            pcAction?.UsersGroups?.ForEach(UpdateUserGroupToConventionNames);
+            pcAction?.UsersGroups?.UsersGroups?.ForEach(UpdateUserGroupToConventionNames);
         }
 
         private void UpdateValidValueToConventionNames(IeValidValue validValue)

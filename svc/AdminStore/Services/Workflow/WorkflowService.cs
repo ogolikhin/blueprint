@@ -871,7 +871,7 @@ namespace AdminStore.Services.Workflow
                 }
 
                 var pcAction = (IePropertyChangeAction) t.Action;
-                pcAction.UsersGroups?.Where(ug => ug.IsGroup.GetValueOrDefault()
+                pcAction.UsersGroups?.UsersGroups?.Where(ug => ug.IsGroup.GetValueOrDefault()
                                                   && !ug.GroupProjectId.HasValue
                                                   && !string.IsNullOrWhiteSpace(ug.GroupProjectPath)).ForEach(ug =>
                                                   {

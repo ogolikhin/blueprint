@@ -11,7 +11,7 @@ namespace ServiceLibrary.Helpers.Validators
         private UserPropertyValidator _validator;
         private IValidationContext _validationContext;
         private PropertyLite _propertyLite;
-        private DPropertyType _propertyType;
+        private WorkflowPropertyType _propertyType;
 
         private int DefaultPropertyTypeId = 123;
         private int DefaultInstancePropertyTypeId = 10;
@@ -23,7 +23,7 @@ namespace ServiceLibrary.Helpers.Validators
         {
             _validator = new UserPropertyValidator();
             _propertyLite = new PropertyLite() {PropertyTypeId = DefaultInstancePropertyTypeId};
-            _propertyType = new DUserPropertyType()
+            _propertyType = new UserPropertyType()
             {
                 PropertyTypeId = DefaultPropertyTypeId,
                 InstancePropertyTypeId = DefaultInstancePropertyTypeId
@@ -45,7 +45,7 @@ namespace ServiceLibrary.Helpers.Validators
             //Act
             var actualResult = _validator.Validate(
                 _propertyLite, 
-                new List<DPropertyType>() { _propertyType },
+                new List<WorkflowPropertyType>() { _propertyType },
                 _validationContext);
 
             //Assert.
@@ -61,7 +61,7 @@ namespace ServiceLibrary.Helpers.Validators
             //Act
             var actualResult = _validator.Validate(
                 _propertyLite,
-                new List<DPropertyType>() { _propertyType },
+                new List<WorkflowPropertyType>() { _propertyType },
                 _validationContext);
 
             //Assert.
@@ -78,7 +78,7 @@ namespace ServiceLibrary.Helpers.Validators
             //Act
             var actualResult = _validator.Validate(
                 _propertyLite,
-                new List<DPropertyType>() { _propertyType },
+                new List<WorkflowPropertyType>() { _propertyType },
                 _validationContext);
 
             //Assert.
@@ -95,7 +95,7 @@ namespace ServiceLibrary.Helpers.Validators
             //Act.
             var actualResult = _validator.Validate(
                 _propertyLite,
-                new List<DPropertyType>() { _propertyType },
+                new List<WorkflowPropertyType>() { _propertyType },
                 _validationContext);
 
             //Assert.
@@ -112,7 +112,7 @@ namespace ServiceLibrary.Helpers.Validators
             //Act.
             var actualResult = _validator.Validate(
                 _propertyLite,
-                new List<DPropertyType>() { _propertyType },
+                new List<WorkflowPropertyType>() { _propertyType },
                 _validationContext);
 
             //Assert.
@@ -129,7 +129,7 @@ namespace ServiceLibrary.Helpers.Validators
             //Act.
             var actualResult = _validator.Validate(
                 _propertyLite,
-                new List<DPropertyType>() { _propertyType },
+                new List<WorkflowPropertyType>() { _propertyType },
                 _validationContext);
 
             //Assert.

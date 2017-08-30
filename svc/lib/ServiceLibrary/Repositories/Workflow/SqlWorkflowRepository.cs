@@ -478,8 +478,7 @@ namespace ServiceLibrary.Repositories.Workflow
                         {
                             AllowMultiple = sqlPropertyType.AllowMultiple,
                             //DefaultValue = PropertyHelper.ToDecimal((byte[])sqlPropertyType.DecimalDefaultValue),
-                            ValidValues = sqlPropertyType.PrimitiveType == PropertyPrimitiveType.Choice
-                                    ? XmlModelSerializer.DeserializeCustomProperties(sqlPropertyType.CustomProperty).CustomProperties[0]?.ValidValues
+                            ValidValues = XmlModelSerializer.DeserializeCustomProperties(sqlPropertyType.CustomProperty).CustomProperties[0]?.ValidValues
                                     .OrderBy(v => I18NHelper.Int32ParseInvariant(v.OrderIndex))
                                     .Select(v =>
                                     {
@@ -498,8 +497,7 @@ namespace ServiceLibrary.Repositories.Workflow
                                                 vvSid = intValue;
                                         }
                                         return new ValidValue { Id = vvId, Value = v.Value, Sid = vvSid };
-                                    }).ToList()
-                                    : null,
+                                    }).ToList(),
                             DefaultValidValueId = sqlPropertyType.DefaultValidValueId,
                             InstancePropertyTypeId = sqlPropertyType.InstancePropertyTypeId,
                             Name = sqlPropertyType.Name,

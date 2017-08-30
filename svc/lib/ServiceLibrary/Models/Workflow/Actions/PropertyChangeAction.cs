@@ -87,7 +87,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
                     }
                     else
                     {
-                        PropertyLiteValue.Choices.AddRange(ValidValues);
+                        PropertyLiteValue.ChoiceIds.AddRange(ValidValues);
                     }
                     break;
                 default:

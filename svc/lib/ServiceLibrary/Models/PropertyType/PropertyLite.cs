@@ -33,7 +33,7 @@ namespace ServiceLibrary.Models.PropertyType
         /// <summary>
         /// Gets or sets the choices.
         /// </summary>
-        public List<int> Choices { get; } = new List<int>();
+        public List<int> ChoiceIds { get; } = new List<int>();
     }
 
 }

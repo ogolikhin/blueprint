@@ -203,7 +203,7 @@ namespace ArtifactStore.Repositories
             if (propertyType is ChoicePropertyType)
             {
                 List<XmlCustomPropertyValidValue> validValues = customProperty.ValidValues;
-                foreach (int choiceId in propertyValue.Choices)
+                foreach (int choiceId in propertyValue.ChoiceIds)
                 {
                     var customChoice = (propertyType as ChoicePropertyType).ValidValues
                                        .Where(v => v.Sid.Value == choiceId)

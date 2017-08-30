@@ -9,16 +9,21 @@ namespace ServiceLibrary.Models.PropertyType
     {
         protected override PropertySetResult Validate(PropertyLite property, NumberPropertyType propertyType, IValidationContext validationContext)
         {
-            decimal value = property.NumberValue.Value;
             if (IsPropertyValueEmpty(property, propertyType))
                 return null;
 
+            decimal value = property.NumberValue.Value;
+            if (!propertyType.IsValidate)
+            {
+                return null;
+            }
+
             //Maximum.
-            if (propertyType.IsValidate && value.CompareTo(propertyType.Range.End) > 0)
+            if (value.CompareTo(propertyType.Range.End) > 0)
                 return new PropertySetResult(property.PropertyTypeId, ErrorCodes.InvalidArtifactProperty, "Must be less than max value");
 
             //Minimum.
-            if (propertyType.IsValidate && value.CompareTo(propertyType.Range.Start) < 0)
+            if (value.CompareTo(propertyType.Range.Start) < 0)
                 return new PropertySetResult(property.PropertyTypeId, ErrorCodes.InvalidArtifactProperty, "Must be greater than min value");
 
             //Decimal places.

@@ -1050,5 +1050,165 @@ namespace AdminStore.Controllers
 
         #endregion
 
+
+        #region CreateRoleAssignment
+
+        [TestMethod]
+        public async Task CreateRoleAssignment_SuccessfulCreationOfAssignment_ReturnCreatedRoleAssignmentIdResult()
+        {
+            CreateRoleAssignment roleAssignment = new CreateRoleAssignment() {GroupId = 1, RoleId = 1};
+            int roleAssignmentId = 1;
+
+            // Arrange
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectsAdmin);
+
+            _privilegeRepositoryMock
+               .Setup(r => r.GetProjectAdminPermissionsAsync(UserId, ProjectId))
+               .ReturnsAsync(ProjectAdminPrivileges.ManageGroupsAndRoles);
+
+            _instanceRepositoryMock.Setup(repo => repo.CreateRoleAssignmentAsync(ProjectId, roleAssignment))
+                                   .ReturnsAsync(roleAssignmentId);
+
+            // Act
+            var result = await _controller.CreateRoleAssignment(ProjectId, roleAssignment);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task CreateRoleAssignment_NoPermissions_ReturnForbiddenErrorResult()
+        {
+            CreateRoleAssignment roleAssignment = new CreateRoleAssignment() { GroupId = 1, RoleId = 1 };
+            int roleAssignmentId = 1;
+
+            // Arrange
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewProjects);
+
+            _privilegeRepositoryMock
+               .Setup(r => r.GetProjectAdminPermissionsAsync(UserId, ProjectId))
+               .ReturnsAsync(ProjectAdminPrivileges.ViewGroupsAndRoles);
+
+            _instanceRepositoryMock.Setup(repo => repo.CreateRoleAssignmentAsync(ProjectId, roleAssignment))
+                                   .ReturnsAsync(roleAssignmentId);
+
+            // Act
+            var result = await _controller.CreateRoleAssignment(ProjectId, roleAssignment);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task CreateRoleAssignment_RoleAssignmentInvalid_ReturnBadRequestResult()
+        {
+            CreateRoleAssignment roleAssignment = null;
+            int roleAssignmentId = 1;
+
+            // Arrange
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectsAdmin);
+
+            _privilegeRepositoryMock
+               .Setup(r => r.GetProjectAdminPermissionsAsync(UserId, ProjectId))
+               .ReturnsAsync(ProjectAdminPrivileges.ManageGroupsAndRoles);
+
+            _instanceRepositoryMock.Setup(repo => repo.CreateRoleAssignmentAsync(ProjectId, roleAssignment))
+                                   .ReturnsAsync(roleAssignmentId);
+
+            // Act
+            var result = await _controller.CreateRoleAssignment(ProjectId, roleAssignment);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task CreateRoleAssignment_RoleIdInvalid_ReturnBadRequestResult()
+        {
+            CreateRoleAssignment roleAssignment = new CreateRoleAssignment() { GroupId = 1, RoleId = 0 };
+            int roleAssignmentId = 1;
+
+            // Arrange
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectsAdmin);
+
+            _privilegeRepositoryMock
+               .Setup(r => r.GetProjectAdminPermissionsAsync(UserId, ProjectId))
+               .ReturnsAsync(ProjectAdminPrivileges.ManageGroupsAndRoles);
+
+            _instanceRepositoryMock.Setup(repo => repo.CreateRoleAssignmentAsync(ProjectId, roleAssignment))
+                                   .ReturnsAsync(roleAssignmentId);
+
+            // Act
+            var result = await _controller.CreateRoleAssignment(ProjectId, roleAssignment);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task CreateRoleAssignment_GroupIdInvalid_ReturnBadRequestResult()
+        {
+            CreateRoleAssignment roleAssignment = new CreateRoleAssignment() { GroupId = 0, RoleId = 1 };
+            int roleAssignmentId = 1;
+
+            // Arrange
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectsAdmin);
+
+            _privilegeRepositoryMock
+               .Setup(r => r.GetProjectAdminPermissionsAsync(UserId, ProjectId))
+               .ReturnsAsync(ProjectAdminPrivileges.ManageGroupsAndRoles);
+
+            _instanceRepositoryMock.Setup(repo => repo.CreateRoleAssignmentAsync(ProjectId, roleAssignment))
+                                   .ReturnsAsync(roleAssignmentId);
+
+            // Act
+            var result = await _controller.CreateRoleAssignment(ProjectId, roleAssignment);
+        }
+
+        #endregion
+        #region SearchProjectFolder
+
+        [TestMethod]
+        public async Task SearchProjectFolder_AllParametersAreValid_ReturnSuccessResult()
+        {
+            //arrange
+            var request = new Pagination() { Limit = 10, Offset = 0 };
+            var queryResult = new QueryResult<ProjectFolderSearchDto>() { Items = new List<ProjectFolderSearchDto>() { new ProjectFolderSearchDto() }, Total = 1 };
+            _instanceRepositoryMock.Setup(
+                repo =>
+                    repo.GetProjectsAndFolders(It.IsAny<int>(),
+                        It.Is<TabularData>(
+                            t =>
+                                t.Pagination != null && t.Pagination.Offset.HasValue && t.Pagination.Offset >= 0 &&
+                                t.Pagination.Limit > 0), It.IsAny<Func<Sorting, string>>())).ReturnsAsync(queryResult);
+
+            //act
+            var result =
+                await _controller.SearchProjectFolder(request) as
+                    OkNegotiatedContentResult<QueryResult<ProjectFolderSearchDto>>;
+
+            //assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1, result.Content.Total);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task SearchProjectFolder_InvalidPagination_ReturnBadRequestResponse()
+        {
+            //arrange
+
+            //act
+            await _controller.SearchProjectFolder(new Pagination());
+
+            //assert
+        }
+        #endregion
     }
 }

@@ -851,7 +851,7 @@ namespace AdminStore.Services.Instance
         }
 
         [TestMethod]
-        public async Task UpdateEmailSettingsAsync_Should_Throw_BadRequestException_When_EnableDiscussions_Is_True_And_Incoming_AccountPassword_Is_Empty()
+        public async Task UpdateEmailSettingsAsync_Should_Throw_BadRequestException_When_EnableDiscussions_Is_True_And_Incoming_AccountPassword_Is_Empty_And_Incoming_IsPasswordDirty_Is_True()
         {
             //Arrange
             _emailSettingsDto.EnableEmailNotifications = true;
@@ -872,6 +872,27 @@ namespace AdminStore.Services.Instance
             }
 
             Assert.Fail("BadRequestException was not thrown.");
+        }
+
+        [TestMethod]
+        public async Task UpdateEmailSettingsAsync_Should_Not_Throw_When_EnableDiscussions_Is_True_And_Incoming_AccountPassword_Is_Empty_And_Incoming_IsPasswordDirty_Is_False()
+        {
+            //Arrange
+            _emailSettingsDto.EnableEmailNotifications = true;
+            _emailSettingsDto.EnableDiscussions = true;
+            _emailSettingsDto.Incoming.AccountPassword = null;
+            _emailSettingsDto.Incoming.IsPasswordDirty = false;
+
+            //Act
+            try
+            {
+                await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
+            }
+            //Assert
+            catch (Exception ex)
+            {
+                Assert.Fail($"An exception of type {ex.GetType()} was thrown, but no exception was expected.");
+            }
         }
 
         [TestMethod]

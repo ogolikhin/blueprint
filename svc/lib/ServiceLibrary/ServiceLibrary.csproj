@@ -281,6 +281,7 @@
     <Compile Include="Models\Session.cs" />
     <Compile Include="Helpers\ILoggable.cs" />
     <Compile Include="Models\SubArtifact.cs" />
+    <Compile Include="Models\UpdateRoleAssignment.cs" />
     <Compile Include="Models\UserGroup.cs" />
     <Compile Include="Models\UserInfo.cs" />
     <Compile Include="Models\VersionControl\ISaveArtifactRepository.cs" />

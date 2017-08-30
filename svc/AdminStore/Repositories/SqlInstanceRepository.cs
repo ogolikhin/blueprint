@@ -487,7 +487,68 @@ namespace AdminStore.Repositories
             return result;
         }
 
-        
+        public async Task<int> UpdateRoleAssignmentAsync(int projectId, UpdateRoleAssignment roleAssignment)
+        {
+            if (projectId < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(projectId));
+            }
+
+            if (roleAssignment == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(roleAssignment));
+            }
+
+            if (roleAssignment.RoleAssignmentId < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(roleAssignment.RoleAssignmentId));
+            }
+
+            if (roleAssignment.GroupId < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(roleAssignment.GroupId));
+            }
+
+            if (roleAssignment.RoleId < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(roleAssignment.RoleId));
+            }
+            
+            var parameters = new DynamicParameters();
+            parameters.Add("@ProjectId", projectId);
+            parameters.Add("@GroupId", roleAssignment.GroupId);
+            parameters.Add("@RoleId", roleAssignment.RoleId);
+            parameters.Add("@RoleAssignmentId", roleAssignment.RoleAssignmentId);
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var result = await _connectionWrapper.ExecuteScalarAsync<int>("UpdateProjectRoleAssigment", parameters,
+                commandType: CommandType.StoredProcedure);
+
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.ProjectWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.ProjectNotExist, ErrorCodes.ResourceNotFound);
+
+                    case (int)SqlErrorCodes.GroupWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.GroupIsNotFound, ErrorCodes.ResourceNotFound);
+
+                    case (int)SqlErrorCodes.RolesForProjectNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.RoleIsNotFound, ErrorCodes.ResourceNotFound);
+
+                    case (int)SqlErrorCodes.RoleAssignmentNotExists:
+                        throw new ResourceNotFoundException(ErrorMessages.RoleAssignmentNotFound, ErrorCodes.ResourceNotFound);
+                }
+            }
+
+            return result;
+
+        }
+
+
 
         #region private methods
 

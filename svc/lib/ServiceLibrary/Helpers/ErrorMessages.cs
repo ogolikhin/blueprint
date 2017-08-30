@@ -111,6 +111,8 @@
         public static readonly string GroupIsNotFound = "The group with the current id is not found on the instance and project levels.";
         public static readonly string RoleIsNotFound = "The role with the current id is not found in the project's roles.";
         public static readonly string RoleAssignmentAlreadyExists = "Project Role Assignment already exists. You cannot add duplicate assignments.";
+        public static readonly string RoleAssignmentNotFound = "Project Role Assignment with the current id is not found.";
+
         //Artifacts
         public static readonly string ArtifactIdsNotValid = "Please provide valid artifact ids";
 

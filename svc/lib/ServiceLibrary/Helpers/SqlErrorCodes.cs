@@ -24,6 +24,7 @@
         ParentFolderIdReferenceToDescendantItem = 50018,
         EditRootFolderIsForbidden = 50019,
         RolesForProjectNotExist = 50020,
-        RoleAssignmentAlreadyExists = 50021
+        RoleAssignmentAlreadyExists = 50021,
+        RoleAssignmentNotExists = 50022
     }
 }

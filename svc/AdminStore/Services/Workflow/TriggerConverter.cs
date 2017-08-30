@@ -24,7 +24,8 @@ namespace AdminStore.Services.Workflow
             return xmlTriggers;
         }
 
-        public IEnumerable<IeTrigger> FromXmlModel(XmlWorkflowEventTriggers xmlTriggers, WorkflowDataNameMaps dataMaps)
+        public IEnumerable<IeTrigger> FromXmlModel(XmlWorkflowEventTriggers xmlTriggers, WorkflowDataNameMaps dataMaps,
+            ISet<int> userIdsToCollect, ISet<int> groupIdsToCollect)
         {
             if (xmlTriggers == null)
             {
@@ -33,17 +34,14 @@ namespace AdminStore.Services.Workflow
 
             var triggers = new List<IeTrigger>();
 
-            if (xmlTriggers != null)
-            {
-                foreach (var t in xmlTriggers.Triggers)
+                xmlTriggers.Triggers?.ForEach(t =>
                 {
-                    var trigger = FromXmlModel(t, dataMaps);
+                    var trigger = FromXmlModel(t, dataMaps, userIdsToCollect, groupIdsToCollect);
                     if (trigger != null)
                     {
                         triggers.Add(trigger);
                     }
-                }
-            }
+                });
 
             return triggers;
         }
@@ -75,7 +73,8 @@ namespace AdminStore.Services.Workflow
             return xmlTrigger;
         }
 
-        private static IeTrigger FromXmlModel(XmlWorkflowEventTrigger xmlTrigger, WorkflowDataNameMaps dataMaps)
+        private static IeTrigger FromXmlModel(XmlWorkflowEventTrigger xmlTrigger, WorkflowDataNameMaps dataMaps,
+            ISet<int> userIdsToCollect, ISet<int> groupIdsToCollect)
         {
             if (xmlTrigger == null)
             {
@@ -85,14 +84,15 @@ namespace AdminStore.Services.Workflow
             IeTrigger ieTrigger = new IeTrigger
             {
                 Name = xmlTrigger.Name,
-                Action = FromXmlModel(xmlTrigger.Action, dataMaps),
+                Action = FromXmlModel(xmlTrigger.Action, dataMaps, userIdsToCollect, groupIdsToCollect),
                 Condition = FromXmlModel(xmlTrigger.Condition, dataMaps)
             };
 
             return ieTrigger;
         }
 
-        private static IeBaseAction FromXmlModel(XmlAction xmlAction, WorkflowDataNameMaps dataMaps)
+        private static IeBaseAction FromXmlModel(XmlAction xmlAction, WorkflowDataNameMaps dataMaps,
+            ISet<int> userIdsToCollect, ISet<int> groupIdsToCollect)
         {
             if (xmlAction == null)
             {
@@ -125,7 +125,7 @@ namespace AdminStore.Services.Workflow
                         PropertyName = dataMaps.PropertyTypeMap.TryGetValue(xpAction.PropertyTypeId, out name) ? name : null,
                         PropertyValue = xpAction.PropertyValue,
                         ValidValues = GetValidValues(xpAction.ValidValues, dataMaps),
-                        UsersGroups = FromXmlModel(xpAction.UsersGroups, dataMaps)
+                        UsersGroups = FromXmlModel(xpAction.UsersGroups, userIdsToCollect, groupIdsToCollect)
                     };
                     break;
                 case ActionTypes.Generate:
@@ -151,7 +151,8 @@ namespace AdminStore.Services.Workflow
             return action;
         }
 
-        private static IeUsersGroups FromXmlModel(XmlUsersGroups xmlUsersGroups, WorkflowDataNameMaps dataMaps)
+        private static IeUsersGroups FromXmlModel(XmlUsersGroups xmlUsersGroups,
+            ISet<int> userIdsToCollect, ISet<int> groupIdsToCollect)
         {
             if (xmlUsersGroups == null)
             {
@@ -161,7 +162,7 @@ namespace AdminStore.Services.Workflow
             var ieUsersGroups = new IeUsersGroups
             {
                 IncludeCurrentUser = xmlUsersGroups.IncludeCurrentUser,
-                UsersGroups = FromXmlModel(xmlUsersGroups.UsersGroups, dataMaps)
+                UsersGroups = FromXmlModel(xmlUsersGroups.UsersGroups, userIdsToCollect, groupIdsToCollect)
             };
 
             return ieUsersGroups;
@@ -189,9 +190,10 @@ namespace AdminStore.Services.Workflow
 
             return artifactType;
         }
-        private static List<IeUserGroup> FromXmlModel(List<XmlUserGroup> xmlUserGroups, WorkflowDataNameMaps dataMaps)
+        private static List<IeUserGroup> FromXmlModel(List<XmlUserGroup> xmlUserGroups,
+            ISet<int> userIdsToCollect, ISet<int> groupIdsToCollect)
         {
-            if (xmlUserGroups == null || xmlUserGroups.Count == 0)
+            if (xmlUserGroups.IsEmpty())
             {
                 return null;
             }
@@ -199,29 +201,34 @@ namespace AdminStore.Services.Workflow
             var userGroups = new List<IeUserGroup>();
             foreach (var g in xmlUserGroups)
             {
-                if (g.IsGroup.HasValue && (bool)g.IsGroup)
+                if (!g.IsGroup.HasValue)
                 {
-                    Tuple<string, int?> nameProjectId;
-                    dataMaps.GroupMap.TryGetValue(g.Id, out nameProjectId);
+                    continue;
+                }
+
+                if (g.IsGroup.GetValueOrDefault())
+                {
+                    // Name and GroupProjectId properties will be assigned later after converting the entire workflow
+                    // since we need to know all group Ids to retrieve group information form the database.
                     var group = new IeUserGroup
                     {
                         Id = g.Id,
-                        Name = nameProjectId?.Item1,
-                        IsGroup = g.IsGroup,
-                        GroupProjectId = nameProjectId?.Item2
+                        IsGroup = g.IsGroup
                     };
                     userGroups.Add(group);
+                    groupIdsToCollect.Add(g.Id);
                 }
                 else
                 {
-                    string name;
+                    // Name and property will be assigned later after converting the entire workflow
+                    // since we need to know all user Ids to retrieve user information form the database.
                     var user = new IeUserGroup
                     {
                         Id = g.Id,
-                        Name = dataMaps.UserMap.TryGetValue(g.Id, out name) ? name : null,
                         IsGroup = false
                     };
                     userGroups.Add(user);
+                    userIdsToCollect.Add(g.Id);
                 }
             }
 

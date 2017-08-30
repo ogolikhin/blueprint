@@ -622,6 +622,8 @@ namespace AdminStore.Services.Workflow
             var workflowEvents = (await _workflowRepository.GetWorkflowEventsAsync(workflowId)).ToList();
 
             var dataMaps = await LoadDataMapsAsync(workflowDetails.WorkflowId, standardTypes);
+            var userIds = new HashSet<int>();
+            var groupIds = new HashSet<int>();
 
             var ieWorkflow = new IeWorkflow
             {
@@ -649,9 +651,9 @@ namespace AdminStore.Services.Workflow
                         FromState = e.FromState,
                         ToState = e.ToState,
                         ToStateId = e.ToStateId,
-                        PermissionGroups = DeserializePermissionGroups(e.Permissions, dataMaps),
+                        PermissionGroups = DeserializePermissionGroups(e.Permissions, groupIds),
                         SkipPermissionGroups = GetSkipPermissionGroup(e.Permissions),
-                        Triggers = DeserializeTriggers(e.Triggers, dataMaps)
+                        Triggers = DeserializeTriggers(e.Triggers, dataMaps, userIds, groupIds)
                     }).Distinct().ToList(),
                 PropertyChangeEvents = workflowEvents.Where(e => e.Type == (int) DWorkflowEventType.PropertyChange).
                     Select(e => new IePropertyChangeEvent
@@ -660,17 +662,19 @@ namespace AdminStore.Services.Workflow
                         Name = e.Name,
                         PropertyId = e.PropertyTypeId,
                         PropertyName = GetPropertyChangedName(e.PropertyTypeId, dataMaps),
-                        Triggers = DeserializeTriggers(e.Triggers, dataMaps)
+                        Triggers = DeserializeTriggers(e.Triggers, dataMaps, userIds, groupIds)
                     }).Distinct().ToList(),
                 NewArtifactEvents = workflowEvents.Where(e => e.Type == (int) DWorkflowEventType.NewArtifact).
                     Select(e => new IeNewArtifactEvent
                     {
                         Id = e.WorkflowEventId,
                         Name = e.Name,
-                        Triggers = DeserializeTriggers(e.Triggers, dataMaps)
+                        Triggers = DeserializeTriggers(e.Triggers, dataMaps, userIds, groupIds)
                     }).Distinct().ToList(),
                 Projects = GetProjects(workflowArtifactTypes)
             };
+
+            await UpdateUserAndGroupInfo(ieWorkflow, userIds, groupIds);
 
             return WorkflowHelper.NormalizeWorkflow(ieWorkflow);
         }
@@ -709,25 +713,24 @@ namespace AdminStore.Services.Workflow
             return projects;
         }
 
-        private static List<IeGroup> DeserializePermissionGroups(string xGroups, WorkflowDataNameMaps dataMaps)
+        private static List<IeGroup> DeserializePermissionGroups(string xGroups, ISet<int> groupIdsToCollect)
         {
             List<IeGroup> groups = new List<IeGroup>();
             var xmlGroups = SerializationHelper.FromXml<XmlTriggerPermissions>(xGroups);
-            if (xmlGroups != null)
-            {
-                foreach (var gid in xmlGroups.GroupIds)
-                {
-                    Tuple<string, int?> nameProjectId;
-                    dataMaps.GroupMap.TryGetValue(gid, out nameProjectId);
-                    var group = new IeGroup
-                    {
-                        Id = gid,
-                        Name = nameProjectId?.Item1
-                    };
 
-                    groups.Add(group);
-                }
-            }
+            xmlGroups?.GroupIds?.ForEach(gid =>
+            {
+                // Name property will be assigned later after converting the entire workflow
+                // since we need to know all group Ids to retrieve group information form the database.
+                var group = new IeGroup
+                {
+                    Id = gid
+                };
+
+                groups.Add(group);
+                groupIdsToCollect.Add(gid);
+            });
+
             return groups.Count == 0 ? null : groups;
         }
 
@@ -743,11 +746,12 @@ namespace AdminStore.Services.Workflow
             return skip;
         }
 
-        private List<IeTrigger> DeserializeTriggers(string triggers, WorkflowDataNameMaps dataMaps)
+        private List<IeTrigger> DeserializeTriggers(string triggers, WorkflowDataNameMaps dataMaps,
+            ISet<int> userIdsToCollect, ISet<int> groupIdsToCollect)
         {
             var xmlTriggers = SerializationHelper.FromXml<XmlWorkflowEventTriggers>(triggers);
 
-            List<IeTrigger> ieTriggers = _triggerConverter.FromXmlModel(xmlTriggers, dataMaps) as List<IeTrigger>;
+            var ieTriggers = _triggerConverter.FromXmlModel(xmlTriggers, dataMaps, userIdsToCollect, groupIdsToCollect).ToList();
 
             return ieTriggers;
         }
@@ -756,8 +760,6 @@ namespace AdminStore.Services.Workflow
         {
             var dataMaps = new WorkflowDataNameMaps();
 
-            dataMaps.UserMap.AddRange(await GetUsersMapAsync());
-            dataMaps.GroupMap.AddRange(await GetGroupsMapAsync());
             dataMaps.StateMap.AddRange(await GetStatesMapAsync(workflowId));
 
             standardTypes.ArtifactTypes.ForEach(t => dataMaps.ArtifactTypeMap.Add(t.Id, t.Name));
@@ -769,28 +771,6 @@ namespace AdminStore.Services.Workflow
             return dataMaps;
         }
 
-        private async Task<Dictionary<int, string>> GetUsersMapAsync()
-        {
-            var map = new Dictionary<int, string>();
-
-            // TODO: It does not work correctly if there are over 1000 users.
-            // It has to be replaced later
-            var result = await _userRepository.GetUsersAsync(new Pagination {Offset = 0, Limit = 1000});
-            result?.Items?.ForEach(u => map.Add(u.Id, u.Login));
-
-            return map;
-        }
-
-        private async Task<Dictionary<int, Tuple<string, int?>>> GetGroupsMapAsync()
-        {
-            var map = new Dictionary<int, Tuple<string, int?>>();
-
-            var groups = await _userRepository.GetGroupsMapAsync();
-            groups?.ForEach(g => map.Add(g.GroupId, Tuple.Create(g.Name, g.ProjectId)));
-
-            return map;
-        }
-
         private async Task<Dictionary<int, string>> GetStatesMapAsync(int workflowId)
         {
             var map = new Dictionary<int, string>();
@@ -800,6 +780,77 @@ namespace AdminStore.Services.Workflow
 
             return map;
         }
+
+        #region UpdateUserAndGroupInfo
+
+        private async Task UpdateUserAndGroupInfo(IeWorkflow workflow, ISet<int> userIds, ISet<int> groupIds)
+        {
+            //CollectUserAndGroupIds(workflow, out userIds, out groupIds);
+
+            var userMap = (await _usersRepository.GetExistingUsersByIdsAsync(userIds))
+                .ToDictionary(u => u.UserId, u => u.Login);
+            var groupMap = (await _usersRepository.GetExistingGroupsByIds(groupIds, false))
+                .ToDictionary(g => g.GroupId, g => Tuple.Create(g.Name, g.ProjectId));
+            UpdateUserAndGroupInfo(workflow, userMap, groupMap);
+        }
+
+        private static void UpdateUserAndGroupInfo(IeWorkflow workflow, IDictionary<int, string> userMap, IDictionary<int, Tuple<string, int?>> groupMap)
+        {
+            workflow.TransitionEvents?.ForEach(t =>
+            {
+                t?.PermissionGroups?.ForEach(g =>
+                {
+                    if (!g.Id.HasValue)
+                    {
+                        return;
+                    }
+                    Tuple<string, int?> groupInfo;
+                    if (groupMap.TryGetValue(g.Id.Value, out groupInfo))
+                    {
+                        g.Name = groupInfo.Item1;
+                    }
+                });
+            });
+
+            workflow.TransitionEvents?.ForEach(te => UpdateUserAndGroupInfo(te, userMap, groupMap));
+            workflow.PropertyChangeEvents?.ForEach(pce => UpdateUserAndGroupInfo(pce, userMap, groupMap));
+            workflow.NewArtifactEvents?.ForEach(nae => UpdateUserAndGroupInfo(nae, userMap, groupMap));
+        }
+
+        private static void UpdateUserAndGroupInfo(IeEvent wEvent, IDictionary<int, string> userMap, IDictionary<int, Tuple<string, int?>> groupMap)
+        {
+            wEvent?.Triggers?.ForEach(t =>
+            {
+                if (t?.Action?.ActionType == ActionTypes.PropertyChange)
+                {
+                    var action = (IePropertyChangeAction)t.Action;
+                    action.UsersGroups?.UsersGroups?.ForEach(ug =>
+                    {
+                        if (!ug.Id.HasValue)
+                        {
+                            return;
+                        }
+                        if (ug.IsGroup.GetValueOrDefault())
+                        {
+                            Tuple<string, int?> groupInfo;
+                            if (groupMap.TryGetValue(ug.Id.Value, out groupInfo))
+                            {
+                                ug.Name = groupInfo.Item1;
+                                ug.GroupProjectId = groupInfo.Item2;
+                            }
+                        }
+                        else
+                        {
+                            string name;
+                            ug.Name = userMap.TryGetValue(ug.Id.Value, out name) ? name : null;
+                        }
+                    });
+                }
+            });
+        }
+
+        #endregion
+
 
         private async Task<string> UploadErrorsToFileStoreAsync(string errors)
         {

@@ -534,7 +534,7 @@ namespace AdminStore.Services.Workflow
         }
 
         private Models.Workflow.SqlWorkflowEvent ToSqlWorkflowEvent(IeEvent wEvent, int newWorkflowId, 
-            WorkflowDataMaps dataMaps, int userId)
+            WorkflowDataMaps dataMaps)
         {
             var sqlEvent = new Models.Workflow.SqlWorkflowEvent
             {

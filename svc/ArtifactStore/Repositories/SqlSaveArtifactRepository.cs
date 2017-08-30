@@ -103,7 +103,7 @@ namespace ArtifactStore.Repositories
                         artifact.ProjectId, artifact.Id, artifact.Id, (int) propertyType.Predefined,
                         //
                         (int) PropertyPrimitiveType.Number,
-                        PropertyHelper.GetBytes(action.PropertyLiteValue.NumberValue.GetValueOrDefault(0)),
+                        PropertyHelper.GetBytes(action.PropertyLiteValue.NumberValue),
                         null, null, null, null, null,
                         //
                         customPropertyChar, propertyType.PropertyTypeId, searchableValue);

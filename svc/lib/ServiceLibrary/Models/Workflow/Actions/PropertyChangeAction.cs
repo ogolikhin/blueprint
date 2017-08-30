@@ -56,16 +56,29 @@ namespace ServiceLibrary.Models.Workflow.Actions
             switch (propertyType?.PrimitiveType)
             {
                 case PropertyPrimitiveType.Number:
-                    decimal value;
-                    if (!Decimal.TryParse(PropertyValue, NumberStyles.AllowDecimalPoint, new NumberFormatInfo(), out value))
+                    if (String.IsNullOrEmpty(PropertyValue))
                     {
-                        throw new FormatException("Property change action provided incorrect value type");
+                        PropertyLiteValue = new PropertyLite()
+                        {
+                            PropertyTypeId = InstancePropertyTypeId,
+                            NumberValue = null
+                        };
                     }
-                    PropertyLiteValue = new PropertyLite()
+                    else
                     {
-                        PropertyTypeId = InstancePropertyTypeId,
-                        NumberValue = value
-                    };
+                        decimal value;
+                        if (
+                            !Decimal.TryParse(PropertyValue, NumberStyles.AllowDecimalPoint, new NumberFormatInfo(),
+                                out value))
+                        {
+                            throw new FormatException("Property change action provided incorrect value type");
+                        }
+                        PropertyLiteValue = new PropertyLite()
+                        {
+                            PropertyTypeId = InstancePropertyTypeId,
+                            NumberValue = value
+                        };
+                    }
                     break;
                 case PropertyPrimitiveType.Date:
                     PropertyLiteValue = new PropertyLite

@@ -1025,13 +1025,10 @@ namespace AdminStore.Repositories
         public async Task CreateRoleAssignment_SuccessfulRoleAssignmentCreation_ReturnCreatedRoleAssignmentId()
         {
             // Arrange
-            var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
-            
             var createdRoleAssignmentId = 1;
             CreateRoleAssignment roleAssignment = new CreateRoleAssignment() {GroupId = 1, RoleId = 1};
 
-            cxn.SetupExecuteScalarAsync("CreateProjectRoleAssignment",
+            _connection.SetupExecuteScalarAsync("CreateProjectRoleAssignment",
                                         new Dictionary <string, object>
                                         {
                                             { "ProjectId", ProjectId },
@@ -1042,10 +1039,10 @@ namespace AdminStore.Repositories
                                         new Dictionary<string, object> { { "ErrorCode", 0 } });
 
             // Act
-            var result = await repository.CreateRoleAssignmentAsync(ProjectId, roleAssignment);
+            var result = await _instanceRepository.CreateRoleAssignmentAsync(ProjectId, roleAssignment);
 
             // Assert
-            cxn.Verify();
+            _connection.Verify();
             Assert.AreEqual(result, createdRoleAssignmentId);
         }
 
@@ -1055,8 +1052,6 @@ namespace AdminStore.Repositories
         public async Task CreateRoleAssignment_GroupNotExists_ReturnResourceNotFoundError()
         {
             // Arrange
-            var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
             int errorCode = 50006; // there are no groups with given Id
 
             int createdRoleAssignmentId = 0;
@@ -1067,7 +1062,7 @@ namespace AdminStore.Repositories
                 RoleId = 1
             };
 
-            cxn.SetupExecuteScalarAsync("CreateProjectRoleAssignment",
+            _connection.SetupExecuteScalarAsync("CreateProjectRoleAssignment",
                             new Dictionary<string, object>
                             {
                                             { "ProjectId", ProjectId },
@@ -1078,7 +1073,7 @@ namespace AdminStore.Repositories
                             new Dictionary<string, object> { { "ErrorCode", errorCode } });
 
             // Act
-            await repository.CreateRoleAssignmentAsync(ProjectId, roleAssignment);
+            await _instanceRepository.CreateRoleAssignmentAsync(ProjectId, roleAssignment);
 
         }
 
@@ -1087,8 +1082,6 @@ namespace AdminStore.Repositories
         public async Task CreateRoleAssignment_RoleNotExists_ReturnResourceNotFoundError()
         {
             // Arrange
-            var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
             int errorCode = 50020; // there are no roles with given Id
 
             int createdRoleAssignmentId = 0;
@@ -1099,7 +1092,7 @@ namespace AdminStore.Repositories
                 RoleId = 0/*missing Id*/
             };
 
-            cxn.SetupExecuteScalarAsync("CreateProjectRoleAssignment",
+            _connection.SetupExecuteScalarAsync("CreateProjectRoleAssignment",
                             new Dictionary<string, object>
                             {
                                             { "ProjectId", ProjectId },
@@ -1110,7 +1103,7 @@ namespace AdminStore.Repositories
                             new Dictionary<string, object> { { "ErrorCode", errorCode } });
 
             // Act
-            await repository.CreateRoleAssignmentAsync(ProjectId, roleAssignment);
+            await _instanceRepository.CreateRoleAssignmentAsync(ProjectId, roleAssignment);
 
         }
 
@@ -1119,8 +1112,6 @@ namespace AdminStore.Repositories
         public async Task CreateRoleAssignment_ProjectNotExists_ReturnResourceNotFoundError()
         {
             // Arrange
-            var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
             int errorCode = 50016; // there are no projects with given Id
 
             int createdRoleAssignmentId = 0;
@@ -1133,7 +1124,7 @@ namespace AdminStore.Repositories
 
             int projectId = 10000; //this id is not in the table yet
 
-            cxn.SetupExecuteScalarAsync("CreateProjectRoleAssignment",
+            _connection.SetupExecuteScalarAsync("CreateProjectRoleAssignment",
                             new Dictionary<string, object>
                             {
                                             { "ProjectId", projectId },
@@ -1144,7 +1135,7 @@ namespace AdminStore.Repositories
                             new Dictionary<string, object> { { "ErrorCode", errorCode } });
 
             // Act
-            await repository.CreateRoleAssignmentAsync(projectId, roleAssignment);
+            await _instanceRepository.CreateRoleAssignmentAsync(projectId, roleAssignment);
 
         }
 
@@ -1153,8 +1144,6 @@ namespace AdminStore.Repositories
         public async Task CreateRoleAssignment_AssignmentAlreayExists_ReturnConflictExceptionError()
         {
             // Arrange
-            var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
             int errorCode = 50021; // assignment with given Id already exists
 
             int createdRoleAssignmentId = 0;
@@ -1164,9 +1153,9 @@ namespace AdminStore.Repositories
                 GroupId = 1,
                 RoleId = 1
             };
-            
 
-            cxn.SetupExecuteScalarAsync("CreateProjectRoleAssignment",
+
+            _connection.SetupExecuteScalarAsync("CreateProjectRoleAssignment",
                             new Dictionary<string, object>
                             {
                                             { "ProjectId", ProjectId },
@@ -1177,7 +1166,7 @@ namespace AdminStore.Repositories
                             new Dictionary<string, object> { { "ErrorCode", errorCode } });
 
             // Act
-            await repository.CreateRoleAssignmentAsync(ProjectId, roleAssignment);
+            await _instanceRepository.CreateRoleAssignmentAsync(ProjectId, roleAssignment);
 
         }
 

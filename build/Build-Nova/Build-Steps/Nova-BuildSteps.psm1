@@ -164,9 +164,9 @@ function Build-ImageService{
 
     Write-Section "Building Image Service"
 
-    Invoke-MsBuild @msBuildArgs -project $workspace\win_svc\BlueprintSys.RC.ImageService\Blueprint.RC.ImageService.csproj -trailingArguments "/p:Platform='x64' /p:OutDir=`"$workspace\win_svc\DeployArtifacts\Blueprint.RC.ImageService`""
+    Invoke-MsBuild @msBuildArgs -project $workspace\win_svc\BlueprintSys.RC.ImageService\BlueprintSys.RC.ImageService.csproj -trailingArguments "/p:Platform='x64' /p:OutDir=`"$workspace\win_svc\DeployArtifacts\BlueprintSys.RC.ImageService`""
 
-    $processHtmlFolder = "$workspace\win_svc\DeployArtifacts\Blueprint.RC.ImageService\ProcessHtml"
+    $processHtmlFolder = "$workspace\win_svc\DeployArtifacts\BlueprintSys.RC.ImageService\ProcessHtml"
     $novaImageGenFolder = "$workspace\app\NovaWeb\dist\imagegen"
 
     if(Test-Path -PathType Container $processHtmlFolder) {

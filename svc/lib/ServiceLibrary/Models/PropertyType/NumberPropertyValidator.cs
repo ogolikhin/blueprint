@@ -9,10 +9,10 @@ namespace ServiceLibrary.Models.PropertyType
     {
         protected override PropertySetResult Validate(PropertyLite property, DNumberPropertyType propertyType, IValidationContext validationContext)
         {
-            decimal value = property.NumberValue.Value;
             if (IsPropertyValueEmpty(property, propertyType))
                 return null;
 
+            decimal value = property.NumberValue.Value;
             if (!propertyType.IsValidate)
             {
                 return null;

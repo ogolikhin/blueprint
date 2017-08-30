@@ -4,12 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using AdminStore.Helpers.Workflow;
 using AdminStore.Models.Workflow;
-using AdminStore.Repositories;
 using AdminStore.Repositories.Workflow;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.Workflow;
+using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ProjectMeta;
 
 namespace AdminStore.Services.Workflow
@@ -17,12 +17,15 @@ namespace AdminStore.Services.Workflow
     public class WorkflowDataValidator : IWorkflowDataValidator
     {
         private readonly IWorkflowRepository _workflowRepository;
-        private readonly IUserRepository _userRepository;
+        private readonly IUsersRepository _userRepository;
         private readonly ISqlProjectMetaRepository _projectMetaRepository;
         private readonly IWorkflowActionPropertyValueValidator _propertyValueValidator;
 
-        public WorkflowDataValidator(IWorkflowRepository workflowRepository, IUserRepository userRepository,
-            ISqlProjectMetaRepository projectMetaRepository, IWorkflowActionPropertyValueValidator propertyValueValidator)
+        public WorkflowDataValidator(
+            IWorkflowRepository workflowRepository, 
+            IUsersRepository userRepository,
+            ISqlProjectMetaRepository projectMetaRepository, 
+            IWorkflowActionPropertyValueValidator propertyValueValidator)
         {
             _workflowRepository = workflowRepository;
             _userRepository = userRepository;
@@ -31,6 +34,8 @@ namespace AdminStore.Services.Workflow
         }
 
         #region Interface Implementation
+
+        public ProjectTypes StandardTypes { get; set; }
 
         public async Task<WorkflowDataValidationResult> ValidateDataAsync(IeWorkflow workflow)
         {
@@ -49,6 +54,7 @@ namespace AdminStore.Services.Workflow
             return result;
         }
 
+        // During the update data validation names of elements with Id are assigned according to the meta data.
         public async Task<WorkflowDataValidationResult> ValidateUpdateDataAsync(IeWorkflow workflow)
         {
             if (workflow == null)
@@ -74,7 +80,7 @@ namespace AdminStore.Services.Workflow
         {
             var result = new WorkflowDataValidationResult();
 
-            result.StandardTypes = await _projectMetaRepository.GetStandardProjectTypesAsync();
+            result.StandardTypes = StandardTypes ?? await _projectMetaRepository.GetStandardProjectTypesAsync();
 
             result.StandardTypes.ArtifactTypes?.RemoveAll(at => at.PredefinedType != null
                                                                 && !at.PredefinedType.Value.IsRegularArtifactType());
@@ -542,7 +548,7 @@ namespace AdminStore.Services.Workflow
         public virtual void ValidateEmailNotificationActionData(WorkflowDataValidationResult result,
             IeEmailNotificationAction action, bool ignoreIds)
         {
-            if (action?.PropertyName == null)
+            if (action == null)
             {
                 return;
             }
@@ -640,7 +646,6 @@ namespace AdminStore.Services.Workflow
                 });
             }
         }
-
 
         public virtual void ValidateGenerateActionData(WorkflowDataValidationResult result, IeGenerateAction action,
             bool ignoreIds)

@@ -127,6 +127,7 @@
     <Compile Include="Models\AssignScope.cs" />
     <Compile Include="Models\CreateResult.cs" />
     <Compile Include="Models\DTO\FolderDto.cs" />
+    <Compile Include="Models\DTO\ProjectFolderSearchDto.cs" />
     <Compile Include="Models\DTO\User.cs" />
     <Compile Include="Models\Emails\BaseEmailSettings.cs" />
     <Compile Include="Models\Emails\EmailIncomingSettings.cs" />
@@ -146,7 +147,6 @@
     <Compile Include="Models\ProjectRole.cs" />
     <Compile Include="Models\QueryDataResult.cs" />
     <Compile Include="Models\RolesAssignments.cs" />
-    <Compile Include="Models\SqlUser.cs" />
     <Compile Include="Models\TabularData.cs" />
     <Compile Include="Models\TabularPagination.cs" />
     <Compile Include="Models\UpdateUserPassword.cs" />
@@ -161,7 +161,6 @@
     <Compile Include="Helpers\UserMapper.cs" />
     <Compile Include="Helpers\UsersHelper.cs" />
     <Compile Include="Models\InstanceItem.cs" />
-    <Compile Include="Models\SqlGroup.cs" />
     <Compile Include="Models\UserManagementSettings.cs" />
     <Compile Include="Models\PasswordRecoveryToken.cs" />
     <Compile Include="Models\ResetPasswordContent.cs" />

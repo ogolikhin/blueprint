@@ -1,10 +1,14 @@
 ﻿using ServiceLibrary.Helpers;
+using ServiceLibrary.Helpers.Validators;
 
 namespace ServiceLibrary.Models.PropertyType
 {
     public class DatePropertyValidator : PropertyValidator<DDatePropertyType>
     {
-        protected override PropertySetResult Validate(PropertyLite property, DDatePropertyType propertyType)
+        protected override PropertySetResult Validate(
+            PropertyLite property, 
+            DDatePropertyType propertyType, 
+            IValidationContext validationContext)
         {
             if (IsPropertyValueEmpty(property, propertyType))
                 return null;

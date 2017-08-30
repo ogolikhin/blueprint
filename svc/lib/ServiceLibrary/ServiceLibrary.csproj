@@ -139,6 +139,7 @@
     <Compile Include="Helpers\ImageHelper.cs" />
     <Compile Include="Helpers\ISqlHelper.cs" />
     <Compile Include="Helpers\ItemTypePredefinedExtension.cs" />
+    <Compile Include="Helpers\ProcessInfoMapper.cs" />
     <Compile Include="Helpers\PropertyHelper.cs" />
     <Compile Include="Helpers\RemoveSecurityRelatedHeadersHttpModule.cs" />
     <Compile Include="Helpers\Security\SystemEncryptions.cs" />
@@ -161,6 +162,7 @@
     <Compile Include="Helpers\Validators\EmailValidator.cs" />
     <Compile Include="Helpers\Validators\IPropertyValidator.cs" />
     <Compile Include="Helpers\Validators\ReusePropertyValidator.cs" />
+    <Compile Include="Helpers\Validators\ValidationContext.cs" />
     <Compile Include="LocalLog\ILocalLog.cs" />
     <Compile Include="LocalLog\LocalEventLog.cs" />
     <Compile Include="LocalLog\LocalFileLog.cs" />
@@ -183,6 +185,7 @@
     <Compile Include="Models\Enums\ActionType.cs" />
     <Compile Include="Models\Enums\ElementType.cs" />
     <Compile Include="Models\Enums\GenerateActionTypes.cs" />
+    <Compile Include="Models\Enums\ProcessType.cs" />
     <Compile Include="Models\Enums\SendEmailResult.cs" />
     <Compile Include="Models\Enums\TransitionType.cs" />
     <Compile Include="Models\Enums\MessageActionType.cs" />
@@ -224,6 +227,8 @@
     <Compile Include="Models\Pagination.cs" />
     <Compile Include="Models\PaginationExtensions.cs" />
     <Compile Include="Models\PermissionsItem.cs" />
+    <Compile Include="Models\ProcessInfo.cs" />
+    <Compile Include="Models\ProcessInfoDto.cs" />
     <Compile Include="Models\ProjectAdminPrivileges.cs" />
     <Compile Include="Models\ProjectMeta\ApprovalType.cs" />
     <Compile Include="Models\ProjectMeta\ItemType.cs" />
@@ -240,11 +245,13 @@
     <Compile Include="Models\PropertyType\DDatePropertyType.cs" />
     <Compile Include="Models\PropertyType\DNumberPropertyType.cs" />
     <Compile Include="Models\PropertyType\DPropertyType.cs" />
+    <Compile Include="Models\PropertyType\DUserPropertyType.cs" />
     <Compile Include="Models\PropertyType\NumberPropertyValidator.cs" />
     <Compile Include="Models\PropertyType\PropertyLite.cs" />
     <Compile Include="Models\PropertyType\PropertySetResult.cs" />
     <Compile Include="Models\PropertyType\PropertyValidator.cs" />
     <Compile Include="Models\PropertyType\SqlPropertyType.cs" />
+    <Compile Include="Models\PropertyType\UserPropertyValidator.cs" />
     <Compile Include="Models\QueryResult.cs" />
     <Compile Include="Models\QuerySingleResult.cs" />
     <Compile Include="Models\Range.cs" />
@@ -261,8 +268,10 @@
     <Compile Include="Models\RolePermissions.cs" />
     <Compile Include="Models\Email\SMTPClientConfiguration.cs" />
     <Compile Include="Models\Sorting.cs" />
+    <Compile Include="Models\SqlGroup.cs" />
     <Compile Include="Models\SQLTraceLogModel.cs" />
     <Compile Include="Models\PerformanceLogModel.cs" />
+    <Compile Include="Models\SqlUser.cs" />
     <Compile Include="Models\StandardLogModel.cs" />
     <Compile Include="Models\CLogModel.cs" />
     <Compile Include="Models\LicenseInfo.cs" />
@@ -275,6 +284,7 @@
     <Compile Include="Models\UserGroup.cs" />
     <Compile Include="Models\UserInfo.cs" />
     <Compile Include="Models\VersionControl\ISaveArtifactRepository.cs" />
+    <Compile Include="Helpers\Validators\IValidationContext.cs" />
     <Compile Include="Models\VersionControl\PublishParameters.cs" />
     <Compile Include="Models\VersionControl\SqlDiscardPublishDetails.cs" />
     <Compile Include="Models\VersionControl\SqlDiscardPublishDetailsResult.cs" />
@@ -290,7 +300,7 @@
     <Compile Include="Models\Workflow\Actions\GenerateTestCasesAction.cs" />
     <Compile Include="Models\Workflow\Actions\GenerateUserStoriesAction.cs" />
     <Compile Include="Models\Workflow\Actions\PropertyChangeAction.cs" />
-    <Compile Include="Models\Workflow\ActionUserGroups.cs" />
+    <Compile Include="Models\Workflow\Actions\PropertyChangeUserGroupsAction.cs" />
     <Compile Include="Models\Workflow\ExecutionParameters.cs" />
     <Compile Include="Models\Workflow\IExecutionParameters.cs" />
     <Compile Include="Models\Workflow\IPropertyChangeAction.cs" />

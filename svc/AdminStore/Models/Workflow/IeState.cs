@@ -47,7 +47,12 @@ namespace AdminStore.Models.Workflow
         }
         //========================================================
 
+        [XmlIgnore]
+        public float OrderIndex { get; set; }
+
         #region Generated and modified Equals and GetHashCode methods
+
+        // At least for now, OrderIndex is not used in Equals and GetHashCode methods.
 
         protected bool Equals(IeState other)
         {

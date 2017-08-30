@@ -7,6 +7,7 @@ using System.Web.Http.Description;
 using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Models.DTO;
+using AdminStore.Models.Enums;
 using AdminStore.Repositories;
 using AdminStore.Services.Instance;
 using ServiceLibrary.Attributes;
@@ -542,7 +543,7 @@ namespace AdminStore.Controllers
             await _privilegesManager.DemandAny(Session.UserId, projectId,
                 InstanceAdminPrivileges.AccessAllProjectsAdmin, ProjectAdminPrivileges.ManageGroupsAndRoles);
 
-            RoleAssignmentValidator.ValidateModel(roleAssignment);
+            RoleAssignmentValidator.ValidateModel(roleAssignment, OperationMode.Create);
 
             var createdRoleAssignmentId = await _instanceRepository.CreateRoleAssignmentAsync(projectId, roleAssignment);
 
@@ -579,16 +580,11 @@ namespace AdminStore.Controllers
             await _privilegesManager.DemandAny(Session.UserId, projectId,
                 InstanceAdminPrivileges.AccessAllProjectsAdmin, ProjectAdminPrivileges.ManageGroupsAndRoles);
 
-            RoleAssignmentValidator.ValidateModel(roleAssignment);
-
-            if (roleAssignment.RoleAssignmentId < 1)
-            {
-                throw new BadRequestException(ErrorMessages.RoleAssignmentNotFound, ErrorCodes.BadRequest);
-            }
-
+            RoleAssignmentValidator.ValidateModel(roleAssignment, OperationMode.Edit, roleAssignment.RoleAssignmentId);
+            
             var updatedRoleAssignmentId = await _instanceRepository.UpdateRoleAssignmentAsync(projectId, roleAssignment);
 
-            return Request.CreateResponse(HttpStatusCode.Created, updatedRoleAssignmentId);
+            return Request.CreateResponse(HttpStatusCode.NoContent, updatedRoleAssignmentId);
         }
 
         #endregion

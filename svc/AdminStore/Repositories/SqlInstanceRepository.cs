@@ -498,21 +498,6 @@ namespace AdminStore.Repositories
             {
                 throw new ArgumentOutOfRangeException(nameof(roleAssignment));
             }
-
-            if (roleAssignment.RoleAssignmentId < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(roleAssignment.RoleAssignmentId));
-            }
-
-            if (roleAssignment.GroupId < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(roleAssignment.GroupId));
-            }
-
-            if (roleAssignment.RoleId < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(roleAssignment.RoleId));
-            }
             
             var parameters = new DynamicParameters();
             parameters.Add("@ProjectId", projectId);
@@ -530,6 +515,9 @@ namespace AdminStore.Repositories
             {
                 switch (errorCode.Value)
                 {
+                    case (int)SqlErrorCodes.GeneralSqlError:
+                        throw new BadRequestException(ErrorMessages.GeneralErrorOfUpdatingRoleAssignment);
+
                     case (int)SqlErrorCodes.ProjectWithCurrentIdNotExist:
                         throw new ResourceNotFoundException(ErrorMessages.ProjectNotExist, ErrorCodes.ResourceNotFound);
 
@@ -541,6 +529,10 @@ namespace AdminStore.Repositories
 
                     case (int)SqlErrorCodes.RoleAssignmentNotExists:
                         throw new ResourceNotFoundException(ErrorMessages.RoleAssignmentNotFound, ErrorCodes.ResourceNotFound);
+
+                    case (int)SqlErrorCodes.RoleAssignmentAlreadyExists:
+                        throw new ConflictException(ErrorMessages.RoleAssignmentAlreadyExists, ErrorCodes.Conflict);
+
                 }
             }
 

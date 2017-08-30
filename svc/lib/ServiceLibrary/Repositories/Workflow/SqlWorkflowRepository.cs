@@ -88,7 +88,7 @@ namespace ServiceLibrary.Repositories.Workflow
                 transaction);
         }
 
-        public async Task<Dictionary<int, List<DPropertyType>>> GetCustomItemTypeToPropertiesMap(
+        public async Task<Dictionary<int, List<WorkflowPropertyType>>> GetCustomItemTypeToPropertiesMap(
             int userId,
             int artifactId,
             int projectId,
@@ -129,7 +129,7 @@ namespace ServiceLibrary.Repositories.Workflow
             var eventTriggers = new WorkflowEventTriggers();
             newArtifactEvents.Where(n => n != null).ForEach(n =>
             {
-                eventTriggers.AddRange(ToWorkflowTriggers(SerializationHelper.FromXml<XmlWorkflowEventTriggers>(n.Triggers)));
+                eventTriggers.AddRange(ToWorkflowTriggers(SerializationHelper.FromXml<XmlWorkflowEventTriggers>(n.Triggers), userId));
             });
             return GetWorkflowTriggersContainer(eventTriggers);
         }
@@ -187,7 +187,7 @@ namespace ServiceLibrary.Repositories.Workflow
             return ToWorkflowTransitions(
                     await
                         ConnectionWrapper.QueryAsync<SqlWorkflowTransition>("GetTransitionsForState", param,
-                            commandType: CommandType.StoredProcedure));
+                            commandType: CommandType.StoredProcedure), userId);
         }
 
         private async Task<WorkflowTransition> GetTransitionForAssociatedStatesInternalAsync(int userId, int workflowId, int fromStateId, int toStateId)
@@ -201,10 +201,10 @@ namespace ServiceLibrary.Repositories.Workflow
             return ToWorkflowTransitions(
                     await
                         ConnectionWrapper.QueryAsync<SqlWorkflowTransition>("GetTransitionAssociatedWithStates", param,
-                            commandType: CommandType.StoredProcedure)).FirstOrDefault();
+                            commandType: CommandType.StoredProcedure), userId).FirstOrDefault();
         }
         
-        private IList<WorkflowTransition> ToWorkflowTransitions(IEnumerable<SqlWorkflowTransition> sqlWorkflowTransitions)
+        private IList<WorkflowTransition> ToWorkflowTransitions(IEnumerable<SqlWorkflowTransition> sqlWorkflowTransitions, int currentUserId)
         {
             return sqlWorkflowTransitions.Select(wt =>
             {
@@ -226,12 +226,12 @@ namespace ServiceLibrary.Repositories.Workflow
                     Name = wt.WorkflowEventName,
                     WorkflowId = wt.WorkflowId
                 };
-                transition.Triggers.AddRange(ToWorkflowTriggers(SerializationHelper.FromXml<XmlWorkflowEventTriggers>(wt.Triggers)));
+                transition.Triggers.AddRange(ToWorkflowTriggers(SerializationHelper.FromXml<XmlWorkflowEventTriggers>(wt.Triggers), currentUserId));
                 return transition;
             }).ToList();
         }
 
-        private WorkflowEventTriggers ToWorkflowTriggers(XmlWorkflowEventTriggers xmlWorkflowEventTriggers)
+        private WorkflowEventTriggers ToWorkflowTriggers(XmlWorkflowEventTriggers xmlWorkflowEventTriggers, int currentUserId)
         {
             WorkflowEventTriggers triggers = new WorkflowEventTriggers();
             if (xmlWorkflowEventTriggers == null || xmlWorkflowEventTriggers.Triggers == null)
@@ -242,12 +242,12 @@ namespace ServiceLibrary.Repositories.Workflow
             {
                 Name = xmlWorkflowEventTrigger.Name,
                 Condition = new WorkflowEventCondition(),
-                Action = GenerateAction(xmlWorkflowEventTrigger.Action)
+                Action = GenerateAction(xmlWorkflowEventTrigger.Action, currentUserId)
             }));
             return triggers;
         }
 
-        private WorkflowEventAction GenerateAction(XmlAction action)
+        private WorkflowEventAction GenerateAction(XmlAction action, int currentUserId)
         {
             if (action == null)
             {
@@ -261,7 +261,7 @@ namespace ServiceLibrary.Repositories.Workflow
             var propertyChangeAction = action as XmlPropertyChangeAction;
             if (propertyChangeAction != null)
             {
-                return ToPropertyChangeAction(propertyChangeAction);
+                return ToPropertyChangeAction(propertyChangeAction, currentUserId);
             }
             var generateAction = action as XmlGenerateAction;
             //TODO: Should we throw an exception if the action is not a known action? Import ahead of handling situation
@@ -279,23 +279,11 @@ namespace ServiceLibrary.Repositories.Workflow
             return action;
         }
 
-        private PropertyChangeAction ToPropertyChangeAction(XmlPropertyChangeAction propertyChangeAction)
+        private PropertyChangeAction ToPropertyChangeAction(XmlPropertyChangeAction propertyChangeAction, int currentUserId)
         {
-            if (propertyChangeAction.UsersGroups.Any())
+            if (propertyChangeAction.UsersGroups!= null)
             {
-                var action = new PropertyChangeUserGroupsAction
-                {
-                    InstancePropertyTypeId = propertyChangeAction.PropertyTypeId,
-                    PropertyValue = propertyChangeAction.PropertyValue
-                };
-                action.UserGroups.AddRange(propertyChangeAction.UsersGroups.Select(
-                        u => new UserGroup
-                        {
-                            Id = u.Id,
-                            IsGroup = u.IsGroup
-                        }).ToList());
-
-                return action;
+                return ToPropertyChangeUserGroupAction(propertyChangeAction, currentUserId);
             }
             else
             {
@@ -312,7 +300,45 @@ namespace ServiceLibrary.Repositories.Workflow
                 return action;
             }
         }
-        
+
+        private PropertyChangeAction ToPropertyChangeUserGroupAction(
+            XmlPropertyChangeAction propertyChangeAction, 
+            int currentUserId
+            )
+        {
+            var action = new PropertyChangeUserGroupsAction
+            {
+                InstancePropertyTypeId = propertyChangeAction.PropertyTypeId,
+                PropertyValue = propertyChangeAction.PropertyValue
+            };
+            if (propertyChangeAction.UsersGroups.UsersGroups?.Any() ?? false)
+            {
+                action.UserGroups.AddRange(propertyChangeAction.UsersGroups.UsersGroups.Select(
+                    u => new UserGroup
+                    {
+                        Id = u.Id,
+                        IsGroup = u.IsGroup
+                    }).ToList());
+            }
+            var includeCurrentUser = propertyChangeAction.UsersGroups.IncludeCurrentUser.GetValueOrDefault(false);
+            if (!includeCurrentUser)
+            {
+                return action;
+            }
+            var isUserAlreadyIncluded =
+                action.UserGroups.Exists(
+                    u => !u.IsGroup.GetValueOrDefault(false) && u.Id.GetValueOrDefault(0) == currentUserId);
+            if (!isUserAlreadyIncluded)
+            {
+                action.UserGroups.Add(new UserGroup()
+                {
+                    Id = currentUserId,
+                    IsGroup = false
+                });
+            }
+            return action;
+        }
+
         private WorkflowEventAction ToGenerateAction(XmlGenerateAction generateAction)
         {
             switch (generateAction.GenerateActionType)
@@ -358,7 +384,7 @@ namespace ServiceLibrary.Repositories.Workflow
             }).ToList();
         }
 
-        private async Task<Dictionary<int, List<DPropertyType>>> GetCustomPropertyTypesFromStandardIds(
+        private async Task<Dictionary<int, List<WorkflowPropertyType>>> GetCustomPropertyTypesFromStandardIds(
             IEnumerable<int> itemTypeIds, 
             IEnumerable<int> instancePropertyTypeIds, 
             int projectId,
@@ -377,17 +403,17 @@ namespace ServiceLibrary.Repositories.Workflow
             return ToItemTypePropertyTypesDictionary(await transaction.Connection.QueryAsync<SqlPropertyType>(storedProcedure, param, transaction, commandType: CommandType.StoredProcedure));
         }
 
-        private Dictionary<int, List<DPropertyType>> ToItemTypePropertyTypesDictionary(IEnumerable<SqlPropertyType> sqlPropertyTypes)
+        private Dictionary<int, List<WorkflowPropertyType>> ToItemTypePropertyTypesDictionary(IEnumerable<SqlPropertyType> sqlPropertyTypes)
         {
-            var dictionary = new Dictionary<int, List<DPropertyType>>();
+            var dictionary = new Dictionary<int, List<WorkflowPropertyType>>();
             foreach (var sqlPropertyType in sqlPropertyTypes)
             {
-                DPropertyType dProperty;
+                WorkflowPropertyType workflowProperty;
                 switch (sqlPropertyType.PrimitiveType)
                 {
                     case PropertyPrimitiveType.Number:
                     {
-                        dProperty = new DNumberPropertyType
+                        workflowProperty = new NumberPropertyType
                         {
                             AllowMultiple = sqlPropertyType.AllowMultiple,
                             DefaultValue = PropertyHelper.ToDecimal((byte[])sqlPropertyType.DecimalDefaultValue),
@@ -411,7 +437,7 @@ namespace ServiceLibrary.Repositories.Workflow
                     }
                     case PropertyPrimitiveType.Date:
                     {
-                        dProperty = new DDatePropertyType
+                        workflowProperty = new DatePropertyType
                         {
                             AllowMultiple = sqlPropertyType.AllowMultiple,
                             DefaultValue = sqlPropertyType.DateDefaultValue,
@@ -433,7 +459,7 @@ namespace ServiceLibrary.Repositories.Workflow
                         break;
                     }
                     case PropertyPrimitiveType.User:
-                        dProperty = new DUserPropertyType()
+                        workflowProperty = new UserPropertyType()
                         {
                             DefaultLabels = sqlPropertyType.UserDefaultLabel,
                             DefaultValues = sqlPropertyType.UserDefaultValue,
@@ -489,7 +515,7 @@ namespace ServiceLibrary.Repositories.Workflow
                     //TODO: add other DPropertyTypes
                     default:
                         {
-                            dProperty = new DPropertyType
+                            workflowProperty = new WorkflowPropertyType
                             {
                                 AllowMultiple = sqlPropertyType.AllowMultiple,
                                 DefaultValidValueId = sqlPropertyType.DefaultValidValueId,
@@ -509,11 +535,11 @@ namespace ServiceLibrary.Repositories.Workflow
                
                 if (dictionary.ContainsKey(sqlPropertyType.ItemTypeId))
                 {
-                    dictionary[sqlPropertyType.ItemTypeId].Add(dProperty);
+                    dictionary[sqlPropertyType.ItemTypeId].Add(workflowProperty);
                 }
                 else
                 {
-                    dictionary.Add(sqlPropertyType.ItemTypeId, new List<DPropertyType> { dProperty});
+                    dictionary.Add(sqlPropertyType.ItemTypeId, new List<WorkflowPropertyType> { workflowProperty});
                 }
             }
             return dictionary;

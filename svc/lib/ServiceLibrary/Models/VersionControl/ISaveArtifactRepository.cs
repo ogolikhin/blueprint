@@ -11,7 +11,7 @@ namespace ServiceLibrary.Models.VersionControl
         Task SavePropertyChangeActions(
             int userId,
             IEnumerable<IPropertyChangeAction> actions,
-            IEnumerable<DPropertyType> propertyTypes,
+            IEnumerable<WorkflowPropertyType> propertyTypes,
             VersionControlArtifactInfo artifact,
             IDbTransaction transaction = null);
     }

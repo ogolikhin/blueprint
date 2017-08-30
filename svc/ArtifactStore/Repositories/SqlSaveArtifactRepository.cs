@@ -35,7 +35,7 @@ namespace ArtifactStore.Repositories
         public async Task SavePropertyChangeActions(
             int userId,
             IEnumerable<IPropertyChangeAction> actions,
-            IEnumerable<DPropertyType> propertyTypes,
+            IEnumerable<WorkflowPropertyType> propertyTypes,
             VersionControlArtifactInfo artifact,
             IDbTransaction transaction = null)
         {
@@ -65,7 +65,7 @@ namespace ArtifactStore.Repositories
 
         private DataTable PopulateSavePropertyValueVersionsTable(
             IEnumerable<IPropertyChangeAction> actions,
-            IEnumerable<DPropertyType> propertyTypes,
+            IEnumerable<WorkflowPropertyType> propertyTypes,
             VersionControlArtifactInfo artifact)
         {
             DataTable propertyValueVersionsTable = new DataTable();
@@ -97,7 +97,7 @@ namespace ArtifactStore.Repositories
                 var customPropertyChar = GetCustomPropertyChar(action.PropertyLiteValue, propertyType);
                 var searchableValue = GetSearchableValue(action.PropertyLiteValue, propertyType);
 
-                if (propertyType is DNumberPropertyType)
+                if (propertyType is NumberPropertyType)
                 {
                     propertyValueVersionsTable.Rows.Add(propertyType.PropertyTypeId, false,
                         artifact.ProjectId, artifact.Id, artifact.Id, (int) propertyType.Predefined,
@@ -108,7 +108,7 @@ namespace ArtifactStore.Repositories
                         //
                         customPropertyChar, propertyType.PropertyTypeId, searchableValue);
                 }
-                else if (propertyType is DDatePropertyType)
+                else if (propertyType is DatePropertyType)
                 {
                     propertyValueVersionsTable.Rows.Add(propertyType.PropertyTypeId, false,
                         artifact.ProjectId, artifact.Id, artifact.Id, (int)propertyType.Predefined,
@@ -120,7 +120,7 @@ namespace ArtifactStore.Repositories
                         //
                         customPropertyChar, propertyType.PropertyTypeId, searchableValue);
                 }
-                else if (propertyType is DUserPropertyType)
+                else if (propertyType is UserPropertyType)
                 {
                     propertyValueVersionsTable.Rows.Add(propertyType.PropertyTypeId, false,
                         artifact.ProjectId, artifact.Id, artifact.Id, (int) propertyType.Predefined,
@@ -167,11 +167,11 @@ namespace ArtifactStore.Repositories
                 return null;
             }
             PropertyPrimitiveType primitiveType;
-            if (propertyType is DNumberPropertyType)
+            if (propertyType is NumberPropertyType)
             {
                 primitiveType = PropertyPrimitiveType.Number;
             }
-            else if (propertyType is DDatePropertyType)
+            else if (propertyType is DatePropertyType)
             {
                 primitiveType = PropertyPrimitiveType.Date;
             }
@@ -179,7 +179,7 @@ namespace ArtifactStore.Repositories
             //{
             //    primitiveType = PropertyPrimitiveType.Text;
             //}
-            else if (propertyType is DUserPropertyType)
+            else if (propertyType is UserPropertyType)
             {
                 primitiveType = PropertyPrimitiveType.User;
             }
@@ -215,7 +215,7 @@ namespace ArtifactStore.Repositories
             return XmlModelSerializer.SerializeCustomProperties(customProperties);
         }
 
-        private static string GetSearchableValue(PropertyLite propertyLite, DPropertyType propertyType)
+        private static string GetSearchableValue(PropertyLite propertyLite, WorkflowPropertyType propertyType)
         {
             //if (propertyValue is DTextPropertyValue)
             //{
@@ -236,11 +236,11 @@ namespace ArtifactStore.Repositories
             //            return null;
             //    }
             //}
-            if (propertyType is DNumberPropertyType)
+            if (propertyType is NumberPropertyType)
             {
                 return null;
             }
-            if (propertyType is DDatePropertyType)
+            if (propertyType is DatePropertyType)
             {
                 return null;
             }

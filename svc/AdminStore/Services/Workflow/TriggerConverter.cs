@@ -24,29 +24,6 @@ namespace AdminStore.Services.Workflow
             return xmlTriggers;
         }
 
-        private XmlWorkflowEventTrigger ToXmlModel(IeTrigger ieTrigger, WorkflowDataMaps dataMaps)
-        {
-            if (ieTrigger == null)
-            {
-                return null;
-            }
-
-            var xmlTrigger = new XmlWorkflowEventTrigger
-            {
-                Name = ieTrigger.Name
-            };
-
-            if (ieTrigger.Condition != null)
-            {
-                xmlTrigger.Condition = ToXmlModel(ieTrigger.Condition, dataMaps.StateMap);
-            }
-
-            // Triggers must have an action.
-            xmlTrigger.Action = ToXmlModel(ieTrigger.Action, dataMaps);
-
-            return xmlTrigger;
-        }
-
         public IEnumerable<IeTrigger> FromXmlModel(XmlWorkflowEventTriggers xmlTriggers, WorkflowDataNameMaps dataMaps)
         {
             if (xmlTriggers == null)
@@ -71,7 +48,34 @@ namespace AdminStore.Services.Workflow
             return triggers;
         }
 
-        private IeTrigger FromXmlModel(XmlWorkflowEventTrigger xmlTrigger, WorkflowDataNameMaps dataMaps)
+        #endregion
+
+        #region Private Methods
+
+        private static XmlWorkflowEventTrigger ToXmlModel(IeTrigger ieTrigger, WorkflowDataMaps dataMaps)
+        {
+            if (ieTrigger == null)
+            {
+                return null;
+            }
+
+            var xmlTrigger = new XmlWorkflowEventTrigger
+            {
+                Name = ieTrigger.Name
+            };
+
+            if (ieTrigger.Condition != null)
+            {
+                xmlTrigger.Condition = ToXmlModel(ieTrigger.Condition, dataMaps.StateMap);
+            }
+
+            // Triggers must have an action.
+            xmlTrigger.Action = ToXmlModel(ieTrigger.Action, dataMaps);
+
+            return xmlTrigger;
+        }
+
+        private static IeTrigger FromXmlModel(XmlWorkflowEventTrigger xmlTrigger, WorkflowDataNameMaps dataMaps)
         {
             if (xmlTrigger == null)
             {
@@ -87,10 +91,6 @@ namespace AdminStore.Services.Workflow
 
             return ieTrigger;
         }
-
-        #endregion
-
-        #region Private Methods
 
         private static IeBaseAction FromXmlModel(XmlAction xmlAction, WorkflowDataNameMaps dataMaps)
         {
@@ -125,8 +125,7 @@ namespace AdminStore.Services.Workflow
                         PropertyName = dataMaps.PropertyTypeMap.TryGetValue(xpAction.PropertyTypeId, out name) ? name : null,
                         PropertyValue = xpAction.PropertyValue,
                         ValidValues = GetValidValues(xpAction.ValidValues, dataMaps),
-                        UsersGroups = FromXmlModel(xpAction.UsersGroups, dataMaps),
-                        IncludeCurrentUser = xpAction.IncludeCurrentUser
+                        UsersGroups = FromXmlModel(xpAction.UsersGroups, dataMaps)
                     };
                     break;
                 case ActionTypes.Generate:
@@ -150,6 +149,22 @@ namespace AdminStore.Services.Workflow
             }
 
             return action;
+        }
+
+        private static IeUsersGroups FromXmlModel(XmlUsersGroups xmlUsersGroups, WorkflowDataNameMaps dataMaps)
+        {
+            if (xmlUsersGroups == null)
+            {
+                return null;
+            }
+
+            var ieUsersGroups = new IeUsersGroups
+            {
+                IncludeCurrentUser = xmlUsersGroups.IncludeCurrentUser,
+                UsersGroups = FromXmlModel(xmlUsersGroups.UsersGroups, dataMaps)
+            };
+
+            return ieUsersGroups;
         }
 
         private static List<IeValidValue> GetValidValues(List<int> valueIds, WorkflowDataNameMaps dataMaps)
@@ -296,8 +311,7 @@ namespace AdminStore.Services.Workflow
             {
                 Name = ieAction.Name,
                 PropertyValue = ieAction.PropertyValue,
-                IncludeCurrentUser = ieAction.IncludeCurrentUser,
-                UsersGroups = !ieAction.UsersGroups.IsEmpty() ? new List<XmlUserGroup>() : null
+                UsersGroups = ToXmlModel(ieAction.UsersGroups, dataMaps)
             };
 
             int propertyTypeId;
@@ -307,34 +321,6 @@ namespace AdminStore.Services.Workflow
                     ErrorCodes.UnexpectedError);
             }
             xmlAction.PropertyTypeId = propertyTypeId;
-
-            ieAction.UsersGroups?.ForEach(ug =>
-            {
-                var isGroup = ug.IsGroup.GetValueOrDefault();
-                int ugId;
-                if (isGroup)
-                {
-                    if (!dataMaps.GroupMap.TryGetValue(Tuple.Create(ug.Name, ug.GroupProjectId), out ugId))
-                    {
-                        throw new ExceptionWithErrorCode(I18NHelper.FormatInvariant("Id of Group '{1}' is not found.", ug.Name),
-                            ErrorCodes.UnexpectedError);
-                    }
-                }
-                else
-                {
-                    if (!dataMaps.UserMap.TryGetValue(ug.Name, out ugId))
-                    {
-                        throw new ExceptionWithErrorCode(I18NHelper.FormatInvariant("Id of User '{0}' is not found.", ug.Name),
-                            ErrorCodes.UnexpectedError);
-                    }
-                }
-
-                xmlAction.UsersGroups.Add(new XmlUserGroup
-                {
-                    IsGroup = isGroup,
-                    Id = ugId
-                });
-            });
 
             IDictionary<string, int> vvMap = null;
             ieAction.ValidValues?.ForEach(vv =>
@@ -365,6 +351,52 @@ namespace AdminStore.Services.Workflow
             });
 
             return xmlAction;
+        }
+
+        private static XmlUsersGroups ToXmlModel(IeUsersGroups ieUsersGroups, WorkflowDataMaps dataMaps)
+        {
+            if (ieUsersGroups == null)
+            {
+                return null;
+            }
+
+            var xmlUsersGroups = new XmlUsersGroups
+            {
+                IncludeCurrentUser = ieUsersGroups.IncludeCurrentUser,
+                UsersGroups = !ieUsersGroups.UsersGroups.IsEmpty()
+                    ? new List<XmlUserGroup>()
+                    : null 
+            };
+
+            ieUsersGroups.UsersGroups?.ForEach(ug =>
+            {
+                var isGroup = ug.IsGroup.GetValueOrDefault();
+                int ugId;
+                if (isGroup)
+                {
+                    if (!dataMaps.GroupMap.TryGetValue(Tuple.Create(ug.Name, ug.GroupProjectId), out ugId))
+                    {
+                        throw new ExceptionWithErrorCode(I18NHelper.FormatInvariant("Id of Group '{1}' is not found.", ug.Name),
+                            ErrorCodes.UnexpectedError);
+                    }
+                }
+                else
+                {
+                    if (!dataMaps.UserMap.TryGetValue(ug.Name, out ugId))
+                    {
+                        throw new ExceptionWithErrorCode(I18NHelper.FormatInvariant("Id of User '{0}' is not found.", ug.Name),
+                            ErrorCodes.UnexpectedError);
+                    }
+                }
+
+                xmlUsersGroups.UsersGroups.Add(new XmlUserGroup
+                {
+                    IsGroup = isGroup,
+                    Id = ugId
+                });
+            });
+
+            return xmlUsersGroups;
         }
 
         private static XmlGenerateAction ToXmlModel(IeGenerateAction ieAction, IDictionary<string, int> artifactTypeMap)

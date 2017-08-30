@@ -316,7 +316,7 @@ namespace ArtifactStore.Executors
             }
             var customItemTypeToPropertiesMap = await LoadCustomPropertyInformation(new[] { instanceItemTypeId.Value }, triggers, artifactInfo.ProjectId);
 
-            var propertyTypes = new List<DPropertyType>();
+            var propertyTypes = new List<WorkflowPropertyType>();
             if (customItemTypeToPropertiesMap.ContainsKey(artifactInfo.ItemTypeId))
             {
                 propertyTypes = customItemTypeToPropertiesMap[artifactInfo.ItemTypeId];
@@ -437,12 +437,12 @@ namespace ArtifactStore.Executors
             return reuseTemplateSettings;
         }
 
-        private async Task<Dictionary<int, List<DPropertyType>>> LoadCustomPropertyInformation(IEnumerable<int> instanceItemTypeIds, WorkflowEventTriggers triggers, int projectId)
+        private async Task<Dictionary<int, List<WorkflowPropertyType>>> LoadCustomPropertyInformation(IEnumerable<int> instanceItemTypeIds, WorkflowEventTriggers triggers, int projectId)
         {
             var propertyChangeActions = triggers.Select(t => t.Action).OfType<PropertyChangeAction>().ToList();
             if (propertyChangeActions.Count == 0)
             {
-                return new Dictionary<int, List<DPropertyType>>();
+                return new Dictionary<int, List<WorkflowPropertyType>>();
             }
 
             var instancePropertyTypeIds = propertyChangeActions.Select(b => b.InstancePropertyTypeId);

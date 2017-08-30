@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using AdminStore.Helpers;
 using AdminStore.Models.Emails;
 using AdminStore.Repositories;
@@ -55,6 +56,16 @@ namespace AdminStore.Services.Instance
 
         public async Task UpdateEmailSettingsAsync(int userId, EmailSettingsDto emailSettingsDto)
         {
+            if (emailSettingsDto.Incoming == null)
+            {
+                throw new BadRequestException("Incoming cannot be null.", ErrorCodes.OutOfRangeParameter);
+            }
+
+            if (emailSettingsDto.Outgoing == null)
+            {
+                throw new BadRequestException("Outgoing cannot be null.", ErrorCodes.OutOfRangeParameter);
+            }
+
             await _privilegesManager.Demand(userId, InstanceAdminPrivileges.ManageInstanceSettings);
 
             if (!emailSettingsDto.EnableEmailNotifications && emailSettingsDto.EnableDiscussions)
@@ -83,8 +94,8 @@ namespace AdminStore.Services.Instance
         {
             //Notification settings
             emailSettings.EnableNotifications = emailSettingsDto.EnableReviewNotifications;
-            emailSettings.EnableEmailReplies = emailSettingsDto.EnableEmailNotifications;
-            emailSettings.EnableEmailDiscussion = emailSettingsDto.EnableDiscussions;
+            emailSettings.EnableEmailReplies = emailSettingsDto.EnableDiscussions;
+            emailSettings.EnableEmailDiscussion = emailSettingsDto.EnableEmailNotifications;
 
             //Incoming settings
             emailSettings.IncomingServerType = (int)emailSettingsDto.Incoming.ServerType;
@@ -224,9 +235,9 @@ namespace AdminStore.Services.Instance
                 throw new BadRequestException("Please enter the system email account username.", ErrorCodes.EmptyEmailUsername);
             }
 
-            if (string.IsNullOrWhiteSpace(incomingSettings.AccountPassword))
+            if (incomingSettings.IsPasswordDirty && string.IsNullOrWhiteSpace(incomingSettings.AccountPassword))
             {
-                throw new BadRequestException("Please enter the system email account username.", ErrorCodes.EmptyEmailPassword);
+                throw new BadRequestException("Please enter the system email account password.", ErrorCodes.EmptyEmailPassword);
             }
         }
 

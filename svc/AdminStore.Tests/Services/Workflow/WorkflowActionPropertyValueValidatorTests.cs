@@ -521,9 +521,12 @@ namespace AdminStore.Services.Workflow
             var groups = new List<SqlGroup>();
             var action = new IePropertyChangeAction
             {
-                UsersGroups = new List<IeUserGroup>
+                UsersGroups = new IeUsersGroups
                 {
-                    new IeUserGroup { Name = user }
+                    UsersGroups = new List<IeUserGroup>
+                    {
+                        new IeUserGroup { Name = user }
+                    }
                 }
             };
 
@@ -565,12 +568,15 @@ namespace AdminStore.Services.Workflow
             var groups = new List<SqlGroup>();
             var action = new IePropertyChangeAction
             {
-                UsersGroups = new List<IeUserGroup>
+                UsersGroups = new IeUsersGroups
                 {
-                    new IeUserGroup
+                    UsersGroups = new List<IeUserGroup>
                     {
-                        Name = "user",
-                        IsGroup = false
+                        new IeUserGroup
+                        {
+                            Name = "user",
+                            IsGroup = false
+                        }
                     }
                 }
             };
@@ -593,13 +599,16 @@ namespace AdminStore.Services.Workflow
             var groups = new List<SqlGroup>();
             var action = new IePropertyChangeAction
             {
-                UsersGroups = new List<IeUserGroup>
+                UsersGroups = new IeUsersGroups
                 {
-                    new IeUserGroup
+                    UsersGroups = new List<IeUserGroup>
                     {
-                        Id = 22,
-                        Name = "user",
-                        IsGroup = false
+                        new IeUserGroup
+                        {
+                            Id = 22,
+                            Name = "user",
+                            IsGroup = false
+                        }
                     }
                 }
             };
@@ -622,14 +631,17 @@ namespace AdminStore.Services.Workflow
             var users = new List<SqlUser>();
             var action = new IePropertyChangeAction
             {
-                UsersGroups = new List<IeUserGroup>
+                UsersGroups = new IeUsersGroups
                 {
-                    new IeUserGroup
+                    UsersGroups = new List<IeUserGroup>
                     {
-                        Id = 22,
-                        Name = group.Item1,
-                        GroupProjectId = group.Item2,
-                        IsGroup = true
+                        new IeUserGroup
+                        {
+                            Id = 22,
+                            Name = group.Item1,
+                            GroupProjectId = group.Item2,
+                            IsGroup = true
+                        }
                     }
                 }
             };
@@ -652,14 +664,17 @@ namespace AdminStore.Services.Workflow
             var users = new List<SqlUser>();
             var action = new IePropertyChangeAction
             {
-                UsersGroups = new List<IeUserGroup>
+                UsersGroups = new IeUsersGroups
                 {
-                    new IeUserGroup
+                    UsersGroups = new List<IeUserGroup>
                     {
-                        Id = 22,
-                        Name = group.Item1,
-                        GroupProjectId = group.Item2,
-                        IsGroup = true
+                        new IeUserGroup
+                        {
+                            Id = 22,
+                            Name = group.Item1,
+                            GroupProjectId = group.Item2,
+                            IsGroup = true
+                        }
                     }
                 }
             };

@@ -92,8 +92,7 @@
           <xs:element minOccurs="0" maxOccurs="1" name="PropertyId" nillable="true" type="xs:int" />
           <xs:element minOccurs="0" maxOccurs="1" name="PropertyValue" type="xs:string" />
           <xs:element minOccurs="0" maxOccurs="1" name="ValidValues" type="ArrayOfValidValue" />
-          <xs:element minOccurs="0" maxOccurs="1" name="UsersGroups" type="ArrayOfUserGroup" />
-          <xs:element minOccurs="0" maxOccurs="1" name="IncludeCurrentUser" nillable="true" type="xs:boolean" />
+          <xs:element minOccurs="0" maxOccurs="1" name="UsersGroups" type="UsersGroups" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -109,10 +108,11 @@
     </xs:sequence>
     <xs:attribute name="Id" type="xs:int" />
   </xs:complexType>
-  <xs:complexType name="ArrayOfUserGroup">
+  <xs:complexType name="UsersGroups">
     <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="UserGroup" nillable="true" type="UserGroup" />
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="UserGroup" type="UserGroup" />
     </xs:sequence>
+    <xs:attribute name="IncludeCurrentUser" type="xs:boolean" />
   </xs:complexType>
   <xs:complexType name="UserGroup">
     <xs:sequence>

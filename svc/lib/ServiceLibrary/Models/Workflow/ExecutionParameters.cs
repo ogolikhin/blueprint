@@ -12,7 +12,7 @@ namespace ServiceLibrary.Models.Workflow
     {
         public ItemTypeReuseTemplate ReuseItemTemplate { get; }
 
-        public List<DPropertyType> CustomPropertyTypes { get; }
+        public List<WorkflowPropertyType> CustomPropertyTypes { get; }
 
         public IDbTransaction Transaction { get; }
 
@@ -32,7 +32,7 @@ namespace ServiceLibrary.Models.Workflow
             int userId,
             VersionControlArtifactInfo artifactInfo,
             ItemTypeReuseTemplate reuseTemplate,
-            List<DPropertyType> customPropertyTypes,
+            List<WorkflowPropertyType> customPropertyTypes,
             ISaveArtifactRepository saveArtifactRepository,
             IDbTransaction transaction,
             IValidationContext validationContext,
@@ -53,7 +53,7 @@ namespace ServiceLibrary.Models.Workflow
             int userId,
             VersionControlArtifactInfo artifactInfo,
             ItemTypeReuseTemplate reuseTemplate,
-            List<DPropertyType> customPropertyTypes,
+            List<WorkflowPropertyType> customPropertyTypes,
             ISaveArtifactRepository saveArtifactRepository,
             IDbTransaction transaction,
             IValidationContext validationContext) : this(

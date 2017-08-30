@@ -55,8 +55,6 @@ namespace AdminStore.Controllers
             _privilegesRepository = privilegesRepository;
         }
 
-        #region folders
-
         /// <summary>
         /// Get Instance Folder
         /// </summary>
@@ -112,7 +110,7 @@ namespace AdminStore.Controllers
         /// <response code="200">OK.</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
-        [HttpGet, NoCache]
+        [HttpGet,NoCache]
         [Route("foldersearch"), SessionRequired]
         [ResponseType(typeof(IEnumerable<InstanceItem>))]
         public async Task<IHttpActionResult> SearchFolderByName(string name)
@@ -121,6 +119,83 @@ namespace AdminStore.Controllers
             var result = await _instanceService.GetFoldersByName(name);
             return Ok(result);
         }
+
+        /// <summary>
+        /// Get Project
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="fromAdminPortal"></param>
+        /// <remarks>
+        /// Returns an instance folder for the specified id.
+        /// </remarks>
+        /// <response code="200">OK.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for the project.</response>
+        /// <response code="404">Not found. A project for the specified id is not found, does not exist or is deleted.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpGet, NoCache]
+        [Route("projects/{id:int:min(1)}"), SessionRequired]
+        [ResponseType(typeof(InstanceItem))]
+        [ActionName("GetInstanceProject")]
+        public async Task<InstanceItem> GetInstanceProjectAsync(int id, bool fromAdminPortal = false)
+        {
+            return await _instanceRepository.GetInstanceProjectAsync(id, Session.UserId, fromAdminPortal);
+        }
+
+        /// <summary>
+        /// Get Project Navigation Paths
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="includeProjectItself"></param>
+        /// <returns> List of string for the navigation path of specified project id</returns>
+        /// <response code="200">OK.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for the project.</response>
+        /// <response code="404">Not found. A project for the specified id is not found, does not exist or is deleted.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpGet, NoCache]
+        [Route("projects/{projectId:int:min(1)}/navigationPath"), SessionRequired]
+        [ActionName("GetProjectNavigationPath")]
+        public async Task<List<string>> GetProjectNavigationPathAsync(int projectId, bool includeProjectItself = true)
+        {
+            var result = await _instanceRepository.GetProjectNavigationPathAsync(projectId, Session.UserId, includeProjectItself);
+
+            var artifactIds = new[] { projectId };
+            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, Session.UserId);
+
+            RolePermissions permission;
+            if (!permissions.TryGetValue(projectId, out permission) || !permission.HasFlag(RolePermissions.Read))
+            {
+                throw new HttpResponseException(HttpStatusCode.Forbidden);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Search projects and folders
+        /// </summary>
+        /// <param name="pagination">Limit and offset values to query results</param>
+        /// <param name="sorting">(optional) Sort and its order</param>
+        /// <param name="search">Search query parameter</param>
+        /// <response code="200">OK.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        [HttpGet, NoCache]
+        [Route("folderprojectsearch"), SessionRequired]
+        [ResponseType(typeof(QueryResult<ProjectFolderSearchDto>))]
+        public async Task<IHttpActionResult> SearchProjectFolder([FromUri]Pagination pagination, [FromUri]Sorting sorting = null, string search = null)
+        {
+            pagination.Validate();
+
+            var result =
+                await
+                    _instanceRepository.GetProjectsAndFolders(Session.UserId,
+                        new TabularData() {Pagination = pagination, Sorting = sorting, Search = search},
+                        SortingHelper.SortProjectFolders);
+            return Ok(result);
+        }
+
+        #region folders
 
         /// <summary>
         /// Creation of instance folder.
@@ -214,80 +289,6 @@ namespace AdminStore.Controllers
         #endregion
 
         #region projects
-
-        /// <summary>
-        /// Get Project
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="fromAdminPortal"></param>
-        /// <remarks>
-        /// Returns an instance folder for the specified id.
-        /// </remarks>
-        /// <response code="200">OK.</response>
-        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
-        /// <response code="403">Forbidden. The user does not have permissions for the project.</response>
-        /// <response code="404">Not found. A project for the specified id is not found, does not exist or is deleted.</response>
-        /// <response code="500">Internal Server Error. An error occurred.</response>
-        [HttpGet, NoCache]
-        [Route("projects/{id:int:min(1)}"), SessionRequired]
-        [ResponseType(typeof(InstanceItem))]
-        [ActionName("GetInstanceProject")]
-        public async Task<InstanceItem> GetInstanceProjectAsync(int id, bool fromAdminPortal = false)
-        {
-            return await _instanceRepository.GetInstanceProjectAsync(id, Session.UserId, fromAdminPortal);
-        }
-
-        /// <summary>
-        /// Get Project Navigation Paths
-        /// </summary>
-        /// <param name="projectId"></param>
-        /// <param name="includeProjectItself"></param>
-        /// <returns> List of string for the navigation path of specified project id</returns>
-        /// <response code="200">OK.</response>
-        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
-        /// <response code="403">Forbidden. The user does not have permissions for the project.</response>
-        /// <response code="404">Not found. A project for the specified id is not found, does not exist or is deleted.</response>
-        /// <response code="500">Internal Server Error. An error occurred.</response>
-        [HttpGet, NoCache]
-        [Route("projects/{projectId:int:min(1)}/navigationPath"), SessionRequired]
-        [ActionName("GetProjectNavigationPath")]
-        public async Task<List<string>> GetProjectNavigationPathAsync(int projectId, bool includeProjectItself = true)
-        {
-            var result = await _instanceRepository.GetProjectNavigationPathAsync(projectId, Session.UserId, includeProjectItself);
-
-            var artifactIds = new[] { projectId };
-            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, Session.UserId);
-
-            RolePermissions permission;
-            if (!permissions.TryGetValue(projectId, out permission) || !permission.HasFlag(RolePermissions.Read))
-            {
-                throw new HttpResponseException(HttpStatusCode.Forbidden);
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Search projects and folders
-        /// </summary>
-        /// <param name="pagination">Limit and offset values to query results</param>
-        /// <param name="sorting">(optional) Sort and its order</param>
-        /// <param name="search">Search query parameter</param>
-        /// <response code="200">OK.</response>
-        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
-        [HttpGet, NoCache]
-        [Route("folderprojectsearch"), SessionRequired]
-        public async Task<IHttpActionResult> SearchProjectFolder([FromUri]Pagination pagination, [FromUri]Sorting sorting = null, string search = null)
-        {
-            pagination.Validate();
-
-            var result =
-                await
-                    _instanceRepository.GetProjectsAndFolders(Session.UserId,
-                        new TabularData() { Pagination = pagination, Sorting = sorting, Search = search },
-                        SortingHelper.SortProjectFolders);
-            return Ok(result);
-        }
 
         /// <summary>
         /// Update project

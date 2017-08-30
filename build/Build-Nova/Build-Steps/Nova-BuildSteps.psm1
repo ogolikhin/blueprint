@@ -140,12 +140,12 @@ function Build-Nova-Windows-Services{
 
     Write-Section "Building Nova Windows services"
     
-    Build-ImageGen-Service @buildParams
+    Build-ImageService @buildParams
     
-    Build-ActionHandler-Service @buildParams 
+    Build-BlueprintServices @buildParams 
 }
 
-function Build-ImageGen-Service{
+function Build-ImageService{
     param(
         [Parameter(Mandatory=$true)][string]$workspace,
 
@@ -162,11 +162,11 @@ function Build-ImageGen-Service{
         msbuildPath = $msBuildPath
     }
 
-    Write-Section "Building Image Render Service"
+    Write-Section "Building Image Service"
 
-    Invoke-MsBuild @msBuildArgs -project $workspace\win_svc\ImageRenderService\ImageRenderService.csproj -trailingArguments "/p:Platform='x64' /p:OutDir=`"$workspace\win_svc\DeployArtifacts\ImageRenderService`""
+    Invoke-MsBuild @msBuildArgs -project $workspace\win_svc\BlueprintSys.RC.ImageService\Blueprint.RC.ImageService.csproj -trailingArguments "/p:Platform='x64' /p:OutDir=`"$workspace\win_svc\DeployArtifacts\Blueprint.RC.ImageService`""
 
-    $processHtmlFolder = "$workspace\win_svc\DeployArtifacts\ImageRenderService\ProcessHtml"
+    $processHtmlFolder = "$workspace\win_svc\DeployArtifacts\Blueprint.RC.ImageService\ProcessHtml"
     $novaImageGenFolder = "$workspace\app\NovaWeb\dist\imagegen"
 
     if(Test-Path -PathType Container $processHtmlFolder) {
@@ -184,7 +184,7 @@ function Build-ImageGen-Service{
     }
 }
 
-function Build-ActionHandler-Service{
+function Build-BlueprintServices{
     param(
         [Parameter(Mandatory=$true)][string]$workspace,
 
@@ -201,9 +201,9 @@ function Build-ActionHandler-Service{
         msbuildPath = $msBuildPath
     }
 
-    Write-Section "Building ActionHandler Service"
+    Write-Section "Building Blueprint Services"
 
-    Invoke-MsBuild @msBuildArgs -project $workspace\win_svc\ActionHandlerService\ActionHandlerService.csproj -trailingArguments "/p:Platform='x64' /p:OutDir=`"$workspace\win_svc\DeployArtifacts\ActionHandlerService`""
+    Invoke-MsBuild @msBuildArgs -project $workspace\win_svc\BlueprintSys.RC.Services\BlueprintSys.RC.Services.csproj -trailingArguments "/p:Platform='x64' /p:OutDir=`"$workspace\win_svc\DeployArtifacts\BlueprintSys.RC.Services`""
 }
 
 function Run-Nova-Unit-Tests{

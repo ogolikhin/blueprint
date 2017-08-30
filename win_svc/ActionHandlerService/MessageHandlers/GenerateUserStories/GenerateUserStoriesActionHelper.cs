@@ -6,6 +6,7 @@ using BluePrintSys.Messaging.CrossCutting.Logging;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Jobs;
+using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.Jobs;
 
 namespace ActionHandlerService.MessageHandlers.GenerateUserStories
@@ -19,19 +20,6 @@ namespace ActionHandlerService.MessageHandlers.GenerateUserStories
 
     public class GenerateUserStoriesActionHelper : IActionHelper
     {
-
-        private IJobsRepository _jobsRepository;
-
-        public GenerateUserStoriesActionHelper(IJobsRepository jobsRepository)
-        {
-            _jobsRepository = jobsRepository;
-        }
-
-        public GenerateUserStoriesActionHelper() : this(new JobsRepository())
-        {
-            
-        }
-
         public async Task<bool> HandleAction(TenantInformation tenant, ActionMessage actionMessage, IActionHandlerServiceRepository actionHandlerServiceRepository)
         {
             var generateUserStoriesMessage = actionMessage as GenerateUserStoriesMessage;
@@ -45,7 +33,8 @@ namespace ActionHandlerService.MessageHandlers.GenerateUserStories
 
             var payload = new GenerateUserStoryInfo { ProcessId = generateUserStoriesMessage.ArtifactId, TaskId = null };
             var parameters = SerializationHelper.ToXml(payload);
-            var jobId = await _jobsRepository.AddJobMessage(JobType.GenerateUserStories,
+            var jobsRepository = new JobsRepository(new SqlConnectionWrapper(tenant.BlueprintConnectionString));
+            var jobId = await jobsRepository.AddJobMessage(JobType.GenerateUserStories,
                 false, parameters, null, generateUserStoriesMessage.ProjectId, 
                 generateUserStoriesMessage.ProjectName, generateUserStoriesMessage.UserId, 
                 generateUserStoriesMessage.UserName, generateUserStoriesMessage.BaseHostUri);

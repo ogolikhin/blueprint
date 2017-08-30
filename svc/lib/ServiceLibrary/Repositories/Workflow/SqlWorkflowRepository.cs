@@ -187,7 +187,7 @@ namespace ServiceLibrary.Repositories.Workflow
             var eventTriggers = new WorkflowEventTriggers();
             newArtifactEvents.Where(n => n != null).ForEach(n =>
             {
-                eventTriggers.AddRange(ToWorkflowTriggers(SerializationHelper.FromXml<XmlWorkflowEventTriggers>(n.Triggers)));
+                eventTriggers.AddRange(ToWorkflowTriggers(SerializationHelper.FromXml<XmlWorkflowEventTriggers>(n.Triggers), userId));
             });
             return GetWorkflowTriggersContainer(eventTriggers);
         }

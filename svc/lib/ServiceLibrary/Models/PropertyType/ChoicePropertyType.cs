@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace ServiceLibrary.Models.PropertyType
 {
-    public class ChoicePropertyType : DPropertyType
+    public class ChoicePropertyType : WorkflowPropertyType
     {
         /// <summary>
         ///

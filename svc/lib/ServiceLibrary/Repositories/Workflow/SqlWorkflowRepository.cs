@@ -474,7 +474,7 @@ namespace ServiceLibrary.Repositories.Workflow
                         break;
                     case PropertyPrimitiveType.Choice:
                     {
-                        dProperty = new ChoicePropertyType
+                        workflowProperty = new ChoicePropertyType
                         {
                             AllowMultiple = sqlPropertyType.AllowMultiple,
                             //DefaultValue = PropertyHelper.ToDecimal((byte[])sqlPropertyType.DecimalDefaultValue),

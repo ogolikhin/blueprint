@@ -156,7 +156,7 @@ namespace ArtifactStore.Repositories
             return propertyValueImagesTable;
         }
 
-        private static string GetCustomPropertyChar(PropertyLite propertyValue, DPropertyType propertyType)
+        private static string GetCustomPropertyChar(PropertyLite propertyValue, WorkflowPropertyType propertyType)
         {
             //BluePrintSys.RC.CrossCutting.Logging.Log.Assert(
             //    (propertyValue != null) && propertyValue.SaveState.HasFlag(NodeSaveState.MemoryNode));

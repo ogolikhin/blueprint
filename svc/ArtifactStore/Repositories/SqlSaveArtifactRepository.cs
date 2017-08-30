@@ -94,7 +94,7 @@ namespace ArtifactStore.Repositories
                 var propertyType =
                     propertyTypes.FirstOrDefault(a => a.InstancePropertyTypeId == action.InstancePropertyTypeId);
 
-                var customPropertyChar = GetCustomPropertyChar(propertyType);
+                var customPropertyChar = GetCustomPropertyChar(action.PropertyLiteValue, propertyType);
                 var searchableValue = GetSearchableValue(action.PropertyLiteValue, propertyType);
 
                 if (propertyType is NumberPropertyType)
@@ -132,6 +132,16 @@ namespace ArtifactStore.Repositories
                         //
                         customPropertyChar, propertyType.PropertyTypeId, searchableValue);
                 }
+                else if (propertyType is ChoicePropertyType)
+                {
+                    propertyValueVersionsTable.Rows.Add(propertyType.PropertyTypeId, false,
+                        artifact.ProjectId, artifact.Id, artifact.Id, (int)propertyType.Predefined,
+                        //
+                        (int)PropertyPrimitiveType.Choice,
+                        null, null, null, null, action.PropertyLiteValue.TextOrChoiceValue, null,
+                        // 
+                        customPropertyChar, propertyType.PropertyTypeId, searchableValue);
+                }
             }
             propertyValueVersionsTable.SetTypeName("SavePropertyValueVersionsCollection");
             return propertyValueVersionsTable;
@@ -146,7 +156,7 @@ namespace ArtifactStore.Repositories
             return propertyValueImagesTable;
         }
 
-        private static string GetCustomPropertyChar( /*DPropertyValue propertyValue,*/ WorkflowPropertyType propertyType)
+        private static string GetCustomPropertyChar(PropertyLite propertyValue, WorkflowPropertyType propertyType)
         {
             //BluePrintSys.RC.CrossCutting.Logging.Log.Assert(
             //    (propertyValue != null) && propertyValue.SaveState.HasFlag(NodeSaveState.MemoryNode));
@@ -173,10 +183,10 @@ namespace ArtifactStore.Repositories
             {
                 primitiveType = PropertyPrimitiveType.User;
             }
-            //else if (propertyValue is DChoicePropertyValue)
-            //{
-            //    primitiveType = PropertyPrimitiveType.Choice;
-            //}
+            else if (propertyType is ChoicePropertyType)
+            {
+                primitiveType = PropertyPrimitiveType.Choice;
+            }
             //else if (propertyValue is DImagePropertyValue)
             //{
             //    primitiveType = PropertyPrimitiveType.Image;
@@ -188,18 +198,20 @@ namespace ArtifactStore.Repositories
             }
             XmlCustomProperties customProperties = new XmlCustomProperties();
             XmlCustomProperty customProperty = XmlCustomProperty.CreateAsValue(propertyType.PropertyTypeId,
-                (int) primitiveType);
+                (int)primitiveType);
             customProperties.CustomProperties.Add(customProperty);
-            //if (propertyValue is DChoicePropertyValue)
-            //{
-            //    List<XmlCustomPropertyValidValue> validValues = customProperty.ValidValues;
-            //    foreach (DLookupListItem lookupListItem in propertyValue.NodeChildren.OfType<DLookupListItem>())
-            //    {
-            //        BluePrintSys.RC.CrossCutting.Logging.Log.Assert(lookupListItem.SaveState.HasFlag(NodeSaveState.Node));
-            //        XmlCustomPropertyValidValue validValue = XmlCustomPropertyValidValue.CreateAsValue(lookupListItem.Id);
-            //        validValues.Add(validValue);
-            //    }
-            //}
+            if (propertyType is ChoicePropertyType)
+            {
+                List<XmlCustomPropertyValidValue> validValues = customProperty.ValidValues;
+                foreach (int choiceId in propertyValue.ChoiceIds)
+                {
+                    var customChoice = (propertyType as ChoicePropertyType).ValidValues
+                                       .Where(v => v.Sid.Value == choiceId)
+                                       .Select(v => v.Id).FirstOrDefault().Value;
+                    XmlCustomPropertyValidValue validValue = XmlCustomPropertyValidValue.CreateAsValue(customChoice);
+                    validValues.Add(validValue);
+                }
+            }
             return XmlModelSerializer.SerializeCustomProperties(customProperties);
         }
 
@@ -240,10 +252,10 @@ namespace ArtifactStore.Repositories
             //{
             //    return null;
             //}
-            //if (propertyValue is DChoicePropertyValue)
-            //{
-            //    return null;
-            //}
+            if (propertyType is ChoicePropertyType)
+            {
+                return null;
+            }
             //if (propertyValue is DImagePropertyValue)
             //{
             //    return null;

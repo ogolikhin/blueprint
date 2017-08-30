@@ -159,6 +159,7 @@
     <Compile Include="Helpers\I18NHelper.cs" />
     <Compile Include="Helpers\TimeProvider.cs" />
     <Compile Include="Helpers\UserManagementHelper.cs" />
+    <Compile Include="Models\PropertyType\ChoicePropertyValidator.cs" />
     <Compile Include="Helpers\Validators\EmailValidator.cs" />
     <Compile Include="Helpers\Validators\IPropertyValidator.cs" />
     <Compile Include="Helpers\Validators\ReusePropertyValidator.cs" />
@@ -241,6 +242,7 @@
     <Compile Include="Models\ProjectMeta\PropertyTypePredefinedExtension.cs" />
     <Compile Include="Models\ProjectNameIdPair.cs" />
     <Compile Include="Models\ProjectPermissions.cs" />
+    <Compile Include="Models\PropertyType\ChoicePropertyType.cs" />
     <Compile Include="Models\PropertyType\DatePropertyValidator.cs" />
     <Compile Include="Models\PropertyType\DatePropertyType.cs" />
     <Compile Include="Models\PropertyType\NumberPropertyType.cs" />

@@ -6,6 +6,7 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.PropertyType;
+using System.Collections.Generic;
 
 namespace ServiceLibrary.Models.Workflow.Actions
 {
@@ -16,6 +17,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
         public string PropertyValue { get; set; }
 
         public PropertyLite PropertyLiteValue { get; protected set; }
+        public List<int> ValidValues { get; } = new List<int>();
 
         public override MessageActionType ActionType { get; } = MessageActionType.PropertyChange;
 
@@ -86,6 +88,20 @@ namespace ServiceLibrary.Models.Workflow.Actions
                         PropertyTypeId = InstancePropertyTypeId,
                         DateValue = ParseDateValue(PropertyValue, new TimeProvider())
                     };
+                    break;
+                case PropertyPrimitiveType.Choice:
+                    PropertyLiteValue = new PropertyLite
+                    {
+                        PropertyTypeId = InstancePropertyTypeId,
+                    };
+                    if (!ValidValues.Any() && !propertyType.Validate.GetValueOrDefault(false))
+                    {
+                        PropertyLiteValue.TextOrChoiceValue = PropertyValue;
+                    }
+                    else
+                    {
+                        PropertyLiteValue.ChoiceIds.AddRange(ValidValues);
+                    }
                     break;
                 default:
                     PropertyLiteValue = new PropertyLite()

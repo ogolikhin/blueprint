@@ -68,7 +68,8 @@ namespace ServiceLibrary.Models.Workflow
                 {
                     new NumberPropertyValidator(),
                     new DatePropertyValidator(),
-                    new UserPropertyValidator()
+                    new UserPropertyValidator(),
+                    new ChoicePropertyValidator()
                 }, 
                 new ReusePropertyValidator())
         {

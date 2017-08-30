@@ -62,7 +62,7 @@ namespace ServiceLibrary.Helpers.Validators
             //Act.
             var actualResult = validator.Validate(
                 _property,
-                new List<DPropertyType>()
+                new List<WorkflowPropertyType>()
                 {
                     _propertyType
                 },
@@ -82,7 +82,7 @@ namespace ServiceLibrary.Helpers.Validators
             //Act.
             var actualResult = validator.Validate(
                 _property,
-                new List<DPropertyType>()
+                new List<WorkflowPropertyType>()
                 {
                     _propertyType
                 },
@@ -103,7 +103,7 @@ namespace ServiceLibrary.Helpers.Validators
             //Act.
             var actualResult = validator.Validate(
                 _property,
-                new List<DPropertyType>()
+                new List<WorkflowPropertyType>()
                 {
                     _propertyType
                 },

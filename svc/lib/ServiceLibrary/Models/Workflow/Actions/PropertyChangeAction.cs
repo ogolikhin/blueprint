@@ -55,6 +55,13 @@ namespace ServiceLibrary.Models.Workflow.Actions
         {
             switch (propertyType?.PrimitiveType)
             {
+                case PropertyPrimitiveType.Text:
+                    PropertyLiteValue = new PropertyLite()
+                    {
+                        PropertyTypeId = InstancePropertyTypeId,
+                        TextOrChoiceValue = PropertyValue
+                    };
+                    break;
                 case PropertyPrimitiveType.Number:
                     decimal value;
                     if (!Decimal.TryParse(PropertyValue, NumberStyles.AllowDecimalPoint, new NumberFormatInfo(), out value))

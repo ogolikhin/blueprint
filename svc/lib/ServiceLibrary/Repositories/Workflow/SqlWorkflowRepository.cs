@@ -441,6 +441,27 @@ namespace ServiceLibrary.Repositories.Workflow
                 WorkflowPropertyType workflowProperty;
                 switch (sqlPropertyType.PrimitiveType)
                 {
+                    case PropertyPrimitiveType.Text:
+                    {
+                        workflowProperty = new TextPropertyType
+                        {
+                            AllowMultiple = sqlPropertyType.AllowMultiple,
+                            DefaultValidValueId = sqlPropertyType.DefaultValidValueId,
+                            InstancePropertyTypeId = sqlPropertyType.InstancePropertyTypeId,
+                            Name = sqlPropertyType.Name,
+                            PropertyTypeId = sqlPropertyType.PropertyTypeId,
+                            PrimitiveType = sqlPropertyType.PrimitiveType,
+                            IsRequired = sqlPropertyType.Required != null && sqlPropertyType.Required.Value,
+                            StringDefaultValue = sqlPropertyType.StringDefaultValue,
+                            VersionId = sqlPropertyType.VersionId,
+                            Predefined = sqlPropertyType.Predefined,
+
+                            DefaultValue = sqlPropertyType.StringDefaultValue,
+                            IsValidate = sqlPropertyType.Validate.GetValueOrDefault(false),
+                            IsRichText = sqlPropertyType.IsRichText
+                        };
+                        break;
+                    }
                     case PropertyPrimitiveType.Number:
                     {
                         workflowProperty = new NumberPropertyType

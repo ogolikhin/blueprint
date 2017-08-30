@@ -244,6 +244,8 @@
     <Compile Include="Models\PropertyType\DatePropertyValidator.cs" />
     <Compile Include="Models\PropertyType\DatePropertyType.cs" />
     <Compile Include="Models\PropertyType\NumberPropertyType.cs" />
+    <Compile Include="Models\PropertyType\TextPropertyType.cs" />
+    <Compile Include="Models\PropertyType\TextPropertyValidator.cs" />
     <Compile Include="Models\PropertyType\WorkflowPropertyType.cs" />
     <Compile Include="Models\PropertyType\UserPropertyType.cs" />
     <Compile Include="Models\PropertyType\NumberPropertyValidator.cs" />

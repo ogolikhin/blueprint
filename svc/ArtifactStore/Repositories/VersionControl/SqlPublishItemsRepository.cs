@@ -1,10 +1,10 @@
-﻿using ArtifactStore.Models.Reuse;
-using ArtifactStore.Models.VersionControl;
+﻿using ArtifactStore.Models.VersionControl;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.VersionControl;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
+using ServiceLibrary.Models.Reuse;
 
 namespace ArtifactStore.Repositories.VersionControl
 {

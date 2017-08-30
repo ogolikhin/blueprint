@@ -33,15 +33,8 @@ namespace AdminStore.Models.Workflow
         [XmlArray("ValidValues"), XmlArrayItem("ValidValue")]
         public List<IeValidValue> ValidValues { get; set; }
 
-        // To specify an empty user property value use PropertyValue property with the empty string.
-        // An empty list is treated as not specified.
-        [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
-        [XmlArray("UsersGroups"), XmlArrayItem("UserGroup")]
-        public List<IeUserGroup> UsersGroups { get; set; }
-
-        [XmlElement]
-        public bool? IncludeCurrentUser { get; set; }
-        public bool ShouldSerializeIncludeCurrentUser() { return IncludeCurrentUser.HasValue; }
+        [XmlElement(IsNullable = false)]
+        public IeUsersGroups UsersGroups { get; set; }
 
         #endregion 
 
@@ -49,7 +42,7 @@ namespace AdminStore.Models.Workflow
 
         protected bool Equals(IePropertyChangeAction other)
         {
-            return base.Equals(other) && string.Equals(PropertyName, other.PropertyName) && PropertyId.GetValueOrDefault() == other.PropertyId.GetValueOrDefault() && string.Equals(PropertyValue, other.PropertyValue) && WorkflowHelper.CollectionEquals(ValidValues, other.ValidValues) && WorkflowHelper.CollectionEquals(UsersGroups, other.UsersGroups) && IncludeCurrentUser.GetValueOrDefault() == other.IncludeCurrentUser.GetValueOrDefault();
+            return base.Equals(other) && string.Equals(PropertyName, other.PropertyName) && PropertyId.GetValueOrDefault() == other.PropertyId.GetValueOrDefault() && string.Equals(PropertyValue, other.PropertyValue) && WorkflowHelper.CollectionEquals(ValidValues, other.ValidValues) && Equals(UsersGroups, other.UsersGroups);
         }
 
         public override bool Equals(object obj)
@@ -70,7 +63,6 @@ namespace AdminStore.Models.Workflow
                 hashCode = (hashCode*397) ^ (PropertyValue != null ? PropertyValue.GetHashCode() : 0);
                 hashCode = (hashCode*397) ^ (ValidValues != null ? ValidValues.GetHashCode() : 0);
                 hashCode = (hashCode*397) ^ (UsersGroups != null ? UsersGroups.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ IncludeCurrentUser.GetHashCode();
                 return hashCode;
             }
         }

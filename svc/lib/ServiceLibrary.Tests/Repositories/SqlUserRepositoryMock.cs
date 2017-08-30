@@ -1,8 +1,5 @@
 ﻿using ServiceLibrary.Models;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ServiceLibrary.Repositories
@@ -80,6 +77,26 @@ namespace ServiceLibrary.Repositories
         public async Task<bool> IsInstanceAdmin(bool contextUser, int sessionUserId)
         {
             return await Task.FromResult(true);
+        }
+
+        public async Task<IEnumerable<SqlGroup>> GetExistingGroupsByNamesAsync(IEnumerable<string> groupNames, bool instanceOnly)
+        {
+            return await Task.FromResult(new List<SqlGroup>());
+        }
+
+        public async Task<IEnumerable<SqlGroup>> GetExistingGroupsByIds(IEnumerable<int> groupIds, bool instanceOnly)
+        {
+            return await Task.FromResult(new List<SqlGroup>());
+        }
+
+        public async Task<IEnumerable<SqlUser>> GetExistingUsersByNamesAsync(IEnumerable<string> userNames)
+        {
+            return await Task.FromResult(new List<SqlUser>());
+        }
+
+        public async Task<IEnumerable<SqlUser>> GetExistingUsersByIdsAsync(IEnumerable<int> userIds)
+        {
+            return await Task.FromResult(new List<SqlUser>());
         }
     }
 }

@@ -63,7 +63,7 @@ namespace ArtifactStore.Helpers
 
         private async Task<UserInfo> GetUserByEmail(string email)
         {
-            var user = (UserInfo)null;
+            UserInfo user;
             if (_usersByEmail == null)
             {
                 _usersByEmail = new Dictionary<string, UserInfo>();

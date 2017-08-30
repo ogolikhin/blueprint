@@ -1,4 +1,7 @@
-﻿using AdminStore.Models;
+﻿using AdminStore.Helpers;
+using AdminStore.Models;
+using AdminStore.Models.DTO;
+using AdminStore.Models.Enums;
 using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
@@ -9,9 +12,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using AdminStore.Helpers;
-using AdminStore.Models.DTO;
-using AdminStore.Models.Enums;
 
 namespace AdminStore.Repositories
 {
@@ -28,6 +28,8 @@ namespace AdminStore.Repositories
         {
             _connectionWrapper = connectionWrapper;
         }
+
+        #region folders
 
         public async Task<InstanceItem> GetInstanceFolderAsync(int folderId, int userId)
         {
@@ -69,8 +71,123 @@ namespace AdminStore.Repositories
             prm.Add("@fromAdminPortal", fromAdminPortal);
 
             return ((await _connectionWrapper.QueryAsync<InstanceItem>("GetInstanceFolderChildren", prm, commandType: CommandType.StoredProcedure))
-                ?? Enumerable.Empty<InstanceItem>()).OrderBy(i => i.Type).ThenBy(i => i.Name).ToList();
+                    ?? Enumerable.Empty<InstanceItem>()).OrderBy(i => i.Type).ThenBy(i => i.Name).ToList();
         }
+
+        public async Task<int> CreateFolderAsync(FolderDto folder)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@Name", folder.Name);
+            parameters.Add("@ParentFolderId", folder.ParentFolderId);
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var folderId = await _connectionWrapper.ExecuteScalarAsync<int>("CreateFolder", parameters, commandType: CommandType.StoredProcedure);
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.GeneralSqlError:
+                        throw new Exception(ErrorMessages.GeneralErrorOfCreatingFolder);
+
+                    case (int)SqlErrorCodes.FolderWithSuchNameExistsInParentFolder:
+                        throw new ConflictException(ErrorMessages.FolderWithSuchNameExistsInParentFolder, ErrorCodes.Conflict);
+
+                    case (int)SqlErrorCodes.ParentFolderNotExists:
+                        throw new ResourceNotFoundException(ErrorMessages.ParentFolderNotExists, ErrorCodes.ResourceNotFound);
+
+                    default:
+                        return folderId;
+                }
+            }
+            return folderId;
+        }
+
+        public async Task<IEnumerable<InstanceItem>> GetFoldersByName(string name)
+        {
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                name = UsersHelper.ReplaceWildcardCharacters(name);
+            }
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@name", name);
+
+            return await _connectionWrapper.QueryAsync<InstanceItem>
+            (
+                "GetFoldersByName",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+        }
+
+        public async Task<int> DeleteInstanceFolderAsync(int instanceFolderId)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@InstanceFolderId", instanceFolderId);
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var result = await _connectionWrapper.ExecuteScalarAsync<int>("DeleteFolder", parameters, commandType: CommandType.StoredProcedure);
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.InstanceFolderContainsChildrenItems:
+                        throw new ConflictException(ErrorMessages.ErrorOfDeletingFolderThatContainsChildrenItems);
+                }
+            }
+
+            if (result == 0)
+            {
+                throw new ResourceNotFoundException(ErrorMessages.FolderNotExist, ErrorCodes.ResourceNotFound);
+            }
+
+            return result;
+        }
+
+        public async Task UpdateFolderAsync(int folderId, FolderDto folderDto)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@newFolderName", folderDto.Name);
+            parameters.Add("@folderId", folderId);
+            parameters.Add("@newParentFolderId", folderDto.ParentFolderId);
+
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            await _connectionWrapper.ExecuteScalarAsync<int>("UpdateFolder", parameters, commandType: CommandType.StoredProcedure);
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.GeneralSqlError:
+                        throw new Exception(ErrorMessages.GeneralErrorOfUpdatingFolder);
+
+                    case (int)SqlErrorCodes.EditRootFolderIsForbidden:
+                        throw new BadRequestException(ErrorMessages.EditRootFolderIsForbidden, ErrorCodes.BadRequest);
+
+                    case (int)SqlErrorCodes.FolderWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.FolderNotExist, ErrorCodes.ResourceNotFound);
+
+                    case (int)SqlErrorCodes.FolderWithSuchNameExistsInParentFolder:
+                        throw new ConflictException(ErrorMessages.FolderWithSuchNameExistsInParentFolder, ErrorCodes.Conflict);
+
+                    case (int)SqlErrorCodes.ParentFolderNotExists:
+                        throw new ResourceNotFoundException(ErrorMessages.ParentFolderNotExists, ErrorCodes.ResourceNotFound);
+
+                    case (int)SqlErrorCodes.ParentFolderIdReferenceToDescendantItem:
+                        throw new ConflictException(ErrorMessages.ParentFolderIdReferenceToDescendantItem, ErrorCodes.Conflict);
+                }
+            }
+        }
+
+        #endregion
+
+        #region projects
 
         public async Task<InstanceItem> GetInstanceProjectAsync(int projectId, int userId, bool fromAdminPortal = false)
         {
@@ -134,122 +251,6 @@ namespace AdminStore.Repositories
             return projectPaths.OrderByDescending(p => p.Level).Select(p => p.Name).ToList();
         }
 
-        public async Task<IEnumerable<AdminRole>> GetInstanceRolesAsync()
-        {
-            var result = await _connectionWrapper.QueryAsync<AdminRole>("GetInstanceAdminRoles", commandType: CommandType.StoredProcedure);
-
-            return result;
-        }
-
-        public async Task<int> CreateFolderAsync(FolderDto folder)
-        {
-            var parameters = new DynamicParameters();
-            parameters.Add("@Name", folder.Name);
-            parameters.Add("@ParentFolderId", folder.ParentFolderId);
-            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-
-            var folderId = await _connectionWrapper.ExecuteScalarAsync<int>("CreateFolder", parameters, commandType: CommandType.StoredProcedure);
-            var errorCode = parameters.Get<int?>("ErrorCode");
-
-            if (errorCode.HasValue)
-            {
-                switch (errorCode.Value)
-                {
-                    case (int)SqlErrorCodes.GeneralSqlError:
-                        throw new Exception(ErrorMessages.GeneralErrorOfCreatingFolder);
-
-                    case (int) SqlErrorCodes.FolderWithSuchNameExistsInParentFolder:
-                        throw new ConflictException(ErrorMessages.FolderWithSuchNameExistsInParentFolder, ErrorCodes.Conflict);
-
-                    case (int)SqlErrorCodes.ParentFolderNotExists:
-                        throw new ResourceNotFoundException(ErrorMessages.ParentFolderNotExists, ErrorCodes.ResourceNotFound);
-
-                    default:
-                        return folderId;
-                }
-            }
-            return folderId;
-        }
-
-        public async Task<IEnumerable<FolderDto>> GetFoldersByName(string name)
-        {
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                name = UsersHelper.ReplaceWildcardCharacters(name);
-            }
-            var parameters = new DynamicParameters();
-            parameters.Add("@name", name);
-
-            var result =
-                await
-                    _connectionWrapper.QueryAsync<FolderDto>("GetFoldersByName", parameters,
-                        commandType: CommandType.StoredProcedure);
-            return result;
-        }
-
-        public async Task<int> DeleteInstanceFolderAsync(int instanceFolderId)
-        {
-            var parameters = new DynamicParameters();
-            parameters.Add("@InstanceFolderId", instanceFolderId);
-            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-
-            var result = await _connectionWrapper.ExecuteScalarAsync<int>("DeleteFolder", parameters, commandType: CommandType.StoredProcedure);
-            var errorCode = parameters.Get<int?>("ErrorCode");
-
-            if (errorCode.HasValue)
-            {
-                switch (errorCode.Value)
-                {
-                    case (int)SqlErrorCodes.InstanceFolderContainsChildrenItems:
-                        throw new ConflictException(ErrorMessages.ErrorOfDeletingFolderThatContainsChildrenItems);
-                }
-            }
-
-            if (result == 0)
-            {
-                throw new ResourceNotFoundException(ErrorMessages.FolderNotExist, ErrorCodes.ResourceNotFound);
-            }            
-
-            return result;
-        }
-
-        public async Task UpdateFolderAsync(int folderId, FolderDto folderDto)
-        {
-            var parameters = new DynamicParameters();
-            parameters.Add("@newFolderName", folderDto.Name);
-            parameters.Add("@folderId", folderId);
-            parameters.Add("@newParentFolderId", folderDto.ParentFolderId);
-
-            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-
-            await _connectionWrapper.ExecuteScalarAsync<int>("UpdateFolder", parameters, commandType: CommandType.StoredProcedure);
-            var errorCode = parameters.Get<int?>("ErrorCode");
-
-            if (errorCode.HasValue)
-            {
-                switch (errorCode.Value)
-                {
-                    case (int)SqlErrorCodes.GeneralSqlError:
-                        throw new Exception(ErrorMessages.GeneralErrorOfUpdatingFolder);
-
-                    case (int)SqlErrorCodes.EditRootFolderIsForbidden:
-                        throw new BadRequestException(ErrorMessages.EditRootFolderIsForbidden, ErrorCodes.BadRequest);
-
-                    case (int)SqlErrorCodes.FolderWithCurrentIdNotExist:
-                        throw new ResourceNotFoundException(ErrorMessages.FolderNotExist, ErrorCodes.ResourceNotFound);
-
-                    case (int)SqlErrorCodes.FolderWithSuchNameExistsInParentFolder:
-                        throw new ConflictException(ErrorMessages.FolderWithSuchNameExistsInParentFolder, ErrorCodes.Conflict);
-
-                    case (int)SqlErrorCodes.ParentFolderNotExists:
-                        throw new ResourceNotFoundException(ErrorMessages.ParentFolderNotExists, ErrorCodes.ResourceNotFound);
-
-                    case (int)SqlErrorCodes.ParentFolderIdReferenceToDescendantItem:
-                        throw new ConflictException(ErrorMessages.ParentFolderIdReferenceToDescendantItem, ErrorCodes.Conflict);
-                }
-            }
-        }
-
         public async Task UpdateProjectAsync(int projectId, ProjectDto projectDto)
         {
             var parameters = new DynamicParameters();
@@ -302,7 +303,7 @@ namespace AdminStore.Repositories
                 parameters.Add("@projectId", projectId);
 
                 await _connectionWrapper.ExecuteAsync("RemoveProject", parameters,
-                    commandType: CommandType.StoredProcedure);                
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
@@ -319,9 +320,9 @@ namespace AdminStore.Repositories
                     switch (errorCode.Value)
                     {
                         case -2: // Instance project issue
-                            throw new BadRequestException(I18NHelper.FormatInvariant(ErrorMessages.ForbidToPurgeSystemInstanceProjectForInternalUseOnly, project.Id), ErrorCodes.BadRequest);
+                            throw new ConflictException(I18NHelper.FormatInvariant(ErrorMessages.ForbidToPurgeSystemInstanceProjectForInternalUseOnly, project.Id), ErrorCodes.Conflict);
                         case -1: // Cross project move issue
-                            throw new BadRequestException(I18NHelper.FormatInvariant(ErrorMessages.ArtifactWasMovedToAnotherProject, project.Id), ErrorCodes.BadRequest);
+                            throw new ResourceNotFoundException(I18NHelper.FormatInvariant(ErrorMessages.ArtifactWasMovedToAnotherProject, project.Id), ErrorCodes.ResourceNotFound);
                         case 0:
                             // Success
                             break;
@@ -332,6 +333,209 @@ namespace AdminStore.Repositories
             }
         }
 
+        public async Task<QueryResult<ProjectFolderSearchDto>> GetProjectsAndFolders(int userId, TabularData tabularData, Func<Sorting, string> sort = null)
+        {
+            var orderField = string.Empty;
+            if (sort != null && tabularData.Sorting != null)
+            {
+                orderField = sort(tabularData.Sorting);
+            }
+
+            if (!string.IsNullOrWhiteSpace(tabularData.Search))
+            {
+                tabularData.Search = UsersHelper.ReplaceWildcardCharacters(tabularData.Search);
+            }
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@UserId", userId);
+            parameters.Add("@Offset", tabularData.Pagination.Offset);
+            parameters.Add("@Limit", tabularData.Pagination.Limit);
+            parameters.Add("@OrderField", orderField);
+            parameters.Add("@Search", tabularData.Search);
+            parameters.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var projectFolders =
+                await
+                    _connectionWrapper.QueryAsync<ProjectFolderSearchDto>("SearchProjectsAndFolders", parameters,
+                        commandType: CommandType.StoredProcedure);
+
+            var total = parameters.Get<int?>("Total");
+
+            var queryDataResult = new QueryResult<ProjectFolderSearchDto> { Items = projectFolders, Total = total ?? 0 };
+
+            return queryDataResult;
+        }
+
+        #endregion
+
+        #region roles
+
+        public async Task<IEnumerable<AdminRole>> GetInstanceRolesAsync()
+        {
+            var result = await _connectionWrapper.QueryAsync<AdminRole>("GetInstanceAdminRoles", commandType: CommandType.StoredProcedure);
+
+            return result;
+        }
+
+        public async Task<IEnumerable<ProjectRole>> GetProjectRolesAsync(int projectId)
+        {
+            if (projectId < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(projectId));
+            }
+
+            var prm = new DynamicParameters();
+            prm.Add("@projectId", projectId);
+            prm.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var result = (await _connectionWrapper.QueryAsync<ProjectRole>("GetProjectRoles", prm, commandType: CommandType.StoredProcedure)).ToList();
+
+            var errorCode = prm.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.RolesForProjectNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.RolesForProjectNotExist, ErrorCodes.ResourceNotFound);
+
+                }
+            }
+
+            return result;
+        }
+
+        public async Task<QueryResult<RolesAssignments>> GetProjectRoleAssignmentsAsync(int projectId, TabularData tabularData, Func<Sorting, string> sort = null)
+        {
+            var orderField = string.Empty;
+            if (sort != null && tabularData.Sorting != null)
+            {
+                orderField = sort(tabularData.Sorting);
+            }
+
+            if (!string.IsNullOrWhiteSpace(tabularData.Search))
+            {
+                tabularData.Search = UsersHelper.ReplaceWildcardCharacters(tabularData.Search);
+            }
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@projectId", projectId);
+            parameters.Add("@Offset", tabularData.Pagination.Offset);
+            parameters.Add("@Limit", tabularData.Pagination.Limit);
+            parameters.Add("@OrderField", orderField);
+            parameters.Add("@Search", tabularData.Search);
+            parameters.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var rolesAssigments = await _connectionWrapper.QueryAsync<RolesAssignments>("GetProjectRoleAssignments", parameters, commandType: CommandType.StoredProcedure);
+
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue && errorCode.Value == (int)SqlErrorCodes.ProjectWithCurrentIdNotExist)
+            {
+                throw new ResourceNotFoundException(ErrorMessages.ProjectNotExist, ErrorCodes.ResourceNotFound);
+            }
+
+            var total = parameters.Get<int?>("Total");
+
+            var queryDataResult = new QueryResult<RolesAssignments> { Items = rolesAssigments, Total = total ?? 0 };
+
+            return queryDataResult;
+        }
+
+        public async Task<int> DeleteRoleAssignmentsAsync(int projectId, OperationScope scope, string search)
+        {
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                search = UsersHelper.ReplaceWildcardCharacters(search);
+            }
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@ProjectId", projectId);
+            parameters.Add("@RoleAssignmentIds", SqlConnectionWrapper.ToDataTable(scope.Ids));
+            parameters.Add("@Search", search);
+            parameters.Add("@SelectAll", scope.SelectAll);
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var result = await _connectionWrapper.ExecuteScalarAsync<int>("DeleteProjectRoleAssigments", parameters,
+                commandType: CommandType.StoredProcedure);
+
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.ProjectWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.ProjectNotExist, ErrorCodes.ResourceNotFound);
+                }
+            }
+
+            return result;
+        }
+
+        public async Task<int> HasProjectExternalLocksAsync(int userId, int projectId)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@userId", userId);
+            parameters.Add("@projectId", projectId);
+
+            var hasProjectExternalLocksAsync = await _connectionWrapper.ExecuteScalarAsync<int>("IsProjectHasForeignLocks", parameters, commandType: CommandType.StoredProcedure);
+            
+            return hasProjectExternalLocksAsync;
+        }
+
+        public async Task<int> CreateRoleAssignmentAsync(int projectId, CreateRoleAssignment roleAssignment)
+        {
+            if (projectId < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(projectId));
+            }
+
+            if (roleAssignment == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(roleAssignment));
+            }
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@ProjectId", projectId);
+            parameters.Add("@GroupId", roleAssignment.GroupId);
+            parameters.Add("@RoleId", roleAssignment.RoleId);
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var result = await _connectionWrapper.ExecuteScalarAsync<int>("CreateProjectRoleAssignment", parameters,
+                commandType: CommandType.StoredProcedure);
+
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.ProjectWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.ProjectNotExist, ErrorCodes.ResourceNotFound);
+
+                    case (int)SqlErrorCodes.GroupWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.GroupIsNotFound, ErrorCodes.ResourceNotFound);
+
+                    case (int)SqlErrorCodes.RolesForProjectNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.RoleIsNotFound, ErrorCodes.ResourceNotFound);
+
+                    case (int)SqlErrorCodes.RoleAssignmentAlreadyExists:
+                        throw new ConflictException(ErrorMessages.RoleAssignmentAlreadyExists, ErrorCodes.Conflict);
+                }
+            }
+
+            return result;
+        }
+
+        
+
+        #endregion
+
+        #region private methods
+
+
         /// <summary>
         ///  This method takes the projectId and checks if the project is still exist in the database and not marked as deleted
         /// </summary>
@@ -339,7 +543,7 @@ namespace AdminStore.Repositories
         /// <param name="projectStatus">If the project exists it returns ProjectStatus as output If the Project does not exists projectstatus = null</param>
         /// <returns>Returns true if project exists in the database and not marked as deleted for that specific revision</returns>
         private bool TryGetProjectStatusIfProjectExist(InstanceItem project, out ProjectStatus? projectStatus)
-        {                        
+        {
             if (project == null)
             {
                 projectStatus = null;
@@ -375,5 +579,7 @@ namespace AdminStore.Repositories
                     throw new Exception(I18NHelper.FormatInvariant(ErrorMessages.UnhandledStatusOfProject, status));
             }
         }
-    }
+
+        #endregion
+            }
 }

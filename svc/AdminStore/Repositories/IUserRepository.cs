@@ -14,11 +14,7 @@ namespace AdminStore.Repositories
 
         Task<UserIcon> GetUserIconByUserIdAsync(int userId);
 
-        Task<IEnumerable<SqlGroup>> GetUserGroupsMapAsync(IEnumerable<int> groupIds = null);
-
-        Task<IEnumerable<SqlGroup>> GetExistingGroupsByNames(IEnumerable<string> groupNames, bool instanceOnly);
-
-        Task<IEnumerable<SqlUser>> GetExistingUsersByNames(IEnumerable<string> userNames);
+        Task<IEnumerable<SqlGroup>> GetGroupsMapAsync(IEnumerable<int> groupIds = null);
 
         Task<IEnumerable<LicenseTransactionUser>> GetLicenseTransactionUserInfoAsync(IEnumerable<int> userIds);
 
@@ -52,7 +48,7 @@ namespace AdminStore.Repositories
 
         Task UpdateUserAsync(User loginUser);
 
-        Task<int> DeleteUsers(OperationScope body, string search, int sessionUserId);
+        Task<int> DeleteUsersAsync(OperationScope body, string search, int sessionUserId);
 
         Task UpdateUserPasswordAsync(string login, string password);
 

@@ -7,13 +7,9 @@ using ServiceLibrary.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using ServiceLibrary.Models.ProjectMeta;
-using ServiceLibrary.Models.PropertyType;
-using ServiceLibrary.Repositories.ProjectMeta.PropertyXml;
-using ServiceLibrary.Repositories.ProjectMeta.PropertyXml.Models;
+using ServiceLibrary.Models.VersionControl;
 
 namespace ArtifactStore.Repositories
 {
@@ -189,8 +185,8 @@ namespace ArtifactStore.Repositories
                         VersionId = artifactVersion.VersionId,
                         UserId = artifactVersion.UserId,
                         Timestamp = DateTime.SpecifyKind(artifactVersion.Timestamp.GetValueOrDefault(), DateTimeKind.Utc),
-                        DisplayName = userInfo.DisplayName,
-                        HasUserIcon = userInfo.ImageId != null,
+                        DisplayName = userInfo?.DisplayName,
+                        HasUserIcon = userInfo?.ImageId != null,
                         ArtifactState = artifactVersion.ArtifactState
                     });
             }
@@ -283,6 +279,8 @@ namespace ArtifactStore.Repositories
             }
             return artifactInfo;
         }
+
+        
 
         #endregion GetVersionControlArtifactInfoAsync
 

@@ -10,7 +10,7 @@ using ServiceLibrary.Models.Enums;
 
 namespace ServiceLibrary.Repositories
 {
-    public class ApplicationSettingsRepository : IApplicationSettingsRepository
+    public sealed class ApplicationSettingsRepository : IApplicationSettingsRepository
     {
         private readonly ISqlConnectionWrapper _connectionWrapper;
 
@@ -30,7 +30,7 @@ namespace ServiceLibrary.Repositories
                 .FirstOrDefault();
         }
 
-        public virtual async Task<IEnumerable<ApplicationSetting>> GetSettingsAsync(bool returnNonRestrictedOnly)
+        public async Task<IEnumerable<ApplicationSetting>> GetSettingsAsync(bool returnNonRestrictedOnly)
         {
             var prm = new DynamicParameters();
             prm.Add("@returnNonRestrictedOnly", returnNonRestrictedOnly);

@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ArtifactStore.Models.Workflow;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories.Workflow;
 
 namespace ArtifactStore.Repositories.Workflow
 {

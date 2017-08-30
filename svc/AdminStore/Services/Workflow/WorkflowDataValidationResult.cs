@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using AdminStore.Models;
+using ServiceLibrary.Models;
 using ServiceLibrary.Models.ProjectMeta;
 
 namespace AdminStore.Services.Workflow
@@ -17,10 +17,12 @@ namespace AdminStore.Services.Workflow
         public HashSet<int> ValidProjectIds { get; } = new HashSet<int>();
 
         public ProjectTypes StandardTypes { get; set; }
-        public Dictionary<string, ItemType> StandardArtifactTypeMap { get; } = new Dictionary<string, ItemType>();
-        public Dictionary<string, PropertyType> StandardPropertyTypeMap { get; } = new Dictionary<string, PropertyType>();
-        public HashSet<SqlUser> Users { get; } = new HashSet<SqlUser>();
-        public HashSet<SqlGroup> Groups { get; } = new HashSet<SqlGroup>();
+        public Dictionary<string, ItemType> StandardArtifactTypeMapByName { get; } = new Dictionary<string, ItemType>();
+        public Dictionary<string, PropertyType> StandardPropertyTypeMapByName { get; } = new Dictionary<string, PropertyType>();
+        public Dictionary<int, ItemType> StandardArtifactTypeMapById { get; } = new Dictionary<int, ItemType>();
+        public Dictionary<int, PropertyType> StandardPropertyTypeMapById { get; } = new Dictionary<int, PropertyType>();
+        public List<SqlUser> Users { get; } = new List<SqlUser>();
+        public List<SqlGroup> Groups { get; } = new List<SqlGroup>();
     }
 
     public class WorkflowDataValidationError
@@ -36,25 +38,43 @@ namespace AdminStore.Services.Workflow
         ProjectByPathNotFound,
         ProjectByIdNotFound,
         ProjectDuplicate,
-        InstanceGroupNotFound,
-        StandardArtifactTypeNotFound,
+        InstanceGroupNotFoundByName,
+        StandardArtifactTypeNotFoundByName,
         ArtifactTypeInProjectAlreadyAssociatedWithWorkflow,
-        PropertyNotFound,
-        GenerateChildArtifactsActionArtifactTypeNotFound,
-        EmailNotificationActionPropertyTypeNotFound,
-        PropertyChangeActionPropertyTypeNotFound,
+        PropertyNotFoundByName,
+        GenerateChildArtifactsActionArtifactTypeNotFoundByName,
+        EmailNotificationActionPropertyTypeNotFoundByName,
+        EmailNotificationActionUnacceptablePropertyType,
+        PropertyChangeActionPropertyTypeNotFoundByName,
         // Property Value Validation error codes
         PropertyChangeActionRequiredPropertyValueEmpty,
-        PropertyChangeActionUserOrGroupNotSpecified,
-        PropertyChangeActionUserNotFound,
-        PropertyChangeActionGroupNotFound,
+        PropertyChangeActionUserNotFoundByName,
+        PropertyChangeActionGroupNotFoundByName,
         PropertyChangeActionChoiceValueSpecifiedAsNotValidated,
-        PropertyChangeActionValidValueNotSpecified,
-        PropertyChangeActionValidValueNotFound,
+        PropertyChangeActionValidValueNotFoundByValue,
         PropertyChangeActionInvalidNumberFormat,
         PropertyChangeActionInvalidNumberDecimalPlaces,
         PropertyChangeActionNumberOutOfRange,
         PropertyChangeActionInvalidDateFormat,
-        PropertyChangeActionDateOutOfRange
+        PropertyChangeActionDateOutOfRange,
+
+        // Update specific errors
+        WorkflowActive,
+        StateNotFoundByIdInCurrent,
+        TransitionEventNotFoundByIdInCurrent,
+        PropertyChangeEventNotFoundByIdInCurrent,
+        NewArtifactEventNotFoundByIdInCurrent,
+        ProjectArtifactTypeNotFoundByIdInCurrent,
+        WorkflowNothingToUpdate,
+        StandardArtifactTypeNotFoundById,
+        PropertyNotFoundById,
+        InstanceGroupNotFoundById,
+        EmailNotificationActionPropertyTypeNotFoundById,
+        PropertyChangeActionPropertyTypeNotFoundById,
+        GenerateChildArtifactsActionArtifactTypeNotFoundById,
+        PropertyChangeActionValidValueNotFoundById,
+        PropertyChangeActionGroupNotFoundById,
+        PropertyChangeActionUserNotFoundById
+
     }
 }

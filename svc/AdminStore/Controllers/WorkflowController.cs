@@ -202,7 +202,7 @@ namespace AdminStore.Controllers
         /// <param name="workflowId">Workflow identity</param>
         /// <param name="statusUpdate">StatusUpdate model</param>
         /// <remarks>
-        /// Returns Ok result.
+        /// Returns versionId.
         /// </remarks>
         /// <response code="200">Ok. Workflow is updated.</response>
         /// <response code="400">BadRequest. Parameters are invalid. </response>
@@ -213,7 +213,7 @@ namespace AdminStore.Controllers
         [HttpPut]
         [FeatureActivation(FeatureTypes.Workflow)]
         [SessionRequired]
-        [ResponseType(typeof(HttpResponseMessage))]
+        [ResponseType(typeof(int))]
         [Route("{workflowId:int:min(1)}/status")]
         public async Task<IHttpActionResult> UpdateStatus(int workflowId, [FromBody] StatusUpdate statusUpdate)
         {
@@ -223,9 +223,9 @@ namespace AdminStore.Controllers
             }
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
-            await _workflowService.UpdateWorkflowStatusAsync(statusUpdate, workflowId, Session.UserId);
+            var versionId = await _workflowService.UpdateWorkflowStatusAsync(statusUpdate, workflowId, Session.UserId);
 
-            return Ok();
+            return Ok(versionId);
         }
 
         /// <summary>
@@ -243,13 +243,13 @@ namespace AdminStore.Controllers
         [SessionRequired]
         [FeatureActivation(FeatureTypes.Workflow)]
         [HttpGet, NoCache]
-        [ResponseType(typeof (string))]
+        [ResponseType(typeof(string))]
         [Route("export/{workflowId:int:min(1)}")]
         public async Task<IHttpActionResult> ExportWorkflow(int workflowId)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
             var ieWorkflow = await _workflowService.GetWorkflowExportAsync(workflowId);
-            var workflowXml = SerializationHelper.ToXml(ieWorkflow);
+            var workflowXml = SerializationHelper.ToXml(ieWorkflow, true);
             var response = Request.CreateResponse(HttpStatusCode.OK);
 
             response.Content = new StringContent(workflowXml);
@@ -314,6 +314,7 @@ namespace AdminStore.Controllers
             using (var stream = await Request.Content.ReadAsStreamAsync())
             {
                 IeWorkflow workflow;
+                string xmlSerError = null;
                 try
                 {
                     ValidateWorkflowXmlAgainstXsd(stream);
@@ -321,21 +322,15 @@ namespace AdminStore.Controllers
                 }
                 catch (Exception ex)
                 {
-                    var errorResult = new ImportWorkflowResult
-                    {
-                        ErrorMessage = I18NHelper.FormatInvariant(InvalidXmlErrorMessageTemplate, fileName, ex.Message)
-                    };
-
-                    var response = Request.CreateResponse(HttpStatusCode.BadRequest, errorResult);
-
-                    return ResponseMessage(response);
+                    workflow = null;
+                    xmlSerError = ex.Message;
                 }
 
                 _workflowService.FileRepository = GetFileRepository();
 
                 var result = workflowId == null
-                    ? await _workflowService.ImportWorkflowAsync(workflow, fileName, session.UserId)
-                    : await _workflowService.UpdateWorkflowViaImport(workflowId.Value, workflow, fileName, session.UserId);
+                    ? await _workflowService.ImportWorkflowAsync(workflow, fileName, session.UserId, xmlSerError)
+                    : await _workflowService.UpdateWorkflowViaImport(workflowId.Value, workflow, fileName, session.UserId, xmlSerError);
 
                 switch (result.ResultCode)
                 {

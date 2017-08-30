@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ServiceLibrary.Models.Enums;
 
 namespace BluePrintSys.Messaging.Models.Actions
 {
@@ -8,6 +9,7 @@ namespace BluePrintSys.Messaging.Models.Actions
         public IEnumerable<string> To { get; set; }
         public string From { get; set; }
         public string Subject { get; set; }
+        public string Header { get; set; }
         public string MessageTemplate { get; set; }
         public int ArtifactId { get; set; }
         public string ArtifactName { get; set; }

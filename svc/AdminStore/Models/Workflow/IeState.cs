@@ -5,7 +5,7 @@ namespace AdminStore.Models.Workflow
     // !!! Updating of this class requires regenerating of the xml schema IeWorkflow.xsd is required, see below:
     // !!! xsd.exe AdminStore.dll /t:IeWorkflow
     [XmlType("State")]
-    public class IeState
+    public class IeState : IIeWorkflowEntityWithId
     {
         // Optional, not used for the import, will be used for the update
         //========================================================
@@ -47,7 +47,12 @@ namespace AdminStore.Models.Workflow
         }
         //========================================================
 
+        [XmlIgnore]
+        public float OrderIndex { get; set; }
+
         #region Generated and modified Equals and GetHashCode methods
+
+        // At least for now, OrderIndex is not used in Equals and GetHashCode methods.
 
         protected bool Equals(IeState other)
         {

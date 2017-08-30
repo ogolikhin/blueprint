@@ -240,7 +240,7 @@ namespace AdminStore.Controllers
         public async Task GetWorkflow_AllParamsAreCorrectAndPermissionsOk_ReturnWorkflow()
         {
             //arrange
-            var workflow = new WorkflowDto{ Name = "Workflow1", Description = "DescriptionWorkflow1", Status = true };
+            var workflow = new WorkflowDto{ Name = "Workflow1", Description = "DescriptionWorkflow1", Active = true };
             _workflowServiceMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(workflow);
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
@@ -337,7 +337,7 @@ namespace AdminStore.Controllers
         public async Task UpdateStatus_AllRequirementsSatisfied_ReturnOkResult()
         {
             // Arrange
-            var updateSatus = new StatusUpdate { VersionId = 1, Status = true };
+            var updateSatus = new StatusUpdate { VersionId = 1, Active = true };
             _privilegesRepositoryMock
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(AllProjectDataPermissions);
@@ -346,7 +346,7 @@ namespace AdminStore.Controllers
             
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result, typeof(OkResult));
+            Assert.IsInstanceOfType(result, typeof(OkNegotiatedContentResult<int>));
         }
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
@@ -366,7 +366,7 @@ namespace AdminStore.Controllers
         public async Task UpdateStatus_WorkflowWithInvalidPermissions_ForbiddenResult()
         {
             //arrange
-            var updateSatus = new StatusUpdate { VersionId = 1, Status = true };
+            var updateSatus = new StatusUpdate { VersionId = 1, Active = true };
             Exception exception = null;
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
@@ -669,22 +669,25 @@ namespace AdminStore.Controllers
                                             Value = "value2"
                                         }
                                     },
-                                    UsersGroups = new List<IeUserGroup>
+                                    UsersGroups = new IeUsersGroups
                                     {
-                                        new IeUserGroup
+                                        UsersGroups = new List<IeUserGroup>
                                         {
-                                            Id = 11,
-                                            Name = "user",
-                                            IsGroup = false
+                                            new IeUserGroup
+                                            {
+                                                Id = 11,
+                                                Name = "user",
+                                                IsGroup = false
+                                            },
+                                            new IeUserGroup
+                                            {
+                                                Id = 22,
+                                                Name = "group",
+                                                IsGroup = true
+                                            }
                                         },
-                                        new IeUserGroup
-                                        {
-                                            Id = 22,
-                                            Name = "group",
-                                            IsGroup = true
-                                        }
-                                    },
-                                    IncludeCurrentUser = true
+                                        IncludeCurrentUser = true
+                                    }
                                 }
                             }
                         }

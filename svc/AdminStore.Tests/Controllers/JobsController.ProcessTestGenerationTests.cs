@@ -12,6 +12,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http.Results;
+using ServiceLibrary.Repositories.Jobs;
 
 namespace AdminStore.Controllers
 {

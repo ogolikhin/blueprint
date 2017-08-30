@@ -102,5 +102,17 @@
         public static readonly string ArtifactWasMovedToAnotherProject = "Could not purge project because an artifact was moved to another project and we cannot reliably purge it without corrupting the other project.  PurgeProject aborted for projectId  {0}.";
         public static readonly string UnhandledStatusOfProject = "Unhandled case for ProjectStatus: {0}";
         public static readonly string PrivilegesForProjectNotExist = "User privileges for project (Id:{0}) is not found.";
+        //Roles
+        public static readonly string RolesForProjectNotExist = "Roles for the requested project are missing";
+        public static readonly string InvalidDeleteRoleAssignmentsParameters = "Invalid parameters to delete role assignments.";
+        public static readonly string GeneralErrorOfDeletingRoleAssignments = "An error has occurred when the operation was being performed at SQL level.";
+        public static readonly string RoleNameIsRequiredField = "Please enter a Role Name.";
+        public static readonly string GroupIsRequiredField = "Please select a Group.";
+        public static readonly string GroupIsNotFound = "The group with the current id is not found on the instance and project levels.";
+        public static readonly string RoleIsNotFound = "The role with the current id is not found in the project's roles.";
+        public static readonly string RoleAssignmentAlreadyExists = "Project Role Assignment already exists. You cannot add duplicate assignments.";
+        //Artifacts
+        public static readonly string ArtifactIdsNotValid = "Please provide valid artifact ids";
+
     }
 }

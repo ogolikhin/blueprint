@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using AdminStore.Helpers.Workflow;
 using AdminStore.Models.Workflow;
-using ArtifactStore.Helpers;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
@@ -162,38 +161,26 @@ namespace AdminStore.Services.Workflow
 
             var stateTransitions = stateNames.ToDictionary(s => s, s => new List<string>());
             var statesWithIncomingTransitions = new HashSet<string>();
-            var workflowEventNames = new HashSet<string>();
-            var duplicateworkflowEventNames = new HashSet<string>();
-            var hasTransitionNameEmptyError = false;
+            var stateOutgoingTransitionSet = new HashSet<Tuple<string, string>>();
+            var statesWithDuplicateOutgoingTransitions = new HashSet<string>();
             var hasActionTriggerNotSpecifiedError = false;
             foreach (var transition in workflow.TransitionEvents.FindAll(s => s != null))
             {
                 statesWithIncomingTransitions.Add(transition.ToState);
 
-                if (!ValidatePropertyNotEmpty(transition.Name))
+                if (ValidatePropertyNotEmpty(transition.Name)
+                    && ValidatePropertyNotEmpty(transition.FromState)
+                    && !stateOutgoingTransitionSet.Add(Tuple.Create(transition.FromState, transition.Name)))
                 {
-                    // There should be only one such an error.
-                    if (!hasTransitionNameEmptyError)
+                    if (!statesWithDuplicateOutgoingTransitions.Contains(transition.FromState))
                     {
                         result.Errors.Add(new WorkflowXmlValidationError
                         {
-                            Element = transition,
-                            ErrorCode = WorkflowXmlValidationErrorCodes.TransitionEventNameEmpty
+                            Element = transition.FromState,
+                            ErrorCode = WorkflowXmlValidationErrorCodes.StateWithDuplicateOutgoingTransitions
                         });
-                        hasTransitionNameEmptyError = true;
-                    }
-                }
-                else if (!workflowEventNames.Add(transition.Name))
-                {
-                    // There should be only one such an error for a particular duplicate name.
-                    if (!duplicateworkflowEventNames.Contains(transition.Name))
-                    {
-                        result.Errors.Add(new WorkflowXmlValidationError
-                        {
-                            Element = transition,
-                            ErrorCode = WorkflowXmlValidationErrorCodes.WorkflowEventNameNotUniqueInWorkflow
-                        });
-                        duplicateworkflowEventNames.Add(transition.Name);
+
+                        statesWithDuplicateOutgoingTransitions.Add(transition.FromState);
                     }
                 }
 
@@ -281,36 +268,9 @@ namespace AdminStore.Services.Workflow
                 transition.Triggers?.ForEach(t => ValidateAction(t?.Action, result));
             }
 
-            var hasPcEventNameEmptyError = false;
             var hasPcEventNoAnyTriggersError = false;
             foreach (var pcEvent in workflow.PropertyChangeEvents.FindAll(s => s != null))
             {
-                if (!ValidatePropertyNotEmpty(pcEvent.Name))
-                {
-                    if (!hasPcEventNameEmptyError)
-                    {
-                        result.Errors.Add(new WorkflowXmlValidationError
-                        {
-                            Element = pcEvent,
-                            ErrorCode = WorkflowXmlValidationErrorCodes.PropertyChangeEventNameEmpty
-                        });
-                        hasPcEventNameEmptyError = true;
-                    }
-                }
-                else if (!workflowEventNames.Add(pcEvent.Name))
-                {
-                    // There should be only one such an error for a particular duplicate name.
-                    if (!duplicateworkflowEventNames.Contains(pcEvent.Name))
-                    {
-                        result.Errors.Add(new WorkflowXmlValidationError
-                        {
-                            Element = pcEvent,
-                            ErrorCode = WorkflowXmlValidationErrorCodes.WorkflowEventNameNotUniqueInWorkflow
-                        });
-                        duplicateworkflowEventNames.Add(pcEvent.Name);
-                    }
-                }
-
                 if (!ValidatePropertyLimit(pcEvent.Name, 24))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
@@ -368,36 +328,9 @@ namespace AdminStore.Services.Workflow
                 pcEvent.Triggers?.ForEach(t => ValidateAction(t?.Action, result));
             }
 
-            var hasNaEventNameEmptyError = false;
             var hasNaEventNoAnyTriggersError = false;
             foreach (var naEvent in workflow.NewArtifactEvents.FindAll(s => s != null))
             {
-                if (!ValidatePropertyNotEmpty(naEvent.Name))
-                {
-                    if (!hasNaEventNameEmptyError)
-                    {
-                        result.Errors.Add(new WorkflowXmlValidationError
-                        {
-                            Element = naEvent,
-                            ErrorCode = WorkflowXmlValidationErrorCodes.NewArtifactEventNameEmpty
-                        });
-                        hasNaEventNameEmptyError = true;
-                    }
-                }
-                else if (!workflowEventNames.Add(naEvent.Name))
-                {
-                    // There should be only one such an error for a particular duplicate name.
-                    if (!duplicateworkflowEventNames.Contains(naEvent.Name))
-                    {
-                        result.Errors.Add(new WorkflowXmlValidationError
-                        {
-                            Element = naEvent,
-                            ErrorCode = WorkflowXmlValidationErrorCodes.WorkflowEventNameNotUniqueInWorkflow
-                        });
-                        duplicateworkflowEventNames.Add(naEvent.Name);
-                    }
-                }
-
                 if (!ValidatePropertyLimit(naEvent.Name, 24))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
@@ -468,6 +401,7 @@ namespace AdminStore.Services.Workflow
             }
 
             var hasProjectNoSpecifieError = false;
+            var hasAmbiguousProjectReference = false;
             var hasDuplicateProjectIdError = false;
             var hasDuplicateProjectPathError = false;
             var hasProjectDoesNotHaveAnyArtfactTypesError = false;
@@ -477,18 +411,24 @@ namespace AdminStore.Services.Workflow
             var projectPaths = new HashSet<string>();
             foreach (var project in workflow.Projects.FindAll(p => p != null))
             {
-                if (!project.Id.HasValue && !ValidatePropertyNotEmpty(project.Path))
+                if (!hasProjectNoSpecifieError && !project.Id.HasValue && !ValidatePropertyNotEmpty(project.Path))
                 {
-                    // There should be only one such an error.
-                    if (!hasProjectNoSpecifieError)
+                    result.Errors.Add(new WorkflowXmlValidationError
                     {
-                        result.Errors.Add(new WorkflowXmlValidationError
-                        {
-                            Element = project,
-                            ErrorCode = WorkflowXmlValidationErrorCodes.ProjectNoSpecified
-                        });
-                        hasProjectNoSpecifieError = true;
-                    }
+                        Element = project,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.ProjectNoSpecified
+                    });
+                    hasProjectNoSpecifieError = true;
+                }
+
+                if (!hasAmbiguousProjectReference && project.Id.HasValue && ValidatePropertyNotEmpty(project.Path))
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = project,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.AmbiguousProjectReference
+                    });
+                    hasAmbiguousProjectReference = true;
                 }
 
                 if (!_hasInvalidIdError && project.Id.HasValue && project.Id < 1)
@@ -586,10 +526,12 @@ namespace AdminStore.Services.Workflow
             return result;
         }
 
+        // The update xml validated updates State Name references.
         public WorkflowXmlValidationResult ValidateUpdateXml(IeWorkflow workflow)
         {
             ResetUpdateErrorFlags();
             _isConventionNamesInUse = true;
+            UpdateReferenceStateNames(workflow);
             var clone = WorkflowHelper.CloneViaXmlSerialization(workflow);
             UpdateToConventionNames(clone);
             var result = ValidateXml(clone);
@@ -627,7 +569,10 @@ namespace AdminStore.Services.Workflow
             if (_isConventionNamesInUse)
             {
                 var match = Regex.Match(property, ConventionNameRegex);
-                conventionExtra = match.Value.Length + (property.Length > match.Value.Length ? 1 : 0); // take into account the space
+                if(match.Value.Length > 0)
+                {
+                    conventionExtra = match.Value.Length + (property.Length > match.Value.Length ? 1 : 0); // take into account the space
+                }
             }
 
             return !(property.Length > limit + conventionExtra);
@@ -651,10 +596,16 @@ namespace AdminStore.Services.Workflow
         private bool _hasAmbiguousPropertyValuePropertyChangeActionError;
         private bool _hasArtifactTypeGenerateChildrenActionNotSpecitiedError;
         private bool _hasChildCountGenerateChildrenActionNotSpecitiedError;
+        private bool _hasChildCountGenerateChildrenActionNotValidError;
+        private bool _hasArtifactTypeApplicableOnlyToGenerateChildArtifactActionError;
+        private bool _hasChildCountApplicableOnlyToGenerateChildArtifactActionError;
         private bool _hasStateConditionNotOnTriggerOfPropertyChangeEventError;
         private bool _hasStateStateConditionNotSpecifiedError;
         private bool _hasPropertyNamePropertyChangeActionNotSupportedError;
         private bool _hasInvalidIdError;
+        private bool _hasAmbiguousGroupProjectReference;
+        private bool _hasPropertyChangeActionValidValueValueNotSpecitiedError;
+        private bool _hasPropertyChangeActionUserOrGroupNameNotSpecitiedError;
 
         private void ResetErrorFlags()
         {
@@ -666,10 +617,16 @@ namespace AdminStore.Services.Workflow
             _hasPropertyValuePropertyChangeActionNotSpecitiedError = false;
             _hasArtifactTypeGenerateChildrenActionNotSpecitiedError = false;
             _hasChildCountGenerateChildrenActionNotSpecitiedError = false;
+            _hasChildCountGenerateChildrenActionNotValidError = false;
+            _hasArtifactTypeApplicableOnlyToGenerateChildArtifactActionError = false;
+            _hasChildCountApplicableOnlyToGenerateChildArtifactActionError = false;
             _hasStateConditionNotOnTriggerOfPropertyChangeEventError = false;
             _hasStateStateConditionNotSpecifiedError = false;
             _hasPropertyNamePropertyChangeActionNotSupportedError = false;
             _hasInvalidIdError = false;
+            _hasAmbiguousGroupProjectReference = false;
+            _hasPropertyChangeActionValidValueValueNotSpecitiedError = false;
+            _hasPropertyChangeActionUserOrGroupNameNotSpecitiedError = false;
         }
 
         private void ValidatePermittedActions(IeEvent wEvent, WorkflowXmlValidationResult result)
@@ -785,13 +742,40 @@ namespace AdminStore.Services.Workflow
             if (action.ValidValues?.Count > 0)
             {
                 pvCount++;
+
+                action.ValidValues.ForEach(vv =>
+                {
+                    if (!_hasPropertyChangeActionValidValueValueNotSpecitiedError
+                        && !ValidatePropertyNotEmpty(vv.Value))
+                    {
+                        result.Errors.Add(new WorkflowXmlValidationError
+                        {
+                            Element = vv,
+                            ErrorCode = WorkflowXmlValidationErrorCodes.PropertyChangeActionValidValueValueNotSpecitied
+                        });
+                        _hasPropertyChangeActionValidValueValueNotSpecitiedError = true;
+                    }
+                });
             }
-            if (action.UsersGroups?.Count > 0)
+
+            if (action.UsersGroups?.UsersGroups?.Count > 0
+                || (action.UsersGroups != null && action.UsersGroups.IncludeCurrentUser.GetValueOrDefault()))
             {
                 pvCount++;
 
-                action.UsersGroups.ForEach(ug =>
+                action.UsersGroups?.UsersGroups?.ForEach(ug =>
                 {
+                    if (!_hasPropertyChangeActionUserOrGroupNameNotSpecitiedError
+                        && !ValidatePropertyNotEmpty(ug.Name))
+                    {
+                        result.Errors.Add(new WorkflowXmlValidationError
+                        {
+                            Element = ug,
+                            ErrorCode = WorkflowXmlValidationErrorCodes.PropertyChangeActionUserOrGroupNameNotSpecitied
+                        });
+                        _hasPropertyChangeActionUserOrGroupNameNotSpecitiedError = true;
+                    }
+
                     if (!_hasInvalidIdError && ug.GroupProjectId.HasValue && ug.GroupProjectId < 1)
                     {
                         result.Errors.Add(new WorkflowXmlValidationError
@@ -799,6 +783,17 @@ namespace AdminStore.Services.Workflow
                             ErrorCode = WorkflowXmlValidationErrorCodes.InvalidId
                         });
                         _hasInvalidIdError = true;
+                    }
+
+                    if (!_hasAmbiguousGroupProjectReference && ug.GroupProjectId.HasValue
+                        && ValidatePropertyNotEmpty(ug.GroupProjectPath))
+                    {
+                        result.Errors.Add(new WorkflowXmlValidationError
+                        {
+                            Element = action,
+                            ErrorCode = WorkflowXmlValidationErrorCodes.AmbiguousGroupProjectReference
+                        });
+                        _hasAmbiguousGroupProjectReference = true;
                     }
                 });
             }
@@ -841,7 +836,7 @@ namespace AdminStore.Services.Workflow
                 }
 
                 if (!_hasChildCountGenerateChildrenActionNotSpecitiedError
-                    && action.ChildCount.GetValueOrDefault() < 1)
+                    && !action.ChildCount.HasValue)
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
@@ -849,6 +844,41 @@ namespace AdminStore.Services.Workflow
                         ErrorCode = WorkflowXmlValidationErrorCodes.ChildCountGenerateChildrenActionNotSpecitied
                     });
                     _hasChildCountGenerateChildrenActionNotSpecitiedError = true;
+                }
+                else if (!_hasChildCountGenerateChildrenActionNotValidError
+                    && action.ChildCount.HasValue
+                    && (action.ChildCount.Value < 1 || action.ChildCount.Value > 10))
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = action,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.ChildCountGenerateChildrenActionNotValid
+                    });
+                    _hasChildCountGenerateChildrenActionNotValidError = true;
+                }
+            }
+            else
+            {
+                if (!_hasArtifactTypeApplicableOnlyToGenerateChildArtifactActionError
+                    && action.ArtifactType != null)
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = action,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.ArtifactTypeApplicableOnlyToGenerateChildArtifactAction
+                    });
+                    _hasArtifactTypeApplicableOnlyToGenerateChildArtifactActionError = true;
+                }
+
+                if (!_hasChildCountApplicableOnlyToGenerateChildArtifactActionError
+                    && action.ChildCount != null)
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = action,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.ChildCountApplicableOnlyToGenerateChildArtifactAction
+                    });
+                    _hasChildCountApplicableOnlyToGenerateChildArtifactActionError = true;
                 }
             }
         }
@@ -921,6 +951,41 @@ namespace AdminStore.Services.Workflow
             }
         }
 
+        private static void UpdateReferenceStateNames(IeWorkflow workflow)
+        {
+            var stateMap = workflow?.States?.Where(s => s.Id.HasValue).
+                ToDictionary(s => s.Id.Value, s => s.Name);
+            if (stateMap.IsEmpty())
+            {
+                return;
+            }
+
+            workflow?.TransitionEvents.ForEach(e =>
+            {
+                string name;
+                if (e.FromStateId.HasValue && stateMap.TryGetValue(e.FromStateId.Value, out name))
+                {
+                    e.FromState = name;
+                }
+                if (e.ToStateId.HasValue && stateMap.TryGetValue(e.ToStateId.Value, out name))
+                {
+                    e.ToState = name;
+                }
+            });
+
+            // State Conditions can be only on triggers of PropertyChangeEvents.
+            workflow?.PropertyChangeEvents?.ForEach(e => e.Triggers?
+                .Where(t => t?.Condition?.ConditionType == ConditionTypes.State).ForEach(t =>
+                {
+                    var stateCondition = (IeStateCondition) t.Condition;
+                    string name;
+                    if (stateCondition.StateId.HasValue && stateMap.TryGetValue(stateCondition.StateId.Value, out name))
+                    {
+                        stateCondition.State = name;
+                    }
+                }));
+        }
+
         #region Update To Convention Names
 
         private void UpdateToConventionNames(IeWorkflow workflow)
@@ -936,7 +1001,7 @@ namespace AdminStore.Services.Workflow
         {
             if (state?.Id.HasValue ?? false)
             {
-                state.Name = GetConventionName(state.Name, state.Id.Value);
+                state.Name = GetConventionNameAndValidateId(state.Name, state.Id.Value);
             }
         }
 
@@ -944,17 +1009,17 @@ namespace AdminStore.Services.Workflow
         {
             if (tEvent?.Id.HasValue ?? false)
             {
-                tEvent.Name = GetConventionName(tEvent.Name, tEvent.Id.Value);
+                tEvent.Name = GetConventionNameAndValidateId(tEvent.Name, tEvent.Id.Value);
             }
 
             if (tEvent?.FromStateId.HasValue ?? false)
             {
-                tEvent.FromState = GetConventionName(tEvent.FromState, tEvent.FromStateId.Value);
+                tEvent.FromState = GetConventionNameAndValidateId(tEvent.FromState, tEvent.FromStateId.Value);
             }
 
             if (tEvent?.ToStateId.HasValue ?? false)
             {
-                tEvent.ToState = GetConventionName(tEvent.ToState, tEvent.ToStateId.Value);
+                tEvent.ToState = GetConventionNameAndValidateId(tEvent.ToState, tEvent.ToStateId.Value);
             }
 
             tEvent?.PermissionGroups?.ForEach(UpdatePermissionGroupToConventionNames);
@@ -965,7 +1030,7 @@ namespace AdminStore.Services.Workflow
         {
             if (group?.Id.HasValue ?? false)
             {
-                group.Name = GetConventionName(group.Name, group.Id.Value);
+                group.Name = GetConventionNameAndValidateId(null, group.Id.Value);
             }
         }
 
@@ -973,12 +1038,13 @@ namespace AdminStore.Services.Workflow
         {
             if (pcEvent?.Id.HasValue ?? false)
             {
-                pcEvent.Name = GetConventionName(pcEvent.Name, pcEvent.Id.Value);
+                pcEvent.Name = GetConventionNameAndValidateId(pcEvent.Name, pcEvent.Id.Value);
             }
 
             if (pcEvent?.PropertyId.HasValue ?? false)
             {
-                pcEvent.PropertyName = GetConventionName(pcEvent.PropertyName, pcEvent.PropertyId.Value);
+                pcEvent.PropertyName = GetConventionNameAndValidateId(null, pcEvent.PropertyId.Value,
+                    WorkflowHelper.IsNameOrDescriptionProperty(pcEvent.PropertyId.Value));
             }
 
             pcEvent?.Triggers?.ForEach(UpdateTriggerToConventionNames);
@@ -988,7 +1054,7 @@ namespace AdminStore.Services.Workflow
         {
             if (naEvent?.Id.HasValue ?? false)
             {
-                naEvent.Name = GetConventionName(naEvent.Name, naEvent.Id.Value);
+                naEvent.Name = GetConventionNameAndValidateId(naEvent.Name, naEvent.Id.Value);
             }
 
             naEvent?.Triggers?.ForEach(UpdateTriggerToConventionNames);
@@ -1003,7 +1069,7 @@ namespace AdminStore.Services.Workflow
         {
             if (artifactType?.Id.HasValue ?? false)
             {
-                artifactType.Name = GetConventionName(artifactType.Name, artifactType.Id.Value);
+                artifactType.Name = GetConventionNameAndValidateId(null, artifactType.Id.Value);
             }
         }
 
@@ -1021,7 +1087,7 @@ namespace AdminStore.Services.Workflow
                     var stateCondition = (IeStateCondition) condition;
                     if (stateCondition?.StateId.HasValue ?? false)
                     {
-                        stateCondition.State = GetConventionName(stateCondition.State, stateCondition.StateId.Value);
+                        stateCondition.State = GetConventionNameAndValidateId(stateCondition.State, stateCondition.StateId.Value);
                     }
                     break;
                 case null:
@@ -1055,7 +1121,7 @@ namespace AdminStore.Services.Workflow
         {
             if (enAction?.PropertyId.HasValue ?? false)
             {
-                enAction.PropertyName = GetConventionName(enAction.PropertyName, enAction.PropertyId.Value);
+                enAction.PropertyName = GetConventionNameAndValidateId(null, enAction.PropertyId.Value);
             }
         }
 
@@ -1063,18 +1129,18 @@ namespace AdminStore.Services.Workflow
         {
             if (pcAction?.PropertyId.HasValue ?? false)
             {
-                pcAction.PropertyName = GetConventionName(pcAction.PropertyName, pcAction.PropertyId.Value);
+                pcAction.PropertyName = GetConventionNameAndValidateId(null, pcAction.PropertyId.Value);
             }
 
             pcAction?.ValidValues?.ForEach(UpdateValidValueToConventionNames);
-            pcAction?.UsersGroups?.ForEach(UpdateUserGroupToConventionNames);
+            pcAction?.UsersGroups?.UsersGroups?.ForEach(UpdateUserGroupToConventionNames);
         }
 
         private void UpdateValidValueToConventionNames(IeValidValue validValue)
         {
             if (validValue?.Id.HasValue ?? false)
             {
-                validValue.Value = GetConventionName(validValue.Value, validValue.Id.Value);
+                validValue.Value = GetConventionNameAndValidateId(null, validValue.Id.Value);
             }
         }
 
@@ -1082,7 +1148,7 @@ namespace AdminStore.Services.Workflow
         {
             if (userGroup?.Id.HasValue ?? false)
             {
-                userGroup.Name = GetConventionName(userGroup.Name, userGroup.Id.Value);
+                userGroup.Name = GetConventionNameAndValidateId(null, userGroup.Id.Value);
             }
         }
 
@@ -1090,13 +1156,16 @@ namespace AdminStore.Services.Workflow
         {
             if (gAction?.ArtifactTypeId.HasValue ?? false)
             {
-                gAction.ArtifactType = GetConventionName(gAction.ArtifactType, gAction.ArtifactTypeId.Value);
+                gAction.ArtifactType = GetConventionNameAndValidateId(null, gAction.ArtifactTypeId.Value);
             }
         }
 
-        private string GetConventionName(string name, int id)
+        private string GetConventionNameAndValidateId(string name, int id, bool doNotvalidateId = false)
         {
-            ValidateUpdateId(id);
+            if(!doNotvalidateId)
+            {
+                ValidateUpdateId(id);
+            }
 
             var prefix = name == null ? string.Empty : I18NHelper.FormatInvariant("{0} ", name);
             return I18NHelper.FormatInvariant(ConventionNamePattern, prefix, id);

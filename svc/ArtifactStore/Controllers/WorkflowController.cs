@@ -1,5 +1,4 @@
 ﻿using ArtifactStore.Repositories;
-using ArtifactStore.Repositories.Workflow;
 using ArtifactStore.Services.VersionControl;
 using ArtifactStore.Services.Workflow;
 using ServiceLibrary.Attributes;
@@ -12,9 +11,11 @@ using ServiceLibrary.Repositories;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
-using ArtifactStore.Models.Workflow;
+using ArtifactStore.Executors;
 using ServiceLibrary.Models.Enums;
-using ArtifactStore.Repositories.Reuse;
+using ServiceLibrary.Repositories.ConfigControl;
+using ServiceLibrary.Repositories.Reuse;
+using ServiceLibrary.Repositories.Workflow;
 
 namespace ArtifactStore.Controllers
 {
@@ -28,13 +29,17 @@ namespace ArtifactStore.Controllers
 
         public WorkflowController() : this(
             new WorkflowService(
-                new SqlWorkflowRepository(),
-                new SqlArtifactVersionsRepository(),
-                new SqlItemInfoRepository(),
                 new SqlHelper(),
-                new VersionControlService(),
-                new ReuseRepository(),
-                new SqlSaveArtifactRepository()))
+                new SqlItemInfoRepository(),
+                new StateChangeExecutorRepositories(
+                    new SqlArtifactVersionsRepository(),
+                    new SqlWorkflowRepository(),
+                    new VersionControlService(),
+                    new ReuseRepository(),
+                    new SqlSaveArtifactRepository(),
+                    new ApplicationSettingsRepository(),
+                    new ServiceLogRepository(),
+                    new SqlUsersRepository())))
         {
         }
 
@@ -108,8 +113,8 @@ namespace ArtifactStore.Controllers
             {
                 throw new BadRequestException("Please provide valid state change parameters");
             }
-
-            return Ok(await _workflowService.ChangeStateForArtifactAsync(Session.UserId, artifactId, stateChangeParameter));
+            
+            return Ok(await _workflowService.ChangeStateForArtifactAsync(Session.UserId, Session.UserName, artifactId, stateChangeParameter));
         }
     }
 }

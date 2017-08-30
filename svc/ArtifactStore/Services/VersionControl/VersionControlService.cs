@@ -3,23 +3,18 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using ArtifactStore.Helpers;
-using ArtifactStore.Models.Reuse;
 using ArtifactStore.Models.VersionControl;
 using ArtifactStore.Repositories.Revisions;
 using ArtifactStore.Repositories.VersionControl;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Reuse;
 using ServiceLibrary.Models.VersionControl;
+using ServiceLibrary.Repositories;
 
 namespace ArtifactStore.Services.VersionControl
 {
-    public interface IVersionControlService
-    {
-        Task<ArtifactResultSet> PublishArtifacts(PublishParameters parameters, IDbTransaction transaction = null);
-    }
-
     public class VersionControlService : IVersionControlService
     {
         private readonly IVersionControlRepository _versionControlRepository;
@@ -80,15 +75,15 @@ namespace ArtifactStore.Services.VersionControl
                 await ProcessDependentArtifactsDiscovery(parameters, dependentArtifactsIds, independentArtifactsIds, projectsNames);
             }
 
-            int revisionId;
+            PublishEnvironment environment;
             if (transaction == null)
             {
-                revisionId = await _sqlHelper.RunInTransactionAsync<int>(ServiceConstants.RaptorMain,
+                environment = await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain,
                     GetPublishTransactionAction(parameters, artifactIdsList));
             }
             else
             {
-                revisionId = await TransactionalPublishArtifact(parameters, artifactIdsList, transaction);
+                environment = await TransactionalPublishArtifact(parameters, artifactIdsList, transaction);
             }
 
 
@@ -96,8 +91,8 @@ namespace ArtifactStore.Services.VersionControl
                 await _versionControlRepository.GetDiscardPublishDetails(parameters.UserId, artifactIdsList, true, transaction);
             var discardPublishDetails = discardPublishDetailsResult.Details;
             projectsNames = discardPublishDetailsResult.ProjectInfos;
-            var artifactResultSet = ToNovaArtifactResultSet(discardPublishDetails, projectsNames);
-            artifactResultSet.RevisionId = revisionId;
+            var artifactResultSet = ToNovaArtifactResultSet(discardPublishDetails, environment, projectsNames);
+            artifactResultSet.RevisionId = parameters.RevisionId;
             return artifactResultSet;
         }
 
@@ -146,22 +141,22 @@ namespace ArtifactStore.Services.VersionControl
             }
         }
 
-        private Func<IDbTransaction, Task<int>> GetPublishTransactionAction(PublishParameters parameters, IList<int> artifactIdsList)
+        private Func<IDbTransaction, Task<PublishEnvironment>> GetPublishTransactionAction(PublishParameters parameters, IList<int> artifactIdsList)
         {
-            Func<IDbTransaction, Task<int>> action = async transaction =>
+            Func<IDbTransaction, Task<PublishEnvironment>> action = async transaction =>
             await TransactionalPublishArtifact(parameters, artifactIdsList, transaction);
 
             return action;
         }
 
-        private async Task<int> TransactionalPublishArtifact(PublishParameters parameters,
+        private async Task<PublishEnvironment> TransactionalPublishArtifact(PublishParameters parameters,
             IList<int> artifactIdsList,
             IDbTransaction transaction)
         {
             int publishRevision = parameters.RevisionId ?? await
                         _sqlHelper.CreateRevisionInTransactionAsync(transaction, parameters.UserId,
                             "New Publish: publishing artifacts.");
-
+            parameters.RevisionId = publishRevision;
             parameters.AffectedArtifactIds.Clear();
             parameters.AffectedArtifactIds.AddRange(artifactIdsList);
             var publishResults = new List<SqlPublishResult>(parameters.AffectedArtifactIds.Count);
@@ -180,7 +175,7 @@ namespace ArtifactStore.Services.VersionControl
 
             if (parameters.AffectedArtifactIds.Count == 0)
             {
-                return publishRevision;
+                return null;
             }
 
             var env = new PublishEnvironment
@@ -195,7 +190,7 @@ namespace ArtifactStore.Services.VersionControl
 
             if (parameters.AffectedArtifactIds.Count <= 0)
             {
-                return publishRevision;
+                return env;
             }
 
             env.DeletedArtifactIds.Clear();
@@ -219,7 +214,7 @@ namespace ArtifactStore.Services.VersionControl
 
             publishResults.AddRange(env.GetChangeSqlPublishResults());
 
-            return publishRevision;
+            return env;
         }
 
         private async Task ProcessDependentArtifactsDiscovery(PublishParameters parameters, IList<int> dependentArtifactsIds,
@@ -237,30 +232,48 @@ namespace ArtifactStore.Services.VersionControl
                 //We are supposed to throw an exception here for providing appropriate information to client
                 throw new ConflictException("Specified artifacts have dependent artifacts to discard.",
                     ErrorCodes.CannotDiscardOverDependencies,
-                    ToNovaArtifactResultSet(discardPublishDetails, projectsNames));
+                    ToNovaArtifactResultSet(discardPublishDetails, null, projectsNames));
             }
         }
 
-        private ArtifactResultSet ToNovaArtifactResultSet(ICollection<SqlDiscardPublishDetails> discardPublishDetails, IDictionary<int, string> projectsNames)
+        private ArtifactResultSet ToNovaArtifactResultSet(ICollection<SqlDiscardPublishDetails> discardPublishDetails, PublishEnvironment environment, IDictionary<int, string> projectsNames)
         {
             var artifactResultSet = new ArtifactResultSet();
             if (discardPublishDetails != null)
             {
                 artifactResultSet.Artifacts.Clear();
-                artifactResultSet.Artifacts.AddRange(discardPublishDetails.Select(dpd => new Artifact
+                foreach (var dpd in discardPublishDetails)
                 {
-                    Id = dpd.ItemId,
-                    Name = dpd.Name,
-                    ParentId = dpd.ParentId,
-                    OrderIndex = dpd.OrderIndex,
-                    ItemTypeId = dpd.ItemType_ItemTypeId,
-                    Prefix = dpd.Prefix,
-                    ItemTypeIconId = dpd.Icon_ImageId,
-                    PredefinedType = dpd.PrimitiveItemTypePredefined,
-                    ProjectId = dpd.VersionProjectId,
-                    Version = dpd.VersionsCount == 0 ? -1 : dpd.VersionsCount
-                }));
-
+                    var artifact = new Artifact
+                    {
+                        Id = dpd.ItemId,
+                        Name = dpd.Name,
+                        ParentId = dpd.ParentId,
+                        OrderIndex = dpd.OrderIndex,
+                        ItemTypeId = dpd.ItemType_ItemTypeId,
+                        Prefix = dpd.Prefix,
+                        ItemTypeIconId = dpd.Icon_ImageId,
+                        PredefinedType = dpd.PrimitiveItemTypePredefined,
+                        ProjectId = dpd.VersionProjectId,
+                        Version = dpd.VersionsCount == 0 ? -1 : dpd.VersionsCount
+                    };
+                    if (environment != null && environment.SensitivityCollector.ArtifactModifications != null)
+                    {
+                        ReuseSensitivityCollector.ArtifactModification artifactModification;
+                        if (environment.SensitivityCollector.ArtifactModifications.TryGetValue(artifact.Id, out artifactModification) 
+                            && artifactModification?.ModifiedPropertyTypes != null)
+                        {
+                            artifactResultSet.ModifiedProperties.Add(artifact.Id, new List<Property>());
+                            artifactResultSet.ModifiedProperties[artifact.Id].AddRange(
+                                artifactModification.ModifiedPropertyTypes.Select(p => new Property
+                                {
+                                    PropertyTypeId = p.Item1,
+                                    Predefined = p.Item2
+                                }));
+                        }
+                    }
+                    artifactResultSet.Artifacts.Add(artifact);
+                }
                 SortArtifactsByProjectNameThenById(projectsNames, artifactResultSet);
             }
             if (projectsNames != null)

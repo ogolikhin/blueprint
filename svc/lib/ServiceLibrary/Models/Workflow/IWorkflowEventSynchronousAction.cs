@@ -1,9 +1,7 @@
-﻿using System.Threading.Tasks;
-
-namespace ServiceLibrary.Models.Workflow
+﻿namespace ServiceLibrary.Models.Workflow
 {
     public interface IWorkflowEventSynchronousAction
     {
-        Task<bool> Execute(IExecutionParameters executionParameters);
+        bool ValidateAction(IExecutionParameters executionParameters);
     }
 }

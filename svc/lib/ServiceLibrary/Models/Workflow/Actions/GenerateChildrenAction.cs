@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using ServiceLibrary.Models.Enums;
+﻿using ServiceLibrary.Models.Enums;
 
 namespace ServiceLibrary.Models.Workflow.Actions
 {
@@ -10,9 +9,10 @@ namespace ServiceLibrary.Models.Workflow.Actions
         public int ArtifactTypeId { get; set; }
 
         public override MessageActionType ActionType { get; } = MessageActionType.GenerateChildren;
-        public override async Task<bool> Execute(IExecutionParameters executionParameters)
+
+        public override bool ValidateAction(IExecutionParameters executionParameters)
         {
-            return await Task.FromResult(true);
+            return true;
         }
     }
 }

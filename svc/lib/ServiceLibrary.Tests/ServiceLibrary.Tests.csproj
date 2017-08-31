@@ -114,6 +114,8 @@
     <Compile Include="Models\LicenseTransactionTests.cs" />
     <Compile Include="Models\PaginationExtensionsTests.cs" />
     <Compile Include="Models\Workflow\Actions\PropertyChangeActionTests.cs" />
+    <Compile Include="Models\Workflow\Actions\PropertyChangeActionTests.Number.cs" />
+    <Compile Include="Models\Workflow\Actions\PropertyChangeActionTests.User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\ApplicationSettingsRepositoryTests.cs" />
     <Compile Include="Repositories\ArtifactPermissionsRepositoryTests.cs" />

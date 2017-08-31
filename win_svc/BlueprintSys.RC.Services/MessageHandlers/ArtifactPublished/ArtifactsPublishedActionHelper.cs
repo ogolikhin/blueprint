@@ -67,7 +67,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
                 new SqlConnectionWrapper(tenant.BlueprintConnectionString));
 
             var serviceLogRepository = new ServiceLogRepository(new HttpClientProvider(), 
-                new LocalEventLog(), 
+                new LocalFileLog(), 
                 tenant.AdminStoreLog);
 
             var artifactIds = createdArtifacts.Select(a => a.Id).ToHashSet();
@@ -82,6 +82,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
                 var notFoundArtifactIdString = string.Join(", ", notFoundArtifactIds);
                 await serviceLogRepository.LogInformation(LogSource,
                     $"Could not recover information for following artifacts {notFoundArtifactIdString}");
+                Logger.Log($"Could not recover information for following artifacts {notFoundArtifactIdString}", message, tenant, LogLevel.Debug);
             }
 
             foreach (var createdArtifact in createdArtifacts)
@@ -91,6 +92,8 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
                 {
                     await serviceLogRepository.LogInformation(LogSource,
                     $"Could not recover information for artifact Id: {createdArtifact.Id} and Name: {createdArtifact.Name} and Project Id: {createdArtifact.ProjectId}");
+                    Logger.Log($"Could not recover information for artifact Id: {createdArtifact.Id} and Name: {createdArtifact.Name} and Project Id: {createdArtifact.ProjectId}",
+                        message, tenant, LogLevel.Debug);
                     continue;
                 }
 

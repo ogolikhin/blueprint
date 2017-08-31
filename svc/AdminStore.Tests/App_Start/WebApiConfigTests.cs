@@ -92,8 +92,8 @@ namespace AdminStore
             config.AssertAction<InstanceController>("CreateRoleAssignment", HttpMethod.Post, "instance/projects/1/rolesassignments");
             config.AssertAction<InstanceEmailSettingsController>("GetEmailSettings", HttpMethod.Get, "instance/emailsettings");
             config.AssertAction<InstanceController>("SearchProjectFolder", HttpMethod.Get, "instance/folderprojectsearch?offset=0&limit=20");
-            config.AssertAction<InstanceController>("UpdateRoleAssignment", HttpMethod.Put, "instance/projects/1/rolesassignments");
-        }
+            config.AssertAction<InstanceController>("UpdateRoleAssignment", HttpMethod.Put, "instance/projects/1/rolesassignments/2");
+    }
 
         [TestMethod]
         public void Register_GetAndHeadMethods_HaveNoCacheAttribute()

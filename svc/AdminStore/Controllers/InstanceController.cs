@@ -556,6 +556,7 @@ namespace AdminStore.Controllers
         /// </summary>
         /// <param name="projectId">Project's identity</param>
         /// <param name="roleAssignment">Role assignment model</param>
+        /// <param name="roleAssignmentId">Role assignment id</param> 
         /// <remarks>
         /// Returns id of updated role assignment (newly created).
         /// </remarks>
@@ -571,8 +572,8 @@ namespace AdminStore.Controllers
         [HttpPut]
         [SessionRequired]
         [ResponseType(typeof(HttpResponseMessage))]
-        [Route("projects/{projectId:int:min(1)}/rolesassignments")]
-        public async Task<HttpResponseMessage> UpdateRoleAssignment(int projectId, [FromBody] UpdateRoleAssignment roleAssignment)
+        [Route("projects/{projectId:int:min(1)}/rolesassignments/{roleAssignmentId:int:min(1)}")]
+        public async Task<HttpResponseMessage> UpdateRoleAssignment(int projectId, int roleAssignmentId, [FromBody] CreateRoleAssignment roleAssignment)
         {
             if (roleAssignment == null)
             {
@@ -581,10 +582,17 @@ namespace AdminStore.Controllers
 
             await _privilegesManager.DemandAny(Session.UserId, projectId,
                 InstanceAdminPrivileges.AccessAllProjectsAdmin, ProjectAdminPrivileges.ManageGroupsAndRoles);
+           
+            UpdateRoleAssignment updateRA = new UpdateRoleAssignment()
+            {
+                RoleAssignmentId = roleAssignmentId,
+                RoleId = roleAssignment.RoleId,
+                GroupId = roleAssignment.GroupId
+            };
 
-            RoleAssignmentValidator.ValidateModel(roleAssignment);
+            RoleAssignmentValidator.ValidateModel(updateRA);
             
-            await _instanceRepository.UpdateRoleAssignmentAsync(projectId, roleAssignment);
+            await _instanceRepository.UpdateRoleAssignmentAsync(projectId, updateRA);
 
             return Request.CreateResponse(HttpStatusCode.NoContent);
         }

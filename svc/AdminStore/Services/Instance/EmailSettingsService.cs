@@ -200,7 +200,7 @@ namespace AdminStore.Services.Instance
                     throw new BadRequestException("Please enter the SMTP administrator username.", ErrorCodes.EmptySmtpAdministratorUsername);
                 }
 
-                if (string.IsNullOrWhiteSpace(outgoingSettings.AccountPassword))
+                if (outgoingSettings.IsPasswordDirty && string.IsNullOrWhiteSpace(outgoingSettings.AccountPassword))
                 {
                     throw new BadRequestException("Please enter the SMTP administrator password.", ErrorCodes.EmptySmtpAdministratorPassword);
                 }

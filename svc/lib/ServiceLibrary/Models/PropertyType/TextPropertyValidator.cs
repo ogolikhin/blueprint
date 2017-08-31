@@ -12,7 +12,7 @@ namespace ServiceLibrary.Models.PropertyType
         /// </summary>
         protected override PropertySetResult Validate(PropertyLite property, TextPropertyType propertyType, IValidationContext validationContext)
         {
-            if (property.Choices != null)
+            if (property.ChoiceIds != null)
             {
                 return null;
             }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using AdminStore.Models.Workflow;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
@@ -81,12 +82,15 @@ namespace AdminStore.Services.Workflow
                 return null;
             }
 
-            IeTrigger ieTrigger = new IeTrigger
-            {
-                Name = xmlTrigger.Name,
-                Action = FromXmlModel(xmlTrigger.Action, dataMaps, userIdsToCollect, groupIdsToCollect),
-                Condition = FromXmlModel(xmlTrigger.Condition, dataMaps)
-            };
+            var action = FromXmlModel(xmlTrigger.Action, dataMaps, userIdsToCollect, groupIdsToCollect);
+            var ieTrigger = action != null
+                ? new IeTrigger
+                {
+                    Name = xmlTrigger.Name,
+                    Action = action,
+                    Condition = FromXmlModel(xmlTrigger.Condition, dataMaps)
+                }
+                : null;
 
             return ieTrigger;
         }
@@ -99,53 +103,56 @@ namespace AdminStore.Services.Workflow
                 return null;
             }
 
-            string name;
+            string name = null;
             IeBaseAction action = null;
 
             switch (xmlAction.ActionType)
             {
                 case ActionTypes.EmailNotification:
                     var xeAction = xmlAction as XmlEmailNotificationAction;
-                    action = new IeEmailNotificationAction
-                    {
-                        Name = xeAction.Name,
-                        Emails = xeAction.Emails,
-                        PropertyId = xeAction.PropertyTypeId,
-                        PropertyName = xeAction.PropertyTypeId == null ? null : 
-                            dataMaps.PropertyTypeMap.TryGetValue((int)xeAction.PropertyTypeId, out name) ? name : null,
-                        Message = xeAction.Message
-                    };
+                    action = !xeAction.PropertyTypeId.HasValue
+                        || dataMaps.PropertyTypeMap.TryGetValue(xeAction.PropertyTypeId.Value, out name)
+                        ? new IeEmailNotificationAction
+                        {
+                            Name = xeAction.Name,
+                            Emails = xeAction.Emails,
+                            PropertyId = xeAction.PropertyTypeId,
+                            PropertyName = name,
+                            Message = xeAction.Message
+                        }
+                        : null;
                     break;
                 case ActionTypes.PropertyChange:
                     var xpAction = xmlAction as XmlPropertyChangeAction;
-                    action = new IePropertyChangeAction
-                    {
-                        Name = xpAction.Name,
-                        PropertyId = xpAction.PropertyTypeId,
-                        PropertyName = dataMaps.PropertyTypeMap.TryGetValue(xpAction.PropertyTypeId, out name) ? name : null,
-                        PropertyValue = xpAction.PropertyValue,
-                        ValidValues = GetValidValues(xpAction.ValidValues, dataMaps),
-                        UsersGroups = FromXmlModel(xpAction.UsersGroups, userIdsToCollect, groupIdsToCollect)
-                    };
+                    action = dataMaps.PropertyTypeMap.TryGetValue(xpAction.PropertyTypeId, out name)
+                        ? new IePropertyChangeAction
+                        {
+                            Name = xpAction.Name,
+                            PropertyId = xpAction.PropertyTypeId,
+                            PropertyName = name,
+                            PropertyValue = xpAction.PropertyValue,
+                            ValidValues = FromXmlModel(xpAction.ValidValues, dataMaps),
+                            UsersGroups = FromXmlModel(xpAction.UsersGroups, userIdsToCollect, groupIdsToCollect)
+                        }
+                        : null;
                     break;
                 case ActionTypes.Generate:
                     var xgAction = xmlAction as XmlGenerateAction;
-                    action = new IeGenerateAction
-                    {
-                        Name = xgAction.Name,
-                        GenerateActionType = xgAction.GenerateActionType,
-                        ChildCount = xgAction.ChildCount,
-                        ArtifactTypeId = xgAction.ArtifactTypeId,
-                        ArtifactType = GetArtifactType(xgAction.ArtifactTypeId, dataMaps)
-                    };
+                    action = xgAction.GenerateActionType != GenerateActionTypes.Children
+                        || (xgAction.ArtifactTypeId.HasValue
+                        && dataMaps.ArtifactTypeMap.TryGetValue(xgAction.ArtifactTypeId.Value, out name))
+                        ? new IeGenerateAction
+                        {
+                            Name = xgAction.Name,
+                            GenerateActionType = xgAction.GenerateActionType,
+                            ChildCount = xgAction.ChildCount,
+                            ArtifactTypeId = xgAction.ArtifactTypeId,
+                            ArtifactType = name
+                        }
+                        : null;
                     break;
                 default:
                     break;
-            }
-
-            if (action == null)
-            {
-                throw new ArgumentOutOfRangeException(nameof(xmlAction.ActionType));
             }
 
             return action;
@@ -168,28 +175,25 @@ namespace AdminStore.Services.Workflow
             return ieUsersGroups;
         }
 
-        private static List<IeValidValue> GetValidValues(List<int> valueIds, WorkflowDataNameMaps dataMaps)
+        private static List<IeValidValue> FromXmlModel(List<int> valueIds, WorkflowDataNameMaps dataMaps)
         {
-            var values = valueIds.ConvertAll(x => new IeValidValue { Id = x });
-            foreach(var v in values)
+            var values = new List<IeValidValue>();
+            valueIds?.ForEach(id =>
             {
-                string vv = null;
-                v.Value = dataMaps.ValidValueMap.TryGetValue((int)v.Id, out vv) ? vv : null;
-            }
-            return values.Count == 0 ? null : values;
-        }
-        private static string GetArtifactType(int? xArtifactTypeId, WorkflowDataNameMaps dataMaps)
-        {
-            
-            string artifactType = null;
-            if (xArtifactTypeId != null)
-            {
-                string name = null;
-                artifactType = dataMaps.ArtifactTypeMap.TryGetValue((int)xArtifactTypeId, out name) ? name : null;
-            }
+                string value;
+                if (dataMaps.ValidValueMap.TryGetValue(id, out value))
+                {
+                    values.Add(new IeValidValue
+                    {
+                        Id = id,
+                        Value = value
+                    });
+                }
+            });
 
-            return artifactType;
+            return values.Any() ? values : null;
         }
+
         private static List<IeUserGroup> FromXmlModel(List<XmlUserGroup> xmlUserGroups,
             ISet<int> userIdsToCollect, ISet<int> groupIdsToCollect)
         {
@@ -246,12 +250,14 @@ namespace AdminStore.Services.Workflow
             {
                 case ConditionTypes.State:
                     string name;
-                    int stateId = (xmlCondition as XmlStateCondition).StateId;
-                    var ieCondition = new IeStateCondition
-                    {
-                        StateId = stateId,
-                        State = dataMaps.StateMap.TryGetValue(stateId, out name) ? name : null
-                    };
+                    var stateId = (xmlCondition as XmlStateCondition).StateId;
+                    var ieCondition = dataMaps.StateMap.TryGetValue(stateId, out name)
+                        ? new IeStateCondition
+                        {
+                            StateId = stateId,
+                            State = name
+                        }
+                        : null;
                     return ieCondition;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(xmlCondition.ConditionType));

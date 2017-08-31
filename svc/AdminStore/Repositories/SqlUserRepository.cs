@@ -70,17 +70,6 @@ namespace AdminStore.Repositories
             return (await _connectionWrapper.QueryAsync<UserIcon>("GetUserIconByUserId", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
 
-        public async Task<IEnumerable<SqlGroup>> GetGroupsMapAsync(IEnumerable<int> groupIds = null)
-        {
-            var prm = new DynamicParameters();
-            if (groupIds != null)
-            {
-                prm.Add("@groupIds", SqlConnectionWrapper.ToDataTable(groupIds));
-            }
-            return await _connectionWrapper.QueryAsync<SqlGroup>("GetGroupNames", prm, commandType: CommandType.StoredProcedure);
-        }
-
-
         public async Task<IEnumerable<LicenseTransactionUser>> GetLicenseTransactionUserInfoAsync(IEnumerable<int> userIds)
         {
             var prm = new DynamicParameters();

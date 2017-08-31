@@ -44,7 +44,8 @@ namespace ServiceLibrary.Models.Workflow.Actions
             var dPropertyType = executionParameters.CustomPropertyTypes.FirstOrDefault(item => item.InstancePropertyTypeId == InstancePropertyTypeId);
             if (dPropertyType == null)
             {
-                return new PropertySetResult(InstancePropertyTypeId, ErrorCodes.InvalidArtifactProperty, "Property Id does not exist in database");
+                return new PropertySetResult(InstancePropertyTypeId, ErrorCodes.InvalidArtifactProperty,
+                     I18NHelper.FormatInvariant("Property type id {0} is not associated with specified artifact type", InstancePropertyTypeId));
             }
 
             var resultSet = PopulatePropertyLite(dPropertyType);

@@ -99,7 +99,7 @@ namespace AdminStore.Controllers
             var folderId = 99;
             var folder = new InstanceItem { Id = folderId };
             _instanceRepositoryMock
-                .Setup(r => r.GetInstanceFolderAsync(folderId, UserId))
+                .Setup(r => r.GetInstanceFolderAsync(folderId, UserId, It.IsAny<bool>()))
                 .ReturnsAsync(folder);
 
             //Act
@@ -118,7 +118,7 @@ namespace AdminStore.Controllers
             var folder = new InstanceItem { Id = folderId };
             var fromAdminPortal = true;
             _instanceRepositoryMock
-                .Setup(r => r.GetInstanceFolderAsync(folderId, UserId))
+                .Setup(r => r.GetInstanceFolderAsync(folderId, UserId, It.IsAny<bool>()))
                 .ReturnsAsync(folder);
             _privilegeRepositoryMock
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))

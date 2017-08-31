@@ -117,7 +117,7 @@ namespace AdminStore.Services.Instance
             }
         }
 
-        public async Task SendTestEmailAsync(int userId, EmailOutgoingSettings outgoingSettings)
+        public async Task<string> SendTestEmailAsync(int userId, EmailOutgoingSettings outgoingSettings)
         {
             await _privilegesManager.Demand(userId, InstanceAdminPrivileges.ManageInstanceSettings);
 
@@ -139,6 +139,8 @@ namespace AdminStore.Services.Instance
             try
             {
                 _emailHelper.SendEmail(currentUser.Email, TestEmailSubject, body);
+
+                return currentUser.Email;
             }
             catch (EmailException ex)
             {

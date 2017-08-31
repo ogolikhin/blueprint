@@ -402,6 +402,16 @@ namespace AdminStore.Services.Instance
         }
 
         [TestMethod]
+        public async Task SendTestEmailAsync_Should_Return_Current_Users_Email_Address()
+        {
+            //Act
+            string emailAddress = await _emailSettingsService.SendTestEmailAsync(UserId, _outgoingSettings);
+
+            //Assert
+            Assert.AreEqual(_user.Email, emailAddress);
+        }
+
+        [TestMethod]
         public async Task SendTestEmailAsync_Should_Throw_Bad_Request_Exception_When_EmailHelper_Throws_EmailException()
         {
             //Arrange

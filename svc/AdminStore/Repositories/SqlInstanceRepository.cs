@@ -529,7 +529,60 @@ namespace AdminStore.Repositories
             return result;
         }
 
-        
+        public async Task<int> UpdateRoleAssignmentAsync(int projectId, UpdateRoleAssignment roleAssignment)
+        {
+            if (projectId < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(projectId));
+            }
+
+            if (roleAssignment == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(roleAssignment));
+            }
+            
+            var parameters = new DynamicParameters();
+            parameters.Add("@ProjectId", projectId);
+            parameters.Add("@GroupId", roleAssignment.GroupId);
+            parameters.Add("@RoleId", roleAssignment.RoleId);
+            parameters.Add("@RoleAssignmentId", roleAssignment.RoleAssignmentId);
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var result = await _connectionWrapper.ExecuteScalarAsync<int>("UpdateProjectRoleAssigment", parameters,
+                commandType: CommandType.StoredProcedure);
+
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.GeneralSqlError:
+                        throw new Exception(ErrorMessages.GeneralErrorOfUpdatingRoleAssignment);
+
+                    case (int)SqlErrorCodes.ProjectWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.ProjectNotExist, ErrorCodes.ResourceNotFound);
+
+                    case (int)SqlErrorCodes.GroupWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.GroupIsNotFound, ErrorCodes.ResourceNotFound);
+
+                    case (int)SqlErrorCodes.RolesForProjectNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.RoleIsNotFound, ErrorCodes.ResourceNotFound);
+
+                    case (int)SqlErrorCodes.RoleAssignmentNotExists:
+                        throw new ResourceNotFoundException(ErrorMessages.RoleAssignmentNotFound, ErrorCodes.ResourceNotFound);
+
+                    case (int)SqlErrorCodes.RoleAssignmentAlreadyExists:
+                        throw new ConflictException(ErrorMessages.RoleAssignmentAlreadyExists, ErrorCodes.Conflict);
+
+                }
+            }
+
+            return result;
+
+        }
+
+
 
         #endregion
 

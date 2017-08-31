@@ -1,4 +1,9 @@
-﻿using ServiceLibrary.Exceptions;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using AdminStore.Models.Enums;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 
@@ -17,6 +22,13 @@ namespace AdminStore.Helpers
             {
                 throw new BadRequestException(ErrorMessages.GroupIsRequiredField, ErrorCodes.BadRequest);
             }
+
+            var assignment = roleAssignment as UpdateRoleAssignment;
+            if (assignment != null && assignment.RoleAssignmentId < 1)
+            {
+                throw new BadRequestException(ErrorMessages.RoleAssignmentNotFound, ErrorCodes.BadRequest);
+            }
         }
+
     }
 }

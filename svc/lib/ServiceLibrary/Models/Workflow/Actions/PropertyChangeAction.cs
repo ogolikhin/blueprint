@@ -62,30 +62,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
             switch (propertyType?.PrimitiveType)
             {
                 case PropertyPrimitiveType.Number:
-                    if (String.IsNullOrEmpty(PropertyValue))
-                    {
-                        PropertyLiteValue = new PropertyLite()
-                        {
-                            PropertyTypeId = InstancePropertyTypeId,
-                            NumberValue = null
-                        };
-                    }
-                    else
-                    {
-                        decimal value;
-                        if (
-                            !Decimal.TryParse(PropertyValue, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint, new NumberFormatInfo(),
-                                out value))
-                        {
-                            return new PropertySetResult(InstancePropertyTypeId, ErrorCodes.InvalidArtifactProperty, "Parsing failed for decimal value");
-                        }
-                        PropertyLiteValue = new PropertyLite()
-                        {
-                            PropertyTypeId = InstancePropertyTypeId,
-                            NumberValue = value
-                        };
-                    }
-                    break;
+                    return PopulateNumberPropertyLite();
                 case PropertyPrimitiveType.Date:
                     PropertyLiteValue = new PropertyLite
                     {
@@ -107,12 +84,48 @@ namespace ServiceLibrary.Models.Workflow.Actions
                         PropertyLiteValue.ChoiceIds.AddRange(ValidValues);
                     }
                     break;
+                case PropertyPrimitiveType.User:
+                    return new PropertySetResult(InstancePropertyTypeId, ErrorCodes.InvalidArtifactProperty, "Property type is now user, but does not contain user and group change actions");
                 default:
                     PropertyLiteValue = new PropertyLite()
                     {
                         PropertyTypeId = InstancePropertyTypeId
                     };
                     break;
+            }
+            return null;
+        }
+
+        private PropertySetResult PopulateNumberPropertyLite()
+        {
+            if (ValidValues != null && ValidValues.Any())
+            {
+                return new PropertySetResult(InstancePropertyTypeId, ErrorCodes.InvalidArtifactProperty, 
+                    "Property type is now number property. Property change action is currently invalid.");
+            }
+            if (String.IsNullOrEmpty(PropertyValue))
+            {
+                PropertyLiteValue = new PropertyLite()
+                {
+                    PropertyTypeId = InstancePropertyTypeId,
+                    NumberValue = null
+                };
+            }
+            else
+            {
+                decimal value;
+                if (
+                    !Decimal.TryParse(PropertyValue, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint, new NumberFormatInfo(),
+                        out value))
+                {
+                    return new PropertySetResult(InstancePropertyTypeId, ErrorCodes.InvalidArtifactProperty, 
+                        "Property type is now number property. Property change action is currently invalid.");
+                }
+                PropertyLiteValue = new PropertyLite()
+                {
+                    PropertyTypeId = InstancePropertyTypeId,
+                    NumberValue = value
+                };
             }
             return null;
         }

@@ -102,6 +102,7 @@
     <Compile Include="Helpers\TestsForHelpers\I18HelperTests.cs" />
     <Compile Include="Helpers\TestsForHelpers\LoggableApiControllerTests.cs" />
     <Compile Include="Helpers\TestsForHelpers\StatusControllerHelperTests.cs" />
+    <Compile Include="Helpers\Validators\ChoicePropertyValidatorTests.cs" />
     <Compile Include="Helpers\Validators\DatePropertyValidatorTests.cs" />
     <Compile Include="Helpers\Validators\NumberPropertyValidatorTests.cs" />
     <Compile Include="Helpers\Validators\ReusePropertyValidatorTests.cs" />

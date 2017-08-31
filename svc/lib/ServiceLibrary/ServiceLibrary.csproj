@@ -163,6 +163,7 @@
     <Compile Include="Helpers\Validators\IPropertyValidator.cs" />
     <Compile Include="Helpers\Validators\ReusePropertyValidator.cs" />
     <Compile Include="Helpers\Validators\ValidationContext.cs" />
+    <Compile Include="LocalLog\WorkflowLocalLog.cs" />
     <Compile Include="LocalLog\ILocalLog.cs" />
     <Compile Include="LocalLog\LocalEventLog.cs" />
     <Compile Include="LocalLog\LocalFileLog.cs" />
@@ -351,6 +352,7 @@
     <Compile Include="Repositories\ConfigControl\IServiceLogRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IConfigRepository.cs" />
     <Compile Include="Repositories\ConfigControl\ServiceLogRepository.cs" />
+    <Compile Include="Repositories\ConfigControl\WorkflowServiceLogRepository.cs" />
     <Compile Include="Repositories\Files\FileRepository.cs" />
     <Compile Include="Helpers\Files\FileHttpWebClient.cs" />
     <Compile Include="Repositories\IArtifactPermissionsRepository.cs" />

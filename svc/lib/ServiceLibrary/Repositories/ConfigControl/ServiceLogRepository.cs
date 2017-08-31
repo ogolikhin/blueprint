@@ -18,9 +18,9 @@ namespace ServiceLibrary.Repositories.ConfigControl
 {
     public class ServiceLogRepository : IServiceLogRepository
     {
-        private readonly IHttpClientProvider _httpClientProvider;
-        private readonly ILocalLog _localLog;
-        private readonly string _configControlUri;
+        protected readonly IHttpClientProvider _httpClientProvider;
+        protected readonly ILocalLog _localLog;
+        protected readonly string _configControlUri;
 
         public ServiceLogRepository()
             : this(new HttpClientProvider(), new LocalFileLog(), ConfigurationManager.AppSettings["ConfigControl"])
@@ -46,7 +46,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
         /// var servicelog = new ServiceLogRepository();
         /// await servicelog.LogInformation("FileStore API", "Hello World");
         /// </example>
-        public async Task LogInformation(
+        public virtual async Task LogInformation(
             string source,
             string message,
             [CallerMemberName] string methodName = "",
@@ -98,7 +98,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
         /// var servicelog = new ServiceLogRepository();
         /// await servicelog.LogVerbose("FileStore API", "Hello World");
         /// </example>
-        public async Task LogVerbose(
+        public virtual async Task LogVerbose(
             string source,
             string message,
             [CallerMemberName] string methodName = "",
@@ -150,7 +150,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
         /// var servicelog = new ServiceLogRepository();
         /// await servicelog.LogWarning("FileStore API", "Hello World");
         /// </example>
-        public async Task LogWarning(
+        public async virtual Task LogWarning(
             string source,
             string message,
             [CallerMemberName] string methodName = "",
@@ -200,7 +200,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
         /// var servicelog = new ServiceLogRepository();
         /// await servicelog.LogClientMessage("FileStore API", "Hello World");
         /// </example>
-        public async Task<HttpResponseMessage> LogClientMessage(
+        public async virtual Task<HttpResponseMessage> LogClientMessage(
             ClientLogModel logEntry,
             string sessionId,
             string userName)
@@ -236,7 +236,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
         /// var servicelog = new ServiceLogRepository();
         /// await servicelog.LogError("FileStore API", "Hello World");
         /// </example>
-        public async Task LogError(
+        public async virtual Task LogError(
             string source,
             string message,
             [CallerMemberName] string methodName = "",
@@ -288,7 +288,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
         /// var servicelog = new ServiceLogRepository();
         /// await servicelog.LogError("FileStore API", exception);
         /// </example>
-        public async Task LogError(
+        public async virtual Task LogError(
             string source,
             Exception exception,
             [CallerMemberName] string methodName = "",
@@ -328,7 +328,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             }
         }
 
-        public async Task LogCLog(CLogModel logEntry)
+        public async virtual Task LogCLog(CLogModel logEntry)
         {
             try
             {
@@ -351,7 +351,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             }
         }
 
-        public async Task LogStandardLog(StandardLogModel logEntry)
+        public async virtual Task LogStandardLog(StandardLogModel logEntry)
         {
             try
             {
@@ -373,7 +373,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             }
         }
 
-        public async Task LogPerformanceLog(PerformanceLogModel logEntry)
+        public async virtual Task LogPerformanceLog(PerformanceLogModel logEntry)
         {
             try
             {
@@ -395,7 +395,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             }
         }
 
-        public async Task LogSQLTraceLog(SQLTraceLogModel logEntry)
+        public async virtual Task LogSQLTraceLog(SQLTraceLogModel logEntry)
         {
             try
             {

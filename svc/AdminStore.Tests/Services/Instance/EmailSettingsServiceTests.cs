@@ -902,8 +902,6 @@ namespace AdminStore.Services.Instance
         {
             //Arrange
             _emailSettingsDto.EnableDiscussions = false;
-            _emailSettingsDto.Incoming.AccountPassword = null;
-            _emailSettingsDto.Incoming.AccountUsername = null;
             _emailSettingsDto.Incoming.ServerAddress = null;
             _emailSettingsDto.Incoming.Port = 0;
 

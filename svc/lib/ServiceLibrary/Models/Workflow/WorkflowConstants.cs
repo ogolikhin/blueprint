@@ -1,6 +1,4 @@
-﻿using System.Security.Cryptography.X509Certificates;
-
-namespace ServiceLibrary.Models.Workflow
+﻿namespace ServiceLibrary.Models.Workflow
 {
     public static class WorkflowConstants
     {

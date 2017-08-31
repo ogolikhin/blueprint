@@ -1,5 +1,4 @@
-﻿using BluePrintSys.Messaging.CrossCutting.Models.Enums;
-using ServiceLibrary.Models.Enums;
+﻿using ServiceLibrary.Models.Enums;
 
 namespace BluePrintSys.Messaging.CrossCutting.Configuration
 {
@@ -17,9 +16,8 @@ namespace BluePrintSys.Messaging.CrossCutting.Configuration
 
         MessageActionType SupportedActionTypes { get; }
 
-        Tenancy Tenancy { get; }
         int CacheExpirationMinutes { get; }
-        string SingleTenancyConnectionString { get; }
+        string TenantsDatabase { get; }
         string NServiceBusInstanceId { get; }
     }
 }

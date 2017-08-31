@@ -7,6 +7,7 @@ using BluePrintSys.Messaging.CrossCutting.Logging;
 using NServiceBus;
 using NServiceBus.Transport.SQLServer;
 using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Models.Workflow;
 
 namespace BluePrintSys.Messaging.CrossCutting.Host
 {
@@ -137,7 +138,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
             }
         }
 
-        public async Task Send(string tenantId, IMessage message)
+        public async Task Send(string tenantId, IWorkflowMessage message)
         {
             try
             {
@@ -159,7 +160,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
             }
         }
 
-        protected virtual void LogInfo(string tenantId, IMessage message, Exception exception)
+        protected virtual void LogInfo(string tenantId, IWorkflowMessage message, Exception exception)
         {
             if (exception == null)
             {

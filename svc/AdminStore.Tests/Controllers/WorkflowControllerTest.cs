@@ -346,7 +346,7 @@ namespace AdminStore.Controllers
             
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result, typeof(OkResult));
+            Assert.IsInstanceOfType(result, typeof(OkNegotiatedContentResult<int>));
         }
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
@@ -669,22 +669,25 @@ namespace AdminStore.Controllers
                                             Value = "value2"
                                         }
                                     },
-                                    UsersGroups = new List<IeUserGroup>
+                                    UsersGroups = new IeUsersGroups
                                     {
-                                        new IeUserGroup
+                                        UsersGroups = new List<IeUserGroup>
                                         {
-                                            Id = 11,
-                                            Name = "user",
-                                            IsGroup = false
+                                            new IeUserGroup
+                                            {
+                                                Id = 11,
+                                                Name = "user",
+                                                IsGroup = false
+                                            },
+                                            new IeUserGroup
+                                            {
+                                                Id = 22,
+                                                Name = "group",
+                                                IsGroup = true
+                                            }
                                         },
-                                        new IeUserGroup
-                                        {
-                                            Id = 22,
-                                            Name = "group",
-                                            IsGroup = true
-                                        }
-                                    },
-                                    IncludeCurrentUser = true
+                                        IncludeCurrentUser = true
+                                    }
                                 }
                             }
                         }

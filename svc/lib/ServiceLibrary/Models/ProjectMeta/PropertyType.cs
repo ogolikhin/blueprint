@@ -105,5 +105,7 @@ namespace ServiceLibrary.Models.ProjectMeta
         public int? Id { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Value { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? Sid { get; set; }
     }
 }

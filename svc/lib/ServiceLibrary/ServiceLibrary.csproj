@@ -159,6 +159,7 @@
     <Compile Include="Helpers\I18NHelper.cs" />
     <Compile Include="Helpers\TimeProvider.cs" />
     <Compile Include="Helpers\UserManagementHelper.cs" />
+    <Compile Include="Models\PropertyType\ChoicePropertyValidator.cs" />
     <Compile Include="Helpers\Validators\EmailValidator.cs" />
     <Compile Include="Helpers\Validators\IPropertyValidator.cs" />
     <Compile Include="Helpers\Validators\ReusePropertyValidator.cs" />
@@ -241,11 +242,12 @@
     <Compile Include="Models\ProjectMeta\PropertyTypePredefinedExtension.cs" />
     <Compile Include="Models\ProjectNameIdPair.cs" />
     <Compile Include="Models\ProjectPermissions.cs" />
+    <Compile Include="Models\PropertyType\ChoicePropertyType.cs" />
     <Compile Include="Models\PropertyType\DatePropertyValidator.cs" />
-    <Compile Include="Models\PropertyType\DDatePropertyType.cs" />
-    <Compile Include="Models\PropertyType\DNumberPropertyType.cs" />
-    <Compile Include="Models\PropertyType\DPropertyType.cs" />
-    <Compile Include="Models\PropertyType\DUserPropertyType.cs" />
+    <Compile Include="Models\PropertyType\DatePropertyType.cs" />
+    <Compile Include="Models\PropertyType\NumberPropertyType.cs" />
+    <Compile Include="Models\PropertyType\WorkflowPropertyType.cs" />
+    <Compile Include="Models\PropertyType\UserPropertyType.cs" />
     <Compile Include="Models\PropertyType\NumberPropertyValidator.cs" />
     <Compile Include="Models\PropertyType\PropertyLite.cs" />
     <Compile Include="Models\PropertyType\PropertySetResult.cs" />
@@ -284,6 +286,7 @@
     <Compile Include="Models\UpdateRoleAssignment.cs" />
     <Compile Include="Models\UserGroup.cs" />
     <Compile Include="Models\UserInfo.cs" />
+    <Compile Include="Models\VersionControl\IBaseArtifactVersionControlInfo.cs" />
     <Compile Include="Models\VersionControl\ISaveArtifactRepository.cs" />
     <Compile Include="Helpers\Validators\IValidationContext.cs" />
     <Compile Include="Models\VersionControl\PublishParameters.cs" />
@@ -308,6 +311,7 @@
     <Compile Include="Models\Workflow\IWorkflowEvent.cs" />
     <Compile Include="Models\Workflow\IWorkflowEventASynchronousAction.cs" />
     <Compile Include="Models\Workflow\IWorkflowEventSynchronousAction.cs" />
+    <Compile Include="Models\Workflow\IWorkflowMessage.cs" />
     <Compile Include="Models\Workflow\PostopWorkflowEventTriggers.cs" />
     <Compile Include="Models\Workflow\PreopWorkflowEventTriggers.cs" />
     <Compile Include="Models\Workflow\SqlCustomToInstancePropertyTypeIds.cs" />
@@ -318,12 +322,14 @@
     <Compile Include="Models\Workflow\SqlWorkFlowState.cs" />
     <Compile Include="Models\Workflow\SqlWorkFlowStateInformation.cs" />
     <Compile Include="Models\Workflow\SqlWorkflowTransition.cs" />
+    <Compile Include="Models\Workflow\StateChangeResult.cs" />
     <Compile Include="Models\Workflow\WorkflowConstants.cs" />
     <Compile Include="Models\Workflow\WorkflowEventAction.cs" />
     <Compile Include="Models\Workflow\WorkflowEventCondition.cs" />
     <Compile Include="Models\Workflow\WorkflowEventSynchronousWorkflowEventAction.cs" />
     <Compile Include="Models\Workflow\WorkflowEventTrigger.cs" />
     <Compile Include="Models\Workflow\WorkflowEventTriggers.cs" />
+    <Compile Include="Models\Workflow\WorkflowMessageArtifactInfo.cs" />
     <Compile Include="Models\Workflow\WorkflowState.cs" />
     <Compile Include="Models\Workflow\WorkflowStateChangeParameter.cs" />
     <Compile Include="Models\Workflow\WorkflowTransition.cs" />
@@ -337,6 +343,7 @@
     <Compile Include="Models\Workflow\XmlStateCondition.cs" />
     <Compile Include="Models\Workflow\XmlTriggerPermissions.cs" />
     <Compile Include="Models\Workflow\XmlUserGroup.cs" />
+    <Compile Include="Models\Workflow\XmlUsersGroups.cs" />
     <Compile Include="Models\Workflow\XmlWorkflowEventTrigger.cs" />
     <Compile Include="Models\Workflow\XmlWorkflowEventTriggers.cs" />
     <Compile Include="Models\Email\NotificationEmail.cs" />

@@ -20,16 +20,18 @@ namespace ServiceLibrary.Repositories.ConfigControl
     {
         private readonly IHttpClientProvider _httpClientProvider;
         private readonly ILocalLog _localLog;
+        private readonly string _configControlUri;
 
         public ServiceLogRepository()
-            : this(new HttpClientProvider(), new LocalFileLog())
+            : this(new HttpClientProvider(), new LocalFileLog(), ConfigurationManager.AppSettings["ConfigControl"])
         {
         }
 
-        public ServiceLogRepository(IHttpClientProvider hcp, ILocalLog localLog)
+        public ServiceLogRepository(IHttpClientProvider hcp, ILocalLog localLog, string configControlUri = null)
         {
             _httpClientProvider = hcp;
             _localLog = localLog;
+            _configControlUri = configControlUri ?? ConfigurationManager.AppSettings["ConfigControl"];
         }
 
         /// <summary>
@@ -53,7 +55,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
         {
             try
             {
-                var uri = ConfigurationManager.AppSettings["ConfigControl"];
+                var uri = _configControlUri;
                 if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
                 var http = _httpClientProvider.Create(new Uri(uri));
 
@@ -105,7 +107,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
         {
             try
             {
-                var uri = ConfigurationManager.AppSettings["ConfigControl"];
+                var uri = _configControlUri;
                 if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
                 var http = _httpClientProvider.Create(new Uri(uri));
 
@@ -157,7 +159,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
         {
             try
             {
-                var uri = ConfigurationManager.AppSettings["ConfigControl"];
+                var uri = _configControlUri;
                 if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
                 var http = _httpClientProvider.Create(new Uri(uri));
 
@@ -243,7 +245,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
         {
             try
             {
-                var uri = ConfigurationManager.AppSettings["ConfigControl"];
+                var uri = _configControlUri;
                 if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
                 var http = _httpClientProvider.Create(new Uri(uri));
 
@@ -295,7 +297,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
         {
             try
             {
-                var uri = ConfigurationManager.AppSettings["ConfigControl"];
+                var uri = _configControlUri;
                 if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
                 var http = _httpClientProvider.Create(new Uri(uri));
 
@@ -330,7 +332,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
         {
             try
             {
-                var uri = ConfigurationManager.AppSettings["ConfigControl"];
+                var uri = _configControlUri;
                 if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
 
                 var http = _httpClientProvider.Create(new Uri(uri));
@@ -353,7 +355,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
         {
             try
             {
-                var uri = ConfigurationManager.AppSettings["ConfigControl"];
+                var uri = _configControlUri;
                 if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
                 var http = _httpClientProvider.Create(new Uri(uri));
 
@@ -375,7 +377,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
         {
             try
             {
-                var uri = ConfigurationManager.AppSettings["ConfigControl"];
+                var uri = _configControlUri;
                 if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
                 var http = _httpClientProvider.Create(new Uri(uri));
 
@@ -397,7 +399,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
         {
             try
             {
-                var uri = ConfigurationManager.AppSettings["ConfigControl"];
+                var uri = _configControlUri;
                 if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
                 var http = _httpClientProvider.Create(new Uri(uri));
 

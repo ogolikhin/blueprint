@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using BluePrintSys.Messaging.CrossCutting.Helpers;
-using BluePrintSys.Messaging.Models.Actions;
+using ArtifactStore.Helpers;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Helpers.Validators;
@@ -33,13 +32,6 @@ namespace ArtifactStore.Executors
             _input = input;
             _sqlHelper = sqlHelper;
             _stateChangeExecutorRepositories = stateChangeExecutorRepositories;
-        }
-
-        class StateChangeResult
-        {
-            public QuerySingleResult<WorkflowState> Result { get; set; }
-
-            public IList<ActionMessage> ActionMessages { get; } = new List<ActionMessage>();
         }
 
         public async Task<QuerySingleResult<WorkflowState>> Execute()
@@ -97,203 +89,31 @@ namespace ArtifactStore.Executors
                 };
 
                 //Generate asynchronous messages for sending
-                GenerateMessages(triggers.AsynchronousTriggers, artifactInfo, artifactResultSet, publishRevision, result);
+                result.ActionMessages.AddRange(WorkflowEventsMessagesHelper.GenerateMessages(
+                    _userId,
+                    publishRevision,
+                    _input.UserName,
+                    triggers.AsynchronousTriggers, 
+                    artifactInfo,
+                    artifactResultSet?.Projects?.FirstOrDefault(d => d.Id == artifactInfo.ProjectId)?.Name,
+                    artifactResultSet?.ModifiedProperties,
+                    true
+                    ));
 
-                var tenantInfo = await _stateChangeExecutorRepositories.ApplicationSettingsRepository.GetTenantInfo();
-                if (string.IsNullOrWhiteSpace(tenantInfo?.TenantId))
-                {
-                    throw new TenantInfoNotFoundException("No tenant information found. Please contact your administrator.");
-                }
-
-                await ProcessMessages(tenantInfo.TenantId, result);
+                await WorkflowEventsMessagesHelper.ProcessMessages(LogSource,
+                    _stateChangeExecutorRepositories.ApplicationSettingsRepository,
+                    _stateChangeExecutorRepositories.ServiceLogRepository, 
+                    result.ActionMessages,
+                    $"Error on successful transition of artifact: {_input.ArtifactId} from {_input.FromStateId} to {_input.ToStateId}");
 
                 return result;
             };
             return action;
         }
 
-        private async Task ProcessMessages(string tenantId, StateChangeResult result)
-        {
-            if (result?.ActionMessages?.Count <= 0)
-            {
-                return;
-            }
-            foreach (var actionMessage in result.ActionMessages.Where(a => a != null))
-            {
-                try
-                {
-                    await WorkflowMessaging.Instance.SendMessageAsync(tenantId, actionMessage);
-                    string message = $"Sent {actionMessage.ActionType} message: {actionMessage.ToJSON()} with tenant id: {tenantId} to the Message queue";
-                    await
-                        _stateChangeExecutorRepositories.ServiceLogRepository.LogInformation(LogSource, message);
-                }
-                catch (Exception ex)
-                {
-                    string message =
-                        $"Error while sending {actionMessage.ActionType} message with content {actionMessage.ToJSON()} on successful transition of artifact: {_input.ArtifactId} from {_input.FromStateId} to {_input.ToStateId}. Exception: {ex.Message}. StackTrace: {ex.StackTrace ?? string.Empty}";
-                    await
-                        _stateChangeExecutorRepositories.ServiceLogRepository.LogError(LogSource, message);
-                    throw;
-                }
-            }
-        }
-
-        private void GenerateMessages(WorkflowEventTriggers postOpTriggers, VersionControlArtifactInfo artifactInfo,
-            ArtifactResultSet artifactResultSet, int publishRevision, StateChangeResult result)
-        {
-            var project = artifactResultSet?.Projects?.FirstOrDefault(d => d.Id == artifactInfo.ProjectId);
-            var baseHostUri = ServerUriHelper.GetBaseHostUri()?.ToString();
-
-            foreach (var workflowEventTrigger in postOpTriggers)
-            {
-                if (workflowEventTrigger?.Action == null)
-                {
-                    continue;
-                }
-                switch (workflowEventTrigger.ActionType)
-                {
-                    case MessageActionType.Notification:
-                        var notificationAction = workflowEventTrigger.Action as EmailNotificationAction;
-                        if (notificationAction == null)
-                        {
-                            continue;
-                        }
-                        var notificationMessage = GetNotificationMessage(artifactInfo, artifactResultSet, publishRevision,
-                            notificationAction);
-                        result.ActionMessages.Add(notificationMessage);
-                        break;
-                    case MessageActionType.GenerateChildren:
-                        var generateChildrenAction = workflowEventTrigger.Action as GenerateChildrenAction;
-                        if (generateChildrenAction == null)
-                        {
-                            continue;
-                        }
-                        var generateChildrenMessage = new GenerateDescendantsMessage
-                        {
-                            ChildCount = generateChildrenAction.ChildCount.GetValueOrDefault(10),
-                            DesiredArtifactTypeId = generateChildrenAction.ArtifactTypeId,
-                            ArtifactId = artifactInfo.Id,
-                            RevisionId = publishRevision,
-                            UserId = _userId,
-                            ProjectId = artifactInfo.ProjectId,
-                            UserName = _input.UserName,
-                            BaseHostUri = baseHostUri,
-                            ProjectName = project?.Name,
-                            TypePredefined = (int)artifactInfo.PredefinedType
-                        };
-                        result.ActionMessages.Add(generateChildrenMessage);
-                        break;
-                    case MessageActionType.GenerateTests:
-                        var generateTestsAction = workflowEventTrigger.Action as GenerateTestCasesAction;
-                        if (generateTestsAction == null || artifactInfo.PredefinedType != ItemTypePredefined.Process)
-                        {
-                            continue;
-                        }
-                        var generateTestsMessage = new GenerateTestsMessage
-                        {
-                            ArtifactId = artifactInfo.Id,
-                            RevisionId = publishRevision,
-                            UserId = _userId,
-                            ProjectId = artifactInfo.ProjectId,
-                            UserName = _input.UserName,
-                            BaseHostUri = baseHostUri,
-                            ProjectName = project?.Name
-                        };
-                        result.ActionMessages.Add(generateTestsMessage);
-                        break;
-                    case MessageActionType.GenerateUserStories:
-                        var generateUserStories = workflowEventTrigger.Action as GenerateUserStoriesAction;
-                        if (generateUserStories == null || artifactInfo.PredefinedType != ItemTypePredefined.Process)
-                        {
-                            continue;
-                        }
-                        var generateUserStoriesMessage = new GenerateUserStoriesMessage
-                        {
-                            ArtifactId = artifactInfo.Id,
-                            RevisionId = publishRevision,
-                            UserId = _userId,
-                            ProjectId = artifactInfo.ProjectId,
-                            UserName = _input.UserName,
-                            BaseHostUri = baseHostUri,
-                            ProjectName = project?.Name
-                        };
-                        result.ActionMessages.Add(generateUserStoriesMessage);
-                        break;
-                }
-            }
-
-            //Add published artifact message
-            var publishedMessage =
-                GetPublishedMessage(_userId, publishRevision, artifactInfo, artifactResultSet) as ArtifactsPublishedMessage;
-
-            if (publishedMessage?.Artifacts?.Count > 0)
-            {
-                result.ActionMessages.Add(publishedMessage);
-            }
-        }
-
-        private NotificationMessage GetNotificationMessage(VersionControlArtifactInfo artifactInfo,
-            ArtifactResultSet artifactResultSet, int publishRevision, EmailNotificationAction notificationAction)
-        {
-            var artifactPartUrl = ServerUriHelper.GetArtifactUrl(artifactInfo.Id, true);
-            if (artifactPartUrl == null)
-            {
-                return null;
-            }
-            var notificationMessage = new NotificationMessage
-            {
-                ArtifactName = artifactInfo.Name,
-                ProjectName = artifactResultSet.Projects?.FirstOrDefault(p => p.Id == artifactInfo.ProjectId)?.Name,
-                Subject = notificationAction.Subject,
-                From = notificationAction.FromDisplayName,
-                To = notificationAction.Emails,
-                MessageTemplate = notificationAction.Message,
-                RevisionId = publishRevision,
-                UserId = _userId,
-                ArtifactTypeId = artifactInfo.ItemTypeId,
-                ArtifactId = artifactInfo.Id,
-                ArtifactUrl = artifactPartUrl,
-                ArtifactTypePredefined = (int)artifactInfo.PredefinedType,
-                ProjectId = artifactInfo.ProjectId
-            };
-            return notificationMessage;
-        }
-
-        private ActionMessage GetPublishedMessage(int userId, int revisionId, VersionControlArtifactInfo artifactInfo, ArtifactResultSet artifactResultSet)
-        {
-            var message = new ArtifactsPublishedMessage
-            {
-                UserId = userId,
-                RevisionId = revisionId
-            };
-            var artifacts = new List<PublishedArtifactInformation>();
-            var artifact = new PublishedArtifactInformation
-            {
-                Id = artifactInfo.Id,
-                Name = artifactInfo.Name,
-                Predefined = (int)artifactInfo.PredefinedType,
-                IsFirstTimePublished = false, //State change always occurs on published artifacts
-                ProjectId = artifactInfo.ProjectId,
-                Url = ServerUriHelper.GetArtifactUrl(artifactInfo.Id, true),
-                ModifiedProperties = new List<PublishedPropertyInformation>()
-            };
-
-            IList<Property> modifiedProperties;
-            if (artifactResultSet?.ModifiedProperties?.Count > 0 && artifactResultSet.ModifiedProperties.TryGetValue(artifactInfo.Id, out modifiedProperties) && modifiedProperties?.Count > 0)
-            {
-                artifact.ModifiedProperties.AddRange(modifiedProperties.Select(p => new PublishedPropertyInformation
-                {
-                    TypeId = p.PropertyTypeId,
-                    PredefinedType = (int)p.Predefined
-                }));
-                //Only add artifact to list if there is a list of modified properties
-                artifacts.Add(artifact);
-            }
-
-            message.Artifacts = artifacts;
-            return message;
-        }
-
+        
+        
+        
         private async Task<ExecutionParameters> BuildTriggerExecutionParameters(VersionControlArtifactInfo artifactInfo, WorkflowEventTriggers triggers, IDbTransaction transaction = null)
         {
             if (triggers.IsEmpty())
@@ -316,7 +136,7 @@ namespace ArtifactStore.Executors
             }
             var customItemTypeToPropertiesMap = await LoadCustomPropertyInformation(new[] { instanceItemTypeId.Value }, triggers, artifactInfo.ProjectId);
 
-            var propertyTypes = new List<DPropertyType>();
+            var propertyTypes = new List<WorkflowPropertyType>();
             if (customItemTypeToPropertiesMap.ContainsKey(artifactInfo.ItemTypeId))
             {
                 propertyTypes = customItemTypeToPropertiesMap[artifactInfo.ItemTypeId];
@@ -437,12 +257,12 @@ namespace ArtifactStore.Executors
             return reuseTemplateSettings;
         }
 
-        private async Task<Dictionary<int, List<DPropertyType>>> LoadCustomPropertyInformation(IEnumerable<int> instanceItemTypeIds, WorkflowEventTriggers triggers, int projectId)
+        private async Task<Dictionary<int, List<WorkflowPropertyType>>> LoadCustomPropertyInformation(IEnumerable<int> instanceItemTypeIds, WorkflowEventTriggers triggers, int projectId)
         {
             var propertyChangeActions = triggers.Select(t => t.Action).OfType<PropertyChangeAction>().ToList();
             if (propertyChangeActions.Count == 0)
             {
-                return new Dictionary<int, List<DPropertyType>>();
+                return new Dictionary<int, List<WorkflowPropertyType>>();
             }
 
             var instancePropertyTypeIds = propertyChangeActions.Select(b => b.InstancePropertyTypeId);
@@ -456,8 +276,17 @@ namespace ArtifactStore.Executors
             var userIds = userGroups.Where(u => !u.IsGroup.GetValueOrDefault(false) && u.Id.HasValue).Select(u => u.Id.Value).ToHashSet();
             var groupIds = userGroups.Where(u => u.IsGroup.GetValueOrDefault(false) && u.Id.HasValue).Select(u => u.Id.Value).ToHashSet();
 
-            var users = await _stateChangeExecutorRepositories.UsersRepository.GetExistingUsersByIdsAsync(userIds);
-            var groups = await _stateChangeExecutorRepositories.UsersRepository.GetExistingGroupsByIds(groupIds, false);
+            var users = new List<SqlUser>();
+            if (userIds.Any())
+            {
+                users.AddRange(await _stateChangeExecutorRepositories.UsersRepository.GetExistingUsersByIdsAsync(userIds));
+            }
+            var groups = new List<SqlGroup>();
+            if (groupIds.Any())
+            {
+                groups.AddRange(
+                    await _stateChangeExecutorRepositories.UsersRepository.GetExistingGroupsByIds(groupIds, false));
+            }
 
             return new Tuple<IEnumerable<SqlUser>, IEnumerable<SqlGroup>>(users, groups);
         }

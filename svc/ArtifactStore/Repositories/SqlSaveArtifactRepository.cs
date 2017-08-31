@@ -35,7 +35,7 @@ namespace ArtifactStore.Repositories
         public async Task SavePropertyChangeActions(
             int userId,
             IEnumerable<IPropertyChangeAction> actions,
-            IEnumerable<DPropertyType> propertyTypes,
+            IEnumerable<WorkflowPropertyType> propertyTypes,
             VersionControlArtifactInfo artifact,
             IDbTransaction transaction = null)
         {
@@ -65,7 +65,7 @@ namespace ArtifactStore.Repositories
 
         private DataTable PopulateSavePropertyValueVersionsTable(
             IEnumerable<IPropertyChangeAction> actions,
-            IEnumerable<DPropertyType> propertyTypes,
+            IEnumerable<WorkflowPropertyType> propertyTypes,
             VersionControlArtifactInfo artifact)
         {
             DataTable propertyValueVersionsTable = new DataTable();
@@ -94,21 +94,21 @@ namespace ArtifactStore.Repositories
                 var propertyType =
                     propertyTypes.FirstOrDefault(a => a.InstancePropertyTypeId == action.InstancePropertyTypeId);
 
-                var customPropertyChar = GetCustomPropertyChar(propertyType);
+                var customPropertyChar = GetCustomPropertyChar(action.PropertyLiteValue, propertyType);
                 var searchableValue = GetSearchableValue(action.PropertyLiteValue, propertyType);
 
-                if (propertyType is DNumberPropertyType)
+                if (propertyType is NumberPropertyType)
                 {
                     propertyValueVersionsTable.Rows.Add(propertyType.PropertyTypeId, false,
                         artifact.ProjectId, artifact.Id, artifact.Id, (int) propertyType.Predefined,
                         //
                         (int) PropertyPrimitiveType.Number,
-                        PropertyHelper.GetBytes(action.PropertyLiteValue.NumberValue.GetValueOrDefault(0)),
+                        PropertyHelper.GetBytes(action.PropertyLiteValue.NumberValue),
                         null, null, null, null, null,
                         //
                         customPropertyChar, propertyType.PropertyTypeId, searchableValue);
                 }
-                else if (propertyType is DDatePropertyType)
+                else if (propertyType is DatePropertyType)
                 {
                     propertyValueVersionsTable.Rows.Add(propertyType.PropertyTypeId, false,
                         artifact.ProjectId, artifact.Id, artifact.Id, (int)propertyType.Predefined,
@@ -120,7 +120,7 @@ namespace ArtifactStore.Repositories
                         //
                         customPropertyChar, propertyType.PropertyTypeId, searchableValue);
                 }
-                else if (propertyType is DUserPropertyType)
+                else if (propertyType is UserPropertyType)
                 {
                     propertyValueVersionsTable.Rows.Add(propertyType.PropertyTypeId, false,
                         artifact.ProjectId, artifact.Id, artifact.Id, (int) propertyType.Predefined,
@@ -130,6 +130,16 @@ namespace ArtifactStore.Repositories
                         PropertyHelper.ParseUserGroupsToString(action.PropertyLiteValue.UsersAndGroups), null, null,
                         null,
                         //
+                        customPropertyChar, propertyType.PropertyTypeId, searchableValue);
+                }
+                else if (propertyType is ChoicePropertyType)
+                {
+                    propertyValueVersionsTable.Rows.Add(propertyType.PropertyTypeId, false,
+                        artifact.ProjectId, artifact.Id, artifact.Id, (int)propertyType.Predefined,
+                        //
+                        (int)PropertyPrimitiveType.Choice,
+                        null, null, null, null, action.PropertyLiteValue.TextOrChoiceValue, null,
+                        // 
                         customPropertyChar, propertyType.PropertyTypeId, searchableValue);
                 }
             }
@@ -146,7 +156,7 @@ namespace ArtifactStore.Repositories
             return propertyValueImagesTable;
         }
 
-        private static string GetCustomPropertyChar( /*DPropertyValue propertyValue,*/ DPropertyType propertyType)
+        private static string GetCustomPropertyChar(PropertyLite propertyValue, WorkflowPropertyType propertyType)
         {
             //BluePrintSys.RC.CrossCutting.Logging.Log.Assert(
             //    (propertyValue != null) && propertyValue.SaveState.HasFlag(NodeSaveState.MemoryNode));
@@ -157,11 +167,11 @@ namespace ArtifactStore.Repositories
                 return null;
             }
             PropertyPrimitiveType primitiveType;
-            if (propertyType is DNumberPropertyType)
+            if (propertyType is NumberPropertyType)
             {
                 primitiveType = PropertyPrimitiveType.Number;
             }
-            else if (propertyType is DDatePropertyType)
+            else if (propertyType is DatePropertyType)
             {
                 primitiveType = PropertyPrimitiveType.Date;
             }
@@ -169,14 +179,14 @@ namespace ArtifactStore.Repositories
             //{
             //    primitiveType = PropertyPrimitiveType.Text;
             //}
-            else if (propertyType is DUserPropertyType)
+            else if (propertyType is UserPropertyType)
             {
                 primitiveType = PropertyPrimitiveType.User;
             }
-            //else if (propertyValue is DChoicePropertyValue)
-            //{
-            //    primitiveType = PropertyPrimitiveType.Choice;
-            //}
+            else if (propertyType is ChoicePropertyType)
+            {
+                primitiveType = PropertyPrimitiveType.Choice;
+            }
             //else if (propertyValue is DImagePropertyValue)
             //{
             //    primitiveType = PropertyPrimitiveType.Image;
@@ -188,22 +198,24 @@ namespace ArtifactStore.Repositories
             }
             XmlCustomProperties customProperties = new XmlCustomProperties();
             XmlCustomProperty customProperty = XmlCustomProperty.CreateAsValue(propertyType.PropertyTypeId,
-                (int) primitiveType);
+                (int)primitiveType);
             customProperties.CustomProperties.Add(customProperty);
-            //if (propertyValue is DChoicePropertyValue)
-            //{
-            //    List<XmlCustomPropertyValidValue> validValues = customProperty.ValidValues;
-            //    foreach (DLookupListItem lookupListItem in propertyValue.NodeChildren.OfType<DLookupListItem>())
-            //    {
-            //        BluePrintSys.RC.CrossCutting.Logging.Log.Assert(lookupListItem.SaveState.HasFlag(NodeSaveState.Node));
-            //        XmlCustomPropertyValidValue validValue = XmlCustomPropertyValidValue.CreateAsValue(lookupListItem.Id);
-            //        validValues.Add(validValue);
-            //    }
-            //}
+            if (propertyType is ChoicePropertyType)
+            {
+                List<XmlCustomPropertyValidValue> validValues = customProperty.ValidValues;
+                foreach (int choiceId in propertyValue.ChoiceIds)
+                {
+                    var customChoice = (propertyType as ChoicePropertyType).ValidValues
+                                       .Where(v => v.Sid.Value == choiceId)
+                                       .Select(v => v.Id).FirstOrDefault().Value;
+                    XmlCustomPropertyValidValue validValue = XmlCustomPropertyValidValue.CreateAsValue(customChoice);
+                    validValues.Add(validValue);
+                }
+            }
             return XmlModelSerializer.SerializeCustomProperties(customProperties);
         }
 
-        private static string GetSearchableValue(PropertyLite propertyLite, DPropertyType propertyType)
+        private static string GetSearchableValue(PropertyLite propertyLite, WorkflowPropertyType propertyType)
         {
             //if (propertyValue is DTextPropertyValue)
             //{
@@ -224,11 +236,11 @@ namespace ArtifactStore.Repositories
             //            return null;
             //    }
             //}
-            if (propertyType is DNumberPropertyType)
+            if (propertyType is NumberPropertyType)
             {
                 return null;
             }
-            if (propertyType is DDatePropertyType)
+            if (propertyType is DatePropertyType)
             {
                 return null;
             }
@@ -240,10 +252,10 @@ namespace ArtifactStore.Repositories
             //{
             //    return null;
             //}
-            //if (propertyValue is DChoicePropertyValue)
-            //{
-            //    return null;
-            //}
+            if (propertyType is ChoicePropertyType)
+            {
+                return null;
+            }
             //if (propertyValue is DImagePropertyValue)
             //{
             //    return null;

@@ -5,20 +5,25 @@ using ServiceLibrary.Helpers.Validators;
 
 namespace ServiceLibrary.Models.PropertyType
 {
-    public class NumberPropertyValidator : PropertyValidator<DNumberPropertyType>
+    public class NumberPropertyValidator : PropertyValidator<NumberPropertyType>
     {
-        protected override PropertySetResult Validate(PropertyLite property, DNumberPropertyType propertyType, IValidationContext validationContext)
+        protected override PropertySetResult Validate(PropertyLite property, NumberPropertyType propertyType, IValidationContext validationContext)
         {
-            decimal value = property.NumberValue.Value;
             if (IsPropertyValueEmpty(property, propertyType))
                 return null;
 
+            decimal value = property.NumberValue.Value;
+            if (!propertyType.IsValidate)
+            {
+                return null;
+            }
+
             //Maximum.
-            if (propertyType.IsValidate && value.CompareTo(propertyType.Range.End) > 0)
+            if (value.CompareTo(propertyType.Range.End) > 0)
                 return new PropertySetResult(property.PropertyTypeId, ErrorCodes.InvalidArtifactProperty, "Must be less than max value");
 
             //Minimum.
-            if (propertyType.IsValidate && value.CompareTo(propertyType.Range.Start) < 0)
+            if (value.CompareTo(propertyType.Range.Start) < 0)
                 return new PropertySetResult(property.PropertyTypeId, ErrorCodes.InvalidArtifactProperty, "Must be greater than min value");
 
             //Decimal places.
@@ -35,7 +40,7 @@ namespace ServiceLibrary.Models.PropertyType
         /// <summary>
         /// Determines whether the property value is empty.
         /// </summary>
-        protected override bool IsPropertyValueEmpty(PropertyLite property, DNumberPropertyType propertyType)
+        protected override bool IsPropertyValueEmpty(PropertyLite property, NumberPropertyType propertyType)
         {
             return !property.NumberValue.HasValue;
         }

@@ -3,11 +3,11 @@ using System.Threading.Tasks;
 using BluePrintSys.Messaging.CrossCutting.Configuration;
 using BluePrintSys.Messaging.CrossCutting.Host;
 using BluePrintSys.Messaging.CrossCutting.Logging;
-using NServiceBus;
+using ServiceLibrary.Models.Workflow;
 
 namespace BluePrintSys.Messaging.CrossCutting.Helpers
 {
-    public delegate Task SendMessageAsyncDelegate(string tenantId, IMessage message);
+    public delegate Task SendMessageAsyncDelegate(string tenantId, IWorkflowMessage message);
 
     public class WorkflowMessaging
     {
@@ -31,7 +31,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Helpers
             Log.Debug("Workflow Messaging: Finished opening the endpoint.");
         }
 
-        public async Task SendMessageAsync(string tenantId, IMessage message)
+        public async Task SendMessageAsync(string tenantId, IWorkflowMessage message)
         {
             await _messageTransportHost.SendAsync(tenantId, message);
         }

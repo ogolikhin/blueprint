@@ -647,6 +647,7 @@ namespace AdminStore.Services.Instance
             Assert.AreEqual(_emailSettings.UserName, emailSettingsDto.Outgoing.AccountUsername);
             Assert.AreEqual(_emailSettings.SenderEmailAddress, emailSettingsDto.Outgoing.AccountEmailAddress);
             Assert.AreEqual(false, emailSettingsDto.Outgoing.IsPasswordDirty);
+            Assert.AreEqual(true, emailSettingsDto.Outgoing.HasPassword);
 
             Assert.AreEqual(_emailSettings.IncomingHostName, emailSettingsDto.Incoming.ServerAddress);
             Assert.AreEqual(_emailSettings.IncomingPort, emailSettingsDto.Incoming.Port);
@@ -655,6 +656,7 @@ namespace AdminStore.Services.Instance
             Assert.AreEqual(_emailSettings.IncomingUserName, emailSettingsDto.Incoming.AccountUsername);
             Assert.AreEqual(null, emailSettingsDto.Incoming.AccountPassword);
             Assert.AreEqual(false, emailSettingsDto.Incoming.IsPasswordDirty);
+            Assert.AreEqual(true, emailSettingsDto.Incoming.HasPassword);
 
             Assert.AreEqual(_emailSettings.EnableNotifications, emailSettingsDto.EnableReviewNotifications);
             Assert.AreEqual(_emailSettings.EnableEmailDiscussion, emailSettingsDto.EnableEmailNotifications);

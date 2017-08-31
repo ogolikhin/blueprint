@@ -8,7 +8,7 @@ namespace ServiceLibrary.Models.Workflow
     {
         public async Task<IDictionary<string, string>> ProcessTriggers(IExecutionParameters executionParameters)
         {
-            var errors = await Execute(executionParameters);
+            var errors = ValidateActions(executionParameters);
             if (errors.Keys.Any())
             {
                 return errors;
@@ -22,12 +22,12 @@ namespace ServiceLibrary.Models.Workflow
             return Task.Run(() => { });
         }
 
-        protected async Task<Dictionary<string, string>> Execute(IExecutionParameters executionParameters)
+        protected Dictionary<string, string> ValidateActions(IExecutionParameters executionParameters)
         {
             var result = new Dictionary<string, string>();
             foreach (var triggerExecutor in this)
             {
-                if (!await triggerExecutor.Action.Execute(executionParameters))
+                if (!triggerExecutor.Action.ValidateAction(executionParameters))
                 {
                     if (!result.ContainsKey(triggerExecutor.Name))
                     {

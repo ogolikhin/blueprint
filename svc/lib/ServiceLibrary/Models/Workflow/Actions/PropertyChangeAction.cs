@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq;
-using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.ProjectMeta;
@@ -17,6 +16,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
         public string PropertyValue { get; set; }
 
         public PropertyLite PropertyLiteValue { get; protected set; }
+
         public List<int> ValidValues { get; } = new List<int>();
 
         public override MessageActionType ActionType { get; } = MessageActionType.PropertyChange;

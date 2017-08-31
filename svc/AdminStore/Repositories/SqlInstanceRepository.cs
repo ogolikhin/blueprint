@@ -31,18 +31,19 @@ namespace AdminStore.Repositories
 
         #region folders
 
-        public async Task<InstanceItem> GetInstanceFolderAsync(int folderId, int userId)
+        public async Task<InstanceItem> GetInstanceFolderAsync(int folderId, int userId, bool fromAdminPortal = false)
         {
             if (folderId < 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(folderId));
             }
 
-            var prm = new DynamicParameters();
-            prm.Add("@folderId", folderId);
-            prm.Add("@userId", userId);
+            var parameters = new DynamicParameters();
+            parameters.Add("@folderId", folderId);
+            parameters.Add("@userId", userId);
+            parameters.Add("@fromAdminPortal", fromAdminPortal);
 
-            var folder = (await _connectionWrapper.QueryAsync<InstanceItem>("GetInstanceFolderById", prm, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
+            var folder = (await _connectionWrapper.QueryAsync<InstanceItem>("GetInstanceFolderById", parameters, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
             if (folder == null)
             {
                 throw new ResourceNotFoundException(string.Format("Instance Folder (Id:{0}) is not found.", folderId), ErrorCodes.ResourceNotFound);

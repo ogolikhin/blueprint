@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
 using ServiceLibrary.Models.Enums;
 
 namespace ServiceLibrary.Models.Workflow.Actions
@@ -22,9 +21,9 @@ namespace ServiceLibrary.Models.Workflow.Actions
 
         public override MessageActionType ActionType { get; } = MessageActionType.Notification;
 
-        public override async Task<bool> Execute(IExecutionParameters executionParameters)
+        public override bool ValidateAction(IExecutionParameters executionParameters)
         {
-            return await Task.FromResult(true);
+            return true;
         }
     }
 

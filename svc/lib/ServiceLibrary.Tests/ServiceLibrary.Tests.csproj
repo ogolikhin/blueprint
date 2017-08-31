@@ -96,6 +96,7 @@
     <Compile Include="Exceptions\AuthorizationExceptionTests.cs" />
     <Compile Include="Helpers\Cache\AsyncCacheTests.cs" />
     <Compile Include="Helpers\HttpFilterHelper.cs" />
+    <Compile Include="Helpers\PropertyHelperTests.cs" />
     <Compile Include="Helpers\SqlHelperMock.cs" />
     <Compile Include="Helpers\TestHttpClientProvider.cs" />
     <Compile Include="Helpers\TestsForHelpers\CacheHelperTests.cs" />
@@ -114,6 +115,8 @@
     <Compile Include="Models\LicenseTransactionTests.cs" />
     <Compile Include="Models\PaginationExtensionsTests.cs" />
     <Compile Include="Models\Workflow\Actions\PropertyChangeActionTests.cs" />
+    <Compile Include="Models\Workflow\Actions\PropertyChangeActionTests.Number.cs" />
+    <Compile Include="Models\Workflow\Actions\PropertyChangeActionTests.User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\ApplicationSettingsRepositoryTests.cs" />
     <Compile Include="Repositories\ArtifactPermissionsRepositoryTests.cs" />

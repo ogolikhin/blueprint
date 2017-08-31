@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using ServiceLibrary.Models.Enums;
+﻿using ServiceLibrary.Models.Enums;
 
 namespace ServiceLibrary.Models.Workflow
 {
@@ -7,6 +6,6 @@ namespace ServiceLibrary.Models.Workflow
     {
         public abstract MessageActionType ActionType { get; }
 
-        public abstract Task<bool> Execute(IExecutionParameters executionParameters);
+        public abstract bool ValidateAction(IExecutionParameters executionParameters);
     }
 }

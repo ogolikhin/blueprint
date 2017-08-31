@@ -621,7 +621,8 @@ namespace AdminStore.Services.Workflow
             var workflowStates = (await _workflowRepository.GetWorkflowStatesAsync(workflowId)).ToList();
             var workflowEvents = (await _workflowRepository.GetWorkflowEventsAsync(workflowId)).ToList();
 
-            var dataMaps = await LoadDataMapsAsync(workflowDetails.WorkflowId, standardTypes);
+            var dataMaps = LoadDataMaps(standardTypes,
+                workflowStates.ToDictionary(s => s.WorkflowStateId, s => s.Name));
             var userIds = new HashSet<int>();
             var groupIds = new HashSet<int>();
 
@@ -642,7 +643,10 @@ namespace AdminStore.Services.Workflow
                         })
                         .Distinct()
                         .ToList(),
-                TransitionEvents = workflowEvents.Where(e => e.Type == (int) DWorkflowEventType.Transition).
+                // Do not include Transition if FromState or ToState is not found.
+                TransitionEvents = workflowEvents.Where(e => e.Type == (int) DWorkflowEventType.Transition
+                    && e.FromStateId.HasValue && dataMaps.StateMap.ContainsKey(e.FromStateId.Value)
+                    && e.ToStateId.HasValue && dataMaps.StateMap.ContainsKey(e.ToStateId.Value)).
                     Select(e => new IeTransitionEvent
                     {
                         Id = e.WorkflowEventId,
@@ -655,7 +659,10 @@ namespace AdminStore.Services.Workflow
                         SkipPermissionGroups = GetSkipPermissionGroup(e.Permissions),
                         Triggers = DeserializeTriggers(e.Triggers, dataMaps, userIds, groupIds)
                     }).Distinct().ToList(),
-                PropertyChangeEvents = workflowEvents.Where(e => e.Type == (int) DWorkflowEventType.PropertyChange).
+                // Do not include PropertyChangeEvent if PropertyType is not found.
+                PropertyChangeEvents = workflowEvents.Where(e => e.Type == (int) DWorkflowEventType.PropertyChange
+                    && e.PropertyTypeId.HasValue && (dataMaps.PropertyTypeMap.ContainsKey(e.PropertyTypeId.Value)
+                    || WorkflowHelper.IsNameOrDescriptionProperty(e.PropertyTypeId.Value))).
                     Select(e => new IePropertyChangeEvent
                     {
                         Id = e.WorkflowEventId,
@@ -675,6 +682,9 @@ namespace AdminStore.Services.Workflow
             };
 
             await UpdateUserAndGroupInfo(ieWorkflow, userIds, groupIds);
+            // Remove Property Change and New Artifact events if they do not have any triggers.
+            ieWorkflow.PropertyChangeEvents.RemoveAll(e => e.Triggers.IsEmpty());
+            ieWorkflow.NewArtifactEvents.RemoveAll(e => e.Triggers.IsEmpty());
 
             return WorkflowHelper.NormalizeWorkflow(ieWorkflow);
         }
@@ -692,15 +702,16 @@ namespace AdminStore.Services.Workflow
 
         private static List<IeProject> GetProjects(IEnumerable<SqlWorkflowArtifactTypes> wpa)
         {
-            var wprojects = wpa.GroupBy(g => g.ProjectId).Select(w => w).ToList();
+            var listWpa = wpa.ToList();
+            var wprojects = listWpa.GroupBy(g => g.ProjectId).Select(w => w).ToList();
 
-            List<IeProject> projects = new List<IeProject>();
-            foreach (var w in wprojects)
+            var projects = new List<IeProject>();
+            wprojects.ForEach(w =>
             {
                 var project = new IeProject
                 {
                     Id = w.Key,
-                    ArtifactTypes = wpa.Where(p => p.ProjectId == w.Key).
+                    ArtifactTypes = listWpa.Where(p => p.ProjectId == w.Key).
                         Select(a => new IeArtifactType
                         {
                             Id = a.ArtifactTypeId,
@@ -708,8 +719,7 @@ namespace AdminStore.Services.Workflow
                         }).Distinct().ToList()
                 };
                 projects.Add(project);
-            }
-            ;
+            });
             return projects;
         }
 
@@ -753,15 +763,14 @@ namespace AdminStore.Services.Workflow
 
             var ieTriggers = _triggerConverter.FromXmlModel(xmlTriggers, dataMaps, userIdsToCollect, groupIdsToCollect).ToList();
 
-            return ieTriggers;
+            return ieTriggers.IsEmpty() ? null : ieTriggers;
         }
 
-        private async Task<WorkflowDataNameMaps> LoadDataMapsAsync(int workflowId, ProjectTypes standardTypes)
+        private static WorkflowDataNameMaps LoadDataMaps(ProjectTypes standardTypes, IDictionary<int, string>  stateMap)
         {
             var dataMaps = new WorkflowDataNameMaps();
-
-            dataMaps.StateMap.AddRange(await GetStatesMapAsync(workflowId));
-
+            dataMaps.StateMap.AddRange(stateMap);
+            
             standardTypes.ArtifactTypes.ForEach(t => dataMaps.ArtifactTypeMap.Add(t.Id, t.Name));
             standardTypes.PropertyTypes.ForEach(t => dataMaps.PropertyTypeMap.Add(t.Id, t.Name));
             standardTypes.PropertyTypes.Where(t => t.PrimitiveType == PropertyPrimitiveType.Choice)
@@ -769,16 +778,6 @@ namespace AdminStore.Services.Workflow
                 .ForEach(vv => dataMaps.ValidValueMap.Add(vv.Id.Value, vv.Value)));
 
             return dataMaps;
-        }
-
-        private async Task<Dictionary<int, string>> GetStatesMapAsync(int workflowId)
-        {
-            var map = new Dictionary<int, string>();
-
-            var states = await _workflowRepository.GetWorkflowStatesMapAsync(workflowId);
-            states?.ForEach(s => map.Add(s.Id, s.Name));
-
-            return map;
         }
 
         #region UpdateUserAndGroupInfo
@@ -796,6 +795,7 @@ namespace AdminStore.Services.Workflow
 
         private static void UpdateUserAndGroupInfo(IeWorkflow workflow, IDictionary<int, string> userMap, IDictionary<int, Tuple<string, int?>> groupMap)
         {
+            var notFoundIds = new HashSet<int>();
             workflow.TransitionEvents?.ForEach(t =>
             {
                 t?.PermissionGroups?.ForEach(g =>
@@ -809,8 +809,13 @@ namespace AdminStore.Services.Workflow
                     {
                         g.Name = groupInfo.Item1;
                     }
+                    else
+                    {
+                        notFoundIds.Add(g.Id.Value);
+                    }
                 });
             });
+            workflow.TransitionEvents?.ForEach(t => t?.PermissionGroups?.RemoveAll(g => g.Id.HasValue && notFoundIds.Contains(g.Id.Value)));
 
             workflow.TransitionEvents?.ForEach(te => UpdateUserAndGroupInfo(te, userMap, groupMap));
             workflow.PropertyChangeEvents?.ForEach(pce => UpdateUserAndGroupInfo(pce, userMap, groupMap));
@@ -819,6 +824,8 @@ namespace AdminStore.Services.Workflow
 
         private static void UpdateUserAndGroupInfo(IeEvent wEvent, IDictionary<int, string> userMap, IDictionary<int, Tuple<string, int?>> groupMap)
         {
+            var notFoundGroupIds = new HashSet<int>();
+            var notFoundUserIds = new HashSet<int>();
             wEvent?.Triggers?.ForEach(t =>
             {
                 if (t?.Action?.ActionType == ActionTypes.PropertyChange)
@@ -838,15 +845,30 @@ namespace AdminStore.Services.Workflow
                                 ug.Name = groupInfo.Item1;
                                 ug.GroupProjectId = groupInfo.Item2;
                             }
+                            else
+                            {
+                                notFoundGroupIds.Add(ug.Id.Value);
+                            }
                         }
                         else
                         {
                             string name;
-                            ug.Name = userMap.TryGetValue(ug.Id.Value, out name) ? name : null;
+                            if (userMap.TryGetValue(ug.Id.Value, out name))
+                            {
+                                ug.Name = name;
+                            }
+                            else
+                            {
+                                notFoundUserIds.Add(ug.Id.Value);
+                            }
                         }
                     });
                 }
             });
+            wEvent?.Triggers?.Where(t => t?.Action?.ActionType == ActionTypes.PropertyChange).Select(t => t.Action)
+                .OfType<IePropertyChangeAction>().ForEach(a => a?.UsersGroups?.UsersGroups?.RemoveAll(ug =>
+                ug.Id.HasValue && ((ug.IsGroup.GetValueOrDefault() && notFoundGroupIds.Contains(ug.Id.Value))
+                || (!ug.IsGroup.GetValueOrDefault() && notFoundUserIds.Contains(ug.Id.Value)))));
         }
 
         #endregion

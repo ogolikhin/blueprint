@@ -58,30 +58,24 @@ namespace AdminStore.Services.Instance
         {
             if (emailSettingsDto.Incoming == null)
             {
-                throw new BadRequestException("Incoming cannot be null.", ErrorCodes.OutOfRangeParameter);
+                throw new BadRequestException("Incoming cannot be null.", ErrorCodes.InvalidParameter);
             }
 
             if (emailSettingsDto.Outgoing == null)
             {
-                throw new BadRequestException("Outgoing cannot be null.", ErrorCodes.OutOfRangeParameter);
+                throw new BadRequestException("Outgoing cannot be null.", ErrorCodes.InvalidParameter);
             }
 
             await _privilegesManager.Demand(userId, InstanceAdminPrivileges.ManageInstanceSettings);
 
             if (!emailSettingsDto.EnableEmailNotifications && emailSettingsDto.EnableDiscussions)
             {
-                throw new BadRequestException("Cannot enable discussions without enabling email notifications", ErrorCodes.CannotEnableDiscussions);
+                throw new BadRequestException("Cannot enable discussions without enabling email notifications.", ErrorCodes.CannotEnableDiscussions);
             }
 
-            if (emailSettingsDto.EnableDiscussions)
-            {
-                VerifyIncomingSettings(emailSettingsDto.Incoming);
-            }
+            VerifyIncomingSettings(emailSettingsDto.Incoming, emailSettingsDto.EnableDiscussions);
 
-            if (emailSettingsDto.EnableReviewNotifications || emailSettingsDto.EnableEmailNotifications)
-            {
-                VerifyOutgoingSettings(emailSettingsDto.Outgoing);
-            }
+            VerifyOutgoingSettings(emailSettingsDto.Outgoing);
 
             var emailSettings = await _instanceSettingsRepository.GetEmailSettings();
 
@@ -200,7 +194,7 @@ namespace AdminStore.Services.Instance
                     throw new BadRequestException("Please enter the SMTP administrator username.", ErrorCodes.EmptySmtpAdministratorUsername);
                 }
 
-                if (string.IsNullOrWhiteSpace(outgoingSettings.AccountPassword))
+                if (outgoingSettings.IsPasswordDirty && string.IsNullOrWhiteSpace(outgoingSettings.AccountPassword))
                 {
                     throw new BadRequestException("Please enter the SMTP administrator password.", ErrorCodes.EmptySmtpAdministratorPassword);
                 }
@@ -211,25 +205,15 @@ namespace AdminStore.Services.Instance
         {
             await _privilegesManager.Demand(userId, InstanceAdminPrivileges.ManageInstanceSettings);
 
-            VerifyIncomingSettings(incomingSettings);
+            VerifyIncomingSettings(incomingSettings, true);
 
             var emailClientConfig = await GetEmailClientConfig(incomingSettings);
 
             _incomingEmailService.TryConnect(emailClientConfig);
         }
 
-        private void VerifyIncomingSettings(EmailIncomingSettings incomingSettings)
+        private void VerifyIncomingSettings(EmailIncomingSettings incomingSettings, bool discussionsEnabled)
         {
-            if (string.IsNullOrWhiteSpace(incomingSettings.ServerAddress))
-            {
-                throw new BadRequestException("Please enter a mail server.", ErrorCodes.IncomingEmptyMailServer);
-            }
-
-            if (incomingSettings.Port < 1 || incomingSettings.Port > 65535)
-            {
-                throw new BadRequestException("Ensure the port number is between 1 and 65535.", ErrorCodes.IncomingPortOutOfRange);
-            }
-
             if (string.IsNullOrWhiteSpace(incomingSettings.AccountUsername))
             {
                 throw new BadRequestException("Please enter the system email account username.", ErrorCodes.EmptyEmailUsername);
@@ -238,6 +222,21 @@ namespace AdminStore.Services.Instance
             if (incomingSettings.IsPasswordDirty && string.IsNullOrWhiteSpace(incomingSettings.AccountPassword))
             {
                 throw new BadRequestException("Please enter the system email account password.", ErrorCodes.EmptyEmailPassword);
+            }
+
+            if (!discussionsEnabled)
+            {
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(incomingSettings.ServerAddress))
+            {
+                throw new BadRequestException("Please enter a mail server.", ErrorCodes.IncomingEmptyMailServer);
+            }
+
+            if (incomingSettings.Port < 1 || incomingSettings.Port > 65535)
+            {
+                throw new BadRequestException("Ensure the port number is between 1 and 65535.", ErrorCodes.IncomingPortOutOfRange);
             }
         }
 

@@ -181,17 +181,6 @@ namespace AdminStore.Repositories.Workflow
 
             return result;
         }
-
-        public async Task<IEnumerable<SqlWorkflowMapItem>> GetWorkflowStatesMapAsync(int workflowId)
-        {
-            var parameters = new DynamicParameters();
-            parameters.Add("WorkflowId", workflowId);
-            var result = await _connectionWrapper.QueryAsync<SqlState>("GetWorkflowStatesById", parameters, commandType: CommandType.StoredProcedure);
-
-            var statesMap = result.Select(r => new SqlWorkflowMapItem { Id = r.WorkflowStateId, Name = r.Name });
-
-            return statesMap;
-        }
         
         public async Task<IEnumerable<SqlWorkflowEventData>> GetWorkflowEventsAsync(int workflowId)
         {

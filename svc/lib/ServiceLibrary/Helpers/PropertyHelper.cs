@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Workflow;
 
 namespace ServiceLibrary.Helpers
 {
@@ -76,7 +77,26 @@ namespace ServiceLibrary.Helpers
             Array.Copy(BitConverter.GetBytes(bits[3]), 0, bytes, 12, 4);
             return bytes;
         }
+        
+        public static DateTime ParseDateValue(string dateValue, ITimeProvider timeProvider)
+        {
+            //specific date
+            const string dateFormat = WorkflowConstants.Iso8601DateFormat;
+            DateTime date;
+            if (DateTime.TryParseExact(dateValue, dateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
+            {
+                return date;
+            }
 
+            //today + days
+            int days;
+            if (int.TryParse(dateValue, out days))
+            {
+                return timeProvider.Today.AddDays(days);
+            }
+
+            throw new FormatException($"Invalid date value: {dateValue}. The date format must be {dateFormat}, or an integer.");
+        }
 
         private static string GetCanonicalSetString(ICollection<string> values)
         {

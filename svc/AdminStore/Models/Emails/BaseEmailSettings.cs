@@ -14,5 +14,6 @@ namespace AdminStore.Models.Emails
         public string AccountUsername { get; set; }
         public string AccountPassword { get; set; }
         public bool IsPasswordDirty { get; set; }
+        public bool HasPassword { get; set; }
     }
 }

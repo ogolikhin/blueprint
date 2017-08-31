@@ -1040,23 +1040,27 @@ namespace AdminStore.Repositories
             cxn.Verify();
         }
 
-
         [TestMethod]
         [ExpectedException(typeof(ResourceNotFoundException))]
-        public async Task GetProjectRolesAsync_RolesNotFound_NotFoundError()
+        public async Task GetProjectRolesAsync_ProjectNotFound_NotFoundError()
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlInstanceRepository(cxn.Object);
             var projectId = 1;
-            int errorCode = 50020; // there are no roles for this projectId
+            int errorCode = 50016; // there are no project with this projectId
 
-            ProjectRole[] projectRoles = { };
+            ProjectRole[] projectRoles = {};
 
             cxn.SetupQueryAsync("GetProjectRoles",
-                                        new Dictionary<string, object> { { "projectId", projectId } },
-                                        projectRoles,
-                                        new Dictionary<string, object> { { "ErrorCode", errorCode } });
+                new Dictionary<string, object>
+                {
+                    {
+                        "projectId", projectId
+                    }
+                },
+                projectRoles,
+                new Dictionary<string, object> {{"ErrorCode", errorCode}});
 
             // Act
             await repository.GetProjectRolesAsync(projectId);

@@ -388,7 +388,7 @@ namespace AdminStore.Repositories
             prm.Add("@projectId", projectId);
             prm.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-            var result = (await _connectionWrapper.QueryAsync<ProjectRole>("GetProjectRoles", prm, commandType: CommandType.StoredProcedure)).ToList();
+            var result = (await _connectionWrapper.QueryAsync<ProjectRole>("GetProjectRoles", prm, commandType: CommandType.StoredProcedure));
 
             var errorCode = prm.Get<int?>("ErrorCode");
 
@@ -396,8 +396,8 @@ namespace AdminStore.Repositories
             {
                 switch (errorCode.Value)
                 {
-                    case (int)SqlErrorCodes.RolesForProjectNotExist:
-                        throw new ResourceNotFoundException(ErrorMessages.RolesForProjectNotExist, ErrorCodes.ResourceNotFound);
+                    case (int) SqlErrorCodes.ProjectWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.ProjectNotExist, ErrorCodes.ResourceNotFound);
 
                 }
             }

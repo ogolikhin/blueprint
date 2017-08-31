@@ -29,5 +29,10 @@ namespace ServiceLibrary.Repositories
         {
             return await Task.FromResult(_instanceSettings);
         }
+
+        public async Task<int> CheckMaxArtifactsPerProjectBoundary(int projectId)
+        {
+            return await Task.FromResult(1);
+        }
     }
 }

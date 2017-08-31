@@ -9,6 +9,7 @@ namespace AdminStore.Models
     {
         public int Id { get; set; }
         public string GroupName { get; set; }
+        public int RoleId { get; set; }
         public string RoleName { get; set; }
     }
 }

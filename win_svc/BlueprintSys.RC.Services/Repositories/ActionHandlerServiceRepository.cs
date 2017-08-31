@@ -11,6 +11,8 @@ namespace BlueprintSys.RC.Services.Repositories
     public interface IActionHandlerServiceRepository : IInstanceSettingsRepository
     {
         Task<List<TenantInformation>> GetTenantsFromTenantsDb();
+
+        Task<bool> IsBoundaryReached(int projectId);
     }
 
     public class ActionHandlerServiceRepository : SqlInstanceSettingsRepository, IActionHandlerServiceRepository
@@ -41,6 +43,11 @@ namespace BlueprintSys.RC.Services.Repositories
                 FROM [tenants].[Tenants]",
                 commandType: CommandType.Text);
             return tenants.ToList();
+        }
+
+        public async Task<bool> IsBoundaryReached(int projectId)
+        {
+            return (await CheckMaxArtifactsPerProjectBoundary(projectId)) == 2;
         }
     }
 }

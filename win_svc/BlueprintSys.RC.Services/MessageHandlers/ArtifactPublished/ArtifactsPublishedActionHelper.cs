@@ -66,8 +66,8 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
             var applicationSettingsRepository = new ApplicationSettingsRepository(
                 new SqlConnectionWrapper(tenant.BlueprintConnectionString));
 
-            var serviceLogRepository = new WorkflowServiceLogRepository(new HttpClientProvider(), 
-                new WorkflowLocalLog(), 
+            var serviceLogRepository = new ServiceLogRepository(new HttpClientProvider(), 
+                new LocalFileLog(), 
                 tenant.AdminStoreLog);
 
             var artifactIds = createdArtifacts.Select(a => a.Id).ToHashSet();

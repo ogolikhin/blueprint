@@ -26,32 +26,32 @@ namespace ServiceLibrary.LocalLog
 
         public bool IsTest { get; set; }    
 
-        public virtual void LogError(string message)
+        public void LogError(string message)
         {
             WriteMessage("Error", message);
         }
 
-        public virtual void LogErrorFormat(string format, params object[] args)
+        public void LogErrorFormat(string format, params object[] args)
         {
             LogError(I18NHelper.FormatInvariant(format, args));
         }
 
-        public virtual void LogInformation(string message)
+        public void LogInformation(string message)
         {
             WriteMessage("Information", message);
         }
 
-        public virtual void LogInformationFormat(string format, params object[] args)
+        public void LogInformationFormat(string format, params object[] args)
         {
             LogInformation(I18NHelper.FormatInvariant(format, args));
         }
 
-        public virtual void LogWarning(string message)
+        public void LogWarning(string message)
         {
             WriteMessage("Warning", message);
         }
 
-        public virtual void LogWarningFormat(string format, params object[] args)
+        public void LogWarningFormat(string format, params object[] args)
         {
             LogWarning(I18NHelper.FormatInvariant(format, args));
         }

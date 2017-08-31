@@ -176,7 +176,7 @@
     <Compile Include="Models\ArtifactsNavigationPath.cs" />
     <Compile Include="Models\ArtifactVersion.cs" />
     <Compile Include="Models\AuthorHistory.cs" />
-    <Compile Include="Models\CreateRoleAssignment.cs" />
+    <Compile Include="Models\RoleAssignmentDTO.cs" />
     <Compile Include="Models\EmailConfigInstanceSettings.cs" />
     <Compile Include="Models\Email\BaseEmailServerConfiguration.cs" />
     <Compile Include="Models\BaselineInfo.cs" />
@@ -284,7 +284,6 @@
     <Compile Include="Models\Session.cs" />
     <Compile Include="Helpers\ILoggable.cs" />
     <Compile Include="Models\SubArtifact.cs" />
-    <Compile Include="Models\UpdateRoleAssignment.cs" />
     <Compile Include="Models\UserGroup.cs" />
     <Compile Include="Models\UserInfo.cs" />
     <Compile Include="Models\VersionControl\IBaseArtifactVersionControlInfo.cs" />

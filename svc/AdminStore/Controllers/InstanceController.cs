@@ -534,7 +534,7 @@ namespace AdminStore.Controllers
         [SessionRequired]
         [ResponseType(typeof(int))]
         [Route("projects/{projectId:int:min(1)}/rolesassignments")]
-        public async Task<HttpResponseMessage> CreateRoleAssignment(int projectId, [FromBody] CreateRoleAssignment roleAssignment)
+        public async Task<HttpResponseMessage> CreateRoleAssignment(int projectId, [FromBody] RoleAssignmentDTO roleAssignment)
         {
             if (roleAssignment == null)
             {
@@ -573,7 +573,7 @@ namespace AdminStore.Controllers
         [SessionRequired]
         [ResponseType(typeof(HttpResponseMessage))]
         [Route("projects/{projectId:int:min(1)}/rolesassignments/{roleAssignmentId:int:min(1)}")]
-        public async Task<HttpResponseMessage> UpdateRoleAssignment(int projectId, int roleAssignmentId, [FromBody] CreateRoleAssignment roleAssignment)
+        public async Task<HttpResponseMessage> UpdateRoleAssignment(int projectId, int roleAssignmentId, [FromBody] RoleAssignmentDTO roleAssignment)
         {
             if (roleAssignment == null)
             {
@@ -582,17 +582,10 @@ namespace AdminStore.Controllers
 
             await _privilegesManager.DemandAny(Session.UserId, projectId,
                 InstanceAdminPrivileges.AccessAllProjectsAdmin, ProjectAdminPrivileges.ManageGroupsAndRoles);
-           
-            UpdateRoleAssignment updateRA = new UpdateRoleAssignment()
-            {
-                RoleAssignmentId = roleAssignmentId,
-                RoleId = roleAssignment.RoleId,
-                GroupId = roleAssignment.GroupId
-            };
 
-            RoleAssignmentValidator.ValidateModel(updateRA);
+            RoleAssignmentValidator.ValidateModel(roleAssignment, OperationMode.Edit, roleAssignmentId);
             
-            await _instanceRepository.UpdateRoleAssignmentAsync(projectId, updateRA);
+            await _instanceRepository.UpdateRoleAssignmentAsync(projectId, roleAssignmentId, roleAssignment);
 
             return Request.CreateResponse(HttpStatusCode.NoContent);
         }

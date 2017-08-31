@@ -97,7 +97,19 @@ namespace ArtifactStore.Repositories
                 var customPropertyChar = GetCustomPropertyChar(action.PropertyLiteValue, propertyType);
                 var searchableValue = GetSearchableValue(action.PropertyLiteValue, propertyType);
 
-                if (propertyType is NumberPropertyType)
+                if (propertyType is TextPropertyType)
+                {
+                    propertyValueVersionsTable.Rows.Add(propertyType.PropertyTypeId, false,
+                        artifact.ProjectId, artifact.Id, artifact.Id, (int)propertyType.Predefined,
+                        //
+                        (int)PropertyPrimitiveType.Text,
+                        null, null, null, null,
+                        GetTextPropertyValue(propertyType, action.PropertyLiteValue),
+                        null,
+                        //
+                        customPropertyChar, propertyType.PropertyTypeId, searchableValue);
+                }
+                else if (propertyType is NumberPropertyType)
                 {
                     propertyValueVersionsTable.Rows.Add(propertyType.PropertyTypeId, false,
                         artifact.ProjectId, artifact.Id, artifact.Id, (int) propertyType.Predefined,
@@ -147,6 +159,23 @@ namespace ArtifactStore.Repositories
             return propertyValueVersionsTable;
         }
 
+        private string GetTextPropertyValue(WorkflowPropertyType propertyType, PropertyLite property)
+        {
+            if (property.TextOrChoiceValue == null)
+            {
+                return null;
+            }
+
+            if (propertyType.Predefined == PropertyTypePredefined.Name)
+            {
+                return property.TextOrChoiceValue;
+            }
+            else
+            {
+                return "<html><head/><p>" + property.TextOrChoiceValue + "</p></html>";
+            }
+        }
+
         private DataTable PopulateImagePropertyValueVersionsTable()
         {
             var propertyValueImagesTable = new DataTable {Locale = CultureInfo.InvariantCulture};
@@ -175,10 +204,10 @@ namespace ArtifactStore.Repositories
             {
                 primitiveType = PropertyPrimitiveType.Date;
             }
-            //else if (propertyValue is DTextPropertyValue)
-            //{
-            //    primitiveType = PropertyPrimitiveType.Text;
-            //}
+            else if (propertyType is TextPropertyType)
+            {
+                primitiveType = PropertyPrimitiveType.Text;
+            }
             else if (propertyType is UserPropertyType)
             {
                 primitiveType = PropertyPrimitiveType.User;
@@ -243,6 +272,10 @@ namespace ArtifactStore.Repositories
             if (propertyType is DatePropertyType)
             {
                 return null;
+            }
+            if (propertyType is TextPropertyType)
+            {
+                return propertyLite.TextOrChoiceValue;
             }
             //if (propertyValue is DDatePropertyValue)
             //{

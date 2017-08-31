@@ -200,6 +200,7 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                 IsValidated = pv.PrimitiveType == PropertyPrimitiveType.Number
                                     || pv.PrimitiveType == PropertyPrimitiveType.Date
                                     || pv.PrimitiveType == PropertyPrimitiveType.Choice
+                                    || pv.PrimitiveType == PropertyPrimitiveType.Text
                                     ? pv.Validate : null,
                 IsMultipleAllowed = pv.PrimitiveType == PropertyPrimitiveType.Text
                                     || pv.PrimitiveType == PropertyPrimitiveType.Choice 

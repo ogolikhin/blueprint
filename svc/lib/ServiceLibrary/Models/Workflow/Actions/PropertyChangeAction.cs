@@ -57,6 +57,13 @@ namespace ServiceLibrary.Models.Workflow.Actions
         {
             switch (propertyType?.PrimitiveType)
             {
+                case PropertyPrimitiveType.Text:
+                    PropertyLiteValue = new PropertyLite()
+                    {
+                        PropertyTypeId = InstancePropertyTypeId,
+                        TextOrChoiceValue = PropertyValue
+                    };
+                    break;
                 case PropertyPrimitiveType.Number:
                     if (String.IsNullOrEmpty(PropertyValue))
                     {

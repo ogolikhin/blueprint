@@ -682,6 +682,9 @@ namespace AdminStore.Services.Workflow
             };
 
             await UpdateUserAndGroupInfo(ieWorkflow, userIds, groupIds);
+            // Remove Property Change and New Artifact events if they do not have any triggers.
+            ieWorkflow.PropertyChangeEvents.RemoveAll(e => e.Triggers.IsEmpty());
+            ieWorkflow.NewArtifactEvents.RemoveAll(e => e.Triggers.IsEmpty());
 
             return WorkflowHelper.NormalizeWorkflow(ieWorkflow);
         }

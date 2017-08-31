@@ -68,8 +68,6 @@ namespace AdminStore.Repositories.Workflow
 
         Task<IEnumerable<SqlState>> GetWorkflowStatesAsync(int workflowId);
 
-        Task<IEnumerable<SqlWorkflowMapItem>> GetWorkflowStatesMapAsync(int workflowId);
-
         Task<IEnumerable<SqlWorkflowEventData>> GetWorkflowEventsAsync(int workflowId);
         Task UpdateWorkflowsChangedWithRevisionsAsync(int workflowId, int revisionId, IDbTransaction transaction = null);
     }

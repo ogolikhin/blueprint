@@ -14,8 +14,6 @@ namespace AdminStore.Repositories
 
         Task<UserIcon> GetUserIconByUserIdAsync(int userId);
 
-        Task<IEnumerable<SqlGroup>> GetGroupsMapAsync(IEnumerable<int> groupIds = null);
-
         Task<IEnumerable<LicenseTransactionUser>> GetLicenseTransactionUserInfoAsync(IEnumerable<int> userIds);
 
         Task<int> GetEffectiveUserLicenseAsync(int userId);

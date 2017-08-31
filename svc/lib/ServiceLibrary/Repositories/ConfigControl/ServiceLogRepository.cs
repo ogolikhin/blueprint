@@ -18,9 +18,9 @@ namespace ServiceLibrary.Repositories.ConfigControl
 {
     public class ServiceLogRepository : IServiceLogRepository
     {
-        protected readonly IHttpClientProvider _httpClientProvider;
-        protected readonly ILocalLog _localLog;
-        protected readonly string _configControlUri;
+        private readonly IHttpClientProvider _httpClientProvider;
+        private readonly ILocalLog _localLog;
+        private readonly string _configControlUri;
 
         public ServiceLogRepository()
             : this(new HttpClientProvider(), new LocalFileLog(), ConfigurationManager.AppSettings["ConfigControl"])

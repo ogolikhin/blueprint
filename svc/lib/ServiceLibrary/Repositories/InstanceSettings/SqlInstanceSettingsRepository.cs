@@ -57,5 +57,21 @@ namespace ServiceLibrary.Repositories.InstanceSettings
 
             return settings;
         }
+
+        public async Task<int> CheckMaxArtifactsPerProjectBoundary(int projectId)
+        {
+            var parameters = new DynamicParameters();
+
+            parameters.Add("@projectId ", projectId);
+
+            return await ConnectionWrapper.ExecuteAsync("CheckMaxArtifactsPerProjectBoundary", parameters, commandType: CommandType.StoredProcedure);
+        }
+    }
+
+    public enum BoundaryLimit
+    {
+        Normal = 0,
+        ReachingBoundary = 1,
+        BoundaryReached = 2
     }
 }

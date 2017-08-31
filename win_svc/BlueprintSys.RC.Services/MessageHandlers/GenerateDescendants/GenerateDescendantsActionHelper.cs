@@ -4,6 +4,7 @@ using BlueprintSys.RC.Services.Models;
 using BlueprintSys.RC.Services.Repositories;
 using BluePrintSys.Messaging.CrossCutting.Logging;
 using BluePrintSys.Messaging.Models.Actions;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Jobs;
@@ -12,9 +13,9 @@ using ServiceLibrary.Repositories.Jobs;
 
 namespace BlueprintSys.RC.Services.MessageHandlers.GenerateDescendants
 {
-    public class GenerateDescendantsActionHelper : IActionHelper
+    public class GenerateDescendantsActionHelper : BoundaryReachedActionHandler
     {
-        public async Task<bool> HandleAction(TenantInformation tenant, ActionMessage actionMessage, IActionHandlerServiceRepository actionHandlerServiceRepository)
+        protected override async Task<bool> HandleActionInternal(TenantInformation tenant, ActionMessage actionMessage, IActionHandlerServiceRepository actionHandlerServiceRepository)
         {
             var message = (GenerateDescendantsMessage)actionMessage;
             if (message == null

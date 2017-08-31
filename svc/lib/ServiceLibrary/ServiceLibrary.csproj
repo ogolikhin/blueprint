@@ -119,6 +119,7 @@
     <Compile Include="Exceptions\AuthenticationException.cs" />
     <Compile Include="Exceptions\AuthorizationException.cs" />
     <Compile Include="Exceptions\BadRequestException.cs" />
+    <Compile Include="Exceptions\BoundaryReachedException.cs" />
     <Compile Include="Exceptions\ConflictException.cs" />
     <Compile Include="Exceptions\ExceptionWithErrorCode.cs" />
     <Compile Include="Exceptions\InvalidConnectionStringException.cs" />

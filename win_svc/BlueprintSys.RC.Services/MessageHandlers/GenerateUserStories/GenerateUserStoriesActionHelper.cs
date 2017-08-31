@@ -16,9 +16,9 @@ namespace BlueprintSys.RC.Services.MessageHandlers.GenerateUserStories
         public int? TaskId { get; set; }
     }
 
-    public class GenerateUserStoriesActionHelper : IActionHelper
+    public class GenerateUserStoriesActionHelper : BoundaryReachedActionHandler
     {
-        public async Task<bool> HandleAction(TenantInformation tenant, ActionMessage actionMessage, IActionHandlerServiceRepository actionHandlerServiceRepository)
+        protected override async Task<bool> HandleActionInternal(TenantInformation tenant, ActionMessage actionMessage, IActionHandlerServiceRepository actionHandlerServiceRepository)
         {
             var generateUserStoriesMessage = actionMessage as GenerateUserStoriesMessage;
             if (generateUserStoriesMessage == null)

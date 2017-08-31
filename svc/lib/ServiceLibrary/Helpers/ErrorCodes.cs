@@ -96,6 +96,7 @@
         public const int UnsupportedActionType = 12001;
         public const int MessageHeaderValueNotFound = 12002;
         public const int InvalidConnectionString = 12003;
+        public const int BoundaryReached = 12004;
 
         // Unexpected Errors
         public const int UnexpectedError = 13001;

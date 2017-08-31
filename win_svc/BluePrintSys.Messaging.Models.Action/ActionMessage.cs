@@ -8,4 +8,9 @@ namespace BluePrintSys.Messaging.Models.Actions
     {
         public abstract MessageActionType ActionType { get; }
     }
+
+    public abstract class ProjectContainerActionMessage : ActionMessage
+    {
+        public int ProjectId { get; set; }
+    }
 }

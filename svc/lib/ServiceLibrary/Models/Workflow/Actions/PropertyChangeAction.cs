@@ -71,12 +71,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
                 case PropertyPrimitiveType.Number:
                     return PopulateNumberPropertyLite();
                 case PropertyPrimitiveType.Date:
-                    PropertyLiteValue = new PropertyLite
-                    {
-                        PropertyTypeId = InstancePropertyTypeId,
-                        DateValue = PropertyHelper.ParseDateValue(PropertyValue, new TimeProvider())
-                    };
-                    break;
+                    return PopulateDatePropertyLite();
                 case PropertyPrimitiveType.Choice:
                     PropertyLiteValue = new PropertyLite
                     {
@@ -100,6 +95,45 @@ namespace ServiceLibrary.Models.Workflow.Actions
                     };
                     break;
             }
+            return null;
+        }
+
+        private PropertySetResult PopulateDatePropertyLite()
+        {
+            //was Choice property
+            if (ValidValues != null && ValidValues.Any())
+            {
+                return new PropertySetResult(InstancePropertyTypeId, ErrorCodes.InvalidArtifactProperty, "Property type is now date property. Property change action is currently invalid.");
+            }
+
+            //is null
+            if (string.IsNullOrEmpty(PropertyValue))
+            {
+                PropertyLiteValue = new PropertyLite
+                {
+                    PropertyTypeId = InstancePropertyTypeId,
+                    DateValue = null
+                };
+                return null;
+            }
+
+            DateTime date;
+            try
+            {
+                date = PropertyHelper.ParseDateValue(PropertyValue, new TimeProvider());
+            }
+            catch (Exception ex)
+            {
+                //invalid date format
+                return new PropertySetResult(InstancePropertyTypeId, ErrorCodes.InvalidArtifactProperty, $"Property type is now date property. Property change action is currently invalid. {ex.Message}");
+            }
+
+            //valid date format
+            PropertyLiteValue = new PropertyLite
+            {
+                PropertyTypeId = InstancePropertyTypeId,
+                DateValue = date
+            };
             return null;
         }
 

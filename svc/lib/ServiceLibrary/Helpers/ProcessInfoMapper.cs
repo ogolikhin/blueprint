@@ -14,25 +14,21 @@ namespace ServiceLibrary.Helpers
         {
             ProcessInfoDto result = new ProcessInfoDto{ItemId = pi.ItemId};
 
-            int processType;
-            int processTypeValue = 0;
-            if (Int32.TryParse(pi.ProcessType, out processType))
-                processTypeValue = processType;
-
-            switch (processTypeValue)
+            if (pi.ProcessType.Equals(ProcessType.UserToSystemProcess.ToString()))
             {
-                case (int)ProcessType.UserToSystemProcess:
-                    result.ProcessType = ProcessType.UserToSystemProcess;
-                    break;
-                case (int)ProcessType.BusinessProcess:
-                    result.ProcessType = ProcessType.BusinessProcess;
-                    break;
-                case (int)ProcessType.SystemToSystemProcess:
-                    result.ProcessType = ProcessType.SystemToSystemProcess;
-                    break;
-                default:
-                    result.ProcessType = ProcessType.None;
-                    break;
+                result.ProcessType = ProcessType.UserToSystemProcess;
+            }
+            else if (pi.ProcessType.Equals(ProcessType.BusinessProcess.ToString()))
+            {
+                result.ProcessType = ProcessType.BusinessProcess;
+            }
+            else if (pi.ProcessType.Equals(ProcessType.SystemToSystemProcess.ToString()))
+            {
+                result.ProcessType = ProcessType.SystemToSystemProcess;
+            }
+            else
+            {
+                result.ProcessType = ProcessType.None;
             }
 
             return result;

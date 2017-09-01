@@ -1184,7 +1184,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var createdRoleAssignmentId = 1;
-            CreateRoleAssignment roleAssignment = new CreateRoleAssignment() {GroupId = 1, RoleId = 1};
+            RoleAssignmentDTO roleAssignment = new RoleAssignmentDTO() {GroupId = 1, RoleId = 1};
 
             _connection.SetupExecuteScalarAsync("CreateProjectRoleAssignment",
                                         new Dictionary <string, object>
@@ -1214,7 +1214,7 @@ namespace AdminStore.Repositories
 
             int createdRoleAssignmentId = 0;
 
-            CreateRoleAssignment roleAssignment = new CreateRoleAssignment()
+            RoleAssignmentDTO roleAssignment = new RoleAssignmentDTO()
             {
                 GroupId = 0/*missing Id*/,
                 RoleId = 1
@@ -1244,7 +1244,7 @@ namespace AdminStore.Repositories
 
             int createdRoleAssignmentId = 0;
 
-            CreateRoleAssignment roleAssignment = new CreateRoleAssignment()
+            RoleAssignmentDTO roleAssignment = new RoleAssignmentDTO()
             {
                 GroupId = 1,
                 RoleId = 0/*missing Id*/
@@ -1274,7 +1274,7 @@ namespace AdminStore.Repositories
 
             int createdRoleAssignmentId = 0;
 
-            CreateRoleAssignment roleAssignment = new CreateRoleAssignment()
+            RoleAssignmentDTO roleAssignment = new RoleAssignmentDTO()
             {
                 GroupId = 1,
                 RoleId = 1
@@ -1306,7 +1306,7 @@ namespace AdminStore.Repositories
 
             int createdRoleAssignmentId = 0;
 
-            CreateRoleAssignment roleAssignment = new CreateRoleAssignment()
+            RoleAssignmentDTO roleAssignment = new RoleAssignmentDTO()
             {
                 GroupId = 1,
                 RoleId = 1

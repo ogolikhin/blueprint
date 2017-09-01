@@ -1056,7 +1056,7 @@ namespace AdminStore.Controllers
         [TestMethod]
         public async Task CreateRoleAssignment_SuccessfulCreationOfAssignment_ReturnCreatedRoleAssignmentIdResult()
         {
-            CreateRoleAssignment roleAssignment = new CreateRoleAssignment() {GroupId = 1, RoleId = 1};
+            RoleAssignmentDTO roleAssignment = new RoleAssignmentDTO() {GroupId = 1, RoleId = 1};
             int roleAssignmentId = 1;
 
             // Arrange
@@ -1083,7 +1083,7 @@ namespace AdminStore.Controllers
         [ExpectedException(typeof(AuthorizationException))]
         public async Task CreateRoleAssignment_NoPermissions_ReturnForbiddenErrorResult()
         {
-            CreateRoleAssignment roleAssignment = new CreateRoleAssignment() { GroupId = 1, RoleId = 1 };
+            RoleAssignmentDTO roleAssignment = new RoleAssignmentDTO() { GroupId = 1, RoleId = 1 };
             int roleAssignmentId = 1;
 
             // Arrange
@@ -1106,7 +1106,7 @@ namespace AdminStore.Controllers
         [ExpectedException(typeof(BadRequestException))]
         public async Task CreateRoleAssignment_RoleAssignmentInvalid_ReturnBadRequestResult()
         {
-            CreateRoleAssignment roleAssignment = null;
+            RoleAssignmentDTO roleAssignment = null;
             int roleAssignmentId = 1;
 
             // Arrange
@@ -1129,7 +1129,7 @@ namespace AdminStore.Controllers
         [ExpectedException(typeof(BadRequestException))]
         public async Task CreateRoleAssignment_RoleIdInvalid_ReturnBadRequestResult()
         {
-            CreateRoleAssignment roleAssignment = new CreateRoleAssignment() { GroupId = 1, RoleId = 0 };
+            RoleAssignmentDTO roleAssignment = new RoleAssignmentDTO() { GroupId = 1, RoleId = 0 };
             int roleAssignmentId = 1;
 
             // Arrange
@@ -1152,7 +1152,7 @@ namespace AdminStore.Controllers
         [ExpectedException(typeof(BadRequestException))]
         public async Task CreateRoleAssignment_GroupIdInvalid_ReturnBadRequestResult()
         {
-            CreateRoleAssignment roleAssignment = new CreateRoleAssignment() { GroupId = 0, RoleId = 1 };
+            RoleAssignmentDTO roleAssignment = new RoleAssignmentDTO() { GroupId = 0, RoleId = 1 };
             int roleAssignmentId = 1;
 
             // Arrange

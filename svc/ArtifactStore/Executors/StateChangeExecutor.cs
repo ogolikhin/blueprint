@@ -110,9 +110,6 @@ namespace ArtifactStore.Executors
             };
             return action;
         }
-
-        
-        
         
         private async Task<ExecutionParameters> BuildTriggerExecutionParameters(VersionControlArtifactInfo artifactInfo, WorkflowEventTriggers triggers, IDbTransaction transaction = null)
         {

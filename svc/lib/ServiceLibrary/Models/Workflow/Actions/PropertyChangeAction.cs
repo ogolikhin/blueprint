@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq;
-using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.ProjectMeta;
@@ -17,6 +16,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
         public string PropertyValue { get; set; }
 
         public PropertyLite PropertyLiteValue { get; protected set; }
+
         public List<int> ValidValues { get; } = new List<int>();
 
         public override MessageActionType ActionType { get; } = MessageActionType.PropertyChange;
@@ -44,49 +44,37 @@ namespace ServiceLibrary.Models.Workflow.Actions
             var dPropertyType = executionParameters.CustomPropertyTypes.FirstOrDefault(item => item.InstancePropertyTypeId == InstancePropertyTypeId);
             if (dPropertyType == null)
             {
-                throw new ConflictException(
-                    I18NHelper.FormatInvariant("Property type id {0} is not associated with specified artifact type", InstancePropertyTypeId));
+                return new PropertySetResult(InstancePropertyTypeId, ErrorCodes.InvalidArtifactProperty,
+                     I18NHelper.FormatInvariant("Property type id {0} is not associated with specified artifact type", InstancePropertyTypeId));
             }
 
-            PopulatePropertyLite(dPropertyType);
+            var resultSet = PopulatePropertyLite(dPropertyType);
+            if (resultSet != null)
+            {
+                return resultSet;
+            }
 
             return executionParameters.Validators.Select(v => v.Validate(PropertyLiteValue, executionParameters.CustomPropertyTypes, executionParameters.ValidationContext)).FirstOrDefault(r => r != null);
         }
 
-        protected virtual void PopulatePropertyLite(WorkflowPropertyType propertyType)
+        protected virtual PropertySetResult PopulatePropertyLite(WorkflowPropertyType propertyType)
         {
             switch (propertyType?.PrimitiveType)
             {
-                case PropertyPrimitiveType.Number:
-                    if (String.IsNullOrEmpty(PropertyValue))
+                case PropertyPrimitiveType.Text:
+                    PropertyLiteValue = new PropertyLite()
                     {
-                        PropertyLiteValue = new PropertyLite()
-                        {
-                            PropertyTypeId = InstancePropertyTypeId,
-                            NumberValue = null
-                        };
-                    }
-                    else
-                    {
-                        decimal value;
-                        if (
-                            !Decimal.TryParse(PropertyValue, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint, new NumberFormatInfo(),
-                                out value))
-                        {
-                            throw new FormatException("Property change action provided incorrect value type");
-                        }
-                        PropertyLiteValue = new PropertyLite()
-                        {
-                            PropertyTypeId = InstancePropertyTypeId,
-                            NumberValue = value
-                        };
-                    }
+                        PropertyTypeId = InstancePropertyTypeId,
+                        TextOrChoiceValue = PropertyValue
+                    };
                     break;
+                case PropertyPrimitiveType.Number:
+                    return PopulateNumberPropertyLite();
                 case PropertyPrimitiveType.Date:
                     PropertyLiteValue = new PropertyLite
                     {
                         PropertyTypeId = InstancePropertyTypeId,
-                        DateValue = ParseDateValue(PropertyValue, new TimeProvider())
+                        DateValue = PropertyHelper.ParseDateValue(PropertyValue, new TimeProvider())
                     };
                     break;
                 case PropertyPrimitiveType.Choice:
@@ -103,6 +91,8 @@ namespace ServiceLibrary.Models.Workflow.Actions
                         PropertyLiteValue.ChoiceIds.AddRange(ValidValues);
                     }
                     break;
+                case PropertyPrimitiveType.User:
+                    return new PropertySetResult(InstancePropertyTypeId, ErrorCodes.InvalidArtifactProperty, "Property type is now user, but does not contain user and group change actions");
                 default:
                     PropertyLiteValue = new PropertyLite()
                     {
@@ -110,26 +100,41 @@ namespace ServiceLibrary.Models.Workflow.Actions
                     };
                     break;
             }
+            return null;
         }
 
-        public static DateTime ParseDateValue(string dateValue, ITimeProvider timeProvider)
+        private PropertySetResult PopulateNumberPropertyLite()
         {
-            //specific date
-            const string dateFormat = WorkflowConstants.Iso8601DateFormat;
-            DateTime date;
-            if (DateTime.TryParseExact(dateValue, dateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
+            if (ValidValues != null && ValidValues.Any())
             {
-                return date;
+                return new PropertySetResult(InstancePropertyTypeId, ErrorCodes.InvalidArtifactProperty, 
+                    "Property type is now number property. Property change action is currently invalid.");
             }
-
-            //today + days
-            int days;
-            if (int.TryParse(dateValue, out days))
+            if (String.IsNullOrEmpty(PropertyValue))
             {
-                return timeProvider.Today.AddDays(days);
+                PropertyLiteValue = new PropertyLite()
+                {
+                    PropertyTypeId = InstancePropertyTypeId,
+                    NumberValue = null
+                };
             }
-
-            throw new FormatException($"Invalid date value: {dateValue}. The date format must be {dateFormat}, or an integer.");
+            else
+            {
+                decimal value;
+                if (
+                    !Decimal.TryParse(PropertyValue, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint, new NumberFormatInfo(),
+                        out value))
+                {
+                    return new PropertySetResult(InstancePropertyTypeId, ErrorCodes.InvalidArtifactProperty, 
+                        "Property type is now number property. Property change action is currently invalid.");
+                }
+                PropertyLiteValue = new PropertyLite()
+                {
+                    PropertyTypeId = InstancePropertyTypeId,
+                    NumberValue = value
+                };
+            }
+            return null;
         }
     }
 }

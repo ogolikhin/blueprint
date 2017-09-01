@@ -10,6 +10,6 @@ namespace ServiceLibrary.Models.Workflow
         string PropertyValue { get; set; }
         PropertyLite PropertyLiteValue { get; }
         MessageActionType ActionType { get; }
-        Task<bool> Execute(IExecutionParameters executionParameters);
+        bool ValidateAction(IExecutionParameters executionParameters);
     }
 }

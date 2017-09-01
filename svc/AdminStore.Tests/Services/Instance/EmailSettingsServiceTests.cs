@@ -402,6 +402,16 @@ namespace AdminStore.Services.Instance
         }
 
         [TestMethod]
+        public async Task SendTestEmailAsync_Should_Return_Current_Users_Email_Address()
+        {
+            //Act
+            string emailAddress = await _emailSettingsService.SendTestEmailAsync(UserId, _outgoingSettings);
+
+            //Assert
+            Assert.AreEqual(_user.Email, emailAddress);
+        }
+
+        [TestMethod]
         public async Task SendTestEmailAsync_Should_Throw_Bad_Request_Exception_When_EmailHelper_Throws_EmailException()
         {
             //Arrange
@@ -647,6 +657,7 @@ namespace AdminStore.Services.Instance
             Assert.AreEqual(_emailSettings.UserName, emailSettingsDto.Outgoing.AccountUsername);
             Assert.AreEqual(_emailSettings.SenderEmailAddress, emailSettingsDto.Outgoing.AccountEmailAddress);
             Assert.AreEqual(false, emailSettingsDto.Outgoing.IsPasswordDirty);
+            Assert.AreEqual(true, emailSettingsDto.Outgoing.HasPassword);
 
             Assert.AreEqual(_emailSettings.IncomingHostName, emailSettingsDto.Incoming.ServerAddress);
             Assert.AreEqual(_emailSettings.IncomingPort, emailSettingsDto.Incoming.Port);
@@ -655,6 +666,7 @@ namespace AdminStore.Services.Instance
             Assert.AreEqual(_emailSettings.IncomingUserName, emailSettingsDto.Incoming.AccountUsername);
             Assert.AreEqual(null, emailSettingsDto.Incoming.AccountPassword);
             Assert.AreEqual(false, emailSettingsDto.Incoming.IsPasswordDirty);
+            Assert.AreEqual(true, emailSettingsDto.Incoming.HasPassword);
 
             Assert.AreEqual(_emailSettings.EnableNotifications, emailSettingsDto.EnableReviewNotifications);
             Assert.AreEqual(_emailSettings.EnableEmailDiscussion, emailSettingsDto.EnableEmailNotifications);
@@ -679,7 +691,7 @@ namespace AdminStore.Services.Instance
             //Assert
             catch (BadRequestException ex)
             {
-                Assert.AreEqual(ex.ErrorCode, ErrorCodes.OutOfRangeParameter);
+                Assert.AreEqual(ex.ErrorCode, ErrorCodes.InvalidParameter);
 
                 return;
             }
@@ -701,7 +713,7 @@ namespace AdminStore.Services.Instance
             //Assert
             catch (BadRequestException ex)
             {
-                Assert.AreEqual(ex.ErrorCode, ErrorCodes.OutOfRangeParameter);
+                Assert.AreEqual(ex.ErrorCode, ErrorCodes.InvalidParameter);
 
                 return;
             }
@@ -900,8 +912,6 @@ namespace AdminStore.Services.Instance
         {
             //Arrange
             _emailSettingsDto.EnableDiscussions = false;
-            _emailSettingsDto.Incoming.AccountPassword = null;
-            _emailSettingsDto.Incoming.AccountUsername = null;
             _emailSettingsDto.Incoming.ServerAddress = null;
             _emailSettingsDto.Incoming.Port = 0;
 

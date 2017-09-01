@@ -16,8 +16,6 @@ namespace BluePrintSys.Messaging.Models.Actions
 
         public int TypePredefined { get; set; }
 
-        public int ProjectId { get; set; }
-
         public string ProjectName { get; set; }
 
         public int UserId { get; set; }

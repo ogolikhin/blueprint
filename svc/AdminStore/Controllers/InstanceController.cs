@@ -1,13 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Web.Http;
-using System.Web.Http.Description;
-using AdminStore.Helpers;
+﻿using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Models.DTO;
-using AdminStore.Models.Enums;
 using AdminStore.Repositories;
 using AdminStore.Services.Instance;
 using ServiceLibrary.Attributes;
@@ -17,6 +10,12 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Description;
 
 namespace AdminStore.Controllers
 {
@@ -30,7 +29,7 @@ namespace AdminStore.Controllers
         private readonly IInstanceService _instanceService;
         private readonly PrivilegesManager _privilegesManager;
         private readonly IPrivilegesRepository _privilegesRepository;
-       
+
         public override string LogSource { get; } = "AdminStore.Instance";
 
         public InstanceController() : this(
@@ -80,7 +79,7 @@ namespace AdminStore.Controllers
                 await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewProjects);
             }
 
-            return await _instanceRepository.GetInstanceFolderAsync(id, Session.UserId);
+            return await _instanceRepository.GetInstanceFolderAsync(id, Session.UserId, fromAdminPortal);
         }
 
         /// <summary>

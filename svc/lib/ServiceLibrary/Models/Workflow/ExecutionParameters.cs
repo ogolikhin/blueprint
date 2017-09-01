@@ -66,6 +66,7 @@ namespace ServiceLibrary.Models.Workflow
                 validationContext,
                 new List<IPropertyValidator>()
                 {
+                    new TextPropertyValidator(),
                     new NumberPropertyValidator(),
                     new DatePropertyValidator(),
                     new UserPropertyValidator(),

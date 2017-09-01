@@ -31,7 +31,8 @@ namespace AdminStore.Models.Emails
                     Port = settings.IncomingPort,
                     IsPasswordDirty = false,
                     EnableSsl = settings.IncomingEnableSSL,
-                    ServerType = (EmailClientType)settings.IncomingServerType
+                    ServerType = (EmailClientType)settings.IncomingServerType,
+                    HasPassword = !string.IsNullOrWhiteSpace(settings.IncomingPassword)
                 },
                 Outgoing = new EmailOutgoingSettings()
                 {
@@ -42,7 +43,8 @@ namespace AdminStore.Models.Emails
                     EnableSsl = settings.EnableSSL,
                     Port = settings.Port,
                     ServerAddress = settings.HostName,
-                    IsPasswordDirty = false
+                    IsPasswordDirty = false,
+                    HasPassword = !string.IsNullOrWhiteSpace(settings.Password)
                 }
             };
         }

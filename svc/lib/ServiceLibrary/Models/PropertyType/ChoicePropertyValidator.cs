@@ -12,7 +12,7 @@ namespace ServiceLibrary.Models.PropertyType
             ChoicePropertyType propertyType,
             IValidationContext validationContext)
         {
-            if ((String.IsNullOrEmpty(property.TextOrChoiceValue) && property.ChoiceIds.Count == 0) && propertyType.IsRequired)
+            if (IsPropertyValueEmpty(property, propertyType) && propertyType.IsRequired)
                 return new PropertySetResult(property.PropertyTypeId, ErrorCodes.InvalidArtifactProperty, "Custom value or choices should be specified if the field is required.");
 
             if (!String.IsNullOrEmpty(property.TextOrChoiceValue) && property.ChoiceIds.Count != 0)

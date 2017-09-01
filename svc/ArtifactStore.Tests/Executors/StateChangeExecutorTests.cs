@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using ArtifactStore.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -36,6 +38,7 @@ namespace ArtifactStore.Executors
         private Mock<IApplicationSettingsRepository> _applicationSettingsRepositoryMock;
         private Mock<IServiceLogRepository> _serviceLogRepositoryMock;
         private Mock<IUsersRepository> _usersRepositoryMock;
+        private Mock<IStateChangeExecutorHelper> _stateChangeHelperMock;
 
         [TestInitialize]
         public void TestInitialize()
@@ -56,6 +59,7 @@ namespace ArtifactStore.Executors
             _applicationSettingsRepositoryMock = new Mock<IApplicationSettingsRepository>(MockBehavior.Loose);
             _serviceLogRepositoryMock = new Mock<IServiceLogRepository>(MockBehavior.Loose);
             _usersRepositoryMock = new Mock<IUsersRepository>(MockBehavior.Loose);
+            _stateChangeHelperMock = new Mock<IStateChangeExecutorHelper>(MockBehavior.Loose);
 
             _stateChangeExecutor = new StateChangeExecutor(UserId,
                 ex,
@@ -67,7 +71,9 @@ namespace ArtifactStore.Executors
                 _saveArtifactRepositoryMock.Object,
                 _applicationSettingsRepositoryMock.Object,
                 _serviceLogRepositoryMock.Object,
-                _usersRepositoryMock.Object));
+                _usersRepositoryMock.Object),
+                _stateChangeHelperMock.Object
+                );
         }
 
         [TestMethod]
@@ -433,6 +439,79 @@ namespace ArtifactStore.Executors
             //Assert
             _workflowRepository.Verify(t => t.GetStateForArtifactAsync(UserId, ArtifactId, int.MaxValue, true));
             _versionControlService.Verify(t => t.PublishArtifacts(It.IsAny<PublishParameters>(), It.IsAny<IDbTransaction>()));
+        }
+
+
+        [TestMethod]
+        [ExpectedException(typeof(ConflictException))]
+        public async Task ExecuteInternal_WhenSynchronouTriggersErrors_ThrowsConflictException()
+        {
+            //Arrange
+            _artifactVersionsRepository.Setup(t => t.IsItemDeleted(ArtifactId))
+                .ReturnsAsync(false);
+            _applicationSettingsRepositoryMock.Setup(t => t.GetTenantInfo()).ReturnsAsync(new TenantInfo()
+            {
+                TenantId = Guid.NewGuid().ToString()
+            });
+
+            var vcArtifactInfo = new VersionControlArtifactInfo
+            {
+                Id = ArtifactId,
+                VersionCount = CurrentVersionId,
+                LockedByUser = new UserGroup
+                {
+                    Id = UserId
+                }
+            };
+            _artifactVersionsRepository.Setup(t => t.GetVersionControlArtifactInfoAsync(ArtifactId, null, UserId))
+                .ReturnsAsync(vcArtifactInfo);
+
+            var fromState = new WorkflowState
+            {
+                Id = FromStateId,
+                WorkflowId = WorkflowId,
+                Name = "Ready"
+            };
+            _workflowRepository.Setup(t => t.GetStateForArtifactAsync(UserId, ArtifactId, int.MaxValue, true))
+                .ReturnsAsync(fromState);
+
+            var toState = new WorkflowState
+            {
+                Id = ToStateId,
+                Name = "Close",
+                WorkflowId = WorkflowId
+            };
+            var transition = new WorkflowTransition()
+            {
+                FromState = fromState,
+                Id = 10,
+                ToState = toState,
+                WorkflowId = WorkflowId,
+                Name = "Ready to Closed"
+            };
+            _workflowRepository.Setup(
+                t => t.GetTransitionForAssociatedStatesAsync(UserId, ArtifactId, WorkflowId, FromStateId, ToStateId))
+                .ReturnsAsync(transition);
+
+            var workflowEventAction = new Mock<IWorkflowEventAction>();
+            workflowEventAction.Setup(a => a.ValidateAction(It.IsAny<IExecutionParameters>())).Returns(false);
+
+            _workflowRepository.Setup(
+                t => t.GetWorkflowEventTriggersForTransition(UserId, ArtifactId, WorkflowId, FromStateId, ToStateId))
+                .ReturnsAsync(new WorkflowTriggersContainer
+                {
+                    AsynchronousTriggers = new WorkflowEventTriggers(),
+                    SynchronousTriggers = new WorkflowEventTriggers()
+                    {
+                        new WorkflowEventTrigger() { Action = workflowEventAction.Object, Name = "Test'"}
+                    }
+                });
+
+            _workflowRepository.Setup(t => t.ChangeStateForArtifactAsync(UserId, ArtifactId, It.IsAny<WorkflowStateChangeParameterEx>(), It.IsAny<IDbTransaction>()))
+                .ReturnsAsync((WorkflowState)null);
+
+            //Act
+            await _stateChangeExecutor.Execute();
         }
     }
 }

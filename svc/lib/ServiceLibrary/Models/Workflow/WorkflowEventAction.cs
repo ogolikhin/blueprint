@@ -2,7 +2,12 @@
 
 namespace ServiceLibrary.Models.Workflow
 {
-    public abstract class WorkflowEventAction
+    public interface IWorkflowEventAction
+    {
+        bool ValidateAction(IExecutionParameters executionParameters);
+        MessageActionType ActionType { get; }
+    }
+    public abstract class WorkflowEventAction: IWorkflowEventAction
     {
         public abstract MessageActionType ActionType { get; }
 

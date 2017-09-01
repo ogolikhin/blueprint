@@ -24,14 +24,18 @@ namespace ArtifactStore.Executors
         private readonly WorkflowStateChangeParameterEx _input;
         private readonly ISqlHelper _sqlHelper;
         private readonly IStateChangeExecutorRepositories _stateChangeExecutorRepositories;
-
-        public StateChangeExecutor(int userId, WorkflowStateChangeParameterEx input, ISqlHelper sqlHelper,
-            IStateChangeExecutorRepositories stateChangeExecutorRepositories)
+        private readonly IStateChangeExecutorHelper _stateChangeExecutorHelper;
+        public StateChangeExecutor(
+            int userId, WorkflowStateChangeParameterEx input, 
+            ISqlHelper sqlHelper,
+            IStateChangeExecutorRepositories stateChangeExecutorRepositories,
+            IStateChangeExecutorHelper stateChangeExecutorHelper)
         {
             _userId = userId;
             _input = input;
             _sqlHelper = sqlHelper;
             _stateChangeExecutorRepositories = stateChangeExecutorRepositories;
+            _stateChangeExecutorHelper = stateChangeExecutorHelper;
         }
 
         public async Task<QuerySingleResult<WorkflowState>> Execute()
@@ -71,7 +75,10 @@ namespace ArtifactStore.Executors
 
                 var stateChangeResult = await ChangeStateForArtifactAsync(_input, transaction);
 
-                var executionParameters = await BuildTriggerExecutionParameters(artifactInfo, triggers.SynchronousTriggers, transaction);
+                var executionParameters =
+                    await
+                        _stateChangeExecutorHelper.BuildTriggerExecutionParameters(_userId, artifactInfo,
+                            triggers.SynchronousTriggers, transaction);
 
                 var errors = await triggers.SynchronousTriggers.ProcessTriggers(executionParameters);
 
@@ -111,45 +118,6 @@ namespace ArtifactStore.Executors
             return action;
         }
         
-        private async Task<ExecutionParameters> BuildTriggerExecutionParameters(VersionControlArtifactInfo artifactInfo, WorkflowEventTriggers triggers, IDbTransaction transaction = null)
-        {
-            if (triggers.IsEmpty())
-            {
-                return null;
-            }
-
-            var isArtifactReadOnlyReuse = await _stateChangeExecutorRepositories.ReuseRepository.DoItemsContainReadonlyReuse(new[] { _input.ArtifactId }, transaction);
-
-            ItemTypeReuseTemplate reuseTemplate = null;
-            var artifactId2StandardTypeId = await _stateChangeExecutorRepositories.ReuseRepository.GetStandardTypeIdsForArtifactsIdsAsync(new HashSet<int> { _input.ArtifactId });
-            var instanceItemTypeId = artifactId2StandardTypeId[_input.ArtifactId].InstanceTypeId;
-            if (instanceItemTypeId == null)
-            {
-                throw new BadRequestException("Artifact is not a standard artifact type");
-            }
-            if (isArtifactReadOnlyReuse.ContainsKey(_input.ArtifactId) && isArtifactReadOnlyReuse[_input.ArtifactId])
-            {
-                reuseTemplate = await LoadReuseSettings(instanceItemTypeId.Value);
-            }
-            var customItemTypeToPropertiesMap = await LoadCustomPropertyInformation(new[] { instanceItemTypeId.Value }, triggers, artifactInfo.ProjectId);
-
-            var propertyTypes = new List<WorkflowPropertyType>();
-            if (customItemTypeToPropertiesMap.ContainsKey(artifactInfo.ItemTypeId))
-            {
-                propertyTypes = customItemTypeToPropertiesMap[artifactInfo.ItemTypeId];
-            }
-            var usersAndGroups = await LoadUsersAndGroups(triggers);
-            return new ExecutionParameters(
-                _userId, 
-                artifactInfo, 
-                reuseTemplate, 
-                propertyTypes,
-                _stateChangeExecutorRepositories.SaveArtifactRepository, 
-                transaction,
-                new ValidationContext(usersAndGroups.Item1, usersAndGroups.Item2)
-                );
-        }
-
         private async Task<int> CreateRevision(IDbTransaction transaction)
         {
             var publishRevision = await _sqlHelper.CreateRevisionInTransactionAsync(transaction, _userId, I18NHelper.FormatInvariant("State Change Publish: publishing changes and changing artifact {0} state to {1}", _input.ArtifactId, _input.ToStateId));
@@ -240,52 +208,5 @@ namespace ArtifactStore.Executors
             }, transaction);
         }
 
-        private async Task<ItemTypeReuseTemplate> LoadReuseSettings(int itemTypeId, IDbTransaction transaction = null)
-        {
-            var reuseSettingsDictionary = await _stateChangeExecutorRepositories.ReuseRepository.GetReuseItemTypeTemplatesAsyc(new[] { itemTypeId }, transaction);
-
-            ItemTypeReuseTemplate reuseTemplateSettings;
-
-            if (reuseSettingsDictionary.Count == 0 || !reuseSettingsDictionary.TryGetValue(itemTypeId, out reuseTemplateSettings))
-            {
-                return null;
-            }
-
-            return reuseTemplateSettings;
-        }
-
-        private async Task<Dictionary<int, List<WorkflowPropertyType>>> LoadCustomPropertyInformation(IEnumerable<int> instanceItemTypeIds, WorkflowEventTriggers triggers, int projectId)
-        {
-            var propertyChangeActions = triggers.Select(t => t.Action).OfType<PropertyChangeAction>().ToList();
-            if (propertyChangeActions.Count == 0)
-            {
-                return new Dictionary<int, List<WorkflowPropertyType>>();
-            }
-
-            var instancePropertyTypeIds = propertyChangeActions.Select(b => b.InstancePropertyTypeId);
-
-            return await _stateChangeExecutorRepositories.WorkflowRepository.GetCustomItemTypeToPropertiesMap(_userId, _input.ArtifactId, projectId, instanceItemTypeIds, instancePropertyTypeIds);
-        }
-
-        public async Task<Tuple<IEnumerable<SqlUser>, IEnumerable<SqlGroup>>> LoadUsersAndGroups(WorkflowEventTriggers triggers)
-        {
-            var userGroups = triggers.Select(a => a.Action).OfType<PropertyChangeUserGroupsAction>().SelectMany(b => b.UserGroups).ToList();
-            var userIds = userGroups.Where(u => !u.IsGroup.GetValueOrDefault(false) && u.Id.HasValue).Select(u => u.Id.Value).ToHashSet();
-            var groupIds = userGroups.Where(u => u.IsGroup.GetValueOrDefault(false) && u.Id.HasValue).Select(u => u.Id.Value).ToHashSet();
-
-            var users = new List<SqlUser>();
-            if (userIds.Any())
-            {
-                users.AddRange(await _stateChangeExecutorRepositories.UsersRepository.GetExistingUsersByIdsAsync(userIds));
-            }
-            var groups = new List<SqlGroup>();
-            if (groupIds.Any())
-            {
-                groups.AddRange(
-                    await _stateChangeExecutorRepositories.UsersRepository.GetExistingGroupsByIds(groupIds, false));
-            }
-
-            return new Tuple<IEnumerable<SqlUser>, IEnumerable<SqlGroup>>(users, groups);
-        }
     }
 }

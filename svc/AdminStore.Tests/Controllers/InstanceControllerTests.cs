@@ -37,8 +37,7 @@ namespace AdminStore.Controllers
         private Pagination _pagination;
         private Sorting _sorting;
         private QueryResult<RolesAssignments> _rolesAssignmentsQueryResult;
-        private RoleAssignmentDTO _roleAssignment;
-        private int _roleAssignmentId;
+
         [TestInitialize]
         public void Initialize()
         {
@@ -89,20 +88,7 @@ namespace AdminStore.Controllers
             _instanceRepositoryMock
                 .Setup(repo => repo.GetProjectRoleAssignmentsAsync(It.IsAny<int>(), It.IsAny<TabularData>(), It.IsAny<Func<Sorting, string>>()))
                 .ReturnsAsync(_rolesAssignmentsQueryResult);
-
-
-
-            _privilegeRepositoryMock
-                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
-                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectsAdmin);
-
-            _privilegeRepositoryMock
-               .Setup(r => r.GetProjectAdminPermissionsAsync(UserId, ProjectId))
-               .ReturnsAsync(ProjectAdminPrivileges.ManageGroupsAndRoles);
-
-            _roleAssignment = new RoleAssignmentDTO() { GroupId = 1, RoleId = 1 };
-            _roleAssignmentId = 1;
-    }
+        }
 
         #region GetInstanceFolder
 
@@ -1184,23 +1170,6 @@ namespace AdminStore.Controllers
             // Act
             var result = await _controller.CreateRoleAssignment(ProjectId, roleAssignment);
         }
-
-        #region UpdateRoleAssignment
-
-        [TestMethod]
-        public async Task UpdateRoleAssignment_SuccessfulUpdateOfAssignment_ReturnNoneResult()
-        {
-            // Arrange
-
-            // Act
-            var result = await _controller.UpdateRoleAssignment(ProjectId, _roleAssignmentId, _roleAssignment);
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(HttpStatusCode.NoContent, result.StatusCode);
-        }
-
-        #endregion
 
         #endregion
         #region SearchProjectFolder

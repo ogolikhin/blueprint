@@ -67,6 +67,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\svc\SolutionAssemblyInfo.cs">
+      <Link>Properties\SolutionAssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\svc\SolutionAssemblyVersion.cs">
+      <Link>Properties\SolutionAssemblyVersion.cs</Link>
+    </Compile>
     <Compile Include="ProcessImageGeneration\GenerateImageMessage.cs" />
     <Compile Include="ProcessImageGeneration\ImageResponseMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

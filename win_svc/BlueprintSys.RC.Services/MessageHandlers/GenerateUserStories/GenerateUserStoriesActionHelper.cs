@@ -33,11 +33,17 @@ namespace BlueprintSys.RC.Services.MessageHandlers.GenerateUserStories
             var parameters = SerializationHelper.ToXml(payload);
             var generationUserStoriesActionRepo = (IGenerateUserStoriesRepository) actionHandlerServiceRepository;
             var jobsRepository = generationUserStoriesActionRepo.JobsRepository;
+            var user = await GetUserInfo(generateUserStoriesMessage, actionHandlerServiceRepository);
 
             var jobId = await jobsRepository.AddJobMessage(JobType.GenerateUserStories,
-                false, parameters, null, generateUserStoriesMessage.ProjectId, 
-                generateUserStoriesMessage.ProjectName, generateUserStoriesMessage.UserId, 
-                generateUserStoriesMessage.UserName, generateUserStoriesMessage.BaseHostUri);
+                false, 
+                parameters, 
+                null, 
+                generateUserStoriesMessage.ProjectId, 
+                generateUserStoriesMessage.ProjectName, 
+                generateUserStoriesMessage.UserId, 
+                user?.Login, 
+                generateUserStoriesMessage.BaseHostUri);
 
             if (jobId.HasValue)
             {

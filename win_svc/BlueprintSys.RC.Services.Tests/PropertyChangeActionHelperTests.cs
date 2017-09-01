@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using BlueprintSys.RC.Services.MessageHandlers.PropertyChange;
+using BlueprintSys.RC.Services.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BlueprintSys.RC.Services.Tests
@@ -11,11 +12,19 @@ namespace BlueprintSys.RC.Services.Tests
     public class PropertyChangeActionHelperTests
     {
         [TestMethod]
-        public async Task PropertyChangeActionHelper_HandleActionReturnsTrue()
+        public async Task PropertyChangeActionHelper_TenantInfoIsNull_HandleActionReturnsFalse()
         {
             var actionHelper = new PropertyChangeActionHelper();
             var result = await actionHelper.HandleAction(null, null, null);
-            Assert.IsTrue(result);
+            Assert.IsFalse(result);
+        }
+
+        [TestMethod]
+        public async Task PropertyChangeActionHelper_MessageIsNull_HandleActionReturnsFalse()
+        {
+            var actionHelper = new PropertyChangeActionHelper();
+            var result = await actionHelper.HandleAction(new TenantInformation(), null, null);
+            Assert.IsFalse(result);
         }
     }
 }

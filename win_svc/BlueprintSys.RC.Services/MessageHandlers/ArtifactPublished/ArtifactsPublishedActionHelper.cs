@@ -5,6 +5,7 @@ using BlueprintSys.RC.Services.Helpers;
 using BlueprintSys.RC.Services.Models;
 using BlueprintSys.RC.Services.Repositories;
 using BluePrintSys.Messaging.CrossCutting.Host;
+using BluePrintSys.Messaging.CrossCutting.Models.Exceptions;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.LocalLog;
@@ -17,7 +18,7 @@ using ServiceLibrary.Repositories.ConfigControl;
 
 namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
 {
-    public class ArtifactsPublishedActionHelper : IActionHelper
+    public class ArtifactsPublishedActionHelper : MessageActionHandler
     {
         private readonly IActionsParser _actionsParser;
         private readonly INServiceBusServer _nServiceBusServer;
@@ -29,7 +30,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
             _nServiceBusServer = nServiceBusServer ?? WorkflowServiceBusServer.Instance;
         }
 
-        public async Task<bool> HandleAction(TenantInformation tenant, ActionMessage actionMessage, IActionHandlerServiceRepository actionHandlerServiceRepository)
+        protected override async Task<bool> HandleActionInternal(TenantInformation tenant, ActionMessage actionMessage, IActionHandlerServiceRepository actionHandlerServiceRepository)
         {
             var message = (ArtifactsPublishedMessage)actionMessage;
             Logger.Log($"Handling started for user ID {message.UserId}, revision ID {message.RevisionId} with message {message.ToJSON()}", message, tenant, LogLevel.Debug);
@@ -83,6 +84,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
                 await serviceLogRepository.LogInformation(LogSource,
                     $"Could not recover information for following artifacts {notFoundArtifactIdString}");
                 Logger.Log($"Could not recover information for following artifacts {notFoundArtifactIdString}", message, tenant, LogLevel.Debug);
+                throw new EntityNotFoundException($"Could not recover information for following artifacts {notFoundArtifactIdString}");
             }
 
             foreach (var createdArtifact in createdArtifacts)

@@ -4,7 +4,6 @@ using BlueprintSys.RC.Services.Models;
 using BlueprintSys.RC.Services.Repositories;
 using BluePrintSys.Messaging.CrossCutting.Logging;
 using BluePrintSys.Messaging.Models.Actions;
-using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Jobs;
@@ -37,9 +36,9 @@ namespace BlueprintSys.RC.Services.MessageHandlers.GenerateDescendants
 
             var desiredItemType = await sqlItemTypeRepository.GetCustomItemTypeForProvidedStandardItemTypeIdInProject(message.ProjectId,
                 message.DesiredArtifactTypeId.GetValueOrDefault());
-            if (desiredItemType == null || desiredItemType.ItemTypeId <= 0)
+            if (desiredItemType == null || desiredItemType.ItemTypeId <= 0 || string.IsNullOrWhiteSpace(desiredItemType.Name))
             {
-                Log.Debug($"No artifact type found with instance Id: {message.DesiredArtifactTypeId.Value} in Project: {message.ProjectId}");
+                Log.Debug($"No artifact type found with instance Id: {message.DesiredArtifactTypeId.GetValueOrDefault()} in Project: {message.ProjectId}");
                 return false;
             }
 
@@ -51,7 +50,8 @@ namespace BlueprintSys.RC.Services.MessageHandlers.GenerateDescendants
                 UserId = message.UserId,
                 ChildCount = message.ChildCount,
                 DesiredArtifactTypeId = desiredItemType.ItemTypeId,
-                Predefined = (ItemTypePredefined)message.TypePredefined
+                Predefined = (ItemTypePredefined)message.TypePredefined,
+                DesiredArtifactTypeName = desiredItemType.Name
             };
 
             var parameters = SerializationHelper.ToXml(generateDescendantsInfo);
@@ -60,7 +60,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.GenerateDescendants
                 new SqlArtifactRepository(sqlConnectionWrapper),
                 new SqlArtifactPermissionsRepository(sqlConnectionWrapper),
                 new SqlUsersRepository(sqlConnectionWrapper));
-
+            var user = await GetUserInfo(message, actionHandlerServiceRepository);
             var job = await jobsRepository.AddJobMessage(JobType.GenerateDescendants,
                 false,
                 parameters,
@@ -68,7 +68,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.GenerateDescendants
                 message.ProjectId,
                 message.ProjectName,
                 message.UserId,
-                message.UserName,
+                user?.Login, //Login is equal to username
                 message.BaseHostUri);
 
             if (job.HasValue)

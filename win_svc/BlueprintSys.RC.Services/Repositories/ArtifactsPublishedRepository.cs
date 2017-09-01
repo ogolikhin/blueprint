@@ -58,7 +58,17 @@ namespace BlueprintSys.RC.Services.Repositories
         {
         }
 
-        public ArtifactsPublishedRepository(ISqlConnectionWrapper connectionWrapper, IArtifactPermissionsRepository artifactPermissionsRepository) : base(connectionWrapper, artifactPermissionsRepository)
+        public ArtifactsPublishedRepository(ISqlConnectionWrapper connectionWrapper, IArtifactPermissionsRepository artifactPermissionsRepository) : 
+            base(connectionWrapper, 
+                artifactPermissionsRepository, 
+                new SqlUsersRepository(connectionWrapper))
+        {
+        }
+
+        public ArtifactsPublishedRepository(ISqlConnectionWrapper connectionWrapper, 
+            IArtifactPermissionsRepository artifactPermissionsRepository,
+            IUsersRepository usersRepository) :
+            base(connectionWrapper, artifactPermissionsRepository, usersRepository)
         {
             _workflowRepository = new SqlWorkflowRepository(connectionWrapper, ArtifactPermissionsRepository);
         }

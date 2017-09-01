@@ -10,24 +10,37 @@ namespace BlueprintSys.RC.Services.Repositories
 
     public class GenerateUserStoriesActionRepository : ActionHandlerServiceRepository, IGenerateUserStoriesRepository
     {
-        public GenerateUserStoriesActionRepository(string connectionString) : this(new SqlConnectionWrapper(connectionString))
+        public GenerateUserStoriesActionRepository(string connectionString) : 
+            this(new SqlConnectionWrapper(connectionString))
         {
         }
 
-        public GenerateUserStoriesActionRepository(ISqlConnectionWrapper connectionWrapper) : this(connectionWrapper, new JobsRepository(connectionWrapper))
+        public GenerateUserStoriesActionRepository(ISqlConnectionWrapper connectionWrapper) : 
+            this(connectionWrapper, new JobsRepository(connectionWrapper))
         {
         }
 
         public GenerateUserStoriesActionRepository(ISqlConnectionWrapper connectionWrapper,
-            IJobsRepository jobsRepository) : base(connectionWrapper, new SqlArtifactPermissionsRepository(connectionWrapper))
+            IJobsRepository jobsRepository) : this(connectionWrapper,
+                jobsRepository,
+                new SqlUsersRepository(connectionWrapper))
         {
-            JobsRepository = jobsRepository;
+        }
+
+        public GenerateUserStoriesActionRepository(ISqlConnectionWrapper connectionWrapper,
+            IJobsRepository jobsRepository, 
+            IUsersRepository usersRepository) : 
+            this(connectionWrapper, jobsRepository, 
+                new SqlArtifactPermissionsRepository(connectionWrapper), 
+                usersRepository)
+        {
         }
 
         public GenerateUserStoriesActionRepository(ISqlConnectionWrapper connectionWrapper,
             IJobsRepository jobsRepository,
-            IArtifactPermissionsRepository artifactPermissionsRepository) : 
-            base(connectionWrapper, artifactPermissionsRepository)
+            IArtifactPermissionsRepository artifactPermissionsRepository,
+            IUsersRepository usersRepository) : 
+            base(connectionWrapper, artifactPermissionsRepository, usersRepository)
         {
             JobsRepository = jobsRepository;
         }

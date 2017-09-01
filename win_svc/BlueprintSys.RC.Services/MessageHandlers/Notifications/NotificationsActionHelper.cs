@@ -12,9 +12,9 @@ using ServiceLibrary.Notification.Templates;
 
 namespace BlueprintSys.RC.Services.MessageHandlers.Notifications
 {
-    public class NotificationsActionHelper : IActionHelper
+    public class NotificationsActionHelper : MessageActionHandler
     {
-        public async Task<bool> HandleAction(TenantInformation tenant, ActionMessage actionMessage, IActionHandlerServiceRepository actionHandlerServiceRepository)
+        protected override async Task<bool> HandleActionInternal(TenantInformation tenant, ActionMessage actionMessage, IActionHandlerServiceRepository actionHandlerServiceRepository)
         {
             var message = (NotificationMessage) actionMessage;
             var result = await SendNotificationEmail(tenant, message, (INotificationRepository) actionHandlerServiceRepository);

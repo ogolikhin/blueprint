@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 using BluePrintSys.Messaging.CrossCutting.Configuration;
 using BluePrintSys.Messaging.CrossCutting.Logging;
 using NServiceBus;
+using NServiceBus.Configuration.AdvanceExtensibility;
 using NServiceBus.Transport.SQLServer;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
 
@@ -71,7 +73,15 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
         private async Task CreateEndPoint(string name, string connectionString, bool sendOnly)
         {
             var endpointConfiguration = new EndpointConfiguration(name);
-            var assembliesToExclude = new HashSet<string> { "Common.dll", "NServiceBus.Persistence.Sql.dll", "BluePrintSys.Messaging.CrossCutting.dll", "Dapper.StrongName.dll" };
+            var assembliesToExclude = new HashSet<string>
+            {
+                "Common.dll",
+                "NServiceBus.Persistence.Sql.dll",
+                "BluePrintSys.Messaging.CrossCutting.dll",
+                "Dapper.StrongName.dll"
+            };
+
+            
 
             var messageBroker = ConfigHelper.GetMessageBroker();
             if (messageBroker == MessageBroker.RabbitMQ)
@@ -79,9 +89,6 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
                 Log.Info("Configuring RabbitMQ Transport");
                 var transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
                 transport.ConnectionString(connectionString);
-                // for RabbitMQ transport only
-                var delayedDelivery = transport.DelayedDelivery();
-                delayedDelivery.DisableTimeoutManager();
                 assembliesToExclude.Add("nservicebus.transport.sqlserver.dll");
             }
             else if (messageBroker == MessageBroker.SQL)
@@ -107,6 +114,16 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
             {
                 endpointConfiguration.SendOnly();
             }
+            var recoverability = endpointConfiguration.Recoverability();
+            recoverability.Immediate(immediate =>
+            {
+                immediate.NumberOfRetries(6);
+            });
+            recoverability.Delayed(delayed =>
+            {
+                delayed.NumberOfRetries(5);
+                delayed.TimeIncrease(TimeSpan.FromMinutes(10));
+            });
 
             var loggerDefinition = NServiceBus.Logging.LogManager.Use<LoggerDefinition>();
             loggerDefinition.Level(NServiceBus.Logging.LogLevel.Warn);

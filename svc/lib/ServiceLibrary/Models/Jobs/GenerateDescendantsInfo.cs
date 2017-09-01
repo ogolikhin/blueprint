@@ -26,5 +26,8 @@ namespace ServiceLibrary.Models.Jobs
 
         [JsonProperty]
         public int ChildCount { get; set; }
+
+        [JsonProperty]
+        public string DesiredArtifactTypeName { get; set; }
     }
 }

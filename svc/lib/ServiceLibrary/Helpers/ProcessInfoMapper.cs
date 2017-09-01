@@ -12,25 +12,20 @@ namespace ServiceLibrary.Helpers
     {
         public static ProcessInfoDto Map(ProcessInfo pi)
         {
+            
             ProcessInfoDto result = new ProcessInfoDto{ItemId = pi.ItemId};
 
-            if (pi.ProcessType.Equals(ProcessType.UserToSystemProcess.ToString()))
+            ProcessType enumVal;
+            ProcessType defaultValue = ProcessType.None;
+            if (Enum.TryParse(pi.ProcessType, out enumVal))
             {
-                result.ProcessType = ProcessType.UserToSystemProcess;
-            }
-            else if (pi.ProcessType.Equals(ProcessType.BusinessProcess.ToString()))
-            {
-                result.ProcessType = ProcessType.BusinessProcess;
-            }
-            else if (pi.ProcessType.Equals(ProcessType.SystemToSystemProcess.ToString()))
-            {
-                result.ProcessType = ProcessType.SystemToSystemProcess;
+                result.ProcessType = enumVal;
             }
             else
             {
-                result.ProcessType = ProcessType.None;
+                result.ProcessType = defaultValue;
             }
-
+            
             return result;
         }
 

@@ -486,7 +486,7 @@ namespace AdminStore.Repositories
             return hasProjectExternalLocksAsync;
         }
 
-        public async Task<int> CreateRoleAssignmentAsync(int projectId, CreateRoleAssignment roleAssignment)
+        public async Task<int> CreateRoleAssignmentAsync(int projectId, RoleAssignmentDTO roleAssignment)
         {
             if (projectId < 1)
             {
@@ -530,7 +530,7 @@ namespace AdminStore.Repositories
             return result;
         }
 
-        public async Task<int> UpdateRoleAssignmentAsync(int projectId, UpdateRoleAssignment roleAssignment)
+        public async Task<int> UpdateRoleAssignmentAsync(int projectId, int roleAssignmentId, RoleAssignmentDTO roleAssignment)
         {
             if (projectId < 1)
             {
@@ -546,7 +546,7 @@ namespace AdminStore.Repositories
             parameters.Add("@ProjectId", projectId);
             parameters.Add("@GroupId", roleAssignment.GroupId);
             parameters.Add("@RoleId", roleAssignment.RoleId);
-            parameters.Add("@RoleAssignmentId", roleAssignment.RoleAssignmentId);
+            parameters.Add("@RoleAssignmentId", roleAssignmentId);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
             var result = await _connectionWrapper.ExecuteScalarAsync<int>("UpdateProjectRoleAssigment", parameters,

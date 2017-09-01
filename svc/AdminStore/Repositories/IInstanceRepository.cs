@@ -42,8 +42,8 @@ namespace AdminStore.Repositories
 
         Task<QueryResult<ProjectFolderSearchDto>> GetProjectsAndFolders(int userId, TabularData tabularData, Func<Sorting, string> sort = null);
 
-        Task<int> CreateRoleAssignmentAsync(int projectId, CreateRoleAssignment roleAssignment);
+        Task<int> CreateRoleAssignmentAsync(int projectId, RoleAssignmentDTO roleAssignment);
 
-        Task<int> UpdateRoleAssignmentAsync(int projectId, UpdateRoleAssignment roleAssignment);
+        Task<int> UpdateRoleAssignmentAsync(int projectId, int roleAssignmentId, RoleAssignmentDTO roleAssignment);
     }
 }

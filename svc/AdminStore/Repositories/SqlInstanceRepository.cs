@@ -530,7 +530,7 @@ namespace AdminStore.Repositories
             return result;
         }
 
-        public async Task<int> UpdateRoleAssignmentAsync(int projectId, int roleAssignmentId, RoleAssignmentDTO roleAssignment)
+        public async Task/*<int>*/ UpdateRoleAssignmentAsync(int projectId, int roleAssignmentId, RoleAssignmentDTO roleAssignment)
         {
             if (projectId < 1)
             {
@@ -549,7 +549,7 @@ namespace AdminStore.Repositories
             parameters.Add("@RoleAssignmentId", roleAssignmentId);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-            var result = await _connectionWrapper.ExecuteScalarAsync<int>("UpdateProjectRoleAssigment", parameters,
+            /*var result =*/ await _connectionWrapper.ExecuteScalarAsync<int>("UpdateProjectRoleAssigment", parameters,
                 commandType: CommandType.StoredProcedure);
 
             var errorCode = parameters.Get<int?>("ErrorCode");
@@ -579,7 +579,7 @@ namespace AdminStore.Repositories
                 }
             }
 
-            return result;
+            //return result;
 
         }
 

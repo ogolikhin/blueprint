@@ -21,9 +21,6 @@ namespace ServiceLibrary.Models.PropertyType
             if (propertyType.IsValidate && !String.IsNullOrEmpty(property.TextOrChoiceValue))
                 return new PropertySetResult(property.PropertyTypeId, ErrorCodes.InvalidArtifactProperty, "Property does not support custom values.");
 
-            if (propertyType.AllowsCustomValue() && String.IsNullOrEmpty(property.TextOrChoiceValue) && propertyType.IsRequired)
-                return new PropertySetResult(property.PropertyTypeId, ErrorCodes.InvalidArtifactProperty, "Required property custom value should be specified.");
-
             if (!propertyType.AllowsCustomValue() && property.ChoiceIds.Count == 0 && propertyType.IsRequired)
                 return new PropertySetResult(property.PropertyTypeId, ErrorCodes.InvalidArtifactProperty, "Required property value should be specified.");
 

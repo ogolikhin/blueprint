@@ -87,6 +87,9 @@ namespace ArtifactStore.Executors
                 //Collecting all errors so that we can distinguish between errors at a later stage.
                 if (errors.Count > 0)
                 {
+                    await
+                        _stateChangeExecutorRepositories.ServiceLogRepository.LogInformation(LogSource,
+                            $"State cannot be modified as the trigger cannot be executed. {string.Join(", ", errors.Values)}");
                     throw new ConflictException("State cannot be modified as the trigger cannot be executed");
                 }
 

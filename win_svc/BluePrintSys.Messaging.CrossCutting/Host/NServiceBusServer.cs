@@ -115,6 +115,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
                 endpointConfiguration.SendOnly();
             }
             var recoverability = endpointConfiguration.Recoverability();
+            recoverability.DisableLegacyRetriesSatellite();
             recoverability.Immediate(immediate =>
             {
                 immediate.NumberOfRetries(6);

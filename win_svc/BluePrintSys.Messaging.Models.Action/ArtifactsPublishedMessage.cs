@@ -11,6 +11,6 @@ namespace BluePrintSys.Messaging.Models.Actions
 
         public string UserName { get; set; }
 
-        public ICollection<PublishedArtifactInformation> Artifacts { get; set; }
+        public IEnumerable<PublishedArtifactInformation> Artifacts { get; set; }
     }
 }

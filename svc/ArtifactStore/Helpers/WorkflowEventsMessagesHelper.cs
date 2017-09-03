@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using BluePrintSys.Messaging.CrossCutting.Helpers;
@@ -18,18 +19,25 @@ namespace ArtifactStore.Helpers
 {
     public class WorkflowEventsMessagesHelper
     {
-        public static IList<IWorkflowMessage> GenerateMessages(int userId,
+        private const string LogSource = "ArtifactStore.Helpers.WorkflowEventsMessagesHelper";
+
+        public static async Task<IList<IWorkflowMessage>> GenerateMessages(int userId,
             int revisionId,
             string userName,
             WorkflowEventTriggers postOpTriggers,
             IBaseArtifactVersionControlInfo artifactInfo,
             string projectName,
             IDictionary<int, IList<Property>> modifiedProperties,
-            bool sendArtifactPublishedMessage)
+            bool sendArtifactPublishedMessage,
+            string artifactUrl,
+            string baseUrl,
+            IUsersRepository repository,
+            IServiceLogRepository serviceLogRepository,
+            IDbTransaction transaction = null)
         {
             var resultMessages = new List<IWorkflowMessage>();
             //var project = artifactResultSet?.Projects?.FirstOrDefault(d => d.Id == artifactInfo.ProjectId);
-            var baseHostUri = ServerUriHelper.GetBaseHostUri()?.ToString();
+            var baseHostUri = baseUrl ?? ServerUriHelper.GetBaseHostUri()?.ToString();
 
             foreach (var workflowEventTrigger in postOpTriggers)
             {
@@ -45,9 +53,19 @@ namespace ArtifactStore.Helpers
                         {
                             continue;
                         }
-                        var notificationMessage = GetNotificationMessage(userId, revisionId, artifactInfo,
+                        var notificationMessage = await GetNotificationMessage(userId,
+                            revisionId,
+                            artifactInfo,
                             projectName,
-                            notificationAction);
+                            notificationAction,
+                            artifactUrl,
+                            repository,
+                            transaction);
+                        if (notificationMessage == null)
+                        {
+                            await serviceLogRepository.LogInformation(LogSource, $"Skipping Email notification action for artifact {artifactInfo.Id}");
+                            continue;
+                        }
                         resultMessages.Add(notificationMessage);
                         break;
                     case MessageActionType.GenerateChildren:
@@ -117,7 +135,7 @@ namespace ArtifactStore.Helpers
                     GetPublishedMessage(userId, revisionId, artifactInfo, modifiedProperties) as
                         ArtifactsPublishedMessage;
 
-                if (publishedMessage?.Artifacts?.Count > 0)
+                if (publishedMessage != null && publishedMessage.Artifacts.Any())
                 {
                     resultMessages.Add(publishedMessage);
                 }
@@ -129,9 +147,10 @@ namespace ArtifactStore.Helpers
             IApplicationSettingsRepository applicationSettingsRepository,
             IServiceLogRepository serviceLogRepository,
             IList<IWorkflowMessage> messages,
-            string exceptionMessagePrepender)
+            string exceptionMessagePrepender,
+            IDbTransaction transaction = null)
         {
-            var tenantInfo = await applicationSettingsRepository.GetTenantInfo();
+            var tenantInfo = await applicationSettingsRepository.GetTenantInfo(transaction);
             if (string.IsNullOrWhiteSpace(tenantInfo?.TenantId))
             {
                 throw new TenantInfoNotFoundException("No tenant information found. Please contact your administrator.");
@@ -162,24 +181,46 @@ namespace ArtifactStore.Helpers
         }
 
 
-        private static IWorkflowMessage GetNotificationMessage(int userId,
+        private static async Task<IWorkflowMessage> GetNotificationMessage(int userId,
             int revisionId,
             IBaseArtifactVersionControlInfo artifactInfo,
             string projectName,
-            EmailNotificationAction notificationAction)
+            EmailNotificationAction notificationAction,
+            string artifactUrl,
+            IUsersRepository repository,
+            IDbTransaction transaction)
         {
-            var artifactPartUrl = ServerUriHelper.GetArtifactUrl(artifactInfo.Id, true);
+            string messageHeader = I18NHelper.FormatInvariant("You are being notified because of an update to the artifact with Id: {0}.", artifactInfo.Id);
+            var artifactPartUrl = artifactUrl ?? ServerUriHelper.GetArtifactUrl(artifactInfo.Id, true);
             if (artifactPartUrl == null)
             {
                 return null;
             }
+            var emails = new List<string>();
+            if (notificationAction.PropertyTypeId.HasValue && notificationAction.PropertyTypeId.Value > 0)
+            {
+                var userInfos =
+                    await repository.GetUserInfoForWorkflowArtifactForAssociatedUserProperty
+                        (artifactInfo.Id,
+                            notificationAction.PropertyTypeId.Value,
+                            revisionId,
+                            transaction);
+                //Make sure that email is provided
+                emails.AddRange(from userInfo in userInfos where !string.IsNullOrWhiteSpace(userInfo?.Email) select userInfo.Email);
+            }
+            else
+            {
+                //Take email from list of provided emails
+                emails.AddRange(notificationAction.Emails ?? new List<string>());
+            }
+
             var notificationMessage = new NotificationMessage
             {
                 ArtifactName = artifactInfo.Name,
                 ProjectName = projectName,
-                Subject = notificationAction.Subject,
+                Subject = I18NHelper.FormatInvariant("Artifact {0} has been updated.", artifactInfo.Id),
                 From = notificationAction.FromDisplayName,
-                To = notificationAction.Emails,
+                To = emails,
                 MessageTemplate = notificationAction.Message,
                 RevisionId = revisionId,
                 UserId = userId,
@@ -187,7 +228,8 @@ namespace ArtifactStore.Helpers
                 ArtifactId = artifactInfo.Id,
                 ArtifactUrl = artifactPartUrl,
                 ArtifactTypePredefined = (int)artifactInfo.PredefinedType,
-                ProjectId = artifactInfo.ProjectId
+                ProjectId = artifactInfo.ProjectId,
+                Header = messageHeader
             };
             return notificationMessage;
         }

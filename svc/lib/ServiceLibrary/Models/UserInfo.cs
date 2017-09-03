@@ -7,5 +7,7 @@
         public int? ImageId { get; set; }
         public bool IsGuest { get; set; }
         public bool IsEnabled { get; set; }
+        public string Email { get; set; }
+        public string Login { get; set; }
     }
 }

@@ -70,10 +70,10 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
             var serviceLogRepository = new ServiceLogRepository(new HttpClientProvider(), 
                 new LocalFileLog(), 
                 tenant.AdminStoreLog);
-
+            
             var artifactIds = createdArtifacts.Select(a => a.Id).ToHashSet();
-
-            var artifactInfos = (await repository.GetWorkflowMessageArtifactInfoAsync(message.UserId,
+            
+            var artifactInfos = (await repository.WorkflowRepository.GetWorkflowMessageArtifactInfoAsync(message.UserId,
                 artifactIds,
                 message.RevisionId)).ToDictionary(k => k.Id);
 
@@ -99,17 +99,21 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
                     continue;
                 }
 
-                var eventTriggers = await repository.GetWorkflowEventTriggersForNewArtifactEvent(message.UserId,
+                var eventTriggers = await repository.WorkflowRepository.GetWorkflowEventTriggersForNewArtifactEvent(message.UserId,
                     new[] { createdArtifact.Id },
                     message.RevisionId);
-                var actionMessages = WorkflowEventsMessagesHelper.GenerateMessages(message.UserId,
+                var actionMessages = await WorkflowEventsMessagesHelper.GenerateMessages(message.UserId,
                     message.RevisionId,
                     message.UserName,
                     eventTriggers.AsynchronousTriggers,
                     artifactInfo,
                     artifactInfo.ProjectName,
                     new Dictionary<int, IList<Property>>(),
-                    false
+                    false,
+                    createdArtifact.Url,
+                    createdArtifact.BaseUrl,
+                    repository.UsersRepository,
+                    serviceLogRepository
                     );
 
                 await WorkflowEventsMessagesHelper.ProcessMessages(LogSource,

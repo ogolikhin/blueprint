@@ -9,5 +9,7 @@ namespace ServiceLibrary.Models
         public string Name { get; set; }
 
         public int? ProjectId { get; set; }
+
+        public string Email { get; set; }
     }
 }

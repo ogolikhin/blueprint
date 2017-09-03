@@ -31,6 +31,7 @@ namespace ServiceLibrary.Repositories.Workflow
         Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForNewArtifactEvent(int userId,
             IEnumerable<int> artifactIds, int revisionId);
 
-        Task<IEnumerable<WorkflowMessageArtifactInfo>> GetWorkflowMessageArtifactInfoAsync(int userId, IEnumerable<int> artifactIds, int revisionId);
+        Task<IEnumerable<WorkflowMessageArtifactInfo>> GetWorkflowMessageArtifactInfoAsync(int userId, IEnumerable<int> artifactIds, int revisionId,
+            IDbTransaction transaction = null);
     }
 }

@@ -87,6 +87,9 @@ namespace ArtifactStore.Executors
                 //Collecting all errors so that we can distinguish between errors at a later stage.
                 if (errors.Count > 0)
                 {
+                    await
+                        _stateChangeExecutorRepositories.ServiceLogRepository.LogInformation(LogSource,
+                            $"State cannot be modified as the trigger cannot be executed. {string.Join(", ", errors.Values)}");
                     throw new ConflictException("State cannot be modified as the trigger cannot be executed");
                 }
 
@@ -95,8 +98,8 @@ namespace ArtifactStore.Executors
                     Result = stateChangeResult
                 };
 
-                //Generate asynchronous messages for sending
-                result.ActionMessages.AddRange(WorkflowEventsMessagesHelper.GenerateMessages(
+            //Generate asynchronous messages for sending
+            result.ActionMessages.AddRange((await WorkflowEventsMessagesHelper.GenerateMessages(
                     _userId,
                     publishRevision,
                     _input.UserName,
@@ -104,14 +107,21 @@ namespace ArtifactStore.Executors
                     artifactInfo,
                     artifactResultSet?.Projects?.FirstOrDefault(d => d.Id == artifactInfo.ProjectId)?.Name,
                     artifactResultSet?.ModifiedProperties,
-                    true
-                    ));
+                    true,
+                    null,
+                    null,
+                    _stateChangeExecutorRepositories.UsersRepository,
+                    _stateChangeExecutorRepositories.ServiceLogRepository,
+                    transaction
+                    )));
 
                 await WorkflowEventsMessagesHelper.ProcessMessages(LogSource,
                     _stateChangeExecutorRepositories.ApplicationSettingsRepository,
                     _stateChangeExecutorRepositories.ServiceLogRepository, 
                     result.ActionMessages,
-                    $"Error on successful transition of artifact: {_input.ArtifactId} from {_input.FromStateId} to {_input.ToStateId}");
+                    $"Error on successful transition of artifact: {_input.ArtifactId} from {_input.FromStateId} to {_input.ToStateId}",
+                    transaction
+                    );
 
                 return result;
             };

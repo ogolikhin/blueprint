@@ -14,6 +14,8 @@ namespace BluePrintSys.Messaging.Models.Actions
 
         public string Url { get; set; }
 
+        public string BaseUrl { get; set; }
+
         public bool IsFirstTimePublished { get; set; }
 
         public List<PublishedPropertyInformation> ModifiedProperties { get; set; }

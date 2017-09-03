@@ -31,4 +31,26 @@ namespace ServiceLibrary.Models.PropertyType
         public string CustomProperty { get; set; }
     }
 
+    public class SqlPropertyInfo
+    {
+        public int PropertyTypeId { get; set; }
+
+        public int PrimitiveType { get; set; }
+
+        public string PropertyName { get; set; }
+
+        public int? InstancePropertyTypeId { get; set; }
+
+        public string PropertyValue { get; set; }
+
+        public int? PropertyValuePrimitiveType { get; set; }
+
+        public string StringValue { get; set; }
+
+        public string StringDefaultValue { get; set; }
+
+        public string UserValue { get; set; }
+
+        public string UserDefaultValue { get; set; }
+    }
 }

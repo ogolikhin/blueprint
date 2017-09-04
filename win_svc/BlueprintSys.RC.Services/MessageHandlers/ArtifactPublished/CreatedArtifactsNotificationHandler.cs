@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using BlueprintSys.RC.Services.Helpers;
 using BlueprintSys.RC.Services.Models;
@@ -16,7 +18,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
     internal class CreatedArtifactsNotificationHandler
     {
         private const string LogSource = "ArtifactsPublishedActionHelper.CreatedArtifacts";
-
+        private const int TransactionCommitWaitTime = 1;
         internal static async Task<bool> ProcessCreatedArtifacts(TenantInformation tenant,
             List<PublishedArtifactInformation> createdArtifacts,
             ArtifactsPublishedMessage message,
@@ -31,17 +33,38 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
 
             var artifactIds = createdArtifacts.Select(a => a.Id).ToHashSet();
 
-            var artifactInfos = (await repository.WorkflowRepository.GetWorkflowMessageArtifactInfoAsync(message.UserId,
-                artifactIds,
-                message.RevisionId)).ToDictionary(k => k.Id);
+            bool artifactsLocated = false;
+            var artifactInfos = new Dictionary<int, WorkflowMessageArtifactInfo>();
+            var notFoundArtifactIds = new HashSet<int>();
+            for (int i = 0; i < 10; i++)
+            {
 
-            var notFoundArtifactIds = artifactIds.Except(artifactInfos.Keys).ToHashSet();
-            if (notFoundArtifactIds.Count > 0)
+                artifactInfos = (await
+                    repository.WorkflowRepository.GetWorkflowMessageArtifactInfoAsync(message.UserId,
+                        artifactIds,
+                        message.RevisionId)).ToDictionary(k => k.Id);
+
+                notFoundArtifactIds.AddRange(artifactIds.Except(artifactInfos.Keys));
+                if (notFoundArtifactIds.Count > 0)
+                {
+                    var notFoundArtifactIdString = string.Join(", ", notFoundArtifactIds);
+                    await serviceLogRepository.LogInformation(LogSource,
+                        $"Could not recover information for following artifacts {notFoundArtifactIdString}");
+                    Logger.Log($"Could not recover information for following artifacts {notFoundArtifactIdString}",
+                        message, tenant, LogLevel.Debug);
+                    artifactInfos.Clear();
+                    notFoundArtifactIds.Clear();
+                    //Wait for a minute before
+                    Thread.Sleep(TimeSpan.FromMinutes(TransactionCommitWaitTime));
+                    continue;
+                }
+                artifactsLocated = true;
+                break;
+            }
+
+            if (!artifactsLocated)
             {
                 var notFoundArtifactIdString = string.Join(", ", notFoundArtifactIds);
-                await serviceLogRepository.LogInformation(LogSource,
-                    $"Could not recover information for following artifacts {notFoundArtifactIdString}");
-                Logger.Log($"Could not recover information for following artifacts {notFoundArtifactIdString}", message, tenant, LogLevel.Debug);
                 throw new EntityNotFoundException($"Could not recover information for following artifacts {notFoundArtifactIdString}");
             }
 

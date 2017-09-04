@@ -19,6 +19,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
     internal class CreatedArtifactsNotificationHandler
     {
         private const string LogSource = "ArtifactsPublishedActionHelper.CreatedArtifacts";
+        private const int TransactionCommitWaitTime = 1;
         internal static async Task<bool> ProcessCreatedArtifacts(TenantInformation tenant,
             ArtifactsPublishedMessage message,
             IArtifactsPublishedRepository repository,

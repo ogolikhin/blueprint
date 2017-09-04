@@ -31,7 +31,7 @@ namespace ArtifactStore
 
         protected void Application_End(object sender, EventArgs e)
         {
-            WorkflowMessaging.Shutdown();
+            WorkflowMessagingProcessor.Shutdown();
         }
     }
 }

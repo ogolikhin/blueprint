@@ -164,7 +164,7 @@ namespace ArtifactStore.Helpers
             {
                 try
                 {
-                    await WorkflowMessaging.Instance.SendMessageAsync(tenantInfo.TenantId, actionMessage);
+                    await WorkflowMessagingProcessor.Instance.SendMessageAsync(tenantInfo.TenantId, actionMessage);
                     string message = $"Sent {actionMessage.ActionType} message: {actionMessage.ToJSON()} with tenant id: {tenantInfo.TenantId} to the Message queue";
                     await
                         serviceLogRepository.LogInformation(logSource, message);

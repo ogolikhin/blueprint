@@ -27,6 +27,9 @@ namespace AdminStore.Repositories
         private IEnumerable<RolesAssignments> _projectRolesAssignments;
         private TabularData _tabularData;
         private InstanceItem[] _instanceItems;
+        private RoleAssignmentDTO roleAssignment;
+        private int errorCode;
+        private int roleAssignmentId;
 
         [TestInitialize]
         public void Initialize()
@@ -46,6 +49,10 @@ namespace AdminStore.Repositories
             };
 
             _instanceItems = new[] { new InstanceItem { Id = ProjectId, Name = "My Project", IsAccesible = true } };
+
+            roleAssignment = new RoleAssignmentDTO() { GroupId = 1, RoleId = 1 };
+            errorCode = 0;
+            roleAssignmentId = 1;
         }
 
         #region GetInstanceFolderAsync
@@ -1362,6 +1369,62 @@ namespace AdminStore.Repositories
             //assert
             Assert.AreEqual(0, result.Total);
         }
+
+        #endregion
+
+        #region UpdateRoleAssignmentAsync
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task UpdateRoleAssignment_ProjectNotEists_ThrowsResourceNotFoundException()
+        {
+            
+            errorCode = 50016;
+
+            _connection.SetupQueryAsync("UpdateProjectRoleAssigment",
+                                        new Dictionary<string, object>
+                                        {
+                                            { "ProjectId", ProjectId },
+                                            {"GroupId", roleAssignment.GroupId },
+                                            {"RoleId", roleAssignment.RoleId },
+                                            {"RoleAssignmentId", roleAssignmentId }
+                                        },
+                                        new Dictionary<string, object> { { "ErrorCode", errorCode } });
+
+            // Act
+            await _instanceRepository.UpdateRoleAssignmentAsync(ProjectId, roleAssignmentId, roleAssignment);
+
+            // Assert
+            //_connection.Verify();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public async Task UpdateRoleAssignment_ProjectIdNotValid_ThrowsArgumentOutOfRangeException()
+        {
+            //Arrange
+            int projectId = 0;
+
+            // Act
+            await _instanceRepository.UpdateRoleAssignmentAsync(projectId, roleAssignmentId, roleAssignment);
+
+            // Assert
+            _connection.Verify();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public async Task UpdateRoleAssignment_RoleAssignmentNotValid_ThrowsArgumentOutOfRangeException()
+        {
+            roleAssignment = null;
+
+            // Act
+            await _instanceRepository.UpdateRoleAssignmentAsync(ProjectId, roleAssignmentId, roleAssignment);
+
+            // Assert
+            _connection.Verify();
+        }
+
 
         #endregion
     }

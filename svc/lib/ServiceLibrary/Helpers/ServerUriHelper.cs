@@ -57,6 +57,16 @@ namespace ServiceLibrary.Helpers
             return GetArtifactPartUrl(baseUrl, artifactId, null, null, null, null);
         }
 
+        public static string GetBaseHostForStoryteller()
+        {
+            Uri hostUri = GetBaseHostUri();
+            if (hostUri == null)
+            {
+                return null;
+            }
+            return CreateUrlString(hostUri, "", null);
+        }
+
         private static string CreateUrlString(Uri baseUri, string appendPath, string query)
         {
             var uri = CreateUrl(baseUri, appendPath, query);

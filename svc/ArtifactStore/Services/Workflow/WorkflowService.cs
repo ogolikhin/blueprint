@@ -77,7 +77,8 @@ namespace ArtifactStore.Services.Workflow
                     UserName = userName
                 },
                 _sqlHelper,
-                _stateChangeExecutorRepositories);
+                _stateChangeExecutorRepositories,
+                new StateChangeExecutorHelper(_stateChangeExecutorRepositories));
 
             return await stateChangeExecutor.Execute();
         }

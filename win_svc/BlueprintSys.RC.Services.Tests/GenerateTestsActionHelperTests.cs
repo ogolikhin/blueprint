@@ -1,5 +1,7 @@
 ﻿using System.Threading.Tasks;
 using BlueprintSys.RC.Services.MessageHandlers.GenerateTests;
+using BlueprintSys.RC.Services.Models;
+using BluePrintSys.Messaging.Models.Actions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BlueprintSys.RC.Services.Tests
@@ -11,11 +13,19 @@ namespace BlueprintSys.RC.Services.Tests
     public class GenerateTestsActionHelperTests
     {
         [TestMethod]
-        public async Task GenerateTestsActionHelper_HandleActionReturnsTrue()
+        public async Task GenerateTestsActionHelper_MessageIsNull_HandleActionReturnsFalse()
         {
             var actionHelper = new GenerateTestsActionHelper();
-            var result = await actionHelper.HandleAction(null, null, null);
-            Assert.IsTrue(result);
+            var result = await actionHelper.HandleAction(new TenantInformation(), null, null);
+            Assert.IsFalse(result);
+        }
+
+        [TestMethod]
+        public async Task GenerateTestsActionHelper_TenantInfoIsNull_HandleActionReturnsFalse()
+        {
+            var actionHelper = new GenerateTestsActionHelper();
+            var result = await actionHelper.HandleAction(null, new GenerateTestsMessage(), null);
+            Assert.IsFalse(result);
         }
     }
 }

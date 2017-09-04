@@ -199,7 +199,7 @@ namespace ArtifactStore.Services
                 .ReturnsAsync(false);
             _artifactVersionsRepositoryMock.Setup(t => t.GetVersionControlArtifactInfoAsync(itemId, null, 1))
                 .ReturnsAsync(vcArtifactInfo);
-            _applicationSettingsRepositoryMock.Setup(t => t.GetTenantInfo()).ReturnsAsync(new TenantInfo()
+            _applicationSettingsRepositoryMock.Setup(t => t.GetTenantInfo(It.IsAny<IDbTransaction>())).ReturnsAsync(new TenantInfo()
             {
                 TenantId = Guid.NewGuid().ToString()
             });

@@ -54,7 +54,8 @@ namespace BlueprintSys.RC.Services.Helpers
                     var emailNotification = new EmailNotificationAction
                     {
                         ConditionalStateId = condition?.StateId,
-                        PropertyTypeId = workflowEvent.EventPropertyTypeId ?? 0,
+                        EventPropertyTypeId = workflowEvent.EventPropertyTypeId ?? 0,
+                        PropertyTypeId = action.PropertyTypeId,
                         Message = action.Message
                     };
                     emailNotification.Emails.AddRange(action.Emails);

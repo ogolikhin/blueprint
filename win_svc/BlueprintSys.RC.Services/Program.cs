@@ -18,7 +18,7 @@ namespace BlueprintSys.RC.Services
                 });
                 x.RunAsLocalSystem();
 
-                x.SetDescription("Action Handler");
+                x.SetDescription("Processes Blueprint system messages.");
                 x.SetDisplayName($"{serviceName} service");
                 x.SetServiceName(serviceName);
 

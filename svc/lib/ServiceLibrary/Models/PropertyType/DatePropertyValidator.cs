@@ -10,7 +10,7 @@ namespace ServiceLibrary.Models.PropertyType
             DatePropertyType propertyType, 
             IValidationContext validationContext)
         {
-            if (IsPropertyValueEmpty(property, propertyType))
+            if (IsPropertyValueEmpty(property, propertyType) || !propertyType.IsValidate)
                 return null;
 
             var value = property.DateValue.Value;

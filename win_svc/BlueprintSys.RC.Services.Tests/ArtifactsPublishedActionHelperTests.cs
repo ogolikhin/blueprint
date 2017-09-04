@@ -145,7 +145,7 @@ namespace BlueprintSys.RC.Services.Tests
 
             var actionsParserMock = new Mock<IActionsParser>();
             actionsParserMock.Setup(m => m.GetNotificationActions(It.IsAny<IEnumerable<SqlWorkflowEvent>>())).Returns(_notificationActions);
-            var actionHelper = new ArtifactsPublishedActionHelper(actionsParserMock.Object, new Mock<INServiceBusServer>().Object);
+            var actionHelper = new ArtifactsPublishedActionHelper(actionsParserMock.Object);
 
             var result = await actionHelper.HandleAction(_tenantInformation, message, _repositoryMock.Object);
             Assert.IsFalse(result);
@@ -174,7 +174,7 @@ namespace BlueprintSys.RC.Services.Tests
             _repositoryMock.Setup(m => m.GetInstancePropertyTypeIdsMap(It.IsAny<IEnumerable<int>>())).ReturnsAsync(_instancePropertyTypeIds);
             var actionsParserMock = new Mock<IActionsParser>();
             actionsParserMock.Setup(m => m.GetNotificationActions(It.IsAny<IEnumerable<SqlWorkflowEvent>>())).Returns(notificationActions);
-            var actionHelper = new ArtifactsPublishedActionHelper(actionsParserMock.Object, new Mock<INServiceBusServer>().Object);
+            var actionHelper = new ArtifactsPublishedActionHelper(actionsParserMock.Object);
 
             var result = await actionHelper.HandleAction(_tenantInformation, message, _repositoryMock.Object);
             Assert.IsFalse(result);
@@ -202,7 +202,7 @@ namespace BlueprintSys.RC.Services.Tests
 
             var actionsParserMock = new Mock<IActionsParser>();
             actionsParserMock.Setup(m => m.GetNotificationActions(It.IsAny<IEnumerable<SqlWorkflowEvent>>())).Returns(notificationActions);
-            var actionHelper = new ArtifactsPublishedActionHelper(actionsParserMock.Object, new Mock<INServiceBusServer>().Object);
+            var actionHelper = new ArtifactsPublishedActionHelper(actionsParserMock.Object);
 
             var result = await actionHelper.HandleAction(_tenantInformation, _messageWithModifiedProperties, _repositoryMock.Object);
             Assert.IsFalse(result);

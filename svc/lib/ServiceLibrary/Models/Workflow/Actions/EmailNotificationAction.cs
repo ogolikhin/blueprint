@@ -9,6 +9,8 @@ namespace ServiceLibrary.Models.Workflow.Actions
 
         public int? ConditionalStateId { get; set; }
 
+        public int? EventPropertyTypeId { get; set; }
+
         public int? PropertyTypeId { get; set; }
 
         public string Header { get; set; } = "You are being notified because of an update to the following artifact:";

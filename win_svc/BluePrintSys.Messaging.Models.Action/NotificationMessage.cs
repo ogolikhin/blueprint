@@ -19,6 +19,5 @@ namespace BluePrintSys.Messaging.Models.Actions
         public int RevisionId { get; set; }
         public int ArtifactTypeId { get; set; }
         public int ArtifactTypePredefined { get; set; }
-        public int UserId { get; set; }
     }
 }

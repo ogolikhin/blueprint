@@ -44,8 +44,8 @@ namespace BlueprintSys.RC.Services.MessageHandlers
                     var messageId = GetMessageHeaderValue(Headers.MessageId, context);
                     var timeSent = GetMessageHeaderValue(Headers.TimeSent, context);
                     Log.Info($"Action handling started. Message: {message.ActionType}. Tenant ID: {tenantId}. Message ID: {messageId}. Time Sent: {timeSent}");
-                    await ProcessAction(tenant, message);
-                    Log.Info($"Action handling completed. Message: {message.ActionType}. Tenant ID: {tenantId}. Message ID: {messageId}. Time Sent: {timeSent}");
+                    var result = await ProcessAction(tenant, message, context);
+                    Log.Info($"Action handling completed with result={result}. Message: {message.ActionType}. Tenant ID: {tenantId}. Message ID: {messageId}. Time Sent: {timeSent}");
                 }
                 else
                 {
@@ -69,7 +69,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers
             return headerValue;
         }
 
-        protected virtual async Task<bool> ProcessAction(TenantInformation tenant, T message)
+        protected virtual async Task<bool> ProcessAction(TenantInformation tenant, T message, IMessageHandlerContext context)
         {
             IActionHandlerServiceRepository serviceRepository;
             switch (message.ActionType)

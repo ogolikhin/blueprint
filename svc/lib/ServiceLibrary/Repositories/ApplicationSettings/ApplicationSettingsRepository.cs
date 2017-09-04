@@ -24,8 +24,13 @@ namespace ServiceLibrary.Repositories.ApplicationSettings
             _connectionWrapper = connectionWrapper;
         }
 
-        public async Task<TenantInfo> GetTenantInfo()
+        public async Task<TenantInfo> GetTenantInfo(IDbTransaction transaction = null)
         {
+            if (transaction != null)
+            {
+                return (await transaction.Connection.QueryAsync<TenantInfo>("[dbo].[GetTenantInfo]", transaction: transaction, commandType: CommandType.StoredProcedure))
+                .FirstOrDefault();
+            }
             return (await _connectionWrapper.QueryAsync<TenantInfo>("[dbo].[GetTenantInfo]", commandType: CommandType.StoredProcedure))
                 .FirstOrDefault();
         }

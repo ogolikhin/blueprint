@@ -18,18 +18,24 @@ namespace BlueprintSys.RC.Services.Helpers
 {
     public class WorkflowEventsMessagesHelper
     {
-        public static IList<IWorkflowMessage> GenerateMessages(int userId,
+        private const string LogSource = "StateChange.WorkflowEventsMessagesHelper";
+
+        public static async Task<IList<IWorkflowMessage>> GenerateMessages(int userId,
             int revisionId,
             string userName,
             WorkflowEventTriggers postOpTriggers,
             IBaseArtifactVersionControlInfo artifactInfo,
             string projectName,
             IDictionary<int, IList<Property>> modifiedProperties,
-            bool sendArtifactPublishedMessage)
+            bool sendArtifactPublishedMessage,
+            string artifactUrl,
+            string baseUrl,
+            IUsersRepository repository,
+            IServiceLogRepository serviceLogRepository)
         {
             var resultMessages = new List<IWorkflowMessage>();
             //var project = artifactResultSet?.Projects?.FirstOrDefault(d => d.Id == artifactInfo.ProjectId);
-            var baseHostUri = ServerUriHelper.GetBaseHostUri()?.ToString();
+            var baseHostUri = baseUrl ?? ServerUriHelper.GetBaseHostUri()?.ToString();
 
             foreach (var workflowEventTrigger in postOpTriggers)
             {
@@ -45,9 +51,22 @@ namespace BlueprintSys.RC.Services.Helpers
                         {
                             continue;
                         }
-                        var notificationMessage = GetNotificationMessage(userId, revisionId, artifactInfo,
+                        var notificationMessage = await GetNotificationMessage(userId, 
+                            revisionId, 
+                            artifactInfo,
                             projectName,
-                            notificationAction);
+                            notificationAction,
+                            artifactUrl,
+                            repository);
+                        if (notificationMessage == null)
+                        {
+                            await serviceLogRepository.LogInformation(LogSource, $"Skipping Email notification action for artifact {artifactInfo.Id}");
+                            Logger.Log($"Skipping Email notification action for artifact {artifactInfo.Id}", 
+                                MessageActionType.Notification, 
+                                null, 
+                                LogLevel.Debug);
+                            continue;
+                        }
                         resultMessages.Add(notificationMessage);
                         break;
                     case MessageActionType.GenerateChildren:
@@ -75,6 +94,11 @@ namespace BlueprintSys.RC.Services.Helpers
                         var generateTestsAction = workflowEventTrigger.Action as GenerateTestCasesAction;
                         if (generateTestsAction == null || artifactInfo.PredefinedType != ItemTypePredefined.Process)
                         {
+                            await serviceLogRepository.LogInformation(LogSource, $"Skipping GenerateTestCasesAction for artifact {artifactInfo.Id} as it is not a process");
+                            Logger.Log($"Skipping GenerateTestCasesAction for artifact {artifactInfo.Id} as it is not a process",
+                                MessageActionType.Notification,
+                                null,
+                                LogLevel.Debug);
                             continue;
                         }
                         var generateTestsMessage = new GenerateTestsMessage
@@ -93,6 +117,11 @@ namespace BlueprintSys.RC.Services.Helpers
                         var generateUserStories = workflowEventTrigger.Action as GenerateUserStoriesAction;
                         if (generateUserStories == null || artifactInfo.PredefinedType != ItemTypePredefined.Process)
                         {
+                            await serviceLogRepository.LogInformation(LogSource, $"Skipping GenerateUserStories for artifact {artifactInfo.Id} as it is not a process");
+                            Logger.Log($"Skipping GenerateUserStories for artifact {artifactInfo.Id} as it is not a process",
+                                MessageActionType.Notification,
+                                null,
+                                LogLevel.Debug);
                             continue;
                         }
                         var generateUserStoriesMessage = new GenerateUserStoriesMessage
@@ -117,7 +146,7 @@ namespace BlueprintSys.RC.Services.Helpers
                     GetPublishedMessage(userId, revisionId, artifactInfo, modifiedProperties) as
                         ArtifactsPublishedMessage;
 
-                if (publishedMessage?.Artifacts?.Count > 0)
+                if (publishedMessage != null && publishedMessage.Artifacts.Any())
                 {
                     resultMessages.Add(publishedMessage);
                 }
@@ -137,6 +166,17 @@ namespace BlueprintSys.RC.Services.Helpers
                 throw new TenantInfoNotFoundException("No tenant information found. Please contact your administrator.");
             }
 
+            await
+                ProcessMessages(logSource, tenantInfo.TenantId, serviceLogRepository, messages,
+                    exceptionMessagePrepender);
+        }
+
+        public static async Task ProcessMessages(string logSource,
+            string tenantId,
+            IServiceLogRepository serviceLogRepository,
+            IList<IWorkflowMessage> messages,
+            string exceptionMessagePrepender)
+        {
             if (messages == null || messages.Count <= 0)
             {
                 return;
@@ -145,8 +185,8 @@ namespace BlueprintSys.RC.Services.Helpers
             {
                 try
                 {
-                    await WorkflowMessaging.Instance.SendMessageAsync(tenantInfo.TenantId, actionMessage);
-                    string message = $"Sent {actionMessage.ActionType} message: {actionMessage.ToJSON()} with tenant id: {tenantInfo.TenantId} to the Message queue";
+                    await WorkflowMessaging.Instance.SendMessageAsync(tenantId, actionMessage);
+                    string message = $"Sent {actionMessage.ActionType} message: {actionMessage.ToJSON()} with tenant id: {tenantId} to the Message queue";
                     await
                         serviceLogRepository.LogInformation(logSource, message);
                 }
@@ -161,25 +201,30 @@ namespace BlueprintSys.RC.Services.Helpers
             }
         }
 
-
-        private static IWorkflowMessage GetNotificationMessage(int userId,
+        private static async Task<IWorkflowMessage> GetNotificationMessage(int userId,
             int revisionId,
             IBaseArtifactVersionControlInfo artifactInfo,
             string projectName,
-            EmailNotificationAction notificationAction)
+            EmailNotificationAction notificationAction,
+            string artifactUrl,
+            IUsersRepository repository)
         {
-            var artifactPartUrl = ServerUriHelper.GetArtifactUrl(artifactInfo.Id, true);
+            string messageHeader = I18NHelper.FormatInvariant("You are being notified because artifact with Id: {0} has been created.", artifactInfo.Id);
+            var artifactPartUrl = artifactUrl ?? ServerUriHelper.GetArtifactUrl(artifactInfo.Id, true);
             if (artifactPartUrl == null)
             {
                 return null;
             }
+            
+           var  emails = await GetEmailValues(revisionId, artifactInfo.Id, notificationAction, repository);
+
             var notificationMessage = new NotificationMessage
             {
                 ArtifactName = artifactInfo.Name,
                 ProjectName = projectName,
-                Subject = notificationAction.Subject,
+                Subject = I18NHelper.FormatInvariant("Artifact {0} has been created.",artifactInfo.Id),
                 From = notificationAction.FromDisplayName,
-                To = notificationAction.Emails,
+                To = emails,
                 MessageTemplate = notificationAction.Message,
                 RevisionId = revisionId,
                 UserId = userId,
@@ -187,9 +232,34 @@ namespace BlueprintSys.RC.Services.Helpers
                 ArtifactId = artifactInfo.Id,
                 ArtifactUrl = artifactPartUrl,
                 ArtifactTypePredefined = (int)artifactInfo.PredefinedType,
-                ProjectId = artifactInfo.ProjectId
+                ProjectId = artifactInfo.ProjectId,
+                Header = messageHeader
             };
             return notificationMessage;
+        }
+
+        internal static async Task<List<string>>  GetEmailValues(int revisionId, int artifactId,
+            EmailNotificationAction notificationAction, IUsersRepository repository)
+        {
+            var emails = new List<string>();
+            if (notificationAction.PropertyTypeId.HasValue && notificationAction.PropertyTypeId.Value > 0)
+            {
+                var userInfos =
+                    await repository.GetUserInfoForWorkflowArtifactForAssociatedUserProperty
+                        (artifactId,
+                            notificationAction.PropertyTypeId.Value,
+                            revisionId);
+                //Make sure that email is provided
+                emails.AddRange(from userInfo in userInfos
+                    where !string.IsNullOrWhiteSpace(userInfo?.Email)
+                    select userInfo.Email);
+            }
+            else
+            {
+                //Take email from list of provided emails
+                emails.AddRange(notificationAction.Emails ?? new List<string>());
+            }
+            return emails;
         }
 
         private static IWorkflowMessage GetPublishedMessage(int userId,
@@ -211,6 +281,7 @@ namespace BlueprintSys.RC.Services.Helpers
                 IsFirstTimePublished = false, //State change always occurs on published artifacts
                 ProjectId = artifactInfo.ProjectId,
                 Url = ServerUriHelper.GetArtifactUrl(artifactInfo.Id, true),
+                BaseUrl = ServerUriHelper.GetBaseHostForStoryteller(),
                 ModifiedProperties = new List<PublishedPropertyInformation>()
             };
 

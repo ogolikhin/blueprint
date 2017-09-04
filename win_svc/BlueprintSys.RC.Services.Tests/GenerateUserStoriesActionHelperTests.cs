@@ -1,11 +1,14 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using BlueprintSys.RC.Services.MessageHandlers.GenerateUserStories;
 using BlueprintSys.RC.Services.Models;
 using BlueprintSys.RC.Services.Repositories;
 using BluePrintSys.Messaging.Models.Actions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using ServiceLibrary.Models;
 using ServiceLibrary.Models.Jobs;
+using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.Jobs;
 
 namespace BlueprintSys.RC.Services.Tests
@@ -64,6 +67,14 @@ namespace BlueprintSys.RC.Services.Tests
                 It.IsAny<string>(),
                 It.IsAny<string>()
                 )).ReturnsAsync(1);
+            var userRepoMock = new Mock<IUsersRepository>();
+            actionHandlerServiceRepositoryMock.Setup(t => t.UsersRepository).Returns(userRepoMock.Object);
+            userRepoMock.Setup(t => t.GetExistingUsersByIdsAsync(It.IsAny<IEnumerable<int>>()))
+                .ReturnsAsync(new SqlUser[] { new SqlUser()
+                {
+                    UserId = 1,
+                    Login = "admin"
+                }});
             actionHandlerServiceRepositoryMock.Setup(t => t.JobsRepository).Returns(jobServicesMock.Object);
 
             //Act

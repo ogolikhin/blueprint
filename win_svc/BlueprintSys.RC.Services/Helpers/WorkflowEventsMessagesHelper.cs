@@ -94,6 +94,11 @@ namespace BlueprintSys.RC.Services.Helpers
                         var generateTestsAction = workflowEventTrigger.Action as GenerateTestCasesAction;
                         if (generateTestsAction == null || artifactInfo.PredefinedType != ItemTypePredefined.Process)
                         {
+                            await serviceLogRepository.LogInformation(LogSource, $"Skipping GenerateTestCasesAction for artifact {artifactInfo.Id} as it is not a process");
+                            Logger.Log($"Skipping GenerateTestCasesAction for artifact {artifactInfo.Id} as it is not a process",
+                                MessageActionType.Notification,
+                                null,
+                                LogLevel.Debug);
                             continue;
                         }
                         var generateTestsMessage = new GenerateTestsMessage
@@ -112,6 +117,11 @@ namespace BlueprintSys.RC.Services.Helpers
                         var generateUserStories = workflowEventTrigger.Action as GenerateUserStoriesAction;
                         if (generateUserStories == null || artifactInfo.PredefinedType != ItemTypePredefined.Process)
                         {
+                            await serviceLogRepository.LogInformation(LogSource, $"Skipping GenerateUserStories for artifact {artifactInfo.Id} as it is not a process");
+                            Logger.Log($"Skipping GenerateUserStories for artifact {artifactInfo.Id} as it is not a process",
+                                MessageActionType.Notification,
+                                null,
+                                LogLevel.Debug);
                             continue;
                         }
                         var generateUserStoriesMessage = new GenerateUserStoriesMessage
@@ -156,6 +166,17 @@ namespace BlueprintSys.RC.Services.Helpers
                 throw new TenantInfoNotFoundException("No tenant information found. Please contact your administrator.");
             }
 
+            await
+                ProcessMessages(logSource, tenantInfo.TenantId, serviceLogRepository, messages,
+                    exceptionMessagePrepender);
+        }
+
+        public static async Task ProcessMessages(string logSource,
+            string tenantId,
+            IServiceLogRepository serviceLogRepository,
+            IList<IWorkflowMessage> messages,
+            string exceptionMessagePrepender)
+        {
             if (messages == null || messages.Count <= 0)
             {
                 return;
@@ -164,8 +185,8 @@ namespace BlueprintSys.RC.Services.Helpers
             {
                 try
                 {
-                    await WorkflowMessaging.Instance.SendMessageAsync(tenantInfo.TenantId, actionMessage);
-                    string message = $"Sent {actionMessage.ActionType} message: {actionMessage.ToJSON()} with tenant id: {tenantInfo.TenantId} to the Message queue";
+                    await WorkflowMessaging.Instance.SendMessageAsync(tenantId, actionMessage);
+                    string message = $"Sent {actionMessage.ActionType} message: {actionMessage.ToJSON()} with tenant id: {tenantId} to the Message queue";
                     await
                         serviceLogRepository.LogInformation(logSource, message);
                 }
@@ -179,7 +200,6 @@ namespace BlueprintSys.RC.Services.Helpers
                 }
             }
         }
-
 
         private static async Task<IWorkflowMessage> GetNotificationMessage(int userId,
             int revisionId,
@@ -195,22 +215,8 @@ namespace BlueprintSys.RC.Services.Helpers
             {
                 return null;
             }
-            var emails = new List<string>();
-            if (notificationAction.PropertyTypeId.HasValue && notificationAction.PropertyTypeId.Value > 0)
-            {
-                var userInfos =
-                    await repository.GetUserInfoForWorkflowArtifactForAssociatedUserProperty
-                        (artifactInfo.Id,
-                            notificationAction.PropertyTypeId.Value,
-                            revisionId);
-                //Make sure that email is provided
-                emails.AddRange(from userInfo in userInfos where !string.IsNullOrWhiteSpace(userInfo?.Email) select userInfo.Email);
-            }
-            else
-            {
-                //Take email from list of provided emails
-                emails.AddRange(notificationAction.Emails ?? new List<string>());
-            }
+            
+           var  emails = await GetEmailValues(revisionId, artifactInfo.Id, notificationAction, repository);
 
             var notificationMessage = new NotificationMessage
             {
@@ -230,6 +236,30 @@ namespace BlueprintSys.RC.Services.Helpers
                 Header = messageHeader
             };
             return notificationMessage;
+        }
+
+        internal static async Task<List<string>>  GetEmailValues(int revisionId, int artifactId,
+            EmailNotificationAction notificationAction, IUsersRepository repository)
+        {
+            var emails = new List<string>();
+            if (notificationAction.PropertyTypeId.HasValue && notificationAction.PropertyTypeId.Value > 0)
+            {
+                var userInfos =
+                    await repository.GetUserInfoForWorkflowArtifactForAssociatedUserProperty
+                        (artifactId,
+                            notificationAction.PropertyTypeId.Value,
+                            revisionId);
+                //Make sure that email is provided
+                emails.AddRange(from userInfo in userInfos
+                    where !string.IsNullOrWhiteSpace(userInfo?.Email)
+                    select userInfo.Email);
+            }
+            else
+            {
+                //Take email from list of provided emails
+                emails.AddRange(notificationAction.Emails ?? new List<string>());
+            }
+            return emails;
         }
 
         private static IWorkflowMessage GetPublishedMessage(int userId,

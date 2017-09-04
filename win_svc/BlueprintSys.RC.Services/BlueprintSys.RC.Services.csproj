@@ -119,6 +119,8 @@
     <Compile Include="Helpers\ActionsParser.cs" />
     <Compile Include="Helpers\Logger.cs" />
     <Compile Include="Helpers\WorkflowEventsMessagesHelper.cs" />
+    <Compile Include="MessageHandlers\ArtifactPublished\CreatedArtifactsNotificationHandler.cs" />
+    <Compile Include="MessageHandlers\ArtifactPublished\UpdatedArtifactsNotificationHandler.cs" />
     <Compile Include="MessageHandlers\BoundaryReachedActionHandler.cs" />
     <Compile Include="MessageHandlers\MessageActionHandler.cs" />
     <Compile Include="MessageHandlers\Notifications\EmailSettingsRetriever.cs" />

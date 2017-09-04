@@ -1400,7 +1400,7 @@ namespace AdminStore.Repositories
 
         [TestMethod]
         [ExpectedException(typeof(ConflictException))]
-        public async Task UpdateRoleAssignment_RoleAssignmentAlreadyEists_ThrowsConflictExceptionException()
+        public async Task UpdateRoleAssignment_RoleAssignmentAlreadyExists_ThrowsConflictExceptionException()
         {
 
             errorCode = 50021;
@@ -1424,7 +1424,7 @@ namespace AdminStore.Repositories
 
         [TestMethod]
         [ExpectedException(typeof(ResourceNotFoundException))]
-        public async Task UpdateRoleAssignment_RoleAssignmentNotEists_ThrowsResourceNotFoundException()
+        public async Task UpdateRoleAssignment_RoleAssignmentNotExists_ThrowsResourceNotFoundException()
         {
 
             errorCode = 50022;
@@ -1448,7 +1448,7 @@ namespace AdminStore.Repositories
 
         [TestMethod]
         [ExpectedException(typeof(ResourceNotFoundException))]
-        public async Task UpdateRoleAssignment_RoleNotEists_ThrowsResourceNotFoundException()
+        public async Task UpdateRoleAssignment_RoleNotExists_ThrowsResourceNotFoundException()
         {
 
             errorCode = 50020;
@@ -1472,7 +1472,7 @@ namespace AdminStore.Repositories
 
         [TestMethod]
         [ExpectedException(typeof(ResourceNotFoundException))]
-        public async Task UpdateRoleAssignment_GroupNotEists_ThrowsResourceNotFoundException()
+        public async Task UpdateRoleAssignment_GroupNotExists_ThrowsResourceNotFoundException()
         {
 
             errorCode = 50006;
@@ -1496,7 +1496,7 @@ namespace AdminStore.Repositories
 
         [TestMethod]
         [ExpectedException(typeof(ResourceNotFoundException))]
-        public async Task UpdateRoleAssignment_ProjectNotEists_ThrowsResourceNotFoundException()
+        public async Task UpdateRoleAssignment_ProjectNotExists_ThrowsResourceNotFoundException()
         {
             
             errorCode = 50016;

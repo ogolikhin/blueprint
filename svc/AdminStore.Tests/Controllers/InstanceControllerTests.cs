@@ -1311,7 +1311,7 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public async Task UpdateRoleAssignment_SuccessfulUpdateOfAssignment_ReturnNoneResult()
+        public async Task UpdateRoleAssignment_SuccessfulUpdateOfAssignment_ReturnNoneContentSuccessResult()
         {
             // Arrange
             _privilegeRepositoryMock

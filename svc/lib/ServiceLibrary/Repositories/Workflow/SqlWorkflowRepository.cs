@@ -152,24 +152,19 @@ namespace ServiceLibrary.Repositories.Workflow
         
         private static WorkflowTriggersContainer GetWorkflowTriggersContainer(WorkflowEventTriggers eventTriggers)
         {
-            var preOpTriggers = new PreopWorkflowEventTriggers();
-            var postOpTriggers = new PostopWorkflowEventTriggers();
+            var workflowTriggersContainer = new WorkflowTriggersContainer();
             foreach (var workflowEventTrigger in eventTriggers.Where(t => t?.Action != null))
             {
                 if (workflowEventTrigger.Action is IWorkflowEventSynchronousAction)
                 {
-                    preOpTriggers.Add(workflowEventTrigger);
+                    workflowTriggersContainer.SynchronousTriggers.Add(workflowEventTrigger);
                 }
                 else if (workflowEventTrigger.Action is IWorkflowEventASynchronousAction)
                 {
-                    postOpTriggers.Add(workflowEventTrigger);
+                    workflowTriggersContainer.AsynchronousTriggers.Add(workflowEventTrigger);
                 }
             }
-            return new WorkflowTriggersContainer
-            {
-                SynchronousTriggers = preOpTriggers,
-                AsynchronousTriggers = postOpTriggers
-            };
+            return workflowTriggersContainer;
         }
 
         private async Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForNewArtifactEventInternal(int userId, 

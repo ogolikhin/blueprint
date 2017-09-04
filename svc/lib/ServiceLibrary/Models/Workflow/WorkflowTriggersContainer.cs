@@ -2,8 +2,8 @@
 {
     public class WorkflowTriggersContainer
     {
-        public WorkflowEventTriggers SynchronousTriggers { get; set; }
+        public WorkflowEventTriggers SynchronousTriggers { get; } = new PostopWorkflowEventTriggers();
 
-        public WorkflowEventTriggers AsynchronousTriggers { get; set; }
+        public WorkflowEventTriggers AsynchronousTriggers { get; } = new PostopWorkflowEventTriggers();
     }
 }

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using BlueprintSys.RC.Services.Helpers;
 using BlueprintSys.RC.Services.Models;
 using BlueprintSys.RC.Services.Repositories;
+using BluePrintSys.Messaging.CrossCutting.Helpers;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.LocalLog;
@@ -46,12 +47,15 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
             {
                 Logger.Log("Could not process messages for all published updated artifacts", message, tenant, LogLevel.Debug);
             }
-
-            var createdArtifacts = allPublishedArtifacts.Where(p => p.IsFirstTimePublished).ToList();
+            
             var handledAllCreatedArtifacts =
                 await
-                    CreatedArtifactsNotificationHandler.ProcessCreatedArtifacts(tenant, createdArtifacts, message,
-                        repository, serviceLogRepository);
+                    CreatedArtifactsNotificationHandler.ProcessCreatedArtifacts(tenant, 
+                    message,
+                    repository, 
+                    serviceLogRepository, 
+                    WorkflowMessagingProcessor.Instance);
+
             if (!handledAllCreatedArtifacts)
             {
                 Logger.Log("Could not process messages for all published created artifacts", message, tenant, LogLevel.Debug);

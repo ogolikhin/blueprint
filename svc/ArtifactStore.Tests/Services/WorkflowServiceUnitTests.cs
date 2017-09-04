@@ -239,11 +239,7 @@ namespace ArtifactStore.Services
                 .ReturnsAsync(transition);
             _workflowRepositoryMock.Setup(
                 t => t.GetWorkflowEventTriggersForTransition(userId, itemId, workflowId, fromStateId, toStateId))
-                .ReturnsAsync(new WorkflowTriggersContainer
-                {
-                    AsynchronousTriggers = new WorkflowEventTriggers(),
-                    SynchronousTriggers = new WorkflowEventTriggers()
-                });
+                .ReturnsAsync(new WorkflowTriggersContainer());
 
 
             _workflowRepositoryMock.Setup(t => t.ChangeStateForArtifactAsync(1, itemId, It.IsAny<WorkflowStateChangeParameterEx>(), It.IsAny<IDbTransaction>()))

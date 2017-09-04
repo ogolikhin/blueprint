@@ -122,6 +122,7 @@
     </Compile>
     <Compile Include="ActionsParserTests.cs" />
     <Compile Include="ConfigHelperTests.cs" />
+    <Compile Include="MessageHandlers\ArtifactPublished\CreatedArtifactsNotificationHandlerTests.cs" />
     <Compile Include="PropertyChangeActionHelperTests.cs" />
     <Compile Include="StateTransitionActionHelperTests.cs" />
     <Compile Include="NotificationsActionHelperTests.cs" />

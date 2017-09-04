@@ -44,6 +44,6 @@ namespace AdminStore.Repositories
 
         Task<int> CreateRoleAssignmentAsync(int projectId, RoleAssignmentDTO roleAssignment);
 
-        Task<int> UpdateRoleAssignmentAsync(int projectId, int roleAssignmentId, RoleAssignmentDTO roleAssignment);
+        Task UpdateRoleAssignmentAsync(int projectId, int roleAssignmentId, RoleAssignmentDTO roleAssignment);
     }
 }

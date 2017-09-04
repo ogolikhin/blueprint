@@ -11,5 +11,7 @@ namespace ServiceLibrary.Repositories.ProjectMeta
         Task<ProjectTypes> GetStandardProjectTypesAsync();
 
         Task<IEnumerable<ProjectApprovalStatus>> GetApprovalStatusesAsync(int projectId, int userId);
+
+        Task<IEnumerable<PropertyType>> GetStandardProjectPropertyTypesAsync(IEnumerable<int> predefinedTypeIds);
     }
 }

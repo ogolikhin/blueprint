@@ -14,5 +14,10 @@ namespace ServiceLibrary.Models.VersionControl
             IEnumerable<WorkflowPropertyType> propertyTypes,
             VersionControlArtifactInfo artifact,
             IDbTransaction transaction = null);
+        Task UpdateArtifactName(
+            int userId,
+            int artifactId,
+            string artifactName,
+            IDbTransaction transaction = null);
     }
 }

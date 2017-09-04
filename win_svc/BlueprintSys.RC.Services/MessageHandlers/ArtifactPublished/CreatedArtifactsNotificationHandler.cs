@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using BlueprintSys.RC.Services.Helpers;
 using BlueprintSys.RC.Services.Models;
 using BlueprintSys.RC.Services.Repositories;
+using BluePrintSys.Messaging.CrossCutting.Helpers;
 using BluePrintSys.Messaging.CrossCutting.Models.Exceptions;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers;
@@ -18,18 +19,18 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
     internal class CreatedArtifactsNotificationHandler
     {
         private const string LogSource = "ArtifactsPublishedActionHelper.CreatedArtifacts";
-        private const int TransactionCommitWaitTime = 1;
         internal static async Task<bool> ProcessCreatedArtifacts(TenantInformation tenant,
-            List<PublishedArtifactInformation> createdArtifacts,
             ArtifactsPublishedMessage message,
             IArtifactsPublishedRepository repository,
-            IServiceLogRepository serviceLogRepository)
+            IServiceLogRepository serviceLogRepository,
+            IWorkflowMessagingProcessor workflowMessagingProcessor,
+            int transactionCommitWaitTimeInMilliSeconds = 60000)
         {
+            var createdArtifacts = message?.Artifacts?.Where(p => p.IsFirstTimePublished).ToList();
             if (createdArtifacts == null || createdArtifacts.Count <= 0)
             {
                 return true;
             }
-
 
             var artifactIds = createdArtifacts.Select(a => a.Id).ToHashSet();
 
@@ -55,7 +56,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
                     artifactInfos.Clear();
                     notFoundArtifactIds.Clear();
                     //Wait for a minute before
-                    Thread.Sleep(TimeSpan.FromMinutes(TransactionCommitWaitTime));
+                    Thread.Sleep(TimeSpan.FromMilliseconds(transactionCommitWaitTimeInMilliSeconds));
                     continue;
                 }
                 artifactsLocated = true;
@@ -83,6 +84,12 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
                 var eventTriggers = await repository.WorkflowRepository.GetWorkflowEventTriggersForNewArtifactEvent(message.UserId,
                     new[] { createdArtifact.Id },
                     message.RevisionId);
+
+                if (eventTriggers?.AsynchronousTriggers == null 
+                    || eventTriggers.AsynchronousTriggers.Count == 0)
+                {
+                    continue;
+                }
                 var actionMessages = await WorkflowEventsMessagesHelper.GenerateMessages(message.UserId,
                     message.RevisionId,
                     message.UserName,
@@ -97,13 +104,19 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
                     serviceLogRepository
                     );
 
+                if (actionMessages?.Count == 0)
+                {
+                    continue;
+                }
+
                 await WorkflowEventsMessagesHelper.ProcessMessages(LogSource,
                     tenant.TenantId,
                     serviceLogRepository,
                     actionMessages,
-                    $"Error on new artifact creation with Id: {createdArtifact.Id}");
+                    $"Error on new artifact creation with Id: {createdArtifact.Id}",
+                    workflowMessagingProcessor);
             }
-            return await Task.FromResult(true);
+            return true;
         }
     }
 }

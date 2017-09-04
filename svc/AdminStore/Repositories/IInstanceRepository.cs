@@ -9,7 +9,7 @@ namespace AdminStore.Repositories
 {
     public interface IInstanceRepository
     {
-        Task<InstanceItem> GetInstanceFolderAsync(int folderId, int userId);
+        Task<InstanceItem> GetInstanceFolderAsync(int folderId, int userId, bool fromAdminPortal = false);
 
         Task<List<InstanceItem>> GetInstanceFolderChildrenAsync(int folderId, int userId, bool fromAdminPortal = false);
 
@@ -42,8 +42,8 @@ namespace AdminStore.Repositories
 
         Task<QueryResult<ProjectFolderSearchDto>> GetProjectsAndFolders(int userId, TabularData tabularData, Func<Sorting, string> sort = null);
 
-        Task<int> CreateRoleAssignmentAsync(int projectId, CreateRoleAssignment roleAssignment);
+        Task<int> CreateRoleAssignmentAsync(int projectId, RoleAssignmentDTO roleAssignment);
 
-        Task<int> UpdateRoleAssignmentAsync(int projectId, UpdateRoleAssignment roleAssignment);
+        Task UpdateRoleAssignmentAsync(int projectId, int roleAssignmentId, RoleAssignmentDTO roleAssignment);
     }
 }

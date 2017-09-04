@@ -341,7 +341,7 @@ namespace AdminStore.Repositories
 
             var result =
                 (await
-                    _connectionWrapper.QueryAsync<GroupDto>("GetAvailableGroupsForProject", prm,
+                    _connectionWrapper.QueryAsync<Group>("GetAvailableGroupsForProject", prm,
                         commandType: CommandType.StoredProcedure)).ToList();
 
             var errorCode = prm.Get<int?>("ErrorCode");
@@ -358,7 +358,7 @@ namespace AdminStore.Repositories
 
             var total = prm.Get<int?>("Total");
 
-            var queryDataResult = new QueryResult<GroupDto> {Items = result, Total = total ?? 0};
+            var queryDataResult = new QueryResult<GroupDto> {Items = GroupMapper.Map(result), Total = total ?? 0};
 
             return queryDataResult;
         }

@@ -114,6 +114,12 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="..\..\svc\SolutionAssemblyInfo.cs">
+      <Link>Properties\SolutionAssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\svc\SolutionAssemblyVersion.cs">
+      <Link>Properties\SolutionAssemblyVersion.cs</Link>
+    </Compile>
     <Compile Include="ActionsParserTests.cs" />
     <Compile Include="ConfigHelperTests.cs" />
     <Compile Include="PropertyChangeActionHelperTests.cs" />

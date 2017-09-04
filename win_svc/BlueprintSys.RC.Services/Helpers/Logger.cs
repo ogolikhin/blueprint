@@ -1,5 +1,6 @@
 ﻿using BlueprintSys.RC.Services.Models;
 using BluePrintSys.Messaging.Models.Actions;
+using ServiceLibrary.Models.Enums;
 
 namespace BlueprintSys.RC.Services.Helpers
 {
@@ -14,7 +15,12 @@ namespace BlueprintSys.RC.Services.Helpers
         /// <param name="level">The level to log at.</param>
         public static void Log(string text, ActionMessage message, TenantInformation tenant, LogLevel level)
         {
-            var logText = $" {text}. Message: {message.ActionType.ToString()}. Tenant ID: {tenant.TenantId}.";
+            Log(text, message?.ActionType ?? MessageActionType.None, tenant?.TenantId, level);
+        }
+
+        public static void Log(string text, MessageActionType messageActionType, string tenantId, LogLevel level)
+        {
+            var logText = $" {text}. Message: {messageActionType}. Tenant ID: {tenantId}.";
             switch (level)
             {
                 case LogLevel.Debug:

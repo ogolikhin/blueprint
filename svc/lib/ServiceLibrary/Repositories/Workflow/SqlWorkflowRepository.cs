@@ -122,9 +122,9 @@ namespace ServiceLibrary.Repositories.Workflow
         }
 
         public async Task<IEnumerable<WorkflowMessageArtifactInfo>> GetWorkflowMessageArtifactInfoAsync(int userId,
-            IEnumerable<int> artifactIds, int revisionId)
+            IEnumerable<int> artifactIds, int revisionId, IDbTransaction transaction = null)
         {
-            return await GetWorkflowMessageArtifactInfoAsyncInternal(userId, artifactIds, revisionId);
+            return await GetWorkflowMessageArtifactInfoAsyncInternal(userId, artifactIds, revisionId, transaction);
         }
 
         #endregion
@@ -605,13 +605,21 @@ namespace ServiceLibrary.Repositories.Workflow
 
         private async Task<IEnumerable<WorkflowMessageArtifactInfo>> GetWorkflowMessageArtifactInfoAsyncInternal(int userId,
             IEnumerable<int> artifactIds,
-            int revisionId)
+            int revisionId,
+            IDbTransaction transaction = null)
         {
             var param = new DynamicParameters();
             param.Add("@userId", userId);
             var artifactIdsTable = SqlConnectionWrapper.ToDataTable(artifactIds);
             param.Add("@artifactIds", artifactIdsTable);
             param.Add("@revisionId", revisionId);
+            if (transaction != null)
+            {
+                return (await transaction.Connection.QueryAsync<WorkflowMessageArtifactInfo>("GetWorkflowMessageArtifactInfo",
+                    param,
+                    transaction,
+                    commandType: CommandType.StoredProcedure)).ToList();
+            }
             return (await
                 ConnectionWrapper.QueryAsync<WorkflowMessageArtifactInfo>("GetWorkflowMessageArtifactInfo",
                     param,

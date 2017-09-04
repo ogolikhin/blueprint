@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
 using ServiceLibrary.Models.Enums;
 
 namespace ServiceLibrary.Models.Workflow.Actions
@@ -9,6 +8,8 @@ namespace ServiceLibrary.Models.Workflow.Actions
         public IList<string> Emails { get; } = new List<string>();
 
         public int? ConditionalStateId { get; set; }
+
+        public int? EventPropertyTypeId { get; set; }
 
         public int? PropertyTypeId { get; set; }
 
@@ -22,9 +23,9 @@ namespace ServiceLibrary.Models.Workflow.Actions
 
         public override MessageActionType ActionType { get; } = MessageActionType.Notification;
 
-        public override async Task<bool> Execute(IExecutionParameters executionParameters)
+        public override bool ValidateAction(IExecutionParameters executionParameters)
         {
-            return await Task.FromResult(true);
+            return true;
         }
     }
 

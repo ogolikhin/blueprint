@@ -36,31 +36,37 @@ namespace BlueprintSys.RC.Services.Repositories
         /// </summary>
         Task<List<SqlModifiedProperty>> GetPropertyModificationsForRevisionIdAsync(int revisionId);
 
-        Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForTransition(int userId, int artifactId,
-            int workflowId, int fromStateId, int toStateId);
-
-        Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForNewArtifactEvent(int userId,
-            IEnumerable<int> artifactIds, int revisionId);
-
-        Task<IEnumerable<WorkflowMessageArtifactInfo>> GetWorkflowMessageArtifactInfoAsync(int userId,
-            IEnumerable<int> artifactIds, int revisionId);
+        IWorkflowRepository WorkflowRepository { get; }
     }
 
     public class ArtifactsPublishedRepository : ActionHandlerServiceRepository, IArtifactsPublishedRepository
     {
-        private readonly IWorkflowRepository _workflowRepository;
+        public IWorkflowRepository WorkflowRepository { get; }
 
         public ArtifactsPublishedRepository(string connectionString) : this(new SqlConnectionWrapper(connectionString))
         {
         }
 
-        public ArtifactsPublishedRepository(ISqlConnectionWrapper connectionWrapper) : this(connectionWrapper, new SqlArtifactPermissionsRepository(connectionWrapper))
+        public ArtifactsPublishedRepository(ISqlConnectionWrapper connectionWrapper) : 
+            this(connectionWrapper, 
+                new SqlArtifactPermissionsRepository(connectionWrapper))
         {
         }
 
-        public ArtifactsPublishedRepository(ISqlConnectionWrapper connectionWrapper, IArtifactPermissionsRepository artifactPermissionsRepository) : base(connectionWrapper, artifactPermissionsRepository)
+        public ArtifactsPublishedRepository(ISqlConnectionWrapper connectionWrapper, 
+            IArtifactPermissionsRepository artifactPermissionsRepository) : 
+            this(connectionWrapper, 
+                artifactPermissionsRepository, 
+                new SqlUsersRepository(connectionWrapper))
         {
-            _workflowRepository = new SqlWorkflowRepository(connectionWrapper, ArtifactPermissionsRepository);
+        }
+
+        public ArtifactsPublishedRepository(ISqlConnectionWrapper connectionWrapper, 
+            IArtifactPermissionsRepository artifactPermissionsRepository,
+            IUsersRepository usersRepository) :
+            base(connectionWrapper, artifactPermissionsRepository, usersRepository)
+        {
+            WorkflowRepository = new SqlWorkflowRepository(connectionWrapper, ArtifactPermissionsRepository);
         }
 
         public async Task<List<SqlWorkflowEvent>> GetWorkflowPropertyTransitionsForArtifactsAsync(int userId, int revisionId, int eventType, IEnumerable<int> itemIds)
@@ -104,31 +110,6 @@ namespace BlueprintSys.RC.Services.Repositories
             var param = new DynamicParameters();
             param.Add("@revisionId", revisionId);
             return (await ConnectionWrapper.QueryAsync<SqlModifiedProperty>("GetPropertyModificationsForRevisionId", param, commandType: CommandType.StoredProcedure)).ToList();
-        }
-
-        public async Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForTransition(int userId, int artifactId,
-            int workflowId, int fromStateId, int toStateId)
-        {
-            return
-                await
-                    _workflowRepository.GetWorkflowEventTriggersForTransition(userId, artifactId, workflowId,
-                        fromStateId, toStateId);
-        }
-
-        public async Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForNewArtifactEvent(int userId,
-            IEnumerable<int> artifactIds, int revisionId)
-        {
-            return await _workflowRepository.GetWorkflowEventTriggersForNewArtifactEvent(userId,
-                artifactIds,
-                revisionId);
-        }
-
-        public async Task<IEnumerable<WorkflowMessageArtifactInfo>> GetWorkflowMessageArtifactInfoAsync(int userId,
-            IEnumerable<int> artifactIds, int revisionId)
-        {
-            return await _workflowRepository.GetWorkflowMessageArtifactInfoAsync(userId,
-                artifactIds,
-                revisionId);
         }
     }
 }

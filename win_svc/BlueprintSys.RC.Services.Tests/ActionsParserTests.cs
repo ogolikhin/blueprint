@@ -149,7 +149,7 @@ namespace BlueprintSys.RC.Services.Tests
             Assert.AreEqual(1, notificationActions.Count);
             var notificationAction = notificationActions.Single();
             Assert.AreEqual(conditionalStateId, notificationAction.ConditionalStateId);
-            Assert.AreEqual(eventPropertyTypeId, notificationAction.PropertyTypeId);
+            Assert.AreEqual(eventPropertyTypeId, notificationAction.EventPropertyTypeId);
             var toEmails = notificationAction.Emails.ToList();
             Assert.AreEqual(2, toEmails.Count);
             Assert.AreEqual(1, toEmails.Count(e => e == toEmail1));

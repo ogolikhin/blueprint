@@ -110,10 +110,19 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\svc\SolutionAssemblyInfo.cs">
+      <Link>Properties\SolutionAssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\svc\SolutionAssemblyVersion.cs">
+      <Link>Properties\SolutionAssemblyVersion.cs</Link>
+    </Compile>
     <Compile Include="Helpers\ActionsParser.cs" />
     <Compile Include="Helpers\Logger.cs" />
     <Compile Include="Helpers\WorkflowEventsMessagesHelper.cs" />
+    <Compile Include="MessageHandlers\ArtifactPublished\CreatedArtifactsNotificationHandler.cs" />
+    <Compile Include="MessageHandlers\ArtifactPublished\UpdatedArtifactsNotificationHandler.cs" />
     <Compile Include="MessageHandlers\BoundaryReachedActionHandler.cs" />
+    <Compile Include="MessageHandlers\MessageActionHandler.cs" />
     <Compile Include="MessageHandlers\Notifications\EmailSettingsRetriever.cs" />
     <Compile Include="MessageHandlers\Notifications\SmtpClient.cs" />
     <Compile Include="MessageHandlers\PropertyChange\PropertyChangeMessageHandler.cs" />

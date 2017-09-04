@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using ServiceLibrary.Exceptions;
-using ServiceLibrary.Helpers;
 using ServiceLibrary.Helpers.Validators;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.PropertyType;
@@ -14,7 +9,7 @@ using ServiceLibrary.Models.VersionControl;
 namespace ServiceLibrary.Models.Workflow.Actions
 {
     [TestClass]
-    public class PropertyChangeActionTests
+    public partial class PropertyChangeActionTests
     {
         private Mock<ISaveArtifactRepository> _saveRepositoryMock;
         private Mock<IReusePropertyValidator> _reuseValidatorMock;
@@ -24,16 +19,11 @@ namespace ServiceLibrary.Models.Workflow.Actions
         private PropertyChangeAction _propertyChangeAction;
 
         private const int DefaultNumberInstancePropertyTypeId = 123;
-        private const string DefaultValue = "99";
+        private const string DefaultNumberValue = "99";
 
         [TestInitialize]
         public void TestInitialize()
         {
-            _propertyChangeAction = new PropertyChangeAction()
-            {
-                InstancePropertyTypeId = DefaultNumberInstancePropertyTypeId,
-                PropertyValue = DefaultValue
-            };
             _saveRepositoryMock = new Mock<ISaveArtifactRepository>();
             _reuseValidatorMock = new Mock<IReusePropertyValidator>();
             _customPropertyTypes = new List<WorkflowPropertyType>();
@@ -46,9 +36,10 @@ namespace ServiceLibrary.Models.Workflow.Actions
         }
 
         [TestMethod]
-        public async Task Execute_PropertyTypeIdNotFound_ReturnsFalse()
+        public void ValidateAction_PropertyTypeIdNotFound_ReturnsFalse()
         {
             //Arrange
+            InitializeNumberPropertyChangeAction();
             _propertyChangeAction.InstancePropertyTypeId = 5;
             _executionParameters = new ExecutionParameters(
                 1,
@@ -62,39 +53,20 @@ namespace ServiceLibrary.Models.Workflow.Actions
                 _reuseValidatorMock.Object);
 
             //Act
-            var result = await _propertyChangeAction.Execute(_executionParameters);
+            var result = _propertyChangeAction.ValidateAction(_executionParameters);
 
             //Assert
             Assert.IsFalse(result);
         }
 
+
+
         [TestMethod]
-        public async Task Execute_NumberPropertyChangeAction_NumberIsPopulated()
+        public void ValidateAction_UserPropertyToNumberProperty_ReturnsFalse()
         {
             //Arrange
-            _executionParameters = new ExecutionParameters(
-                1,
-                new VersionControlArtifactInfo(),
-                null,
-                _customPropertyTypes,
-                _saveRepositoryMock.Object,
-                null,
-                null,
-                new List<IPropertyValidator>(), 
-                _reuseValidatorMock.Object);
-
-            //Act
-            var result = await _propertyChangeAction.Execute(_executionParameters);
-            var propertyLiteValue = _propertyChangeAction.PropertyLiteValue;
-
-            //Assert
-            Assert.IsTrue(result);
-            Assert.IsTrue(propertyLiteValue.NumberValue.HasValue);
-        }
-        [TestMethod]
-        public async Task Execute_WhenNumberIsNull_NumberIsPopulatedWithNull()
-        {
-            //Arrange
+            InitializeNumberPropertyChangeAction();
+            _propertyChangeAction.InstancePropertyTypeId = 5;
             _executionParameters = new ExecutionParameters(
                 1,
                 new VersionControlArtifactInfo(),
@@ -105,40 +77,12 @@ namespace ServiceLibrary.Models.Workflow.Actions
                 null,
                 new List<IPropertyValidator>(),
                 _reuseValidatorMock.Object);
-            _propertyChangeAction.PropertyValue = null;
 
             //Act
-            var result = await _propertyChangeAction.Execute(_executionParameters);
-            var propertyLiteValue = _propertyChangeAction.PropertyLiteValue;
+            var result = _propertyChangeAction.ValidateAction(_executionParameters);
 
             //Assert
-            Assert.IsTrue(result);
-            Assert.IsTrue(!propertyLiteValue.NumberValue.HasValue);
-        }
-
-        [TestMethod]
-        public async Task Execute_WhenNumberIsNegative_NumberIsPopulated()
-        {
-            //Arrange
-            _executionParameters = new ExecutionParameters(
-                1,
-                new VersionControlArtifactInfo(),
-                null,
-                _customPropertyTypes,
-                _saveRepositoryMock.Object,
-                null,
-                null,
-                new List<IPropertyValidator>(),
-                _reuseValidatorMock.Object);
-            _propertyChangeAction.PropertyValue = "-10";
-
-            //Act
-            var result = await _propertyChangeAction.Execute(_executionParameters);
-            var propertyLiteValue = _propertyChangeAction.PropertyLiteValue;
-
-            //Assert
-            Assert.IsTrue(result);
-            Assert.IsTrue(propertyLiteValue.NumberValue.HasValue);
+            Assert.IsFalse(result);
         }
     }
 }

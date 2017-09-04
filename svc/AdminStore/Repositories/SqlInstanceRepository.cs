@@ -31,18 +31,19 @@ namespace AdminStore.Repositories
 
         #region folders
 
-        public async Task<InstanceItem> GetInstanceFolderAsync(int folderId, int userId)
+        public async Task<InstanceItem> GetInstanceFolderAsync(int folderId, int userId, bool fromAdminPortal = false)
         {
             if (folderId < 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(folderId));
             }
 
-            var prm = new DynamicParameters();
-            prm.Add("@folderId", folderId);
-            prm.Add("@userId", userId);
+            var parameters = new DynamicParameters();
+            parameters.Add("@folderId", folderId);
+            parameters.Add("@userId", userId);
+            parameters.Add("@fromAdminPortal", fromAdminPortal);
 
-            var folder = (await _connectionWrapper.QueryAsync<InstanceItem>("GetInstanceFolderById", prm, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
+            var folder = (await _connectionWrapper.QueryAsync<InstanceItem>("GetInstanceFolderById", parameters, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
             if (folder == null)
             {
                 throw new ResourceNotFoundException(string.Format("Instance Folder (Id:{0}) is not found.", folderId), ErrorCodes.ResourceNotFound);
@@ -485,7 +486,7 @@ namespace AdminStore.Repositories
             return hasProjectExternalLocksAsync;
         }
 
-        public async Task<int> CreateRoleAssignmentAsync(int projectId, CreateRoleAssignment roleAssignment)
+        public async Task<int> CreateRoleAssignmentAsync(int projectId, RoleAssignmentDTO roleAssignment)
         {
             if (projectId < 1)
             {
@@ -529,7 +530,7 @@ namespace AdminStore.Repositories
             return result;
         }
 
-        public async Task<int> UpdateRoleAssignmentAsync(int projectId, UpdateRoleAssignment roleAssignment)
+        public async Task UpdateRoleAssignmentAsync(int projectId, int roleAssignmentId, RoleAssignmentDTO roleAssignment)
         {
             if (projectId < 1)
             {
@@ -545,10 +546,10 @@ namespace AdminStore.Repositories
             parameters.Add("@ProjectId", projectId);
             parameters.Add("@GroupId", roleAssignment.GroupId);
             parameters.Add("@RoleId", roleAssignment.RoleId);
-            parameters.Add("@RoleAssignmentId", roleAssignment.RoleAssignmentId);
+            parameters.Add("@RoleAssignmentId", roleAssignmentId);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-            var result = await _connectionWrapper.ExecuteScalarAsync<int>("UpdateProjectRoleAssigment", parameters,
+            await _connectionWrapper.ExecuteScalarAsync<int>("UpdateProjectRoleAssigment", parameters,
                 commandType: CommandType.StoredProcedure);
 
             var errorCode = parameters.Get<int?>("ErrorCode");
@@ -577,9 +578,6 @@ namespace AdminStore.Repositories
 
                 }
             }
-
-            return result;
-
         }
 
 

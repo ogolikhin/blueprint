@@ -13,21 +13,33 @@ namespace BlueprintSys.RC.Services.Repositories
         Task<List<TenantInformation>> GetTenantsFromTenantsDb();
 
         Task<bool> IsBoundaryReached(int projectId);
+
+        IUsersRepository UsersRepository { get; }
     }
 
     public class ActionHandlerServiceRepository : SqlInstanceSettingsRepository, IActionHandlerServiceRepository
     {
-        public ActionHandlerServiceRepository(string connectionString) : this(new SqlConnectionWrapper(connectionString))
+        public ActionHandlerServiceRepository(string connectionString) : 
+            this(new SqlConnectionWrapper(connectionString))
         {
         }
 
-        public ActionHandlerServiceRepository(ISqlConnectionWrapper connectionWrapper) : this(connectionWrapper, new SqlArtifactPermissionsRepository(connectionWrapper))
+        public ActionHandlerServiceRepository(ISqlConnectionWrapper connectionWrapper) : 
+            this(connectionWrapper, 
+                new SqlArtifactPermissionsRepository(connectionWrapper),
+                new SqlUsersRepository(connectionWrapper))
         {
         }
 
-        public ActionHandlerServiceRepository(ISqlConnectionWrapper connectionWrapper, IArtifactPermissionsRepository artifactPermissionsRepository) : base(connectionWrapper, artifactPermissionsRepository)
+        public ActionHandlerServiceRepository(ISqlConnectionWrapper connectionWrapper, 
+            IArtifactPermissionsRepository artifactPermissionsRepository, 
+            IUsersRepository usersRepository) : 
+            base(connectionWrapper, artifactPermissionsRepository)
         {
+            UsersRepository = usersRepository;
         }
+
+        public IUsersRepository UsersRepository { get; }
 
         public async Task<List<TenantInformation>> GetTenantsFromTenantsDb()
         {

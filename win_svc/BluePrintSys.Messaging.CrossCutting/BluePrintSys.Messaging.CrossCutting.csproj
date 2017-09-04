@@ -85,6 +85,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\svc\SolutionAssemblyInfo.cs">
+      <Link>Properties\SolutionAssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\svc\SolutionAssemblyVersion.cs">
+      <Link>Properties\SolutionAssemblyVersion.cs</Link>
+    </Compile>
     <Compile Include="Annotations\Annotations.cs" />
     <Compile Include="AppSettingsHelper.cs" />
     <Compile Include="Collections\ConcurrentPriorityQueue.cs" />
@@ -122,6 +128,7 @@
     <Compile Include="Logging\StackTraceProvider.cs" />
     <Compile Include="Logging\StandardLogEntry.cs" />
     <Compile Include="Models\Enums\MessageType.cs" />
+    <Compile Include="Models\Exceptions\EntityNotFoundException.cs" />
     <Compile Include="Models\Exceptions\MessageHeaderValueNotFoundException.cs" />
     <Compile Include="Models\Exceptions\UnsupportedActionTypeException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

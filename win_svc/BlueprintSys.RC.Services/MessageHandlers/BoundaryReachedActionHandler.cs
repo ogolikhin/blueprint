@@ -6,26 +6,24 @@ using ServiceLibrary.Exceptions;
 
 namespace BlueprintSys.RC.Services.MessageHandlers
 {
-    public abstract class BoundaryReachedActionHandler : IActionHelper
+    public abstract class BoundaryReachedActionHandler : MessageActionHandler
     {
-        public async Task<bool> HandleAction(TenantInformation tenant, ActionMessage actionMessage,
+        protected override async void PreActionValidation(TenantInformation tenant, ActionMessage actionMessage,
             IActionHandlerServiceRepository actionHandlerServiceRepository)
         {
             var projectContainerActionMessage = actionMessage as ProjectContainerActionMessage;
             if (projectContainerActionMessage == null)
             {
-                return false;
+                return;
             }
+            base.PreActionValidation(tenant, actionMessage, actionHandlerServiceRepository);
             await CheckForBoundary(projectContainerActionMessage.ProjectId, actionHandlerServiceRepository);
-            return await HandleActionInternal(tenant, actionMessage, actionHandlerServiceRepository);
         }
-
-        protected abstract Task<bool> HandleActionInternal(TenantInformation tenant, ActionMessage actionMessage,
-            IActionHandlerServiceRepository actionHandlerServiceRepository);
 
         protected async Task CheckForBoundary(int projectId, IActionHandlerServiceRepository actionHandlerServiceRepository)
         {
-            if (await actionHandlerServiceRepository.IsBoundaryReached(projectId))
+            var isBoundaryReached = await actionHandlerServiceRepository.IsBoundaryReached(projectId);
+            if (isBoundaryReached)
             {
                 throw new BoundaryReachedException("No more artifacts can be created due to package limitation.");
             }

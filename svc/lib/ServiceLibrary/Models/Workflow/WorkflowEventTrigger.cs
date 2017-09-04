@@ -6,7 +6,7 @@ namespace ServiceLibrary.Models.Workflow
     {
         public string Name { get; set; }
 
-        public WorkflowEventAction Action { get; set; }
+        public IWorkflowEventAction Action { get; set; }
 
         public WorkflowEventCondition Condition { get; set; }
 

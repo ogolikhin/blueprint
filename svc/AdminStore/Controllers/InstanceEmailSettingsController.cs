@@ -47,7 +47,7 @@ namespace AdminStore.Controllers
         [Route("sendtestemail")]
         [HttpPost, SessionRequired]
         [ActionName("SendTestEmail")]
-        public Task SendTestEmailAsync([FromBody] EmailOutgoingSettings settings)
+        public Task<string> SendTestEmailAsync([FromBody] EmailOutgoingSettings settings)
         {
             return _emailSettingsService.SendTestEmailAsync(Session.UserId, settings);
         }

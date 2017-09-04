@@ -19,7 +19,17 @@ namespace BlueprintSys.RC.Services.Repositories
         {
         }
 
-        public NotificationRepository(ISqlConnectionWrapper connectionWrapper, IArtifactPermissionsRepository artifactPermissionsRepository) : base(connectionWrapper, artifactPermissionsRepository)
+        public NotificationRepository(ISqlConnectionWrapper connectionWrapper,
+            IArtifactPermissionsRepository artifactPermissionsRepository) :
+            this(connectionWrapper, artifactPermissionsRepository, new SqlUsersRepository(connectionWrapper))
+        {
+        }
+
+        public NotificationRepository(ISqlConnectionWrapper connectionWrapper, 
+            IArtifactPermissionsRepository artifactPermissionsRepository,
+            IUsersRepository usersRepository
+            ) : 
+            base(connectionWrapper, artifactPermissionsRepository, usersRepository)
         {
         }
 

@@ -48,6 +48,9 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Moq">
+      <HintPath>..\..\packages\Moq.4.7.63\lib\net45\Moq.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
@@ -123,6 +126,7 @@
     <Compile Include="Controllers\VersionControlController.cs" />
     <Compile Include="Controllers\WorkflowController.cs" />
     <Compile Include="Executors\IStateChangeExecutorRepositories.cs" />
+    <Compile Include="Executors\StateChangeExecutorHelper.cs" />
     <Compile Include="Executors\StateChangeExecutorRepositories.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>

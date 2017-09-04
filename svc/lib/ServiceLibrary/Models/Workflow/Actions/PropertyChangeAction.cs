@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq;
-using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.ProjectMeta;
@@ -17,6 +16,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
         public string PropertyValue { get; set; }
 
         public PropertyLite PropertyLiteValue { get; protected set; }
+
         public List<int> ValidValues { get; } = new List<int>();
 
         public override MessageActionType ActionType { get; } = MessageActionType.PropertyChange;
@@ -69,37 +69,9 @@ namespace ServiceLibrary.Models.Workflow.Actions
                     };
                     break;
                 case PropertyPrimitiveType.Number:
-                    if (String.IsNullOrEmpty(PropertyValue))
-                    {
-                        PropertyLiteValue = new PropertyLite()
-                        {
-                            PropertyTypeId = InstancePropertyTypeId,
-                            NumberValue = null
-                        };
-                    }
-                    else
-                    {
-                        decimal value;
-                        if (
-                            !Decimal.TryParse(PropertyValue, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint, new NumberFormatInfo(),
-                                out value))
-                        {
-                            return new PropertySetResult(InstancePropertyTypeId, ErrorCodes.InvalidArtifactProperty, "Parsing failed for decimal value");
-                        }
-                        PropertyLiteValue = new PropertyLite()
-                        {
-                            PropertyTypeId = InstancePropertyTypeId,
-                            NumberValue = value
-                        };
-                    }
-                    break;
+                    return PopulateNumberPropertyLite();
                 case PropertyPrimitiveType.Date:
-                    PropertyLiteValue = new PropertyLite
-                    {
-                        PropertyTypeId = InstancePropertyTypeId,
-                        DateValue = PropertyHelper.ParseDateValue(PropertyValue, new TimeProvider())
-                    };
-                    break;
+                    return PopulateDatePropertyLite();
                 case PropertyPrimitiveType.Choice:
                     PropertyLiteValue = new PropertyLite
                     {
@@ -114,12 +86,87 @@ namespace ServiceLibrary.Models.Workflow.Actions
                         PropertyLiteValue.ChoiceIds.AddRange(ValidValues);
                     }
                     break;
+                case PropertyPrimitiveType.User:
+                    return new PropertySetResult(InstancePropertyTypeId, ErrorCodes.InvalidArtifactProperty, "Property type is now user, but does not contain user and group change actions");
                 default:
                     PropertyLiteValue = new PropertyLite()
                     {
                         PropertyTypeId = InstancePropertyTypeId
                     };
                     break;
+            }
+            return null;
+        }
+
+        private PropertySetResult PopulateDatePropertyLite()
+        {
+            //was Choice property
+            if (ValidValues != null && ValidValues.Any())
+            {
+                return new PropertySetResult(InstancePropertyTypeId, ErrorCodes.InvalidArtifactProperty, "Property type is now date property. Property change action is currently invalid.");
+            }
+
+            //is null
+            if (string.IsNullOrEmpty(PropertyValue))
+            {
+                PropertyLiteValue = new PropertyLite
+                {
+                    PropertyTypeId = InstancePropertyTypeId,
+                    DateValue = null
+                };
+                return null;
+            }
+
+            DateTime date;
+            try
+            {
+                date = PropertyHelper.ParseDateValue(PropertyValue, new TimeProvider());
+            }
+            catch (Exception ex)
+            {
+                //invalid date format
+                return new PropertySetResult(InstancePropertyTypeId, ErrorCodes.InvalidArtifactProperty, $"Property type is now date property. Property change action is currently invalid. {ex.Message}");
+            }
+
+            //valid date format
+            PropertyLiteValue = new PropertyLite
+            {
+                PropertyTypeId = InstancePropertyTypeId,
+                DateValue = date
+            };
+            return null;
+        }
+
+        private PropertySetResult PopulateNumberPropertyLite()
+        {
+            if (ValidValues != null && ValidValues.Any())
+            {
+                return new PropertySetResult(InstancePropertyTypeId, ErrorCodes.InvalidArtifactProperty, 
+                    "Property type is now number property. Property change action is currently invalid.");
+            }
+            if (String.IsNullOrEmpty(PropertyValue))
+            {
+                PropertyLiteValue = new PropertyLite()
+                {
+                    PropertyTypeId = InstancePropertyTypeId,
+                    NumberValue = null
+                };
+            }
+            else
+            {
+                decimal value;
+                if (
+                    !Decimal.TryParse(PropertyValue, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint, new NumberFormatInfo(),
+                        out value))
+                {
+                    return new PropertySetResult(InstancePropertyTypeId, ErrorCodes.InvalidArtifactProperty, 
+                        "Property type is now number property. Property change action is currently invalid.");
+                }
+                PropertyLiteValue = new PropertyLite()
+                {
+                    PropertyTypeId = InstancePropertyTypeId,
+                    NumberValue = value
+                };
             }
             return null;
         }

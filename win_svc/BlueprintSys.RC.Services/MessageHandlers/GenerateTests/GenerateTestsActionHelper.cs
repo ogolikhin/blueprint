@@ -14,9 +14,9 @@ namespace BlueprintSys.RC.Services.MessageHandlers.GenerateTests
 {
     //We should be creating specific action handlers for different  message handlers. 
     //These should be implemented when the actions are implemented
-    public class GenerateTestsActionHelper : IActionHelper
+    public class GenerateTestsActionHelper : MessageActionHandler
     {
-        public async Task<bool> HandleAction(TenantInformation tenant, ActionMessage actionMessage, IActionHandlerServiceRepository actionHandlerServiceRepository)
+        protected override async Task<bool> HandleActionInternal(TenantInformation tenant, ActionMessage actionMessage, IActionHandlerServiceRepository actionHandlerServiceRepository)
         {
             var message = (GenerateTestsMessage) actionMessage;
             if (message == null 
@@ -45,6 +45,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.GenerateTests
                 new SqlArtifactRepository(sqlConnectionWrapper), 
                 new SqlArtifactPermissionsRepository(sqlConnectionWrapper),
                 new SqlUsersRepository(sqlConnectionWrapper));
+            var user = await GetUserInfo(message, actionHandlerServiceRepository);
 
             var job = await jobsRepository.AddJobMessage(JobType.GenerateProcessTests,
                 false,
@@ -53,7 +54,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.GenerateTests
                 message.ProjectId,
                 message.ProjectName,
                 message.UserId,
-                message.UserName,
+                user?.Login,
                 message.BaseHostUri);
 
             if (job.HasValue)

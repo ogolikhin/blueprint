@@ -37,6 +37,8 @@ namespace AdminStore.Controllers
         private Pagination _pagination;
         private Sorting _sorting;
         private QueryResult<RolesAssignments> _rolesAssignmentsQueryResult;
+        private int _roleAssignmentId;
+        private RoleAssignmentDTO _roleAssignment;
 
         [TestInitialize]
         public void Initialize()
@@ -88,6 +90,14 @@ namespace AdminStore.Controllers
             _instanceRepositoryMock
                 .Setup(repo => repo.GetProjectRoleAssignmentsAsync(It.IsAny<int>(), It.IsAny<TabularData>(), It.IsAny<Func<Sorting, string>>()))
                 .ReturnsAsync(_rolesAssignmentsQueryResult);
+            
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectsAdmin);
+            
+            _roleAssignment = new RoleAssignmentDTO() { GroupId = 1, RoleId = 1 };
+            _roleAssignmentId = 1;
+
         }
 
         #region GetInstanceFolder
@@ -99,7 +109,7 @@ namespace AdminStore.Controllers
             var folderId = 99;
             var folder = new InstanceItem { Id = folderId };
             _instanceRepositoryMock
-                .Setup(r => r.GetInstanceFolderAsync(folderId, UserId))
+                .Setup(r => r.GetInstanceFolderAsync(folderId, UserId, It.IsAny<bool>()))
                 .ReturnsAsync(folder);
 
             //Act
@@ -118,7 +128,7 @@ namespace AdminStore.Controllers
             var folder = new InstanceItem { Id = folderId };
             var fromAdminPortal = true;
             _instanceRepositoryMock
-                .Setup(r => r.GetInstanceFolderAsync(folderId, UserId))
+                .Setup(r => r.GetInstanceFolderAsync(folderId, UserId, It.IsAny<bool>()))
                 .ReturnsAsync(folder);
             _privilegeRepositoryMock
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
@@ -1056,7 +1066,7 @@ namespace AdminStore.Controllers
         [TestMethod]
         public async Task CreateRoleAssignment_SuccessfulCreationOfAssignment_ReturnCreatedRoleAssignmentIdResult()
         {
-            CreateRoleAssignment roleAssignment = new CreateRoleAssignment() {GroupId = 1, RoleId = 1};
+            RoleAssignmentDTO roleAssignment = new RoleAssignmentDTO() {GroupId = 1, RoleId = 1};
             int roleAssignmentId = 1;
 
             // Arrange
@@ -1083,7 +1093,7 @@ namespace AdminStore.Controllers
         [ExpectedException(typeof(AuthorizationException))]
         public async Task CreateRoleAssignment_NoPermissions_ReturnForbiddenErrorResult()
         {
-            CreateRoleAssignment roleAssignment = new CreateRoleAssignment() { GroupId = 1, RoleId = 1 };
+            RoleAssignmentDTO roleAssignment = new RoleAssignmentDTO() { GroupId = 1, RoleId = 1 };
             int roleAssignmentId = 1;
 
             // Arrange
@@ -1106,7 +1116,7 @@ namespace AdminStore.Controllers
         [ExpectedException(typeof(BadRequestException))]
         public async Task CreateRoleAssignment_RoleAssignmentInvalid_ReturnBadRequestResult()
         {
-            CreateRoleAssignment roleAssignment = null;
+            RoleAssignmentDTO roleAssignment = null;
             int roleAssignmentId = 1;
 
             // Arrange
@@ -1129,7 +1139,7 @@ namespace AdminStore.Controllers
         [ExpectedException(typeof(BadRequestException))]
         public async Task CreateRoleAssignment_RoleIdInvalid_ReturnBadRequestResult()
         {
-            CreateRoleAssignment roleAssignment = new CreateRoleAssignment() { GroupId = 1, RoleId = 0 };
+            RoleAssignmentDTO roleAssignment = new RoleAssignmentDTO() { GroupId = 1, RoleId = 0 };
             int roleAssignmentId = 1;
 
             // Arrange
@@ -1152,7 +1162,7 @@ namespace AdminStore.Controllers
         [ExpectedException(typeof(BadRequestException))]
         public async Task CreateRoleAssignment_GroupIdInvalid_ReturnBadRequestResult()
         {
-            CreateRoleAssignment roleAssignment = new CreateRoleAssignment() { GroupId = 0, RoleId = 1 };
+            RoleAssignmentDTO roleAssignment = new RoleAssignmentDTO() { GroupId = 0, RoleId = 1 };
             int roleAssignmentId = 1;
 
             // Arrange
@@ -1209,6 +1219,113 @@ namespace AdminStore.Controllers
 
             //assert
         }
+        #endregion
+
+        #region UpdateRoleAssignment
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task UpdateRoleAssignment_InvalidRoleAssignment_ThrowsBadRequestException()
+        {
+            _roleAssignment = null;
+
+            // Arrange
+            _privilegeRepositoryMock
+               .Setup(r => r.GetProjectAdminPermissionsAsync(UserId, ProjectId))
+               .ReturnsAsync(ProjectAdminPrivileges.ManageGroupsAndRoles);
+
+            // Act
+            var result = await _controller.UpdateRoleAssignment(ProjectId, _roleAssignmentId, _roleAssignment);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task UpdateRoleAssignment_InvalidRoleId_ThrowsBadRequestException()
+        {
+            _roleAssignment.RoleId = 0;
+
+            // Arrange
+            _privilegeRepositoryMock
+               .Setup(r => r.GetProjectAdminPermissionsAsync(UserId, ProjectId))
+               .ReturnsAsync(ProjectAdminPrivileges.ManageGroupsAndRoles);
+
+            // Act
+            var result = await _controller.UpdateRoleAssignment(ProjectId, _roleAssignmentId, _roleAssignment);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task UpdateRoleAssignment_InvalidGroupId_ThrowsBadRequestException()
+        {
+            _roleAssignment.GroupId = 0;
+
+            // Arrange
+            _privilegeRepositoryMock
+               .Setup(r => r.GetProjectAdminPermissionsAsync(UserId, ProjectId))
+               .ReturnsAsync(ProjectAdminPrivileges.ManageGroupsAndRoles);
+
+            // Act
+            var result = await _controller.UpdateRoleAssignment(ProjectId, _roleAssignmentId, _roleAssignment);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task UpdateRoleAssignment_InvalidRoleAssignmentId_ThrowsBadRequestException()
+        {
+            _roleAssignmentId = 0;
+
+            // Arrange
+            _privilegeRepositoryMock
+               .Setup(r => r.GetProjectAdminPermissionsAsync(UserId, ProjectId))
+               .ReturnsAsync(ProjectAdminPrivileges.ManageGroupsAndRoles);
+
+            // Act
+            var result = await _controller.UpdateRoleAssignment(ProjectId, _roleAssignmentId, _roleAssignment);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task UpdateRoleAssignment_InsufficientPermissions_ThrowsBadRequestException()
+        {
+            // Arrange
+            _privilegeRepositoryMock
+               .Setup(r => r.GetProjectAdminPermissionsAsync(UserId, ProjectId))
+               .ReturnsAsync(ProjectAdminPrivileges.ViewGroupsAndRoles);
+
+            _privilegeRepositoryMock
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
+                .ReturnsAsync(InstanceAdminPrivileges.None);
+
+            // Act
+            await _controller.UpdateRoleAssignment(ProjectId, _roleAssignmentId, _roleAssignment);
+
+            // Assert
+        }
+
+        [TestMethod]
+        public async Task UpdateRoleAssignment_SuccessfulUpdateOfAssignment_ReturnNoneContentSuccessResult()
+        {
+            // Arrange
+            _privilegeRepositoryMock
+               .Setup(r => r.GetProjectAdminPermissionsAsync(UserId, ProjectId))
+               .ReturnsAsync(ProjectAdminPrivileges.ManageGroupsAndRoles);
+
+            // Act
+            var result = await _controller.UpdateRoleAssignment(ProjectId, _roleAssignmentId, _roleAssignment);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(HttpStatusCode.NoContent, result.StatusCode);
+        }
+
         #endregion
     }
 }

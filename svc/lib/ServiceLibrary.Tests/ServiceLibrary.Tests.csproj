@@ -103,6 +103,7 @@
     <Compile Include="Helpers\TestsForHelpers\I18HelperTests.cs" />
     <Compile Include="Helpers\TestsForHelpers\LoggableApiControllerTests.cs" />
     <Compile Include="Helpers\TestsForHelpers\StatusControllerHelperTests.cs" />
+    <Compile Include="Helpers\Validators\ChoicePropertyValidatorTests.cs" />
     <Compile Include="Helpers\Validators\DatePropertyValidatorTests.cs" />
     <Compile Include="Helpers\Validators\NumberPropertyValidatorTests.cs" />
     <Compile Include="Helpers\Validators\ReusePropertyValidatorTests.cs" />
@@ -114,6 +115,9 @@
     <Compile Include="Models\LicenseTransactionTests.cs" />
     <Compile Include="Models\PaginationExtensionsTests.cs" />
     <Compile Include="Models\Workflow\Actions\PropertyChangeActionTests.cs" />
+    <Compile Include="Models\Workflow\Actions\PropertyChangeActionTests.Number.cs" />
+    <Compile Include="Models\Workflow\Actions\PropertyChangeActionTests.User.cs" />
+    <Compile Include="Models\Workflow\WorkflowEventTriggersTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\ApplicationSettingsRepositoryTests.cs" />
     <Compile Include="Repositories\ArtifactPermissionsRepositoryTests.cs" />

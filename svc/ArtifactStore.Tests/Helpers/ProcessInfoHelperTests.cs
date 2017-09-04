@@ -19,7 +19,7 @@ namespace ArtifactStore.Helpers
             //Arrange
             ProcessInfo pi = new ProcessInfo()
             {
-                ProcessType = "2",
+                ProcessType = ProcessType.UserToSystemProcess.ToString(),
                 ItemId = 1
             };
 
@@ -36,17 +36,17 @@ namespace ArtifactStore.Helpers
             {
                 new ProcessInfo()
                 {
-                    ProcessType = "3",
+                    ProcessType = ProcessType.SystemToSystemProcess.ToString(),
                     ItemId = 1
                 },
                 new ProcessInfo()
                 {
-                    ProcessType = "2",
+                    ProcessType = ProcessType.UserToSystemProcess.ToString(),
                     ItemId = 2
                 },
                 new ProcessInfo()
                 {
-                    ProcessType = "1",
+                    ProcessType = ProcessType.BusinessProcess.ToString(),
                     ItemId = 3
                 },
             };

@@ -1381,7 +1381,7 @@ namespace AdminStore.Repositories
             
             errorCode = 50016;
 
-            _connection.SetupQueryAsync("UpdateProjectRoleAssigment",
+            _connection.SetupExecuteScalarAsync("UpdateProjectRoleAssigment",
                                         new Dictionary<string, object>
                                         {
                                             { "ProjectId", ProjectId },
@@ -1389,13 +1389,11 @@ namespace AdminStore.Repositories
                                             {"RoleId", roleAssignment.RoleId },
                                             {"RoleAssignmentId", roleAssignmentId }
                                         },
+                                        0,
                                         new Dictionary<string, object> { { "ErrorCode", errorCode } });
 
             // Act
             await _instanceRepository.UpdateRoleAssignmentAsync(ProjectId, roleAssignmentId, roleAssignment);
-
-            // Assert
-            //_connection.Verify();
         }
 
         [TestMethod]

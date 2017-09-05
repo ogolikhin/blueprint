@@ -356,11 +356,7 @@ namespace ArtifactStore.Executors
                 .ReturnsAsync(transition);
             _workflowRepository.Setup(
                 t => t.GetWorkflowEventTriggersForTransition(UserId, ArtifactId, WorkflowId, FromStateId, ToStateId))
-                .ReturnsAsync(new WorkflowTriggersContainer
-                {
-                    AsynchronousTriggers = new WorkflowEventTriggers(),
-                    SynchronousTriggers = new WorkflowEventTriggers()
-                });
+                .ReturnsAsync(new WorkflowTriggersContainer());
 
             _workflowRepository.Setup(t => t.ChangeStateForArtifactAsync(UserId, ArtifactId, It.IsAny<WorkflowStateChangeParameterEx>(), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync((WorkflowState)null);
@@ -424,11 +420,7 @@ namespace ArtifactStore.Executors
                 .ReturnsAsync(transition);
             _workflowRepository.Setup(
                 t => t.GetWorkflowEventTriggersForTransition(UserId, ArtifactId, WorkflowId, FromStateId, ToStateId))
-                .ReturnsAsync(new WorkflowTriggersContainer
-                {
-                    AsynchronousTriggers = new WorkflowEventTriggers(),
-                    SynchronousTriggers = new WorkflowEventTriggers()
-                });
+                .ReturnsAsync(new WorkflowTriggersContainer());
 
             _workflowRepository.Setup(t => t.ChangeStateForArtifactAsync(UserId, ArtifactId, It.IsAny<WorkflowStateChangeParameterEx>(), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync((WorkflowState)null);
@@ -495,17 +487,16 @@ namespace ArtifactStore.Executors
 
             var workflowEventAction = new Mock<IWorkflowEventAction>();
             workflowEventAction.Setup(a => a.ValidateAction(It.IsAny<IExecutionParameters>())).Returns(false);
-
+            var triggerContainer = new WorkflowTriggersContainer();
+            triggerContainer.SynchronousTriggers.Add(new WorkflowEventTrigger()
+            {
+                Action = workflowEventAction.Object,
+                Name = "Test'"
+            });
+        
             _workflowRepository.Setup(
                 t => t.GetWorkflowEventTriggersForTransition(UserId, ArtifactId, WorkflowId, FromStateId, ToStateId))
-                .ReturnsAsync(new WorkflowTriggersContainer
-                {
-                    AsynchronousTriggers = new WorkflowEventTriggers(),
-                    SynchronousTriggers = new WorkflowEventTriggers()
-                    {
-                        new WorkflowEventTrigger() { Action = workflowEventAction.Object, Name = "Test'"}
-                    }
-                });
+                .ReturnsAsync(triggerContainer);
 
             _workflowRepository.Setup(t => t.ChangeStateForArtifactAsync(UserId, ArtifactId, It.IsAny<WorkflowStateChangeParameterEx>(), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync((WorkflowState)null);

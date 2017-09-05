@@ -25,7 +25,10 @@ namespace AdminStore.Repositories
             // Arrange
             var group = new GroupDto
             {
-                Name = "GroupName", Email = "GroupEmail", Source = UserGroupSource.Database, LicenseType = LicenseType.Author
+                Name = "GroupName",
+                Email = "GroupEmail",
+                Source = UserGroupSource.Database,
+                LicenseType = LicenseType.Author
             };
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlGroupRepository(cxn.Object);
@@ -60,7 +63,7 @@ namespace AdminStore.Repositories
             var errorId = 0;
             var groupId = 1;
 
-            cxn.SetupExecuteScalarAsync("UpdateGroup", It.IsAny<Dictionary<string, object>>(), 0, new Dictionary<string, object> { { "ErrorCode", errorId }});
+            cxn.SetupExecuteScalarAsync("UpdateGroup", It.IsAny<Dictionary<string, object>>(), 0, new Dictionary<string, object> { { "ErrorCode", errorId } });
 
             // Act
             await repository.UpdateGroupAsync(groupId, group);
@@ -336,14 +339,14 @@ namespace AdminStore.Repositories
 
             var tabularData = new TabularData
             {
-                Pagination = new Pagination {Limit = 10, Offset = 0},
-                Sorting = new Sorting {Order = SortOrder.Asc, Sort = "name"}
+                Pagination = new Pagination { Limit = 10, Offset = 0 },
+                Sorting = new Sorting { Order = SortOrder.Asc, Sort = "name" }
             };
 
             cxn.SetupQueryAsync("GetAvailableGroupsForProject",
-                new Dictionary<string, object> {{"projectId", projectId}},
+                new Dictionary<string, object> { { "projectId", projectId } },
                 projectGroups,
-                new Dictionary<string, object>() {{"ErrorCode", errorCode}});
+                new Dictionary<string, object> { { "ErrorCode", errorCode } });
 
             // Act
             await repository.GetProjectGroupsAsync(projectId, tabularData, SortingHelper.SortProjectGroups);
@@ -363,17 +366,17 @@ namespace AdminStore.Repositories
             var projectId = 1;
             var tabularData = new TabularData
             {
-                Pagination = new Pagination {Limit = 10, Offset = 0},
-                Sorting = new Sorting {Order = SortOrder.Asc, Sort = "name"}
+                Pagination = new Pagination { Limit = 10, Offset = 0 },
+                Sorting = new Sorting { Order = SortOrder.Asc, Sort = "name" }
             };
             int errorCode = 50016; // there are no project for this projectId
 
             Group[] projectGroups = {};
 
             cxn.SetupQueryAsync("GetAvailableGroupsForProject",
-                new Dictionary<string, object> {{"projectId", projectId}},
+                new Dictionary<string, object> { { "projectId", projectId } },
                 projectGroups,
-                new Dictionary<string, object>() {{"ErrorCode", errorCode}});
+                new Dictionary<string, object> { { "ErrorCode", errorCode } });
 
             // Act
             await repository.GetProjectGroupsAsync(projectId, tabularData);

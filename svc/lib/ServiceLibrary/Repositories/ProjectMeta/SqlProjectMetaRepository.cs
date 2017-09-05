@@ -95,6 +95,29 @@ namespace ServiceLibrary.Repositories.ProjectMeta
             return await GetCustomProjectTypesAsync(0, 1);
         }
 
+        public async Task<IEnumerable<PropertyType>> GetStandardProjectPropertyTypesAsync(IEnumerable<int> predefinedTypeIds)
+        {
+            return await GetProjectPropertyTypesAsync(0, predefinedTypeIds);
+        }
+
+        public async Task<IEnumerable<PropertyType>> GetProjectPropertyTypesAsync(int projectId, IEnumerable<int> predefinedTypeIds)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@projectId", projectId);
+            prm.Add("@predefinedPropertyTypes", SqlConnectionWrapper.ToDataTable(predefinedTypeIds, "Int32Collection", "Int32Value"));
+
+            var ptVersions = await _connectionWrapper.QueryAsync<PropertyTypeVersion>(
+                "GetProjectPropertyTypes", prm, commandType: CommandType.StoredProcedure);
+
+            var propTypes = new List<PropertyType>();
+            foreach (var pv in ptVersions)
+            {
+                propTypes.Add(ConvertPropertyTypeVersion(pv));
+            }
+
+            return propTypes;
+        }
+
         private async Task CheckProjectIsAccessible(int projectId, int userId)
         {
             var parameters = new DynamicParameters();
@@ -200,7 +223,6 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                 IsValidated = pv.PrimitiveType == PropertyPrimitiveType.Number
                                     || pv.PrimitiveType == PropertyPrimitiveType.Date
                                     || pv.PrimitiveType == PropertyPrimitiveType.Choice
-                                    || pv.PrimitiveType == PropertyPrimitiveType.Text
                                     ? pv.Validate : null,
                 IsMultipleAllowed = pv.PrimitiveType == PropertyPrimitiveType.Text
                                     || pv.PrimitiveType == PropertyPrimitiveType.Choice 

@@ -9,11 +9,16 @@ namespace BluePrintSys.Messaging.CrossCutting.Helpers
 {
     public delegate Task SendMessageAsyncDelegate(string tenantId, IWorkflowMessage message);
 
-    public class WorkflowMessaging
+    public interface IWorkflowMessagingProcessor
+    {
+        Task SendMessageAsync(string tenantId, IWorkflowMessage message);
+    }
+
+    public class WorkflowMessagingProcessor : IWorkflowMessagingProcessor
     {
         private readonly IMessageTransportHost _messageTransportHost;
-        private static readonly Lazy<WorkflowMessaging> _instance = new Lazy<WorkflowMessaging>(() => new WorkflowMessaging());
-        public static WorkflowMessaging Instance => _instance.Value;
+        private static readonly Lazy<WorkflowMessagingProcessor> _instance = new Lazy<WorkflowMessagingProcessor>(() => new WorkflowMessagingProcessor());
+        public static WorkflowMessagingProcessor Instance => _instance.Value;
 
         public static SendMessageAsyncDelegate SendMessageAsyncDelegate =
             async (tenantId, messageEvent) =>
@@ -21,7 +26,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Helpers
                 await Instance.SendMessageAsync(tenantId, messageEvent);
             };
 
-        private WorkflowMessaging()
+        private WorkflowMessagingProcessor()
         {
             Log.Debug("Workflow Messaging: Started opening the endpoint....");
             _messageTransportHost = new TransportHost(new ConfigHelper(), GenericServiceBusServer.Instance);

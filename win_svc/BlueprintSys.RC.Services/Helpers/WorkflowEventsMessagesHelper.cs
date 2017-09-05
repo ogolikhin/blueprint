@@ -158,7 +158,8 @@ namespace BlueprintSys.RC.Services.Helpers
             IApplicationSettingsRepository applicationSettingsRepository,
             IServiceLogRepository serviceLogRepository,
             IList<IWorkflowMessage> messages,
-            string exceptionMessagePrepender)
+            string exceptionMessagePrepender,
+            IWorkflowMessagingProcessor workflowMessagingProcessor)
         {
             var tenantInfo = await applicationSettingsRepository.GetTenantInfo();
             if (string.IsNullOrWhiteSpace(tenantInfo?.TenantId))
@@ -168,24 +169,28 @@ namespace BlueprintSys.RC.Services.Helpers
 
             await
                 ProcessMessages(logSource, tenantInfo.TenantId, serviceLogRepository, messages,
-                    exceptionMessagePrepender);
+                    exceptionMessagePrepender, workflowMessagingProcessor);
         }
 
         public static async Task ProcessMessages(string logSource,
             string tenantId,
             IServiceLogRepository serviceLogRepository,
             IList<IWorkflowMessage> messages,
-            string exceptionMessagePrepender)
+            string exceptionMessagePrepender,
+            IWorkflowMessagingProcessor workflowMessagingProcessor)
         {
             if (messages == null || messages.Count <= 0)
             {
                 return;
             }
+
+            var processor = workflowMessagingProcessor ?? WorkflowMessagingProcessor.Instance;
+
             foreach (var actionMessage in messages.Where(a => a != null))
             {
                 try
                 {
-                    await WorkflowMessaging.Instance.SendMessageAsync(tenantId, actionMessage);
+                    await processor.SendMessageAsync(tenantId, actionMessage);
                     string message = $"Sent {actionMessage.ActionType} message: {actionMessage.ToJSON()} with tenant id: {tenantId} to the Message queue";
                     await
                         serviceLogRepository.LogInformation(logSource, message);

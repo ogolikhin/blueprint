@@ -1,8 +1,8 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using BlueprintSys.RC.Services.Helpers;
 using BlueprintSys.RC.Services.Models;
 using BlueprintSys.RC.Services.Repositories;
+using BluePrintSys.Messaging.CrossCutting.Helpers;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.LocalLog;
@@ -13,7 +13,6 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
     public class ArtifactsPublishedActionHelper : MessageActionHandler
     {
         private readonly IActionsParser _actionsParser;
-        
 
         public ArtifactsPublishedActionHelper(IActionsParser actionsParser = null)
         {
@@ -27,31 +26,30 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
 
             var repository = (IArtifactsPublishedRepository)actionHandlerServiceRepository;
 
-            var allPublishedArtifacts = (message.Artifacts ?? new PublishedArtifactInformation[] { }).ToArray();
-
-            var updatedArtifacts = allPublishedArtifacts.Where(p => !p.IsFirstTimePublished).ToList();
-
             var serviceLogRepository = new ServiceLogRepository(new HttpClientProvider(),
                 new LocalFileLog(),
                 tenant.AdminStoreLog);
 
             //Get modified properties for all artifacts and create a dictionary with key as artifact ids
             bool handledAllUpdatedArtifacts = await UpdatedArtifactsNotificationHandler.ProcessUpdatedArtifacts(tenant,
-                updatedArtifacts,
                 message,
                 repository,
                 serviceLogRepository,
-                _actionsParser);
+                _actionsParser,
+                WorkflowMessagingProcessor.Instance);
             if (!handledAllUpdatedArtifacts)
             {
                 Logger.Log("Could not process messages for all published updated artifacts", message, tenant, LogLevel.Debug);
             }
-
-            var createdArtifacts = allPublishedArtifacts.Where(p => p.IsFirstTimePublished).ToList();
+            
             var handledAllCreatedArtifacts =
                 await
-                    CreatedArtifactsNotificationHandler.ProcessCreatedArtifacts(tenant, createdArtifacts, message,
-                        repository, serviceLogRepository);
+                    CreatedArtifactsNotificationHandler.ProcessCreatedArtifacts(tenant, 
+                    message,
+                    repository,
+                    serviceLogRepository, 
+                    WorkflowMessagingProcessor.Instance);
+
             if (!handledAllCreatedArtifacts)
             {
                 Logger.Log("Could not process messages for all published created artifacts", message, tenant, LogLevel.Debug);

@@ -51,7 +51,7 @@ namespace BlueprintSys.RC.Services.Tests
         }
 
         [TestMethod]
-        public async Task ArtifactsPublishedActionHelper_ReturnsTrue_WhenNoTriggersAreFound()
+        public async Task ArtifactsPublishedActionHelper_ReturnsFalse_WhenNoTriggersAreFound()
         {
             var message = new ArtifactsPublishedMessage();
 
@@ -62,11 +62,11 @@ namespace BlueprintSys.RC.Services.Tests
             var actionHelper = new ArtifactsPublishedActionHelper();
 
             var result = await actionHelper.HandleAction(_tenantInformation, message, _repositoryMock.Object);
-            Assert.IsTrue(result);
+            Assert.IsFalse(result, "Message should not be processed successfully");
         }
 
         [TestMethod]
-        public async Task ArtifactsPublishedActionHelper_ReturnsTrue_WhenNoPublishedArtifactsAreFound()
+        public async Task ArtifactsPublishedActionHelper_ReturnsFalse_WhenNoPublishedArtifactsAreFound()
         {
             //empty array of artifacts
             var message = new ArtifactsPublishedMessage {Artifacts = new PublishedArtifactInformation[] { }};
@@ -76,11 +76,11 @@ namespace BlueprintSys.RC.Services.Tests
             var actionHelper = new ArtifactsPublishedActionHelper();
 
             var result = await actionHelper.HandleAction(_tenantInformation, message, _repositoryMock.Object);
-            Assert.IsTrue(result);
+            Assert.IsFalse(result, "Message should not be processed successfully");
         }
 
         [TestMethod]
-        public async Task ArtifactsPublishedActionHelper_ReturnsTrue_WhenNoWorkflowStatesAreFound()
+        public async Task ArtifactsPublishedActionHelper_ReturnsFalse_WhenNoWorkflowStatesAreFound()
         {
             var message = new ArtifactsPublishedMessage {Artifacts = new[] {new PublishedArtifactInformation()}};
 
@@ -92,7 +92,7 @@ namespace BlueprintSys.RC.Services.Tests
             var actionHelper = new ArtifactsPublishedActionHelper();
 
             var result = await actionHelper.HandleAction(_tenantInformation, message, _repositoryMock.Object);
-            Assert.IsTrue(result);
+            Assert.IsFalse(result, "Message should not be processed successfully");
         }
 
         [TestMethod]

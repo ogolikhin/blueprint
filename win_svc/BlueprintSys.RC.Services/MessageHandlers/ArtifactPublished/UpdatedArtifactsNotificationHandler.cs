@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using BlueprintSys.RC.Services.Helpers;
 using BlueprintSys.RC.Services.Models;
 using BlueprintSys.RC.Services.Repositories;
+using BluePrintSys.Messaging.CrossCutting.Helpers;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
@@ -16,21 +17,36 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
     {
         private const string LogSource = "ArtifactsPublishedActionHelper.UpdatedArtifacts";
         internal static async Task<bool> ProcessUpdatedArtifacts(TenantInformation tenant,
-            ICollection<PublishedArtifactInformation> updatedArtifacts,
+            
             ArtifactsPublishedMessage message,
             IArtifactsPublishedRepository repository,
             IServiceLogRepository serviceLogRepository,
-            IActionsParser actionsParser)
+            IActionsParser actionsParser,
+            IWorkflowMessagingProcessor messageProcessor)
         {
+            var allUpdatedArtifacts = message?.Artifacts?.Where(p => !p.IsFirstTimePublished).ToList();
+            if (allUpdatedArtifacts == null || allUpdatedArtifacts.Count <= 0)
+            {
+                return false;
+            }
+
+            var updatedArtifacts = allUpdatedArtifacts.Where(a => a.ModifiedProperties?.Count > 0).ToList();
+            if (updatedArtifacts.Count == 0)
+            {
+                return false;
+            }
+
             //Get artifacts which have modified properties list populated
             var allArtifactsModifiedProperties = updatedArtifacts.ToDictionary(k => k.Id,
                 v => v.ModifiedProperties ?? new List<PublishedPropertyInformation>());
+
             Logger.Log(
                 $"{allArtifactsModifiedProperties.Count} artifacts found: {string.Join(", ", allArtifactsModifiedProperties.Select(k => k.Key))}",
                 message, tenant, LogLevel.Debug);
+
             if (allArtifactsModifiedProperties.Count == 0)
             {
-                return true;
+                return false;
             }
 
             //Get property transitions for published artifact ids.
@@ -44,7 +60,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
             Logger.Log($"{artifactPropertyEvents?.Count ?? 0} workflow property events found", message, tenant, LogLevel.Debug);
             if (artifactPropertyEvents == null || artifactPropertyEvents.Count == 0)
             {
-                return true;
+                return false;
             }
 
             //convert all property transitions to a dictionary with artifact id as key
@@ -74,7 +90,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
                 message, tenant, LogLevel.Debug);
             if (workflowStates.Count == 0)
             {
-                return true;
+                return false;
             }
 
             //Get project names
@@ -82,6 +98,8 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
             var projects = await repository.GetProjectNameByIdsAsync(projectIds);
             Logger.Log($"{projects.Count} project names found for project IDs: {string.Join(", ", projectIds)}", message, tenant,
                 LogLevel.Debug);
+
+            var notificationMessages = new Dictionary<int, List<IWorkflowMessage>>();
 
             //for artifacts in active property transitions
             foreach (var artifactId in activePropertyTransitions.Keys)
@@ -96,7 +114,13 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
                     continue;
                 }
 
-                var artifactModifiedProperties = allArtifactsModifiedProperties[artifactId];
+                List<PublishedPropertyInformation> artifactModifiedProperties;
+                if (!allArtifactsModifiedProperties.TryGetValue(artifactId, out artifactModifiedProperties))
+                {
+                    Logger.Log($"modified properties not found for {artifactId}", message, tenant, LogLevel.Debug);
+                    continue;
+                }
+                
                 Logger.Log($"{artifactModifiedProperties?.Count ?? 0} modified properties found", message, tenant,
                     LogLevel.Debug);
                 if (artifactModifiedProperties == null || !artifactModifiedProperties.Any())
@@ -108,12 +132,17 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
                 Logger.Log(
                     $"{artifactModifiedPropertiesSet.Count} instance property type IDs being located: {string.Join(", ", artifactModifiedPropertiesSet)}",
                     message, tenant, LogLevel.Debug);
+
                 var instancePropertyTypeIds = await repository.GetInstancePropertyTypeIdsMap(artifactModifiedPropertiesSet);
                 Logger.Log(
                     $"{instancePropertyTypeIds.Count} instance property type IDs found: {string.Join(", ", instancePropertyTypeIds.Select(k => k.Key))}",
                     message, tenant, LogLevel.Debug);
 
-                var currentStateInfo = workflowStates[artifactId];
+                SqlWorkFlowStateInformation currentStateInfo;
+                if (!workflowStates.TryGetValue(artifactId, out currentStateInfo))
+                {
+                    continue;
+                }
 
                 foreach (var notificationAction in notifications)
                 {
@@ -124,8 +153,17 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
                         continue;
                     }
 
-                    if (!instancePropertyTypeIds.ContainsKey(notificationAction.EventPropertyTypeId.Value)
-                        || instancePropertyTypeIds[notificationAction.EventPropertyTypeId.Value].IsEmpty())
+                    int eventPropertyTypeId = notificationAction.EventPropertyTypeId.Value;
+                    if (!instancePropertyTypeIds.ContainsKey(eventPropertyTypeId))
+                    {
+                        Logger.Log(
+                            $"The property type ID {notificationAction.EventPropertyTypeId} was not found in the dictionary of instance property type IDs.",
+                            message, tenant, LogLevel.Debug);
+                        continue;
+                    }
+
+                    List<int> propertyTypeIds;
+                    if (!instancePropertyTypeIds.TryGetValue(eventPropertyTypeId, out propertyTypeIds) || propertyTypeIds.IsEmpty())
                     {
                         Logger.Log(
                             $"The property type ID {notificationAction.EventPropertyTypeId} was not found in the dictionary of instance property type IDs.",
@@ -142,7 +180,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
                         Logger.Log(
                             $"Conditional state ID {notificationAction.ConditionalStateId.Value} does not match current state ID: {currentStateId}",
                             message, tenant, LogLevel.Debug);
-                        return await Task.FromResult(true);
+                        continue;
                     }
 
                     var artifact = updatedArtifacts.First(a => a.Id == artifactId);
@@ -170,14 +208,37 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
                         ProjectId = artifact.ProjectId
                     };
 
-                    await WorkflowEventsMessagesHelper.ProcessMessages(LogSource,
-                    tenant.TenantId,
-                    serviceLogRepository,
-                    new List<IWorkflowMessage> { notificationMessage },
-                    $"Error on new artifact creation with Id: {artifactId}");
+                    if (notificationMessages.ContainsKey(artifactId))
+                    {
+                        notificationMessages[artifactId].Add(notificationMessage);
+                    }
+                    else
+                    {
+                        notificationMessages.Add(artifactId, 
+                            new List<IWorkflowMessage>
+                            {
+                                notificationMessage
+                            });
+                    }
                 }
             }
-            return false;
+
+            if (notificationMessages.Count == 0)
+            {
+                return false;
+            }
+
+            foreach (var notificationMessage in notificationMessages)
+            {
+                await WorkflowEventsMessagesHelper.ProcessMessages(LogSource,
+                    tenant.TenantId,
+                    serviceLogRepository,
+                     notificationMessage.Value,
+                    $"Error on new artifact creation with Id: {notificationMessage.Key}",
+                    messageProcessor);
+            }
+
+            return true;
         }
     }
 }

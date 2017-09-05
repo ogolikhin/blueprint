@@ -1,9 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using BlueprintSys.RC.Services.Helpers;
 using BlueprintSys.RC.Services.Models;
 using BlueprintSys.RC.Services.Repositories;
+using BluePrintSys.Messaging.CrossCutting.Helpers;
 using BluePrintSys.Messaging.CrossCutting.Models.Exceptions;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers;
@@ -16,34 +19,58 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
     internal class CreatedArtifactsNotificationHandler
     {
         private const string LogSource = "ArtifactsPublishedActionHelper.CreatedArtifacts";
-
+        private const int TransactionCommitWaitTime = 1;
         internal static async Task<bool> ProcessCreatedArtifacts(TenantInformation tenant,
-            List<PublishedArtifactInformation> createdArtifacts,
             ArtifactsPublishedMessage message,
             IArtifactsPublishedRepository repository,
-            IServiceLogRepository serviceLogRepository)
+            IServiceLogRepository serviceLogRepository,
+            IWorkflowMessagingProcessor messageProcessor,
+            int transactionCommitWaitTimeInMilliSeconds = 60000)
         {
+            var createdArtifacts = message?.Artifacts?.Where(p => p.IsFirstTimePublished).ToList();
             if (createdArtifacts == null || createdArtifacts.Count <= 0)
             {
-                return true;
+                return false;
             }
-
 
             var artifactIds = createdArtifacts.Select(a => a.Id).ToHashSet();
 
-            var artifactInfos = (await repository.WorkflowRepository.GetWorkflowMessageArtifactInfoAsync(message.UserId,
-                artifactIds,
-                message.RevisionId)).ToDictionary(k => k.Id);
+            bool artifactsLocated = false;
+            var artifactInfos = new Dictionary<int, WorkflowMessageArtifactInfo>();
+            var notFoundArtifactIds = new HashSet<int>();
+            for (int i = 0; i < 10; i++)
+            {
 
-            var notFoundArtifactIds = artifactIds.Except(artifactInfos.Keys).ToHashSet();
-            if (notFoundArtifactIds.Count > 0)
+                artifactInfos = (await
+                    repository.WorkflowRepository.GetWorkflowMessageArtifactInfoAsync(message.UserId,
+                        artifactIds,
+                        message.RevisionId)).ToDictionary(k => k.Id);
+
+                notFoundArtifactIds.AddRange(artifactIds.Except(artifactInfos.Keys));
+                if (notFoundArtifactIds.Count > 0)
+                {
+                    var notFoundArtifactIdString = string.Join(", ", notFoundArtifactIds);
+                    await serviceLogRepository.LogInformation(LogSource,
+                        $"Could not recover information for following artifacts {notFoundArtifactIdString}");
+                    Logger.Log($"Could not recover information for following artifacts {notFoundArtifactIdString}",
+                        message, tenant, LogLevel.Debug);
+                    artifactInfos.Clear();
+                    notFoundArtifactIds.Clear();
+                    //Wait for a minute before
+                    Thread.Sleep(TimeSpan.FromMilliseconds(transactionCommitWaitTimeInMilliSeconds));
+                    continue;
+                }
+                artifactsLocated = true;
+                break;
+            }
+
+            if (!artifactsLocated)
             {
                 var notFoundArtifactIdString = string.Join(", ", notFoundArtifactIds);
-                await serviceLogRepository.LogInformation(LogSource,
-                    $"Could not recover information for following artifacts {notFoundArtifactIdString}");
-                Logger.Log($"Could not recover information for following artifacts {notFoundArtifactIdString}", message, tenant, LogLevel.Debug);
                 throw new EntityNotFoundException($"Could not recover information for following artifacts {notFoundArtifactIdString}");
             }
+
+            var notificationMessages = new Dictionary<int, List<IWorkflowMessage>>();
 
             foreach (var createdArtifact in createdArtifacts)
             {
@@ -60,6 +87,15 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
                 var eventTriggers = await repository.WorkflowRepository.GetWorkflowEventTriggersForNewArtifactEvent(message.UserId,
                     new[] { createdArtifact.Id },
                     message.RevisionId);
+
+                if (eventTriggers?.AsynchronousTriggers == null 
+                    || eventTriggers.AsynchronousTriggers.Count == 0)
+                {
+                    continue;
+                }
+
+                int artifactId = createdArtifact.Id;
+
                 var actionMessages = await WorkflowEventsMessagesHelper.GenerateMessages(message.UserId,
                     message.RevisionId,
                     message.UserName,
@@ -71,16 +107,37 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
                     createdArtifact.Url,
                     createdArtifact.BaseUrl,
                     repository.UsersRepository,
-                    serviceLogRepository
-                    );
+                    serviceLogRepository);
 
+                if (actionMessages == null || actionMessages.Count == 0)
+                {
+                    continue;
+                }
+
+                if (!notificationMessages.ContainsKey(artifactId))
+                {
+                    notificationMessages.Add(artifactId, new List<IWorkflowMessage>());
+                }
+
+                notificationMessages[artifactId].AddRange(actionMessages);
+            }
+
+            if (notificationMessages.Count == 0)
+            {
+                return false;
+            }
+
+            foreach (var notificationMessage in notificationMessages)
+            {
                 await WorkflowEventsMessagesHelper.ProcessMessages(LogSource,
                     tenant.TenantId,
                     serviceLogRepository,
-                    actionMessages,
-                    $"Error on new artifact creation with Id: {createdArtifact.Id}");
+                     notificationMessage.Value,
+                    $"Error on new artifact creation with Id: {notificationMessage.Key}",
+                    messageProcessor);
             }
-            return await Task.FromResult(true);
+
+            return true;
         }
     }
 }

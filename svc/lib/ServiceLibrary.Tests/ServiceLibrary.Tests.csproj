@@ -107,6 +107,7 @@
     <Compile Include="Helpers\Validators\DatePropertyValidatorTests.cs" />
     <Compile Include="Helpers\Validators\NumberPropertyValidatorTests.cs" />
     <Compile Include="Helpers\Validators\ReusePropertyValidatorTests.cs" />
+    <Compile Include="Helpers\Validators\TextPropertyValidatorTests.cs" />
     <Compile Include="Helpers\Validators\UserPropertyValidatorTests.cs" />
     <Compile Include="Helpers\WebApiConfigHelper.cs" />
     <Compile Include="LocalLog\LocalLogTests.cs" />

@@ -63,6 +63,39 @@ namespace ArtifactStore.Repositories
             }
         }
 
+        public async Task UpdateArtifactName(
+            int userId,
+            int artifactId,
+            string artifactName,
+            IDbTransaction transaction = null)
+        {
+            var param = new DynamicParameters();
+            param.Add("@userId", userId);
+            param.Add("@artifactId", artifactId);
+            param.Add("@artifactName", artifactName);
+
+            object result;
+            const string storedProcedure = "UpdateArtifactName";
+            if (transaction == null)
+            {
+                result = await
+                    _connectionWrapper.QueryAsync<dynamic>(storedProcedure, param, commandType: CommandType.StoredProcedure);
+
+            }
+            else
+            {
+                result = await
+                    transaction.Connection.QueryAsync<dynamic>(storedProcedure, param, transaction,
+                        commandType: CommandType.StoredProcedure);
+            }
+
+            int? errorCode = (result as IEnumerable<dynamic>)?.FirstOrDefault()?.Error;
+            if (errorCode > 0)
+            {
+                throw new Exception("UpdateArtifactName failed with Error Code " + errorCode.Value);
+            }
+        }
+
         private DataTable PopulateSavePropertyValueVersionsTable(
             IEnumerable<IPropertyChangeAction> actions,
             IEnumerable<WorkflowPropertyType> propertyTypes,

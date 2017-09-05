@@ -1,11 +1,15 @@
 ﻿using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using BlueprintSys.RC.Services.Logging;
+using BluePrintSys.Messaging.CrossCutting.Configuration;
 using BluePrintSys.Messaging.CrossCutting.Host;
 using BluePrintSys.Messaging.CrossCutting.Logging;
+using BluePrintSys.Messaging.Models.Actions;
 using log4net.Appender;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using ServiceLibrary.Models.Workflow;
 
 namespace BlueprintSys.RC.Services.Tests
 {
@@ -15,26 +19,32 @@ namespace BlueprintSys.RC.Services.Tests
     [TestClass]
     public class TransportTests
     {
-        [TestMethod]
-        public void RabbitMQTransportHost_StartsSuccessfully()
+        private Mock<INServiceBusServer> _mockNServiceBusServer;
+        private TransportHost _transportHost;
+
+        [TestInitialize]
+        public void TestInitialize()
         {
-            var nServiceBusServerMock = new Mock<INServiceBusServer>();
-            var rabbitMqTransportHost = new TransportHost(null, nServiceBusServerMock.Object);
-            rabbitMqTransportHost.Start(false);
+            _mockNServiceBusServer = new Mock<INServiceBusServer>(MockBehavior.Strict);
+            _transportHost = new TransportHost(new ConfigHelper(), _mockNServiceBusServer.Object);
         }
 
         [TestMethod]
-        public void RabbitMQTransportHost_LogsError_WhenStartFails()
+        public void TransportHost_StartsSuccessfully()
+        {
+            _transportHost.Start(false);
+        }
+
+        [TestMethod]
+        public void TransportHost_LogsError_WhenStartFails()
         {
             LogManager.Manager.AddListener(Log4NetStandardLogListener.Instance);
             var appender = new MemoryAppender();
             log4net.Config.BasicConfigurator.Configure(appender);
 
-            var nServiceBusServerMock = new Mock<INServiceBusServer>();
             const string errorMessage = "error message";
-            nServiceBusServerMock.Setup(m => m.Start(It.IsAny<string>(), It.IsAny<bool>())).ReturnsAsync(errorMessage);
-            var rabbitMqTransportHost = new TransportHost(null, nServiceBusServerMock.Object);
-            rabbitMqTransportHost.Start(false, () => true);
+            _mockNServiceBusServer.Setup(m => m.Start(It.IsAny<string>(), It.IsAny<bool>())).ReturnsAsync(errorMessage);
+            _transportHost.Start(false, () => true);
 
             //Give the logging time to finish
             Thread.Sleep(1000);
@@ -46,49 +56,17 @@ namespace BlueprintSys.RC.Services.Tests
         }
 
         [TestMethod]
-        public void RabbitMQTransportHost_StopsSuccessfully()
+        public async Task TransportHost_SendsSuccessfully()
         {
-            var nServiceBusServerMock = new Mock<INServiceBusServer>();
-            var rabbitMqTransportHost = new TransportHost(null, nServiceBusServerMock.Object);
-            rabbitMqTransportHost.Stop();
+            _mockNServiceBusServer.Setup(m => m.Send(It.IsAny<string>(), It.IsAny<IWorkflowMessage>())).Returns(Task.FromResult(true));
+            await _transportHost.SendAsync("tenantId", new NotificationMessage());
         }
 
         [TestMethod]
-        public void SqlTransportHost_StartsSuccessfully()
+        public void TransportHost_StopsSuccessfully()
         {
-            var nServiceBusServerMock = new Mock<INServiceBusServer>();
-            var sqlTransportHost = new TransportHost(null, nServiceBusServerMock.Object);
-            sqlTransportHost.Start(false);
-        }
-
-        [TestMethod]
-        public void SqlTransportHost_LogsError_WhenStartFails()
-        {
-            LogManager.Manager.AddListener(Log4NetStandardLogListener.Instance);
-            var appender = new MemoryAppender();
-            log4net.Config.BasicConfigurator.Configure(appender);
-
-            var nServiceBusServerMock = new Mock<INServiceBusServer>();
-            const string errorMessage = "error message";
-            nServiceBusServerMock.Setup(m => m.Start(It.IsAny<string>(), It.IsAny<bool>())).ReturnsAsync(errorMessage);
-            var sqlTransportHost = new TransportHost(null, nServiceBusServerMock.Object);
-            sqlTransportHost.Start(false, () => true);
-
-            //Give the logging time to finish
-            Thread.Sleep(1000);
-            var logEntries = appender.GetEvents();
-            Log4NetStandardLogListener.Clear();
-            LogManager.Manager.ClearListeners();
-            Assert.AreEqual(1, logEntries.Length);
-            Assert.AreEqual(errorMessage, logEntries.Single().RenderedMessage);
-        }
-
-        [TestMethod]
-        public void SqlTransportHost_StopsSuccessfully()
-        {
-            var nServiceBusServerMock = new Mock<INServiceBusServer>();
-            var sqlTransportHost = new TransportHost(null, nServiceBusServerMock.Object);
-            sqlTransportHost.Stop();
+            _mockNServiceBusServer.Setup(m => m.Stop()).Returns(Task.FromResult(true));
+            _transportHost.Stop();
         }
     }
 }

@@ -221,7 +221,7 @@ namespace AdminStore.Services.Workflow
             }
 
             if (propertyType.IsValidated.GetValueOrDefault()
-                && propertyType.IsRequired.GetValueOrDefault()
+                && !string.IsNullOrEmpty(action.PropertyValue)
                 && action.ValidValues.IsEmpty())
             {
                 errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionChoiceValueSpecifiedAsNotValidated;

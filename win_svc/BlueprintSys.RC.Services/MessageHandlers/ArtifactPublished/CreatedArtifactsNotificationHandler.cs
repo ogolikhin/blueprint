@@ -11,6 +11,7 @@ using BluePrintSys.Messaging.CrossCutting.Models.Exceptions;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories.ConfigControl;
 
@@ -19,7 +20,6 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
     internal class CreatedArtifactsNotificationHandler
     {
         private const string LogSource = "ArtifactsPublishedActionHelper.CreatedArtifacts";
-        private const int TransactionCommitWaitTime = 1;
         internal static async Task<bool> ProcessCreatedArtifacts(TenantInformation tenant,
             ArtifactsPublishedMessage message,
             IArtifactsPublishedRepository repository,
@@ -127,12 +127,13 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
                 return false;
             }
 
-            foreach (var notificationMessage in notificationMessages)
+            foreach (var notificationMessage in notificationMessages.Where(m => m.Value != null))
             {
                 await WorkflowEventsMessagesHelper.ProcessMessages(LogSource,
                     tenant.TenantId,
                     serviceLogRepository,
-                     notificationMessage.Value,
+                    //Only process notification messages
+                    notificationMessage.Value.Where(a => a.ActionType== MessageActionType.Notification).ToList(),
                     $"Error on new artifact creation with Id: {notificationMessage.Key}",
                     messageProcessor);
             }

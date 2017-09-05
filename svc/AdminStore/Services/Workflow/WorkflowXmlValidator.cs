@@ -758,8 +758,7 @@ namespace AdminStore.Services.Workflow
                 });
             }
 
-            if (action.UsersGroups?.UsersGroups?.Count > 0
-                || (action.UsersGroups != null && action.UsersGroups.IncludeCurrentUser.GetValueOrDefault()))
+            if(action.UsersGroups != null)
             {
                 pvCount++;
 

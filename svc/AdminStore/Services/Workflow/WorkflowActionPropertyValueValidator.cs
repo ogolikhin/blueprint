@@ -278,7 +278,8 @@ namespace AdminStore.Services.Workflow
             var usersGroups = action.UsersGroups?.UsersGroups;
             errorCode = null;
             if (!ValidateIsPropertyRequired(propertyType.IsRequired.GetValueOrDefault(),
-                action.PropertyValue, true, usersGroups.IsEmpty()))
+                action.PropertyValue, true, usersGroups.IsEmpty()
+                && (action.UsersGroups == null || !action.UsersGroups.IncludeCurrentUser.GetValueOrDefault())))
             {
                 errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredPropertyValueEmpty;
                 return false;

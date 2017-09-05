@@ -32,6 +32,49 @@ namespace AdminStore.Services.Workflow
         }
 
         [TestMethod]
+        public void ValidatePropertyValue_Text_HasValidValues_Failure()
+        {
+            //Arrange
+            var propertyType = new PropertyType
+            {
+                PrimitiveType = PropertyPrimitiveType.Text
+            };
+            var action = new IePropertyChangeAction
+            {
+                ValidValues = new List<IeValidValue>
+                {
+                    new IeValidValue()
+                }
+            };
+
+            //Act and Assert
+            ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionNotChoicePropertyValidValuesNotApplicable);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyValue_Text_HasUsersGroups_Failure()
+        {
+            //Arrange
+            var propertyType = new PropertyType
+            {
+                PrimitiveType = PropertyPrimitiveType.Text
+            };
+            var action = new IePropertyChangeAction
+            {
+                UsersGroups = new IeUsersGroups
+                {
+                    UsersGroups = new List<IeUserGroup>
+                    {
+                        new IeUserGroup()
+                    }
+                }
+            };
+
+            //Act and Assert
+            ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionNotUserPropertyUsersGroupsNotApplicable);
+        }
+
+        [TestMethod]
         public void ValidatePropertyValue_Text_Required_Failure()
         {
             //Arrange
@@ -69,6 +112,49 @@ namespace AdminStore.Services.Workflow
 
             //Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, true, null);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyValue_Date_HasValidValues_Failure()
+        {
+            //Arrange
+            var propertyType = new PropertyType
+            {
+                PrimitiveType = PropertyPrimitiveType.Date
+            };
+            var action = new IePropertyChangeAction
+            {
+                ValidValues = new List<IeValidValue>
+                {
+                    new IeValidValue()
+                }
+            };
+
+            //Act and Assert
+            ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionNotChoicePropertyValidValuesNotApplicable);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyValue_Date_HasUsersGroups_Failure()
+        {
+            //Arrange
+            var propertyType = new PropertyType
+            {
+                PrimitiveType = PropertyPrimitiveType.Date
+            };
+            var action = new IePropertyChangeAction
+            {
+                UsersGroups = new IeUsersGroups
+                {
+                    UsersGroups = new List<IeUserGroup>
+                    {
+                        new IeUserGroup()
+                    }
+                }
+            };
+
+            //Act and Assert
+            ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionNotUserPropertyUsersGroupsNotApplicable);
         }
 
         [TestMethod]
@@ -228,6 +314,49 @@ namespace AdminStore.Services.Workflow
 
             //Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, true, null);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyValue_Number_HasValidValues_Failure()
+        {
+            //Arrange
+            var propertyType = new PropertyType
+            {
+                PrimitiveType = PropertyPrimitiveType.Number
+            };
+            var action = new IePropertyChangeAction
+            {
+                ValidValues = new List<IeValidValue>
+                {
+                    new IeValidValue()
+                }
+            };
+
+            //Act and Assert
+            ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionNotChoicePropertyValidValuesNotApplicable);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyValue_Number_HasUsersGroups_Failure()
+        {
+            //Arrange
+            var propertyType = new PropertyType
+            {
+                PrimitiveType = PropertyPrimitiveType.Number
+            };
+            var action = new IePropertyChangeAction
+            {
+                UsersGroups = new IeUsersGroups
+                {
+                    UsersGroups = new List<IeUserGroup>
+                    {
+                        new IeUserGroup()
+                    }
+                }
+            };
+
+            //Act and Assert
+            ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionNotUserPropertyUsersGroupsNotApplicable);
         }
 
         [TestMethod]
@@ -407,6 +536,29 @@ namespace AdminStore.Services.Workflow
         }
 
         [TestMethod]
+        public void ValidatePropertyValue_Choice_HasUsersGroups_Failure()
+        {
+            //Arrange
+            var propertyType = new PropertyType
+            {
+                PrimitiveType = PropertyPrimitiveType.Choice
+            };
+            var action = new IePropertyChangeAction
+            {
+                UsersGroups = new IeUsersGroups
+                {
+                    UsersGroups = new List<IeUserGroup>
+                    {
+                        new IeUserGroup()
+                    }
+                }
+            };
+
+            //Act and Assert
+            ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionNotUserPropertyUsersGroupsNotApplicable);
+        }
+
+        [TestMethod]
         public void ValidatePropertyValue_Choice_Required_Failure()
         {
             //Arrange
@@ -423,6 +575,29 @@ namespace AdminStore.Services.Workflow
 
             //Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredPropertyValueEmpty);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyValue_Choice_MultipleNotAllowed_Failure()
+        {
+            //Arrange
+            var propertyType = new PropertyType
+            {
+                PrimitiveType = PropertyPrimitiveType.Choice,
+                IsRequired = true,
+                IsMultipleAllowed = false
+            };
+            var action = new IePropertyChangeAction
+            {
+                ValidValues = new List<IeValidValue>
+                {
+                    new IeValidValue(),
+                    new IeValidValue()
+                }
+            };
+
+            //Act and Assert
+            ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionChoicePropertyMultipleValidValuesNotAllowed);
         }
 
         [TestMethod]
@@ -535,6 +710,44 @@ namespace AdminStore.Services.Workflow
         }
 
         [TestMethod]
+        public void ValidatePropertyValue_User_HasValidValues_Failure()
+        {
+            //Arrange
+            var propertyType = new PropertyType
+            {
+                PrimitiveType = PropertyPrimitiveType.User
+            };
+            var action = new IePropertyChangeAction
+            {
+                ValidValues = new List<IeValidValue>
+                {
+                    new IeValidValue()
+                }
+            };
+
+            //Act and Assert
+            ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionNotChoicePropertyValidValuesNotApplicable);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyValue_User_RequiredHasPropertyValue_Failure()
+        {
+            //Arrange
+            var propertyType = new PropertyType
+            {
+                PrimitiveType = PropertyPrimitiveType.User,
+                IsRequired = true
+            };
+            var action = new IePropertyChangeAction
+            {
+                PropertyValue = "some value"
+            };
+
+            //Act and Assert
+            ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredUserPropertyPropertyValueNotApplicable);
+        }
+
+        [TestMethod]
         public void ValidatePropertyValue_User_Required_Failure()
         {
             //Arrange
@@ -545,10 +758,7 @@ namespace AdminStore.Services.Workflow
             };
             const string user = "user";
             var users = new List<SqlUser> { new SqlUser { Login = user } };
-            var action = new IePropertyChangeAction
-            {
-                PropertyValue = "  "
-            };
+            var action = new IePropertyChangeAction();
 
             //Act and Assert
             ValidatePropertyValue(action, propertyType, users, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredPropertyValueEmpty);

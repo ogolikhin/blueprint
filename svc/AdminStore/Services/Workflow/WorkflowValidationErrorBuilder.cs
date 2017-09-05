@@ -12,102 +12,101 @@ namespace AdminStore.Services.Workflow
         private const string TemplateWorkflowImportFailedSingular = "There was an error uploading {0}.{1}";
         private const string TemplateWorkflowImportFailedPlural = "There were errors uploading {0}.{1}";
         private const string ReplacementNotSpecifiedFileName = "the XML";
-        //The supplied XML is not valid. Please edit your file and upload again.
         private const string XmlIsNotValid = "The supplied XML is not valid. Please edit your file and upload again.";
 
         // Messages for the XML validation.
         private const string TemplateXmlWorkflowXmlSerializationError = "{0}";
-        private const string TemplateXmlWorkflowNameEmpty = "The required field 'Name' of the Workflow is missing.";
-        private const string TemplateXmlWorkflowNameExceedsLimit24 = "The field 'Name' of the Workflow is over the character limit of 24.";
-        private const string TemplateXmlWorkflowDescriptionExceedsLimit4000 = "The field 'Description' of the Workflow is over the character limit of 4000.";
-        private const string TemplateXmlWorkflowDoesNotContainAnyStates = "There are not states defined in the file";
-        private const string TemplateXmlStatesCountExceedsLimit100 = "Your file exceeded the limit of permitted States for a Workflow.";
-        private const string TemplateXmlStateNameEmpty = "One or more State Names do not have a value.";
-        private const string TemplateXmlStateNameExceedsLimit24 = "The field 'Name' of State '{0}' is over the character limit of 24.";
-        private const string TemplateXmlStateNameNotUnique = "Two or more States '{0}' are the same. State names in a workflow must be unique.";
-        private const string TemplateXmlNoInitialState = "There is no starting State defined. All workflows must have a single start state defined.";
-        private const string TemplateXmlInitialStateDoesNotHaveOutgoingTransition = "The initial State '{0}' does not have any outbound transitions. The initial State must have at least one outbound transition.";
-        private const string TemplateXmlMultipleInitialStates = "More than one starting States are defined. All workflows must have only one defined starting state.";
-        private const string TemplateXmlStateDoesNotHaveAnyTransitions = "State '{0}' is not connected by a transition. A State must have at least one transition.";
-        private const string TemplateXmlTransitionEventNameExceedsLimit24 = "The field 'Name' of Transition '{0}' is over the character limit of 24.";
-        private const string TemplateXmlPropertyChangeEventNameExceedsLimit24 = "The field 'Name' of Property Change Event '{0}' is over the character limit of 24.";
-        private const string TemplateXmlNewArtifactEventNameExceedsLimit24 = "The field 'Name' of New Artifact Event '{0}' is over the character limit of 24.";
-        private const string TemplateXmlStateWithDuplicateOutgoingTransitions = "State '{0}' has outgoing Transitions with a duplicate Name. Names of outgoing Transitions on a State must be unique.";
-        private const string TemplateXmlTransitionCountOnStateExceedsLimit10 = "State '{0}' exceeded the limit of permitted Transitions per State of 10.";
-        private const string TemplateXmlTransitionStateNotFound = "One of States of Transition '{0}' is not found. A Transition must connect two States located in the Workflow.";
-        private const string TemplateXmlTransitionStartStateNotSpecified = "The Start State of Transition '{0}' is not specified.";
-        private const string TemplateXmlTransitionEndStateNotSpecified = "The End State of Transition '{0}' is not specified.";
-        private const string TemplateXmlTransitionFromAndToStatesSame = "The Start and End States of Transition '{0}' are the same. The Start and End States of a Transition must be different.";
-        private const string TemplateXmlTriggerCountOnEventExceedsLimit10 = "Event (Transition, Property Change, New Artifact) '{0}' exceeded the limit of permitted Triggers per Event of 10.";
-        private const string TemplateXmlPropertyChangEventPropertyNotSpecified = "Property of Property Change Event '{0}' is not specified.";
-        private const string TemplateXmlProjectNoSpecified = "One or more Projects are not specified. A Project must be specified with Id or Path.";
-        private const string TemplateXmlAmbiguousProjectReference = "One or more Projects have ambiguous Reference. A Project must be specified either by Id or by Path.";
-        private const string TemplateXmlInvalidId = "One or more Ids are invalid. The Id must be greater than zero.";
-        private const string TemplateXmlProjectDuplicateId = "One or more Projects have a duplicate Id. Projects in a Workflow must be unique.";
-        private const string TemplateXmlProjectInvalidPath = "One or more Projects have a duplicate Project Path. Projects in a Workflow must be unique.";
-        private const string TemplateXmlProjectDoesNotHaveAnyArtfactTypes = "One or more Projects do not have Artifact Types. A Project must have at least one Artifact Type.";
-        private const string TemplateXmlArtifactTypeNoSpecified = "One or more Artifact Types are not specified. An Artifact Types must be specified.";
-        private const string TemplateXmlPropertyChangeEventNoAnyTriggersSpecified = "One or more Property Change Events do not have any triggers. A Property Change Event must have at least one Trigger.";
-        private const string TemplateXmlNewArtifactEventNoAnyTriggersSpecified = "One or more New Artifact Events do not have any triggers. A New Artifact Event must have at least one Trigger.";
-        private const string TemplateXmlActionTriggerNotSpecified = "One or more Triggers do not have an Action. A Trigger must have an Action.";
-        private const string TemplateXmlRecipientsEmailNotificationActionNotSpecitied = "One or more Email Notification Actions do not have specified recipients. Recipients can be specified as a list of emails or a Property that contains recipients.";
-        private const string TemplateXmlAmbiguousRecipientsSourcesEmailNotificationAction = "One or more Email Notification Actions have ambiguous recipients. Recipients must be specified either as a list of emails or a Property that contains recipients.";
-        private const string TemplateXmlEmailInvalidEmailNotificationAction = "'{0}' is not a valid email.";
-        private const string TemplateXmlMessageEmailNotificationActionNotSpecitied = "One or more Email Notification Actions do not have a specified message. An Email Notification Action must have a message.";
-        private const string TemplateXmlPropertyNamePropertyChangeActionNotSpecitied = "One or more Property Change Actions do not have a specified Property Name. A Property Change Action must have a Property Name.";
-        private const string TemplateXmlPropertyValuePropertyChangeActionNotSpecitied = "One or more Property Change Actions do not have a specified Property Value. A Property Change Action must have one of the following values, a Property Value or Valid Values or Users and Groups.";
-        private const string TemplateXmlAmbiguousPropertyValuePropertyChangeAction = "One or more Property Change Actions have ambiguous Property Values. A Property Change Action must have only one of the following values, a Property Value or Valid Values or one or any combination of Users and Groups and Include Current User.";
-        private const string TemplateXmlPropertyChangeActionValidValueValueNotSpecitied = "One or more Valid Values in Property Change Actions do not have a specified Value. The Value of a Valid Value must be not empty.";
-        private const string TemplateXmlPropertyChangeActionUserOrGroupNameNotSpecitied = "One or more Users or Groups in Property Change Actions do not have a specified Name. The Name of a User or Group must be not empty.";
-        private const string TemplateXmlAmbiguousGroupProjectReference = "One or more Property Change Actions have ambiguous Group Project Reference. A Group Project must be specified either by Id or by Path.";
-        private const string TemplateXmlArtifactTypeGenerateChildrenActionNotSpecitied = "One or more Generate Child Artifacts Actions do not have a specified Artifact Type. A Generate Child Artifacts Action must have an Artifact Type.";
-        private const string TemplateXmlChildCountGenerateChildrenActionNotSpecitied = "One or more Generate Child Artifacts Actions do not have a specified Child Count. A Generate Child Artifacts Action must have a Child Count.";
-        private const string TemplateXmlChildCountGenerateChildrenActionNotValid = "One or more Generate Child Artifacts Actions have an invalid Child Count. The Child Count of A Generate Child Artifacts Action must be between 1 and 10 inclusive.";
-        private const string TemplateXmlArtifactTypeApplicableOnlyToGenerateChildArtifactAction = "One or more Generate Test Cases or Generate User Stories Actions have a not applicable parameter: Artifact Type. The Artifact Type is applicable only to the Generate Child Artifacts Action.";
-        private const string TemplateXmlChildCountApplicableOnlyToGenerateChildArtifactAction = "One or more Generate Test Cases or Generate User Stories Actions have a not applicable parameter: Child Count. The Child Count is applicable only to the Generate Child Artifacts Action.";
-        private const string TemplateXmlStateConditionNotOnTriggerOfPropertyChangeEvent = "One or more Triggers of Transitions or New Artifact Events have a State Condition. Only Triggers of Property Change Events can have a State Condition.";
-        private const string TemplateXmlStateStateConditionNotSpecified = "One or more States missing on State Conditions of Triggers. The State must be specified on a State Condition.";
-        private const string TemplateXmlStateStateConditionNotFound = "State '{0}' of a State Condition is not found. The State of a State Condition must be in the Workflow.";
-        private const string TemplateXmlPropertyChangeEventActionNotSupported = "One or more Property Change Events have unsupported Actions. A Property Change Event supports only Email Notification Action";
-        private const string TemplateXmlDuplicateArtifactTypesInProject = "One or more Projects contain duplicate Artifact Types. Artifact Types in a Project must be unique.";
+        private const string TemplateXmlWorkflowNameEmpty = "The Workflow's <Name> element is missing, or has no value.";
+        private const string TemplateXmlWorkflowNameExceedsLimit24 = "The Workflow's <Name> element exceeds 24 characters.";
+        private const string TemplateXmlWorkflowDescriptionExceedsLimit4000 = "The Workflow's <Description> element exceeds 4000 characters.";
+        private const string TemplateXmlWorkflowDoesNotContainAnyStates = "There are no States defined in this Workflow. Please ensure the XML definition includes a <States> element, and two or more <State> child elements.";
+        private const string TemplateXmlStatesCountExceedsLimit100 = "The maximum 100 States allowed in a Workflow has been exceeded.";
+        private const string TemplateXmlStateNameEmpty = "<State> element: One or more <Name> child elements are missing, or do not have a value.";
+        private const string TemplateXmlStateNameExceedsLimit24 = "<{0}> State element: The value of the <Name> child element exceeds 24 characters.";
+        private const string TemplateXmlStateNameNotUnique = "Two or more <State> elements have the same name ({0}). State names in a Workflow must be unique.";
+        private const string TemplateXmlNoInitialState = "No initial State has been defined. Please ensure one of your <State> elements includes an attribute and value of IsInitial='true'.";
+        private const string TemplateXmlInitialStateDoesNotHaveOutgoingTransition = "There is no Transition that originates from the initial State. Please ensure the <State> element that is set as the initial State is an outgoing component of at least one Transition--that is, the State name is a value for the Transition <FromState>. (The State ID and Transition <FromStateId> element could also be used.)";
+        private const string TemplateXmlMultipleInitialStates = "More than one initial state has been defined; Workflows can have only one initial state. Please ensure only one of your <State> elements has the value 'true' for the IsInitial attribute.";
+        private const string TemplateXmlStateDoesNotHaveAnyTransitions = "The State '{0}' is not connected to any other States by a Transition. Please ensure the State is an incoming or outgoing component of at least one Transition--that is, the State name is a value for the Transition <FromState>. (The State ID and Transition <FromStateId> could also be used.)";
+        private const string TemplateXmlTransitionEventNameExceedsLimit24 = "<{0}> Transition element: The value of the <Name> child element exceeds 24 characters.";
+        private const string TemplateXmlPropertyChangeEventNameExceedsLimit24 = "<{0}> Property Change element: The value of the <Name> child element exceeds 24 characters.";
+        private const string TemplateXmlNewArtifactEventNameExceedsLimit24 = "<{0}> New Artifact element: The value of the <Name> child element exceeds 24 characters.";
+        private const string TemplateXmlStateWithDuplicateOutgoingTransitions = "Some duplicate Transition names conflict because they have the same originating State. Please ensure that any <Transition> elements with the same value for <FromState> have unique values for <Name>.";
+        private const string TemplateXmlTransitionCountOnStateExceedsLimit10 = "The State '{0}' has exceeded the number of Transitions it can be connected to. Please ensure the State is an incoming or outgoing component of 10 or fewer Transitions.";
+        private const string TemplateXmlTransitionStateNotFound = "One of the States referenced in the Transition '{0}' was not found. Please ensure the State names in the Transition <FromState> and <ToState> child elements correspond to States described earlier in the Workflow definition. (The <FromStateId> and <ToStateId> child elements could also be used.)";
+        private const string TemplateXmlTransitionStartStateNotSpecified = "Transition element <{0}>: The starting State has not been defined. Please ensure the <FromState> or <FromStateId> child elements have correct values.";
+        private const string TemplateXmlTransitionEndStateNotSpecified = "Transition element <{0}>: The end State has not been defined. Please ensure the <ToState> or <ToStateId> child elements have correct values.";
+        private const string TemplateXmlTransitionFromAndToStatesSame = "Transition element <{0}>: The starting and end States are the same. Please ensure the <FromState> and <ToState> have correct values. (The , <FromStateId> and <ToStateId> child elements could also be used.)";
+        private const string TemplateXmlTriggerCountOnEventExceedsLimit10 = "An Event (Transition, Property Change, New Artifact) has exceeded the number of Triggers it can include. Please ensure '{0}' includes 10 or fewer Triggers.";
+        private const string TemplateXmlPropertyChangEventPropertyNotSpecified = "The required property for a Property Change event ‘{0}’ has not been specified.";
+        private const string TemplateXmlProjectNoSpecified = "There are no Projects defined in this Workflow. If the XML definition includes a <Projects> element, ensure that there are one or more <Project> child elements.";
+        private const string TemplateXmlAmbiguousProjectReference = "One or more Projects are specified using both ID and path. Please ensure all <Project> elements use one or the other, but not both.";
+        private const string TemplateXmlInvalidId = "A Project has an Id attribute value of '0'. This is invalid; Project IDs must be greater than 0.";
+        private const string TemplateXmlProjectDuplicateId = "Two or more <Project> elements have the same ID. Project IDs are unique.";
+        private const string TemplateXmlProjectInvalidPath = "Two or more <Project> elements have the same Path. Project paths are unique.";
+        private const string TemplateXmlProjectDoesNotHaveAnyArtfactTypes = "<Project> elements: One or more Projects do not include Artifact Types. Please ensure each <Project> element has an <ArtifactTypes> child element.";
+        private const string TemplateXmlArtifactTypeNoSpecified = "<Project> elements: One or more Projects do not include Artifact Types. Please ensure each Project's <ArtifactType> child element exists and has a value.";
+        private const string TemplateXmlPropertyChangeEventNoAnyTriggersSpecified = "<PropertyChanges> element: One or more Property Change events do not have a trigger. Please ensure each <PropertyChange> child element has a <Triggers> child element, itself with at least one <Trigger> child element.";
+        private const string TemplateXmlNewArtifactEventNoAnyTriggersSpecified = "<NewArtifacts> element: One or more New Artifact events do not have a trigger. Please ensure each <NewArtifact> child element has a <Triggers> child element, itself with at least one <Trigger> child element.";
+        private const string TemplateXmlActionTriggerNotSpecified = "One or more Triggers do not have a corresponding Action. Please ensure all <Trigger> elements include an Action-type child element (for example, <EmailNotificationAction>).";
+        private const string TemplateXmlRecipientsEmailNotificationActionNotSpecitied = "One or more email notification Actions do not specify recipients, either as a list of emails, or through a property representing recipients. Please ensure all <EmailNotificationAction> elements either include an <Emails> child element with one or more <Email> child elements, or include <PropertyName> or <PropertyId> child elements.";
+        private const string TemplateXmlAmbiguousRecipientsSourcesEmailNotificationAction = "One or more email notification Actions specify recipients using both a list of emails, and a property representing recipients. Please ensure all <EmailNotificationAction> elements use one or the other, but not both.";
+        private const string TemplateXmlEmailInvalidEmailNotificationAction = "The email address '{0}' provided for an <EmailNotificationAction> element is not valid.";
+        private const string TemplateXmlMessageEmailNotificationActionNotSpecitied = "One or more email notification Actions do not include a message. Please ensure all <EmailNotificationAction> elements include a <Message> child element.";
+        private const string TemplateXmlPropertyNamePropertyChangeActionNotSpecitied = "<PropertyChangeAction> elements: One or more <PropertyName> child elements do not have a value.";
+        private const string TemplateXmlPropertyValuePropertyChangeActionNotSpecitied = "One or more Property Change Actions are missing information. Please ensure all <PropertyChangeActions> elements include one of the following defined child elements: <PropertyValue>, <ValidValues>, or <UsersGroups>.";
+        private const string TemplateXmlAmbiguousPropertyValuePropertyChangeAction = "One or more Property Change Actions specify too many property-value elements. Please ensure all <PropertyChangeAction> elements define only one of the following child elements: <PropertyValue>, <ValidValues>, or <UsersGroups>.";
+        private const string TemplateXmlPropertyChangeActionValidValueValueNotSpecitied = "One or more Property Change Actions is missing information. One or more Valid Values do not have values.";
+        private const string TemplateXmlPropertyChangeActionUserOrGroupNameNotSpecitied = "One or more Property Change Actions is missing information. One or more Users or Groups do not have a specified Name.";
+        private const string TemplateXmlAmbiguousGroupProjectReference = "One or more Property Change Actions specify conflicting group project information. Please ensure all <UsersGroups> child elements define only one of the following child elements: <GroupProjectId> or <GroupProjectPath>.";
+        private const string TemplateXmlArtifactTypeGenerateChildrenActionNotSpecitied = "One or more 'generate child artifact' Actions do not specify the child artifact type. Please ensure all <GenerateActionType> elements with the value 'Children' are accompanied by an <ArtifactTypeId> element.";
+        private const string TemplateXmlChildCountGenerateChildrenActionNotSpecitied = "One or more 'generate child artifact' Actions do not specify the number of child artifacts to create. Please ensure all <GenerateActionType> elements with the value 'Children' are accompanied by a <ChildCount> element.";
+        private const string TemplateXmlChildCountGenerateChildrenActionNotValid = "One or more actions that result in the creation of child artifacts are invalid. For all <GenerateAction> elements where the <GenerateActionType> value is Children, please ensure all <ChildCount> values are between 1 and 10 inclusive.";
+        private const string TemplateXmlArtifactTypeApplicableOnlyToGenerateChildArtifactAction = "One or more actions that result in the generation of test cases or user stories are incorrectly defined. For all <GenerateAction> elements where the <GenerateActionType> value is UserStories or TestCases, please ensure there is no <ArtifactType> child element.";
+        private const string TemplateXmlChildCountApplicableOnlyToGenerateChildArtifactAction = "One or more actions that result in the generation of test cases or user stories are incorrectly defined. For all <GenerateAction> elements where the <GenerateActionType> value is UserStories or TestCases, please ensure there is no <ChildCount> child element.";
+        private const string TemplateXmlStateConditionNotOnTriggerOfPropertyChangeEvent = "An event Trigger includes a State condition when it should not have one. Only property change events can have triggers that use a State condition. Please ensure the <Trigger> elements for other event types (<NewArtifact> or <Transition>) do not have a <StateCondition> child element.";
+        private const string TemplateXmlStateStateConditionNotSpecified = "One or more State conditions that triggers an event is missing the State. Please ensure all <StateCondition> elements have <State> or <StateId> child elements.";
+        private const string TemplateXmlStateStateConditionNotFound = "The State '{0}' defined as part of a State condition was not found. Please ensure the State names or IDs in all <StateCondition> elements correspond to States described earlier in the Workflow definition.";
+        private const string TemplateXmlPropertyChangeEventActionNotSupported = "One or more property-change events includes an incompatible action; a property change triggers an email notification. For all <PropertyChange> elements, please ensure all <Trigger> child elements have only <EmailNotificationAction> as the triggered action.";
+        private const string TemplateXmlDuplicateArtifactTypesInProject = "One or more Projects contain duplicate artifact types. Please ensure for each <Project> element, there are no duplicate <ArtifactType> definitions.";
         // Workflow Update specific messages
-        private const string TemplateXmlWorkflowIdDoesNotMatchIdInUrl = "The Workflow Id in XML does not match the Workflow to update, Id in URL. You probably supplied a wrong Workflow XML file.";
-        private const string TemplateXmlDuplicateStateIds = "One or more States have a duplicate Id. A State Id must be unique.";
-        private const string TemplateXmlDuplicateWorkflowEventIds = "One or more Workflow Events have a duplicate Id. A Workflow Event Id must be unique.";
-        private const string TemplateXmlDuplicateProjectIds = "One or more Projects have a duplicate Id. A Project Id must be unique.";
-        private const string TemplateXmlDuplicateArtifactTypeIdsInProject = "One or more ArtifactTypes in a Project have a duplicate Id. A Artifact Type in a Project Id must be unique.";
+        private const string TemplateXmlWorkflowIdDoesNotMatchIdInUrl = "The Workflow Id attribute in the file does not match the Workflow have you chosen to update. Please ensure you are uploading the correct Workflow XML file.";
+        private const string TemplateXmlDuplicateStateIds = "One or more States have a duplicate ID. A State ID must be unique.";
+        private const string TemplateXmlDuplicateWorkflowEventIds = "One or more Workflow Events have a duplicate ID. A Workflow Event ID must be unique.";
+        private const string TemplateXmlDuplicateProjectIds = "One or more Projects have a duplicate ID. A Project ID must be unique.";
+        private const string TemplateXmlDuplicateArtifactTypeIdsInProject = "One or more Projects contain duplicate artifact type IDs. Please ensure for each <Project> element, its <ArtifactType> child elements do not have identical 'Id' attribute values. If you are modifying an existing Workflow, try removing the 'Id' attribute from any newly added or changed <ArtifactType> elements.";
 
         // Messages for the Data validation.
-        private const string TemplateDataWorkflowNameNotUnique = "A Workflow with Name '{0}' already exists. Workflows in Blueprint must have unique names.";
-        private const string TemplateDataProjectByPathNotFound = "Project by Path '{0}' is not found in Blueprint.";
-        private const string TemplateDataProjectByIdNotFound = "Project '{0}' is not found by ID in Blueprint.";
-        private const string TemplateDataProjectIdDuplicate = "The Workflow contains duplicate projects.";
-        private const string TemplateDataInstanceGroupNotFoundByName = "Instance Group '{0}' is not found by Name in Blueprint.";
-        private const string TemplateDataStandardArtifactTypeNotFoundByName = "Standard Artifact Type '{0}' is not found by Name in Blueprint.";
-        private const string TemplateDataArtifactTypeInProjectAlreadyAssociatedWithWorkflow = "Artifact Type '{0}' in Project '{1}' is already is associated with a Workflow.";
-        private const string TemplateDataPropertyNotFoundByName = "Property '{0}' of a Property Change Event is not found by Name in Blueprint.";
-        private const string TemplateDataGenerateChildArtifactsActionArtifactTypeNotFoundByName = "Artifact Type '{0}' of a Generate Child Artifacts Action is not found by Name in Blueprint.";
-        private const string TemplateDataEmailNotificationActionPropertyTypeNotFoundByName = "Property Type '{0}' of an Email Notification Action is not found by Name in Blueprint.";
+        private const string TemplateDataWorkflowNameNotUnique = "Main <Workflow> element: The value of the <Name> child element already exists. Workflows must have unique names.";
+        private const string TemplateDataProjectByPathNotFound = "<Project> elements: The project path '{0}' was not found.";
+        private const string TemplateDataProjectByIdNotFound = "<Project> elements: The project ID '{0}' was not found.";
+        private const string TemplateDataProjectIdDuplicate = "<Project> elements: There are two or more duplicate projects. Please ensure all <Project> elements have a unique 'Id' attribute value.";
+        private const string TemplateDataInstanceGroupNotFoundByName = "No instance group named '{0}' was found.";
+        private const string TemplateDataStandardArtifactTypeNotFoundByName = "No standard artifact type named '{0}' was found.";
+        private const string TemplateDataArtifactTypeInProjectAlreadyAssociatedWithWorkflow = "Standard artifact type '{0}' is already assigned to a Workflow in project '{1}'.";
+        private const string TemplateDataPropertyNotFoundByName = "<PropertyChange> elements: The Property '{0}' was not found.";
+        private const string TemplateDataGenerateChildArtifactsActionArtifactTypeNotFoundByName = "<GenerateAction> elements: The name for artifact type '{0}' was not found.";
+        private const string TemplateDataEmailNotificationActionPropertyTypeNotFoundByName = "<PropertyChange> elements: For name of property '{0}' that was defined as part of an <EmailNotificationAction> element was not found.";
         private const string TemplateDataEmailNotificationActionUnacceptablePropertyType = "Property Type '{0}' of an Email Notification Action is of an unacceptable Type. Only Text and User Properties can be used in an Email Notification Action.";
-        private const string TemplateDataPropertyChangeActionPropertyTypeNotFoundByName = "Property Type '{0}' of a Property Change Action is not found by Name in Blueprint.";
-        private const string TemplateDataPropertyChangeActionRequiredPropertyValueEmpty = "The Value of required Property '{0}' in a Property Change Action is empty.";
-        private const string TemplateDataPropertyChangeActionUserNotFoundByName = "One or more Users in Value of User Property '{0}' in a Property Change Action are not found by Name.";
-        private const string TemplateDataPropertyChangeActionGroupNotFoundByName = "One or more Groups in Value of User Property '{0}' in a Property Change Action are not found by Name.";
-        private const string TemplateDataPropertyChangeActionChoiceValueSpecifiedAsNotValidated = "The Value of Validated Choice Property '{0}' in a Property Change Action is specified as not validated.";
-        private const string TemplateDataPropertyChangeActionValidValueNotFoundByValue = "One or more Valid Values in Value of Choice Property '{0}' in a Property Change Action are not found by Value.";
-        private const string TemplateDataPropertyChangeActionInvalidNumberFormat = "The Value of Number Property '{0}' in a Property Change Action has an invalid number format.";
-        private const string TemplateDataPropertyChangeActionInvalidNumberDecimalPlaces = "The Value of Number Property '{0}' in a Property Change Action has an invalid decimal places.";
-        private const string TemplateDataPropertyChangeActionNumberOutOfRange = "The Value of Number Property '{0}' in a Property Change Action is out of the range.";
-        private const string TemplateDataPropertyChangeActionInvalidDateFormat = "The Value of Date Property '{0}' in a Property Change Action has an invalid date format. The date format can be either ISO 8601, e.g. '2017-01-20', or an integer that specifies the shift in days relatively to the current day.";
-        private const string TemplateDataPropertyChangeActionDateOutOfRange = "The Value of Date Property '{0}' in a Property Change Action is out of the range.";
+        private const string TemplateDataPropertyChangeActionPropertyTypeNotFoundByName = "<Transition> elements: The name of property '{0}' that was defined as part of a <PropertyChangeAction> element was not found.";
+        private const string TemplateDataPropertyChangeActionRequiredPropertyValueEmpty = "<PropertyChangeAction> elements: There are no values defined for property '{0}.' ";
+        private const string TemplateDataPropertyChangeActionUserNotFoundByName = "<PropertyChangeAction> elements: The name of one or more users defined for property '{0}' were not found.";
+        private const string TemplateDataPropertyChangeActionGroupNotFoundByName = "<PropertyChangeAction> elements: The name of one or more groups defined for property '{0}' were not found.";
+        private const string TemplateDataPropertyChangeActionChoiceValueSpecifiedAsNotValidated = "<PropertyChangeAction> element: The value of choice property '{0}' is not valid.";
+        private const string TemplateDataPropertyChangeActionValidValueNotFoundByValue = "<PropertyChangeAction> elements: One or more values of choice property ‘{0}’ were not found.";
+        private const string TemplateDataPropertyChangeActionInvalidNumberFormat = "<PropertyChangeAction> element: The value for number property '{0}' is of an invalid number format.";
+        private const string TemplateDataPropertyChangeActionInvalidNumberDecimalPlaces = "<PropertyChangeAction> element: The value for number property '{0}' has an invalid number of decimal places.";
+        private const string TemplateDataPropertyChangeActionNumberOutOfRange = "<PropertyChangeAction> element: The value for number property '{0}' is not within an accepted range.";
+        private const string TemplateDataPropertyChangeActionInvalidDateFormat = "<PropertyChangeAction> element: The value for date property '{0}' uses an invalid date format.";
+        private const string TemplateDataPropertyChangeActionDateOutOfRange = "<PropertyChangeAction> element: The value for date property '{0}' is not within an accepted date range.";
         // Workflow Update specific messages
         private const string TemplateDataPWorkflowActive = "The Workflow '{0}' [ID = {1}] is Active. An Active Workflow cannot be updated.";
-        private const string TemplateDataStateNotFoundByIdInCurrent = "The State '{0}' [ID = {1}] is not found by ID in the current workflow.";
-        private const string TemplateDataTransitionEventNotFoundByIdInCurrent = "The Transition Event '{0}' [ID = {1}] is not found by ID in the current workflow.";
-        private const string TemplateDataPropertyChangeEventNotFoundByIdInCurrent = "The Property Change Event '{0}' [ID = {1}] is not found by ID in the current workflow.";
-        private const string TemplateDataNewArtifactEventNotFoundByIdInCurrent = "The New Artifact Event '{0}' [ID = {1}] is not found by ID in the current workflow.";
-        private const string TemplateDataProjectArtifactTypeNotFoundByIdInCurrent = "The Standard Artifact Type '{1}' [ID = {2}] in Project [ID = {0}] is not found by ID in the current workflow.";
-        private const string TemplateDataWorkflowNothingToUpdate = "The provided workflow does not contain any updates.";
+        private const string TemplateDataStateNotFoundByIdInCurrent = "The State '{0}' [ID = {1}] is not found by ID in the current Workflow.";
+        private const string TemplateDataTransitionEventNotFoundByIdInCurrent = "The Transition Event '{0}' [ID = {1}] is not found by ID in the current Workflow.";
+        private const string TemplateDataPropertyChangeEventNotFoundByIdInCurrent = "The Property Change Event '{0}' [ID = {1}] is not found by ID in the current Workflow.";
+        private const string TemplateDataNewArtifactEventNotFoundByIdInCurrent = "The New Artifact Event '{0}' [ID ={1}] is not found by ID in the current Workflow.";
+        private const string TemplateDataProjectArtifactTypeNotFoundByIdInCurrent = "The Standard Artifact Type '{1}' [ID = {2}] in Project [ID = {0}] is not found by ID in the current Workflow.";
+        private const string TemplateDataWorkflowNothingToUpdate = "The provided Workflow does not contain any updates.";
         private const string TemplateDataStandardArtifactTypeNotFoundById = "Standard Artifact Type '{0}' is not found by Id in Blueprint.";
         private const string TemplateDataPropertyNotFoundById = "Property '{0}' of a Property Change Event is not found by Id in Blueprint.";
         private const string TemplateDataInstanceGroupNotFoundById = "Instance Group '{0}' is not found by Id in Blueprint.";
@@ -117,6 +116,11 @@ namespace AdminStore.Services.Workflow
         private const string TemplateDataPropertyChangeActionValidValueNotFoundById = "One or more Valid Values in Value of Choice Property '{0}' in a Property Change Action are not found by Id.";
         private const string TemplateDataPropertyChangeActionUserNotFoundById = "One or more Users in Value of User Property '{0}' in a Property Change Action are not found by Id.";
         private const string TemplateDataPropertyChangeActionGroupNotFoundById = "One or more Groups in Value of User Property '{0}' in a Property Change Action are not found by Id.";
+        // New messages, remove this comment after DEV-2193 is implemented
+        private const string TemplateDataPropertyChangeActionNotChoicePropertyValidValuesNotApplicable = "The Valid Values are not applicable to non-Choice Property '{0}'.";
+        private const string TemplateDataPropertyChangeActionNotUserPropertyUsersGroupsNotApplicable = "The Users/Groups are not applicable to non-User Property '{0}'.";
+        private const string TemplateDataPropertyChangeActionRequiredUserPropertyPropertyValueNotApplicable = "The Property Value is not applicable to required User Property '{0}'.";
+        private const string TemplateDataPropertyChangeActionChoicePropertyMultipleValidValuesNotAllowed = "Multiple Valid Values are not allowed for Choice Property '{0}'.";
 
         #region Interface Implementation
 
@@ -222,7 +226,7 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowXmlValidationErrorCodes.InitialStateDoesNotHaveOutgoingTransition:
                     template = TemplateXmlInitialStateDoesNotHaveOutgoingTransition;
-                    errParams = new object[] {((IeState) error.Element).Name};
+                    errParams = new object[] {};
                     break;
                 case WorkflowXmlValidationErrorCodes.MultipleInitialStates:
                     template = TemplateXmlMultipleInitialStates;
@@ -246,7 +250,7 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowXmlValidationErrorCodes.StateWithDuplicateOutgoingTransitions:
                     template = TemplateXmlStateWithDuplicateOutgoingTransitions;
-                    errParams = new object[] {(string) error.Element};
+                    errParams = new object[] {};
                     break;
                 case WorkflowXmlValidationErrorCodes.TransitionCountOnStateExceedsLimit10:
                     template = TemplateXmlTransitionCountOnStateExceedsLimit10;
@@ -431,7 +435,7 @@ namespace AdminStore.Services.Workflow
             {
                 case WorkflowDataValidationErrorCodes.WorkflowNameNotUnique:
                     template = TemplateDataWorkflowNameNotUnique;
-                    errParams = new object[] { ((IeWorkflow)error.Element).Name };
+                    errParams = new object[] {};
                     break;
                 case WorkflowDataValidationErrorCodes.ProjectByPathNotFound:
                     template = TemplateDataProjectByPathNotFound;
@@ -587,6 +591,22 @@ namespace AdminStore.Services.Workflow
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionUserNotFoundById:
                     template = TemplateDataPropertyChangeActionUserNotFoundById;
                     errParams = new object[] { (int) error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionNotChoicePropertyValidValuesNotApplicable:
+                    template = TemplateDataPropertyChangeActionNotChoicePropertyValidValuesNotApplicable;
+                    errParams = new object[] { (string) error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionNotUserPropertyUsersGroupsNotApplicable:
+                    template = TemplateDataPropertyChangeActionNotUserPropertyUsersGroupsNotApplicable;
+                    errParams = new object[] { (string) error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredUserPropertyPropertyValueNotApplicable:
+                    template = TemplateDataPropertyChangeActionRequiredUserPropertyPropertyValueNotApplicable;
+                    errParams = new object[] { (string) error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionChoicePropertyMultipleValidValuesNotAllowed:
+                    template = TemplateDataPropertyChangeActionChoicePropertyMultipleValidValuesNotAllowed;
+                    errParams = new object[] { (string) error.Element };
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

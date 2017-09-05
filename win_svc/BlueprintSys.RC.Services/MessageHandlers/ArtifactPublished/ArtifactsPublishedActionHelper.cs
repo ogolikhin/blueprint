@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using BlueprintSys.RC.Services.Helpers;
 using BlueprintSys.RC.Services.Models;
 using BlueprintSys.RC.Services.Repositories;
@@ -14,7 +13,6 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
     public class ArtifactsPublishedActionHelper : MessageActionHandler
     {
         private readonly IActionsParser _actionsParser;
-        
 
         public ArtifactsPublishedActionHelper(IActionsParser actionsParser = null)
         {
@@ -28,21 +26,17 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
 
             var repository = (IArtifactsPublishedRepository)actionHandlerServiceRepository;
 
-            var allPublishedArtifacts = (message.Artifacts ?? new PublishedArtifactInformation[] { }).ToArray();
-
-            var updatedArtifacts = allPublishedArtifacts.Where(p => !p.IsFirstTimePublished).ToList();
-
             var serviceLogRepository = new ServiceLogRepository(new HttpClientProvider(),
                 new LocalFileLog(),
                 tenant.AdminStoreLog);
 
             //Get modified properties for all artifacts and create a dictionary with key as artifact ids
             bool handledAllUpdatedArtifacts = await UpdatedArtifactsNotificationHandler.ProcessUpdatedArtifacts(tenant,
-                updatedArtifacts,
                 message,
                 repository,
                 serviceLogRepository,
-                _actionsParser);
+                _actionsParser,
+                WorkflowMessagingProcessor.Instance);
             if (!handledAllUpdatedArtifacts)
             {
                 Logger.Log("Could not process messages for all published updated artifacts", message, tenant, LogLevel.Debug);
@@ -52,7 +46,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
                 await
                     CreatedArtifactsNotificationHandler.ProcessCreatedArtifacts(tenant, 
                     message,
-                    repository, 
+                    repository,
                     serviceLogRepository, 
                     WorkflowMessagingProcessor.Instance);
 

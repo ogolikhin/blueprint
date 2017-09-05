@@ -252,38 +252,6 @@ namespace AdminStore.Repositories
             return projectPaths.OrderByDescending(p => p.Level).Select(p => p.Name).ToList();
         }
 
-        public async Task UpdateProjectAsync(int projectId, ProjectDto projectDto)
-        {
-            var parameters = new DynamicParameters();
-            parameters.Add("@newProjectName", projectDto.Name);
-            parameters.Add("@newProjectDescription", projectDto.Description);
-            parameters.Add("@projectId", projectId);
-            parameters.Add("@newParentFolderId", projectDto.ParentFolderId);
-
-            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-
-            await _connectionWrapper.ExecuteScalarAsync<int>("UpdateProject", parameters, commandType: CommandType.StoredProcedure);
-            var errorCode = parameters.Get<int?>("ErrorCode");
-
-            if (errorCode.HasValue)
-            {
-                switch (errorCode.Value)
-                {
-                    case (int)SqlErrorCodes.GeneralSqlError:
-                        throw new Exception(ErrorMessages.GeneralErrorOfUpdatingProject);
-
-                    case (int)SqlErrorCodes.ProjectWithCurrentIdNotExist:
-                        throw new ResourceNotFoundException(ErrorMessages.ProjectNotExist, ErrorCodes.ResourceNotFound);
-
-                    case (int)SqlErrorCodes.ProjectWithSuchNameExistsInParentFolder:
-                        throw new ConflictException(ErrorMessages.ProjectWithSuchNameExistsInParentFolder, ErrorCodes.Conflict);
-
-                    case (int)SqlErrorCodes.ParentFolderNotExists:
-                        throw new ResourceNotFoundException(ErrorMessages.ParentFolderNotExists, ErrorCodes.ResourceNotFound);
-                }
-            }
-        }
-
         public async Task DeleteProject(int userId, int projectId)
         {
             //We need to check if project is still exist in database and not makred as deleted
@@ -406,7 +374,7 @@ namespace AdminStore.Repositories
             return result;
         }
 
-        public async Task<QueryResult<RolesAssignments>> GetProjectRoleAssignmentsAsync(int projectId, TabularData tabularData, Func<Sorting, string> sort = null)
+        public async Task<RoleAssignmentQueryResult<RolesAssignments>> GetProjectRoleAssignmentsAsync(int projectId, TabularData tabularData, Func<Sorting, string> sort = null)
         {
             var orderField = string.Empty;
             if (sort != null && tabularData.Sorting != null)
@@ -426,6 +394,7 @@ namespace AdminStore.Repositories
             parameters.Add("@OrderField", orderField);
             parameters.Add("@Search", tabularData.Search);
             parameters.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            parameters.Add("@ProjectName", dbType: DbType.String, direction: ParameterDirection.Output, size: -1);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
             var rolesAssigments = await _connectionWrapper.QueryAsync<RolesAssignments>("GetProjectRoleAssignments", parameters, commandType: CommandType.StoredProcedure);
@@ -438,8 +407,9 @@ namespace AdminStore.Repositories
             }
 
             var total = parameters.Get<int?>("Total");
+            var projectName = parameters.Get<string>("ProjectName");
 
-            var queryDataResult = new QueryResult<RolesAssignments> { Items = rolesAssigments, Total = total ?? 0 };
+            var queryDataResult = new RoleAssignmentQueryResult<RolesAssignments> { Items = rolesAssigments, Total = total ?? 0, ProjectName = projectName ?? string.Empty};
 
             return queryDataResult;
         }

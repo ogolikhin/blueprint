@@ -270,6 +270,7 @@
     <Compile Include="Models\Reuse\SqlModifiedItems.cs" />
     <Compile Include="Models\Reuse\SqlPropertyTypeInfo.cs" />
     <Compile Include="Models\Reuse\SqlReuseSettingsInfo.cs" />
+    <Compile Include="Models\RoleAssignmentQueryResult.cs" />
     <Compile Include="Models\RolePermissions.cs" />
     <Compile Include="Models\Email\SMTPClientConfiguration.cs" />
     <Compile Include="Models\Sorting.cs" />

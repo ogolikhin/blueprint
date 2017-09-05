@@ -71,7 +71,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactPublished
                 _wfMessagingMock.Object);
 
             //Assert
-            Assert.IsTrue(result);
+            Assert.IsFalse(result, "Message should not be processed successfully");
         }
 
         [TestMethod]
@@ -92,7 +92,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactPublished
                 _wfMessagingMock.Object);
 
             //Assert
-            Assert.IsTrue(result);
+            Assert.IsFalse(result, "Message should not be processed successfully");
         }
 
         [ExpectedException(typeof(EntityNotFoundException))]
@@ -191,7 +191,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactPublished
                 _wfMessagingMock.Object);
 
             //Assert
-            Assert.IsTrue(result);
+            Assert.IsFalse(result, "Message should not be processed successfully");
         }
 
         [TestMethod]

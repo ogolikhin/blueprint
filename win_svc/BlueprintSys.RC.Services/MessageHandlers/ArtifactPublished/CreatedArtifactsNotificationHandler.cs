@@ -11,6 +11,7 @@ using BluePrintSys.Messaging.CrossCutting.Models.Exceptions;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories.ConfigControl;
 
@@ -19,18 +20,17 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
     internal class CreatedArtifactsNotificationHandler
     {
         private const string LogSource = "ArtifactsPublishedActionHelper.CreatedArtifacts";
-        private const int TransactionCommitWaitTime = 1;
         internal static async Task<bool> ProcessCreatedArtifacts(TenantInformation tenant,
             ArtifactsPublishedMessage message,
             IArtifactsPublishedRepository repository,
             IServiceLogRepository serviceLogRepository,
-            IWorkflowMessagingProcessor workflowMessagingProcessor,
+            IWorkflowMessagingProcessor messageProcessor,
             int transactionCommitWaitTimeInMilliSeconds = 60000)
         {
             var createdArtifacts = message?.Artifacts?.Where(p => p.IsFirstTimePublished).ToList();
             if (createdArtifacts == null || createdArtifacts.Count <= 0)
             {
-                return true;
+                return false;
             }
 
             var artifactIds = createdArtifacts.Select(a => a.Id).ToHashSet();
@@ -70,6 +70,8 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
                 throw new EntityNotFoundException($"Could not recover information for following artifacts {notFoundArtifactIdString}");
             }
 
+            var notificationMessages = new Dictionary<int, List<IWorkflowMessage>>();
+
             foreach (var createdArtifact in createdArtifacts)
             {
                 WorkflowMessageArtifactInfo artifactInfo;
@@ -91,6 +93,9 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
                 {
                     continue;
                 }
+
+                int artifactId = createdArtifact.Id;
+
                 var actionMessages = await WorkflowEventsMessagesHelper.GenerateMessages(message.UserId,
                     message.RevisionId,
                     message.UserName,
@@ -102,21 +107,37 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
                     createdArtifact.Url,
                     createdArtifact.BaseUrl,
                     repository.UsersRepository,
-                    serviceLogRepository
-                    );
+                    serviceLogRepository);
 
-                if (actionMessages?.Count == 0)
+                if (actionMessages == null || actionMessages.Count == 0)
                 {
                     continue;
                 }
 
+                if (!notificationMessages.ContainsKey(artifactId))
+                {
+                    notificationMessages.Add(artifactId, new List<IWorkflowMessage>());
+                }
+
+                notificationMessages[artifactId].AddRange(actionMessages);
+            }
+
+            if (notificationMessages.Count == 0)
+            {
+                return false;
+            }
+
+            foreach (var notificationMessage in notificationMessages.Where(m => m.Value != null))
+            {
                 await WorkflowEventsMessagesHelper.ProcessMessages(LogSource,
                     tenant.TenantId,
                     serviceLogRepository,
-                    actionMessages,
-                    $"Error on new artifact creation with Id: {createdArtifact.Id}",
-                    workflowMessagingProcessor);
+                    //Only process notification messages
+                    notificationMessage.Value.Where(a => a.ActionType== MessageActionType.Notification).ToList(),
+                    $"Error on new artifact creation with Id: {notificationMessage.Key}",
+                    messageProcessor);
             }
+
             return true;
         }
     }

@@ -653,108 +653,6 @@ namespace AdminStore.Controllers
 
         #endregion
 
-        #region UpdateProject
-
-        [TestMethod]
-        public async Task UpdateProject_AllRequirementsSatisfied_ReturnOkResult()
-        {
-            // Arrange
-            _privilegeRepositoryMock
-                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
-                .ReturnsAsync(InstanceAdminPrivileges.ManageProjects);
-            // Act
-            var result = await _controller.UpdateProject(ProjectId, _project);
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result, typeof(OkResult));
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
-        public async Task UpdateProject_ProjectModelEmpty_ReturnBadRequestResult()
-        {
-            // Arrange
-            _privilegeRepositoryMock
-                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
-                .ReturnsAsync(InstanceAdminPrivileges.ManageProjects);
-
-            // Act
-            await _controller.UpdateProject(ProjectId, null);
-
-            // Assert
-            // Exception
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(AuthorizationException))]
-        public async Task UpdateProject_NoPermissions_ReturnForbiddenResult()
-        {
-            //arrange
-            _privilegeRepositoryMock
-                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
-                .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
-
-            //act
-            await _controller.UpdateProject(ProjectId, _project);
-
-            //assert
-            //Exception
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
-        public async Task UpdateProject_PrjectNameOutOfLimit_ReturnBadRequestResult()
-        {
-            // Arrange
-            _project.Name = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis,.";
-            _privilegeRepositoryMock
-                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
-                .ReturnsAsync(InstanceAdminPrivileges.ManageProjects);
-
-            // Act
-            await _controller.UpdateProject(ProjectId, _project);
-
-            // Assert
-            // Exception
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
-        public async Task UpdateProject_EmptyProjectName_ReturnBadRequestResult()
-        {
-            // Arrange
-            _project.Name = string.Empty;
-            _privilegeRepositoryMock
-                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
-                .ReturnsAsync(InstanceAdminPrivileges.ManageProjects);
-
-            // Act
-            await _controller.UpdateProject(ProjectId, _project);
-
-            // Assert
-            // Exception
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
-        public async Task UpdateProject_ParentFolderIncorrect_ReturnBadRequestResult()
-        {
-            // Arrange
-            _project.ParentFolderId = 0;
-            _privilegeRepositoryMock
-                .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
-                .ReturnsAsync(InstanceAdminPrivileges.ManageProjects);
-
-            // Act
-            await _controller.UpdateProject(ProjectId, _project);
-
-            // Assert
-            // Exception
-        }
-
-        #endregion
-
         #region DeleteProject
 
         [TestMethod]
@@ -1061,7 +959,6 @@ namespace AdminStore.Controllers
 
         #endregion
 
-
         #region CreateRoleAssignment
 
         [TestMethod]
@@ -1183,6 +1080,7 @@ namespace AdminStore.Controllers
         }
 
         #endregion
+
         #region SearchProjectFolder
 
         [TestMethod]

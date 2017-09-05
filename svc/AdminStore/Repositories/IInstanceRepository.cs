@@ -27,8 +27,6 @@ namespace AdminStore.Repositories
 
         Task UpdateFolderAsync(int folderId, FolderDto folderDto);
 
-        Task UpdateProjectAsync(int projectId, ProjectDto projectDto);
-
         Task DeleteProject(int userId, int projectId);
 
         Task<IEnumerable<ProjectRole>> GetProjectRolesAsync(int projectId);

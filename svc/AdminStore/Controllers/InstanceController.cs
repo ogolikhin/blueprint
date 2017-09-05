@@ -457,7 +457,7 @@ namespace AdminStore.Controllers
         /// <response code="500">Internal Server Error.</response>
         [Route("projects/{projectId:int:min(1)}/rolesassignments")]
         [SessionRequired]
-        [ResponseType(typeof(QueryResult<RolesAssignments>))]
+        [ResponseType(typeof(RoleAssignmentQueryResult<RolesAssignments>))]
         public async Task<IHttpActionResult> GetProjectRoleAssignments(int projectId, [FromUri]Pagination pagination, [FromUri]Sorting sorting, string search = null)
         {
             pagination.Validate();

@@ -323,15 +323,15 @@ namespace AdminStore.Repositories
 
             Group[] projectGroups =
             {
-                new Group
+                new Group()
                 {
                     Name = "Group1"
                 },
-                new Group
+                new Group()
                 {
                     Name = "Group2"
                 },
-                new Group
+                new Group()
                 {
                     Name = "Group3"
                 }
@@ -371,7 +371,7 @@ namespace AdminStore.Repositories
             };
             int errorCode = 50016; // there are no project for this projectId
 
-            Group[] projectGroups = { };
+            Group[] projectGroups = {};
 
             cxn.SetupQueryAsync("GetAvailableGroupsForProject",
                 new Dictionary<string, object> { { "projectId", projectId } },

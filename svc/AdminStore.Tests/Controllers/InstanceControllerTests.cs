@@ -36,7 +36,7 @@ namespace AdminStore.Controllers
         private ProjectDto _project;
         private Pagination _pagination;
         private Sorting _sorting;
-        private QueryResult<RolesAssignments> _rolesAssignmentsQueryResult;
+        private RoleAssignmentQueryResult<RolesAssignments> _rolesAssignmentsQueryResult;
         private int _roleAssignmentId;
         private RoleAssignmentDTO _roleAssignment;
 
@@ -81,10 +81,11 @@ namespace AdminStore.Controllers
                }
             };
 
-            _rolesAssignmentsQueryResult = new QueryResult<RolesAssignments>
+            _rolesAssignmentsQueryResult = new RoleAssignmentQueryResult<RolesAssignments>
             {
                 Items = projectRolesAssignments,
-                Total = 1
+                Total = 1,
+                ProjectName = "Project1"
             };
 
             _instanceRepositoryMock
@@ -929,7 +930,7 @@ namespace AdminStore.Controllers
                .ReturnsAsync(ProjectAdminPrivileges.ViewGroupsAndRoles);
 
             // Act
-            var result = await _controller.GetProjectRoleAssignments(ProjectId, _pagination, _sorting) as OkNegotiatedContentResult<QueryResult<RolesAssignments>>;
+            var result = await _controller.GetProjectRoleAssignments(ProjectId, _pagination, _sorting) as OkNegotiatedContentResult<RoleAssignmentQueryResult<RolesAssignments>>;
 
             // Assert
             Assert.IsNotNull(result);
@@ -950,7 +951,7 @@ namespace AdminStore.Controllers
                .ReturnsAsync(ProjectAdminPrivileges.ViewGroupsAndRoles);
 
             // Act
-            var result = await _controller.GetProjectRoleAssignments(ProjectId, null, _sorting) as OkNegotiatedContentResult<QueryResult<RolesAssignments>>;
+            var result = await _controller.GetProjectRoleAssignments(ProjectId, null, _sorting) as OkNegotiatedContentResult<RoleAssignmentQueryResult<RolesAssignments>>;
 
             // Exception
         }
@@ -969,7 +970,7 @@ namespace AdminStore.Controllers
                .ReturnsAsync(ProjectAdminPrivileges.ViewAlmIntegration);
 
             // Act
-            var result = await _controller.GetProjectRoleAssignments(ProjectId, _pagination, _sorting) as OkNegotiatedContentResult<QueryResult<RolesAssignments>>;
+            var result = await _controller.GetProjectRoleAssignments(ProjectId, _pagination, _sorting) as OkNegotiatedContentResult<RoleAssignmentQueryResult<RolesAssignments>>;
 
             // Exception
         }

@@ -60,6 +60,18 @@ namespace AdminStore.Services.Workflow
         private static bool ValidateTextPropertyValue(IePropertyChangeAction action, PropertyType propertyType,
             out WorkflowDataValidationErrorCodes? errorCode)
         {
+            if (!action.ValidValues.IsEmpty())
+            {
+                errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionNotChoicePropertyValidValuesNotApplicable;
+                return false;
+            }
+
+            if (action.UsersGroups != null)
+            {
+                errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionNotUserPropertyUsersGroupsNotApplicable;
+                return false;
+            }
+
             errorCode = null;
             if (!ValidateIsPropertyRequired(propertyType.IsRequired.GetValueOrDefault(),
                 action.PropertyValue, true, true))
@@ -74,6 +86,18 @@ namespace AdminStore.Services.Workflow
         private static bool ValidateNumberPropertyValue(IePropertyChangeAction action, PropertyType propertyType,
             out WorkflowDataValidationErrorCodes? errorCode)
         {
+            if (!action.ValidValues.IsEmpty())
+            {
+                errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionNotChoicePropertyValidValuesNotApplicable;
+                return false;
+            }
+
+            if (action.UsersGroups != null)
+            {
+                errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionNotUserPropertyUsersGroupsNotApplicable;
+                return false;
+            }
+
             errorCode = null;
             if (!ValidateIsPropertyRequired(propertyType.IsRequired.GetValueOrDefault(),
                 action.PropertyValue, true, true))
@@ -119,6 +143,18 @@ namespace AdminStore.Services.Workflow
         private static bool ValidateDatePropertyValue(IePropertyChangeAction action, PropertyType propertyType,
             out WorkflowDataValidationErrorCodes? errorCode)
         {
+            if (!action.ValidValues.IsEmpty())
+            {
+                errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionNotChoicePropertyValidValuesNotApplicable;
+                return false;
+            }
+
+            if (action.UsersGroups != null)
+            {
+                errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionNotUserPropertyUsersGroupsNotApplicable;
+                return false;
+            }
+
             errorCode = null;
             if (!ValidateIsPropertyRequired(propertyType.IsRequired.GetValueOrDefault(),
                 action.PropertyValue, true, true))
@@ -164,11 +200,23 @@ namespace AdminStore.Services.Workflow
         private static bool ValidateChoicePropertyValue(IePropertyChangeAction action, PropertyType propertyType,
             bool ignoreIds, out WorkflowDataValidationErrorCodes? errorCode)
         {
+            if (action.UsersGroups != null)
+            {
+                errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionNotUserPropertyUsersGroupsNotApplicable;
+                return false;
+            }
+
             errorCode = null;
             if (!ValidateIsPropertyRequired(propertyType.IsRequired.GetValueOrDefault(),
                 action.PropertyValue, action.ValidValues.IsEmpty(), true))
             {
                 errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredPropertyValueEmpty;
+                return false;
+            }
+
+            if (!propertyType.IsMultipleAllowed.GetValueOrDefault() && action.ValidValues?.Count > 1)
+            {
+                errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionChoicePropertyMultipleValidValuesNotAllowed;
                 return false;
             }
 
@@ -215,6 +263,18 @@ namespace AdminStore.Services.Workflow
         private static bool ValidateUserPropertyValue(IePropertyChangeAction action, PropertyType propertyType,
             IList<SqlUser> users, IList<SqlGroup> groups, bool ignoreIds, out WorkflowDataValidationErrorCodes? errorCode)
         {
+            if (!action.ValidValues.IsEmpty())
+            {
+                errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionNotChoicePropertyValidValuesNotApplicable;
+                return false;
+            }
+
+            if (propertyType.IsRequired.GetValueOrDefault() && action.PropertyValue != null)
+            {
+                errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredUserPropertyPropertyValueNotApplicable;
+                return false;
+            }
+
             var usersGroups = action.UsersGroups?.UsersGroups;
             errorCode = null;
             if (!ValidateIsPropertyRequired(propertyType.IsRequired.GetValueOrDefault(),

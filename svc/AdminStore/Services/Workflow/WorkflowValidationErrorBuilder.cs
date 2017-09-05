@@ -12,7 +12,6 @@ namespace AdminStore.Services.Workflow
         private const string TemplateWorkflowImportFailedSingular = "There was an error uploading {0}.{1}";
         private const string TemplateWorkflowImportFailedPlural = "There were errors uploading {0}.{1}";
         private const string ReplacementNotSpecifiedFileName = "the XML";
-        //The supplied XML is not valid. Please edit your file and upload again.
         private const string XmlIsNotValid = "The supplied XML is not valid. Please edit your file and upload again.";
 
         // Messages for the XML validation.
@@ -117,6 +116,11 @@ namespace AdminStore.Services.Workflow
         private const string TemplateDataPropertyChangeActionValidValueNotFoundById = "One or more Valid Values in Value of Choice Property '{0}' in a Property Change Action are not found by Id.";
         private const string TemplateDataPropertyChangeActionUserNotFoundById = "One or more Users in Value of User Property '{0}' in a Property Change Action are not found by Id.";
         private const string TemplateDataPropertyChangeActionGroupNotFoundById = "One or more Groups in Value of User Property '{0}' in a Property Change Action are not found by Id.";
+        // New messages, remove this comment after DEV-2193 is implemented
+        private const string TemplateDataPropertyChangeActionNotChoicePropertyValidValuesNotApplicable = "The Valid Values are not applicable to non-Choice Property '{0}'.";
+        private const string TemplateDataPropertyChangeActionNotUserPropertyUsersGroupsNotApplicable = "The Users/Groups are not applicable to non-User Property '{0}'.";
+        private const string TemplateDataPropertyChangeActionRequiredUserPropertyPropertyValueNotApplicable = "The Property Value is not applicable to required User Property '{0}'.";
+        private const string TemplateDataPropertyChangeActionChoicePropertyMultipleValidValuesNotAllowed = "Multiple Valid Values are not allowed for Choice Property '{0}'.";
 
         #region Interface Implementation
 
@@ -587,6 +591,22 @@ namespace AdminStore.Services.Workflow
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionUserNotFoundById:
                     template = TemplateDataPropertyChangeActionUserNotFoundById;
                     errParams = new object[] { (int) error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionNotChoicePropertyValidValuesNotApplicable:
+                    template = TemplateDataPropertyChangeActionNotChoicePropertyValidValuesNotApplicable;
+                    errParams = new object[] { (string) error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionNotUserPropertyUsersGroupsNotApplicable:
+                    template = TemplateDataPropertyChangeActionNotUserPropertyUsersGroupsNotApplicable;
+                    errParams = new object[] { (string) error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredUserPropertyPropertyValueNotApplicable:
+                    template = TemplateDataPropertyChangeActionRequiredUserPropertyPropertyValueNotApplicable;
+                    errParams = new object[] { (string) error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionChoicePropertyMultipleValidValuesNotAllowed:
+                    template = TemplateDataPropertyChangeActionChoicePropertyMultipleValidValuesNotAllowed;
+                    errParams = new object[] { (string) error.Element };
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

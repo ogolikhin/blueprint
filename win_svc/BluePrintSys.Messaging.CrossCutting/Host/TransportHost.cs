@@ -19,7 +19,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
 
         public async Task SendAsync(string tenantId, IWorkflowMessage message)
         {
-            Log.Info("Sending message to server via RabbitMQ");
+            Log.Info("Sending message to server.");
             await _nServiceBusServer.Send(tenantId, message);
         }
 

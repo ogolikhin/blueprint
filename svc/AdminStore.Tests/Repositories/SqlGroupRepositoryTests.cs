@@ -318,17 +318,17 @@ namespace AdminStore.Repositories
             var projectId = 100;
             int errorCode = 0;
 
-            GroupDto[] projectGroups =
+            Group[] projectGroups =
             {
-                new GroupDto()
+                new Group()
                 {
                     Name = "Group1"
                 },
-                new GroupDto()
+                new Group()
                 {
                     Name = "Group2"
                 },
-                new GroupDto()
+                new Group()
                 {
                     Name = "Group3"
                 }
@@ -368,7 +368,7 @@ namespace AdminStore.Repositories
             };
             int errorCode = 50016; // there are no project for this projectId
 
-            GroupDto[] projectGroups = {};
+            Group[] projectGroups = {};
 
             cxn.SetupQueryAsync("GetAvailableGroupsForProject",
                 new Dictionary<string, object> {{"projectId", projectId}},

@@ -214,6 +214,12 @@ namespace AdminStore.Services.Workflow
                 return false;
             }
 
+            if (!propertyType.IsMultipleAllowed.GetValueOrDefault() && action.ValidValues?.Count > 1)
+            {
+                errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionChoicePropertyMultipleValidValuesNotAllowed;
+                return false;
+            }
+
             if (propertyType.IsValidated.GetValueOrDefault()
                 && propertyType.IsRequired.GetValueOrDefault()
                 && action.ValidValues.IsEmpty())

@@ -62,6 +62,7 @@ namespace AdminStore.Services.Workflow
         PropertyChangeActionNotChoicePropertyValidValuesNotApplicable,
         PropertyChangeActionNotUserPropertyUsersGroupsNotApplicable,
         PropertyChangeActionRequiredUserPropertyPropertyValueNotApplicable,
+        PropertyChangeActionChoicePropertyMultipleValidValuesNotAllowed, // Move up later
 
         // Update specific errors
         WorkflowActive,

@@ -578,6 +578,29 @@ namespace AdminStore.Services.Workflow
         }
 
         [TestMethod]
+        public void ValidatePropertyValue_Choice_MultipleNotAllowed_Failure()
+        {
+            //Arrange
+            var propertyType = new PropertyType
+            {
+                PrimitiveType = PropertyPrimitiveType.Choice,
+                IsRequired = true,
+                IsMultipleAllowed = false
+            };
+            var action = new IePropertyChangeAction
+            {
+                ValidValues = new List<IeValidValue>
+                {
+                    new IeValidValue(),
+                    new IeValidValue()
+                }
+            };
+
+            //Act and Assert
+            ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionChoicePropertyMultipleValidValuesNotAllowed);
+        }
+
+        [TestMethod]
         public void ValidatePropertyValue_Choice_ValidatedSpecifiedAsNotValidated_Failure()
         {
             //Arrange

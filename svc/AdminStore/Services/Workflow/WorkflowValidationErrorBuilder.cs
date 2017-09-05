@@ -120,6 +120,7 @@ namespace AdminStore.Services.Workflow
         private const string TemplateDataPropertyChangeActionNotChoicePropertyValidValuesNotApplicable = "The Valid Values are not applicable to non-Choice Property '{0}'.";
         private const string TemplateDataPropertyChangeActionNotUserPropertyUsersGroupsNotApplicable = "The Users/Groups are not applicable to non-User Property '{0}'.";
         private const string TemplateDataPropertyChangeActionRequiredUserPropertyPropertyValueNotApplicable = "The Property Value is not applicable to required User Property '{0}'.";
+        private const string TemplateDataPropertyChangeActionChoicePropertyMultipleValidValuesNotAllowed = "Multiple Valid Values are not allowed for Choice Property '{0}'.";
 
         #region Interface Implementation
 
@@ -601,6 +602,10 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredUserPropertyPropertyValueNotApplicable:
                     template = TemplateDataPropertyChangeActionRequiredUserPropertyPropertyValueNotApplicable;
+                    errParams = new object[] { (string) error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionChoicePropertyMultipleValidValuesNotAllowed:
+                    template = TemplateDataPropertyChangeActionChoicePropertyMultipleValidValuesNotAllowed;
                     errParams = new object[] { (string) error.Element };
                     break;
                 default:

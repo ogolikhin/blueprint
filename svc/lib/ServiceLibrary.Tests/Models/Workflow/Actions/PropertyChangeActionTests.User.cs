@@ -123,7 +123,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
         }
 
         [TestMethod]
-        public void ValidateAction_UserPropertyChangedToChoiceProperty_ReturnsFalse()
+        public void ValidateAction_UserPropertyChangedToChoiceProperty_ReturnsFailureResult()
         {
             //Act
             var result = UserPropertyChangedToAnotherPropertyValidation(
@@ -136,8 +136,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
             //Assert
             Assert.IsNotNull(result);
         }
-
-
+        
         [TestMethod]
         public void ValidateAction_UserPropertyChangedToTextProperty_ReturnsFailureResult()
         {

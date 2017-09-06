@@ -257,7 +257,9 @@ namespace ServiceLibrary.Repositories.Workflow
                         Id = wt.FromStateId,
                         Name = wt.FromStateName
                     },
-                    Name = wt.WorkflowEventName,
+                    Name = string.IsNullOrWhiteSpace(wt.WorkflowEventName) ? 
+                            $"To: {wt.ToStateName}" : 
+                            wt.WorkflowEventName,
                     WorkflowId = wt.WorkflowId
                 };
                 transition.Triggers.AddRange(ToWorkflowTriggers(SerializationHelper.FromXml<XmlWorkflowEventTriggers>(wt.Triggers), currentUserId));

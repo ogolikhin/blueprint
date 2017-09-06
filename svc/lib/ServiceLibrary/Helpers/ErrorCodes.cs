@@ -122,5 +122,8 @@
         public const int CannotEnableDiscussions = 15014;
         public const int EmptyEmailAddress = 15015;
         public const int InvalidEmailAddress = 15016;
+
+        //Workflow
+        public const int WorkflowInvalidPropertyChange = 16001;
     }
 }

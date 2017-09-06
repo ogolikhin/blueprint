@@ -269,6 +269,8 @@ namespace AdminStore.Services.Workflow
             }
 
             var hasPcEventNoAnyTriggersError = false;
+            var hasPcEventDuplicatePropertyError = false;
+            var pcEventPropertyNames = new HashSet<string>();
             foreach (var pcEvent in workflow.PropertyChangeEvents.FindAll(s => s != null))
             {
                 if (!ValidatePropertyLimit(pcEvent.Name, 24))
@@ -288,18 +290,24 @@ namespace AdminStore.Services.Workflow
                         ErrorCode = WorkflowXmlValidationErrorCodes.PropertyChangeEventPropertyNotSpecified
                     });
                 }
-
-                if (pcEvent.Triggers.IsEmpty())
+                else if (!pcEventPropertyNames.Add(pcEvent.PropertyName) && !hasPcEventDuplicatePropertyError)
                 {
-                    if (!hasPcEventNoAnyTriggersError)
+                    result.Errors.Add(new WorkflowXmlValidationError
                     {
-                        result.Errors.Add(new WorkflowXmlValidationError
-                        {
-                            Element = pcEvent,
-                            ErrorCode = WorkflowXmlValidationErrorCodes.PropertyChangeEventNoAnyTriggersNotSpecified
-                        });
-                        hasPcEventNoAnyTriggersError = true;
-                    }
+                        ErrorCode = WorkflowXmlValidationErrorCodes.PropertyChangeEventDuplicateProperties
+                    });
+                    hasPcEventDuplicatePropertyError = true;
+                }
+
+
+                if (pcEvent.Triggers.IsEmpty() && !hasPcEventNoAnyTriggersError)
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = pcEvent,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.PropertyChangeEventNoAnyTriggersNotSpecified
+                    });
+                    hasPcEventNoAnyTriggersError = true;
                 }
 
                 if (pcEvent.Triggers?.Count > 10)

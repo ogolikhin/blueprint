@@ -20,10 +20,10 @@ namespace AdminStore.Models.Emails
 
         public string Password { get; set; }
 
-        public TestEmailConfigInstanceSettings(EmailOutgoingSettings outgoingSettings, string senderEmailAddress)
+        public TestEmailConfigInstanceSettings(EmailOutgoingSettings outgoingSettings)
         {
             HostName = outgoingSettings.ServerAddress;
-            SenderEmailAddress = senderEmailAddress;
+            SenderEmailAddress = outgoingSettings.AccountEmailAddress;
             Port = outgoingSettings.Port;
             EnableSSL = outgoingSettings.EnableSsl;
             Authenticated = outgoingSettings.AuthenticatedSmtp;

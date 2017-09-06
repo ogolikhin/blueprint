@@ -327,7 +327,7 @@ namespace AdminStore.Controllers
         {
             pagination.Validate();
 
-            await _privilegesManager.DemandAny(Session.UserId, projectId, InstanceAdminPrivileges.ViewGroups,
+            await _privilegesManager.DemandAny(Session.UserId, projectId, InstanceAdminPrivileges.AccessAllProjectsAdmin,
                      ProjectAdminPrivileges.ViewGroupsAndRoles);
 
             var tabularData = new TabularData {Pagination = pagination, Sorting = sorting, Search = search};

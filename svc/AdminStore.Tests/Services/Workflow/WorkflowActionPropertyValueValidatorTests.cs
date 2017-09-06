@@ -608,7 +608,6 @@ namespace AdminStore.Services.Workflow
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.Choice,
-                IsRequired = true,
                 IsValidated = true,
                 ValidValues = new List<ValidValue>
                 {

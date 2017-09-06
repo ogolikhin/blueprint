@@ -16,7 +16,7 @@ namespace ServiceLibrary.Models.PropertyType
         /// </summary>
         public bool AllowsCustomValue()
         {
-            if (AllowMultiple.HasValue) return false;
+            if (AllowMultiple == true) return false;
             return !IsValidate;
         }
 

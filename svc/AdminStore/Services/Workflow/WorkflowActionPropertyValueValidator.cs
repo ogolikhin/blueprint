@@ -221,7 +221,7 @@ namespace AdminStore.Services.Workflow
             }
 
             if (propertyType.IsValidated.GetValueOrDefault()
-                && propertyType.IsRequired.GetValueOrDefault()
+                && !string.IsNullOrEmpty(action.PropertyValue)
                 && action.ValidValues.IsEmpty())
             {
                 errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionChoiceValueSpecifiedAsNotValidated;
@@ -278,7 +278,8 @@ namespace AdminStore.Services.Workflow
             var usersGroups = action.UsersGroups?.UsersGroups;
             errorCode = null;
             if (!ValidateIsPropertyRequired(propertyType.IsRequired.GetValueOrDefault(),
-                action.PropertyValue, true, usersGroups.IsEmpty()))
+                action.PropertyValue, true, usersGroups.IsEmpty()
+                && (action.UsersGroups == null || !action.UsersGroups.IncludeCurrentUser.GetValueOrDefault())))
             {
                 errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredPropertyValueEmpty;
                 return false;

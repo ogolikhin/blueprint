@@ -33,13 +33,6 @@ namespace ServiceLibrary.Models.Workflow.Actions
 
         private PropertySetResult ValidateProperty(IExecutionParameters executionParameters)
         {
-
-            if (InstancePropertyTypeId == WorkflowConstants.PropertyTypeFakeIdDescription ||
-                InstancePropertyTypeId == WorkflowConstants.PropertyTypeFakeIdName)
-            {
-                // todo: validate in later stories
-                return null;
-            }
             var dPropertyType = executionParameters.CustomPropertyTypes.FirstOrDefault(item => item.InstancePropertyTypeId == InstancePropertyTypeId);
             if (dPropertyType == null)
             {

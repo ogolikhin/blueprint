@@ -27,11 +27,12 @@ namespace ServiceLibrary.Models.Workflow
             var result = new Dictionary<string, string>();
             foreach (var triggerExecutor in this)
             {
-                if (!triggerExecutor.Action.ValidateAction(executionParameters))
+                var validationResult = triggerExecutor.Action.ValidateAction(executionParameters);
+                if (validationResult != null)
                 {
                     if (!result.ContainsKey(triggerExecutor.Name))
                     {
-                        result.Add(triggerExecutor.Name, "State cannot be modified as the trigger cannot be executed");
+                        result.Add(triggerExecutor.Name, $"Property type id {validationResult.PropertyTypeId} had the following error: {validationResult.Message}");
                     }
                 }
             }

@@ -518,6 +518,187 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactPublished
             Assert.IsFalse(result, "Message should not be processed successfully");
         }
 
+
+        [TestMethod]
+        public async Task ProcessUpdatedArtifacts_MessageWithNameSystemPropertyAndConditionalStateIdDoesNotMatchWorkflowStateId_ReturnsFalse()
+        {
+            //Arrange
+            int propertyTypeId = 45;
+            int workflowId = 46;
+            int workflowStateId = 47;
+            int conditionalStateId = 48;
+
+            _artifactsPublishedRepositoryMock.Setup(t => t.GetWorkflowPropertyTransitionsForArtifactsAsync(_userId,
+                _revisionId,
+                _transitionType,
+                It.IsAny<IEnumerable<int>>())).ReturnsAsync(new List<SqlWorkflowEvent>
+                {
+                    new SqlWorkflowEvent
+                    {
+                        EventType = (int)TransitionType.Property,
+                        VersionItemId = _artifactId,
+                        EventPropertyTypeId = WorkflowConstants.PropertyTypeFakeIdName
+                    }
+                });
+            _artifactsPublishedRepositoryMock.Setup(t => t.GetWorkflowStatesForArtifactsAsync(_userId,
+                It.IsAny<IEnumerable<int>>(),
+                _revisionId,
+                true)).ReturnsAsync(new List<SqlWorkFlowStateInformation>
+                {
+                    new SqlWorkFlowStateInformation
+                    {
+                        ArtifactId = _artifactId,
+                        WorkflowId = workflowId,
+                        WorkflowStateId = workflowStateId
+                    }
+                });
+            _artifactsPublishedRepositoryMock.Setup(t => t.GetProjectNameByIdsAsync(It.IsAny<IEnumerable<int>>()))
+                .ReturnsAsync(
+                    new List<SqlProject>
+                    {
+                        new SqlProject
+                        {
+                            ItemId = _projectId,
+                            Name = _projectName
+                        }
+                    });
+            _actionParserMock.Setup(t => t.GetNotificationActions(It.IsAny<IEnumerable<SqlWorkflowEvent>>())).
+                Returns(new List<EmailNotificationAction>
+                {
+                    new EmailNotificationAction
+                    {
+                        Emails = { "test@blueprintsys.com"},
+                        Message = "My message",
+                        EventPropertyTypeId = WorkflowConstants.PropertyTypeFakeIdName,
+                        ConditionalStateId = conditionalStateId
+                    }
+                });
+            
+
+            //Act
+            var result = await UpdatedArtifactsNotificationHandler.ProcessUpdatedArtifacts(_tenant,
+                new ArtifactsPublishedMessage
+                {
+                    RevisionId = _revisionId,
+                    UserId = _userId,
+                    UserName = "admin",
+                    Artifacts = new List<PublishedArtifactInformation>
+                    {
+                        new PublishedArtifactInformation
+                        {
+                            Id = _artifactId,
+                            ProjectId = _projectId,
+                            ModifiedProperties = new List<PublishedPropertyInformation>
+                            {
+                                new PublishedPropertyInformation
+                                {
+                                    TypeId = propertyTypeId,
+                                    PredefinedType = (int)PropertyTypePredefined.Name
+                                }
+                            }
+                        }
+                    }
+                },
+                _artifactsPublishedRepositoryMock.Object,
+                _serviceLogRepositoryMock.Object,
+                _actionParserMock.Object,
+                _wfMessagingMock.Object
+                );
+
+            //Assert
+            Assert.IsFalse(result, "Message should not be processed successfully");
+        }
+
+        [TestMethod]
+        public async Task ProcessUpdatedArtifacts_MessageWithNameSystemPropertyAndConditionalStateIdMatchWorkflowStateId_ReturnsTrue()
+        {
+            //Arrange
+            int propertyTypeId = 45;
+            int workflowId = 46;
+            int workflowStateId = 48;
+            int conditionalStateId = 48;
+
+            _artifactsPublishedRepositoryMock.Setup(t => t.GetWorkflowPropertyTransitionsForArtifactsAsync(_userId,
+                _revisionId,
+                _transitionType,
+                It.IsAny<IEnumerable<int>>())).ReturnsAsync(new List<SqlWorkflowEvent>
+                {
+                    new SqlWorkflowEvent
+                    {
+                        EventType = (int)TransitionType.Property,
+                        VersionItemId = _artifactId,
+                        EventPropertyTypeId = WorkflowConstants.PropertyTypeFakeIdName
+                    }
+                });
+            _artifactsPublishedRepositoryMock.Setup(t => t.GetWorkflowStatesForArtifactsAsync(_userId,
+                It.IsAny<IEnumerable<int>>(),
+                _revisionId,
+                true)).ReturnsAsync(new List<SqlWorkFlowStateInformation>
+                {
+                    new SqlWorkFlowStateInformation
+                    {
+                        ArtifactId = _artifactId,
+                        WorkflowId = workflowId,
+                        WorkflowStateId = workflowStateId
+                    }
+                });
+            _artifactsPublishedRepositoryMock.Setup(t => t.GetProjectNameByIdsAsync(It.IsAny<IEnumerable<int>>()))
+                .ReturnsAsync(
+                    new List<SqlProject>
+                    {
+                        new SqlProject
+                        {
+                            ItemId = _projectId,
+                            Name = _projectName
+                        }
+                    });
+            _actionParserMock.Setup(t => t.GetNotificationActions(It.IsAny<IEnumerable<SqlWorkflowEvent>>())).
+                Returns(new List<EmailNotificationAction>
+                {
+                    new EmailNotificationAction
+                    {
+                        Emails = { "test@blueprintsys.com"},
+                        Message = "My message",
+                        EventPropertyTypeId = WorkflowConstants.PropertyTypeFakeIdName,
+                        ConditionalStateId = conditionalStateId
+                    }
+                });
+
+
+            //Act
+            var result = await UpdatedArtifactsNotificationHandler.ProcessUpdatedArtifacts(_tenant,
+                new ArtifactsPublishedMessage
+                {
+                    RevisionId = _revisionId,
+                    UserId = _userId,
+                    UserName = "admin",
+                    Artifacts = new List<PublishedArtifactInformation>
+                    {
+                        new PublishedArtifactInformation
+                        {
+                            Id = _artifactId,
+                            ProjectId = _projectId,
+                            ModifiedProperties = new List<PublishedPropertyInformation>
+                            {
+                                new PublishedPropertyInformation
+                                {
+                                    TypeId = propertyTypeId,
+                                    PredefinedType = (int)PropertyTypePredefined.Name
+                                }
+                            }
+                        }
+                    }
+                },
+                _artifactsPublishedRepositoryMock.Object,
+                _serviceLogRepositoryMock.Object,
+                _actionParserMock.Object,
+                _wfMessagingMock.Object
+                );
+
+            //Assert
+            Assert.IsTrue(result, "Message should be processed successfully");
+        }
+
         [TestMethod]
         public async Task ProcessUpdatedArtifacts_AllEvaluationsSuccessful_ProcessMessage()
         {

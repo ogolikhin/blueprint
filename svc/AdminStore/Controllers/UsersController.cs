@@ -528,6 +528,13 @@ namespace AdminStore.Controllers
             var privileges = user.InstanceAdminRoleId.HasValue ? InstanceAdminPrivileges.AssignAdminRoles : InstanceAdminPrivileges.ManageUsers;
             await _privilegesManager.Demand(Session.UserId, privileges);
 
+            var isUsersMaxLimitReached = await _userRepository.CheckIfAdminCanCreateUsers();
+
+            if (isUsersMaxLimitReached)
+            {
+                throw new BoundaryReachedException(ErrorMessages.MaxUsersPerInstanceLimitReached);
+            }
+
             var databaseUser = await UsersHelper.CreateDbUserFromDtoAsync(user, OperationMode.Create, _settingsRepository);
 
             var userId = await _userRepository.AddUserAsync(databaseUser);

@@ -1418,6 +1418,47 @@ namespace AdminStore.Controllers
             // Exception
         }
 
+        [TestMethod]
+        [ExpectedException(typeof(BoundaryReachedException))]
+        public async Task CreateUser_MaxUsersLimitPerInstanceWasReached_ReturnErrorResult()
+        {
+            //arrange
+            _user.Login = "test-user!test_@user";
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
+
+
+            //act
+            await _controller.CreateUser(_user);
+
+            //assert
+            //Exception
+        }
+
+        [TestMethod]
+        public async Task CreateUser_MaxUsersLimitPerInstanceWasNotReached_ReturnUserId()
+        {
+            //arrange
+            _user.Login = "test-user!test_@user";
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(false);
+
+            //act
+            var result = await _controller.CreateUser(_user);
+
+            //assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(HttpResponseMessage));
+            Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
+            Assert.AreEqual(UserId, await result.Content.ReadAsAsync<int>());
+        }
+
         #region Password
 
         [TestMethod]

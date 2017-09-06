@@ -1166,10 +1166,7 @@ namespace AdminStore.Services.Workflow
             };
             ((IePropertyChangeAction)_workflow.TransitionEvents[1].Triggers[1].Action).UsersGroups = new IeUsersGroups
             {
-                UsersGroups = new List<IeUserGroup>
-                {
-                    new IeUserGroup { Name = "user1"}
-                }
+                UsersGroups = new List<IeUserGroup>()
             };
 
             // Act

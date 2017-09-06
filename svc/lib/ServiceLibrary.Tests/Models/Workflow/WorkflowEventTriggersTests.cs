@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using ServiceLibrary.Models.PropertyType;
 
 namespace ServiceLibrary.Models.Workflow
 {
@@ -23,7 +21,7 @@ namespace ServiceLibrary.Models.Workflow
         public async Task ProcessTriggers_WhenValidationErrors_ReturnsErrorMessage()
         {
             var triggers = new WorkflowEventTriggers();
-            _workflowEventAction.Setup(a => a.ValidateAction(It.IsAny<IExecutionParameters>())).Returns(false);
+            _workflowEventAction.Setup(a => a.ValidateAction(It.IsAny<IExecutionParameters>())).Returns(new PropertySetResult(-1,-1,""));
 
             triggers.Add(new WorkflowEventTrigger() {Action = _workflowEventAction.Object, Name = defaultTriggerName });
 
@@ -37,7 +35,7 @@ namespace ServiceLibrary.Models.Workflow
         public async Task ProcessTriggers_WhenDuplicateTriggerNameFailsValidation_ReturnsErrorMessage()
         {
             var triggers = new WorkflowEventTriggers();
-            _workflowEventAction.Setup(a => a.ValidateAction(It.IsAny<IExecutionParameters>())).Returns(false);
+            _workflowEventAction.Setup(a => a.ValidateAction(It.IsAny<IExecutionParameters>())).Returns(new PropertySetResult(-1, -1, ""));
 
             triggers.Add(
                 new WorkflowEventTrigger() { Action = _workflowEventAction.Object, Name = defaultTriggerName }

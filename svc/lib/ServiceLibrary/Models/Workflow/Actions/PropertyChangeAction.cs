@@ -21,15 +21,14 @@ namespace ServiceLibrary.Models.Workflow.Actions
 
         public override MessageActionType ActionType { get; } = MessageActionType.PropertyChange;
 
-        protected override bool ValidateActionToBeProcessed(IExecutionParameters executionParameters)
+        protected override PropertySetResult ValidateActionToBeProcessed(IExecutionParameters executionParameters)
         {
-            executionParameters.ReuseValidator.ValidateReuseSettings(InstancePropertyTypeId, executionParameters.ReuseItemTemplate);
-            var result = ValidateProperty(executionParameters);
+            var result = executionParameters.ReuseValidator.ValidateReuseSettings(InstancePropertyTypeId, executionParameters.ReuseItemTemplate);
             if (result != null)
             {
-                return false;
+                return result;
             }
-            return true;
+            return ValidateProperty(executionParameters);
         }
 
         private PropertySetResult ValidateProperty(IExecutionParameters executionParameters)

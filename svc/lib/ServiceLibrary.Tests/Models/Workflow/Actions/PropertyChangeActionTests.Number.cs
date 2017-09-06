@@ -50,7 +50,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
             var propertyLiteValue = _propertyChangeAction.PropertyLiteValue;
 
             //Assert
-            Assert.IsTrue(result);
+            Assert.IsNull(result);
             Assert.IsTrue(propertyLiteValue.NumberValue.HasValue);
         }
 
@@ -66,7 +66,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
             var propertyLiteValue = _propertyChangeAction.PropertyLiteValue;
 
             //Assert
-            Assert.IsTrue(result);
+            Assert.IsNull(result);
             Assert.IsTrue(!propertyLiteValue.NumberValue.HasValue);
         }
 
@@ -92,12 +92,12 @@ namespace ServiceLibrary.Models.Workflow.Actions
             var propertyLiteValue = _propertyChangeAction.PropertyLiteValue;
 
             //Assert
-            Assert.IsTrue(result);
+            Assert.IsNull(result);
             Assert.IsTrue(propertyLiteValue.NumberValue.HasValue);
         }
 
         [TestMethod]
-        public void ValidateAction_WhenValidValuesPopulatedForNumber_ReturnsFalse()
+        public void ValidateAction_WhenValidValuesPopulatedForNumber_ReturnsFailureResult()
         {
             //Arrange
             InitializeNumberPropertyChangeAction();
@@ -108,11 +108,11 @@ namespace ServiceLibrary.Models.Workflow.Actions
             var result = _propertyChangeAction.ValidateAction(_executionParameters);
 
             //Assert
-            Assert.IsFalse(result);
+            Assert.IsNotNull(result);
         }
 
         [TestMethod]
-        public void ValidateAction_WhenValueIsNotNumberFormat_ReturnsFalse()
+        public void ValidateAction_WhenValueIsNotNumberFormat_ReturnsFailureResult()
         {
             //Arrange
             InitializeNumberPropertyChangeAction();
@@ -122,7 +122,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
             var result = _propertyChangeAction.ValidateAction(_executionParameters);
 
             //Assert
-            Assert.IsFalse(result);
+            Assert.IsNotNull(result);
         }
     }
 }

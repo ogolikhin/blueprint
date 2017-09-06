@@ -90,7 +90,7 @@ namespace ArtifactStore.Executors
                     await
                         _stateChangeExecutorRepositories.ServiceLogRepository.LogInformation(LogSource,
                             $"State cannot be modified as the trigger cannot be executed. {string.Join(", ", errors.Values)}");
-                    throw new ConflictException("State cannot be modified as the trigger cannot be executed");
+                    throw new ConflictException("State cannot be modified as the trigger cannot be executed", ErrorCodes.WorkflowInvalidPropertyChange);
                 }
 
                 var result = new StateChangeResult

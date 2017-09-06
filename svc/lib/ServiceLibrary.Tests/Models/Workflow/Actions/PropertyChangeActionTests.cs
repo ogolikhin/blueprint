@@ -56,7 +56,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
             var result = _propertyChangeAction.ValidateAction(_executionParameters);
 
             //Assert
-            Assert.IsFalse(result);
+            Assert.IsNotNull(result);
         }
 
 
@@ -82,7 +82,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
             var result = _propertyChangeAction.ValidateAction(_executionParameters);
 
             //Assert
-            Assert.IsFalse(result);
+            Assert.IsNotNull(result);
         }
     }
 }

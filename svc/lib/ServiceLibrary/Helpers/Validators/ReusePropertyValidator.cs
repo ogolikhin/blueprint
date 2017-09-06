@@ -1,5 +1,5 @@
-﻿using ServiceLibrary.Exceptions;
-using ServiceLibrary.Models.Enums;
+﻿using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Models.PropertyType;
 using ServiceLibrary.Models.Reuse;
 using ServiceLibrary.Models.Workflow;
 
@@ -7,31 +7,31 @@ namespace ServiceLibrary.Helpers.Validators
 {
     public interface IReusePropertyValidator
     {
-        void ValidateReuseSettings(
+        PropertySetResult ValidateReuseSettings(
             int propertyTypeId,
             ItemTypeReuseTemplate reuseTemplateSettings);
     }
     public class ReusePropertyValidator: IReusePropertyValidator
     {
-        public void ValidateReuseSettings(
+        public PropertySetResult ValidateReuseSettings(
             int propertyTypeId, 
             ItemTypeReuseTemplate reuseTemplateSettings)
         {
             if (reuseTemplateSettings == null)
             {
-                return;
+                return null;
             }
 
             if (reuseTemplateSettings.ReadOnlySettings.HasFlag(ItemTypeReuseTemplateSetting.Name) &&
                 propertyTypeId == WorkflowConstants.PropertyTypeFakeIdName)
             {
-                throw new ConflictException("Cannot modify name from workflow event action. Property is readonly.");
+                return new PropertySetResult(propertyTypeId, ErrorCodes.InvalidArtifactProperty, "Cannot modify name from workflow event action. Property is readonly.");
             }
 
             if (reuseTemplateSettings.ReadOnlySettings.HasFlag(ItemTypeReuseTemplateSetting.Description) &&
                 propertyTypeId == WorkflowConstants.PropertyTypeFakeIdDescription)
             {
-                throw new ConflictException("Cannot modify description from workflow event action. Property is readonly.");
+                return new PropertySetResult(propertyTypeId, ErrorCodes.InvalidArtifactProperty, "Cannot modify description from workflow event action. Property is readonly.");
             }
 
             var customProperty = reuseTemplateSettings.PropertyTypeReuseTemplates[propertyTypeId];
@@ -39,8 +39,9 @@ namespace ServiceLibrary.Helpers.Validators
             var propertyReusetemplate = reuseTemplateSettings.PropertyTypeReuseTemplates[customProperty.PropertyTypeId];
             if (propertyReusetemplate.Settings == PropertyTypeReuseTemplateSettings.ReadOnly)
             {
-                throw new ConflictException("Cannot modify property from workflow event action. Property is readonly.");
+                return new PropertySetResult(propertyTypeId, ErrorCodes.InvalidArtifactProperty, "Cannot modify property from workflow event action. Property is readonly.");
             }
+            return null;
         }
     }
 }

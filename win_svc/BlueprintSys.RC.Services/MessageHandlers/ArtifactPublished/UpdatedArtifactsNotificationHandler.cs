@@ -8,7 +8,9 @@ using BluePrintSys.Messaging.CrossCutting.Helpers;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.Workflow;
+using ServiceLibrary.Models.Workflow.Actions;
 using ServiceLibrary.Repositories.ConfigControl;
 
 namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
@@ -128,99 +130,29 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
                     continue;
                 }
 
-                var artifactModifiedPropertiesSet = artifactModifiedProperties.Select(a => a.TypeId).ToHashSet();
-                Logger.Log(
-                    $"{artifactModifiedPropertiesSet.Count} instance property type IDs being located: {string.Join(", ", artifactModifiedPropertiesSet)}",
-                    message, tenant, LogLevel.Debug);
-
-                var instancePropertyTypeIds = await repository.GetInstancePropertyTypeIdsMap(artifactModifiedPropertiesSet);
-                Logger.Log(
-                    $"{instancePropertyTypeIds.Count} instance property type IDs found: {string.Join(", ", instancePropertyTypeIds.Select(k => k.Key))}",
-                    message, tenant, LogLevel.Debug);
-
                 SqlWorkFlowStateInformation currentStateInfo;
                 if (!workflowStates.TryGetValue(artifactId, out currentStateInfo))
                 {
                     continue;
                 }
 
-                foreach (var notificationAction in notifications)
-                {
-                    Logger.Log("Processing notification action", message, tenant, LogLevel.Debug);
+                var modifiedSystemPropertiesSet = artifactModifiedProperties.Where(a => a.PredefinedType == (int)PropertyTypePredefined.Name ||
+                a.PredefinedType == (int)PropertyTypePredefined.Description)
+                    .Select(a => (PropertyTypePredefined)a.PredefinedType)
+                    .ToHashSet();
 
-                    if (!notificationAction.EventPropertyTypeId.HasValue)
-                    {
-                        continue;
-                    }
+                await ProcessSystemPropertyChange(tenant, message, repository, notifications, modifiedSystemPropertiesSet, currentStateInfo, updatedArtifacts, artifactId, workflowStates, projects, notificationMessages);
 
-                    int eventPropertyTypeId = notificationAction.EventPropertyTypeId.Value;
-                    if (!instancePropertyTypeIds.ContainsKey(eventPropertyTypeId))
-                    {
-                        Logger.Log(
-                            $"The property type ID {notificationAction.EventPropertyTypeId} was not found in the dictionary of instance property type IDs.",
-                            message, tenant, LogLevel.Debug);
-                        continue;
-                    }
+                var modifiedCustomPropertiesSet = artifactModifiedProperties.Where(a => a.PredefinedType == (int)PropertyTypePredefined.CustomGroup)
+                    .Select(a => a.TypeId)
+                    .ToHashSet();
 
-                    List<int> propertyTypeIds;
-                    if (!instancePropertyTypeIds.TryGetValue(eventPropertyTypeId, out propertyTypeIds) || propertyTypeIds.IsEmpty())
-                    {
-                        Logger.Log(
-                            $"The property type ID {notificationAction.EventPropertyTypeId} was not found in the dictionary of instance property type IDs.",
-                            message, tenant, LogLevel.Debug);
-                        continue;
-                    }
+                //Process custom properties
+                Logger.Log(
+                    $"{modifiedCustomPropertiesSet.Count} instance property type IDs being located: {string.Join(", ", modifiedCustomPropertiesSet)}",
+                    message, tenant, LogLevel.Debug);
 
-                    if (notificationAction.ConditionalStateId.HasValue &&
-                        (currentStateInfo == null ||
-                         currentStateInfo.WorkflowStateId != notificationAction.ConditionalStateId.Value))
-                    {
-                        //the conditional state id is present, but either the current state info is not present or the current state is not same as conditional state
-                        var currentStateId = currentStateInfo?.WorkflowStateId.ToString() ?? "none";
-                        Logger.Log(
-                            $"Conditional state ID {notificationAction.ConditionalStateId.Value} does not match current state ID: {currentStateId}",
-                            message, tenant, LogLevel.Debug);
-                        continue;
-                    }
-
-                    var artifact = updatedArtifacts.First(a => a.Id == artifactId);
-
-                    string messageHeader = I18NHelper.FormatInvariant("You are being notified because artifact with Id: {0} has been updated.", artifactId);
-                    var artifactPartUrl = artifact.Url ?? ServerUriHelper.GetArtifactUrl(artifactId, true);
-                    var emails = await WorkflowEventsMessagesHelper.GetEmailValues(message.RevisionId, artifactId,
-                        notificationAction, repository.UsersRepository);
-
-                    var notificationMessage = new NotificationMessage
-                    {
-                        ArtifactName = workflowStates[artifactId].Name,
-                        ProjectName = projects.First(p => p.ItemId == artifact.ProjectId).Name,
-                        Subject = notificationAction.Subject,
-                        From = notificationAction.FromDisplayName,
-                        To = emails,
-                        Header = messageHeader,
-                        MessageTemplate = notificationAction.Message,
-                        RevisionId = message.RevisionId,
-                        UserId = message.UserId,
-                        ArtifactTypeId = currentStateInfo.ItemTypeId,
-                        ArtifactId = artifactId,
-                        ArtifactUrl = artifactPartUrl,
-                        ArtifactTypePredefined = artifact.Predefined,
-                        ProjectId = artifact.ProjectId
-                    };
-
-                    if (notificationMessages.ContainsKey(artifactId))
-                    {
-                        notificationMessages[artifactId].Add(notificationMessage);
-                    }
-                    else
-                    {
-                        notificationMessages.Add(artifactId, 
-                            new List<IWorkflowMessage>
-                            {
-                                notificationMessage
-                            });
-                    }
-                }
+                await ProcessCustomPropertyChange(tenant, message, repository, notifications, modifiedCustomPropertiesSet, currentStateInfo, updatedArtifacts, artifactId, workflowStates, projects, notificationMessages);
             }
 
             if (notificationMessages.Count == 0)
@@ -239,6 +171,220 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
             }
 
             return true;
+        }
+
+        private static async Task ProcessSystemPropertyChange(TenantInformation tenant, 
+            ArtifactsPublishedMessage message, 
+            IArtifactsPublishedRepository repository, 
+            List<EmailNotificationAction> notifications, 
+            HashSet<PropertyTypePredefined> modifiedSystemPropertiesSet, 
+            SqlWorkFlowStateInformation currentStateInfo, 
+            List<PublishedArtifactInformation> updatedArtifacts, 
+            int artifactId, 
+            Dictionary<int, SqlWorkFlowStateInformation> workflowStates, 
+            List<SqlProject> projects, 
+            Dictionary<int, List<IWorkflowMessage>> notificationMessages)
+        {
+            if (modifiedSystemPropertiesSet.Count == 0)
+            {
+                return;
+            }
+
+            foreach (var notificationAction in notifications)
+            {
+                Logger.Log("Processing notification action", message, tenant, LogLevel.Debug);
+
+                if (!notificationAction.EventPropertyTypeId.HasValue)
+                {
+                    continue;
+                }
+
+                int eventPropertyTypeId = notificationAction.EventPropertyTypeId.Value;
+
+                //If system property provided is neither name or description
+                if (eventPropertyTypeId != WorkflowConstants.PropertyTypeFakeIdName &&
+                    eventPropertyTypeId != WorkflowConstants.PropertyTypeFakeIdDescription)
+                {
+                    Logger.Log(
+                        $"The system property type ID {notificationAction.EventPropertyTypeId} is not supported. Only Name and Description are supported.",
+                        message, tenant, LogLevel.Debug);
+                    continue;
+                }
+
+                //if modified properties does not conatin event property type Id
+                if (!modifiedSystemPropertiesSet.Contains(GetPropertyTypePredefined(notificationAction.EventPropertyTypeId.Value)))
+                {
+                    continue;
+                }
+
+                if (notificationAction.ConditionalStateId.HasValue &&
+                    (currentStateInfo == null ||
+                     currentStateInfo.WorkflowStateId != notificationAction.ConditionalStateId.Value))
+                {
+                    //the conditional state id is present, but either the current state info is not present or the current state is not same as conditional state
+                    var currentStateId = currentStateInfo?.WorkflowStateId.ToString() ?? "none";
+                    Logger.Log(
+                        $"Conditional state ID {notificationAction.ConditionalStateId.Value} does not match current state ID: {currentStateId}",
+                        message, tenant, LogLevel.Debug);
+                    continue;
+                }
+
+                var artifact = updatedArtifacts.First(a => a.Id == artifactId);
+
+                string messageHeader =
+                    I18NHelper.FormatInvariant("You are being notified because artifact with Id: {0} has been updated.",
+                        artifactId);
+                var artifactPartUrl = artifact.Url ?? ServerUriHelper.GetArtifactUrl(artifactId, true);
+                var emails = await WorkflowEventsMessagesHelper.GetEmailValues(message.RevisionId, artifactId,
+                    notificationAction, repository.UsersRepository);
+
+                var notificationMessage = new NotificationMessage
+                {
+                    ArtifactName = workflowStates[artifactId].Name,
+                    ProjectName = projects.First(p => p.ItemId == artifact.ProjectId).Name,
+                    Subject = notificationAction.Subject,
+                    From = notificationAction.FromDisplayName,
+                    To = emails,
+                    Header = messageHeader,
+                    MessageTemplate = notificationAction.Message,
+                    RevisionId = message.RevisionId,
+                    UserId = message.UserId,
+                    ArtifactTypeId = currentStateInfo.ItemTypeId,
+                    ArtifactId = artifactId,
+                    ArtifactUrl = artifactPartUrl,
+                    ArtifactTypePredefined = artifact.Predefined,
+                    ProjectId = artifact.ProjectId
+                };
+
+                if (notificationMessages.ContainsKey(artifactId))
+                {
+                    notificationMessages[artifactId].Add(notificationMessage);
+                }
+                else
+                {
+                    notificationMessages.Add(artifactId,
+                        new List<IWorkflowMessage>
+                        {
+                            notificationMessage
+                        });
+                }
+            }
+        }
+
+        private static PropertyTypePredefined GetPropertyTypePredefined(int propertyTypeId)
+        {
+            if (propertyTypeId == WorkflowConstants.PropertyTypeFakeIdName)
+            {
+                return PropertyTypePredefined.Name;
+            }
+            if (propertyTypeId == WorkflowConstants.PropertyTypeFakeIdDescription)
+            {
+                return PropertyTypePredefined.Description;
+            }
+            return PropertyTypePredefined.None;
+        }
+
+        private static async Task ProcessCustomPropertyChange(TenantInformation tenant, 
+            ArtifactsPublishedMessage message,
+            IArtifactsPublishedRepository repository, 
+            List<EmailNotificationAction> notifications,
+            HashSet<int> modifiedCustomPropertiesSet,
+            SqlWorkFlowStateInformation currentStateInfo, 
+            List<PublishedArtifactInformation> updatedArtifacts, 
+            int artifactId, 
+            Dictionary<int, SqlWorkFlowStateInformation> workflowStates,
+            List<SqlProject> projects, 
+            Dictionary<int, List<IWorkflowMessage>> notificationMessages)
+        {
+            if (modifiedCustomPropertiesSet.Count == 0)
+            {
+                return;
+            }
+            //Dictionary<int, List<int>> instancePropertyTypeIds
+            var instancePropertyTypeIds = await repository.GetInstancePropertyTypeIdsMap(modifiedCustomPropertiesSet);
+            Logger.Log(
+                $"{instancePropertyTypeIds.Count} instance property type IDs found: {string.Join(", ", instancePropertyTypeIds.Select(k => k.Key))}",
+                message, tenant, LogLevel.Debug);
+
+            foreach (var notificationAction in notifications)
+            {
+                Logger.Log("Processing notification action", message, tenant, LogLevel.Debug);
+
+                if (!notificationAction.EventPropertyTypeId.HasValue)
+                {
+                    continue;
+                }
+
+                int eventPropertyTypeId = notificationAction.EventPropertyTypeId.Value;
+                if (!instancePropertyTypeIds.ContainsKey(eventPropertyTypeId))
+                {
+                    Logger.Log(
+                        $"The property type ID {notificationAction.EventPropertyTypeId} was not found in the dictionary of instance property type IDs.",
+                        message, tenant, LogLevel.Debug);
+                    continue;
+                }
+
+                List<int> propertyTypeIds;
+                if (!instancePropertyTypeIds.TryGetValue(eventPropertyTypeId, out propertyTypeIds) || propertyTypeIds.IsEmpty())
+                {
+                    Logger.Log(
+                        $"The property type ID {notificationAction.EventPropertyTypeId} was not found in the dictionary of instance property type IDs.",
+                        message, tenant, LogLevel.Debug);
+                    continue;
+                }
+
+                if (notificationAction.ConditionalStateId.HasValue &&
+                    (currentStateInfo == null ||
+                     currentStateInfo.WorkflowStateId != notificationAction.ConditionalStateId.Value))
+                {
+                    //the conditional state id is present, but either the current state info is not present or the current state is not same as conditional state
+                    var currentStateId = currentStateInfo?.WorkflowStateId.ToString() ?? "none";
+                    Logger.Log(
+                        $"Conditional state ID {notificationAction.ConditionalStateId.Value} does not match current state ID: {currentStateId}",
+                        message, tenant, LogLevel.Debug);
+                    continue;
+                }
+
+                var artifact = updatedArtifacts.First(a => a.Id == artifactId);
+
+                string messageHeader =
+                    I18NHelper.FormatInvariant("You are being notified because artifact with Id: {0} has been updated.",
+                        artifactId);
+                var artifactPartUrl = artifact.Url ?? ServerUriHelper.GetArtifactUrl(artifactId, true);
+                var emails = await WorkflowEventsMessagesHelper.GetEmailValues(message.RevisionId, artifactId,
+                    notificationAction, repository.UsersRepository);
+
+                var notificationMessage = new NotificationMessage
+                {
+                    ArtifactName = workflowStates[artifactId].Name,
+                    ProjectName = projects.First(p => p.ItemId == artifact.ProjectId).Name,
+                    Subject = notificationAction.Subject,
+                    From = notificationAction.FromDisplayName,
+                    To = emails,
+                    Header = messageHeader,
+                    MessageTemplate = notificationAction.Message,
+                    RevisionId = message.RevisionId,
+                    UserId = message.UserId,
+                    ArtifactTypeId = currentStateInfo.ItemTypeId,
+                    ArtifactId = artifactId,
+                    ArtifactUrl = artifactPartUrl,
+                    ArtifactTypePredefined = artifact.Predefined,
+                    ProjectId = artifact.ProjectId
+                };
+
+                if (notificationMessages.ContainsKey(artifactId))
+                {
+                    notificationMessages[artifactId].Add(notificationMessage);
+                }
+                else
+                {
+                    notificationMessages.Add(artifactId,
+                        new List<IWorkflowMessage>
+                        {
+                            notificationMessage
+                        });
+                }
+            }
         }
     }
 }

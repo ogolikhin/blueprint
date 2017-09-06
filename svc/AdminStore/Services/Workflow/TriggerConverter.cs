@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AdminStore.Helpers.Workflow;
 using AdminStore.Models.Workflow;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
@@ -124,7 +125,10 @@ namespace AdminStore.Services.Workflow
                     break;
                 case ActionTypes.PropertyChange:
                     var xpAction = xmlAction as XmlPropertyChangeAction;
-                    action = dataMaps.PropertyTypeMap.TryGetValue(xpAction.PropertyTypeId, out name)
+                    var isPropertyFound = dataMaps.PropertyTypeMap.TryGetValue(xpAction.PropertyTypeId, out name)
+                        || WorkflowHelper.TryGetNameOrDescriptionPropertyTypeName(xpAction.PropertyTypeId, out name);
+
+                    action = isPropertyFound
                         ? new IePropertyChangeAction
                         {
                             Name = xpAction.Name,
@@ -328,7 +332,8 @@ namespace AdminStore.Services.Workflow
             };
 
             int propertyTypeId;
-            if (!dataMaps.PropertyTypeMap.TryGetValue(ieAction.PropertyName, out propertyTypeId))
+            if (!dataMaps.PropertyTypeMap.TryGetValue(ieAction.PropertyName, out propertyTypeId)
+                 && !WorkflowHelper.TryGetNameOrDescriptionPropertyTypeId(ieAction.PropertyName, out propertyTypeId))
             {
                 throw new ExceptionWithErrorCode(I18NHelper.FormatInvariant("Id of Standard Property Type '{0}' is not found.", ieAction.PropertyName),
                     ErrorCodes.UnexpectedError);

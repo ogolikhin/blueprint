@@ -81,25 +81,10 @@ namespace AdminStore.Services.Workflow
             var result = new WorkflowDataValidationResult();
 
             result.StandardTypes = StandardTypes ?? await _projectMetaRepository.GetStandardProjectTypesAsync();
-
-            // [DEV-548] In addition to Custom properties we need to handle Name and Description (aka System properties)
-            var systemPropertyTypes = await _projectMetaRepository.GetStandardProjectPropertyTypesAsync(
-                new List<int> { (int)PropertyTypePredefined.Name, (int)PropertyTypePredefined.Description });
-
-            foreach(var systemPropertyType in systemPropertyTypes)
-            {
-                if (!result.StandardTypes.PropertyTypes.Exists(pt => pt.Id == systemPropertyType.Id))
-                {
-                    result.StandardTypes.PropertyTypes.Add(systemPropertyType);
-                }
-            }
-            // result.StandardTypes.PropertyTypes.AddRange(systemPropertyTypes);
-
             result.StandardTypes.ArtifactTypes?.RemoveAll(at => at.PredefinedType != null
                                                                 && !at.PredefinedType.Value.IsRegularArtifactType());
             result.StandardArtifactTypeMapByName.AddRange(result.StandardTypes.ArtifactTypes.ToDictionary(pt => pt.Name));
             result.StandardPropertyTypeMapByName.AddRange(result.StandardTypes.PropertyTypes.ToDictionary(pt => pt.Name));
-            // result.StandardPropertyTypeMapByName.AddRange(systemPropertyTypes.ToDictionary(pt => pt.Name));
             ISet<string> groupNamesToLookup;
             ISet<string> userNamesToLookup;
             ISet<int> groupIdsToLookup;
@@ -621,7 +606,8 @@ namespace AdminStore.Services.Workflow
             if (!ignoreIds && action.PropertyId.HasValue)
             {
                 PropertyType pt;
-                if (!result.StandardPropertyTypeMapById.TryGetValue(action.PropertyId.Value, out pt))
+                if (!result.StandardPropertyTypeMapById.TryGetValue(action.PropertyId.Value, out pt)
+                    && !WorkflowHelper.TryGetNameOrDescriptionPropertyType(action.PropertyId.Value, out pt))
                 {
                     result.Errors.Add(new WorkflowDataValidationError
                     {
@@ -638,7 +624,8 @@ namespace AdminStore.Services.Workflow
             }
 
             PropertyType propertyType;
-            if (!result.StandardPropertyTypeMapByName.TryGetValue(action.PropertyName, out propertyType))
+            if (!result.StandardPropertyTypeMapByName.TryGetValue(action.PropertyName, out propertyType)
+                && !WorkflowHelper.TryGetNameOrDescriptionPropertyType(action.PropertyName, out propertyType))
             {
                 result.Errors.Add(new WorkflowDataValidationError
                 {

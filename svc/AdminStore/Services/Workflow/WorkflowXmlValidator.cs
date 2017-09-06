@@ -1128,7 +1128,8 @@ namespace AdminStore.Services.Workflow
         {
             if (pcAction?.PropertyId.HasValue ?? false)
             {
-                pcAction.PropertyName = GetConventionNameAndValidateId(null, pcAction.PropertyId.Value);
+                pcAction.PropertyName = GetConventionNameAndValidateId(null, pcAction.PropertyId.Value,
+                    WorkflowHelper.IsNameOrDescriptionProperty(pcAction.PropertyId.Value));
             }
 
             pcAction?.ValidValues?.ForEach(UpdateValidValueToConventionNames);

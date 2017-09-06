@@ -91,6 +91,34 @@ namespace BlueprintSys.RC.Services.Tests
         }
 
         [TestMethod]
+        public void BaseMessageHandler_ReturnsWhenNoTenantsAreFound()
+        {
+            var noTenants = new List<TenantInformation>();
+            _actionHandlerServiceRepositoryMock.Setup(a => a.GetTenantsFromTenantsDb()).ReturnsAsync(noTenants);
+            //ActionHelper should not be called
+            var handler = new NotificationMessageHandler(null, _tenantInfoRetriever, _configHelper);
+            var message = new NotificationMessage();
+            TestHandlerAndMessageWithHeader(handler, message);
+        }
+
+        [TestMethod]
+        public void BaseMessageHandler_ReturnsWhenTheRightTenantIsNotFound()
+        {
+            var wrongTenant = new List<TenantInformation>
+            {
+                new TenantInformation
+                {
+                    TenantId = TenantId + "different"
+                }
+            };
+            _actionHandlerServiceRepositoryMock.Setup(a => a.GetTenantsFromTenantsDb()).ReturnsAsync(wrongTenant);
+            //ActionHelper should not be called
+            var handler = new NotificationMessageHandler(null, _tenantInfoRetriever, _configHelper);
+            var message = new NotificationMessage();
+            TestHandlerAndMessageWithHeader(handler, message);
+        }
+
+        [TestMethod]
         public void ArtifactsPublishedMessageHandler_InstantiatesSuccessfully()
         {
             var handler = new ArtifactsPublishedMessageHandler();

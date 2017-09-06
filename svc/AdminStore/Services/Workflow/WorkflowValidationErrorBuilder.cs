@@ -39,6 +39,8 @@ namespace AdminStore.Services.Workflow
         private const string TemplateXmlTransitionFromAndToStatesSame = "Transition element <{0}>: The starting and end States are the same. Please ensure the <FromState> and <ToState> have correct values. (The , <FromStateId> and <ToStateId> child elements could also be used.)";
         private const string TemplateXmlTriggerCountOnEventExceedsLimit10 = "An Event (Transition, Property Change, New Artifact) has exceeded the number of Triggers it can include. Please ensure '{0}' includes 10 or fewer Triggers.";
         private const string TemplateXmlPropertyChangEventPropertyNotSpecified = "The required property for a Property Change event ‘{0}’ has not been specified.";
+        // New for review by Ken
+        private const string TemplateXmlPropertyChangeEventDuplicateProperties = "Some properties of Property Change events are duplicate. Properties of Property Change events must be unique.";
         private const string TemplateXmlProjectNoSpecified = "There are no Projects defined in this Workflow. If the XML definition includes a <Projects> element, ensure that there are one or more <Project> child elements.";
         private const string TemplateXmlAmbiguousProjectReference = "One or more Projects are specified using both ID and path. Please ensure all <Project> elements use one or the other, but not both.";
         private const string TemplateXmlInvalidId = "An element has an invalid Id attribute value. IDs must be greater than 0.";
@@ -278,6 +280,10 @@ namespace AdminStore.Services.Workflow
                 case WorkflowXmlValidationErrorCodes.PropertyChangeEventPropertyNotSpecified:
                     template = TemplateXmlPropertyChangEventPropertyNotSpecified;
                     errParams = new object[] {((IePropertyChangeEvent) error.Element).Name};
+                    break;
+                case WorkflowXmlValidationErrorCodes.PropertyChangeEventDuplicateProperties:
+                    template = TemplateXmlPropertyChangeEventDuplicateProperties;
+                    errParams = new object[] {};
                     break;
                 case WorkflowXmlValidationErrorCodes.ProjectNoSpecified:
                     template = TemplateXmlProjectNoSpecified;

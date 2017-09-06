@@ -45,6 +45,7 @@ namespace AdminStore.Services.Workflow
         TransitionFromAndToStatesSame,
         TriggerCountOnEventExceedsLimit10,
         PropertyChangeEventPropertyNotSpecified,
+        PropertyChangeEventDuplicateProperties,
         PropertyChangeEventNoAnyTriggersNotSpecified,
         NewArtifactEventNoAnyTriggersNotSpecified,
         ActionTriggerNotSpecified,

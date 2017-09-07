@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Threading.Tasks;
 using ArtifactStore.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -10,6 +8,7 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Models.PropertyType;
 using ServiceLibrary.Models.VersionControl;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
@@ -486,7 +485,7 @@ namespace ArtifactStore.Executors
                 .ReturnsAsync(transition);
 
             var workflowEventAction = new Mock<IWorkflowEventAction>();
-            workflowEventAction.Setup(a => a.ValidateAction(It.IsAny<IExecutionParameters>())).Returns(false);
+            workflowEventAction.Setup(a => a.ValidateAction(It.IsAny<IExecutionParameters>())).Returns(new PropertySetResult(-1, -1, ""));
             var triggerContainer = new WorkflowTriggersContainer();
             triggerContainer.SynchronousTriggers.Add(new WorkflowEventTrigger()
             {

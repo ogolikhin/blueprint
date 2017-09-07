@@ -3,48 +3,49 @@ using ServiceLibrary.Repositories.Jobs;
 
 namespace BlueprintSys.RC.Services.Repositories
 {
-    public interface IGenerateUserStoriesRepository : IActionHandlerServiceRepository
+    public class GenerateActionRepository : ActionHandlerServiceRepository, IGenerateActionsRepository
     {
-        IJobsRepository JobsRepository { get; }
-    }
-
-    public class GenerateUserStoriesActionRepository : ActionHandlerServiceRepository, IGenerateUserStoriesRepository
-    {
-        public GenerateUserStoriesActionRepository(string connectionString) : 
+        public GenerateActionRepository(string connectionString) : 
             this(new SqlConnectionWrapper(connectionString))
         {
         }
 
-        public GenerateUserStoriesActionRepository(ISqlConnectionWrapper connectionWrapper) : 
-            this(connectionWrapper, new JobsRepository(connectionWrapper))
+        public GenerateActionRepository(ISqlConnectionWrapper srvConnectionWrapper) : 
+            this(srvConnectionWrapper, 
+                new SqlArtifactPermissionsRepository(srvConnectionWrapper),
+                new SqlUsersRepository(srvConnectionWrapper))
         {
         }
 
-        public GenerateUserStoriesActionRepository(ISqlConnectionWrapper connectionWrapper,
-            IJobsRepository jobsRepository) : this(connectionWrapper,
-                jobsRepository,
-                new SqlUsersRepository(connectionWrapper))
+        public GenerateActionRepository(ISqlConnectionWrapper srvConnectionWrapper,
+            IArtifactPermissionsRepository artifactPermissionsRepository,
+            IUsersRepository usersRepository) :
+            this(srvConnectionWrapper,
+                artifactPermissionsRepository,
+                usersRepository,
+                new JobsRepository(srvConnectionWrapper,
+                    new SqlArtifactRepository(srvConnectionWrapper,
+                        new SqlItemInfoRepository(srvConnectionWrapper),
+                        artifactPermissionsRepository),
+                    artifactPermissionsRepository, usersRepository),
+                new SqlItemTypeRepository(srvConnectionWrapper))
         {
         }
 
-        public GenerateUserStoriesActionRepository(ISqlConnectionWrapper connectionWrapper,
-            IJobsRepository jobsRepository, 
-            IUsersRepository usersRepository) : 
-            this(connectionWrapper, jobsRepository, 
-                new SqlArtifactPermissionsRepository(connectionWrapper), 
+        public GenerateActionRepository(ISqlConnectionWrapper srvConnectionWrapper,
+            IArtifactPermissionsRepository artifactPermissionsRepository,
+            IUsersRepository usersRepository,
+            IJobsRepository jobsRepository,
+            ISqlItemTypeRepository sqlItemTypeRepository) : 
+            base(srvConnectionWrapper, 
+                artifactPermissionsRepository, 
                 usersRepository)
         {
-        }
-
-        public GenerateUserStoriesActionRepository(ISqlConnectionWrapper connectionWrapper,
-            IJobsRepository jobsRepository,
-            IArtifactPermissionsRepository artifactPermissionsRepository,
-            IUsersRepository usersRepository) : 
-            base(connectionWrapper, artifactPermissionsRepository, usersRepository)
-        {
             JobsRepository = jobsRepository;
+            ItemTypeRepository = sqlItemTypeRepository;
         }
 
         public IJobsRepository JobsRepository { get; }
+        public ISqlItemTypeRepository ItemTypeRepository { get; }
     }
 }

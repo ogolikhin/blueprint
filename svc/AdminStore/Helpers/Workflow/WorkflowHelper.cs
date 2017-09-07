@@ -91,18 +91,31 @@ namespace AdminStore.Helpers.Workflow
             {
                 Id = propertyTypeId,
                 Name = propertyTypeName,
-                PrimitiveType = PropertyPrimitiveType.Text
+                PrimitiveType = PropertyPrimitiveType.Text,
+                IsRequired = propertyTypeId == WorkflowConstants.PropertyTypeFakeIdName,
+                IsRichText = propertyTypeId != WorkflowConstants.PropertyTypeFakeIdName
             };
 
             return true;
-        } 
+        }
+
+        public static bool TryGetNameOrDescriptionPropertyType(string propertyTypeName, out PropertyType propertyType)
+        {
+            int propertyTypeId;
+            if (!TryGetNameOrDescriptionPropertyTypeId(propertyTypeName, out propertyTypeId))
+            {
+                propertyType = null;
+                return false;
+            }
+            return TryGetNameOrDescriptionPropertyType(propertyTypeId, out propertyType);
+        }
 
         #endregion
 
 
-        #region NormalizeWorkflow
+            #region NormalizeWorkflow
 
-        // Remove empty collections and nullable boolean properties with the default value.
+            // Remove empty collections and nullable boolean properties with the default value.
         public static IeWorkflow NormalizeWorkflow(IeWorkflow workflow)
         {
             if (workflow == null)

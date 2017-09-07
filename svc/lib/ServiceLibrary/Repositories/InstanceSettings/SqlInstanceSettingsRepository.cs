@@ -64,7 +64,8 @@ namespace ServiceLibrary.Repositories.InstanceSettings
 
             parameters.Add("@projectId ", projectId);
 
-            return await ConnectionWrapper.ExecuteAsync("CheckMaxArtifactsPerProjectBoundary", parameters, commandType: CommandType.StoredProcedure);
+            var result = await ConnectionWrapper.QueryAsync<int>("CheckMaxArtifactsPerProjectBoundary", parameters, commandType: CommandType.StoredProcedure);
+            return result.First();
         }
     }
 

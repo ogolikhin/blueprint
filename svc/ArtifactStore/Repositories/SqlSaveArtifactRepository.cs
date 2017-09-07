@@ -90,7 +90,7 @@ namespace ArtifactStore.Repositories
             }
 
             int? errorCode = (result as IEnumerable<dynamic>)?.FirstOrDefault()?.Error;
-            if (errorCode > 0)
+            if (errorCode != null && errorCode.GetValueOrDefault(0) > 0)
             {
                 throw new Exception("UpdateArtifactName failed with Error Code " + errorCode.Value);
             }
@@ -279,54 +279,10 @@ namespace ArtifactStore.Repositories
 
         private static string GetSearchableValue(PropertyLite propertyLite, WorkflowPropertyType propertyType)
         {
-            //if (propertyValue is DTextPropertyValue)
-            //{
-            //    string value = ((DTextPropertyValue)propertyValue).Value;
-            //    if (string.IsNullOrWhiteSpace(value))
-            //    {
-            //        return null;
-            //    }
-            //    switch (propertyValue.PropertyTypePredefined)
-            //    {
-            //        case PropertyTypePredefined.Name:
-            //            return value;
-            //        case PropertyTypePredefined.Description:
-            //        case PropertyTypePredefined.Label:
-            //        case PropertyTypePredefined.CustomGroup:
-            //            return RichTextHtmlHelper.Instance.HtmlToText(value);
-            //        default:
-            //            return null;
-            //    }
-            //}
-            if (propertyType is NumberPropertyType)
-            {
-                return null;
-            }
-            if (propertyType is DatePropertyType)
-            {
-                return null;
-            }
             if (propertyType is TextPropertyType)
             {
                 return propertyLite.TextOrChoiceValue;
             }
-            //if (propertyValue is DDatePropertyValue)
-            //{
-            //    return null;
-            //}
-            //if (propertyValue is DUserPropertyValue)
-            //{
-            //    return null;
-            //}
-            if (propertyType is ChoicePropertyType)
-            {
-                return null;
-            }
-            //if (propertyValue is DImagePropertyValue)
-            //{
-            //    return null;
-            //}
-            //BluePrintSys.RC.CrossCutting.Logging.Log.Assert(false);
             return null;
         }
 

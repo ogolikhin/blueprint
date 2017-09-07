@@ -674,6 +674,23 @@ namespace AdminStore.Services.Workflow
         }
 
         [TestMethod]
+        public void Validate_PropertyChangeEventDuplicateProperties_ReturnsPropertyChangeEventDuplicatePropertiesError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.PropertyChangeEvents[1].PropertyName = _workflow.PropertyChangeEvents[0].PropertyName;
+            _workflow.PropertyChangeEvents.Add(_workflow.PropertyChangeEvents[0]);
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.PropertyChangeEventDuplicateProperties, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
         public void Validate_TriggerCountOnEventMax_Success()
         {
             // Arrange

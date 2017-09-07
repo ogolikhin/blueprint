@@ -21,26 +21,18 @@ namespace ServiceLibrary.Models.Workflow.Actions
 
         public override MessageActionType ActionType { get; } = MessageActionType.PropertyChange;
 
-        protected override bool ValidateActionToBeProcessed(IExecutionParameters executionParameters)
+        protected override PropertySetResult ValidateActionToBeProcessed(IExecutionParameters executionParameters)
         {
-            executionParameters.ReuseValidator.ValidateReuseSettings(InstancePropertyTypeId, executionParameters.ReuseItemTemplate);
-            var result = ValidateProperty(executionParameters);
+            var result = executionParameters.ReuseValidator.ValidateReuseSettings(InstancePropertyTypeId, executionParameters.ReuseItemTemplate);
             if (result != null)
             {
-                return false;
+                return result;
             }
-            return true;
+            return ValidateProperty(executionParameters);
         }
 
         private PropertySetResult ValidateProperty(IExecutionParameters executionParameters)
         {
-
-            if (InstancePropertyTypeId == WorkflowConstants.PropertyTypeFakeIdDescription ||
-                InstancePropertyTypeId == WorkflowConstants.PropertyTypeFakeIdName)
-            {
-                // todo: validate in later stories
-                return null;
-            }
             var dPropertyType = executionParameters.CustomPropertyTypes.FirstOrDefault(item => item.InstancePropertyTypeId == InstancePropertyTypeId);
             if (dPropertyType == null)
             {

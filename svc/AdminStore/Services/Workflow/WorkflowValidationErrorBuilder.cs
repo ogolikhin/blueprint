@@ -39,9 +39,10 @@ namespace AdminStore.Services.Workflow
         private const string TemplateXmlTransitionFromAndToStatesSame = "Transition element <{0}>: The starting and end States are the same. Please ensure the <FromState> and <ToState> have correct values. (The , <FromStateId> and <ToStateId> child elements could also be used.)";
         private const string TemplateXmlTriggerCountOnEventExceedsLimit10 = "An Event (Transition, Property Change, New Artifact) has exceeded the number of Triggers it can include. Please ensure '{0}' includes 10 or fewer Triggers.";
         private const string TemplateXmlPropertyChangEventPropertyNotSpecified = "The required property for a Property Change event ‘{0}’ has not been specified.";
+        private const string TemplateXmlPropertyChangeEventDuplicateProperties = "<PropertyChange> elements: There are one or more duplicate properties. Please ensure all <PropertyName> values are unique.";
         private const string TemplateXmlProjectNoSpecified = "There are no Projects defined in this Workflow. If the XML definition includes a <Projects> element, ensure that there are one or more <Project> child elements.";
         private const string TemplateXmlAmbiguousProjectReference = "One or more Projects are specified using both ID and path. Please ensure all <Project> elements use one or the other, but not both.";
-        private const string TemplateXmlInvalidId = "A Project has an Id attribute value of '0'. This is invalid; Project IDs must be greater than 0.";
+        private const string TemplateXmlInvalidId = "An element has an invalid Id attribute value. IDs must be greater than 0.";
         private const string TemplateXmlProjectDuplicateId = "Two or more <Project> elements have the same ID. Project IDs are unique.";
         private const string TemplateXmlProjectInvalidPath = "Two or more <Project> elements have the same Path. Project paths are unique.";
         private const string TemplateXmlProjectDoesNotHaveAnyArtfactTypes = "<Project> elements: One or more Projects do not include Artifact Types. Please ensure each <Project> element has an <ArtifactTypes> child element.";
@@ -116,11 +117,10 @@ namespace AdminStore.Services.Workflow
         private const string TemplateDataPropertyChangeActionValidValueNotFoundById = "One or more Valid Values in Value of Choice Property '{0}' in a Property Change Action are not found by Id.";
         private const string TemplateDataPropertyChangeActionUserNotFoundById = "One or more Users in Value of User Property '{0}' in a Property Change Action are not found by Id.";
         private const string TemplateDataPropertyChangeActionGroupNotFoundById = "One or more Groups in Value of User Property '{0}' in a Property Change Action are not found by Id.";
-        // New messages, remove this comment after DEV-2193 is implemented
-        private const string TemplateDataPropertyChangeActionNotChoicePropertyValidValuesNotApplicable = "The Valid Values are not applicable to non-Choice Property '{0}'.";
-        private const string TemplateDataPropertyChangeActionNotUserPropertyUsersGroupsNotApplicable = "The Users/Groups are not applicable to non-User Property '{0}'.";
-        private const string TemplateDataPropertyChangeActionRequiredUserPropertyPropertyValueNotApplicable = "The Property Value is not applicable to required User Property '{0}'.";
-        private const string TemplateDataPropertyChangeActionChoicePropertyMultipleValidValuesNotAllowed = "Multiple Valid Values are not allowed for Choice Property '{0}'.";
+        private const string TemplateDataPropertyChangeActionNotChoicePropertyValidValuesNotApplicable = "<PropertyChangeAction> elements: The property and value types do not match. Please ensure <ValidValues> elements are used only with choice-type properties.";
+        private const string TemplateDataPropertyChangeActionNotUserPropertyUsersGroupsNotApplicable = "<PropertyChangeAction> elements: The property and value types do not match. Please ensure <UsersGroups> elements are used only used with user-type properties.";
+        private const string TemplateDataPropertyChangeActionRequiredUserPropertyPropertyValueNotApplicable = "<PropertyChangeAction> elements: The property and value types do not match. Please ensure <PropertyValue> elements are not used with user-type properties.";
+        private const string TemplateDataPropertyChangeActionChoicePropertyMultipleValidValuesNotAllowed = "<PropertyChangeAction> elements: Multiple <ValidValue> child elements are provided for a choice-type property that allows only one.";
 
         #region Interface Implementation
 
@@ -279,6 +279,10 @@ namespace AdminStore.Services.Workflow
                 case WorkflowXmlValidationErrorCodes.PropertyChangeEventPropertyNotSpecified:
                     template = TemplateXmlPropertyChangEventPropertyNotSpecified;
                     errParams = new object[] {((IePropertyChangeEvent) error.Element).Name};
+                    break;
+                case WorkflowXmlValidationErrorCodes.PropertyChangeEventDuplicateProperties:
+                    template = TemplateXmlPropertyChangeEventDuplicateProperties;
+                    errParams = new object[] {};
                     break;
                 case WorkflowXmlValidationErrorCodes.ProjectNoSpecified:
                     template = TemplateXmlProjectNoSpecified;
@@ -594,19 +598,19 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionNotChoicePropertyValidValuesNotApplicable:
                     template = TemplateDataPropertyChangeActionNotChoicePropertyValidValuesNotApplicable;
-                    errParams = new object[] { (string) error.Element };
+                    errParams = new object[] {};
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionNotUserPropertyUsersGroupsNotApplicable:
                     template = TemplateDataPropertyChangeActionNotUserPropertyUsersGroupsNotApplicable;
-                    errParams = new object[] { (string) error.Element };
+                    errParams = new object[] {};
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredUserPropertyPropertyValueNotApplicable:
                     template = TemplateDataPropertyChangeActionRequiredUserPropertyPropertyValueNotApplicable;
-                    errParams = new object[] { (string) error.Element };
+                    errParams = new object[] {};
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionChoicePropertyMultipleValidValuesNotAllowed:
                     template = TemplateDataPropertyChangeActionChoicePropertyMultipleValidValuesNotAllowed;
-                    errParams = new object[] { (string) error.Element };
+                    errParams = new object[] {};
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

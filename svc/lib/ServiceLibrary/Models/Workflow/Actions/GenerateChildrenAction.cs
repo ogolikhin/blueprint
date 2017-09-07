@@ -1,4 +1,5 @@
 ﻿using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Models.PropertyType;
 
 namespace ServiceLibrary.Models.Workflow.Actions
 {
@@ -10,9 +11,9 @@ namespace ServiceLibrary.Models.Workflow.Actions
 
         public override MessageActionType ActionType { get; } = MessageActionType.GenerateChildren;
 
-        public override bool ValidateAction(IExecutionParameters executionParameters)
+        public override PropertySetResult ValidateAction(IExecutionParameters executionParameters)
         {
-            return true;
+            return null;
         }
     }
 }

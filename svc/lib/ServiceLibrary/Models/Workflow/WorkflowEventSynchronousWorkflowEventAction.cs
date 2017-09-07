@@ -1,13 +1,15 @@
-﻿namespace ServiceLibrary.Models.Workflow
+﻿using ServiceLibrary.Models.PropertyType;
+
+namespace ServiceLibrary.Models.Workflow
 {
     public abstract class WorkflowEventSynchronousWorkflowEventAction : WorkflowEventAction, IWorkflowEventSynchronousAction
     {
-        public override bool ValidateAction(IExecutionParameters executionParameters)
+        public override PropertySetResult ValidateAction(IExecutionParameters executionParameters)
         {
             return ValidateActionToBeProcessed(executionParameters);
         }
 
-        protected abstract bool ValidateActionToBeProcessed(IExecutionParameters executionParameters);
+        protected abstract PropertySetResult ValidateActionToBeProcessed(IExecutionParameters executionParameters);
 
     }
 

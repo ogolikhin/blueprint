@@ -150,7 +150,7 @@ namespace AdminStore.Services.Instance
 
         private async Task<IEmailConfigInstanceSettings> GetEmailConfigAsync(EmailOutgoingSettings outgoingSettings, User currentUser)
         {
-            var config = new TestEmailConfigInstanceSettings(outgoingSettings, currentUser.Email);
+            var config = new TestEmailConfigInstanceSettings(outgoingSettings);
 
             if (!outgoingSettings.AuthenticatedSmtp)
             {

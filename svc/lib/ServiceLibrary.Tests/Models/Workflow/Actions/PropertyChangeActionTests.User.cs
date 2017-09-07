@@ -57,12 +57,12 @@ namespace ServiceLibrary.Models.Workflow.Actions
             var propertyLiteValue = _propertyChangeAction.PropertyLiteValue;
 
             //Assert
-            Assert.IsTrue(result);
+            Assert.IsNull(result);
             Assert.IsTrue(propertyLiteValue.UsersAndGroups.Any());
         }
 
         [TestMethod]
-        public void ValidateAction_UserPropertyContainsPropertyValueFromXml_ReturnsFalse()
+        public void ValidateAction_UserPropertyContainsPropertyValueFromXml_ReturnsFailureResult()
         {
             //Arrange
             InitializeUserPropertyChangeAction();
@@ -72,11 +72,11 @@ namespace ServiceLibrary.Models.Workflow.Actions
             var result = _propertyChangeAction.ValidateAction(_executionParameters);
 
             //Assert
-            Assert.IsFalse(result);
+            Assert.IsNotNull(result);
         }
 
         [TestMethod]
-        public void ValidateAction_UserPropertyAsBaseClassPropertyChangeAction_ReturnsFalse()
+        public void ValidateAction_UserPropertyAsBaseClassPropertyChangeAction_ReturnsFailureResult()
         {
             //Arrange
             InitializeUserPropertyChangeAction();
@@ -89,11 +89,11 @@ namespace ServiceLibrary.Models.Workflow.Actions
             var result = _propertyChangeAction.ValidateAction(_executionParameters);
 
             //Assert
-            Assert.IsFalse(result);
+            Assert.IsNotNull(result);
         }
 
         [TestMethod]
-        public void ValidateAction_UserPropertyChangedToNumberProperty_ReturnsFalse()
+        public void ValidateAction_UserPropertyChangedToNumberProperty_ReturnsFailureResult()
         {
             //Act
             var result = UserPropertyChangedToAnotherPropertyValidation(
@@ -104,11 +104,11 @@ namespace ServiceLibrary.Models.Workflow.Actions
                 });
 
             //Assert
-            Assert.IsFalse(result);
+            Assert.IsNotNull(result);
         }
 
         [TestMethod]
-        public void ValidateAction_UserPropertyChangedToDateProperty_ReturnsFalse()
+        public void ValidateAction_UserPropertyChangedToDateProperty_ReturnsFailureResult()
         {
             //Act
             var result = UserPropertyChangedToAnotherPropertyValidation(
@@ -119,11 +119,11 @@ namespace ServiceLibrary.Models.Workflow.Actions
                 });
 
             //Assert
-            Assert.IsFalse(result);
+            Assert.IsNotNull(result);
         }
 
         [TestMethod]
-        public void ValidateAction_UserPropertyChangedToChoiceProperty_ReturnsFalse()
+        public void ValidateAction_UserPropertyChangedToChoiceProperty_ReturnsFailureResult()
         {
             //Act
             var result = UserPropertyChangedToAnotherPropertyValidation(
@@ -134,12 +134,11 @@ namespace ServiceLibrary.Models.Workflow.Actions
                 });
 
             //Assert
-            Assert.IsFalse(result);
+            Assert.IsNotNull(result);
         }
-
-
+        
         [TestMethod]
-        public void ValidateAction_UserPropertyChangedToTextProperty_ReturnsFalse()
+        public void ValidateAction_UserPropertyChangedToTextProperty_ReturnsFailureResult()
         {
             //Act
             var result = UserPropertyChangedToAnotherPropertyValidation(
@@ -150,9 +149,9 @@ namespace ServiceLibrary.Models.Workflow.Actions
                 });
 
             //Assert
-            Assert.IsFalse(result);
+            Assert.IsNotNull(result);
         }
-        private bool UserPropertyChangedToAnotherPropertyValidation(WorkflowPropertyType propertyType)
+        private PropertySetResult UserPropertyChangedToAnotherPropertyValidation(WorkflowPropertyType propertyType)
         {
             //Arrange
             InitializeUserPropertyChangeAction();

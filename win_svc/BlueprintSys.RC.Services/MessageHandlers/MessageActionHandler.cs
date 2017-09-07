@@ -17,7 +17,10 @@ namespace BlueprintSys.RC.Services.MessageHandlers
             {
                 return false;
             }
-            PreActionValidation(tenant, actionMessage, actionHandlerServiceRepository);
+            if (! (await PreActionValidation(tenant, actionMessage, actionHandlerServiceRepository)))
+            {
+                return false;
+            }
 
             var task = await HandleActionInternal(tenant, 
                 actionMessage, 
@@ -27,10 +30,10 @@ namespace BlueprintSys.RC.Services.MessageHandlers
             return task;
         }
 
-        protected virtual void PreActionValidation(TenantInformation tenant, ActionMessage actionMessage,
+        protected virtual async Task<bool> PreActionValidation(TenantInformation tenant, ActionMessage actionMessage,
             IActionHandlerServiceRepository actionHandlerServiceRepository)
         {
-
+            return await Task.FromResult(true);
         }
 
         protected virtual void PostActionValidation(TenantInformation tenant, ActionMessage actionMessage,

@@ -31,7 +31,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.GenerateUserStories
 
             var payload = new GenerateUserStoryInfo { ProcessId = generateUserStoriesMessage.ArtifactId, TaskId = null };
             var parameters = SerializationHelper.ToXml(payload);
-            var generationUserStoriesActionRepo = (IGenerateUserStoriesRepository) actionHandlerServiceRepository;
+            var generationUserStoriesActionRepo = (IGenerateActionsRepository) actionHandlerServiceRepository;
             var jobsRepository = generationUserStoriesActionRepo.JobsRepository;
             var user = await GetUserInfo(generateUserStoriesMessage, actionHandlerServiceRepository);
 

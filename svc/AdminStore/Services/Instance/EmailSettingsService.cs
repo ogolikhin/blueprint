@@ -184,7 +184,8 @@ namespace AdminStore.Services.Instance
                 throw new BadRequestException("Please enter the system email account address.", ErrorCodes.EmptyEmailAddress);
             }
 
-            if (!EmailValidator.IsEmailAddress(outgoingSettings.AccountEmailAddress))
+            //Input is trimmed to be consistent with SilverLight implementation
+            if (!EmailValidator.IsEmailAddress(outgoingSettings.AccountEmailAddress.Trim()))
             {
                 throw new BadRequestException("The system email account address is not in a valid format.", ErrorCodes.InvalidEmailAddress);
             }

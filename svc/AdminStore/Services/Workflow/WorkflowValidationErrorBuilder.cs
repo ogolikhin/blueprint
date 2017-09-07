@@ -22,21 +22,21 @@ namespace AdminStore.Services.Workflow
         private const string TemplateXmlWorkflowDoesNotContainAnyStates = "There are no States defined in this Workflow. Please ensure the XML definition includes a <States> element, and two or more <State> child elements.";
         private const string TemplateXmlStatesCountExceedsLimit100 = "The maximum 100 States allowed in a Workflow has been exceeded.";
         private const string TemplateXmlStateNameEmpty = "<State> element: One or more <Name> child elements are missing, or do not have a value.";
-        private const string TemplateXmlStateNameExceedsLimit24 = "<{0}> State element: The value of the <Name> child element exceeds 24 characters.";
+        private const string TemplateXmlStateNameExceedsLimit24 = "State element '{0}': The value of the <Name> child element exceeds 24 characters.";
         private const string TemplateXmlStateNameNotUnique = "Two or more <State> elements have the same name ({0}). State names in a Workflow must be unique.";
         private const string TemplateXmlNoInitialState = "No initial State has been defined. Please ensure one of your <State> elements includes an attribute and value of IsInitial='true'.";
         private const string TemplateXmlInitialStateDoesNotHaveOutgoingTransition = "There is no Transition that originates from the initial State. Please ensure the <State> element that is set as the initial State is an outgoing component of at least one Transition--that is, the State name is a value for the Transition <FromState>. (The State ID and Transition <FromStateId> element could also be used.)";
         private const string TemplateXmlMultipleInitialStates = "More than one initial state has been defined; Workflows can have only one initial state. Please ensure only one of your <State> elements has the value 'true' for the IsInitial attribute.";
         private const string TemplateXmlStateDoesNotHaveAnyTransitions = "The State '{0}' is not connected to any other States by a Transition. Please ensure the State is an incoming or outgoing component of at least one Transition--that is, the State name is a value for the Transition <FromState>. (The State ID and Transition <FromStateId> could also be used.)";
-        private const string TemplateXmlTransitionEventNameExceedsLimit24 = "<{0}> Transition element: The value of the <Name> child element exceeds 24 characters.";
-        private const string TemplateXmlPropertyChangeEventNameExceedsLimit24 = "<{0}> Property Change element: The value of the <Name> child element exceeds 24 characters.";
-        private const string TemplateXmlNewArtifactEventNameExceedsLimit24 = "<{0}> New Artifact element: The value of the <Name> child element exceeds 24 characters.";
+        private const string TemplateXmlTransitionEventNameExceedsLimit24 = "Transition element '{0}': The value of the <Name> child element exceeds 24 characters.";
+        private const string TemplateXmlPropertyChangeEventNameExceedsLimit24 = "Property Change element '{0}': The value of the <Name> child element exceeds 24 characters.";
+        private const string TemplateXmlNewArtifactEventNameExceedsLimit24 = "New Artifact element '{0}': The value of the <Name> child element exceeds 24 characters.";
         private const string TemplateXmlStateWithDuplicateOutgoingTransitions = "Some duplicate Transition names conflict because they have the same originating State. Please ensure that any <Transition> elements with the same value for <FromState> have unique values for <Name>.";
         private const string TemplateXmlTransitionCountOnStateExceedsLimit10 = "The State '{0}' has exceeded the number of Transitions it can be connected to. Please ensure the State is an incoming or outgoing component of 10 or fewer Transitions.";
         private const string TemplateXmlTransitionStateNotFound = "One of the States referenced in the Transition '{0}' was not found. Please ensure the State names in the Transition <FromState> and <ToState> child elements correspond to States described earlier in the Workflow definition. (The <FromStateId> and <ToStateId> child elements could also be used.)";
-        private const string TemplateXmlTransitionStartStateNotSpecified = "Transition element <{0}>: The starting State has not been defined. Please ensure the <FromState> or <FromStateId> child elements have correct values.";
-        private const string TemplateXmlTransitionEndStateNotSpecified = "Transition element <{0}>: The end State has not been defined. Please ensure the <ToState> or <ToStateId> child elements have correct values.";
-        private const string TemplateXmlTransitionFromAndToStatesSame = "Transition element <{0}>: The starting and end States are the same. Please ensure the <FromState> and <ToState> have correct values. (The , <FromStateId> and <ToStateId> child elements could also be used.)";
+        private const string TemplateXmlTransitionStartStateNotSpecified = "Transition element '{0}': The starting State has not been defined. Please ensure the <FromState> or <FromStateId> child elements have correct values.";
+        private const string TemplateXmlTransitionEndStateNotSpecified = "Transition element '{0}': The end State has not been defined. Please ensure the <ToState> or <ToStateId> child elements have correct values.";
+        private const string TemplateXmlTransitionFromAndToStatesSame = "Transition element '{0}': The starting and end States are the same. Please ensure the <FromState> and <ToState> have correct values. (The , <FromStateId> and <ToStateId> child elements could also be used.)";
         private const string TemplateXmlTriggerCountOnEventExceedsLimit10 = "An Event (Transition, Property Change, New Artifact) has exceeded the number of Triggers it can include. Please ensure '{0}' includes 10 or fewer Triggers.";
         private const string TemplateXmlPropertyChangEventPropertyNotSpecified = "The required property for a Property Change event ‘{0}’ has not been specified.";
         private const string TemplateXmlPropertyChangeEventDuplicateProperties = "<PropertyChange> elements: There are one or more duplicate properties. Please ensure all <PropertyName> values are unique.";
@@ -117,10 +117,10 @@ namespace AdminStore.Services.Workflow
         private const string TemplateDataPropertyChangeActionUserNotFoundById = "One or more Users in Value of User Property '{0}' in a Property Change Action are not found by Id.";
         private const string TemplateDataPropertyChangeActionGroupNotFoundById = "One or more Groups in Value of User Property '{0}' in a Property Change Action are not found by Id.";
         private const string TemplateDataPropertyChangeActionNotChoicePropertyValidValuesNotApplicable = "<PropertyChangeAction> elements: The property and value types do not match. Please ensure <ValidValues> elements are used only with choice-type properties.";
-        private const string TemplateDataPropertyChangeActionNotUserPropertyUsersGroupsNotApplicable = "<PropertyChangeAction> elements: The property and value types do not match. Please ensure <UsersGroups> elements are used only used with user-type properties.";
+        private const string TemplateDataPropertyChangeActionNotUserPropertyUsersGroupsNotApplicable = "<PropertyChangeAction> elements: The property and value types do not match. Please ensure <UsersGroups> elements are used only with user-type properties.";
         private const string TemplateDataPropertyChangeActionRequiredUserPropertyPropertyValueNotApplicable = "<PropertyChangeAction> elements: The property and value types do not match. Please ensure <PropertyValue> elements are not used with user-type properties.";
         private const string TemplateDataPropertyChangeActionChoicePropertyMultipleValidValuesNotAllowed = "<PropertyChangeAction> elements: Multiple <ValidValue> child elements are provided for a choice-type property that allows only one.";
-
+        
         #region Interface Implementation
 
         public string BuildTextXmlErrors(IEnumerable<WorkflowXmlValidationError> errors, string fileName, bool isEditFileMessage = true)

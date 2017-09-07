@@ -12,7 +12,7 @@ namespace FileStore
 
         public override bool UseBufferedOutputStream(HttpResponseMessage response)
         {
-            return false;
+            return response.IsSuccessStatusCode ? false : true;
         }
     }
 }

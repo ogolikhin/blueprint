@@ -1419,7 +1419,7 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BoundaryReachedException))]
+        [ExpectedException(typeof(ConflictException))]
         public async Task CreateUser_MaxUsersLimitPerInstanceWasReached_ReturnErrorResult()
         {
             //arrange

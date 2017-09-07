@@ -532,7 +532,7 @@ namespace AdminStore.Controllers
 
             if (isUsersMaxLimitReached)
             {
-                throw new BoundaryReachedException(ErrorMessages.MaxUsersPerInstanceLimitReached);
+                throw new ConflictException(ErrorMessages.MaxUsersPerInstanceLimitReached, ErrorCodes.ExceedsLimit);
             }
 
             var databaseUser = await UsersHelper.CreateDbUserFromDtoAsync(user, OperationMode.Create, _settingsRepository);

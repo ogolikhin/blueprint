@@ -12,6 +12,7 @@
 
         // Common error codes for blueprint and blueprint-current repositories
         public const int LockedByOtherUser = 111;
+        public const int ExceedsLimit = 128;
 
         //Generic errors
         public const int BadRequest = 400;

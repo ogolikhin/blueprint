@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using BlueprintSys.RC.Services.Models;
 using BlueprintSys.RC.Services.Repositories;
+using BluePrintSys.Messaging.CrossCutting.Logging;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Exceptions;
 
@@ -8,25 +9,20 @@ namespace BlueprintSys.RC.Services.MessageHandlers
 {
     public abstract class BoundaryReachedActionHandler : MessageActionHandler
     {
-        protected override async void PreActionValidation(TenantInformation tenant, ActionMessage actionMessage,
+        protected override async Task<bool> PreActionValidation(TenantInformation tenant, ActionMessage actionMessage,
             IActionHandlerServiceRepository actionHandlerServiceRepository)
         {
             var projectContainerActionMessage = actionMessage as ProjectContainerActionMessage;
             if (projectContainerActionMessage == null)
             {
-                return;
+                return false;
             }
-            base.PreActionValidation(tenant, actionMessage, actionHandlerServiceRepository);
-            await CheckForBoundary(projectContainerActionMessage.ProjectId, actionHandlerServiceRepository);
-        }
-
-        protected async Task CheckForBoundary(int projectId, IActionHandlerServiceRepository actionHandlerServiceRepository)
-        {
-            var isBoundaryReached = await actionHandlerServiceRepository.IsBoundaryReached(projectId);
+            var isBoundaryReached = await actionHandlerServiceRepository.IsBoundaryReached(projectContainerActionMessage.ProjectId);
             if (isBoundaryReached)
             {
-                throw new BoundaryReachedException("No more artifacts can be created due to package limitation.");
+                Log.Error($"Boundary for project {projectContainerActionMessage.ProjectId} bas been reached");
             }
+            return !isBoundaryReached;
         }
     }
 }

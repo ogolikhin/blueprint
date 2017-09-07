@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using ServiceLibrary.Models.VersionControl;
 
 namespace ArtifactStore.Repositories
 {
@@ -105,7 +106,7 @@ namespace ArtifactStore.Repositories
             artifactVersionsPrm.Add("@ascd", asc);
             return await _connectionWrapper.QueryAsync<ArtifactHistoryVersion>("GetArtifactVersions", artifactVersionsPrm, commandType: CommandType.StoredProcedure);
         }
-        
+
         private async Task<IEnumerable<UserInfo>> GetUserInfos(IEnumerable<int> userIds)
         {
             var userInfosPrm = new DynamicParameters();
@@ -157,7 +158,7 @@ namespace ArtifactStore.Repositories
                     InsertDraftOrDeletedVersion(limit, offset, asc, artifactVersions, deletedVersionInfo);
                 }
             }
-            else 
+            else
             {
                 var includeDraftVersion = (await IncludeDraftVersion(userId, sessionUserId, artifactId, includeDrafts));
 
@@ -218,7 +219,7 @@ namespace ArtifactStore.Repositories
         #region GetVersionControlArtifactInfoAsync
 
         public async Task<VersionControlArtifactInfo> GetVersionControlArtifactInfoAsync(int itemId, int? baselineId, int userId)
-        {            
+        {
             DynamicParameters dynamicParameters = new DynamicParameters();
             dynamicParameters.Add("@userId", userId);
             dynamicParameters.Add("@itemId", itemId);
@@ -280,17 +281,20 @@ namespace ArtifactStore.Repositories
 
             if (baselineId != null)
             {
-                var baselineRevisionId = await _itemInfoRepository.GetRevisionId(itemId, userId, null, baselineId.Value);                
+                var baselineRevisionId = await _itemInfoRepository.GetRevisionId(itemId, userId, null, baselineId.Value);
                 var itemInfo = await _artifactPermissionsRepository.GetItemInfo(itemId, userId, false, baselineRevisionId);
                 if (itemInfo == null)
                 {
                     artifactInfo.IsNotExistsInBaseline = true;
                 }
-                artifactInfo.IsIncludedInBaseline = await IsArtifactInBaseline(artifactBasicDetails.ArtifactId, baselineId.Value, userId);                                                    
+                artifactInfo.IsIncludedInBaseline = await IsArtifactInBaseline(artifactBasicDetails.ArtifactId, baselineId.Value, userId);
             }
             return artifactInfo;
         }
 
+        
+
         #endregion GetVersionControlArtifactInfoAsync
+
     }
 }

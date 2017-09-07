@@ -1,10 +1,10 @@
-﻿using ArtifactStore.Models.Reuse;
-using ArtifactStore.Models.VersionControl;
+﻿using ArtifactStore.Models.VersionControl;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.VersionControl;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
+using ServiceLibrary.Models.Reuse;
 
 namespace ArtifactStore.Repositories.VersionControl
 {
@@ -96,7 +96,8 @@ namespace ArtifactStore.Repositories.VersionControl
                 || item.DraftParentId != item.LatestParentId
                 || item.DraftOrderIndex != item.LatestOrderIndex
                 || item.DraftDeleted
-                || item.DraftName != item.LatestName;
+                || item.DraftName != item.LatestName
+                || item.DraftWorkflowStateId != item.LatestWorkflowStateId;
         }
     }
 
@@ -116,6 +117,9 @@ namespace ArtifactStore.Repositories.VersionControl
 
         public int DraftItemTypeId { get; set; }
         public int? LatestItemTypeId { get; set; }
+
+        public int? DraftWorkflowStateId { get; set; }
+        public int? LatestWorkflowStateId { get; set; }
     }
 
     public abstract class SingleArtifactData : BaseVersionData

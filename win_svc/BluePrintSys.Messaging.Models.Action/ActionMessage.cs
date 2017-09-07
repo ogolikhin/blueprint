@@ -1,25 +1,17 @@
 ﻿using NServiceBus;
+using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Models.Workflow;
 
 namespace BluePrintSys.Messaging.Models.Actions
 {
-    public class ActionMessageHeaders
+    public abstract class ActionMessage : IMessage, IWorkflowMessage
     {
-        public const string TenantId = "TenantId";
+        public int UserId { get; set; }
+        public abstract MessageActionType ActionType { get; }
     }
 
-    [Express]
-    public abstract class ActionMessage : IMessage
+    public abstract class ProjectContainerActionMessage : ActionMessage
     {
-        protected ActionMessage() : this(0)
-        {
-        }
-
-        protected ActionMessage(int tenantId)
-        {
-            TenantId = tenantId;
-        }
-
-        public abstract MessageActionType ActionType { get; }
-        public int TenantId { get; set; }
+        public int ProjectId { get; set; }
     }
 }

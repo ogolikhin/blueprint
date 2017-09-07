@@ -1,13 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Threading.Tasks;
-using ArtifactStore.Models;
-using ArtifactStore.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Repositories.ConfigControl;
+using ServiceLibrary.Repositories.ProjectMeta;
 
 namespace ArtifactStore.Controllers
 {

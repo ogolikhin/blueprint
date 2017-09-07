@@ -14,11 +14,13 @@ namespace ServiceLibrary.LocalLog
         private FileInfo _file;
         private readonly object lockObject = new object();
 
-        public LocalFileLog()
+        public LocalFileLog() : this(ConfigurationManager.AppSettings["LocalLogFile"])
         {
-            string fileName = ConfigurationManager.AppSettings["LocalLogFile"] != null
-                ? ConfigurationManager.AppSettings["LocalLogFile"]
-                : @"C:\Log\BlueprintSys.log";
+        }
+
+        public LocalFileLog(string log)
+        {
+            string fileName = log ?? @"C:\Log\BlueprintSys.log";
             _file = new FileInfo(fileName);
         }
 

@@ -25,7 +25,7 @@ namespace ConfigControl.Controllers
                 (
                     new List<IStatusRepository>
                     {
-                        new SqlStatusRepository(SqlConfigRepository.AdminStorageDatabase, "AdminStorage")
+                        new SqlStatusRepository(SqlConfigRepository.AdminStorageDatabase, "AdminStorage", ServiceConstants.AdminStoreDBSchema)
                     },
                     "ConfigControl",
                     new ServiceLogRepository(),

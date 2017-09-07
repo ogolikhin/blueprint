@@ -1,8 +1,5 @@
 ﻿using System.Threading.Tasks;
 using ArtifactStore.Executors;
-using ArtifactStore.Repositories;
-using ArtifactStore.Repositories.Workflow;
-using ArtifactStore.Services.VersionControl;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
@@ -18,34 +15,29 @@ namespace ArtifactStore.Services.Workflow
         Task<QuerySingleResult<WorkflowState>> GetStateForArtifactAsync(int userId, int artifactId, int? versionId = null,
             bool addDrafts = true);
 
-        Task<QuerySingleResult<WorkflowState>> ChangeStateForArtifactAsync(int userId, int artifactId,
+        Task<QuerySingleResult<WorkflowState>> ChangeStateForArtifactAsync(int userId, string userName, int artifactId,
             WorkflowStateChangeParameter stateChangeParameter);
     }
 
     public class WorkflowService : IWorkflowService
     {
-        private readonly IWorkflowRepository _workflowRepository;
-        private readonly IArtifactVersionsRepository _artifactVersionsRepository;
         private readonly ISqlItemInfoRepository _itemInfoRepository;
         private readonly ISqlHelper _sqlHelper;
-        private readonly IVersionControlService _versionControlService;
+        private readonly IStateChangeExecutorRepositories _stateChangeExecutorRepositories;
 
-        public WorkflowService(IWorkflowRepository workflowRepository,
-            IArtifactVersionsRepository artifactVersionsRepository,
+        public WorkflowService(ISqlHelper sqlHelper,
             ISqlItemInfoRepository itemInfoRepository,
-            ISqlHelper sqlHelper,
-            IVersionControlService versionControlService)
+            IStateChangeExecutorRepositories stateChangeExecutorRepositories)
         {
-            _workflowRepository = workflowRepository;
-            _artifactVersionsRepository = artifactVersionsRepository;
-            _itemInfoRepository = itemInfoRepository;
             _sqlHelper = sqlHelper;
-            _versionControlService = versionControlService;
+            _itemInfoRepository = itemInfoRepository;
+            _stateChangeExecutorRepositories = stateChangeExecutorRepositories;
+
         }
 
         public async Task<WorkflowTransitionResult> GetTransitionsAsync(int userId, int artifactId, int workflowId, int stateId)
         {
-            var transitions = await _workflowRepository.GetTransitionsAsync(userId, artifactId, workflowId, stateId);
+            var transitions = await _stateChangeExecutorRepositories.WorkflowRepository.GetTransitionsAsync(userId, artifactId, workflowId, stateId);
 
             return new WorkflowTransitionResult
             {
@@ -59,7 +51,7 @@ namespace ArtifactStore.Services.Workflow
         public async Task<QuerySingleResult<WorkflowState>> GetStateForArtifactAsync(int userId, int artifactId, int? versionId = null, bool addDrafts = true)
         {
             var revisionId = await _itemInfoRepository.GetRevisionId(artifactId, userId, versionId);
-            var state = await _workflowRepository.GetStateForArtifactAsync(userId, artifactId, revisionId, addDrafts);
+            var state = await _stateChangeExecutorRepositories.WorkflowRepository.GetStateForArtifactAsync(userId, artifactId, revisionId, addDrafts);
             if (state == null || state.WorkflowId <= 0 || state.Id <= 0)
             {
                 return new QuerySingleResult<WorkflowState>
@@ -75,20 +67,18 @@ namespace ArtifactStore.Services.Workflow
             };
         }
 
-        public async Task<QuerySingleResult<WorkflowState>> ChangeStateForArtifactAsync(int userId, int artifactId, WorkflowStateChangeParameter stateChangeParameter)
+        public async Task<QuerySingleResult<WorkflowState>> ChangeStateForArtifactAsync(int userId, string userName, int artifactId, WorkflowStateChangeParameter stateChangeParameter)
         {
             //We will be getting state information and then will construct the property constraints and post operation actions over here
-            var stateChangeExecutor = new StateChangeExecutor(null,
-                null,
+            var stateChangeExecutor = new StateChangeExecutor(userId,
                 new WorkflowStateChangeParameterEx(stateChangeParameter)
                 {
-                    ArtifactId = artifactId
+                    ArtifactId = artifactId,
+                    UserName = userName
                 },
-                userId,
-                _artifactVersionsRepository,
-                _workflowRepository,
                 _sqlHelper,
-                _versionControlService);
+                _stateChangeExecutorRepositories,
+                new StateChangeExecutorHelper(_stateChangeExecutorRepositories));
 
             return await stateChangeExecutor.Execute();
         }

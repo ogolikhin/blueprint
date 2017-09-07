@@ -35,7 +35,7 @@ namespace AdminStore.Repositories
                 orderField = sort(tabularData.Sorting);
             }
 
-            if (tabularData.Search != null)
+            if (!string.IsNullOrWhiteSpace(tabularData.Search))
             {
                 tabularData.Search = UsersHelper.ReplaceWildcardCharacters(tabularData.Search);
             }
@@ -74,7 +74,7 @@ namespace AdminStore.Repositories
 
         public async Task<int> DeleteGroupsAsync(OperationScope body, string search)
         {
-            if (search != null)
+            if (!string.IsNullOrWhiteSpace(search))
             {
                 search = UsersHelper.ReplaceWildcardCharacters(search);
             }
@@ -184,7 +184,7 @@ namespace AdminStore.Repositories
                 orderField = sort(tabularData.Sorting);
             }
 
-            if (tabularData.Search != null)
+            if (!string.IsNullOrWhiteSpace(tabularData.Search))
             {
                 tabularData.Search = UsersHelper.ReplaceWildcardCharacters(tabularData.Search);
             }
@@ -281,7 +281,7 @@ namespace AdminStore.Repositories
 
         public async Task<int> AssignMembers(int groupId, AssignScope scope, string search = null)
         {
-            if (search != null)
+            if (!string.IsNullOrWhiteSpace(search))
             {
                 search = UsersHelper.ReplaceWildcardCharacters(search);
             }
@@ -309,6 +309,58 @@ namespace AdminStore.Repositories
             }
 
             return result;
+        }
+
+        public async Task<QueryResult<GroupDto>> GetProjectGroupsAsync(int projectId, TabularData tabularData,
+            Func<Sorting, string> sort = null)
+        {
+            if (projectId < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(projectId));
+            }
+
+            var orderField = string.Empty;
+            if (sort != null && tabularData.Sorting != null)
+            {
+                orderField = sort(tabularData.Sorting);
+            }
+
+            if (!string.IsNullOrWhiteSpace(tabularData.Search))
+            {
+                tabularData.Search = UsersHelper.ReplaceWildcardCharacters(tabularData.Search);
+            }
+
+            var prm = new DynamicParameters();
+            prm.Add("@projectId", projectId);
+            prm.Add("@Offset", tabularData.Pagination.Offset);
+            prm.Add("@Limit", tabularData.Pagination.Limit);
+            prm.Add("@OrderField", orderField);
+            prm.Add("@Search", tabularData.Search);
+            prm.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            prm.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var result =
+                (await
+                    _connectionWrapper.QueryAsync<Group>("GetAvailableGroupsForProject", prm,
+                        commandType: CommandType.StoredProcedure)).ToList();
+
+            var errorCode = prm.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int) SqlErrorCodes.ProjectWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.ProjectNotExist, ErrorCodes.ResourceNotFound);
+
+                }
+            }
+
+            var total = prm.Get<int?>("Total");
+
+            var queryDataResult = new QueryResult<GroupDto> {Items = GroupMapper.Map(result), Total = total ?? 0};
+
+            return queryDataResult;
         }
     }
 }

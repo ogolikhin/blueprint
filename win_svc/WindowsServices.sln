@@ -3,23 +3,23 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageRenderService", "ImageRenderService\ImageRenderService.csproj", "{D749C205-6478-4F29-AE62-425CF3525532}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlueprintSys.RC.ImageService", "BlueprintSys.RC.ImageService\BlueprintSys.RC.ImageService.csproj", "{D749C205-6478-4F29-AE62-425CF3525532}"
 	ProjectSection(ProjectDependencies) = postProject
 		{74353EB4-59E8-4F3E-A9E3-9927546970FD} = {74353EB4-59E8-4F3E-A9E3-9927546970FD}
 		{42662DE2-4604-427C-91F9-5F47AF8F1E1B} = {42662DE2-4604-427C-91F9-5F47AF8F1E1B}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageRenderService.Tests", "ImageRenderService.Tests\ImageRenderService.Tests.csproj", "{4E038D5E-8E8F-4158-A3ED-D06531BE135E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlueprintSys.RC.ImageService.Tests", "BlueprintSys.RC.ImageService.Tests\BlueprintSys.RC.ImageService.Tests.csproj", "{4E038D5E-8E8F-4158-A3ED-D06531BE135E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BluePrintSys.Messaging.Models", "BluePrintSys.Messaging.Models\BluePrintSys.Messaging.Models.csproj", "{C6352FB5-BFA5-4D67-86F8-69C8B5F95495}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ActionHandlerService", "ActionHandlerService\ActionHandlerService.csproj", "{7BC07A52-F604-48CD-ABFD-CF84BFD3C824}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlueprintSys.RC.Services", "BlueprintSys.RC.Services\BlueprintSys.RC.Services.csproj", "{7BC07A52-F604-48CD-ABFD-CF84BFD3C824}"
 	ProjectSection(ProjectDependencies) = postProject
 		{74353EB4-59E8-4F3E-A9E3-9927546970FD} = {74353EB4-59E8-4F3E-A9E3-9927546970FD}
 		{03BD78CA-0BB7-4488-A0B3-4E07CE05391F} = {03BD78CA-0BB7-4488-A0B3-4E07CE05391F}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ActionHandlerServiceTests", "ActionHandlerServiceTests\ActionHandlerServiceTests.csproj", "{7A7229B8-56B9-4996-9264-878B491A94AF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlueprintSys.RC.Services.Tests", "BlueprintSys.RC.Services.Tests\BlueprintSys.RC.Services.Tests.csproj", "{7A7229B8-56B9-4996-9264-878B491A94AF}"
 	ProjectSection(ProjectDependencies) = postProject
 		{42662DE2-4604-427C-91F9-5F47AF8F1E1B} = {42662DE2-4604-427C-91F9-5F47AF8F1E1B}
 	EndProjectSection
@@ -29,6 +29,15 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BluePrintSys.Messaging.Models.Actions", "BluePrintSys.Messaging.Models.Action\BluePrintSys.Messaging.Models.Actions.csproj", "{03BD78CA-0BB7-4488-A0B3-4E07CE05391F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BluePrintSys.Messaging.CrossCutting", "BluePrintSys.Messaging.CrossCutting\BluePrintSys.Messaging.CrossCutting.csproj", "{74353EB4-59E8-4F3E-A9E3-9927546970FD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B01C0234-2F14-40CE-9639-0ED3ED1EE1C8}"
+	ProjectSection(SolutionItems) = preProject
+		Blueprint.Common.props = Blueprint.Common.props
+		BlueprintStrongName.snk = BlueprintStrongName.snk
+		RecommendedSecurityGlobalizationAndBasicCorrectness.ruleset = RecommendedSecurityGlobalizationAndBasicCorrectness.ruleset
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{E895F8F9-1089-4EB8-BA90-BD64BDA7AA91}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -139,5 +148,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{42662DE2-4604-427C-91F9-5F47AF8F1E1B} = {E895F8F9-1089-4EB8-BA90-BD64BDA7AA91}
+		{03BD78CA-0BB7-4488-A0B3-4E07CE05391F} = {E895F8F9-1089-4EB8-BA90-BD64BDA7AA91}
+		{74353EB4-59E8-4F3E-A9E3-9927546970FD} = {E895F8F9-1089-4EB8-BA90-BD64BDA7AA91}
 	EndGlobalSection
 EndGlobal

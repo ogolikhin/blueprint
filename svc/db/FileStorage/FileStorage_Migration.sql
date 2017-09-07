@@ -63,35 +63,6 @@ IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = N'FileStore')
 EXEC sys.sp_executesql N'CREATE SCHEMA [FileStore]'
 GO
 
-
--- Create the FileStore Schema
-IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = N'FileStore')
-EXEC sys.sp_executesql N'CREATE SCHEMA [FileStore]'
-GO
-
--- Migrate tables to the FileStore schema
-IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DbVersionInfo]') AND type in (N'U'))
-ALTER SCHEMA FileStore TRANSFER [dbo].[DbVersionInfo]
-GO
-
-IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Files]') AND type in (N'U'))
-ALTER SCHEMA FileStore TRANSFER [dbo].[Files]
-GO
-
-IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[FileChunks]') AND type in (N'U'))
-ALTER SCHEMA FileStore TRANSFER [dbo].[FileChunks]
-GO
-
-IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[MigrationLog]') AND type in (N'U'))
-ALTER SCHEMA FileStore TRANSFER [dbo].[MigrationLog]
-GO
-
-IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DeleteFile]') AND type in (N'P'))
-ALTER SCHEMA FileStore TRANSFER [dbo].[DeleteFile]
-GO
-
-
-
 /******************************************************************************************************************************
 Name:			IsSchemaVersionLessOrEqual
 
@@ -101,6 +72,12 @@ Change History:
 Date			Name					Change
 
 ******************************************************************************************************************************/
+
+-- Migrate table to the FileStore schema
+IF (OBJECT_ID(N'[dbo].[DbVersionInfo]', 'U') IS NOT NULL) AND (OBJECT_ID(N'[FileStore].[DbVersionInfo]', 'U') IS NULL)
+	ALTER SCHEMA [FileStore] TRANSFER [dbo].[DbVersionInfo];
+GO
+
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[FileStore].[IsSchemaVersionLessOrEqual]') AND type in (N'FN', N'IF', N'TF', N'FS', N'FT'))
 DROP FUNCTION [FileStore].[IsSchemaVersionLessOrEqual]
 GO
@@ -147,6 +124,7 @@ THEN CAST(0 AS bit) ELSE CAST(1 AS bit) END;
 END
 
 GO
+
 /******************************************************************************************************************************
 Name:			SetSchemaVersion
 
@@ -183,6 +161,29 @@ ELSE
 	END 
 
 GO
+
+
+-- Migrate tables to the FileStore schema
+IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0)
+	AND (OBJECT_ID(N'[dbo].[Files]', 'U') IS NOT NULL) AND (OBJECT_ID(N'[FileStore].[Files]', 'U') IS NULL)
+	ALTER SCHEMA [FileStore] TRANSFER [dbo].[Files];
+GO
+
+IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0)
+	AND (OBJECT_ID(N'[dbo].[FileChunks]', 'U') IS NOT NULL) AND (OBJECT_ID(N'[FileStore].[FileChunks]', 'U') IS NULL)
+	ALTER SCHEMA [FileStore] TRANSFER [dbo].[FileChunks];
+GO
+
+IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0)
+	AND (OBJECT_ID(N'[dbo].[MigrationLog]', 'U') IS NOT NULL) AND (OBJECT_ID(N'[FileStore].[MigrationLog]', 'U') IS NULL)
+	ALTER SCHEMA [FileStore] TRANSFER [dbo].[MigrationLog];
+GO
+
+IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0)
+	AND (OBJECT_ID(N'[dbo].[DeleteFile]', 'U') IS NOT NULL) AND (OBJECT_ID(N'[FileStore].[DeleteFile]', 'U') IS NULL)
+	ALTER SCHEMA [FileStore] TRANSFER [dbo].[DeleteFile];
+GO
+
 
 
 -- --------------------------------------------------
@@ -229,6 +230,7 @@ ELSE
 	END 
 
 GO
+
 /******************************************************************************************************************************
 Name:			DeleteFile
 
@@ -609,9 +611,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=@jobname,
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 
 -- Add Step 1 - Delete expired files from FileStorage
-SET @cmd = N'
--- Delete files
-DELETE FROM [FileStore].[Files] Where ExpiredTime <= GETDATE()'
+SET @cmd = N'[FileStore].DeleteExpiredFiles'
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Delete expired files from FileStorage', 
 		@step_id=1, 
 		@cmdexec_success_code=0, 
@@ -742,72 +742,89 @@ Print 'Migrating 7.4.0.0 ...'
 -- --------------------------------------------------
 
 -- Drop all functions associated with dbo schema
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[IsSchemaVersionLessOrEqual]') AND type in (N'FN', N'IF', N'TF', N'FS', N'FT'))
-DROP FUNCTION [dbo].[IsSchemaVersionLessOrEqual]
+IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0)
+	AND (OBJECT_ID(N'[dbo].[IsSchemaVersionLessOrEqual]', 'FN') IS NOT NULL)
+	DROP FUNCTION [dbo].[IsSchemaVersionLessOrEqual];
 GO
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ValidateExpiryTime]') AND type in (N'FN', N'IF', N'TF', N'FS', N'FT'))
+IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0)
+	AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ValidateExpiryTime]') AND type in (N'FN', N'IF', N'TF', N'FS', N'FT'))
 DROP FUNCTION [dbo].[ValidateExpiryTime]
 GO
 
 -- Drop all procedures associated with dbo schema
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DeleteFile]') AND type in (N'P', N'PC'))
+IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0)
+	AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DeleteFile]') AND type in (N'P', N'PC'))
 DROP PROCEDURE [dbo].[DeleteFile]
 GO
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DeleteFileChunk]') AND type in (N'P', N'PC'))
+IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0)
+	AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DeleteFileChunk]') AND type in (N'P', N'PC'))
 DROP PROCEDURE [dbo].[DeleteFileChunk]
 GO
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetStatus]') AND type in (N'P', N'PC'))
+IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0)
+	AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetStatus]') AND type in (N'P', N'PC'))
 DROP PROCEDURE [dbo].[GetStatus]
 GO
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[HeadFile]') AND type in (N'P', N'PC'))
+IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0)
+	AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[HeadFile]') AND type in (N'P', N'PC'))
 DROP PROCEDURE [dbo].[HeadFile]
 GO
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[InsertFileChunk]') AND type in (N'P', N'PC'))
+IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0)
+	AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[InsertFileChunk]') AND type in (N'P', N'PC'))
 DROP PROCEDURE [dbo].[InsertFileChunk]
 GO
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[InsertFileHead]') AND type in (N'P', N'PC'))
+IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0)
+	AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[InsertFileHead]') AND type in (N'P', N'PC'))
 DROP PROCEDURE [dbo].[InsertFileHead]
 GO
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ReadChunkContent]') AND type in (N'P', N'PC'))
+IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0)
+	AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ReadChunkContent]') AND type in (N'P', N'PC'))
 DROP PROCEDURE [dbo].[ReadChunkContent]
 GO
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ReadFileChunk]') AND type in (N'P', N'PC'))
+IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0)
+	AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ReadFileChunk]') AND type in (N'P', N'PC'))
 DROP PROCEDURE [dbo].[ReadFileChunk]
 GO
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ReadFileHead]') AND type in (N'P', N'PC'))
+IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0)
+	AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ReadFileHead]') AND type in (N'P', N'PC'))
 DROP PROCEDURE [dbo].[ReadFileHead]
 GO
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[SetSchemaVersion]') AND type in (N'P', N'PC'))
+IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0)
+	AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[SetSchemaVersion]') AND type in (N'P', N'PC'))
 DROP PROCEDURE [dbo].[SetSchemaVersion]
 GO
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UpdateFileHead]') AND type in (N'P', N'PC'))
+IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0)
+	AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UpdateFileHead]') AND type in (N'P', N'PC'))
 DROP PROCEDURE [dbo].[UpdateFileHead]
 GO
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DeleteFile]') AND type in (N'P', N'PC'))
+IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0)
+	AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DeleteFile]') AND type in (N'P', N'PC'))
 DROP PROCEDURE [dbo].[DeleteFile]
 GO
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[SetSchemaVersion]') AND type in (N'P', N'PC'))
+IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0)
+	AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[SetSchemaVersion]') AND type in (N'P', N'PC'))
 DROP PROCEDURE [dbo].[SetSchemaVersion]
 GO
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UpdateFileHead]') AND type in (N'P', N'PC'))
+IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0)
+	AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UpdateFileHead]') AND type in (N'P', N'PC'))
 DROP PROCEDURE [dbo].[UpdateFileHead]
 GO
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[MakeFilePermanent]') AND type in (N'P', N'PC'))
+IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0)
+	AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[MakeFilePermanent]') AND type in (N'P', N'PC'))
 DROP PROCEDURE [dbo].[MakeFilePermanent]
 GO
 
@@ -844,9 +861,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=@jobname,
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 
 -- Add Step 1 - Delete expired files from FileStorage
-SET @cmd = N'
--- Delete files
-DELETE FROM [FileStore].[Files] Where ExpiredTime <= GETDATE()'
+SET @cmd = N'[FileStore].DeleteExpiredFiles'
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Delete expired files from FileStorage', 
 		@step_id=1, 
 		@cmdexec_success_code=0, 

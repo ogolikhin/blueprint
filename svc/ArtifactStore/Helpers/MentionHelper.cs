@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using ServiceLibrary.Repositories.InstanceSettings;
 
 namespace ArtifactStore.Helpers
 {
@@ -62,7 +63,7 @@ namespace ArtifactStore.Helpers
 
         private async Task<UserInfo> GetUserByEmail(string email)
         {
-            var user = (UserInfo)null;
+            UserInfo user;
             if (_usersByEmail == null)
             {
                 _usersByEmail = new Dictionary<string, UserInfo>();

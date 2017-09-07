@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace AdminStore.Models.Workflow
+﻿namespace AdminStore.Models.Workflow
 {
     public class SqlArtifactTypesWorkflowDetails
     {

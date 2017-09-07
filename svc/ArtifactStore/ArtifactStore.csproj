@@ -48,8 +48,27 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Moq">
+      <HintPath>..\..\packages\Moq.4.7.63\lib\net45\Moq.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NServiceBus.Core, Version=6.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\NServiceBus.6.3.1\lib\net452\NServiceBus.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NServiceBus.Transport.SqlServer, Version=3.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\NServiceBus.SqlServer.3.1.2\lib\net452\NServiceBus.Transport.SqlServer.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NServiceBus.Transports.RabbitMQ, Version=4.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\NServiceBus.RabbitMQ.4.3.2\lib\net452\NServiceBus.Transports.RabbitMQ.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="RabbitMQ.Client, Version=4.0.0.0, Culture=neutral, PublicKeyToken=89e7d7c5feba84ce, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\RabbitMQ.Client.4.1.3\lib\net451\RabbitMQ.Client.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Data.DataSetExtensions" />
@@ -106,37 +125,26 @@
     <Compile Include="Controllers\StatusController.cs" />
     <Compile Include="Controllers\VersionControlController.cs" />
     <Compile Include="Controllers\WorkflowController.cs" />
+    <Compile Include="Executors\IStateChangeExecutorRepositories.cs" />
+    <Compile Include="Executors\StateChangeExecutorHelper.cs" />
+    <Compile Include="Executors\StateChangeExecutorRepositories.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\MentionHelper.cs" />
-    <Compile Include="Helpers\PropertyHelper.cs" />
     <Compile Include="Helpers\SensitivityCommonHelper.cs" />
+    <Compile Include="Helpers\WorkflowEventsMessagesHelper.cs" />
     <Compile Include="Models\Review\ParticipantArtifactStats.cs" />
-    <Compile Include="Models\PropertyTypePredefinedExtension.cs" />
-    <Compile Include="Models\Reuse\ItemTypeReuseTemplate.cs" />
-    <Compile Include="Models\Reuse\PropertyTypeReuseTemplate.cs" />
-    <Compile Include="Models\Reuse\ReconcileProperty.cs" />
-    <Compile Include="Models\Reuse\ReuseSensitivityCollector.cs" />
     <Compile Include="Helpers\ReuseSystemPropertiesMap.cs" />
-    <Compile Include="Models\Reuse\ReuseTemplateSettingsMap.cs" />
-    <Compile Include="Models\Reuse\SqlItemTypeReuseTemplate.cs" />
-    <Compile Include="Models\Reuse\SqlModifiedItems.cs" />
-    <Compile Include="Models\Reuse\SqlReuseSettingsInfo.cs" />
     <Compile Include="Models\Review\ReviewArtifactApprovalResult.cs" />
+    <Compile Include="Models\Review\ReviewArtifactsQueryResult.cs" />
+    <Compile Include="Models\Review\ReviewArtifactsRemovalParams.cs" />
     <Compile Include="Models\VersionControl\PublishEnvironment.cs" />
     <Compile Include="Helpers\ReviewRawDataHelper.cs" />
     <Compile Include="Models\ArtifactHistoryResultSet.cs" />
     <Compile Include="Models\ArtifactDetailsResultSet.cs" />
     <Compile Include="Models\FilesInfo.cs" />
     <Compile Include="Models\DiscussionResultSet.cs" />
-    <Compile Include="Models\ItemType.cs" />
-    <Compile Include="Models\ProjectApprovalStatus.cs" />
-    <Compile Include="Models\ProjectSetting.cs" />
-    <Compile Include="Models\ProjectTypes.cs" />
-    <Compile Include="Models\PropertyPrimitiveType.cs" />
-    <Compile Include="Models\PropertyType.cs" />
-    <Compile Include="Models\PropertyTypePredefined.cs" />
     <Compile Include="Models\RelationshipResultSet.cs" />
     <Compile Include="Models\ReviewRelationshipResultSet.cs" />
     <Compile Include="Models\Review\AssignArtifactsApprovalParameter.cs" />
@@ -151,7 +159,6 @@
     <Compile Include="Models\Review\ReviewArtifactApprovalParameter.cs" />
     <Compile Include="Models\Review\ReviewArtifactIndex.cs" />
     <Compile Include="Models\Review\ReviewArtifactDetails.cs" />
-    <Compile Include="Models\Review\ApprovalType.cs" />
     <Compile Include="Models\Review\BaseReviewArtifact.cs" />
     <Compile Include="Models\Review\ReviewArtifactVersionNumber.cs" />
     <Compile Include="Models\Review\ReviewedArtifact.cs" />
@@ -169,28 +176,19 @@
     <Compile Include="Models\Review\ReviewType.cs" />
     <Compile Include="Models\Review\SimulationSettings.cs" />
     <Compile Include="Models\Review\ViewStateType.cs" />
-    <Compile Include="Models\VersionControlArtifactInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\IRelationshipsRepository.cs" />
     <Compile Include="Repositories\IAttachmentsRepository.cs" />
     <Compile Include="Repositories\IDiscussionsRepository.cs" />
     <Compile Include="Repositories\IArtifactVersionsRepository.cs" />
     <Compile Include="Repositories\IReviewsRepository.cs" />
-    <Compile Include="Repositories\ISqlProjectMetaRepository.cs" />
-    <Compile Include="Repositories\PropertyXml\Models\XmlCustomProperties.cs" />
-    <Compile Include="Repositories\PropertyXml\Models\XmlCustomProperty.cs" />
-    <Compile Include="Repositories\PropertyXml\Models\XmlCustomPropertyValidValue.cs" />
-    <Compile Include="Repositories\PropertyXml\XmlModelSerializer.cs" />
-    <Compile Include="Models\Reuse\SqlItemTypeInfo.cs" />
-    <Compile Include="Models\Reuse\SqlPropertyTypeInfo.cs" />
-    <Compile Include="Repositories\Reuse\SqlReuseRepository.cs" />
     <Compile Include="Repositories\Revisions\SqlRevisionRepository.cs" />
     <Compile Include="Repositories\SqlAttachmentsRepository.cs" />
     <Compile Include="Repositories\SqlArtifactVersionsRepository.cs" />
     <Compile Include="Repositories\SqlDiscussionsRepository.cs" />
-    <Compile Include="Repositories\SqlProjectMetaRepository.cs" />
     <Compile Include="Repositories\SqlRelationshipsRepository.cs" />
     <Compile Include="Repositories\SqlReviewsRepository.cs" />
+    <Compile Include="Repositories\SqlSaveArtifactRepository.cs" />
     <Compile Include="Repositories\VersionControl\ArtifactsHierarchyValidator.cs" />
     <Compile Include="Repositories\VersionControl\IPublishRepository.cs" />
     <Compile Include="Repositories\VersionControl\PublishRepositoriesContainer.cs" />
@@ -204,8 +202,6 @@
     <Compile Include="Repositories\VersionControl\SqlPublishRepositoryComposer.cs" />
     <Compile Include="Repositories\VersionControl\SqlPublishReuseProcessingRepository.cs" />
     <Compile Include="Repositories\VersionControl\SqlVersionControlRepository.cs" />
-    <Compile Include="Repositories\Workflow\IWorkflowRepository.cs" />
-    <Compile Include="Repositories\Workflow\SqlWorkflowRepository.cs" />
     <Compile Include="Executors\StateChangeExecutor.cs" />
     <Compile Include="Services\VersionControl\VersionControlService.cs" />
     <Compile Include="Services\Workflow\WorkflowService.cs" />
@@ -224,9 +220,16 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Models\Workflow\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\win_svc\BluePrintSys.Messaging.CrossCutting\BluePrintSys.Messaging.CrossCutting.csproj">
+      <Project>{74353eb4-59e8-4f3e-a9e3-9927546970fd}</Project>
+      <Name>BluePrintSys.Messaging.CrossCutting</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\win_svc\BluePrintSys.Messaging.Models.Action\BluePrintSys.Messaging.Models.Actions.csproj">
+      <Project>{03bd78ca-0bb7-4488-a0b3-4e07ce05391f}</Project>
+      <Name>BluePrintSys.Messaging.Models.Actions</Name>
+    </ProjectReference>
     <ProjectReference Include="..\lib\HtmlLibrary\HtmlLibrary.csproj">
       <Project>{fbb16370-f443-4e45-9c18-64d11239ae44}</Project>
       <Name>HtmlLibrary</Name>

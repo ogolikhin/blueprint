@@ -8,6 +8,7 @@ using ServiceLibrary.Repositories;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
+using ServiceLibrary.Models.VersionControl;
 
 namespace ArtifactStore.Controllers
 {

@@ -1,4 +1,5 @@
 ﻿using System;
+using ServiceLibrary.Models.ProjectMeta;
 
 namespace ArtifactStore.Models.Review
 {
@@ -19,6 +20,8 @@ namespace ArtifactStore.Models.Review
         /// Display name of the user published the artifact  
         /// </summary>
         public string UserDisplayName { get; set; }
+
+        public bool HasMovedProject { get; set; }
 
         private DateTime _publishedOnTimestamp;
         public DateTime PublishedOnTimestamp

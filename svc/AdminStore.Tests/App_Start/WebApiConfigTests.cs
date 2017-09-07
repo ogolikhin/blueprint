@@ -22,7 +22,7 @@ namespace AdminStore
             config.EnsureInitialized();
 
             // Assert
-            config.AssertTotalRoutes(52, "Please update asserts in WebApiConfigTests when changing routes.");
+            config.AssertTotalRoutes(70, "Please update asserts in WebApiConfigTests when changing routes.");
             config.AssertAction<ConfigController>("GetConfigSettings", HttpMethod.Get, "config/settings");
             config.AssertAction<ConfigController>("GetConfig", HttpMethod.Get, "config/config.js");
             config.AssertAction<ConfigController>("GetApplicationSettings", HttpMethod.Get, "config");
@@ -77,7 +77,22 @@ namespace AdminStore
             config.AssertAction<WorkflowController>("DeleteWorkflows", HttpMethod.Post, "/workflow/delete");
             config.AssertAction<WorkflowController>("UpdateStatus", HttpMethod.Put, "workflow/1/status");
             config.AssertAction<WorkflowController>("ExportWorkflow", HttpMethod.Get, "workflow/export/1");
-        }
+            config.AssertAction<InstanceController>("SearchFolderByName", HttpMethod.Get, "instance/foldersearch?name=test");
+            config.AssertAction<InstanceController>("DeleteInstanceFolder", HttpMethod.Delete, "instance/folders/1");
+            config.AssertAction<InstanceController>("UpdateInstanceFolder", HttpMethod.Put, "instance/folders/1");
+            config.AssertAction<WorkflowController>("UpdateWorkflowViaImport", HttpMethod.Put, "workflow/update/1");
+            config.AssertAction<InstanceController>("DeleteProject", HttpMethod.Delete, "instance/projects/1");
+            config.AssertAction<InstanceController>("GetProjectAdminPermissions", HttpMethod.Get, "instance/projects/1/privileges");
+            config.AssertAction<InstanceController>("GetProjectRolesAsync", HttpMethod.Get, "instance/projects/1/roles");
+            config.AssertAction<InstanceEmailSettingsController>("SendTestEmail", HttpMethod.Post, "instance/emailsettings/sendtestemail");
+            config.AssertAction<InstanceEmailSettingsController>("TestConnection", HttpMethod.Post, "instance/emailsettings/testconnection");
+            config.AssertAction<InstanceController>("GetProjectRoleAssignments", HttpMethod.Get, "instance/projects/1/rolesassignments");
+            config.AssertAction<InstanceController>("DeleteRoleAssignment", HttpMethod.Post, "instance/projects/1/rolesassignments/delete");
+            config.AssertAction<InstanceController>("CreateRoleAssignment", HttpMethod.Post, "instance/projects/1/rolesassignments");
+            config.AssertAction<InstanceEmailSettingsController>("GetEmailSettings", HttpMethod.Get, "instance/emailsettings");
+            config.AssertAction<InstanceController>("SearchProjectFolder", HttpMethod.Get, "instance/folderprojectsearch?offset=0&limit=20");
+            config.AssertAction<InstanceController>("UpdateRoleAssignment", HttpMethod.Put, "instance/projects/1/rolesassignments/2");
+    }
 
         [TestMethod]
         public void Register_GetAndHeadMethods_HaveNoCacheAttribute()

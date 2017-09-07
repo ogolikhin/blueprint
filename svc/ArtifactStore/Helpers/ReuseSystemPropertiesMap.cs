@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ArtifactStore.Models;
-using ArtifactStore.Models.Reuse;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.ProjectMeta;
+using ServiceLibrary.Models.Reuse;
 
 namespace ArtifactStore.Helpers
 {

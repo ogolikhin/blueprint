@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
+using ServiceLibrary.Models.ProjectMeta;
 
 namespace ArtifactStore.Models
 {

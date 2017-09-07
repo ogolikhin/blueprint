@@ -7,6 +7,7 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories.Workflow;
 
 namespace ArtifactStore.Repositories.Workflow
 {
@@ -328,9 +329,9 @@ namespace ArtifactStore.Repositories.Workflow
                  {"revisionId", 2147483647},
                  {"addDrafts", true}
             },
-             new List<SqlWorkFlowState>
+             new List<SqlWorkFlowStateInformation>
              {
-                 new SqlWorkFlowState
+                 new SqlWorkFlowStateInformation
                  {
                     WorkflowStateId = 1,
                     WorkflowStateName = "A",

@@ -14,7 +14,17 @@ namespace ServiceLibrary.Helpers.Security
         private const string Utf8EncodingSaltString = "UTF8EncodingSalt-RaptorRocks-Backend";
         private const string Utf8EncodingSaltStringSilverlight = "UTF8EncodingSalt-RaptorRocks";
 
+        public static string EncryptForSilverLight(string input)
+        {
+            return EncryptStringInternal(input, Utf8EncodingSaltStringSilverlight);
+        }
+
         public static string Encrypt(string input)
+        {
+            return EncryptStringInternal(input, Utf8EncodingSaltString);
+        }
+
+        private static string EncryptStringInternal(string input, string salt)
         {
             if (string.IsNullOrEmpty(input))
             {
@@ -24,7 +34,7 @@ namespace ServiceLibrary.Helpers.Security
             // Test data
             var data = input;
             var utfdata = Encoding.UTF8.GetBytes(data);
-            var saltBytes = Encoding.UTF8.GetBytes(Utf8EncodingSaltString);
+            var saltBytes = Encoding.UTF8.GetBytes(salt);
 
             // Our symmetric encryption algorithm
             var aes = new AesManaged();

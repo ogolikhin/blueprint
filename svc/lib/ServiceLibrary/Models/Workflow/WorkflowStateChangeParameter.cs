@@ -38,5 +38,9 @@ namespace ServiceLibrary.Models.Workflow
         public int ArtifactId { get; set; }
 
         public int RevisionId { get; set; }
+
+        public string Triggers { get; set; }
+
+        public string UserName { get; set; }
     }
 }

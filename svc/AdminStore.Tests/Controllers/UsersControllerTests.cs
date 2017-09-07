@@ -334,6 +334,76 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
+        public async Task PostReset_InvalidLogin_ReturnsBadRequest()
+        {
+            // Arrange
+            Exception exception = null;
+            var newPass = SystemEncryptions.EncodeTo64UTF8("123EWQ!@#");
+            var oldPass = SystemEncryptions.EncodeTo64UTF8("changeme");
+
+            // Act
+            try
+            {
+                await _controller.PostReset("ZAP%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s\n", 
+                    new ResetPostContent { NewPass = newPass, OldPass = oldPass });
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(BadRequestException));
+        }
+
+        [TestMethod]
+        public async Task PostReset_InvalidOldPass_ReturnsBadRequest()
+        {
+            // Arrange
+            Exception exception = null;
+            var newPass = SystemEncryptions.EncodeTo64UTF8("123EWQ!@#");
+
+            // Act
+            try
+            {
+                await _controller.PostReset(SystemEncryptions.EncodeTo64UTF8("admin"), 
+                    new ResetPostContent { NewPass = newPass, OldPass = "ZAP%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s\n" });
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(BadRequestException));
+        }
+
+        [TestMethod]
+        public async Task PostReset_InvalidNewPass_ReturnsBadRequest()
+        {
+            // Arrange
+            Exception exception = null;
+            var oldPass = SystemEncryptions.EncodeTo64UTF8("changeme");
+
+            // Act
+            try
+            {
+                await _controller.PostReset(SystemEncryptions.EncodeTo64UTF8("admin"), 
+                    new ResetPostContent { NewPass = "ZAP%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s\n", OldPass = oldPass });
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(BadRequestException));
+        }
+
+        [TestMethod]
         public async Task PostReset_RepositoryReturnsNull_UnauthorizedResult()
         {
             // Arrange

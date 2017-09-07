@@ -79,8 +79,43 @@
         public static readonly string InvalidDeleteWorkflowsParameters = "Invalid parameters to delete workflows";
         public static readonly string GeneralErrorOfDeletingWorkflows = "An error has occurred when performed workflows (s) deletion operation";
         //Folder
-        public static readonly string FolderWithSuchNameExistsInParentFolder = "Folder with the same name already exists in the parent folder.";
-        public static readonly string FolderModelIsEmpty = "The folder model is empty.";
+        public static readonly string FolderWithSuchNameExistsInParentFolder = "A folder with the same name already exists in the parent folder. Please use a different name.";
+        public static readonly string ModelIsEmpty = "The body of the call is malformed or has invalid parameter.";
         public static readonly string FolderNameLimitation = "Please enter a name between 1 and 128 characters.";
+        public static readonly string ErrorOfDeletingFolderThatContainsChildrenItems = "The Folder cannot be deleted as it contains Projects and/or Folders.";
+        public static readonly string FolderNotExist = "The folder with current folderId doesn't exist or removed from the system.";
+        public static readonly string WorkflowImportErrorsNotFound = "The workflow import errors for GUID={0} are not found.";
+        public static readonly string ParentFolderNotExists = "The parent folder with current id does not exist.";
+        public static readonly string GeneralErrorOfCreatingFolder = "An error has occurred when the operation was being performed at SQL level.";
+        public static readonly string GeneralErrorOfUpdatingFolder = "An error has occurred when the operation was being performed at SQL level.";
+        public static readonly string FolderReferenceToItself = "The folder cannot be placed into itself. Please select a different location.";
+        public static readonly string ParentFolderIdReferenceToDescendantItem = "The parent folder cannot be placed into its descendant. Please select a different location.";
+        public static readonly string EditRootFolderIsForbidden = "Root folder cannot be edited.";
+        //Project
+        public static readonly string ProjectNameLimitation = "Please enter a name between 1 and 128 characters.";
+        public static readonly string LocationIsRequired = "Please select a location.";
+        public static readonly string GeneralErrorOfUpdatingProject = "An error has occurred when the operation was being performed at SQL level.";
+        public static readonly string ProjectNotExist = "The project with the current id doesn't exist or removed from the system.";
+        public static readonly string ProjectWithSuchNameExistsInParentFolder = "A project with the same name already exists in the parent folder. Please use a different name.";
+        public static readonly string ProjectWasDeletedByAnotherUser = "Project with ID:{0}({1}) was deleted by another user!";
+        public static readonly string ForbidToPurgeSystemInstanceProjectForInternalUseOnly = "Could not purge project because it is a system instance project for internal use only and without it database is corrupted. Purge project aborted for projectId {0}.";
+        public static readonly string ArtifactWasMovedToAnotherProject = "Could not purge project because an artifact was moved to another project and we cannot reliably purge it without corrupting the other project.  PurgeProject aborted for projectId  {0}.";
+        public static readonly string UnhandledStatusOfProject = "Unhandled case for ProjectStatus: {0}";
+        public static readonly string PrivilegesForProjectNotExist = "User privileges for project (Id:{0}) is not found.";
+        //Roles
+        public static readonly string RolesForProjectNotExist = "Roles for the requested project are missing";
+        public static readonly string InvalidDeleteRoleAssignmentsParameters = "Invalid parameters to delete role assignments.";
+        public static readonly string GeneralErrorOfDeletingRoleAssignments = "An error has occurred when the operation was being performed at SQL level.";
+        public static readonly string GeneralErrorOfUpdatingRoleAssignment = "An error has occurred when the operation of role assignment update was being performed at SQL level.";
+        public static readonly string RoleNameIsRequiredField = "Please enter a Role Name.";
+        public static readonly string GroupIsRequiredField = "Please select a Group.";
+        public static readonly string GroupIsNotFound = "The group with the current id is not found on the instance and project levels.";
+        public static readonly string RoleIsNotFound = "The role with the current id is not found in the project's roles.";
+        public static readonly string RoleAssignmentAlreadyExists = "Project Role Assignment already exists. You cannot add duplicate assignments.";
+        public static readonly string RoleAssignmentNotFound = "Project Role Assignment with the current id is not found.";
+
+        //Artifacts
+        public static readonly string ArtifactIdsNotValid = "Please provide valid artifact ids";
+
     }
 }

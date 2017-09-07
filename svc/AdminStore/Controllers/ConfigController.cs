@@ -1,11 +1,13 @@
 ﻿using AdminStore.Models;
 using AdminStore.Repositories;
+using Newtonsoft.Json;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using ServiceLibrary.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +17,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using ServiceLibrary.Repositories.ApplicationSettings;
 
 namespace AdminStore.Controllers
 {
@@ -27,6 +30,7 @@ namespace AdminStore.Controllers
         private readonly ISqlSettingsRepository _settingsRepository;
         private readonly IUserRepository _userRepository;
         private readonly IHttpClientProvider _httpClientProvider;
+        private readonly IFeaturesService _featuresService;
 
         public override string LogSource => WebApiConfig.LogSourceConfig;
 
@@ -35,6 +39,7 @@ namespace AdminStore.Controllers
                 new ApplicationSettingsRepository(),
                 new SqlSettingsRepository(),
                 new SqlUserRepository(),
+                new FeaturesService(),
                 new HttpClientProvider(),
                 new ServiceLogRepository()
             )
@@ -46,6 +51,7 @@ namespace AdminStore.Controllers
             IApplicationSettingsRepository applicationSettingsRepository,
             ISqlSettingsRepository settingsRepository,
             IUserRepository userRepository,
+            IFeaturesService featuresService,
             IHttpClientProvider httpClientProvider,
             IServiceLogRepository log
         ) : base(log)
@@ -53,6 +59,7 @@ namespace AdminStore.Controllers
             _applicationSettingsRepository = applicationSettingsRepository;
             _settingsRepository = settingsRepository;
             _userRepository = userRepository;
+            _featuresService = featuresService;
             _httpClientProvider = httpClientProvider;
         }
 
@@ -98,8 +105,11 @@ namespace AdminStore.Controllers
         public async Task<IHttpActionResult> GetApplicationSettings()
         {
             var settings = (await _applicationSettingsRepository.GetSettingsAsync(true)).ToDictionary(it => it.Key, it => it.Value);
+            var features = await _featuresService.GetFeaturesAsync();
+            settings["Features"] = JsonConvert.SerializeObject(features, Formatting.None);
 
-            return Ok(settings);
+            var response = Request.CreateResponse(HttpStatusCode.OK, settings, Configuration.Formatters.JsonFormatter);
+            return ResponseMessage(response);
         }
 
         /// <summary>
@@ -148,6 +158,8 @@ namespace AdminStore.Controllers
         public async Task<IHttpActionResult> GetConfig()
         {
             var settings = (await _applicationSettingsRepository.GetSettingsAsync(true)).ToDictionary(it => it.Key, it => it.Value);
+            var features = await _featuresService.GetFeaturesAsync();
+            settings["Features"] = JsonConvert.SerializeObject(features, Formatting.None);
 
             var script = "(function (window) {\n" +
                 "    if (!window.config) {\n" +

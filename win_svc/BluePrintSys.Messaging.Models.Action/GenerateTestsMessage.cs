@@ -1,18 +1,21 @@
-﻿using NServiceBus;
+﻿using ServiceLibrary.Models.Enums;
 
 namespace BluePrintSys.Messaging.Models.Actions
 {
-    [Express]
     public class GenerateTestsMessage : ActionMessage
     {
-        public GenerateTestsMessage()
-        {
-        }
-
-        public GenerateTestsMessage(int tenantId) : base(tenantId)
-        {
-        }
-
         public override MessageActionType ActionType { get; } = MessageActionType.GenerateTests;
+
+        public int ArtifactId { get; set; }
+
+        public int RevisionId { get; set; }
+
+        public int ProjectId { get; set; }
+
+        public string ProjectName { get; set; }
+
+        public string UserName { get; set; }
+
+        public string BaseHostUri { get; set; }
     }
 }

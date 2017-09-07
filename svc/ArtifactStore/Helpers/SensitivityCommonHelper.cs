@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ArtifactStore.Models;
-using ArtifactStore.Models.Reuse;
-using ArtifactStore.Repositories.Reuse;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Models.ProjectMeta;
+using ServiceLibrary.Models.Reuse;
+using ServiceLibrary.Repositories.Reuse;
 
 namespace ArtifactStore.Helpers
 {

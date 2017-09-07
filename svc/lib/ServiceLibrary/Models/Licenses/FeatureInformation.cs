@@ -7,7 +7,7 @@ namespace ServiceLibrary.Models.Licenses
 {
     public class FeatureInformation
     {
-        private static readonly Dictionary<string, FeatureTypes> Features = new Dictionary<string, FeatureTypes>
+        public static Dictionary<string, FeatureTypes> Features = new Dictionary<string, FeatureTypes>
         {
             {"HP ALM Adapter", FeatureTypes.HewlettPackardQCIntegration},
             {"Microsoft TFS Adapter", FeatureTypes.MicrosoftTfsIntegration},
@@ -38,7 +38,11 @@ namespace ServiceLibrary.Models.Licenses
 
         public FeatureTypes GetFeatureType()
         {
-            return Features[FeatureName];
+            if (Features.ContainsKey(FeatureName))
+            {
+                return Features[FeatureName];
+            }
+            return FeatureTypes.None;
         }
 
         public FeatureLicenseStatus GetStatus()

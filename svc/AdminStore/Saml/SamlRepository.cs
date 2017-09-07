@@ -72,9 +72,16 @@ namespace AdminStore.Saml
             var sr = new StringReader(samlXml);
             using (var reader = XmlReader.Create(sr))
             {
-                if (!reader.ReadToFollowing("Assertion", "urn:oasis:names:tc:SAML:2.0:assertion"))
+                try
                 {
-                    return null;
+                    if (!reader.ReadToFollowing("Assertion", "urn:oasis:names:tc:SAML:2.0:assertion"))
+                    {
+                        return null;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new FederatedAuthenticationException("Cannot read token", FederatedAuthenticationErrorCode.WrongFormat, ex);
                 }
                 // Deserialize the token so that data can be taken from it and plugged into the RSTR
                 var collection = SecurityTokenHandlerCollection.CreateDefaultSecurityTokenHandlerCollection();

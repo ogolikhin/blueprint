@@ -31,5 +31,18 @@ namespace AdminStore.Helpers
                 throw new AuthorizationException(ErrorMessages.UserDoesNotHavePermissions, ErrorCodes.Forbidden);
             }
         }
+
+        public async Task DemandAny(int userId, int projectId, InstanceAdminPrivileges instancePrivileges, ProjectAdminPrivileges projectPrivileges)
+        {
+            var instancePermissions = await _privilegeRepository.GetInstanceAdminPrivilegesAsync(userId);
+            if (!instancePermissions.HasFlag(instancePrivileges))
+            {
+                var projectPermissions = await _privilegeRepository.GetProjectAdminPermissionsAsync(userId, projectId);
+                if (!projectPermissions.HasFlag(projectPrivileges))
+                {
+                    throw new AuthorizationException(ErrorMessages.UserDoesNotHavePermissions, ErrorCodes.Forbidden);
+                }
+            }          
+        }
     }
 }

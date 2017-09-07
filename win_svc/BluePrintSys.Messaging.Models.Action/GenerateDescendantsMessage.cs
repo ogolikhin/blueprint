@@ -1,18 +1,25 @@
-﻿using NServiceBus;
+﻿using ServiceLibrary.Models.Enums;
 
 namespace BluePrintSys.Messaging.Models.Actions
 {
-    [Express]
-    public class GenerateDescendantsMessage : ActionMessage
+    public class GenerateDescendantsMessage : ProjectContainerActionMessage
     {
-        public GenerateDescendantsMessage()
-        {
-        }
+        public override MessageActionType ActionType { get; } = MessageActionType.GenerateChildren;
 
-        public GenerateDescendantsMessage(int tenantId) : base(tenantId)
-        {
-        }
+        public int ChildCount { get; set; } = 10;
 
-        public override MessageActionType ActionType { get; } = MessageActionType.GenerateDescendants;
+        public int? DesiredArtifactTypeId { get; set; }
+
+        public int RevisionId { get; set; }
+
+        public int ArtifactId { get; set; }
+
+        public int TypePredefined { get; set; }
+
+        public string ProjectName { get; set; }
+
+        public string UserName { get; set; }
+
+        public string BaseHostUri { get; set; }
     }
 }

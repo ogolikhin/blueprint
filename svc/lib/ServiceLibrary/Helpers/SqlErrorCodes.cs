@@ -16,5 +16,15 @@
         GroupAlreadyAssignedToTheGroup = 50010,
         CurrentProjectIsNotExist = 50011,
         FolderWithSuchNameExistsInParentFolder = 50012,
+        InstanceFolderContainsChildrenItems = 50013,
+        ParentFolderNotExists = 50014,
+        FolderWithCurrentIdNotExist = 50015,
+        ProjectWithCurrentIdNotExist = 50016,
+        ProjectWithSuchNameExistsInParentFolder = 50017,
+        ParentFolderIdReferenceToDescendantItem = 50018,
+        EditRootFolderIsForbidden = 50019,
+        RolesForProjectNotExist = 50020,
+        RoleAssignmentAlreadyExists = 50021,
+        RoleAssignmentNotExists = 50022
     }
 }

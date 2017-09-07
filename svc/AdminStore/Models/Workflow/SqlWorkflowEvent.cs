@@ -4,7 +4,7 @@
     {
         public int VersionId { get; set; }
 
-        public int TriggerId { get; set; }
+        public int WorkflowEventId { get; set; }
 
         public int? WorkflowId { get; set; }
 
@@ -33,6 +33,6 @@
     {
         Transition = 0,
         PropertyChange = 1,
-        NewArtifacr = 2
+        NewArtifact = 2
     }
 }

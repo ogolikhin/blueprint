@@ -70,14 +70,6 @@ namespace AdminStore.Repositories
             return (await _connectionWrapper.QueryAsync<UserIcon>("GetUserIconByUserId", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
 
-        public async Task<IEnumerable<SqlGroup>> GetExistingInstanceGroupsByNames(IEnumerable<string> groupNames)
-        {
-            var prm = new DynamicParameters();
-            prm.Add("@groupNames", SqlConnectionWrapper.ToStringDataTable(groupNames));
-
-            return await _connectionWrapper.QueryAsync<SqlGroup>("GetExistingInstanceGroupsByNames", prm, commandType: CommandType.StoredProcedure);
-        }
-
         public async Task<IEnumerable<LicenseTransactionUser>> GetLicenseTransactionUserInfoAsync(IEnumerable<int> userIds)
         {
             var prm = new DynamicParameters();
@@ -141,7 +133,7 @@ namespace AdminStore.Repositories
             var prm = new DynamicParameters();
             prm.Add("@login", login);
             prm.Add("@recoverytoken", recoveryToken);
-            await _adminStorageConnectionWrapper.QueryAsync<int>("SetUserPasswordRecoveryToken", prm, commandType: CommandType.StoredProcedure);
+            await _adminStorageConnectionWrapper.QueryAsync<int>("[AdminStore].SetUserPasswordRecoveryToken", prm, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<IEnumerable<PasswordRecoveryToken>> GetPasswordRecoveryTokensAsync(Guid token)
@@ -149,7 +141,7 @@ namespace AdminStore.Repositories
             var prm = new DynamicParameters();
             prm.Add("@token", token);
 
-            return await _adminStorageConnectionWrapper.QueryAsync<PasswordRecoveryToken>("GetUserPasswordRecoveryTokens", prm, commandType: CommandType.StoredProcedure);
+            return await _adminStorageConnectionWrapper.QueryAsync<PasswordRecoveryToken>("[AdminStore].GetUserPasswordRecoveryTokens", prm, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<QueryResult<UserDto>> GetUsersAsync(Pagination pagination, Sorting sorting = null, string search = null, Func<Sorting, string> sort = null)
@@ -160,7 +152,7 @@ namespace AdminStore.Repositories
                 orderField = sort(sorting);
             }
 
-            if (search != null)
+            if (!string.IsNullOrWhiteSpace(search))
             {
                 search = UsersHelper.ReplaceWildcardCharacters(search);
             }
@@ -214,7 +206,7 @@ namespace AdminStore.Repositories
 
             var prm = new DynamicParameters();
             prm.Add("@login", login);
-            var result = (await _adminStorageConnectionWrapper.QueryAsync<int>("GetUserPasswordRecoveryRequestCount", prm, commandType: CommandType.StoredProcedure));
+            var result = (await _adminStorageConnectionWrapper.QueryAsync<int>("[AdminStore].GetUserPasswordRecoveryRequestCount", prm, commandType: CommandType.StoredProcedure));
 
             return result.FirstOrDefault() >= passwordRequestLimit;
         }
@@ -267,9 +259,9 @@ namespace AdminStore.Repositories
             return userId;
         }
 
-        public async Task<int> DeleteUsers(OperationScope scope, string search, int sessionUserId)
+        public async Task<int> DeleteUsersAsync(OperationScope scope, string search, int sessionUserId)
         {
-            if (search != null)
+            if (!string.IsNullOrWhiteSpace(search))
             {
                 search = UsersHelper.ReplaceWildcardCharacters(search);
             }
@@ -356,6 +348,11 @@ namespace AdminStore.Repositories
                 orderField = sort(tabularData.Sorting);
             }
 
+            if (!string.IsNullOrWhiteSpace(tabularData.Search))
+            {
+                tabularData.Search = UsersHelper.ReplaceWildcardCharacters(tabularData.Search);
+            }
+
             var parameters = new DynamicParameters();
             parameters.Add("@UserId", userId);
             parameters.Add("@Offset", tabularData.Pagination.Offset);
@@ -394,6 +391,11 @@ namespace AdminStore.Repositories
 
         public async Task<int> AddUserToGroupsAsync(int userId, OperationScope body, string search)
         {
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                search = UsersHelper.ReplaceWildcardCharacters(search);
+            }
+
             var parameters = new DynamicParameters();
             parameters.Add("@UserId", userId);
             parameters.Add("@GroupMembership", SqlConnectionWrapper.ToDataTable(body.Ids, "Int32Collection", "Int32Value"));

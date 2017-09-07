@@ -1,6 +1,7 @@
 ﻿using ArtifactStore.Models;
 using ServiceLibrary.Models;
 using System.Threading.Tasks;
+using ServiceLibrary.Models.VersionControl;
 
 namespace ArtifactStore.Repositories
 {

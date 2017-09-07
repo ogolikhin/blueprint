@@ -2,8 +2,10 @@
 
 namespace AdminStore.Models.Workflow
 {
+    // !!! Updating of this class requires regenerating of the xml schema IeWorkflow.xsd is required, see below:
+    // !!! xsd.exe AdminStore.dll /t:IeWorkflow
     [XmlType("State")]
-    public class IeState
+    public class IeState : IIeWorkflowEntityWithId
     {
         // Optional, not used for the import, will be used for the update
         //========================================================
@@ -44,5 +46,38 @@ namespace AdminStore.Models.Workflow
             return IsInitial.HasValue;
         }
         //========================================================
+
+        [XmlIgnore]
+        public float OrderIndex { get; set; }
+
+        #region Generated and modified Equals and GetHashCode methods
+
+        // At least for now, OrderIndex is not used in Equals and GetHashCode methods.
+
+        protected bool Equals(IeState other)
+        {
+            return Id.GetValueOrDefault() == other.Id.GetValueOrDefault() && string.Equals(Name, other.Name) && IsInitial.GetValueOrDefault() == other.IsInitial.GetValueOrDefault();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((IeState) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = Id.GetHashCode();
+                hashCode = (hashCode*397) ^ (Name != null ? Name.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ IsInitial.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        #endregion
     }
 }

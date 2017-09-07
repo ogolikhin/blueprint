@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Web.Http;
+using BluePrintSys.Messaging.CrossCutting.Helpers;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Swagger;
 
@@ -26,6 +27,11 @@ namespace ArtifactStore
             var xmlFormatter = GlobalConfiguration.Configuration.Formatters.XmlFormatter;
             ServerHelper.UpdateResponseWithError(Request, Response, jsonFormatter, xmlFormatter, ex.Message);
             Server.ClearError();
+        }
+
+        protected void Application_End(object sender, EventArgs e)
+        {
+            WorkflowMessagingProcessor.Shutdown();
         }
     }
 }

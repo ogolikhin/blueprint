@@ -22,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,6 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -38,7 +40,8 @@
     <DebugType>full</DebugType>
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>
+    </CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -47,7 +50,8 @@
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>
+    </CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Dapper.StrongName, Version=1.50.2.0, Culture=neutral, PublicKeyToken=e3e8412083d25dd3, processorArchitecture=MSIL">
@@ -115,9 +119,13 @@
     <Compile Include="Exceptions\AuthenticationException.cs" />
     <Compile Include="Exceptions\AuthorizationException.cs" />
     <Compile Include="Exceptions\BadRequestException.cs" />
+    <Compile Include="Exceptions\BoundaryReachedException.cs" />
     <Compile Include="Exceptions\ConflictException.cs" />
     <Compile Include="Exceptions\ExceptionWithErrorCode.cs" />
+    <Compile Include="Exceptions\InvalidConnectionStringException.cs" />
     <Compile Include="Exceptions\ResourceNotFoundException.cs" />
+    <Compile Include="Exceptions\TenantInfoNotFoundException.cs" />
+    <Compile Include="Helpers\AppSettingsHelper.cs" />
     <Compile Include="Helpers\CollectionHelper.cs" />
     <Compile Include="Helpers\FeatureLicenseHelper.cs" />
     <Compile Include="Helpers\CacheHelper.cs" />
@@ -132,6 +140,8 @@
     <Compile Include="Helpers\ImageHelper.cs" />
     <Compile Include="Helpers\ISqlHelper.cs" />
     <Compile Include="Helpers\ItemTypePredefinedExtension.cs" />
+    <Compile Include="Helpers\ProcessInfoMapper.cs" />
+    <Compile Include="Helpers\PropertyHelper.cs" />
     <Compile Include="Helpers\RemoveSecurityRelatedHeadersHttpModule.cs" />
     <Compile Include="Helpers\Security\SystemEncryptions.cs" />
     <Compile Include="Helpers\SerializationHelper.cs" />
@@ -149,9 +159,16 @@
     <Compile Include="Helpers\LogHelper.cs" />
     <Compile Include="Helpers\I18NHelper.cs" />
     <Compile Include="Helpers\TimeProvider.cs" />
+    <Compile Include="Helpers\UserManagementHelper.cs" />
+    <Compile Include="Models\PropertyType\ChoicePropertyValidator.cs" />
+    <Compile Include="Helpers\Validators\EmailValidator.cs" />
+    <Compile Include="Helpers\Validators\IPropertyValidator.cs" />
+    <Compile Include="Helpers\Validators\ReusePropertyValidator.cs" />
+    <Compile Include="Helpers\Validators\ValidationContext.cs" />
     <Compile Include="LocalLog\ILocalLog.cs" />
     <Compile Include="LocalLog\LocalEventLog.cs" />
     <Compile Include="LocalLog\LocalFileLog.cs" />
+    <Compile Include="Models\ApplicationSettings\TenantInfo.cs" />
     <Compile Include="Models\ApplicationSettings\ApplicationSettings.cs" />
     <Compile Include="Models\Artifact.cs" />
     <Compile Include="Models\ArtifactBasicDetails.cs" />
@@ -159,13 +176,22 @@
     <Compile Include="Models\ArtifactsNavigationPath.cs" />
     <Compile Include="Models\ArtifactVersion.cs" />
     <Compile Include="Models\AuthorHistory.cs" />
+    <Compile Include="Models\RoleAssignmentDTO.cs" />
+    <Compile Include="Models\EmailConfigInstanceSettings.cs" />
+    <Compile Include="Models\Email\BaseEmailServerConfiguration.cs" />
     <Compile Include="Models\BaselineInfo.cs" />
     <Compile Include="Models\ClientLogModel.cs" />
+    <Compile Include="Models\Email\Message.cs" />
     <Compile Include="Models\Enums\FeatureLicenseStatus.cs" />
     <Compile Include="Models\Enums\FeatureTypes.cs" />
     <Compile Include="Models\Enums\ActionType.cs" />
     <Compile Include="Models\Enums\ElementType.cs" />
     <Compile Include="Models\Enums\GenerateActionTypes.cs" />
+    <Compile Include="Models\Enums\ProcessType.cs" />
+    <Compile Include="Models\Enums\SendEmailResult.cs" />
+    <Compile Include="Models\Enums\TransitionType.cs" />
+    <Compile Include="Models\Enums\MessageActionType.cs" />
+    <Compile Include="Models\EventCondition.cs" />
     <Compile Include="Models\InstanceAdminPrivileges.cs" />
     <Compile Include="Models\Enums\ItemTypePredefined.cs" />
     <Compile Include="Models\Enums\ItemTypeReuseTemplateSetting.cs" />
@@ -178,16 +204,17 @@
     <Compile Include="Models\Enums\UserType.cs" />
     <Compile Include="Models\Files\File.cs" />
     <Compile Include="Models\Files\FileInfo.cs" />
-    <Compile Include="Models\IAction.cs" />
     <Compile Include="Models\IConstraint.cs" />
+    <Compile Include="Models\InstanceSettings.cs" />
     <Compile Include="Models\InstanceSettings\EmailSettings.cs" />
     <Compile Include="Models\Interfaces\IArtifact.cs" />
     <Compile Include="Models\Item.cs" />
     <Compile Include="Models\ItemDetails.cs" />
     <Compile Include="Models\ItemInfo.cs" />
-    <Compile Include="Models\IWorkflowEvent.cs" />
+    <Compile Include="Models\ItemType\SqlItemType.cs" />
     <Compile Include="Models\Jobs\AddJobResult.cs" />
     <Compile Include="Models\Jobs\DJobMessage.cs" />
+    <Compile Include="Models\Jobs\GenerateDescendantsInfo.cs" />
     <Compile Include="Models\Jobs\JobInfo.cs" />
     <Compile Include="Models\Jobs\ProcessTestGenerationRequest.cs" />
     <Compile Include="Models\Jobs\ProcessTestGenTaskResult.cs" />
@@ -202,14 +229,55 @@
     <Compile Include="Models\Pagination.cs" />
     <Compile Include="Models\PaginationExtensions.cs" />
     <Compile Include="Models\PermissionsItem.cs" />
+    <Compile Include="Models\ProcessInfo.cs" />
+    <Compile Include="Models\ProcessInfoDto.cs" />
+    <Compile Include="Models\ProjectAdminPrivileges.cs" />
+    <Compile Include="Models\ProjectMeta\ApprovalType.cs" />
+    <Compile Include="Models\ProjectMeta\ItemType.cs" />
+    <Compile Include="Models\ProjectMeta\ProjectApprovalStatus.cs" />
+    <Compile Include="Models\ProjectMeta\ProjectSetting.cs" />
+    <Compile Include="Models\ProjectMeta\ProjectTypes.cs" />
+    <Compile Include="Models\ProjectMeta\PropertyPrimitiveType.cs" />
+    <Compile Include="Models\ProjectMeta\PropertyType.cs" />
+    <Compile Include="Models\ProjectMeta\PropertyTypePredefined.cs" />
+    <Compile Include="Models\ProjectMeta\PropertyTypePredefinedExtension.cs" />
     <Compile Include="Models\ProjectNameIdPair.cs" />
     <Compile Include="Models\ProjectPermissions.cs" />
+    <Compile Include="Models\PropertyType\ChoicePropertyType.cs" />
+    <Compile Include="Models\PropertyType\DatePropertyValidator.cs" />
+    <Compile Include="Models\PropertyType\DatePropertyType.cs" />
+    <Compile Include="Models\PropertyType\NumberPropertyType.cs" />
+    <Compile Include="Models\PropertyType\TextPropertyType.cs" />
+    <Compile Include="Models\PropertyType\TextPropertyValidator.cs" />
+    <Compile Include="Models\PropertyType\WorkflowPropertyType.cs" />
+    <Compile Include="Models\PropertyType\UserPropertyType.cs" />
+    <Compile Include="Models\PropertyType\NumberPropertyValidator.cs" />
+    <Compile Include="Models\PropertyType\PropertyLite.cs" />
+    <Compile Include="Models\PropertyType\PropertySetResult.cs" />
+    <Compile Include="Models\PropertyType\PropertyValidator.cs" />
+    <Compile Include="Models\PropertyType\SqlPropertyType.cs" />
+    <Compile Include="Models\PropertyType\UserPropertyValidator.cs" />
     <Compile Include="Models\QueryResult.cs" />
     <Compile Include="Models\QuerySingleResult.cs" />
+    <Compile Include="Models\Range.cs" />
+    <Compile Include="Models\Reuse\ItemTypeReuseTemplate.cs" />
+    <Compile Include="Models\Reuse\PropertyTypeReuseTemplate.cs" />
+    <Compile Include="Models\Reuse\ReconcileProperty.cs" />
+    <Compile Include="Models\Reuse\ReuseSensitivityCollector.cs" />
+    <Compile Include="Models\Reuse\ReuseTemplateSettingsMap.cs" />
+    <Compile Include="Models\Reuse\SqlItemTypeInfo.cs" />
+    <Compile Include="Models\Reuse\SqlItemTypeReuseTemplate.cs" />
+    <Compile Include="Models\Reuse\SqlModifiedItems.cs" />
+    <Compile Include="Models\Reuse\SqlPropertyTypeInfo.cs" />
+    <Compile Include="Models\Reuse\SqlReuseSettingsInfo.cs" />
+    <Compile Include="Models\RoleAssignmentQueryResult.cs" />
     <Compile Include="Models\RolePermissions.cs" />
+    <Compile Include="Models\Email\SMTPClientConfiguration.cs" />
     <Compile Include="Models\Sorting.cs" />
+    <Compile Include="Models\SqlGroup.cs" />
     <Compile Include="Models\SQLTraceLogModel.cs" />
     <Compile Include="Models\PerformanceLogModel.cs" />
+    <Compile Include="Models\SqlUser.cs" />
     <Compile Include="Models\StandardLogModel.cs" />
     <Compile Include="Models\CLogModel.cs" />
     <Compile Include="Models\LicenseInfo.cs" />
@@ -219,9 +287,11 @@
     <Compile Include="Models\Session.cs" />
     <Compile Include="Helpers\ILoggable.cs" />
     <Compile Include="Models\SubArtifact.cs" />
-    <Compile Include="Models\TransactionalTriggerExecutor.cs" />
     <Compile Include="Models\UserGroup.cs" />
     <Compile Include="Models\UserInfo.cs" />
+    <Compile Include="Models\VersionControl\IBaseArtifactVersionControlInfo.cs" />
+    <Compile Include="Models\VersionControl\ISaveArtifactRepository.cs" />
+    <Compile Include="Helpers\Validators\IValidationContext.cs" />
     <Compile Include="Models\VersionControl\PublishParameters.cs" />
     <Compile Include="Models\VersionControl\SqlDiscardPublishDetails.cs" />
     <Compile Include="Models\VersionControl\SqlDiscardPublishDetailsResult.cs" />
@@ -230,12 +300,44 @@
     <Compile Include="Models\VersionControl\SqlItemInfo.cs" />
     <Compile Include="Models\VersionControl\SqlJournalEntry.cs" />
     <Compile Include="Models\VersionControl\SqlPublishResult.cs" />
-    <Compile Include="Models\Workflow\Workflow.cs" />
+    <Compile Include="Models\VersionControl\VersionControlArtifactInfo.cs" />
+    <Compile Include="Models\Workflow\Actions\EmailNotificationAction.cs" />
+    <Compile Include="Models\Workflow\Actions\GenerateAction.cs" />
+    <Compile Include="Models\Workflow\Actions\GenerateChildrenAction.cs" />
+    <Compile Include="Models\Workflow\Actions\GenerateTestCasesAction.cs" />
+    <Compile Include="Models\Workflow\Actions\GenerateUserStoriesAction.cs" />
+    <Compile Include="Models\Workflow\Actions\PropertyChangeAction.cs" />
+    <Compile Include="Models\Workflow\Actions\PropertyChangeUserGroupsAction.cs" />
+    <Compile Include="Models\Workflow\ExecutionParameters.cs" />
+    <Compile Include="Models\Workflow\IExecutionParameters.cs" />
+    <Compile Include="Models\Workflow\IPropertyChangeAction.cs" />
+    <Compile Include="Models\Workflow\IWorkflowEvent.cs" />
+    <Compile Include="Models\Workflow\IWorkflowEventASynchronousAction.cs" />
+    <Compile Include="Models\Workflow\IWorkflowEventSynchronousAction.cs" />
+    <Compile Include="Models\Workflow\IWorkflowMessage.cs" />
+    <Compile Include="Models\Workflow\PostopWorkflowEventTriggers.cs" />
+    <Compile Include="Models\Workflow\PreopWorkflowEventTriggers.cs" />
+    <Compile Include="Models\Workflow\SqlCustomToInstancePropertyTypeIds.cs" />
+    <Compile Include="Models\Workflow\SqlModifiedProperty.cs" />
+    <Compile Include="Models\Workflow\SqlProject.cs" />
+    <Compile Include="Models\Workflow\SqlWorkflowEvent.cs" />
+    <Compile Include="Models\Workflow\SqlWorkflowNewArtifactEvent.cs" />
+    <Compile Include="Models\Workflow\SqlWorkFlowState.cs" />
+    <Compile Include="Models\Workflow\SqlWorkFlowStateInformation.cs" />
+    <Compile Include="Models\Workflow\SqlWorkflowTransition.cs" />
+    <Compile Include="Models\Workflow\StateChangeResult.cs" />
     <Compile Include="Models\Workflow\WorkflowConstants.cs" />
+    <Compile Include="Models\Workflow\WorkflowEventAction.cs" />
+    <Compile Include="Models\Workflow\WorkflowEventCondition.cs" />
+    <Compile Include="Models\Workflow\WorkflowEventSynchronousWorkflowEventAction.cs" />
+    <Compile Include="Models\Workflow\WorkflowEventTrigger.cs" />
+    <Compile Include="Models\Workflow\WorkflowEventTriggers.cs" />
+    <Compile Include="Models\Workflow\WorkflowMessageArtifactInfo.cs" />
     <Compile Include="Models\Workflow\WorkflowState.cs" />
     <Compile Include="Models\Workflow\WorkflowStateChangeParameter.cs" />
     <Compile Include="Models\Workflow\WorkflowTransition.cs" />
     <Compile Include="Models\Workflow\WorkflowTransitionResult.cs" />
+    <Compile Include="Models\Workflow\WorkflowTriggersContainer.cs" />
     <Compile Include="Models\Workflow\XmlAction.cs" />
     <Compile Include="Models\Workflow\XmlCondition.cs" />
     <Compile Include="Models\Workflow\XmlEmailNotificationAction.cs" />
@@ -243,9 +345,14 @@
     <Compile Include="Models\Workflow\XmlPropertyChangeAction.cs" />
     <Compile Include="Models\Workflow\XmlStateCondition.cs" />
     <Compile Include="Models\Workflow\XmlTriggerPermissions.cs" />
+    <Compile Include="Models\Workflow\XmlUserGroup.cs" />
+    <Compile Include="Models\Workflow\XmlUsersGroups.cs" />
     <Compile Include="Models\Workflow\XmlWorkflowEventTrigger.cs" />
     <Compile Include="Models\Workflow\XmlWorkflowEventTriggers.cs" />
+    <Compile Include="Models\Email\NotificationEmail.cs" />
     <Compile Include="Repositories\ApplicationSettings\ApplicationSettingsRepository.cs" />
+    <Compile Include="Repositories\ApplicationSettings\SqlFeaturesRepository.cs" />
+    <Compile Include="Repositories\ApplicationSettings\IFeaturesRepository.cs" />
     <Compile Include="Repositories\ApplicationSettings\ISettingsRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IServiceLogRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IConfigRepository.cs" />
@@ -259,9 +366,21 @@
     <Compile Include="Repositories\ISqlArtifactRepository.cs" />
     <Compile Include="Repositories\ISqlItemInfoRepository.cs" />
     <Compile Include="Repositories\IUsersRepository.cs" />
+    <Compile Include="Repositories\IVersionControlService.cs" />
     <Compile Include="Repositories\JobExecutorStatusRepository.cs" />
+    <Compile Include="Repositories\Jobs\IJobsRepository.cs" />
+    <Compile Include="Repositories\Jobs\JobsRepository.cs" />
     <Compile Include="Repositories\Licenses\ILicenseRepository.cs" />
     <Compile Include="Repositories\Licenses\LicenseRepository.cs" />
+    <Compile Include="Repositories\ProjectMeta\ISqlProjectMetaRepository.cs" />
+    <Compile Include="Repositories\ProjectMeta\PropertyXml\Models\XmlCustomProperties.cs" />
+    <Compile Include="Repositories\ProjectMeta\PropertyXml\Models\XmlCustomProperty.cs" />
+    <Compile Include="Repositories\ProjectMeta\PropertyXml\Models\XmlCustomPropertyValidValue.cs" />
+    <Compile Include="Repositories\ProjectMeta\PropertyXml\XmlModelConvert.cs" />
+    <Compile Include="Repositories\ProjectMeta\PropertyXml\XmlModelSerializer.cs" />
+    <Compile Include="Repositories\ProjectMeta\SqlProjectMetaRepository.cs" />
+    <Compile Include="Repositories\Reuse\IReuseRepository.cs" />
+    <Compile Include="Repositories\Reuse\SqlReuseRepository.cs" />
     <Compile Include="Repositories\SqlArtifactPermissionsRepository.cs" />
     <Compile Include="Repositories\SqlArtifactRepository.cs" />
     <Compile Include="Helpers\ExceptionHelper.cs" />
@@ -269,17 +388,30 @@
     <Compile Include="Repositories\SqlConnectionWrapper.cs" />
     <Compile Include="Repositories\ServiceDependencyStatusRepository.cs" />
     <Compile Include="Repositories\SqlItemInfoRepository.cs" />
+    <Compile Include="Repositories\SqlItemTypeRepository.cs" />
     <Compile Include="Repositories\SqlStatusRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\IStatusRepository.cs" />
     <Compile Include="Repositories\SqlUsersRepository.cs" />
     <Compile Include="Exceptions\SqlTimeoutException.cs" />
     <Compile Include="Repositories\BaselineRawDataHelper.cs" />
+    <Compile Include="Repositories\Workflow\IWorkflowRepository.cs" />
+    <Compile Include="Repositories\Workflow\SqlWorkflowRepository.cs" />
     <Compile Include="Services\CurrentDateTimeService.cs" />
+    <Compile Include="Services\FeaturesService.cs" />
     <Compile Include="Services\ICurrentDateTimeService.cs" />
+    <Compile Include="Services\IFeaturesService.cs" />
+    <Compile Include="Services\IWebsiteAddressService.cs" />
+    <Compile Include="Services\WebsiteAddressService.cs" />
     <Compile Include="Swagger\SwaggerConfig.cs" />
     <Compile Include="Models\Files\NetworkContentStream.cs" />
     <Compile Include="Helpers\WebHeaderCollectionExtensions.cs" />
+    <Compile Include="Notification\NotificationEmailContent.cs" />
+    <Compile Include="Notification\Templates\NotificationEmailContent.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>NotificationEmailContent.tt</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Swagger\swagger-config.js" />
   </ItemGroup>
   <ItemGroup>
@@ -287,6 +419,15 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Notification\Templates\NotificationEmailContent.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>NotificationEmailContent.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -8,6 +8,7 @@
         public const int CannotPublish = 113;
         public const int CannotPublishOverValidationErrors = 121;
         public const int CannotDiscardOverDependencies = 122;
+        public const int CannotSaveDueToReadOnly = 116;
 
         // Common error codes for blueprint and blueprint-current repositories
         public const int LockedByOtherUser = 111;
@@ -23,6 +24,8 @@
         public const int LdapIsDisabled = 1000;
         public const int FallbackIsDisabled = 1001;
         public const int WorkflowDisabled = 1002;
+        public const int WorkflowLicenseUnavailable = 1003;
+        public const int LicenseUnavailable = 1004;
 
         //Authentication errors
         public const int InvalidCredentials = 2000;
@@ -57,6 +60,7 @@
         //Bad request
         public const int OutOfRangeParameter = 6000;
         public const int InvalidWorkflowXml = 6001;
+        public const int InvalidParameter = 6002;
 
         //Timeout
         public const int Timeout = 7000;
@@ -81,12 +85,45 @@
         public const int ApprovalRequiredIsReadonlyForReview = 10001;
         public const int ApprovalRequiredArtifactNotInReview = 10002;
         public const int ReviewClosed = 10003;
+        public const int ReviewActive = 10004;
+        public const int ReviewStatusChanged = 10005;
 
         //User Review Errors
         public const int UserDisabled = 11001;
+        public const int UserNotInReview = 11002;
         
         //Action Handler Service Errors
         public const int TenantInfoNotFound = 12000;
         public const int UnsupportedActionType = 12001;
+        public const int MessageHeaderValueNotFound = 12002;
+        public const int InvalidConnectionString = 12003;
+        public const int BoundaryReached = 12004;
+
+        // Unexpected Errors
+        public const int UnexpectedError = 13001;
+    
+        //Property Type errors
+        public const int InvalidArtifactProperty = 14001;
+
+        //Email Settings errors
+        public const int OutgoingEmptyMailServer = 15001;
+        public const int OutgoingPortOutOfRange = 15002;
+        public const int IncomingEmptyMailServer = 15003;
+        public const int IncomingPortOutOfRange = 15004;
+        public const int EmptySmtpAdministratorUsername = 15005;
+        public const int EmptySmtpAdministratorPassword = 15006;
+        public const int UserHasNoEmail = 15007;
+        public const int EmptyEmailUsername = 15008;
+        public const int EmptyEmailPassword = 15009;
+        public const int UnknownIncomingMailServerError = 15010;
+        public const int IncomingMailServerInvalidHostname = 15011;
+        public const int IncomingMailServerInvalidCredentials = 15012;
+        public const int OutgoingMailError = 15013;
+        public const int CannotEnableDiscussions = 15014;
+        public const int EmptyEmailAddress = 15015;
+        public const int InvalidEmailAddress = 15016;
+
+        //Workflow
+        public const int WorkflowInvalidPropertyChange = 16001;
     }
 }

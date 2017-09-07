@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ArtifactStore.Models.Reuse;
 using ArtifactStore.Repositories.VersionControl;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Reuse;
 using ServiceLibrary.Models.VersionControl;
 
 namespace ArtifactStore.Models.VersionControl

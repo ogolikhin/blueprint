@@ -28,7 +28,7 @@ namespace AccessControl.Repositories
             prm.Add("@Now", now);
             prm.Add("@LicenseLockTimeMinutes", licenseLockTimeMinutes);
 
-            return _connectionWrapper.QueryAsync<LicenseInfo>("GetActiveLicenses", prm, commandType: CommandType.StoredProcedure);
+            return _connectionWrapper.QueryAsync<LicenseInfo>("[AdminStore].GetActiveLicenses", prm, commandType: CommandType.StoredProcedure);
         }
 
         public Task<int> GetLockedLicenses(int excludeUserId, int licenseLevel, int licenseLockTimeMinutes)
@@ -40,7 +40,7 @@ namespace AccessControl.Repositories
             prm.Add("@TimeDiff", -licenseLockTimeMinutes);
 
             return _connectionWrapper.ExecuteScalarAsync<int>(
-                @"SELECT COUNT(*) FROM [dbo].[Sessions] 
+                @"SELECT COUNT(*) FROM [AdminStore].[Sessions] 
                 WHERE LicenseLevel = @LicenseLevel AND UserId <> @UserId AND 
                 (EndTime IS NULL OR EndTime > DATEADD(MINUTE, @TimeDiff, @TimeUtc) )",
                 prm);
@@ -52,7 +52,7 @@ namespace AccessControl.Repositories
             prm.Add("@StartTime", startTime);
             prm.Add("@ConsumerType", consumerType);
 
-            return _connectionWrapper.QueryAsync<LicenseTransaction>("GetLicenseTransactions", prm, commandType: CommandType.StoredProcedure);
+            return _connectionWrapper.QueryAsync<LicenseTransaction>("[AdminStore].GetLicenseTransactions", prm, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<LicenseUsage> GetLicenseUsage(int? month, int? year)
@@ -62,8 +62,8 @@ namespace AccessControl.Repositories
             prm.Add("@month", month);
             prm.Add("@year", year);
             var usage = new LicenseUsage();
-            usage.Summary = await _connectionWrapper.QueryAsync<LicenseUsageSummary>("GetLicenseUsage", prm, commandType: CommandType.StoredProcedure);
-            usage.UserActivities = await _connectionWrapper.QueryAsync<LicenseUserActivity>("GetLicenseUserActivity", prm, commandType: CommandType.StoredProcedure);
+            usage.Summary = await _connectionWrapper.QueryAsync<LicenseUsageSummary>("[AdminStore].GetLicenseUsage", prm, commandType: CommandType.StoredProcedure);
+            usage.UserActivities = await _connectionWrapper.QueryAsync<LicenseUserActivity>("[AdminStore].GetLicenseUserActivity", prm, commandType: CommandType.StoredProcedure);
 
             return usage;
         }

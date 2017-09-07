@@ -115,7 +115,65 @@ namespace AdminStore.Repositories.Workflow
             return result;
         }
 
-        public async Task<IEnumerable<SqlState>> GetWorkflowStatesByWorkflowId(int workflowId)
+        public async Task<IEnumerable<SqlState>> UpdateWorkflowStatesAsync(IEnumerable<SqlState> workflowStates, int publishRevision, IDbTransaction transaction = null)
+        {
+            if (workflowStates == null)
+            {
+                throw new ArgumentNullException(nameof(workflowStates));
+            }
+
+            var dWorkflowStates = workflowStates.ToList();
+            if (!dWorkflowStates.Any())
+            {
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is empty.", nameof(workflowStates)));
+            }
+
+            if (publishRevision < 1)
+            {
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is less than 1.", nameof(publishRevision)));
+            }
+
+            var prm = new DynamicParameters();
+            prm.Add("@publishRevision", publishRevision);
+            prm.Add("@workflowStates", ToWorkflowStatesCollectionDataTable(dWorkflowStates));
+
+            var connection = transaction == null ? (IDbConnection) _connectionWrapper : transaction.Connection;
+            var result = await connection.QueryAsync<SqlState>("UpdateWorkflowStates", prm, transaction,
+                    commandType: CommandType.StoredProcedure);
+
+            return result;
+        }
+
+        public async Task<IEnumerable<int>> DeleteWorkflowStatesAsync(IEnumerable<int> workflowStateIds, int publishRevision, IDbTransaction transaction = null)
+        {
+            if (workflowStateIds == null)
+            {
+                throw new ArgumentNullException(nameof(workflowStateIds));
+            }
+
+            var listWorkflowStateIds = workflowStateIds.ToList();
+            if (!listWorkflowStateIds.Any())
+            {
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is empty.", nameof(workflowStateIds)));
+            }
+
+            if (publishRevision < 1)
+            {
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is less than 1.", nameof(publishRevision)));
+            }
+
+            var prm = new DynamicParameters();
+            prm.Add("@publishRevision", publishRevision);
+            prm.Add("@workflowStateIds", SqlConnectionWrapper.ToDataTable(listWorkflowStateIds));
+
+            var connection = transaction == null ? (IDbConnection)_connectionWrapper : transaction.Connection;
+            var result = await connection.QueryAsync<SqlState>("DeleteWorkflowStates", prm, transaction,
+                    commandType: CommandType.StoredProcedure);
+
+            return result.Select(s => s.WorkflowStateId);
+        }
+
+        public async Task<IEnumerable<SqlState>> GetWorkflowStatesAsync(int workflowId)
         {
             var parameters = new DynamicParameters();
             parameters.Add("WorkflowId", workflowId);
@@ -123,14 +181,34 @@ namespace AdminStore.Repositories.Workflow
 
             return result;
         }
-
-        public async Task<IEnumerable<SqlWorkflowTransitionsAndPropertyChanges>> GetWorkflowTransitionsAndPropertyChangesByWorkflowId(int workflowId)
+        
+        public async Task<IEnumerable<SqlWorkflowEventData>> GetWorkflowEventsAsync(int workflowId)
         {
             var parameters = new DynamicParameters();
             parameters.Add("WorkflowId", workflowId);
-            var result = await _connectionWrapper.QueryAsync<SqlWorkflowTransitionsAndPropertyChanges>("GetWorkflowTransitionsAndPropertyChangesById", parameters, commandType: CommandType.StoredProcedure);
+            var result = await _connectionWrapper.QueryAsync<SqlWorkflowEventData>("GetWorkflowEventsById", parameters, commandType: CommandType.StoredProcedure);
 
             return result;
+        }
+        public async Task UpdateWorkflowsChangedWithRevisionsAsync(int workflowId, int revisionId, IDbTransaction transaction = null)
+        {
+            if (workflowId < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(workflowId));
+            }
+
+            if (revisionId <= 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(revisionId));
+            }
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@workflowId", workflowId);
+            parameters.Add("@revisionId", revisionId);
+
+            var connection = transaction == null ? (IDbConnection) _connectionWrapper: transaction.Connection;
+            await connection.ExecuteAsync("UpdateWorkflowsChangedWithRevisions", parameters,
+                transaction, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<IEnumerable<SqlWorkflowEvent>> CreateWorkflowEventsAsync(IEnumerable<SqlWorkflowEvent> workflowEvents, int publishRevision, IDbTransaction transaction = null)
@@ -170,20 +248,17 @@ namespace AdminStore.Repositories.Workflow
             return result;
         }
 
-        public async Task CreateWorkflowArtifactAssociationsAsync(IEnumerable<string> artifactTypeNames,
-            IEnumerable<int> projectIds, int workflowId, int publishRevision, IDbTransaction transaction = null)
+        public async Task<IEnumerable<SqlWorkflowEvent>> UpdateWorkflowEventsAsync(IEnumerable<SqlWorkflowEvent> workflowEvents, int publishRevision, IDbTransaction transaction = null)
         {
-
-            var dArtifactTypeNames = artifactTypeNames.ToList();
-            if (!dArtifactTypeNames.Any())
+            if (workflowEvents == null)
             {
-                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is empty.", nameof(dArtifactTypeNames)));
+                throw new ArgumentNullException(nameof(workflowEvents));
             }
 
-            var dProjectIds = projectIds.ToList();
-            if (!dProjectIds.Any())
+            var dWorkflowEvents = workflowEvents.ToList();
+            if (!dWorkflowEvents.Any())
             {
-                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is empty.", nameof(dProjectIds)));
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is empty.", nameof(dWorkflowEvents)));
             }
 
             if (publishRevision < 1)
@@ -192,24 +267,83 @@ namespace AdminStore.Repositories.Workflow
             }
 
             var prm = new DynamicParameters();
-            prm.Add("@names", SqlConnectionWrapper.ToStringDataTable(dArtifactTypeNames));
-            prm.Add("@revisionId", publishRevision);
-            prm.Add("@workflowId", workflowId);
-            prm.Add("@projectIds", SqlConnectionWrapper.ToDataTable(dProjectIds));
+            prm.Add("@publishRevision", publishRevision);
+            prm.Add("@workflowEvents", ToWorkflowEventsCollectionDataTable(dWorkflowEvents));
 
-            if (transaction == null)
-            {
-                await _connectionWrapper.ExecuteAsync("UpdateItemTypeVersionsWithWorkflowId", prm,
-                    commandType: CommandType.StoredProcedure);
-            }
-            else
-            {
-                await transaction.Connection.ExecuteAsync("UpdateItemTypeVersionsWithWorkflowId", prm,
+            var connection = transaction == null ? (IDbConnection)_connectionWrapper : transaction.Connection;
+            var result = await connection.QueryAsync<SqlWorkflowEvent>("UpdateWorkflowEvents", prm,
                     transaction, commandType: CommandType.StoredProcedure);
-            }
+
+            return result;
         }
 
-        public async Task<IEnumerable<SqlProjectPathPair>> GetProjectIdsByProjectPaths(IEnumerable<string> projectPaths)
+        public async Task<IEnumerable<int>> DeleteWorkflowEventsAsync(IEnumerable<int> workflowEventIds, int publishRevision, IDbTransaction transaction = null)
+        {
+            if (workflowEventIds == null)
+            {
+                throw new ArgumentNullException(nameof(workflowEventIds));
+            }
+
+            var listWorkflowStateIds = workflowEventIds.ToList();
+            if (!listWorkflowStateIds.Any())
+            {
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is empty.", nameof(workflowEventIds)));
+            }
+
+            if (publishRevision < 1)
+            {
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is less than 1.", nameof(publishRevision)));
+            }
+
+            var prm = new DynamicParameters();
+            prm.Add("@publishRevision", publishRevision);
+            prm.Add("@workflowEventIds", SqlConnectionWrapper.ToDataTable(listWorkflowStateIds));
+
+            var connection = transaction == null ? (IDbConnection)_connectionWrapper : transaction.Connection;
+            var result = await connection.QueryAsync<SqlWorkflowEvent>("DeleteWorkflowEvents", prm,
+                    transaction, commandType: CommandType.StoredProcedure);
+
+            return result.Select(s => s.WorkflowEventId);
+        }
+
+        public async Task CreateWorkflowArtifactAssociationsAsync(IEnumerable<KeyValuePair<int, string>> projectArtifactTypePair,
+            int workflowId, int publishRevision, IDbTransaction transaction = null)
+        {
+            await UpdateWorkflowArtifactAssociationsAsync(projectArtifactTypePair, workflowId, publishRevision, transaction);
+        }
+
+        public async Task DeleteWorkflowArtifactAssociationsAsync(IEnumerable<KeyValuePair<int, string>> projectArtifactTypePair,
+            int publishRevision, IDbTransaction transaction = null)
+        {
+            await UpdateWorkflowArtifactAssociationsAsync(projectArtifactTypePair, null, publishRevision, transaction);
+        }
+
+        private async Task UpdateWorkflowArtifactAssociationsAsync(IEnumerable<KeyValuePair<int, string>> projectArtifactTypePair,
+            int? workflowId, int publishRevision, IDbTransaction transaction = null)
+        {
+
+            var projectArtifactTypePairList = projectArtifactTypePair.ToList();
+            if (!projectArtifactTypePairList.Any())
+            {
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is empty.", nameof(projectArtifactTypePair)));
+            }
+
+            if (publishRevision < 1)
+            {
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is less than 1.", nameof(publishRevision)));
+            }
+
+            var prm = new DynamicParameters();
+            prm.Add("@projectArtifactTypePairs", SqlConnectionWrapper.ToIdStringMapDataTable(projectArtifactTypePairList));
+            prm.Add("@revisionId", publishRevision);
+            prm.Add("@workflowId", workflowId);
+
+            var connection = transaction == null ? (IDbConnection)_connectionWrapper : transaction.Connection;
+            await connection.ExecuteAsync("UpdateItemTypeVersionsWithWorkflowId", prm,
+                transaction, commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<IEnumerable<SqlProjectPathPair>> GetProjectIdsByProjectPathsAsync(IEnumerable<string> projectPaths)
         {
             var dProjectPaths = projectPaths.ToList();
             if (!dProjectPaths.Any())
@@ -224,7 +358,7 @@ namespace AdminStore.Repositories.Workflow
                 commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<IEnumerable<SqlArtifactTypesWorkflowDetails>> GetExistingStandardArtifactTypesForWorkflows(IEnumerable<string> artifactTypes, IEnumerable<int> projectIds)
+        public async Task<IEnumerable<SqlArtifactTypesWorkflowDetails>> GetExistingStandardArtifactTypesForWorkflowsAsync(IEnumerable<string> artifactTypes, IEnumerable<int> projectIds)
         {
             var dArtifactTypes = artifactTypes.ToList();
             if (!dArtifactTypes.Any())
@@ -261,16 +395,31 @@ namespace AdminStore.Repositories.Workflow
                 commandType: CommandType.StoredProcedure);
         }
 
+        public async Task<IEnumerable<int>> GetExistingProjectsByIdsAsync(IEnumerable<int> projectIds)
+        {
+            var dProjectIds = projectIds.ToList();
+            if (!dProjectIds.Any())
+            {
+                throw new ArgumentException(I18NHelper.FormatInvariant("{0} is empty.", nameof(dProjectIds)));
+            }
+
+            var prm = new DynamicParameters();
+            prm.Add("@projectIds", SqlConnectionWrapper.ToDataTable(dProjectIds));
+
+            return await _connectionWrapper.QueryAsync<int>("GetExistingProjectsByIds", prm,
+                commandType: CommandType.StoredProcedure);
+        }
+
         public Task<int> CreateRevisionInTransactionAsync(IDbTransaction transaction, int userId, string description)
         {
             return _sqlHelper.CreateRevisionInTransactionAsync(transaction, userId, description);
         }
 
-        public async Task<IEnumerable<string>> CheckLiveWorkflowsForNameUniqueness(IDbTransaction transaction, IEnumerable<string> names)
+        public async Task<IEnumerable<string>> CheckLiveWorkflowsForNameUniquenessAsync(IEnumerable<string> names)
         {
             var prm = new DynamicParameters();
             prm.Add("@names", SqlConnectionWrapper.ToStringDataTable(names));
-            var duplicateNames = await transaction.Connection.QueryAsync<string>("CheckLiveWorkflowsForNameUniqueness", prm, transaction, commandType: CommandType.StoredProcedure);
+            var duplicateNames = await _connectionWrapper.QueryAsync<string>("CheckLiveWorkflowsForNameUniqueness", prm, commandType: CommandType.StoredProcedure);
             return duplicateNames;
         }
 
@@ -316,22 +465,23 @@ namespace AdminStore.Repositories.Workflow
             return result;           
         }
 
-        public async Task<IEnumerable<SqlWorkflowArtifactTypesAndProjects>> GetWorkflowArtifactTypesAndProjectsAsync(int workflowId)
+        public async Task<IEnumerable<SqlWorkflowArtifactTypes>> GetWorkflowArtifactTypesAsync(int workflowId)
         {
             var parameters = new DynamicParameters();
             parameters.Add("WorkflowId", workflowId);
 
-            var result = await _connectionWrapper.QueryAsync<SqlWorkflowArtifactTypesAndProjects>("GetWorkflowProjectsAndArtifactTypes", parameters, commandType: CommandType.StoredProcedure);
+            var result = await _connectionWrapper.QueryAsync<SqlWorkflowArtifactTypes>("GetWorkflowArtifactTypes", parameters, commandType: CommandType.StoredProcedure);
 
             return result;
         }
-
-        public async Task<int> DeleteWorkflows(OperationScope body, string search, int revision)
+        
+        public async Task<int> DeleteWorkflowsAsync(OperationScope body, string search, int revision, IDbTransaction transaction = null)
         {
             if (search != null)
             {
                 search = UsersHelper.ReplaceWildcardCharacters(search);
             }
+            var result = 0;
 
             var parameters = new DynamicParameters();
             parameters.Add("@PublishRevision", revision);
@@ -339,7 +489,21 @@ namespace AdminStore.Repositories.Workflow
             parameters.Add("@Search", search);
             parameters.Add("@SelectAll", body.SelectAll);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            var result = await _connectionWrapper.ExecuteScalarAsync<int>("DeleteWorkflows", parameters, commandType: CommandType.StoredProcedure);
+            if (transaction != null)
+            {
+                result =
+                    await
+                        _connectionWrapper.ExecuteScalarAsync<int>("DeleteWorkflows", parameters, transaction,
+                            commandType: CommandType.StoredProcedure);
+            }
+            else
+            {
+                result =
+                    await
+                        _connectionWrapper.ExecuteScalarAsync<int>("DeleteWorkflows", parameters,
+                            commandType: CommandType.StoredProcedure);
+            }
+            
             var errorCode = parameters.Get<int?>("ErrorCode");
             if (errorCode.HasValue)
             {
@@ -353,8 +517,10 @@ namespace AdminStore.Repositories.Workflow
             return result;
         }
 
-        public async Task<IEnumerable<SqlWorkflow>> UpdateWorkflows(IEnumerable<SqlWorkflow> workflows, int revision, IDbTransaction transaction = null)
+        public async Task<int> UpdateWorkflowsAsync(IEnumerable<SqlWorkflow> workflows, int revision, IDbTransaction transaction = null)
         {
+            var versionId = 0;
+
             var prm = new DynamicParameters();
             prm.Add("@publishRevision", revision);
             prm.Add("@workflows", ToWorkflowsCollectionDataTable(workflows));
@@ -367,6 +533,11 @@ namespace AdminStore.Repositories.Workflow
                     await
                         transaction.Connection.QueryAsync<SqlWorkflow>("UpdateWorkflows", prm, transaction,
                             commandType: CommandType.StoredProcedure);
+                var sqlWorkflows = updatedWorkflows as IList<SqlWorkflow> ?? updatedWorkflows.ToList();
+                if (sqlWorkflows.Any())
+                {
+                    versionId = sqlWorkflows.First().VersionId;
+                }
             }
             else
             {
@@ -374,9 +545,14 @@ namespace AdminStore.Repositories.Workflow
                     await
                         _connectionWrapper.QueryAsync<SqlWorkflow>("UpdateWorkflows", prm, 
                             commandType: CommandType.StoredProcedure);
+                var sqlWorkflows = updatedWorkflows as IList<SqlWorkflow> ?? updatedWorkflows.ToList();
+                if (sqlWorkflows.Any())
+                {
+                    versionId = sqlWorkflows.First().VersionId;
+                }
             }
 
-            return updatedWorkflows;
+            return versionId;
         }
 
         #endregion
@@ -436,7 +612,7 @@ namespace AdminStore.Repositories.Workflow
 
             foreach (var workfloEvent in workflowEvents)
             {
-                table.Rows.Add(workfloEvent.TriggerId, workfloEvent.Name,
+                table.Rows.Add(workfloEvent.WorkflowEventId, workfloEvent.Name,
                     workfloEvent.WorkflowId, workfloEvent.Type, workfloEvent.Permissions, 
                     workfloEvent.Validations, workfloEvent.Triggers, workfloEvent.WorkflowState1Id, 
                     workfloEvent.WorkflowState2Id, workfloEvent.PropertyTypeId);

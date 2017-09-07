@@ -1,8 +1,6 @@
 ﻿using ServiceLibrary.Models;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Data;
 using System.Threading.Tasks;
 
 namespace ServiceLibrary.Repositories
@@ -22,6 +20,23 @@ namespace ServiceLibrary.Repositories
                                 IsEnabled = true,
                                 IsGuest = false
                            });
+            }
+            return await Task.FromResult(result);
+        }
+
+        public async Task<IEnumerable<UserInfo>> GetUserInfos(IEnumerable<int> userIds, IDbTransaction transaction = null)
+        {
+            var result = new List<UserInfo>();
+            foreach (int userId in userIds)
+            {
+                result.Add(new UserInfo
+                {
+                    UserId = userId,
+                    DisplayName = "User" + userId,
+                    ImageId = userId,
+                    IsEnabled = true,
+                    IsGuest = false
+                });
             }
             return await Task.FromResult(result);
         }
@@ -80,6 +95,37 @@ namespace ServiceLibrary.Repositories
         public async Task<bool> IsInstanceAdmin(bool contextUser, int sessionUserId)
         {
             return await Task.FromResult(true);
+        }
+
+        public async Task<IEnumerable<SqlGroup>> GetExistingGroupsByNamesAsync(IEnumerable<string> groupNames, bool instanceOnly)
+        {
+            return await Task.FromResult(new List<SqlGroup>());
+        }
+
+        public async Task<IEnumerable<SqlGroup>> GetExistingGroupsByIds(IEnumerable<int> groupIds, bool instanceOnly, IDbTransaction transaction = null)
+        {
+            return await Task.FromResult(new List<SqlGroup>());
+        }
+
+        public async Task<IEnumerable<SqlGroup>> GetExistingGroupsByIds(IEnumerable<int> groupIds, bool instanceOnly)
+        {
+            return await Task.FromResult(new List<SqlGroup>());
+        }
+
+        public async Task<IEnumerable<SqlUser>> GetExistingUsersByNamesAsync(IEnumerable<string> userNames)
+        {
+            return await Task.FromResult(new List<SqlUser>());
+        }
+
+        public async Task<IEnumerable<SqlUser>> GetExistingUsersByIdsAsync(IEnumerable<int> userIds)
+        {
+            return await Task.FromResult(new List<SqlUser>());
+        }
+
+        public async Task<IEnumerable<UserInfo>> GetUserInfoForWorkflowArtifactForAssociatedUserProperty(int artifactId, int instancePropertyTypeId, int revisionId,
+            IDbTransaction transaction = null)
+        {
+            return await Task.FromResult(new List<UserInfo>());
         }
     }
 }

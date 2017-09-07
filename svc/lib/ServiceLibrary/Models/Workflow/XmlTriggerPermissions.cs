@@ -5,11 +5,26 @@ using System.Xml.Serialization;
 namespace ServiceLibrary.Models.Workflow
 {
 
-    [XmlRoot(ElementName = "P")]
+    [XmlType("P")]
     public class XmlTriggerPermissions
     {
-        [XmlAttribute(AttributeName = "S")]
-        public string Skip { get; set; } // bool
+        //========================================================
+        // To make xml attribute nullable.
+        [XmlIgnore]
+        public int? Skip { get; set; } // Should be 0 or 1
+
+        [XmlAttribute("S")]
+        public int SkipSerializable
+        {
+            get { return Skip.GetValueOrDefault(); }
+            set { Skip = value; }
+        }
+
+        public bool ShouldSerializeSkipSerializable()
+        {
+            return Skip.HasValue;
+        }
+        //========================================================
 
         private List<int> _groupIds;
         [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]

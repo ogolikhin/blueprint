@@ -72,6 +72,38 @@ namespace AdminStore.Repositories
         }
 
         [TestMethod]
+        public void ProcessResponse_WrongFormat_FixDev1727_FederatedAuthenticationException()
+        {
+            //Arrange
+            const string password = "blueprint";
+            const string claimType = "Username";
+
+            var certificate = File.ReadAllBytes("Certificates\\samlTestCertificate.pfx");
+            var signingCert = new X509Certificate2(certificate, password);
+            var samltoken = @"<samlp:AuthnRequest />";
+
+            var samlRepository = new SamlRepository();
+            var fedAuthSettingsMock = new Mock<IFederatedAuthenticationSettings>();
+            fedAuthSettingsMock.SetupGet(p => p.NameClaimType).Returns(claimType);
+            fedAuthSettingsMock.SetupGet(p => p.Certificate).Returns(signingCert);
+
+            //Act
+            try
+            {
+                samlRepository.ProcessResponse(samltoken, fedAuthSettingsMock.Object);
+            }
+            //Assert
+            catch (FederatedAuthenticationException e)
+            {
+                Assert.AreEqual(FederatedAuthenticationErrorCode.WrongFormat, e.ErrorCode);
+            }
+            catch
+            {
+                Assert.Fail();
+            }
+        }
+
+        [TestMethod]
         public void ProcessEncodedResponse_Success()
         {
             //Arrange

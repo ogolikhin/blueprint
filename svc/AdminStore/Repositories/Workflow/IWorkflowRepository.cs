@@ -19,22 +19,38 @@ namespace AdminStore.Repositories.Workflow
         Task<IEnumerable<SqlState>> CreateWorkflowStatesAsync(IEnumerable<SqlState> workflowStates, int publishRevision,
             IDbTransaction transaction = null);
 
+        Task<IEnumerable<SqlState>> UpdateWorkflowStatesAsync(IEnumerable<SqlState> workflowStates, int publishRevision,
+            IDbTransaction transaction = null);
+
+        Task<IEnumerable<int>> DeleteWorkflowStatesAsync(IEnumerable<int> workflowStateIds, int publishRevision,
+            IDbTransaction transaction = null);
+
         Task<IEnumerable<SqlWorkflowEvent>> CreateWorkflowEventsAsync(IEnumerable<SqlWorkflowEvent> workflowEvents,
             int publishRevision, IDbTransaction transaction = null);
 
-        Task CreateWorkflowArtifactAssociationsAsync(IEnumerable<string> artifactTypeNames,
-            IEnumerable<int> projectIds, int workflowId, int publishRevision, IDbTransaction transaction = null);
+        Task<IEnumerable<SqlWorkflowEvent>> UpdateWorkflowEventsAsync(IEnumerable<SqlWorkflowEvent> workflowEvents,
+            int publishRevision, IDbTransaction transaction = null);
 
-        Task<IEnumerable<SqlProjectPathPair>> GetProjectIdsByProjectPaths(IEnumerable<string> projectPaths);
+        Task<IEnumerable<int>> DeleteWorkflowEventsAsync(IEnumerable<int> workflowEventIds,
+            int publishRevision, IDbTransaction transaction = null);
 
-        Task<IEnumerable<SqlArtifactTypesWorkflowDetails>> GetExistingStandardArtifactTypesForWorkflows(IEnumerable<string> artifactTypes, IEnumerable<int> projectIds);
+        Task CreateWorkflowArtifactAssociationsAsync(IEnumerable<KeyValuePair<int, string>> projectArtifactTypePair,
+            int workflowId, int publishRevision, IDbTransaction transaction = null);
+
+        Task DeleteWorkflowArtifactAssociationsAsync(IEnumerable<KeyValuePair<int, string>> projectArtifactTypePair,
+            int publishRevision, IDbTransaction transaction = null);
+
+        Task<IEnumerable<SqlProjectPathPair>> GetProjectIdsByProjectPathsAsync(IEnumerable<string> projectPaths);
+
+        Task<IEnumerable<SqlArtifactTypesWorkflowDetails>> GetExistingStandardArtifactTypesForWorkflowsAsync(IEnumerable<string> artifactTypes, IEnumerable<int> projectIds);
 
         Task<IEnumerable<string>> GetExistingPropertyTypesByName(IEnumerable<string> propertyTypeNames);
 
+        Task<IEnumerable<int>> GetExistingProjectsByIdsAsync(IEnumerable<int> projectIds);
+
         Task<int> CreateRevisionInTransactionAsync(IDbTransaction transaction, int userId, string description);
 
-        Task<IEnumerable<string>> CheckLiveWorkflowsForNameUniqueness(IDbTransaction transaction,
-            IEnumerable<string> names);
+        Task<IEnumerable<string>> CheckLiveWorkflowsForNameUniquenessAsync(IEnumerable<string> names);
 
         Task RunInTransactionAsync(Func<IDbTransaction, Task> action);
 
@@ -43,15 +59,16 @@ namespace AdminStore.Repositories.Workflow
 
         Task<SqlWorkflow> GetWorkflowDetailsAsync(int workflowId);
 
-        Task<IEnumerable<SqlWorkflowArtifactTypesAndProjects>> GetWorkflowArtifactTypesAndProjectsAsync(int workflowId);
+        Task<IEnumerable<SqlWorkflowArtifactTypes>> GetWorkflowArtifactTypesAsync(int workflowId);
 
-        Task<int> DeleteWorkflows(OperationScope body, string search, int revision);
+        Task<int> DeleteWorkflowsAsync(OperationScope body, string search, int revision, IDbTransaction transaction = null);
 
-        Task<IEnumerable<SqlWorkflow>> UpdateWorkflows(IEnumerable<SqlWorkflow> workflows, int revision,
+        Task<int> UpdateWorkflowsAsync(IEnumerable<SqlWorkflow> workflows, int revision,
             IDbTransaction transaction = null);
 
-        Task<IEnumerable<SqlState>> GetWorkflowStatesByWorkflowId(int workflowId);
+        Task<IEnumerable<SqlState>> GetWorkflowStatesAsync(int workflowId);
 
-        Task<IEnumerable<SqlWorkflowTransitionsAndPropertyChanges>> GetWorkflowTransitionsAndPropertyChangesByWorkflowId(int workflowId);       
+        Task<IEnumerable<SqlWorkflowEventData>> GetWorkflowEventsAsync(int workflowId);
+        Task UpdateWorkflowsChangedWithRevisionsAsync(int workflowId, int revisionId, IDbTransaction transaction = null);
     }
 }

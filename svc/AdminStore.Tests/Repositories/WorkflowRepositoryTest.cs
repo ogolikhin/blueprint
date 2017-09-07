@@ -48,32 +48,35 @@ namespace AdminStore.Repositories
 
             var repository = new WorkflowRepository(cxn.Object, sqlHelperMock.Object);
             var workflowId = 10;
-            var workflowArtifactTypesAndProjects = new List<SqlWorkflowArtifactTypesAndProjects>
+            var workflowArtifactTypesAndProjects = new List<SqlWorkflowArtifactTypes>
             {
-                new SqlWorkflowArtifactTypesAndProjects
+                new SqlWorkflowArtifactTypes
                 {
                     ProjectId = 1,
-                    ProjectName = "Project1",
-                    ArtifactName = "Artifact1"
+                    ProjectPath = "Project1",
+                    ArtifactTypeName = "Artifact1",
+                    ArtifactTypeId = 205
                 },
-                new SqlWorkflowArtifactTypesAndProjects
+                new SqlWorkflowArtifactTypes
                 {
                     ProjectId = 1,
-                    ProjectName = "Project1",
-                    ArtifactName = "Artifact2"
+                    ProjectPath = "Project1",
+                    ArtifactTypeName = "Artifact2",
+                    ArtifactTypeId = 206
                 },
-                new SqlWorkflowArtifactTypesAndProjects
+                new SqlWorkflowArtifactTypes
                 {
                     ProjectId = 2,
-                    ProjectName = "Project2",
-                    ArtifactName = "Artifact2"
+                    ProjectPath = "Project1",
+                    ArtifactTypeName = "Artifact2",
+                    ArtifactTypeId = 206
                 }
             };
 
-            cxn.SetupQueryAsync("GetWorkflowProjectsAndArtifactTypes", It.IsAny<Dictionary<string, object>>(), workflowArtifactTypesAndProjects);
+            cxn.SetupQueryAsync("GetWorkflowArtifactTypesAsync", It.IsAny<Dictionary<string, object>>(), workflowArtifactTypesAndProjects);
 
             //act
-            var workflowDetails = await repository.GetWorkflowArtifactTypesAndProjectsAsync(workflowId);
+            var workflowDetails = await repository.GetWorkflowArtifactTypesAsync(workflowId);
 
             //assert
             Assert.IsNotNull(workflowDetails);
@@ -81,10 +84,10 @@ namespace AdminStore.Repositories
 
         #endregion
 
-        #region UpdateWorkflows
+        #region UpdateWorkflowsAsync
 
         [TestMethod]
-        public async Task UpdateWorkflows_UpdateThisWorkflowInDb_QueryReturnWorkflows()
+        public async Task UpdateWorkflowsAsync_UpdateThisWorkflowInDb_QueryReturnWorkflows()
         {
             //arrange
             var cxn = new SqlConnectionWrapperMock();
@@ -97,7 +100,7 @@ namespace AdminStore.Repositories
             cxn.SetupQueryAsync("UpdateWorkflows", It.IsAny<Dictionary<string, object>>(), workflowsList);
 
             //act
-            var updatedWorkflows = await repository.UpdateWorkflows(workflowsList, publishRevision);
+            var updatedWorkflows = await repository.UpdateWorkflowsAsync(workflowsList, publishRevision);
 
             //assert
             Assert.IsNotNull(updatedWorkflows);
@@ -116,9 +119,9 @@ namespace AdminStore.Repositories
 
             var repository = new WorkflowRepository(cxn.Object, sqlHelperMock.Object);
             var workflowId = 10;
-            var workflowTransitionsAndPropertyChanges = new List<SqlWorkflowTransitionsAndPropertyChanges>
+            var workflowTransitionsAndPropertyChanges = new List<SqlWorkflowEventData>
             {
-                new SqlWorkflowTransitionsAndPropertyChanges
+                new SqlWorkflowEventData
                 {
                     WorkflowId = 10,
                     Name = "FirsTrigger",
@@ -127,7 +130,7 @@ namespace AdminStore.Repositories
                     Permissions = "<P S=\"0\"><G>1</G></P>",
                     Type = 1
                 },
-                new SqlWorkflowTransitionsAndPropertyChanges
+                new SqlWorkflowEventData
                 {
                     WorkflowId = 10,
                     Name = "second Trigger",
@@ -137,10 +140,10 @@ namespace AdminStore.Repositories
                 }
             };
 
-            cxn.SetupQueryAsync("GetWorkflowTransitionsAndPropertyChangesById", It.IsAny<Dictionary<string, object>>(), workflowTransitionsAndPropertyChanges);
+            cxn.SetupQueryAsync("GetWorkflowStatesById", It.IsAny<Dictionary<string, object>>(), workflowTransitionsAndPropertyChanges);
 
             //act
-            var workflowDetails = await repository.GetWorkflowTransitionsAndPropertyChangesByWorkflowId(workflowId);
+            var workflowDetails = await repository.GetWorkflowEventsAsync(workflowId);
 
             //assert
             Assert.IsNotNull(workflowDetails);
@@ -165,7 +168,7 @@ namespace AdminStore.Repositories
             cxn.SetupQueryAsync("GetWorkflowStatesById", new Dictionary<string, object> { { "WorkflowId", workflowId } }, workflowsList);
 
             //act
-            var workflowStates = await repository.GetWorkflowStatesByWorkflowId(workflowId);
+            var workflowStates = await repository.GetWorkflowStatesAsync(workflowId);
 
             //assert
             Assert.IsNotNull(workflowStates);

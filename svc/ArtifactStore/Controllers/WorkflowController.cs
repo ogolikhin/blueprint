@@ -1,5 +1,4 @@
 ﻿using ArtifactStore.Repositories;
-using ArtifactStore.Repositories.Workflow;
 using ArtifactStore.Services.VersionControl;
 using ArtifactStore.Services.Workflow;
 using ServiceLibrary.Attributes;
@@ -12,6 +11,12 @@ using ServiceLibrary.Repositories;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using ArtifactStore.Executors;
+using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Repositories.ApplicationSettings;
+using ServiceLibrary.Repositories.ConfigControl;
+using ServiceLibrary.Repositories.Reuse;
+using ServiceLibrary.Repositories.Workflow;
 
 namespace ArtifactStore.Controllers
 {
@@ -25,11 +30,17 @@ namespace ArtifactStore.Controllers
 
         public WorkflowController() : this(
             new WorkflowService(
-                new SqlWorkflowRepository(),
-                new SqlArtifactVersionsRepository(),
-                new SqlItemInfoRepository(),
                 new SqlHelper(),
-                new VersionControlService()))
+                new SqlItemInfoRepository(),
+                new StateChangeExecutorRepositories(
+                    new SqlArtifactVersionsRepository(),
+                    new SqlWorkflowRepository(),
+                    new VersionControlService(),
+                    new ReuseRepository(),
+                    new SqlSaveArtifactRepository(),
+                    new ApplicationSettingsRepository(),
+                    new ServiceLogRepository(),
+                    new SqlUsersRepository())))
         {
         }
 
@@ -51,7 +62,7 @@ namespace ArtifactStore.Controllers
         /// <response code="404">Not found. The artifact is not found.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
-        //[FeatureActivation(FeatureTypes.Workflow)]
+        [FeatureActivation(FeatureTypes.Workflow)]
         [Route("artifacts/{artifactId:int:min(1)}/transitions"), SessionRequired]
         [ActionName("GetTransitions")]
         [ResponseType(typeof(WorkflowTransitionResult))]
@@ -74,6 +85,7 @@ namespace ArtifactStore.Controllers
         /// <param name="addDrafts"></param>
         /// <returns></returns>
         [HttpGet, NoCache]
+        [FeatureActivation(FeatureTypes.Workflow)]
         [Route("artifacts/{artifactId:int:min(1)}/state"), SessionRequired]
         [ActionName("GetStateForArtifact")]
         [ResponseType(typeof(QuerySingleResult<WorkflowState>))]
@@ -91,6 +103,7 @@ namespace ArtifactStore.Controllers
         /// <param name="stateChangeParameter"></param>
         /// <returns></returns>
         [HttpPost]
+        [FeatureActivation(FeatureTypes.Workflow)]
         [Route("artifacts/{artifactId:int:min(1)}/state"), SessionRequired]
         [ActionName("ChangeStateForArtifact")]
         [ResponseType(typeof(QuerySingleResult<WorkflowState>))]
@@ -101,8 +114,8 @@ namespace ArtifactStore.Controllers
             {
                 throw new BadRequestException("Please provide valid state change parameters");
             }
-
-            return Ok(await _workflowService.ChangeStateForArtifactAsync(Session.UserId, artifactId, stateChangeParameter));
+            
+            return Ok(await _workflowService.ChangeStateForArtifactAsync(Session.UserId, Session.UserName, artifactId, stateChangeParameter));
         }
     }
 }

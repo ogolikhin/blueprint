@@ -612,7 +612,6 @@ namespace AdminStore.Services.Workflow
         private bool _hasPropertyNamePropertyChangeActionNotSupportedError;
         private bool _hasInvalidIdError;
         private bool _hasAmbiguousGroupProjectReference;
-        private bool _hasPropertyChangeActionValidValueValueNotSpecitiedError;
         private bool _hasPropertyChangeActionUserOrGroupNameNotSpecitiedError;
 
         private void ResetErrorFlags()
@@ -633,7 +632,6 @@ namespace AdminStore.Services.Workflow
             _hasPropertyNamePropertyChangeActionNotSupportedError = false;
             _hasInvalidIdError = false;
             _hasAmbiguousGroupProjectReference = false;
-            _hasPropertyChangeActionValidValueValueNotSpecitiedError = false;
             _hasPropertyChangeActionUserOrGroupNameNotSpecitiedError = false;
         }
 
@@ -750,20 +748,6 @@ namespace AdminStore.Services.Workflow
             if (action.ValidValues?.Count > 0)
             {
                 pvCount++;
-
-                action.ValidValues.ForEach(vv =>
-                {
-                    if (!_hasPropertyChangeActionValidValueValueNotSpecitiedError
-                        && !ValidatePropertyNotEmpty(vv.Value))
-                    {
-                        result.Errors.Add(new WorkflowXmlValidationError
-                        {
-                            Element = vv,
-                            ErrorCode = WorkflowXmlValidationErrorCodes.PropertyChangeActionValidValueValueNotSpecitied
-                        });
-                        _hasPropertyChangeActionValidValueValueNotSpecitiedError = true;
-                    }
-                });
             }
 
             if(action.UsersGroups != null)

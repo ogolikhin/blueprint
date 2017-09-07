@@ -57,7 +57,6 @@ namespace AdminStore.Services.Workflow
         private const string TemplateXmlPropertyNamePropertyChangeActionNotSpecitied = "<PropertyChangeAction> elements: One or more <PropertyName> child elements do not have a value.";
         private const string TemplateXmlPropertyValuePropertyChangeActionNotSpecitied = "One or more Property Change Actions are missing information. Please ensure all <PropertyChangeActions> elements include one of the following defined child elements: <PropertyValue>, <ValidValues>, or <UsersGroups>.";
         private const string TemplateXmlAmbiguousPropertyValuePropertyChangeAction = "One or more Property Change Actions specify too many property-value elements. Please ensure all <PropertyChangeAction> elements define only one of the following child elements: <PropertyValue>, <ValidValues>, or <UsersGroups>.";
-        private const string TemplateXmlPropertyChangeActionValidValueValueNotSpecitied = "One or more Property Change Actions is missing information. One or more Valid Values do not have values.";
         private const string TemplateXmlPropertyChangeActionUserOrGroupNameNotSpecitied = "One or more Property Change Actions is missing information. One or more Users or Groups do not have a specified Name.";
         private const string TemplateXmlAmbiguousGroupProjectReference = "One or more Property Change Actions specify conflicting group project information. Please ensure all <UsersGroups> child elements define only one of the following child elements: <GroupProjectId> or <GroupProjectPath>.";
         private const string TemplateXmlArtifactTypeGenerateChildrenActionNotSpecitied = "One or more 'generate child artifact' Actions do not specify the child artifact type. Please ensure all <GenerateActionType> elements with the value 'Children' are accompanied by an <ArtifactTypeId> element.";
@@ -350,10 +349,6 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowXmlValidationErrorCodes.AmbiguousPropertyValuePropertyChangeAction:
                     template = TemplateXmlAmbiguousPropertyValuePropertyChangeAction;
-                    errParams = new object[] { };
-                    break;
-                case WorkflowXmlValidationErrorCodes.PropertyChangeActionValidValueValueNotSpecitied:
-                    template = TemplateXmlPropertyChangeActionValidValueValueNotSpecitied;
                     errParams = new object[] { };
                     break;
                 case WorkflowXmlValidationErrorCodes.PropertyChangeActionUserOrGroupNameNotSpecitied:

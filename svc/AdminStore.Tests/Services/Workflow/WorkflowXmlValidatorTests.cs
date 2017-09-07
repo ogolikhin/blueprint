@@ -1122,23 +1122,6 @@ namespace AdminStore.Services.Workflow
         }
 
         [TestMethod]
-        public void Validate_PropertyChangeActionValidValueValueNotSpecitied_ReturnsPropertyChangeActionValidValueValueNotSpecitiedError()
-        {
-            // Arrange
-            var workflowValidator = new WorkflowXmlValidator();
-            ((IePropertyChangeAction)_workflow.TransitionEvents[1].Triggers[3].Action).ValidValues[0].Value = "";
-            ((IePropertyChangeAction)_workflow.TransitionEvents[1].Triggers[3].Action).ValidValues[1].Value = null;
-
-            // Act
-            var result = workflowValidator.ValidateXml(_workflow);
-
-            // Assert
-            Assert.IsTrue(result.HasErrors);
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(WorkflowXmlValidationErrorCodes.PropertyChangeActionValidValueValueNotSpecitied, result.Errors[0].ErrorCode);
-        }
-
-        [TestMethod]
         public void Validate_PropertyChangeActionUserOrGroupNameNotSpecitied_ReturnsPropertyChangeActionUserOrGroupNameNotSpecitiedError()
         {
             // Arrange

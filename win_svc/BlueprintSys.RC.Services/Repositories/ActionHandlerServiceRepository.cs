@@ -15,6 +15,8 @@ namespace BlueprintSys.RC.Services.Repositories
         Task<bool> IsBoundaryReached(int projectId);
 
         IUsersRepository UsersRepository { get; }
+
+        ISqlConnectionWrapper SqlSrvConnectionWrapper { get; }
     }
 
     public class ActionHandlerServiceRepository : SqlInstanceSettingsRepository, IActionHandlerServiceRepository
@@ -38,6 +40,8 @@ namespace BlueprintSys.RC.Services.Repositories
         {
             UsersRepository = usersRepository;
         }
+
+        public ISqlConnectionWrapper SqlSrvConnectionWrapper => ConnectionWrapper;
 
         public IUsersRepository UsersRepository { get; }
 

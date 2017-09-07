@@ -8,7 +8,13 @@ using ServiceLibrary.Models.ItemType;
 
 namespace ServiceLibrary.Repositories
 {
-    public class SqlItemTypeRepository
+    public interface ISqlItemTypeRepository
+    {
+        Task<SqlItemType> GetCustomItemTypeForProvidedStandardItemTypeIdInProject(int projectId,
+            int standardItemTypeId);
+    }
+
+    public class SqlItemTypeRepository : ISqlItemTypeRepository
     {
         private readonly ISqlConnectionWrapper _connectionWrapper;
 

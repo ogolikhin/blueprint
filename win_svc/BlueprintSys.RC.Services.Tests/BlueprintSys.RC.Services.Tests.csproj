@@ -127,9 +127,9 @@
     <Compile Include="PropertyChangeActionHelperTests.cs" />
     <Compile Include="StateTransitionActionHelperTests.cs" />
     <Compile Include="NotificationsActionHelperTests.cs" />
-    <Compile Include="GenerateUserStoriesActionHelperTests.cs" />
-    <Compile Include="GenerateTestsActionHelperTests.cs" />
-    <Compile Include="GenerateDescendantsActionHelperTests.cs" />
+    <Compile Include="MessageHandlers\GenerateUserStories\GenerateUserStoriesActionHelperTests.cs" />
+    <Compile Include="MessageHandlers\GenerateTests\GenerateTestsActionHelperTests.cs" />
+    <Compile Include="MessageHandlers\GenerateDescendants\GenerateDescendantsActionHelperTests.cs" />
     <Compile Include="HandlerTests.cs" />
     <Compile Include="ArtifactsPublishedActionHelperTests.cs" />
     <Compile Include="TransportTests.cs" />

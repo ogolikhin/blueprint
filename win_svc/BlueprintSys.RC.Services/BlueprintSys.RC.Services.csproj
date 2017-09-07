@@ -146,6 +146,7 @@
     <Compile Include="ActionHandlerService.cs" />
     <Compile Include="Models\TenantInformation.cs" />
     <Compile Include="Repositories\GenerateUserStoriesActionRepository.cs" />
+    <Compile Include="Repositories\IGenerateActionsRepository.cs" />
     <Compile Include="WorkflowServiceBusServer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

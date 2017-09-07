@@ -11,7 +11,7 @@ using ServiceLibrary.Models.Jobs;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.Jobs;
 
-namespace BlueprintSys.RC.Services.Tests
+namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateUserStories
 {
     /// <summary>
     /// Tests for the Generate User Stories Action Helper in the Action Handler Service
@@ -55,7 +55,7 @@ namespace BlueprintSys.RC.Services.Tests
                 RevisionId = 1
             };
             var actionHelper = new GenerateUserStoriesActionHelper();
-            var actionHandlerServiceRepositoryMock = new Mock<IGenerateUserStoriesRepository>();
+            var actionHandlerServiceRepositoryMock = new Mock<IGenerateActionsRepository>();
             var jobServicesMock = new Mock<IJobsRepository>();
             jobServicesMock.Setup(t => t.AddJobMessage(JobType.GenerateUserStories,
                 false,
@@ -70,7 +70,7 @@ namespace BlueprintSys.RC.Services.Tests
             var userRepoMock = new Mock<IUsersRepository>();
             actionHandlerServiceRepositoryMock.Setup(t => t.UsersRepository).Returns(userRepoMock.Object);
             userRepoMock.Setup(t => t.GetExistingUsersByIdsAsync(It.IsAny<IEnumerable<int>>()))
-                .ReturnsAsync(new SqlUser[] { new SqlUser()
+                .ReturnsAsync(new [] { new SqlUser
                 {
                     UserId = 1,
                     Login = "admin"

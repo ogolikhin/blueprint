@@ -11,11 +11,12 @@ namespace BlueprintSys.RC.Services.Repositories
 
     public class NotificationRepository : ActionHandlerServiceRepository, INotificationRepository
     {
-        public NotificationRepository(string connectionString) : base(connectionString)
+        public NotificationRepository(string connectionString) : this(new SqlConnectionWrapper(connectionString))
         {
         }
 
-        public NotificationRepository(ISqlConnectionWrapper connectionWrapper) : base(connectionWrapper)
+        public NotificationRepository(ISqlConnectionWrapper connectionWrapper) : this(connectionWrapper,
+            new SqlArtifactPermissionsRepository(connectionWrapper))
         {
         }
 

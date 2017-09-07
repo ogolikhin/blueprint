@@ -7,8 +7,6 @@ using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Jobs;
-using ServiceLibrary.Repositories;
-using ServiceLibrary.Repositories.Jobs;
 
 namespace BlueprintSys.RC.Services.MessageHandlers.GenerateDescendants
 {
@@ -31,8 +29,9 @@ namespace BlueprintSys.RC.Services.MessageHandlers.GenerateDescendants
 
             Logger.Log($"Handling of type: {message.ActionType} started for user ID {message.UserId}, revision ID {message.RevisionId} with message {message.ToJSON()}", message, tenant, LogLevel.Debug);
 
-            var sqlConnectionWrapper = new SqlConnectionWrapper(tenant.BlueprintConnectionString);
-            var sqlItemTypeRepository = new SqlItemTypeRepository(sqlConnectionWrapper);
+            var genDescendantsActionHelper = (IGenerateActionsRepository)actionHandlerServiceRepository;
+
+            var sqlItemTypeRepository = genDescendantsActionHelper.ItemTypeRepository;
 
             var desiredItemType = await sqlItemTypeRepository.GetCustomItemTypeForProvidedStandardItemTypeIdInProject(message.ProjectId,
                 message.DesiredArtifactTypeId.GetValueOrDefault());
@@ -53,15 +52,12 @@ namespace BlueprintSys.RC.Services.MessageHandlers.GenerateDescendants
                 Predefined = (ItemTypePredefined)message.TypePredefined,
                 DesiredArtifactTypeName = desiredItemType.Name
             };
-
+            
             var parameters = SerializationHelper.ToXml(generateDescendantsInfo);
-
-            var jobsRepository = new JobsRepository(sqlConnectionWrapper,
-                new SqlArtifactRepository(sqlConnectionWrapper),
-                new SqlArtifactPermissionsRepository(sqlConnectionWrapper),
-                new SqlUsersRepository(sqlConnectionWrapper));
+            
             var user = await GetUserInfo(message, actionHandlerServiceRepository);
-            var job = await jobsRepository.AddJobMessage(JobType.GenerateDescendants,
+
+            var jobId = await genDescendantsActionHelper.JobsRepository.AddJobMessage(JobType.GenerateDescendants,
                 false,
                 parameters,
                 null,
@@ -71,12 +67,12 @@ namespace BlueprintSys.RC.Services.MessageHandlers.GenerateDescendants
                 user?.Login, //Login is equal to username
                 message.BaseHostUri);
 
-            if (job.HasValue)
+            if (jobId.HasValue)
             {
-                Log.Debug($"Job scheduled for {message.ActionType} with id: {job.Value}");
+                Log.Debug($"Job scheduled for {message.ActionType} with id: {jobId.Value}");
             }
 
-            return true;
+            return jobId.HasValue && jobId > 0;
         }
     }
 }

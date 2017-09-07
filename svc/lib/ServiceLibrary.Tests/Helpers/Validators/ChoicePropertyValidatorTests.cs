@@ -134,5 +134,33 @@ namespace ServiceLibrary.Helpers.Validators
             //assert
             Assert.AreEqual(ErrorCodes.InvalidArtifactProperty, result.ErrorCode);
         }
+
+        [TestMethod]
+        public void Validate_ReturnsError_When_ChoiceIds_And_TextOrChoiceValue_Are_Both_Populated()
+        {
+            //arrange
+            _propertyLite.ChoiceIds.Add(1);
+            _propertyLite.TextOrChoiceValue = "some value";
+
+            //act
+            var result = _validator.Validate(_propertyLite, _propertyTypes, null);
+
+            //assert
+            Assert.AreEqual(ErrorCodes.InvalidArtifactProperty, result.ErrorCode);
+        }
+
+        [TestMethod]
+        public void Validate_ReturnsError_When_CustomValue_Populated_And_Validate()
+        {
+            //arrange
+            _propertyType.IsValidate = true;
+            _propertyLite.TextOrChoiceValue = "text";
+
+            //act
+            var result = _validator.Validate(_propertyLite, _propertyTypes, null);
+
+            //assert
+            Assert.AreEqual(ErrorCodes.InvalidArtifactProperty, result.ErrorCode);
+        }
     }
 }

@@ -1,7 +1,9 @@
-﻿namespace ServiceLibrary.Models.Workflow
+﻿using ServiceLibrary.Models.PropertyType;
+
+namespace ServiceLibrary.Models.Workflow
 {
     public interface IWorkflowEventSynchronousAction
     {
-        bool ValidateAction(IExecutionParameters executionParameters);
+        PropertySetResult ValidateAction(IExecutionParameters executionParameters);
     }
 }

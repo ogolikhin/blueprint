@@ -453,7 +453,7 @@ namespace ServiceLibrary.Repositories.Workflow
                         {
                             AllowMultiple = sqlPropertyType.AllowMultiple,
                             DefaultValidValueId = sqlPropertyType.DefaultValidValueId,
-                            InstancePropertyTypeId = sqlPropertyType.InstancePropertyTypeId,
+                            InstancePropertyTypeId = GetInstancePropertyTypeId(sqlPropertyType.InstancePropertyTypeId, sqlPropertyType.Predefined),
                             Name = sqlPropertyType.Name,
                             PropertyTypeId = sqlPropertyType.PropertyTypeId,
                             PrimitiveType = sqlPropertyType.PrimitiveType,
@@ -598,6 +598,19 @@ namespace ServiceLibrary.Repositories.Workflow
                 }
             }
             return dictionary;
+        }
+
+        private int? GetInstancePropertyTypeId(int? instancePropertyTypeId, PropertyTypePredefined predefined)
+        {
+            switch (predefined)
+            {
+                case PropertyTypePredefined.Name:
+                    return WorkflowConstants.PropertyTypeFakeIdName;
+                case PropertyTypePredefined.Description:
+                    return WorkflowConstants.PropertyTypeFakeIdDescription;
+                default:
+                    return instancePropertyTypeId;
+            }
         }
 
         private async Task<IEnumerable<WorkflowMessageArtifactInfo>> GetWorkflowMessageArtifactInfoAsyncInternal(int userId,

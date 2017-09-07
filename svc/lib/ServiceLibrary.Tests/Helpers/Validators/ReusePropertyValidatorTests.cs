@@ -16,7 +16,6 @@ namespace ServiceLibrary.Helpers.Validators
             _reusePropertyValidator = new ReusePropertyValidator();
         }
         [TestMethod]
-        [ExpectedException(typeof(ConflictException))]
         public void ValidateReuseSettings_ValidateReadonlyNameUpdating_Fails()
         {
             var namePropertyId = WorkflowConstants.PropertyTypeFakeIdName;
@@ -24,10 +23,11 @@ namespace ServiceLibrary.Helpers.Validators
             {
                 ReadOnlySettings = ItemTypeReuseTemplateSetting.Name
             };
-            _reusePropertyValidator.ValidateReuseSettings(namePropertyId, fakeItemTypeReuseTempalate);
+            var result = _reusePropertyValidator.ValidateReuseSettings(namePropertyId, fakeItemTypeReuseTempalate);
+
+            Assert.IsNotNull(result);
         }
         [TestMethod]
-        [ExpectedException(typeof(ConflictException))]
         public void ValidateReuseSettings_ValidateReadonlyDescriptionNameUpdating_Fails()
         {
             var namePropertyId = WorkflowConstants.PropertyTypeFakeIdDescription;
@@ -35,10 +35,11 @@ namespace ServiceLibrary.Helpers.Validators
             {
                 ReadOnlySettings = ItemTypeReuseTemplateSetting.Description
             };
-            _reusePropertyValidator.ValidateReuseSettings(namePropertyId, fakeItemTypeReuseTempalate);
+            var result = _reusePropertyValidator.ValidateReuseSettings(namePropertyId, fakeItemTypeReuseTempalate);
+
+            Assert.IsNotNull(result);
         }
         [TestMethod]
-        [ExpectedException(typeof(ConflictException))]
         public void ValidateReuseSettings_ValidateReadonlyCustomPropertyUpdating_Fails()
         {
             var fakePropertyId = 123;
@@ -50,7 +51,9 @@ namespace ServiceLibrary.Helpers.Validators
             };
             fakeItemTypeReuseTempalate.PropertyTypeReuseTemplates.Add(fakePropertyId, propertyTypeReuseTemplate);
 
-            _reusePropertyValidator.ValidateReuseSettings(fakePropertyId, fakeItemTypeReuseTempalate);
+            var result = _reusePropertyValidator.ValidateReuseSettings(fakePropertyId, fakeItemTypeReuseTempalate);
+
+            Assert.IsNotNull(result);
         }
     }
 }

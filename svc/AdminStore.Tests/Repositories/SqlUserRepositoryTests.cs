@@ -497,7 +497,7 @@ namespace AdminStore.Repositories
             var returnResult = true;
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlUserRepository(cxn.Object, cxn.Object);
-            cxn.SetupExecuteScalarAsync("CanCreateUsers", null, returnResult);
+            cxn.SetupExecuteScalarAsyncFunc("select dbo.CanCreateUsers()",null, returnResult);
 
             //act
             var result = await repository.CheckIfAdminCanCreateUsers();
@@ -514,13 +514,14 @@ namespace AdminStore.Repositories
             var returnResult = false;
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlUserRepository(cxn.Object, cxn.Object);
-            cxn.SetupExecuteScalarAsync("CanCreateUsers", null, returnResult);
+            cxn.SetupExecuteScalarAsyncFunc("select dbo.CanCreateUsers()", null, returnResult);
 
             //act
             var result = await repository.CheckIfAdminCanCreateUsers();
 
             //assert
             cxn.Verify();
+            Assert.AreEqual(returnResult, result);
         }
 
 

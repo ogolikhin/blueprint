@@ -458,7 +458,7 @@ namespace AdminStore.Repositories
 
         public async Task<bool> CheckIfAdminCanCreateUsers()
         {
-            var result = await _connectionWrapper.ExecuteScalarAsync<bool>("CanCreateUsers", commandType: CommandType.StoredProcedure);
+            var result = await _connectionWrapper.ExecuteScalarAsync<bool>("select dbo.CanCreateUsers()", commandType: CommandType.Text);
             return result;
         }
 

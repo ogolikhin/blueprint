@@ -528,9 +528,9 @@ namespace AdminStore.Controllers
             var privileges = user.InstanceAdminRoleId.HasValue ? InstanceAdminPrivileges.AssignAdminRoles : InstanceAdminPrivileges.ManageUsers;
             await _privilegesManager.Demand(Session.UserId, privileges);
 
-            var isUsersMaxLimitReached = await _userRepository.CheckIfAdminCanCreateUsers();
+            var isAdminCanCreateUsers = await _userRepository.CheckIfAdminCanCreateUsers();
 
-            if (isUsersMaxLimitReached)
+            if (!isAdminCanCreateUsers)
             {
                 throw new ConflictException(ErrorMessages.MaxUsersPerInstanceLimitReached, ErrorCodes.ExceedsLimit);
             }

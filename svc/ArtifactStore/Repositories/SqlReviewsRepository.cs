@@ -503,19 +503,34 @@ namespace ArtifactStore.Repositories
 
         public async Task<ReviewParticipantsContent> GetReviewParticipantsAsync(int reviewId, int? offset, int? limit, int userId, int? versionId = null, bool? addDrafts = true)
         {
+            if (limit < 1)
+            {
+                throw new BadRequestException(nameof(limit) + " cannot be less than 1.", ErrorCodes.InvalidParameter);
+            }
+
+            if (offset < 0)
+            {
+                throw new BadRequestException(nameof(offset) + " cannot be less than 0.", ErrorCodes.InvalidParameter);
+            }
+
             int? revisionId = await _itemInfoRepository.GetRevisionId(reviewId, userId, versionId);
+
             if (revisionId < int.MaxValue)
             {
                 addDrafts = false;
             }
+
             var param = new DynamicParameters();
+
             param.Add("@reviewId", reviewId);
             param.Add("@offset", offset);
             param.Add("@limit", limit);
             param.Add("@revisionId", revisionId);
             param.Add("@userId", userId);
             param.Add("@addDrafts", addDrafts);
+
             var participants = await _connectionWrapper.QueryMultipleAsync<ReviewParticipant, int, int, int>("GetReviewParticipants", param, commandType: CommandType.StoredProcedure);
+
             var reviewersRoot = new ReviewParticipantsContent()
             {
                 Items = participants.Item1.ToList(),
@@ -523,8 +538,10 @@ namespace ArtifactStore.Repositories
                 TotalArtifacts = participants.Item3.SingleOrDefault(),
                 TotalArtifactsRequestedApproval = participants.Item4.SingleOrDefault()
             };
+
             return reviewersRoot;
         }
+
         public async Task<QueryResult<ReviewArtifactDetails>> GetReviewArtifactStatusesByParticipant(int artifactId, int reviewId, int? offset, int? limit, int userId, int? versionId = null, bool? addDrafts = true)
         {
             int? revisionId = await _itemInfoRepository.GetRevisionId(reviewId, userId, versionId);

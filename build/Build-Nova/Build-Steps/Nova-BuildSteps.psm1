@@ -43,6 +43,8 @@ function Build-Nova-Services{
         [Parameter(ValueFromRemainingArguments=$true)] $vars
     )
 
+    Modify-SolutionAssemblyVersion -file $workspace\svc\SolutionAssemblyVersion.cs -blueprintVersion $BlueprintVersion
+
     $msBuildArgs = @{
         verbosity = $msBuildVerbosity
         deployOnBuild = $true 

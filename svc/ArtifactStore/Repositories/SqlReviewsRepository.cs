@@ -513,6 +513,11 @@ namespace ArtifactStore.Repositories
                 throw new BadRequestException(nameof(offset) + " cannot be less than 0.", ErrorCodes.InvalidParameter);
             }
 
+            if (versionId < 1)
+            {
+                throw new BadRequestException(nameof(versionId) + " cannot be less than 1.", ErrorCodes.InvalidParameter);
+            }
+
             int? revisionId = await _itemInfoRepository.GetRevisionId(reviewId, userId, versionId);
 
             if (revisionId < int.MaxValue)

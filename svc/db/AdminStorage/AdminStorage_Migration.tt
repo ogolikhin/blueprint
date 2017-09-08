@@ -31,5 +31,6 @@ GO
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Migration\8.0.0.0\8.0.0.0.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Migration\8.1.0.0\8.1.0.0.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Migration\8.2.0.0\8.2.0.0.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Migration\8.3.0.0\8.3.0.0.sql" ) ) #>
 
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures.sql" ) ) #>

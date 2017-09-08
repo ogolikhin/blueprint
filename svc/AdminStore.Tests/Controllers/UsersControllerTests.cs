@@ -1075,7 +1075,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
-
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
             _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
                 .ReturnsAsync(new UserManagementSettings());
 
@@ -1129,7 +1129,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
-
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
             // Act
             await _controller.CreateUser(_user);
 
@@ -1146,6 +1146,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
 
             // Act
             try
@@ -1171,7 +1172,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
-
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
             // Act
             var result = await _controller.CreateUser(_user);
 
@@ -1189,7 +1190,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(FullPermissions);
-
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
             // Act
             await _controller.CreateUser(_user);
 
@@ -1206,6 +1207,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(FullPermissions);
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
             _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
                 .ReturnsAsync(new UserManagementSettings());
 
@@ -1227,7 +1229,7 @@ namespace AdminStore.Controllers
             _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
                 .ReturnsAsync(new UserManagementSettings());
             BadRequestException exception = null;
-
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
             // Act
             try
             {
@@ -1252,6 +1254,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
             BadRequestException exception = null;
 
             // Act
@@ -1278,6 +1281,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
             BadRequestException exception = null;
 
             // Act
@@ -1305,6 +1309,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
               .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
               .ReturnsAsync(FullPermissions);
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
 
             // Act
             await _controller.CreateUser(_user);
@@ -1322,6 +1327,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
               .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
               .ReturnsAsync(FullPermissions);
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
 
             // Act
             await _controller.CreateUser(_user);
@@ -1339,6 +1345,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
               .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
               .ReturnsAsync(FullPermissions);
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
 
             // Act
             await _controller.CreateUser(_user);
@@ -1356,6 +1363,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
               .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
               .ReturnsAsync(FullPermissions);
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
 
             // Act
             await _controller.CreateUser(_user);
@@ -1373,6 +1381,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
              .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
              .ReturnsAsync(FullPermissions);
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
 
             // Act
             await _controller.CreateUser(_user);
@@ -1387,6 +1396,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             _user.Title = new string('1', 256);
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
             _privilegesRepository
              .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
              .ReturnsAsync(FullPermissions);
@@ -1410,6 +1420,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
               .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
               .ReturnsAsync(FullPermissions);
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
 
             // Act
             await _controller.CreateUser(_user);
@@ -1417,6 +1428,26 @@ namespace AdminStore.Controllers
             // Assert
             // Exception
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(ConflictException))]
+        public async Task CreateUser_MaxUsersLimitPerInstanceWasReached_ReturnErrorResult()
+        {
+            //arrange
+            _user.Login = "test-user!test_@user";
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(FullPermissions);
+
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(false);
+
+
+            //act
+            await _controller.CreateUser(_user);
+
+            //assert
+            //Exception
+        }   
 
         #region Password
 
@@ -1429,6 +1460,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
             _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
                 .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = false });
             BadRequestException exception = null;
@@ -1456,6 +1488,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
             _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
                 .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = false });
 
@@ -1475,6 +1508,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
             _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
                 .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = false });
             BadRequestException exception = null;
@@ -1502,6 +1536,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
             _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
                 .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = false });
 
@@ -1521,6 +1556,8 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
             _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
                 .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = false });
             BadRequestException exception = null;
@@ -1548,6 +1585,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
             _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
                 .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = false });
 
@@ -1567,6 +1605,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
             _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
                 .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = true });
 
@@ -1585,6 +1624,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
             _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
                 .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = true });
 
@@ -1604,6 +1644,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
             _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
                 .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = true });
 
@@ -1622,6 +1663,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
             _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
                 .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = true });
 
@@ -1641,6 +1683,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
             _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
                 .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = true });
             BadRequestException exception = null;
@@ -1668,6 +1711,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
             _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
                 .ReturnsAsync(new UserManagementSettings { IsFederatedAuthenticationEnabled = true });
 
@@ -1687,6 +1731,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
             _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
                 .ReturnsAsync(new UserManagementSettings());
             BadRequestException exception = null;
@@ -1715,6 +1760,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
             _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
                 .ReturnsAsync(new UserManagementSettings());
             BadRequestException exception = null;
@@ -1743,6 +1789,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(FullPermissions);
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
             _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
                 .ReturnsAsync(new UserManagementSettings());
 
@@ -1762,6 +1809,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(FullPermissions);
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
             _settingsRepoMock.Setup(r => r.GetUserManagementSettingsAsync())
                 .ReturnsAsync(new UserManagementSettings());
 
@@ -1783,6 +1831,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(FullPermissions);
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
 
             // Act
             await _controller.CreateUser(_user);
@@ -1800,6 +1849,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(FullPermissions);
+            _usersRepoMock.Setup(c => c.CheckIfAdminCanCreateUsers()).ReturnsAsync(true);
 
             // Act
             await _controller.CreateUser(_user);

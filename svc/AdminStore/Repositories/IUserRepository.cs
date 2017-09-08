@@ -55,5 +55,6 @@ namespace AdminStore.Repositories
         Task<int> DeleteUserFromGroupsAsync(int userId, OperationScope body);
 
         Task<bool> CheckUserHasProjectAdminRoleAsync(int sessionUserId);
+        Task<bool> CheckIfAdminCanCreateUsers();
     }
 }

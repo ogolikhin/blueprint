@@ -456,6 +456,12 @@ namespace AdminStore.Repositories
             return await _connectionWrapper.ExecuteScalarAsync<bool>("IsProjectAdminForAnyNonDeletedProject", prm, commandType: CommandType.StoredProcedure);
         }
 
+        public async Task<bool> CheckIfAdminCanCreateUsers()
+        {
+            var result = await _connectionWrapper.ExecuteScalarAsync<bool>("select dbo.CanCreateUsers()", commandType: CommandType.Text);
+            return result;
+        }
+
         internal class HashedPassword
         {
             internal string Password { get; set; }

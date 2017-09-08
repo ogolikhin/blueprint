@@ -33,7 +33,9 @@ function Setup-Environment {
 function Build-Nova-Services{
     param(
         [Parameter(Mandatory=$true)][string]$workspace,
+        [Parameter(Mandatory=$true)][string]$storytellerVersion,
         [Parameter(Mandatory=$true)][string]$blueprintVersion,
+        [Parameter(Mandatory=$true)][string]$buildNumber,
 
         [Parameter(Mandatory=$true)][string]$msBuildPath,
         [Parameter(Mandatory=$true)][string]$msBuildVerbosity,
@@ -43,7 +45,7 @@ function Build-Nova-Services{
         [Parameter(ValueFromRemainingArguments=$true)] $vars
     )
 
-    Modify-SolutionAssemblyVersion -file $workspace\svc\SolutionAssemblyVersion.cs -blueprintVersion $blueprintVersion
+    Modify-SolutionAssemblyVersion -file $workspace\svc\SolutionAssemblyVersion.cs -blueprintVersion "$blueprintVersion.$buildNumber"
 
     $msBuildArgs = @{
         verbosity = $msBuildVerbosity
@@ -69,7 +71,9 @@ function Build-Nova-Services{
 function Build-Nova-Html{
     param(
         [Parameter(Mandatory=$true)][string]$workspace,
+        [Parameter(Mandatory=$true)][string]$storytellerVersion,
         [Parameter(Mandatory=$true)][string]$blueprintVersion,
+        [Parameter(Mandatory=$true)][string]$buildNumber,
 
         [Parameter(Mandatory=$true)][string]$msBuildPath,
         [Parameter(Mandatory=$true)][string]$msBuildVerbosity,
@@ -91,8 +95,8 @@ function Build-Nova-Html{
         # Invoke-MyExpression "yarn" "upgrade"
 
         # Increment build version number
-        $version = $blueprintVersion.split(".")
-        $semver = $version[0] + "." + $version[1] + "." + $version[2] + "-" + $version[3]
+        $semver = $storytellerVersion + "-" + $buildnumber
+
         Invoke-MyExpression "yarn" "version --new-version $semver" -ignoreErrorCode
 
         # Build Nova Application
@@ -122,7 +126,6 @@ function Build-Nova-Html{
 function Build-Nova-Windows-Services{
     param(
         [Parameter(Mandatory=$true)][string]$workspace,
-        [Parameter(Mandatory=$true)][string]$blueprintVersion,
 
         [Parameter(Mandatory=$true)][string]$msBuildPath,
         [Parameter(Mandatory=$true)][string]$msBuildVerbosity,

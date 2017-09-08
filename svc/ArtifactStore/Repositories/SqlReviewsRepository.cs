@@ -513,6 +513,11 @@ namespace ArtifactStore.Repositories
                 throw new BadRequestException(nameof(offset) + " cannot be less than 0.", ErrorCodes.InvalidParameter);
             }
 
+            if (versionId < 1)
+            {
+                throw new BadRequestException(nameof(versionId) + " cannot be less than 1.", ErrorCodes.InvalidParameter);
+            }
+
             int? revisionId = await _itemInfoRepository.GetRevisionId(reviewId, userId, versionId);
 
             if (revisionId < int.MaxValue)
@@ -544,6 +549,18 @@ namespace ArtifactStore.Repositories
 
         public async Task<QueryResult<ReviewArtifactDetails>> GetReviewArtifactStatusesByParticipant(int artifactId, int reviewId, int? offset, int? limit, int userId, int? versionId = null, bool? addDrafts = true)
         {
+            var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(new[] {reviewId, artifactId}, userId);
+
+            if (!SqlArtifactPermissionsRepository.HasPermissions(reviewId, artifactPermissionsDictionary, RolePermissions.Read))
+            {
+                ThrowUserCannotAccessReviewException(reviewId);
+            }
+
+            if (!SqlArtifactPermissionsRepository.HasPermissions(artifactId, artifactPermissionsDictionary, RolePermissions.Read))
+            {
+                ExceptionHelper.ThrowArtifactForbiddenException(artifactId);
+            }
+
             int? revisionId = await _itemInfoRepository.GetRevisionId(reviewId, userId, versionId);
             if (revisionId < int.MaxValue)
             {

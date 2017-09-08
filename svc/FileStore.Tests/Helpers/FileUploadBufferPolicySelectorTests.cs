@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FileStore.Helpers
@@ -24,12 +25,27 @@ namespace FileStore.Helpers
         {
             //Arange
             var fileUploadBufferPolicySelector = new FileUploadBufferPolicySelector();
-
+            var response = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
+            
             //Act
-            var result = fileUploadBufferPolicySelector.UseBufferedOutputStream(null);
+            var result = fileUploadBufferPolicySelector.UseBufferedOutputStream(response);
 
             //Assert
             Assert.IsFalse(result, "UseBufferedOutputStream should return false for UseBufferedInputStream");
+        }
+
+        [TestMethod]
+        public void UseBufferedOutputStream_ReturnsTrue()
+        {
+            //Arange
+            var fileUploadBufferPolicySelector = new FileUploadBufferPolicySelector();
+            var response = new HttpResponseMessage(System.Net.HttpStatusCode.BadRequest);
+
+            //Act
+            var result = fileUploadBufferPolicySelector.UseBufferedOutputStream(response);
+
+            //Assert
+            Assert.IsTrue(result, "UseBufferedOutputStream should return true for UseBufferedInputStream");
         }
     }
 }

@@ -128,4 +128,30 @@ function Check-TTParity{
         #Compare objects		
         $compareResult = Compare-Object -ReferenceObject (Get-Content $tempPath) -DifferenceObject (Get-Content $expectedResultPath)		
         return $compareResult -eq $null		
- } 
+ }
+
+  function Modify-SolutionAssemblyVersion {
+    param(
+        [Parameter(Mandatory=$true)][string]$file,
+        [Parameter(Mandatory=$true)][string]$blueprintVersion
+    )
+
+    Write-Subsection "Modifying Version in $file"
+
+    $regexAV = "(AssemblyVersion\(\`")(\d+\.\d+\.\d+\.\d+)(\`")";
+    $regexFV = "(AssemblyFileVersion\(\`")(\d+\.\d+\.\d+\.\d+)(\`")";
+    <# Regex group breakdown:
+
+        (AssemblyVersion\(\")           AssemblyVersion("
+        (\d+\.\d+\.\d+\.\d+)            7.0.0.0
+        (\")                            "
+
+        We replace group $2 with Blueprint version.
+    #>
+
+    $contents = [System.IO.File]::ReadAllText($file)
+    $contents = [RegEx]::Replace($contents, $regexAV, "`${1}${blueprintVersion}`$3")
+    $contents = [RegEx]::Replace($contents, $regexFV, "`${1}${blueprintVersion}`$3") 
+        
+    [System.IO.File]::WriteAllText($file, $contents)
+}

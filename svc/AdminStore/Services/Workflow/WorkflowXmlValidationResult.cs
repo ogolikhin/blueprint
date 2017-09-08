@@ -56,7 +56,6 @@ namespace AdminStore.Services.Workflow
         PropertyNamePropertyChangeActionNotSpecitied,
         PropertyValuePropertyChangeActionNotSpecitied,
         AmbiguousPropertyValuePropertyChangeAction,
-        PropertyChangeActionValidValueValueNotSpecitied,
         PropertyChangeActionUserOrGroupNameNotSpecitied,
         AmbiguousGroupProjectReference,
         ArtifactTypeGenerateChildrenActionNotSpecitied,

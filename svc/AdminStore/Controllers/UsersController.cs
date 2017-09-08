@@ -514,6 +514,7 @@ namespace AdminStore.Controllers
         /// <response code="400">BadRequest. Parameters are invalid. </response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. The user does not have permissions for creating the user.</response>
+        /// <response code="409">Conflict. Maximum users limit per instance was reached.</response>
         [HttpPost]
         [SessionRequired]
         [ResponseType(typeof(int))]
@@ -527,6 +528,13 @@ namespace AdminStore.Controllers
 
             var privileges = user.InstanceAdminRoleId.HasValue ? InstanceAdminPrivileges.AssignAdminRoles : InstanceAdminPrivileges.ManageUsers;
             await _privilegesManager.Demand(Session.UserId, privileges);
+
+            var isAdminCanCreateUsers = await _userRepository.CheckIfAdminCanCreateUsers();
+
+            if (!isAdminCanCreateUsers)
+            {
+                throw new ConflictException(ErrorMessages.MaxUsersPerInstanceLimitReached, ErrorCodes.ExceedsLimit);
+            }
 
             var databaseUser = await UsersHelper.CreateDbUserFromDtoAsync(user, OperationMode.Create, _settingsRepository);
 

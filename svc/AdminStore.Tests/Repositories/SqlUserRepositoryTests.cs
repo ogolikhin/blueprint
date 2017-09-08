@@ -490,6 +490,41 @@ namespace AdminStore.Repositories
             Assert.AreEqual(result, userId);
         }
 
+        [TestMethod]
+        public async Task CheckIfAdminCanCreateUsers_CreateUsersPerInstanceLimitDoesNotReached_ReturnTrueResult()
+        {
+            //arrange
+            var returnResult = true;
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
+            cxn.SetupExecuteScalarAsyncFunc("select dbo.CanCreateUsers()",null, returnResult);
+
+            //act
+            var result = await repository.CheckIfAdminCanCreateUsers();
+
+            //assert
+            cxn.Verify();
+            Assert.AreEqual(returnResult, result);
+        }
+
+        [TestMethod]
+        public async Task CheckIfAdminCanCreateUsers_CreateUsersPerInstanceLimitWasReached_ReturnFalseResult()
+        {
+            //arrange
+            var returnResult = false;
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
+            cxn.SetupExecuteScalarAsyncFunc("select dbo.CanCreateUsers()", null, returnResult);
+
+            //act
+            var result = await repository.CheckIfAdminCanCreateUsers();
+
+            //assert
+            cxn.Verify();
+            Assert.AreEqual(returnResult, result);
+        }
+
+
         #endregion AddUserAsync
 
         #region UpdateUsersync
@@ -545,7 +580,7 @@ namespace AdminStore.Repositories
             cxn.SetupExecuteScalarAsync("DeleteUserFromGroups", It.IsAny<Dictionary<string, object>>(), 1, new Dictionary<string, object> { { "ErrorCode", errorId } });
 
             // Act
-            await repository.DeleteUserFromGroupsAsync(1, new OperationScope {Ids = new [] {3, 4}, SelectAll = false});
+            await repository.DeleteUserFromGroupsAsync(1, new OperationScope { Ids = new[] { 3, 4 }, SelectAll = false });
 
             // Assert
             cxn.Verify();
@@ -566,7 +601,7 @@ namespace AdminStore.Repositories
             cxn.SetupExecuteScalarAsync("AddUserToGroups", It.IsAny<Dictionary<string, object>>(), 1, new Dictionary<string, object> { { "ErrorCode", errorId } });
 
             // Act
-            await repository.AddUserToGroupsAsync(1, new OperationScope { Ids = new[] { 3, 4 }}, string.Empty);
+            await repository.AddUserToGroupsAsync(1, new OperationScope { Ids = new[] { 3, 4 } }, string.Empty);
 
             // Assert
             cxn.Verify();

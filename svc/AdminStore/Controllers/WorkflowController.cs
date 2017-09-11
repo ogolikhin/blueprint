@@ -131,7 +131,7 @@ namespace AdminStore.Controllers
         [SessionRequired]
         [FeatureActivation(FeatureTypes.Workflow)]
         [Route("{workflowId:int:min(1)}")]
-        [ResponseType(typeof(WorkflowDto))]
+        [ResponseType(typeof(WorkflowDetailsDto))]
         public async Task<IHttpActionResult> GetWorkflow(int workflowId)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);

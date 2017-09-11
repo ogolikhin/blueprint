@@ -12,7 +12,9 @@
 
 param(
     [Parameter(Mandatory=$true)][string] $workspace,
+    [Parameter(Mandatory=$true)][string] $storytellerVersion,
     [Parameter(Mandatory=$true)][string] $blueprintVersion,
+    [Parameter(Mandatory=$true)][string] $buildNumber,
     [Parameter(Mandatory=$false)][string] $msBuildVerbosity = "m", #q[uiet], m[inimal], n[ormal], d[etailed], and diag[nostic].
     [Parameter(Mandatory=$false)][bool] $removeFiles = $true,
     [Parameter(Mandatory=$false)][bool] $RunTests = $true,
@@ -32,7 +34,9 @@ Import-Module "$PSScriptRoot\Build-Steps\Nova-BuildSteps.psm1"
 
 $buildParams = @{
     workspace = $workspace
+    storytellerVersion = $storytellerVersion
     blueprintVersion = $blueprintVersion
+    buildNumber = $buildNumber
     msBuildVerbosity = $msBuildVerbosity
     msBuildPath = "C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe"
     visualStudioVersion = "14.0"

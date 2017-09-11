@@ -19,6 +19,7 @@ namespace BlueprintSys.RC.Services.Tests
         [TestMethod]
         public async Task TenantInfoRetriever_ReturnsTenants()
         {
+            //arrange
             var mockConfigHelper = new Mock<IConfigHelper>();
             mockConfigHelper.Setup(m => m.CacheExpirationMinutes).Returns(1);
             var mockActionHandlerServiceRepository = new Mock<IActionHandlerServiceRepository>();
@@ -40,8 +41,24 @@ namespace BlueprintSys.RC.Services.Tests
             }
             mockActionHandlerServiceRepository.Setup(m => m.GetTenantsFromTenantsDb()).ReturnsAsync(sqlTenants);
             var tenantInfoRetriever = new TenantInfoRetriever(mockActionHandlerServiceRepository.Object, mockConfigHelper.Object);
+
+            //act
             var tenants = await tenantInfoRetriever.GetTenants();
+
+            //assert
             Assert.AreEqual(sqlTenants.Count, tenants.Count);
+            foreach (var sqlTenant in sqlTenants)
+            {
+                var tenant = tenants[sqlTenant.TenantId];
+                Assert.AreEqual(sqlTenant.TenantId, tenant.TenantId);
+                Assert.AreEqual(sqlTenant.BlueprintConnectionString, tenant.BlueprintConnectionString);
+                Assert.AreEqual(sqlTenant.AdminStoreLog, tenant.AdminStoreLog);
+                Assert.AreEqual(sqlTenant.ExpirationDate, tenant.ExpirationDate);
+                Assert.AreEqual(sqlTenant.PackageLevel, tenant.PackageLevel);
+                Assert.AreEqual(sqlTenant.PackageName, tenant.PackageName);
+                Assert.AreEqual(sqlTenant.StartDate, tenant.StartDate);
+                Assert.AreEqual(sqlTenant.TenantName, tenant.TenantName);
+            }
         }
 
         [TestMethod]

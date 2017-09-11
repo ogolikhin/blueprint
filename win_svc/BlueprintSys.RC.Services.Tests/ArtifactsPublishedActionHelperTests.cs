@@ -4,7 +4,6 @@ using BlueprintSys.RC.Services.Helpers;
 using BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished;
 using BlueprintSys.RC.Services.Models;
 using BlueprintSys.RC.Services.Repositories;
-using BluePrintSys.Messaging.CrossCutting.Host;
 using BluePrintSys.Messaging.Models.Actions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;

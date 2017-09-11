@@ -134,6 +134,7 @@
     <Compile Include="Models\Emails\EmailOutgoingSettings.cs" />
     <Compile Include="Models\Emails\EmailSettingsDto.cs" />
     <Compile Include="Models\Workflow\IeUsersGroups.cs" />
+    <Compile Include="Models\Workflow\WorkflowDetailsDto.cs" />
     <Compile Include="Services\Email\EmailClientExceptionHandler.cs" />
     <Compile Include="Services\Email\EmailClientType.cs" />
     <Compile Include="Models\Emails\TestEmailConfigInstanceSettings.cs" />

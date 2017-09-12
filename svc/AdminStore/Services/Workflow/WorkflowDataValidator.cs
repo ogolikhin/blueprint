@@ -64,6 +64,7 @@ namespace AdminStore.Services.Workflow
 
             var result = await InitializeDataValidationResultAsync(workflow, false);
 
+            await ValidateWorkflowNameForUniquenessAsync(result, workflow, workflow.Id);
             await ValidateProjectsDataAsync(result, workflow.Projects, true);
             await ValidateArtifactTypesDataAsync(result, workflow.Projects, workflow.Id, false);
             await ValidateEventsDataAsync(result, workflow, false);
@@ -178,9 +179,9 @@ namespace AdminStore.Services.Workflow
             });
         }
 
-        private async Task ValidateWorkflowNameForUniquenessAsync(WorkflowDataValidationResult result, IeWorkflow workflow)
+        private async Task ValidateWorkflowNameForUniquenessAsync(WorkflowDataValidationResult result, IeWorkflow workflow, int? exceptWorkflowId = null)
         {
-            var duplicateNames = await _workflowRepository.CheckLiveWorkflowsForNameUniquenessAsync(new[] {workflow.Name});
+            var duplicateNames = await _workflowRepository.CheckLiveWorkflowsForNameUniquenessAsync(new[] {workflow.Name}, exceptWorkflowId);
             if (duplicateNames.Any())
             {
                 result.Errors.Add(new WorkflowDataValidationError

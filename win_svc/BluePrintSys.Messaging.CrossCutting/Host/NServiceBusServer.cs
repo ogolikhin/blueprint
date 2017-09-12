@@ -5,9 +5,7 @@ using System.Threading.Tasks;
 using BluePrintSys.Messaging.CrossCutting.Configuration;
 using BluePrintSys.Messaging.CrossCutting.Logging;
 using NServiceBus;
-using NServiceBus.Configuration.AdvanceExtensibility;
 using NServiceBus.Transport.SQLServer;
-using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
 
@@ -78,10 +76,9 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
                 "Common.dll",
                 "NServiceBus.Persistence.Sql.dll",
                 "BluePrintSys.Messaging.CrossCutting.dll",
-                "Dapper.StrongName.dll"
+                "Dapper.StrongName.dll",
+                "MailBee.NET.4.dll"
             };
-
-            
 
             var messageBroker = ConfigHelper.GetMessageBroker();
             if (messageBroker == MessageBroker.RabbitMQ)

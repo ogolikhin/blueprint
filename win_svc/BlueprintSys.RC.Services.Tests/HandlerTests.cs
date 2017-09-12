@@ -223,6 +223,13 @@ namespace BlueprintSys.RC.Services.Tests
         }
 
         [TestMethod]
+        public void GenerateUserStoriesMessageHandler_InstantiatesSuccessfully()
+        {
+            var handler = new GenerateUserStoriesMessageHandler();
+            Assert.IsNotNull(handler);
+        }
+
+        [TestMethod]
         public void GenerateUserStoriesMessageHandler_HandlesMessageSuccessfully()
         {
             _handleActionSetup.Returns(Task.FromResult(true));
@@ -258,6 +265,15 @@ namespace BlueprintSys.RC.Services.Tests
         }
 
         [TestMethod]
+        public async Task StateTransitionActionHelper_ReturnsTrue()
+        {
+            var helper = new StateTransitionActionHelper();
+            //this should be updated when/if the logic is implemented
+            var result = await helper.HandleAction(new TenantInformation(), new StateChangeMessage(), _actionHandlerServiceRepositoryMock.Object);
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(TestException))]
         public void StateTransitionMessageHandler_RethrowsException()
         {
@@ -281,6 +297,15 @@ namespace BlueprintSys.RC.Services.Tests
             var handler = new PropertyChangeMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
             var message = new GenerateUserStoriesMessage();
             TestHandlerAndMessageWithHeader(handler, message);
+        }
+
+        [TestMethod]
+        public async Task PropertyChangeActionHelper_ReturnsTrue()
+        {
+            var helper = new PropertyChangeActionHelper();
+            //this should be updated when/if the logic is implemented
+            var result = await helper.HandleAction(new TenantInformation(), new GenerateUserStoriesMessage(), _actionHandlerServiceRepositoryMock.Object);
+            Assert.IsTrue(result);
         }
 
         [TestMethod]

@@ -31,7 +31,7 @@ namespace AdminStore.Repositories
 
         Task<IEnumerable<ProjectRole>> GetProjectRolesAsync(int projectId);
 
-        Task<RoleAssignmentQueryResult<RolesAssignments>> GetProjectRoleAssignmentsAsync(int projectId, TabularData tabularData,
+        Task<RoleAssignmentQueryResult<RoleAssignment>> GetProjectRoleAssignmentsAsync(int projectId, TabularData tabularData,
             Func<Sorting, string> sort = null);
         
         Task<int> DeleteRoleAssignmentsAsync(int projectId, OperationScope scope, string search);

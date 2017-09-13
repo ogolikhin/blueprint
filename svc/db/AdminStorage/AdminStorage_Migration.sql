@@ -1427,9 +1427,11 @@ CREATE PROCEDURE [AdminStore].[ExtendSession]
 )
 AS
 BEGIN
+	DECLARE @utcNow DATETIME = GETUTCDATE();
+
 	UPDATE [AdminStore].[Sessions] SET EndTime = @EndTime
 	OUTPUT Inserted.[UserId], Inserted.[SessionId], Inserted.[BeginTime], Inserted.[EndTime], Inserted.[UserName], Inserted.[LicenseLevel], Inserted.[IsSso]
-	WHERE SessionId = @SessionId AND BeginTime IS NOT NULL AND GETUTCDATE() < EndTime;
+	WHERE SessionId = @SessionId AND BeginTime IS NOT NULL AND @utcNow < EndTime;
 END
 GO
 

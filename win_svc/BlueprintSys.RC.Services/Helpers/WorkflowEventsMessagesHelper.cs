@@ -20,17 +20,18 @@ namespace BlueprintSys.RC.Services.Helpers
     {
         private const string LogSource = "StateChange.WorkflowEventsMessagesHelper";
 
-        public static async Task<IList<IWorkflowMessage>> GenerateMessages(int userId,
-            int revisionId,
-            string userName,
-            WorkflowEventTriggers postOpTriggers,
-            IBaseArtifactVersionControlInfo artifactInfo,
-            string projectName,
-            IDictionary<int, IList<Property>> modifiedProperties,
-            bool sendArtifactPublishedMessage,
-            string artifactUrl,
-            string baseUrl,
-            IUsersRepository repository,
+        public static async Task<IList<IWorkflowMessage>> GenerateMessages(int userId, 
+            int revisionId, 
+            string userName, 
+            WorkflowEventTriggers postOpTriggers, 
+            IBaseArtifactVersionControlInfo artifactInfo, 
+            string projectName, 
+            IDictionary<int, IList<Property>> modifiedProperties, 
+            bool sendArtifactPublishedMessage, 
+            string artifactUrl, 
+            string baseUrl, 
+            int[] ancestorArtifactTypeIds, 
+            IUsersRepository repository, 
             IServiceLogRepository serviceLogRepository)
         {
             var resultMessages = new List<IWorkflowMessage>();
@@ -75,18 +76,21 @@ namespace BlueprintSys.RC.Services.Helpers
                         {
                             continue;
                         }
+                        var ancestors = new List<int>(ancestorArtifactTypeIds ?? new int[0]);
+                        ancestors.Add(artifactInfo.ItemTypeId);
                         var generateChildrenMessage = new GenerateDescendantsMessage
                         {
                             ChildCount = generateChildrenAction.ChildCount.GetValueOrDefault(10),
                             DesiredArtifactTypeId = generateChildrenAction.ArtifactTypeId,
                             ArtifactId = artifactInfo.Id,
+                            AncestorArtifactTypeIds = ancestors.ToArray(),
                             RevisionId = revisionId,
                             UserId = userId,
                             ProjectId = artifactInfo.ProjectId,
                             UserName = userName,
                             BaseHostUri = baseHostUri,
                             ProjectName = projectName,
-                            TypePredefined = (int)artifactInfo.PredefinedType
+                            TypePredefined = (int) artifactInfo.PredefinedType
                         };
                         resultMessages.Add(generateChildrenMessage);
                         break;

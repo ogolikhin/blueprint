@@ -14,6 +14,8 @@ namespace BluePrintSys.Messaging.Models.Actions
 
         public int ArtifactId { get; set; }
 
+        public int[] AncestorArtifactTypeIds { get; set; }
+
         public int TypePredefined { get; set; }
 
         public string ProjectName { get; set; }

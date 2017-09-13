@@ -19,5 +19,7 @@ namespace BluePrintSys.Messaging.Models.Actions
         public bool IsFirstTimePublished { get; set; }
 
         public List<PublishedPropertyInformation> ModifiedProperties { get; set; }
+
+        public int[] AncestorArtifactTypeIds { get; set; }
     }
 }

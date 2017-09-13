@@ -102,23 +102,23 @@ namespace ServiceLibrary.Repositories.Workflow
         }
 
         public async Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForNewArtifactEvent(int userId,
-            int artifactId, int revisionId)
+            int artifactId, int revisionId, bool addDrafts)
         {
             //Need to access code for artifact permissions for revision
             await CheckForArtifactPermissions(userId, artifactId, permissions: RolePermissions.Read);
 
-            return await GetWorkflowEventTriggersForNewArtifactEventInternal(userId, artifactId, revisionId);
+            return await GetWorkflowEventTriggersForNewArtifactEventInternal(userId, artifactId, revisionId, addDrafts);
         }
 
         public async Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForNewArtifactEvent(int userId,
             IEnumerable<int> artifactIds, 
-            int revisionId)
+            int revisionId, bool addDrafts)
         {
             foreach (var artifactId in artifactIds)
             {
                 await CheckForArtifactPermissions(userId, artifactId, permissions: RolePermissions.Read);
             }
-            return await GetWorkflowEventTriggersForNewArtifactEventInternal(userId, artifactIds, revisionId);
+            return await GetWorkflowEventTriggersForNewArtifactEventInternal(userId, artifactIds, revisionId, addDrafts);
         }
 
         public async Task<IEnumerable<WorkflowMessageArtifactInfo>> GetWorkflowMessageArtifactInfoAsync(int userId,
@@ -131,12 +131,13 @@ namespace ServiceLibrary.Repositories.Workflow
 
         #region Private methods
 
-        private async Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForNewArtifactEventInternal(int userId, int artifactId, int revisionId)
+        private async Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForNewArtifactEventInternal(int userId, int artifactId, int revisionId, bool addDrafts)
         {
             var param = new DynamicParameters();
             param.Add("@userId", userId);
             param.Add("@artifactId", artifactId);
             param.Add("@revisionId", revisionId);
+            param.Add("@addDrafts", addDrafts);
             var newArtifactEvents = (await
                 ConnectionWrapper.QueryAsync<SqlWorkflowNewArtifactEvent>("GetWorkflowEventTriggersForNewArtifact",
                     param,
@@ -169,13 +170,15 @@ namespace ServiceLibrary.Repositories.Workflow
 
         private async Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForNewArtifactEventInternal(int userId, 
             IEnumerable<int> artifactIds, 
-            int revisionId)
+            int revisionId,
+            bool addDrafts)
         {
             var param = new DynamicParameters();
             param.Add("@userId", userId);
             var artifactIdsTable = SqlConnectionWrapper.ToDataTable(artifactIds);
             param.Add("@artifactIds", artifactIdsTable);
             param.Add("@revisionId", revisionId);
+            param.Add("@addDrafts", addDrafts);
             var newArtifactEvents = (await
                 ConnectionWrapper.QueryAsync<SqlWorkflowNewArtifactEvent>("GetWorkflowEventTriggersForNewArtifact",
                     param,

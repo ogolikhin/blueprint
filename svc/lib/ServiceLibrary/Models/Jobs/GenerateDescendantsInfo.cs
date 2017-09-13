@@ -10,7 +10,7 @@ namespace ServiceLibrary.Models.Jobs
         public ItemTypePredefined Predefined { get; set; }
 
         [JsonProperty]
-        public int ArtifacId { get; set; }
+        public int ArtifactId { get; set; }
 
         [JsonProperty]
         public int UserId { get; set; }
@@ -29,5 +29,8 @@ namespace ServiceLibrary.Models.Jobs
 
         [JsonProperty]
         public string DesiredArtifactTypeName { get; set; }
+
+        [JsonProperty]
+        public int[] AncestorArtifactTypeIds { get; set; }
     }
 }

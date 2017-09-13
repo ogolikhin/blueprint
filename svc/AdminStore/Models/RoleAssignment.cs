@@ -5,7 +5,7 @@ using System.Web;
 
 namespace AdminStore.Models
 {
-    public class RolesAssignments
+    public class RoleAssignment
     {
         public int Id { get; set; }
         public string GroupName { get; set; }

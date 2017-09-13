@@ -225,9 +225,7 @@ namespace AdminStore.Helpers.Workflow
             usersGroups.UsersGroups?.ForEach(NormalizeUserGroup);
             usersGroups.IncludeCurrentUser = NormalizeNullableBool(usersGroups.IncludeCurrentUser);
 
-            return !usersGroups.UsersGroups.IsEmpty() || usersGroups.IncludeCurrentUser.GetValueOrDefault()
-                ? usersGroups
-                : null;
+            return usersGroups;
         }
 
         private static void NormalizeUserGroup(IeUserGroup userGroup)

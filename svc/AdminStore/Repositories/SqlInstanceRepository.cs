@@ -374,7 +374,7 @@ namespace AdminStore.Repositories
             return result;
         }
 
-        public async Task<RoleAssignmentQueryResult<RolesAssignments>> GetProjectRoleAssignmentsAsync(int projectId, TabularData tabularData, Func<Sorting, string> sort = null)
+        public async Task<RoleAssignmentQueryResult<RoleAssignment>> GetProjectRoleAssignmentsAsync(int projectId, TabularData tabularData, Func<Sorting, string> sort = null)
         {
             var orderField = string.Empty;
             if (sort != null && tabularData.Sorting != null)
@@ -397,7 +397,7 @@ namespace AdminStore.Repositories
             parameters.Add("@ProjectName", dbType: DbType.String, direction: ParameterDirection.Output, size: -1);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-            var rolesAssigments = await _connectionWrapper.QueryAsync<RolesAssignments>("GetProjectRoleAssignments", parameters, commandType: CommandType.StoredProcedure);
+            var rolesAssigments = await _connectionWrapper.QueryAsync<RoleAssignment>("GetProjectRoleAssignments", parameters, commandType: CommandType.StoredProcedure);
 
             var errorCode = parameters.Get<int?>("ErrorCode");
 
@@ -409,7 +409,7 @@ namespace AdminStore.Repositories
             var total = parameters.Get<int?>("Total");
             var projectName = parameters.Get<string>("ProjectName");
 
-            var queryDataResult = new RoleAssignmentQueryResult<RolesAssignments> { Items = rolesAssigments, Total = total ?? 0, ProjectName = projectName ?? string.Empty};
+            var queryDataResult = new RoleAssignmentQueryResult<RoleAssignment> { Items = rolesAssigments, Total = total ?? 0, ProjectName = projectName ?? string.Empty};
 
             return queryDataResult;
         }

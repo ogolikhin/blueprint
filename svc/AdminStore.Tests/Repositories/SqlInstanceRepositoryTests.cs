@@ -24,7 +24,7 @@ namespace AdminStore.Repositories
         private const int ProjectId = 1;
         private const int ParentFolderId = 88;
         private const int UserId = 10;
-        private IEnumerable<RolesAssignments> _projectRolesAssignments;
+        private IEnumerable<RoleAssignment> _projectRolesAssignments;
         private TabularData _tabularData;
         private InstanceItem[] _instanceItems;
         private RoleAssignmentDTO roleAssignment;
@@ -37,9 +37,9 @@ namespace AdminStore.Repositories
             _connection = new SqlConnectionWrapperMock();
             _instanceRepository = new SqlInstanceRepository(_connection.Object);
 
-            _projectRolesAssignments = new List<RolesAssignments>
+            _projectRolesAssignments = new List<RoleAssignment>
             {
-                new RolesAssignments {Id = 1, RoleName = "Role1", GroupName = "Group1"}
+                new RoleAssignment {Id = 1, RoleName = "Role1", GroupName = "Group1"}
             };
 
             _tabularData = new TabularData

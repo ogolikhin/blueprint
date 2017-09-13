@@ -50,7 +50,7 @@ namespace AdminStore.Repositories.Workflow
 
         Task<int> CreateRevisionInTransactionAsync(IDbTransaction transaction, int userId, string description);
 
-        Task<IEnumerable<string>> CheckLiveWorkflowsForNameUniquenessAsync(IEnumerable<string> names);
+        Task<IEnumerable<string>> CheckLiveWorkflowsForNameUniquenessAsync(IEnumerable<string> names, int? exceptWorkflowId = null);
 
         Task RunInTransactionAsync(Func<IDbTransaction, Task> action);
 

@@ -610,6 +610,28 @@ namespace AdminStore.Services.Workflow
             return await GetWorkflowExportAsync(workflowId, standardTypes);
         }
 
+        public async Task<int> CreateWorkflow(string name, string description, int userId)
+        {
+            var workflowId = 0;
+
+            Func<IDbTransaction, Task> action = async transaction =>
+            {
+                var publishRevision =
+                    await _workflowRepository.CreateRevisionInTransactionAsync(transaction, userId, "Create workflow.");
+
+                var workflow = new SqlWorkflow
+                {
+                    Name = name,
+                    Description = description,
+                    Active = false
+                };
+                workflowId = await _workflowRepository.CreateWorkflow(workflow, publishRevision, transaction);
+
+            };
+            await _workflowRepository.RunInTransactionAsync(action);
+            return workflowId;
+        }
+
         private async Task<IeWorkflow> GetWorkflowExportAsync(int workflowId, ProjectTypes standardTypes)
         {
             var workflowDetails = await _workflowRepository.GetWorkflowDetailsAsync(workflowId);

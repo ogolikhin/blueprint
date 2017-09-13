@@ -132,8 +132,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
                 await WorkflowEventsMessagesHelper.ProcessMessages(LogSource,
                     tenant.TenantId,
                     serviceLogRepository,
-                    //Only process notification messages
-                    notificationMessage.Value.Where(a => a.ActionType== MessageActionType.Notification).ToList(),
+                    notificationMessage.Value,
                     $"Error on new artifact creation with Id: {notificationMessage.Key}",
                     messageProcessor);
             }

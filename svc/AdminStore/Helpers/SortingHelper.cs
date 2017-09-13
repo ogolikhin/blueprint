@@ -13,7 +13,7 @@ namespace AdminStore.Helpers
             var sortableColumns = new HashSet<string>
             {
                 defaultSortColumn,
-                "status",
+                "active",
                 "createdBy",
                 "lastModified",
                 "dateCreated"

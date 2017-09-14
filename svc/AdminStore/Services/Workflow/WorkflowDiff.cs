@@ -98,25 +98,37 @@ namespace AdminStore.Services.Workflow
                     .ForEach(at => cpAtIds.Add(Tuple.Create(p.Id.Value, at.Id.Value)));
             });
 
+            var notSpecifiedAtIds = new HashSet<int>();
             projects?.Where(p => p.Id.HasValue).ForEach(p => p.ArtifactTypes?.ForEach(at =>
             {
-                ICollection<KeyValuePair<int, IeArtifactType>> colToAddTo;
+                // I this case the workflow data validator logs an error.
                 if (!at.Id.HasValue)
                 {
-                    colToAddTo = result.AddedProjectArtifactTypes;
+                    return;
                 }
-                else
+
+                // A negative artifact type Id means Id is not specified in xml.
+                var isSpecifiedInXml = at.Id.GetValueOrDefault() > 0;
+                // Make Id positive
+                if (!isSpecifiedInXml)
                 {
-                    colToAddTo = cpAtIds.Contains(Tuple.Create(p.Id.Value, at.Id.Value))
-                    ? result.UnchangedProjectArtifactTypes
-                    : result.NotFoundProjectArtifactTypes;
+                    at.Id *= -1;
+                    notSpecifiedAtIds.Add(at.Id.Value);
                 }
+
+                var colToAddTo = cpAtIds.Contains(Tuple.Create(p.Id.Value, at.Id.Value))
+                    ? result.UnchangedProjectArtifactTypes
+                    : (isSpecifiedInXml
+                        ? result.NotFoundProjectArtifactTypes
+                        : result.AddedProjectArtifactTypes);
 
                 colToAddTo.Add(new KeyValuePair<int, IeArtifactType>(p.Id.Value, at));
             }));
 
             currentProjects?.Where(p => p.Id.HasValue).ForEach(p => p.ArtifactTypes?
-                .Where(at => at.Id.HasValue && !pAtIds.Contains(Tuple.Create(p.Id.Value, at.Id.Value)))
+                .Where(at => at.Id.HasValue
+                    && !notSpecifiedAtIds.Contains(at.Id.Value)
+                    && !pAtIds.Contains(Tuple.Create(p.Id.Value, at.Id.Value)))
                 .ForEach(at => result.DeletedProjectArtifactTypes.Add(new KeyValuePair<int, IeArtifactType>(p.Id.Value, at))));
         }
 

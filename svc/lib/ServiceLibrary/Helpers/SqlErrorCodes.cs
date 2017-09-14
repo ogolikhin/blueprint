@@ -25,6 +25,7 @@
         EditRootFolderIsForbidden = 50019,
         RolesForProjectNotExist = 50020,
         RoleAssignmentAlreadyExists = 50021,
-        RoleAssignmentNotExists = 50022
+        RoleAssignmentNotExists = 50022,
+        WorkflowWithSuchANameAlreadyExists = 50023
     }
 }

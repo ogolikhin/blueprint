@@ -333,7 +333,7 @@ namespace AdminStore.Services.Workflow
 
         
 
-        public async Task<WorkflowDto> GetWorkflowDetailsAsync(int workflowId)
+        public async Task<WorkflowDetailsDto> GetWorkflowDetailsAsync(int workflowId)
         {
             var workflowDetails = await _workflowRepository.GetWorkflowDetailsAsync(workflowId);
             if (workflowDetails == null)
@@ -341,7 +341,7 @@ namespace AdminStore.Services.Workflow
                 throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
             }
 
-            var workflowDto = new WorkflowDto
+            var workflowDetailsDto = new WorkflowDetailsDto
             {
                 Name = workflowDetails.Name,
                 Description = workflowDetails.Description,
@@ -353,15 +353,15 @@ namespace AdminStore.Services.Workflow
             var workflowProjectsAndArtifactTypes =
                 (await _workflowRepository.GetWorkflowArtifactTypesAsync(workflowId)).ToList();
 
-            workflowDto.Projects =
+            workflowDetailsDto.Projects =
                 workflowProjectsAndArtifactTypes.Select(
                     e => new WorkflowProjectDto {Id = e.ProjectId, Name = e.ProjectPath}).Distinct().ToList();
-            workflowDto.ArtifactTypes =
+            workflowDetailsDto.ArtifactTypes =
                 workflowProjectsAndArtifactTypes.Select(e => new WorkflowArtifactTypeDto {Name = e.ArtifactTypeName})
                     .Distinct()
                     .ToList();
 
-            return workflowDto;
+            return workflowDetailsDto;
         }
 
         public async Task<int> UpdateWorkflowStatusAsync(StatusUpdate statusUpdate, int workflowId, int userId)

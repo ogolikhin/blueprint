@@ -300,6 +300,27 @@ namespace ArtifactStore.Controllers
         }
 
         /// <summary>
+        /// Sets the viewed state of the given artifact within a review for the session user.
+        /// </summary>
+        /// <param name="reviewId"></param>
+        /// <param name="artifactId"></param>
+        /// <param name="viewedInput"></param>
+        /// <returns></returns>
+        /// <response code="200">OK.</response>
+        /// <response code="400">Bad Request.</response>
+        /// <response code="401">Unauthorized. The session token is invalid.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for the review or it is locked by another user.</response>
+        /// <response code="404">Not found. An artifact for the specified id is not found, does not exist or is deleted.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpPut, SessionRequired]
+        [Route("containers/{reviewId:int:min(1)}/artifacts/{artifactId:int:min(1)}/viewed")]
+        public Task UpdateReviewArtifactViewedAsync(int reviewId, int artifactId, [FromBody] ReviewArtifactViewedInput viewedInput)
+        {
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            return _sqlReviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, viewedInput, session.UserId);
+        }
+
+        /// <summary>
         /// Get participant's review statistics for the given review and participant.
         /// </summary>
         /// <param name="reviewId">Review artifact Id</param>

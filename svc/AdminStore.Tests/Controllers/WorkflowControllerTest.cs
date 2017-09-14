@@ -240,14 +240,14 @@ namespace AdminStore.Controllers
         public async Task GetWorkflow_AllParamsAreCorrectAndPermissionsOk_ReturnWorkflow()
         {
             //arrange
-            var workflow = new WorkflowDto{ Name = "Workflow1", Description = "DescriptionWorkflow1", Active = true };
+            var workflow = new WorkflowDetailsDto { Name = "Workflow1", Description = "DescriptionWorkflow1", Active = true };
             _workflowServiceMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(workflow);
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
             //act
-            var result = await _controller.GetWorkflow(WorkflowId) as OkNegotiatedContentResult<WorkflowDto>;
+            var result = await _controller.GetWorkflow(WorkflowId) as OkNegotiatedContentResult<WorkflowDetailsDto>;
 
             //assert
             Assert.IsNotNull(result);
@@ -317,7 +317,7 @@ namespace AdminStore.Controllers
             //act
             try
             {
-                await _controller.GetWorkflows(new Pagination(), new Sorting());
+                await _controller.GetWorkflows(new Pagination() { Limit = 10, Offset = 0 }, new Sorting());
             }
             catch (Exception ex)
             {

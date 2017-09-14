@@ -133,7 +133,7 @@ namespace AdminStore.Controllers
         [SessionRequired]
         [FeatureActivation(FeatureTypes.Workflow)]
         [Route("{workflowId:int:min(1)}")]
-        [ResponseType(typeof(WorkflowDto))]
+        [ResponseType(typeof(WorkflowDetailsDto))]
         public async Task<IHttpActionResult> GetWorkflow(int workflowId)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
@@ -159,9 +159,11 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(QueryResult<WorkflowDto>))]
         public async Task<IHttpActionResult> GetWorkflows([FromUri] Pagination pagination, [FromUri] Sorting sorting = null, string search = null)
         {
-            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
             pagination.Validate();
+            SearchFieldValidator.Validate(search);
 
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+            
             var result = await _workflowRepository.GetWorkflows(pagination, sorting, search, SortingHelper.SortWorkflows);
 
             return Ok(result);
@@ -201,6 +203,8 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(DeleteResult))]
         public async Task<IHttpActionResult> DeleteWorkflows([FromBody]OperationScope scope, string search = null)
         {
+            SearchFieldValidator.Validate(search);
+
             if (scope == null)
             {
                 return BadRequest(ErrorMessages.InvalidDeleteWorkflowsParameters);

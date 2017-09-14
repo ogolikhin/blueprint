@@ -188,6 +188,7 @@ namespace AdminStore.Controllers
         public async Task<IHttpActionResult> SearchProjectFolder([FromUri]Pagination pagination, [FromUri]Sorting sorting = null, string search = null)
         {
             pagination.Validate();
+            SearchFieldValidator.Validate(search);
 
             var result =
                 await
@@ -409,24 +410,25 @@ namespace AdminStore.Controllers
         }
 
         /// <summary>
-        /// The method returns all roles assignments for the specified project.
+        /// The method returns all role assignments for the specified project.
         /// </summary>
         /// <param name="projectId">Project's identity</param>
         /// <param name="pagination">Pagination parameters</param>
         /// <param name="sorting">Sorting parameters</param>
         /// <param name="search">The parameter for searching by group name.</param>
-        /// <response code="200">OK. The list of roles assignments for the project.</response>
+        /// <response code="200">OK. The list of role assignments for the project.</response>
         /// <response code="400">BadRequest. Parameters are invalid. </response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
-        /// <response code="403">Forbidden. if user doesn’t have permissions to get roles assignments for the project.</response>
+        /// <response code="403">Forbidden. if user doesn’t have permissions to get role assignments for the project.</response>
         /// <response code="404">NotFound. The project with the current id does not exist.</response>
         /// <response code="500">Internal Server Error.</response>
         [Route("projects/{projectId:int:min(1)}/rolesassignments")]
         [SessionRequired]
-        [ResponseType(typeof(RoleAssignmentQueryResult<RolesAssignments>))]
+        [ResponseType(typeof(RoleAssignmentQueryResult<RoleAssignment>))]
         public async Task<IHttpActionResult> GetProjectRoleAssignments(int projectId, [FromUri]Pagination pagination, [FromUri]Sorting sorting, string search = null)
         {
             pagination.Validate();
+            SearchFieldValidator.Validate(search);
 
             await
                 _privilegesManager.DemandAny(Session.UserId, projectId, InstanceAdminPrivileges.AccessAllProjectsAdmin,
@@ -459,6 +461,8 @@ namespace AdminStore.Controllers
         [Route("projects/{projectId:int:min(1)}/rolesassignments/delete")]
         public async Task<IHttpActionResult> DeleteRoleAssignment(int projectId, [FromBody] OperationScope scope, string search = null)
         {
+            SearchFieldValidator.Validate(search);
+
             if (scope == null)
             {
                 throw new BadRequestException(ErrorMessages.InvalidDeleteRoleAssignmentsParameters, ErrorCodes.BadRequest);

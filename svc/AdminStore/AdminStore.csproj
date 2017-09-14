@@ -117,6 +117,7 @@
     <Compile Include="Helpers\GroupValidator.cs" />
     <Compile Include="Helpers\ProjectValidator.cs" />
     <Compile Include="Helpers\RoleAssignmentValidator.cs" />
+    <Compile Include="Helpers\SearchFieldValidator.cs" />
     <Compile Include="Helpers\SortingHelper.cs" />
     <Compile Include="Helpers\UserConverter.cs" />
     <Compile Include="Helpers\PrivilegesManager.cs" />
@@ -136,6 +137,7 @@
     <Compile Include="Models\Emails\EmailOutgoingSettings.cs" />
     <Compile Include="Models\Emails\EmailSettingsDto.cs" />
     <Compile Include="Models\Workflow\IeUsersGroups.cs" />
+    <Compile Include="Models\Workflow\WorkflowDetailsDto.cs" />
     <Compile Include="Services\Email\EmailClientExceptionHandler.cs" />
     <Compile Include="Services\Email\EmailClientType.cs" />
     <Compile Include="Models\Emails\TestEmailConfigInstanceSettings.cs" />
@@ -149,7 +151,7 @@
     <Compile Include="Models\DTO\ProjectDto.cs" />
     <Compile Include="Models\ProjectRole.cs" />
     <Compile Include="Models\QueryDataResult.cs" />
-    <Compile Include="Models\RolesAssignments.cs" />
+    <Compile Include="Models\RoleAssignment.cs" />
     <Compile Include="Models\TabularData.cs" />
     <Compile Include="Models\TabularPagination.cs" />
     <Compile Include="Models\UpdateUserPassword.cs" />

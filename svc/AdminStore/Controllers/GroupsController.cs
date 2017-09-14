@@ -50,6 +50,7 @@ namespace AdminStore.Controllers
         public async Task<IHttpActionResult> GetGroups([FromUri]Pagination pagination, [FromUri]Sorting sorting = null, [FromUri] string search = null, int userId = 0)
         {
             pagination.Validate();
+            SearchFieldValidator.Validate(search);
 
             if (userId < 0)
             {
@@ -82,6 +83,7 @@ namespace AdminStore.Controllers
         public async Task<IHttpActionResult> GetGroupsAndUsers([FromUri]Pagination pagination, [FromUri]Sorting sorting, string search = null, int groupId = 0)
         {
             pagination.Validate();
+            SearchFieldValidator.Validate(search);
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewGroups);
 
@@ -104,6 +106,8 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(int))]
         public async Task<IHttpActionResult> DeleteGroups([FromBody] OperationScope scope, string search = null)
         {
+            SearchFieldValidator.Validate(search);
+
             if (scope == null)
             {
                 return BadRequest(ErrorMessages.InvalidDeleteGroupsParameters);
@@ -296,6 +300,8 @@ namespace AdminStore.Controllers
         [Route("{groupId:int:min(1)}/assign")]
         public async Task<IHttpActionResult> AssignMembers(int groupId, AssignScope scope, string search = null)
         {
+            SearchFieldValidator.Validate(search);
+
             if (scope == null || scope.IsEmpty())
             {
                 throw new BadRequestException(ErrorMessages.AssignMemberScopeEmpty, ErrorCodes.BadRequest);
@@ -326,6 +332,7 @@ namespace AdminStore.Controllers
             [FromUri] Sorting sorting, string search = null)
         {
             pagination.Validate();
+            SearchFieldValidator.Validate(search);
 
             await _privilegesManager.DemandAny(Session.UserId, projectId, InstanceAdminPrivileges.AccessAllProjectsAdmin,
                      ProjectAdminPrivileges.ViewGroupsAndRoles);

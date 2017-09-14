@@ -1212,6 +1212,8 @@ namespace ArtifactStore.Repositories
             {
                 ThrowUserCannotAccessReviewException(reviewId);
             }
+
+            await UpdateReviewUserStatsAsync(reviewId, userId, true, ReviewStatus.InProgress.ToString());
         }
 
         private void CheckReviewStatsCanBeUpdated(ReviewArtifactApprovalCheck approvalCheck, int reviewId)

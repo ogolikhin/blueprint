@@ -2906,6 +2906,37 @@ namespace ArtifactStore.Repositories
             Assert.Fail("An AuthorizationException was not thrown");
         }
 
+        [TestMethod]
+        public async Task UpdateReviewerStatusToInProgressAsync_Should_Update_The_Users_Status_To_In_Progress()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+
+            SetupArtifactApprovalCheck(reviewId, userId, new int[0]);
+
+            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(new[] { reviewId }, userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            {
+                { reviewId, RolePermissions.Read }
+            });
+
+            var parameters = new Dictionary<string, object>()
+            {
+                {"reviewId", reviewId},
+                {"userId", userId},
+                {"updateReviewerStatus", true},
+                {"value", "InProgress"}
+            };
+
+            _cxn.SetupExecuteAsync("UpdateReviewUserStats", parameters, 1);
+
+            //Act
+            await _reviewsRepository.UpdateReviewerStatusToInProgressAsync(reviewId, userId);
+            
+            //Assert
+            _cxn.Verify();
+        }
+
         #endregion
 
         #region GetReviewParticipantArtifactStatsAsync

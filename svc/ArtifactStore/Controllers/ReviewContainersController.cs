@@ -359,5 +359,13 @@ namespace ArtifactStore.Controllers
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             return _sqlReviewsRepository.RemoveArtifactsFromReviewAsync(reviewId, removeParams, session.UserId);
         }
+
+        [HttpPut, SessionRequired]
+        [Route("containers/{reviewId:int:min(1)}/reviewer/status/inprogress")]
+        public Task UpdateReviewerStatusToInProgressAsync(int reviewId)
+        {
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            return _sqlReviewsRepository.UpdateReviewerStatusToInProgressAsync(reviewId, session.UserId);
+        }
     }
 }

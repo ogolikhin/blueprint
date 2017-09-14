@@ -1200,6 +1200,22 @@ namespace ArtifactStore.Repositories
             await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, transactionAction);
         }
 
+        public async Task UpdateReviewerStatusToInProgressAsync(int reviewId, int userId)
+        {
+            var approvalCheck = await CheckReviewArtifactApprovalAsync(reviewId, userId, new int[0]);
+
+            CheckReviewStatsCanBeUpdated(approvalCheck, reviewId);
+
+            var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(new[] { reviewId }, userId);
+
+            if (!SqlArtifactPermissionsRepository.HasPermissions(reviewId, artifactPermissionsDictionary, RolePermissions.Read))
+            {
+                ThrowUserCannotAccessReviewException(reviewId);
+            }
+
+            await UpdateReviewUserStatsAsync(reviewId, userId, true, ReviewStatus.InProgress.ToString());
+        }
+
         private void CheckReviewStatsCanBeUpdated(ReviewArtifactApprovalCheck approvalCheck, int reviewId)
         {
             //Check the review exists and is active
@@ -1320,21 +1336,27 @@ namespace ArtifactStore.Repositories
         {
             string xmlString = ReviewRawDataHelper.GetStoreData(rdReviewedArtifacts);
 
+            return UpdateReviewUserStatsAsync(reviewId, userId, false, xmlString, transaction);
+        }
+
+        private Task UpdateReviewUserStatsAsync(int reviewId, int userId, bool updateReviewerStatus, string value, IDbTransaction transaction = null)
+        {
             var parameters = new DynamicParameters();
 
             parameters.Add("@reviewId", reviewId);
             parameters.Add("@userId", userId);
-            parameters.Add("@xmlString", xmlString);
+            parameters.Add("@updateReviewerStatus", updateReviewerStatus);
+            parameters.Add("@value", value);
 
             Task resultTask;
 
             if (transaction == null)
             {
-                resultTask = _connectionWrapper.ExecuteAsync("UpdateReviewUserStatsXml", parameters, commandType: CommandType.StoredProcedure);
+                resultTask = _connectionWrapper.ExecuteAsync("UpdateReviewUserStats", parameters, commandType: CommandType.StoredProcedure);
             }
             else
             {
-                resultTask = transaction.Connection.ExecuteAsync("UpdateReviewUserStatsXml", parameters, transaction, commandType: CommandType.StoredProcedure);
+                resultTask = transaction.Connection.ExecuteAsync("UpdateReviewUserStats", parameters, transaction, commandType: CommandType.StoredProcedure);
             }
 
             return resultTask;

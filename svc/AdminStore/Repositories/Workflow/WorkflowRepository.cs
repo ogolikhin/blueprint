@@ -213,14 +213,14 @@ namespace AdminStore.Repositories.Workflow
 
         public async Task<int> CreateWorkflow(SqlWorkflow workflow, int revision, IDbTransaction transaction = null)
         {
-            var result = 0;
             var parameters = new DynamicParameters();
             parameters.Add("@Name", workflow.Name);
             parameters.Add("@Description", workflow.Description);
             parameters.Add("@RevisionId", revision);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-            result = await _connectionWrapper.ExecuteScalarAsync<int>("CreateWorkflow", parameters, transaction, commandType: CommandType.StoredProcedure);
+            var connection = transaction == null ? (IDbConnection)_connectionWrapper : transaction.Connection;
+            var result = await connection.ExecuteScalarAsync<int>("CreateWorkflow", parameters, transaction, commandType: CommandType.StoredProcedure);
             var errorCode = parameters.Get<int?>("ErrorCode");
 
             if (errorCode.HasValue)

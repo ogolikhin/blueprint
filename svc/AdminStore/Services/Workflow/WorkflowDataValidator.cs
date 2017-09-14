@@ -279,18 +279,31 @@ namespace AdminStore.Services.Workflow
             // Update Name where Id is present (to null if Id is not found)
             if (!ignoreIds)
             {
-                projects.ForEach(p => p.ArtifactTypes?.Where(at => at.Id.HasValue).ForEach(at =>
+                projects.ForEach(p => p.ArtifactTypes?.ForEach(at =>
                 {
                     ItemType itemType;
-                    if (!result.StandardArtifactTypeMapById.TryGetValue(at.Id.Value, out itemType))
+                    if (at.Id.HasValue)
                     {
-                        result.Errors.Add(new WorkflowDataValidationError
+                        if (!result.StandardArtifactTypeMapById.TryGetValue(at.Id.Value, out itemType))
                         {
-                            Element = at.Id.Value,
-                            ErrorCode = WorkflowDataValidationErrorCodes.StandardArtifactTypeNotFoundById
-                        });
+                            result.Errors.Add(new WorkflowDataValidationError
+                            {
+                                Element = at.Id.Value,
+                                ErrorCode = WorkflowDataValidationErrorCodes.StandardArtifactTypeNotFoundById
+                            });
+                        }
+                        at.Name = itemType?.Name;
                     }
-                    at.Name = itemType?.Name;
+                    else
+                    {
+                        // Assing Id to artifact types for the workflow diffing.
+                        // A negative artifact type Id means Id is not specified in xml. 
+                        if (result.StandardArtifactTypeMapByName.TryGetValue(at.Name, out itemType)
+                            && itemType != null)
+                        {
+                            at.Id = itemType.Id * -1;
+                        }
+                    }
                 }));
             }
 
@@ -309,7 +322,6 @@ namespace AdminStore.Services.Workflow
                 }
             });
 
-            // TODO: Change the stored proc GetExistingStandardArtifactTypesForWorkflows
             var artifactTypeInWorkflowInfos =
                 (await _workflowRepository.GetExistingStandardArtifactTypesForWorkflowsAsync(
                     artifactTypesInProjects, result.ValidProjectIds)).Where(i => i.WorkflowId.HasValue).

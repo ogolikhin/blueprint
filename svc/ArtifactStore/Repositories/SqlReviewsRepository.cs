@@ -1334,21 +1334,27 @@ namespace ArtifactStore.Repositories
         {
             string xmlString = ReviewRawDataHelper.GetStoreData(rdReviewedArtifacts);
 
+            return UpdateReviewUserStatsAsync(reviewId, userId, false, xmlString, transaction);
+        }
+
+        private Task UpdateReviewUserStatsAsync(int reviewId, int userId, bool updateReviewerStatus, string value, IDbTransaction transaction = null)
+        {
             var parameters = new DynamicParameters();
 
             parameters.Add("@reviewId", reviewId);
             parameters.Add("@userId", userId);
-            parameters.Add("@xmlString", xmlString);
+            parameters.Add("@updateReviewerStatus", updateReviewerStatus);
+            parameters.Add("@value", value);
 
             Task resultTask;
 
             if (transaction == null)
             {
-                resultTask = _connectionWrapper.ExecuteAsync("UpdateReviewUserStatsXml", parameters, commandType: CommandType.StoredProcedure);
+                resultTask = _connectionWrapper.ExecuteAsync("UpdateReviewUserStats", parameters, commandType: CommandType.StoredProcedure);
             }
             else
             {
-                resultTask = transaction.Connection.ExecuteAsync("UpdateReviewUserStatsXml", parameters, transaction, commandType: CommandType.StoredProcedure);
+                resultTask = transaction.Connection.ExecuteAsync("UpdateReviewUserStats", parameters, transaction, commandType: CommandType.StoredProcedure);
             }
 
             return resultTask;

@@ -27,9 +27,10 @@ namespace ServiceLibrary.Repositories.Workflow
         /// <param name="userId"></param>
         /// <param name="artifactIds"></param>
         /// <param name="revisionId"></param>
+        /// <param name="addDrafts"></param>
         /// <returns></returns>
         Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForNewArtifactEvent(int userId,
-            IEnumerable<int> artifactIds, int revisionId);
+            IEnumerable<int> artifactIds, int revisionId, bool addDrafts);
 
         Task<IEnumerable<WorkflowMessageArtifactInfo>> GetWorkflowMessageArtifactInfoAsync(int userId, IEnumerable<int> artifactIds, int revisionId,
             IDbTransaction transaction = null);

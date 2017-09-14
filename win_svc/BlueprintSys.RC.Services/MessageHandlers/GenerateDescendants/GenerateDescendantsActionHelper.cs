@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using BlueprintSys.RC.Services.Helpers;
 using BlueprintSys.RC.Services.Models;
@@ -29,6 +31,15 @@ namespace BlueprintSys.RC.Services.MessageHandlers.GenerateDescendants
 
             Logger.Log($"Handling of type: {message.ActionType} started for user ID {message.UserId}, revision ID {message.RevisionId} with message {message.ToJSON()}", message, tenant, LogLevel.Debug);
 
+            var ancestors = new List<int>(message.AncestorArtifactTypeIds ?? new int[0]);
+            Logger.Log($"{ancestors.Count} ancestor artifact type IDs found: {string.Join(",", ancestors)}", message, tenant, LogLevel.Debug);
+            var ancestorLoopExists = ancestors.GroupBy(i => i).Any(group => group.Count() > 1);
+            if (ancestorLoopExists)
+            {
+                Logger.Log("Child generation was stopped. Infinite loop detected in the ancestor artifact type IDs.", message, tenant, LogLevel.Debug);
+                return false;
+            }
+
             var genDescendantsActionHelper = (IGenerateActionsRepository)actionHandlerServiceRepository;
 
             var sqlItemTypeRepository = genDescendantsActionHelper.ItemTypeRepository;
@@ -45,12 +56,13 @@ namespace BlueprintSys.RC.Services.MessageHandlers.GenerateDescendants
             {
                 RevisionId = message.RevisionId,
                 ProjectId = message.ProjectId,
-                ArtifacId = message.ArtifactId,
+                ArtifactId = message.ArtifactId,
                 UserId = message.UserId,
                 ChildCount = message.ChildCount,
                 DesiredArtifactTypeId = desiredItemType.ItemTypeId,
                 Predefined = (ItemTypePredefined)message.TypePredefined,
-                DesiredArtifactTypeName = desiredItemType.Name
+                DesiredArtifactTypeName = desiredItemType.Name,
+                AncestorArtifactTypeIds = message.AncestorArtifactTypeIds?.ToArray()
             };
             
             var parameters = SerializationHelper.ToXml(generateDescendantsInfo);

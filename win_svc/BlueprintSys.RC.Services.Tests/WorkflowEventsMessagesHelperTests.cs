@@ -30,6 +30,7 @@ namespace BlueprintSys.RC.Services.Tests
         private bool _sendArtifactPublishedMessage;
         private string _artifactUrl;
         private string _baseUrl;
+        private int[] _ancestorArtifactTypeIds;
         private Mock<IUsersRepository> _mockUsersRepository;
         private Mock<IServiceLogRepository> _mockServiceLogRepository;
 
@@ -46,6 +47,7 @@ namespace BlueprintSys.RC.Services.Tests
             _sendArtifactPublishedMessage = false;
             _artifactUrl = "";
             _baseUrl = "";
+            _ancestorArtifactTypeIds = new int[]{};
             _mockUsersRepository = new Mock<IUsersRepository>(MockBehavior.Strict);
             _mockServiceLogRepository = new Mock<IServiceLogRepository>(MockBehavior.Strict);
         }
@@ -61,7 +63,7 @@ namespace BlueprintSys.RC.Services.Tests
             _workflowEventTriggers.Add(workflowEventTrigger);
 
             //act
-            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _sendArtifactPublishedMessage, _artifactUrl, _baseUrl, _mockUsersRepository.Object, _mockServiceLogRepository.Object);
+            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _sendArtifactPublishedMessage, _artifactUrl, _baseUrl, _ancestorArtifactTypeIds, _mockUsersRepository.Object, _mockServiceLogRepository.Object);
 
             //assert
             Assert.IsTrue(messages.Count == 1);
@@ -86,7 +88,7 @@ namespace BlueprintSys.RC.Services.Tests
             _modifiedProperties.Add(_baseArtifactVersionControlInfo.Id, properties);
 
             //act
-            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _sendArtifactPublishedMessage, _artifactUrl, _baseUrl, _mockUsersRepository.Object, _mockServiceLogRepository.Object);
+            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _sendArtifactPublishedMessage, _artifactUrl, _baseUrl, _ancestorArtifactTypeIds, _mockUsersRepository.Object, _mockServiceLogRepository.Object);
 
             //assert
             Assert.IsTrue(messages.Count == 2);
@@ -107,7 +109,7 @@ namespace BlueprintSys.RC.Services.Tests
             _modifiedProperties = new Dictionary<int, IList<Property>>();
 
             //act
-            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _sendArtifactPublishedMessage, _artifactUrl, _baseUrl, _mockUsersRepository.Object, _mockServiceLogRepository.Object);
+            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _sendArtifactPublishedMessage, _artifactUrl, _baseUrl, _ancestorArtifactTypeIds, _mockUsersRepository.Object, _mockServiceLogRepository.Object);
 
             //assert
             Assert.IsTrue(messages.Count == 1);
@@ -170,7 +172,7 @@ namespace BlueprintSys.RC.Services.Tests
             _workflowEventTriggers.Add(workflowEventTrigger);
 
             //act
-            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _sendArtifactPublishedMessage, _artifactUrl, _baseUrl, _mockUsersRepository.Object, _mockServiceLogRepository.Object);
+            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _sendArtifactPublishedMessage, _artifactUrl, _baseUrl, _ancestorArtifactTypeIds, _mockUsersRepository.Object, _mockServiceLogRepository.Object);
 
             //assert
             Assert.IsTrue(messages.Count == 1);
@@ -189,7 +191,7 @@ namespace BlueprintSys.RC.Services.Tests
             _baseArtifactVersionControlInfo.PredefinedType = ItemTypePredefined.Process;
 
             //act
-            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _sendArtifactPublishedMessage, _artifactUrl, _baseUrl, _mockUsersRepository.Object, _mockServiceLogRepository.Object);
+            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _sendArtifactPublishedMessage, _artifactUrl, _baseUrl, _ancestorArtifactTypeIds, _mockUsersRepository.Object, _mockServiceLogRepository.Object);
 
             //assert
             Assert.IsTrue(messages.Count == 1);
@@ -209,7 +211,7 @@ namespace BlueprintSys.RC.Services.Tests
             _mockServiceLogRepository.Setup(m => m.LogInformation(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>())).Returns(Task.FromResult(true));
 
             //act
-            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _sendArtifactPublishedMessage, _artifactUrl, _baseUrl, _mockUsersRepository.Object, _mockServiceLogRepository.Object);
+            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _sendArtifactPublishedMessage, _artifactUrl, _baseUrl, _ancestorArtifactTypeIds, _mockUsersRepository.Object, _mockServiceLogRepository.Object);
 
             //assert
             Assert.IsTrue(messages.Count == 0);
@@ -227,7 +229,7 @@ namespace BlueprintSys.RC.Services.Tests
             _baseArtifactVersionControlInfo.PredefinedType = ItemTypePredefined.Process;
 
             //act
-            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _sendArtifactPublishedMessage, _artifactUrl, _baseUrl, _mockUsersRepository.Object, _mockServiceLogRepository.Object);
+            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _sendArtifactPublishedMessage, _artifactUrl, _baseUrl, _ancestorArtifactTypeIds, _mockUsersRepository.Object, _mockServiceLogRepository.Object);
 
             //assert
             Assert.IsTrue(messages.Count == 1);
@@ -247,7 +249,7 @@ namespace BlueprintSys.RC.Services.Tests
             _mockServiceLogRepository.Setup(m => m.LogInformation(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>())).Returns(Task.FromResult(true));
 
             //act
-            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _sendArtifactPublishedMessage, _artifactUrl, _baseUrl, _mockUsersRepository.Object, _mockServiceLogRepository.Object);
+            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _sendArtifactPublishedMessage, _artifactUrl, _baseUrl, _ancestorArtifactTypeIds, _mockUsersRepository.Object, _mockServiceLogRepository.Object);
 
             //assert
             Assert.IsTrue(messages.Count == 0);

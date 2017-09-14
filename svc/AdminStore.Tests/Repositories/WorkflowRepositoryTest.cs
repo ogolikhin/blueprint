@@ -5,6 +5,8 @@ using Moq;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
 using System.Threading.Tasks;
 
 namespace AdminStore.Repositories
@@ -174,6 +176,40 @@ namespace AdminStore.Repositories
             Assert.IsNotNull(workflowStates);
         }
 
+        #endregion
+
+        #region CreateWorkflow
+
+        [Ignore]
+        [TestMethod]
+        public async Task CreateWorkflow_AllParametersAreValid_ReturnCreatedWorkflowId()
+        {
+            //arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var sqlHelperMock = new Mock<ISqlHelper>();
+            var returnWorkflowId = 1;
+            var transactionMock = new Mock<IDbTransaction>();
+            var IDbConnection = new Mock<IDbConnection>();
+            transactionMock.SetupGet(x => x.Connection).Returns(IDbConnection.Object);
+            var inputParameters = new Dictionary<string, object>
+            {
+                {"Name", "some name"},
+                {"Description", "some description"},
+                {"RevisionId", 1}
+            };
+            var outputParameters = new Dictionary<string, object>
+            {
+                {"ErrorCode", 1}
+            };
+            var repository = new WorkflowRepository(cxn.Object, sqlHelperMock.Object);
+            cxn.SetupExecuteScalarAsync("CreateWorkflow", inputParameters, returnWorkflowId, outputParameters);
+
+            //act
+            var result = await repository.CreateWorkflow(new SqlWorkflow(), 1);
+
+            //assert
+            Assert.AreEqual(returnWorkflowId, result);
+        }
         #endregion
     }
 }

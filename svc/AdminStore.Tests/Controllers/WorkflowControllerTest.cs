@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
 using System.Xml.Schema;
+using AdminStore.Models.DTO;
 
 namespace AdminStore.Controllers
 {
@@ -32,7 +33,7 @@ namespace AdminStore.Controllers
         public void DeserializeActions()
         {
             // Import XML Actions content
-            string xml = 
+            string xml =
                 "<Transition>" +
                     "<Triggers>" +
                         "<Trigger>" +
@@ -118,7 +119,7 @@ namespace AdminStore.Controllers
                         "<Transition>" +
                             "<EventType>Transition</EventType>" +
                             "<Name>TestTransition</Name>" +
-                            "<Description>Trigger Deserialization test</Description>" + 
+                            "<Description>Trigger Deserialization test</Description>" +
                             "<FromState>Begin</FromState>" +
                             "<ToState>TheEnd</ToState>" +
                             "<Triggers></Triggers>" +
@@ -202,7 +203,7 @@ namespace AdminStore.Controllers
         }
     }
 
-	[TestClass]
+    [TestClass]
     public class WorkflowControllerTest
     {
         private Mock<IWorkflowService> _workflowServiceMock;
@@ -343,7 +344,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(AllProjectDataPermissions);
             // Act
             var result = await _controller.UpdateStatus(WorkflowId, updateSatus);
-            
+
             // Assert
             Assert.IsNotNull(result);
             Assert.IsInstanceOfType(result, typeof(OkNegotiatedContentResult<int>));
@@ -479,8 +480,13 @@ namespace AdminStore.Controllers
         public async Task ExportWorkflow_AllRequirementsSatisfied_ReturnOkResult()
         {
             // Arrange
-            var workflow = new IeWorkflow { Name = "Workflow1", Description = "DescriptionWorkflow1", States = new List<IeState>(),
-                                            Projects = new List<IeProject>()};
+            var workflow = new IeWorkflow
+            {
+                Name = "Workflow1",
+                Description = "DescriptionWorkflow1",
+                States = new List<IeState>(),
+                Projects = new List<IeProject>()
+            };
             _workflowServiceMock.Setup(repo => repo.GetWorkflowExportAsync(It.IsAny<int>())).ReturnsAsync(workflow);
             _privilegesRepositoryMock
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
@@ -502,8 +508,8 @@ namespace AdminStore.Controllers
         // xsd.exe AdminStore.dll /t:IeWorkflow
         // Note that an extending of the IeWorkflow will not fail the test.
         [TestMethod]
-	    public void ValidateWorkflowXmlAgainstXsd_Success()
-	    {
+        public void ValidateWorkflowXmlAgainstXsd_Success()
+        {
             // Arrange
             var workflow = GetTestWorkflow();
 
@@ -535,7 +541,7 @@ namespace AdminStore.Controllers
 
 
         private static IeWorkflow GetTestWorkflow()
-	    {
+        {
             var workflow = new IeWorkflow
             {
                 Id = 99,
@@ -711,8 +717,118 @@ namespace AdminStore.Controllers
                 }
             };
 
-	        return workflow;
-	    }
+            return workflow;
+        }
+
+        #endregion
+
+        #region CreateWorkflow
+
+        [TestMethod]
+        public async Task CreateWorkflow_InvalidPermissions_ForbiddenResult()
+        {
+
+            //arrange
+            Exception exception = null;
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewProjects);
+
+            //act
+            try
+            {
+                await _controller.CreateWorkflow(new CreateWorkflowDto());
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            //assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
+        }
+
+        [TestMethod]
+        public async Task CreateWorkflow_CreateModelIsEmpty_BadRequest()
+        {
+            //arrange
+            Exception exception = null;
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            //act
+            try
+            {
+                await _controller.CreateWorkflow(null);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            //assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(BadRequestException));
+            Assert.AreEqual(ErrorMessages.CreateWorkfloModelIsEmpty, exception.Message);
+        }
+
+        [TestMethod]
+        public async Task CreateWorkflow_InvalidNameLength_BadRequest()
+        {
+            //arrange
+            Exception exception = null;
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            //act
+            try
+            {
+                await _controller.CreateWorkflow(new CreateWorkflowDto() {Name = "a"});
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            //assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(BadRequestException));
+            Assert.AreEqual(ErrorMessages.WorkflowNameError, exception.Message);
+        }
+
+        [TestMethod]
+        public async Task CreateWorkflow_DescriptionLimitReached_BadRequest()
+        {
+            //arrange
+            Exception exception = null;
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            //act
+            try
+            {
+                await
+                    _controller.CreateWorkflow(new CreateWorkflowDto()
+                    {
+                        Name = "aasdff",
+                        Description =
+                            "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenati"
+                    });
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            //assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(BadRequestException));
+            Assert.AreEqual(ErrorMessages.WorkflowDescriptionLimit, exception.Message);
+        }
 
         #endregion
 

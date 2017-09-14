@@ -1200,7 +1200,20 @@ namespace ArtifactStore.Repositories
             await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, transactionAction);
         }
 
-        public async Task UpdateReviewerStatusToInProgressAsync(int reviewId, int userId)
+        public Task UpdateReviewerStatusAsync(int reviewId, ReviewStatus reviewStatus, int userId)
+        {
+            switch (reviewStatus)
+            {
+                case ReviewStatus.NotStarted:
+                    throw new BadRequestException("Cannot set reviewer status to not started");
+                case ReviewStatus.InProgress:
+                    return UpdateReviewerStatusToInProgressAsync(reviewId, userId);
+                default:
+                    throw new BadRequestException("Cannot set reviewer status to this unknown reviewer status");
+            }
+        }
+
+        private async Task UpdateReviewerStatusToInProgressAsync(int reviewId, int userId)
         {
             var approvalCheck = await CheckReviewArtifactApprovalAsync(reviewId, userId, new int[0]);
 

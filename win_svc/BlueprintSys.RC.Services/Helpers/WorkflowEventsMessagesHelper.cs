@@ -29,8 +29,8 @@ namespace BlueprintSys.RC.Services.Helpers
             IDictionary<int, IList<Property>> modifiedProperties, 
             bool sendArtifactPublishedMessage, 
             string artifactUrl, 
-            string baseUrl, 
-            int[] ancestorArtifactTypeIds, 
+            string baseUrl,
+            IEnumerable<int> ancestorArtifactTypeIds, 
             IUsersRepository repository, 
             IServiceLogRepository serviceLogRepository)
         {
@@ -83,7 +83,7 @@ namespace BlueprintSys.RC.Services.Helpers
                             ChildCount = generateChildrenAction.ChildCount.GetValueOrDefault(10),
                             DesiredArtifactTypeId = generateChildrenAction.ArtifactTypeId,
                             ArtifactId = artifactInfo.Id,
-                            AncestorArtifactTypeIds = ancestors.ToArray(),
+                            AncestorArtifactTypeIds = ancestors,
                             RevisionId = revisionId,
                             UserId = userId,
                             ProjectId = artifactInfo.ProjectId,

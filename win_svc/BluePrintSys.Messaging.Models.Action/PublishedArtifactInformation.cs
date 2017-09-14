@@ -20,6 +20,6 @@ namespace BluePrintSys.Messaging.Models.Actions
 
         public List<PublishedPropertyInformation> ModifiedProperties { get; set; }
 
-        public int[] AncestorArtifactTypeIds { get; set; }
+        public IEnumerable<int> AncestorArtifactTypeIds { get; set; }
     }
 }

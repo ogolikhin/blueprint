@@ -2746,6 +2746,162 @@ namespace ArtifactStore.Repositories
 
         #endregion
 
+        #region UpdateReviewerStatusToInProgressAsync
+
+        [TestMethod]
+        public async Task UpdateReviewerStatusToInProgressAsync_Should_Throw_When_Review_Is_Not_Found()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+
+            SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewExists = false);
+
+            //Act
+            try
+            {
+                await _reviewsRepository.UpdateReviewerStatusToInProgressAsync(reviewId, userId);
+            }
+            //Assert
+            catch (ResourceNotFoundException ex)
+            {
+                Assert.AreEqual(ErrorCodes.ResourceNotFound, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("A ResourceNotFoundException was not thrown");
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewerStatusToInProgressAsync_Should_Throw_When_Review_Has_Been_Deleted()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+
+            SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewDeleted = true);
+
+            //Act
+            try
+            {
+                await _reviewsRepository.UpdateReviewerStatusToInProgressAsync(reviewId, userId);
+            }
+            //Assert
+            catch (ResourceNotFoundException ex)
+            {
+                Assert.AreEqual(ErrorCodes.ResourceNotFound, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("A ResourceNotFoundException was not thrown");
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewerStatusToInProgressAsync_Should_Throw_When_Review_Is_In_Draft()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+
+            SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewStatus = ReviewPackageStatus.Draft);
+
+            //Act
+            try
+            {
+                await _reviewsRepository.UpdateReviewerStatusToInProgressAsync(reviewId, userId);
+            }
+            //Assert
+            catch (ResourceNotFoundException ex)
+            {
+                Assert.AreEqual(ErrorCodes.ResourceNotFound, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("A ResourceNotFoundException was not thrown");
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewerStatusToInProgressAsync_Should_Throw_When_Review_Is_Closed()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+
+            SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewStatus = ReviewPackageStatus.Closed);
+
+            //Act
+            try
+            {
+                await _reviewsRepository.UpdateReviewerStatusToInProgressAsync(reviewId, userId);
+            }
+            //Assert
+            catch (BadRequestException ex)
+            {
+                Assert.AreEqual(ErrorCodes.ReviewClosed, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("A BadRequestException was not thrown");
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewerStatusToInProgressAsync_Should_Throw_When_User_Is_Not_In_Review()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+
+            SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.UserInReview = false);
+
+            //Act
+            try
+            {
+                await _reviewsRepository.UpdateReviewerStatusToInProgressAsync(reviewId, userId);
+            }
+            //Assert
+            catch (AuthorizationException ex)
+            {
+                Assert.AreEqual(ErrorCodes.UserNotInReview, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("An AuthorizationException was not thrown");
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewerStatusToInProgressAsync_Should_Throw_When_User_Does_Not_Have_Access_To_The_Review()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+
+            SetupArtifactApprovalCheck(reviewId, userId, new int[0]);
+
+            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(new[] {reviewId}, userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>());
+
+            //Act
+            try
+            {
+                await _reviewsRepository.UpdateReviewerStatusToInProgressAsync(reviewId, userId);
+            }
+            //Assert
+            catch (AuthorizationException ex)
+            {
+                Assert.AreEqual(ErrorCodes.UnauthorizedAccess, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("An AuthorizationException was not thrown");
+        }
+
+        #endregion
+
         #region GetReviewParticipantArtifactStatsAsync
 
         [TestMethod]

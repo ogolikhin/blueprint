@@ -364,7 +364,8 @@ namespace ArtifactStore.Controllers
         [Route("containers/{reviewId:int:min(1)}/reviewer/status/inprogress")]
         public Task UpdateReviewerStatusToInProgressAsync(int reviewId)
         {
-            return Task.FromResult(0);
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            return _sqlReviewsRepository.UpdateReviewerStatusToInProgressAsync(reviewId, session.UserId);
         }
     }
 }

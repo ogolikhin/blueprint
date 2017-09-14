@@ -1200,6 +1200,20 @@ namespace ArtifactStore.Repositories
             await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, transactionAction);
         }
 
+        public async Task UpdateReviewerStatusToInProgressAsync(int reviewId, int userId)
+        {
+            var approvalCheck = await CheckReviewArtifactApprovalAsync(reviewId, userId, new int[0]);
+
+            CheckReviewStatsCanBeUpdated(approvalCheck, reviewId);
+
+            var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(new[] { reviewId }, userId);
+
+            if (!SqlArtifactPermissionsRepository.HasPermissions(reviewId, artifactPermissionsDictionary, RolePermissions.Read))
+            {
+                ThrowUserCannotAccessReviewException(reviewId);
+            }
+        }
+
         private void CheckReviewStatsCanBeUpdated(ReviewArtifactApprovalCheck approvalCheck, int reviewId)
         {
             //Check the review exists and is active

@@ -48,9 +48,10 @@ namespace AccessControl.Controllers
                 {
                     await _log.LogInformation(WebApiConfig.LogSourceSessions, "Service starting...");
 
-                    var ps = 100;
+                    var ps = 1000;
                     var pn = 1;
                     int count;
+                    var expiredSessions = new List<Session>();
 
                     do
                     {
@@ -60,14 +61,29 @@ namespace AccessControl.Controllers
                         foreach (var session in sessions)
                         {
                             ++count;
-                            InsertSession(session);
+
+                            if (session.IsExpired())
+                            {
+                                expiredSessions.Add(session);
+                            }
+                            else
+                            {
+                                InsertSession(session);
+                            }
                         }
 
                         ++pn;
                     }
                     while (count == ps);
 
-                    await _log.LogInformation(WebApiConfig.LogSourceSessions, "Service started.");
+                    // Mark expired sessions as trully expired in the DB
+                    foreach (var session in expiredSessions)
+                    {
+                        await _repo.EndSession(session.SessionId, session.EndTime);
+                    }
+                    var logExpiredSessionsCount = expiredSessions.Count > 0 ? $" {expiredSessions.Count} sessions expired" : string.Empty;
+
+                    await _log.LogInformation(WebApiConfig.LogSourceSessions, $"Service started.{logExpiredSessionsCount}");
                 }
                 catch (Exception ex)
                 {

@@ -2,6 +2,8 @@
 {
     public class ErrorMessages
     {
+        //Search
+        public const string SearchFieldLimitation = "The limit of the search field is 250 characters.";
         //Users
         public const string InvalidPagination = "The \"offset\" and/or \"limit\" parameters are required.";
         public static readonly string LoginRequired = "The user name field is required.";

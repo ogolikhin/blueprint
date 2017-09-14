@@ -317,7 +317,7 @@ namespace AdminStore.Controllers
             //act
             try
             {
-                await _controller.GetWorkflows(new Pagination(), new Sorting());
+                await _controller.GetWorkflows(new Pagination() { Limit = 10, Offset = 0 }, new Sorting());
             }
             catch (Exception ex)
             {

@@ -101,6 +101,7 @@
     <Compile Include="Helpers\EmailHelperTests.cs" />
     <Compile Include="Helpers\HashingUtilitiesTests.cs" />
     <Compile Include="Helpers\PrivilegesManagerTests.cs" />
+    <Compile Include="Helpers\SearchFieldValidatorTest.cs" />
     <Compile Include="Helpers\SystemEncryptionsTests.cs" />
     <Compile Include="Helpers\LoginInfoTests.cs" />
     <Compile Include="Helpers\SortingHelperTest.cs" />

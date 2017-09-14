@@ -86,7 +86,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
 
                 var eventTriggers = await repository.WorkflowRepository.GetWorkflowEventTriggersForNewArtifactEvent(message.UserId,
                     new[] { createdArtifact.Id },
-                    message.RevisionId);
+                    message.RevisionId, true);
 
                 if (eventTriggers?.AsynchronousTriggers == null 
                     || eventTriggers.AsynchronousTriggers.Count == 0)
@@ -106,6 +106,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
                     false,
                     createdArtifact.Url,
                     createdArtifact.BaseUrl,
+                    createdArtifact.AncestorArtifactTypeIds,
                     repository.UsersRepository,
                     serviceLogRepository);
 

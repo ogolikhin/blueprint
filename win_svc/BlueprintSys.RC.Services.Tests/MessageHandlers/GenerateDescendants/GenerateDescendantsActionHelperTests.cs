@@ -347,5 +347,43 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
             //Assert
             Assert.IsTrue(result, "Action should have succeeded");
         }
+
+        [TestMethod]
+        public async Task GenerateDescendantsActionHelper_ReturnsFalse_WhenAncestorInfiniteLoopExists()
+        {
+            //arrange
+            const int duplicateId = 11;
+            var ancestorsWithDuplicate = new[]
+            {
+                duplicateId,
+                12,
+                13,
+                14,
+                duplicateId
+            };
+            var generateDescendantsMessage = new GenerateDescendantsMessage
+            {
+                AncestorArtifactTypeIds = ancestorsWithDuplicate,
+                ArtifactId = ArtifactId,
+                BaseHostUri = "uri",
+                ChildCount = 1,
+                DesiredArtifactTypeId = DesiredArtifactTypeId,
+                ProjectId = ProjectId,
+                ProjectName = "project",
+                RevisionId = RevisionId,
+                TypePredefined = 1,
+                UserId = UserId,
+                UserName = UserName
+            };
+            _actionHandMock.Setup(m => m.IsBoundaryReached(It.IsAny<int>())).ReturnsAsync(false);
+            var tenantInformation = new TenantInformation();
+            var actionHelper = new GenerateDescendantsActionHelper();
+
+            //act
+            var result = await actionHelper.HandleAction(tenantInformation, generateDescendantsMessage, _actionHandMock.Object);
+
+            //assert
+            Assert.IsFalse(result, "Children should not have been generated.");
+        }
     }
 }

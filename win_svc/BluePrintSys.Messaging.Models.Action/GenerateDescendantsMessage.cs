@@ -1,4 +1,5 @@
-﻿using ServiceLibrary.Models.Enums;
+﻿using System.Collections.Generic;
+using ServiceLibrary.Models.Enums;
 
 namespace BluePrintSys.Messaging.Models.Actions
 {
@@ -13,6 +14,8 @@ namespace BluePrintSys.Messaging.Models.Actions
         public int RevisionId { get; set; }
 
         public int ArtifactId { get; set; }
+
+        public IEnumerable<int> AncestorArtifactTypeIds { get; set; }
 
         public int TypePredefined { get; set; }
 

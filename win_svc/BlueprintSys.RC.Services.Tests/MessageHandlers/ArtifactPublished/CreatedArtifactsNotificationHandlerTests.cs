@@ -181,7 +181,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactPublished
                 });
             _workflowRepoMock.Setup(t => t.GetWorkflowEventTriggersForNewArtifactEvent(_userId,
                 It.IsAny<IEnumerable<int>>(),
-                _revisionId)).ReturnsAsync(new WorkflowTriggersContainer());
+                _revisionId, true)).ReturnsAsync(new WorkflowTriggersContainer());
 
             //Act
            var result =  await CreatedArtifactsNotificationHandler.ProcessCreatedArtifacts(_tenant,
@@ -252,7 +252,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactPublished
             });
             _workflowRepoMock.Setup(t => t.GetWorkflowEventTriggersForNewArtifactEvent(_userId,
                 It.IsAny<IEnumerable<int>>(),
-                _revisionId)).ReturnsAsync(workflowTriggersContainer);
+                _revisionId, true)).ReturnsAsync(workflowTriggersContainer);
 
             //Act
             var result = await CreatedArtifactsNotificationHandler.ProcessCreatedArtifacts(_tenant,

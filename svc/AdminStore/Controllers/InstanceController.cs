@@ -188,6 +188,7 @@ namespace AdminStore.Controllers
         public async Task<IHttpActionResult> SearchProjectFolder([FromUri]Pagination pagination, [FromUri]Sorting sorting = null, string search = null)
         {
             pagination.Validate();
+            SearchFieldValidator.Validate(search);
 
             var result =
                 await
@@ -427,6 +428,7 @@ namespace AdminStore.Controllers
         public async Task<IHttpActionResult> GetProjectRoleAssignments(int projectId, [FromUri]Pagination pagination, [FromUri]Sorting sorting, string search = null)
         {
             pagination.Validate();
+            SearchFieldValidator.Validate(search);
 
             await
                 _privilegesManager.DemandAny(Session.UserId, projectId, InstanceAdminPrivileges.AccessAllProjectsAdmin,
@@ -459,6 +461,8 @@ namespace AdminStore.Controllers
         [Route("projects/{projectId:int:min(1)}/rolesassignments/delete")]
         public async Task<IHttpActionResult> DeleteRoleAssignment(int projectId, [FromBody] OperationScope scope, string search = null)
         {
+            SearchFieldValidator.Validate(search);
+
             if (scope == null)
             {
                 throw new BadRequestException(ErrorMessages.InvalidDeleteRoleAssignmentsParameters, ErrorCodes.BadRequest);

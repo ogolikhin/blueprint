@@ -126,6 +126,7 @@ namespace AdminStore.Controllers
         public async Task<IHttpActionResult> GetUsers([FromUri]Pagination pagination, [FromUri]Sorting sorting = null, string search = null)
         {
             pagination.Validate();
+            SearchFieldValidator.Validate(search);
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewUsers);
 
@@ -147,6 +148,8 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(IEnumerable<int>))]
         public async Task<IHttpActionResult> DeleteUsers([FromBody]OperationScope scope, string search = null)
         {
+            SearchFieldValidator.Validate(search);
+
             if (scope == null)
             {
                 return BadRequest(ErrorMessages.InvalidDeleteUsersParameters);
@@ -605,6 +608,7 @@ namespace AdminStore.Controllers
         public async Task<IHttpActionResult> GetUserGroups(int userId, [FromUri]Pagination pagination, [FromUri]Sorting sorting = null, [FromUri] string search = null)
         {
             pagination.Validate();
+            SearchFieldValidator.Validate(search);
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ViewUsers);
 
@@ -631,6 +635,8 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(CreateResult))]
         public async Task<IHttpActionResult> AddUserToGroups(int userId, [FromBody]OperationScope scope, string search = null)
         {
+            SearchFieldValidator.Validate(search);
+
             if (scope == null)
             {
                 throw new BadRequestException(ErrorMessages.InvalidAddUserToGroupsParameters, ErrorCodes.BadRequest);

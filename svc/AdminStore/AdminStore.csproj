@@ -117,6 +117,7 @@
     <Compile Include="Helpers\GroupValidator.cs" />
     <Compile Include="Helpers\ProjectValidator.cs" />
     <Compile Include="Helpers\RoleAssignmentValidator.cs" />
+    <Compile Include="Helpers\SearchFieldValidator.cs" />
     <Compile Include="Helpers\SortingHelper.cs" />
     <Compile Include="Helpers\UserConverter.cs" />
     <Compile Include="Helpers\PrivilegesManager.cs" />

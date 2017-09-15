@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using AdminStore.Helpers.Workflow;
 using AdminStore.Models.Workflow;
 using ServiceLibrary.Helpers;
@@ -261,6 +260,7 @@ namespace AdminStore.Services.Workflow
 
                 ValidateTriggerConditions(transition, stateNames, result);
 
+                ValidatePropertyChangeActionDuplicatePropertiesOnEvent(transition, result);
                 transition.Triggers?.ForEach(t => ValidateAction(t?.Action, result));
             }
 
@@ -379,6 +379,7 @@ namespace AdminStore.Services.Workflow
 
                 ValidateTriggerConditions(naEvent, stateNames, result);
 
+                ValidatePropertyChangeActionDuplicatePropertiesOnEvent(naEvent, result);
                 naEvent.Triggers?.ForEach(t => ValidateAction(t?.Action, result));
             }
 
@@ -580,6 +581,7 @@ namespace AdminStore.Services.Workflow
             return !((states?.Count()).GetValueOrDefault() > 100);
         }
 
+        private bool _hasPropertyChangeActionDuplicatePropertiesOnEventError;
         private bool _hasRecipientsEmailNotificationActionNotSpecitiedError;
         private bool _hasAmbiguousRecipientsSourcesEmailNotificationActionError;
         private bool _hasMessageEmailNotificationActionNotSpecitiedError;
@@ -600,6 +602,7 @@ namespace AdminStore.Services.Workflow
 
         private void ResetErrorFlags()
         {
+            _hasPropertyChangeActionDuplicatePropertiesOnEventError = false;
             _hasRecipientsEmailNotificationActionNotSpecitiedError = false;
             _hasAmbiguousRecipientsSourcesEmailNotificationActionError = false;
             _hasMessageEmailNotificationActionNotSpecitiedError = false;
@@ -617,6 +620,21 @@ namespace AdminStore.Services.Workflow
             _hasInvalidIdError = false;
             _hasAmbiguousGroupProjectReference = false;
             _hasPropertyChangeActionUserOrGroupNameNotSpecitiedError = false;
+        }
+
+        private void ValidatePropertyChangeActionDuplicatePropertiesOnEvent(IeEvent wEvent, WorkflowXmlValidationResult result)
+        {
+            var propertyNames = wEvent.Triggers?.Where(t => t?.Action?.ActionType == ActionTypes.PropertyChange)
+                .Select(t => ((IePropertyChangeAction) t.Action).PropertyName).ToList() ?? new List<string>();
+            if (!_hasPropertyChangeActionDuplicatePropertiesOnEventError
+                && propertyNames.Count != propertyNames.Distinct().Count())
+            {
+                result.Errors.Add(new WorkflowXmlValidationError
+                {
+                    ErrorCode = WorkflowXmlValidationErrorCodes.PropertyChangeActionDuplicatePropertiesOnEvent
+                });
+                _hasPropertyChangeActionDuplicatePropertiesOnEventError = true;
+            }
         }
 
         private void ValidatePermittedActions(IeEvent wEvent, WorkflowXmlValidationResult result)

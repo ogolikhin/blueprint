@@ -48,6 +48,7 @@ namespace AdminStore.Services.Workflow
         PropertyChangeEventDuplicateProperties,
         PropertyChangeEventNoAnyTriggersNotSpecified,
         NewArtifactEventNoAnyTriggersNotSpecified,
+        PropertyChangeActionDuplicatePropertiesOnEvent,
         ActionTriggerNotSpecified,
         RecipientsEmailNotificationActionNotSpecitied,
         AmbiguousRecipientsSourcesEmailNotificationAction,

@@ -12,10 +12,6 @@ namespace AdminStore.Services.Workflow
 {
     public class WorkflowXmlValidator : IWorkflowXmlValidator
     {
-        private bool _isConventionNamesInUse;
-        private const string ConventionNamePattern = "{0}[Id = {1}]";
-        private const string ConventionNameRegex = @"\[Id = [0-9]+]$";
-
         #region Interface Implementation
 
         public WorkflowXmlValidationResult ValidateXml(IeWorkflow workflow)
@@ -538,10 +534,9 @@ namespace AdminStore.Services.Workflow
         public WorkflowXmlValidationResult ValidateUpdateXml(IeWorkflow workflow)
         {
             ResetUpdateErrorFlags();
-            _isConventionNamesInUse = true;
             UpdateReferenceStateNames(workflow);
             var clone = WorkflowHelper.CloneViaXmlSerialization(workflow);
-            UpdateToConventionNames(clone);
+            ValidateUpdateId(clone);
             var result = ValidateXml(clone);
             ValidateDuplicateIds(clone, result);
 
@@ -553,7 +548,6 @@ namespace AdminStore.Services.Workflow
                 });
             }
 
-            _isConventionNamesInUse = false;
             return result;
         }
 
@@ -566,24 +560,14 @@ namespace AdminStore.Services.Workflow
             return !string.IsNullOrWhiteSpace(property);
         }
 
-        private bool ValidatePropertyLimit(string property, int limit)
+        private static bool ValidatePropertyLimit(string property, int limit)
         {
             if (property == null)
             {
                 return true;
             }
 
-            var conventionExtra = 0;
-            if (_isConventionNamesInUse)
-            {
-                var match = Regex.Match(property, ConventionNameRegex);
-                if(match.Value.Length > 0)
-                {
-                    conventionExtra = match.Value.Length + (property.Length > match.Value.Length ? 1 : 0); // take into account the space
-                }
-            }
-
-            return !(property.Length > limit + conventionExtra);
+            return !(property.Length > limit);
         }
 
         private static bool ValidateWorkflowContainsStates(IEnumerable<IeState> states)
@@ -934,14 +918,6 @@ namespace AdminStore.Services.Workflow
             _hasUpdateInvalidIdError = false;
         }
 
-        private void ValidateUpdateId(int id)
-        {
-            if (id < 1)
-            {
-                _hasUpdateInvalidIdError = true;
-            }
-        }
-
         private static void UpdateReferenceStateNames(IeWorkflow workflow)
         {
             var stateMap = workflow?.States?.Where(s => s.Id.HasValue).
@@ -979,89 +955,63 @@ namespace AdminStore.Services.Workflow
 
         #region Update To Convention Names
 
-        private void UpdateToConventionNames(IeWorkflow workflow)
+        private void ValidateUpdateId(IeWorkflow workflow)
         {
-            workflow?.States?.ForEach(UpdateStateToConventionNames);
-            workflow?.TransitionEvents?.ForEach(UpdateTransitionEventToConventionNames);
-            workflow?.PropertyChangeEvents?.ForEach(UpdatePropertyChangeEventToConventionNames);
-            workflow?.NewArtifactEvents?.ForEach(UpdateNewArtifactEventToConventionNames);
+            workflow?.States?.ForEach(ValidateUpdateId);
+            workflow?.TransitionEvents?.ForEach(ValidateUpdateId);
+            workflow?.PropertyChangeEvents?.ForEach(ValidateUpdateId);
+            workflow?.NewArtifactEvents?.ForEach(ValidateUpdateId);
             workflow?.Projects?.ForEach(UpdateProjectToConventionNames);
         }
 
-        private void UpdateStateToConventionNames(IeState state)
+        private void ValidateUpdateId(IeState state)
         {
-            if (state?.Id.HasValue ?? false)
-            {
-                state.Name = GetConventionNameAndValidateId(state.Name, state.Id.Value);
-            }
+            ValidateUpdateId(state?.Id);
         }
 
-        private void UpdateTransitionEventToConventionNames(IeTransitionEvent tEvent)
+        private void ValidateUpdateId(IeTransitionEvent tEvent)
         {
-            if (tEvent?.Id.HasValue ?? false)
-            {
-                tEvent.Name = GetConventionNameAndValidateId(tEvent.Name, tEvent.Id.Value);
-            }
+            ValidateUpdateId(tEvent?.Id);
+            ValidateUpdateId(tEvent?.FromStateId);
+            ValidateUpdateId(tEvent?.ToStateId);
 
-            if (tEvent?.FromStateId.HasValue ?? false)
-            {
-                tEvent.FromState = GetConventionNameAndValidateId(tEvent.FromState, tEvent.FromStateId.Value);
-            }
-
-            if (tEvent?.ToStateId.HasValue ?? false)
-            {
-                tEvent.ToState = GetConventionNameAndValidateId(tEvent.ToState, tEvent.ToStateId.Value);
-            }
-
-            tEvent?.PermissionGroups?.ForEach(UpdatePermissionGroupToConventionNames);
+            tEvent?.PermissionGroups?.ForEach(ValidateUpdateId);
             tEvent?.Triggers?.ForEach(UpdateTriggerToConventionNames);
         }
 
-        private void UpdatePermissionGroupToConventionNames(IeGroup group)
+        private void ValidateUpdateId(IeGroup group)
         {
-            if (group?.Id.HasValue ?? false)
-            {
-                group.Name = GetConventionNameAndValidateId(null, group.Id.Value);
-            }
+            ValidateUpdateId(group?.Id);
         }
 
-        private void UpdatePropertyChangeEventToConventionNames(IePropertyChangeEvent pcEvent)
+        private void ValidateUpdateId(IePropertyChangeEvent pcEvent)
         {
-            if (pcEvent?.Id.HasValue ?? false)
-            {
-                pcEvent.Name = GetConventionNameAndValidateId(pcEvent.Name, pcEvent.Id.Value);
-            }
+            ValidateUpdateId(pcEvent?.Id);
 
-            if (pcEvent?.PropertyId.HasValue ?? false)
+            if (pcEvent?.PropertyId != null
+                    && !WorkflowHelper.IsNameOrDescriptionProperty(pcEvent.PropertyId.Value))
             {
-                pcEvent.PropertyName = GetConventionNameAndValidateId(null, pcEvent.PropertyId.Value,
-                    WorkflowHelper.IsNameOrDescriptionProperty(pcEvent.PropertyId.Value));
+                ValidateUpdateId(pcEvent.PropertyId);
             }
 
             pcEvent?.Triggers?.ForEach(UpdateTriggerToConventionNames);
         }
 
-        private void UpdateNewArtifactEventToConventionNames(IeNewArtifactEvent naEvent)
+        private void ValidateUpdateId(IeNewArtifactEvent naEvent)
         {
-            if (naEvent?.Id.HasValue ?? false)
-            {
-                naEvent.Name = GetConventionNameAndValidateId(naEvent.Name, naEvent.Id.Value);
-            }
+            ValidateUpdateId(naEvent?.Id);
 
             naEvent?.Triggers?.ForEach(UpdateTriggerToConventionNames);
         }
 
         private void UpdateProjectToConventionNames(IeProject project)
         {
-            project?.ArtifactTypes?.ForEach(UpdateArtifactTypeToConventionNames);
+            project?.ArtifactTypes?.ForEach(ValidateUpdateId);
         }
 
-        private void UpdateArtifactTypeToConventionNames(IeArtifactType artifactType)
+        private void ValidateUpdateId(IeArtifactType artifactType)
         {
-            if (artifactType?.Id.HasValue ?? false)
-            {
-                artifactType.Name = GetConventionNameAndValidateId(null, artifactType.Id.Value);
-            }
+            ValidateUpdateId(artifactType?.Id);
         }
 
         private void UpdateTriggerToConventionNames(IeTrigger trigger)
@@ -1076,10 +1026,7 @@ namespace AdminStore.Services.Workflow
             {
                 case ConditionTypes.State:
                     var stateCondition = (IeStateCondition) condition;
-                    if (stateCondition?.StateId.HasValue ?? false)
-                    {
-                        stateCondition.State = GetConventionNameAndValidateId(stateCondition.State, stateCondition.StateId.Value);
-                    }
+                    ValidateUpdateId(stateCondition.StateId);
                     break;
                 case null:
                     break;
@@ -1093,13 +1040,13 @@ namespace AdminStore.Services.Workflow
             switch (action?.ActionType)
             {
                 case ActionTypes.EmailNotification:
-                    UpdateEmailNotificationActionToConventionNames((IeEmailNotificationAction) action);
+                    ValidateUpdateId((IeEmailNotificationAction) action);
                     break;
                 case ActionTypes.PropertyChange:
-                    UpdatePropertyChangeActionToConventionNames((IePropertyChangeAction) action);
+                    ValidateUpdateId((IePropertyChangeAction) action);
                     break;
                 case ActionTypes.Generate:
-                    UpdateGenerateActionToConventionNames((IeGenerateAction) action);
+                    ValidateUpdateId((IeGenerateAction) action);
                     break;
                 case null:
                     break;
@@ -1108,59 +1055,44 @@ namespace AdminStore.Services.Workflow
             }
         }
 
-        private void UpdateEmailNotificationActionToConventionNames(IeEmailNotificationAction enAction)
+        private void ValidateUpdateId(IeEmailNotificationAction enAction)
         {
-            if (enAction?.PropertyId.HasValue ?? false)
-            {
-                enAction.PropertyName = GetConventionNameAndValidateId(null, enAction.PropertyId.Value);
-            }
+            ValidateUpdateId(enAction?.PropertyId);
         }
 
-        private void UpdatePropertyChangeActionToConventionNames(IePropertyChangeAction pcAction)
+        private void ValidateUpdateId(IePropertyChangeAction pcAction)
         {
-            if (pcAction?.PropertyId.HasValue ?? false)
+            if (pcAction?.PropertyId != null
+                   && !WorkflowHelper.IsNameOrDescriptionProperty(pcAction.PropertyId.Value))
             {
-                pcAction.PropertyName = GetConventionNameAndValidateId(null, pcAction.PropertyId.Value,
-                    WorkflowHelper.IsNameOrDescriptionProperty(pcAction.PropertyId.Value));
+                ValidateUpdateId(pcAction.PropertyId.Value);
             }
 
-            pcAction?.ValidValues?.ForEach(UpdateValidValueToConventionNames);
-            pcAction?.UsersGroups?.UsersGroups?.ForEach(UpdateUserGroupToConventionNames);
+            pcAction?.ValidValues?.ForEach(ValidateUpdateId);
+            pcAction?.UsersGroups?.UsersGroups?.ForEach(ValidateUpdateId);
         }
 
-        private void UpdateValidValueToConventionNames(IeValidValue validValue)
+        private void ValidateUpdateId(IeValidValue validValue)
         {
-            if (validValue?.Id.HasValue ?? false)
-            {
-                validValue.Value = GetConventionNameAndValidateId(null, validValue.Id.Value);
-            }
+            ValidateUpdateId(validValue?.Id);
         }
 
-        private void UpdateUserGroupToConventionNames(IeUserGroup userGroup)
+        private void ValidateUpdateId(IeUserGroup userGroup)
         {
-            if (userGroup?.Id.HasValue ?? false)
-            {
-                userGroup.Name = GetConventionNameAndValidateId(null, userGroup.Id.Value);
-            }
+            ValidateUpdateId(userGroup?.Id);
         }
 
-        private void UpdateGenerateActionToConventionNames(IeGenerateAction gAction)
+        private void ValidateUpdateId(IeGenerateAction gAction)
         {
-            if (gAction?.ArtifactTypeId.HasValue ?? false)
-            {
-                gAction.ArtifactType = GetConventionNameAndValidateId(null, gAction.ArtifactTypeId.Value);
-            }
+            ValidateUpdateId(gAction?.ArtifactTypeId);
         }
 
-        private string GetConventionNameAndValidateId(string name, int id, bool doNotvalidateId = false)
+        private void ValidateUpdateId(int? id)
         {
-            if(!doNotvalidateId)
+            if (id.HasValue && id < 1)
             {
-                ValidateUpdateId(id);
+                _hasUpdateInvalidIdError = true;
             }
-
-            var prefix = name == null ? string.Empty : I18NHelper.FormatInvariant("{0} ", name);
-            return I18NHelper.FormatInvariant(ConventionNamePattern, prefix, id);
         }
 
         #endregion

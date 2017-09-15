@@ -36,7 +36,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
         }
 
         [TestMethod]
-        public void ValidateAction_PropertyTypeIdNotFound_ReturnsFalse()
+        public void ValidateAction_PropertyTypeIdNotFound_ReturnsTrue()
         {
             //Arrange
             InitializeNumberPropertyChangeAction();
@@ -56,33 +56,8 @@ namespace ServiceLibrary.Models.Workflow.Actions
             var result = _propertyChangeAction.ValidateAction(_executionParameters);
 
             //Assert
-            Assert.IsNotNull(result);
+            Assert.IsNull(result);
         }
-
-
-
-        [TestMethod]
-        public void ValidateAction_UserPropertyToNumberProperty_ReturnsFalse()
-        {
-            //Arrange
-            InitializeNumberPropertyChangeAction();
-            _propertyChangeAction.InstancePropertyTypeId = 5;
-            _executionParameters = new ExecutionParameters(
-                1,
-                new VersionControlArtifactInfo(),
-                null,
-                _customPropertyTypes,
-                _saveRepositoryMock.Object,
-                null,
-                null,
-                new List<IPropertyValidator>(),
-                _reuseValidatorMock.Object);
-
-            //Act
-            var result = _propertyChangeAction.ValidateAction(_executionParameters);
-
-            //Assert
-            Assert.IsNotNull(result);
-        }
+        
     }
 }

@@ -21,7 +21,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
 
         public override MessageActionType ActionType { get; } = MessageActionType.PropertyChange;
 
-        public bool? IsAssociated { get; private set; }
+        public bool? IsAssociated { get; protected set; }
 
         protected override PropertySetResult ValidateActionToBeProcessed(IExecutionParameters executionParameters)
         {

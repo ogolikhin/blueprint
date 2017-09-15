@@ -1946,10 +1946,11 @@ namespace ArtifactStore.Repositories
             {
                 { "reviewId", 1 },
                 { "userId", 2 },
-                { "xmlString", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Approved</A><AF>Approved</AF><EO>2017-07-10T13:20:00</EO><Id>3</Id><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>" }
+                { "updateReviewerStatus", false },
+                { "value", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Approved</A><AF>Approved</AF><EO>2017-07-10T13:20:00</EO><Id>3</Id><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>" }
             };
 
-            _cxn.SetupExecuteAsync("UpdateReviewUserStatsXml", updateXmlParameters, 1);
+            _cxn.SetupExecuteAsync("UpdateReviewUserStats", updateXmlParameters, 1);
 
             //Act
             var result = (await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId)).FirstOrDefault();
@@ -2000,10 +2001,11 @@ namespace ArtifactStore.Repositories
             {
                 { "reviewId", 1 },
                 { "userId", 2 },
-                { "xmlString", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Approved</A><AF>Approved</AF><Id>4</Id><V>1</V><VS>Viewed</VS></RA><RA><A>Custom Approval</A><AF>Approved</AF><EO>2017-07-10T13:20:00</EO><Id>3</Id><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>" }
+                { "updateReviewerStatus", false },
+                { "value", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Approved</A><AF>Approved</AF><Id>4</Id><V>1</V><VS>Viewed</VS></RA><RA><A>Custom Approval</A><AF>Approved</AF><EO>2017-07-10T13:20:00</EO><Id>3</Id><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>" }
             };
 
-            _cxn.SetupExecuteAsync("UpdateReviewUserStatsXml", updateXmlParameters, 1);
+            _cxn.SetupExecuteAsync("UpdateReviewUserStats", updateXmlParameters, 1);
 
             //Act
             await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
@@ -2050,10 +2052,11 @@ namespace ArtifactStore.Repositories
             {
                 { "reviewId", 1 },
                 { "userId", 2 },
-                { "xmlString", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Disapproved</A><AF>Disapproved</AF><EO>2017-07-10T13:20:00</EO><Id>3</Id><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>" }
+                { "updateReviewerStatus", false },
+                { "value", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Disapproved</A><AF>Disapproved</AF><EO>2017-07-10T13:20:00</EO><Id>3</Id><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>" }
             };
 
-            _cxn.SetupExecuteAsync("UpdateReviewUserStatsXml", updateXmlParameters, 1);
+            _cxn.SetupExecuteAsync("UpdateReviewUserStats", updateXmlParameters, 1);
 
             //Act
             await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
@@ -2100,10 +2103,11 @@ namespace ArtifactStore.Repositories
             {
                 { "reviewId", 1 },
                 { "userId", 2 },
-                { "xmlString", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Approved</A><AF>Approved</AF><EO>2017-07-10T13:20:00</EO><Id>3</Id><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>" }
+                { "updateReviewerStatus", false },
+                { "value", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Approved</A><AF>Approved</AF><EO>2017-07-10T13:20:00</EO><Id>3</Id><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>" }
             };
 
-            _cxn.SetupExecuteAsync("UpdateReviewUserStatsXml", updateXmlParameters, 1);
+            _cxn.SetupExecuteAsync("UpdateReviewUserStats", updateXmlParameters, 1);
 
             //Act
             await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
@@ -2150,10 +2154,11 @@ namespace ArtifactStore.Repositories
             {
                 { "reviewId", 1 },
                 { "userId", 2 },
-                { "xmlString", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Approved</A><AF>Approved</AF><EO>2017-07-10T15:00:00</EO><Id>3</Id><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>" }
+                { "updateReviewerStatus", false },
+                { "value", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Approved</A><AF>Approved</AF><EO>2017-07-10T15:00:00</EO><Id>3</Id><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>" }
             };
 
-            _cxn.SetupExecuteAsync("UpdateReviewUserStatsXml", updateXmlParameters, 1);
+            _cxn.SetupExecuteAsync("UpdateReviewUserStats", updateXmlParameters, 1);
 
             //Act
             await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
@@ -2200,10 +2205,11 @@ namespace ArtifactStore.Repositories
             {
                 { "reviewId", 1 },
                 { "userId", 2 },
-                { "xmlString", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Pending</A><Id>3</Id><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>" }
+                { "updateReviewerStatus", false },
+                { "value", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Pending</A><Id>3</Id><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>" }
             };
 
-            _cxn.SetupExecuteAsync("UpdateReviewUserStatsXml", updateXmlParameters, 1);
+            _cxn.SetupExecuteAsync("UpdateReviewUserStats", updateXmlParameters, 1);
 
             //Act
             await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
@@ -2742,6 +2748,205 @@ namespace ArtifactStore.Repositories
             }
 
             Assert.Fail("A ResourceNotFoundException was not thrown.");
+        }
+
+        #endregion
+
+        #region UpdateReviewerStatusAsync
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task UpdateReviewerStatusAsync_Set_To_NotStarted_Should_Throw()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+
+            //Act
+            await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, ReviewStatus.NotStarted, userId);
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewerStatusAsync_Set_To_InProgress_Should_Throw_When_Review_Is_Not_Found()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+
+            SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewExists = false);
+
+            //Act
+            try
+            {
+                await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, ReviewStatus.InProgress, userId);
+            }
+            //Assert
+            catch (ResourceNotFoundException ex)
+            {
+                Assert.AreEqual(ErrorCodes.ResourceNotFound, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("A ResourceNotFoundException was not thrown");
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewerStatusAsync_Set_To_InProgress_Should_Throw_When_Review_Has_Been_Deleted()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+
+            SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewDeleted = true);
+
+            //Act
+            try
+            {
+                await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, ReviewStatus.InProgress, userId);
+            }
+            //Assert
+            catch (ResourceNotFoundException ex)
+            {
+                Assert.AreEqual(ErrorCodes.ResourceNotFound, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("A ResourceNotFoundException was not thrown");
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewerStatusAsync_Set_To_InProgress_Should_Throw_When_Review_Is_In_Draft()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+
+            SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewStatus = ReviewPackageStatus.Draft);
+
+            //Act
+            try
+            {
+                await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, ReviewStatus.InProgress, userId);
+            }
+            //Assert
+            catch (ResourceNotFoundException ex)
+            {
+                Assert.AreEqual(ErrorCodes.ResourceNotFound, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("A ResourceNotFoundException was not thrown");
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewerStatusAsync_Set_To_InProgress_Should_Throw_When_Review_Is_Closed()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+
+            SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewStatus = ReviewPackageStatus.Closed);
+
+            //Act
+            try
+            {
+                await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, ReviewStatus.InProgress, userId);
+            }
+            //Assert
+            catch (BadRequestException ex)
+            {
+                Assert.AreEqual(ErrorCodes.ReviewClosed, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("A BadRequestException was not thrown");
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewerStatusAsync_Set_To_InProgress_Should_Throw_When_User_Is_Not_In_Review()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+
+            SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.UserInReview = false);
+
+            //Act
+            try
+            {
+                await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, ReviewStatus.InProgress, userId);
+            }
+            //Assert
+            catch (AuthorizationException ex)
+            {
+                Assert.AreEqual(ErrorCodes.UserNotInReview, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("An AuthorizationException was not thrown");
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewerStatusAsync_Set_To_InProgress_Should_Throw_When_User_Does_Not_Have_Access_To_The_Review()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+
+            SetupArtifactApprovalCheck(reviewId, userId, new int[0]);
+
+            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(new[] {reviewId}, userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>());
+
+            //Act
+            try
+            {
+                await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, ReviewStatus.InProgress, userId);
+            }
+            //Assert
+            catch (AuthorizationException ex)
+            {
+                Assert.AreEqual(ErrorCodes.UnauthorizedAccess, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("An AuthorizationException was not thrown");
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewerStatusAsync_Set_To_InProgress_Should_Update_The_Users_Status_To_In_Progress()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+
+            SetupArtifactApprovalCheck(reviewId, userId, new int[0]);
+
+            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(new[] { reviewId }, userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            {
+                { reviewId, RolePermissions.Read }
+            });
+
+            var parameters = new Dictionary<string, object>()
+            {
+                {"reviewId", reviewId},
+                {"userId", userId},
+                {"updateReviewerStatus", true},
+                {"value", "InProgress"}
+            };
+
+            _cxn.SetupExecuteAsync("UpdateReviewUserStats", parameters, 1);
+
+            //Act
+            await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, ReviewStatus.InProgress, userId);
+            
+            //Assert
+            _cxn.Verify();
         }
 
         #endregion

@@ -542,9 +542,11 @@ CREATE PROCEDURE [AdminStore].[ExtendSession]
 )
 AS
 BEGIN
+	DECLARE @utcNow DATETIME = GETUTCDATE();
+
 	UPDATE [AdminStore].[Sessions] SET EndTime = @EndTime
 	OUTPUT Inserted.[UserId], Inserted.[SessionId], Inserted.[BeginTime], Inserted.[EndTime], Inserted.[UserName], Inserted.[LicenseLevel], Inserted.[IsSso]
-	WHERE SessionId = @SessionId AND BeginTime IS NOT NULL;
+	WHERE SessionId = @SessionId AND BeginTime IS NOT NULL AND @utcNow < EndTime;
 END
 GO
 
@@ -778,7 +780,7 @@ CREATE PROCEDURE [AdminStore].[WriteLogs]
 )
 AS
 BEGIN
-  INSERT INTO [Logs] (
+  INSERT INTO [AdminStore].[Logs] (
 		[InstanceName],
 		[ProviderId],
 		[ProviderName],
@@ -814,11 +816,11 @@ AS
 BEGIN
   -- Get the number of days to keep from config settings - DEFAULT 7
   DECLARE @days int
-  SELECT @days=c.[Value] FROM ConfigSettings c WHERE c.[Key] = N'DaysToKeepInLogs'
+  SELECT @days=c.[Value] FROM [AdminStore].ConfigSettings c WHERE c.[Key] = N'DaysToKeepInLogs'
   SELECT @days=COALESCE(@days, 7) 
 
   -- Delete old log records
-  DELETE FROM [Logs] WHERE [Timestamp] <= DATEADD(DAY, @days*-1, SYSDATETIMEOFFSET()) 
+  DELETE FROM [AdminStore].[Logs] WHERE [Timestamp] <= DATEADD(DAY, @days*-1, SYSDATETIMEOFFSET()) 
 END
 
 GO
@@ -852,11 +854,11 @@ BEGIN
 
 	SET @id = IsNULL(@recordid, 0);
 
-	SELECT @total = COUNT(*) FROM [Logs] where @id = 0 OR ID <= @id 	
+	SELECT @total = COUNT(*) FROM [AdminStore].[Logs] where @id = 0 OR ID <= @id 	
 
 	SET @fetch = IIF(@recordlimit < 0, @total, @recordlimit)
 
-	SELECT TOP (@fetch) * FROM [Logs] WHERE @id = 0 OR ID <= @id ORDER BY Id DESC
+	SELECT TOP (@fetch) * FROM [AdminStore].[Logs] WHERE @id = 0 OR ID <= @id ORDER BY Id DESC
 
 END
 

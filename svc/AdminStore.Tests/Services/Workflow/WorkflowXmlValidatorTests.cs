@@ -768,6 +768,38 @@ namespace AdminStore.Services.Workflow
         }
 
         [TestMethod]
+        public void Validate_PropertyChangeActionDuplicatePropertiesOnEvent_Transition_PropertyChangeActionDuplicatePropertiesOnEventError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.TransitionEvents[1].Triggers.Add(_workflow.TransitionEvents[1].Triggers[0]);
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.PropertyChangeActionDuplicatePropertiesOnEvent, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
+        public void Validate_PropertyChangeActionDuplicatePropertiesOnEvent_NewArtifact_PropertyChangeActionDuplicatePropertiesOnEventError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.NewArtifactEvents[1].Triggers.Add(_workflow.NewArtifactEvents[1].Triggers[0]);
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.PropertyChangeActionDuplicatePropertiesOnEvent, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
         public void Validate_ActionTriggerNotSpecified_ActionTriggerNotSpecifiedError()
         {
             // Arrange

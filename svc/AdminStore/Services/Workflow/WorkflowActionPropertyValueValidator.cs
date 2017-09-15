@@ -269,7 +269,7 @@ namespace AdminStore.Services.Workflow
                 return false;
             }
 
-            if (propertyType.IsRequired.GetValueOrDefault() && action.PropertyValue != null)
+            if (action.PropertyValue != null)
             {
                 errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredUserPropertyPropertyValueNotApplicable;
                 return false;
@@ -278,8 +278,8 @@ namespace AdminStore.Services.Workflow
             var usersGroups = action.UsersGroups?.UsersGroups;
             errorCode = null;
             if (!ValidateIsPropertyRequired(propertyType.IsRequired.GetValueOrDefault(),
-                action.PropertyValue, true, usersGroups.IsEmpty()
-                && (action.UsersGroups == null || !action.UsersGroups.IncludeCurrentUser.GetValueOrDefault())))
+                null, true, action.UsersGroups == null
+                || (usersGroups.IsEmpty() && !action.UsersGroups.IncludeCurrentUser.GetValueOrDefault())))
             {
                 errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredPropertyValueEmpty;
                 return false;

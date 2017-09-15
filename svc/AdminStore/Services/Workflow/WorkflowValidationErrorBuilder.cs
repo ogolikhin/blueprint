@@ -49,6 +49,8 @@ namespace AdminStore.Services.Workflow
         private const string TemplateXmlArtifactTypeNoSpecified = "<Project> elements: One or more Projects do not include Artifact Types. Please ensure each Project's <ArtifactType> child element exists and has a value.";
         private const string TemplateXmlPropertyChangeEventNoAnyTriggersSpecified = "<PropertyChanges> element: One or more Property Change events do not have a trigger. Please ensure each <PropertyChange> child element has a <Triggers> child element, itself with at least one <Trigger> child element.";
         private const string TemplateXmlNewArtifactEventNoAnyTriggersSpecified = "<NewArtifacts> element: One or more New Artifact events do not have a trigger. Please ensure each <NewArtifact> child element has a <Triggers> child element, itself with at least one <Trigger> child element.";
+        // New for review by Ken
+        private const string TemplateXmlPropertyChangeActionDuplicatePropertiesOnEvent = "An Event (Transition, New Artifact) has more than one Property Change Actions for the same Property. Please ensure that any Event has only one Property Change Action for a Property.";
         private const string TemplateXmlActionTriggerNotSpecified = "One or more Triggers do not have a corresponding Action. Please ensure all <Trigger> elements include an Action-type child element (for example, <EmailNotificationAction>).";
         private const string TemplateXmlRecipientsEmailNotificationActionNotSpecitied = "One or more email notification Actions do not specify recipients, either as a list of emails, or through a property representing recipients. Please ensure all <EmailNotificationAction> elements either include an <Emails> child element with one or more <Email> child elements, or include <PropertyName> or <PropertyId> child elements.";
         private const string TemplateXmlAmbiguousRecipientsSourcesEmailNotificationAction = "One or more email notification Actions specify recipients using both a list of emails, and a property representing recipients. Please ensure all <EmailNotificationAction> elements use one or the other, but not both.";
@@ -317,6 +319,10 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowXmlValidationErrorCodes.NewArtifactEventNoAnyTriggersNotSpecified:
                     template = TemplateXmlNewArtifactEventNoAnyTriggersSpecified;
+                    errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.PropertyChangeActionDuplicatePropertiesOnEvent:
+                    template = TemplateXmlPropertyChangeActionDuplicatePropertiesOnEvent;
                     errParams = new object[] { };
                     break;
                 case WorkflowXmlValidationErrorCodes.ActionTriggerNotSpecified:

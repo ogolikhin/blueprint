@@ -228,7 +228,7 @@ namespace AdminStore.Repositories.Workflow
                 switch (errorCode.Value)
                 {
                     case (int)SqlErrorCodes.WorkflowWithSuchANameAlreadyExists:
-                        throw new BadRequestException(ErrorMessages.WorkflowAlreadyExists, ErrorCodes.WorkflowAlreadyExists);
+                        throw new ConflictException(ErrorMessages.WorkflowAlreadyExists, ErrorCodes.WorkflowAlreadyExists);
                     case (int)SqlErrorCodes.GeneralSqlError:
                         throw new BadRequestException(ErrorMessages.GeneralErrorOfCreatingUser,ErrorCodes.GeneralErrorOfCreatingWorkflow);
                 }

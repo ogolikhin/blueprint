@@ -170,9 +170,10 @@ namespace AdminStore.Controllers
         }
 
         /// <summary>
-        /// Create workflow with the name that is passed in the parameters
+        /// Create workflow with the name that is passed in the parameters and optional description
         /// </summary>
         /// <param name="createWorkflowDto">Workflow name (required parameter) and workflow description (optional)</param>
+        /// <response code="400">BadRequest if model is malformed or workflow name less then 4 or greater then 65 characters. Also if workflow description greater then 400 characters.</response>
         /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
         /// <response code="403">Forbidden if used doesn’t have permissions to create a workflow.</response>
         [SessionRequired]

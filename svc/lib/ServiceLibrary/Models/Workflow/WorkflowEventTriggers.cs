@@ -30,12 +30,11 @@ namespace ServiceLibrary.Models.Workflow
                 var validationResult = triggerExecutor.Action.ValidateAction(executionParameters);
                 if (validationResult != null)
                 {
-                    var resultKey = string.IsNullOrEmpty(triggerExecutor.Name)
-                        ? validationResult.PropertyTypeId.ToString()
-                        : triggerExecutor.Name;
+                    var message = $"Property type id {validationResult.PropertyTypeId} had the following error: {validationResult.Message}";
+                    var resultKey = triggerExecutor.Name + validationResult.PropertyTypeId;
                     if (!result.ContainsKey(resultKey))
                     {
-                        result.Add(resultKey, $"Property type id {validationResult.PropertyTypeId} had the following error: {validationResult.Message}");
+                        result.Add(resultKey, message);
                     }
                 }
             }

@@ -2752,10 +2752,22 @@ namespace ArtifactStore.Repositories
 
         #endregion
 
-        #region UpdateReviewerStatusToInProgressAsync
+        #region UpdateReviewerStatusAsync
 
         [TestMethod]
-        public async Task UpdateReviewerStatusToInProgressAsync_Should_Throw_When_Review_Is_Not_Found()
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task UpdateReviewerStatusAsync_Set_To_NotStarted_Should_Throw()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+
+            //Act
+            await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, ReviewStatus.NotStarted, userId);
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewerStatusAsync_Set_To_InProgress_Should_Throw_When_Review_Is_Not_Found()
         {
             //Arrange
             int reviewId = 1;
@@ -2766,7 +2778,7 @@ namespace ArtifactStore.Repositories
             //Act
             try
             {
-                await _reviewsRepository.UpdateReviewerStatusToInProgressAsync(reviewId, userId);
+                await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, ReviewStatus.InProgress, userId);
             }
             //Assert
             catch (ResourceNotFoundException ex)
@@ -2780,7 +2792,7 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        public async Task UpdateReviewerStatusToInProgressAsync_Should_Throw_When_Review_Has_Been_Deleted()
+        public async Task UpdateReviewerStatusAsync_Set_To_InProgress_Should_Throw_When_Review_Has_Been_Deleted()
         {
             //Arrange
             int reviewId = 1;
@@ -2791,7 +2803,7 @@ namespace ArtifactStore.Repositories
             //Act
             try
             {
-                await _reviewsRepository.UpdateReviewerStatusToInProgressAsync(reviewId, userId);
+                await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, ReviewStatus.InProgress, userId);
             }
             //Assert
             catch (ResourceNotFoundException ex)
@@ -2805,7 +2817,7 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        public async Task UpdateReviewerStatusToInProgressAsync_Should_Throw_When_Review_Is_In_Draft()
+        public async Task UpdateReviewerStatusAsync_Set_To_InProgress_Should_Throw_When_Review_Is_In_Draft()
         {
             //Arrange
             int reviewId = 1;
@@ -2816,7 +2828,7 @@ namespace ArtifactStore.Repositories
             //Act
             try
             {
-                await _reviewsRepository.UpdateReviewerStatusToInProgressAsync(reviewId, userId);
+                await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, ReviewStatus.InProgress, userId);
             }
             //Assert
             catch (ResourceNotFoundException ex)
@@ -2830,7 +2842,7 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        public async Task UpdateReviewerStatusToInProgressAsync_Should_Throw_When_Review_Is_Closed()
+        public async Task UpdateReviewerStatusAsync_Set_To_InProgress_Should_Throw_When_Review_Is_Closed()
         {
             //Arrange
             int reviewId = 1;
@@ -2841,7 +2853,7 @@ namespace ArtifactStore.Repositories
             //Act
             try
             {
-                await _reviewsRepository.UpdateReviewerStatusToInProgressAsync(reviewId, userId);
+                await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, ReviewStatus.InProgress, userId);
             }
             //Assert
             catch (BadRequestException ex)
@@ -2855,7 +2867,7 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        public async Task UpdateReviewerStatusToInProgressAsync_Should_Throw_When_User_Is_Not_In_Review()
+        public async Task UpdateReviewerStatusAsync_Set_To_InProgress_Should_Throw_When_User_Is_Not_In_Review()
         {
             //Arrange
             int reviewId = 1;
@@ -2866,7 +2878,7 @@ namespace ArtifactStore.Repositories
             //Act
             try
             {
-                await _reviewsRepository.UpdateReviewerStatusToInProgressAsync(reviewId, userId);
+                await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, ReviewStatus.InProgress, userId);
             }
             //Assert
             catch (AuthorizationException ex)
@@ -2880,7 +2892,7 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        public async Task UpdateReviewerStatusToInProgressAsync_Should_Throw_When_User_Does_Not_Have_Access_To_The_Review()
+        public async Task UpdateReviewerStatusAsync_Set_To_InProgress_Should_Throw_When_User_Does_Not_Have_Access_To_The_Review()
         {
             //Arrange
             int reviewId = 1;
@@ -2893,7 +2905,7 @@ namespace ArtifactStore.Repositories
             //Act
             try
             {
-                await _reviewsRepository.UpdateReviewerStatusToInProgressAsync(reviewId, userId);
+                await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, ReviewStatus.InProgress, userId);
             }
             //Assert
             catch (AuthorizationException ex)
@@ -2907,7 +2919,7 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        public async Task UpdateReviewerStatusToInProgressAsync_Should_Update_The_Users_Status_To_In_Progress()
+        public async Task UpdateReviewerStatusAsync_Set_To_InProgress_Should_Update_The_Users_Status_To_In_Progress()
         {
             //Arrange
             int reviewId = 1;
@@ -2931,7 +2943,7 @@ namespace ArtifactStore.Repositories
             _cxn.SetupExecuteAsync("UpdateReviewUserStats", parameters, 1);
 
             //Act
-            await _reviewsRepository.UpdateReviewerStatusToInProgressAsync(reviewId, userId);
+            await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, ReviewStatus.InProgress, userId);
             
             //Assert
             _cxn.Verify();

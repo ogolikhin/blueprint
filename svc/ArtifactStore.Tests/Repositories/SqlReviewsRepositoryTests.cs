@@ -699,9 +699,9 @@ namespace ArtifactStore.Repositories
             };
 
             var reviewArtifacts = new List<ReviewedArtifact>();
-            var artifact1 = new ReviewedArtifact { Id = 1 };
+            var artifact1 = new ReviewedArtifact { Id = 2 };
             reviewArtifacts.Add(artifact1);
-            var artifact2 = new ReviewedArtifact { Id = 2 };
+            var artifact2 = new ReviewedArtifact { Id = 3 };
             reviewArtifacts.Add(artifact2);
 
             var outputParams = new Dictionary<string, object>() {
@@ -710,9 +710,7 @@ namespace ArtifactStore.Repositories
             };
             _cxn.SetupQueryAsync("GetReviewArtifacts", param, reviewArtifacts, outputParams);
 
-            _artifactPermissionsRepositoryMock
-                .Setup(p => p.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true))
-                .ReturnsAsync(new Dictionary<int, RolePermissions>());
+            SetupArtifactPermissionsCheck(new[] { artifact1.Id, artifact2.Id, reviewId }, userId, new Dictionary<int, RolePermissions>());
 
             //Act
             bool isExceptionThrown = false;
@@ -795,9 +793,8 @@ namespace ArtifactStore.Repositories
             {
                 { 1, RolePermissions.Read }
             };
-            _artifactPermissionsRepositoryMock
-                .Setup(p => p.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true))
-                .ReturnsAsync(permisions);
+
+            SetupArtifactPermissionsCheck(new[] { reviewArtifact1.Id, reviewArtifact2.Id, reviewId }, userId, permisions);
 
             //Act
             var artifacts = await _reviewsRepository.GetReviewedArtifacts(reviewId, userId, pagination, revisionId);
@@ -1928,7 +1925,7 @@ namespace ArtifactStore.Repositories
 
             SetupGetVersionNumber(reviewId, artifactIds);
 
-            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            SetupArtifactPermissionsCheck(new[] { artifactIds[0], reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
                 { 1, RolePermissions.Read },
                 { 3, RolePermissions.Read }
@@ -1980,7 +1977,7 @@ namespace ArtifactStore.Repositories
 
             SetupGetVersionNumber(reviewId, artifactIds);
 
-            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            SetupArtifactPermissionsCheck(new[] { artifactIds[0], reviewId}, userId, new Dictionary<int, RolePermissions>()
             {
                 { 1, RolePermissions.Read },
                 { 3, RolePermissions.Read }
@@ -2031,7 +2028,7 @@ namespace ArtifactStore.Repositories
 
             SetupGetVersionNumber(reviewId, artifactIds);
 
-            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            SetupArtifactPermissionsCheck(new[] { artifactIds[0], reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
                 { 1, RolePermissions.Read },
                 { 3, RolePermissions.Read }
@@ -2082,7 +2079,7 @@ namespace ArtifactStore.Repositories
 
             SetupGetVersionNumber(reviewId, artifactIds);
 
-            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            SetupArtifactPermissionsCheck(new[] { artifactIds[0], reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
                 { 1, RolePermissions.Read },
                 { 3, RolePermissions.Read }
@@ -2133,7 +2130,7 @@ namespace ArtifactStore.Repositories
 
             SetupGetVersionNumber(reviewId, artifactIds);
 
-            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            SetupArtifactPermissionsCheck(new[] { artifactIds[0], reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
                 { 1, RolePermissions.Read },
                 { 3, RolePermissions.Read }
@@ -2184,7 +2181,7 @@ namespace ArtifactStore.Repositories
 
             SetupGetVersionNumber(reviewId, artifactIds);
 
-            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            SetupArtifactPermissionsCheck(new[] { artifactIds[0], reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
                 { 1, RolePermissions.Read },
                 { 3, RolePermissions.Read }
@@ -2317,7 +2314,7 @@ namespace ArtifactStore.Repositories
 
             SetupGetVersionNumber(reviewId, artifactIds);
 
-            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            SetupArtifactPermissionsCheck(new[] { artifactIds[0], reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
                 { 1, RolePermissions.Read },
                 { 3, RolePermissions.Read }
@@ -2414,7 +2411,7 @@ namespace ArtifactStore.Repositories
 
             SetupArtifactApprovalCheck(reviewId, userId, new[] { 3 });
 
-            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            SetupArtifactPermissionsCheck(new[] { 3, reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
                 { 3, RolePermissions.Read }
             });
@@ -2446,7 +2443,7 @@ namespace ArtifactStore.Repositories
 
             SetupArtifactApprovalCheck(reviewId, userId, new[] { 3 });
 
-            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            SetupArtifactPermissionsCheck(new[] { 3, reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
                 { 1, RolePermissions.Read }
             });
@@ -2699,7 +2696,7 @@ namespace ArtifactStore.Repositories
 
             SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId });
 
-            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            SetupArtifactPermissionsCheck(new[] { artifactId, reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
                 { 3, RolePermissions.Read }
             });
@@ -2730,7 +2727,7 @@ namespace ArtifactStore.Repositories
 
             SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId });
 
-            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            SetupArtifactPermissionsCheck(new[] { artifactId, reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
                 { 1, RolePermissions.Read }
             });
@@ -2907,7 +2904,7 @@ namespace ArtifactStore.Repositories
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0]);
 
-            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(new[] {reviewId}, userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>());
+            SetupArtifactPermissionsCheck(new[] {reviewId}, userId, new Dictionary<int, RolePermissions>());
 
             //Act
             try
@@ -2935,7 +2932,7 @@ namespace ArtifactStore.Repositories
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0]);
 
-            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(new[] { reviewId }, userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            SetupArtifactPermissionsCheck(new[] { reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
                 { reviewId, RolePermissions.Read }
             });
@@ -3097,8 +3094,8 @@ namespace ArtifactStore.Repositories
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0]);
 
-            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(new[] { reviewId }, userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>());
-
+            SetupArtifactPermissionsCheck(new[] { reviewId }, userId, new Dictionary<int, RolePermissions>());
+            
             //Act
             try
             {
@@ -3125,9 +3122,9 @@ namespace ArtifactStore.Repositories
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0]);
 
-            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(new[] { reviewId }, userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            SetupArtifactPermissionsCheck(new[] {reviewId}, userId, new Dictionary<int, RolePermissions>()
             {
-                { reviewId, RolePermissions.Read }
+                {reviewId, RolePermissions.Read}
             });
 
             SetupGetRequireAllArtifactsReviewedQuery(reviewId, userId, false, false);
@@ -3149,9 +3146,9 @@ namespace ArtifactStore.Repositories
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0]);
 
-            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(new[] { reviewId }, userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            SetupArtifactPermissionsCheck(new[] { reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
-                { reviewId, RolePermissions.Read }
+                {reviewId, RolePermissions.Read}
             });
 
             _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
@@ -3177,9 +3174,9 @@ namespace ArtifactStore.Repositories
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0]);
 
-            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(new[] { reviewId }, userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            SetupArtifactPermissionsCheck(new[] { reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
-                { reviewId, RolePermissions.Read }
+                {reviewId, RolePermissions.Read}
             });
 
             _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
@@ -3205,9 +3202,9 @@ namespace ArtifactStore.Repositories
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0]);
 
-            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(new[] { reviewId }, userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            SetupArtifactPermissionsCheck(new[] { reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
-                { reviewId, RolePermissions.Read }
+                {reviewId, RolePermissions.Read}
             });
 
             _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
@@ -3233,9 +3230,9 @@ namespace ArtifactStore.Repositories
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0]);
 
-            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(new[] { reviewId }, userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            SetupArtifactPermissionsCheck(new[] { reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
-                { reviewId, RolePermissions.Read }
+                {reviewId, RolePermissions.Read}
             });
 
             _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
@@ -3261,9 +3258,9 @@ namespace ArtifactStore.Repositories
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewerRole = ReviewParticipantRole.Reviewer);
 
-            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(new[] { reviewId }, userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            SetupArtifactPermissionsCheck(new[] { reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
-                { reviewId, RolePermissions.Read }
+                {reviewId, RolePermissions.Read}
             });
 
             _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
@@ -3293,9 +3290,9 @@ namespace ArtifactStore.Repositories
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewerRole = ReviewParticipantRole.Reviewer);
 
-            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(new[] { reviewId }, userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            SetupArtifactPermissionsCheck(new[] { reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
-                { reviewId, RolePermissions.Read }
+                {reviewId, RolePermissions.Read}
             });
 
             _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
@@ -3334,9 +3331,9 @@ namespace ArtifactStore.Repositories
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0]);
 
-            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(new[] { reviewId }, userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            SetupArtifactPermissionsCheck(new[] { reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
-                { reviewId, RolePermissions.Read }
+                {reviewId, RolePermissions.Read}
             });
 
             _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
@@ -3420,7 +3417,7 @@ namespace ArtifactStore.Repositories
                 {artifactId, reviewArtifacts[0].HasAccess ? RolePermissions.Read : RolePermissions.None}
             };
 
-            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(new[] { artifactId, reviewId }, userId, false, int.MaxValue, true)).ReturnsAsync(permissions);
+            SetupArtifactPermissionsCheck(new[] { artifactId, reviewId }, userId, permissions);
 
             var participantReviewArtifactParams = new Dictionary<string, object>()
             {
@@ -3493,9 +3490,9 @@ namespace ArtifactStore.Repositories
 
             _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
 
-            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(new[] { artifactId, reviewId }, userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            SetupArtifactPermissionsCheck(new[] { artifactId, reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
-                {reviewId, 0}
+                { reviewId, RolePermissions.None }
             });
 
             //Act
@@ -3523,10 +3520,10 @@ namespace ArtifactStore.Repositories
 
             _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
 
-            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(new[] { artifactId, reviewId }, userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            SetupArtifactPermissionsCheck(new[] { artifactId, reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
-                {reviewId, RolePermissions.Read},
-                {artifactId, 0}
+                { reviewId, RolePermissions.Read },
+                { artifactId, RolePermissions.None }
             });
 
             //Act
@@ -3572,9 +3569,9 @@ namespace ArtifactStore.Repositories
 
             _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
 
-            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(new[] { reviewArtifact.Id, reviewId }, userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            SetupArtifactPermissionsCheck(new[] { reviewArtifact.Id, reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
-                {reviewId, RolePermissions.Read}
+                { reviewId, RolePermissions.Read }
             });
 
             SetupParticipantReviewArtifactsQuery(reviewId, participantId, reviewArtifact.Id, participantReviewArtifact);
@@ -3623,9 +3620,9 @@ namespace ArtifactStore.Repositories
 
             _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
 
-            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(new[] { reviewArtifact.Id, reviewId }, userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            SetupArtifactPermissionsCheck(new[] { reviewArtifact.Id, reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
-                {reviewId, RolePermissions.Read}
+                { reviewId, RolePermissions.Read }
             });
 
             SetupParticipantReviewArtifactsQuery(reviewId, participantId, reviewArtifact.Id, participantReviewArtifact);
@@ -3683,10 +3680,10 @@ namespace ArtifactStore.Repositories
 
             _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
 
-            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(new[] { reviewArtifact.Id, reviewId }, userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            SetupArtifactPermissionsCheck(new[] { reviewArtifact.Id, reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
-                {reviewId, RolePermissions.Read},
-                {reviewArtifact.Id, RolePermissions.Read}
+                { reviewId, RolePermissions.Read },
+                { reviewArtifact.Id, RolePermissions.Read }
             });
 
             SetupParticipantReviewArtifactsQuery(reviewId, participantId, reviewArtifact.Id, participantReviewArtifact);
@@ -3737,10 +3734,10 @@ namespace ArtifactStore.Repositories
 
             _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
 
-            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(new[] { reviewArtifact.Id, reviewId }, userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            SetupArtifactPermissionsCheck(new[] { reviewArtifact.Id, reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
-                {reviewId, RolePermissions.Read},
-                {reviewArtifact.Id, RolePermissions.Read}
+                { reviewId, RolePermissions.Read },
+                { reviewArtifact.Id, RolePermissions.Read }
             });
 
             SetupParticipantReviewArtifactsQuery(reviewId, participantId, reviewArtifact.Id, participantReviewArtifact);
@@ -3781,10 +3778,10 @@ namespace ArtifactStore.Repositories
 
             _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
 
-            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(new[] { reviewArtifact.Id, reviewId }, userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            SetupArtifactPermissionsCheck(new[] { reviewArtifact.Id, reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
-                {reviewId, RolePermissions.Read},
-                {reviewArtifact.Id, RolePermissions.Read}
+                { reviewId, RolePermissions.Read },
+                { reviewArtifact.Id, RolePermissions.Read }
             });
 
             SetupParticipantReviewArtifactsQuery(reviewId, participantId, reviewArtifact.Id, participantReviewArtifact);
@@ -3826,10 +3823,10 @@ namespace ArtifactStore.Repositories
 
             _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
 
-            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(new[] { reviewArtifact.Id, reviewId }, userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            SetupArtifactPermissionsCheck(new[] { reviewArtifact.Id, reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
-                {reviewId, RolePermissions.Read},
-                {reviewArtifact.Id, RolePermissions.Read}
+                { reviewId, RolePermissions.Read },
+                { reviewArtifact.Id, RolePermissions.Read }
             });
 
             SetupParticipantReviewArtifactsQuery(reviewId, participantId, reviewArtifact.Id, participantReviewArtifact);
@@ -3871,10 +3868,10 @@ namespace ArtifactStore.Repositories
 
             _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
 
-            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(new[] { reviewArtifact.Id, reviewId }, userId, false, int.MaxValue, true)).ReturnsAsync(new Dictionary<int, RolePermissions>()
+            SetupArtifactPermissionsCheck(new[] { reviewArtifact.Id, reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
-                {reviewId, RolePermissions.Read},
-                {reviewArtifact.Id, RolePermissions.Read}
+                { reviewId, RolePermissions.Read },
+                { reviewArtifact.Id, RolePermissions.Read }
             });
 
             SetupParticipantReviewArtifactsQuery(reviewId, participantId, reviewArtifact.Id, participantReviewArtifact);
@@ -4117,5 +4114,9 @@ namespace ArtifactStore.Repositories
         }
         #endregion RemoveArtifactFromReview
 
+        private void SetupArtifactPermissionsCheck(IEnumerable<int> artifactIds, int userId, Dictionary<int, RolePermissions> result)
+        {
+            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(artifactIds, userId, false, int.MaxValue, true)).ReturnsAsync(result);
+        }
     }
 }

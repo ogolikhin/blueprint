@@ -682,7 +682,7 @@ namespace AdminStore.Services.Workflow
         #region User
 
         [TestMethod]
-        public void ValidatePropertyValue_User_Required_Success()
+        public void ValidatePropertyValue_User_UsersGroups_Required_Success()
         {
             //Arrange
             var propertyType = new PropertyType
@@ -701,6 +701,30 @@ namespace AdminStore.Services.Workflow
                     {
                         new IeUserGroup { Name = user }
                     }
+                }
+            };
+
+            //Act and Assert
+            ValidatePropertyValue(action, propertyType, users, groups, true, true, null);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyValue_User_Required_IncludeCurrentUser_Success()
+        {
+            //Arrange
+            var propertyType = new PropertyType
+            {
+                PrimitiveType = PropertyPrimitiveType.User,
+                IsRequired = true
+            };
+            const string user = "user";
+            var users = new List<SqlUser> { new SqlUser { Login = user } };
+            var groups = new List<SqlGroup>();
+            var action = new IePropertyChangeAction
+            {
+                UsersGroups = new IeUsersGroups
+                {
+                    IncludeCurrentUser = true
                 }
             };
 
@@ -739,7 +763,7 @@ namespace AdminStore.Services.Workflow
             };
             var action = new IePropertyChangeAction
             {
-                PropertyValue = "some value"
+                PropertyValue = ""
             };
 
             //Act and Assert
@@ -757,7 +781,10 @@ namespace AdminStore.Services.Workflow
             };
             const string user = "user";
             var users = new List<SqlUser> { new SqlUser { Login = user } };
-            var action = new IePropertyChangeAction();
+            var action = new IePropertyChangeAction
+            {
+                UsersGroups = new IeUsersGroups()
+            };
 
             //Act and Assert
             ValidatePropertyValue(action, propertyType, users, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredPropertyValueEmpty);

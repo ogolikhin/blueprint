@@ -4,6 +4,10 @@ namespace AdminStore.Models.Emails
 {
     public class TestEmailConfigInstanceSettings : IEmailConfigInstanceSettings
     {
+        public void DecryptPassword()
+        {
+        }
+
         public string Id { get; set; }
 
         public string HostName { get; set; }

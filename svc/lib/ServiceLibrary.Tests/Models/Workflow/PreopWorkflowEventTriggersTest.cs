@@ -31,6 +31,7 @@ namespace ServiceLibrary.Models.Workflow
             {
                 PrimitiveType = ProjectMeta.PropertyPrimitiveType.Text
             });
+            IsAssociated = true;
         }
     }
 
@@ -44,6 +45,7 @@ namespace ServiceLibrary.Models.Workflow
             {
                 PrimitiveType = ProjectMeta.PropertyPrimitiveType.Number
             });
+            IsAssociated = true;
         }
     }
 

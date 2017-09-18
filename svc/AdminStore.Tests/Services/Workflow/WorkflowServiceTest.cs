@@ -47,7 +47,6 @@ namespace AdminStore.Services.Workflow
 
             _service = new WorkflowService(_workflowRepositoryMock.Object,
                 _workflowXmlValidatorMock.Object,
-                _userRepositoryMock.Object,
                 _usersRepositoryMock.Object,
                 _workflowValidationErrorBuilder.Object, 
                 _projectMetaRepository.Object,
@@ -64,12 +63,10 @@ namespace AdminStore.Services.Workflow
             //arrange
             var workflowRepositoryMock = new Mock<IWorkflowRepository>();
             var workflowValidatorMock = new Mock<IWorkflowXmlValidator>();
-            var userRepositoryMock = new Mock<IUserRepository>();
             var workflowValidationErrorBuilder = new Mock<IWorkflowValidationErrorBuilder>();
             var workflowService = new WorkflowService(
                 workflowRepositoryMock.Object, 
                 workflowValidatorMock.Object,
-                userRepositoryMock.Object,
                 _usersRepositoryMock.Object,
                 workflowValidationErrorBuilder.Object, 
                 null, 
@@ -128,7 +125,6 @@ namespace AdminStore.Services.Workflow
             var workflowService = new WorkflowService(
                 workflowRepositoryMock.Object, 
                 workflowValidatorMock.Object,
-                userRepositoryMock.Object,
                 _usersRepositoryMock.Object,
                 workflowValidationErrorBuilder.Object, 
                 null, 

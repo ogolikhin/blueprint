@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using AdminStore.Helpers.Workflow;
 using AdminStore.Models.Workflow;
-using AdminStore.Repositories;
 using AdminStore.Repositories.Workflow;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
@@ -27,7 +26,6 @@ namespace AdminStore.Services.Workflow
     {
         private readonly IWorkflowRepository _workflowRepository;
         private readonly IUsersRepository _usersRepository;
-        private readonly IUserRepository _userRepository;
 
         private readonly IWorkflowXmlValidator _workflowXmlValidator;
         private readonly IWorkflowDataValidator _workflowDataValidator;
@@ -43,7 +41,6 @@ namespace AdminStore.Services.Workflow
             : this(
                   new WorkflowRepository(), 
                   new WorkflowXmlValidator(), 
-                  new SqlUserRepository(), 
                   new SqlUsersRepository(),
                   new WorkflowValidationErrorBuilder(), 
                   new SqlProjectMetaRepository(),
@@ -60,7 +57,6 @@ namespace AdminStore.Services.Workflow
 
         public WorkflowService(IWorkflowRepository workflowRepository,
             IWorkflowXmlValidator workflowXmlValidator,
-            IUserRepository userRepository,
             IUsersRepository usersRepository,
             IWorkflowValidationErrorBuilder workflowValidationErrorBuilder,
             ISqlProjectMetaRepository projectMetaRepository,
@@ -70,7 +66,6 @@ namespace AdminStore.Services.Workflow
         {
             _workflowRepository = workflowRepository;
             _workflowXmlValidator = workflowXmlValidator;
-            _userRepository = userRepository;
             _usersRepository = usersRepository;
             _workflowValidationErrorBuilder = workflowValidationErrorBuilder;
             _projectMetaRepository = projectMetaRepository;

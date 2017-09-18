@@ -21,6 +21,8 @@ namespace ServiceLibrary.Models.Workflow.Actions
 
         public override MessageActionType ActionType { get; } = MessageActionType.PropertyChange;
 
+        public bool? IsAssociated { get; protected set; }
+
         protected override PropertySetResult ValidateActionToBeProcessed(IExecutionParameters executionParameters)
         {
             var result = executionParameters.ReuseValidator.ValidateReuseSettings(InstancePropertyTypeId, executionParameters.ReuseItemTemplate);
@@ -36,10 +38,10 @@ namespace ServiceLibrary.Models.Workflow.Actions
             var dPropertyType = executionParameters.CustomPropertyTypes.FirstOrDefault(item => item.InstancePropertyTypeId == InstancePropertyTypeId);
             if (dPropertyType == null)
             {
-                return new PropertySetResult(InstancePropertyTypeId, ErrorCodes.InvalidArtifactProperty,
-                     I18NHelper.FormatInvariant("Property type id {0} is not associated with specified artifact type", InstancePropertyTypeId));
+                IsAssociated = false;
+                return null;
             }
-
+            IsAssociated = true;
             var resultSet = PopulatePropertyLite(dPropertyType);
             if (resultSet != null)
             {

@@ -1,10 +1,13 @@
 ﻿using System.Runtime.Serialization;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Helpers.Security;
 
 namespace ServiceLibrary.Models
 {
     public interface IEmailConfigInstanceSettings
     {
+        void DecryptPassword();
+
         string Id { get; }
 
         string HostName { get; }
@@ -24,6 +27,7 @@ namespace ServiceLibrary.Models
 
     public class EmailConfigInstanceSettings : IEmailConfigInstanceSettings
     {
+        private bool _isPasswordDecrypted = false;
         public EmailConfigInstanceSettings(string settings)
         {
             var emailSettings = SerializationHelper.Deserialize<ESSettings>(settings);
@@ -35,6 +39,15 @@ namespace ServiceLibrary.Models
             Authenticated = emailSettings.Authenticated;
             UserName = emailSettings.UserName;
             Password = emailSettings.Password;
+        }
+
+        public void DecryptPassword()
+        {
+            if (_isPasswordDecrypted) return;
+
+            Password = SystemEncryptions.DecryptFromSilverlight(Password);
+
+            _isPasswordDecrypted = true;
         }
 
         public string Id { get; private set; }

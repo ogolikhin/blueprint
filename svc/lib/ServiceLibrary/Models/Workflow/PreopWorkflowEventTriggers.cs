@@ -13,7 +13,7 @@ namespace ServiceLibrary.Models.Workflow
 
         private async Task SavePropertyChangeActions(IExecutionParameters executionParameters)
         {
-            var propertyChangeActions = this.Select(t => t.Action).OfType<PropertyChangeAction>();
+            var propertyChangeActions = this.Select(t => t.Action).OfType<PropertyChangeAction>().Where(p => p.IsAssociated.GetValueOrDefault());
             if (propertyChangeActions.Any() && executionParameters != null)
             {
                 var namePropertyType = executionParameters.CustomPropertyTypes.Find(

@@ -115,6 +115,7 @@ namespace ArtifactStore.Repositories
                 TotalArtifacts = reviewDetails.TotalArtifacts,
                 Status = reviewDetails.ReviewStatus,
                 ReviewPackageStatus = reviewDetails.ReviewPackageStatus,
+                RequireAllArtifactsReviewed = reviewDetails.RequireAllArtifactsReviewed,
                 ArtifactsStatus = new ReviewArtifactsStatus
                 {
                     Approved = reviewDetails.Approved,

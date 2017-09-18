@@ -181,6 +181,7 @@ namespace AdminStore.Controllers
         [FeatureActivation(FeatureTypes.Workflow)]
         [Route("create")]
         [HttpPost]
+        [ResponseType(typeof(int))]
         public async Task<IHttpActionResult> CreateWorkflow([FromBody]CreateWorkflowDto createWorkflowDto)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);

@@ -622,6 +622,41 @@ namespace AdminStore.Services.Workflow
                 };
                 workflowId = await _workflowRepository.CreateWorkflow(workflow, publishRevision, transaction);
 
+                //generate default states
+                var states = new List<IeState>()
+                {
+                    new IeState()
+                    {
+                        Name = "New",
+                        OrderIndex = 10,
+                        IsInitial = true
+                    },
+                    new IeState()
+                    {
+                        Name = "Done",
+                        OrderIndex = 40
+                    }
+                };
+
+                var newStates = (await _workflowRepository.CreateWorkflowStatesAsync(states.Select(s =>
+                    ToSqlState(s, workflowId)), publishRevision, transaction)).ToList();
+
+                var workflowEvents = new List<SqlWorkflowEvent>()
+                {
+                    new SqlWorkflowEvent()
+                    {
+                       Name = "Transition1",
+                       WorkflowId = workflowId,
+                       WorkflowState1Id = newStates[0].WorkflowStateId,
+                       WorkflowState2Id = newStates[1].WorkflowStateId,
+                       Triggers = "<TSR><TS /></TSR>",
+                       Type = DWorkflowEventType.Transition,
+                       EndRevision = 2147483647
+                    },
+                };
+
+                await _workflowRepository.CreateWorkflowEventsAsync(workflowEvents, publishRevision, transaction);
+
             };
             await _workflowRepository.RunInTransactionAsync(action);
             return workflowId;

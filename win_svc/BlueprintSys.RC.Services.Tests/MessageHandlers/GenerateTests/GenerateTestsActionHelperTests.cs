@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using BlueprintSys.RC.Services.MessageHandlers.GenerateDescendants;
 using BlueprintSys.RC.Services.MessageHandlers.GenerateTests;
 using BlueprintSys.RC.Services.Models;
 using BlueprintSys.RC.Services.Repositories;
@@ -48,16 +47,16 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateTests
         public async Task GenerateTestsActionHelper_NullMessage_HandleActionReturnsFalse()
         {
             var actionHelper = new GenerateTestsActionHelper();
-            var result = await actionHelper.HandleAction(null, null, null);
+            var result = await actionHelper.HandleAction(new TenantInformation(), null, null);
             Assert.IsFalse(result, "Action should have failed for null message");
         }
 
         [TestMethod]
         public async Task GenerateTestsActionHelper_NullTenant_HandleActionReturnsFalse()
         {
-            var actionHelper = new GenerateDescendantsActionHelper();
-            var result = await actionHelper.HandleAction(null, null, null);
-            Assert.IsFalse(result, "Action should have failed for null message");
+            var actionHelper = new GenerateTestsActionHelper();
+            var result = await actionHelper.HandleAction(null, new GenerateTestsMessage(), null);
+            Assert.IsFalse(result, "Action should have failed for null tenant");
         }
 
         [TestMethod]
@@ -139,7 +138,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateTests
         }
 
         [TestMethod]
-        public async Task GenerateDescendantsActionHelper_CannotCreateJob_HandleActionReturnsFalse()
+        public async Task GenerateTestsActionHelper_CannotCreateJob_HandleActionReturnsFalse()
         {
             //Arrange
             var actionHelper = new GenerateTestsActionHelper();
@@ -186,7 +185,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateTests
         }
 
         [TestMethod]
-        public async Task GenerateDescendantsActionHelper_CreatesJob_HandleActionReturnsTrue()
+        public async Task GenerateTestsActionHelper_CreatesJob_HandleActionReturnsTrue()
         {
             //Arrange
             var actionHelper = new GenerateTestsActionHelper();

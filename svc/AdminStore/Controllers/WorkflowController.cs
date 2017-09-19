@@ -24,6 +24,7 @@ using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Repositories.ConfigControl;
 using ServiceLibrary.Repositories.Files;
+using System.Collections.Generic;
 
 namespace AdminStore.Controllers
 {
@@ -139,6 +140,28 @@ namespace AdminStore.Controllers
             var workflowDetails = await _workflowService.GetWorkflowDetailsAsync(workflowId);
 
             return Ok(workflowDetails);
+        }
+
+        /// <summary>
+        /// Get Availiable project by Workflow and Folder
+        /// </summary>
+        /// <param name="workFlowId"></param>
+        /// <param name="folderId"></param>
+        /// <remarks>
+        /// Returns Availiable project by Workflow and by Folder.
+        /// If an instance folder for the specified id is not found, the empty collection is returned.
+        /// </remarks>
+        /// <response code="200">OK.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        /// 
+        [HttpGet, NoCache]
+        [Route("workflow/{workflowId}/folders/{folderId}/availablechildren"), SessionRequired]
+        [ResponseType(typeof(List<InstanceItem>))]
+        [ActionName("GetWorkflowAvailableProjects")]
+        public async Task<List<InstanceItem>> GetWorkflowAvailableProjectsAsync(int workFlowId, int folderId)
+        {
+            return await _workflowRepository.GetWorkflowAvailableProjectsAsync(workFlowId, folderId);
         }
 
         /// <summary>

@@ -44,7 +44,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateTests
         }
 
         [TestMethod]
-        public async Task GenerateTestsActionHelper_NullMessage_HandleActionReturnsFalse()
+        public async Task HandleAction_NullMessage_ReturnsFalse()
         {
             var actionHelper = new GenerateTestsActionHelper();
             var result = await actionHelper.HandleAction(new TenantInformation(), null, null);
@@ -52,7 +52,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateTests
         }
 
         [TestMethod]
-        public async Task GenerateTestsActionHelper_NullTenant_HandleActionReturnsFalse()
+        public async Task HandleAction_NullTenant_ReturnsFalse()
         {
             var actionHelper = new GenerateTestsActionHelper();
             var result = await actionHelper.HandleAction(null, new GenerateTestsMessage(), null);
@@ -60,7 +60,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateTests
         }
 
         [TestMethod]
-        public async Task GenerateTestsActionHelper_ArtifactIdIsInvalid_HandleActionReturnsFalse()
+        public async Task HandleAction_ArtifactIdIsInvalid_ReturnsFalse()
         {
             //Arrange
             var actionHelper = new GenerateTestsActionHelper();
@@ -86,7 +86,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateTests
         }
 
         [TestMethod]
-        public async Task GenerateTestsActionHelper_RevisionIdIsInvalid_HandleActionReturnsFalse()
+        public async Task HandleAction_RevisionIdIsInvalid_ReturnsFalse()
         {
             //Arrange
             var actionHelper = new GenerateTestsActionHelper();
@@ -112,7 +112,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateTests
         }
 
         [TestMethod]
-        public async Task GenerateTestsActionHelper_UserNameIsInvalid_HandleActionReturnsFalse()
+        public async Task HandleAction_UserNameIsInvalid_ReturnsFalse()
         {
             //Arrange
             var actionHelper = new GenerateTestsActionHelper();
@@ -138,7 +138,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateTests
         }
 
         [TestMethod]
-        public async Task GenerateTestsActionHelper_CannotCreateJob_HandleActionReturnsFalse()
+        public async Task HandleAction_CannotCreateJob_ReturnsFalse()
         {
             //Arrange
             var actionHelper = new GenerateTestsActionHelper();
@@ -185,7 +185,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateTests
         }
 
         [TestMethod]
-        public async Task GenerateTestsActionHelper_CreatesJob_HandleActionReturnsTrue()
+        public async Task HandleAction_CreatesJob_ReturnsTrue()
         {
             //Arrange
             var actionHelper = new GenerateTestsActionHelper();

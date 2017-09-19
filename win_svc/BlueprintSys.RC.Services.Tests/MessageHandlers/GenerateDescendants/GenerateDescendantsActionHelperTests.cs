@@ -46,7 +46,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
         }
 
         [TestMethod]
-        public async Task GenerateDescendantsActionHelper_NullMessage_HandleActionReturnsFalse()
+        public async Task HandleAction_NullMessage_ReturnsFalse()
         {
             var actionHelper = new GenerateDescendantsActionHelper();
             var result = await actionHelper.HandleAction(new TenantInformation(), null, null);
@@ -54,7 +54,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
         }
 
         [TestMethod]
-        public async Task GenerateDescendantsActionHelper_NullTenant_HandleActionReturnsFalse()
+        public async Task HandleAction_NullTenant_ReturnsFalse()
         {
             var actionHelper = new GenerateDescendantsActionHelper();
             var result = await actionHelper.HandleAction(null, new GenerateDescendantsMessage(), null);
@@ -62,7 +62,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
         }
 
         [TestMethod]
-        public async Task GenerateDescendantsActionHelper_BoundardyIsReachedForProjectTenant_HandleActionReturnsFalse()
+        public async Task HandleAction_BoundardyIsReachedForProjectTenant_ReturnsFalse()
         {
             //Arrange
             var actionHelper = new GenerateDescendantsActionHelper();
@@ -91,7 +91,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
         }
 
         [TestMethod]
-        public async Task GenerateDescendantsActionHelper_ArtifactIdIsInvalid_HandleActionReturnsFalse()
+        public async Task HandleAction_ArtifactIdIsInvalid_ReturnsFalse()
         {
             //Arrange
             var actionHelper = new GenerateDescendantsActionHelper();
@@ -119,7 +119,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
         }
 
         [TestMethod]
-        public async Task GenerateDescendantsActionHelper_RevisionIdIsInvalid_HandleActionReturnsFalse()
+        public async Task HandleAction_RevisionIdIsInvalid_ReturnsFalse()
         {
             //Arrange
             var actionHelper = new GenerateDescendantsActionHelper();
@@ -147,7 +147,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
         }
 
         [TestMethod]
-        public async Task GenerateDescendantsActionHelper_DesiredArtifactTypeIdIsInvalid_HandleActionReturnsFalse()
+        public async Task HandleAction_DesiredArtifactTypeIdIsInvalid_ReturnsFalse()
         {
             //Arrange
             var actionHelper = new GenerateDescendantsActionHelper();
@@ -175,7 +175,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
         }
 
         [TestMethod]
-        public async Task GenerateDescendantsActionHelper_UserNameIsInvalid_HandleActionReturnsFalse()
+        public async Task HandleAction_UserNameIsInvalid_ReturnsFalse()
         {
             //Arrange
             var actionHelper = new GenerateDescendantsActionHelper();
@@ -203,7 +203,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
         }
 
         [TestMethod]
-        public async Task GenerateDescendantsActionHelper_DesiredItemTypeNotFound_HandleActionReturnsFalse()
+        public async Task HandleAction_DesiredItemTypeNotFound_ReturnsFalse()
         {
             //Arrange
             var actionHelper = new GenerateDescendantsActionHelper();
@@ -235,7 +235,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
         }
 
         [TestMethod]
-        public async Task GenerateDescendantsActionHelper_CannotCreateJob_HandleActionReturnsFalse()
+        public async Task HandleAction_CannotCreateJob_ReturnsFalse()
         {
             //Arrange
             var actionHelper = new GenerateDescendantsActionHelper();
@@ -292,7 +292,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
         }
 
         [TestMethod]
-        public async Task GenerateDescendantsActionHelper_CreatesJob_HandleActionReturnsTrue()
+        public async Task HandleAction_CreatesJob_ReturnsTrue()
         {
             //Arrange
             var actionHelper = new GenerateDescendantsActionHelper();
@@ -349,7 +349,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
         }
 
         [TestMethod]
-        public async Task GenerateDescendantsActionHelper_ReturnsFalse_WhenAncestorInfiniteLoopExists()
+        public async Task HandleAction_WhenAncestorInfiniteLoopExists_ReturnsFalse()
         {
             //arrange
             const int duplicateId = 11;

@@ -34,7 +34,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateUserStories
         }
 
         [TestMethod]
-        public async Task GenerateUserStoriesActionHelper_NullMessage_HandleActionReturnsFalse()
+        public async Task HandleAction_NullMessage_ReturnsFalse()
         {
             var actionHelper = new GenerateUserStoriesActionHelper();
             var result = await actionHelper.HandleAction(new TenantInformation(), null, null);
@@ -42,7 +42,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateUserStories
         }
 
         [TestMethod]
-        public async Task GenerateUserStoriesActionHelper_NullTenant_HandleActionReturnsFalse()
+        public async Task HandleAction_NullTenant_ReturnsFalse()
         {
             var actionHelper = new GenerateUserStoriesActionHelper();
             var result = await actionHelper.HandleAction(null, new GenerateUserStoriesMessage(), null);
@@ -50,7 +50,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateUserStories
         }
 
         [TestMethod]
-        public async Task GenerateUserStoriesActionHelper_CannotCreateJob_HandleActionReturnsFalse()
+        public async Task HandleAction_CannotCreateJob_ReturnsFalse()
         {
             var message = new GenerateUserStoriesMessage
             {
@@ -93,7 +93,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateUserStories
         }
 
         [TestMethod]
-        public async Task GenerateUserStoriesActionHelper_HandleActionReturnsTrue_WhenMessageIsValid()
+        public async Task HandleAction_WhenMessageIsValid_ReturnsTrue()
         {
             var message = new GenerateUserStoriesMessage
             {

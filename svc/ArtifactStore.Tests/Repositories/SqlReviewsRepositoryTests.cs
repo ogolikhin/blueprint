@@ -81,7 +81,8 @@ namespace ArtifactStore.Repositories
                 Approved = 5,
                 Disapproved = 3,
                 Pending = 2,
-                RevisionId = revisionId
+                RevisionId = revisionId,
+                RequireAllArtifactsReviewed = true
             };
 
             var param = new Dictionary<string, object> { { "reviewId", reviewId }, { "userId", userId } };
@@ -114,6 +115,7 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(reviewDescription, review.Description);
             Assert.AreEqual(revisionId, review.RevisionId);
             Assert.AreEqual(ReviewType.Formal, review.ReviewType);
+            Assert.AreEqual(true, review.RequireAllArtifactsReviewed);
             Assert.AreEqual(5, review.ArtifactsStatus.Approved);
             Assert.AreEqual(3, review.ArtifactsStatus.Disapproved);
             Assert.AreEqual(2, review.ArtifactsStatus.Pending);

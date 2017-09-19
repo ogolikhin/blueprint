@@ -352,6 +352,9 @@ namespace AdminStore.Controllers
                 var recoveryToken = SystemEncryptions.CreateCryptographicallySecureGuid();
                 var recoveryUrl = new Uri(Request.RequestUri, ServiceConstants.ForgotPasswordResetUrl + "/" + recoveryToken).AbsoluteUri;
 
+                //decrypt the password to be set in mailBee
+                instanceSettings.EmailSettingsDeserialized.DecryptPassword();
+
                 _emailHelper.Initialize(instanceSettings.EmailSettingsDeserialized);
 
                 _emailHelper.SendEmail(user.Email, "Reset Password",

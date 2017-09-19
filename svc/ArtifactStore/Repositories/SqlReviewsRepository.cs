@@ -636,16 +636,16 @@ namespace ArtifactStore.Repositories
             //Flatten users into a single collection and remove duplicates and non existant users
             var uniqueParticipantsSet = new HashSet<int>(userIds.Except(deletedUserIds).Concat(groupUserIds));
 
-            if (reviewPackageRawData.Reviwers == null)
+            if (reviewPackageRawData.Reviewers == null)
             {
-                reviewPackageRawData.Reviwers = new List<ReviewerRawData>();
+                reviewPackageRawData.Reviewers = new List<ReviewerRawData>();
             }
 
-            var participantIdsToAdd = uniqueParticipantsSet.Except(reviewPackageRawData.Reviwers.Select(r => r.UserId)).ToList();
+            var participantIdsToAdd = uniqueParticipantsSet.Except(reviewPackageRawData.Reviewers.Select(r => r.UserId)).ToList();
 
             int newParticipantsCount = participantIdsToAdd.Count;
 
-            reviewPackageRawData.Reviwers.AddRange(participantIdsToAdd.Select(p => new ReviewerRawData()
+            reviewPackageRawData.Reviewers.AddRange(participantIdsToAdd.Select(p => new ReviewerRawData()
             {
                 UserId = p,
                 Permission = ReviewParticipantRole.Reviewer
@@ -910,7 +910,7 @@ namespace ArtifactStore.Repositories
 
             var reviewPackageRawData = ReviewRawDataHelper.RestoreData<ReviewPackageRawData>(xmlArtifacts);
 
-            var participantIdsToAdd = reviewPackageRawData.Reviwers.Where(a => a.UserId == content.UserId).FirstOrDefault<ReviewerRawData>();
+            var participantIdsToAdd = reviewPackageRawData.Reviewers.Where(a => a.UserId == content.UserId).FirstOrDefault<ReviewerRawData>();
             if (participantIdsToAdd == null)
             {
                 ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);
@@ -990,8 +990,6 @@ namespace ArtifactStore.Repositories
                 throw new BadRequestException("Cannot add participants as project or review couldn't be found", ErrorCodes.ResourceNotFound);
             }
         }
-
-
 
         public async Task<ReviewArtifactIndex> GetReviewArtifactIndexAsync(int reviewId, int revisionId, int artifactId, int userId, bool? addDrafts = true)
         {
@@ -1201,21 +1199,13 @@ namespace ArtifactStore.Repositories
             await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, transactionAction);
         }
 
-        public Task UpdateReviewerStatusAsync(int reviewId, ReviewStatus reviewStatus, int userId)
+        public async Task UpdateReviewerStatusAsync(int reviewId, int revisionId, ReviewStatus reviewStatus, int userId)
         {
-            switch (reviewStatus)
+            if (reviewStatus == ReviewStatus.NotStarted)
             {
-                case ReviewStatus.NotStarted:
-                    throw new BadRequestException("Cannot set reviewer status to not started");
-                case ReviewStatus.InProgress:
-                    return UpdateReviewerStatusToInProgressAsync(reviewId, userId);
-                default:
-                    throw new BadRequestException("Cannot set reviewer status to this unknown reviewer status");
+                throw new BadRequestException("Cannot set reviewer status to not started");
             }
-        }
 
-        private async Task UpdateReviewerStatusToInProgressAsync(int reviewId, int userId)
-        {
             var approvalCheck = await CheckReviewArtifactApprovalAsync(reviewId, userId, new int[0]);
 
             CheckReviewStatsCanBeUpdated(approvalCheck, reviewId);
@@ -1227,7 +1217,66 @@ namespace ArtifactStore.Repositories
                 ThrowUserCannotAccessReviewException(reviewId);
             }
 
+            switch (reviewStatus)
+            {
+                case ReviewStatus.InProgress:
+                    await UpdateReviewerStatusToInProgressAsync(reviewId, userId);
+                    break;
+                case ReviewStatus.Completed:
+                    await UpdateReviewerStatusToCompletedAsync(reviewId, revisionId, userId, approvalCheck);
+                    break;
+                default:
+                    throw new BadRequestException("Cannot set reviewer status to this unknown reviewer status");
+            }
+        }
+
+        private async Task UpdateReviewerStatusToInProgressAsync(int reviewId, int userId)
+        {
             await UpdateReviewUserStatsAsync(reviewId, userId, true, ReviewStatus.InProgress.ToString());
+        }
+
+        private async Task UpdateReviewerStatusToCompletedAsync(int reviewId, int revisionId, int userId, ReviewArtifactApprovalCheck approvalCheck)
+        {
+            var requireAllReviewed = await GetRequireAllArtifactsReviewedAsync(reviewId, userId, false);
+
+            if (requireAllReviewed)
+            {
+                var reviewedArtifactsResult = await GetParticipantReviewedArtifactsAsync(reviewId, userId, userId, new Pagination { Offset = 0, Limit = int.MaxValue }, true, revisionId);
+
+                if (reviewedArtifactsResult.Items.Any(artifact => !IsArtifactReviewed(artifact, approvalCheck.ReviewerRole)))
+                {
+                    throw new ConflictException("Review cannot be completed until all artifacts have been reviewed.", ErrorCodes.NotAllArtifactsReviewed);
+                }
+            }
+
+            await UpdateReviewUserStatsAsync(reviewId, userId, true, ReviewStatus.Completed.ToString());
+        }
+
+        private bool IsArtifactReviewed(ReviewedArtifact artifact, ReviewParticipantRole reviewerRole)
+        {
+            if (!artifact.HasAccess)
+            {
+                return true;
+            }
+
+            if (reviewerRole == ReviewParticipantRole.Reviewer)
+            {
+                return artifact.ViewedArtifactVersion == artifact.ArtifactVersion;
+            }
+
+            return !artifact.IsApprovalRequired
+                   || artifact.ApprovalFlag != ApprovalType.NotSpecified;
+        }
+
+        private Task<bool> GetRequireAllArtifactsReviewedAsync(int reviewId, int userId, bool addDrafts = true)
+        {
+            var parameters = new DynamicParameters();
+
+            parameters.Add("reviewId", reviewId);
+            parameters.Add("userId", userId);
+            parameters.Add("addDrafts", addDrafts);
+
+            return _connectionWrapper.ExecuteScalarAsync<bool>("GetReviewRequireAllArtifactsReviewed", parameters, commandType: CommandType.StoredProcedure);
         }
 
         private void CheckReviewStatsCanBeUpdated(ReviewArtifactApprovalCheck approvalCheck, int reviewId)

@@ -362,10 +362,10 @@ namespace ArtifactStore.Controllers
 
         [HttpPut, SessionRequired]
         [Route("containers/{reviewId:int:min(1)}/reviewer/status")]
-        public Task UpdateReviewerStatusAsync(int reviewId, [FromBody] ReviewerStatusParameter reviewStatusParameter)
+        public Task UpdateReviewerStatusAsync(int reviewId, [FromBody] ReviewerStatusParameter reviewStatusParameter, int revisionId = int.MaxValue)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return _sqlReviewsRepository.UpdateReviewerStatusAsync(reviewId, reviewStatusParameter.Status, session.UserId);
+            return _sqlReviewsRepository.UpdateReviewerStatusAsync(reviewId, revisionId, reviewStatusParameter.Status, session.UserId);
         }
     }
 }

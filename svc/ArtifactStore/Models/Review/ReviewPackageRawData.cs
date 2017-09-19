@@ -33,8 +33,8 @@ namespace ArtifactStore.Models.Review
         public ReviewPackageStatus Status;
 
         //Intentionally spelt wrong to be compatible with existing system
-        [DataMember(EmitDefaultValue = false)]
-        public List<ReviewerRawData> Reviwers;
+        [DataMember(Name = "Reviwers", EmitDefaultValue = false)]
+        public List<ReviewerRawData> Reviewers;
 
         public ExtensionDataObject ExtensionData { get; set; }
     }

@@ -2513,7 +2513,9 @@ namespace ArtifactStore.Repositories
                 ReviewStatus = ReviewPackageStatus.Active,
                 ReviewerRole = ReviewParticipantRole.Approver,
                 ReviewExists = true,
-                UserInReview = true
+                UserInReview = true,
+                ReviewerStatus = ReviewStatus.InProgress,
+                ReviewType = ReviewType.Informal
             };
 
             setCheckResult?.Invoke(check);
@@ -3188,6 +3190,26 @@ namespace ArtifactStore.Repositories
             }
 
             Assert.Fail("An AuthorizationException was not thrown");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task UpdateReviewerStatusAsync_Set_To_Completed_Should_Throw_When_Reviewer_Status_Is_Not_Started()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            int revisionId = int.MaxValue;
+
+            SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewerStatus = ReviewStatus.NotStarted);
+
+            SetupArtifactPermissionsCheck(new[] { reviewId }, userId, new Dictionary<int, RolePermissions>()
+            {
+                {reviewId, RolePermissions.Read}
+            });
+
+            //Act
+            await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, revisionId, ReviewStatus.Completed, userId);
         }
 
         [TestMethod]

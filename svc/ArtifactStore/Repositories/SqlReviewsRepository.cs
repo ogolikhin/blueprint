@@ -1247,6 +1247,11 @@ namespace ArtifactStore.Repositories
 
         private async Task UpdateReviewerStatusToCompletedAsync(int reviewId, int revisionId, int userId, ReviewArtifactApprovalCheck approvalCheck)
         {
+            if (approvalCheck.ReviewerStatus == ReviewStatus.NotStarted)
+            {
+                throw new BadRequestException("Cannot set reviewer status to complete when reviewer status is not started.");
+            }
+
             var requireAllReviewed = await GetRequireAllArtifactsReviewedAsync(reviewId, userId, false);
 
             if (requireAllReviewed)

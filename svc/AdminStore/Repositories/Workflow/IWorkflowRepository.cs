@@ -72,6 +72,6 @@ namespace AdminStore.Repositories.Workflow
         Task<IEnumerable<SqlWorkflowEventData>> GetWorkflowEventsAsync(int workflowId);
         Task UpdateWorkflowsChangedWithRevisionsAsync(int workflowId, int revisionId, IDbTransaction transaction = null);
 
-        Task<List<InstanceItem>> GetWorkflowAvailableProjectsAsync(int workflowId, int folderId);
+        Task<QueryResult<InstanceItem>> GetWorkflowAvailableProjectsAsync(int workflowId, int folderId, int userId, bool fromAdminPortal = false);
     }
 }

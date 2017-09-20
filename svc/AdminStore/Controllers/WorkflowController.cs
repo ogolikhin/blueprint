@@ -143,25 +143,38 @@ namespace AdminStore.Controllers
         }
 
         /// <summary>
-        /// Get Availiable project by Workflow and Folder
+        /// Get not assigned projects for Workflow by workFlowId and by folderId 
         /// </summary>
         /// <param name="workFlowId"></param>
-        /// <param name="folderId"></param>
-        /// <remarks>
-        /// Returns Availiable project by Workflow and by Folder.
-        /// If an instance folder for the specified id is not found, the empty collection is returned.
-        /// </remarks>
-        /// <response code="200">OK.</response>
+        /// <param name="folderId"></param>  
+        /// <response code="200">OK if not assigned projects for Workflow exists</response>
+        /// <response code="400">BadRequest if invalid workFlowId or folderId</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">User doesn’t have permission to view workflow projects.</response>
+        /// <response code="404">Not Found. The projects with finding workFlowId and folderId and was not found.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         /// 
         [HttpGet, NoCache]
-        [Route("workflow/{workflowId}/folders/{folderId}/availablechildren"), SessionRequired]
-        [ResponseType(typeof(List<InstanceItem>))]
-        [ActionName("GetWorkflowAvailableProjects")]
-        public async Task<List<InstanceItem>> GetWorkflowAvailableProjectsAsync(int workFlowId, int folderId)
+        [Route("{workflowId}/folders/{folderId}/availablechildren"), SessionRequired]
+        [ResponseType(typeof(List<InstanceItem>))]       
+        public async Task<IHttpActionResult> GetWorkflowAvailableProjects(int workFlowId, int folderId)
         {
-            return await _workflowRepository.GetWorkflowAvailableProjectsAsync(workFlowId, folderId);
+            if (folderId < 0)
+                throw new BadRequestException(ErrorMessages.IncorrectFolderId, ErrorCodes.BadRequest);
+
+            if (workFlowId < 0)
+                throw new BadRequestException(ErrorMessages.IncorrectWorkflowId, ErrorCodes.BadRequest);
+
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+
+            var availiableProjects = await _workflowRepository.GetWorkflowAvailableProjectsAsync(workFlowId, folderId, Session.UserId);
+
+            if (availiableProjects == null)
+            {
+                throw new ResourceNotFoundException(ErrorMessages.ProjectNotExist, ErrorCodes.ResourceNotFound);
+            }
+
+            return Ok(availiableProjects);        
         }
 
         /// <summary>

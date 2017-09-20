@@ -81,6 +81,7 @@
         public static readonly string WorkflowWasNotUpdated = "The workflow with current parameters was not updated.";
         public static readonly string InvalidDeleteWorkflowsParameters = "Invalid parameters to delete workflows";
         public static readonly string GeneralErrorOfDeletingWorkflows = "An error has occurred when performed workflows (s) deletion operation";
+        public static readonly string IncorrectWorkflowId = "Incorrect WorkflowId.";
         //Folder
         public static readonly string FolderWithSuchNameExistsInParentFolder = "A folder with the same name already exists in the parent folder. Please use a different name.";
         public static readonly string ModelIsEmpty = "The body of the call is malformed or has invalid parameter.";
@@ -94,6 +95,7 @@
         public static readonly string FolderReferenceToItself = "The folder cannot be placed into itself. Please select a different location.";
         public static readonly string ParentFolderIdReferenceToDescendantItem = "The parent folder cannot be placed into its descendant. Please select a different location.";
         public static readonly string EditRootFolderIsForbidden = "Root folder cannot be edited.";
+        public static readonly string IncorrectFolderId = "Incorrect FolderId.";
         //Project
         public static readonly string ProjectNameLimitation = "Please enter a name between 1 and 128 characters.";
         public static readonly string LocationIsRequired = "Please select a location.";

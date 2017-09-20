@@ -425,7 +425,7 @@ namespace AdminStore.Repositories.Workflow
             return duplicateNames;
         }
 
-        public async Task<List<InstanceItem>> GetWorkflowAvailableProjectsAsync(int workflowId, int folderId)
+        public async Task<QueryResult<InstanceItem>> GetWorkflowAvailableProjectsAsync(int workflowId, int folderId, int userId, bool fromAdminPortal = false)
         {
             if (workflowId < 1)
             {
@@ -437,12 +437,29 @@ namespace AdminStore.Repositories.Workflow
                 throw new ArgumentOutOfRangeException(nameof(folderId));
             }
 
+            var workflowDetails = await GetWorkflowDetailsAsync(workflowId);
+            if (workflowDetails == null)
+            {
+                throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
+            }
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@folderId", folderId);
+            parameters.Add("@userId", userId);
+            parameters.Add("@fromAdminPortal", fromAdminPortal);
+
+            var folder = (await _connectionWrapper.QueryAsync<InstanceItem>("GetInstanceFolderById", parameters, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
+            if (folder == null)
+                throw new ResourceNotFoundException(ErrorMessages.FolderNotExist, ErrorCodes.ResourceNotFound);
+
             var prm = new DynamicParameters();
             prm.Add("@workflowId", workflowId);
-            prm.Add("@folderId", folderId);            
+            prm.Add("@folderId", folderId);
 
-            return ((await _connectionWrapper.QueryAsync<InstanceItem>("GetWorkflowAvailableProjects", prm, commandType: CommandType.StoredProcedure))
-                    ?? Enumerable.Empty<InstanceItem>()).OrderBy(i => i.Type).ThenBy(i => i.Name).ToList();
+            var items = ((await _connectionWrapper.QueryAsync<InstanceItem>("GetWorkflowAvailableProjects", prm, commandType: CommandType.StoredProcedure))
+                    ?? null).OrderBy(i => i.Type).ThenBy(i => i.Name);
+                
+            return new QueryResult<InstanceItem>() { Items = items };
         }
 
         public async Task RunInTransactionAsync(Func<IDbTransaction, Task> action)

@@ -2696,6 +2696,30 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
+        public async Task UpdateReviewArtifactViewedAsync_Should_Throw_When_Reviewer_Status_Is_Completed()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            int artifactId = 3;
+            ReviewArtifactViewedInput viewedInput = new ReviewArtifactViewedInput();
+
+            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check => check.ReviewerStatus = ReviewStatus.Completed);
+
+            //Act
+            try
+            {
+                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, viewedInput, userId);
+            }
+            catch (BadRequestException)
+            {
+                return;
+            }
+
+            Assert.Fail("A BadRequestException was not thrown.");
+        }
+
+        [TestMethod]
         public async Task UpdateReviewArtifactViewedAsync_Should_Throw_When_Artifact_Is_Not_Part_Of_The_Review()
         {
             //Arrange

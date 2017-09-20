@@ -1086,6 +1086,11 @@ namespace ArtifactStore.Repositories
                 throw new BadRequestException("Not all artifacts require approval.");
             }
 
+            if (approvalCheck.ReviewerStatus == ReviewStatus.Completed)
+            {
+                throw new BadRequestException("Cannot update approval status, reviewer has completed the review.");
+            }
+
             //Check user has permission for the review and all of the artifact ids
             await CheckReviewAndArtifactPermissions(userId, reviewId, artifactIds);
 

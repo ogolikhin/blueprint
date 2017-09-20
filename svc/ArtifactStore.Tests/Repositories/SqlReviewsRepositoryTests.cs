@@ -2299,6 +2299,24 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_Reviewer_Status_Is_Completed()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            var approvalParameter = new List<ReviewArtifactApprovalParameter>()
+            {
+                new ReviewArtifactApprovalParameter() { Approval = "Approved", ApprovalFlag = ApprovalType.Approved, ArtifactId = 3 }
+            };
+
+            SetupArtifactApprovalCheck(reviewId, userId, new[] { 3 }, check => check.ReviewerStatus = ReviewStatus.Completed);
+
+            //Act
+            await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
+        }
+
+        [TestMethod]
         public async Task UpdateReviewArtifactApprovalAsync_Should_Not_Throw_When_User_Isnt_Approver()
         {
             //Arrange

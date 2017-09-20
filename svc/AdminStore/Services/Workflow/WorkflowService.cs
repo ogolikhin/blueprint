@@ -657,6 +657,10 @@ namespace AdminStore.Services.Workflow
 
                 await _workflowRepository.CreateWorkflowEventsAsync(workflowEvents, publishRevision, transaction);
 
+                await
+                        _workflowRepository.UpdateWorkflowsChangedWithRevisionsAsync(workflowId, publishRevision,
+                            transaction);
+
             };
             await _workflowRepository.RunInTransactionAsync(action);
             return workflowId;

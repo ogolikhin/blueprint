@@ -211,7 +211,7 @@ namespace AdminStore.Repositories.Workflow
                 transaction, commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<int> CreateWorkflow(SqlWorkflow workflow, int revision, IDbTransaction transaction = null)
+        public async Task<int> CreateWorkflow(SqlWorkflow workflow, int revision, IDbTransaction transaction)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@Name", workflow.Name);
@@ -219,7 +219,7 @@ namespace AdminStore.Repositories.Workflow
             parameters.Add("@RevisionId", revision);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-            var connection = transaction == null ? (IDbConnection)_connectionWrapper : transaction.Connection;
+            var connection = transaction.Connection;
             var result = await connection.ExecuteScalarAsync<int>("CreateWorkflow", parameters, transaction, commandType: CommandType.StoredProcedure);
             var errorCode = parameters.Get<int?>("ErrorCode");
 
@@ -230,7 +230,7 @@ namespace AdminStore.Repositories.Workflow
                     case (int)SqlErrorCodes.WorkflowWithSuchANameAlreadyExists:
                         throw new ConflictException(ErrorMessages.WorkflowAlreadyExists, ErrorCodes.WorkflowAlreadyExists);
                     case (int)SqlErrorCodes.GeneralSqlError:
-                        throw new BadRequestException(ErrorMessages.GeneralErrorOfCreatingUser,ErrorCodes.GeneralErrorOfCreatingWorkflow);
+                        throw new Exception(ErrorMessages.GeneralErrorOfCreatingUser);
                 }
             }
             return result;

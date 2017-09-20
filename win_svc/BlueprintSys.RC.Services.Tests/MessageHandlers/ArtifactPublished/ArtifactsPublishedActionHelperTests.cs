@@ -10,7 +10,7 @@ using Moq;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Models.Workflow.Actions;
 
-namespace BlueprintSys.RC.Services.Tests
+namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactPublished
 {
     /// <summary>
     /// Tests for the Artifacts Published Action Helper in the Action Handler Service
@@ -33,10 +33,65 @@ namespace BlueprintSys.RC.Services.Tests
         public void TestInitialize()
         {
             _repositoryMock = new Mock<IArtifactsPublishedRepository>();
-            _tenantInformation = new TenantInformation {BlueprintConnectionString = "", TenantId = ""};
-            _triggers = new List<SqlWorkflowEvent> {new SqlWorkflowEvent {CurrentStateId = 0, VersionItemId = 0, EventPropertyTypeId = 0, EventType = 0, HolderId = 0, RequiredNewStateId = 0, RequiredPreviousStateId = 0, Triggers = "", WorkflowId = 0}, new SqlWorkflowEvent {CurrentStateId = 1, VersionItemId = 0, EventPropertyTypeId = 0, EventType = 0, HolderId = 0, RequiredNewStateId = 0, RequiredPreviousStateId = 0, Triggers = "", WorkflowId = 0}};
-            _states = new List<SqlWorkFlowStateInformation> {new SqlWorkFlowStateInformation {WorkflowStateId = WorkflowStateId, ArtifactId = 0, EndRevision = 0, ItemId = 0, ItemTypeId = 0, LockedByUserId = 0, Name = "", ProjectId = 0, Result = 0, StartRevision = 0, WorkflowId = 0, WorkflowName = "", WorkflowStateName = ""}};
-            _projects = new List<SqlProject> {new SqlProject {ItemId = 0, Name = ""}};
+            _tenantInformation = new TenantInformation
+            {
+                BlueprintConnectionString = "",
+                TenantId = ""
+            };
+            _triggers = new List<SqlWorkflowEvent>
+            {
+                new SqlWorkflowEvent
+                {
+                    CurrentStateId = 0,
+                    VersionItemId = 0,
+                    EventPropertyTypeId = 0,
+                    EventType = 0,
+                    HolderId = 0,
+                    RequiredNewStateId = 0,
+                    RequiredPreviousStateId = 0,
+                    Triggers = "",
+                    WorkflowId = 0
+                },
+                new SqlWorkflowEvent
+                {
+                    CurrentStateId = 1,
+                    VersionItemId = 0,
+                    EventPropertyTypeId = 0,
+                    EventType = 0,
+                    HolderId = 0,
+                    RequiredNewStateId = 0,
+                    RequiredPreviousStateId = 0,
+                    Triggers = "",
+                    WorkflowId = 0
+                }
+            };
+            _states = new List<SqlWorkFlowStateInformation>
+            {
+                new SqlWorkFlowStateInformation
+                {
+                    WorkflowStateId = WorkflowStateId,
+                    ArtifactId = 0,
+                    EndRevision = 0,
+                    ItemId = 0,
+                    ItemTypeId = 0,
+                    LockedByUserId = 0,
+                    Name = "",
+                    ProjectId = 0,
+                    Result = 0,
+                    StartRevision = 0,
+                    WorkflowId = 0,
+                    WorkflowName = "",
+                    WorkflowStateName = ""
+                }
+            };
+            _projects = new List<SqlProject>
+            {
+                new SqlProject
+                {
+                    ItemId = 0,
+                    Name = ""
+                }
+            };
             _instancePropertyTypeIds = new Dictionary<int, List<int>> {{0, new List<int> {0}}};
             var emailNotification = new EmailNotificationAction
             {
@@ -46,7 +101,22 @@ namespace BlueprintSys.RC.Services.Tests
             emailNotification.Emails.Add("");
             _notificationActions = new List<EmailNotificationAction> {emailNotification};
 
-            _messageWithModifiedProperties = new ArtifactsPublishedMessage {Artifacts = new[] {new PublishedArtifactInformation {ModifiedProperties = new List<PublishedPropertyInformation> {new PublishedPropertyInformation {TypeId = PropertyTypeId}}}}};
+            _messageWithModifiedProperties = new ArtifactsPublishedMessage
+            {
+                Artifacts = new[]
+                {
+                    new PublishedArtifactInformation
+                    {
+                        ModifiedProperties = new List<PublishedPropertyInformation>
+                        {
+                            new PublishedPropertyInformation
+                            {
+                                TypeId = PropertyTypeId
+                            }
+                        }
+                    }
+                }
+            };
         }
 
         [TestMethod]

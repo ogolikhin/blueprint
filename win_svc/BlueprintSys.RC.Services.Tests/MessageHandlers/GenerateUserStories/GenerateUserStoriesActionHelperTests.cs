@@ -34,15 +34,66 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateUserStories
         }
 
         [TestMethod]
-        public async Task GenerateUserStoriesActionHelper_HandleActionReturnsFalse_WhenNoMessage()
+        public async Task HandleAction_NullMessage_ReturnsFalse()
         {
             var actionHelper = new GenerateUserStoriesActionHelper();
-            var result = await actionHelper.HandleAction(null, null, null);
-            Assert.IsFalse(result);
+            var result = await actionHelper.HandleAction(new TenantInformation(), null, null);
+            Assert.IsFalse(result, "Action should have failed for null message");
         }
 
         [TestMethod]
-        public async Task GenerateUserStoriesActionHelper_HandleActionReturnsTrue_WhenMessageIsValid()
+        public async Task HandleAction_NullTenant_ReturnsFalse()
+        {
+            var actionHelper = new GenerateUserStoriesActionHelper();
+            var result = await actionHelper.HandleAction(null, new GenerateUserStoriesMessage(), null);
+            Assert.IsFalse(result, "Action should have failed for null tenant");
+        }
+
+        [TestMethod]
+        public async Task HandleAction_CannotCreateJob_ReturnsFalse()
+        {
+            var message = new GenerateUserStoriesMessage
+            {
+                UserId = 123,
+                UserName = "admin",
+                ArtifactId = 23,
+                BaseHostUri = "http://localhost:9801",
+                ProjectId = 123,
+                ProjectName = "my project",
+                RevisionId = 123
+            };
+            var actionHelper = new GenerateUserStoriesActionHelper();
+            var actionHandlerServiceRepositoryMock = new Mock<IGenerateActionsRepository>();
+            var jobServicesMock = new Mock<IJobsRepository>();
+            jobServicesMock.Setup(t => t.AddJobMessage(JobType.GenerateUserStories,
+                false,
+                It.IsAny<string>(),
+                null,
+                It.IsAny<int?>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<string>(),
+                It.IsAny<string>()
+            )).ReturnsAsync((int?) null);
+            var userRepoMock = new Mock<IUsersRepository>();
+            actionHandlerServiceRepositoryMock.Setup(t => t.UsersRepository).Returns(userRepoMock.Object);
+            userRepoMock.Setup(t => t.GetExistingUsersByIdsAsync(It.IsAny<IEnumerable<int>>()))
+                .ReturnsAsync(new[] { new SqlUser
+                {
+                    UserId = 123,
+                    Login = "admin"
+                }});
+            actionHandlerServiceRepositoryMock.Setup(t => t.JobsRepository).Returns(jobServicesMock.Object);
+
+            //Act
+            var result = await actionHelper.HandleAction(_tenantInformation, message, actionHandlerServiceRepositoryMock.Object);
+
+            //Assert
+            Assert.IsFalse(result, "Should return false if job creation fails.");
+        }
+
+        [TestMethod]
+        public async Task HandleAction_WhenMessageIsValid_ReturnsTrue()
         {
             var message = new GenerateUserStoriesMessage
             {

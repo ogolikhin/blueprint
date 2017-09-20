@@ -2540,7 +2540,7 @@ namespace ArtifactStore.Repositories
             int artifactId = 3;
             ReviewArtifactViewedInput viewedInput = new ReviewArtifactViewedInput();
 
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, (check) => check.ReviewExists = false);
+            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check => check.ReviewExists = false);
 
             //Act
             try
@@ -2566,7 +2566,7 @@ namespace ArtifactStore.Repositories
             int artifactId = 3;
             ReviewArtifactViewedInput viewedInput = new ReviewArtifactViewedInput();
 
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, (check) => check.ReviewStatus = ReviewPackageStatus.Draft);
+            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check => check.ReviewStatus = ReviewPackageStatus.Draft);
 
             //Act
             try
@@ -2592,7 +2592,7 @@ namespace ArtifactStore.Repositories
             int artifactId = 3;
             ReviewArtifactViewedInput viewedInput = new ReviewArtifactViewedInput();
 
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, (check) => check.ReviewDeleted = true);
+            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check => check.ReviewDeleted = true);
 
             //Act
             try
@@ -2618,7 +2618,7 @@ namespace ArtifactStore.Repositories
             int artifactId = 3;
             ReviewArtifactViewedInput viewedInput = new ReviewArtifactViewedInput();
 
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, (check) => check.ReviewStatus = ReviewPackageStatus.Closed);
+            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check => check.ReviewStatus = ReviewPackageStatus.Closed);
 
             //Act
             try
@@ -2636,7 +2636,7 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        public async Task UpdateReviewArtifactViewedAsync_Should_Throw_When_User_Is_Not_A_Reviewer()
+        public async Task UpdateReviewArtifactViewedAsync_Should_Throw_When_User_Is_Not_A_Reviewer_And_Review_Is_Informal()
         {
             //Arrange
             int reviewId = 1;
@@ -2644,7 +2644,41 @@ namespace ArtifactStore.Repositories
             int artifactId = 3;
             ReviewArtifactViewedInput viewedInput = new ReviewArtifactViewedInput();
 
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, (check) => check.UserInReview = false);
+            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check =>
+            {
+                check.UserInReview = false;
+                check.ReviewType = ReviewType.Informal;
+            });
+
+            //Act
+            try
+            {
+                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, viewedInput, userId);
+            }
+            catch (AuthorizationException ex)
+            {
+                Assert.AreEqual(ErrorCodes.UserNotInReview, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("An AuthorizationException was not thrown.");
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewArtifactViewedAsync_Should_Throw_When_User_Is_Not_A_Reviewer_And_Review_Is_Formal()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            int artifactId = 3;
+            ReviewArtifactViewedInput viewedInput = new ReviewArtifactViewedInput();
+
+            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check =>
+            {
+                check.UserInReview = false;
+                check.ReviewType = ReviewType.Formal;
+            });
 
             //Act
             try
@@ -2670,7 +2704,7 @@ namespace ArtifactStore.Repositories
             int artifactId = 3;
             ReviewArtifactViewedInput viewedInput = new ReviewArtifactViewedInput();
 
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, (check) => check.AllArtifactsInReview = false);
+            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check => check.AllArtifactsInReview = false);
 
             //Act
             try

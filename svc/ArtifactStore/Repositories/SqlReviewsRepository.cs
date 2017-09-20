@@ -1079,7 +1079,7 @@ namespace ArtifactStore.Repositories
 
             var approvalCheck = await CheckReviewArtifactApprovalAsync(reviewId, userId, artifactIds);
 
-            CheckReviewStatsCanBeUpdated(approvalCheck, reviewId);
+            CheckReviewStatsCanBeUpdated(approvalCheck, reviewId, true);
 
             if (!approvalCheck.AllArtifactsRequireApproval)
             {
@@ -1159,7 +1159,7 @@ namespace ArtifactStore.Repositories
 
             var approvalCheck = await CheckReviewArtifactApprovalAsync(reviewId, userId, artifactIdEnumerable);
 
-            CheckReviewStatsCanBeUpdated(approvalCheck, reviewId);
+            CheckReviewStatsCanBeUpdated(approvalCheck, reviewId, true);
 
             //Check user has permission for the review and all of the artifact ids
             await CheckReviewAndArtifactPermissions(userId, reviewId, artifactIdEnumerable);
@@ -1208,7 +1208,7 @@ namespace ArtifactStore.Repositories
 
             var approvalCheck = await CheckReviewArtifactApprovalAsync(reviewId, userId, new int[0]);
 
-            CheckReviewStatsCanBeUpdated(approvalCheck, reviewId);
+            CheckReviewStatsCanBeUpdated(approvalCheck, reviewId, true);
 
             var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(new[] { reviewId }, userId);
 
@@ -1279,7 +1279,7 @@ namespace ArtifactStore.Repositories
             return _connectionWrapper.ExecuteScalarAsync<bool>("GetReviewRequireAllArtifactsReviewed", parameters, commandType: CommandType.StoredProcedure);
         }
 
-        private void CheckReviewStatsCanBeUpdated(ReviewArtifactApprovalCheck approvalCheck, int reviewId)
+        private void CheckReviewStatsCanBeUpdated(ReviewArtifactApprovalCheck approvalCheck, int reviewId, bool requireUserInReview)
         {
             //Check the review exists and is active
             if (!approvalCheck.ReviewExists
@@ -1295,7 +1295,8 @@ namespace ArtifactStore.Repositories
             }
 
             //Check user is an approver for the review
-            if (!approvalCheck.UserInReview)
+            if ((requireUserInReview && !approvalCheck.UserInReview)
+                || (!requireUserInReview && approvalCheck.ReviewType != ReviewType.Public && !approvalCheck.UserInReview))
             {
                 throw new AuthorizationException("User is not assigned for review", ErrorCodes.UserNotInReview);
             }

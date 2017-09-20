@@ -450,7 +450,7 @@ namespace AdminStore.Repositories.Workflow
             return duplicateNames;
         }
 
-        public async Task<QueryResult<InstanceItem>> GetWorkflowAvailableProjectsAsync(int workflowId, int folderId, int userId, bool fromAdminPortal = false)
+        public async Task<QueryResult<InstanceItem>> GetWorkflowAvailableProjectsAsync(int workflowId, int folderId, string search)
         {
             if (workflowId < 1)
             {
@@ -462,28 +462,28 @@ namespace AdminStore.Repositories.Workflow
                 throw new ArgumentOutOfRangeException(nameof(folderId));
             }
 
-            var workflowDetails = await GetWorkflowDetailsAsync(workflowId);
-            if (workflowDetails == null)
-            {
-                throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
-            }
-
-            var parameters = new DynamicParameters();
-            parameters.Add("@folderId", folderId);
-            parameters.Add("@userId", userId);
-            parameters.Add("@fromAdminPortal", fromAdminPortal);
-
-            var folder = (await _connectionWrapper.QueryAsync<InstanceItem>("GetInstanceFolderById", parameters, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
-            if (folder == null)
-                throw new ResourceNotFoundException(ErrorMessages.FolderNotExist, ErrorCodes.ResourceNotFound);
-
             var prm = new DynamicParameters();
             prm.Add("@workflowId", workflowId);
             prm.Add("@folderId", folderId);
+            prm.Add("@search", search);
+            prm.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
             var items = ((await _connectionWrapper.QueryAsync<InstanceItem>("GetWorkflowAvailableProjects", prm, commandType: CommandType.StoredProcedure))
                     ?? null).OrderBy(i => i.Type).ThenBy(i => i.Name);
-                
+
+            var errorCode = prm.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.FolderWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.FolderNotExist, ErrorCodes.ResourceNotFound);
+                    case (int)SqlErrorCodes.WorkflowWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
+                }
+            }
+
             return new QueryResult<InstanceItem>() { Items = items };
         }
 

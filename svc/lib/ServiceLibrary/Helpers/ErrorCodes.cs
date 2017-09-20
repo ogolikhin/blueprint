@@ -88,6 +88,7 @@
         public const int ReviewClosed = 10003;
         public const int ReviewActive = 10004;
         public const int ReviewStatusChanged = 10005;
+        public const int NotAllArtifactsReviewed = 10006;
 
         //User Review Errors
         public const int UserDisabled = 11001;
@@ -126,5 +127,7 @@
 
         //Workflow
         public const int WorkflowInvalidPropertyChange = 16001;
+        public const int WorkflowAlreadyExists = 16002;
+        public const int GeneralErrorOfCreatingWorkflow = 16003;
     }
 }

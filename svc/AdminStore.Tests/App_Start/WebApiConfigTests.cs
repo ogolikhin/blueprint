@@ -93,7 +93,8 @@ namespace AdminStore
             config.AssertAction<InstanceEmailSettingsController>("GetEmailSettings", HttpMethod.Get, "instance/emailsettings");
             config.AssertAction<InstanceController>("SearchProjectFolder", HttpMethod.Get, "instance/folderprojectsearch?offset=0&limit=20");
             config.AssertAction<InstanceController>("UpdateRoleAssignment", HttpMethod.Put, "instance/projects/1/rolesassignments/2");
-    }
+            config.AssertAction<WorkflowController>("CreateWorkflow", HttpMethod.Post, "workflow/create");
+        }
 
         [TestMethod]
         public void Register_GetAndHeadMethods_HaveNoCacheAttribute()

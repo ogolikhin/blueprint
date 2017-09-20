@@ -131,7 +131,7 @@
     <Compile Include="MessageHandlers\GenerateTests\GenerateTestsActionHelperTests.cs" />
     <Compile Include="MessageHandlers\GenerateDescendants\GenerateDescendantsActionHelperTests.cs" />
     <Compile Include="HandlerTests.cs" />
-    <Compile Include="ArtifactsPublishedActionHelperTests.cs" />
+    <Compile Include="MessageHandlers\ArtifactPublished\ArtifactsPublishedActionHelperTests.cs" />
     <Compile Include="TransportTests.cs" />
     <Compile Include="HelperTests.cs" />
     <Compile Include="LoggingTests.cs" />

@@ -122,11 +122,13 @@
     <Compile Include="Helpers\UserConverter.cs" />
     <Compile Include="Helpers\PrivilegesManager.cs" />
     <Compile Include="Helpers\UserValidator.cs" />
+    <Compile Include="Helpers\Workflow\CreateWorkflowDtoExtension.cs" />
     <Compile Include="Helpers\Workflow\WorkflowHelper.cs" />
     <Compile Include="Models\AdminRole.cs" />
     <Compile Include="Models\AssignResult.cs" />
     <Compile Include="Models\AssignScope.cs" />
     <Compile Include="Models\CreateResult.cs" />
+    <Compile Include="Models\DTO\CreateWorkflowDto.cs" />
     <Compile Include="Models\DTO\FolderDto.cs" />
     <Compile Include="Models\DTO\ProjectFolderSearchDto.cs" />
     <Compile Include="Models\DTO\User.cs" />

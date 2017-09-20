@@ -10,7 +10,9 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using System.Xml;
 using AdminStore.Helpers;
+using AdminStore.Helpers.Workflow;
 using AdminStore.Models;
+using AdminStore.Models.DTO;
 using AdminStore.Models.Workflow;
 using AdminStore.Repositories;
 using AdminStore.Repositories.Workflow;
@@ -164,6 +166,28 @@ namespace AdminStore.Controllers
             
             var result = await _workflowRepository.GetWorkflows(pagination, sorting, search, SortingHelper.SortWorkflows);
 
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Create workflow with the name that is passed in the parameters and optional description
+        /// </summary>
+        /// <param name="createWorkflowDto">Workflow name (required parameter) and workflow description (optional)</param>
+        /// <response code="400">BadRequest if model is malformed or workflow name less then 4 or greater then 65 characters. Also if workflow description greater then 400 characters.</response>
+        /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
+        /// <response code="403">Forbidden if used doesn’t have permissions to create a workflow.</response>
+        /// <response code="409">Conflict. Workflow name with the such a name already exists.</response>
+        [SessionRequired]
+        [FeatureActivation(FeatureTypes.Workflow)]
+        [Route("create")]
+        [HttpPost]
+        [ResponseType(typeof(int))]
+        public async Task<IHttpActionResult> CreateWorkflow([FromBody]CreateWorkflowDto createWorkflowDto)
+        {
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+            createWorkflowDto.Validate();
+
+            var result = await _workflowService.CreateWorkflow(createWorkflowDto.Name, createWorkflowDto.Description, Session.UserId);
             return Ok(result);
         }
 

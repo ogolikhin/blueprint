@@ -81,6 +81,11 @@
         public static readonly string WorkflowWasNotUpdated = "The workflow with current parameters was not updated.";
         public static readonly string InvalidDeleteWorkflowsParameters = "Invalid parameters to delete workflows";
         public static readonly string GeneralErrorOfDeletingWorkflows = "An error has occurred when performed workflows (s) deletion operation";
+        public static readonly string WorkflowNameError = "Please enter a Workflow Name between 4 and 64 characters";
+        public static readonly string WorkflowDescriptionLimit = "Please enter a Workflow Description up to 400 characters";
+        public static readonly string CreateWorkfloModelIsEmpty = "The body of the call is malformed or has invalid parameter";
+        public static readonly string WorkflowAlreadyExists = "Workflow with such a name already exists";
+
         //Folder
         public static readonly string FolderWithSuchNameExistsInParentFolder = "A folder with the same name already exists in the parent folder. Please use a different name.";
         public static readonly string ModelIsEmpty = "The body of the call is malformed or has invalid parameter.";

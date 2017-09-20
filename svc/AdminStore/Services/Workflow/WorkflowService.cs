@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using AdminStore.Helpers.Workflow;
 using AdminStore.Models.Workflow;
-using AdminStore.Repositories;
 using AdminStore.Repositories.Workflow;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
@@ -27,7 +26,6 @@ namespace AdminStore.Services.Workflow
     {
         private readonly IWorkflowRepository _workflowRepository;
         private readonly IUsersRepository _usersRepository;
-        private readonly IUserRepository _userRepository;
 
         private readonly IWorkflowXmlValidator _workflowXmlValidator;
         private readonly IWorkflowDataValidator _workflowDataValidator;
@@ -43,7 +41,6 @@ namespace AdminStore.Services.Workflow
             : this(
                   new WorkflowRepository(), 
                   new WorkflowXmlValidator(), 
-                  new SqlUserRepository(), 
                   new SqlUsersRepository(),
                   new WorkflowValidationErrorBuilder(), 
                   new SqlProjectMetaRepository(),
@@ -60,7 +57,6 @@ namespace AdminStore.Services.Workflow
 
         public WorkflowService(IWorkflowRepository workflowRepository,
             IWorkflowXmlValidator workflowXmlValidator,
-            IUserRepository userRepository,
             IUsersRepository usersRepository,
             IWorkflowValidationErrorBuilder workflowValidationErrorBuilder,
             ISqlProjectMetaRepository projectMetaRepository,
@@ -70,7 +66,6 @@ namespace AdminStore.Services.Workflow
         {
             _workflowRepository = workflowRepository;
             _workflowXmlValidator = workflowXmlValidator;
-            _userRepository = userRepository;
             _usersRepository = usersRepository;
             _workflowValidationErrorBuilder = workflowValidationErrorBuilder;
             _projectMetaRepository = projectMetaRepository;
@@ -608,6 +603,67 @@ namespace AdminStore.Services.Workflow
         {
             var standardTypes = await _projectMetaRepository.GetStandardProjectTypesAsync();
             return await GetWorkflowExportAsync(workflowId, standardTypes);
+        }
+
+        public async Task<int> CreateWorkflow(string name, string description, int userId)
+        {
+            var workflowId = 0;
+
+            Func<IDbTransaction, Task> action = async transaction =>
+            {
+                var publishRevision =
+                    await _workflowRepository.CreateRevisionInTransactionAsync(transaction, userId, "Create workflow.");
+
+                var workflow = new SqlWorkflow
+                {
+                    Name = name,
+                    Description = description,
+                    Active = false
+                };
+                workflowId = await _workflowRepository.CreateWorkflow(workflow, publishRevision, transaction);
+
+                //generate default states
+                var states = new List<IeState>()
+                {
+                    new IeState()
+                    {
+                        Name = "New",
+                        OrderIndex = 10,
+                        IsInitial = true
+                    },
+                    new IeState()
+                    {
+                        Name = "Done",
+                        OrderIndex = 40
+                    }
+                };
+
+                var newStates = (await _workflowRepository.CreateWorkflowStatesAsync(states.Select(s =>
+                    ToSqlState(s, workflowId)), publishRevision, transaction)).ToList();
+
+                var workflowEvents = new List<SqlWorkflowEvent>()
+                {
+                    new SqlWorkflowEvent()
+                    {
+                       Name = "Transition1",
+                       WorkflowId = workflowId,
+                       WorkflowState1Id = newStates[0].WorkflowStateId,
+                       WorkflowState2Id = newStates[1].WorkflowStateId,
+                       Triggers = "<TSR><TS /></TSR>",
+                       Type = DWorkflowEventType.Transition,
+                       EndRevision = 2147483647
+                    },
+                };
+
+                await _workflowRepository.CreateWorkflowEventsAsync(workflowEvents, publishRevision, transaction);
+
+                await
+                        _workflowRepository.UpdateWorkflowsChangedWithRevisionsAsync(workflowId, publishRevision,
+                            transaction);
+
+            };
+            await _workflowRepository.RunInTransactionAsync(action);
+            return workflowId;
         }
 
         private async Task<IeWorkflow> GetWorkflowExportAsync(int workflowId, ProjectTypes standardTypes)

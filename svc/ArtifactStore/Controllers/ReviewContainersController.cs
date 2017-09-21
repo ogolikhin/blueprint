@@ -319,14 +319,9 @@ namespace ArtifactStore.Controllers
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
 
-            if (viewedInput == null)
+            if (viewedInput == null || !viewedInput.Viewed.HasValue)
             {
                 throw new BadRequestException("Viewed must be provided.");
-            }
-
-            if (!viewedInput.Viewed.HasValue)
-            {
-                throw new BadRequestException("viewed property cannot be null.");
             }
 
             return _sqlReviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, viewedInput.Viewed.Value, session.UserId);

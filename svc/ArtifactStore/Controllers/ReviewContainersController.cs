@@ -7,6 +7,7 @@ using ServiceLibrary.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
+using ServiceLibrary.Exceptions;
 
 namespace ArtifactStore.Controllers
 {
@@ -317,7 +318,13 @@ namespace ArtifactStore.Controllers
         public Task UpdateReviewArtifactViewedAsync(int reviewId, int artifactId, [FromBody] ReviewArtifactViewedInput viewedInput)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return _sqlReviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, viewedInput, session.UserId);
+
+            if (viewedInput == null || !viewedInput.Viewed.HasValue)
+            {
+                throw new BadRequestException("Viewed must be provided.");
+            }
+
+            return _sqlReviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, viewedInput.Viewed.Value, session.UserId);
         }
 
         /// <summary>

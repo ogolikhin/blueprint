@@ -185,6 +185,8 @@ namespace AdminStore.Controllers
         public async Task<IHttpActionResult> CreateWorkflow([FromBody]CreateWorkflowDto createWorkflowDto)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+            createWorkflowDto.Name = createWorkflowDto.Name.Trim();
+            createWorkflowDto.Description = createWorkflowDto.Description.Trim();
             createWorkflowDto.Validate();
 
             var result = await _workflowService.CreateWorkflow(createWorkflowDto.Name, createWorkflowDto.Description, Session.UserId);

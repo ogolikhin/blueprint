@@ -2528,44 +2528,19 @@ namespace ArtifactStore.Repositories
         #region UpdateReviewArtifactViewedAsync
 
         [TestMethod]
-        public async Task UpdateReviewArtifactViewedAsync_Should_Throw_When_Viewed_Input_Is_Null()
-        {
-            //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int artifactId = 3;
-            ReviewArtifactViewedInput viewedInput = null;
-
-            //Act
-            try
-            {
-                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, viewedInput, userId);
-            }
-            catch (BadRequestException ex)
-            {
-                Assert.AreEqual(ErrorCodes.BadRequest, ex.ErrorCode);
-
-                return;
-            }
-            
-            Assert.Fail("A BadRequestException was not thrown.");
-        }
-
-        [TestMethod]
         public async Task UpdateReviewArtifactViewedAsync_Should_Throw_When_Review_Doesnt_Exist()
         {
             //Arrange
             int reviewId = 1;
             int userId = 2;
             int artifactId = 3;
-            ReviewArtifactViewedInput viewedInput = new ReviewArtifactViewedInput();
 
             SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check => check.ReviewExists = false);
 
             //Act
             try
             {
-                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, viewedInput, userId);
+                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, true, userId);
             }
             catch (ResourceNotFoundException ex)
             {
@@ -2584,14 +2559,13 @@ namespace ArtifactStore.Repositories
             int reviewId = 1;
             int userId = 2;
             int artifactId = 3;
-            ReviewArtifactViewedInput viewedInput = new ReviewArtifactViewedInput();
 
             SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check => check.ReviewStatus = ReviewPackageStatus.Draft);
 
             //Act
             try
             {
-                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, viewedInput, userId);
+                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, true, userId);
             }
             catch (ResourceNotFoundException ex)
             {
@@ -2610,14 +2584,13 @@ namespace ArtifactStore.Repositories
             int reviewId = 1;
             int userId = 2;
             int artifactId = 3;
-            ReviewArtifactViewedInput viewedInput = new ReviewArtifactViewedInput();
 
             SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check => check.ReviewDeleted = true);
 
             //Act
             try
             {
-                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, viewedInput, userId);
+                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, true, userId);
             }
             catch (ResourceNotFoundException ex)
             {
@@ -2636,14 +2609,13 @@ namespace ArtifactStore.Repositories
             int reviewId = 1;
             int userId = 2;
             int artifactId = 3;
-            ReviewArtifactViewedInput viewedInput = new ReviewArtifactViewedInput();
 
             SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check => check.ReviewStatus = ReviewPackageStatus.Closed);
 
             //Act
             try
             {
-                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, viewedInput, userId);
+                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, true, userId);
             }
             catch (ConflictException ex)
             {
@@ -2662,7 +2634,6 @@ namespace ArtifactStore.Repositories
             int reviewId = 1;
             int userId = 2;
             int artifactId = 3;
-            ReviewArtifactViewedInput viewedInput = new ReviewArtifactViewedInput();
 
             SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check =>
             {
@@ -2673,7 +2644,7 @@ namespace ArtifactStore.Repositories
             //Act
             try
             {
-                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, viewedInput, userId);
+                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, true, userId);
             }
             catch (AuthorizationException ex)
             {
@@ -2692,7 +2663,6 @@ namespace ArtifactStore.Repositories
             int reviewId = 1;
             int userId = 2;
             int artifactId = 3;
-            ReviewArtifactViewedInput viewedInput = new ReviewArtifactViewedInput();
 
             SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check =>
             {
@@ -2703,7 +2673,7 @@ namespace ArtifactStore.Repositories
             //Act
             try
             {
-                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, viewedInput, userId);
+                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, true, userId);
             }
             catch (AuthorizationException ex)
             {
@@ -2722,14 +2692,13 @@ namespace ArtifactStore.Repositories
             int reviewId = 1;
             int userId = 2;
             int artifactId = 3;
-            ReviewArtifactViewedInput viewedInput = new ReviewArtifactViewedInput();
 
             SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check => check.ReviewerStatus = ReviewStatus.Completed);
 
             //Act
             try
             {
-                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, viewedInput, userId);
+                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, true, userId);
             }
             catch (BadRequestException)
             {
@@ -2746,14 +2715,13 @@ namespace ArtifactStore.Repositories
             int reviewId = 1;
             int userId = 2;
             int artifactId = 3;
-            ReviewArtifactViewedInput viewedInput = new ReviewArtifactViewedInput();
 
             SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check => check.AllArtifactsInReview = false);
 
             //Act
             try
             {
-                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, viewedInput, userId);
+                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, true, userId);
             }
             catch (BadRequestException ex)
             {
@@ -2772,7 +2740,6 @@ namespace ArtifactStore.Repositories
             int reviewId = 1;
             int userId = 2;
             int artifactId = 3;
-            ReviewArtifactViewedInput viewedInput = new ReviewArtifactViewedInput();
 
             SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId });
 
@@ -2784,7 +2751,7 @@ namespace ArtifactStore.Repositories
             //Act
             try
             {
-                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, viewedInput, userId);
+                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, true, userId);
             }
             catch (AuthorizationException ex)
             {
@@ -2803,7 +2770,6 @@ namespace ArtifactStore.Repositories
             int reviewId = 1;
             int userId = 2;
             int artifactId = 3;
-            ReviewArtifactViewedInput viewedInput = new ReviewArtifactViewedInput();
 
             SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId });
 
@@ -2815,7 +2781,7 @@ namespace ArtifactStore.Repositories
             //Act
             try
             {
-                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, viewedInput, userId);
+                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, true, userId);
             }
             catch (ResourceNotFoundException ex)
             {

@@ -1153,13 +1153,8 @@ namespace ArtifactStore.Repositories
             return approvalResult;
         }
 
-        public async Task UpdateReviewArtifactViewedAsync(int reviewId, int artifactId, ReviewArtifactViewedInput viewedInput, int userId)
+        public async Task UpdateReviewArtifactViewedAsync(int reviewId, int artifactId, bool viewed, int userId)
         {
-            if (viewedInput == null)
-            {
-                throw new BadRequestException("Viewed must be provided.");
-            }
-
             var artifactIdEnumerable = new[] {artifactId};
 
             var approvalCheck = await CheckReviewArtifactApprovalAsync(reviewId, userId, artifactIdEnumerable);
@@ -1192,7 +1187,7 @@ namespace ArtifactStore.Repositories
                     rdReviewedArtifacts.ReviewedArtifacts.Add(reviewedArtifact);
                 }
 
-                if (viewedInput.Viewed)
+                if (viewed)
                 {
                     reviewedArtifact.ViewState = ViewStateType.Viewed;
                     reviewedArtifact.ArtifactVersion = artifactVersionDictionary[artifactId];

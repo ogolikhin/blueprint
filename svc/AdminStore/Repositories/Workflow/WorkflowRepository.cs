@@ -504,7 +504,7 @@ namespace AdminStore.Repositories.Workflow
             return duplicateNames;
         }
 
-        public async Task<QueryResult<InstanceItem>> GetWorkflowAvailableProjectsAsync(int workflowId, int folderId)
+        public async Task<List<InstanceItem>> GetWorkflowAvailableProjectsAsync(int workflowId, int folderId)
         {
             if (workflowId < 1)
             {
@@ -517,12 +517,12 @@ namespace AdminStore.Repositories.Workflow
             }
 
             var prm = new DynamicParameters();
-            prm.Add("@workflowId", workflowId);
-            prm.Add("@folderId", folderId);          
+            prm.Add("@workflowId", workflowId, dbType:DbType.Int32);
+            prm.Add("@folderId", folderId, dbType: DbType.Int32);          
             prm.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
             var items = ((await _connectionWrapper.QueryAsync<InstanceItem>("GetWorkflowAvailableProjects", prm, commandType: CommandType.StoredProcedure))
-                    ?? null).OrderBy(i => i.Type).ThenBy(i => i.Name);
+                    ?? Enumerable.Empty<InstanceItem>()).OrderBy(i => i.Type).ThenBy(i => i.Name).ToList();
 
             var errorCode = prm.Get<int?>("ErrorCode");
 
@@ -537,7 +537,7 @@ namespace AdminStore.Repositories.Workflow
                 }
             }
 
-            return new QueryResult<InstanceItem>() { Items = items };
+            return items;
         }
 
         public async Task RunInTransactionAsync(Func<IDbTransaction, Task> action)

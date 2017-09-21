@@ -163,12 +163,7 @@ namespace AdminStore.Controllers
         {            
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);            
 
-            var availiableProjects = await _workflowRepository.GetWorkflowAvailableProjectsAsync(workFlowId, folderId);
-
-            if (availiableProjects == null)
-            {
-                throw new ResourceNotFoundException(ErrorMessages.ProjectNotExist, ErrorCodes.ResourceNotFound);
-            }
+            var availiableProjects = await _workflowRepository.GetWorkflowAvailableProjectsAsync(workFlowId, folderId);          
 
             return Ok(availiableProjects);        
         }

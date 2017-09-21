@@ -920,7 +920,7 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
+        [ExpectedException(typeof(ConflictException))]
         public async Task AddParticipantsToReviewAsync_Should_Throw_If_Review_Is_Closed()
         {
             //Arrange
@@ -1731,9 +1731,9 @@ namespace ArtifactStore.Repositories
             //Act
             try
             {
-                var review = await _reviewsRepository.AddArtifactsToReviewAsync(reviewId, userId, content);
+                await _reviewsRepository.AddArtifactsToReviewAsync(reviewId, userId, content);
             }
-            catch (BadRequestException ex)
+            catch (ConflictException ex)
             {
                 isExceptionThrown = true;
 
@@ -2271,7 +2271,7 @@ namespace ArtifactStore.Repositories
             {
                 await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
             }
-            catch(BadRequestException ex)
+            catch(ConflictException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.ReviewClosed);
                 return;
@@ -2645,14 +2645,14 @@ namespace ArtifactStore.Repositories
             {
                 await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, viewedInput, userId);
             }
-            catch (BadRequestException ex)
+            catch (ConflictException ex)
             {
                 Assert.AreEqual(ErrorCodes.ReviewClosed, ex.ErrorCode);
 
                 return;
             }
 
-            Assert.Fail("A BadRequestException was not thrown.");
+            Assert.Fail("A ConflictException was not thrown.");
         }
 
         [TestMethod]
@@ -2938,14 +2938,14 @@ namespace ArtifactStore.Repositories
                 await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, revisionId, ReviewStatus.InProgress, userId);
             }
             //Assert
-            catch (BadRequestException ex)
+            catch (ConflictException ex)
             {
                 Assert.AreEqual(ErrorCodes.ReviewClosed, ex.ErrorCode);
 
                 return;
             }
 
-            Assert.Fail("A BadRequestException was not thrown");
+            Assert.Fail("A ConflictException was not thrown");
         }
 
         [TestMethod]
@@ -3128,14 +3128,14 @@ namespace ArtifactStore.Repositories
                 await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, revisionId, ReviewStatus.Completed, userId);
             }
             //Assert
-            catch (BadRequestException ex)
+            catch (ConflictException ex)
             {
                 Assert.AreEqual(ErrorCodes.ReviewClosed, ex.ErrorCode);
 
                 return;
             }
 
-            Assert.Fail("A BadRequestException was not thrown");
+            Assert.Fail("A ConflictException was not thrown");
         }
 
         [TestMethod]
@@ -4053,8 +4053,8 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
-        public async Task RemoveArtifactsFromReviewAsync_ShouldThrow_BadRequestException_WhenReviewClosed()
+        [ExpectedException(typeof(ConflictException))]
+        public async Task RemoveArtifactsFromReviewAsync_ShouldThrow_ConflictException_WhenReviewClosed()
         {
             // Arrange
             int reviewId = 1;

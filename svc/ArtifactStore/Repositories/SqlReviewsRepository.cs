@@ -1509,7 +1509,7 @@ namespace ArtifactStore.Repositories
         private static void ThrowReviewClosedException()
         {
             var errorMessage = "This Review is now closed. No modifications can be made to its artifacts or participants.";
-            throw new BadRequestException(errorMessage, ErrorCodes.ReviewClosed);
+            throw new ConflictException(errorMessage, ErrorCodes.ReviewClosed);
         }
     }
 }

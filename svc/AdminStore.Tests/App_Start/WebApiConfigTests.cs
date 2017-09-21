@@ -77,7 +77,7 @@ namespace AdminStore
             config.AssertAction<WorkflowController>("DeleteWorkflows", HttpMethod.Post, "/workflow/delete");
             config.AssertAction<WorkflowController>("UpdateStatus", HttpMethod.Put, "workflow/1/status");
             config.AssertAction<WorkflowController>("ExportWorkflow", HttpMethod.Get, "workflow/export/1");
-            config.AssertAction<WorkflowController>("GetWorkflowAvailableProjects", HttpMethod.Get, "workflow/1/folders/1/availablechildren?search=test");
+            config.AssertAction<WorkflowController>("GetWorkflowAvailableProjects", HttpMethod.Get, "workflow/1/folders/1/availablechildren");
             config.AssertAction<InstanceController>("SearchFolderByName", HttpMethod.Get, "instance/foldersearch?name=test");
             config.AssertAction<InstanceController>("DeleteInstanceFolder", HttpMethod.Delete, "instance/folders/1");
             config.AssertAction<InstanceController>("UpdateInstanceFolder", HttpMethod.Put, "instance/folders/1");

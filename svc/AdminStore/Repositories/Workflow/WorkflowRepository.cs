@@ -450,7 +450,7 @@ namespace AdminStore.Repositories.Workflow
             return duplicateNames;
         }
 
-        public async Task<QueryResult<InstanceItem>> GetWorkflowAvailableProjectsAsync(int workflowId, int folderId, string search)
+        public async Task<QueryResult<InstanceItem>> GetWorkflowAvailableProjectsAsync(int workflowId, int folderId)
         {
             if (workflowId < 1)
             {
@@ -464,8 +464,7 @@ namespace AdminStore.Repositories.Workflow
 
             var prm = new DynamicParameters();
             prm.Add("@workflowId", workflowId);
-            prm.Add("@folderId", folderId);
-            prm.Add("@search", search);
+            prm.Add("@folderId", folderId);          
             prm.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
             var items = ((await _connectionWrapper.QueryAsync<InstanceItem>("GetWorkflowAvailableProjects", prm, commandType: CommandType.StoredProcedure))

@@ -73,6 +73,6 @@ namespace AdminStore.Repositories.Workflow
         Task UpdateWorkflowsChangedWithRevisionsAsync(int workflowId, int revisionId, IDbTransaction transaction = null);
         Task<int> CreateWorkflow(SqlWorkflow workflow, int revision, IDbTransaction transaction);
 
-        Task<QueryResult<InstanceItem>> GetWorkflowAvailableProjectsAsync(int workflowId, int folderId, string search);
+        Task<QueryResult<InstanceItem>> GetWorkflowAvailableProjectsAsync(int workflowId, int folderId);
     }
 }

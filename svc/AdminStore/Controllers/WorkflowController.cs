@@ -148,8 +148,7 @@ namespace AdminStore.Controllers
         /// Get not assigned projects for Workflow by workFlowId and by folderId 
         /// </summary>
         /// <param name="workFlowId"></param>
-        /// <param name="folderId"></param>  
-        /// <param name="search"></param>  
+        /// <param name="folderId"></param>         
         /// <response code="200">OK. List not assigned projects for Workflow</response>
         /// <response code="400">BadRequest if invalid workFlowId or folderId</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
@@ -160,13 +159,11 @@ namespace AdminStore.Controllers
         [HttpGet, NoCache]
         [Route("{workflowId:int:min(1)}/folders/{folderId:int:min(1)}/availablechildren"), SessionRequired]
         [ResponseType(typeof(List<InstanceItem>))]       
-        public async Task<IHttpActionResult> GetWorkflowAvailableProjects(int workFlowId, int folderId, string search = null)
+        public async Task<IHttpActionResult> GetWorkflowAvailableProjects(int workFlowId, int folderId)
         {            
-            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);            
 
-            SearchFieldValidator.Validate(search);
-
-            var availiableProjects = await _workflowRepository.GetWorkflowAvailableProjectsAsync(workFlowId, folderId, search);
+            var availiableProjects = await _workflowRepository.GetWorkflowAvailableProjectsAsync(workFlowId, folderId);
 
             if (availiableProjects == null)
             {

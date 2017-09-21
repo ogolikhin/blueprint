@@ -261,7 +261,7 @@ namespace AdminStore.Repositories.Workflow
                     case (int)SqlErrorCodes.WorkflowWithSuchANameAlreadyExists:
                         throw new ConflictException(ErrorMessages.WorkflowAlreadyExists, ErrorCodes.WorkflowAlreadyExists);
                     case (int)SqlErrorCodes.GeneralSqlError:
-                        throw new Exception(ErrorMessages.GeneralErrorOfCreatingUser);
+                        throw new Exception(ErrorMessages.GeneralErrorOfCreatingWorkflow);
                 }
             }
             return result;

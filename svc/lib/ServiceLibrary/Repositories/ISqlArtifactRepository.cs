@@ -33,5 +33,7 @@ namespace ServiceLibrary.Repositories
         Task<bool> IsArtifactLockedByUserAsync(int artifactId, int userId);
 
         Task<IEnumerable<ProcessInfoDto>> GetProcessInformationAsync(IEnumerable<int> artifactIds);
+
+        Task<ArtifactBasicDetails> GetArtifactBasicDetails(int artifactId, int userId);
     }
 }

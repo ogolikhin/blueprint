@@ -12,29 +12,6 @@ namespace AdminStore.Extensions
     {
 
         [TestMethod]
-        public void Validate_CreateModelIsEmpty_BadRequest()
-        {
-            //arrange
-            Exception exception = null;
-            CreateWorkflowDto model = null;
-
-            //act
-            try
-            {
-               model.Validate();
-            }
-            catch (Exception ex)
-            {
-                exception = ex;
-            }
-
-            //assert
-            Assert.IsNotNull(exception);
-            Assert.IsInstanceOfType(exception, typeof(BadRequestException));
-            Assert.AreEqual(ErrorMessages.CreateWorkfloModelIsEmpty, exception.Message);
-        }
-
-        [TestMethod]
         public void Validate_InvalidNameLength_BadRequest()
         {
             //arrange

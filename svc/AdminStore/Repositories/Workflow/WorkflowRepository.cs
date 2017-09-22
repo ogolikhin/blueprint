@@ -1,4 +1,5 @@
 ﻿using AdminStore.Helpers;
+using AdminStore.Models;
 using AdminStore.Models.Workflow;
 using Dapper;
 using ServiceLibrary.Exceptions;
@@ -501,6 +502,43 @@ namespace AdminStore.Repositories.Workflow
             prm.Add("@exceptWorkflowId", exceptWorkflowId);
             var duplicateNames = await _connectionWrapper.QueryAsync<string>("CheckLiveWorkflowsForNameUniqueness", prm, commandType: CommandType.StoredProcedure);
             return duplicateNames;
+        }
+
+        public async Task<List<InstanceItem>> GetWorkflowAvailableProjectsAsync(int workflowId, int folderId)
+        {
+            if (workflowId < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(workflowId));
+            }
+
+            if (folderId < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(folderId));
+            }
+
+            var prm = new DynamicParameters();
+            prm.Add("@workflowId", workflowId, dbType:DbType.Int32);
+            prm.Add("@folderId", folderId, dbType: DbType.Int32);          
+            prm.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var items = await _connectionWrapper.QueryAsync<InstanceItem>("GetWorkflowAvailableProjects", prm, commandType: CommandType.StoredProcedure);
+
+            var errorCode = prm.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.FolderWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.FolderNotExist, ErrorCodes.ResourceNotFound);
+                    case (int)SqlErrorCodes.WorkflowWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
+                }
+            }
+
+            if (items != null && items.Count() > 0)
+                return items.OrderBy(i => i.Type).ThenBy(i => i.Name).ToList();
+            else return new List<InstanceItem>();           
         }
 
         public async Task RunInTransactionAsync(Func<IDbTransaction, Task> action)

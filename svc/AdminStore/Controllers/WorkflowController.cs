@@ -26,6 +26,7 @@ using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Repositories.ConfigControl;
 using ServiceLibrary.Repositories.Files;
+using System.Collections.Generic;
 
 namespace AdminStore.Controllers
 {
@@ -141,6 +142,29 @@ namespace AdminStore.Controllers
             var workflowDetails = await _workflowService.GetWorkflowDetailsAsync(workflowId);
 
             return Ok(workflowDetails);
+        }
+
+        /// <summary>
+        /// Get not assigned projects for Workflow by workFlowId and by folderId 
+        /// </summary>
+        /// <param name="workFlowId"></param>
+        /// <param name="folderId"></param>         
+        /// <response code="200">OK. List not assigned projects for Workflow</response>       
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">User doesn’t have permission to view projects not assigned to workflow.</response>
+        /// <response code="404">Not Found. The workflow with workFlowId or folder with folderId were not found.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        /// 
+        [HttpGet, NoCache]
+        [Route("{workflowId:int:min(1)}/folders/{folderId:int:min(1)}/availablechildren"), SessionRequired]
+        [ResponseType(typeof(List<InstanceItem>))]       
+        public async Task<IHttpActionResult> GetWorkflowAvailableProjects(int workFlowId, int folderId)
+        {            
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);            
+
+            var availiableProjects = await _workflowRepository.GetWorkflowAvailableProjectsAsync(workFlowId, folderId);          
+
+            return Ok(availiableProjects);        
         }
 
         /// <summary>
